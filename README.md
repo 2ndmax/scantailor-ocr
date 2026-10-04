@@ -9,8 +9,7 @@ ScanTailor OCR cleans up scanned pages and turns them into a **compact, searchab
 
 ScanTailor OCR is based on [ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced)
 1.2.1, an interactive post-processing tool for scanned pages (page splitting, deskewing, content
-selection, margins, dewarping and more). Up to version 1.2.1-2000.4 this fork was called
-"ScanTailor Advanced 2000".
+selection, margins, dewarping and more).
 
 **For the page processing features and how to use them, please see the
 [documentation of ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced#readme).**
@@ -27,8 +26,8 @@ The changes were developed with the help of Claude (Anthropic).
 * The program is now called **ScanTailor OCR**, starting with version **1.0.0**. The program
   file is `scantailor-ocr` (`scantailor-ocr.exe`), the Linux package `scantailor-ocr`, so it can
   be installed next to ScanTailor Advanced.
-* On the first start, the settings, saved default profiles and OCR languages of the previous
-  name (`scantailor-advanced`) are copied over once. The old files are kept.
+* On the first start, the settings, saved default profiles and OCR languages of ScanTailor
+  Advanced (`scantailor-advanced`) are copied over once. The old files are kept.
 * The project file format (`.ScanTailor`) is unchanged; projects remain compatible with
   ScanTailor Advanced.
 
