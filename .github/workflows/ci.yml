@@ -78,6 +78,8 @@ jobs:
           $count = (Get-ChildItem -Recurse -File "$env:VCPKG_DEFAULT_BINARY_CACHE" | Measure-Object).Count
           "count=$count" >> $env:GITHUB_OUTPUT
 
+      # The release workflow (release.yml) uses the cache saved here, so keep its package
+      # list the same as this one.
       # Drive C: of the runner is too small for vcpkg's intermediate files
       # (the first run failed with "No space left on device").  They go to
       # the temp folder on D: and are deleted after each package.

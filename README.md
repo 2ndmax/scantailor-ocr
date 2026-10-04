@@ -230,6 +230,11 @@ from working:
   instead of a qmake project file, which Qt 6's `lupdate` no longer reads, and includes the
   sources of the application itself (main window and dialogs) again.
 * A script creates the portable Windows ZIP (`scripts\package-windows.ps1`, see below).
+* The release workflow builds the portable Windows ZIP as well, with the same script, and
+  attaches it to the release together with the Linux packages. The shipped OCR languages
+  (German and English from tessdata_best) are fixed to one commit and checked against their
+  SHA-256. Started by hand ("Run workflow"), it builds all packages as a test, without
+  creating a release.
 * The `update_translations` target no longer refers to `Qt6::lupdate` by name, which broke the
   Qt 5 fallback build. A review of the Qt 6 port found no other problem: the code already
   guards every API removed in Qt 6.
@@ -340,6 +345,7 @@ English from `build\tessdata` and the license texts of all components (from vcpk
 `build\package`. It then starts a copy with a minimal `PATH` for a few seconds to check that
 nothing is missing, and packs the ZIP. `-Languages` selects other languages to ship,
 `-SkipStartTest` skips the start test; see the comments at the top of the script.
+The ZIPs on the releases page are built the same way by GitHub Actions.
 
 When configuring again later, e.g. after changing build options, add `--fresh` to the `cmake`
 call to discard the cached configuration:
