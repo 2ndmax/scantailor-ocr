@@ -119,7 +119,9 @@ void TextLineTracer::trace(const GrayImage& input,
 GrayImage TextLineTracer::downscale(const GrayImage& input, const Dpi& dpi) {
   // Downscale to 200 DPI.
   QSize downscaledSize(input.size());
-  if ((dpi.horizontal() < 180) || (dpi.horizontal() > 220) || (dpi.vertical() < 180) || (dpi.vertical() > 220)) {
+  if (dpi.isNull()) {
+    // Unknown resolution: leave the size alone rather than dividing by zero.
+  } else if ((dpi.horizontal() < 180) || (dpi.horizontal() > 220) || (dpi.vertical() < 180) || (dpi.vertical() > 220)) {
     downscaledSize.setWidth(std::max<int>(1, input.width() * 200 / dpi.horizontal()));
     downscaledSize.setHeight(std::max<int>(1, input.height() * 200 / dpi.vertical()));
   }
@@ -314,7 +316,7 @@ void TextLineTracer::extractTextLines(std::list<std::vector<QPointF>>& out,
   }
 
   rasterOpGeneric(mainGrid.data(), mainGrid.stride(), size, auxGrid.data(), auxGrid.stride(),
-                  _2 = bind((float (*)(float)) & std::fabs, _1));
+                  _2 = bind((float (*)(float)) &std::fabs, _1));
   if (dbg) {
     dbg->add(visualizeGradient(image, auxGrid), "abs");
   }
@@ -325,7 +327,7 @@ void TextLineTracer::extractTextLines(std::list<std::vector<QPointF>>& out,
   }
 
   rasterOpGeneric(mainGrid.data(), mainGrid.stride(), size, auxGrid.data(), auxGrid.stride(),
-                  _2 += _1 - bind((float (*)(float)) & std::fabs, _1));
+                  _2 += _1 - bind((float (*)(float)) &std::fabs, _1));
   if (dbg) {
     dbg->add(visualizeGradient(image, auxGrid), "+= diff");
   }
@@ -440,7 +442,7 @@ void TextLineTracer::findMidLineSeeds(const SEDM& sedm, QLineF midLine, std::vec
 
 QLineF TextLineTracer::calcMidLine(const QLineF& line1, const QLineF& line2) {
   QPointF intersection;
-#if QT_VERSION_MAJOR == 5 && QT_VERSION_MINOR < 14
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
   auto is = line1.intersect(line2, &intersection);
 #else
   auto is = line1.intersects(line2, &intersection);

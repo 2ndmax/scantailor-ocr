@@ -162,6 +162,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void fixedDpiSubmitted();
 
+  void pdfExportDialogRequested();
+
   void saveProjectTriggered();
 
   void saveProjectAsTriggered();
@@ -314,6 +316,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   void setupIcons();
 
   QSizeF m_maxLogicalThumbSize;
+  int m_deskewHandleDistance = 0;  // As last applied to the image views, in percent.
   std::shared_ptr<ProjectPages> m_pages;
   std::shared_ptr<StageSequence> m_stages;
   QString m_projectFile;

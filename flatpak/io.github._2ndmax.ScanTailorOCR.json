@@ -1,0 +1,52 @@
+{
+  "id": "io.github._2ndmax.ScanTailorOCR",
+  "runtime": "org.kde.Platform",
+  "runtime-version": "6.10",
+  "sdk": "org.kde.Sdk",
+  "command": "scantailor-ocr",
+  "rename-desktop-file": "scantailor-ocr.desktop",
+  "rename-icon": "scantailor-ocr",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--device=dri",
+    "--filesystem=home",
+    "--filesystem=xdg-documents"
+  ],
+  "modules": [
+    {
+      "name": "boost",
+      "buildsystem": "simple",
+      "build-commands": [
+        "./bootstrap.sh --prefix=/app --with-libraries=system",
+        "./b2 -j $FLATPAK_BUILDER_N_JOBS install variant=release link=shared"
+      ],
+      "cleanup": ["*"],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.bz2",
+          "sha256": "46d9d2c06637b219270877c9e16155cbd015b6dc84349af064c088e9b5b12f7b"
+        }
+      ]
+    },
+    {
+      "name": "scantailor-ocr",
+      "buildsystem": "cmake-ninja",
+      "builddir": true,
+      "config-opts": [
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DBUILD_TESTS=OFF",
+        "-DENABLE_OCR=OFF"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "..",
+          "skip": [".git", ".flatpak-builder", "build", "build-dir", "repo"]
+        }
+      ]
+    }
+  ]
+}

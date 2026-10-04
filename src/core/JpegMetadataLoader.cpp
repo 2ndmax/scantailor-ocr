@@ -23,9 +23,19 @@ class JpegDecompressHandle {
   DECLARE_NON_COPYABLE(JpegDecompressHandle)
 
  public:
-  JpegDecompressHandle(jpeg_error_mgr* errMgr, jpeg_source_mgr* srcMgr);
+  explicit JpegDecompressHandle(jpeg_error_mgr* errMgr);
 
   ~JpegDecompressHandle();
+
+  /**
+   * \brief Creates the underlying libjpeg object and installs \p srcMgr.
+   *
+   * This is deliberately not done by the constructor: jpeg_create_decompress()
+   * may invoke the error handler, which longjmp()s.  It therefore must only be
+   * called once setjmp() has been set up, while the object itself has to be
+   * constructed before that, so that its destructor still runs.
+   */
+  void create(jpeg_source_mgr* srcMgr);
 
   jpeg_decompress_struct* ptr() { return &m_info; }
 
@@ -36,9 +46,16 @@ class JpegDecompressHandle {
 };
 
 
-JpegDecompressHandle::JpegDecompressHandle(jpeg_error_mgr* errMgr, jpeg_source_mgr* srcMgr) {
+JpegDecompressHandle::JpegDecompressHandle(jpeg_error_mgr* errMgr) {
+  // m_info is value-initialized, so m_info.mem is null, which makes
+  // jpeg_destroy_decompress() a safe no-op even if create() was never called.
   m_info.err = errMgr;
+}
+
+void JpegDecompressHandle::create(jpeg_source_mgr* srcMgr) {
   jpeg_create_decompress(&m_info);
+  // jpeg_create_decompress() clears the source manager, so it has to be
+  // installed afterwards.
   m_info.src = srcMgr;
 }
 
@@ -183,14 +200,19 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
     return FORMAT_NOT_RECOGNIZED;
   }
 
+  // All three objects have to be constructed before setjmp(), or longjmp()
+  // would skip their destructors - most importantly the one calling
+  // jpeg_destroy_decompress().  None of these constructors can longjmp().
   JpegErrorManager errMgr;
+  JpegSourceManager srcMgr(ioDevice);
+  JpegDecompressHandle cinfo(&errMgr);
+
   if (setjmp(errMgr.jmpBuf())) {
     // Returning from longjmp().
     return GENERIC_ERROR;
   }
 
-  JpegSourceManager srcMgr(ioDevice);
-  JpegDecompressHandle cinfo(&errMgr, &srcMgr);
+  cinfo.create(&srcMgr);
 
   const int headerStatus = jpeg_read_header(cinfo.ptr(), 0);
   if (headerStatus == JPEG_HEADER_TABLES_ONLY) {

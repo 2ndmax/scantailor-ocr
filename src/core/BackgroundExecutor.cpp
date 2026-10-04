@@ -4,8 +4,10 @@
 #include "BackgroundExecutor.h"
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QThread>
 #include <cassert>
+#include <exception>
 
 #include "OutOfMemoryHandler.h"
 
@@ -75,6 +77,9 @@ void BackgroundExecutor::Dispatcher::customEvent(QEvent* event) {
     }
   } catch (const std::bad_alloc&) {
     OutOfMemoryHandler::instance().handleOutOfMemorySituation();
+  } catch (const std::exception& e) {
+    // Keep the program alive. These tasks (e.g. thumbnails) simply produce no result.
+    qCritical().noquote() << "Background task failed:" << e.what();
   }
 }
 

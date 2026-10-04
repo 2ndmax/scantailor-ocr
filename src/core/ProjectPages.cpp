@@ -223,15 +223,18 @@ std::vector<PageInfo> ProjectPages::insertImage(const ImageInfo& newImage,
                                                 const ImageId& existing,
                                                 const PageView view) {
   bool wasModified = false;
+  std::vector<PageInfo> pages;
 
   {
     QMutexLocker locker(&m_mutex);
-    return insertImageImpl(newImage, beforeOrAfter, existing, view, wasModified);
+    pages = insertImageImpl(newImage, beforeOrAfter, existing, view, wasModified);
   }
 
+  // Emitted without holding the mutex, as receivers may call back into this object.
   if (wasModified) {
     emit modified();
   }
+  return pages;
 }
 
 void ProjectPages::removePages(const std::set<PageId>& pages) {

@@ -44,6 +44,9 @@ class LoadFileTask : public BackgroundTask {
 
   void convertToSupportedFormat(QImage& image) const;
 
+  /** Reports an unexpected processing error and returns a result showing it in place of the page. */
+  FilterResultPtr processingFailed(const QString& reason) const;
+
   std::shared_ptr<ThumbnailPixmapCache> m_thumbnailCache;
   ImageId m_imageId;
   ImageMetadata m_imageMetadata;

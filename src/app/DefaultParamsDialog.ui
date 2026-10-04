@@ -701,9 +701,6 @@
                   <property name="checked">
                    <bool>true</bool>
                   </property>
-                  <property name="autoExclusive">
-                   <bool>true</bool>
-                  </property>
                  </widget>
                 </item>
                 <item>
@@ -712,9 +709,6 @@
                    <string>Manual</string>
                   </property>
                   <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="autoExclusive">
                    <bool>true</bool>
                   </property>
                  </widget>
@@ -762,14 +756,47 @@
                </layout>
               </item>
               <item>
-               <widget class="QCheckBox" name="deskewAutoObliqueCB">
-                <property name="toolTip">
-                 <string>When deskew mode is Auto, run automatic oblique (shear) correction on new pages.</string>
-                </property>
+               <widget class="QLabel" name="deskewObliqueModeLabel">
                 <property name="text">
-                 <string>Automatic oblique correction</string>
+                 <string>Oblique correction</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="_8">
+                <item>
+                 <widget class="QPushButton" name="deskewObliqueAutoBtn">
+                  <property name="toolTip">
+                   <string>Run automatic oblique (shear) correction on new pages.</string>
+                  </property>
+                  <property name="text">
+                   <string>Auto</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="deskewObliqueManualBtn">
+                  <property name="toolTip">
+                   <string>Leave the oblique (shear) angle alone on new pages.</string>
+                  </property>
+                  <property name="text">
+                   <string>Manual</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
@@ -1992,6 +2019,16 @@ QToolButton:pressed {
                          </property>
                          <property name="text">
                           <string>Equalize illumination (Color)</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="grayscaleOutputCB">
+                         <property name="toolTip">
+                          <string>Output color scans in grayscale: the whole page in color mode, pictures and colored text in mixed mode. Grayscale files are much smaller.</string>
+                         </property>
+                         <property name="text">
+                          <string>Grayscale output</string>
                          </property>
                         </widget>
                        </item>

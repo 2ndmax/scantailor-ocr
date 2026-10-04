@@ -5,6 +5,7 @@
 
 #include <core/IconProvider.h>
 
+#include <QCoreApplication>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
@@ -12,6 +13,7 @@
 #include <QVector>
 #include <deque>
 
+#include "ImageLoadErrors.h"
 #include "ImageMetadataLoader.h"
 #include "NonCopyable.h"
 #include "SmartFilenameOrdering.h"
@@ -31,6 +33,10 @@ class ProjectFilesDialog::Item {
 
   void setStatus(Status status) { m_status = status; }
 
+  const QString& loadError() const { return m_loadError; }
+
+  void setLoadError(const QString& error) { m_loadError = error; }
+
   const std::vector<ImageMetadata>& perPageMetadata() const { return m_perPageMetadata; }
 
   std::vector<ImageMetadata>& perPageMetadata() { return m_perPageMetadata; }
@@ -40,6 +46,7 @@ class ProjectFilesDialog::Item {
   Qt::ItemFlags m_flags;
   std::vector<ImageMetadata> m_perPageMetadata;
   Status m_status;
+  QString m_loadError;
 };
 
 
@@ -171,6 +178,10 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
   m_supportedExtensions.insert("jpeg");
   m_supportedExtensions.insert("tif");
   m_supportedExtensions.insert("tiff");
+  // JPEG 2000: JP2 files, JPX / JPH files and raw codestreams.
+  for (const char* ext : {"jp2", "j2k", "j2c", "jpc", "jpf", "jpx", "jph", "jhc"}) {
+    m_supportedExtensions.insert(ext);
+  }
 
   setupUi(this);
 
@@ -462,10 +473,32 @@ void ProjectFilesDialog::finishLoadingMetadata() {
 
   if (m_metadataLoadFailed) {
     progressBar->setValue(0);
+
+    // Name the first few failed files together with the reason.
+    const int maxFilesNamed = 3;
+    QStringList failures;
+    int numFailed = 0;
+    m_inProjectFiles->items([&](const Item& item) {
+      if (item.status() != Item::STATUS_LOAD_FAILED) {
+        return;
+      }
+      if (++numFailed <= maxFilesNamed) {
+        QString line = item.fileInfo().fileName();
+        if (!item.loadError().isEmpty()) {
+          line += QLatin1String(":\n    ") + item.loadError();
+        }
+        failures.push_back(line);
+      }
+    });
+    if (numFailed > maxFilesNamed) {
+      failures.push_back(tr("... and %n more.", "", numFailed - maxFilesNamed));
+    }
+
     QMessageBox::warning(this, tr("Error"),
                          tr("Some of the files failed to load.\n"
                             "Either we don't support their format, or they are broken.\n"
-                            "You should remove them from the project."));
+                            "You should remove them from the project.")
+                             + QLatin1String("\n\n") + failures.join(QLatin1Char('\n')));
     return;
   }
 
@@ -539,6 +572,11 @@ QVariant ProjectFilesDialog::FileList::data(const QModelIndex& index, const int 
           return QBrush(QColor(0xff, 0x00, 0x00));
       }
       break;
+    case Qt::ToolTipRole:
+      if (!item.loadError().isEmpty()) {
+        return item.loadError();
+      }
+      break;
     default:
       break;
   }
@@ -571,6 +609,7 @@ ProjectFilesDialog::FileList::LoadStatus ProjectFilesDialog::FileList::loadNextF
   Item& item = m_items[itemIdx];
   std::vector<ImageMetadata> perPageMetadata;
   const QString filePath(item.fileInfo().absoluteFilePath());
+  ImageLoadErrorCapture errorCapture;
   const ImageMetadataLoader::Status st = ImageMetadataLoader::load(
       filePath, [&](const ImageMetadata& metadata) { perPageMetadata.push_back(metadata); });
 
@@ -580,9 +619,15 @@ ProjectFilesDialog::FileList::LoadStatus ProjectFilesDialog::FileList::loadNextF
     status = LOAD_OK;
     item.perPageMetadata().swap(perPageMetadata);
     item.setStatus(Item::STATUS_LOAD_OK);
+    item.setLoadError(QString());
   } else {
     status = LOAD_FAILED;
     item.setStatus(Item::STATUS_LOAD_FAILED);
+    const QStringList reasons = errorCapture.messages();
+    item.setLoadError(
+        reasons.isEmpty()
+            ? QCoreApplication::translate("ImageLoader", "The file format is not supported, or the file is damaged.")
+            : reasons.join(QLatin1Char('\n')));
   }
   const QModelIndex idx(index(itemIdx, 0));
   emit dataChanged(idx, idx);

@@ -5,6 +5,7 @@
 #define SCANTAILOR_FOUNDATION_GRID_H_
 
 #include <boost/scoped_array.hpp>
+#include <cstddef>
 
 template <typename Node>
 class Grid {
@@ -97,8 +98,10 @@ Grid<Node>::Grid() : m_data(0), m_width(0), m_height(0), m_stride(0), m_padding(
 
 template <typename Node>
 Grid<Node>::Grid(int width, int height, int padding)
-    : m_storage(new Node[(width + padding * 2) * (height + padding * 2)]),
-      m_data(m_storage.get() + (width + padding * 2) * padding + padding),
+    // The multiplications are done in size_t to avoid an int overflow, which
+    // would silently allocate a buffer that's too small for large grids.
+    : m_storage(new Node[static_cast<size_t>(width + padding * 2) * static_cast<size_t>(height + padding * 2)]),
+      m_data(m_storage.get() + static_cast<size_t>(width + padding * 2) * padding + padding),
       m_width(width),
       m_height(height),
       m_stride(width + padding * 2),
@@ -106,14 +109,15 @@ Grid<Node>::Grid(int width, int height, int padding)
 
 template <typename Node>
 Grid<Node>::Grid(const Grid& other)
-    : m_storage(new Node[(other.stride() * (other.height() + other.padding() * 2))]),
-      m_data(m_storage.get() + other.stride() * other.padding() + other.padding()),
+    : m_storage(
+          new Node[static_cast<size_t>(other.stride()) * static_cast<size_t>(other.height() + other.padding() * 2)]),
+      m_data(m_storage.get() + static_cast<size_t>(other.stride()) * other.padding() + other.padding()),
       m_width(other.width()),
       m_height(other.height()),
       m_stride(other.stride()),
       m_padding(other.padding()) {
-  const int len = m_stride * (m_height + m_padding * 2);
-  for (int i = 0; i < len; ++i) {
+  const size_t len = static_cast<size_t>(m_stride) * static_cast<size_t>(m_height + m_padding * 2);
+  for (size_t i = 0; i < len; ++i) {
     m_storage[i] = other.m_storage[i];
   }
 }

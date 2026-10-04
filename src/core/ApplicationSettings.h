@@ -7,10 +7,12 @@
 
 #include <foundation/NonCopyable.h>
 
+#include <QMutex>
 #include <QSettings>
 #include <QSize>
 #include <QSizeF>
 #include <QString>
+#include <QStringList>
 
 class ApplicationSettings {
   DECLARE_NON_COPYABLE(ApplicationSettings)
@@ -114,6 +116,53 @@ class ApplicationSettings {
 
   void setOutputShowGuidesEnabled(bool enabled);
 
+  /**
+   * Distance of the deskew and oblique drag handles from the image center, in percent of the
+   * largest possible distance (handles at the edge of the view).  Smaller values move the
+   * handles away from the edge, at the cost of a coarser angle per pixel of mouse movement.
+   */
+  int getDeskewHandleDistance() const;
+
+  void setDeskewHandleDistance(int percent);
+
+  static const int MIN_DESKEW_HANDLE_DISTANCE;
+  static const int MAX_DESKEW_HANDLE_DISTANCE;
+
+  /** PDF export: JPEG quality (10 to 100) for grayscale / colour pages and backgrounds. */
+  int getPdfJpegQuality() const;
+
+  void setPdfJpegQuality(int quality);
+
+  /** PDF export: the background of split pages is stored at 1 / scale of the output resolution (1 to 3). */
+  int getPdfBackgroundScale() const;
+
+  void setPdfBackgroundScale(int scale);
+
+  /** PDF export: compress black and white images as JBIG2 (true) or CCITT G4 (false). */
+  bool isPdfJbig2Enabled() const;
+
+  void setPdfJbig2Enabled(bool enabled);
+
+  /** PDF export: open the PDF in the default viewer once it's created. */
+  bool isPdfOpenAfterCreationEnabled() const;
+
+  void setPdfOpenAfterCreationEnabled(bool enabled);
+
+  /** PDF export: add an invisible text layer by text recognition (OCR). */
+  bool isPdfOcrEnabled() const;
+
+  void setPdfOcrEnabled(bool enabled);
+
+  /** PDF export: the OCR language codes, e.g. {"deu", "eng"}. */
+  QStringList getPdfOcrLanguages() const;
+
+  void setPdfOcrLanguages(const QStringList& languages);
+
+  /** PDF export: the OCR page layout, see OcrEngine::PageLayout (0 to 2). */
+  int getPdfOcrPageLayout() const;
+
+  void setPdfOcrPageLayout(int layout);
+
  private:
   static inline QString getKey(const QString& keyName);
 
@@ -163,10 +212,32 @@ class ApplicationSettings {
   static const QString SHOW_CANCELING_SELECTION_QUESTION_KEY;
   static const QString DEFAULT_ZONE_CREATION_MODE_KEY;
   static const QString OUTPUT_SHOW_GUIDES_KEY;
+  static const QString DESKEW_HANDLE_DISTANCE_KEY;
 
   static const int DEFAULT_ZONE_CREATION_MODE;  // 0 = polygonal
   static const bool DEFAULT_OUTPUT_SHOW_GUIDES;
+  static const int DEFAULT_DESKEW_HANDLE_DISTANCE;
 
+  static const QString PDF_JPEG_QUALITY_KEY;
+  static const QString PDF_BACKGROUND_SCALE_KEY;
+  static const QString PDF_OPEN_AFTER_CREATION_KEY;
+  static const QString PDF_JBIG2_KEY;
+  static const int DEFAULT_PDF_JPEG_QUALITY;
+  static const int DEFAULT_PDF_BACKGROUND_SCALE;
+  static const bool DEFAULT_PDF_OPEN_AFTER_CREATION;
+  static const bool DEFAULT_PDF_JBIG2;
+  static const QString PDF_OCR_ENABLED_KEY;
+  static const QString PDF_OCR_LANGUAGES_KEY;
+  static const QString PDF_OCR_PAGE_LAYOUT_KEY;
+
+  QVariant readValue(const QString& key, const QVariant& defaultValue) const;
+
+  void writeValue(const QString& key, const QVariant& value);
+
+  // QSettings is only reentrant, not thread-safe.  But the settings are read
+  // from worker threads as well (e.g. by TiffWriter while batch processing),
+  // so all access to m_settings is serialized.
+  mutable QMutex m_mutex;
   QSettings m_settings;
 };
 

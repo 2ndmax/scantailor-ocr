@@ -101,7 +101,9 @@ class ThumbnailSequence : public QObject {
    *
    * If thumbnail's size or position have changed and this thumbnail
    * is a selection leader, newSelectionLeader() signal will be emitted
-   * with REDUNDANT_SELECTION flag set.
+   * with REDUNDANT_SELECTION and AVOID_SCROLLING_TO flags set. The latter keeps the
+   * viewport in place when re-sorting moves the page somewhere else, which would
+   * otherwise drag the user away from the part of the sequence they are working on.
    *
    * \note This function assumes the thumbnail specified by pageId
    *       is the only thumbnail at incorrect position.  If you do

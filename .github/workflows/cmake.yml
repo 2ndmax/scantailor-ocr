@@ -5,13 +5,14 @@ on:
     branches: [master, main]
   pull_request:
     branches: [master, main]
+  workflow_dispatch:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
-  build-linux-qt5:
+  build-linux-qt6:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -26,11 +27,12 @@ jobs:
         sudo apt-get install -y --fix-missing \
           build-essential gcc g++ cmake \
           libjpeg-dev libpng-dev \
-          libtiff6 libtiff-dev zlib1g-dev \
+          libtiff6 libtiff-dev zlib1g-dev libopenjp2-7-dev \
+          libtesseract-dev libleptonica-dev \
           libboost-test-dev libboost-dev \
-          qtbase5-dev libqt5svg5-dev \
-          qttools5-dev qttools5-dev-tools \
-          libqt5opengl5-dev \
+          qt6-base-dev qt6-svg-dev \
+          qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
+          libqt6opengl6-dev libgl-dev \
           libpthread-stubs0-dev \
           rpm libfuse2t64
 
@@ -47,13 +49,13 @@ jobs:
       working-directory: "${{ github.workspace }}/build"
       run: |
         cpack -G "DEB"
-        mv scantailor*.deb scantailor-advanced.deb
+        mv scantailor*.deb scantailor-ocr.deb
       
     - name: Create RPM package
       working-directory: "${{ github.workspace }}/build"
       run: |
         cpack -G "RPM"
-        mv scantailor*.rpm scantailor-advanced.rpm
+        mv scantailor*.rpm scantailor-ocr.rpm
         
     - name: Create AppImage package
       working-directory: "${{ github.workspace }}/build"
@@ -62,32 +64,32 @@ jobs:
         chmod +x linuxdeploy-x86_64.AppImage
         ./linuxdeploy-x86_64.AppImage \
           --appdir AppDir \
-          --desktop-file "${{ github.workspace }}/build/scantailor-advanced.desktop" \
-          --icon-file "${{ github.workspace }}/src/resources/scantailor-advanced.png" \
-          --executable scantailor-advanced \
+          --desktop-file "${{ github.workspace }}/build/scantailor-ocr.desktop" \
+          --icon-file "${{ github.workspace }}/src/resources/scantailor-ocr.png" \
+          --executable scantailor-ocr \
           --output appimage
-        mv ScanTailor*.AppImage scantailor-advanced.AppImage
+        mv ScanTailor*.AppImage scantailor-ocr.AppImage
       
     - name: Upload Linux bin
       uses: actions/upload-artifact@v6
       with:
-        name: scantailor-linux-ubuntu-latest-qt5
-        path: build/scantailor-advanced
+        name: scantailor-linux-ubuntu-latest-qt6
+        path: build/scantailor-ocr
 
     - name: Upload Linux DEB
       uses: actions/upload-artifact@v6
       with:
-        name: scantailor-linux-ubuntu-latest-qt5-deb
-        path: build/scantailor-advanced.deb
+        name: scantailor-linux-ubuntu-latest-qt6-deb
+        path: build/scantailor-ocr.deb
 
     - name: Upload Linux RPM
       uses: actions/upload-artifact@v6
       with:
-        name: scantailor-linux-ubuntu-latest-qt5-rpm
-        path: build/scantailor-advanced.rpm
+        name: scantailor-linux-ubuntu-latest-qt6-rpm
+        path: build/scantailor-ocr.rpm
 
     - name: Upload Linux AppImage
       uses: actions/upload-artifact@v6
       with:
         name: scantailor-linux-appimage
-        path: build/scantailor-advanced.AppImage
+        path: build/scantailor-ocr.AppImage

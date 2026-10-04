@@ -247,12 +247,18 @@ GrayImage createFramedImage(const QSize& size, const unsigned char innerColor, c
 
 unsigned char darkestGrayLevel(const QImage& image) {
   const QImage gray(toGrayscale(image));
+  if (gray.isNull()) {
+    return 0xff;
+  }
 
-  const int width = image.width();
-  const int height = image.height();
+  // Note: we have to work on the grayscale copy, not on the original image.
+  // For anything but an 8-bit grayscale source, image.bits() wouldn't give
+  // us one byte per pixel.
+  const int width = gray.width();
+  const int height = gray.height();
 
-  const unsigned char* line = image.bits();
-  const int bpl = image.bytesPerLine();
+  const unsigned char* line = gray.bits();
+  const int bpl = gray.bytesPerLine();
 
   unsigned char darkest = 0xff;
 
@@ -319,7 +325,7 @@ void GrayscaleHistogram::fromMonoImage(const QImage& img) {
   const int bpl = img.bytesPerLine();
   const int lastByteIdx = (w - 1) >> 3;
   const int lastByteUnusedBits = (((lastByteIdx + 1) << 3) - w);
-  uint8_t lastByteMask = ~uint8_t(0);
+  auto lastByteMask = static_cast<uint8_t>(0xFF);
   if (img.format() == QImage::Format_MonoLSB) {
     lastByteMask >>= lastByteUnusedBits;
   } else {

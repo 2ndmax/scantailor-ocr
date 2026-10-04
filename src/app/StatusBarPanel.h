@@ -8,6 +8,7 @@
 
 #include <QtCore/QMutex>
 #include <QtWidgets/QWidget>
+#include <functional>
 
 #include "Dpi.h"
 #include "ImageViewInfoListener.h"
@@ -16,6 +17,7 @@
 #include "ui_StatusBarPanel.h"
 
 class PageId;
+class QAction;
 
 class StatusBarPanel : public QWidget, public UnitsListener, public ImageViewInfoListener, public ZoneModeListener {
   Q_OBJECT
@@ -39,6 +41,8 @@ class StatusBarPanel : public QWidget, public UnitsListener, public ImageViewInf
 
   void onUnitsChanged(Units) override;
 
+  void onZoneModeProviderStarted(const std::function<void(ZoneCreationMode)>& setMode) override;
+
   void onZoneModeChanged(ZoneCreationMode mode) override;
 
   void onZoneModeProviderStopped() override;
@@ -48,7 +52,15 @@ class StatusBarPanel : public QWidget, public UnitsListener, public ImageViewInf
 
   void physSizeChanged();
 
+  void setupZoneModeMenu();
+
+  QAction* zoneModeAction(ZoneCreationMode mode) const;
+
   Ui::StatusBarPanel ui;
+  QAction* m_polygonalAction = nullptr;
+  QAction* m_lassoAction = nullptr;
+  QAction* m_rectangularAction = nullptr;
+  std::function<void(ZoneCreationMode)> m_setZoneMode;
   QPointF m_mousePos;
   QSizeF m_physSize;
   Dpi m_dpi;

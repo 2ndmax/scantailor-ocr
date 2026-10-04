@@ -27,10 +27,10 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
     : m_settings(std::move(settings)),
       m_pages(std::move(pages)),
       m_pageSelectionAccessor(pageSelectionAccessor),
+      m_sourceDpiFocusWidget(nullptr),
       m_leftRightLinked(true),
       m_topBottomLinked(true),
-      m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)),
-      m_sourceDpiFocusWidget(nullptr) {
+      m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   {
     QSettings appSettings;
     m_leftRightLinked = appSettings.value("margins/leftRightLinked", true).toBool();

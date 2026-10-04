@@ -1,4 +1,4 @@
-# CI: build on push and PR to main/master
+# CI: build and test on push and PR to main/master
 name: CI
 
 on:
@@ -6,11 +6,24 @@ on:
     branches: [master, main]
   pull_request:
     branches: [master, main]
+  workflow_dispatch:
 
 jobs:
   build-linux:
-    name: Build (Ubuntu)
+    name: Build (Ubuntu, Qt ${{ matrix.qt }})
     runs-on: ubuntu-latest
+    strategy:
+      # Report both Qt versions even if one fails.
+      fail-fast: false
+      matrix:
+        include:
+          - qt: 5
+            qt_packages: qtbase5-dev libqt5svg5-dev qttools5-dev qttools5-dev-tools libqt5opengl5-dev
+            # Qt 6 is preferred by CMakeLists.txt; make sure Qt 5 is used.
+            cmake_args: -DCMAKE_DISABLE_FIND_PACKAGE_Qt6=ON
+          - qt: 6
+            qt_packages: qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libqt6opengl6-dev libgl-dev
+            cmake_args: ""
     steps:
       - uses: actions/checkout@v5
 
@@ -19,17 +32,104 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             build-essential cmake \
-            qt5-qmake qtbase5-dev libqt5svg5-dev qttools5-dev \
+            ${{ matrix.qt_packages }} \
             libboost-test-dev libboost-dev \
-            libjpeg-dev libpng-dev libtiff-dev zlib1g-dev
+            libjpeg-dev libpng-dev libtiff-dev zlib1g-dev libopenjp2-7-dev \
+            libtesseract-dev libleptonica-dev \
+            poppler-utils
 
       - name: Configure and build
         run: |
           mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }} ..
           make -j$(nproc)
 
+      # Failing tests fail the build.
       - name: Run tests
+        working-directory: build
+        env:
+          # The tests don't need a display.
+          QT_QPA_PLATFORM: offscreen
+        run: ctest -C Release --output-on-failure
+
+  build-windows:
+    name: Build (Windows, MSVC + vcpkg)
+    runs-on: windows-latest
+    env:
+      VCPKG_DEFAULT_TRIPLET: x64-windows
+      # Built packages are cached between runs.  The first run builds Qt and
+      # takes about two hours, later runs only a few minutes.
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-binary-cache
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ github.workspace }}\vcpkg-binary-cache
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: vcpkg-${{ runner.os }}-
+
+      - name: Count cached vcpkg packages
+        id: cache-before
+        shell: pwsh
         run: |
-          cd build
-          ctest -C Release --output-on-failure || true
+          New-Item -ItemType Directory -Force "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
+          $count = (Get-ChildItem -Recurse -File "$env:VCPKG_DEFAULT_BINARY_CACHE" | Measure-Object).Count
+          "count=$count" >> $env:GITHUB_OUTPUT
+
+      # Drive C: of the runner is too small for vcpkg's intermediate files
+      # (the first run failed with "No space left on device").  They go to
+      # the temp folder on D: and are deleted after each package.
+      - name: Install dependencies (vcpkg)
+        shell: pwsh
+        run: |
+          & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install `
+            --clean-after-build `
+            "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `
+            "--x-packages-root=$env:RUNNER_TEMP\vcpkg-packages" `
+            "--downloads-root=$env:RUNNER_TEMP\vcpkg-downloads" `
+            qtbase qtsvg qttools libjpeg-turbo libpng `
+            "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate]" openjpeg zlib tesseract `
+            boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda
+
+      # Only save a new cache (about 800 MB) when vcpkg built new packages.
+      # Also runs when the install above failed, so finished packages
+      # aren't rebuilt next time.
+      - name: Check for new vcpkg packages
+        id: cache-after
+        if: always()
+        shell: pwsh
+        run: |
+          $count = (Get-ChildItem -Recurse -File "$env:VCPKG_DEFAULT_BINARY_CACHE" | Measure-Object).Count
+          $before = [int]"${{ steps.cache-before.outputs.count }}"
+          Write-Host "Cached files: $before before, $count after."
+          "changed=$($count -gt $before)" >> $env:GITHUB_OUTPUT
+
+      - name: Save vcpkg binary cache
+        if: always() && steps.cache-after.outputs.changed == 'True'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}\vcpkg-binary-cache
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+
+      - name: Set up MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        shell: pwsh
+        run: >
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run tests
+        shell: pwsh
+        working-directory: build
+        run: |
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $env:QT_PLUGIN_PATH = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows\Qt6\plugins"
+          $env:PATH = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows\bin;$env:PATH"
+          ctest -C Release --output-on-failure

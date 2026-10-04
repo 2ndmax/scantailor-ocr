@@ -44,7 +44,10 @@ set(common_sources
     ProjectPages.cpp ProjectPages.h
     FilterData.cpp FilterData.h
     ImageMetadataLoader.cpp ImageMetadataLoader.h
+    ImageLoadErrors.cpp ImageLoadErrors.h
     TiffReader.cpp TiffReader.h
+    Jp2Reader.cpp Jp2Reader.h
+    Jp2MetadataLoader.cpp Jp2MetadataLoader.h
     TiffWriter.cpp TiffWriter.h
     PngMetadataLoader.cpp PngMetadataLoader.h
     TiffMetadataLoader.cpp TiffMetadataLoader.h
@@ -115,21 +118,37 @@ set(common_sources
     ConnectionManager.cpp ConnectionManager.h
     ZoneEditorBase.cpp ZoneEditorBase.h
     ZoneModeListener.h
-    ContentMask.cpp ContentMask.h)
+    ContentMask.cpp ContentMask.h
+    PdfWriter.cpp PdfWriter.h
+    PdfImageEncoder.cpp PdfImageEncoder.h
+    jbig2enc/jbig2arith.cpp jbig2enc/jbig2arith.h
+    PdfExportPage.cpp PdfExportPage.h
+    PdfExportJob.cpp PdfExportJob.h
+    GlyphLessFont.cpp GlyphLessFont.h
+    OcrLanguages.cpp OcrLanguages.h
+    TessdataDownloader.cpp TessdataDownloader.h
+    OcrEngine.h)
 
 add_library(core STATIC ${common_sources} ${common_ui_files})
+
+# Third-party code, kept as in jbig2enc: no warnings for it.
+if(MSVC)
+  set_source_files_properties(jbig2enc/jbig2arith.cpp PROPERTIES COMPILE_OPTIONS "/w")
+else()
+  set_source_files_properties(jbig2enc/jbig2arith.cpp PROPERTIES COMPILE_OPTIONS "-w")
+endif()
 
 if(Qt6_FOUND)
   target_link_libraries(
     core
-    PRIVATE TIFF::TIFF PNG::PNG ZLIB::ZLIB JPEG::JPEG
+    PRIVATE TIFF::TIFF PNG::PNG ZLIB::ZLIB JPEG::JPEG ${OPENJPEG_TARGET}
     PUBLIC Qt::Core Qt::Gui Qt::Widgets Qt::Xml Qt::Network Qt::OpenGL Qt::Svg Qt::OpenGLWidgets
     imageproc zones
     fix_orientation page_split deskew select_content page_layout output)
 else()
   target_link_libraries(
     core
-    PRIVATE TIFF::TIFF PNG::PNG ZLIB::ZLIB JPEG::JPEG
+    PRIVATE TIFF::TIFF PNG::PNG ZLIB::ZLIB JPEG::JPEG ${OPENJPEG_TARGET}
     PUBLIC Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml Qt5::Network Qt5::OpenGL Qt5::Svg
     imageproc zones
     fix_orientation page_split deskew select_content page_layout output)
@@ -138,6 +157,14 @@ target_include_directories(core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 set_target_properties(core PROPERTIES AUTOUIC ON)
 
 translation_sources(scantailor ${common_sources} ${common_ui_files})
+
+if (TESSERACT_TARGET)
+  target_sources(core PRIVATE OcrEngine.cpp)
+  target_link_libraries(core PRIVATE ${TESSERACT_TARGET})
+  # Also seen by the application, which shows the OCR options only if this is defined.
+  target_compile_definitions(core PUBLIC ENABLE_OCR)
+  translation_sources(scantailor OcrEngine.cpp)
+endif()
 
 add_subdirectory(interaction)
 add_subdirectory(zones)

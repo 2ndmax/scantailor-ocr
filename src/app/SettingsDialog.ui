@@ -108,6 +108,55 @@
             </item>
            </layout>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_deskewHandles">
+            <item>
+             <widget class="QLabel" name="deskewHandleDistanceLabel">
+              <property name="text">
+               <string>Deskew handle distance: </string>
+              </property>
+              <property name="buddy">
+               <cstring>deskewHandleDistanceSB</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="deskewHandleDistanceSB">
+              <property name="toolTip">
+               <string>How far the drag handles for rotation and oblique correction are placed from the image center, in percent of the largest possible distance. Smaller values move them away from the edge of the view, but make the angle react more strongly to the mouse.</string>
+              </property>
+              <property name="suffix">
+               <string> %</string>
+              </property>
+              <property name="minimum">
+               <number>30</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="singleStep">
+               <number>5</number>
+              </property>
+              <property name="value">
+               <number>75</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_deskewHandles">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>1</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
          </layout>
          <zorder>enableOpenglCb</zorder>
          <zorder>autoSaveProjectCB</zorder>

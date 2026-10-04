@@ -3,6 +3,7 @@
 
 #include "OptionsWidget.h"
 
+#include <QtWidgets/QButtonGroup>
 #include <utility>
 
 #include <core/DefaultParams.h>
@@ -19,7 +20,10 @@ Params mergeParamsForApply(const std::unique_ptr<Params>& existing,
                            const OptionsWidget::UiData& cur,
                            const bool applyDeskew,
                            const bool applyOblique) {
-  const Dependencies deps(cur.dependencies());
+  // Dependencies describe the image a page was computed from, so they are never transferable
+  // between pages. Keep the ones the target page already has; a page we know nothing about gets
+  // empty dependencies, which makes the task recompute (auto mode) or fill them in (manual mode).
+  const Dependencies deps(existing ? existing->dependencies() : Dependencies());
   if (!existing) {
     return Params(applyDeskew ? cur.effectiveDeskewAngle() : 0.0, applyOblique ? cur.effectiveObliqueAngle() : 0.0,
                   deps, applyDeskew ? cur.mode() : MODE_AUTO, applyOblique ? cur.obliqueMode() : MODE_AUTO);
@@ -54,9 +58,21 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   angleSpinBox->adjustSize();
   setSpinBoxUnknownState();
   topEdgeCheckBox->setChecked(!m_settings->algoContentBased());
-  autoObliqueCheckBox->setChecked(DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique());
-  obliqueManualBtn->setChecked(true);
-  obliqueAutoBtn->setChecked(false);
+
+  // Each pair of Auto / Manual buttons needs its own exclusive group. Relying on autoExclusive
+  // would put all four buttons into a single group, as they share the same parent widget.
+  m_deskewModeGroup = new QButtonGroup(this);
+  m_deskewModeGroup->addButton(autoBtn);
+  m_deskewModeGroup->addButton(manualBtn);
+  m_obliqueModeGroup = new QButtonGroup(this);
+  m_obliqueModeGroup->addButton(obliqueAutoBtn);
+  m_obliqueModeGroup->addButton(obliqueManualBtn);
+
+  if (DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique()) {
+    obliqueAutoBtn->setChecked(true);
+  } else {
+    obliqueManualBtn->setChecked(true);
+  }
 
   setupUiConnections();
 }
@@ -151,7 +167,9 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
   updateObliqueModeIndication(uiData.obliqueMode());
   setSpinBoxKnownState(degreesToSpinBox(uiData.effectiveDeskewAngle()));
   obliqueSpinBox->setValue(m_uiData.effectiveObliqueAngle());
-  autoObliqueCheckBox->setChecked(DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique());
+  // The settings may have been replaced since this widget was constructed (e.g. by loading
+  // another project), so the check box can't be synchronized in the constructor alone.
+  topEdgeCheckBox->setChecked(!m_settings->algoContentBased());
 }
 
 void OptionsWidget::spinBoxValueChanged(const double value) {
@@ -173,7 +191,7 @@ void OptionsWidget::modeChanged(const bool autoMode) {
     if (m_uiData.obliqueMode() == MODE_AUTO) {
       m_uiData.setEffectiveObliqueAngle(0.0);
     }
-    m_settings->setPendingAutoOblique(m_pageId, autoObliqueCheckBox->isChecked());
+    m_settings->setPendingAutoOblique(m_pageId, obliqueAutoBtn->isChecked());
     m_settings->clearPageParams(m_pageId);
     emit reloadRequested();
   } else {
@@ -183,15 +201,32 @@ void OptionsWidget::modeChanged(const bool autoMode) {
 }
 
 void OptionsWidget::obliqueModeChanged(const bool autoMode) {
+  // The mode buttons also carry what used to be the "Automatic oblique correction" check box,
+  // so the choice becomes the default for pages that get processed later on.
+  setDefaultAutoOblique(autoMode);
+  m_settings->setPendingAutoOblique(m_pageId, autoMode);
+
   if (autoMode) {
+    // The spin box must not report the reset back to us as a manual edit.
+    auto block = m_connectionManager.getScopedBlock();
+
     m_uiData.setObliqueMode(MODE_AUTO);
     m_uiData.setEffectiveObliqueAngle(0.0);
     obliqueSpinBox->setValue(0.0);
     commitCurrentParams();
     emit reloadRequested();
   } else {
+    // Switching to Manual must drop an automatically found angle - otherwise the shear would
+    // silently stay in place although automatic correction is off now.
+    auto block = m_connectionManager.getScopedBlock();
+
     m_uiData.setObliqueMode(MODE_MANUAL);
+    m_uiData.setEffectiveObliqueAngle(0.0);
+    obliqueSpinBox->setValue(0.0);
     commitCurrentParams();
+
+    emit manualObliqueAngleSet(0.0);
+    emit invalidateThumbnail(m_pageId);
   }
 }
 
@@ -270,23 +305,14 @@ void OptionsWidget::topEdgeToggled(bool checked) {
   }
 }
 
-void OptionsWidget::autoObliqueCheckBoxToggled(const bool checked) {
-  setDefaultAutoOblique(checked);
-  m_settings->setPendingAutoOblique(m_pageId, checked);
-  if (autoBtn->isChecked()) {
-    m_settings->clearPageParams(m_pageId);
-    emit reloadRequested();
-  }
-}
-
 void OptionsWidget::obliqueSpinBoxValueChanged(double value) {
   auto block = m_connectionManager.getScopedBlock();
 
   m_uiData.setEffectiveObliqueAngle(value);
-  if (value != 0.0) {
-    m_uiData.setObliqueMode(MODE_MANUAL);
-    updateObliqueModeIndication(MODE_MANUAL);
-  }
+  // Editing the value is a manual action even when the user dials it back to zero - otherwise
+  // the mode would stay automatic and the next run would just compute the angle again.
+  m_uiData.setObliqueMode(MODE_MANUAL);
+  updateObliqueModeIndication(MODE_MANUAL);
   commitCurrentParams();
   emit manualObliqueAngleSet(value);
   emit invalidateThumbnail(m_pageId);
@@ -298,7 +324,6 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(autoBtn, SIGNAL(toggled(bool)), this, SLOT(modeChanged(bool)));
   CONNECT(obliqueAutoBtn, SIGNAL(toggled(bool)), this, SLOT(obliqueModeChanged(bool)));
   CONNECT(topEdgeCheckBox, SIGNAL(toggled(bool)), this, SLOT(topEdgeToggled(bool)));
-  CONNECT(autoObliqueCheckBox, SIGNAL(toggled(bool)), this, SLOT(autoObliqueCheckBoxToggled(bool)));
   CONNECT(applyDeskewBtn, SIGNAL(clicked()), this, SLOT(showDeskewDialog()));
 }
 

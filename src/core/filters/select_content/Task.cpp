@@ -88,6 +88,13 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
   bool needUpdateContentBox = false;
   bool needUpdatePageBox = false;
 
+  if (!params) {
+    // Nothing is known about this page yet, so everything has to be worked out. Note that
+    // compatibleWith() below is what fills the two flags in, and it isn't reached in this case.
+    needUpdateContentBox = true;
+    needUpdatePageBox = true;
+  }
+
   if (!params || !deps.compatibleWith(params->dependencies(), &needUpdateContentBox, &needUpdatePageBox)) {
     QRectF pageRect(newParams.pageRect());
     QRectF contentRect(newParams.contentRect());

@@ -138,7 +138,8 @@ std::unique_ptr<PageLayout> autoDetectTwoPageLayout(const std::vector<QLineF>& l
   // Find the line closest to the center.
   const double imageCenter = virtualImageRect.center().x();
   double minDistance = std::numeric_limits<double>::max();
-  const QLineF* bestLine = nullptr;
+  // Initialized to a valid line, as lines with NaN coordinates never win the comparison below.
+  const QLineF* bestLine = &ltrLines.front();
   for (const QLineF& line : ltrLines) {
     const double lineCenter = lineCenterX(line);
     const double distance = std::fabs(lineCenter - imageCenter);
@@ -542,7 +543,9 @@ void PageLayoutEstimator::removeInsignificantEdgeSpans(std::deque<Span>& spans) 
     gaps[i].first = sum;
   }
   sum = 0;
-  for (auto i = static_cast<int>(gaps.size() - 1); i >= 0; --i) {
+  // Note: iterating in size_t. Computing gaps.size() - 1 up front would wrap
+  // around when there are no gaps at all (a single span).
+  for (size_t i = gaps.size(); i-- > 0;) {
     sum += spans[i + 1].width();
     gaps[i].second = sum;
   }

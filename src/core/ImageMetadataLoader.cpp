@@ -8,6 +8,7 @@
 #include <QString>
 
 #include "ImageMetadata.h"
+#include "Jp2MetadataLoader.h"
 #include "JpegMetadataLoader.h"
 #include "PngMetadataLoader.h"
 #include "TiffMetadataLoader.h"
@@ -22,6 +23,7 @@ ImageMetadataLoader::StaticInit::StaticInit() {
   registerLoader(std::make_shared<JpegMetadataLoader>());
   registerLoader(std::make_shared<PngMetadataLoader>());
   registerLoader(std::make_shared<TiffMetadataLoader>());
+  registerLoader(std::make_shared<Jp2MetadataLoader>());
 }
 
 ImageMetadataLoader::StaticInit ImageMetadataLoader::m_staticInit;

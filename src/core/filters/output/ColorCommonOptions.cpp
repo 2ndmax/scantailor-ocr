@@ -11,6 +11,7 @@ ColorCommonOptions::ColorCommonOptions()
       m_fillOutsidePageBox(false),
       m_fillMargins(true),
       m_normalizeIllumination(false),
+      m_grayscaleOutput(false),
       m_wienerCoef(0.0),
       m_wienerWindowSize(5),
       m_fillingColor(FILL_BACKGROUND) {}
@@ -20,6 +21,8 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
       m_fillOutsidePageBox(el.attribute("fillOutsidePageBox") == "1"),
       m_fillMargins(el.attribute("fillMargins") == "1"),
       m_normalizeIllumination(el.attribute("normalizeIlluminationColor") == "1"),
+      // Absent in projects from other versions, which then keep color output.
+      m_grayscaleOutput(el.attribute("grayscaleOutput") == "1"),
       m_wienerCoef(el.attribute("wienerCoef").toDouble()),
       m_wienerWindowSize(el.attribute("wienerWinSize").toInt()),
       m_fillingColor(parseFillingColor(el.attribute("fillingColor"))),
@@ -38,6 +41,10 @@ QDomElement ColorCommonOptions::toXml(QDomDocument& doc, const QString& name) co
   el.setAttribute("fillOffcut", m_fillOffcut ? "1" : "0");
   el.setAttribute("fillOutsidePageBox", m_fillOutsidePageBox ? "1" : "0");
   el.setAttribute("normalizeIlluminationColor", m_normalizeIllumination ? "1" : "0");
+  if (m_grayscaleOutput) {
+    // Only written when set, so projects not using it contain nothing unknown to other versions.
+    el.setAttribute("grayscaleOutput", "1");
+  }
   el.setAttribute("fillingColor", formatFillingColor(m_fillingColor));
   el.appendChild(m_posterizationOptions.toXml(doc, "posterization-options"));
   el.setAttribute("wienerCoef", m_wienerCoef);
@@ -46,10 +53,11 @@ QDomElement ColorCommonOptions::toXml(QDomDocument& doc, const QString& name) co
 }
 
 bool ColorCommonOptions::operator==(const ColorCommonOptions& other) const {
-  return (m_normalizeIllumination == other.m_normalizeIllumination) && (m_fillMargins == other.m_fillMargins)
-         && (m_fillOffcut == other.m_fillOffcut) && (m_fillOutsidePageBox == other.m_fillOutsidePageBox)
-         && (m_fillingColor == other.m_fillingColor) && (m_posterizationOptions == other.m_posterizationOptions)
-         && (m_wienerCoef == other.m_wienerCoef) && (m_wienerWindowSize == other.m_wienerWindowSize);
+  return (m_normalizeIllumination == other.m_normalizeIllumination) && (m_grayscaleOutput == other.m_grayscaleOutput)
+         && (m_fillMargins == other.m_fillMargins) && (m_fillOffcut == other.m_fillOffcut)
+         && (m_fillOutsidePageBox == other.m_fillOutsidePageBox) && (m_fillingColor == other.m_fillingColor)
+         && (m_posterizationOptions == other.m_posterizationOptions) && (m_wienerCoef == other.m_wienerCoef)
+         && (m_wienerWindowSize == other.m_wienerWindowSize);
 }
 
 bool ColorCommonOptions::operator!=(const ColorCommonOptions& other) const {

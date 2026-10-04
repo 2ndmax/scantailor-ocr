@@ -82,6 +82,10 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   ui.singleColumnThumbnailsCB->setChecked(settings.isSingleColumnThumbnailDisplayEnabled());
   ui.cancelingSelectionQuestionCB->setChecked(settings.isCancelingSelectionQuestionEnabled());
 
+  ui.deskewHandleDistanceSB->setRange(ApplicationSettings::MIN_DESKEW_HANDLE_DISTANCE,
+                                      ApplicationSettings::MAX_DESKEW_HANDLE_DISTANCE);
+  ui.deskewHandleDistanceSB->setValue(settings.getDeskewHandleDistance());
+
   connect(ui.buttonBox, SIGNAL(accepted()), SLOT(commitChanges()));
 }
 
@@ -121,6 +125,7 @@ void SettingsDialog::commitChanges() {
 
   settings.setSingleColumnThumbnailDisplayEnabled(ui.singleColumnThumbnailsCB->isChecked());
   settings.setCancelingSelectionQuestionEnabled(ui.cancelingSelectionQuestionCB->isChecked());
+  settings.setDeskewHandleDistance(ui.deskewHandleDistanceSB->value());
 
   emit settingsChanged();
 }

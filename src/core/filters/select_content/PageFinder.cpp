@@ -34,6 +34,10 @@ QRectF PageFinder::findPageBox(const TaskStatus& status,
   auto expWidth = int(to150 * box.width());
   auto expHeight = int(to150 * box.height());
 
+  // A non-empty but very small box may round down to zero here, which would
+  // turn the relative error calculations below into divisions by zero.
+  const bool haveExpectedSize = (expWidth > 0) && (expHeight > 0);
+
 #ifdef DEBUG
   std::cout << "dpi: " << data.xform().origDpi().horizontal() << std::endl;
   std::cout << "tolerance: " << tolerance << std::endl;
@@ -72,14 +76,14 @@ QRectF PageFinder::findPageBox(const TaskStatus& status,
   double errWidth = 1.0;
   double errHeight = 1.0;
 
-  if (box.isEmpty()) {
+  if (!haveExpectedSize) {
     QImage bwimg(bwimages[3].toQImage());
     contentRect = detectBorders(bwimg);
     if (fineTune) {
       fineTuneCorners(bwimg, contentRect, QSize(0, 0), 1.0);
     }
   } else {
-    for (uint32_t i = 0; i < bwimages.size(); ++i) {
+    for (size_t i = 0; i < bwimages.size(); ++i) {
       QImage bwimg(bwimages[i].toQImage());
       rects.push_back(QRect(detectBorders(bwimg)));
       if (fineTune) {
@@ -212,6 +216,12 @@ bool PageFinder::fineTuneCorner(const QImage& img,
   int h = std::abs(maxY - y);
 
   if ((!size.isEmpty()) && ((w < widthT) || (h < heightT))) {
+    return true;
+  }
+  // Never let an edge move past the opposite one, or the resulting rectangle
+  // would come out inverted. This is the only guard we have when size is empty,
+  // as the tolerance check above is then skipped.
+  if (((tx - maxX) * incX > 0) || ((ty - maxY) * incY > 0)) {
     return true;
   }
   if ((pixel != black) || (tx < 0) || (tx > (img.width() - 1)) || (ty < 0) || (ty > (img.height() - 1))) {

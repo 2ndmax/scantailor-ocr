@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Cross-compile ScanTailor Advanced to Windows .exe from Linux using MXE.
+# Cross-compile ScanTailor OCR to Windows .exe from Linux using MXE.
 #
 # Prerequisites:
 #   1. Install MXE (M Cross Environment): https://mxe.cc/
 #   2. Build the required packages (one-time, can take 1–2 hours):
 #      cd /path/to/mxe
 #      make MXE_TARGETS=x86_64-w64-mingw32.static \
-#        qt5 jpeg libpng tiff zlib boost
+#        qt5 jpeg libpng tiff openjpeg zlib boost
 #
 # Usage:
 #   MXE_DIR=/path/to/mxe ./build-windows.sh
 #   ./build-windows.sh                    # uses MXE_DIR or ~/mxe or /opt/mxe
 #   ./build-windows.sh shared             # use .shared target (exe + DLLs)
 #
-# Output: build-win-static/scantailor-advanced.exe (default), or build-win-shared/ for shared (exe + DLLs)
+# Output: build-win-static/scantailor-ocr.exe (default), or build-win-shared/ for shared (exe + DLLs)
 
 set -e
 
@@ -43,7 +43,7 @@ else
   echo "" >&2
   echo "One-time setup:" >&2
   echo "  git clone https://github.com/mxe/mxe.git ~/mxe" >&2
-  echo "  cd ~/mxe && make MXE_TARGETS=${MXE_TARGET} qt5 jpeg libpng tiff zlib boost" >&2
+  echo "  cd ~/mxe && make MXE_TARGETS=${MXE_TARGET} qt5 jpeg libpng tiff openjpeg zlib boost" >&2
   echo "  (This can take 1–2 hours.)" >&2
   exit 1
 fi
@@ -52,7 +52,7 @@ TOOLCHAIN_FILE="${MXE_ROOT}/usr/${MXE_TARGET}/share/cmake/mxe-conf.cmake"
 if [[ ! -f "$TOOLCHAIN_FILE" ]]; then
   echo "Error: MXE toolchain not found: $TOOLCHAIN_FILE" >&2
   echo "Build the MXE target first:" >&2
-  echo "  cd $MXE_ROOT && make MXE_TARGETS=${MXE_TARGET} qt5 jpeg libpng tiff zlib boost" >&2
+  echo "  cd $MXE_ROOT && make MXE_TARGETS=${MXE_TARGET} qt5 jpeg libpng tiff openjpeg zlib boost" >&2
   exit 1
 fi
 
@@ -67,20 +67,20 @@ cmake -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN_FILE}" \
 
 make -j"$(nproc)"
 
-if [[ -f scantailor-advanced.exe ]]; then
-  EXE_PATH="scantailor-advanced.exe"
-elif [[ -f release/scantailor-advanced.exe ]]; then
-  EXE_PATH="release/scantailor-advanced.exe"
+if [[ -f scantailor-ocr.exe ]]; then
+  EXE_PATH="scantailor-ocr.exe"
+elif [[ -f release/scantailor-ocr.exe ]]; then
+  EXE_PATH="release/scantailor-ocr.exe"
 elif [[ -f scantailor.exe ]]; then
   EXE_PATH="scantailor.exe"
 elif [[ -f release/scantailor.exe ]]; then
   EXE_PATH="release/scantailor.exe"
 else
-  EXE_PATH=$(find . -name "scantailor-advanced.exe" -o -name "scantailor.exe" -type f 2>/dev/null | head -1)
+  EXE_PATH=$(find . -name "scantailor-ocr.exe" -o -name "scantailor.exe" -type f 2>/dev/null | head -1)
 fi
 
 if [[ -z "$EXE_PATH" || ! -f "$EXE_PATH" ]]; then
-  echo "Error: scantailor-advanced.exe not found in $BUILD_DIR" >&2
+  echo "Error: scantailor-ocr.exe not found in $BUILD_DIR" >&2
   exit 1
 fi
 

@@ -7,13 +7,17 @@
 #include <Grayscale.h>
 #include <tiffio.h>
 
+#include <QCoreApplication>
 #include <QDebug>
+#include <QStringList>
 #include <QtCore/QFile>
 #include <cassert>
 #include <cmath>
 
 #include "ApplicationSettings.h"
 #include "Dpm.h"
+#include "ImageLoadErrors.h"
+#include "TiffReader.h"
 
 /**
  * m_reverseBitsLUT[byte] gives the same byte, but with bit order reversed.
@@ -102,20 +106,45 @@ static void deviceUnmap(thandle_t, tdata_t, toff_t) {
 }
 
 bool TiffWriter::writeImage(const QString& filePath, const QImage& image) {
+  TiffReader::installMessageHandlers();
+
+  ImageLoadErrorCapture capture;
+  const bool ok = writeImageToFile(filePath, image);
+  if (!ok) {
+    QStringList messages = capture.messages();
+    if (messages.isEmpty()) {
+      messages.push_back(QCoreApplication::translate("TiffWriter", "Unknown error."));
+    }
+    ImageLoadErrorReporter::instance().reportWriteFailure(filePath, messages);
+  }
+  return ok;
+}
+
+bool TiffWriter::writeImageToFile(const QString& filePath, const QImage& image) {
   if (image.isNull()) {
+    ImageLoadErrorCapture::addError(QCoreApplication::translate("TiffWriter", "There is no image to write."));
     return false;
   }
 
   QFile file(filePath);
   if (!file.open(QFile::WriteOnly)) {
+    ImageLoadErrorCapture::addError(file.errorString());
     return false;
   }
 
-  if (!writeImage(file, image)) {
-    file.remove();
-    return false;
+  bool ok = writeImage(file, image);
+  // libtiff closes the file when done, which flushes Qt's write buffer.
+  // A failure there (e.g. a full disk) only shows up in the file's error state.
+  if (ok && (file.error() != QFileDevice::NoError)) {
+    ImageLoadErrorCapture::addError(file.errorString());
+    ok = false;
   }
-  return true;
+  if (!ok) {
+    // Don't leave a truncated file behind.
+    file.close();
+    file.remove();
+  }
+  return ok;
 }
 
 bool TiffWriter::writeImage(QIODevice& device, const QImage& image) {
@@ -145,18 +174,28 @@ bool TiffWriter::writeImage(QIODevice& device, const QImage& image) {
   TIFFSetField(tif.handle(), TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
   setDpm(tif, Dpm(image));
 
+  bool ok;
   switch (image.format()) {
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
     case QImage::Format_Indexed8:
-      return writeBitonalOrIndexed8Image(tif, image);
-    default:;
+      ok = writeBitonalOrIndexed8Image(tif, image);
+      break;
+    default:
+      if (image.hasAlphaChannel()) {
+        ok = writeARGB32Image(tif, image.convertToFormat(QImage::Format_ARGB32));
+      } else {
+        ok = writeRGB32Image(tif, image.convertToFormat(QImage::Format_RGB32));
+      }
+      break;
   }
-  if (image.hasAlphaChannel()) {
-    return writeARGB32Image(tif, image.convertToFormat(QImage::Format_ARGB32));
-  } else {
-    return writeRGB32Image(tif, image.convertToFormat(QImage::Format_RGB32));
+
+  // The last strip and the directory are only written when flushing.
+  // TIFFClose() does that as well, but can't report failures.
+  if (ok && !TIFFFlush(tif.handle())) {
+    ok = false;
   }
+  return ok;
 }  // TiffWriter::writeImage
 
 /**

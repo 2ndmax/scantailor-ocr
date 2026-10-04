@@ -5,6 +5,8 @@
 
 #include <core/IconProvider.h>
 
+#include <QActionGroup>  // In QtGui with Qt 6, in QtWidgets with Qt 5.
+#include <QMenu>
 #include <QtCore/QFileInfo>
 #include <cmath>
 
@@ -14,6 +16,41 @@
 
 StatusBarPanel::StatusBarPanel() {
   ui.setupUi(this);
+  setupZoneModeMenu();
+  ui.zoneModeButton->hide();
+  ui.zoneModeLine->hide();
+}
+
+void StatusBarPanel::setupZoneModeMenu() {
+  auto* menu = new QMenu(ui.zoneModeButton);
+  auto* group = new QActionGroup(menu);
+  const auto addModeAction = [&](const QString& text, const char* iconName, ZoneCreationMode mode) {
+    QAction* action = menu->addAction(IconProvider::getInstance().getIcon(iconName), text);
+    action->setCheckable(true);
+    group->addAction(action);
+    connect(action, &QAction::triggered, this, [this, mode]() {
+      if (m_setZoneMode) {
+        m_setZoneMode(mode);
+      }
+    });
+    return action;
+  };
+  m_polygonalAction = addModeAction(tr("Polygon selection (Z)"), "polygonal-zone-mode", ZoneCreationMode::POLYGONAL);
+  m_lassoAction = addModeAction(tr("Lasso selection (X)"), "lasso-zone-mode", ZoneCreationMode::LASSO);
+  m_rectangularAction
+      = addModeAction(tr("Rectangle selection (C)"), "rectangular-zone-mode", ZoneCreationMode::RECTANGULAR);
+  ui.zoneModeButton->setMenu(menu);
+}
+
+QAction* StatusBarPanel::zoneModeAction(const ZoneCreationMode mode) const {
+  switch (mode) {
+    case ZoneCreationMode::LASSO:
+      return m_lassoAction;
+    case ZoneCreationMode::RECTANGULAR:
+      return m_rectangularAction;
+    default:
+      return m_polygonalAction;
+  }
 }
 
 void StatusBarPanel::onMousePosChanged(const QPointF& mousePos) {
@@ -65,7 +102,7 @@ void StatusBarPanel::clear() {
   clearAndHideLabel(ui.physSizeLabel);
   clearAndHideLabel(ui.pageNoLabel);
   clearAndHideLabel(ui.pageInfoLabel);
-  clearAndHideLabel(ui.zoneModeLabel);
+  ui.zoneModeButton->hide();
 
   ui.mousePosLine->setVisible(false);
   ui.physSizeLine->setVisible(false);
@@ -140,23 +177,32 @@ void StatusBarPanel::physSizeChanged() {
   }
 }
 
+void StatusBarPanel::onZoneModeProviderStarted(const std::function<void(ZoneCreationMode)>& setMode) {
+  m_setZoneMode = setMode;
+}
+
 void StatusBarPanel::onZoneModeChanged(ZoneCreationMode mode) {
   switch (mode) {
     case ZoneCreationMode::RECTANGULAR:
-      ui.zoneModeLabel->setPixmap(IconProvider::getInstance().getIcon("rectangular-zone-mode").pixmap(16, 16));
+      ui.zoneModeButton->setIcon(IconProvider::getInstance().getIcon("rectangular-zone-mode"));
+      ui.zoneModeButton->setText(tr("Rectangle selection"));
       break;
     case ZoneCreationMode::LASSO:
-      ui.zoneModeLabel->setPixmap(IconProvider::getInstance().getIcon("lasso-zone-mode").pixmap(16, 16));
+      ui.zoneModeButton->setIcon(IconProvider::getInstance().getIcon("lasso-zone-mode"));
+      ui.zoneModeButton->setText(tr("Lasso selection"));
       break;
     case ZoneCreationMode::POLYGONAL:
-      ui.zoneModeLabel->setPixmap(IconProvider::getInstance().getIcon("polygonal-zone-mode").pixmap(16, 16));
+      ui.zoneModeButton->setIcon(IconProvider::getInstance().getIcon("polygonal-zone-mode"));
+      ui.zoneModeButton->setText(tr("Polygon selection"));
       break;
   }
-  ui.zoneModeLabel->setVisible(true);
+  zoneModeAction(mode)->setChecked(true);
+  ui.zoneModeButton->setVisible(true);
   ui.zoneModeLine->setVisible(true);
 }
 
 void StatusBarPanel::onZoneModeProviderStopped() {
-  clearAndHideLabel(ui.zoneModeLabel);
+  m_setZoneMode = nullptr;
+  ui.zoneModeButton->hide();
   ui.zoneModeLine->setVisible(false);
 }

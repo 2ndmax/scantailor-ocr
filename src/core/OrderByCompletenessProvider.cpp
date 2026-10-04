@@ -8,5 +8,8 @@ bool OrderByCompletenessProvider::precedes(const PageId&, bool lhsIncomplete, co
     // Incomplete pages go to the back.
     return rhsIncomplete;
   }
-  return true;
+  // Equally complete pages are equivalent. Returning true here would make precedes(a, b) and
+  // precedes(b, a) both true, which is not the strict weak ordering the sort requires, and
+  // would shuffle pages that ought to keep their natural order.
+  return false;
 }

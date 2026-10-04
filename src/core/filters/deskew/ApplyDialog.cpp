@@ -3,6 +3,8 @@
 
 #include "ApplyDialog.h"
 
+#include <QPushButton>
+
 #include "PageSelectionAccessor.h"
 
 namespace deskew {
@@ -27,6 +29,16 @@ ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelec
     everyOtherSelectedHint->setEnabled(false);
   }
 
+  // Applying neither the deskew nor the oblique angle would silently do nothing.
+  const auto updateOkButton = [this]() {
+    if (QPushButton* okButton = buttonBox->button(QDialogButtonBox::Ok)) {
+      okButton->setEnabled(applyDeskewCheckBox->isChecked() || applyObliqueCheckBox->isChecked());
+    }
+  };
+  connect(applyDeskewCheckBox, &QCheckBox::toggled, this, updateOkButton);
+  connect(applyObliqueCheckBox, &QCheckBox::toggled, this, updateOkButton);
+  updateOkButton();
+
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
 
@@ -37,8 +49,10 @@ void ApplyDialog::onSubmit() {
   const bool applyOblique = applyObliqueCheckBox->isChecked();
 
   std::set<PageId> pages;
-  // thisPageRB is intentionally not handled.
-  if (allPagesRB->isChecked()) {
+  if (thisPageRB->isChecked()) {
+    pages.insert(m_curPage);
+    emit appliedTo(pages, applyDeskew, applyOblique);
+  } else if (allPagesRB->isChecked()) {
     m_pages.selectAll().swap(pages);
     emit appliedToAllPages(pages, applyDeskew, applyOblique);
   } else if (thisPageAndFollowersRB->isChecked()) {

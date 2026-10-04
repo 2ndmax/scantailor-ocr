@@ -72,6 +72,11 @@ class ColorCommonOptions {
 
   void setNormalizeIllumination(bool val);
 
+  /** Treat a color source as grayscale, so color and mixed output contain no color. */
+  bool isGrayscaleOutput() const;
+
+  void setGrayscaleOutput(bool val);
+
   double wienerCoef() const;
   void setWienerCoef(double val);
   int wienerWindowSize() const;
@@ -99,11 +104,20 @@ class ColorCommonOptions {
   bool m_fillOutsidePageBox;
   bool m_fillMargins;
   bool m_normalizeIllumination;
+  bool m_grayscaleOutput;
   double m_wienerCoef;
   int m_wienerWindowSize;
   FillingColor m_fillingColor;
   PosterizationOptions m_posterizationOptions;
 };
+
+inline bool ColorCommonOptions::isGrayscaleOutput() const {
+  return m_grayscaleOutput;
+}
+
+inline void ColorCommonOptions::setGrayscaleOutput(bool val) {
+  m_grayscaleOutput = val;
+}
 
 
 inline FillingColor ColorCommonOptions::getFillingColor() const {

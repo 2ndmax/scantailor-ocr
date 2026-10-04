@@ -72,6 +72,9 @@ class ImageView : public ImageViewBase, private InteractionHandler {
 
   std::pair<QPointF, QPointF> getObliqueHandles(const QRectF& arcSquare) const;
 
+  /** Shrinks an arc square around its center, moving the handles towards the image center. */
+  QRectF applyHandleDistance(const QRectF& arcSquare) const;
+
   static const int m_cellSize;
   static const double m_maxRotationDeg;
   static const double m_maxRotationSin;
@@ -83,6 +86,8 @@ class ImageView : public ImageViewBase, private InteractionHandler {
   DragHandler m_dragHandler;
   ZoomHandler m_zoomHandler;
   ImageTransformation m_xform;
+  // Fraction of the largest possible distance of the handles from the center (0..1].
+  double m_handleDistance;
 };
 }  // namespace deskew
 #endif  // ifndef SCANTAILOR_DESKEW_IMAGEVIEW_H_

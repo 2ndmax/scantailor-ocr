@@ -81,9 +81,9 @@ const QPoint* TowardsLineTracer::trace(const float maxDist) {
       m_finished = true;
       break;
     }
-    assert(bestPmIdx != -1);
-
-    int bestIdx = bestPmIdx;
+    // bestPmIdx stays -1 only if all probabilities are NaN.  Don't rely on
+    // the assertion for that, as it's gone in release builds.
+    int bestIdx = (bestPmIdx != -1) ? bestPmIdx : bestDmIdx;
     if (pDm[m_steps[bestDmIdx].dmOffset] > *pDm) {
       bestIdx = bestDmIdx;
     }

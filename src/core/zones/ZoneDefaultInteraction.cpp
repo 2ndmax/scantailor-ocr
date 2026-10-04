@@ -27,8 +27,8 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
   m_zoneAreaDragCopyProximity.setProximityStatusTip(tr("Hold left mouse button to copy and drag the zone."));
   m_zoneAreaDragCopyProximity.setProximityCursor(Qt::DragCopyCursor);
   m_context.imageView().interactionState().setDefaultStatusTip(
-      tr("Click to start creating a new zone. Ctrl+Alt+Click to copy the latest created zone. Use Z, X and C keys to "
-         "switch zone creation mode."));
+      tr("Click to start a new zone (lasso selection: hold the left mouse button and draw). Ctrl+Alt+Click copies "
+         "the latest created zone. Z, X, C or the button at the bottom right switch the selection mode."));
 
   m_removeZoneShortcut = std::make_unique<QShortcut>(Qt::Key_Delete, &m_context.imageView());
   m_removeVertexShortcut = std::make_unique<QShortcut>(Qt::Key_D, &m_context.imageView());

@@ -66,8 +66,8 @@ void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filter
   m_settings->clear();
 
   const QDomElement filterEl(filtersEl.namedItem("deskew").toElement());
-  if (!filterEl.isNull() && filterEl.attribute("algoContentBased", "1") == "0") {
-    m_settings->setAlgoContentBased(false);
+  if (!filterEl.isNull()) {
+    m_settings->setAlgoContentBased(filterEl.attribute("algoContentBased", "1") != "0");
   }
 
   const QString pageTagName("page");

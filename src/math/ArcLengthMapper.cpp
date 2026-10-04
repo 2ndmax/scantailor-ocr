@@ -9,7 +9,13 @@
 ArcLengthMapper::Hint::Hint() : m_lastSegment(0), m_direction(1) {}
 
 void ArcLengthMapper::Hint::update(int newSegment) {
-  m_direction = newSegment < m_lastSegment ? -1 : 1;
+  // Note: staying in the same segment tells us nothing about the direction
+  // we are scanning in, so the previous one has to be preserved.  Resetting
+  // it to +1 here would make the "adjacent segment" probes of a backwards
+  // scan look the wrong way and fall back to a binary search.
+  if (newSegment != m_lastSegment) {
+    m_direction = (newSegment < m_lastSegment) ? -1 : 1;
+  }
   m_lastSegment = newSegment;
 }
 
@@ -39,9 +45,14 @@ void ArcLengthMapper::normalizeRange(double totalArcLen) {
     return;
   }
 
-  assert(totalArcLen != 0);
+  const double currentArcLen = m_samples.back().arcLen;
+  if (currentArcLen == 0) {
+    // All samples coincide, so there is no range to normalize - and dividing
+    // by it below would be a division by zero.
+    return;
+  }
 
-  const double scale = totalArcLen / m_samples.back().arcLen;
+  const double scale = totalArcLen / currentArcLen;
   for (Sample& sample : m_samples) {
     sample.arcLen *= scale;
   }

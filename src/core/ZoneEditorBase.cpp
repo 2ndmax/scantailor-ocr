@@ -15,7 +15,7 @@
 class ZoneEditorBase::ZoneModeProvider {
   DECLARE_NON_COPYABLE(ZoneModeProvider)
  public:
-  explicit ZoneModeProvider(const ZoneEditorBase& parent);
+  explicit ZoneModeProvider(ZoneEditorBase& parent);
 
   ~ZoneModeProvider();
 
@@ -29,9 +29,10 @@ class ZoneEditorBase::ZoneModeProvider {
   void notifyProviderStopped() const;
 
   std::list<ZoneModeListener*> m_listeners;
-  const ZoneEditorBase& m_parent;
+  ZoneEditorBase& m_parent;
 };
 
+// The stored values (0 = polygonal, 1 = lasso, 2 = rectangular) differ from the enum order.
 static ZoneCreationMode zoneCreationModeFromInt(int v) {
   switch (v) {
     case 1:
@@ -69,24 +70,19 @@ ZoneEditorBase::ZoneEditorBase(const QImage& image,
   m_shortcutLasso->setAutoRepeat(false);
   m_shortcutRectangular = new QShortcut(Qt::Key_C, this);
   m_shortcutRectangular->setAutoRepeat(false);
-  connect(m_shortcutPolygonal, &QShortcut::activated, [this]() {
-    m_context.setZoneCreationMode(ZoneCreationMode::POLYGONAL);
-    ApplicationSettings::getInstance().setDefaultZoneCreationMode(0);
-    m_zoneModeProvider->updateZoneMode();
-  });
-  connect(m_shortcutLasso, &QShortcut::activated, [this]() {
-    m_context.setZoneCreationMode(ZoneCreationMode::LASSO);
-    ApplicationSettings::getInstance().setDefaultZoneCreationMode(1);
-    m_zoneModeProvider->updateZoneMode();
-  });
-  connect(m_shortcutRectangular, &QShortcut::activated, [this]() {
-    m_context.setZoneCreationMode(ZoneCreationMode::RECTANGULAR);
-    ApplicationSettings::getInstance().setDefaultZoneCreationMode(2);
-    m_zoneModeProvider->updateZoneMode();
-  });
+  connect(m_shortcutPolygonal, &QShortcut::activated, [this]() { setZoneCreationMode(ZoneCreationMode::POLYGONAL); });
+  connect(m_shortcutLasso, &QShortcut::activated, [this]() { setZoneCreationMode(ZoneCreationMode::LASSO); });
+  connect(m_shortcutRectangular, &QShortcut::activated,
+          [this]() { setZoneCreationMode(ZoneCreationMode::RECTANGULAR); });
 }
 
 ZoneEditorBase::~ZoneEditorBase() = default;
+
+void ZoneEditorBase::setZoneCreationMode(const ZoneCreationMode mode) {
+  m_context.setZoneCreationMode(mode);
+  ApplicationSettings::getInstance().setDefaultZoneCreationMode(zoneCreationModeToInt(mode));
+  m_zoneModeProvider->updateZoneMode();
+}
 
 void ZoneEditorBase::showEvent(QShowEvent* event) {
   ImageViewBase::showEvent(event);
@@ -102,13 +98,17 @@ void ZoneEditorBase::hideEvent(QHideEvent* event) {
   ImageViewBase::hideEvent(event);
 }
 
-ZoneEditorBase::ZoneModeProvider::ZoneModeProvider(const ZoneEditorBase& parent) : m_parent(parent) {}
+ZoneEditorBase::ZoneModeProvider::ZoneModeProvider(ZoneEditorBase& parent) : m_parent(parent) {}
 
 ZoneEditorBase::ZoneModeProvider::~ZoneModeProvider() {
   notifyProviderStopped();
 }
 
 void ZoneEditorBase::ZoneModeProvider::addListener(ZoneModeListener* listener) {
+  // The listener drops this callback in onZoneModeProviderStopped(), which we call
+  // on hiding and on destruction, so it never outlives m_parent.
+  ZoneEditorBase* const parent = &m_parent;
+  listener->onZoneModeProviderStarted([parent](ZoneCreationMode mode) { parent->setZoneCreationMode(mode); });
   listener->onZoneModeChanged(m_parent.context().getZoneCreationMode());
   m_listeners.push_back(listener);
 }

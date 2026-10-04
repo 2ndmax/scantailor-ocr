@@ -94,6 +94,8 @@
     <addaction name="actionSaveProject"/>
     <addaction name="actionSaveProjectAs"/>
     <addaction name="separator"/>
+    <addaction name="actionCreatePdf"/>
+    <addaction name="separator"/>
     <addaction name="actionCloseProject"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -939,11 +941,7 @@ QToolButton:pressed {
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="sortOptions">
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-         </property>
-        </widget>
+        <widget class="QComboBox" name="sortOptions"/>
        </item>
       </layout>
      </item>
@@ -1112,6 +1110,17 @@ QToolButton:pressed {
    </property>
    <property name="shortcut">
     <string notr="true"/>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionCreatePdf">
+   <property name="text">
+    <string>Create PDF ...</string>
+   </property>
+   <property name="toolTip">
+    <string>Combine the output files of the project into a PDF</string>
    </property>
    <property name="autoRepeat">
     <bool>false</bool>

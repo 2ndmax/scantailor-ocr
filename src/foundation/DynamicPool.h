@@ -100,6 +100,11 @@ T* DynamicPool<T>::alloc(size_t numElements) {
 
 template <typename T>
 size_t DynamicPool<T>::adviseChunkSize(size_t numElements) {
+  if (numElements == 0) {
+    // Would be a division by zero below.
+    return (size_t) OVERALLOCATION_LIMIT;
+  }
+
   size_t factor = OVERALLOCATION_LIMIT / numElements;
   if (factor > (size_t) OVERALLOCATION_FACTOR) {
     factor = OVERALLOCATION_FACTOR;

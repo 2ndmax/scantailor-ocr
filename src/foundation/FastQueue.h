@@ -84,8 +84,8 @@ class FastQueue {
 
 template <typename T>
 FastQueue<T>::FastQueue(const FastQueue& other) : m_chunkCapacity(other.m_chunkCapacity) {
-  for (Chunk& chunk : other.m_chunkList) {
-    for (const T* obj = chunk->pBegin; obj != chunk->pEnd; ++obj) {
+  for (const Chunk& chunk : other.m_chunkList) {
+    for (const T* obj = chunk.pBegin; obj != chunk.pEnd; ++obj) {
       push(*obj);
     }
   }

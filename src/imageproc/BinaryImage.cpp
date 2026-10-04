@@ -67,7 +67,7 @@ BinaryImage::BinaryImage() : m_data(nullptr), m_width(0), m_height(0), m_wpl(0) 
 BinaryImage::BinaryImage(const int width, const int height)
     : m_width(width), m_height(height), m_wpl((width + 31) / 32) {
   if ((m_width > 0) && (m_height > 0)) {
-    m_data = SharedData::create(m_height * m_wpl);
+    m_data = SharedData::create(static_cast<size_t>(m_height) * static_cast<size_t>(m_wpl));
   } else {
     throw std::invalid_argument("BinaryImage dimensions are wrong");
   }
@@ -76,7 +76,7 @@ BinaryImage::BinaryImage(const int width, const int height)
 BinaryImage::BinaryImage(const QSize size)
     : m_width(size.width()), m_height(size.height()), m_wpl((size.width() + 31) / 32) {
   if ((m_width > 0) && (m_height > 0)) {
-    m_data = SharedData::create(m_height * m_wpl);
+    m_data = SharedData::create(static_cast<size_t>(m_height) * static_cast<size_t>(m_wpl));
   } else {
     throw std::invalid_argument("BinaryImage dimensions are wrong");
   }
@@ -85,7 +85,7 @@ BinaryImage::BinaryImage(const QSize size)
 BinaryImage::BinaryImage(const int width, const int height, const BWColor color)
     : m_width(width), m_height(height), m_wpl((width + 31) / 32) {
   if ((m_width > 0) && (m_height > 0)) {
-    m_data = SharedData::create(m_height * m_wpl);
+    m_data = SharedData::create(static_cast<size_t>(m_height) * static_cast<size_t>(m_wpl));
   } else {
     throw std::invalid_argument("BinaryImage dimensions are wrong");
   }
@@ -95,7 +95,7 @@ BinaryImage::BinaryImage(const int width, const int height, const BWColor color)
 BinaryImage::BinaryImage(const QSize size, const BWColor color)
     : m_width(size.width()), m_height(size.height()), m_wpl((size.width() + 31) / 32) {
   if ((m_width > 0) && (m_height > 0)) {
-    m_data = SharedData::create(m_height * m_wpl);
+    m_data = SharedData::create(static_cast<size_t>(m_height) * static_cast<size_t>(m_wpl));
   } else {
     throw std::invalid_argument("BinaryImage dimensions are wrong");
   }
@@ -201,7 +201,7 @@ void BinaryImage::invert() {
     return;
   }
 
-  const size_t numWords = m_height * m_wpl;
+  const size_t numWords = static_cast<size_t>(m_height) * static_cast<size_t>(m_wpl);
 
   assert(m_data);
   if (!m_data->isShared()) {
@@ -229,7 +229,7 @@ BinaryImage BinaryImage::inverted() const {
     return BinaryImage();
   }
 
-  const size_t numWords = m_height * m_wpl;
+  const size_t numWords = static_cast<size_t>(m_height) * static_cast<size_t>(m_wpl);
   SharedData* newData = SharedData::create(numWords);
 
   const uint32_t* srcData = m_data->data();
@@ -246,15 +246,26 @@ void BinaryImage::fill(const BWColor color) {
   }
 
   const int pattern = (color == BLACK) ? ~0 : 0;
-  memset(data(), pattern, m_height * m_wpl * 4);
+  memset(data(), pattern, static_cast<size_t>(m_height) * static_cast<size_t>(m_wpl) * sizeof(uint32_t));
 }
 
 void BinaryImage::fill(const QRect& rect, const BWColor color) {
+  // Note: the other fill*() overloads all reject null images, and so does
+  // this one.  Without the check, data() below would return null.
+  if (isNull()) {
+    throw std::logic_error("Attempt to fill a null BinaryImage!");
+  }
+
   if (rect.isEmpty()) {
     return;
   }
 
-  fillRectImpl(data(), rect.intersected(this->rect()), color);
+  const QRect boundedRect(rect.intersected(this->rect()));
+  if (boundedRect.isEmpty()) {
+    return;
+  }
+
+  fillRectImpl(data(), boundedRect, color);
 }
 
 void BinaryImage::fillExcept(const QRect& rect, const BWColor color) {
@@ -464,8 +475,13 @@ QRect BinaryImage::contentBoundingBox(const BWColor contentColor) const {
 }  // BinaryImage::contentBoundingBox
 
 void BinaryImage::setPixel(int x, int y, BWColor color) {
-  uint32_t* line = this->data() + m_wpl * y;
-  (color == WHITE) ? line[x >> 5] &= ~(0x80000000 >> (x & 31)) : line[x >> 5] |= (0x80000000 >> (x & 31));
+  uint32_t* const line = this->data() + m_wpl * y;
+  const uint32_t mask = uint32_t(0x80000000) >> (x & 31);
+  if (color == WHITE) {
+    line[x >> 5] &= ~mask;
+  } else {
+    line[x >> 5] |= mask;
+  }
 }
 
 BWColor BinaryImage::getPixel(int x, int y) const {
@@ -556,7 +572,7 @@ void BinaryImage::copyIfShared() {
     return;
   }
 
-  const size_t numWords = m_height * m_wpl;
+  const size_t numWords = static_cast<size_t>(m_height) * static_cast<size_t>(m_wpl);
   SharedData* newData = SharedData::create(numWords);
   memcpy(newData->data(), m_data->data(), numWords * 4);
   m_data->unref();
@@ -1040,8 +1056,9 @@ void BinaryImage::SharedData::unref() const {
 }
 
 void* BinaryImage::SharedData::operator new(size_t, const NumWords numWords) {
-  SharedData* sd = nullptr;
-  void* addr = malloc(((char*) &sd->m_data[0] - (char*) sd) + numWords.numWords * 4);
+  // Note: offsetof() rather than pointer arithmetic on a null SharedData*,
+  // which would be undefined behaviour.
+  void* addr = malloc(offsetof(SharedData, m_data) + numWords.numWords * sizeof(uint32_t));
   if (!addr) {
     throw std::bad_alloc();
   }

@@ -38,11 +38,13 @@ DefaultParamsProvider& DefaultParamsProvider::getInstance() {
   return instance;
 }
 
-const QString& DefaultParamsProvider::getProfileName() const {
+QString DefaultParamsProvider::getProfileName() const {
+  const QMutexLocker locker(&m_mutex);
   return m_profileName;
 }
 
-const DefaultParams& DefaultParamsProvider::getParams() const {
+DefaultParams DefaultParamsProvider::getParams() const {
+  const QMutexLocker locker(&m_mutex);
   assert(m_params != nullptr);
   return *m_params;
 }
@@ -52,6 +54,7 @@ void DefaultParamsProvider::setParams(std::unique_ptr<DefaultParams> params, con
     return;
   }
 
+  const QMutexLocker locker(&m_mutex);
   m_params = std::move(params);
   m_profileName = name;
 }

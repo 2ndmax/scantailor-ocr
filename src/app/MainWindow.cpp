@@ -12,6 +12,7 @@
 #include <QFileSystemModel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QProcess>
 #include <QResource>
 #include <QScrollBar>
 #include <QSortFilterProxyModel>
@@ -32,6 +33,8 @@
 #include "FilterOptionsWidget.h"
 #include "FixDpiDialog.h"
 #include "ImageInfo.h"
+#include "ImageLoadErrorNotifier.h"
+#include "ImageLoadErrors.h"
 #include "ImageMetadataLoader.h"
 #include "ImageViewBase.h"
 #include "LoadFileTask.h"
@@ -42,6 +45,7 @@
 #include "PageOrientationPropagator.h"
 #include "PageSelectionAccessor.h"
 #include "PageSequence.h"
+#include "PdfExportDialog.h"
 #include "ProcessingIndicationWidget.h"
 #include "ProcessingTaskQueue.h"
 #include "ProjectCreationContext.h"
@@ -68,8 +72,10 @@
 #include "filters/fix_orientation/CacheDrivenTask.h"
 #include "filters/fix_orientation/Task.h"
 #include "filters/output/CacheDrivenTask.h"
+#include "filters/output/Filter.h"
 #include "filters/output/TabbedImageView.h"
 #include "filters/output/Task.h"
+#include "filters/output/Utils.h"
 #include "filters/page_layout/CacheDrivenTask.h"
 #include "filters/page_layout/Task.h"
 #include "filters/page_split/CacheDrivenTask.h"
@@ -115,6 +121,7 @@ MainWindow::MainWindow()
   ApplicationSettings& settings = ApplicationSettings::getInstance();
 
   m_maxLogicalThumbSize = settings.getMaxLogicalThumbnailSize();
+  m_deskewHandleDistance = settings.getDeskewHandleDistance();
   const ThumbnailSequence::ViewMode viewMode = settings.isSingleColumnThumbnailDisplayEnabled()
                                                    ? ThumbnailSequence::SINGLE_COLUMN
                                                    : ThumbnailSequence::MULTI_COLUMN;
@@ -125,6 +132,9 @@ MainWindow::MainWindow()
 
   setupUi(this);
   setupIcons();
+
+  // Owned by this window.
+  new ImageLoadErrorNotifier(this);
 
   sortOptions->setVisible(false);
 
@@ -323,6 +333,7 @@ MainWindow::MainWindow()
   connect(actionOpenProject, SIGNAL(triggered(bool)), this, SLOT(openProject()));
   connect(actionSaveProject, SIGNAL(triggered(bool)), this, SLOT(saveProjectTriggered()));
   connect(actionSaveProjectAs, SIGNAL(triggered(bool)), this, SLOT(saveProjectAsTriggered()));
+  connect(actionCreatePdf, SIGNAL(triggered(bool)), this, SLOT(pdfExportDialogRequested()));
   connect(actionCloseProject, SIGNAL(triggered(bool)), this, SLOT(closeProject()));
   connect(actionQuit, SIGNAL(triggered(bool)), this, SLOT(close()));
 
@@ -381,6 +392,10 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   }
   m_pages = pages;
   m_projectFile = projectFilePath;
+  // Changes to the page list (inserting, removing, splitting pages) should
+  // trigger the auto-save just like switching pages does.  The signal may
+  // come from a worker thread, the connection is queued then.
+  connect(m_pages.get(), &ProjectPages::modified, this, &MainWindow::updateAutoSaveTimer);
 
   if (projectReader) {
     m_selectedPage = projectReader->selectedPage();
@@ -710,6 +725,7 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
     disconnect(m_optionsWidget, SIGNAL(invalidateAllThumbnails()), this, SLOT(invalidateAllThumbnails()));
     disconnect(m_optionsWidget, SIGNAL(goToPage(const PageId&)), this, SLOT(goToPage(const PageId&)));
     disconnect(m_optionsWidget, SIGNAL(fixDpiRequested()), this, SLOT(fixDpiDialogRequested()));
+    disconnect(m_optionsWidget, SIGNAL(pdfExportRequested()), this, SLOT(pdfExportDialogRequested()));
   }
 
   m_optionsFrameLayout->addWidget(widget);
@@ -725,6 +741,7 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
   connect(widget, SIGNAL(invalidateAllThumbnails()), this, SLOT(invalidateAllThumbnails()));
   connect(widget, SIGNAL(goToPage(const PageId&)), this, SLOT(goToPage(const PageId&)));
   connect(widget, SIGNAL(fixDpiRequested()), this, SLOT(fixDpiDialogRequested()));
+  connect(widget, SIGNAL(pdfExportRequested()), this, SLOT(pdfExportDialogRequested()));
 }  // MainWindow::setOptionsWidget
 
 ImageViewBase* MainWindow::findPrimaryImageView(QWidget* root) {
@@ -1318,6 +1335,10 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
   // for instance because thumbnail invalidation is done from here.
   result->updateUI(this);
 
+  // Processing results carry changed page parameters, which should get
+  // auto-saved even if the user stays on the same page.
+  updateAutoSaveTimer();
+
   if (isBatchProcessingInProgress()) {
     if (m_batchQueue->allProcessed()) {
       stopBatchProcessing();
@@ -1334,7 +1355,17 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
         if (cmd.isEmpty()) {
           QApplication::beep();
         } else {
-          Q_UNUSED(std::system(cmd.toStdString().c_str()));
+          // Note: started detached rather than through std::system(), which
+          // would block the GUI thread until the sound has finished playing
+          // and would pass the command through a shell.
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+          const QStringList cmdParts = QProcess::splitCommand(cmd);
+          if (!cmdParts.isEmpty()) {
+            QProcess::startDetached(cmdParts.first(), cmdParts.mid(1));
+          }
+#else
+          QProcess::startDetached(cmd);
+#endif
         }
       }
 
@@ -1400,6 +1431,51 @@ void MainWindow::fixedDpiSubmitted() {
       || (selectedPageBefore.metadata() != selectedPageAfter.metadata())) {
     reloadRequested();
   }
+}
+
+void MainWindow::pdfExportDialogRequested() {
+  if (!isProjectLoaded()) {
+    return;
+  }
+  if (isBatchProcessingInProgress()) {
+    // The output files may be rewritten while the PDF is being built.
+    QMessageBox::information(this, tr("Create PDF"),
+                             tr("Please wait until batch processing has finished or stop it first."));
+    return;
+  }
+
+  // The pages in project order, independent of the current sorting of the thumbnails.
+  const QString outDir = m_outFileNameGen.outDir();
+  const QDir foregroundDir(output::Utils::foregroundDir(outDir));
+  const QDir backgroundDir(output::Utils::backgroundDir(outDir));
+  const std::shared_ptr<output::Filter>& outputFilter = m_stages->outputFilter();
+  std::vector<PdfExportDialog::Entry> entries;
+  int number = 0;
+  for (const PageInfo& pageInfo : m_pages->toPageSequence(PAGE_VIEW)) {
+    const PageId& pageId = pageInfo.id();
+    const QString fileName = m_outFileNameGen.fileNameFor(pageId);
+    const bool mixed = outputFilter->isMixedMode(pageId);
+    PdfExportDialog::Entry entry;
+    entry.label = QString("%1 - %2").arg(++number).arg(fileName);
+    entry.page = PdfExportPage(m_outFileNameGen.filePathFor(pageId), foregroundDir.absoluteFilePath(fileName),
+                               backgroundDir.absoluteFilePath(fileName), mixed);
+    entries.push_back(std::move(entry));
+  }
+
+  // Next to the project file and named like it.  For an unsaved project,
+  // next to the output folder and named like the folder containing it.
+  QString defaultFile;
+  if (!m_projectFile.isEmpty()) {
+    const QFileInfo projectInfo(m_projectFile);
+    defaultFile = QDir(projectInfo.absolutePath()).absoluteFilePath(projectInfo.completeBaseName() + ".pdf");
+  } else {
+    const QDir parentDir = QFileInfo(outDir).absoluteDir();
+    const QString name = parentDir.dirName().isEmpty() ? QStringLiteral("output") : parentDir.dirName();
+    defaultFile = parentDir.absoluteFilePath(name + ".pdf");
+  }
+
+  PdfExportDialog dialog(std::move(entries), m_thumbnailCache, defaultFile, this);
+  dialog.exec();
 }
 
 void MainWindow::saveProjectTriggered() {
@@ -1555,6 +1631,15 @@ void MainWindow::onSettingsChanged() {
   if (needInvalidate) {
     m_thumbSequence->invalidateAllThumbnails();
   }
+
+  // The deskew view reads the handle distance when it is created, so recreate it.
+  const int deskewHandleDistance = settings.getDeskewHandleDistance();
+  if (deskewHandleDistance != m_deskewHandleDistance) {
+    m_deskewHandleDistance = deskewHandleDistance;
+    if (isProjectLoaded()) {
+      updateMainArea();
+    }
+  }
 }
 
 void MainWindow::showAboutDialog() {
@@ -1610,6 +1695,7 @@ void MainWindow::updateProjectActions() {
   actionFixDpi->setEnabled(loaded);
   actionRelinking->setEnabled(loaded);
   actionReverseTwoPageOrder->setEnabled(loaded);
+  actionCreatePdf->setEnabled(loaded);
 }
 
 bool MainWindow::isBatchProcessingInProgress() const {
@@ -1724,7 +1810,7 @@ void MainWindow::updateWindowTitle() {
     projectName = QFileInfo(m_projectFile).completeBaseName();
   }
   const QString version(QString::fromUtf8(VERSION));
-  setWindowTitle(tr("%2 - ScanTailor Advanced [%1bit]").arg(sizeof(void*) * 8).arg(projectName));
+  setWindowTitle(tr("%2 - ScanTailor OCR [%1bit]").arg(sizeof(void*) * 8).arg(projectName));
 }
 
 /**
@@ -1865,7 +1951,8 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
   auto dialog = std::make_unique<QFileDialog>(this, tr("Files to insert"), dialogDir);
   dialog->setFileMode(QFileDialog::ExistingFiles);
   dialog->setProxyModel(new ProxyModel(*m_pages));
-  dialog->setNameFilter(tr("Images not in project (%1)").arg("*.png *.tiff *.tif *.jpeg *.jpg"));
+  dialog->setNameFilter(tr("Images not in project (%1)")
+                            .arg("*.png *.tiff *.tif *.jpeg *.jpg *.jp2 *.j2k *.j2c *.jpc *.jpf *.jpx *.jph *.jhc"));
   // XXX: Adding individual pages from a multi-page TIFF where
   // some of the pages are already in project is not supported right now.
   if (dialog->exec() != QDialog::Accepted) {
@@ -1894,6 +1981,7 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
     const QFileInfo fileInfo(files[i]);
     ImageFileInfo imageFileInfo(fileInfo, std::vector<ImageMetadata>());
 
+    ImageLoadErrorCapture errorCapture;
     const ImageMetadataLoader::Status status = ImageMetadataLoader::load(
         files.at(i), [&](const ImageMetadata& metadata) { imageFileInfo.imageInfo().push_back(metadata); });
 
@@ -1901,7 +1989,12 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
       newFiles.push_back(imageFileInfo);
       loadedFiles.push_back(fileInfo.absoluteFilePath());
     } else {
-      failedFiles.push_back(fileInfo.absoluteFilePath());
+      QString failedFile = fileInfo.absoluteFilePath();
+      const QStringList reasons = errorCapture.messages();
+      if (!reasons.isEmpty()) {
+        failedFile += QLatin1String(" (") + reasons.front() + QLatin1Char(')');
+      }
+      failedFiles.push_back(failedFile);
     }
   }
 
@@ -2202,7 +2295,7 @@ void MainWindow::execGotoPageDialog() {
 
   bool ok;
   const PageSequence pageSequence = m_thumbSequence->toPageSequence();
-  const PageId& selectionLeader = m_thumbSequence->selectionLeader().id();
+  const PageId selectionLeader = m_thumbSequence->selectionLeader().id();
   int pageNumber
       = QInputDialog::getInt(this, tr("Go To Page"), tr("Enter the page number:"),
                              pageSequence.pageNo(selectionLeader) + 1, 1, (int) (pageSequence.numPages()), 1, &ok);

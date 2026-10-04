@@ -28,6 +28,8 @@ void Settings::clear() {
   m_perPageParams.clear();
   m_pendingAutoOblique.clear();
   m_deviationProvider.clear();
+  // Must not leak into the next project.
+  m_algoContentBased = true;
 }
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {

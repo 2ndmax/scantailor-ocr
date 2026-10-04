@@ -10,6 +10,18 @@
 using namespace core;
 using namespace imageproc;
 
+namespace {
+/** A missing or malformed threshold must not silently become 0, which would black out the page. */
+BinaryThreshold readBwThreshold(const QDomElement& el) {
+  bool ok = false;
+  const int threshold = el.attribute("bwThreshold").toInt(&ok);
+  if (!ok) {
+    return BinaryThreshold(128);
+  }
+  return BinaryThreshold(threshold);
+}
+}  // namespace
+
 void ImageSettings::clear() {
   QMutexLocker locker(&m_mutex);
   m_perPageParams.clear();
@@ -51,7 +63,10 @@ ImageSettings::PageParams::PageParams(const BinaryThreshold& bwThreshold, bool b
     : m_bwThreshold(bwThreshold), m_blackOnWhite(blackOnWhite) {}
 
 ImageSettings::PageParams::PageParams(const QDomElement& el)
-    : m_bwThreshold(el.attribute("bwThreshold").toInt()), m_blackOnWhite(el.attribute("blackOnWhite") == "1") {}
+    : m_bwThreshold(readBwThreshold(el)),
+      // Project files written elsewhere may not carry the attribute at all. Defaulting to false
+      // would make us treat an ordinary scan as white-on-black.
+      m_blackOnWhite(el.attribute("blackOnWhite", "1") != "0") {}
 
 QDomElement ImageSettings::PageParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));

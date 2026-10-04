@@ -26,12 +26,13 @@ endmacro()
 # To be followed by update_translations_target()
 #
 macro (finalize_translations _target) #, _ts_files
-  set(_sources_str "")
+  # A list file for lupdate: one source file per line, include directories prefixed with -I.
+  # (lupdate of Qt 6 no longer reads qmake .pro files.)
+  set(_lst_content "")
   foreach (_file ${${_target}_TRANSLATION_SOURCES})
-    set(_sources_str "${_sources_str} \"${_file}\"")
+    string(APPEND _lst_content "${_file}\n")
   endforeach()
 
-  set(_filtered_inc_dirs "")
   foreach (_dir ${${_target}_TRANSLATION_INCLUDE_DIRS})
     # We are going to accept include directories within our
     # source and binary trees and reject all others.  Allowing lupdate
@@ -39,23 +40,18 @@ macro (finalize_translations _target) #, _ts_files
     file(RELATIVE_PATH _dir_rel_to_source "${CMAKE_SOURCE_DIR}" "${_dir}")
     file(RELATIVE_PATH _dir_rel_to_binary "${CMAKE_BINARY_DIR}" "${_dir}")
     if (NOT ((_dir_rel_to_source MATCHES "\\.\\..*") AND (_dir_rel_to_binary MATCHES "\\.\\..*")))
-      list(APPEND _filtered_inc_dirs "${_dir}")
+      string(APPEND _lst_content "-I${_dir}\n")
     endif()
   endforeach()
-  set(_inc_dirs_str "")
-  foreach (_dir ${_filtered_inc_dirs})
-    set(_inc_dirs_str "${_inc_dirs_str} \"${_dir}\"")
-  endforeach()
 
-  set(_translations_str "")
+  file(WRITE "${CMAKE_BINARY_DIR}/update_translations_${_target}.lst" "${_lst_content}")
+
+  set(_ts_files "")
   foreach (_file ${ARGN})
     get_filename_component(_abs "${_file}" ABSOLUTE)
-    set(_translations_str "${_translations_str} \"${_abs}\"")
+    list(APPEND _ts_files "${_abs}")
   endforeach()
-
-  file(
-      WRITE "${CMAKE_BINARY_DIR}/update_translations_${_target}.pro"
-      "SOURCES = ${_sources_str}\nTRANSLATIONS = ${_translations_str}\nINCLUDEPATH = ${_inc_dirs_str}")
+  set(${_target}_TRANSLATION_TS_FILES ${_ts_files} CACHE INTERNAL "" FORCE)
 
   # Note that we can't create a custom target with *.ts files as output, because:
   # 1. CMake would pollute our source tree with *.rule fules.
@@ -72,8 +68,8 @@ macro (update_translations_target _update_target) #, _targets
   set(_commands "")
   foreach (_target ${ARGN})
     list(
-        APPEND _commands COMMAND Qt6::lupdate -locations absolute -no-obsolete
-        -pro "${CMAKE_BINARY_DIR}/update_translations_${_target}.pro")
+        APPEND _commands COMMAND ${Qt_lupdate_target} -locations absolute -no-obsolete
+        "@${CMAKE_BINARY_DIR}/update_translations_${_target}.lst" -ts ${${_target}_TRANSLATION_TS_FILES})
   endforeach()
 
   add_custom_target(${_update_target} ${_commands} VERBATIM)

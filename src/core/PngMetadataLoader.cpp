@@ -54,6 +54,9 @@ static void readFn(png_structp pngPtr, png_bytep data, png_size_t length) {
       png_error(pngPtr, "Read Error");
       return;
     }
+    // Note: a short read has to advance the destination pointer as well,
+    // or the next iteration would overwrite what we've just read.
+    data += read;
     length -= read;
   }
 }

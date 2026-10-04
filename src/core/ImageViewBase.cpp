@@ -235,6 +235,11 @@ QImage ImageViewBase::createDownscaledImage(const QImage& image) {
   const int oW = image.width();
   const int oH = image.height();
 
+  if ((oDpm.horizontal() <= 0) || (oDpm.vertical() <= 0)) {
+    // Unknown resolution: no downscaling, rather than dividing by zero.
+    return image;
+  }
+
   int dW = oW * dDpm.horizontal() / oDpm.horizontal();
   int dH = oH * dDpm.vertical() / oDpm.vertical();
   dW = qBound(1, dW, oW);

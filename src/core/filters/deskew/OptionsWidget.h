@@ -17,6 +17,8 @@
 #include "PageSelectionAccessor.h"
 #include "ui_OptionsWidget.h"
 
+class QButtonGroup;
+
 namespace deskew {
 class Settings;
 
@@ -92,8 +94,6 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void topEdgeToggled(bool checked);
 
-  void autoObliqueCheckBoxToggled(bool checked);
-
   void showDeskewDialog();
 
   void appliedTo(const std::set<PageId>& pages, bool applyDeskew, bool applyOblique);
@@ -124,6 +124,10 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   UiData m_uiData;
 
   PageSelectionAccessor m_pageSelectionAccessor;
+
+  // Owned by this widget (parented); keeps the two Auto / Manual pairs independent of each other.
+  QButtonGroup* m_deskewModeGroup;
+  QButtonGroup* m_obliqueModeGroup;
 
   ConnectionManager m_connectionManager;
 };

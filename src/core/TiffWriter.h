@@ -19,6 +19,9 @@ class TiffWriter {
   /**
    * \brief Writes a QImage in TIFF format to a file.
    *
+   * Failures are reported to ImageLoadErrorReporter, so the user learns about them.
+   * No partially written file is left behind.
+   *
    * \param filePath The full path to the file.
    * \param image The image to write.  Writing a null image will fail.
    * \return True on success, false on failure.
@@ -37,6 +40,8 @@ class TiffWriter {
 
  private:
   class TiffHandle;
+
+  static bool writeImageToFile(const QString& filePath, const QImage& image);
 
   static void setDpm(const TiffHandle& tif, const Dpm& dpm);
 

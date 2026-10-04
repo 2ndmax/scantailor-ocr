@@ -1216,8 +1216,16 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::buildEmptyImage() const
   OutputImageBuilder imageBuilder;
 
   BinaryImage emptyImage(m_targetSize, WHITE);
-  imageBuilder.setImage(emptyImage.toQImage());
-  if (m_renderParams.splitOutput()) {
+  if (!m_renderParams.splitOutput()) {
+    imageBuilder.setImage(emptyImage.toQImage());
+  } else {
+    // The split layers are cut out with applyMask(), which rejects 1-bit images,
+    // so use a white 8-bit grayscale image here.
+    GrayImage whiteImage(m_targetSize);
+    whiteImage.fill(0xff);
+    imageBuilder.setImage(whiteImage.toQImage());
+    // Without a foreground type, build() would return a plain image without the split layers.
+    imageBuilder.setForegroundType(getForegroundType());
     imageBuilder.setForegroundMask(emptyImage);
     if (m_renderParams.originalBackground()) {
       imageBuilder.setBackgroundMask(emptyImage);
@@ -1247,7 +1255,11 @@ void OutputGenerator::Processor::initFilterData(const FilterData& input) {
   if (!m_blackOnWhite) {
     m_inputOrigImage.invertPixels();
   }
-  m_colorOriginal = !m_inputOrigImage.allGray();
+  // With grayscale output, a color source is processed like a grayscale scan. Black and white
+  // mode is left alone, as its color segmentation keeps colored text on purpose.
+  const bool grayscaleOutput
+      = m_colorParams.colorCommonOptions().isGrayscaleOutput() && (m_colorParams.colorMode() != BLACK_AND_WHITE);
+  m_colorOriginal = !grayscaleOutput && !m_inputOrigImage.allGray();
 }
 
 std::unique_ptr<OutputImage> OutputGenerator::Processor::processImpl(ZoneSet& pictureZones,
@@ -1257,6 +1269,10 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processImpl(ZoneSet& pi
                                                                      BinaryImage* autoPictureMask,
                                                                      BinaryImage* specklesImage) {
   if (m_blank) {
+    if (autoPictureMask) {
+      // A blank page has no picture areas. The mask is still needed for the picture zones tab.
+      BinaryImage(m_targetSize, BLACK).swap(*autoPictureMask);
+    }
     return buildEmptyImage();
   }
 
@@ -1416,6 +1432,12 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
       maybeDespeckleInPlace(bwContent, m_workingBoundingRect, m_croppedContentRect, m_despeckleLevel, specklesImage,
                             m_dpi);
 
+      if (m_renderParams.originalBackground()) {
+        // The original background path combines without a mask, so keep the
+        // binarized content out of picture areas, or it would be painted over the pictures.
+        rasterOp<RopAnd<RopSrc, RopDst>>(bwContent, bwMask);
+      }
+
       if (!m_renderParams.normalizeIlluminationColor()) {
         m_outsideBackgroundColor = BackgroundColorCalculator::calcDominantBackgroundColor(
             m_colorOriginal ? m_inputOrigImage : m_inputGrayImage, m_outCropAreaInOriginalCs);
@@ -1440,7 +1462,6 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
           combineImages(maybeNormalized, segmentedImage, bwMask);
         }
       }
-      bwContent.release();  // Save memory.
       if (m_dbg) {
         m_dbg->add(maybeNormalized, "combined");
       }
@@ -1456,6 +1477,8 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
         bwContentOutput = BinaryImage(m_targetSize, WHITE);
         rasterOp<RopSrc>(bwContentOutput, m_croppedContentRect, bwContent, m_contentRectInWorkingCs.topLeft());
       }
+      // Release only now: the original background branches above still read bwContent.
+      bwContent.release();  // Save memory.
     }
 
     bwContentMaskOutput = BinaryImage(m_targetSize, BLACK);
@@ -1498,7 +1521,9 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
     dst.invertPixels();
   }
 
-  if (m_renderParams.mixedOutput() && m_renderParams.needBinarization()) {
+  // applyFillZonesToMixedInPlace() re-binarizes the non-picture areas, which would
+  // wipe out the original background, so paint fill zones directly in that mode.
+  if (m_renderParams.mixedOutput() && m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
     applyFillZonesToMixedInPlace(dst, fillZones, m_xform.transform(), bwContentMaskOutput,
                                  !m_renderParams.needColorSegmentation());
   } else {
@@ -1798,6 +1823,11 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
       // operation from the final output file.
       maybeDespeckleInPlace(dewarpedBwContent, m_outRect, m_croppedContentRect, m_despeckleLevel, specklesImage, m_dpi);
 
+      if (m_renderParams.originalBackground()) {
+        // See processWithoutDewarping(): keep the binarized content out of picture areas.
+        rasterOp<RopAnd<RopSrc, RopDst>>(dewarpedBwContent, dewarpedBwMask);
+      }
+
       if (!m_renderParams.normalizeIlluminationColor()) {
         m_outsideBackgroundColor = BackgroundColorCalculator::calcDominantBackgroundColor(
             m_colorOriginal ? m_inputOrigImage : m_inputGrayImage, m_outCropAreaInOriginalCs);
@@ -1859,7 +1889,9 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
     dewarped.invertPixels();
   }
 
-  if (m_renderParams.mixedOutput() && m_renderParams.needBinarization()) {
+  // applyFillZonesToMixedInPlace() re-binarizes the non-picture areas, which would
+  // wipe out the original background, so paint fill zones directly in that mode.
+  if (m_renderParams.mixedOutput() && m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
     applyFillZonesToMixedInPlace(dewarped, fillZones, origToOutput, dewarpedBwMask,
                                  !m_renderParams.needColorSegmentation());
   } else {

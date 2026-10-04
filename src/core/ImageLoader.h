@@ -4,6 +4,9 @@
 #ifndef SCANTAILOR_CORE_IMAGELOADER_H_
 #define SCANTAILOR_CORE_IMAGELOADER_H_
 
+#include <QSize>
+#include <QStringList>
+
 class ImageId;
 class QImage;
 class QString;
@@ -13,9 +16,29 @@ class ImageLoader {
  public:
   static QImage load(const QString& filePath, int pageNum = 0);
 
-  static QImage load(const ImageId& imageId);
+  /**
+   * \brief Loads a source image of the project.
+   *
+   * Unlike the other overloads, failures are reported to ImageLoadErrorReporter,
+   * so the user gets to know why an image couldn't be loaded.
+   *
+   * \param errorMessages If not null, receives the reasons of a failure.
+   */
+  static QImage load(const ImageId& imageId, QStringList* errorMessages = nullptr);
 
-  static QImage load(QIODevice& ioDev, int pageNum);
+  /**
+   * \brief Like load(const ImageId&), but allows the image to be loaded at a reduced
+   *        resolution, as long as it's still at least \p minSize large.
+   *
+   * Only formats that can decode reduced resolutions cheaply (JPEG 2000 and JPEG) make
+   * use of that, the others are loaded at full resolution.  Meant for thumbnails.
+   */
+  static QImage loadForThumbnail(const ImageId& imageId, const QSize& minSize);
+
+  static QImage load(QIODevice& ioDev, int pageNum, const QSize& minSize = QSize());
+
+ private:
+  static QImage loadReportingErrors(const ImageId& imageId, const QSize& minSize, QStringList* errorMessages);
 };
 
 

@@ -6,6 +6,7 @@
 
 #include <QImage>
 #include <QSize>
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdint>
@@ -46,9 +47,45 @@ static bool fuzzyCompare(const QImage& img1, const QImage& img2) {
   return true;
 }
 
+/**
+ * A straightforward, exact implementation of downscaling by area averaging:
+ * each destination pixel is the mean of the source area it covers, with
+ * partially covered source pixels weighted by the covered fraction.
+ *
+ * The test used to compare against QImage::scaled() instead, but Qt's smooth
+ * scaling algorithm changed between Qt 5 and Qt 6, making that comparison fail
+ * although scaleToGray() itself is fine.
+ */
+static GrayImage referenceDownscale(const GrayImage& src, const QSize& dstSize) {
+  GrayImage dst(dstSize);
+  const double xRatio = double(src.width()) / dstSize.width();
+  const double yRatio = double(src.height()) / dstSize.height();
+  const uint8_t* srcData = src.data();
+  const int srcStride = src.stride();
+
+  for (int dy = 0; dy < dstSize.height(); ++dy) {
+    const double top = dy * yRatio;
+    const double bottom = (dy + 1) * yRatio;
+    for (int dx = 0; dx < dstSize.width(); ++dx) {
+      const double left = dx * xRatio;
+      const double right = (dx + 1) * xRatio;
+      double sum = 0.0;
+      for (auto sy = static_cast<int>(top); sy < bottom && sy < src.height(); ++sy) {
+        const double yWeight = std::min<double>(sy + 1, bottom) - std::max<double>(sy, top);
+        for (auto sx = static_cast<int>(left); sx < right && sx < src.width(); ++sx) {
+          const double xWeight = std::min<double>(sx + 1, right) - std::max<double>(sx, left);
+          sum += xWeight * yWeight * srcData[sy * srcStride + sx];
+        }
+      }
+      dst.data()[dy * dst.stride() + dx] = static_cast<uint8_t>(std::lround(sum / (xRatio * yRatio)));
+    }
+  }
+  return dst;
+}
+
 static bool checkScale(const GrayImage& img, const QSize& newSize) {
   const GrayImage scaled1(scaleToGray(img, newSize));
-  const GrayImage scaled2(img.toQImage().scaled(newSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+  const GrayImage scaled2(referenceDownscale(img, newSize));
   return fuzzyCompare(scaled1, scaled2);
 }
 
@@ -62,15 +99,14 @@ BOOST_AUTO_TEST_CASE(test_random_image) {
     line += img.stride();
   }
 
-  // Unfortunately scaleToGray() and QImage::scaled()
-  // produce too different results when upscaling.
+  // Only downscaling is checked: upscaling interpolates, and there's
+  // no single "right" result to compare against.  The ratios are chosen to
+  // be exactly representable in the 1/32 fixed point arithmetic scaleToGray()
+  // uses; others may legitimately be off by a bit more than one gray level.
 
   BOOST_CHECK(checkScale(img, QSize(50, 50)));
-  // BOOST_CHECK(checkScale(img, QSize(200, 200)));
   BOOST_CHECK(checkScale(img, QSize(80, 80)));
-  // BOOST_CHECK(checkScale(img, QSize(140, 140)));
-  // BOOST_CHECK(checkScale(img, QSize(55, 145)));
-  // BOOST_CHECK(checkScale(img, QSize(145, 55)));
+  BOOST_CHECK(checkScale(img, QSize(80, 50)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

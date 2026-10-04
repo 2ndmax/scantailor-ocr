@@ -4,9 +4,12 @@
 #include "Binarize.h"
 
 #include <QDebug>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstddef>
 #include <stdexcept>
+#include <vector>
 
 #include "BinaryImage.h"
 #include "Grayscale.h"
@@ -162,8 +165,11 @@ BinaryImage binarizeWolf(const QImage& src,
   const int windowLeftHalf = windowSize.width() >> 1;
   const int windowRightHalf = windowSize.width() - windowLeftHalf;
 
-  std::vector<float> means(w * h, 0);
-  std::vector<float> deviations(w * h, 0);
+  // The multiplication is done in size_t to avoid an int overflow, which
+  // would silently allocate buffers that are too small for large images.
+  const size_t numPixels = static_cast<size_t>(w) * static_cast<size_t>(h);
+  std::vector<float> means(numPixels, 0);
+  std::vector<float> deviations(numPixels, 0);
 
   double maxDeviation = 0;
 
@@ -186,10 +192,14 @@ BinaryImage binarizeWolf(const QImage& src,
       const double variance = sqmean - mean * mean;
       const double deviation = std::sqrt(std::fabs(variance));
       maxDeviation = std::max(maxDeviation, deviation);
-      means[w * y + x] = (float) mean;
-      deviations[w * y + x] = (float) deviation;
+      means[static_cast<size_t>(y) * w + x] = (float) mean;
+      deviations[static_cast<size_t>(y) * w + x] = (float) deviation;
     }
   }
+  // A perfectly uniform image (a blank page, for example) has no deviation
+  // at all.  Without this guard, deviation / maxDeviation below would be
+  // 0.0 / 0.0 == NaN, making every threshold comparison false.
+  maxDeviation = (maxDeviation > 0.0) ? maxDeviation : 1.0;
 
   // TODO: integral images can be disposed at this point.
 
@@ -201,8 +211,8 @@ BinaryImage binarizeWolf(const QImage& src,
   grayLine = gray.bits();
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
-      const float mean = means[y * w + x];
-      const float deviation = deviations[y * w + x];
+      const float mean = means[static_cast<size_t>(y) * w + x];
+      const float deviation = deviations[static_cast<size_t>(y) * w + x];
       const double base = mean - minGrayLevel;
       const double frac_sn = deviation / maxDeviation;
       const double threshold = base * (1.0 - k * (1.0 - (frac_sn + frac_d))) + minGrayLevel;
@@ -398,7 +408,7 @@ BinaryImage binarizeWindow(const QImage& src,
   const uint64_t meanFull = integralImage.sum(QRect(0, 0, w, h)) / areaFull;
   double deviationMax = 0.0;
   double deviationMin = 256.0;
-  const double coefw = k * 3.0; // translate from Wolf to Window coef.
+  const double coefw = k * 3.0;  // translate from Wolf to Window coef.
 
   grayLine = gray.bits();
   for (int y = 0; y < h; ++y) {

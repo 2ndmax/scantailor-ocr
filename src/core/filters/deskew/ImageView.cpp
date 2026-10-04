@@ -4,6 +4,7 @@
 #include "ImageView.h"
 
 #include <Constants.h>
+#include <core/ApplicationSettings.h>
 #include <core/IconProvider.h>
 
 #include <QAction>
@@ -26,7 +27,8 @@ ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const I
       m_handlePixmap(IconProvider::getInstance().getIcon("aqua-sphere").pixmap(16, 16)),
       m_dragHandler(*this),
       m_zoomHandler(*this),
-      m_xform(xform) {
+      m_xform(xform),
+      m_handleDistance(ApplicationSettings::getInstance().getDeskewHandleDistance() / 100.0) {
   setMouseTracking(true);
 
   interactionState().setDefaultStatusTip(tr("Use Ctrl+Wheel to rotate or Ctrl+Shift+Wheel for finer rotation."));
@@ -286,7 +288,7 @@ QRectF ImageView::getRotationArcSquare() const {
 
   QRectF arcSquare(QPointF(0, 0), arcSize);
   arcSquare.moveCenter(reducedScreenRect.center());
-  return arcSquare;
+  return applyHandleDistance(arcSquare);
 }
 
 std::pair<QPointF, QPointF> ImageView::getRotationHandles(const QRectF& arcSquare) const {
@@ -312,7 +314,15 @@ QRectF ImageView::getObliqueArcSquare() const {
   QRectF arcSquare(QPointF(0, 0), arcSize);
   arcSquare.moveRight(reducedScreenRect.right());
   arcSquare.moveCenter(QPointF(arcSquare.center().x(), reducedScreenRect.center().y()));
-  return arcSquare;
+  return applyHandleDistance(arcSquare);
+}
+
+QRectF ImageView::applyHandleDistance(const QRectF& arcSquare) const {
+  // Both the arcs and the handles on them are derived from the square, and so is the
+  // angle computed while dragging, so shrinking the square moves all of them consistently.
+  QRectF shrunk(QPointF(0, 0), arcSquare.size() * m_handleDistance);
+  shrunk.moveCenter(arcSquare.center());
+  return shrunk;
 }
 
 std::pair<QPointF, QPointF> ImageView::getObliqueHandles(const QRectF& arcSquare) const {

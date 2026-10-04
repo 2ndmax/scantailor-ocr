@@ -1,7 +1,7 @@
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-set(target_name scantailor-advanced)
+set(target_name scantailor-ocr)
 
 set(resource_files
     resources.qrc
@@ -18,6 +18,7 @@ set(gui_only_sources
     SettingsDialog.cpp SettingsDialog.h
     FixDpiDialog.cpp FixDpiDialog.h
     LoadFilesStatusDialog.cpp LoadFilesStatusDialog.h
+    ImageLoadErrorNotifier.cpp ImageLoadErrorNotifier.h
     ProjectCreationContext.cpp ProjectCreationContext.h
     ProjectOpeningContext.cpp ProjectOpeningContext.h
     OutOfMemoryDialog.cpp OutOfMemoryDialog.h
@@ -28,7 +29,9 @@ set(gui_only_sources
     MainWindow.cpp MainWindow.h
     main.cpp
     StatusBarPanel.cpp StatusBarPanel.h
-    DefaultParamsDialog.cpp DefaultParamsDialog.h)
+    DefaultParamsDialog.cpp DefaultParamsDialog.h
+    PdfExportDialog.cpp PdfExportDialog.h
+    TessdataDownloadDialog.cpp TessdataDownloadDialog.h)
 
 set(gui_only_ui_files
     AboutDialog.ui
@@ -82,14 +85,64 @@ target_include_directories(
 install(TARGETS ${target_name} RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
 if (Qt6_FOUND AND WIN32)
-  #manage plugins with windeployqt.
-  add_custom_command(
-    TARGET ${target_name}
-    POST_BUILD
-    COMMAND ${QT_BINDIR}/windeployqt  $<TARGET_FILE:${target_name}>
-    COMMENT "deploy qt files alongside binary (e.g. plugins)"
-  )
-  install(CODE "execute_process(COMMAND \"${QT_BINDIR}/windeployqt\" \"\$\{CMAKE_INSTALL_PREFIX\}\")")
+  #manage plugins with windeployqt, if the Qt installation ships it (vcpkg does not).
+  find_program(
+      WINDEPLOYQT_EXECUTABLE windeployqt
+      HINTS "${QT_BINDIR}" "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_BINS}"
+      "${QT6_INSTALL_PREFIX}/tools/Qt6/bin"
+      DOC "Path to the windeployqt deployment tool.")
+
+  if (WINDEPLOYQT_EXECUTABLE)
+    add_custom_command(
+      TARGET ${target_name}
+      POST_BUILD
+      COMMAND "${WINDEPLOYQT_EXECUTABLE}" $<TARGET_FILE:${target_name}>
+      COMMENT "deploy qt files alongside binary (e.g. plugins)"
+    )
+    install(CODE "execute_process(COMMAND \"${WINDEPLOYQT_EXECUTABLE}\" \"\$\{CMAKE_INSTALL_PREFIX\}\")")
+  else()
+    #No windeployqt available: copy the plugins the application needs ourselves.
+    if (QT6_INSTALL_PLUGINS)
+      set(qt_plugins_dir "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_PLUGINS}")
+    else()
+      set(qt_plugins_dir "${QT6_INSTALL_PREFIX}/plugins")
+    endif()
+    message(STATUS "windeployqt not found, deploying Qt plugins from ${qt_plugins_dir}")
+
+    # TLS (HTTPS, for downloading OCR languages): only Windows' own implementation (Schannel).
+    # The OpenSSL backend needs OpenSSL DLLs, which aren't shipped.  Qt stops loading TLS
+    # plugins at the first one that fails to load, so it would hide the Schannel backend.
+    file(GLOB tls_plugins
+         "${qt_plugins_dir}/tls/qschannelbackend*.dll"
+         "${qt_plugins_dir}/tls/qcertonlybackend*.dll")
+    if (tls_plugins)
+      add_custom_command(
+        TARGET ${target_name}
+        POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:${target_name}>/tls"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${tls_plugins} "$<TARGET_FILE_DIR:${target_name}>/tls"
+        COMMENT "deploy qt tls plugins (Schannel) alongside binary"
+      )
+      install(FILES ${tls_plugins} DESTINATION "${CMAKE_INSTALL_BINDIR}/tls")
+    endif()
+
+    foreach (plugin_group platforms styles imageformats iconengines)
+      if (EXISTS "${qt_plugins_dir}/${plugin_group}")
+        add_custom_command(
+          TARGET ${target_name}
+          POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_directory
+              "${qt_plugins_dir}/${plugin_group}"
+              "$<TARGET_FILE_DIR:${target_name}>/${plugin_group}"
+          COMMENT "deploy qt ${plugin_group} plugins alongside binary"
+        )
+        install(
+            DIRECTORY "${qt_plugins_dir}/${plugin_group}"
+            DESTINATION "${CMAKE_INSTALL_BINDIR}")
+      endif()
+    endforeach()
+  endif()
 endif()
 
-translation_sources(${target_name} ${gui_only_sources} ${gui_only_ui_files})
+# Same set as the other sources ("scantailor"), which is the one update_translations works on.
+translation_sources(scantailor ${gui_only_sources} ${gui_only_ui_files})

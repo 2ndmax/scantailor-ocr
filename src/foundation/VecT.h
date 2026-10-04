@@ -13,6 +13,11 @@
  */
 template <typename T>
 class VecT {
+  // Required by the converting constructor and assignment operator below,
+  // which access the private members of a different instantiation.
+  template <typename OT>
+  friend class VecT;
+
  public:
   using type = T;
 
@@ -193,7 +198,7 @@ void VecT<T>::swap(VecT& other) {
 }
 
 template <typename T>
-void swap(const VecT<T>& o1, const VecT<T>& o2) {
+void swap(VecT<T>& o1, VecT<T>& o2) {
   o1.swap(o2);
 }
 

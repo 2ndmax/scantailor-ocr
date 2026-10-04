@@ -5,6 +5,7 @@
 
 #include <utility>
 
+#include "DebugImagesImpl.h"
 #include "Dpm.h"
 #include "Filter.h"
 #include "FilterData.h"
@@ -24,6 +25,7 @@ class Task::UiUpdater : public FilterResult {
  public:
   UiUpdater(std::shared_ptr<Filter> filter,
             std::shared_ptr<Settings> settings,
+            std::unique_ptr<DebugImages> dbg,
             const PageId& pageId,
             const QImage& image,
             const ImageTransformation& xform,
@@ -39,6 +41,7 @@ class Task::UiUpdater : public FilterResult {
  private:
   std::shared_ptr<Filter> m_filter;
   std::shared_ptr<Settings> m_settings;
+  std::unique_ptr<DebugImages> m_dbg;
   PageId m_pageId;
   QImage m_image;
   QImage m_downscaledImage;
@@ -60,7 +63,11 @@ Task::Task(std::shared_ptr<Filter> filter,
       m_nextTask(std::move(nextTask)),
       m_settings(std::move(settings)),
       m_pageId(pageId),
-      m_batchProcessing(batch) {}
+      m_batchProcessing(batch) {
+  if (debug) {
+    m_dbg = std::make_unique<DebugImagesImpl>();
+  }
+}
 
 Task::~Task() = default;
 
@@ -92,9 +99,14 @@ FilterResultPtr Task::process(const TaskStatus& status,
     newXform.setPostCropArea(Utils::shiftToRoundedOrigin(newXform.transform().map(pageRectPhys)));
     return m_nextTask->process(status, FilterData(data, newXform), contentRectPhys);
   } else {
-    return std::make_shared<UiUpdater>(m_filter, m_settings, m_pageId, data.origImage(), data.xform(),
-                                       ContentMask(data.grayImageBlackOnWhite(), data.xform(), status),
-                                       adaptedContentRect, aggHardSizeBefore != aggHardSizeAfter, m_batchProcessing);
+    const ContentMask contentMask(data.grayImageBlackOnWhite(), data.xform(), status);
+    if (m_dbg) {
+      m_dbg->add(contentMask.image(), "content_mask");
+    }
+
+    return std::make_shared<UiUpdater>(m_filter, m_settings, std::move(m_dbg), m_pageId, data.origImage(), data.xform(),
+                                       contentMask, adaptedContentRect, aggHardSizeBefore != aggHardSizeAfter,
+                                       m_batchProcessing);
   }
 }
 
@@ -102,6 +114,7 @@ FilterResultPtr Task::process(const TaskStatus& status,
 
 Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            std::shared_ptr<Settings> settings,
+                           std::unique_ptr<DebugImages> dbg,
                            const PageId& pageId,
                            const QImage& image,
                            const ImageTransformation& xform,
@@ -111,6 +124,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const bool batch)
     : m_filter(std::move(filter)),
       m_settings(std::move(settings)),
+      m_dbg(std::move(dbg)),
       m_pageId(pageId),
       m_image(image),
       m_downscaledImage(ImageView::createDownscaledImage(image)),
@@ -138,7 +152,7 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
 
   auto* view = new ImageView(m_settings, m_pageId, m_image, m_downscaledImage, m_contentMask, m_xform,
                              m_adaptedContentRect, *optWidget);
-  ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
+  ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
 
   QObject::connect(view, SIGNAL(invalidateThumbnail(const PageId&)), optWidget,
                    SIGNAL(invalidateThumbnail(const PageId&)));

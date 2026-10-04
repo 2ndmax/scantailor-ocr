@@ -159,6 +159,10 @@ OptionsWidget* Filter::optionsWidget() {
   return m_optionsWidget.get();
 }
 
+bool Filter::isMixedMode(const PageId& pageId) const {
+  return m_settings->getParams(pageId).colorParams().colorMode() == MIXED;
+}
+
 std::vector<PageOrderOption> Filter::pageOrderOptions() const {
   return m_pageOrderOptions;
 }

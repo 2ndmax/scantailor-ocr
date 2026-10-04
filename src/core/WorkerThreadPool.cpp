@@ -5,8 +5,10 @@
 
 #include <QCoreApplication>
 #include <QThreadPool>
+#include <exception>
 #include <utility>
 
+#include "ImageLoadErrors.h"
 #include "OutOfMemoryHandler.h"
 
 class WorkerThreadPool::TaskResultEvent : public QEvent {
@@ -57,6 +59,11 @@ void WorkerThreadPool::submitTask(const BackgroundTaskPtr& task) {
         }
       } catch (const std::bad_alloc&) {
         OutOfMemoryHandler::instance().handleOutOfMemorySituation();
+      } catch (const std::exception& e) {
+        // Page tasks catch their own errors (see LoadFileTask), so this is a last resort,
+        // which keeps the program alive instead of terminating it.
+        ImageLoadErrorReporter::instance().reportProcessingFailure(QString(), 0,
+                                                                   QStringList(QString::fromUtf8(e.what())));
       }
     }
 

@@ -46,7 +46,10 @@ bool SmartFilenameOrdering::operator()(const QFileInfo& lhs, const QFileInfo& rh
       }
     }
 
-    if (lhsPtr->isNull() != rhsPtr->isNull()) {
+    // Both characters are non-digits at this point.  Note that testing
+    // isNull() here instead would be dead code, as the loop condition
+    // already guarantees neither pointer is at the end of its string.
+    if (*lhsPtr != *rhsPtr) {
       return *lhsPtr < *rhsPtr;
     }
 

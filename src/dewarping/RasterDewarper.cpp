@@ -406,8 +406,6 @@ void dewarpGeneric(const PixelType* const srcData,
                    const CylindricalSurfaceDewarper& distortionModel,
                    const QRectF& modelDomain,
                    const PixelType bgColor) {
-  const int srcWidth = srcSize.width();
-  const int srcHeight = srcSize.height();
   const int dstWidth = dstSize.width();
   const int dstHeight = dstSize.height();
 

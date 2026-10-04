@@ -1,4 +1,4 @@
-# Guía de pruebas (ScanTailor Advanced)
+# Guía de pruebas (ScanTailor OCR)
 
 ## Ejecutar tests unitarios
 

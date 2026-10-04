@@ -5,6 +5,7 @@
 #define SCANTAILOR_PAGE_LAYOUT_TASK_H_
 
 #include <QPolygonF>
+#include <memory>
 
 #include "FilterResult.h"
 #include "NonCopyable.h"
@@ -15,6 +16,7 @@ class FilterData;
 class ImageTransformation;
 class QRectF;
 class Dpi;
+class DebugImages;
 
 namespace output {
 class Task;
@@ -48,6 +50,7 @@ class Task {
   std::shared_ptr<Filter> m_filter;
   std::shared_ptr<output::Task> m_nextTask;
   std::shared_ptr<Settings> m_settings;
+  std::unique_ptr<DebugImages> m_dbg;
   PageId m_pageId;
   bool m_batchProcessing;
 };

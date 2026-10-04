@@ -11,6 +11,7 @@
 #include <filters/page_split/LayoutType.h>
 
 #include <QLineEdit>
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QToolTip>
 #include <cassert>
@@ -33,6 +34,15 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
       m_connectionManager(std::bind(&DefaultParamsDialog::setupUiConnections, this)) {
   setupUi(this);
   setupIcons();
+
+  // The deskew mode buttons and the oblique mode buttons share a parent widget, so autoExclusive
+  // would treat all four as one group. Explicit groups keep the two pairs apart.
+  auto* deskewModeGroup = new QButtonGroup(this);
+  deskewModeGroup->addButton(deskewAutoBtn);
+  deskewModeGroup->addButton(deskewManualBtn);
+  auto* deskewObliqueModeGroup = new QButtonGroup(this);
+  deskewObliqueModeGroup->addButton(deskewObliqueAutoBtn);
+  deskewObliqueModeGroup->addButton(deskewObliqueManualBtn);
 
   layoutModeCB->addItem(tr("Auto"), MODE_AUTO);
   layoutModeCB->addItem(tr("Manual"), MODE_MANUAL);
@@ -178,7 +188,11 @@ void DefaultParamsDialog::updateDeskewDisplay(const DefaultParams::DeskewParams&
   }
   angleSpinBox->setEnabled(mode == MODE_MANUAL);
   angleSpinBox->setValue(params.getDeskewAngleDeg());
-  deskewAutoObliqueCB->setChecked(params.isAutoOblique());
+  if (params.isAutoOblique()) {
+    deskewObliqueAutoBtn->setChecked(true);
+  } else {
+    deskewObliqueManualBtn->setChecked(true);
+  }
 }
 
 void DefaultParamsDialog::updateSelectContentDisplay(const DefaultParams::SelectContentParams& params) {
@@ -273,6 +287,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   fillOffcutCB->setChecked(colorCommonOptions.fillOffcut());
   equalizeIlluminationCB->setChecked(blackWhiteOptions.normalizeIllumination());
   equalizeIlluminationColorCB->setChecked(colorCommonOptions.normalizeIllumination());
+  grayscaleOutputCB->setChecked(colorCommonOptions.isGrayscaleOutput());
   savitzkyGolaySmoothingCB->setChecked(blackWhiteOptions.isSavitzkyGolaySmoothingEnabled());
   morphologicalSmoothingCB->setChecked(blackWhiteOptions.isMorphologicalSmoothingEnabled());
 
@@ -512,6 +527,7 @@ void DefaultParamsDialog::colorModeChanged(const int idx) {
 
   equalizeIlluminationCB->setEnabled(colorMode != COLOR_GRAYSCALE);
   equalizeIlluminationColorCB->setEnabled(colorMode != BLACK_AND_WHITE);
+  grayscaleOutputCB->setEnabled(colorMode != BLACK_AND_WHITE);
   if ((colorMode == MIXED)) {
     if (equalizeIlluminationColorCB->isChecked()) {
       equalizeIlluminationColorCB->setChecked(equalizeIlluminationCB->isChecked());
@@ -602,7 +618,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   DefaultParams::PageSplitParams pageSplitParams(layoutType);
 
   DefaultParams::DeskewParams deskewParams(angleSpinBox->value(), deskewAutoBtn->isChecked() ? MODE_AUTO : MODE_MANUAL,
-                                           deskewAutoObliqueCB->isChecked());
+                                           deskewObliqueAutoBtn->isChecked());
 
   const AutoManualMode pageBoxMode = pageDetectDisableBtn->isChecked()  ? MODE_DISABLED
                                      : pageDetectManualBtn->isChecked() ? MODE_MANUAL
@@ -654,6 +670,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   colorCommonOptions.setFillMargins(fillMarginsCB->isChecked());
   colorCommonOptions.setFillOffcut(fillOffcutCB->isChecked());
   colorCommonOptions.setNormalizeIllumination(equalizeIlluminationColorCB->isChecked());
+  colorCommonOptions.setGrayscaleOutput(grayscaleOutputCB->isChecked());
   ColorCommonOptions::PosterizationOptions posterizationOptions = colorCommonOptions.getPosterizationOptions();
   posterizationOptions.setEnabled(posterizeCB->isChecked());
   posterizationOptions.setLevel(posterizeLevelSB->value());

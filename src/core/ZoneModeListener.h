@@ -6,9 +6,17 @@
 
 #include <core/zones/ZoneCreationMode.h>
 
+#include <functional>
+
 class ZoneModeListener {
  public:
   virtual ~ZoneModeListener() = default;
+
+  /**
+   * Called when a zone editor starts providing its mode. \p setMode lets the
+   * listener change the editor's mode; it stays valid until onZoneModeProviderStopped().
+   */
+  virtual void onZoneModeProviderStarted(const std::function<void(ZoneCreationMode)>& /*setMode*/) {}
 
   virtual void onZoneModeChanged(ZoneCreationMode mode) = 0;
 

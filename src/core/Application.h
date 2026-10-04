@@ -26,6 +26,9 @@ class Application : public QApplication {
   const QString& getPortableConfigPath() const;
 
  private:
+  /** Tells the user about an unexpected error that was caught in notify(). */
+  void showUnexpectedError(const QString& reason);
+
   void initTranslations();
 
   void initPortableVersion();

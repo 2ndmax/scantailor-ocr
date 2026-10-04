@@ -6,6 +6,7 @@ on:
     branches: [master, main]
   pull_request:
     branches: [master, main]
+  workflow_dispatch:
 
 jobs:
   clang-format:
@@ -16,8 +17,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The same version as in Visual Studio 2026, so that local checks give the
+      # same result (other versions format some lines differently).
       - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y clang-format
+        run: |
+          pip install clang-format==22.1.3
+          clang-format --version
 
       - name: Get changed source files
         id: changed
@@ -27,12 +36,14 @@ jobs:
           else
             BASE="${{ github.event.before }}"
           fi
-          if [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+          # Empty when started by hand (workflow_dispatch): check the last commit.
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             BASE=$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)
           fi
           SRC_FILES=$(git diff --name-only "$BASE" HEAD -- src/ \
             | grep -E '\.(cpp|h)$' \
             | grep -v '/translations/' \
+            | grep -v '/jbig2enc/' \
             || true)
           if [ -z "$SRC_FILES" ]; then
             COUNT=0

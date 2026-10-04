@@ -597,7 +597,7 @@ QImage ThumbnailPixmapCache::Impl::loadSaveThumbnail(const ImageId& imageId,
     return image;
   }
 
-  image = ImageLoader::load(imageId);
+  image = ImageLoader::loadForThumbnail(imageId, maxThumbSize);
   if (image.isNull()) {
     return QImage();
   }

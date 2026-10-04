@@ -19,6 +19,16 @@ template <typename T, size_t alignment_in_units>
 class AlignedArray {
   DECLARE_NON_COPYABLE(AlignedArray)
 
+  // The pointer adjustment below masks with (alignment_in_units - 1) and
+  // therefore only works for powers of two.
+  static_assert(alignment_in_units == 0 || (alignment_in_units & (alignment_in_units - 1)) == 0,
+                "alignment_in_units must be a power of two");
+  // The offset from the start of the storage is expressed in whole elements,
+  // so the byte alignment we promise can only be reached if the address
+  // returned by new T[] is already a multiple of sizeof(T). new T[] only
+  // guarantees alignof(T), hence this requirement.
+  static_assert(alignof(T) >= sizeof(T), "AlignedArray requires alignof(T) >= sizeof(T)");
+
  public:
   /**
    * \brief Constructs a null array.
@@ -52,10 +62,14 @@ inline void swap(AlignedArray<T, alignment_in_units>& o1, AlignedArray<T, alignm
 
 template <typename T, size_t alignment_in_units>
 AlignedArray<T, alignment_in_units>::AlignedArray(size_t size) {
-  const int a = static_cast<int>(alignment_in_units > 1 ? alignment_in_units : 1);
-  const int am1 = a - 1;
+  const size_t a = (alignment_in_units > 1) ? alignment_in_units : 1;
+  const size_t am1 = a - 1;
   m_storage = new T[size + am1];
-  m_alignedData = m_storage + ((a - ((uintptr_t(m_storage) / sizeof(T)) & am1)) & am1);
+  // uintptr_t(m_storage) is a multiple of sizeof(T) (see the static_assert
+  // above), so dividing by sizeof(T) gives the element index of the storage
+  // and the adjustment below is a whole number of elements.
+  const size_t unitsOff = static_cast<size_t>(uintptr_t(m_storage) / sizeof(T)) & am1;
+  m_alignedData = m_storage + ((a - unitsOff) & am1);
 }
 
 template <typename T, size_t alignment_in_units>

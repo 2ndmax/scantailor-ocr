@@ -81,7 +81,7 @@ class PriorityQueue {
 
   SubClass* subClass() { return static_cast<SubClass*>(this); }
 
-  const SubClass* subClass() const { return static_cast<SubClass*>(this); }
+  const SubClass* subClass() const { return static_cast<const SubClass*>(this); }
 
   size_t bubbleUp(size_t idx);
 
@@ -93,7 +93,7 @@ class PriorityQueue {
 
 template <typename T, typename SubClass>
 inline void swap(PriorityQueue<T, SubClass>& o1, PriorityQueue<T, SubClass>& o2) {
-  o1.swap(o2);
+  o1.swapWith(o2);
 }
 
 template <typename T, typename SubClass>
@@ -150,11 +150,20 @@ template <typename T, typename SubClass>
 void PriorityQueue<T, SubClass>::erase(const size_t idx) {
   using namespace std;
 
+  assert(idx < m_index.size());
+
+  if (idx == m_index.size() - 1) {
+    // Erasing the last element requires no repositioning, and we must not
+    // touch m_index[idx] after pop_back().
+    m_index.pop_back();
+    return;
+  }
+
   swap(m_index[idx], m_index.back());
   subClass()->setIndex(m_index[idx], idx);
 
   m_index.pop_back();
-  reposition(m_index[idx]);
+  reposition(idx);
 }
 
 template <typename T, typename SubClass>

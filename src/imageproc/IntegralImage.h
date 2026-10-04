@@ -6,6 +6,7 @@
 
 #include <QRect>
 #include <QSize>
+#include <cstddef>
 #include <new>
 
 #include "NonCopyable.h"
@@ -94,7 +95,9 @@ void IntegralImage<T>::init(const int width, const int height) {
   m_width = width;
   m_height = height;
 
-  m_data = new T[width * height];
+  // The multiplication is done in size_t to avoid an int overflow, which
+  // would silently allocate a buffer that's too small for large images.
+  m_data = new T[static_cast<size_t>(width) * static_cast<size_t>(height)];
 
   // Initialize the first (fake) row.
   // As for the fake column, we initialize its elements in beginRow().
@@ -132,10 +135,13 @@ inline T IntegralImage<T>::sum(const QRect& rect) const {
   const int preRight = rect.right() + 1;  // QRect::right() is inclusive.
   const int preTop = rect.top();
   const int preBottom = rect.bottom() + 1;  // QRect::bottom() is inclusive.
-  T sum(m_data[preBottom * m_width + preRight]);
-  sum -= m_data[preTop * m_width + preRight];
-  sum += m_data[preTop * m_width + preLeft];
-  sum -= m_data[preBottom * m_width + preLeft];
+  // Row offsets are computed in size_t for the same reason as in init().
+  const size_t topOffset = static_cast<size_t>(preTop) * static_cast<size_t>(m_width);
+  const size_t bottomOffset = static_cast<size_t>(preBottom) * static_cast<size_t>(m_width);
+  T sum(m_data[bottomOffset + preRight]);
+  sum -= m_data[topOffset + preRight];
+  sum += m_data[topOffset + preLeft];
+  sum -= m_data[bottomOffset + preLeft];
   return sum;
 }
 }  // namespace imageproc

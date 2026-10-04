@@ -6,8 +6,10 @@
 #include <DewarpingPointMapper.h>
 #include <PolygonUtils.h>
 #include <UnitsProvider.h>
+#include <core/ImageLoadErrors.h>
 #include <core/TiffWriter.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <boost/bind/bind.hpp>
 #include <utility>
@@ -344,8 +346,14 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
 
         QDir().mkdir(foregroundDir);
         QDir().mkdir(backgroundDir);
-        if (!TiffWriter::writeImage(foregroundFilePath, outputImageWithForeground->getForegroundImage())
-            || !TiffWriter::writeImage(backgroundFilePath, outputImageWithForeground->getBackgroundImage())) {
+        if (!outputImageWithForeground) {
+          // Report instead of crashing if the generator didn't produce the split layers.
+          ImageLoadErrorReporter::instance().reportWriteFailure(
+              foregroundFilePath, QStringList(QCoreApplication::translate(
+                                      "output::Task", "The split output layers could not be created.")));
+          invalidateParams = true;
+        } else if (!TiffWriter::writeImage(foregroundFilePath, outputImageWithForeground->getForegroundImage())
+                   || !TiffWriter::writeImage(backgroundFilePath, outputImageWithForeground->getBackgroundImage())) {
           invalidateParams = true;
         }
 
@@ -353,8 +361,10 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
           auto* outputImageWithOrigBg = dynamic_cast<OutputImageWithOriginalBackground*>(outputImage.get());
 
           QDir().mkdir(originalBackgroundDir);
-          if (!TiffWriter::writeImage(originalBackgroundFilePath,
-                                      outputImageWithOrigBg->getOriginalBackgroundImage())) {
+          if (!outputImageWithOrigBg) {
+            invalidateParams = true;
+          } else if (!TiffWriter::writeImage(originalBackgroundFilePath,
+                                             outputImageWithOrigBg->getOriginalBackgroundImage())) {
             invalidateParams = true;
           }
         }

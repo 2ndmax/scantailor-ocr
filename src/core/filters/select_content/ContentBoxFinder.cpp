@@ -24,7 +24,9 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <cmath>
+#include <limits>
 #include <queue>
+#include <utility>
 
 #include "DebugImages.h"
 #include "Despeckle.h"
@@ -484,7 +486,7 @@ void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage&
 
   const auto maxSpreadDist = static_cast<uint16_t>(std::min(width, height) / 4);
 
-  std::vector<uint16_t> map((width + 2) * (height + 2), ~uint16_t(0));
+  std::vector<uint16_t> map((width + 2) * (height + 2), std::numeric_limits<uint16_t>::max());
 
   uint32_t* cbLine = contentBlocks.data();
   const int cbStride = contentBlocks.wordsPerLine();
@@ -768,7 +770,7 @@ imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::Binar
       }
     }
 
-    for (const Range& range : qAsConst(ranges)) {
+    for (const Range& range : std::as_const(ranges)) {
       const auto first = static_cast<int>(range.first - &hist[0]);
       const auto last = static_cast<int>(range.second - &hist[0]);
       if (last - first < minTextHeight - 1) {

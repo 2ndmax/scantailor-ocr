@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ScanTailor Advanced</string>
+   <string notr="true">ScanTailor OCR</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -30,7 +30,7 @@
        <item row="3" column="0" colspan="2">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Scan Tailor is an interactive post-processing tool for scanned pages. It performs operations such as page splitting, skew correction, adding/removing margins, and others. You give it raw scans, and you get pages ready to be printed or assembled into a PDF or DJVU file.  Scanning and optical character recognition is out of scope of this project.</string>
+          <string>ScanTailor OCR is an interactive post-processing tool for scanned pages. It performs operations such as page splitting, skew correction, adding/removing margins, and others. You give it raw scans, and you get pages ready to be printed, or a searchable PDF with text recognition (OCR) made from them. ScanTailor OCR is based on ScanTailor Advanced 1.2.1.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -63,7 +63,7 @@
 font-weight: bold;</string>
          </property>
          <property name="text">
-          <string notr="true">ScanTailor Advanced</string>
+          <string notr="true">ScanTailor OCR</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignBottom|Qt::AlignHCenter</set>
@@ -156,6 +156,23 @@ font-weight:bold;</string>
             <widget class="QLabel" name="label_9">
              <property name="text">
               <string>4lex4</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_10">
+             <property name="styleSheet">
+              <string notr="true">font-weight: bold;</string>
+             </property>
+             <property name="text">
+              <string>Developer of ScanTailor OCR</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>2ndmax, with the help of Claude (Anthropic)</string>
              </property>
             </widget>
            </item>

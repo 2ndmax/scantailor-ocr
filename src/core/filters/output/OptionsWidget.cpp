@@ -94,6 +94,8 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   updateDewarpingDisplay();
 
   connect(binarizationOptions, SIGNAL(currentChanged(int)), this, SLOT(updateBinarizationOptionsDisplay(int)));
+  // Not part of setupUiConnections(): this button doesn't change any page parameters.
+  connect(createPdfButton, &QPushButton::clicked, this, &FilterOptionsWidget::pdfExportRequested);
 
   setupUiConnections();
 }
@@ -257,6 +259,15 @@ void OptionsWidget::equalizeIlluminationColorToggled(const bool checked) {
   m_colorParams.setColorCommonOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   emit reloadRequested();
+}
+
+void OptionsWidget::grayscaleOutputToggled(const bool checked) {
+  ColorCommonOptions opt(m_colorParams.colorCommonOptions());
+  opt.setGrayscaleOutput(checked);
+  m_colorParams.setColorCommonOptions(opt);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+  emit reloadRequested();
+  emit invalidateThumbnail(m_pageId);
 }
 
 
@@ -628,6 +639,8 @@ void OptionsWidget::updateColorsDisplay() {
   equalizeIlluminationColorCB->setChecked(colorCommonOptions.normalizeIllumination());
   equalizeIlluminationColorCB->setVisible(colorMode != BLACK_AND_WHITE);
   equalizeIlluminationColorCB->setEnabled(colorMode == COLOR_GRAYSCALE || blackWhiteOptions.normalizeIllumination());
+  grayscaleOutputCB->setChecked(colorCommonOptions.isGrayscaleOutput());
+  grayscaleOutputCB->setVisible(colorMode != BLACK_AND_WHITE);
   savitzkyGolaySmoothingCB->setChecked(blackWhiteOptions.isSavitzkyGolaySmoothingEnabled());
   savitzkyGolaySmoothingCB->setVisible(thresholdOptionsVisible);
   morphologicalSmoothingCB->setChecked(blackWhiteOptions.isMorphologicalSmoothingEnabled());
@@ -982,6 +995,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(fillOutsidePageBoxCB, SIGNAL(clicked(bool)), this, SLOT(fillOutsidePageBoxToggled(bool)));
   CONNECT(equalizeIlluminationCB, SIGNAL(clicked(bool)), this, SLOT(equalizeIlluminationToggled(bool)));
   CONNECT(equalizeIlluminationColorCB, SIGNAL(clicked(bool)), this, SLOT(equalizeIlluminationColorToggled(bool)));
+  CONNECT(grayscaleOutputCB, SIGNAL(clicked(bool)), this, SLOT(grayscaleOutputToggled(bool)));
   CONNECT(savitzkyGolaySmoothingCB, SIGNAL(clicked(bool)), this, SLOT(savitzkyGolaySmoothingToggled(bool)));
   CONNECT(morphologicalSmoothingCB, SIGNAL(clicked(bool)), this, SLOT(morphologicalSmoothingToggled(bool)));
   CONNECT(splittingCB, SIGNAL(clicked(bool)), this, SLOT(splittingToggled(bool)));

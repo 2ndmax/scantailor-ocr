@@ -30,11 +30,13 @@ AutoRemovingFile& AutoRemovingFile::operator=(CopyHelper other) {
 }
 
 void AutoRemovingFile::reset(const QString& file) {
-  const QString& oldFile(file);
+  // Note: oldFile must be a copy, not a reference, as m_file is about
+  // to be overwritten.
+  const QString oldFile(m_file);
 
   m_file = file;
 
-  if (!oldFile.isEmpty()) {
+  if (!oldFile.isEmpty() && (oldFile != m_file)) {
     QFile::remove(oldFile);
   }
 }

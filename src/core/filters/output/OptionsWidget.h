@@ -126,6 +126,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void equalizeIlluminationColorToggled(bool checked);
 
+  void grayscaleOutputToggled(bool checked);
+
   void savitzkyGolaySmoothingToggled(bool checked);
 
   void morphologicalSmoothingToggled(bool checked);

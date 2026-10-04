@@ -11,8 +11,8 @@ bool OrderByDeviationProvider::precedes(const PageId& lhsPage,
                                         const PageId& rhsPage,
                                         bool rhsIncomplete) const {
   if (lhsIncomplete != rhsIncomplete) {
-    // Invalid (unknown) sizes go to the back.
-    return lhsIncomplete;
+    // Pages we don't have a deviation value for yet go to the back.
+    return rhsIncomplete;
   }
   return (m_deviationProvider->getDeviationValue(lhsPage) > m_deviationProvider->getDeviationValue(rhsPage));
 }

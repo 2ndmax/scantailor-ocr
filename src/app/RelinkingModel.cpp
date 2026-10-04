@@ -132,8 +132,6 @@ QVariant RelinkingModel::data(const QModelIndex& index, int role) const {
 }
 
 void RelinkingModel::addPath(const RelinkablePath& path) {
-  const QString& normalizedPath(path.normalizedPath());
-
   const std::pair<std::set<QString>::iterator, bool> ins(m_origPathSet.insert(path.normalizedPath()));
   if (!ins.second) {
     // Not inserted because identical path is already there.

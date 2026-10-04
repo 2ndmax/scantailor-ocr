@@ -24,7 +24,9 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index_container.hpp>
+#include <iterator>
 #include <memory>
+#include <optional>
 
 #include "ColorSchemeManager.h"
 #include "IncompleteThumbnail.h"
@@ -220,6 +222,26 @@ class ThumbnailSequence::Impl {
 
   bool cancelingSelectionAccepted();
 
+  /**
+   * Remembers where a page used to be, right before re-sorting moved it. This happens when
+   * the user edits a page in a way the current page order depends on (e.g. resizing the content
+   * box while sorting by content size).
+   */
+  struct PreReorderNeighbours {
+    PageId page;
+    PageId prev;
+    PageId next;
+    bool hasPrev = false;
+    bool hasNext = false;
+  };
+
+  /**
+   * \return The neighbour the reference page had before it was moved by re-sorting, or
+   *         std::nullopt if the current order should be used instead. A null PageInfo means
+   *         the page used to be the first (or the last) one.
+   */
+  std::optional<PageInfo> preReorderNeighbour(const PageId& referencePage, bool forward) const;
+
   static const int SPACING = 3;
   ThumbnailSequence& m_owner;
   QSizeF m_maxLogicalThumbSize;
@@ -240,6 +262,7 @@ class ThumbnailSequence::Impl {
   GraphicsScene m_graphicsScene;
   QRectF m_sceneRect;
   bool m_selectionMode;
+  std::optional<PreReorderNeighbours> m_preReorderNeighbours;
 
   std::unique_ptr<ViewportRubberBandFilter> m_rubberBandFilter;
 };
@@ -610,7 +633,13 @@ void ThumbnailSequence::Impl::updateSceneItemsPos() {
   m_sceneRect = QRectF(0.0, 0.0, 0.0, 0.0);
 
   const int viewWidth = getGraphicsViewWidth();
-  assert(viewWidth > 0);
+  if (viewWidth <= 0) {
+    // No view attached yet, or it hasn't been laid out. Laying items out against a zero width
+    // would produce negative spacing and make them overlap. We'll be called again from the
+    // scene items position updater once the view has a size.
+    commitSceneRect();
+    return;
+  }
   double yOffset = SPACING;
 
   ItemsInOrder::iterator ordIt = m_itemsInOrder.begin();
@@ -667,7 +696,7 @@ void ThumbnailSequence::Impl::invalidateThumbnailImpl(const ItemsById::iterator 
   CompositeItem* const oldComposite = idIt->composite;
   const QSizeF oldSize(oldComposite->boundingRect().size());
   const QSizeF newSize(newComposite->boundingRect().size());
-  const QPointF oldPos(newComposite->pos());
+  const QPointF oldPos(oldComposite->pos());
 
   idIt->composite = newComposite;
   idIt->incompleteThumbnail = newComposite->incompleteThumbnail();
@@ -677,6 +706,12 @@ void ThumbnailSequence::Impl::invalidateThumbnailImpl(const ItemsById::iterator 
   m_graphicsScene.addItem(newComposite);
 
   ItemsInOrder::iterator afterOld(m_items.project<ItemsInOrderTag>(idIt));
+
+  // Remember the neighbours the page has right now, so that keyboard navigation can still
+  // follow the old order if re-sorting moves the page away (see preReorderNeighbour()).
+  const Item* const oldPrevItem = (afterOld != m_itemsInOrder.begin()) ? &*std::prev(afterOld) : nullptr;
+  const Item* const oldNextItem = (std::next(afterOld) != m_itemsInOrder.end()) ? &*std::next(afterOld) : nullptr;
+
   // Notice afterOld++ below.
   // Move our item to the beginning of m_itemsInOrder, to make it out of range
   // we are going to pass to itemInsertPosition().
@@ -686,12 +721,34 @@ void ThumbnailSequence::Impl::invalidateThumbnailImpl(const ItemsById::iterator 
   // Move our item to its intended position.
   m_itemsInOrder.relocate(afterNew, m_itemsInOrder.begin());
 
+  const ItemsInOrder::iterator newOrdIt(m_items.project<ItemsInOrderTag>(idIt));
+  const Item* const newPrevItem = (newOrdIt != m_itemsInOrder.begin()) ? &*std::prev(newOrdIt) : nullptr;
+  const bool reordered = (newPrevItem != oldPrevItem);
+  if (reordered && (!m_preReorderNeighbours || !(m_preReorderNeighbours->page == idIt->pageId()))) {
+    // Keep the neighbours of the first move, so that repeated adjustments of the same page
+    // still refer to the position it had before the user started editing it.
+    PreReorderNeighbours neighbours;
+    neighbours.page = idIt->pageId();
+    if (oldPrevItem) {
+      neighbours.prev = oldPrevItem->pageId();
+      neighbours.hasPrev = true;
+    }
+    if (oldNextItem) {
+      neighbours.next = oldNextItem->pageId();
+      neighbours.hasNext = true;
+    }
+    m_preReorderNeighbours = neighbours;
+  }
+
   updateSceneItemsPos();
 
   // Possibly emit the newSelectionLeader() signal.
   if (m_selectionLeader == &*idIt) {
     if ((oldSize != newSize) || (oldPos != idIt->composite->pos())) {
-      m_owner.emitNewSelectionLeader(idIt->pageInfo, idIt->composite, REDUNDANT_SELECTION);
+      // The page moved because we re-sorted it, not because the user asked to go there.
+      // Scrolling to it would tear the user away from the part of the sequence they are
+      // working on, so we deliberately leave the viewport alone.
+      m_owner.emitNewSelectionLeader(idIt->pageInfo, idIt->composite, REDUNDANT_SELECTION | AVOID_SCROLLING_TO);
     }
   }
 }  // ThumbnailSequence::Impl::invalidateThumbnailImpl
@@ -712,6 +769,9 @@ void ThumbnailSequence::Impl::invalidateAllThumbnails() {
     newComposite->updateAppearence(ordIt->isSelected(), ordIt->isSelectionLeader());
     m_graphicsScene.addItem(newComposite);
   }
+
+  // Everything is re-sorted here, so remembered neighbours of a single page are meaningless now.
+  m_preReorderNeighbours.reset();
 
   orderItems();
   updateSceneItemsPos();
@@ -761,6 +821,12 @@ bool ThumbnailSequence::Impl::setSelection(const PageId& pageId, const Selection
   }
 
   const bool wasSelectionLeader = (&*idIt == m_selectionLeader);
+
+  if (m_preReorderNeighbours && !(m_preReorderNeighbours->page == pageId)) {
+    // We are leaving the page that was moved by re-sorting - its old neighbours
+    // are of no interest any more.
+    m_preReorderNeighbours.reset();
+  }
 
   if (selectionAction != KEEP_SELECTION) {
     // Clear selection from all items except the one for which
@@ -816,7 +882,30 @@ PageInfo ThumbnailSequence::Impl::selectionLeader() const {
   }
 }
 
+std::optional<PageInfo> ThumbnailSequence::Impl::preReorderNeighbour(const PageId& referencePage,
+                                                                     const bool forward) const {
+  if (!m_preReorderNeighbours || !(m_preReorderNeighbours->page == referencePage)) {
+    return std::nullopt;
+  }
+  if (!(forward ? m_preReorderNeighbours->hasNext : m_preReorderNeighbours->hasPrev)) {
+    // The page used to be the first / the last one of the sequence.
+    return PageInfo();
+  }
+
+  const ItemsById::iterator idIt(
+      m_itemsById.find(forward ? m_preReorderNeighbours->next : m_preReorderNeighbours->prev));
+  if (idIt == m_itemsById.end()) {
+    // That page is gone - fall back to the current order.
+    return std::nullopt;
+  }
+  return idIt->pageInfo;
+}
+
 PageInfo ThumbnailSequence::Impl::prevPage(const PageId& referencePage) const {
+  if (const std::optional<PageInfo> neighbour = preReorderNeighbour(referencePage, false)) {
+    return *neighbour;
+  }
+
   ItemsInOrder::iterator ordIt;
 
   if (m_selectionLeader && (m_selectionLeader->pageInfo.id() == referencePage)) {
@@ -836,6 +925,10 @@ PageInfo ThumbnailSequence::Impl::prevPage(const PageId& referencePage) const {
 }
 
 PageInfo ThumbnailSequence::Impl::nextPage(const PageId& referencePage) const {
+  if (const std::optional<PageInfo> neighbour = preReorderNeighbour(referencePage, true)) {
+    return *neighbour;
+  }
+
   ItemsInOrder::iterator ordIt;
 
   if (m_selectionLeader && (m_selectionLeader->pageInfo.id() == referencePage)) {
@@ -1231,6 +1324,7 @@ void ThumbnailSequence::Impl::selectItemNoModifiers(const ItemsById::iterator& i
 
 void ThumbnailSequence::Impl::clear() {
   m_selectionLeader = nullptr;
+  m_preReorderNeighbours.reset();
 
   ItemsInOrder::iterator it(m_itemsInOrder.begin());
   const ItemsInOrder::iterator end(m_itemsInOrder.end());

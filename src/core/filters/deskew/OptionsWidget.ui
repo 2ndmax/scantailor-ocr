@@ -36,9 +36,6 @@
           <property name="checked">
            <bool>true</bool>
           </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
          </widget>
         </item>
         <item>
@@ -47,9 +44,6 @@
            <string>Manual</string>
           </property>
           <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
            <bool>true</bool>
           </property>
          </widget>
@@ -110,14 +104,47 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="autoObliqueCheckBox">
-        <property name="toolTip">
-         <string>When deskew mode is Auto, run automatic oblique (shear) correction. Disable for pages that only need rotation.</string>
-        </property>
+       <widget class="QLabel" name="obliqueModeLabel">
         <property name="text">
-         <string>Automatic oblique correction</string>
+         <string>Oblique correction</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_oblique_mode">
+        <item>
+         <widget class="QPushButton" name="obliqueAutoBtn">
+          <property name="text">
+           <string>Auto</string>
+          </property>
+          <property name="toolTip">
+           <string>Automatically estimate oblique (shear) correction.</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="obliqueManualBtn">
+          <property name="text">
+           <string>Manual</string>
+          </property>
+          <property name="toolTip">
+           <string>Keep the oblique angle set in the spin box.</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QHBoxLayout">
@@ -141,52 +168,6 @@
           </property>
           <property name="singleStep">
            <double>0.100000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_oblique_mode">
-        <item>
-         <widget class="QLabel" name="obliqueModeLabel">
-          <property name="text">
-           <string>Oblique mode</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="obliqueAutoBtn">
-          <property name="text">
-           <string>Auto</string>
-          </property>
-          <property name="toolTip">
-           <string>Automatically estimate oblique (shear) correction.</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="obliqueManualBtn">
-          <property name="text">
-           <string>Manual</string>
-          </property>
-          <property name="toolTip">
-           <string>Keep the oblique angle set in the spin box.</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
           </property>
          </widget>
         </item>

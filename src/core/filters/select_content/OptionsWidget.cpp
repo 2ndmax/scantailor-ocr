@@ -220,7 +220,9 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
           newParams.setPageRect(oldParams->pageRect());
         } else {
           QRectF correctedPageRect = newParams.pageRect();
-          const QRectF sourceImageRect = newParams.dependencies().rotatedPageOutline().boundingRect();
+          // newParams carries empty dependencies by design, so the source image has to be
+          // taken from the page we are copying from.
+          const QRectF sourceImageRect = m_uiData.dependencies().rotatedPageOutline().boundingRect();
           const QRectF currentImageRect = oldParams->dependencies().rotatedPageOutline().boundingRect();
           if (sourceImageRect.isValid() && currentImageRect.isValid()) {
             correctedPageRect.translate((currentImageRect.width() - sourceImageRect.width()) / 2,

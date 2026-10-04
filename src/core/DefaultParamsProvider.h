@@ -6,11 +6,17 @@
 
 #include <foundation/NonCopyable.h>
 
+#include <QMutex>
 #include <QtCore/QString>
 #include <memory>
 
-class DefaultParams;
+#include "DefaultParams.h"
 
+/**
+ * Thread-safe: the parameters are read by worker threads, while the GUI
+ * may replace them at any time.  That's why copies are returned rather
+ * than references to the internal objects.
+ */
 class DefaultParamsProvider {
   DECLARE_NON_COPYABLE(DefaultParamsProvider)
  private:
@@ -19,13 +25,14 @@ class DefaultParamsProvider {
  public:
   static DefaultParamsProvider& getInstance();
 
-  const QString& getProfileName() const;
+  QString getProfileName() const;
 
-  const DefaultParams& getParams() const;
+  DefaultParams getParams() const;
 
   void setParams(std::unique_ptr<DefaultParams> params, const QString& name);
 
  private:
+  mutable QMutex m_mutex;
   QString m_profileName;
   std::unique_ptr<DefaultParams> m_params;
 };

@@ -28,6 +28,9 @@ class ZoneEditorBase : public ImageViewBase, protected InteractionHandler {
 
   const ZoneInteractionContext& context() const { return m_context; }
 
+  /** Sets the mode for new zones, remembers it as the default and notifies the listeners. */
+  void setZoneCreationMode(ZoneCreationMode mode);
+
  protected:
   void showEvent(QShowEvent* event) override;
 

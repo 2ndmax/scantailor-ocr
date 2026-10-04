@@ -4,6 +4,9 @@
 
 #include "SEDM.h"
 
+#include <cstdint>
+#include <cstring>
+
 #include "BinaryImage.h"
 #include "ConnectivityMap.h"
 #include "Morphology.h"
@@ -26,7 +29,8 @@ SEDM::SEDM(const BinaryImage& image, const DistType distType, const Borders bord
   const int width = m_size.width();
   const int height = m_size.height();
 
-  m_data.resize((width + 2) * (height + 2), INF_DIST);
+  // The multiplication is done in size_t to avoid an int overflow for large images.
+  m_data.resize(static_cast<size_t>(width + 2) * static_cast<size_t>(height + 2), INF_DIST);
   m_stride = width + 2;
   m_plainData = &m_data[0] + m_stride + 1;
 
@@ -84,7 +88,8 @@ SEDM::SEDM(ConnectivityMap& cmap) : m_plainData(nullptr), m_size(cmap.size()), m
   const int width = m_size.width();
   const int height = m_size.height();
 
-  m_data.resize((width + 2) * (height + 2), INF_DIST);
+  // The multiplication is done in size_t to avoid an int overflow for large images.
+  m_data.resize(static_cast<size_t>(width + 2) * static_cast<size_t>(height + 2), INF_DIST);
   m_stride = width + 2;
   m_plainData = &m_data[0] + m_stride + 1;
 
@@ -165,9 +170,13 @@ inline uint32_t SEDM::distSq(const int x1, const int x2, const uint32_t dySq) {
   if (dySq == INF_DIST) {
     return INF_DIST;
   }
-  const int dx = x1 - x2;
-  const uint32_t dxSq = dx * dx;
-  return dxSq + dySq;
+  // Computed in 64 bits: for large images dx * dx alone overflows an int,
+  // and the sum overflows a uint32_t. A wrapped-around value would look like
+  // a very short distance and silently corrupt the transform, so we saturate
+  // to INF_DIST instead.
+  const int64_t dx = int64_t(x1) - int64_t(x2);
+  const uint64_t sq = uint64_t(dx * dx) + uint64_t(dySq);
+  return (sq >= uint64_t(INF_DIST)) ? INF_DIST : static_cast<uint32_t>(sq);
 }
 
 void SEDM::processColumns() {
@@ -265,13 +274,18 @@ void SEDM::processRows() {
       } else {
         const int x2 = s[q];
         if ((line[x] != INF_DIST) && (line[x2] != INF_DIST)) {
-          int w = (x * x + line[x]) - (x2 * x2 + line[x2]);
-          w /= (x - x2) << 1;
+          // Done in signed 64-bit arithmetic: mixing int with the uint32_t
+          // line[] values would make the whole expression unsigned, turning
+          // a legitimately negative intermediate result into a huge positive
+          // one, and x * x alone overflows an int for very wide images.
+          int64_t w = (int64_t(x) * x + int64_t(line[x])) - (int64_t(x2) * x2 + int64_t(line[x2]));
+          w /= int64_t(x - x2) << 1;
           ++w;
-          if ((unsigned) w < (unsigned) width) {
+          // The unsigned comparison also rejects negative values of w.
+          if (uint64_t(w) < uint64_t(width)) {
             ++q;
             s[q] = x;
-            t[q] = w;
+            t[q] = static_cast<int>(w);
           }
         }
       }
@@ -315,13 +329,18 @@ void SEDM::processRows(ConnectivityMap& cmap) {
       } else {
         const int x2 = s[q];
         if ((line[x] != INF_DIST) && (line[x2] != INF_DIST)) {
-          int w = (x * x + line[x]) - (x2 * x2 + line[x2]);
-          w /= (x - x2) << 1;
+          // Done in signed 64-bit arithmetic: mixing int with the uint32_t
+          // line[] values would make the whole expression unsigned, turning
+          // a legitimately negative intermediate result into a huge positive
+          // one, and x * x alone overflows an int for very wide images.
+          int64_t w = (int64_t(x) * x + int64_t(line[x])) - (int64_t(x2) * x2 + int64_t(line[x2]));
+          w /= int64_t(x - x2) << 1;
           ++w;
-          if ((unsigned) w < (unsigned) width) {
+          // The unsigned comparison also rejects negative values of w.
+          if (uint64_t(w) < uint64_t(width)) {
             ++q;
             s[q] = x;
-            t[q] = w;
+            t[q] = static_cast<int>(w);
           }
         }
       }

@@ -9,9 +9,15 @@
 
 class QIODevice;
 class QImage;
+class QString;
 class ImageMetadata;
 class Dpi;
 
+/**
+ * \brief Reads TIFF images through libtiff.
+ *
+ * Diagnostic messages from libtiff are forwarded to ImageLoadErrorCapture.
+ */
 class TiffReader {
  public:
   static bool canRead(QIODevice& device);
@@ -30,6 +36,19 @@ class TiffReader {
    */
   static QImage readImage(QIODevice& device, int pageNum = 0);
 
+  /**
+   * \brief A human readable name of a TIFF compression scheme.
+   */
+  static QString compressionName(unsigned compression);
+
+  /**
+   * \brief Routes libtiff's error and warning messages to ImageLoadErrorCapture.
+   *
+   * Called automatically when reading.  Code writing TIFF files calls it as well,
+   * so write errors can be reported too.  Safe to call any number of times.
+   */
+  static void installMessageHandlers();
+
  private:
   class TiffHeader;
   class TiffHandle;
@@ -47,11 +66,22 @@ class TiffReader {
 
   static Dpi getDpi(float xres, float yres, unsigned resUnit);
 
+  /**
+   * Handles 1 to 8 bit single-channel images (bi-level, grayscale, palette),
+   * both striped and tiled, producing Format_Mono or Format_Indexed8.
+   */
   static QImage extractBinaryOrIndexed8Image(const TiffHandle& tif, const TiffInfo& info);
 
-  static void readLines(const TiffHandle& tif, QImage& image);
+  /**
+   * Handles floating point, signed integer and 32-bit unsigned integer samples,
+   * which libtiff's RGBA interface refuses.  The values are scaled into 8 bits.
+   */
+  static QImage extractNumericImage(const TiffHandle& tif, const TiffInfo& info);
 
-  static void readAndUnpackLines(const TiffHandle& tif, const TiffInfo& info, QImage& image);
+  /**
+   * The general case, based on libtiff's RGBA interface.
+   */
+  static QImage readRgbaImage(const TiffHandle& tif, const TiffInfo& info);
 };
 
 

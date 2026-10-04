@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-set(target_name scantailor-advanced)
+set(target_name scantailor-ocr)
 
 # Disable in-source builds.
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
@@ -13,8 +13,17 @@ endif()
 if (POLICY CMP0071)
   cmake_policy(SET CMP0071 NEW)
 endif()
+# find_package(Boost) uses the BoostConfig.cmake shipped with Boost (1.70+)
+# instead of CMake's removed FindBoost module.
+if (POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
+# install() DESTINATION paths are normalized.
+if (POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+endif()
 
-project("ScanTailor Advanced")
+project("ScanTailor OCR")
 
 # Set compiler flags.
 set(CMAKE_CXX_STANDARD 17)
@@ -28,9 +37,10 @@ if (NOT DEFAULT_COMPILER_FLAGS_IS_SET)
       set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:CONSOLE,5.01 /SUBSYSTEM:WINDOWS,5.01 ${CMAKE_EXE_LINKER_FLAGS}")
     endif()
 
-    # Disable checked iterators for extra performance.
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_SECURE_SCL=0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SECURE_SCL=0")
+    # Note: _SECURE_SCL / _ITERATOR_DEBUG_LEVEL must NOT be overridden here.
+    # It changes the ABI of the standard containers, so a mismatch with the
+    # prebuilt Qt and Boost binaries is an ODR violation that leads to crashes
+    # at library boundaries. (_SECURE_SCL is also deprecated since VS2012.)
 
     if (DEBUG_CLI)
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DDEBUG_CLI")
@@ -44,7 +54,6 @@ if (NOT DEFAULT_COMPILER_FLAGS_IS_SET)
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Werror=return-type -Wno-unused")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror=return-type -Wno-unused")
-    add_compile_options("$<$<CONFIG:RELEASE>:-march=native;-mtune=native>")
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}"
@@ -55,6 +64,32 @@ if (NOT DEFAULT_COMPILER_FLAGS_IS_SET)
       CACHE STRING "Common link flags for all build configurations." FORCE)
 
   set(DEFAULT_COMPILER_FLAGS_IS_SET YES CACHE INTERNAL "" FORCE)
+endif()
+
+# Off by default: -march=native produces a binary that only runs on CPUs
+# compatible with the build machine. Anything meant to be distributed
+# (distro packages, Flatpak, CI artifacts) would abort with SIGILL elsewhere.
+# Kept outside the block above, as add_compile_options() sets a directory
+# property that has to be applied on every configure run, not just the first.
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
+  option(NATIVE_ARCH "Optimize for the build machine's CPU. The resulting binary is not portable." OFF)
+  if (NATIVE_ARCH)
+    add_compile_options("$<$<CONFIG:RELEASE>:-march=native;-mtune=native>")
+  endif()
+endif()
+
+# Extra diagnostics for finding bugs: high warning level plus the static
+# code analysis of the compiler.  Slows the build down considerably, so it's
+# best used in a separate build directory.
+option(ENABLE_CODE_ANALYSIS "Enable extra warnings and the compiler's static code analysis (MSVC: /W4 /analyze)." OFF)
+if (ENABLE_CODE_ANALYSIS)
+  if (MSVC)
+    # Headers of the dependencies (Qt, Boost, libtiff, ...) are included as
+    # external headers, whose warnings and analysis results are suppressed.
+    add_compile_options(/W4 /analyze /analyze:external- /external:W0 /external:anglebrackets)
+  elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion)
+  endif()
 endif()
 
 if (UNIX)
@@ -167,6 +202,74 @@ if (WIN32)
       INTERFACE_COMPILE_DEFINITIONS USE_LIBTIFF_DLL)
 endif()
 
+# The compression schemes libtiff supports are decided when libtiff itself is
+# built.  A libtiff lacking a codec silently fails to open files using it.
+set(TIFF_REQUIRED_CODECS "LZW;PACKBITS;CCITT;JPEG;OJPEG;DEFLATE;LZMA" CACHE STRING
+    "TIFF compression schemes libtiff has to support (see cmake/CheckTiffCodecs.cmake).")
+set(TIFF_RECOMMENDED_CODECS "ZSTD;WEBP;LERC" CACHE STRING
+    "TIFF compression schemes libtiff should support; only a warning is issued if it doesn't.")
+option(SKIP_TIFF_CODEC_CHECK "Don't verify the compression schemes supported by libtiff." OFF)
+include(cmake/CheckTiffCodecs.cmake)
+check_tiff_codecs(REQUIRED ${TIFF_REQUIRED_CODECS} RECOMMENDED ${TIFF_RECOMMENDED_CODECS})
+
+#================================= OpenJPEG ==================================#
+
+# JPEG 2000 support.
+find_package(OpenJPEG CONFIG QUIET)
+if (OpenJPEG_FOUND AND TARGET openjp2)
+  set(OPENJPEG_TARGET openjp2)
+  if (OPENJPEG_INCLUDE_DIRS)
+    # Older OpenJPEG config files don't attach the include directories to the target.
+    set_property(TARGET openjp2 APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${OPENJPEG_INCLUDE_DIRS})
+  endif()
+  message(STATUS "Found OpenJPEG: ${OPENJPEG_MAJOR_VERSION}.${OPENJPEG_MINOR_VERSION}.${OPENJPEG_BUILD_VERSION}")
+else()
+  find_package(PkgConfig QUIET)
+  if (PKG_CONFIG_FOUND)
+    pkg_check_modules(OPENJP2 QUIET IMPORTED_TARGET libopenjp2>=2.3)
+  endif()
+  if (OPENJP2_FOUND)
+    set(OPENJPEG_TARGET PkgConfig::OPENJP2)
+    message(STATUS "Found OpenJPEG (pkg-config): ${OPENJP2_VERSION}")
+  else()
+    message(FATAL_ERROR
+        "OpenJPEG (2.3 or newer) is required for JPEG 2000 support.\n"
+        "With vcpkg: vcpkg install openjpeg\n"
+        "On Debian / Ubuntu: apt install libopenjp2-7-dev")
+  endif()
+endif()
+
+#================================= Tesseract =================================#
+
+# Text recognition (OCR) for the PDF export.
+option(ENABLE_OCR "Text recognition (OCR) for the PDF export, using Tesseract." ON)
+set(TESSERACT_TARGET "")
+if (ENABLE_OCR)
+  find_package(Tesseract CONFIG QUIET)
+  if (Tesseract_FOUND AND TARGET Tesseract::libtesseract)
+    set(TESSERACT_TARGET Tesseract::libtesseract)
+    message(STATUS "Found Tesseract: ${Tesseract_VERSION}")
+  else()
+    # Debian / Ubuntu ship no CMake config files for Tesseract, only pkg-config ones.
+    find_package(PkgConfig QUIET)
+    if (PKG_CONFIG_FOUND)
+      pkg_check_modules(TESSERACT QUIET IMPORTED_TARGET tesseract>=4.1 lept)
+    endif()
+    if (TESSERACT_FOUND)
+      set(TESSERACT_TARGET PkgConfig::TESSERACT)
+      message(STATUS "Found Tesseract (pkg-config): ${TESSERACT_tesseract_VERSION}")
+    else()
+      message(FATAL_ERROR
+          "Tesseract (4.1 or newer) is required for text recognition (OCR) in the PDF export.\n"
+          "With vcpkg: vcpkg install tesseract\n"
+          "On Debian / Ubuntu: apt install libtesseract-dev libleptonica-dev\n"
+          "To build without text recognition, configure with -DENABLE_OCR=OFF.")
+    endif()
+  endif()
+else()
+  message(STATUS "Text recognition (OCR) is disabled.")
+endif()
+
 #================================= Boost ================================#
 
 #set(Boost_NO_WARN_NEW_VERSIONS ON)
@@ -242,6 +345,7 @@ if(Qt6_FOUND)
   set(Qt_Xml_lib Qt::Xml)
   set(Qt_OpenGLWidgets_lib Qt::OpenGLWidgets)
   set(Qt_Test_lib Qt::Test)
+  set(Qt_lupdate_target Qt6::lupdate)
 else()
   set(Qt_Core_lib Qt5::Core)
   set(Qt_Gui_lib Qt5::Gui)
@@ -251,6 +355,7 @@ else()
   set(Qt_Widgets_lib Qt5::Widgets)
   set(Qt_Xml_lib Qt5::Xml)
   set(Qt_Test_lib Qt5::Test)
+  set(Qt_lupdate_target Qt5::lupdate)
 endif()
 
 
@@ -383,12 +488,12 @@ if (WIN32)
   # Install the DLLs of the dependencies.
   if(Qt6_FOUND)
     set(dep_libs
-        JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF
+        JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF ${OPENJPEG_TARGET}
         Qt::Core Qt::Gui Qt::Widgets Qt::Xml
         Qt::Network Qt::OpenGL Qt::Svg Qt6::OpenGLWidgets)
   else()
     set(dep_libs
-        JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF
+        JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF ${OPENJPEG_TARGET}
         Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml
         Qt5::Network Qt5::OpenGL Qt5::Svg)
   endif()
@@ -454,7 +559,7 @@ if (WIN32)
   copy_to_build_dir(${ADDITIONAL_RUNTIME_LIBS_DEBUG} CONFIGURATIONS Debug)
 
   # Generate the target that will actually do the copying.
-  generate_copy_to_build_dir_target(copy_to_build_dir)
+  generate_copy_to_build_dir_target(copy_to_build_dir ${target_name})
 
   install(PROGRAMS ${ADDITIONAL_RUNTIME_LIBS_RELEASE} TYPE BIN CONFIGURATIONS Release MinSizeRel RelWithDebInfo)
   install(PROGRAMS ${ADDITIONAL_RUNTIME_LIBS_DEBUG} TYPE BIN CONFIGURATIONS Debug)
@@ -466,8 +571,10 @@ if (UNIX)
   install(FILES "${SCANTAILOR_RESOURCES_DIR}/appicon.svg"
       DESTINATION "share/icons/hicolor/scalable/apps"
       RENAME "${target_name}.svg")
+  # Renamed so the package can be installed next to ScanTailor Advanced, which has the same file.
   install(FILES "${SCANTAILOR_RESOURCES_DIR}/unix/mime/scantailor-project.xml"
-      DESTINATION "share/mime/packages")
+      DESTINATION "share/mime/packages"
+      RENAME "${target_name}-project.xml")
 endif()
 
 if (WIN32 AND MSVC)
@@ -481,9 +588,9 @@ set(CPACK_PACKAGE_NAME "${APPLICATION_NAME}")
 set(CPACK_PACKAGE_VERSION_MAJOR "${APPLICATION_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${APPLICATION_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${APPLICATION_VERSION_PATCH}")
-set(CPACK_PACKAGE_VENDOR "4lex4 <4lex49@zoho.com>")
+set(CPACK_PACKAGE_VENDOR "ScanTailor OCR <https://github.com/2ndmax/scantailor-ocr>")
 set(CPACK_PACKAGE_CONTACT "${CPACK_PACKAGE_VENDOR}")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Interactive post-processing tool for scanned pages.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Post-processing of scanned pages with export to searchable PDF (OCR).")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_EXECUTABLES "${target_name};${CMAKE_PROJECT_NAME}")
 set(CPACK_CREATE_DESKTOP_LINKS "${target_name}")

@@ -56,6 +56,12 @@ std::optional<double> findObliqueDegrees(const BinaryImage& mask, SkewFinder& sk
   const Skew s1 = skewFinder.findSkew(mask);
   const Skew s2 = skewFinder.findSkew(rotated);
 
+  if ((s1.confidence() < Skew::GOOD_CONFIDENCE) || (s2.confidence() < Skew::GOOD_CONFIDENCE)) {
+    // Not enough structure in the image to tell an oblique angle from noise. Reporting no angle
+    // at all is better than shearing the page by an arbitrary amount.
+    return std::nullopt;
+  }
+
   // Weight angles by confidence so low-confidence skew contributes less (PR #110, zvezdochiot).
   const double angleHor = s1.angle() * s1.confidence() / (s1.confidence() + 1.0);
   const double angleVert = s2.angle() * s2.confidence() / (s2.confidence() + 1.0);

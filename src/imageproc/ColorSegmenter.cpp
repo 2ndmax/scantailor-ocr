@@ -254,7 +254,6 @@ class ComponentColor {
   }
 
   inline uint32_t getColor() {
-    const auto sizeF = static_cast<long double>(m_size);
     return qRgb(getAverage(m_red, m_size), getAverage(m_green, m_size), getAverage(m_blue, m_size));
   }
 

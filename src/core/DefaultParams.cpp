@@ -111,7 +111,8 @@ DefaultParams::SelectContentParams::SelectContentParams()
 
 DefaultParams::SelectContentParams::SelectContentParams(const QDomElement& el)
     : m_pageRectSize(XmlUnmarshaller::sizeF(el.namedItem("pageRectSize").toElement())),
-      m_contentDetectEnabled(el.attribute("contentDetectEnabled") == "1"),
+      // A missing attribute must not turn content detection off - it defaults to enabled.
+      m_contentDetectEnabled(el.attribute("contentDetectEnabled", "1") != "0"),
       m_pageDetectMode(stringToAutoManualMode(el.attribute("pageDetectMode"))),
       m_fineTuneCorners(el.attribute("fineTuneCorners") == "1") {}
 
@@ -166,9 +167,11 @@ DefaultParams::OutputParams::OutputParams(const QDomElement& el)
       m_colorParams(el.namedItem("colorParams").toElement()),
       m_splittingOptions(el.namedItem("splittingOptions").toElement()),
       m_pictureShapeOptions(el.namedItem("pictureShapeOptions").toElement()),
-      m_depthPerception(el.attribute("depthPerception").toDouble()),
+      // The string constructor falls back to the default value when the attribute is missing or
+      // malformed; the double one would silently turn that into the minimum value.
+      m_depthPerception(el.attribute("depthPerception")),
       m_dewarpingOptions(el.namedItem("dewarpingOptions").toElement()),
-      m_despeckleLevel(el.attribute("despeckleLevel").toDouble()) {}
+      m_despeckleLevel(el.attribute("despeckleLevel", "1.0").toDouble()) {}
 
 QDomElement DefaultParams::OutputParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));

@@ -98,8 +98,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
   uiData.setDependencies(deps);
 
   if (params) {
-    if ((!deps.matches(params->dependencies()) || (params->deskewAngle() != uiData.effectiveDeskewAngle()))
-        && (params->mode() == MODE_AUTO)) {
+    if (!deps.matches(params->dependencies()) && (params->mode() == MODE_AUTO)) {
       priorParamsBeforeRecompute = *params;
       params.reset();
     } else {
@@ -120,17 +119,24 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
 
     status.throwIfCancelled();
 
-    bool autoObliqueEnabled = false;
-    if (priorParamsBeforeRecompute) {
-      autoObliqueEnabled = priorParamsBeforeRecompute->autoOblique();
-    } else if (const auto pending = m_settings->takePendingAutoOblique(m_pageId)) {
+    const bool autoObliqueByDefault
+        = DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique();
+
+    bool autoObliqueEnabled;
+    if (const auto pending = m_settings->takePendingAutoOblique(m_pageId)) {
+      // The user has just toggled the setting for this page - it wins over anything stored.
       autoObliqueEnabled = *pending;
+    } else if (priorParamsBeforeRecompute) {
+      // "Auto apply oblique" is a master switch: a page may opt out of auto oblique on its own,
+      // but stored per-page parameters must not opt back in while the switch is off. Otherwise
+      // re-running auto deskew would reactivate oblique the user had deactivated.
+      autoObliqueEnabled = autoObliqueByDefault && priorParamsBeforeRecompute->autoOblique();
     } else {
-      autoObliqueEnabled = DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique();
+      autoObliqueEnabled = autoObliqueByDefault;
     }
 
     double preservedObliqueDeg = 0.;
-    if (priorParamsBeforeRecompute && !priorParamsBeforeRecompute->autoOblique()) {
+    if (!autoObliqueEnabled && priorParamsBeforeRecompute && !priorParamsBeforeRecompute->autoOblique()) {
       preservedObliqueDeg = priorParamsBeforeRecompute->obliqueAngle();
     }
 
