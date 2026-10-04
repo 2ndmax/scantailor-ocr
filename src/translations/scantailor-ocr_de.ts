@@ -4541,7 +4541,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="482"/>
         <source>Auto</source>
         <comment>auto</comment>
-        <translation>Automatich</translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="465"/>
@@ -4910,7 +4910,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="66"/>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="229"/>
         <source>Auto</source>
-        <translation>Automatich</translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="79"/>
