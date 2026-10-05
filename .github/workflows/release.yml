@@ -63,8 +63,23 @@ jobs:
             "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate]" openjpeg zlib tesseract `
             boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda
 
+      # Same as running vcvars64.bat: finds Visual Studio and passes the variables
+      # it sets on to the following steps.
       - name: Set up MSVC environment
-        uses: ilammy/msvc-dev-cmd@v1
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * `
+            -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vs) { throw "Visual Studio with the C++ tools was not found." }
+          $script = Join-Path $env:RUNNER_TEMP "vcvars-env.cmd"
+          Set-Content $script "@call `"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul`r`n@set" -Encoding ascii
+          $lines = cmd /c $script
+          if (-not ($lines -match '^VCToolsInstallDir=')) { throw "vcvars64.bat failed." }
+          foreach ($line in $lines) {
+            if ($line -match '^([^=]+)=(.*)$' -and [Environment]::GetEnvironmentVariable($matches[1]) -ne $matches[2]) {
+              $line >> $env:GITHUB_ENV
+            }
+          }
 
       # The tests already run in the CI workflow for the same commit.
       - name: Configure
