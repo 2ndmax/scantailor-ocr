@@ -39,10 +39,15 @@ The changes were developed with the help of Claude (Anthropic).
   and the progress take the place of the page view, the options are shown on the left like
   those of the other steps, and the thumbnails are hidden. The step has no batch processing
   button.
-* The page list shows the pages in project order with thumbnails. Each page can be ticked or
-  unticked ("All" / "None"), and the order can be changed with drag and drop or with
-  "Move up" / "Move down". The selection and order aren't saved, and the project file isn't
-  changed. The page list is read again each time the step is shown.
+* The pages are shown as tiles in project order, from left to right and then on the next row,
+  each with its thumbnail, file name and kind of page. Each page can be ticked or unticked
+  ("All" / "None"); the ticked pages are numbered with their position in the PDF, the others are
+  shown faded. The order can be changed with drag and drop or with "Move forward" /
+  "Move back". Pages not output yet get a placeholder in the proportions of the other pages.
+* The ticks and the order are kept while the project is open, also when going back to an
+  earlier step and outputting pages again. Each time the step is shown, the pages are read
+  again: new pages appear ticked after the page that precedes them in the project, removed
+  pages disappear. The selection and order aren't saved, and the project file isn't changed.
 * While a PDF is being created, the other steps and opening, creating or closing a project are
   locked. Closing the program asks whether to cancel the PDF.
 * Small files, similar in size to Adobe Acrobat's output:

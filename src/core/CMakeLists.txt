@@ -124,6 +124,7 @@ set(common_sources
     jbig2enc/jbig2arith.cpp jbig2enc/jbig2arith.h
     PdfExportPage.cpp PdfExportPage.h
     PdfExportJob.cpp PdfExportJob.h
+    PdfPageOrder.cpp PdfPageOrder.h
     GlyphLessFont.cpp GlyphLessFont.h
     OcrLanguages.cpp OcrLanguages.h
     TessdataDownloader.cpp TessdataDownloader.h

@@ -13,17 +13,24 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QHash>
 #include <QIcon>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QLocale>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QSpinBox>
+#include <QStyle>
+#include <QStyleOptionButton>
+#include <QStyledItemDelegate>
 #include <QThread>
 #include <QTimer>
 #include <QUrl>
@@ -39,13 +46,175 @@
 #include "OcrEngine.h"
 #include "OcrLanguages.h"
 #include "PdfExportJob.h"
+#include "PdfPageOrder.h"
 #include "TessdataDownloadDialog.h"
 #include "ThumbnailLoadResult.h"
 
 namespace {
 /** The language list grows with the number of languages up to this many rows, then it scrolls. */
 const int MAX_VISIBLE_LANGUAGES = 8;
+
+/** The area of a tile the thumbnail is fitted into. */
+const QSize THUMBNAIL_SIZE(120, 160);
+const int TILE_MARGIN = 6;
+const int TILE_WIDTH = THUMBNAIL_SIZE.width() + 4 * TILE_MARGIN;
+
+/** Data of the items of the page list, besides the file name, thumbnail and tick. */
+enum PageRole {
+  ENTRY_INDEX_ROLE = Qt::UserRole,
+  KEY_ROLE,
+  KIND_ROLE,
+  WARNING_ROLE,
+  /** The position of the page in the PDF, starting at 1; 0 if it's not in the PDF. */
+  POSITION_ROLE
+};
 }  // namespace
+
+/**
+ * Draws a page of the list as a tile: tick and position in the PDF on top, the thumbnail in
+ * the middle, the file name and the kind of page below.
+ */
+class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
+ public:
+  explicit PageTileDelegate(QObject* parent) : QStyledItemDelegate(parent) {}
+
+  QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex&) const override {
+    const int lineHeight = option.fontMetrics.height();
+    return QSize(TILE_WIDTH, TILE_MARGIN + headerHeight(option) + TILE_MARGIN + THUMBNAIL_SIZE.height() + TILE_MARGIN
+                                 + 2 * lineHeight + TILE_MARGIN);
+  }
+
+  void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+    const QStyle* style = option.widget ? option.widget->style() : QApplication::style();
+    const QPalette& palette = option.palette;
+    const bool checkable = index.flags().testFlag(Qt::ItemIsUserCheckable);
+    const bool included = checkable && (index.data(Qt::CheckStateRole).toInt() == Qt::Checked);
+    const bool selected = option.state.testFlag(QStyle::State_Selected);
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    // Frame; selected tiles are highlighted.
+    const QRectF frame = QRectF(option.rect).adjusted(1.5, 1.5, -1.5, -1.5);
+    if (selected) {
+      QColor fill = palette.color(QPalette::Highlight);
+      fill.setAlpha(60);
+      painter->setBrush(fill);
+      painter->setPen(QPen(palette.color(QPalette::Highlight), 2));
+    } else {
+      painter->setBrush(Qt::NoBrush);
+      painter->setPen(QPen(palette.color(QPalette::Mid), 1));
+    }
+    painter->drawRoundedRect(frame, 4, 4);
+
+    // Tick.
+    if (checkable) {
+      QStyleOptionButton check;
+      check.rect = checkRect(option);
+      check.state = QStyle::State_Enabled | (included ? QStyle::State_On : QStyle::State_Off);
+      style->drawPrimitive(QStyle::PE_IndicatorCheckBox, &check, painter, option.widget);
+    }
+
+    // Position in the PDF.
+    const int position = index.data(POSITION_ROLE).toInt();
+    if (position > 0) {
+      QFont font = option.font;
+      font.setBold(true);
+      const QFontMetrics metrics(font);
+      const QString text = QString::number(position);
+      const int height = headerHeight(option);
+      const int width = std::max(height, metrics.horizontalAdvance(text) + 10);
+      const QRect badge(option.rect.right() - TILE_MARGIN - width + 1, option.rect.top() + TILE_MARGIN, width, height);
+      painter->setPen(Qt::NoPen);
+      painter->setBrush(palette.color(QPalette::Highlight));
+      painter->drawRoundedRect(badge, height / 2.0, height / 2.0);
+      painter->setFont(font);
+      painter->setPen(palette.color(QPalette::HighlightedText));
+      painter->drawText(badge, Qt::AlignCenter, text);
+    }
+
+    // Pages not in the PDF are drawn faded.
+    if (!included) {
+      painter->setOpacity(0.4);
+    }
+
+    // Thumbnail.
+    const int thumbnailTop = option.rect.top() + TILE_MARGIN + headerHeight(option) + TILE_MARGIN;
+    const QRect thumbnailRect(option.rect.left() + (option.rect.width() - THUMBNAIL_SIZE.width()) / 2, thumbnailTop,
+                              THUMBNAIL_SIZE.width(), THUMBNAIL_SIZE.height());
+    const QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
+    if (!icon.isNull()) {
+      icon.paint(painter, thumbnailRect, Qt::AlignCenter);
+    }
+
+    // File name and kind of page.
+    const int lineHeight = option.fontMetrics.height();
+    QRect textRect(option.rect.left() + TILE_MARGIN, thumbnailRect.bottom() + 1 + TILE_MARGIN,
+                   option.rect.width() - 2 * TILE_MARGIN, lineHeight);
+    painter->setFont(option.font);
+    painter->setPen(palette.color(QPalette::Text));
+    painter->drawText(
+        textRect, Qt::AlignHCenter | Qt::AlignVCenter,
+        option.fontMetrics.elidedText(index.data(Qt::DisplayRole).toString(), Qt::ElideMiddle, textRect.width()));
+    textRect.translate(0, lineHeight);
+    QString kind = index.data(KIND_ROLE).toString();
+    if (index.data(WARNING_ROLE).toBool()) {
+      kind = QString(QChar(0x26A0)) + ' ' + kind;
+    }
+    painter->setPen(palette.color(QPalette::PlaceholderText));
+    painter->drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter,
+                      option.fontMetrics.elidedText(kind, Qt::ElideRight, textRect.width()));
+
+    painter->restore();
+  }
+
+  bool editorEvent(QEvent* event,
+                   QAbstractItemModel* model,
+                   const QStyleOptionViewItem& option,
+                   const QModelIndex& index) override {
+    if (!index.flags().testFlag(Qt::ItemIsUserCheckable)) {
+      return false;
+    }
+    bool toggle = false;
+    if ((event->type() == QEvent::MouseButtonRelease) || (event->type() == QEvent::MouseButtonDblClick)) {
+      const auto* mouseEvent = static_cast<QMouseEvent*>(event);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+      const QPoint pos = mouseEvent->position().toPoint();
+#else
+      const QPoint pos = mouseEvent->pos();
+#endif
+      if ((mouseEvent->button() != Qt::LeftButton) || !checkRect(option).adjusted(-2, -2, 2, 2).contains(pos)) {
+        return false;
+      }
+      // A double click toggles once (on release), not twice.
+      toggle = (event->type() == QEvent::MouseButtonRelease);
+      if (!toggle) {
+        return true;
+      }
+    } else if (event->type() == QEvent::KeyPress) {
+      const int key = static_cast<QKeyEvent*>(event)->key();
+      toggle = (key == Qt::Key_Space) || (key == Qt::Key_Select);
+    }
+    if (!toggle) {
+      return false;
+    }
+    const bool included = (index.data(Qt::CheckStateRole).toInt() == Qt::Checked);
+    return model->setData(index, included ? Qt::Unchecked : Qt::Checked, Qt::CheckStateRole);
+  }
+
+ private:
+  static int headerHeight(const QStyleOptionViewItem& option) {
+    const QStyle* style = option.widget ? option.widget->style() : QApplication::style();
+    return std::max(option.fontMetrics.height() + 4, style->pixelMetric(QStyle::PM_IndicatorHeight));
+  }
+
+  static QRect checkRect(const QStyleOptionViewItem& option) {
+    const QStyle* style = option.widget ? option.widget->style() : QApplication::style();
+    const QSize size(style->pixelMetric(QStyle::PM_IndicatorWidth), style->pixelMetric(QStyle::PM_IndicatorHeight));
+    const int top = option.rect.top() + TILE_MARGIN + (headerHeight(option) - size.height()) / 2;
+    return QRect(QPoint(option.rect.left() + TILE_MARGIN, top), size);
+  }
+};
 
 class PdfExportView::ThumbnailHandler : public ThumbnailPixmapCache::CompletionHandler {
  public:
@@ -70,8 +239,17 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   // Page list.
   auto* pagesGroup = new QGroupBox(tr("Pages"));
   auto* pagesLayout = new QVBoxLayout(pagesGroup);
+  // Tiles from left to right, then on the next row, like reading.  The list mode (rather than
+  // the icon mode) keeps drag and drop a change of the order.
   m_pageList = new QListWidget;
-  m_pageList->setIconSize(QSize(64, 90));
+  m_pageList->setViewMode(QListView::ListMode);
+  m_pageList->setFlow(QListView::LeftToRight);
+  m_pageList->setWrapping(true);
+  m_pageList->setResizeMode(QListView::Adjust);
+  m_pageList->setUniformItemSizes(true);
+  m_pageList->setSpacing(4);
+  m_pageList->setIconSize(THUMBNAIL_SIZE);
+  m_pageList->setItemDelegate(new PageTileDelegate(m_pageList));
   m_pageList->setSelectionMode(QAbstractItemView::ExtendedSelection);
   m_pageList->setDragDropMode(QAbstractItemView::InternalMove);
   m_pageList->setDefaultDropAction(Qt::MoveAction);
@@ -83,17 +261,21 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   auto* listButtons = new QHBoxLayout;
   m_allButton = new QPushButton(tr("All"));
   m_noneButton = new QPushButton(tr("None"));
-  m_upButton = new QPushButton(tr("Move up"));
-  m_downButton = new QPushButton(tr("Move down"));
+  m_forwardButton = new QPushButton(tr("Move forward"));
+  m_backButton = new QPushButton(tr("Move back"));
   m_allButton->setToolTip(tr("Include all output pages in the PDF."));
   m_noneButton->setToolTip(tr("Exclude all pages from the PDF."));
-  m_upButton->setToolTip(tr("Move the selected pages up.  Pages can also be moved with drag and drop."));
-  m_downButton->setToolTip(tr("Move the selected pages down.  Pages can also be moved with drag and drop."));
+  m_forwardButton->setToolTip(
+      tr("Move the selected pages one place towards the start of the PDF.  Pages can also be moved with drag "
+         "and drop."));
+  m_backButton->setToolTip(
+      tr("Move the selected pages one place towards the end of the PDF.  Pages can also be moved with drag and "
+         "drop."));
   listButtons->addWidget(m_allButton);
   listButtons->addWidget(m_noneButton);
   listButtons->addStretch(1);
-  listButtons->addWidget(m_upButton);
-  listButtons->addWidget(m_downButton);
+  listButtons->addWidget(m_forwardButton);
+  listButtons->addWidget(m_backButton);
   pagesLayout->addLayout(listButtons);
   mainLayout->addWidget(pagesGroup, 1);
 
@@ -129,12 +311,17 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
 
   m_optionsWidget.reset(createOptionsWidget());
 
+  connect(m_pageList, &QListWidget::itemChanged, this, &PdfExportView::updatePositions);
   connect(m_pageList, &QListWidget::itemChanged, this, &PdfExportView::updateControls);
   connect(m_pageList, &QListWidget::itemSelectionChanged, this, &PdfExportView::updateControls);
+  // Drag and drop as well as the buttons move items.
+  connect(m_pageList->model(), &QAbstractItemModel::rowsMoved, this, &PdfExportView::updatePositions);
+  connect(m_pageList->model(), &QAbstractItemModel::rowsInserted, this, &PdfExportView::updatePositions);
+  connect(m_pageList->model(), &QAbstractItemModel::rowsRemoved, this, &PdfExportView::updatePositions);
   connect(m_allButton, &QPushButton::clicked, this, &PdfExportView::selectAll);
   connect(m_noneButton, &QPushButton::clicked, this, &PdfExportView::selectNone);
-  connect(m_upButton, &QPushButton::clicked, this, &PdfExportView::moveUp);
-  connect(m_downButton, &QPushButton::clicked, this, &PdfExportView::moveDown);
+  connect(m_forwardButton, &QPushButton::clicked, this, &PdfExportView::moveForward);
+  connect(m_backButton, &QPushButton::clicked, this, &PdfExportView::moveBack);
   connect(m_fileEdit, &QLineEdit::textEdited, this, [this]() { m_fileChosen = true; });
   connect(m_browseButton, &QPushButton::clicked, this, &PdfExportView::browse);
   connect(m_createButton, &QPushButton::clicked, this, &PdfExportView::startExport);
@@ -185,12 +372,13 @@ QWidget* PdfExportView::createOptionsWidget() {
   optionsLayout->addRow(tr("Picture resolution:"), m_backgroundScale);
 
   m_bitonalCompression = new QComboBox;
-  m_bitonalCompression->addItem(tr("JBIG2 (lossless, smaller)"), true);
-  m_bitonalCompression->addItem(tr("CCITT G4 (for older programs)"), false);
+  m_bitonalCompression->addItem(QStringLiteral("JBIG2"), true);
+  m_bitonalCompression->addItem(QStringLiteral("CCITT G4"), false);
   m_bitonalCompression->setCurrentIndex(settings.isPdfJbig2Enabled() ? 0 : 1);
   m_bitonalCompression->setToolTip(
-      tr("Compression of black and white pages and of the text of pages with split output.  Both are lossless; "
-         "JBIG2 files are about a third smaller.  Some very old PDF programs can't show JBIG2."));
+      tr("Compression of black and white pages and of the text of pages with split output.  Both are lossless.  "
+         "JBIG2 makes the files about a third smaller; CCITT G4 is only needed for very old PDF programs that "
+         "can't show JBIG2."));
   optionsLayout->addRow(tr("Black and white:"), m_bitonalCompression);
 
   layout->addWidget(compressionGroup);
@@ -306,29 +494,59 @@ void PdfExportView::setPages(std::vector<Entry> entries) {
   }
   QApplication::restoreOverrideCursor();
 
+  // The order and the ticks shown so far, and the thumbnails, which are shown again until
+  // they have been reloaded.  The output file identifies a page.
+  std::vector<PdfPageOrder::Item> previous;
+  QHash<QString, QIcon> previousIcons;
+  for (int row = 0; row < m_pageList->count(); ++row) {
+    const QListWidgetItem* item = m_pageList->item(row);
+    const QString key = item->data(KEY_ROLE).toString();
+    previous.push_back(PdfPageOrder::Item{key, item->checkState() == Qt::Checked});
+    if (item->flags().testFlag(Qt::ItemIsUserCheckable)) {
+      previousIcons.insert(key, item->icon());
+    }
+  }
+  std::vector<QString> projectOrder;
+  QHash<QString, int> entryIndexes;
+  for (int i = 0; i < static_cast<int>(m_entries.size()); ++i) {
+    const QString key = QDir::cleanPath(m_entries[i].page.mainFile());
+    projectOrder.push_back(key);
+    entryIndexes.insert(key, i);
+  }
+  const std::vector<PdfPageOrder::Item> order = PdfPageOrder::merge(previous, projectOrder);
+
+  const int scrollPos = m_pageList->verticalScrollBar()->value();
+  m_filling = true;
   {
     const QSignalBlocker blocker(m_pageList);
     m_pageList->clear();
-    for (int i = 0; i < static_cast<int>(m_entries.size()); ++i) {
+    for (const PdfPageOrder::Item& orderItem : order) {
+      const int i = entryIndexes.value(orderItem.key);
       const PdfExportPage& page = m_entries[i].page;
       auto* item = new QListWidgetItem(m_pageList);
-      item->setData(Qt::UserRole, i);
-      QString secondLine = kindText(page);
-      if (!page.warning().isEmpty()) {
-        secondLine += QStringLiteral("  ") + QChar(0x26A0);
-      }
-      item->setText(m_entries[i].label + '\n' + secondLine);
-      item->setToolTip(page.warning().isEmpty() ? kindText(page) : page.warning());
-      item->setIcon(makeIcon(QPixmap()));
+      item->setData(ENTRY_INDEX_ROLE, i);
+      item->setData(KEY_ROLE, orderItem.key);
+      item->setData(KIND_ROLE, kindText(page));
+      item->setData(WARNING_ROLE, !page.warning().isEmpty());
+      item->setText(m_entries[i].label);
+      item->setToolTip(page.warning().isEmpty() ? m_entries[i].label + '\n' + kindText(page)
+                                                : m_entries[i].label + '\n' + page.warning());
+      // Kept for pages that aren't output yet, for when they are.
+      item->setCheckState(orderItem.checked ? Qt::Checked : Qt::Unchecked);
       if (page.kind() == PdfExportPage::MISSING) {
         // Shown greyed out and can't be selected.
         item->setFlags(Qt::NoItemFlags);
+        item->setIcon(makeIcon(QPixmap()));
       } else {
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled);
-        item->setCheckState(Qt::Checked);
+        item->setIcon(previousIcons.value(orderItem.key, makeIcon(QPixmap())));
       }
     }
   }
+  m_filling = false;
+  updatePositions();
+  QTimer::singleShot(0, this, [this, scrollPos]() { m_pageList->verticalScrollBar()->setValue(scrollPos); });
+
   for (int i = 0; i < static_cast<int>(m_entries.size()); ++i) {
     if (m_entries[i].page.kind() != PdfExportPage::MISSING) {
       requestThumbnail(m_generation, i);
@@ -357,24 +575,52 @@ void PdfExportView::cancelAndWait() {
 }
 
 void PdfExportView::selectAll() {
-  for (int row = 0; row < m_pageList->count(); ++row) {
-    QListWidgetItem* item = m_pageList->item(row);
-    if (item->flags().testFlag(Qt::ItemIsUserCheckable)) {
-      item->setCheckState(Qt::Checked);
+  {
+    // Numbered once at the end rather than for every page.
+    const QSignalBlocker blocker(m_pageList);
+    for (int row = 0; row < m_pageList->count(); ++row) {
+      QListWidgetItem* item = m_pageList->item(row);
+      if (item->flags().testFlag(Qt::ItemIsUserCheckable)) {
+        item->setCheckState(Qt::Checked);
+      }
     }
   }
+  updatePositions();
+  updateControls();
 }
 
 void PdfExportView::selectNone() {
+  {
+    const QSignalBlocker blocker(m_pageList);
+    for (int row = 0; row < m_pageList->count(); ++row) {
+      QListWidgetItem* item = m_pageList->item(row);
+      if (item->flags().testFlag(Qt::ItemIsUserCheckable)) {
+        item->setCheckState(Qt::Unchecked);
+      }
+    }
+  }
+  updatePositions();
+  updateControls();
+}
+
+void PdfExportView::updatePositions() {
+  if (m_filling) {
+    return;
+  }
+  // Setting the positions isn't a change by the user.
+  const QSignalBlocker blocker(m_pageList);
+  int position = 0;
   for (int row = 0; row < m_pageList->count(); ++row) {
     QListWidgetItem* item = m_pageList->item(row);
-    if (item->flags().testFlag(Qt::ItemIsUserCheckable)) {
-      item->setCheckState(Qt::Unchecked);
+    const bool included = item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked);
+    const int newPosition = included ? ++position : 0;
+    if (item->data(POSITION_ROLE).toInt() != newPosition) {
+      item->setData(POSITION_ROLE, newPosition);
     }
   }
 }
 
-void PdfExportView::moveUp() {
+void PdfExportView::moveForward() {
   std::vector<int> rows;
   for (QListWidgetItem* item : m_pageList->selectedItems()) {
     rows.push_back(m_pageList->row(item));
@@ -394,7 +640,7 @@ void PdfExportView::moveUp() {
   m_pageList->scrollToItem(m_pageList->item(rows.front() - 1));
 }
 
-void PdfExportView::moveDown() {
+void PdfExportView::moveBack() {
   std::vector<int> rows;
   for (QListWidgetItem* item : m_pageList->selectedItems()) {
     rows.push_back(m_pageList->row(item));
@@ -606,8 +852,8 @@ void PdfExportView::updateControls() {
   }
 
   const bool hasSelection = !m_pageList->selectedItems().isEmpty();
-  m_upButton->setEnabled(!running && hasSelection);
-  m_downButton->setEnabled(!running && hasSelection);
+  m_forwardButton->setEnabled(!running && hasSelection);
+  m_backButton->setEnabled(!running && hasSelection);
   m_createButton->setEnabled(!running && (checked > 0));
 }
 

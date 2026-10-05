@@ -33,14 +33,15 @@ class ThumbnailLoadResult;
  *
  * The view itself (page list, target file, progress) goes into the main area of the main window,
  * the options panel (optionsWidget()) into the options area on the left.  Only already existing
- * output files are used.  The page selection and order aren't stored; the options are application
- * settings, saved as soon as they are changed.
+ * output files are used.  The page selection and order are kept as long as the view exists (while
+ * the project is open), but they aren't stored; the options are application settings, saved as
+ * soon as they are changed.
  */
 class PdfExportView : public QWidget {
   Q_OBJECT
  public:
   struct Entry {
-    /** Shown in the page list, e.g. "3 - page_1L.tif". */
+    /** Shown in the page list, e.g. "page_1L.tif". */
     QString label;
     PdfExportPage page;
   };
@@ -56,7 +57,8 @@ class PdfExportView : public QWidget {
   QWidget* optionsWidget() const;
 
   /**
-   * Sets the pages of the project, in project order.  They are analyzed here.
+   * Sets the pages of the project, in project order.  They are analyzed here.  Pages that were
+   * shown before keep their place and their tick (see PdfPageOrder).
    * Ignored while a PDF is being created.
    */
   void setPages(std::vector<Entry> entries);
@@ -78,9 +80,12 @@ class PdfExportView : public QWidget {
 
   void selectNone();
 
-  void moveUp();
+  void moveForward();
 
-  void moveDown();
+  void moveBack();
+
+  /** Numbers the ticked pages in their order in the PDF. */
+  void updatePositions();
 
   void browse();
 
@@ -102,6 +107,7 @@ class PdfExportView : public QWidget {
 
  private:
   class ThumbnailHandler;
+  class PageTileDelegate;
 
   QWidget* createOptionsWidget();
 
@@ -147,8 +153,10 @@ class PdfExportView : public QWidget {
   QLabel* m_selectionLabel = nullptr;
   QPushButton* m_allButton = nullptr;
   QPushButton* m_noneButton = nullptr;
-  QPushButton* m_upButton = nullptr;
-  QPushButton* m_downButton = nullptr;
+  QPushButton* m_forwardButton = nullptr;
+  QPushButton* m_backButton = nullptr;
+  /** Set while setPages() fills the list, so that the positions are only updated once. */
+  bool m_filling = false;
   QLineEdit* m_fileEdit = nullptr;
   QPushButton* m_browseButton = nullptr;
   QProgressBar* m_progressBar = nullptr;

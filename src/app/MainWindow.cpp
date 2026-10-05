@@ -1480,13 +1480,12 @@ std::vector<PdfExportView::Entry> MainWindow::pdfExportEntries() const {
   const QDir backgroundDir(output::Utils::backgroundDir(outDir));
   const std::shared_ptr<output::Filter>& outputFilter = m_stages->outputFilter();
   std::vector<PdfExportView::Entry> entries;
-  int number = 0;
   for (const PageInfo& pageInfo : m_pages->toPageSequence(PAGE_VIEW)) {
     const PageId& pageId = pageInfo.id();
     const QString fileName = m_outFileNameGen.fileNameFor(pageId);
     const bool mixed = outputFilter->isMixedMode(pageId);
     PdfExportView::Entry entry;
-    entry.label = QString("%1 - %2").arg(++number).arg(fileName);
+    entry.label = fileName;
     entry.page = PdfExportPage(m_outFileNameGen.filePathFor(pageId), foregroundDir.absoluteFilePath(fileName),
                                backgroundDir.absoluteFilePath(fileName), mixed);
     entries.push_back(std::move(entry));
