@@ -155,6 +155,11 @@ if (-not $VcpkgRoot -or -not (Test-Path $VcpkgRoot)) { Fail "vcpkg not found. Pa
 $vcpkgInstalled = Join-Path $VcpkgRoot "installed"
 $vcpkgInfo = Join-Path $vcpkgInstalled "vcpkg\info"
 if (-not (Test-Path $vcpkgInfo)) { Fail "$vcpkgInfo doesn't exist." }
+# Qt's own translations (standard buttons, dialogs, context menus), from vcpkg's "qttranslations".
+$qtTranslationsDir = Join-Path $vcpkgInstalled "$Triplet\translations\Qt6"
+if (-not (Test-Path (Join-Path $qtTranslationsDir "qtbase_de.qm"))) {
+  Fail "Qt's translations not found in $qtTranslationsDir. Install them: vcpkg install qttranslations"
+}
 
 if (-not $CrtDir) {
   $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
@@ -230,8 +235,16 @@ Write-Host ("{0} DLLs from the build folder" -f $needed.Count)
 # The Microsoft C++ runtime.
 Get-ChildItem -Path $CrtDir -Filter "*.dll" -File | ForEach-Object { Copy-Item $_.FullName $packageDir }
 
-# Translations.
-Get-ChildItem -Path $BuildDir -Filter "scantailor-ocr_*.qm" -File | ForEach-Object { Copy-Item $_.FullName $packageDir }
+# Translations: the program's own, and Qt's for the same languages (e.g. "qtbase_pt_BR.qm" for "pt").
+$qtTranslationsTarget = Join-Path $packageDir "translations"
+New-Item -ItemType Directory -Force $qtTranslationsTarget | Out-Null
+foreach ($qm in Get-ChildItem -Path $BuildDir -Filter "scantailor-ocr_*.qm" -File) {
+  Copy-Item $qm.FullName $packageDir
+  $language = $qm.BaseName.Substring("scantailor-ocr_".Length)
+  $qtFiles = @(Get-ChildItem -Path $qtTranslationsDir -Filter "qtbase_$language*.qm" -File)
+  if ($qtFiles.Count -eq 0) { Write-Host "No Qt translation for $language" }
+  foreach ($qtFile in $qtFiles) { Copy-Item $qtFile.FullName $qtTranslationsTarget }
+}
 
 # OCR languages.
 New-Item -ItemType Directory -Force (Join-Path $packageDir "tessdata") | Out-Null

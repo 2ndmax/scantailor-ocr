@@ -175,6 +175,13 @@ from working:
   and follow the mouse: the "click to finish" hint no longer stays after moving away from the
   starting point.
 
+### Translations
+
+* Qt's own texts – standard buttons such as "Cancel", parts of the file dialogs, the context
+  menu of text fields – are translated now as well, into the language chosen in the settings.
+  The Windows ZIP ships Qt's translations for the program's languages in `translations`; on
+  Linux they come from the system (`qt6-translations-l10n`, recommended by the `.deb`).
+
 ### Error reporting
 
 * When images can't be loaded or output files can't be written, the reason is shown –
@@ -296,7 +303,7 @@ Unpack it to `C:\Dev\vcpkg`.
 ```
 cd /d C:\Dev\vcpkg
 bootstrap-vcpkg.bat
-vcpkg install --recurse qtbase qtsvg qttools libjpeg-turbo libpng "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate,tools]" openjpeg zlib boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda tesseract
+vcpkg install --recurse qtbase qtsvg qttools qttranslations libjpeg-turbo libpng "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate,tools]" openjpeg zlib boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda tesseract
 ```
 
 `tesseract` is only needed for text recognition in the PDF export (see the build options
@@ -379,7 +386,7 @@ With Qt 6 (recommended; the Linux packages from CI are built this way):
 sudo apt install build-essential cmake \
   qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libqt6opengl6-dev libgl-dev \
   libboost-test-dev libboost-dev libjpeg-dev libpng-dev libtiff-dev zlib1g-dev libopenjp2-7-dev \
-  libtesseract-dev libleptonica-dev tesseract-ocr-deu tesseract-ocr-eng
+  libtesseract-dev libleptonica-dev tesseract-ocr-deu tesseract-ocr-eng qt6-translations-l10n
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j$(nproc)

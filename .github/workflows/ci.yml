@@ -91,7 +91,7 @@ jobs:
             "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `
             "--x-packages-root=$env:RUNNER_TEMP\vcpkg-packages" `
             "--downloads-root=$env:RUNNER_TEMP\vcpkg-downloads" `
-            qtbase qtsvg qttools libjpeg-turbo libpng `
+            qtbase qtsvg qttools qttranslations libjpeg-turbo libpng `
             "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate]" openjpeg zlib tesseract `
             boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda
 

@@ -59,7 +59,7 @@ jobs:
             "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `
             "--x-packages-root=$env:RUNNER_TEMP\vcpkg-packages" `
             "--downloads-root=$env:RUNNER_TEMP\vcpkg-downloads" `
-            qtbase qtsvg qttools libjpeg-turbo libpng `
+            qtbase qtsvg qttools qttranslations libjpeg-turbo libpng `
             "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate]" openjpeg zlib tesseract `
             boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda
 
@@ -179,7 +179,7 @@ jobs:
             libboost-test-dev libboost-dev \
             libjpeg-dev libpng-dev libtiff-dev zlib1g-dev libopenjp2-7-dev \
             libtesseract-dev libleptonica-dev \
-            file
+            qt6-translations-l10n file
 
       - name: Build and install to AppDir
         run: |

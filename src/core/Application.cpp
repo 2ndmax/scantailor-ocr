@@ -9,6 +9,8 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QFontDatabase>
+#include <QLibraryInfo>
+#include <QLocale>
 #include <QMessageBox>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -69,13 +71,37 @@ void Application::installLanguage(const QString& requestedLocale) {
     bool loaded = m_translator.load(m_translationsMap[locale]);
 
     QCoreApplication::removeTranslator(&m_translator);
-    QCoreApplication::installTranslator(&m_translator);
-
     m_currentLocale = (loaded) ? locale : "en";
+    // Qt's translation is installed first, so the program's own one takes precedence.
+    installQtLanguage(m_currentLocale);
+    QCoreApplication::installTranslator(&m_translator);
   } else {
     QCoreApplication::removeTranslator(&m_translator);
 
     m_currentLocale = "en";
+    installQtLanguage(m_currentLocale);
+  }
+}
+
+void Application::installQtLanguage(const QString& locale) {
+  QCoreApplication::removeTranslator(&m_qtTranslator);
+  if (locale == "en") {
+    return;
+  }
+  // Shipped next to the program on Windows, part of the system's Qt on Linux.
+  QStringList dirs = translationDirs();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  dirs.append(QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+#else
+  dirs.append(QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+#endif
+  // QLocale also tries the country variants, e.g. "qtbase_pt_BR" for "pt".
+  const QLocale qtLocale(locale);
+  for (const QString& dir : dirs) {
+    if (m_qtTranslator.load(qtLocale, "qtbase", "_", dir) || m_qtTranslator.load(qtLocale, "qt", "_", dir)) {
+      QCoreApplication::installTranslator(&m_qtTranslator);
+      return;
+    }
   }
 }
 
@@ -90,18 +116,25 @@ std::list<QString> Application::getLanguagesList() const {
   return list;
 }
 
-void Application::initTranslations() {
+QStringList Application::translationDirs() const {
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
   auto opt = QString::SkipEmptyParts;
 #else
   auto opt = Qt::SkipEmptyParts;
 #endif
-  const QStringList translationDirs(QString::fromUtf8(TRANSLATION_DIRS).split(QChar(':'), opt));
+  QStringList dirs;
+  for (const QString& path : QString::fromUtf8(TRANSLATION_DIRS).split(QChar(':'), opt)) {
+    dirs.append(QDir::isAbsolutePath(path) ? QDir::cleanPath(path)
+                                           : QDir::cleanPath(applicationDirPath() + '/' + path));
+  }
+  return dirs;
+}
 
+void Application::initTranslations() {
   // The files are named after the program, e.g. "scantailor-ocr_de.qm".
   const QStringList languageFileFilter(QString::fromUtf8(APPLICATION_NAME) + "_*.qm");
-  for (const QString& path : translationDirs) {
-    QDir dir = (QDir::isAbsolutePath(path)) ? QDir(path) : QDir::cleanPath(applicationDirPath() + '/' + path);
+  for (const QString& path : translationDirs()) {
+    const QDir dir(path);
     if (dir.exists()) {
       QStringList translationFileNames = QDir(dir.path()).entryList(languageFileFilter);
       for (const QString& fileName : translationFileNames) {

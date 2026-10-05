@@ -64,7 +64,7 @@ Section: graphics
 Priority: optional
 Architecture: ${ARCH}
 Depends: ${DEPS}
-Recommends: tesseract-ocr-eng, tesseract-ocr-deu
+Recommends: tesseract-ocr-eng, tesseract-ocr-deu, qt6-translations-l10n
 Maintainer: ScanTailor OCR <https://github.com/2ndmax/scantailor-ocr>
 Description: Scanned page post-processing with searchable PDF export (OCR)
  ScanTailor OCR is based on ScanTailor Advanced 1.2.1. It cleans up scanned

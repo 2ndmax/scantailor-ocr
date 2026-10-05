@@ -31,11 +31,18 @@ class Application : public QApplication {
 
   void initTranslations();
 
+  /** The folders searched for the program's translations, as configured in TRANSLATION_DIRS. */
+  QStringList translationDirs() const;
+
+  /** Loads Qt's own translation (standard buttons, dialogs, context menus) for \p locale. */
+  void installQtLanguage(const QString& locale);
+
   void initPortableVersion();
 
   void loadFonts();
 
   QTranslator m_translator;
+  QTranslator m_qtTranslator;
   QString m_currentLocale;
   std::map<QString, QString> m_translationsMap;
   QString m_portableConfigPath;
