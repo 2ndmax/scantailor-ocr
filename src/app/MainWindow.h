@@ -227,6 +227,12 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
                           const QString& projectFilePath = QString(),
                           const ProjectReader* projectReader = nullptr);
 
+  /**
+   * Whether a project with a missing output folder is still where it was: the parent of the
+   * output folder and all images exist.
+   */
+  static bool isProjectInPlace(const ProjectPages& pages, const QString& outDir);
+
   void updateThumbViewMinWidth();
 
   void setupThumbView();

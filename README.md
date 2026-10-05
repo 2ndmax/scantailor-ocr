@@ -211,6 +211,12 @@ from working:
   complete again, including all texts added in this fork.
 * The thumbnail list keeps its position when re-sorting moves the current page elsewhere.
 * Auto-save is also triggered by changes to the page list and to the current page.
+* If the output folder has been deleted (e.g. to output everything again), opening the project
+  creates it again instead of asking for relinking, as long as the folder it belongs into and
+  all images of the project are still there. Otherwise the project has probably been moved to
+  another place or computer, and relinking is offered as before.
+* Switching back to a step after batch processing or after "Create PDF" no longer connects the
+  signals of its options panel a second time.
 * Code cleanups based on the compiler's static code analysis.
 
 ### Build and tests

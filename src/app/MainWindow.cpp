@@ -15,6 +15,7 @@
 #include <QProcess>
 #include <QResource>
 #include <QScrollBar>
+#include <QSet>
 #include <QSortFilterProxyModel>
 #include <QStackedLayout>
 #include <QtWidgets/QInputDialog>
@@ -370,6 +371,27 @@ PageSequence MainWindow::allPages() const {
   return m_thumbSequence->toPageSequence();
 }
 
+bool MainWindow::isProjectInPlace(const ProjectPages& pages, const QString& outDir) {
+  // The folder the output folder belongs into must exist ...
+  if (!QFileInfo(outDir).absoluteDir().exists()) {
+    return false;
+  }
+  // ... and so must the images of the project.  Otherwise the project has probably been
+  // moved or copied to another computer, and the user should relink it.
+  QSet<QString> checked;
+  for (const PageInfo& page : pages.toPageSequence(IMAGE_VIEW)) {
+    const QString path = page.imageId().filePath();
+    if (checked.contains(path)) {
+      continue;
+    }
+    checked.insert(path);
+    if (!QFileInfo::exists(path)) {
+      return false;
+    }
+  }
+  return !checked.isEmpty();
+}
+
 std::set<PageId> MainWindow::selectedPages() const {
   return m_thumbSequence->selectedItems();
 }
@@ -388,6 +410,11 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   leavePdfStage();
   m_pdfView.reset();
 
+  if (!outDir.isEmpty() && !QDir(outDir).exists() && isProjectInPlace(*pages, outDir)) {
+    // The output folder was deleted, e.g. to output everything again.  The project is
+    // where it was, so the folder is created again rather than asking for relinking.
+    QDir().mkdir(outDir);
+  }
   if (!outDir.isEmpty()) {
     Utils::maybeCreateCacheDir(outDir);
   }
