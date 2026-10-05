@@ -40,7 +40,8 @@ jobs:
           if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             BASE=$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)
           fi
-          SRC_FILES=$(git diff --name-only "$BASE" HEAD -- src/ \
+          # Deleted files can't be checked (--diff-filter=d leaves them out).
+          SRC_FILES=$(git diff --name-only --diff-filter=d "$BASE" HEAD -- src/ \
             | grep -E '\.(cpp|h)$' \
             | grep -v '/translations/' \
             | grep -v '/jbig2enc/' \
