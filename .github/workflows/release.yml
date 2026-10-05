@@ -23,7 +23,7 @@ jobs:
       # fixed to one commit and checked, so every release contains the same files.
       TESSDATA_COMMIT: e12c65a915945e4c28e237a9b52bc4a8f39a0cec
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Set version
         id: version
@@ -44,7 +44,7 @@ jobs:
       # The package cache is created by the CI workflow (ci.yml) on master; this workflow
       # only reads it.  Without it, building the dependencies takes about two hours.
       - name: Restore vcpkg binary cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ${{ github.workspace }}\vcpkg-binary-cache
           key: vcpkg-${{ runner.os }}-${{ github.run_id }}
@@ -105,16 +105,16 @@ jobs:
           "| File | Size | SHA256 |`n|---|---|---|`n| $($zip.Name) | $([Math]::Round($zip.Length / 1MB, 1)) MB | ``$hash`` |" >> $env:GITHUB_STEP_SUMMARY
 
       - name: Upload Windows ZIP artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: windows-zip
           path: build/package/*.zip
 
   build-deb:
     name: Build .deb
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Set version from tag
         if: startsWith(github.ref, 'refs/tags/v')
@@ -137,16 +137,16 @@ jobs:
         run: ./build-deb.sh build
 
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: deb-package
           path: scantailor-ocr_*_amd64.deb
 
   build-appimage:
     name: Build AppImage
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Set version from tag
         if: startsWith(github.ref, 'refs/tags/v')
@@ -193,30 +193,30 @@ jobs:
           mv "$OUT" "../scantailor-ocr-${{ github.ref_name }}-x86_64.AppImage"
 
       - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: appimage
           path: scantailor-ocr-*-x86_64.AppImage
 
   release:
     name: Create GitHub Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [build-windows, build-deb, build-appimage]
     # Only for a version tag, not for a test build started by hand.
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: windows-zip
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: deb-package
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: appimage
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             ScanTailor-OCR-*-win64.zip

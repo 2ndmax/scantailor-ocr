@@ -11,7 +11,7 @@ on:
 jobs:
   build-linux:
     name: Build (Ubuntu, Qt ${{ matrix.qt }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       # Report both Qt versions even if one fails.
       fail-fast: false
@@ -25,7 +25,7 @@ jobs:
             qt_packages: qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libqt6opengl6-dev libgl-dev
             cmake_args: ""
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
@@ -61,10 +61,10 @@ jobs:
       # takes about two hours, later runs only a few minutes.
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-binary-cache
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Restore vcpkg binary cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ${{ github.workspace }}\vcpkg-binary-cache
           key: vcpkg-${{ runner.os }}-${{ github.run_id }}
@@ -110,7 +110,7 @@ jobs:
 
       - name: Save vcpkg binary cache
         if: always() && steps.cache-after.outputs.changed == 'True'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: ${{ github.workspace }}\vcpkg-binary-cache
           key: vcpkg-${{ runner.os }}-${{ github.run_id }}

@@ -13,10 +13,10 @@ permissions:
 
 jobs:
   flatpak:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install Flatpak tools
         run: |
@@ -28,7 +28,7 @@ jobs:
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
       - name: Cache flatpak-builder
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .flatpak-builder
           key: flatpak-builder-${{ hashFiles('flatpak/io.github._2ndmax.ScanTailorOCR.json') }}-${{ runner.os }}
@@ -42,7 +42,7 @@ jobs:
           flatpak build-bundle repo "ScanTailor-OCR-${{ github.ref_name }}.flatpak" io.github._2ndmax.ScanTailorOCR
 
       - name: Upload bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ScanTailor-OCR-flatpak-${{ github.ref_name }}
           path: "*.flatpak"

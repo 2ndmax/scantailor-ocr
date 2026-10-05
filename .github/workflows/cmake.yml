@@ -16,10 +16,10 @@ jobs:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -71,25 +71,25 @@ jobs:
         mv ScanTailor*.AppImage scantailor-ocr.AppImage
       
     - name: Upload Linux bin
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: scantailor-linux-ubuntu-latest-qt6
         path: build/scantailor-ocr
 
     - name: Upload Linux DEB
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: scantailor-linux-ubuntu-latest-qt6-deb
         path: build/scantailor-ocr.deb
 
     - name: Upload Linux RPM
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: scantailor-linux-ubuntu-latest-qt6-rpm
         path: build/scantailor-ocr.rpm
 
     - name: Upload Linux AppImage
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: scantailor-linux-appimage
         path: build/scantailor-ocr.AppImage
