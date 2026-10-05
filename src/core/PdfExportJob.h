@@ -14,7 +14,7 @@
 
 struct PdfExportOptions {
   /** 1 to 100. */
-  int jpegQuality = 75;
+  int jpegQuality = 85;
   /** The background of split pages is stored at 1 / backgroundScale of the output resolution. */
   int backgroundScale = 2;
   /** Black and white images (and the text of split pages) as JBIG2 instead of CCITT G4. */

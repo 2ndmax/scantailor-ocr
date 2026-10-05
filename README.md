@@ -33,13 +33,18 @@ The changes were developed with the help of Claude (Anthropic).
 
 ### PDF export
 
-* **New dialog "File → Create PDF ..."**, also available as a button in the output options.
-  It combines the existing output files of the project into one PDF. It doesn't process pages
-  itself: pages that haven't been output yet are shown greyed out.
+* **New step "7 Create PDF"** in the list of steps, after "Output". It combines the existing
+  output files of the project into one PDF. It doesn't process pages itself: pages that haven't
+  been output yet are shown greyed out. There's no separate window: the page list, the PDF file
+  and the progress take the place of the page view, the options are shown on the left like
+  those of the other steps, and the thumbnails are hidden. The step has no batch processing
+  button.
 * The page list shows the pages in project order with thumbnails. Each page can be ticked or
   unticked ("All" / "None"), and the order can be changed with drag and drop or with
   "Move up" / "Move down". The selection and order aren't saved, and the project file isn't
-  changed.
+  changed. The page list is read again each time the step is shown.
+* While a PDF is being created, the other steps and opening, creating or closing a project are
+  locked. Closing the program asks whether to cancel the PDF.
 * Small files, similar in size to Adobe Acrobat's output:
   * Black and white pages are stored losslessly as **JBIG2** (default) or CCITT G4.
   * Mixed pages with **split output** are stored in layers. Only the picture area of the
@@ -53,16 +58,18 @@ The changes were developed with the help of Claude (Anthropic).
   The arithmetic coder is taken from [jbig2enc](https://github.com/agl/jbig2enc) (Apache License
   2.0, see `src/core/jbig2enc`); no extra library is needed. CCITT G4 remains selectable for
   very old PDF programs.
-* JPEG quality, picture resolution, black and white compression and "open the PDF after
-  creating it" are kept as program settings. By default the PDF is saved next to the project file and named after it.
+* JPEG quality (default 85), picture resolution, black and white compression and "open the PDF
+  after creating it" are kept as program settings, saved as soon as they are changed. By default
+  the PDF is saved next to the project file and named after it.
 * Several pages are prepared in parallel, with progress display and cancelling. The PDF is
   written to a temporary file first, so a failed or cancelled export never leaves a broken file
   behind or damages an existing one.
 * **Text recognition (OCR)** with [Tesseract](https://github.com/tesseract-ocr/tesseract) adds
   an invisible text layer, so the text of the PDF can be searched, selected and copied. The page
   images stay unchanged; the text layer adds only a few kilobytes per page.
-  * Several languages can be ticked at once (e.g. German and English). The page layout can be
-    detected automatically or set to a single column or a single block of text.
+  * Several languages can be ticked at once (e.g. German and English). The text layout, which
+    decides the order in which the text is recognized, can be detected automatically or set to a
+    single column or a single block of text.
   * Pages with split output are recognized on their foreground, i.e. the text without the
     pictures.
   * Several pages are recognized in parallel (number of processor cores minus 2, at most 16).
@@ -316,7 +323,7 @@ jom -j 10
 
 `-j 10` is the number of parallel compiler processes; use roughly the number of processor cores.
 The finished `scantailor-ocr.exe` and all needed DLLs end up in the `build` directory.
-For text recognition, download languages in the program ("Create PDF" → "More languages ..."),
+For text recognition, download languages in the program (step "Create PDF" → "More languages ..."),
 or put the language files into `build\tessdata` by hand, e.g. for German and English
 (about 24 MB together):
 

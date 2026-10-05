@@ -1685,46 +1685,6 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="createPdfLayout">
-     <item>
-      <spacer name="createPdfSpacerLeft">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>1</width>
-         <height>1</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="createPdfButton">
-       <property name="toolTip">
-        <string>Combine the output files of the project into a PDF.</string>
-       </property>
-       <property name="text">
-        <string>Create PDF ...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="createPdfSpacerRight">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>1</width>
-         <height>1</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

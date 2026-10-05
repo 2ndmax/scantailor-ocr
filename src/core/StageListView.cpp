@@ -26,16 +26,23 @@ class StageListView::Model : public QAbstractTableModel {
 
   void disableBatchProcessingAnimation();
 
+  int pdfRow() const { return m_stages->count(); }
+
+  void setPdfRowEnabled(bool enabled);
+
   int columnCount(const QModelIndex& parent) const override;
 
   int rowCount(const QModelIndex& parent) const override;
 
   QVariant data(const QModelIndex& index, int role) const override;
 
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
+
  private:
   std::shared_ptr<StageSequence> m_stages;
   QPixmap m_curAnimationFrame;
   int m_curSelectedRow;
+  bool m_pdfRowEnabled = false;
 };
 
 
@@ -72,7 +79,8 @@ StageListView::StageListView(QWidget* parent)
       m_curBatchAnimationFrame(0),
       m_timerId(0),
       m_batchProcessingPossible(false),
-      m_batchProcessingInProgress(false) {
+      m_batchProcessingInProgress(false),
+      m_pdfRowEnabled(false) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
   // Prevent current item visualization. Not to be confused
@@ -113,6 +121,7 @@ void StageListView::setStages(const std::shared_ptr<StageSequence>& stages) {
   }
 
   m_model = new Model(this, stages);
+  m_model->setPdfRowEnabled(m_pdfRowEnabled);
   setModel(m_model);
 
   QHeaderView* hHeader = horizontalHeader();
@@ -142,6 +151,17 @@ void StageListView::setStages(const std::shared_ptr<StageSequence>& stages) {
   setSizePolicy(sp);
   updateGeometry();
 }  // StageListView::setStages
+
+int StageListView::pdfRow() const {
+  return m_model ? m_model->pdfRow() : -1;
+}
+
+void StageListView::setPdfRowEnabled(const bool enabled) {
+  m_pdfRowEnabled = enabled;
+  if (m_model) {
+    m_model->setPdfRowEnabled(enabled);
+  }
+}
 
 void StageListView::setBatchProcessingPossible(const bool possible) {
   if (m_batchProcessingPossible == possible) {
@@ -245,6 +265,11 @@ void StageListView::placeLaunchButton(int row) {
   if (row == -1) {
     return;
   }
+  if (row == pdfRow()) {
+    // No batch processing for the PDF.
+    m_launchBtn->hide();
+    return;
+  }
 
   const QModelIndex idx(m_model->index(row, 0));
   QRect buttonGeometry(visualRect(idx));
@@ -318,13 +343,25 @@ int StageListView::Model::columnCount(const QModelIndex& parent) const {
   return 2;
 }
 
+void StageListView::Model::setPdfRowEnabled(const bool enabled) {
+  if (m_pdfRowEnabled == enabled) {
+    return;
+  }
+  m_pdfRowEnabled = enabled;
+  emit dataChanged(index(pdfRow(), 0), index(pdfRow(), 1));
+}
+
 int StageListView::Model::rowCount(const QModelIndex& parent) const {
-  return m_stages->count();
+  // The filters, then the PDF row.
+  return m_stages->count() + 1;
 }
 
 QVariant StageListView::Model::data(const QModelIndex& index, const int role) const {
   if (role == Qt::DisplayRole) {
     if (index.column() == 0) {
+      if (index.row() == pdfRow()) {
+        return StageListView::tr("Create PDF");
+      }
       return m_stages->filterAt(index.row())->getName();
     }
   }
@@ -336,6 +373,14 @@ QVariant StageListView::Model::data(const QModelIndex& index, const int role) co
     }
   }
   return QVariant();
+}
+
+Qt::ItemFlags StageListView::Model::flags(const QModelIndex& index) const {
+  if ((index.row() == pdfRow()) && !m_pdfRowEnabled) {
+    // Shown greyed out and can't be selected.
+    return Qt::NoItemFlags;
+  }
+  return QAbstractTableModel::flags(index);
 }
 
 /*================= StageListView::LeftColDelegate ===================*/

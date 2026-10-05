@@ -36,9 +36,6 @@ class FilterOptionsWidget : public QWidget {
 
   /** Emitted when the user requests the Fix DPI dialog (e.g. from Margins panel, issue #93). */
   void fixDpiRequested();
-
-  /** Emitted when the user requests the "Create PDF" dialog (from the Output panel). */
-  void pdfExportRequested();
 };
 
 

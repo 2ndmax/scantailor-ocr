@@ -25,6 +25,7 @@
 #include "PageId.h"
 #include "PageRange.h"
 #include "PageView.h"
+#include "PdfExportView.h"
 #include "SelectedPage.h"
 #include "StatusBarPanel.h"
 #include "ThumbnailSequence.h"
@@ -162,7 +163,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void fixedDpiSubmitted();
 
-  void pdfExportDialogRequested();
+  void pdfExportRunningChanged(bool running);
 
   void saveProjectTriggered();
 
@@ -267,6 +268,21 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void updateMainArea();
 
+  /** Shows the "Create PDF" step instead of the current filter. */
+  void enterPdfStage();
+
+  /** Removes the "Create PDF" step from the main area and the options area. */
+  void leavePdfStage();
+
+  /** The pages of the project in project order, for the "Create PDF" step. */
+  std::vector<PdfExportView::Entry> pdfExportEntries() const;
+
+  /** Next to the project file and named like it. */
+  QString defaultPdfFile() const;
+
+  /** The page navigation shortcuts act on the hidden thumbnails in the "Create PDF" step. */
+  void setPageNavigationEnabled(bool enabled);
+
   bool checkReadyForOutput(const PageId* ignore = nullptr) const;
 
   void loadPageInteractive(const PageInfo& page);
@@ -335,6 +351,10 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::unique_ptr<PageOrientationPropagator> m_pageOrientationPropagator;
   std::unique_ptr<QWidget> m_batchProcessingWidget;
   std::unique_ptr<ProcessingIndicationWidget> m_processingIndicationWidget;
+  /** The "Create PDF" step; created when it's first shown, kept while the project is open. */
+  std::unique_ptr<PdfExportView> m_pdfView;
+  /** Whether the "Create PDF" step is shown.  m_curFilter then still refers to the last filter. */
+  bool m_pdfStage = false;
   boost::function<bool()> m_checkBeepWhenFinished;
   SelectedPage m_selectedPage;
   QObjectCleanupHandler m_optionsWidgetCleanup;

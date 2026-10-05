@@ -45,7 +45,6 @@
 #include "PageOrientationPropagator.h"
 #include "PageSelectionAccessor.h"
 #include "PageSequence.h"
-#include "PdfExportDialog.h"
 #include "ProcessingIndicationWidget.h"
 #include "ProcessingTaskQueue.h"
 #include "ProjectCreationContext.h"
@@ -333,7 +332,6 @@ MainWindow::MainWindow()
   connect(actionOpenProject, SIGNAL(triggered(bool)), this, SLOT(openProject()));
   connect(actionSaveProject, SIGNAL(triggered(bool)), this, SLOT(saveProjectTriggered()));
   connect(actionSaveProjectAs, SIGNAL(triggered(bool)), this, SLOT(saveProjectAsTriggered()));
-  connect(actionCreatePdf, SIGNAL(triggered(bool)), this, SLOT(pdfExportDialogRequested()));
   connect(actionCloseProject, SIGNAL(triggered(bool)), this, SLOT(closeProject()));
   connect(actionQuit, SIGNAL(triggered(bool)), this, SLOT(close()));
 
@@ -386,6 +384,9 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
                                     const ProjectReader* projectReader) {
   stopBatchProcessing(CLEAR_MAIN_AREA);
   m_interactiveQueue->cancelAndClear();
+  // The PDF page selection belongs to the project.
+  leavePdfStage();
+  m_pdfView.reset();
 
   if (!outDir.isEmpty()) {
     Utils::maybeCreateCacheDir(outDir);
@@ -695,7 +696,7 @@ void MainWindow::resetThumbSequence(const std::shared_ptr<const PageOrderProvide
 }
 
 void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership ownership) {
-  if (isBatchProcessingInProgress()) {
+  if (isBatchProcessingInProgress() || m_pdfStage) {
     if (ownership == TRANSFER_OWNERSHIP) {
       delete widget;
     }
@@ -725,7 +726,6 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
     disconnect(m_optionsWidget, SIGNAL(invalidateAllThumbnails()), this, SLOT(invalidateAllThumbnails()));
     disconnect(m_optionsWidget, SIGNAL(goToPage(const PageId&)), this, SLOT(goToPage(const PageId&)));
     disconnect(m_optionsWidget, SIGNAL(fixDpiRequested()), this, SLOT(fixDpiDialogRequested()));
-    disconnect(m_optionsWidget, SIGNAL(pdfExportRequested()), this, SLOT(pdfExportDialogRequested()));
   }
 
   m_optionsFrameLayout->addWidget(widget);
@@ -741,7 +741,6 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
   connect(widget, SIGNAL(invalidateAllThumbnails()), this, SLOT(invalidateAllThumbnails()));
   connect(widget, SIGNAL(goToPage(const PageId&)), this, SLOT(goToPage(const PageId&)));
   connect(widget, SIGNAL(fixDpiRequested()), this, SLOT(fixDpiDialogRequested()));
-  connect(widget, SIGNAL(pdfExportRequested()), this, SLOT(pdfExportDialogRequested()));
 }  // MainWindow::setOptionsWidget
 
 ImageViewBase* MainWindow::findPrimaryImageView(QWidget* root) {
@@ -793,7 +792,8 @@ void MainWindow::scheduleSavedMainAreaViewStateRestore(const QPointer<ImageViewB
 }
 
 void MainWindow::setImageWidget(QWidget* widget, const Ownership ownership, DebugImages* debugImages, bool overlay) {
-  if (isBatchProcessingInProgress() && (widget != m_batchProcessingWidget.get())) {
+  if ((isBatchProcessingInProgress() && (widget != m_batchProcessingWidget.get()))
+      || (m_pdfStage && (widget != m_pdfView.get()))) {
     if (ownership == TRANSFER_OWNERSHIP) {
       delete widget;
     }
@@ -1146,6 +1146,13 @@ void MainWindow::filterSelectionChanged(const QItemSelection& selected) {
     m_batchQueue->cancelAndClear();
   }
 
+  if (selected.front().top() == filterList->pdfRow()) {
+    enterPdfStage();
+    return;
+  }
+  // Coming back from the PDF, m_curFilter is still the filter shown before it.
+  leavePdfStage();
+
   const bool wasBelowFixOrientation = isBelowFixOrientation(m_curFilter);
   const bool wasBelowSelectContent = isBelowSelectContent(m_curFilter);
   m_curFilter = selected.front().top();
@@ -1316,6 +1323,10 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
   if (task->isCancelled()) {
     return;
   }
+  if (m_pdfStage) {
+    // A page loaded before switching to the PDF; it isn't shown anymore.
+    return;
+  }
 
   if (!isBatchProcessingInProgress()) {
     if (!result->filter()) {
@@ -1433,49 +1444,88 @@ void MainWindow::fixedDpiSubmitted() {
   }
 }
 
-void MainWindow::pdfExportDialogRequested() {
-  if (!isProjectLoaded()) {
-    return;
-  }
-  if (isBatchProcessingInProgress()) {
-    // The output files may be rewritten while the PDF is being built.
-    QMessageBox::information(this, tr("Create PDF"),
-                             tr("Please wait until batch processing has finished or stop it first."));
+void MainWindow::enterPdfStage() {
+  if (!isProjectLoaded() || isBatchProcessingInProgress()) {
     return;
   }
 
+  m_pdfStage = true;
+  setPageNavigationEnabled(false);
+  if (!m_pdfView) {
+    m_pdfView = std::make_unique<PdfExportView>(m_thumbnailCache);
+    connect(m_pdfView.get(), &PdfExportView::runningChanged, this, &MainWindow::pdfExportRunningChanged);
+  }
+  // The output files may have changed since the PDF step was last shown.
+  m_pdfView->setDefaultFile(defaultPdfFile());
+  m_pdfView->setPages(pdfExportEntries());
+  updateMainArea();
+}
+
+void MainWindow::leavePdfStage() {
+  if (!m_pdfStage) {
+    return;
+  }
+
+  m_pdfStage = false;
+  setPageNavigationEnabled(true);
+  // The PDF view and its options are kept, just taken out of the window.
+  removeFilterOptionsWidget();
+  removeImageWidget();
+}
+
+std::vector<PdfExportView::Entry> MainWindow::pdfExportEntries() const {
   // The pages in project order, independent of the current sorting of the thumbnails.
   const QString outDir = m_outFileNameGen.outDir();
   const QDir foregroundDir(output::Utils::foregroundDir(outDir));
   const QDir backgroundDir(output::Utils::backgroundDir(outDir));
   const std::shared_ptr<output::Filter>& outputFilter = m_stages->outputFilter();
-  std::vector<PdfExportDialog::Entry> entries;
+  std::vector<PdfExportView::Entry> entries;
   int number = 0;
   for (const PageInfo& pageInfo : m_pages->toPageSequence(PAGE_VIEW)) {
     const PageId& pageId = pageInfo.id();
     const QString fileName = m_outFileNameGen.fileNameFor(pageId);
     const bool mixed = outputFilter->isMixedMode(pageId);
-    PdfExportDialog::Entry entry;
+    PdfExportView::Entry entry;
     entry.label = QString("%1 - %2").arg(++number).arg(fileName);
     entry.page = PdfExportPage(m_outFileNameGen.filePathFor(pageId), foregroundDir.absoluteFilePath(fileName),
                                backgroundDir.absoluteFilePath(fileName), mixed);
     entries.push_back(std::move(entry));
   }
+  return entries;
+}
 
+QString MainWindow::defaultPdfFile() const {
   // Next to the project file and named like it.  For an unsaved project,
   // next to the output folder and named like the folder containing it.
-  QString defaultFile;
   if (!m_projectFile.isEmpty()) {
     const QFileInfo projectInfo(m_projectFile);
-    defaultFile = QDir(projectInfo.absolutePath()).absoluteFilePath(projectInfo.completeBaseName() + ".pdf");
-  } else {
-    const QDir parentDir = QFileInfo(outDir).absoluteDir();
-    const QString name = parentDir.dirName().isEmpty() ? QStringLiteral("output") : parentDir.dirName();
-    defaultFile = parentDir.absoluteFilePath(name + ".pdf");
+    return QDir(projectInfo.absolutePath()).absoluteFilePath(projectInfo.completeBaseName() + ".pdf");
   }
+  const QDir parentDir = QFileInfo(m_outFileNameGen.outDir()).absoluteDir();
+  const QString name = parentDir.dirName().isEmpty() ? QStringLiteral("output") : parentDir.dirName();
+  return parentDir.absoluteFilePath(name + ".pdf");
+}
 
-  PdfExportDialog dialog(std::move(entries), m_thumbnailCache, defaultFile, this);
-  dialog.exec();
+void MainWindow::setPageNavigationEnabled(const bool enabled) {
+  for (QAction* action :
+       {actionFirstPage, actionLastPage, actionNextPage, actionPrevPage, actionPrevPageQ, actionNextPageW,
+        actionNextSelectedPage, actionPrevSelectedPage, actionNextSelectedPageW, actionPrevSelectedPageQ,
+        actionGotoPage, actionMagnifyThumbnails, actionDiminishThumbnails, actionReloadPage}) {
+    action->setEnabled(enabled);
+  }
+}
+
+void MainWindow::pdfExportRunningChanged(const bool running) {
+  // The output files and the project must stay as they are while the PDF is being created.
+  filterList->setEnabled(!running);
+  for (QAction* action : {actionNewProject, actionOpenProject, actionCloseProject, actionSwitchFilter1,
+                          actionSwitchFilter2, actionSwitchFilter3, actionSwitchFilter4, actionSwitchFilter5,
+                          actionSwitchFilter6, actionFixDpi, actionRelinking, actionReverseTwoPageOrder}) {
+    action->setEnabled(!running);
+  }
+  if (!running) {
+    updateProjectActions();
+  }
 }
 
 void MainWindow::saveProjectTriggered() {
@@ -1681,6 +1731,11 @@ void MainWindow::removeWidgetsFromLayout(QLayout* layout) {
 }
 
 void MainWindow::removeFilterOptionsWidget() {
+  if (m_optionsWidget) {
+    // Filters keep their options widget and show it again later; setOptionsWidget()
+    // connects it again then.
+    disconnect(m_optionsWidget, nullptr, this, nullptr);
+  }
   removeWidgetsFromLayout(m_optionsFrameLayout);
   // Delete the old widget we were owning, if any.
   m_optionsWidgetCleanup.clear();
@@ -1695,7 +1750,7 @@ void MainWindow::updateProjectActions() {
   actionFixDpi->setEnabled(loaded);
   actionRelinking->setEnabled(loaded);
   actionReverseTwoPageOrder->setEnabled(loaded);
-  actionCreatePdf->setEnabled(loaded);
+  filterList->setPdfRowEnabled(loaded);
 }
 
 bool MainWindow::isBatchProcessingInProgress() const {
@@ -1739,6 +1794,18 @@ void MainWindow::updateMainArea() {
   } else if (isBatchProcessingInProgress()) {
     filterList->setBatchProcessingPossible(false);
     setImageWidget(m_batchProcessingWidget.get(), KEEP_OWNERSHIP);
+  } else if (m_pdfStage) {
+    // The PDF view has its own page list, so the thumbnails are hidden.
+    filterDockWidget->setVisible(true);
+    thumbnailsDockWidget->setVisible(false);
+    filterList->setBatchProcessingPossible(false);
+    if (m_optionsFrameLayout->indexOf(m_pdfView->optionsWidget()) == -1) {
+      removeFilterOptionsWidget();
+      m_optionsFrameLayout->addWidget(m_pdfView->optionsWidget());
+    }
+    if (m_imageFrameLayout->indexOf(m_pdfView.get()) == -1) {
+      setImageWidget(m_pdfView.get(), KEEP_OWNERSHIP);
+    }
   } else {
     setDockWidgetsVisible(true);
     const PageInfo page(m_thumbSequence->selectionLeader());
@@ -1821,6 +1888,16 @@ void MainWindow::updateWindowTitle() {
 bool MainWindow::closeProjectInteractive() {
   if (!isProjectLoaded()) {
     return true;
+  }
+
+  if (m_pdfView && m_pdfView->isRunning()) {
+    const QMessageBox::StandardButton answer
+        = QMessageBox::question(this, tr("Create PDF"), tr("A PDF is being created.  Do you want to cancel it?"),
+                                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (answer != QMessageBox::Yes) {
+      return false;
+    }
+    m_pdfView->cancelAndWait();
   }
 
   if (m_projectFile.isEmpty()) {
@@ -2241,6 +2318,10 @@ void MainWindow::changeEvent(QEvent* event) {
       case QEvent::LanguageChange:
         retranslateUi(this);
         updateWindowTitle();
+        if (m_pdfView && !m_pdfStage && !m_pdfView->isRunning()) {
+          // Its texts are set when it's created; it's created again when it's next shown.
+          m_pdfView.reset();
+        }
         break;
       default:
         QWidget::changeEvent(event);

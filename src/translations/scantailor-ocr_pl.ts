@@ -941,7 +941,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="142"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="143"/>
         <source>%n page(s) could not be processed because of an unexpected error.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -962,8 +962,8 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
 <context>
     <name>ImageLoader</name>
     <message>
-        <location filename="../core/ImageLoader.cpp" line="46"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="627"/>
+        <location filename="../core/ImageLoader.cpp" line="47"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="629"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -997,12 +997,12 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
 <context>
     <name>Jp2Reader</name>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="314"/>
+        <location filename="../core/Jp2Reader.cpp" line="319"/>
         <source>The image contains a component that could not be decoded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="636"/>
+        <location filename="../core/Jp2Reader.cpp" line="641"/>
         <source>The JPEG 2000 file header is damaged or incomplete.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1015,31 +1015,31 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="162"/>
+        <location filename="../core/LoadFileTask.cpp" line="160"/>
         <source>This page could not be processed because of an unexpected error:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="164"/>
-        <location filename="../core/LoadFileTask.cpp" line="173"/>
+        <location filename="../core/LoadFileTask.cpp" line="162"/>
+        <location filename="../core/LoadFileTask.cpp" line="172"/>
         <source>Reason:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="167"/>
+        <location filename="../core/LoadFileTask.cpp" line="165"/>
         <source>Changing the settings of this page or of a previous step may help. Please report this error together with the steps that led to it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="171"/>
+        <location filename="../core/LoadFileTask.cpp" line="170"/>
         <source>The following file could not be loaded:
 %1</source>
         <translation>Nie udało się załadować następującego pliku:
 %1</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="177"/>
+        <location filename="../core/LoadFileTask.cpp" line="176"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use the &lt;a href=&quot;#relink&quot;&gt;Relinking Tool&lt;/a&gt; to locate it.</source>
         <translation>Następujący plik nie istnieje:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Użyj &lt;a href=&quot;#relink&quot;&gt;narzędzia wskazania materiału źródłowego&lt;/a&gt;, aby go zlokalizować.</translation>
     </message>
@@ -1085,257 +1085,247 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Plik</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="105"/>
+        <location filename="../app/MainWindow.ui" line="103"/>
         <source>Help</source>
         <translation>Pomoc</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="122"/>
+        <location filename="../app/MainWindow.ui" line="120"/>
         <source>Thumbnails</source>
         <translation>Miniatury</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="167"/>
+        <location filename="../app/MainWindow.ui" line="165"/>
         <source>Keep current page in view.</source>
         <translation>Zachowaj bieżącą stronę w widoku.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="357"/>
+        <location filename="../app/MainWindow.ui" line="355"/>
         <source>Navigate through selected pages only.</source>
         <translation>Poruszaj się tylko po zaznaczonych stronach.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="427"/>
+        <location filename="../app/MainWindow.ui" line="425"/>
         <source>Magnify thumbnails.  (Ctrl++)</source>
         <translation>Powiększ miniatury.  (Ctrl++)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="484"/>
+        <location filename="../app/MainWindow.ui" line="482"/>
         <source>Diminish thumbnails.  (Ctrl+-)</source>
         <translation>Zmniejsz miniatury.  (Ctrl+-)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="551"/>
+        <location filename="../app/MainWindow.ui" line="549"/>
         <source>Go To Page...  (Ctrl+G)</source>
         <translation>Przejdź do strony...  (Ctrl+G)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="608"/>
+        <location filename="../app/MainWindow.ui" line="606"/>
         <source>Enable multi page selection mode.</source>
         <translation>Włącz tryb zaznaczania wielu stron.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="680"/>
+        <location filename="../app/MainWindow.ui" line="678"/>
         <source>Single/multi column display.</source>
         <translation>Wyświetlanie pojedyńczej/wielu kolumn.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="740"/>
+        <location filename="../app/MainWindow.ui" line="738"/>
         <source>Pause automatic thumbnail reordering while thumbnails refresh.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="796"/>
+        <location filename="../app/MainWindow.ui" line="794"/>
         <source>Sorting order.</source>
         <translation>Porządek sortowania.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="856"/>
+        <location filename="../app/MainWindow.ui" line="854"/>
         <source>Highlight deviation.</source>
         <translation>Wyróżnij odchylenie.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="971"/>
+        <location filename="../app/MainWindow.ui" line="969"/>
         <source>Filters</source>
         <translation>Filtry</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1087"/>
+        <location filename="../app/MainWindow.ui" line="1085"/>
         <source>Debug Mode</source>
         <translation>Tryb debugowania</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1098"/>
-        <location filename="../app/MainWindow.cpp" line="581"/>
+        <location filename="../app/MainWindow.ui" line="1096"/>
+        <location filename="../app/MainWindow.cpp" line="582"/>
         <source>Save Project</source>
         <translation>Zapisz projekt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1109"/>
+        <location filename="../app/MainWindow.ui" line="1107"/>
         <source>Save Project As ...</source>
         <translation>Zapisz projekt jako...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1120"/>
-        <source>Create PDF ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1123"/>
-        <source>Combine the output files of the project into a PDF</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1131"/>
-        <location filename="../app/MainWindow.ui" line="1186"/>
+        <location filename="../app/MainWindow.ui" line="1118"/>
+        <location filename="../app/MainWindow.ui" line="1173"/>
         <source>Next Page</source>
         <translation>Następna strona</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1142"/>
-        <location filename="../app/MainWindow.ui" line="1175"/>
+        <location filename="../app/MainWindow.ui" line="1129"/>
+        <location filename="../app/MainWindow.ui" line="1162"/>
         <source>Previous Page</source>
         <translation>Poprzednia strona</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1153"/>
+        <location filename="../app/MainWindow.ui" line="1140"/>
         <source>New Project ...</source>
         <translation>Nowy projekt...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1164"/>
+        <location filename="../app/MainWindow.ui" line="1151"/>
         <source>Open Project ...</source>
         <translation>Otwórz projekt...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1197"/>
+        <location filename="../app/MainWindow.ui" line="1184"/>
         <source>Close Project</source>
         <translation>Zamknij projekt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1208"/>
+        <location filename="../app/MainWindow.ui" line="1195"/>
         <source>Quit</source>
         <translation>Zakończ</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1219"/>
+        <location filename="../app/MainWindow.ui" line="1206"/>
         <source>Settings ...</source>
         <translation>Ustawienia...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1230"/>
+        <location filename="../app/MainWindow.ui" line="1217"/>
         <source>First Page</source>
         <translation>Pierwsza strona</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1241"/>
+        <location filename="../app/MainWindow.ui" line="1228"/>
         <source>Last Page</source>
         <translation>Ostatnia strona</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1252"/>
+        <location filename="../app/MainWindow.ui" line="1239"/>
         <source>About</source>
         <translation>O programie</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1263"/>
+        <location filename="../app/MainWindow.ui" line="1250"/>
         <source>Fix DPI ...</source>
         <translation>Napraw DPI...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1274"/>
+        <location filename="../app/MainWindow.ui" line="1261"/>
         <source>Relinking ...</source>
         <translation>Napraw lokalizację materiału źródłowego...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1285"/>
+        <location filename="../app/MainWindow.ui" line="1272"/>
         <source>Reverse two-page spread order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1288"/>
+        <location filename="../app/MainWindow.ui" line="1275"/>
         <source>Swap left/right page order for two-page scans (e.g. Japanese book reading order).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1299"/>
-        <location filename="../app/MainWindow.ui" line="1310"/>
-        <location filename="../app/MainWindow.ui" line="1324"/>
-        <location filename="../app/MainWindow.ui" line="1338"/>
-        <location filename="../app/MainWindow.ui" line="1352"/>
-        <location filename="../app/MainWindow.ui" line="1366"/>
+        <location filename="../app/MainWindow.ui" line="1286"/>
+        <location filename="../app/MainWindow.ui" line="1297"/>
+        <location filename="../app/MainWindow.ui" line="1311"/>
+        <location filename="../app/MainWindow.ui" line="1325"/>
+        <location filename="../app/MainWindow.ui" line="1339"/>
+        <location filename="../app/MainWindow.ui" line="1353"/>
         <source>Switch filter to orientation</source>
         <translation>Przejdź do poprawy orientacji</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1313"/>
+        <location filename="../app/MainWindow.ui" line="1300"/>
         <source>Switch filter to split pages</source>
         <translation>Przejdź do dzielenia stron</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1327"/>
+        <location filename="../app/MainWindow.ui" line="1314"/>
         <source>Switch filter to deskew</source>
         <translation>Przejdź do prostowania</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1341"/>
+        <location filename="../app/MainWindow.ui" line="1328"/>
         <source>Switch filter to select content</source>
         <translation>Przejdź do wybierania zawartości</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1355"/>
+        <location filename="../app/MainWindow.ui" line="1342"/>
         <source>Switch filter to margins</source>
         <translation>Przejdź do marginesów</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1369"/>
+        <location filename="../app/MainWindow.ui" line="1356"/>
         <source>Switch filter to output</source>
         <translation>Przejdź do wyjścia</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1383"/>
+        <location filename="../app/MainWindow.ui" line="1370"/>
         <source>Pixels</source>
         <translation>Piksele</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1400"/>
+        <location filename="../app/MainWindow.ui" line="1387"/>
         <source>Millimetres</source>
         <translation>Milimetry</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1414"/>
+        <location filename="../app/MainWindow.ui" line="1401"/>
         <source>Inches</source>
         <translation>Cale</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1428"/>
+        <location filename="../app/MainWindow.ui" line="1415"/>
         <source>Centimetres</source>
         <translation>Centymetry</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1439"/>
+        <location filename="../app/MainWindow.ui" line="1426"/>
         <source>Default parameters ...</source>
         <translation>Wartości domyślne...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1506"/>
-        <location filename="../app/MainWindow.cpp" line="2300"/>
+        <location filename="../app/MainWindow.ui" line="1493"/>
+        <location filename="../app/MainWindow.cpp" line="2381"/>
         <source>Go To Page</source>
         <translation>Przejdź do strony</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1517"/>
+        <location filename="../app/MainWindow.ui" line="1504"/>
         <source>Magnify thumbnails</source>
         <translation>Powiększ miniatury</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1525"/>
+        <location filename="../app/MainWindow.ui" line="1512"/>
         <source>Diminish thumbnails</source>
         <translation>Zmniejsz miniatury</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1533"/>
-        <location filename="../app/MainWindow.ui" line="1536"/>
+        <location filename="../app/MainWindow.ui" line="1520"/>
+        <location filename="../app/MainWindow.ui" line="1523"/>
         <source>Reload current page</source>
         <translation>Odśwież bieżącą stronę</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="494"/>
+        <location filename="../app/MainWindow.cpp" line="495"/>
         <source>Stop batch processing</source>
         <translation>Zatrzymaj przetwarzanie wsadowe</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="581"/>
+        <location filename="../app/MainWindow.cpp" line="582"/>
         <source>Save the project?</source>
         <translation>Zapisać projekt?</translation>
     </message>
@@ -1360,125 +1350,125 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Wstaw tutaj...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1442"/>
+        <location filename="../app/MainWindow.cpp" line="1895"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1443"/>
-        <source>Please wait until batch processing has finished or stop it first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.cpp" line="1504"/>
-        <location filename="../app/MainWindow.cpp" line="1549"/>
+        <location filename="../app/MainWindow.cpp" line="1554"/>
+        <location filename="../app/MainWindow.cpp" line="1599"/>
         <source>Scan Tailor Projects</source>
         <translation>Projekty Scan Tailor</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1548"/>
+        <location filename="../app/MainWindow.cpp" line="1598"/>
         <source>Open Project</source>
         <translation>Otwórz projekt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1561"/>
-        <location filename="../app/MainWindow.cpp" line="1567"/>
-        <location filename="../app/MainWindow.cpp" line="1872"/>
-        <location filename="../app/MainWindow.cpp" line="1896"/>
+        <location filename="../app/MainWindow.cpp" line="1611"/>
+        <location filename="../app/MainWindow.cpp" line="1617"/>
+        <location filename="../app/MainWindow.cpp" line="1949"/>
+        <location filename="../app/MainWindow.cpp" line="1973"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1561"/>
+        <location filename="../app/MainWindow.cpp" line="1611"/>
         <source>Unable to open the project file.</source>
         <translation>Nie można otworzyć pliku projektu.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1567"/>
+        <location filename="../app/MainWindow.cpp" line="1617"/>
         <source>The project file is broken.</source>
         <translation>Plik projektu jest uszkodzony.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1649"/>
+        <location filename="../app/MainWindow.cpp" line="1699"/>
         <source>version </source>
         <translation>Wersja </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1774"/>
+        <location filename="../app/MainWindow.cpp" line="1841"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Wyjście nie jest jeszcze możliwe, ponieważ ostateczny rozmiar stron nie jest jeszcze znany.
 Uruchom przetwarzanie wsadowe w &quot;Wybierz zawartość&quot; lub &quot;Marginesy&quot;.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1808"/>
+        <location filename="../app/MainWindow.cpp" line="1875"/>
         <source>Unnamed</source>
         <translation>Bez_nazwy</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1813"/>
+        <location filename="../app/MainWindow.cpp" line="1880"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation>%2 - ScanTailor OCR [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1872"/>
-        <location filename="../app/MainWindow.cpp" line="1896"/>
+        <location filename="../app/MainWindow.cpp" line="1895"/>
+        <source>A PDF is being created.  Do you want to cancel it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1949"/>
+        <location filename="../app/MainWindow.cpp" line="1973"/>
         <source>Error saving the project file!</source>
         <translation>Błąd podczas zapisywania pliku projektu!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1951"/>
+        <location filename="../app/MainWindow.cpp" line="2028"/>
         <source>Files to insert</source>
         <translation>Pliki do wstawienia</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1954"/>
+        <location filename="../app/MainWindow.cpp" line="2031"/>
         <source>Images not in project (%1)</source>
         <translation>Obrazy poza projektem (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2005"/>
+        <location filename="../app/MainWindow.cpp" line="2082"/>
         <source>Skip failed files</source>
         <translation>Pomiń błędne pliki</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2045"/>
+        <location filename="../app/MainWindow.cpp" line="2122"/>
         <source>Remove</source>
         <translation>Usuń</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2300"/>
+        <location filename="../app/MainWindow.cpp" line="2381"/>
         <source>Enter the page number:</source>
         <translation>Wpisz numer strony:</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="936"/>
+        <location filename="../app/MainWindow.ui" line="934"/>
         <source>Use Home, End, PgUp/Q, PgDown/W to navigate between pages or Shift+PgUp/Q and Shift+PgDown/W to navigate between selected ones. Alt+Wheel - scale thumbnails.</source>
         <translation>Użyj Home, End, PgUp/Q, PgDown/W, aby nawigować między stronami lub Shift+PgUp/Q i Shift+PgDown/W, aby nawigować między zaznaczonymi. Alt+kółko_myszy - skaluj miniaturki.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1450"/>
-        <location filename="../app/MainWindow.ui" line="1453"/>
-        <location filename="../app/MainWindow.ui" line="1492"/>
-        <location filename="../app/MainWindow.ui" line="1495"/>
+        <location filename="../app/MainWindow.ui" line="1437"/>
+        <location filename="../app/MainWindow.ui" line="1440"/>
+        <location filename="../app/MainWindow.ui" line="1479"/>
+        <location filename="../app/MainWindow.ui" line="1482"/>
         <source>Previous Selected Page</source>
         <translation>Poprzednia zanaczona strona</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1464"/>
-        <location filename="../app/MainWindow.ui" line="1467"/>
-        <location filename="../app/MainWindow.ui" line="1478"/>
-        <location filename="../app/MainWindow.ui" line="1481"/>
+        <location filename="../app/MainWindow.ui" line="1451"/>
+        <location filename="../app/MainWindow.ui" line="1454"/>
+        <location filename="../app/MainWindow.ui" line="1465"/>
+        <location filename="../app/MainWindow.ui" line="1468"/>
         <source>Next Selected Page</source>
         <translation>Następna zaznaczona strona</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="243"/>
+        <location filename="../app/MainWindow.ui" line="241"/>
         <source>Previous page.</source>
         <translation>Poprzednia strona.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="300"/>
+        <location filename="../app/MainWindow.ui" line="298"/>
         <source>Next page.</source>
         <translation>Następna strona.</translation>
     </message>
@@ -1693,338 +1683,6 @@ Uruchom przetwarzanie wsadowe w &quot;Wybierz zawartość&quot; lub &quot;Margin
     </message>
 </context>
 <context>
-    <name>PdfExportDialog</name>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="64"/>
-        <location filename="../app/PdfExportDialog.cpp" line="233"/>
-        <source>Create PDF</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="80"/>
-        <source>Pages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="94"/>
-        <source>All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="95"/>
-        <source>None</source>
-        <translation type="unfinished">Bez kompresji</translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="96"/>
-        <source>Move up</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="97"/>
-        <source>Move down</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="98"/>
-        <source>Include all output pages in the PDF.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="99"/>
-        <source>Exclude all pages from the PDF.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="100"/>
-        <source>Move the selected pages up.  Pages can also be moved with drag and drop.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="101"/>
-        <source>Move the selected pages down.  Pages can also be moved with drag and drop.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="112"/>
-        <source>Options</source>
-        <translation type="unfinished">Opcje</translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="119"/>
-        <source>Higher values give better pictures and larger files.  Applies to grayscale and color pages and to the pictures of pages with split output.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="121"/>
-        <source>JPEG quality:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="124"/>
-        <source>Full</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="125"/>
-        <source>Half</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="126"/>
-        <source>One third</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="129"/>
-        <source>Resolution of the pictures of pages with split output, relative to the output resolution.  The text is always stored at full resolution.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="131"/>
-        <source>Picture resolution:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="134"/>
-        <source>JBIG2 (lossless, smaller)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="135"/>
-        <source>CCITT G4 (for older programs)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="138"/>
-        <source>Compression of black and white pages and of the text of pages with split output.  Both are lossless; JBIG2 files are about a third smaller.  Some very old PDF programs can&apos;t show JBIG2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="140"/>
-        <source>Black and white:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="142"/>
-        <source>Open the PDF after creating it</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="147"/>
-        <source>Black and white pages are stored losslessly.  Pages with split output store their pictures as JPEG and their text losslessly on top.  All other pages are stored as JPEG.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="156"/>
-        <source>Text recognition (OCR)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="160"/>
-        <source>Adds an invisible text layer, so the text of the PDF can be searched, selected and copied.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="162"/>
-        <source>Languages:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="165"/>
-        <source>Tick the languages of the text.  Several languages can be ticked.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="172"/>
-        <source>No language files were found.  Download them with &quot;More languages&quot;, or put *.traineddata files (from tessdata_best) into one of these folders:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="179"/>
-        <source>More languages ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="180"/>
-        <source>Download more languages from the internet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="191"/>
-        <source>Automatic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="192"/>
-        <source>Single column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="193"/>
-        <source>Single block of text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="196"/>
-        <source>How the text is arranged on the pages.  &quot;Automatic&quot; detects columns, pictures and captions.  If the text of a page comes out in the wrong order, try &quot;Single column&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="198"/>
-        <source>Page layout:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="201"/>
-        <source>Text recognition takes a few seconds per page.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="213"/>
-        <source>PDF file:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="216"/>
-        <source>Browse ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="235"/>
-        <location filename="../app/PdfExportDialog.cpp" line="708"/>
-        <source>Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="288"/>
-        <source>Cancelling ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="354"/>
-        <source>Save PDF as</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="354"/>
-        <source>PDF files (*.pdf)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="374"/>
-        <source>Please enter the file name of the PDF.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="382"/>
-        <source>Please enter the complete path of the PDF, including the folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="389"/>
-        <source>The folder %1 doesn&apos;t exist.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="393"/>
-        <source>%1 is a folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="399"/>
-        <source>The file %1 already exists.
-Do you want to replace it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="414"/>
-        <source>Please tick the pages to include in the PDF.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="430"/>
-        <source>Please tick at least one language for the text recognition, or turn it off.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="437"/>
-        <source>Copying language files ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="445"/>
-        <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="478"/>
-        <source>Recognizing the text and creating the PDF ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="479"/>
-        <source>Creating the PDF ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="505"/>
-        <source>The PDF was created: %1 (%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="513"/>
-        <source>Cancelled.  No PDF was written.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="516"/>
-        <location filename="../app/PdfExportDialog.cpp" line="525"/>
-        <source>The PDF could not be created.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="522"/>
-        <source>... and %1 more.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="538"/>
-        <source>%1 of %2 output pages selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="542"/>
-        <source>(%1 pages not output yet)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="621"/>
-        <source>Not output yet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="623"/>
-        <source>Black and white (lossless)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="625"/>
-        <source>Split output (picture JPEG, text lossless)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="627"/>
-        <source>JPEG image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportDialog.cpp" line="708"/>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>PdfExportJob</name>
     <message>
         <location filename="../core/PdfExportJob.cpp" line="39"/>
@@ -2099,6 +1757,328 @@ Do you want to replace it?</source>
     <message>
         <location filename="../core/PdfExportPage.cpp" line="68"/>
         <source>Mixed page without split output.  It is stored as a single JPEG image, which makes the PDF larger and the text less sharp.  For a smaller file, enable &quot;Split output&quot; in the Output stage and process the page again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PdfExportView</name>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="124"/>
+        <location filename="../app/PdfExportView.cpp" line="436"/>
+        <location filename="../app/PdfExportView.cpp" line="587"/>
+        <source>Create PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="71"/>
+        <source>Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="84"/>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="85"/>
+        <source>None</source>
+        <translation type="unfinished">Bez kompresji</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="86"/>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="87"/>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="88"/>
+        <source>Include all output pages in the PDF.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="89"/>
+        <source>Exclude all pages from the PDF.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="90"/>
+        <source>Move the selected pages up.  Pages can also be moved with drag and drop.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="91"/>
+        <source>Move the selected pages down.  Pages can also be moved with drag and drop.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="175"/>
+        <source>JPEG quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="178"/>
+        <source>Full</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="179"/>
+        <source>Half</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="180"/>
+        <source>One third</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="183"/>
+        <source>Resolution of the pictures of pages with split output, relative to the output resolution.  The text is always stored at full resolution.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="185"/>
+        <source>Picture resolution:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="188"/>
+        <source>JBIG2 (lossless, smaller)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="189"/>
+        <source>CCITT G4 (for older programs)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="192"/>
+        <source>Compression of black and white pages and of the text of pages with split output.  Both are lossless; JBIG2 files are about a third smaller.  Some very old PDF programs can&apos;t show JBIG2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="194"/>
+        <source>Black and white:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="277"/>
+        <source>Open the PDF after creating it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="205"/>
+        <source>Text recognition (OCR)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="220"/>
+        <source>Languages:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="224"/>
+        <source>Tick the languages of the text.  Several languages can be ticked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="231"/>
+        <source>No language files were found.  Download them with &quot;More languages&quot;, or put *.traineddata files (from tessdata_best) into one of these folders:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="238"/>
+        <source>More languages ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="239"/>
+        <source>Download more languages from the internet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="251"/>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="252"/>
+        <source>Single column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="253"/>
+        <source>Single block of text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="102"/>
+        <source>PDF file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="105"/>
+        <source>Browse ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="543"/>
+        <source>Cancelling ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="418"/>
+        <source>Save PDF as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="162"/>
+        <source>Compression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="172"/>
+        <source>Higher values give better pictures and larger files.  Applies to grayscale and color pages and to the pictures of pages with split output.  All pages that are neither black and white nor have split output are stored as JPEG.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="208"/>
+        <source>Recognize text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="211"/>
+        <source>Adds an invisible text layer, so the text of the PDF can be searched, selected and copied.  Text recognition takes a few seconds per page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="256"/>
+        <source>How the text is arranged on the pages.  This decides the order in which the text is recognized, e.g. for searching and copying; the look of the PDF doesn&apos;t change.  &quot;Automatic&quot; detects columns, pictures and captions and is usually right.  &quot;Single column&quot; helps if copied text comes out in the wrong order, e.g. with indented lines or tables.  &quot;Single block of text&quot; suits pages with only one short text, such as a label or a note.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="262"/>
+        <source>Text layout:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="418"/>
+        <source>PDF files (*.pdf)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="440"/>
+        <source>Please enter the file name of the PDF.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="448"/>
+        <source>Please enter the complete path of the PDF, including the folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="455"/>
+        <source>The folder %1 doesn&apos;t exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="459"/>
+        <source>%1 is a folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="464"/>
+        <source>The file %1 already exists.
+Do you want to replace it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="479"/>
+        <source>Please tick the pages to include in the PDF.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="494"/>
+        <source>Please tick at least one language for the text recognition, or turn it off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="501"/>
+        <source>Copying language files ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="509"/>
+        <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="532"/>
+        <source>Recognizing the text and creating the PDF ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="533"/>
+        <source>Creating the PDF ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="568"/>
+        <source>The PDF was created: %1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="576"/>
+        <source>Cancelled.  No PDF was written.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="579"/>
+        <location filename="../app/PdfExportView.cpp" line="588"/>
+        <source>The PDF could not be created.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="585"/>
+        <source>... and %1 more.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="601"/>
+        <source>%1 of %2 output pages selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="605"/>
+        <source>(%1 pages not output yet)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="726"/>
+        <source>Not output yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="728"/>
+        <source>Black and white (lossless)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="730"/>
+        <source>Split output (picture JPEG, text lossless)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="732"/>
+        <source>JPEG image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="122"/>
+        <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2289,17 +2269,17 @@ Należy je usunąć z projektu.</translation>
         <translation>in</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="795"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="794"/>
         <source>Canceling multi page selection</source>
         <translation>Anulowanie zaznaczenia wielu stron</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="796"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="795"/>
         <source>%1 pages selection are going to be canceled. Continue?</source>
         <translation>Zaznaczenie stron w ilości %1 zostanie anulowane. Kontynuować?</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="800"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="799"/>
         <source>Don&apos;t show this message again.</source>
         <translation>Nie pokazuj ponownie tej wiadomości.</translation>
     </message>
@@ -2598,9 +2578,14 @@ Należy je usunąć z projektu.</translation>
 <context>
     <name>StageListView</name>
     <message>
-        <location filename="../core/StageListView.cpp" line="98"/>
+        <location filename="../core/StageListView.cpp" line="106"/>
         <source>Launch batch processing</source>
         <translation>Uruchom przetwarzanie wsadowe</translation>
+    </message>
+    <message>
+        <location filename="../core/StageListView.cpp" line="363"/>
+        <source>Create PDF</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2661,47 +2646,47 @@ Należy je usunąć z projektu.</translation>
         <translation>Nazwa i typ strony.</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="39"/>
+        <location filename="../app/StatusBarPanel.cpp" line="38"/>
         <source>Polygon selection (Z)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="40"/>
+        <location filename="../app/StatusBarPanel.cpp" line="39"/>
         <source>Lasso selection (X)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="42"/>
+        <location filename="../app/StatusBarPanel.cpp" line="41"/>
         <source>Rectangle selection (C)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="78"/>
+        <location filename="../app/StatusBarPanel.cpp" line="77"/>
         <source>p. %1 / %2</source>
         <translation>str. %1 / %2</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="86"/>
+        <location filename="../app/StatusBarPanel.cpp" line="85"/>
         <source> [L]</source>
         <translation> [L]</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="86"/>
+        <location filename="../app/StatusBarPanel.cpp" line="85"/>
         <source> [R]</source>
         <translation> [R]</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="189"/>
+        <location filename="../app/StatusBarPanel.cpp" line="188"/>
         <source>Rectangle selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="193"/>
+        <location filename="../app/StatusBarPanel.cpp" line="192"/>
         <source>Lasso selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="197"/>
+        <location filename="../app/StatusBarPanel.cpp" line="196"/>
         <source>Polygon selection</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2738,60 +2723,60 @@ Należy je usunąć z projektu.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="42"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="41"/>
         <source>The files are saved in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="48"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="47"/>
         <source>Search, e.g. &quot;Deutsch&quot; or &quot;fra&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="69"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="68"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="71"/>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="237"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="70"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="236"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="84"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="83"/>
         <source>Loading the list of languages from GitHub ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="105"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="104"/>
         <source>The list of languages could not be loaded from GitHub: %1
 
 Without an internet connection, the installed languages can still be used.  Language files can also be copied by hand into %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="138"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="137"/>
         <source>Scripts (one model for all languages written in that script)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="151"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="150"/>
         <source>installed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="193"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="192"/>
         <source>Downloading ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="205"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="204"/>
         <source>Downloading ... %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/TessdataDownloadDialog.cpp" line="217"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="216"/>
         <source>%n language(s) downloaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -2800,12 +2785,12 @@ Without an internet connection, the installed languages can still be used.  Lang
         </translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="219"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="218"/>
         <source>Cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="237"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="236"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2813,7 +2798,7 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>TessdataDownloader</name>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="84"/>
+        <location filename="../core/TessdataDownloader.cpp" line="83"/>
         <source>GitHub allows only a limited number of requests per hour without signing in.  Please try again later.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2823,7 +2808,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="185"/>
+        <location filename="../core/TessdataDownloader.cpp" line="186"/>
         <source>Could not create the folder %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2852,7 +2837,7 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="1482"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="1481"/>
         <source>%1 (page %2)</source>
         <translation>%1 (strona %2)</translation>
     </message>
@@ -2865,32 +2850,32 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="285"/>
+        <location filename="../core/TiffReader.cpp" line="286"/>
         <source>Inconsistent image layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="310"/>
+        <location filename="../core/TiffReader.cpp" line="311"/>
         <source>Invalid tile layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="600"/>
+        <location filename="../core/TiffReader.cpp" line="602"/>
         <source>Page %1 doesn&apos;t exist in this file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="607"/>
+        <location filename="../core/TiffReader.cpp" line="610"/>
         <source>The image dimensions are missing or invalid.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="753"/>
+        <location filename="../core/TiffReader.cpp" line="757"/>
         <source>The color palette of the image is missing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="834"/>
+        <location filename="../core/TiffReader.cpp" line="839"/>
         <source>Unsupported sample format (%1 bits per sample, format %2).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2939,17 +2924,17 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="318"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="319"/>
         <source>Polygon selection: click here to close the zone.  ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="320"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="321"/>
         <source>Polygon selection: click to add a corner, click the first corner to close the zone.  ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="323"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="325"/>
         <source>Polygon selection: click to add corners. Clicking the last corner again removes it.  X switches to lasso.  ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3603,48 +3588,48 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation>Prostokątny</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="342"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="340"/>
         <source>Apply Splitting Settings</source>
         <translation>Zastosuj ustawienia podziału</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="424"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="422"/>
         <source>Apply Despeckling Level</source>
         <translation>Zastosuj poziom oczyszczania</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="500"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="498"/>
         <source>Apply Depth Perception</source>
         <translation>Zastosuj percepcję głębi</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="88"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="732"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="730"/>
         <source>Off</source>
         <translation>Wyłączone</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="735"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="733"/>
         <source>Auto</source>
         <translation>Automatyczne</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="738"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="736"/>
         <source>Manual</source>
         <translation>Ręcznie</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="741"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="739"/>
         <source>Marginal</source>
         <translation>Wokół krawędzi</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="751"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="749"/>
         <source>deskew disabled</source>
         <translation>Prostowanie wyłączone</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1046"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1044"/>
         <source>Apply Processing Settings</source>
         <translation>Zastosuj ustawienia przetwarzania</translation>
     </message>
@@ -3949,17 +3934,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation>Korekcja zniekształceń</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1705"/>
-        <source>Combine the output files of the project into a PDF.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1708"/>
-        <source>Create PDF ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="749"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="747"/>
         <source>deskew</source>
         <translation>prostowanie</translation>
     </message>
@@ -4127,7 +4102,7 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="353"/>
+        <location filename="../core/filters/output/Task.cpp" line="352"/>
         <source>The split output layers could not be created.</source>
         <translation type="unfinished"></translation>
     </message>

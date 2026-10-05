@@ -94,8 +94,6 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   updateDewarpingDisplay();
 
   connect(binarizationOptions, SIGNAL(currentChanged(int)), this, SLOT(updateBinarizationOptionsDisplay(int)));
-  // Not part of setupUiConnections(): this button doesn't change any page parameters.
-  connect(createPdfButton, &QPushButton::clicked, this, &FilterOptionsWidget::pdfExportRequested);
 
   setupUiConnections();
 }
