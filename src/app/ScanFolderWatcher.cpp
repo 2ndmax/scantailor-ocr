@@ -99,6 +99,10 @@ void ScanFolderWatcher::stop() {
   ++m_session;
 }
 
+void ScanFolderWatcher::ignore(const QString& filePath) {
+  m_tracker.done(QFileInfo(filePath).absoluteFilePath());
+}
+
 void ScanFolderWatcher::scheduleCheck(const int delayMs) {
   m_timer.start(delayMs);
 }

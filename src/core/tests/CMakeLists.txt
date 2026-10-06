@@ -13,6 +13,7 @@ set(sources
     TestNewScanTracker.cpp
     TestPdfPageOrder.cpp
     TestProjectFile.cpp
+    TestScanInsertion.cpp
     TestJbig2.cpp
     TestOcrLanguages.cpp
     TestSelectContentApply.cpp

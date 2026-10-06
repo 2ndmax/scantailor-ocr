@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "AbstractCommand.h"
+#include "AutoImportPanel.h"
 #include "BackgroundTask.h"
 #include "BeforeOrAfter.h"
 #include "FilterResult.h"
@@ -27,6 +28,7 @@
 #include "PageRange.h"
 #include "PageView.h"
 #include "PdfExportView.h"
+#include "ScanInsertion.h"
 #include "SelectedPage.h"
 #include "StatusBarPanel.h"
 #include "ThumbnailSequence.h"
@@ -58,7 +60,6 @@ class TabbedDebugImages;
 class ProcessingTaskQueue;
 class FixDpiDialog;
 class OutOfMemoryDialog;
-class AutoImportPanel;
 class ScanFolderWatcher;
 class QLineF;
 class QRectF;
@@ -344,8 +345,22 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void stopAutoImport();
 
-  /** Adds a new scan at the end and saves the project. */
+  /** Adds a new scan where the import mode says and saves the project. */
   void importScan(const ImageFileInfo& file);
+
+  /** The user chose another mode in the "Automatic import" panel. */
+  void importModeChanged(AutoImportPanel::Mode mode);
+
+  /** Back to adding new scans at the end. */
+  void resetImportMode();
+
+  bool isImageInProject(const QString& filePath) const;
+
+  /**
+   * Renames the new scan \p file to \p newName in its folder, retrying a few times in case the
+   * scanning program still has it open.  Returns the renamed file, or \p file if that fails.
+   */
+  ImageFileInfo renameScan(const ImageFileInfo& file, const QString& newName);
 
   /** Imports the scans that arrived while the project couldn't be changed. */
   void importDeferredScans();
@@ -417,6 +432,10 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   /** Scans that arrived during batch processing or while a PDF was being created. */
   std::vector<ImageFileInfo> m_deferredScans;
   int m_scansWithoutDpi = 0;
+  AutoImportPanel::Mode m_importMode = AutoImportPanel::APPEND;
+  ScanInsertionAnchor m_insertAnchor;
+  /** While non-zero, page selections don't move the anchor, e.g. while removing pages. */
+  int m_ignoreAnchorSelection = 0;
   boost::function<bool()> m_checkBeepWhenFinished;
   SelectedPage m_selectedPage;
   QObjectCleanupHandler m_optionsWidgetCleanup;

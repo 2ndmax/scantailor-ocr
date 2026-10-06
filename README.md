@@ -144,6 +144,12 @@ The changes were developed with the help of Claude (Anthropic).
   it is switched on in a project, or another folder is chosen, the images already in the
   folder but not in the project can be chosen once, in the same lists as in the "Project
   Files" dialog. Importing is always off when a project is opened; it needs a saved project.
+* **Insert after selected page:** the page selected when this mode is chosen is the anchor.
+  Each new scan is inserted after the one before it and renamed to
+  `<anchor name>_<scan name>.tif`, so it is sorted after the anchor in the folder, too. The
+  program selects each new scan without moving the anchor; selecting another page (with the
+  mouse or the keyboard) makes it the new anchor. If the anchor or the last inserted scan is
+  removed, new scans go to the end again. A scan that can't be renamed keeps its name.
 * Scans arriving during batch processing or while a PDF is created are added afterwards.
   Scans without DPI are added, too; the panel counts them, and their DPI can be set with
   Tools > Fix DPI.

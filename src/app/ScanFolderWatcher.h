@@ -44,6 +44,9 @@ class ScanFolderWatcher : public QObject {
 
   void stop();
 
+  /** \p filePath, e.g. a scan renamed after importing it, is not to be reported. */
+  void ignore(const QString& filePath);
+
   bool isWatching() const { return !m_dir.isEmpty(); }
 
   const QString& directory() const { return m_dir; }

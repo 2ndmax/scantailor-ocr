@@ -47,12 +47,16 @@ AutoImportPanel::AutoImportPanel(QWidget* parent) : QWidget(parent) {
   m_appendMode = new QRadioButton(tr("Add at the end"));
   m_appendMode->setToolTip(tr("Each new scan becomes the last page."));
   m_insertAfterMode = new QRadioButton(tr("Insert after selected page"));
-  m_insertAfterMode->setToolTip(tr("Not available yet."));
+  m_insertAfterMode->setToolTip(
+      tr("New scans follow the page selected now, one after the other, and are named after it, so they are "
+         "also sorted after it in the folder.  Selecting another page continues there."));
   m_replaceMode = new QRadioButton(tr("Replace selected page with next scan"));
   m_replaceMode->setToolTip(tr("Not available yet."));
-  auto* modes = new QButtonGroup(this);
+  m_modes = new QButtonGroup(this);
+  m_modes->addButton(m_appendMode, APPEND);
+  m_modes->addButton(m_insertAfterMode, INSERT_AFTER);
+  m_modes->addButton(m_replaceMode, REPLACE);
   for (QRadioButton* mode : {m_appendMode, m_insertAfterMode, m_replaceMode}) {
-    modes->addButton(mode);
     groupLayout->addWidget(mode);
   }
   m_appendMode->setChecked(true);
@@ -68,7 +72,29 @@ AutoImportPanel::AutoImportPanel(QWidget* parent) : QWidget(parent) {
     emit importToggled(checked);
   });
   connect(m_changeDirBtn, &QPushButton::clicked, this, &AutoImportPanel::changeDirectoryRequested);
+  for (QAbstractButton* button : m_modes->buttons()) {
+    connect(button, &QAbstractButton::toggled, this, [this, button](const bool checked) {
+      if (checked && !m_settingMode) {
+        emit modeChanged(static_cast<Mode>(m_modes->id(button)));
+      }
+    });
+  }
 
+  updateEnabled();
+}
+
+void AutoImportPanel::setMode(const Mode mode) {
+  m_settingMode = true;
+  m_modes->button(mode)->setChecked(true);
+  m_settingMode = false;
+}
+
+AutoImportPanel::Mode AutoImportPanel::mode() const {
+  return static_cast<Mode>(m_modes->checkedId());
+}
+
+void AutoImportPanel::setInsertingPossible(const bool possible) {
+  m_insertingPossible = possible;
   updateEnabled();
 }
 
@@ -121,7 +147,8 @@ void AutoImportPanel::updateDirectoryLabel() {
 void AutoImportPanel::updateEnabled() {
   const bool importing = m_importCheck->isChecked();
   m_appendMode->setEnabled(importing);
-  // Follow in the next round.
-  m_insertAfterMode->setEnabled(false);
+  // Inserting needs a page to insert after.
+  m_insertAfterMode->setEnabled(importing && m_insertingPossible);
+  // Follows in the next part.
   m_replaceMode->setEnabled(false);
 }

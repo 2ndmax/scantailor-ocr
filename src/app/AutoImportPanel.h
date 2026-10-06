@@ -7,6 +7,7 @@
 #include <QString>
 #include <QWidget>
 
+class QButtonGroup;
 class QCheckBox;
 class QLabel;
 class QPushButton;
@@ -20,6 +21,9 @@ class QRadioButton;
 class AutoImportPanel : public QWidget {
   Q_OBJECT
  public:
+  /** Where new scans go.  The values are the ids in the button group. */
+  enum Mode { APPEND = 0, INSERT_AFTER = 1, REPLACE = 2 };
+
   explicit AutoImportPanel(QWidget* parent = nullptr);
 
   ~AutoImportPanel() override;
@@ -37,9 +41,20 @@ class AutoImportPanel : public QWidget {
   /** Shows a warning that \p count imported scans have no DPI. */
   void setScansWithoutDpi(int count);
 
+  /** Sets the mode without emitting modeChanged(). */
+  void setMode(Mode mode);
+
+  Mode mode() const;
+
+  /** Inserting after a page needs a page; otherwise that mode is disabled. */
+  void setInsertingPossible(bool possible);
+
  signals:
 
   void importToggled(bool importing);
+
+  /** The user chose another mode. */
+  void modeChanged(AutoImportPanel::Mode mode);
 
   void changeDirectoryRequested();
 
@@ -57,8 +72,11 @@ class AutoImportPanel : public QWidget {
   QRadioButton* m_appendMode;
   QRadioButton* m_insertAfterMode;
   QRadioButton* m_replaceMode;
+  QButtonGroup* m_modes;
   QLabel* m_noDpiLabel;
   QString m_dir;
+  bool m_insertingPossible = false;
+  bool m_settingMode = false;
 };
 
 #endif  // SCANTAILOR_APP_AUTOIMPORTPANEL_H_

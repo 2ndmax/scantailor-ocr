@@ -18,6 +18,7 @@
 #include <QSet>
 #include <QSortFilterProxyModel>
 #include <QStackedLayout>
+#include <QThread>
 #include <QtWidgets/QInputDialog>
 #include <boost/lambda/lambda.hpp>
 #include <map>
@@ -427,6 +428,7 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   }
   m_deferredScans.clear();
   m_scansWithoutDpi = 0;
+  resetImportMode();
 
   m_emptyProjectInputDir.clear();
   if (pages->numImages() == 0) {
@@ -1060,6 +1062,11 @@ void MainWindow::currentPageChanged(const PageInfo& pageInfo,
                                     const QRectF& thumbRect,
                                     const ThumbnailSequence::SelectionFlags flags) {
   m_selectedPage.set(pageInfo.id(), getCurrentView());
+  // Selecting another page moves the anchor of "Insert after selected page".  Batch processing
+  // and removing pages select pages, too, without the user choosing them.
+  if (!m_ignoreAnchorSelection && !isBatchProcessingInProgress()) {
+    m_insertAnchor.pageSelected(pageInfo.imageId().filePath());
+  }
 
   if ((flags & ThumbnailSequence::SELECTED_BY_USER) || focusButton->isChecked()) {
     if (!(flags & ThumbnailSequence::AVOID_SCROLLING_TO)) {
@@ -2247,6 +2254,7 @@ void MainWindow::setupAutoImport() {
   m_scanWatcher = std::make_unique<ScanFolderWatcher>();
   connect(m_autoImportPanel, &AutoImportPanel::importToggled, this, &MainWindow::autoImportToggled);
   connect(m_autoImportPanel, &AutoImportPanel::changeDirectoryRequested, this, &MainWindow::changeAutoImportDirectory);
+  connect(m_autoImportPanel, &AutoImportPanel::modeChanged, this, &MainWindow::importModeChanged);
   connect(m_scanWatcher.get(), &ScanFolderWatcher::imageReady, this, &MainWindow::scanReady);
   connect(m_scanWatcher.get(), &ScanFolderWatcher::imageFailed, this, &MainWindow::scanFailed);
 }
@@ -2262,6 +2270,65 @@ void MainWindow::updateAutoImportPanel() {
   m_autoImportPanel->setImporting(m_scanWatcher->isWatching());
   m_autoImportPanel->setDirectory(m_importDir);
   m_autoImportPanel->setScansWithoutDpi(m_scansWithoutDpi);
+  m_autoImportPanel->setInsertingPossible(m_pages->numImages() > 0);
+  m_autoImportPanel->setMode(m_importMode);
+}
+
+void MainWindow::importModeChanged(const AutoImportPanel::Mode mode) {
+  m_insertAnchor.clear();
+  if (mode == AutoImportPanel::INSERT_AFTER) {
+    const PageInfo selected(m_thumbSequence->selectionLeader());
+    if (selected.isNull()) {
+      resetImportMode();
+      return;
+    }
+    // The page selected now is the anchor.
+    m_insertAnchor.start(selected.imageId().filePath());
+  }
+  m_importMode = mode;
+}
+
+void MainWindow::resetImportMode() {
+  m_importMode = AutoImportPanel::APPEND;
+  m_insertAnchor.clear();
+  if (m_autoImportPanel) {
+    m_autoImportPanel->setMode(m_importMode);
+  }
+}
+
+bool MainWindow::isImageInProject(const QString& filePath) const {
+  const QFileInfo file(filePath);
+  for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
+    if (QFileInfo(page.imageId().filePath()) == file) {
+      return true;
+    }
+  }
+  return false;
+}
+
+ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& newName) {
+  const QString oldPath = file.fileInfo().absoluteFilePath();
+  const QString newPath = file.fileInfo().absoluteDir().absoluteFilePath(newName);
+  if (!QFileInfo::exists(newPath)) {
+    // Don't take the renamed file for another new scan.
+    m_scanWatcher->ignore(newPath);
+    // The scanning program may not have closed the file yet.
+    for (int attempt = 0; attempt < 5; ++attempt) {
+      if (QFile::rename(oldPath, newPath)) {
+        return ImageFileInfo(QFileInfo(newPath), file.imageInfo());
+      }
+      QThread::msleep(100);
+    }
+  }
+
+  auto* box = new QMessageBox(
+      QMessageBox::Warning, tr("Automatic import"),
+      tr("The new scan %1 couldn't be renamed to %2, so it keeps its name.").arg(file.fileInfo().fileName(), newName),
+      QMessageBox::Ok, this);
+  box->setAttribute(Qt::WA_DeleteOnClose);
+  box->setWindowModality(Qt::NonModal);
+  box->show();
+  return file;
 }
 
 QString MainWindow::suggestedImportDirectory() const {
@@ -2333,6 +2400,7 @@ void MainWindow::stopAutoImport() {
 void MainWindow::autoImportToggled(const bool importing) {
   if (!importing) {
     stopAutoImport();
+    resetImportMode();
   } else if (!startAutoImport(m_importDir, true)) {
     m_autoImportPanel->setImporting(false);
   }
@@ -2369,15 +2437,32 @@ void MainWindow::scanReady(const ImageFileInfo& file) {
   }
 }
 
-void MainWindow::importScan(const ImageFileInfo& file) {
+void MainWindow::importScan(const ImageFileInfo& scan) {
   // It may have been inserted by hand in the meantime.
-  for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
-    if (QFileInfo(page.imageId().filePath()) == file.fileInfo()) {
-      return;
+  if (isImageInProject(scan.fileInfo().absoluteFilePath())) {
+    return;
+  }
+
+  ImageFileInfo file(scan);
+  BeforeOrAfter beforeOrAfter = BEFORE;
+  ImageId existing;  // Null with BEFORE: at the end.
+  if (m_importMode == AutoImportPanel::INSERT_AFTER) {
+    if (!isImageInProject(m_insertAnchor.anchorFile()) || !isImageInProject(m_insertAnchor.insertAfterFile())) {
+      // The page to insert after is gone: add at the end, as the panel shows then.
+      resetImportMode();
+    } else {
+      // Named after the anchor, so it is sorted after it in the folder, too.
+      file
+          = renameScan(scan, scan_insertion::prefixedFileName(m_insertAnchor.anchorFile(), scan.fileInfo().fileName()));
+      beforeOrAfter = AFTER;
+      existing = ImageId(m_insertAnchor.insertAfterFile());
     }
   }
 
-  const std::vector<PageInfo> pages = insertImageFile(file, BEFORE, ImageId());
+  const std::vector<PageInfo> pages = insertImageFile(file, beforeOrAfter, existing);
+  if (!pages.empty()) {
+    m_insertAnchor.inserted(pages.front().imageId().filePath());
+  }
   if (!file.isDpiOK()) {
     ++m_scansWithoutDpi;
     m_autoImportPanel->setScansWithoutDpi(m_scansWithoutDpi);
@@ -2389,6 +2474,8 @@ void MainWindow::importScan(const ImageFileInfo& file) {
     thumbView->ensureVisible(m_thumbSequence->selectionLeaderSceneRect(), 20, 20);
   }
   saveProjectWithFeedback(m_projectFile);
+  // E.g. inserting becomes possible with the first page.
+  updateAutoImportPanel();
 }
 
 void MainWindow::importDeferredScans() {
@@ -2414,6 +2501,8 @@ void MainWindow::scanFailed(const QString& filePath) {
 }
 
 void MainWindow::removeFromProject(const std::set<PageId>& pages) {
+  // The selection moves on from the removed pages without the user choosing a page.
+  const ScopedIncDec<int> anchorGuard(m_ignoreAnchorSelection);
   m_interactiveQueue->cancelAndRemove(pages);
   if (m_batchQueue) {
     m_batchQueue->cancelAndRemove(pages);
@@ -2459,6 +2548,12 @@ void MainWindow::removeFromProject(const std::set<PageId>& pages) {
         m_thumbSequence->setSelection(m_thumbSequence->firstPage().id());
       }
     }
+  }
+
+  // New scans can't be inserted after a removed page.
+  if ((m_importMode == AutoImportPanel::INSERT_AFTER)
+      && (!isImageInProject(m_insertAnchor.anchorFile()) || !isImageInProject(m_insertAnchor.insertAfterFile()))) {
+    resetImportMode();
   }
 
   updateMainArea();
