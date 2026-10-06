@@ -1478,13 +1478,13 @@ Para determinar o tamanho da páginas, execute o processamento em lote em &quot;
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="67"/>
-        <source>New Project ...</source>
-        <translation>Novo Projecto...</translation>
+        <source>New Project</source>
+        <translation>Novo Projecto</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="98"/>
-        <source>Open Project ...</source>
-        <translation>Abrir Projecto...</translation>
+        <source>Open Project</source>
+        <translation>Abrir Projecto</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="148"/>

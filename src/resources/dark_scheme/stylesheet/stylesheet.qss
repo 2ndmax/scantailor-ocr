@@ -259,6 +259,10 @@ QGroupBox#recentProjectsGroup::title {
   margin: 0px 4px 0px 4px;
 }
 
+QPushButton#newProjectButton, QPushButton#openProjectButton {
+  padding: 6px 18px 6px 18px;
+}
+
 QMenuBar {
   background-color: palette(window);
   border-bottom: 1px solid #383838;

@@ -1478,13 +1478,13 @@ Para determinarlo, ejecute el proceso por lotes en «Seleccionar contenido» o �
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="67"/>
-        <source>New Project ...</source>
-        <translation>Proyecto nuevo...</translation>
+        <source>New Project</source>
+        <translation>Proyecto nuevo</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="98"/>
-        <source>Open Project ...</source>
-        <translation>Abrir proyecto...</translation>
+        <source>Open Project</source>
+        <translation>Abrir proyecto</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="148"/>

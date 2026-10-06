@@ -1478,13 +1478,13 @@ Pour la déterminer, exécuter le traitement de toutes les images à l&apos;éta
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="67"/>
-        <source>New Project ...</source>
-        <translation>Nouveau projet ...</translation>
+        <source>New Project</source>
+        <translation>Nouveau projet</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="98"/>
-        <source>Open Project ...</source>
-        <translation>Ouvrir un projet ...</translation>
+        <source>Open Project</source>
+        <translation>Ouvrir un projet</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="148"/>

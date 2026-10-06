@@ -1474,12 +1474,12 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="67"/>
-        <source>New Project ...</source>
+        <source>New Project</source>
         <translation>새 프로젝트</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="98"/>
-        <source>Open Project ...</source>
+        <source>Open Project</source>
         <translation>프로젝트 열기</translation>
     </message>
     <message>

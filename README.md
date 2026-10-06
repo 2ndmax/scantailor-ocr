@@ -182,6 +182,15 @@ from working:
   The Windows ZIP ships Qt's translations for the program's languages in `translations`; on
   Linux they come from the system (`qt6-translations-l10n`, recommended by the `.deb`).
 
+### Start page
+
+* "New Project" and "Open Project" are buttons now instead of blue links.
+* Recent projects are listed with their name in the normal text colour and their folder
+  below in smaller, slightly faded text; an entry is highlighted in grey under the mouse and
+  opens on click or with Enter/Space. The full path is shown as a tooltip.
+* The start page has the window background, so its text is no longer drawn on the mid-grey
+  image area of the light colour scheme.
+
 ### Error reporting
 
 * When images can't be loaded or output files can't be written, the reason is shown –

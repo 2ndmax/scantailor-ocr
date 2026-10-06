@@ -1482,13 +1482,13 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="67"/>
-        <source>New Project ...</source>
-        <translation>Neues Projekt...</translation>
+        <source>New Project</source>
+        <translation>Neues Projekt</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="98"/>
-        <source>Open Project ...</source>
-        <translation>Projekt öffnen...</translation>
+        <source>Open Project</source>
+        <translation>Projekt öffnen</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="148"/>

@@ -1481,13 +1481,13 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="67"/>
-        <source>New Project ...</source>
-        <translation>Новый проект ...</translation>
+        <source>New Project</source>
+        <translation>Новый проект</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="98"/>
-        <source>Open Project ...</source>
-        <translation>Открыть проект ...</translation>
+        <source>Open Project</source>
+        <translation>Открыть проект</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="148"/>

@@ -1482,13 +1482,13 @@ Uruchom przetwarzanie wsadowe w &quot;Wybierz zawartość&quot; lub &quot;Margin
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="67"/>
-        <source>New Project ...</source>
-        <translation>Nowy projekt...</translation>
+        <source>New Project</source>
+        <translation>Nowy projekt</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="98"/>
-        <source>Open Project ...</source>
-        <translation>Otwórz projekt...</translation>
+        <source>Open Project</source>
+        <translation>Otwórz projekt</translation>
     </message>
     <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="148"/>
