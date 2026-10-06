@@ -357,10 +357,25 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   bool isImageInProject(const QString& filePath) const;
 
   /**
+   * The images of the selected pages, in page order, each once; a new scan replaces them.
+   * \p contiguous tells whether they are next to each other.
+   */
+  std::vector<ImageId> imagesToReplace(bool* contiguous) const;
+
+  /** Shows in the panel how many pages a new scan replaces, and whether it can. */
+  void updateReplaceSelection();
+
+  /**
    * Renames the new scan \p file to \p newName in its folder, retrying a few times in case the
    * scanning program still has it open.  Returns the renamed file, or \p file if that fails.
    */
   ImageFileInfo renameScan(const ImageFileInfo& file, const QString& newName);
+
+  /** Moves an image replaced by a new scan into the folder "replaced" next to it. */
+  void moveReplacedImage(const QString& filePath);
+
+  /** Shows a warning about importing scans that doesn't block further imports. */
+  void showImportWarning(const QString& text);
 
   /** Imports the scans that arrived while the project couldn't be changed. */
   void importDeferredScans();

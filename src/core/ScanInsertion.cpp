@@ -3,11 +3,27 @@
 
 #include "ScanInsertion.h"
 
+#include <QDir>
 #include <QFileInfo>
 
 namespace scan_insertion {
 QString prefixedFileName(const QString& anchorFile, const QString& scanFile) {
   return QFileInfo(anchorFile).completeBaseName() + QLatin1Char('_') + QFileInfo(scanFile).fileName();
+}
+
+QString replacedDir(const QString& replacedFile) {
+  return QFileInfo(replacedFile).absoluteDir().absoluteFilePath(QStringLiteral("replaced"));
+}
+
+QString replacedFilePath(const QString& replacedFile, const std::function<bool(const QString&)>& exists) {
+  const QFileInfo file(replacedFile);
+  const QDir dir(replacedDir(replacedFile));
+  QString path = dir.absoluteFilePath(file.fileName());
+  const QString suffix = file.suffix().isEmpty() ? QString() : QLatin1Char('.') + file.suffix();
+  for (int number = 2; exists(path); ++number) {
+    path = dir.absoluteFilePath(file.completeBaseName() + QStringLiteral(" (%1)").arg(number) + suffix);
+  }
+  return path;
 }
 }  // namespace scan_insertion
 

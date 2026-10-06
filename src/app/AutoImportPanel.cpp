@@ -50,8 +50,8 @@ AutoImportPanel::AutoImportPanel(QWidget* parent) : QWidget(parent) {
   m_insertAfterMode->setToolTip(
       tr("New scans follow the page selected now, one after the other, and are named after it, so they are "
          "also sorted after it in the folder.  Selecting another page continues there."));
-  m_replaceMode = new QRadioButton(tr("Replace selected page with next scan"));
-  m_replaceMode->setToolTip(tr("Not available yet."));
+  m_replaceMode = new QRadioButton;
+  setReplaceSelection(1, true);
   m_modes = new QButtonGroup(this);
   m_modes->addButton(m_appendMode, APPEND);
   m_modes->addButton(m_insertAfterMode, INSERT_AFTER);
@@ -96,6 +96,22 @@ AutoImportPanel::Mode AutoImportPanel::mode() const {
 void AutoImportPanel::setInsertingPossible(const bool possible) {
   m_insertingPossible = possible;
   updateEnabled();
+}
+
+void AutoImportPanel::setReplaceSelection(const int count, const bool contiguous) {
+  // The number shows when more than one page would be replaced, e.g. selected by mistake.
+  m_replaceMode->setText((count > 1) ? tr("Replace selected pages (%n) with next scan", "", count)
+                                     : tr("Replace selected page with next scan"));
+  m_replaceMode->setToolTip(
+      contiguous ? tr("The next scan takes the place of the selected pages and is named after the first of them; "
+                      "for a two-page scan, both pages are replaced.  The old images are moved to the folder "
+                      "\"replaced\" next to them, and their output files are deleted.  Further scans are then "
+                      "inserted after the new one.")
+                 : tr("Only pages next to each other can be replaced together."));
+  m_replaceContiguous = contiguous;
+  if (m_modes) {
+    updateEnabled();
+  }
 }
 
 AutoImportPanel::~AutoImportPanel() = default;
@@ -147,8 +163,7 @@ void AutoImportPanel::updateDirectoryLabel() {
 void AutoImportPanel::updateEnabled() {
   const bool importing = m_importCheck->isChecked();
   m_appendMode->setEnabled(importing);
-  // Inserting needs a page to insert after.
+  // Both need a page to insert after or to replace.
   m_insertAfterMode->setEnabled(importing && m_insertingPossible);
-  // Follows in the next part.
-  m_replaceMode->setEnabled(false);
+  m_replaceMode->setEnabled(importing && m_insertingPossible && m_replaceContiguous);
 }

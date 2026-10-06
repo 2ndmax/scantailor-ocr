@@ -5,6 +5,7 @@
 #define SCANTAILOR_CORE_SCANINSERTION_H_
 
 #include <QString>
+#include <functional>
 
 namespace scan_insertion {
 /**
@@ -14,6 +15,15 @@ namespace scan_insertion {
  * inserted after "A.tif" are sorted by their own (time stamp) names.
  */
 QString prefixedFileName(const QString& anchorFile, const QString& scanFile);
+
+/** The folder replaced images are moved to: "replaced" in the folder of the image. */
+QString replacedDir(const QString& replacedFile);
+
+/**
+ * Where the replaced image \p replacedFile is moved to: into replacedDir(), under its name,
+ * or with " (2)", " (3)" ... before the extension if \p exists says that name is taken.
+ */
+QString replacedFilePath(const QString& replacedFile, const std::function<bool(const QString&)>& exists);
 }  // namespace scan_insertion
 
 /**

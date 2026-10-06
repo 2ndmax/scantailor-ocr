@@ -1067,6 +1067,8 @@ void MainWindow::currentPageChanged(const PageInfo& pageInfo,
   if (!m_ignoreAnchorSelection && !isBatchProcessingInProgress()) {
     m_insertAnchor.pageSelected(pageInfo.imageId().filePath());
   }
+  // The panel shows how many pages a new scan replaces.
+  updateReplaceSelection();
 
   if ((flags & ThumbnailSequence::SELECTED_BY_USER) || focusButton->isChecked()) {
     if (!(flags & ThumbnailSequence::AVOID_SCROLLING_TO)) {
@@ -2272,6 +2274,16 @@ void MainWindow::updateAutoImportPanel() {
   m_autoImportPanel->setScansWithoutDpi(m_scansWithoutDpi);
   m_autoImportPanel->setInsertingPossible(m_pages->numImages() > 0);
   m_autoImportPanel->setMode(m_importMode);
+  updateReplaceSelection();
+}
+
+void MainWindow::updateReplaceSelection() {
+  if (!m_autoImportPanel) {
+    return;
+  }
+  bool contiguous = false;
+  const std::vector<ImageId> images = imagesToReplace(&contiguous);
+  m_autoImportPanel->setReplaceSelection(static_cast<int>(images.size()), contiguous);
 }
 
 void MainWindow::importModeChanged(const AutoImportPanel::Mode mode) {
@@ -2294,6 +2306,41 @@ void MainWindow::resetImportMode() {
   if (m_autoImportPanel) {
     m_autoImportPanel->setMode(m_importMode);
   }
+}
+
+std::vector<ImageId> MainWindow::imagesToReplace(bool* contiguous) const {
+  QSet<QString> selectedFiles;
+  for (const PageId& page : m_thumbSequence->selectedItems()) {
+    selectedFiles.insert(page.imageId().filePath());
+  }
+
+  // The images in the order of the pages, each once.
+  std::vector<ImageId> images;
+  int first = -1;
+  int last = -1;
+  QString previousFile;
+  for (const PageInfo& page : m_thumbSequence->toPageSequence()) {
+    const QString& file = page.imageId().filePath();
+    if (file == previousFile) {
+      continue;  // The other page of a two-page scan.
+    }
+    previousFile = file;
+    if (selectedFiles.contains(file)) {
+      if (first < 0) {
+        first = static_cast<int>(images.size());
+      }
+      last = static_cast<int>(images.size());
+    }
+    images.push_back(page.imageId());
+  }
+
+  std::vector<ImageId> selected;
+  if (first >= 0) {
+    selected.assign(images.begin() + first, images.begin() + last + 1);
+  }
+  // Without gaps, all images from the first to the last selected one are selected.
+  *contiguous = (static_cast<int>(selected.size()) == selectedFiles.size());
+  return selected;
 }
 
 bool MainWindow::isImageInProject(const QString& filePath) const {
@@ -2321,14 +2368,34 @@ ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& n
     }
   }
 
-  auto* box = new QMessageBox(
-      QMessageBox::Warning, tr("Automatic import"),
-      tr("The new scan %1 couldn't be renamed to %2, so it keeps its name.").arg(file.fileInfo().fileName(), newName),
-      QMessageBox::Ok, this);
+  showImportWarning(
+      tr("The new scan %1 couldn't be renamed to %2, so it keeps its name.").arg(file.fileInfo().fileName(), newName));
+  return file;
+}
+
+void MainWindow::showImportWarning(const QString& text) {
+  // Not modal, so further scans are still imported.
+  auto* box = new QMessageBox(QMessageBox::Warning, tr("Automatic import"), text, QMessageBox::Ok, this);
   box->setAttribute(Qt::WA_DeleteOnClose);
   box->setWindowModality(Qt::NonModal);
   box->show();
-  return file;
+}
+
+void MainWindow::moveReplacedImage(const QString& filePath) {
+  const QString dir = scan_insertion::replacedDir(filePath);
+  const QString target
+      = scan_insertion::replacedFilePath(filePath, [](const QString& path) { return QFileInfo::exists(path); });
+  if (QDir().mkpath(dir)) {
+    // A background task may still be reading the image.
+    for (int attempt = 0; attempt < 5; ++attempt) {
+      if (QFile::rename(filePath, target)) {
+        return;
+      }
+      QThread::msleep(100);
+    }
+  }
+  showImportWarning(tr("The replaced image %1 couldn't be moved to %2.")
+                        .arg(QDir::toNativeSeparators(filePath), QDir::toNativeSeparators(dir)));
 }
 
 QString MainWindow::suggestedImportDirectory() const {
@@ -2459,9 +2526,55 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
     }
   }
 
+  // The whole images of the selected pages are replaced, both pages of a two-page scan.
+  std::vector<ImageId> replacedImages;
+  if (m_importMode == AutoImportPanel::REPLACE) {
+    bool contiguous = false;
+    const std::vector<ImageId> selected = imagesToReplace(&contiguous);
+    if (!contiguous) {
+      showImportWarning(tr("Only pages next to each other can be replaced together.  The new scan %1 is added at "
+                           "the end.")
+                            .arg(scan.fileInfo().fileName()));
+    } else if (!selected.empty()) {
+      replacedImages = selected;
+      // In place of the first of them and named after it.
+      file
+          = renameScan(scan, scan_insertion::prefixedFileName(selected.front().filePath(), scan.fileInfo().fileName()));
+      existing = selected.front();  // Inserted before it, then they are removed.
+    }
+    // Only the next scan replaces pages; see below for what follows.
+    resetImportMode();
+  }
+
   const std::vector<PageInfo> pages = insertImageFile(file, beforeOrAfter, existing);
   if (!pages.empty()) {
     m_insertAnchor.inserted(pages.front().imageId().filePath());
+  }
+
+  if (!replacedImages.empty()) {
+    QSet<QString> replacedFiles;
+    for (const ImageId& image : replacedImages) {
+      replacedFiles.insert(image.filePath());
+    }
+    std::set<PageId> replacedPages;
+    for (const PageInfo& page : m_pages->toPageSequence(getCurrentView())) {
+      if (replacedFiles.contains(page.imageId().filePath())) {
+        replacedPages.insert(page.id());
+      }
+    }
+    // Their settings go with them, and so do their output files: the new scan has another name.
+    removeFromProject(replacedPages);
+    eraseOutputFiles(replacedPages);
+    for (const QString& replacedFile : replacedFiles) {
+      moveReplacedImage(replacedFile);
+    }
+
+    // Further scans usually belong right after the replaced page: insert them after the new scan.
+    if (!pages.empty()) {
+      m_importMode = AutoImportPanel::INSERT_AFTER;
+      m_insertAnchor.start(pages.front().imageId().filePath());
+      m_autoImportPanel->setMode(m_importMode);
+    }
   }
   if (!file.isDpiOK()) {
     ++m_scansWithoutDpi;
@@ -2490,14 +2603,8 @@ void MainWindow::importDeferredScans() {
 }
 
 void MainWindow::scanFailed(const QString& filePath) {
-  // Not modal, so further scans are still imported.
-  auto* box = new QMessageBox(
-      QMessageBox::Warning, tr("Automatic import"),
-      tr("The new image %1 can't be opened and is not imported.").arg(QDir::toNativeSeparators(filePath)),
-      QMessageBox::Ok, this);
-  box->setAttribute(Qt::WA_DeleteOnClose);
-  box->setWindowModality(Qt::NonModal);
-  box->show();
+  showImportWarning(
+      tr("The new image %1 can't be opened and is not imported.").arg(QDir::toNativeSeparators(filePath)));
 }
 
 void MainWindow::removeFromProject(const std::set<PageId>& pages) {

@@ -152,13 +152,16 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <source>New scans follow the page selected now, one after the other, and are named after it, so they are also sorted after it in the folder.  Selecting another page continues there.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../app/AutoImportPanel.cpp" line="54"/>
-        <source>Not available yet.</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <location filename="../app/AutoImportPanel.cpp" line="103"/>
+        <source>Replace selected pages (%n) with next scan</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../app/AutoImportPanel.cpp" line="53"/>
+        <location filename="../app/AutoImportPanel.cpp" line="104"/>
         <source>Replace selected page with next scan</source>
         <translation type="unfinished"></translation>
     </message>
@@ -168,17 +171,27 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AutoImportPanel.cpp" line="115"/>
+        <location filename="../app/AutoImportPanel.cpp" line="106"/>
+        <source>The next scan takes the place of the selected pages and is named after the first of them; for a two-page scan, both pages are replaced.  The old images are moved to the folder &quot;replaced&quot; next to them, and their output files are deleted.  Further scans are then inserted after the new one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="110"/>
+        <source>Only pages next to each other can be replaced together.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="131"/>
         <source>New images saved to the folder below are added to the project automatically.  Images that are already there when this is switched on can be chosen once.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AutoImportPanel.cpp" line="118"/>
+        <location filename="../app/AutoImportPanel.cpp" line="134"/>
         <source>Save the project first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/AutoImportPanel.cpp" line="131"/>
+        <location filename="../app/AutoImportPanel.cpp" line="147"/>
         <source>%n scan(s) without DPI.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -1376,7 +1389,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1493"/>
-        <location filename="../app/MainWindow.cpp" line="2742"/>
+        <location filename="../app/MainWindow.cpp" line="2849"/>
         <source>Go To Page</source>
         <translation>Aller à la page</translation>
     </message>
@@ -1407,141 +1420,150 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Enregistrer le projet?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1120"/>
+        <location filename="../app/MainWindow.cpp" line="1122"/>
         <source>Insert before ...</source>
         <translation>Insérer avant ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1121"/>
+        <location filename="../app/MainWindow.cpp" line="1123"/>
         <source>Insert after ...</source>
         <translation>Insérer après ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1125"/>
+        <location filename="../app/MainWindow.cpp" line="1127"/>
         <source>Remove from project ...</source>
         <translation>Retirer du projet ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1155"/>
+        <location filename="../app/MainWindow.cpp" line="1157"/>
         <source>Insert here ...</source>
         <translation>Insérer ici ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1979"/>
+        <location filename="../app/MainWindow.cpp" line="1981"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1619"/>
-        <location filename="../app/MainWindow.cpp" line="1680"/>
+        <location filename="../app/MainWindow.cpp" line="1621"/>
+        <location filename="../app/MainWindow.cpp" line="1682"/>
         <source>Scan Tailor Projects</source>
         <translation>Projets Scan Tailor</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1679"/>
+        <location filename="../app/MainWindow.cpp" line="1681"/>
         <source>Open Project</source>
         <translation>Ouvrir le projet</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1692"/>
-        <location filename="../app/MainWindow.cpp" line="1698"/>
-        <location filename="../app/MainWindow.cpp" line="2033"/>
-        <location filename="../app/MainWindow.cpp" line="2057"/>
+        <location filename="../app/MainWindow.cpp" line="1694"/>
+        <location filename="../app/MainWindow.cpp" line="1700"/>
+        <location filename="../app/MainWindow.cpp" line="2035"/>
+        <location filename="../app/MainWindow.cpp" line="2059"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1692"/>
+        <location filename="../app/MainWindow.cpp" line="1694"/>
         <source>Unable to open the project file.</source>
         <translation>Impossible d&apos;ouvrir le fichier de projet.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1698"/>
+        <location filename="../app/MainWindow.cpp" line="1700"/>
         <source>The project file is broken.</source>
         <translation>Le fichier de projet est brisé.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1780"/>
+        <location filename="../app/MainWindow.cpp" line="1782"/>
         <source>version </source>
         <translation>version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1925"/>
+        <location filename="../app/MainWindow.cpp" line="1927"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>La sortie n&apos;est pas encore possible, car la taille finale des pages n&apos;est pas encore connue.
 Pour la déterminer, exécuter le traitement de toutes les images à l&apos;étape &quot;Sélection du contenu&quot; ou &quot;Marges&quot;.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1959"/>
+        <location filename="../app/MainWindow.cpp" line="1961"/>
         <source>Unnamed</source>
         <translation>Sans nom</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1964"/>
+        <location filename="../app/MainWindow.cpp" line="1966"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation>%2 - ScanTailor OCR [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1979"/>
+        <location filename="../app/MainWindow.cpp" line="1981"/>
         <source>A PDF is being created.  Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2033"/>
-        <location filename="../app/MainWindow.cpp" line="2057"/>
+        <location filename="../app/MainWindow.cpp" line="2035"/>
+        <location filename="../app/MainWindow.cpp" line="2059"/>
         <source>Error saving the project file!</source>
         <translation>Erreur lors de l&apos;enregistrement du fichier de projet!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2112"/>
+        <location filename="../app/MainWindow.cpp" line="2114"/>
         <source>Files to insert</source>
         <translation>Fichiers à insérer</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2115"/>
+        <location filename="../app/MainWindow.cpp" line="2117"/>
         <source>Images not in project (%1)</source>
         <translation>Images non-incluses (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2166"/>
+        <location filename="../app/MainWindow.cpp" line="2168"/>
         <source>Skip failed files</source>
         <translation>Sauter les fichiers manqués</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2216"/>
+        <location filename="../app/MainWindow.cpp" line="2218"/>
         <source>Remove</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2325"/>
-        <location filename="../app/MainWindow.cpp" line="2353"/>
-        <location filename="../app/MainWindow.cpp" line="2495"/>
+        <location filename="../app/MainWindow.cpp" line="2378"/>
+        <location filename="../app/MainWindow.cpp" line="2420"/>
         <source>Automatic import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2326"/>
+        <location filename="../app/MainWindow.cpp" line="2372"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2354"/>
+        <location filename="../app/MainWindow.cpp" line="2397"/>
+        <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="2421"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2410"/>
+        <location filename="../app/MainWindow.cpp" line="2477"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2496"/>
+        <location filename="../app/MainWindow.cpp" line="2535"/>
+        <source>Only pages next to each other can be replaced together.  The new scan %1 is added at the end.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="2607"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2742"/>
+        <location filename="../app/MainWindow.cpp" line="2849"/>
         <source>Enter the page number:</source>
         <translation>Entrez le numéro de page:</translation>
     </message>

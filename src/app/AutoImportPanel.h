@@ -49,6 +49,12 @@ class AutoImportPanel : public QWidget {
   /** Inserting after a page needs a page; otherwise that mode is disabled. */
   void setInsertingPossible(bool possible);
 
+  /**
+   * \p count pages are selected for being replaced.  Only pages next to each other
+   * (\p contiguous) can be replaced together; otherwise that mode is disabled.
+   */
+  void setReplaceSelection(int count, bool contiguous);
+
  signals:
 
   void importToggled(bool importing);
@@ -72,10 +78,11 @@ class AutoImportPanel : public QWidget {
   QRadioButton* m_appendMode;
   QRadioButton* m_insertAfterMode;
   QRadioButton* m_replaceMode;
-  QButtonGroup* m_modes;
+  QButtonGroup* m_modes = nullptr;
   QLabel* m_noDpiLabel;
   QString m_dir;
   bool m_insertingPossible = false;
+  bool m_replaceContiguous = true;
   bool m_settingMode = false;
 };
 

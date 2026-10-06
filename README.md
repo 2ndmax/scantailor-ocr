@@ -150,6 +150,14 @@ The changes were developed with the help of Claude (Anthropic).
   program selects each new scan without moving the anchor; selecting another page (with the
   mouse or the keyboard) makes it the new anchor. If the anchor or the last inserted scan is
   removed, new scans go to the end again. A scan that can't be renamed keeps its name.
+* **Replace selected page with next scan:** the next scan takes the place of the selected
+  page (of both pages of a two-page scan) and is renamed to `<old name>_<scan name>.tif`. The
+  page's settings and output files are dropped, and the old image is moved to the folder
+  `replaced` next to it (with ` (2)` etc. added if the name is taken there). Then the mode
+  switches to inserting after the new scan, where further scans usually belong.
+  Several selected pages next to each other are replaced together: the new scan takes the
+  place of the first and is named after it. The option shows how many pages are selected;
+  with gaps in the selection it is disabled.
 * Scans arriving during batch processing or while a PDF is created are added afterwards.
   Scans without DPI are added, too; the panel counts them, and their DPI can be set with
   Tools > Fix DPI.

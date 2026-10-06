@@ -3,6 +3,7 @@
 
 #include <ScanInsertion.h>
 
+#include <QFileInfo>
 #include <QStringList>
 #include <boost/test/unit_test.hpp>
 
@@ -23,6 +24,19 @@ BOOST_AUTO_TEST_CASE(test_names_sort_after_the_anchor) {
   QStringList names{"A.tif", "B.tif", prefixedFileName("A.tif", "C.tif"), prefixedFileName("A.tif", "D.tif")};
   names.sort();
   BOOST_CHECK(names == QStringList({"A.tif", "A_C.tif", "A_D.tif", "B.tif"}));
+}
+
+BOOST_AUTO_TEST_CASE(test_replaced_file_path) {
+  using scan_insertion::replacedFilePath;
+  // Absolute in the way of the platform, e.g. with a drive letter on Windows.
+  const QString book = QFileInfo("/book").absoluteFilePath();
+  const auto nothingExists = [](const QString&) { return false; };
+  BOOST_CHECK(replacedFilePath(book + "/A_B.tif", nothingExists) == book + "/replaced/A_B.tif");
+
+  const QStringList taken{book + "/replaced/A.tif", book + "/replaced/A (2).tif"};
+  const auto isTaken = [&](const QString& path) { return taken.contains(path); };
+  BOOST_CHECK(replacedFilePath(book + "/A.tif", isTaken) == book + "/replaced/A (3).tif");
+  BOOST_CHECK(replacedFilePath(book + "/B.tif", isTaken) == book + "/replaced/B.tif");
 }
 
 BOOST_AUTO_TEST_CASE(test_scans_follow_each_other) {
