@@ -5,7 +5,7 @@
 #define SCANTAILOR_APP_PROJECTFILESDIALOG_H_
 
 #include <QDialog>
-#include <QSet>
+#include <QFileInfo>
 #include <QString>
 #include <memory>
 #include <vector>
@@ -19,6 +19,12 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
   explicit ProjectFilesDialog(QWidget* parent = nullptr);
 
   ~ProjectFilesDialog() override;
+
+  /**
+   * Turns the dialog into a choice among \p images, which are in \p dir but not in the
+   * project.  None of them is chosen at first.  The chosen ones are inProjectFiles().
+   */
+  void chooseExistingImages(const QString& dir, const std::vector<QFileInfo>& images);
 
   QString inputDirectory() const;
 
@@ -82,7 +88,6 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   void setupIcons();
 
-  QSet<QString> m_supportedExtensions;
   std::unique_ptr<FileList> m_offProjectFiles;
   std::unique_ptr<SortedFileList> m_offProjectFilesSorted;
   std::unique_ptr<FileList> m_inProjectFiles;
@@ -91,6 +96,7 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
   bool m_metadataLoadFailed;
   bool m_autoOutDir;
   bool m_autoProjectFile;
+  bool m_existingImagesMode;
 };
 
 

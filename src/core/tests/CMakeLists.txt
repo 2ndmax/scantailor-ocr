@@ -10,6 +10,7 @@ set(sources
     TestPageRange.cpp
     TestPageSequence.cpp
     TestPdfWriter.cpp
+    TestNewScanTracker.cpp
     TestPdfPageOrder.cpp
     TestProjectFile.cpp
     TestJbig2.cpp

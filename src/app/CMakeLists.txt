@@ -24,6 +24,8 @@ set(gui_only_sources
     OutOfMemoryDialog.cpp OutOfMemoryDialog.h
     ThumbnailSequence.cpp ThumbnailSequence.h
     ProjectFilesDialog.cpp ProjectFilesDialog.h
+    AutoImportPanel.cpp AutoImportPanel.h
+    ScanFolderWatcher.cpp ScanFolderWatcher.h
     NewOpenProjectPanel.cpp NewOpenProjectPanel.h
     SystemLoadWidget.cpp SystemLoadWidget.h
     MainWindow.cpp MainWindow.h

@@ -18,6 +18,7 @@
 #include "ImageLoadErrors.h"
 #include "ImageMetadataLoader.h"
 #include "NonCopyable.h"
+#include "ScanFolderWatcher.h"
 #include "SmartFilenameOrdering.h"
 
 class ProjectFilesDialog::Item {
@@ -175,18 +176,10 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
       m_loadTimerId(0),
       m_metadataLoadFailed(false),
       m_autoOutDir(true),
-      m_autoProjectFile(true) {
-  m_supportedExtensions.insert("png");
-  m_supportedExtensions.insert("jpg");
-  m_supportedExtensions.insert("jpeg");
-  m_supportedExtensions.insert("tif");
-  m_supportedExtensions.insert("tiff");
-  // JPEG 2000: JP2 files, JPX / JPH files and raw codestreams.
-  for (const char* ext : {"jp2", "j2k", "j2c", "jpc", "jpf", "jpx", "jph", "jhc"}) {
-    m_supportedExtensions.insert(ext);
-  }
-
+      m_autoProjectFile(true),
+      m_existingImagesMode(false) {
   setupUi(this);
+  introLabel->hide();
 
   setupIcons();
 
@@ -205,6 +198,31 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
 }
 
 ProjectFilesDialog::~ProjectFilesDialog() = default;
+
+void ProjectFilesDialog::chooseExistingImages(const QString& dir, const std::vector<QFileInfo>& images) {
+  m_existingImagesMode = true;
+  setWindowTitle(tr("Images Already in the Folder"));
+  introLabel->setText(
+      tr("These images are already in the folder %1, but not in the project.  Move those that are to be added to "
+         "the project to the right.")
+          .arg(QDir::toNativeSeparators(dir)));
+  introLabel->show();
+  for (QWidget* widget : std::initializer_list<QWidget*>{groupBox_2, groupBox, projectFileGroup, importNewScansCB,
+                                                         rtlLayoutCB, forceFixDpi}) {
+    widget->hide();
+  }
+  groupBox_4->setTitle(tr("Files to Add"));
+  // Used by removeFromProject() to decide which files may go back to the left.
+  inpDirLine->setText(QDir::toNativeSeparators(dir));
+
+  // None is chosen at first, so images are only added on purpose.
+  std::vector<Item> items;
+  for (const QFileInfo& image : images) {
+    items.emplace_back(image, Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+  }
+  m_inProjectFiles->clear();
+  m_offProjectFiles->assign(items.begin(), items.end());
+}
 
 QString ProjectFilesDialog::inputDirectory() const {
   return inpDirLine->text();
@@ -366,7 +384,7 @@ void ProjectFilesDialog::setInputDir(const QString& dir, const bool autoAddFiles
   ItemList items;
   for (const QFileInfo& file : files) {
     Qt::ItemFlags flags;
-    if (m_supportedExtensions.contains(file.suffix().toLower())) {
+    if (ScanFolderWatcher::isImportableImage(file)) {
       flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
     items.emplace_back(file, flags);
@@ -445,6 +463,16 @@ void ProjectFilesDialog::removeFromProject() {
 }
 
 void ProjectFilesDialog::onOK() {
+  if (m_existingImagesMode) {
+    // Choosing none of them is fine, too.
+    if (m_inProjectFiles->count() == 0) {
+      accept();
+    } else {
+      startLoadingMetadata();
+    }
+    return;
+  }
+
   // When importing new scans, the project may start empty.
   if ((m_inProjectFiles->count() == 0) && !isImportingNewScans()) {
     QMessageBox::warning(this, tr("Error"), tr("No files in project!"));

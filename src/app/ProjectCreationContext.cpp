@@ -33,6 +33,7 @@ void ProjectCreationContext::projectFilesSubmitted() {
   m_outDir = m_projectFilesDialog->outputDirectory();
   m_inputDir = m_projectFilesDialog->inputDirectory();
   m_projectFile = m_projectFilesDialog->projectFile();
+  m_importNewScans = m_projectFilesDialog->isImportingNewScans();
   m_layoutDirection = Qt::LeftToRight;
   if (m_projectFilesDialog->isRtlLayout()) {
     m_layoutDirection = Qt::RightToLeft;

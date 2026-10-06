@@ -29,7 +29,7 @@ Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor)
 Filter::~Filter() = default;
 
 QString Filter::getName() const {
-  return QCoreApplication::translate("fix_orientation::Filter", "Fix Orientation");
+  return QCoreApplication::translate("fix_orientation::Filter", "Import");
 }
 
 PageView Filter::getView() const {

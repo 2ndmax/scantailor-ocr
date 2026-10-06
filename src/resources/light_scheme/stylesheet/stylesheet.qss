@@ -160,14 +160,14 @@ QRadioButton::indicator:unchecked {
   border: 1px solid #cccccc;
   margin: 0px;
   background-color: palette(base);
-  border-radius: 7.75px;
+  border-radius: 7.5px;
 }
 
 QMenu::indicator:exclusive:unchecked, QMenu::indicator:exclusive:unchecked:selected {
   border: 1px solid #cccccc;
   margin: 0px 0px 0px 2px;
   background-color: palette(base);
-  border-radius: 7.75px;
+  border-radius: 7.5px;
 }
 
 QRadioButton::indicator:unchecked:hover, QRadioButton::indicator:unchecked:active:focus {
@@ -194,13 +194,13 @@ QMenu::indicator:exclusive:checked {
 QRadioButton::indicator:checked:hover, QRadioButton::indicator:checked:active:focus {
   border: 1px solid #1e76e3;
   margin: 0px;
-  border-radius: 7.75px;
+  border-radius: 7.5px;
 }
 
 QRadioButton::indicator:checked:pressed {
   border: 1px solid #1e76e3;
   margin: 0px;
-  border-radius: 7.75px;
+  border-radius: 7.5px;
   background-color: #555555;
   image: url(:/light_scheme/icons/radiobutton_checked_pressed.svg);
 }

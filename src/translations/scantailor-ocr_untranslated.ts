@@ -111,6 +111,82 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
 </context>
 <context>
+    <name>AutoImportPanel</name>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="25"/>
+        <source>Automatic import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="30"/>
+        <source>Import new scans</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="40"/>
+        <source>Change ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="41"/>
+        <source>Choose the folder the scanning program saves its images to.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="47"/>
+        <source>Add at the end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="48"/>
+        <source>Each new scan becomes the last page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="49"/>
+        <source>Insert after selected page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="50"/>
+        <location filename="../app/AutoImportPanel.cpp" line="52"/>
+        <source>Not available yet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="51"/>
+        <source>Replace selected page with next scan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="62"/>
+        <source>Set the DPI with Tools &gt; Fix DPI ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="89"/>
+        <source>New images saved to the folder below are added to the project automatically.  Images that are already there when this is switched on can be chosen once.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="92"/>
+        <source>Save the project first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../app/AutoImportPanel.cpp" line="105"/>
+        <source>%n scan(s) without DPI.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="35"/>
+        <source>Folder:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BatchProcessingLowerPanel</name>
     <message>
         <location filename="../app/BatchProcessingLowerPanel.ui" line="14"/>
@@ -955,7 +1031,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     <name>ImageLoader</name>
     <message>
         <location filename="../core/ImageLoader.cpp" line="47"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="699"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="727"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1162,7 +1238,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1096"/>
-        <location filename="../app/MainWindow.cpp" line="622"/>
+        <location filename="../app/MainWindow.cpp" line="638"/>
         <source>Save Project</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1321,7 +1397,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1493"/>
-        <location filename="../app/MainWindow.cpp" line="2430"/>
+        <location filename="../app/MainWindow.cpp" line="2647"/>
         <source>Go To Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1342,123 +1418,144 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="535"/>
+        <location filename="../app/MainWindow.cpp" line="551"/>
         <source>Stop batch processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="622"/>
+        <location filename="../app/MainWindow.cpp" line="638"/>
         <source>Save the project?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1097"/>
+        <location filename="../app/MainWindow.cpp" line="1113"/>
         <source>Insert before ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1098"/>
+        <location filename="../app/MainWindow.cpp" line="1114"/>
         <source>Insert after ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1102"/>
+        <location filename="../app/MainWindow.cpp" line="1118"/>
         <source>Remove from project ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1132"/>
+        <location filename="../app/MainWindow.cpp" line="1148"/>
         <source>Insert here ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1944"/>
+        <location filename="../app/MainWindow.cpp" line="1972"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1593"/>
-        <location filename="../app/MainWindow.cpp" line="1646"/>
+        <location filename="../app/MainWindow.cpp" line="1612"/>
+        <location filename="../app/MainWindow.cpp" line="1673"/>
         <source>Scan Tailor Projects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1645"/>
+        <location filename="../app/MainWindow.cpp" line="1672"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1658"/>
-        <location filename="../app/MainWindow.cpp" line="1664"/>
-        <location filename="../app/MainWindow.cpp" line="1998"/>
-        <location filename="../app/MainWindow.cpp" line="2022"/>
+        <location filename="../app/MainWindow.cpp" line="1685"/>
+        <location filename="../app/MainWindow.cpp" line="1691"/>
+        <location filename="../app/MainWindow.cpp" line="2026"/>
+        <location filename="../app/MainWindow.cpp" line="2050"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1658"/>
+        <location filename="../app/MainWindow.cpp" line="1685"/>
         <source>Unable to open the project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1664"/>
+        <location filename="../app/MainWindow.cpp" line="1691"/>
         <source>The project file is broken.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1746"/>
+        <location filename="../app/MainWindow.cpp" line="1773"/>
         <source>version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1890"/>
+        <location filename="../app/MainWindow.cpp" line="1918"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1924"/>
+        <location filename="../app/MainWindow.cpp" line="1952"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1929"/>
+        <location filename="../app/MainWindow.cpp" line="1957"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1944"/>
+        <location filename="../app/MainWindow.cpp" line="1972"/>
         <source>A PDF is being created.  Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1998"/>
-        <location filename="../app/MainWindow.cpp" line="2022"/>
+        <location filename="../app/MainWindow.cpp" line="2026"/>
+        <location filename="../app/MainWindow.cpp" line="2050"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2077"/>
+        <location filename="../app/MainWindow.cpp" line="2105"/>
         <source>Files to insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2080"/>
+        <location filename="../app/MainWindow.cpp" line="2108"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2131"/>
+        <location filename="../app/MainWindow.cpp" line="2159"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2171"/>
+        <location filename="../app/MainWindow.cpp" line="2209"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2430"/>
+        <location filename="../app/MainWindow.cpp" line="2286"/>
+        <location filename="../app/MainWindow.cpp" line="2408"/>
+        <source>Automatic import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="2287"/>
+        <source>The folder %1 doesn&apos;t exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="2342"/>
+        <source>Folder for New Scans</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="2409"/>
+        <source>The new image %1 can&apos;t be opened and is not imported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="2647"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2077,53 +2174,53 @@ Do you want to replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="20"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="268"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="27"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="286"/>
         <source>Input Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="33"/>
-        <location filename="../app/ProjectFilesDialog.ui" line="52"/>
-        <location filename="../app/ProjectFilesDialog.ui" line="71"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="40"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="59"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="78"/>
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="43"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="282"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="50"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="300"/>
         <source>Output Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="62"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="304"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="69"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="322"/>
         <source>Project File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="81"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="88"/>
         <source>New images saved to the input directory are added to the project automatically. The project may then start empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="84"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="91"/>
         <source>Import new scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="93"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="100"/>
         <source>Files Not In Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="106"/>
-        <location filename="../app/ProjectFilesDialog.ui" line="220"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="113"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="227"/>
         <source>Select All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="137"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="144"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -2131,7 +2228,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="166"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="173"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -2139,95 +2236,110 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="204"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="211"/>
         <source>Files In Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="232"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="239"/>
         <source>Right to left layout (for Hebrew and Arabic)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="239"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="246"/>
         <source>Fix DPIs, even if they look OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="305"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="204"/>
+        <source>Images Already in the Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="206"/>
+        <source>These images are already in the folder %1, but not in the project.  Move those that are to be added to the project to the right.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="214"/>
+        <source>Files to Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="323"/>
         <source>Scan Tailor Projects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="400"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="456"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="462"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="483"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="489"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="567"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="418"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="478"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="484"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="490"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="511"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="517"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="595"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="400"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="418"/>
         <source>Project file is not set or its directory doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="405"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="423"/>
         <source>Overwrite File?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="406"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="424"/>
         <source>The project file %1 already exists.  Overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="478"/>
         <source>No files in project!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="456"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="484"/>
         <source>Input directory is not set or doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="462"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="490"/>
         <source>Input and output directories can&apos;t be the same.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="474"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="502"/>
         <source>Create Directory?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="474"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="502"/>
         <source>Output directory doesn&apos;t exist.  Create it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="483"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="511"/>
         <source>Unable to create output directory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="489"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="517"/>
         <source>Output directory is not set or doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ProjectFilesDialog.cpp" line="564"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="592"/>
         <source>... and %n more.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="568"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="596"/>
         <source>Some of the files failed to load.
 Either we don&apos;t support their format, or they are broken.
 You should remove them from the project.</source>
@@ -3233,7 +3345,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <name>fix_orientation::Filter</name>
     <message>
         <location filename="../core/filters/fix_orientation/Filter.cpp" line="32"/>
-        <source>Fix Orientation</source>
+        <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

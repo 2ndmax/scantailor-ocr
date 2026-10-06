@@ -1286,7 +1286,7 @@ QToolButton:pressed {
     <string>Switch filter to orientation</string>
    </property>
    <property name="shortcut">
-    <string notr="true">O</string>
+    <string notr="true">I</string>
    </property>
    <property name="autoRepeat">
     <bool>false</bool>

@@ -20,10 +20,12 @@
 #include <QStackedLayout>
 #include <QtWidgets/QInputDialog>
 #include <boost/lambda/lambda.hpp>
+#include <map>
 #include <memory>
 
 #include "AbstractRelinker.h"
 #include "Application.h"
+#include "AutoImportPanel.h"
 #include "AutoRemovingFile.h"
 #include "BasicImageView.h"
 #include "ContentBoxPropagator.h"
@@ -49,12 +51,14 @@
 #include "ProcessingIndicationWidget.h"
 #include "ProcessingTaskQueue.h"
 #include "ProjectCreationContext.h"
+#include "ProjectFilesDialog.h"
 #include "ProjectOpeningContext.h"
 #include "ProjectPages.h"
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "RecentProjects.h"
 #include "RelinkingDialog.h"
+#include "ScanFolderWatcher.h"
 #include "ScopedIncDec.h"
 #include "SettingsDialog.h"
 #include "SkinnedButton.h"
@@ -153,6 +157,7 @@ MainWindow::MainWindow()
   m_imageFrameLayout->setStackingMode(QStackedLayout::StackAll);
 
   m_optionsFrameLayout = new QStackedLayout(filterOptions);
+  setupAutoImport();
 
   m_statusBarPanel = new StatusBarPanel;
   QMainWindow::statusBar()->addPermanentWidget(m_statusBarPanel);
@@ -356,6 +361,8 @@ MainWindow::MainWindow()
 }
 
 MainWindow::~MainWindow() {
+  // Waits for an image still being loaded.
+  m_scanWatcher.reset();
   m_interactiveQueue->cancelAndClear();
   if (m_batchQueue) {
     m_batchQueue->cancelAndClear();
@@ -413,6 +420,13 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   // The PDF page selection belongs to the project.
   leavePdfStage();
   m_pdfView.reset();
+
+  // Importing new scans is always off in a project just opened.
+  if (m_scanWatcher) {
+    m_scanWatcher->stop();
+  }
+  m_deferredScans.clear();
+  m_scansWithoutDpi = 0;
 
   m_emptyProjectInputDir.clear();
   if (pages->numImages() == 0) {
@@ -488,6 +502,8 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
     m_thumbnailCache = Utils::createThumbnailCache(m_outFileNameGen.outDir());
   }
   resetThumbSequence(currentPageOrderProvider());
+
+  m_importDir = suggestedImportDirectory();
 
   removeFilterOptionsWidget();
   updateProjectActions();
@@ -1351,6 +1367,7 @@ void MainWindow::stopBatchProcessing(MainAreaAction mainArea) {
   }
 
   resetThumbSequence(currentPageOrderProvider());
+  importDeferredScans();
 }
 
 void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultPtr& result) {
@@ -1564,6 +1581,8 @@ void MainWindow::pdfExportRunningChanged(const bool running) {
   }
   if (!running) {
     updateProjectActions();
+    // Once the PDF view has finished, too.
+    QTimer::singleShot(0, this, [this]() { importDeferredScans(); });
   }
 }
 
@@ -1607,6 +1626,8 @@ void MainWindow::saveProjectAsTriggered() {
 void MainWindow::setSavedProjectFile(const QString& projectFile) {
   m_projectFile = projectFile;
   updateWindowTitle();
+  // Importing scans needs a saved project.
+  updateAutoImportPanel();
 
   QSettings settings;
   settings.setValue("project/lastDir", QFileInfo(m_projectFile).absolutePath());
@@ -1633,7 +1654,13 @@ void MainWindow::newProjectCreated(ProjectCreationContext* context) {
   // A new project is saved right away, so it can be opened again even while it is empty.
   if (saveProjectWithFeedback(context->projectFile())) {
     setSavedProjectFile(context->projectFile());
+    if (context->isImportingNewScans()) {
+      // The images already there were chosen from in the "Project Files" dialog.
+      m_importDir = QDir(context->inputDir()).absolutePath();
+      startAutoImport(m_importDir, false);
+    }
   }
+  updateAutoImportPanel();
 }
 
 void MainWindow::openProject() {
@@ -1833,6 +1860,7 @@ PageView MainWindow::getCurrentView() const {
 }
 
 void MainWindow::updateMainArea() {
+  updateAutoImportPanel();
   if (!isProjectLoaded()) {
     filterList->setBatchProcessingPossible(false);
     setDockWidgetsVisible(false);
@@ -2148,16 +2176,26 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
 
   // Actually insert the new pages.
   for (const ImageFileInfo& file : newFiles) {
-    int imageNum = -1;  // Zero-based image number in a multi-page TIFF.
-    for (const ImageMetadata& metadata : file.imageInfo()) {
-      ++imageNum;
-
-      const int numSubPages = ProjectPages::adviseNumberOfLogicalPages(metadata, OrthogonalRotation());
-      const ImageInfo imageInfo(ImageId(file.fileInfo(), imageNum), metadata, numSubPages, false, false);
-      insertImage(imageInfo, beforeOrAfter, existing);
-    }
+    insertImageFile(file, beforeOrAfter, existing);
   }
 }  // MainWindow::showInsertFileDialog
+
+std::vector<PageInfo> MainWindow::insertImageFile(const ImageFileInfo& file,
+                                                  const BeforeOrAfter beforeOrAfter,
+                                                  ImageId existing) {
+  std::vector<PageInfo> inserted;
+  int imageNum = -1;  // Zero-based image number in a multi-page TIFF.
+  for (const ImageMetadata& metadata : file.imageInfo()) {
+    ++imageNum;
+
+    const int numSubPages = ProjectPages::adviseNumberOfLogicalPages(metadata, OrthogonalRotation());
+    const ImageInfo imageInfo(ImageId(file.fileInfo(), imageNum), metadata, numSubPages, false, false);
+    for (const PageInfo& page : insertImage(imageInfo, beforeOrAfter, existing)) {
+      inserted.push_back(page);
+    }
+  }
+  return inserted;
+}
 
 void MainWindow::showRemovePagesDialog(const std::set<PageId>& pages) {
   auto dialog = std::make_unique<QDialog>(this);
@@ -2180,20 +2218,199 @@ void MainWindow::showRemovePagesDialog(const std::set<PageId>& pages) {
 /**
  * Note: insertImage(..., BEFORE, ImageId()) is legal and means inserting at the end.
  */
-void MainWindow::insertImage(const ImageInfo& newImage, BeforeOrAfter beforeOrAfter, ImageId existing) {
-  std::vector<PageInfo> pages(m_pages->insertImage(newImage, beforeOrAfter, existing, getCurrentView()));
+std::vector<PageInfo> MainWindow::insertImage(const ImageInfo& newImage,
+                                              BeforeOrAfter beforeOrAfter,
+                                              ImageId existing) {
+  const std::vector<PageInfo> pages(m_pages->insertImage(newImage, beforeOrAfter, existing, getCurrentView()));
+  std::vector<PageInfo> insertionOrder(pages);
 
   if (beforeOrAfter == BEFORE) {
     // The second one will be inserted first, then the first
     // one will be inserted BEFORE the second one.
-    std::reverse(pages.begin(), pages.end());
+    std::reverse(insertionOrder.begin(), insertionOrder.end());
   }
 
-  for (const PageInfo& pageInfo : pages) {
+  for (const PageInfo& pageInfo : insertionOrder) {
     m_outFileNameGen.disambiguator()->registerFile(pageInfo.imageId().filePath());
     m_thumbSequence->insert(pageInfo, beforeOrAfter, existing);
     existing = pageInfo.imageId();
   }
+  return pages;
+}
+
+void MainWindow::setupAutoImport() {
+  // Above the options of the step, so it is there even while the project has no pages.
+  m_autoImportPanel = new AutoImportPanel(scrollAreaWidgetContents);
+  verticalLayout_4->insertWidget(0, m_autoImportPanel);
+  m_autoImportPanel->hide();
+
+  m_scanWatcher = std::make_unique<ScanFolderWatcher>();
+  connect(m_autoImportPanel, &AutoImportPanel::importToggled, this, &MainWindow::autoImportToggled);
+  connect(m_autoImportPanel, &AutoImportPanel::changeDirectoryRequested, this, &MainWindow::changeAutoImportDirectory);
+  connect(m_scanWatcher.get(), &ScanFolderWatcher::imageReady, this, &MainWindow::scanReady);
+  connect(m_scanWatcher.get(), &ScanFolderWatcher::imageFailed, this, &MainWindow::scanFailed);
+}
+
+void MainWindow::updateAutoImportPanel() {
+  if (!m_autoImportPanel) {
+    return;
+  }
+  const bool visible = isProjectLoaded() && !m_pdfStage && !isBatchProcessingInProgress()
+                       && (m_curFilter == m_stages->fixOrientationFilterIdx());
+  m_autoImportPanel->setVisible(visible);
+  m_autoImportPanel->setImportPossible(!m_projectFile.isEmpty());
+  m_autoImportPanel->setImporting(m_scanWatcher->isWatching());
+  m_autoImportPanel->setDirectory(m_importDir);
+  m_autoImportPanel->setScansWithoutDpi(m_scansWithoutDpi);
+}
+
+QString MainWindow::suggestedImportDirectory() const {
+  if (m_pages->numImages() == 0) {
+    return m_emptyProjectInputDir;
+  }
+  // The folder with the most images; the first of them on a tie.
+  std::map<QString, int> counts;
+  QString best;
+  for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
+    const QString dir = QFileInfo(page.imageId().filePath()).absolutePath();
+    const int count = ++counts[dir];
+    if (best.isEmpty() || (count > counts[best])) {
+      best = dir;
+    }
+  }
+  return best;
+}
+
+bool MainWindow::startAutoImport(const QString& dir, const bool chooseExistingImages) {
+  if (dir.isEmpty() || !QDir(dir).exists()) {
+    QMessageBox::warning(this, tr("Automatic import"),
+                         tr("The folder %1 doesn't exist.").arg(QDir::toNativeSeparators(dir)));
+    return false;
+  }
+
+  if (chooseExistingImages) {
+    QSet<QString> inProject;
+    for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
+      inProject.insert(QFileInfo(page.imageId().filePath()).absoluteFilePath());
+    }
+    std::vector<QFileInfo> others;
+    for (const QString& image : ScanFolderWatcher::imagesIn(dir)) {
+      if (!inProject.contains(image)) {
+        others.emplace_back(image);
+      }
+    }
+
+    if (!others.empty()) {
+      ProjectFilesDialog dialog(this);
+      dialog.chooseExistingImages(dir, others);
+      if (dialog.exec() != QDialog::Accepted) {
+        return false;
+      }
+      const std::vector<ImageFileInfo> chosen = dialog.inProjectFiles();
+      for (const ImageFileInfo& file : chosen) {
+        if (!file.isDpiOK()) {
+          ++m_scansWithoutDpi;
+        }
+        insertImageFile(file, BEFORE, ImageId());
+      }
+      if (!chosen.empty()) {
+        if (m_thumbSequence->selectionLeader().isNull()) {
+          goToPage(m_thumbSequence->firstPage().id());
+        }
+        saveProjectWithFeedback(m_projectFile);
+      }
+    }
+  }
+
+  m_scanWatcher->start(dir);
+  return true;
+}
+
+void MainWindow::stopAutoImport() {
+  m_scanWatcher->stop();
+}
+
+void MainWindow::autoImportToggled(const bool importing) {
+  if (!importing) {
+    stopAutoImport();
+  } else if (!startAutoImport(m_importDir, true)) {
+    m_autoImportPanel->setImporting(false);
+  }
+}
+
+void MainWindow::changeAutoImportDirectory() {
+  const QString dir = QFileDialog::getExistingDirectory(this, tr("Folder for New Scans"), m_importDir);
+  if (dir.isEmpty()) {
+    return;
+  }
+  m_importDir = QDir(dir).absolutePath();
+  if (m_pages->numImages() == 0) {
+    // An empty project keeps the folder in its project file.
+    m_emptyProjectInputDir = m_importDir;
+  }
+  if (m_scanWatcher->isWatching()) {
+    stopAutoImport();
+    if (!startAutoImport(m_importDir, true)) {
+      m_autoImportPanel->setImporting(false);
+    }
+  }
+  updateAutoImportPanel();
+}
+
+bool MainWindow::canImportScansNow() const {
+  return !isBatchProcessingInProgress() && !(m_pdfView && m_pdfView->isRunning());
+}
+
+void MainWindow::scanReady(const ImageFileInfo& file) {
+  if (canImportScansNow()) {
+    importScan(file);
+  } else {
+    m_deferredScans.push_back(file);
+  }
+}
+
+void MainWindow::importScan(const ImageFileInfo& file) {
+  // It may have been inserted by hand in the meantime.
+  for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
+    if (QFileInfo(page.imageId().filePath()) == file.fileInfo()) {
+      return;
+    }
+  }
+
+  const std::vector<PageInfo> pages = insertImageFile(file, BEFORE, ImageId());
+  if (!file.isDpiOK()) {
+    ++m_scansWithoutDpi;
+    m_autoImportPanel->setScansWithoutDpi(m_scansWithoutDpi);
+  }
+  // Only the first step shows the new scan.  Elsewhere it would be processed right away,
+  // with automatic settings.
+  if (!pages.empty() && !m_pdfStage && (m_curFilter == m_stages->fixOrientationFilterIdx())) {
+    goToPage(pages.front().id());
+    thumbView->ensureVisible(m_thumbSequence->selectionLeaderSceneRect(), 20, 20);
+  }
+  saveProjectWithFeedback(m_projectFile);
+}
+
+void MainWindow::importDeferredScans() {
+  if (m_deferredScans.empty() || !canImportScansNow()) {
+    return;
+  }
+  std::vector<ImageFileInfo> scans;
+  scans.swap(m_deferredScans);
+  for (const ImageFileInfo& file : scans) {
+    importScan(file);
+  }
+}
+
+void MainWindow::scanFailed(const QString& filePath) {
+  // Not modal, so further scans are still imported.
+  auto* box = new QMessageBox(
+      QMessageBox::Warning, tr("Automatic import"),
+      tr("The new image %1 can't be opened and is not imported.").arg(QDir::toNativeSeparators(filePath)),
+      QMessageBox::Ok, this);
+  box->setAttribute(Qt::WA_DeleteOnClose);
+  box->setWindowModality(Qt::NonModal);
+  box->show();
 }
 
 void MainWindow::removeFromProject(const std::set<PageId>& pages) {

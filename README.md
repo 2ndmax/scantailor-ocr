@@ -129,6 +129,25 @@ The changes were developed with the help of Claude (Anthropic).
   project file keeps the input folder as a directory without files; other ScanTailor versions
   can't open a project without images, but open it normally once it contains one.
 
+### Automatic import of new scans
+
+* Step 1 is called **Import** now; fixing the orientation is one of its settings. Its new
+  panel **Automatic import** watches a folder, e.g. the one a scanning program saves to, and
+  adds every new image to the end of the project. In step 1 the new scan is selected and
+  shown; in the other steps it is only added, so it isn't processed right away with automatic
+  settings. The project is saved after each scan.
+* A new file is imported once it is completely written: its size and modification time
+  stayed the same for a moment and the whole image can be loaded (in the background). A file
+  that still can't be opened after a minute is reported and skipped. Subfolders such as `out`
+  are not watched.
+* The panel shows the folder (changeable) and is switched on with **Import new scans**. When
+  it is switched on in a project, or another folder is chosen, the images already in the
+  folder but not in the project can be chosen once, in the same lists as in the "Project
+  Files" dialog. Importing is always off when a project is opened; it needs a saved project.
+* Scans arriving during batch processing or while a PDF is created are added afterwards.
+  Scans without DPI are added, too; the panel counts them, and their DPI can be set with
+  Tools > Fix DPI.
+
 ### Image import
 
 * **TIFF reading reworked**
@@ -218,6 +237,9 @@ from working:
 
 ### Correctness and robustness
 
+* Radio buttons are round in the light and dark color schemes at every font size. With the
+  usual Windows font size, unselected ones were drawn as squares: after rounding the size to
+  whole pixels, the corner radius was slightly more than half of it, and Qt then drops it.
 * Fixed several defects that produced wrong results or crashes: a grayscale measurement that
   read the wrong image, a division by zero in Wolf binarisation on blank pages, integer
   overflows in pixel arithmetic (TIFF buffers, binarisation, distance transform) on large

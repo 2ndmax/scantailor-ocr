@@ -20,6 +20,7 @@
 #include "BeforeOrAfter.h"
 #include "FilterResult.h"
 #include "FilterUiInterface.h"
+#include "ImageFileInfo.h"
 #include "NonCopyable.h"
 #include "OutputFileNameGenerator.h"
 #include "PageId.h"
@@ -57,6 +58,8 @@ class TabbedDebugImages;
 class ProcessingTaskQueue;
 class FixDpiDialog;
 class OutOfMemoryDialog;
+class AutoImportPanel;
+class ScanFolderWatcher;
 class QLineF;
 class QRectF;
 class QLayout;
@@ -191,6 +194,14 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void reloadCurrentPage();
 
+  void autoImportToggled(bool importing);
+
+  void changeAutoImportDirectory();
+
+  void scanReady(const ImageFileInfo& file);
+
+  void scanFailed(const QString& filePath);
+
  private:
   class PageSelectionProviderImpl;
 
@@ -311,7 +322,36 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void showRemovePagesDialog(const std::set<PageId>& pages);
 
-  void insertImage(const ImageInfo& newImage, BeforeOrAfter beforeOrAfter, ImageId existing);
+  /** Returns the pages inserted, in order. */
+  std::vector<PageInfo> insertImage(const ImageInfo& newImage, BeforeOrAfter beforeOrAfter, ImageId existing);
+
+  /** Inserts all images of \p file (more than one for a multi-page TIFF).  Returns the pages inserted. */
+  std::vector<PageInfo> insertImageFile(const ImageFileInfo& file, BeforeOrAfter beforeOrAfter, ImageId existing);
+
+  void setupAutoImport();
+
+  /** Shows or hides the "Automatic import" panel and brings it up to date. */
+  void updateAutoImportPanel();
+
+  /** The folder suggested for importing: the input folder of an empty project, else the one with the most images. */
+  QString suggestedImportDirectory() const;
+
+  /**
+   * Starts importing new scans from \p dir.  If there are images in it that are not in the
+   * project, the user chooses which of them to add.  Returns false if cancelled or impossible.
+   */
+  bool startAutoImport(const QString& dir, bool chooseExistingImages);
+
+  void stopAutoImport();
+
+  /** Adds a new scan at the end and saves the project. */
+  void importScan(const ImageFileInfo& file);
+
+  /** Imports the scans that arrived while the project couldn't be changed. */
+  void importDeferredScans();
+
+  /** Whether scans can be added right now, i.e. no batch processing and no PDF is being created. */
+  bool canImportScansNow() const;
 
   void removeFromProject(const std::set<PageId>& pages);
 
@@ -369,6 +409,14 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::unique_ptr<PdfExportView> m_pdfView;
   /** Whether the "Create PDF" step is shown.  m_curFilter then still refers to the last filter. */
   bool m_pdfStage = false;
+  /** The "Automatic import" panel above the options of the first step; owned by the options area. */
+  AutoImportPanel* m_autoImportPanel = nullptr;
+  std::unique_ptr<ScanFolderWatcher> m_scanWatcher;
+  /** The folder shown in the panel, watched while importing is on. */
+  QString m_importDir;
+  /** Scans that arrived during batch processing or while a PDF was being created. */
+  std::vector<ImageFileInfo> m_deferredScans;
+  int m_scansWithoutDpi = 0;
   boost::function<bool()> m_checkBeepWhenFinished;
   SelectedPage m_selectedPage;
   QObjectCleanupHandler m_optionsWidgetCleanup;

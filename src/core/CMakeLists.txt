@@ -125,6 +125,7 @@ set(common_sources
     PdfExportPage.cpp PdfExportPage.h
     PdfExportJob.cpp PdfExportJob.h
     PdfPageOrder.cpp PdfPageOrder.h
+    NewScanTracker.cpp NewScanTracker.h
     GlyphLessFont.cpp GlyphLessFont.h
     OcrLanguages.cpp OcrLanguages.h
     TessdataDownloader.cpp TessdataDownloader.h
