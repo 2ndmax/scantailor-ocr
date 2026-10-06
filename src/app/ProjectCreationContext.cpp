@@ -31,12 +31,14 @@ bool allDpisOK(const T& container) {
 void ProjectCreationContext::projectFilesSubmitted() {
   m_files = m_projectFilesDialog->inProjectFiles();
   m_outDir = m_projectFilesDialog->outputDirectory();
+  m_inputDir = m_projectFilesDialog->inputDirectory();
+  m_projectFile = m_projectFilesDialog->projectFile();
   m_layoutDirection = Qt::LeftToRight;
   if (m_projectFilesDialog->isRtlLayout()) {
     m_layoutDirection = Qt::RightToLeft;
   }
 
-  if (!m_projectFilesDialog->isDpiFixingForced() && allDpisOK(m_files)) {
+  if (m_files.empty() || (!m_projectFilesDialog->isDpiFixingForced() && allDpisOK(m_files))) {
     emit done(this);
   } else {
     showFixDpiDialog();

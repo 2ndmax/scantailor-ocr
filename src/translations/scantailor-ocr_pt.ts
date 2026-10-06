@@ -97,12 +97,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="49"/>
+        <location filename="../core/Application.cpp" line="51"/>
         <source>Unexpected error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="50"/>
+        <location filename="../core/Application.cpp" line="52"/>
         <source>An unexpected error occurred:
 %1
 
@@ -959,7 +959,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     <name>ImageLoader</name>
     <message>
         <location filename="../core/ImageLoader.cpp" line="47"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="629"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="699"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1152,7 +1152,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1096"/>
-        <location filename="../app/MainWindow.cpp" line="582"/>
+        <location filename="../app/MainWindow.cpp" line="622"/>
         <source>Save Project</source>
         <translation>Guardar o Projecto</translation>
     </message>
@@ -1295,7 +1295,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1493"/>
-        <location filename="../app/MainWindow.cpp" line="2380"/>
+        <location filename="../app/MainWindow.cpp" line="2430"/>
         <source>Go To Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1316,124 +1316,124 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="495"/>
+        <location filename="../app/MainWindow.cpp" line="535"/>
         <source>Stop batch processing</source>
         <translation>Parar o processamento em lote</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="582"/>
+        <location filename="../app/MainWindow.cpp" line="622"/>
         <source>Save the project?</source>
         <translation>Salvar o projecto?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1057"/>
+        <location filename="../app/MainWindow.cpp" line="1097"/>
         <source>Insert before ...</source>
         <translation>Inserir antes...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1058"/>
+        <location filename="../app/MainWindow.cpp" line="1098"/>
         <source>Insert after ...</source>
         <translation>Inserir depois...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1062"/>
+        <location filename="../app/MainWindow.cpp" line="1102"/>
         <source>Remove from project ...</source>
         <translation>Remover do projecto...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1092"/>
+        <location filename="../app/MainWindow.cpp" line="1132"/>
         <source>Insert here ...</source>
         <translation>Inserir aqui ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1894"/>
+        <location filename="../app/MainWindow.cpp" line="1944"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1553"/>
-        <location filename="../app/MainWindow.cpp" line="1598"/>
+        <location filename="../app/MainWindow.cpp" line="1593"/>
+        <location filename="../app/MainWindow.cpp" line="1646"/>
         <source>Scan Tailor Projects</source>
         <translation>Projectos de Scan Tailor</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1597"/>
+        <location filename="../app/MainWindow.cpp" line="1645"/>
         <source>Open Project</source>
         <translation>Abrir Projecto</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1610"/>
-        <location filename="../app/MainWindow.cpp" line="1616"/>
-        <location filename="../app/MainWindow.cpp" line="1948"/>
-        <location filename="../app/MainWindow.cpp" line="1972"/>
+        <location filename="../app/MainWindow.cpp" line="1658"/>
+        <location filename="../app/MainWindow.cpp" line="1664"/>
+        <location filename="../app/MainWindow.cpp" line="1998"/>
+        <location filename="../app/MainWindow.cpp" line="2022"/>
         <source>Error</source>
         <translation>Erro</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1610"/>
+        <location filename="../app/MainWindow.cpp" line="1658"/>
         <source>Unable to open the project file.</source>
         <translation>Não é possível abrir o ficheiro de projecto.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1616"/>
+        <location filename="../app/MainWindow.cpp" line="1664"/>
         <source>The project file is broken.</source>
         <translation>O ficheiro do projecto está danificado.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1698"/>
+        <location filename="../app/MainWindow.cpp" line="1746"/>
         <source>version </source>
         <translation>versão </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1840"/>
+        <location filename="../app/MainWindow.cpp" line="1890"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Ainda não é possível obter o resultado final. O tamanho final das páginas ainda não é conhecido.
 Para determinar o tamanho da páginas, execute o processamento em lote em &quot;Selecionar Conteúdo&quot; ou em &quot;Margens&quot;.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1874"/>
+        <location filename="../app/MainWindow.cpp" line="1924"/>
         <source>Unnamed</source>
         <translation>Sem nome</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1879"/>
+        <location filename="../app/MainWindow.cpp" line="1929"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation>%2 - ScanTailor OCR [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1894"/>
+        <location filename="../app/MainWindow.cpp" line="1944"/>
         <source>A PDF is being created.  Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1948"/>
-        <location filename="../app/MainWindow.cpp" line="1972"/>
+        <location filename="../app/MainWindow.cpp" line="1998"/>
+        <location filename="../app/MainWindow.cpp" line="2022"/>
         <source>Error saving the project file!</source>
         <translation>Erro ao guardar o ficheiro do projecto!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2027"/>
+        <location filename="../app/MainWindow.cpp" line="2077"/>
         <source>Files to insert</source>
         <translation>Arquivos a inserir</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2030"/>
+        <location filename="../app/MainWindow.cpp" line="2080"/>
         <source>Images not in project (%1)</source>
         <translation>Imagens que não pertencem ao projeto (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2081"/>
+        <location filename="../app/MainWindow.cpp" line="2131"/>
         <source>Skip failed files</source>
         <translation>Ignorar arquivos com falha</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2121"/>
+        <location filename="../app/MainWindow.cpp" line="2171"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2380"/>
+        <location filename="../app/MainWindow.cpp" line="2430"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1487,7 +1487,7 @@ Para determinar o tamanho da páginas, execute o processamento em lote em &quot;
         <translation>Abrir Projecto</translation>
     </message>
     <message>
-        <location filename="../app/NewOpenProjectPanel.ui" line="148"/>
+        <location filename="../app/NewOpenProjectPanel.ui" line="151"/>
         <source>Recent Projects</source>
         <translation>Projectos Recentes</translation>
     </message>
@@ -2084,35 +2084,52 @@ Do you want to replace it?</source>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="20"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="255"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="268"/>
         <source>Input Directory</source>
         <translation>Pasta de Entrada</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="33"/>
         <location filename="../app/ProjectFilesDialog.ui" line="52"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="71"/>
         <source>Browse</source>
         <translation>Procurar</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="43"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="269"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="282"/>
         <source>Output Directory</source>
         <translation>Pasta de Resultado Final</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="64"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="62"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="304"/>
+        <source>Project File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.ui" line="81"/>
+        <source>New images saved to the input directory are added to the project automatically. The project may then start empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.ui" line="84"/>
+        <source>Import new scans</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.ui" line="93"/>
         <source>Files Not In Project</source>
         <translation>Ficheiros Fora do Projecto</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="77"/>
-        <location filename="../app/ProjectFilesDialog.ui" line="191"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="106"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="220"/>
         <source>Select All</source>
         <translation>Seleccionar Tudo</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="108"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="137"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -2123,7 +2140,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Juntar os ficheiros seleccionados ao projecto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="137"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="166"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -2134,67 +2151,88 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Remover os ficheiros seleccionados o  projecto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="175"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="204"/>
         <source>Files In Project</source>
         <translation>Ficheiros no Projecto</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="203"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="232"/>
         <source>Right to left layout (for Hebrew and Arabic)</source>
         <translation>Escrita da direita para a esquerda (para hebraico e árabe)</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="210"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="239"/>
         <source>Fix DPIs, even if they look OK</source>
         <translation>Corrigir os DPI, mesmo que pareçam correctos</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="377"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="383"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="389"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="406"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="412"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="497"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="305"/>
+        <source>Scan Tailor Projects</source>
+        <translation type="unfinished">Projectos de Scan Tailor</translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="400"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="456"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="462"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="483"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="489"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="567"/>
         <source>Error</source>
         <translation>Erro</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="377"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="400"/>
+        <source>Project file is not set or its directory doesn&apos;t exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="405"/>
+        <source>Overwrite File?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="406"/>
+        <source>The project file %1 already exists.  Overwrite it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
         <source>No files in project!</source>
         <translation>Não há ficheiros no projecto!</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="383"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="456"/>
         <source>Input directory is not set or doesn&apos;t exist.</source>
         <translation>A pasta de entrada não foi definida ou não existe.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="389"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="462"/>
         <source>Input and output directories can&apos;t be the same.</source>
         <translation>As pastas de entrada e de resultado final não podem ser a mesma.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="397"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="474"/>
         <source>Create Directory?</source>
         <translation>Criar Pasta?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="397"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="474"/>
         <source>Output directory doesn&apos;t exist.  Create it?</source>
         <translation>A pasta de resultado final não existe. Deseja criá-la?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="406"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="483"/>
         <source>Unable to create output directory.</source>
         <translation>Não é possível criar a pasta de resultado final.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="412"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="489"/>
         <source>Output directory is not set or doesn&apos;t exist.</source>
         <translation>A pasta de resultado final não foi definida ou não existe.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ProjectFilesDialog.cpp" line="494"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="564"/>
         <source>... and %n more.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -2202,7 +2240,7 @@ p, li { white-space: pre-wrap; }
         </translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="498"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="568"/>
         <source>Some of the files failed to load.
 Either we don&apos;t support their format, or they are broken.
 You should remove them from the project.</source>

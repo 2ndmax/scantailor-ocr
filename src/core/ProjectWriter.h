@@ -35,9 +35,14 @@ class ProjectWriter {
  public:
   using FilterPtr = std::shared_ptr<AbstractFilter>;
 
+  /**
+   * \p inputDir is written as a directory without files if the project has no images,
+   * so that an empty project still knows its input directory.
+   */
   ProjectWriter(const std::shared_ptr<ProjectPages>& pageSequence,
                 const SelectedPage& selectedPage,
-                const OutputFileNameGenerator& outFileNameGen);
+                const OutputFileNameGenerator& outFileNameGen,
+                const QString& inputDir = QString());
 
   ~ProjectWriter();
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>482</width>
-    <height>506</height>
+    <height>590</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,6 +54,35 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="projectFileGroup">
+     <property name="title">
+      <string>Project File</string>
+     </property>
+     <layout class="QHBoxLayout">
+      <item>
+       <widget class="QLineEdit" name="projectFileLine"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="projectFileBrowseBtn">
+        <property name="text">
+         <string>Browse</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="importNewScansCB">
+     <property name="toolTip">
+      <string>New images saved to the input directory are added to the project automatically. The project may then start empty.</string>
+     </property>
+     <property name="text">
+      <string>Import new scans</string>
+     </property>
     </widget>
    </item>
    <item>

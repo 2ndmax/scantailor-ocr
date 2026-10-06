@@ -6,7 +6,9 @@
 #include <core/IconProvider.h>
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 #include <QSettings>
 #include <QSortFilterProxyModel>
@@ -172,7 +174,8 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
       m_inProjectFilesSorted(std::make_unique<SortedFileList>(*m_inProjectFiles)),
       m_loadTimerId(0),
       m_metadataLoadFailed(false),
-      m_autoOutDir(true) {
+      m_autoOutDir(true),
+      m_autoProjectFile(true) {
   m_supportedExtensions.insert("png");
   m_supportedExtensions.insert("jpg");
   m_supportedExtensions.insert("jpeg");
@@ -194,6 +197,8 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
   connect(outDirBrowseBtn, SIGNAL(clicked()), this, SLOT(outDirBrowse()));
   connect(inpDirLine, SIGNAL(textEdited(const QString&)), this, SLOT(inpDirEdited(const QString&)));
   connect(outDirLine, SIGNAL(textEdited(const QString&)), this, SLOT(outDirEdited(const QString&)));
+  connect(projectFileBrowseBtn, SIGNAL(clicked()), this, SLOT(projectFileBrowse()));
+  connect(projectFileLine, SIGNAL(textEdited(const QString&)), this, SLOT(projectFileEdited(const QString&)));
   connect(addToProjectBtn, SIGNAL(clicked()), this, SLOT(addToProject()));
   connect(removeFromProjectBtn, SIGNAL(clicked()), this, SLOT(removeFromProject()));
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(onOK()));
@@ -207,6 +212,14 @@ QString ProjectFilesDialog::inputDirectory() const {
 
 QString ProjectFilesDialog::outputDirectory() const {
   return outDirLine->text();
+}
+
+QString ProjectFilesDialog::projectFile() const {
+  return QDir::fromNativeSeparators(sanitizePath(projectFileLine->text()));
+}
+
+bool ProjectFilesDialog::isImportingNewScans() const {
+  return importNewScansCB->isChecked();
 }
 
 
@@ -281,6 +294,30 @@ void ProjectFilesDialog::outDirEdited(const QString& text) {
   m_autoOutDir = false;
 }
 
+void ProjectFilesDialog::projectFileBrowse() {
+  QString initialPath(projectFile());
+  if (initialPath.isEmpty() || !QFileInfo(initialPath).absoluteDir().exists()) {
+    initialPath = QDir::home().absolutePath();
+  }
+
+  // Overwriting is asked about when the dialog is accepted.
+  QString file(QFileDialog::getSaveFileName(this, tr("Project File"), initialPath,
+                                            tr("Scan Tailor Projects") + " (*.ScanTailor)", nullptr,
+                                            QFileDialog::DontConfirmOverwrite));
+  if (file.isEmpty()) {
+    return;
+  }
+  if (!file.endsWith(".ScanTailor", Qt::CaseInsensitive)) {
+    file += ".ScanTailor";
+  }
+  m_autoProjectFile = false;
+  setProjectFile(file);
+}
+
+void ProjectFilesDialog::projectFileEdited(const QString& text) {
+  m_autoProjectFile = false;
+}
+
 namespace {
 struct FileInfoLess {
   bool operator()(const QFileInfo& lhs, const QFileInfo& rhs) const {
@@ -298,6 +335,14 @@ void ProjectFilesDialog::setInputDir(const QString& dir, const bool autoAddFiles
   inpDirLine->setText(QDir::toNativeSeparators(dir));
   if (m_autoOutDir) {
     setOutputDir(QDir::cleanPath(QDir(dir).filePath("out")));
+  }
+  if (m_autoProjectFile) {
+    // Named like the input directory and saved into it.
+    QString name(QDir(dir).dirName());
+    if (name.isEmpty()) {
+      name = QStringLiteral("project");
+    }
+    setProjectFile(QDir::cleanPath(QDir(dir).filePath(name + ".ScanTailor")));
   }
 
   QFileInfoList files(QDir(dir).entryInfoList(QDir::Files));
@@ -339,6 +384,33 @@ void ProjectFilesDialog::setOutputDir(const QString& dir) {
   outDirLine->setText(QDir::toNativeSeparators(dir));
 }
 
+void ProjectFilesDialog::setProjectFile(const QString& file) {
+  projectFileLine->setText(QDir::toNativeSeparators(file));
+}
+
+bool ProjectFilesDialog::checkProjectFile() {
+  QString file(projectFile());
+  if (!file.isEmpty() && !file.endsWith(".ScanTailor", Qt::CaseInsensitive)) {
+    file += ".ScanTailor";
+    setProjectFile(file);
+  }
+
+  const QFileInfo fileInfo(file);
+  if (file.isEmpty() || !fileInfo.isAbsolute() || !fileInfo.absoluteDir().exists() || fileInfo.isDir()) {
+    QMessageBox::warning(this, tr("Error"), tr("Project file is not set or its directory doesn't exist."));
+    return false;
+  }
+
+  if (fileInfo.exists()) {
+    return QMessageBox::question(this, tr("Overwrite File?"),
+                                 tr("The project file %1 already exists.  Overwrite it?")
+                                     .arg(QDir::toNativeSeparators(fileInfo.fileName())),
+                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+           == QMessageBox::Yes;
+  }
+  return true;
+}
+
 void ProjectFilesDialog::addToProject() {
   const QItemSelection selection(
       m_offProjectFilesSorted->model()->mapSelectionToSource(offProjectList->selectionModel()->selection()));
@@ -373,7 +445,8 @@ void ProjectFilesDialog::removeFromProject() {
 }
 
 void ProjectFilesDialog::onOK() {
-  if (m_inProjectFiles->count() == 0) {
+  // When importing new scans, the project may start empty.
+  if ((m_inProjectFiles->count() == 0) && !isImportingNewScans()) {
     QMessageBox::warning(this, tr("Error"), tr("No files in project!"));
     return;
   }
@@ -387,6 +460,10 @@ void ProjectFilesDialog::onOK() {
   const QDir outDir(outDirLine->text());
   if (inpDir == outDir) {
     QMessageBox::warning(this, tr("Error"), tr("Input and output directories can't be the same."));
+    return;
+  }
+
+  if (!checkProjectFile()) {
     return;
   }
 
@@ -413,24 +490,27 @@ void ProjectFilesDialog::onOK() {
     return;
   }
 
+  if (m_inProjectFiles->count() == 0) {
+    accept();
+    return;
+  }
   startLoadingMetadata();
 }  // ProjectFilesDialog::onOK
+
+void ProjectFilesDialog::setInputsEnabled(const bool enabled) {
+  for (QWidget* widget : std::initializer_list<QWidget*>{
+           inpDirLine, inpDirBrowseBtn, outDirLine, outDirBrowseBtn, projectFileLine, projectFileBrowseBtn,
+           importNewScansCB, addToProjectBtn, removeFromProjectBtn, offProjectSelectAllBtn, inProjectSelectAllBtn,
+           rtlLayoutCB, forceFixDpi, buttonBox->button(QDialogButtonBox::Ok)}) {
+    widget->setEnabled(enabled);
+  }
+}
 
 void ProjectFilesDialog::startLoadingMetadata() {
   m_inProjectFiles->prepareForLoadingFiles();
 
   progressBar->setMaximum(static_cast<int>(m_inProjectFiles->count()));
-  inpDirLine->setEnabled(false);
-  inpDirBrowseBtn->setEnabled(false);
-  outDirLine->setEnabled(false);
-  outDirBrowseBtn->setEnabled(false);
-  addToProjectBtn->setEnabled(false);
-  removeFromProjectBtn->setEnabled(false);
-  offProjectSelectAllBtn->setEnabled(false);
-  inProjectSelectAllBtn->setEnabled(false);
-  rtlLayoutCB->setEnabled(false);
-  forceFixDpi->setEnabled(false);
-  buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+  setInputsEnabled(false);
   offProjectList->clearSelection();
   inProjectList->clearSelection();
   m_loadTimerId = startTimer(0);
@@ -459,17 +539,7 @@ void ProjectFilesDialog::timerEvent(QTimerEvent* event) {
 void ProjectFilesDialog::finishLoadingMetadata() {
   killTimer(m_loadTimerId);
 
-  inpDirLine->setEnabled(true);
-  inpDirBrowseBtn->setEnabled(true);
-  outDirLine->setEnabled(true);
-  outDirBrowseBtn->setEnabled(true);
-  addToProjectBtn->setEnabled(true);
-  removeFromProjectBtn->setEnabled(true);
-  offProjectSelectAllBtn->setEnabled(true);
-  inProjectSelectAllBtn->setEnabled(true);
-  rtlLayoutCB->setEnabled(true);
-  forceFixDpi->setEnabled(true);
-  buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+  setInputsEnabled(true);
 
   if (m_metadataLoadFailed) {
     progressBar->setValue(0);

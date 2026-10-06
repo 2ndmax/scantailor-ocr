@@ -24,6 +24,11 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   QString outputDirectory() const;
 
+  QString projectFile() const;
+
+  /** Whether new images in the input directory are to be added to the project. */
+  bool isImportingNewScans() const;
+
   std::vector<ImageFileInfo> inProjectFiles() const;
 
   bool isRtlLayout() const;
@@ -42,6 +47,10 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   void outDirEdited(const QString& text);
 
+  void projectFileBrowse();
+
+  void projectFileEdited(const QString& text);
+
   void addToProject();
 
   void removeFromProject();
@@ -57,6 +66,13 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
   void setInputDir(const QString& dir, bool autoAddFiles = true);
 
   void setOutputDir(const QString& dir);
+
+  void setProjectFile(const QString& file);
+
+  /** Asks before overwriting.  Returns false if the dialog should stay open. */
+  bool checkProjectFile();
+
+  void setInputsEnabled(bool enabled);
 
   void startLoadingMetadata();
 
@@ -74,6 +90,7 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
   int m_loadTimerId;
   bool m_metadataLoadFailed;
   bool m_autoOutDir;
+  bool m_autoProjectFile;
 };
 
 

@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <algorithm>
 #include <boost/bind/bind.hpp>
 
 #include "AbstractFilter.h"
@@ -160,6 +161,7 @@ void ProjectReader::processImages(const QDomElement& imagesEl, const Qt::LayoutD
   const QString imageTagName("image");
 
   std::vector<ImageInfo> images;
+  int numImageElements = 0;
 
   QDomNode node(imagesEl.firstChild());
   for (; !node.isNull(); node = node.nextSibling()) {
@@ -169,6 +171,7 @@ void ProjectReader::processImages(const QDomElement& imagesEl, const Qt::LayoutD
     if (node.nodeName() != imageTagName) {
       continue;
     }
+    ++numImageElements;
     QDomElement el(node.toElement());
 
     bool ok = true;
@@ -205,7 +208,9 @@ void ProjectReader::processImages(const QDomElement& imagesEl, const Qt::LayoutD
     m_imageMap.insert(ImageMap::value_type(id, imageInfo));
   }
 
-  if (!images.empty()) {
+  // A project without any images is a valid empty project.  If there are images,
+  // but none of them could be read, the project file is broken.
+  if (!images.empty() || numImageElements == 0) {
     m_pages = std::make_shared<ProjectPages>(images, layoutDirection);
   }
 }  // ProjectReader::processImages
@@ -275,6 +280,18 @@ QString ProjectReader::getDirPath(const int id) const {
     return it->second;
   }
   return QString();
+}
+
+std::vector<QString> ProjectReader::directories() const {
+  std::vector<std::pair<int, QString>> sorted(m_dirMap.begin(), m_dirMap.end());
+  std::sort(sorted.begin(), sorted.end(), [](const std::pair<int, QString>& lhs, const std::pair<int, QString>& rhs) {
+    return lhs.first < rhs.first;
+  });
+  std::vector<QString> dirs;
+  for (const auto& entry : sorted) {
+    dirs.push_back(entry.second);
+  }
+  return dirs;
 }
 
 ProjectReader::FileRecord ProjectReader::getFileRecord(int id) const {

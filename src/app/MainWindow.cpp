@@ -371,7 +371,7 @@ PageSequence MainWindow::allPages() const {
   return m_thumbSequence->toPageSequence();
 }
 
-bool MainWindow::isProjectInPlace(const ProjectPages& pages, const QString& outDir) {
+bool MainWindow::isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir) {
   // The folder the output folder belongs into must exist ...
   if (!QFileInfo(outDir).absoluteDir().exists()) {
     return false;
@@ -389,7 +389,10 @@ bool MainWindow::isProjectInPlace(const ProjectPages& pages, const QString& outD
       return false;
     }
   }
-  return !checked.isEmpty();
+  if (checked.isEmpty()) {
+    return !inputDir.isEmpty() && QDir(inputDir).exists();
+  }
+  return true;
 }
 
 std::set<PageId> MainWindow::selectedPages() const {
@@ -403,14 +406,24 @@ std::vector<PageRange> MainWindow::selectedRanges() const {
 void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
                                     const QString& outDir,
                                     const QString& projectFilePath,
-                                    const ProjectReader* projectReader) {
+                                    const ProjectReader* projectReader,
+                                    const QString& inputDir) {
   stopBatchProcessing(CLEAR_MAIN_AREA);
   m_interactiveQueue->cancelAndClear();
   // The PDF page selection belongs to the project.
   leavePdfStage();
   m_pdfView.reset();
 
-  if (!outDir.isEmpty() && !QDir(outDir).exists() && isProjectInPlace(*pages, outDir)) {
+  m_emptyProjectInputDir.clear();
+  if (pages->numImages() == 0) {
+    if (!inputDir.isEmpty()) {
+      m_emptyProjectInputDir = inputDir;
+    } else if (projectReader && !projectReader->directories().empty()) {
+      m_emptyProjectInputDir = projectReader->directories().front();
+    }
+  }
+
+  if (!outDir.isEmpty() && !QDir(outDir).exists() && isProjectInPlace(*pages, outDir, m_emptyProjectInputDir)) {
     // The output folder was deleted, e.g. to output everything again.  The project is
     // where it was, so the folder is created again rather than asking for relinking.
     QDir().mkdir(outDir);
@@ -1587,18 +1600,22 @@ void MainWindow::saveProjectAsTriggered() {
   }
 
   if (saveProjectWithFeedback(projectFile)) {
-    m_projectFile = projectFile;
-    updateWindowTitle();
-
-    QSettings settings;
-    settings.setValue("project/lastDir", QFileInfo(m_projectFile).absolutePath());
-
-    RecentProjects rp;
-    rp.read();
-    rp.setMostRecent(m_projectFile);
-    rp.write();
+    setSavedProjectFile(projectFile);
   }
 }  // MainWindow::saveProjectAsTriggered
+
+void MainWindow::setSavedProjectFile(const QString& projectFile) {
+  m_projectFile = projectFile;
+  updateWindowTitle();
+
+  QSettings settings;
+  settings.setValue("project/lastDir", QFileInfo(m_projectFile).absolutePath());
+
+  RecentProjects rp;
+  rp.read();
+  rp.setMostRecent(m_projectFile);
+  rp.write();
+}
 
 void MainWindow::newProject() {
   if (!closeProjectInteractive()) {
@@ -1612,7 +1629,11 @@ void MainWindow::newProject() {
 
 void MainWindow::newProjectCreated(ProjectCreationContext* context) {
   auto pages = std::make_shared<ProjectPages>(context->files(), ProjectPages::AUTO_PAGES, context->layoutDirection());
-  switchToNewProject(pages, context->outDir());
+  switchToNewProject(pages, context->outDir(), QString(), nullptr, context->inputDir());
+  // A new project is saved right away, so it can be opened again even while it is empty.
+  if (saveProjectWithFeedback(context->projectFile())) {
+    setSavedProjectFile(context->projectFile());
+  }
 }
 
 void MainWindow::openProject() {
@@ -1812,7 +1833,7 @@ PageView MainWindow::getCurrentView() const {
 }
 
 void MainWindow::updateMainArea() {
-  if (m_pages->numImages() == 0) {
+  if (!isProjectLoaded()) {
     filterList->setBatchProcessingPossible(false);
     setDockWidgetsVisible(false);
     showNewOpenProjectPanel();
@@ -1836,9 +1857,11 @@ void MainWindow::updateMainArea() {
     setDockWidgetsVisible(true);
     const PageInfo page(m_thumbSequence->selectionLeader());
     if (page.isNull()) {
+      // E.g. a project without images.
       filterList->setBatchProcessingPossible(false);
       removeImageWidget();
       removeFilterOptionsWidget();
+      m_statusBarPanel->clear();
     } else {
       // Note that loadPageInteractive may reset it to false.
       filterList->setBatchProcessingPossible(true);
@@ -1944,7 +1967,7 @@ bool MainWindow::closeProjectInteractive() {
   const QFileInfo backupFile(projectFile.absoluteDir(), QString::fromLatin1("Backup.") + projectFile.fileName());
   const QString backupFilePath(backupFile.absoluteFilePath());
 
-  ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen);
+  ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
 
   if (!writer.write(backupFilePath, m_stages->filters())) {
     // Backup file could not be written???
@@ -1993,7 +2016,7 @@ void MainWindow::closeProjectWithoutSaving() {
 }
 
 bool MainWindow::saveProjectWithFeedback(const QString& projectFile) {
-  ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen);
+  ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
 
   if (!writer.write(projectFile, m_stages->filters())) {
     QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));

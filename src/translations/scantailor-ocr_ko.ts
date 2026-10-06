@@ -97,12 +97,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="49"/>
+        <location filename="../core/Application.cpp" line="51"/>
         <source>Unexpected error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="50"/>
+        <location filename="../core/Application.cpp" line="52"/>
         <source>An unexpected error occurred:
 %1
 
@@ -955,7 +955,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     <name>ImageLoader</name>
     <message>
         <location filename="../core/ImageLoader.cpp" line="47"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="629"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="699"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1103,7 +1103,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1096"/>
-        <location filename="../app/MainWindow.cpp" line="582"/>
+        <location filename="../app/MainWindow.cpp" line="622"/>
         <source>Save Project</source>
         <translation>프로젝트 저장</translation>
     </message>
@@ -1245,119 +1245,119 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>기본 매개 변수</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="495"/>
+        <location filename="../app/MainWindow.cpp" line="535"/>
         <source>Stop batch processing</source>
         <translation>일괄 작업 종료하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="582"/>
+        <location filename="../app/MainWindow.cpp" line="622"/>
         <source>Save the project?</source>
         <translation>프로젝트를 저장하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1057"/>
+        <location filename="../app/MainWindow.cpp" line="1097"/>
         <source>Insert before ...</source>
         <translation>앞에 파일 추가하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1058"/>
+        <location filename="../app/MainWindow.cpp" line="1098"/>
         <source>Insert after ...</source>
         <translation>뒤에 파일 추가하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1062"/>
+        <location filename="../app/MainWindow.cpp" line="1102"/>
         <source>Remove from project ...</source>
         <translation>프로젝트에서 제거하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1092"/>
+        <location filename="../app/MainWindow.cpp" line="1132"/>
         <source>Insert here ...</source>
         <translation>여기에 파일 추가하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1894"/>
+        <location filename="../app/MainWindow.cpp" line="1944"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1553"/>
-        <location filename="../app/MainWindow.cpp" line="1598"/>
+        <location filename="../app/MainWindow.cpp" line="1593"/>
+        <location filename="../app/MainWindow.cpp" line="1646"/>
         <source>Scan Tailor Projects</source>
         <translation>Scan Tailor 프로젝트</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1597"/>
+        <location filename="../app/MainWindow.cpp" line="1645"/>
         <source>Open Project</source>
         <translation>프로젝트 열기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1610"/>
-        <location filename="../app/MainWindow.cpp" line="1616"/>
-        <location filename="../app/MainWindow.cpp" line="1948"/>
-        <location filename="../app/MainWindow.cpp" line="1972"/>
+        <location filename="../app/MainWindow.cpp" line="1658"/>
+        <location filename="../app/MainWindow.cpp" line="1664"/>
+        <location filename="../app/MainWindow.cpp" line="1998"/>
+        <location filename="../app/MainWindow.cpp" line="2022"/>
         <source>Error</source>
         <translation>에러</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1610"/>
+        <location filename="../app/MainWindow.cpp" line="1658"/>
         <source>Unable to open the project file.</source>
         <translation>프로젝트 파일을 열 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1616"/>
+        <location filename="../app/MainWindow.cpp" line="1664"/>
         <source>The project file is broken.</source>
         <translation>프로젝트 파일이 손상되었습니다.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1698"/>
+        <location filename="../app/MainWindow.cpp" line="1746"/>
         <source>version </source>
         <translation>버전 </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1840"/>
+        <location filename="../app/MainWindow.cpp" line="1890"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>페이지의 최종 크기를 알 수 없기 때문에 출력이 불가능합니다.
 &quot;컨텐츠 선택&quot; 또는 &quot;테두리&quot; 작업을 먼저 수행해 주세요.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1874"/>
+        <location filename="../app/MainWindow.cpp" line="1924"/>
         <source>Unnamed</source>
         <translation>이름 없음</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1879"/>
+        <location filename="../app/MainWindow.cpp" line="1929"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation>%2 - ScanTailor OCR [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1894"/>
+        <location filename="../app/MainWindow.cpp" line="1944"/>
         <source>A PDF is being created.  Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1948"/>
-        <location filename="../app/MainWindow.cpp" line="1972"/>
+        <location filename="../app/MainWindow.cpp" line="1998"/>
+        <location filename="../app/MainWindow.cpp" line="2022"/>
         <source>Error saving the project file!</source>
         <translation>프로젝트를 저장하는 데 실패했습니다!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2027"/>
+        <location filename="../app/MainWindow.cpp" line="2077"/>
         <source>Files to insert</source>
         <translation>삽입할 파일</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2030"/>
+        <location filename="../app/MainWindow.cpp" line="2080"/>
         <source>Images not in project (%1)</source>
         <translation>프로젝트 (%1)에 이미지가 없습니다</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2081"/>
+        <location filename="../app/MainWindow.cpp" line="2131"/>
         <source>Skip failed files</source>
         <translation>실패한 파일 스킵</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2121"/>
+        <location filename="../app/MainWindow.cpp" line="2171"/>
         <source>Remove</source>
         <translation>삭제</translation>
     </message>
@@ -1439,7 +1439,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1493"/>
-        <location filename="../app/MainWindow.cpp" line="2380"/>
+        <location filename="../app/MainWindow.cpp" line="2430"/>
         <source>Go To Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1460,7 +1460,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2380"/>
+        <location filename="../app/MainWindow.cpp" line="2430"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1483,7 +1483,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
         <translation>프로젝트 열기</translation>
     </message>
     <message>
-        <location filename="../app/NewOpenProjectPanel.ui" line="148"/>
+        <location filename="../app/NewOpenProjectPanel.ui" line="151"/>
         <source>Recent Projects</source>
         <translation>최근 프로젝트</translation>
     </message>
@@ -2080,35 +2080,52 @@ Do you want to replace it?</source>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="20"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="255"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="268"/>
         <source>Input Directory</source>
         <translation>입력 디렉토리</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="33"/>
         <location filename="../app/ProjectFilesDialog.ui" line="52"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="71"/>
         <source>Browse</source>
         <translation>찾기</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="43"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="269"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="282"/>
         <source>Output Directory</source>
         <translation>출력 디렉토리</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="64"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="62"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="304"/>
+        <source>Project File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.ui" line="81"/>
+        <source>New images saved to the input directory are added to the project automatically. The project may then start empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.ui" line="84"/>
+        <source>Import new scans</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.ui" line="93"/>
         <source>Files Not In Project</source>
         <translation>프로젝트에서 제외할 파일</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="77"/>
-        <location filename="../app/ProjectFilesDialog.ui" line="191"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="106"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="220"/>
         <source>Select All</source>
         <translation>모두 선택하기</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="108"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="137"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -2119,7 +2136,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;선택된 파일을 프로젝트에 추가합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="137"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="166"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -2130,74 +2147,95 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;선택된 파일을 프로젝트에서 삭제합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="175"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="204"/>
         <source>Files In Project</source>
         <translation>프로젝트에서 사용할 파일</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="203"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="232"/>
         <source>Right to left layout (for Hebrew and Arabic)</source>
         <translation>오른쪽에서 왼쪽으로 (히브리어와 아랍어 전용)</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="210"/>
+        <location filename="../app/ProjectFilesDialog.ui" line="239"/>
         <source>Fix DPIs, even if they look OK</source>
         <translation>괜찮아 보여도 DPI 수정하기</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="377"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="383"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="389"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="406"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="412"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="497"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="305"/>
+        <source>Scan Tailor Projects</source>
+        <translation type="unfinished">Scan Tailor 프로젝트</translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="400"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="456"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="462"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="483"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="489"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="567"/>
         <source>Error</source>
         <translation>에러</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="377"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="400"/>
+        <source>Project file is not set or its directory doesn&apos;t exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="405"/>
+        <source>Overwrite File?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="406"/>
+        <source>The project file %1 already exists.  Overwrite it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
         <source>No files in project!</source>
         <translation>프로젝트에 사용할 파일이 없습니다!</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="383"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="456"/>
         <source>Input directory is not set or doesn&apos;t exist.</source>
         <translation>입력 디렉토리가 설정되지 않았거나 존재하지 않습니다.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="389"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="462"/>
         <source>Input and output directories can&apos;t be the same.</source>
         <translation>입력 디렉토리와 출력 디렉토리가 동일합니다.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="397"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="474"/>
         <source>Create Directory?</source>
         <translation>디렉토리를 만드시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="397"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="474"/>
         <source>Output directory doesn&apos;t exist.  Create it?</source>
         <translation>출력 디렉토리가 존재하지 않습니다. 만드시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="406"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="483"/>
         <source>Unable to create output directory.</source>
         <translation>출력 디렉토리를 만들 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="412"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="489"/>
         <source>Output directory is not set or doesn&apos;t exist.</source>
         <translation>출력 디렉토리가 설정되지 않았거나 존재하지 않습니다.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ProjectFilesDialog.cpp" line="494"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="564"/>
         <source>... and %n more.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="498"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="568"/>
         <source>Some of the files failed to load.
 Either we don&apos;t support their format, or they are broken.
 You should remove them from the project.</source>

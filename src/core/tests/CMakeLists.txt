@@ -11,6 +11,7 @@ set(sources
     TestPageSequence.cpp
     TestPdfWriter.cpp
     TestPdfPageOrder.cpp
+    TestProjectFile.cpp
     TestJbig2.cpp
     TestOcrLanguages.cpp
     TestSelectContentApply.cpp

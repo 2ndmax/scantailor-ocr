@@ -30,7 +30,8 @@
 
 ProjectWriter::ProjectWriter(const std::shared_ptr<ProjectPages>& pageSequence,
                              const SelectedPage& selectedPage,
-                             const OutputFileNameGenerator& outFileNameGen)
+                             const OutputFileNameGenerator& outFileNameGen,
+                             const QString& inputDir)
     : m_pageSequence(pageSequence->toPageSequence(PAGE_VIEW)),
       m_outFileNameGen(outFileNameGen),
       m_selectedPage(selectedPage),
@@ -60,6 +61,12 @@ ProjectWriter::ProjectWriter(const std::shared_ptr<ProjectPages>& pageSequence,
     if (m_pages.insert(Page(pageId, nextId)).second) {
       ++nextId;
     }
+  }
+
+  // Other versions keep only the id-to-path mapping of a directory without files,
+  // and leave it out when saving again.
+  if (m_pageSequence.numPages() == 0 && !inputDir.isEmpty()) {
+    m_dirs.insert(Directory(QDir(inputDir).absolutePath(), nextId));
   }
 }
 

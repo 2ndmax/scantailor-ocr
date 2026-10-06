@@ -225,13 +225,19 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   void switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
                           const QString& outDir,
                           const QString& projectFilePath = QString(),
-                          const ProjectReader* projectReader = nullptr);
+                          const ProjectReader* projectReader = nullptr,
+                          const QString& inputDir = QString());
 
   /**
    * Whether a project with a missing output folder is still where it was: the parent of the
-   * output folder and all images exist.
+   * output folder and all images exist.  For a project without images, \p inputDir must exist.
    */
-  static bool isProjectInPlace(const ProjectPages& pages, const QString& outDir);
+  static bool isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir);
+
+  /**
+   * Makes \p projectFile, just saved, the file of the open project and the most recent project.
+   */
+  void setSavedProjectFile(const QString& projectFile);
 
   void updateThumbViewMinWidth();
 
@@ -342,6 +348,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::shared_ptr<ProjectPages> m_pages;
   std::shared_ptr<StageSequence> m_stages;
   QString m_projectFile;
+  // The input directory of a project without images, written into the project file.
+  QString m_emptyProjectInputDir;
   OutputFileNameGenerator m_outFileNameGen;
   std::shared_ptr<ThumbnailPixmapCache> m_thumbnailCache;
   std::unique_ptr<ThumbnailSequence> m_thumbSequence;

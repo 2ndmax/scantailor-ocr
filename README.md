@@ -118,6 +118,17 @@ The changes were developed with the help of Claude (Anthropic).
   (default 75 %).
 * The project and profile XML format is unchanged, so existing projects and profiles keep working.
 
+### New project
+
+* The "Project Files" dialog has a third line, **Project File**. It suggests
+  `<input folder>\<folder name>.ScanTailor` and follows the input folder until it is changed.
+  The project is saved there as soon as the dialog is confirmed; an existing file is only
+  overwritten after asking.
+* With **Import new scans** ticked, a project may start without any images. Such an empty
+  project opens with the processing steps and the page list instead of the start page. Its
+  project file keeps the input folder as a directory without files; other ScanTailor versions
+  can't open a project without images, but open it normally once it contains one.
+
 ### Image import
 
 * **TIFF reading reworked**

@@ -30,6 +30,10 @@ class ProjectCreationContext : public QObject {
 
   const QString& outDir() const { return m_outDir; }
 
+  const QString& inputDir() const { return m_inputDir; }
+
+  const QString& projectFile() const { return m_projectFile; }
+
   Qt::LayoutDirection layoutDirection() const { return m_layoutDirection; }
 
  signals:
@@ -54,6 +58,8 @@ class ProjectCreationContext : public QObject {
   QPointer<ProjectFilesDialog> m_projectFilesDialog;
   QPointer<FixDpiDialog> m_fixDpiDialog;
   QString m_outDir;
+  QString m_inputDir;
+  QString m_projectFile;
   std::vector<ImageFileInfo> m_files;
   Qt::LayoutDirection m_layoutDirection;
   QWidget* m_parent;
