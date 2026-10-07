@@ -9,6 +9,7 @@
 #include <QtCore/QObjectCleanupHandler>
 #include <QtCore/QPointer>
 #include <QtCore/QTimer>
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QStackedLayout>
 #include <list>
 #include <memory>
@@ -64,7 +65,11 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
  private slots:
 
-  void changeDpiButtonClicked();
+  void dpiSelectionChanged();
+
+  void applyDpiButtonClicked();
+
+  void applyDpiConfirmed(const std::set<PageId>& pages);
 
   void applyColorsButtonClicked();
 
@@ -152,7 +157,13 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void applyDespeckleConfirmed(const std::set<PageId>& pages);
 
-  void changeDewarpingButtonClicked();
+  void dewarpingModeChanged(int mode);
+
+  void dewarpingPostDeskewToggled(bool checked);
+
+  void applyDewarpingButtonClicked();
+
+  void applyDewarpingConfirmed(const std::set<PageId>& pages);
 
   void dewarpingChanged(const std::set<PageId>& pages, const DewarpingOptions& opt);
 
@@ -199,6 +210,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   double m_despeckleLevel;
   ImageViewTab m_lastTab;
   QTimer m_delayedReloadRequest;
+  bool m_checkingDpi = false;
+  QButtonGroup* m_dewarpingModeGroup = nullptr;
 
   ConnectionManager m_connectionManager;
   QComboBox* m_tiffColorCompression = nullptr;

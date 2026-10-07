@@ -11,7 +11,6 @@
 
 #include "LayoutType.h"
 #include "PageId.h"
-#include "PageLayout.h"
 #include "PageSequence.h"
 #include "ui_SplitModeDialog.h"
 
@@ -19,14 +18,17 @@ class ProjectPages;
 class PageSelectionAccessor;
 
 namespace page_split {
+/**
+ * Applies the page type of the current page to other pages, and optionally its split line.
+ * Whether the page type is detected automatically or set by hand is chosen in the options panel.
+ */
 class SplitModeDialog : public QDialog, private Ui::SplitModeDialog {
   Q_OBJECT
  public:
   SplitModeDialog(QWidget* parent,
                   const PageId& curPage,
                   const PageSelectionAccessor& pageSelectionAccessor,
-                  LayoutType layoutType,
-                  PageLayout::Type autoDetectedLayoutType);
+                  LayoutType layoutType);
 
   ~SplitModeDialog() override;
 
@@ -36,23 +38,16 @@ class SplitModeDialog : public QDialog, private Ui::SplitModeDialog {
 
  private slots:
 
-  void autoDetectionSelected();
-
-  void manualModeSelected();
-
   void onSubmit();
 
  private:
-  LayoutType combinedLayoutType() const;
-
-  static QIcon iconFor(LayoutType layoutType);
+  void updateOptions();
 
   PageSequence m_pages;
   std::set<PageId> m_selectedPages;
   PageId m_curPage;
   QButtonGroup* m_scopeGroup;
   LayoutType m_layoutType;
-  PageLayout::Type m_autoDetectedLayoutType;
 };
 }  // namespace page_split
 #endif  // ifndef SCANTAILOR_PAGE_SPLIT_SPLITMODEDIALOG_H_

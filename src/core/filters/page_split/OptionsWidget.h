@@ -81,13 +81,20 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void layoutTypeButtonToggled(bool checked);
 
-  void showChangeDialog();
+  void layoutAutoToggled(bool checked);
+
+  void layoutManualToggled(bool checked);
+
+  void showApplyDialog();
 
   void layoutTypeSet(const std::set<PageId>& pages, LayoutType layoutType, bool applyCut);
 
   void splitLineModeChanged(bool autoMode);
 
  private:
+  /** Shows whether the page type is detected automatically or set by hand. */
+  void setLayoutModeButtons(bool autoMode);
+
   void commitCurrentParams();
 
   void setupUiConnections();

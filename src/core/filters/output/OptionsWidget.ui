@@ -48,15 +48,15 @@
          </spacer>
         </item>
         <item>
-         <widget class="QLabel" name="dpiLabel">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+         <widget class="QComboBox" name="dpiSelector">
+          <property name="toolTip">
+           <string>Resolution of the output files of this page, from 72 to 1200 DPI.  Choose a value or type one in.</string>
           </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
+          <property name="editable">
+           <bool>true</bool>
           </property>
-          <property name="text">
-           <string>0</string>
+          <property name="insertPolicy">
+           <enum>QComboBox::NoInsert</enum>
           </property>
          </widget>
         </item>
@@ -77,6 +77,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer name="horizontalSpacer_7">
           <property name="orientation">
@@ -91,9 +94,18 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="changeDpiButton">
+         <widget class="QPushButton" name="applyDpiButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the output resolution of this page to other pages.</string>
+          </property>
           <property name="text">
-           <string>Change ...</string>
+           <string>Apply To ...</string>
           </property>
          </widget>
         </item>
@@ -164,16 +176,28 @@
        </layout>
       </item>
       <item>
-       <widget class="CollapsibleGroupBox" name="commonOptions">
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="title">
-         <string>Options</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+       <widget class="QWidget" name="commonOptions">
+        <layout class="QVBoxLayout" name="commonOptionsLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="SectionHeading" name="commonOptionsHeading">
+           <property name="text">
+            <string>General</string>
+           </property>
+          </widget>
+         </item>
+         <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <property name="leftMargin">
           <number>0</number>
@@ -301,20 +325,32 @@
           </spacer>
          </item>
         </layout>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
-       <widget class="CollapsibleGroupBox" name="fillingOptions">
-        <property name="title">
-         <string>Filling</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
+       <widget class="QWidget" name="fillingOptions">
         <layout class="QVBoxLayout" name="verticalLayout_10">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="SectionHeading" name="fillingOptionsHeading">
+           <property name="text">
+            <string>Filling</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_23">
            <item>
@@ -359,17 +395,27 @@
        </widget>
       </item>
       <item>
-       <widget class="CollapsibleGroupBox" name="thresholdOptions">
-        <property name="title">
-         <string>Threshold</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
+       <widget class="QWidget" name="thresholdOptions">
         <layout class="QVBoxLayout" name="verticalLayout_11">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="SectionHeading" name="thresholdOptionsHeading">
+           <property name="text">
+            <string>Threshold</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_22">
            <item>
@@ -423,16 +469,28 @@
        </widget>
       </item>
       <item>
-       <widget class="CollapsibleGroupBox" name="colorOperationsOptions">
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="title">
-         <string>Color operations</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+       <widget class="QWidget" name="colorOperationsOptions">
+        <layout class="QVBoxLayout" name="colorOperationsOptionsLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="SectionHeading" name="colorOperationsOptionsHeading">
+           <property name="text">
+            <string>Color operations</string>
+           </property>
+          </widget>
+         </item>
+         <item>
         <layout class="QHBoxLayout" name="horizontalLayout_15">
          <property name="leftMargin">
           <number>0</number>
@@ -957,17 +1015,32 @@
           </spacer>
          </item>
         </layout>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
-       <widget class="CollapsibleGroupBox" name="pictureShapeOptions">
-        <property name="title">
-         <string>Picture Shape</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+       <widget class="QWidget" name="pictureShapeOptions">
         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="SectionHeading" name="pictureShapeOptionsHeading">
+           <property name="text">
+            <string>Picture Shape</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_13">
            <item>
@@ -1107,6 +1180,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer name="horizontalSpacer_9">
           <property name="orientation">
@@ -1122,6 +1198,15 @@
         </item>
         <item>
          <widget class="QPushButton" name="applyColorsButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the mode and all settings of this panel to other pages.</string>
+          </property>
           <property name="text">
            <string>Apply To ...</string>
           </property>
@@ -1244,6 +1329,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer name="horizontalSpacer_25">
           <property name="orientation">
@@ -1259,6 +1347,15 @@
         </item>
         <item>
          <widget class="QPushButton" name="applySplittingButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the splitting settings of this page to other pages.</string>
+          </property>
           <property name="text">
            <string>Apply To ...</string>
           </property>
@@ -1387,6 +1484,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer name="horizontalSpacer_15">
           <property name="orientation">
@@ -1402,6 +1502,15 @@
         </item>
         <item>
          <widget class="QPushButton" name="applyDespeckleButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the despeckling of this page to other pages.</string>
+          </property>
           <property name="text">
            <string>Apply To ...</string>
           </property>
@@ -1480,6 +1589,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_21">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer name="horizontalSpacer_40">
           <property name="orientation">
@@ -1495,6 +1607,15 @@
         </item>
         <item>
          <widget class="QPushButton" name="applyProcessingOptionsButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the black on white mode of this page to other pages.</string>
+          </property>
           <property name="text">
            <string>Apply To ...</string>
           </property>
@@ -1557,6 +1678,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
@@ -1572,6 +1696,15 @@
         </item>
         <item>
          <widget class="QPushButton" name="applyDepthPerceptionButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the depth perception of this page to other pages.</string>
+          </property>
           <property name="text">
            <string>Apply To ...</string>
           </property>
@@ -1608,44 +1741,88 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_11">
-        <item>
-         <spacer name="horizontalSpacer_19">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+       <layout class="QGridLayout" name="dewarpingModeLayout">
+        <item row="0" column="0" colspan="3">
+         <widget class="QPushButton" name="dewarpingOffBtn">
+          <property name="toolTip">
+           <string>No dewarping.</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="dewarpingStatusLabel">
           <property name="text">
-           <string/>
+           <string>Off</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item>
-         <spacer name="horizontalSpacer_20">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="dewarpingAutoBtn">
+          <property name="toolTip">
+           <string>Finds the curvature of the lines of text automatically.  Experimental.</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
+          <property name="text">
+           <string>Auto</string>
           </property>
-         </spacer>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="dewarpingMarginalBtn">
+          <property name="toolTip">
+           <string>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</string>
+          </property>
+          <property name="text">
+           <string>Marginal</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="dewarpingManualBtn">
+          <property name="toolTip">
+           <string>You place the curves yourself on the Dewarping tab.</string>
+          </property>
+          <property name="text">
+           <string>Manual</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
       <item>
+       <widget class="QCheckBox" name="dewarpingPostDeskewCB">
+        <property name="toolTip">
+         <string>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</string>
+        </property>
+        <property name="text">
+         <string>Post deskew</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer name="horizontalSpacer_17">
           <property name="orientation">
@@ -1660,9 +1837,18 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="changeDewarpingButton">
+         <widget class="QPushButton" name="applyDewarpingButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the dewarping mode and "Post deskew" of this page to other pages.</string>
+          </property>
           <property name="text">
-           <string>Change ...</string>
+           <string>Apply To ...</string>
           </property>
          </widget>
         </item>
@@ -1705,6 +1891,11 @@
    <extends>QGroupBox</extends>
    <header location="global">CollapsibleGroupBox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SectionHeading</class>
+   <extends>QLabel</extends>
+   <header location="global">SectionHeading.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -108,6 +108,7 @@ set(common_sources
     OrderByCompletenessProvider.cpp OrderByCompletenessProvider.h
     SkinnedButton.cpp SkinnedButton.h
     CollapsibleGroupBox.cpp CollapsibleGroupBox.h
+    SectionHeading.cpp SectionHeading.h
     ColorSchemeFactory.cpp ColorSchemeFactory.h
     ApplicationSettings.cpp ApplicationSettings.h
     IconProvider.cpp IconProvider.h

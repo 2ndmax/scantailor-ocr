@@ -47,6 +47,7 @@
 #include "OcrLanguages.h"
 #include "PdfExportJob.h"
 #include "PdfPageOrder.h"
+#include "SectionHeading.h"
 #include "TessdataDownloadDialog.h"
 #include "ThumbnailLoadResult.h"
 
@@ -360,14 +361,9 @@ QWidget* PdfExportView::createOptionsWidget() {
 
   // The group has a part for each kind of page, each with a bold heading.
   auto addHeading = [optionsLayout](const QString& text, const QString& toolTip, const bool first) {
-    auto* heading = new QLabel(text);
-    QFont font = heading->font();
-    font.setBold(true);
-    heading->setFont(font);
+    auto* heading = new SectionHeading(text);
     heading->setToolTip(toolTip);
-    if (!first) {
-      heading->setContentsMargins(0, 8, 0, 0);
-    }
+    heading->setFirst(first);
     optionsLayout->addRow(heading);
   };
   auto selectData = [](QComboBox* box, const int value, const PdfCompression defaultValue) {

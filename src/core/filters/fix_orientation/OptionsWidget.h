@@ -40,8 +40,6 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void rotateRight();
 
-  void resetRotation();
-
   void showApplyToDialog();
 
   void appliedTo(const std::set<PageId>& pages);
@@ -51,8 +49,6 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   void trimEnableToggled(bool checked);
 
   void trimMarginsChanged(int value);
-
-  void resetTrim();
 
  private:
   void setRotation(const OrthogonalRotation& rotation);

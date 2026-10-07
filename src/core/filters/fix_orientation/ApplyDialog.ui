@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Fix Orientation</string>
+   <string>Apply Rotation and Trim</string>
   </property>
   <layout class="QVBoxLayout">
    <item>

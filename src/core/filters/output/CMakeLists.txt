@@ -2,8 +2,6 @@ set(CMAKE_AUTOUIC ON)
 
 set(ui_files
     ApplyColorsDialog.ui
-    ChangeDewarpingDialog.ui
-    ChangeDpiDialog.ui
     OptionsWidget.ui
     OptionsWidgetBinarizationOtsu.ui
     OptionsWidgetBinarizationSauvola.ui
@@ -12,7 +10,6 @@ set(ui_files
 
 set(sources
     ApplyColorsDialog.cpp ApplyColorsDialog.h
-    ChangeDpiDialog.cpp ChangeDpiDialog.h
     ImageView.cpp ImageView.h
     ImageViewTab.h
     TabbedImageView.cpp TabbedImageView.h
@@ -50,7 +47,6 @@ set(sources
     DespeckleLevel.cpp DespeckleLevel.h
     DewarpingView.cpp DewarpingView.h
     DewarpingOptions.cpp DewarpingOptions.h
-    ChangeDewarpingDialog.cpp ChangeDewarpingDialog.h
     DepthPerception.cpp DepthPerception.h
     SplittingOptions.cpp SplittingOptions.h
     OptionsWidgetBinarizationOtsu.cpp OptionsWidgetBinarizationOtsu.h

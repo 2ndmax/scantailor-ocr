@@ -252,6 +252,35 @@ from working:
 * The PDF export compresses the pages itself, so these options don't change the PDF – except
   that JPEG-compressed TIFF files lose quality before they reach the PDF.
 
+### Options panels: one layout for all steps
+
+* Each panel holds what its **Apply To ...** button applies to other pages. Parts of a panel are
+  divided by bold headings instead of nested collapsible boxes, and **Apply To ...** is the last
+  line of the panel. Its tooltip says what is applied. The buttons have the same width in all
+  steps, and the dialogs they open have distinct titles.
+* *Import*: "Rotate" and "Crop scan (trim)" are one panel, **Rotate and trim**, as the button
+  applied both anyway. The "Reset" and "Reset trim" buttons are gone: the arrows rotate back, and
+  the check box turns the trim off.
+* *Split Pages*: the page type is switched with **Auto / Manual** buttons in the panel, as is the
+  split line. Before, going back to automatic detection was only possible in the dialog behind
+  "Change ...". That dialog is now an **Apply To ...** dialog with two options: *Page type* and
+  *Split line* (formerly "Apply cut": the position of the split line, adapted to each page).
+* *Deskew*: headings "Rotation angle" and "Oblique".
+* *Select Content*: "Page Box" and "Content Box" are one panel, **Page and content box**.
+* *Page Layout*: "Fix all..." and "Match size to all pages" have their own line above
+  **Apply To ...**.
+* *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Filling",
+  "Threshold", "Color operations" and "Picture Shape". The collapsed state saved for the old
+  nested boxes is no longer used.
+* *Output*: the **output resolution** (a list with 300, 400, 600 and 1200 DPI; other values can
+  be typed in) and the **dewarping** mode with "Post deskew" are set in the panels and apply to
+  the current page at once, like all other settings. "Change ..." became **Apply To ...**. The
+  angle found by "Post deskew" is shown next to it.
+* All "apply to other pages" dialogs offer the same seven choices, also in the Output step
+  (formerly four there), and those that apply only some of the settings list them below the
+  choice of pages under "Apply parameters".
+* Nothing changes in the processing or in the project file.
+
 ### Zone editors (picture zones and fill zones)
 
 * The selection mode for new zones is shown at the bottom right of the status bar as a button

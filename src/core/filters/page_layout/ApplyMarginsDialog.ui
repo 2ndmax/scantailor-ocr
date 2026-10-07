@@ -47,14 +47,14 @@
       <item>
        <widget class="QRadioButton" name="thisEveryOtherRB">
         <property name="text">
-         <string>This page and the following every other page</string>
+         <string extracomment="All odd or even pages, depending on the current page being odd or even.">This page and the following every other page</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="everyOtherRB">
         <property name="text">
-         <string>Every other page</string>
+         <string extracomment="All odd or even pages, depending on the current page being odd or even.">Every other page</string>
         </property>
        </widget>
       </item>
@@ -142,7 +142,7 @@
    <item>
     <widget class="QGroupBox" name="marginsToApplyGroup">
      <property name="title">
-      <string>Apply margins</string>
+      <string>Apply parameters</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_margins">
       <item>

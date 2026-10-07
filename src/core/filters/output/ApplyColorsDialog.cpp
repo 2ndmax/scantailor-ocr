@@ -18,10 +18,15 @@ ApplyColorsDialog::ApplyColorsDialog(QWidget* parent,
   m_scopeGroup->addButton(thisPageRB);
   m_scopeGroup->addButton(allPagesRB);
   m_scopeGroup->addButton(thisPageAndFollowersRB);
+  m_scopeGroup->addButton(thisEveryOtherRB);
+  m_scopeGroup->addButton(everyOtherRB);
   m_scopeGroup->addButton(selectedPagesRB);
+  m_scopeGroup->addButton(everyOtherSelectedRB);
   if (m_selectedPages.size() <= 1) {
     selectedPagesRB->setEnabled(false);
     selectedPagesHint->setEnabled(false);
+    everyOtherSelectedRB->setEnabled(false);
+    everyOtherSelectedHint->setEnabled(false);
   }
 
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
@@ -37,10 +42,16 @@ void ApplyColorsDialog::onSubmit() {
     m_pages.selectAll().swap(pages);
   } else if (thisPageAndFollowersRB->isChecked()) {
     m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
+  } else if (thisEveryOtherRB->isChecked()) {
+    m_pages.selectThisPageAndFollowingEveryOther(m_curPage).swap(pages);
+  } else if (everyOtherRB->isChecked()) {
+    m_pages.selectEveryOther(m_curPage).swap(pages);
   } else if (selectedPagesRB->isChecked()) {
     emit accepted(m_selectedPages);
     accept();
     return;
+  } else if (everyOtherSelectedRB->isChecked()) {
+    m_pages.selectEveryOtherInSubsetFromPage(m_curPage, m_selectedPages).swap(pages);
   }
 
   emit accepted(pages);

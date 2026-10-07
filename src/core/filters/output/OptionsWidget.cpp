@@ -6,15 +6,18 @@
 #include <core/ApplicationSettings.h>
 #include <tiff.h>
 
+#include <QButtonGroup>
 #include <QFormLayout>
+#include <QIntValidator>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QSignalBlocker>
 #include <QToolTip>
 #include <algorithm>
 #include <utility>
 
 #include "../../Utils.h"
 #include "ApplyColorsDialog.h"
-#include "ChangeDewarpingDialog.h"
-#include "ChangeDpiDialog.h"
 #include "FillZoneComparator.h"
 #include "OptionsWidgetBinarizationOtsu.h"
 #include "OptionsWidgetBinarizationSauvola.h"
@@ -93,6 +96,18 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
   pictureShapeSelector->addItem(tr("Free"), FREE_SHAPE);
   pictureShapeSelector->addItem(tr("Rectangular"), RECTANGULAR_SHAPE);
+
+  // Common resolutions; others can be typed in.
+  for (const int dpi : {300, 400, 600, 1200}) {
+    dpiSelector->addItem(QString::number(dpi));
+  }
+  dpiSelector->setValidator(new QIntValidator(0, 9999, dpiSelector));
+
+  m_dewarpingModeGroup = new QButtonGroup(this);
+  m_dewarpingModeGroup->addButton(dewarpingOffBtn, OFF);
+  m_dewarpingModeGroup->addButton(dewarpingAutoBtn, AUTO);
+  m_dewarpingModeGroup->addButton(dewarpingMarginalBtn, MARGINAL);
+  m_dewarpingModeGroup->addButton(dewarpingManualBtn, MANUAL);
 
   updateDpiDisplay();
   updateColorsDisplay();
@@ -367,12 +382,36 @@ void OptionsWidget::binarizationSettingsChanged() {
   emit invalidateThumbnail(m_pageId);
 }
 
-void OptionsWidget::changeDpiButtonClicked() {
-  auto* dialog = new ChangeDpiDialog(this, m_outputDpi, m_pageId, m_pageSelectionAccessor);
+void OptionsWidget::dpiSelectionChanged() {
+  // The message box takes the focus, which finishes the editing a second time.
+  if (m_checkingDpi) {
+    return;
+  }
+  bool ok = false;
+  const int dpi = dpiSelector->currentText().trimmed().toInt(&ok);
+  if (!ok || (dpi < 72) || (dpi > 1200)) {
+    m_checkingDpi = true;
+    QMessageBox::warning(this, tr("Output Resolution (DPI)"), tr("The resolution must be between 72 and 1200 DPI."));
+    updateDpiDisplay();
+    m_checkingDpi = false;
+    return;
+  }
+  if (Dpi(dpi, dpi) == m_outputDpi) {
+    return;
+  }
+  dpiChanged({m_pageId}, Dpi(dpi, dpi));
+}
+
+void OptionsWidget::applyDpiButtonClicked() {
+  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&, const Dpi&)), this,
-          SLOT(dpiChanged(const std::set<PageId>&, const Dpi&)));
+  dialog->setWindowTitle(tr("Apply Output Resolution"));
+  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this, SLOT(applyDpiConfirmed(const std::set<PageId>&)));
   dialog->show();
+}
+
+void OptionsWidget::applyDpiConfirmed(const std::set<PageId>& pages) {
+  dpiChanged(pages, m_outputDpi);
 }
 
 void OptionsWidget::applyColorsButtonClicked() {
@@ -512,7 +551,7 @@ void OptionsWidget::handleDespeckleLevelChange(const double level, const bool de
 void OptionsWidget::applyDespeckleButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Despeckling Level"));
+  dialog->setWindowTitle(tr("Apply Despeckling"));
   connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
           SLOT(applyDespeckleConfirmed(const std::set<PageId>&)));
   dialog->show();
@@ -536,12 +575,29 @@ void OptionsWidget::applyDespeckleConfirmed(const std::set<PageId>& pages) {
   }
 }
 
-void OptionsWidget::changeDewarpingButtonClicked() {
-  auto* dialog = new ChangeDewarpingDialog(this, m_pageId, m_dewarpingOptions, m_pageSelectionAccessor);
+void OptionsWidget::dewarpingModeChanged(const int mode) {
+  DewarpingOptions opt(m_dewarpingOptions);
+  opt.setDewarpingMode(static_cast<DewarpingMode>(mode));
+  dewarpingChanged({m_pageId}, opt);
+}
+
+void OptionsWidget::dewarpingPostDeskewToggled(const bool checked) {
+  DewarpingOptions opt(m_dewarpingOptions);
+  opt.setPostDeskew(checked);
+  dewarpingChanged({m_pageId}, opt);
+}
+
+void OptionsWidget::applyDewarpingButtonClicked() {
+  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&, const DewarpingOptions&)), this,
-          SLOT(dewarpingChanged(const std::set<PageId>&, const DewarpingOptions&)));
+  dialog->setWindowTitle(tr("Apply Dewarping"));
+  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
+          SLOT(applyDewarpingConfirmed(const std::set<PageId>&)));
   dialog->show();
+}
+
+void OptionsWidget::applyDewarpingConfirmed(const std::set<PageId>& pages) {
+  dewarpingChanged(pages, m_dewarpingOptions);
 }
 
 void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const DewarpingOptions& opt) {
@@ -680,11 +736,9 @@ void OptionsWidget::reloadIfNecessary() {
 }  // OptionsWidget::reloadIfNecessary
 
 void OptionsWidget::updateDpiDisplay() {
-  if (m_outputDpi.horizontal() != m_outputDpi.vertical()) {
-    dpiLabel->setText(QString::fromLatin1("%1 x %2").arg(m_outputDpi.horizontal()).arg(m_outputDpi.vertical()));
-  } else {
-    dpiLabel->setText(QString::number(m_outputDpi.horizontal()));
-  }
+  // Changing the resolution sets the same value for both directions.
+  const QSignalBlocker blocker(dpiSelector);
+  dpiSelector->setEditText(QString::number(std::max(m_outputDpi.horizontal(), m_outputDpi.vertical())));
 }
 
 void OptionsWidget::updateColorsDisplay() {
@@ -818,31 +872,26 @@ void OptionsWidget::updateColorsDisplay() {
 void OptionsWidget::updateDewarpingDisplay() {
   depthPerceptionPanel->setVisible(m_lastTab == TAB_DEWARPING);
 
-  switch (m_dewarpingOptions.dewarpingMode()) {
-    case OFF:
-      dewarpingStatusLabel->setText(tr("Off"));
-      break;
-    case AUTO:
-      dewarpingStatusLabel->setText(tr("Auto"));
-      break;
-    case MANUAL:
-      dewarpingStatusLabel->setText(tr("Manual"));
-      break;
-    case MARGINAL:
-      dewarpingStatusLabel->setText(tr("Marginal"));
-      break;
+  {
+    const QSignalBlocker modeBlocker(m_dewarpingModeGroup);
+    const QSignalBlocker postDeskewBlocker(dewarpingPostDeskewCB);
+    if (QAbstractButton* button = m_dewarpingModeGroup->button(m_dewarpingOptions.dewarpingMode())) {
+      button->setChecked(true);
+    }
+    dewarpingPostDeskewCB->setChecked(m_dewarpingOptions.needPostDeskew());
   }
 
-  if ((m_dewarpingOptions.dewarpingMode() == MANUAL) || (m_dewarpingOptions.dewarpingMode() == MARGINAL)) {
-    QString dewarpingStatus = dewarpingStatusLabel->text();
-    if (m_dewarpingOptions.needPostDeskew()) {
-      const double deskewAngle = -std::round(m_dewarpingOptions.getPostDeskewAngle() * 100) / 100;
-      dewarpingStatus += " (" + tr("deskew") + ": " + QString::number(deskewAngle) + QChar(0x00B0) + ")";
-    } else {
-      dewarpingStatus += " (" + tr("deskew disabled") + ")";
-    }
-    dewarpingStatusLabel->setText(dewarpingStatus);
+  // The angle found by the post deskew is shown where it is used.
+  QString postDeskewText = tr("Post deskew");
+  if (m_dewarpingOptions.needPostDeskew()
+      && ((m_dewarpingOptions.dewarpingMode() == MANUAL) || (m_dewarpingOptions.dewarpingMode() == MARGINAL))) {
+    const double deskewAngle = -std::round(m_dewarpingOptions.getPostDeskewAngle() * 100) / 100;
+    postDeskewText += " (" + QString::number(deskewAngle) + QChar(0x00B0) + ")";
   }
+  dewarpingPostDeskewCB->setText(postDeskewText);
+  // Only Manual and Marginal deskew the page after dewarping.
+  dewarpingPostDeskewCB->setEnabled((m_dewarpingOptions.dewarpingMode() == MANUAL)
+                                    || (m_dewarpingOptions.dewarpingMode() == MARGINAL));
 
   depthPerceptionSlider->blockSignals(true);
   depthPerceptionSlider->setValue(qRound(m_depthPerception.value() * 10));
@@ -1061,7 +1110,9 @@ void OptionsWidget::sendReloadRequested() {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidget::setupUiConnections() {
-  CONNECT(changeDpiButton, SIGNAL(clicked()), this, SLOT(changeDpiButtonClicked()));
+  CONNECT(dpiSelector, SIGNAL(activated(int)), this, SLOT(dpiSelectionChanged()));
+  CONNECT(dpiSelector->lineEdit(), SIGNAL(editingFinished()), this, SLOT(dpiSelectionChanged()));
+  CONNECT(applyDpiButton, SIGNAL(clicked()), this, SLOT(applyDpiButtonClicked()));
   CONNECT(colorModeSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(colorModeChanged(int)));
   CONNECT(thresholdMethodBox, SIGNAL(currentIndexChanged(int)), this, SLOT(thresholdMethodChanged(int)));
   CONNECT(fillingColorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fillingColorChanged(int)));
@@ -1097,7 +1148,9 @@ void OptionsWidget::setupUiConnections() {
 
   CONNECT(applySplittingButton, SIGNAL(clicked()), this, SLOT(applySplittingButtonClicked()));
 
-  CONNECT(changeDewarpingButton, SIGNAL(clicked()), this, SLOT(changeDewarpingButtonClicked()));
+  CONNECT(m_dewarpingModeGroup, SIGNAL(idClicked(int)), this, SLOT(dewarpingModeChanged(int)));
+  CONNECT(dewarpingPostDeskewCB, SIGNAL(clicked(bool)), this, SLOT(dewarpingPostDeskewToggled(bool)));
+  CONNECT(applyDewarpingButton, SIGNAL(clicked()), this, SLOT(applyDewarpingButtonClicked()));
 
   CONNECT(applyDepthPerceptionButton, SIGNAL(clicked()), this, SLOT(applyDepthPerceptionButtonClicked()));
 

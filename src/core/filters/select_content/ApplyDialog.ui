@@ -14,53 +14,9 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Select Content</string>
+   <string>Apply Page and Content Box</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_7">
-   <item>
-    <widget class="QLabel" name="splitPagesTipLabel">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>If content is cropped incorrectly, check the Split Pages step (Manual + Apply cut often works better with columns).</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="optionsBox">
-     <property name="title">
-      <string>Options</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_6">
-      <item>
-       <widget class="QCheckBox" name="applyPageBoxOption">
-        <property name="text">
-         <string>Apply page box</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="applyContentBoxOption">
-        <property name="text">
-         <string>Apply content box</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -182,6 +138,35 @@
          </widget>
         </item>
        </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="optionsBox">
+     <property name="title">
+      <string>Apply parameters</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <widget class="QCheckBox" name="applyPageBoxOption">
+        <property name="text">
+         <string>Page box</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="applyContentBoxOption">
+        <property name="text">
+         <string>Content box</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

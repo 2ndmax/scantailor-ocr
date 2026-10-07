@@ -5,6 +5,8 @@
 
 #include <core/IconProvider.h>
 
+#include <QSignalBlocker>
+#include <algorithm>
 #include <cassert>
 #include <utility>
 
@@ -30,6 +32,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   auto* grp = new QButtonGroup(this);
   grp->addButton(autoBtn);
   grp->addButton(manualBtn);
+  auto* layoutModeGroup = new QButtonGroup(this);
+  layoutModeGroup->addButton(layoutAutoBtn);
+  layoutModeGroup->addButton(layoutManualBtn);
 
   setupUiConnections();
 }
@@ -65,13 +70,11 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
 
   splitLineGroup->setVisible(layoutType != SINGLE_PAGE_UNCUT);
 
-  if (layoutType == AUTO_LAYOUT_TYPE) {
-    changeBtn->setEnabled(false);
-    scopeLabel->setText("?");
-  } else {
-    changeBtn->setEnabled(true);
-    scopeLabel->setText(tr("Set manually"));
-  }
+  // Until the page is processed, the detected page type isn't known.
+  setLayoutModeButtons(layoutType == AUTO_LAYOUT_TYPE);
+  layoutAutoBtn->setEnabled(false);
+  layoutManualBtn->setEnabled(false);
+  applyToBtn->setEnabled(layoutType != AUTO_LAYOUT_TYPE);
 
   // Uncheck both the Auto and Manual buttons.
   autoBtn->setChecked(true);
@@ -88,7 +91,9 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
 
   m_uiData = uiData;
 
-  changeBtn->setEnabled(true);
+  applyToBtn->setEnabled(true);
+  layoutAutoBtn->setEnabled(true);
+  layoutManualBtn->setEnabled(true);
   autoBtn->setEnabled(true);
   manualBtn->setEnabled(true);
 
@@ -114,10 +119,31 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
 
   splitLineGroup->setVisible(layoutType != PageLayout::SINGLE_PAGE_UNCUT);
 
-  if (uiData.layoutTypeAutoDetected()) {
-    scopeLabel->setText(tr("Auto detected"));
-  }
+  setLayoutModeButtons(uiData.layoutTypeAutoDetected());
 }  // OptionsWidget::postUpdateUI
+
+void OptionsWidget::setLayoutModeButtons(const bool autoMode) {
+  const QSignalBlocker autoBlocker(layoutAutoBtn);
+  const QSignalBlocker manualBlocker(layoutManualBtn);
+  if (autoMode) {
+    layoutAutoBtn->setChecked(true);
+  } else {
+    layoutManualBtn->setChecked(true);
+  }
+}
+
+void OptionsWidget::layoutAutoToggled(const bool checked) {
+  if (checked) {
+    layoutTypeSet({m_pageId}, AUTO_LAYOUT_TYPE, false);
+  }
+}
+
+void OptionsWidget::layoutManualToggled(const bool checked) {
+  if (checked) {
+    // Keeps the page type shown, which was detected automatically.
+    layoutTypeSet({m_pageId}, m_uiData.pageLayout().toLayoutType(), false);
+  }
+}
 
 void OptionsWidget::pageLayoutSetExternally(const PageLayout& pageLayout) {
   auto block = m_connectionManager.getScopedBlock();
@@ -154,7 +180,7 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
   update.setLayoutType(lt);
 
   splitLineGroup->setVisible(lt != SINGLE_PAGE_UNCUT);
-  scopeLabel->setText(tr("Set manually"));
+  setLayoutModeButtons(false);
 
   m_pages->setLayoutTypeFor(m_pageId.imageId(), plt);
 
@@ -184,15 +210,13 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
   }
 }  // OptionsWidget::layoutTypeButtonToggled
 
-void OptionsWidget::showChangeDialog() {
+void OptionsWidget::showApplyDialog() {
   const Settings::Record record(m_settings->getPageRecord(m_pageId.imageId()));
-  const Params* params = record.params();
-  if (!params) {
+  if (!record.params()) {
     return;
   }
 
-  auto* dialog = new SplitModeDialog(this, m_pageId, m_pageSelectionAccessor, record.combinedLayoutType(),
-                                     params->pageLayout().type());
+  auto* dialog = new SplitModeDialog(this, m_pageId, m_pageSelectionAccessor, record.combinedLayoutType());
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   connect(dialog, SIGNAL(accepted(const std::set<PageId>&, LayoutType, bool)), this,
           SLOT(layoutTypeSet(const std::set<PageId>&, LayoutType, bool)));
@@ -244,11 +268,14 @@ void OptionsWidget::layoutTypeSet(const std::set<PageId>& pages, const LayoutTyp
     }
   }
 
+  const bool currentPageChanged = std::any_of(
+      pages.begin(), pages.end(), [this](const PageId& pageId) { return pageId.imageId() == m_pageId.imageId(); });
+  if (currentPageChanged) {
+    setLayoutModeButtons(layoutType == AUTO_LAYOUT_TYPE);
+  }
+
   if (layoutType == AUTO_LAYOUT_TYPE) {
-    scopeLabel->setText(tr("Auto detected"));
     emit reloadRequested();
-  } else {
-    scopeLabel->setText(tr("Set manually"));
   }
 }  // OptionsWidget::layoutTypeSet
 
@@ -275,10 +302,13 @@ void OptionsWidget::commitCurrentParams() {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidget::setupUiConnections() {
-  CONNECT(singlePageUncutBtn, SIGNAL(toggled(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
-  CONNECT(pagePlusOffcutBtn, SIGNAL(toggled(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
-  CONNECT(twoPagesBtn, SIGNAL(toggled(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
-  CONNECT(changeBtn, SIGNAL(clicked()), this, SLOT(showChangeDialog()));
+  // Clicked rather than toggled: clicking the type that was detected also sets it by hand.
+  CONNECT(singlePageUncutBtn, SIGNAL(clicked(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
+  CONNECT(pagePlusOffcutBtn, SIGNAL(clicked(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
+  CONNECT(twoPagesBtn, SIGNAL(clicked(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
+  CONNECT(layoutAutoBtn, SIGNAL(toggled(bool)), this, SLOT(layoutAutoToggled(bool)));
+  CONNECT(layoutManualBtn, SIGNAL(toggled(bool)), this, SLOT(layoutManualToggled(bool)));
+  CONNECT(applyToBtn, SIGNAL(clicked()), this, SLOT(showApplyDialog()));
   CONNECT(autoBtn, SIGNAL(toggled(bool)), this, SLOT(splitLineModeChanged(bool)));
 }
 

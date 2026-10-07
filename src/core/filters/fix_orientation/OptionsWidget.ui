@@ -17,12 +17,22 @@
    <item>
     <widget class="CollapsibleGroupBox" name="rotateGroupBox">
      <property name="title">
-      <string>Rotate</string>
+      <string>Rotate and trim</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
      <layout class="QVBoxLayout">
+      <item>
+       <widget class="SectionHeading" name="rotateHeading">
+        <property name="text">
+         <string>Rotate</string>
+        </property>
+        <property name="first">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item>
        <layout class="QHBoxLayout">
         <item>
@@ -128,54 +138,12 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout">
-        <item>
-         <spacer>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="resetBtn">
-          <property name="text">
-           <string>Reset</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+       <widget class="SectionHeading" name="trimHeading">
+        <property name="text">
+         <string>Trim</string>
+        </property>
+       </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="CollapsibleGroupBox" name="trimGroupBox">
-     <property name="title">
-      <string>Crop scan (trim)</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <layout class="QVBoxLayout">
       <item>
        <widget class="QCheckBox" name="trimEnabledCheck">
         <property name="text">
@@ -266,51 +234,56 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="resetTrimBtn">
-        <property name="text">
-         <string>Reset trim</string>
+       <layout class="QHBoxLayout">
+        <property name="topMargin">
+         <number>8</number>
         </property>
-       </widget>
+        <item>
+         <spacer>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="applyToBtn">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the rotation and the trim of this page to other pages.</string>
+          </property>
+          <property name="text">
+           <string>Apply to ...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout">
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>1</width>
-         <height>1</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="applyToBtn">
-       <property name="text">
-        <string>Apply to ...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>1</width>
-         <height>1</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
    </item>
    <item>
     <spacer>
@@ -333,6 +306,11 @@
    <extends>QGroupBox</extends>
    <header location="global">CollapsibleGroupBox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SectionHeading</class>
+   <extends>QLabel</extends>
+   <header location="global">SectionHeading.h</header>
   </customwidget>
  </customwidgets>
  <resources>

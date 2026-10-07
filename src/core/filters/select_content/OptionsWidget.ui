@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>216</width>
-    <height>364</height>
+    <width>232</width>
+    <height>388</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,36 +15,43 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QLabel" name="splitPagesTipLabel">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
+    <widget class="CollapsibleGroupBox" name="boxesGroup">
+     <property name="toolTip">
+      <string>If content is cropped incorrectly, check the Split Pages step: with columns, a split line set by hand and applied to other pages often works better.</string>
      </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>If content is cropped incorrectly, check the Split Pages step (Manual + Apply cut often works better with columns).</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string/>
+      <string>Page and content box</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="CollapsibleGroupBox" name="pageBoxGroup">
-        <property name="title">
-         <string>Page Box</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+       <widget class="QWidget" name="pageBoxGroup">
         <layout class="QGridLayout" name="gridLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item row="0" column="0" colspan="2">
+          <widget class="SectionHeading" name="pageBoxHeading">
+           <property name="text">
+            <string>Page Box</string>
+           </property>
+           <property name="first">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
           <widget class="QPushButton" name="pageDetectDisableBtn">
            <property name="text">
             <string>Disable</string>
@@ -60,7 +67,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="2" column="0">
           <widget class="QPushButton" name="pageDetectAutoBtn">
            <property name="text">
             <string>Auto</string>
@@ -73,7 +80,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="QPushButton" name="pageDetectManualBtn">
            <property name="text">
             <string>Manual</string>
@@ -89,26 +96,23 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QGroupBox" name="pageDetectOptions">
-           <property name="title">
-            <string>Options</string>
-           </property>
+         <item row="3" column="0" colspan="2">
+          <widget class="QWidget" name="pageDetectOptions">
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <property name="spacing">
              <number>4</number>
             </property>
             <property name="leftMargin">
-             <number>9</number>
+             <number>0</number>
             </property>
             <property name="topMargin">
-             <number>9</number>
+             <number>0</number>
             </property>
             <property name="rightMargin">
-             <number>9</number>
+             <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>9</number>
+             <number>0</number>
             </property>
             <item>
              <widget class="QCheckBox" name="fineTuneBtn">
@@ -215,15 +219,41 @@
        </widget>
       </item>
       <item>
-       <widget class="CollapsibleGroupBox" name="contentBoxGroup">
-        <property name="title">
-         <string>Content Box</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+       <widget class="QWidget" name="contentBoxGroup">
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="1" column="1">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0" colspan="2">
+          <widget class="SectionHeading" name="contentBoxHeading">
+           <property name="text">
+            <string>Content Box</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QPushButton" name="contentDetectDisableBtn">
+           <property name="text">
+            <string>Disable</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
           <widget class="QPushButton" name="contentDetectAutoBtn">
            <property name="text">
             <string>Auto</string>
@@ -239,20 +269,7 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QPushButton" name="contentDetectDisableBtn">
-           <property name="text">
-            <string>Disable</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
+         <item row="2" column="1">
           <widget class="QPushButton" name="contentDetectManualBtn">
            <property name="text">
             <string>Manual</string>
@@ -270,6 +287,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer>
           <property name="orientation">
@@ -285,6 +305,15 @@
         </item>
         <item>
          <widget class="QPushButton" name="applyToBtn">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the page box and the content box of this page to other pages.</string>
+          </property>
           <property name="text">
            <string>Apply to ...</string>
           </property>
@@ -329,6 +358,11 @@
    <extends>QGroupBox</extends>
    <header location="global">CollapsibleGroupBox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SectionHeading</class>
+   <extends>QLabel</extends>
+   <header location="global">SectionHeading.h</header>
   </customwidget>
  </customwidgets>
  <resources>

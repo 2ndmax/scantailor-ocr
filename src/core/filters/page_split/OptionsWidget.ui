@@ -30,6 +30,52 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <widget class="SectionHeading" name="layoutTypeHeading">
+        <property name="text">
+         <string>Page type</string>
+        </property>
+        <property name="first">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutModeLayout">
+        <item>
+         <widget class="QPushButton" name="layoutAutoBtn">
+          <property name="toolTip">
+           <string>Detect the page type automatically.</string>
+          </property>
+          <property name="text">
+           <string>Auto</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="layoutManualBtn">
+          <property name="toolTip">
+           <string>Keep the page type chosen below.</string>
+          </property>
+          <property name="text">
+           <string>Manual</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="sizeConstraint">
          <enum>QLayout::SetDefaultConstraint</enum>
@@ -49,6 +95,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="singlePageUncutBtn">
+          <property name="toolTip">
+           <string>One page, not split.</string>
+          </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
             <normaloff>:/icons/single_page_uncut.svg</normaloff>:/icons/single_page_uncut.svg</iconset>
@@ -72,6 +121,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="pagePlusOffcutBtn">
+          <property name="toolTip">
+           <string>One page and a strip to cut off, such as the edge of the opposite page.</string>
+          </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
             <normaloff>:/icons/right_page_plus_offcut.svg</normaloff>:/icons/right_page_plus_offcut.svg</iconset>
@@ -95,6 +147,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="twoPagesBtn">
+          <property name="toolTip">
+           <string>Two pages, split into two.</string>
+          </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
             <normaloff>:/icons/two_pages.svg</normaloff>:/icons/two_pages.svg</iconset>
@@ -129,17 +184,68 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="scopeLabel">
-        <property name="text">
-         <string>?</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+       <widget class="QWidget" name="splitLineGroup">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="SectionHeading" name="splitLineHeading">
+           <property name="text">
+            <string>Split Line</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QPushButton" name="autoBtn">
+             <property name="text">
+              <string>Auto</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+             <property name="autoExclusive">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="manualBtn">
+             <property name="text">
+              <string>Manual</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="autoExclusive">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout">
+       <layout class="QHBoxLayout" name="applyLayout">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
         <item>
          <spacer>
           <property name="orientation">
@@ -154,9 +260,18 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="changeBtn">
+         <widget class="QPushButton" name="applyToBtn">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the page type of this page to other pages, and on request its split line.</string>
+          </property>
           <property name="text">
-           <string>Change ...</string>
+           <string>Apply To ...</string>
           </property>
          </widget>
         </item>
@@ -172,60 +287,6 @@
            </size>
           </property>
          </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="CollapsibleGroupBox" name="splitLineGroup">
-     <property name="title">
-      <string>Split Line</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="spacing">
-       <number>9</number>
-      </property>
-      <property name="leftMargin">
-       <number>9</number>
-      </property>
-      <property name="topMargin">
-       <number>9</number>
-      </property>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QPushButton" name="autoBtn">
-          <property name="text">
-           <string>Auto</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="manualBtn">
-          <property name="text">
-           <string>Manual</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
         </item>
        </layout>
       </item>
@@ -253,6 +314,11 @@
    <extends>QGroupBox</extends>
    <header location="global">CollapsibleGroupBox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SectionHeading</class>
+   <extends>QLabel</extends>
+   <header location="global">SectionHeading.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -14,108 +14,9 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Split Pages</string>
+   <string>Apply Page Layout</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>1</width>
-         <height>1</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="layoutTypeLabel">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="pixmap">
-        <pixmap>:/icons/layout_type_auto.svg</pixmap>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>1</width>
-         <height>1</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Mode</string>
-       </property>
-       <layout class="QVBoxLayout">
-        <item>
-         <widget class="QRadioButton" name="modeAuto">
-          <property name="text">
-           <string>Auto</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="modeManual">
-          <property name="text">
-           <string>Manual</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="optionsBox">
-       <property name="title">
-        <string>Options</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QCheckBox" name="applyCutOption">
-          <property name="text">
-           <string>Apply cut</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
@@ -125,7 +26,7 @@
       <item>
        <widget class="QRadioButton" name="thisPageRB">
         <property name="text">
-         <string>This page only</string>
+         <string>This page only (already applied)</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -149,14 +50,14 @@
       <item>
        <widget class="QRadioButton" name="thisEveryOtherRB">
         <property name="text">
-         <string>This page and the following every other page</string>
+         <string extracomment="All odd or even pages, depending on the current page being odd or even.">This page and the following every other page</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="everyOtherRB">
         <property name="text">
-         <string>Every other page</string>
+         <string extracomment="All odd or even pages, depending on the current page being odd or even.">Every other page</string>
         </property>
        </widget>
       </item>
@@ -240,6 +141,38 @@
          </widget>
         </item>
        </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="applyPartsGroupBox">
+     <property name="title">
+      <string>Apply parameters</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_apply_parts">
+      <item>
+       <widget class="QCheckBox" name="applyLayoutTypeOption">
+        <property name="toolTip">
+         <string>The page type, or automatic detection if it is set to Auto.</string>
+        </property>
+        <property name="text">
+         <string>Page type</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="applyCutOption">
+        <property name="toolTip">
+         <string>The position of the split line, adapted to the size of each page.  Without it, each page keeps its own split line or detects one.  Only for a page type set by hand that has a split line.</string>
+        </property>
+        <property name="text">
+         <string>Split line</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

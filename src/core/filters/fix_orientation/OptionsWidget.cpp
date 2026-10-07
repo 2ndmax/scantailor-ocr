@@ -59,10 +59,6 @@ void OptionsWidget::rotateRight() {
   setRotation(rotation);
 }
 
-void OptionsWidget::resetRotation() {
-  setRotation(OrthogonalRotation());
-}
-
 void OptionsWidget::showApplyToDialog() {
   auto* dialog = new ApplyDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -119,7 +115,6 @@ void OptionsWidget::trimEnableToggled(const bool checked) {
   labelTrimCenter->setEnabled(checked);
   labelTrimBottomLeft->setEnabled(checked);
   labelTrimBottomRight->setEnabled(checked);
-  resetTrimBtn->setEnabled(checked);
   if (!checked) {
     m_settings->clearTrim(m_pageId.imageId());
     emit invalidateThumbnail(m_pageId);
@@ -136,19 +131,6 @@ void OptionsWidget::trimMarginsChanged(const int) {
   pushTrimFromControls();
 }
 
-void OptionsWidget::resetTrim() {
-  auto block = m_connectionManager.getScopedBlock();
-  trimLeftSpin->setValue(0);
-  trimRightSpin->setValue(0);
-  trimTopSpin->setValue(0);
-  trimBottomSpin->setValue(0);
-  if (trimEnabledCheck->isChecked()) {
-    pushTrimFromControls();
-  } else {
-    m_settings->clearTrim(m_pageId.imageId());
-    emit invalidateThumbnail(m_pageId);
-  }
-}
 
 void OptionsWidget::updateTrimMaximums() {
   const int w = m_imagePixelSize.width();
@@ -178,7 +160,6 @@ void OptionsWidget::pullTrimToControls() {
   labelTrimCenter->setEnabled(trim.enabled);
   labelTrimBottomLeft->setEnabled(trim.enabled);
   labelTrimBottomRight->setEnabled(trim.enabled);
-  resetTrimBtn->setEnabled(trim.enabled);
 }
 
 void OptionsWidget::pushTrimFromControls() {
@@ -229,14 +210,12 @@ void OptionsWidget::setRotationPixmap() {
 void OptionsWidget::setupUiConnections() {
   CONNECT(rotateLeftBtn, SIGNAL(clicked()), this, SLOT(rotateLeft()));
   CONNECT(rotateRightBtn, SIGNAL(clicked()), this, SLOT(rotateRight()));
-  CONNECT(resetBtn, SIGNAL(clicked()), this, SLOT(resetRotation()));
   CONNECT(applyToBtn, SIGNAL(clicked()), this, SLOT(showApplyToDialog()));
   CONNECT(trimEnabledCheck, SIGNAL(toggled(bool)), this, SLOT(trimEnableToggled(bool)));
   CONNECT(trimLeftSpin, SIGNAL(valueChanged(int)), this, SLOT(trimMarginsChanged(int)));
   CONNECT(trimRightSpin, SIGNAL(valueChanged(int)), this, SLOT(trimMarginsChanged(int)));
   CONNECT(trimTopSpin, SIGNAL(valueChanged(int)), this, SLOT(trimMarginsChanged(int)));
   CONNECT(trimBottomSpin, SIGNAL(valueChanged(int)), this, SLOT(trimMarginsChanged(int)));
-  CONNECT(resetTrimBtn, SIGNAL(clicked()), this, SLOT(resetTrim()));
 }
 
 #undef CONNECT

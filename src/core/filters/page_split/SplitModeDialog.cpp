@@ -3,10 +3,7 @@
 
 #include "SplitModeDialog.h"
 
-#include <core/IconProvider.h>
-
-#include <cassert>
-#include <iostream>
+#include <QPushButton>
 
 #include "PageSelectionAccessor.h"
 
@@ -14,15 +11,13 @@ namespace page_split {
 SplitModeDialog::SplitModeDialog(QWidget* const parent,
                                  const PageId& curPage,
                                  const PageSelectionAccessor& pageSelectionAccessor,
-                                 const LayoutType layoutType,
-                                 const PageLayout::Type autoDetectedLayoutType)
+                                 const LayoutType layoutType)
     : QDialog(parent),
       m_pages(pageSelectionAccessor.allPages()),
       m_selectedPages(pageSelectionAccessor.selectedPages()),
       m_curPage(curPage),
       m_scopeGroup(new QButtonGroup(this)),
-      m_layoutType(layoutType),
-      m_autoDetectedLayoutType(autoDetectedLayoutType) {
+      m_layoutType(layoutType) {
   setupUi(this);
   m_scopeGroup->addButton(thisPageRB);
   m_scopeGroup->addButton(allPagesRB);
@@ -38,44 +33,38 @@ SplitModeDialog::SplitModeDialog(QWidget* const parent,
     everyOtherSelectedHint->setEnabled(false);
   }
 
-  layoutTypeLabel->setPixmap(iconFor(m_layoutType).pixmap(32, 32));
-  if (m_layoutType == AUTO_LAYOUT_TYPE) {
-    modeAuto->setChecked(true);
+  // Only a page type set by hand has a split line to apply; an automatic one is detected anew.
+  if ((m_layoutType == AUTO_LAYOUT_TYPE) || (m_layoutType == SINGLE_PAGE_UNCUT)) {
     applyCutOption->setEnabled(false);
-  } else {
-    modeManual->setChecked(true);
-    applyCutOption->setEnabled(true);
   }
+  connect(applyLayoutTypeOption, &QCheckBox::toggled, this, &SplitModeDialog::updateOptions);
+  connect(applyCutOption, &QCheckBox::toggled, this, &SplitModeDialog::updateOptions);
+  updateOptions();
 
-  connect(modeAuto, SIGNAL(pressed()), this, SLOT(autoDetectionSelected()));
-  connect(modeManual, SIGNAL(pressed()), this, SLOT(manualModeSelected()));
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
 
 SplitModeDialog::~SplitModeDialog() = default;
 
-void SplitModeDialog::autoDetectionSelected() {
-  layoutTypeLabel->setPixmap(iconFor(AUTO_LAYOUT_TYPE).pixmap(32, 32));
-  applyCutOption->setEnabled(false);
-  applyCutOption->setChecked(false);
-}
-
-void SplitModeDialog::manualModeSelected() {
-  layoutTypeLabel->setPixmap(iconFor(combinedLayoutType()).pixmap(32, 32));
-  applyCutOption->setEnabled(true);
+void SplitModeDialog::updateOptions() {
+  // The split line can only be applied together with the page type.
+  if (applyCutOption->isChecked()) {
+    applyLayoutTypeOption->setChecked(true);
+  }
+  applyLayoutTypeOption->setEnabled(!applyCutOption->isChecked());
+  // Applying nothing would silently do nothing.
+  if (QPushButton* okButton = buttonBox->button(QDialogButtonBox::Ok)) {
+    okButton->setEnabled(applyLayoutTypeOption->isChecked());
+  }
 }
 
 void SplitModeDialog::onSubmit() {
-  LayoutType layoutType = AUTO_LAYOUT_TYPE;
-  if (modeManual->isChecked()) {
-    layoutType = combinedLayoutType();
-  }
+  const LayoutType layoutType = m_layoutType;
 
   std::set<PageId> pages;
 
-  if (thisPageRB->isChecked()) {
-    pages.insert(m_curPage);
-  } else if (allPagesRB->isChecked()) {
+  // thisPageRB is intentionally not handled: the options panel has already applied it.
+  if (allPagesRB->isChecked()) {
     m_pages.selectAll().swap(pages);
   } else if (thisPageAndFollowersRB->isChecked()) {
     m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
@@ -96,41 +85,4 @@ void SplitModeDialog::onSubmit() {
   // was removed.
   accept();
 }  // SplitModeDialog::onSubmit
-
-LayoutType SplitModeDialog::combinedLayoutType() const {
-  if (m_layoutType != AUTO_LAYOUT_TYPE) {
-    return m_layoutType;
-  }
-
-  switch (m_autoDetectedLayoutType) {
-    case PageLayout::SINGLE_PAGE_UNCUT:
-      return SINGLE_PAGE_UNCUT;
-    case PageLayout::SINGLE_PAGE_CUT:
-      return PAGE_PLUS_OFFCUT;
-    case PageLayout::TWO_PAGES:
-      return TWO_PAGES;
-  }
-
-  assert(!"Unreachable");
-  return AUTO_LAYOUT_TYPE;
-}
-
-QIcon SplitModeDialog::iconFor(const LayoutType layoutType) {
-  QIcon icon;
-  switch (layoutType) {
-    case AUTO_LAYOUT_TYPE:
-      icon = IconProvider::getInstance().getIcon("layout_type_auto");
-      break;
-    case SINGLE_PAGE_UNCUT:
-      icon = IconProvider::getInstance().getIcon("single_page_uncut");
-      break;
-    case PAGE_PLUS_OFFCUT:
-      icon = IconProvider::getInstance().getIcon("right_page_plus_offcut");
-      break;
-    case TWO_PAGES:
-      icon = IconProvider::getInstance().getIcon("two_pages");
-      break;
-  }
-  return icon;
-}
 }  // namespace page_split
