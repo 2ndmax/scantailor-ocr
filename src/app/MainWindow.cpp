@@ -784,6 +784,7 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
     disconnect(m_optionsWidget, SIGNAL(invalidateAllThumbnails()), this, SLOT(invalidateAllThumbnails()));
     disconnect(m_optionsWidget, SIGNAL(goToPage(const PageId&)), this, SLOT(goToPage(const PageId&)));
     disconnect(m_optionsWidget, SIGNAL(fixDpiRequested()), this, SLOT(fixDpiDialogRequested()));
+    disconnect(m_optionsWidget, SIGNAL(sourceDpiChanged()), this, SLOT(sourceDpiChanged()));
   }
 
   m_optionsFrameLayout->addWidget(widget);
@@ -799,6 +800,8 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
   connect(widget, SIGNAL(invalidateAllThumbnails()), this, SLOT(invalidateAllThumbnails()));
   connect(widget, SIGNAL(goToPage(const PageId&)), this, SLOT(goToPage(const PageId&)));
   connect(widget, SIGNAL(fixDpiRequested()), this, SLOT(fixDpiDialogRequested()));
+  // Asynchronous for the same reason as reloadRequested().
+  connect(widget, SIGNAL(sourceDpiChanged()), this, SLOT(sourceDpiChanged()), Qt::QueuedConnection);
 }  // MainWindow::setOptionsWidget
 
 ImageViewBase* MainWindow::findPrimaryImageView(QWidget* root) {
@@ -1508,6 +1511,13 @@ void MainWindow::fixedDpiSubmitted() {
       || (selectedPageBefore.metadata() != selectedPageAfter.metadata())) {
     reloadRequested();
   }
+}
+
+void MainWindow::sourceDpiChanged() {
+  // Like after the Fix DPI dialog: the processing takes the DPI from the page list.
+  m_thumbSequence->reset(currentPageSequence(), ThumbnailSequence::KEEP_SELECTION,
+                         m_thumbSequence->pageOrderProvider());
+  reloadRequested();
 }
 
 void MainWindow::enterPdfStage() {

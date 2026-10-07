@@ -328,6 +328,9 @@ from working:
   characters, as with pages whose names grew with each scan inserted after them: the new
   thumbnail couldn't replace the old one, which then kept being shown, also in the PDF step.
   Replacing files now works with long paths, which also applies to saving the project file.
+* **Fixed: changing the source DPI in the Margins panel had no visible effect** until another
+  step was chosen. The page list keeps its own copy of the DPI, which the processing uses; it
+  is now updated right away, as after *Tools → Fix DPI*.
 * Radio buttons are round in the light and dark color schemes at every font size. With the
   usual Windows font size, unselected ones were drawn as squares: after rounding the size to
   whole pixels, the corner radius was slightly more than half of it, and Qt then drops it.

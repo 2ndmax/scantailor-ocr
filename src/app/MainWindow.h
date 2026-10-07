@@ -167,6 +167,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void fixedDpiSubmitted();
 
+  void sourceDpiChanged();
+
   void pdfExportRunningChanged(bool running);
 
   void saveProjectTriggered();

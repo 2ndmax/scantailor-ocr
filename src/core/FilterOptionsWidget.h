@@ -36,6 +36,12 @@ class FilterOptionsWidget : public QWidget {
 
   /** Emitted when the user requests the Fix DPI dialog (e.g. from Margins panel, issue #93). */
   void fixDpiRequested();
+
+  /**
+   * Emitted after the DPI of the current image was changed in the panel.  The page list keeps
+   * its own copy of the DPI, which the processing uses, so it has to be updated before reloading.
+   */
+  void sourceDpiChanged();
 };
 
 

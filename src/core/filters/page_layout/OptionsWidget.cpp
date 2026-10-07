@@ -626,8 +626,8 @@ void OptionsWidget::commitSourceDpiIfValid() {
 
   m_pages->updateImageMetadata(m_pageId.imageId(), updated);
   m_dpi = dpi;
-  emit invalidateAllThumbnails();
-  emit reloadRequested();
+  // Updates the page list and reloads the page.
+  emit sourceDpiChanged();
   updateMarginsDisplay();
 }
 
