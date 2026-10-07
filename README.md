@@ -510,7 +510,7 @@ ctest -C Release --output-on-failure
 **9. Create the portable ZIP** (optional), from the repository folder:
 
 ```
-powershell -ExecutionPolicy Bypass -File scripts\package-windows.ps1 -Version 1.0.5
+powershell -ExecutionPolicy Bypass -File scripts\package-windows.ps1 -Version 1.0.6
 ```
 
 The script collects the program, exactly the DLLs it needs (read from the import tables, so
