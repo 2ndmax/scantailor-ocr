@@ -157,7 +157,20 @@ bool makeColorImage(const QImage& image,
   if ((compression == PdfCompression::NONE) || (compression == PdfCompression::DEFLATE)) {
     return makeLosslessImage(image, filePath, compression, false, rect, result, errors);
   }
-  // A palette image is converted to full colour for JPEG.
+  // A palette image is converted to full colour for JPEG and JPEG 2000.
+  if (compression == PdfCompression::JPEG2000) {
+    ImageLoadErrorCapture capture;
+    result->encoding = PdfWriter::Image::Encoding::JPX;
+    result->data = PdfImageEncoder::encodeJpeg2000(image, quality, &result->components);
+    result->width = image.width();
+    result->height = image.height();
+    result->rect = rect;
+    if (result->data.isEmpty()) {
+      errors->push_back(describeFailure(PdfExportJob::tr("Could not compress %1."), filePath, capture.messages()));
+      return false;
+    }
+    return true;
+  }
   return makeJpegImage(image, filePath, quality, rect, result, errors);
 }
 

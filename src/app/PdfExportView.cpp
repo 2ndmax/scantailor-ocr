@@ -68,6 +68,12 @@ enum PageRole {
   /** The position of the page in the PDF, starting at 1; 0 if it's not in the PDF. */
   POSITION_ROLE
 };
+
+/** Whether the method chosen in a compression box uses the quality setting. */
+bool usesQuality(const QComboBox* box) {
+  const auto compression = static_cast<PdfCompression>(box->currentData().toInt());
+  return (compression == PdfCompression::JPEG) || (compression == PdfCompression::JPEG2000);
+}
 }  // namespace
 
 /**
@@ -371,7 +377,9 @@ QWidget* PdfExportView::createOptionsWidget() {
     }
     box->setCurrentIndex(index);
   };
-  const QString qualityToolTip = tr("Higher values give better pictures and larger files.  Only used with JPEG.");
+  const QString qualityToolTip = tr(
+      "Higher values give better pictures and larger files.  Only used with JPEG and JPEG 2000.  With "
+      "JPEG 2000, 100 is lossless; with JPEG, it's only nearly lossless.");
 
   // Color and grayscale.
   addHeading(tr("Color and grayscale"),
@@ -382,10 +390,13 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_colorCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
   m_colorCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
   m_colorCompression->addItem(QStringLiteral("JPEG"), static_cast<int>(PdfCompression::JPEG));
+  m_colorCompression->addItem(QStringLiteral("JPEG 2000"), static_cast<int>(PdfCompression::JPEG2000));
   selectData(m_colorCompression, settings.getPdfColorCompression(), PdfCompression::JPEG);
   m_colorCompression->setToolTip(
-      tr("JPEG makes small files and loses a little quality, mostly at the edges of text.  Deflate is lossless, "
-         "but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB."));
+      tr("JPEG makes small files and loses a little quality, mostly at the edges of text.  JPEG 2000 looks "
+         "better at the same size, or makes smaller files at the same quality, but takes much longer to create, "
+         "and some simple or old PDF programs can't show it.  Deflate is lossless, but makes the PDF very large: "
+         "a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB."));
   optionsLayout->addRow(tr("Method:"), m_colorCompression);
 
   m_colorQuality = new QSpinBox;
@@ -414,11 +425,12 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_paletteCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
   m_paletteCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
   m_paletteCompression->addItem(QStringLiteral("JPEG"), static_cast<int>(PdfCompression::JPEG));
+  m_paletteCompression->addItem(QStringLiteral("JPEG 2000"), static_cast<int>(PdfCompression::JPEG2000));
   selectData(m_paletteCompression, settings.getPdfPaletteCompression(), PdfCompression::DEFLATE);
   m_paletteCompression->setToolTip(
-      tr("Deflate is lossless and keeps the few colors exactly, which makes small and sharp files.  JPEG converts "
-         "the page to full color first, which blurs the color areas and often makes the file larger.  None is "
-         "lossless, but large."));
+      tr("Deflate is lossless and keeps the few colors exactly, which makes small and sharp files.  JPEG and "
+         "JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file "
+         "larger.  None is lossless, but large."));
   optionsLayout->addRow(tr("Method:"), m_paletteCompression);
 
   m_paletteQuality = new QSpinBox;
@@ -442,8 +454,8 @@ QWidget* PdfExportView::createOptionsWidget() {
 
   layout->addWidget(compressionGroup);
 
-  m_colorQuality->setEnabled(m_colorCompression->currentData().toInt() == static_cast<int>(PdfCompression::JPEG));
-  m_paletteQuality->setEnabled(m_paletteCompression->currentData().toInt() == static_cast<int>(PdfCompression::JPEG));
+  m_colorQuality->setEnabled(usesQuality(m_colorCompression));
+  m_paletteQuality->setEnabled(usesQuality(m_paletteCompression));
 
   for (QComboBox* box : {m_colorCompression, m_backgroundScale, m_paletteCompression, m_bitonalCompression}) {
     connect(box, qOverload<int>(&QComboBox::currentIndexChanged), this, &PdfExportView::compressionChanged);
@@ -1072,8 +1084,8 @@ void PdfExportView::updateKindTexts() {
 }
 
 void PdfExportView::compressionChanged() {
-  m_colorQuality->setEnabled(m_colorCompression->currentData().toInt() == static_cast<int>(PdfCompression::JPEG));
-  m_paletteQuality->setEnabled(m_paletteCompression->currentData().toInt() == static_cast<int>(PdfCompression::JPEG));
+  m_colorQuality->setEnabled(usesQuality(m_colorCompression));
+  m_paletteQuality->setEnabled(usesQuality(m_paletteCompression));
   saveSettings();
   updateKindTexts();
 }

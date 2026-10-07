@@ -35,14 +35,13 @@ bool PdfWriter::addPage(const Page& page) {
                       + QByteArray::number(image.height);
     const bool bitonalFilter
         = (image.encoding == Image::Encoding::CCITT_G4) || (image.encoding == Image::Encoding::JBIG2);
-    const int bitsPerComponent = bitonalFilter                               ? 1
-                                 : (image.encoding == Image::Encoding::JPEG) ? 8
-                                                                             : image.bitsPerComponent;
+    const bool sampled = (image.encoding == Image::Encoding::RAW) || (image.encoding == Image::Encoding::FLATE);
+    const int bitsPerComponent = bitonalFilter ? 1 : sampled ? image.bitsPerComponent : 8;
     if (image.isMask) {
       // Decoded black pixels are 0 with all filters used, which an image mask paints with the fill colour.
       dict += " /ImageMask true /BitsPerComponent 1";
     } else {
-      if (!image.palette.isEmpty() && !bitonalFilter && (image.encoding != Image::Encoding::JPEG)) {
+      if (!image.palette.isEmpty() && sampled) {
         const int colorCount = static_cast<int>(image.palette.size() / 3);
         dict += " /ColorSpace [/Indexed /DeviceRGB " + QByteArray::number(colorCount - 1) + " <" + image.palette.toHex()
                 + ">]";
@@ -51,7 +50,10 @@ bool PdfWriter::addPage(const Page& page) {
       } else {
         dict += " /ColorSpace /DeviceGray";
       }
-      dict += " /BitsPerComponent " + QByteArray::number(bitsPerComponent);
+      if (image.encoding != Image::Encoding::JPX) {
+        // JPEG 2000 data has its own bit depth, PDF readers ignore this entry for it.
+        dict += " /BitsPerComponent " + QByteArray::number(bitsPerComponent);
+      }
     }
     switch (image.encoding) {
       case Image::Encoding::CCITT_G4:
@@ -63,6 +65,10 @@ bool PdfWriter::addPage(const Page& page) {
         break;
       case Image::Encoding::JPEG:
         dict += " /Filter /DCTDecode";
+        break;
+      case Image::Encoding::JPX:
+        dict += " /Filter /JPXDecode";
+        m_usesPdf15 = true;
         break;
       case Image::Encoding::FLATE:
         dict += " /Filter /FlateDecode";
@@ -117,7 +123,10 @@ bool PdfWriter::finish() {
   write("<< /Type /Pages /Kids [ " + kids + "] /Count " + QByteArray::number(pageCount()) + " >>\nendobj\n");
 
   beginObject(m_catalogId);
-  write("<< /Type /Catalog /Pages " + QByteArray::number(m_pagesId) + " 0 R >>\nendobj\n");
+  // The header was written before the pages were known.  JPEG 2000 needs PDF 1.5;
+  // the catalog's version takes precedence over the header's.
+  const QByteArray version = m_usesPdf15 ? QByteArray(" /Version /1.5") : QByteArray();
+  write("<< /Type /Catalog /Pages " + QByteArray::number(m_pagesId) + " 0 R" + version + " >>\nendobj\n");
 
   const int infoId = allocateObject();
   beginObject(infoId);

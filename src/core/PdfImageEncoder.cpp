@@ -3,12 +3,15 @@
 
 #include "PdfImageEncoder.h"
 
+#include <openjpeg.h>
 #include <tiffio.h>
 
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QFile>
 #include <QImage>
+#include <QSemaphore>
+#include <QThread>
 #include <algorithm>
 #include <csetjmp>
 #include <cstdint>
@@ -561,6 +564,190 @@ QByteArray PdfImageEncoder::encodeJpeg(const QImage& image, const int quality, i
   }
   return out;
 }  // PdfImageEncoder::encodeJpeg
+
+namespace {
+/*============================ JPEG 2000 ============================*/
+
+struct Jp2StreamDeleter {
+  void operator()(opj_stream_t* stream) const { opj_stream_destroy(stream); }
+};
+
+struct Jp2CodecDeleter {
+  void operator()(opj_codec_t* codec) const { opj_destroy_codec(codec); }
+};
+
+struct Jp2ImageDeleter {
+  void operator()(opj_image_t* image) const { opj_image_destroy(image); }
+};
+
+/** Where OpenJPEG writes the file.  Writing a JP2 file seeks back to fill in box lengths. */
+struct Jp2Output {
+  QByteArray data;
+  qint64 pos = 0;
+};
+
+/** Makes the output at least \p size bytes long; new bytes are zero. */
+void jp2Grow(Jp2Output* out, const qint64 size) {
+  const qint64 oldSize = out->data.size();
+  if (size > oldSize) {
+    out->data.resize(static_cast<int>(size));
+    std::memset(out->data.data() + oldSize, 0, static_cast<size_t>(size - oldSize));
+  }
+}
+
+OPJ_SIZE_T jp2Write(void* buffer, const OPJ_SIZE_T size, void* userData) {
+  auto* out = static_cast<Jp2Output*>(userData);
+  const qint64 end = out->pos + static_cast<qint64>(size);
+  jp2Grow(out, end);
+  std::memcpy(out->data.data() + out->pos, buffer, size);
+  out->pos = end;
+  return size;
+}
+
+OPJ_OFF_T jp2Skip(const OPJ_OFF_T bytes, void* userData) {
+  auto* out = static_cast<Jp2Output*>(userData);
+  const qint64 end = out->pos + bytes;
+  if (end < 0) {
+    return -1;
+  }
+  jp2Grow(out, end);
+  out->pos = end;
+  return bytes;
+}
+
+OPJ_BOOL jp2Seek(const OPJ_OFF_T pos, void* userData) {
+  auto* out = static_cast<Jp2Output*>(userData);
+  if (pos < 0) {
+    return OPJ_FALSE;
+  }
+  jp2Grow(out, pos);
+  out->pos = pos;
+  return OPJ_TRUE;
+}
+
+void jp2ErrorHandler(const char* msg, void*) {
+  ImageLoadErrorCapture::addError(QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg).trimmed());
+}
+
+void jp2SilentHandler(const char*, void*) {}
+
+/**
+ * The image quality (PSNR in dB) for a quality value like JPEG's.  The values are chosen
+ * so that JPEG 2000 looks about as good as JPEG with the same value: 85 gives about 42 dB.
+ */
+float jp2Psnr(const int quality) {
+  return 25.0f + static_cast<float>(std::clamp(quality, 10, 99) - 10) * 20.0f / 89.0f;
+}
+
+/**
+ * An encoder holds the whole image several times over, a large colour page takes some
+ * hundred MB.  So only a few encode at the same time, each with a share of the cores.
+ */
+const int kMaxParallelJp2Encodes = 4;
+
+QSemaphore& jp2EncodeSlots() {
+  static QSemaphore semaphore(kMaxParallelJp2Encodes);
+  return semaphore;
+}
+}  // namespace
+
+QByteArray PdfImageEncoder::encodeJpeg2000(const QImage& image, const int quality, int* components) {
+  if (image.isNull()) {
+    return QByteArray();
+  }
+
+  const bool gray = image.isGrayscale();
+  const int numComponents = gray ? 1 : 3;
+  const int width = image.width();
+  const int height = image.height();
+
+  jp2EncodeSlots().acquire();
+  const std::unique_ptr<QSemaphore, void (*)(QSemaphore*)> slot(&jp2EncodeSlots(), [](QSemaphore* s) { s->release(); });
+
+  opj_cparameters_t parameters;
+  opj_set_default_encoder_parameters(&parameters);
+  parameters.tcp_numlayers = 1;
+  if (quality >= 100) {
+    // The reversible wavelet transform without quantization: lossless.
+    parameters.irreversible = 0;
+    parameters.tcp_rates[0] = 0;
+    parameters.cp_disto_alloc = 1;
+  } else {
+    parameters.irreversible = 1;
+    parameters.tcp_distoratio[0] = jp2Psnr(quality);
+    parameters.cp_fixed_quality = 1;
+  }
+  parameters.tcp_mct = (numComponents == 3) ? 1 : 0;
+  // Each resolution level halves the image; very small images allow fewer levels.
+  while ((parameters.numresolution > 1) && ((1 << (parameters.numresolution - 1)) > std::min(width, height))) {
+    --parameters.numresolution;
+  }
+
+  std::unique_ptr<opj_image_t, Jp2ImageDeleter> jp2Image;
+  {
+    const QImage src = image.convertToFormat(gray ? QImage::Format_Grayscale8 : QImage::Format_RGB888);
+    std::vector<opj_image_cmptparm_t> componentParameters(numComponents);
+    for (opj_image_cmptparm_t& p : componentParameters) {
+      std::memset(&p, 0, sizeof(p));
+      p.dx = 1;
+      p.dy = 1;
+      p.w = static_cast<OPJ_UINT32>(width);
+      p.h = static_cast<OPJ_UINT32>(height);
+      p.prec = 8;
+      p.sgnd = 0;
+    }
+    jp2Image.reset(opj_image_create(static_cast<OPJ_UINT32>(numComponents), componentParameters.data(),
+                                    gray ? OPJ_CLRSPC_GRAY : OPJ_CLRSPC_SRGB));
+    if (!jp2Image) {
+      return QByteArray();
+    }
+    jp2Image->x0 = 0;
+    jp2Image->y0 = 0;
+    jp2Image->x1 = static_cast<OPJ_UINT32>(width);
+    jp2Image->y1 = static_cast<OPJ_UINT32>(height);
+    for (int y = 0; y < height; ++y) {
+      const uchar* line = src.constScanLine(y);
+      const qsizetype rowStart = static_cast<qsizetype>(y) * width;
+      for (int c = 0; c < numComponents; ++c) {
+        OPJ_INT32* dst = jp2Image->comps[c].data + rowStart;
+        for (int x = 0; x < width; ++x) {
+          dst[x] = line[x * numComponents + c];
+        }
+      }
+    }
+  }
+
+  const std::unique_ptr<opj_codec_t, Jp2CodecDeleter> codec(opj_create_compress(OPJ_CODEC_JP2));
+  if (!codec) {
+    return QByteArray();
+  }
+  opj_set_error_handler(codec.get(), &jp2ErrorHandler, nullptr);
+  opj_set_warning_handler(codec.get(), &jp2SilentHandler, nullptr);
+  opj_set_info_handler(codec.get(), &jp2SilentHandler, nullptr);
+  // Without thread support in OpenJPEG, this fails and it encodes with one thread.
+  opj_codec_set_threads(codec.get(), std::max(1, QThread::idealThreadCount() / kMaxParallelJp2Encodes));
+  if (!opj_setup_encoder(codec.get(), &parameters, jp2Image.get())) {
+    return QByteArray();
+  }
+
+  Jp2Output output;
+  const std::unique_ptr<opj_stream_t, Jp2StreamDeleter> stream(opj_stream_create(OPJ_J2K_STREAM_CHUNK_SIZE, OPJ_FALSE));
+  if (!stream) {
+    return QByteArray();
+  }
+  opj_stream_set_user_data(stream.get(), &output, nullptr);
+  opj_stream_set_write_function(stream.get(), &jp2Write);
+  opj_stream_set_skip_function(stream.get(), &jp2Skip);
+  opj_stream_set_seek_function(stream.get(), &jp2Seek);
+
+  const bool ok = opj_start_compress(codec.get(), jp2Image.get(), stream.get()) && opj_encode(codec.get(), stream.get())
+                  && opj_end_compress(codec.get(), stream.get());
+  if (!ok) {
+    return QByteArray();
+  }
+  *components = numComponents;
+  return output.data;
+}  // PdfImageEncoder::encodeJpeg2000
 
 QRect PdfImageEncoder::contentRect(const QImage& image) {
   if (image.isNull()) {

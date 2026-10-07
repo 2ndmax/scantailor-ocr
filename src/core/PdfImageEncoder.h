@@ -88,6 +88,19 @@ class PdfImageEncoder {
   static QByteArray encodeJpeg(const QImage& image, int quality, int* components);
 
   /**
+   * \brief Encodes an image as JPEG 2000 (a JP2 file, as used by PDF's JPXDecode).
+   *
+   * Gray images are stored with one component, all others as RGB.  To limit the
+   * memory used, only a few images are encoded at the same time; further calls wait.
+   *
+   * \param quality 10 to 100, meant to look about like JPEG with the same value.
+   *        100 is lossless.
+   * \param[out] components 1 or 3, the number of colour components written.
+   * \return The JP2 file, or an empty array on failure.
+   */
+  static QByteArray encodeJpeg2000(const QImage& image, int quality, int* components);
+
+  /**
    * \brief The bounding rectangle of all pixels that are not (almost) white.
    *
    * Returns a null rectangle if the whole image is white.

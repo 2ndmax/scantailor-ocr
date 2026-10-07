@@ -20,7 +20,7 @@ class QIODevice;
  *
  * Pages are written to the device as soon as they are added, so memory usage
  * doesn't grow with the number of pages.  The image data has to be encoded
- * already (CCITT G4, JBIG2 or JPEG), the writer only wraps it into PDF objects.
+ * already, the writer only wraps it into PDF objects.
  *
  * The structure follows the approach of Tesseract's pdfrenderer.cpp: plain
  * objects, a classic cross-reference table and a trailer.  Recognized text is
@@ -33,19 +33,20 @@ class PdfWriter {
 
  public:
   struct Image {
-    enum class Encoding { CCITT_G4, JBIG2, JPEG, RAW, FLATE };
+    enum class Encoding { CCITT_G4, JBIG2, JPEG, JPX, RAW, FLATE };
 
     Encoding encoding = Encoding::JPEG;
     /**
      * CCITT G4 data (0 = white, 1 = black, rows MSB first), JBIG2 segments
-     * (see PdfImageEncoder::encodeJbig2), a complete JPEG file, or for RAW
+     * (see PdfImageEncoder::encodeJbig2), a complete JPEG file, a JP2 file
+     * (JPX, see PdfImageEncoder::encodeJpeg2000), or for RAW
      * the samples (see PdfImageEncoder::rawSamples) and for FLATE the same
      * compressed as a zlib stream (see PdfImageEncoder::deflate).
      */
     QByteArray data;
     int width = 0;
     int height = 0;
-    /** JPEG, RAW and FLATE: 1 for grayscale, 3 for RGB.  Not used for palette images. */
+    /** JPEG, JPX, RAW and FLATE: 1 for grayscale, 3 for RGB.  Not used for palette images. */
     int components = 1;
     /** RAW and FLATE: 1, 2, 4 or 8.  G4 and JBIG2 images are always 1 bit gray, JPEG images 8 bit. */
     int bitsPerComponent = 8;
@@ -131,6 +132,8 @@ class PdfWriter {
   int m_pagesId = 0;
   /** The Type0 font of the text layer; 0 until it's written. */
   int m_fontId = 0;
+  /** Set once an image needs PDF 1.5 (JPEG 2000). */
+  bool m_usesPdf15 = false;
   QString m_producer;
   bool m_ok = true;
 };

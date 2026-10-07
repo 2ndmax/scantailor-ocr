@@ -60,17 +60,23 @@ The changes were developed with the help of Claude (Anthropic).
   * All other pages are stored as JPEG. Mixed pages without split output get a warning, as they
     make the PDF much larger.
 * The panel **PDF compression** has a part for each kind of page:
-  * *Color and grayscale* (also the pictures of split pages): JPEG (default), Deflate or None,
-    the quality for JPEG and the resolution of the pictures of split pages.
-  * *Posterized pages* (also posterized pictures of split pages): Deflate (default), JPEG or
-    None, and the quality for JPEG. Posterized grayscale pages can't be told apart from other
-    grayscale pages and follow *Color and grayscale*.
+  * *Color and grayscale* (also the pictures of split pages): JPEG (default), **JPEG 2000**,
+    Deflate or None, the quality and the resolution of the pictures of split pages.
+  * *Posterized pages* (also posterized pictures of split pages): Deflate (default), JPEG,
+    JPEG 2000 or None, and the quality. Posterized grayscale pages can't be told apart from
+    other grayscale pages and follow *Color and grayscale*.
   * *Black and white* (also the text of split pages): JBIG2 (default), CCITT G4, Deflate or None.
 
-  Deflate and None are lossless; Deflate uses PNG predictors for photos. The quality fields are
-  greyed out unless JPEG is chosen. The page tiles show the method each page will get. To keep
-  memory use in bounds with large uncompressed pages, at most 512 MB of prepared pages wait for
-  being written.
+  Deflate and None are lossless; Deflate uses PNG predictors for photos. The quality (10 to 100)
+  applies to JPEG and JPEG 2000 and is greyed out for the other methods. The page tiles show the
+  method each page will get. To keep memory use in bounds with large uncompressed pages, at most
+  512 MB of prepared pages wait for being written.
+* **JPEG 2000** is encoded with [OpenJPEG](https://www.openjpeg.org/), which the program already
+  uses for reading JPEG 2000 scans. A quality value is meant to look about like JPEG with the
+  same value (it's mapped to a target PSNR), and 100 is lossless. JPEG 2000 makes smaller files
+  or better pictures than JPEG, but takes much longer, and some simple or old PDF programs can't
+  show it; a PDF with JPEG 2000 states PDF version 1.5. To limit memory use, at most four images
+  are encoded at the same time, each with a share of the processor cores.
 * **JBIG2** makes black and white pages about a third smaller than CCITT G4, with exactly the
   same pixels. Only JBIG2's lossless "generic region" coding is used, never the symbol mode
   that stores similar-looking letters only once and can swap characters (such as 6 and 8).

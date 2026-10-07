@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <ImageLoadErrors.h>
+#include <Jp2Reader.h>
 #include <PdfExportJob.h>
 #include <PdfExportPage.h>
 #include <PdfImageEncoder.h>
@@ -595,6 +596,91 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page_with_palette_picture) {
   BOOST_CHECK(text.encoding == PdfWriter::Image::Encoding::FLATE);
   BOOST_CHECK(text.isMask);
   BOOST_CHECK_EQUAL(text.bitsPerComponent, 1);
+}
+
+BOOST_AUTO_TEST_CASE(test_jpeg2000) {
+  // A photo-like image, so that the quality makes a difference.
+  QImage rgb(96, 64, QImage::Format_RGB32);
+  for (int y = 0; y < rgb.height(); ++y) {
+    for (int x = 0; x < rgb.width(); ++x) {
+      rgb.setPixel(x, y, qRgb((x * 37 + y * 11) & 255, (x * 13 ^ y * 29) & 255, (x * y) & 255));
+    }
+  }
+  const QImage gray = rgb.convertToFormat(QImage::Format_Grayscale8);
+  auto decode = [](const QByteArray& jp2) {
+    QBuffer buffer;
+    buffer.setData(jp2);
+    buffer.open(QIODevice::ReadOnly);
+    return Jp2Reader::readImage(buffer);
+  };
+  const QByteArray jp2Signature = QByteArray::fromHex("0000000c6a5020200d0a870a");
+
+  // 100 is lossless.
+  int components = 0;
+  QByteArray data = PdfImageEncoder::encodeJpeg2000(rgb, 100, &components);
+  BOOST_REQUIRE(data.startsWith(jp2Signature));
+  BOOST_CHECK_EQUAL(components, 3);
+  QImage decoded = decode(data);
+  BOOST_REQUIRE(decoded.size() == rgb.size());
+  BOOST_CHECK(decoded.convertToFormat(QImage::Format_RGB32) == rgb);
+
+  data = PdfImageEncoder::encodeJpeg2000(gray, 100, &components);
+  BOOST_REQUIRE(!data.isEmpty());
+  BOOST_CHECK_EQUAL(components, 1);
+  decoded = decode(data);
+  BOOST_REQUIRE(decoded.size() == gray.size());
+  BOOST_CHECK(decoded.convertToFormat(QImage::Format_Grayscale8) == gray);
+
+  // Lower quality makes smaller files.
+  const QByteArray low = PdfImageEncoder::encodeJpeg2000(rgb, 20, &components);
+  const QByteArray high = PdfImageEncoder::encodeJpeg2000(rgb, 90, &components);
+  BOOST_REQUIRE(!low.isEmpty());
+  BOOST_REQUIRE(!high.isEmpty());
+  BOOST_CHECK(low.size() < high.size());
+  BOOST_CHECK(high.size() < PdfImageEncoder::encodeJpeg2000(rgb, 100, &components).size());
+
+  // Tiny images work, too.
+  BOOST_CHECK(!PdfImageEncoder::encodeJpeg2000(QImage(1, 1, QImage::Format_RGB32), 85, &components).isEmpty());
+}
+
+BOOST_AUTO_TEST_CASE(test_prepare_jpeg2000_page) {
+  QTemporaryDir dir;
+  const QString grayFile = dir.filePath("gray.tif");
+  BOOST_REQUIRE(writeLosslessTiff(grayFile, makeGray(40, 30, 300)));
+  PdfExportPage page(grayFile, QString(), QString(), false);
+  page.analyze();
+
+  PdfExportOptions options;
+  options.colorCompression = PdfCompression::JPEG2000;
+  PdfWriter::Page result;
+  QStringList errors;
+  BOOST_REQUIRE(PdfExportJob::preparePage(page, options, &result, &errors));
+  BOOST_REQUIRE_EQUAL(result.images.size(), 1u);
+  BOOST_CHECK(result.images[0].encoding == PdfWriter::Image::Encoding::JPX);
+  BOOST_CHECK_EQUAL(result.images[0].components, 1);
+
+  // JPEG 2000 needs PDF 1.5, which the catalog then states.
+  QBuffer buffer;
+  BOOST_REQUIRE(buffer.open(QIODevice::WriteOnly));
+  PdfWriter writer(buffer);
+  BOOST_REQUIRE(writer.begin());
+  BOOST_REQUIRE(writer.addPage(result));
+  BOOST_REQUIRE(writer.finish());
+  const QByteArray pdf = buffer.data();
+  checkStructure(pdf, 1);
+  BOOST_CHECK(pdf.contains("/ColorSpace /DeviceGray /Filter /JPXDecode /Length "));
+  BOOST_CHECK(pdf.contains("/Version /1.5 >>"));
+
+  // Without JPEG 2000, there is no version in the catalog.
+  options.colorCompression = PdfCompression::JPEG;
+  BOOST_REQUIRE(PdfExportJob::preparePage(page, options, &result, &errors));
+  QBuffer jpegBuffer;
+  BOOST_REQUIRE(jpegBuffer.open(QIODevice::WriteOnly));
+  PdfWriter jpegWriter(jpegBuffer);
+  BOOST_REQUIRE(jpegWriter.begin());
+  BOOST_REQUIRE(jpegWriter.addPage(result));
+  BOOST_REQUIRE(jpegWriter.finish());
+  BOOST_CHECK(!jpegBuffer.data().contains("/Version"));
 }
 
 BOOST_AUTO_TEST_CASE(test_export_job) {

@@ -14,7 +14,7 @@
 #include "PdfWriter.h"
 
 struct PdfExportOptions {
-  /** Grayscale and colour pages and the pictures of split pages: NONE, DEFLATE or JPEG. */
+  /** Grayscale and colour pages and the pictures of split pages: NONE, DEFLATE, JPEG or JPEG2000. */
   PdfCompression colorCompression = PdfCompression::JPEG;
   /** 1 to 100. */
   int colorQuality = 85;
@@ -22,7 +22,7 @@ struct PdfExportOptions {
   int backgroundScale = 2;
   /**
    * Posterized colour pages and pictures of split pages (see PdfImageEncoder::isPalette()):
-   * NONE, DEFLATE or JPEG.
+   * NONE, DEFLATE, JPEG or JPEG2000.
    */
   PdfCompression paletteCompression = PdfCompression::DEFLATE;
   /** 1 to 100. */
