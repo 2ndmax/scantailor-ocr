@@ -106,6 +106,16 @@ static void deviceUnmap(thandle_t, tdata_t, toff_t) {
   // Not implemented.
 }
 
+/** The highest color index used by an 8-bit palette image. */
+static int maxColorIndex(const QImage& image) {
+  int maxIndex = 0;
+  for (int y = 0; y < image.height(); ++y) {
+    const uint8_t* line = image.scanLine(y);
+    maxIndex = std::max(maxIndex, int(*std::max_element(line, line + image.width())));
+  }
+  return maxIndex;
+}
+
 bool TiffWriter::writeImage(const QString& filePath, const QImage& image) {
   TiffReader::installMessageHandlers();
 
@@ -150,7 +160,8 @@ bool TiffWriter::writeImageToFile(const QString& filePath, const QImage& image) 
 
 TiffWriter::Compression TiffWriter::Compression::fromSettings() {
   const ApplicationSettings& settings = ApplicationSettings::getInstance();
-  return {settings.getTiffBwCompression(), settings.getTiffColorCompression(), settings.getTiffJpegQuality()};
+  return {settings.getTiffBwCompression(), settings.getTiffColorCompression(), settings.getTiffJpegQuality(),
+          settings.getTiffPaletteCompression()};
 }
 
 bool TiffWriter::writeImage(QIODevice& device, const QImage& image) {
@@ -247,6 +258,21 @@ void TiffWriter::setCompression(const TiffHandle& tif, const int compression, co
   }
 }
 
+void TiffWriter::setPredictor(const TiffHandle& tif, const int compression) {
+  // Storing the difference to the left neighbour makes smooth pictures compress much better.
+  // Every reader of these methods knows it.  Like the compression, it has to be set first.
+  switch (compression) {
+    case COMPRESSION_LZW:
+    case COMPRESSION_DEFLATE:
+    case COMPRESSION_ADOBE_DEFLATE:
+    case COMPRESSION_LZMA:
+      TIFFSetField(tif.handle(), TIFFTAG_PREDICTOR, uint16_t(PREDICTOR_HORIZONTAL));
+      break;
+    default:
+      break;
+  }
+}
+
 bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif,
                                              const QImage& image,
                                              const Compression& compression) {
@@ -281,12 +307,22 @@ bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif,
   }
 
   if (image.format() == QImage::Format_Indexed8) {
-    int method = compression.color;
-    if ((method == COMPRESSION_JPEG) && (photometric == PHOTOMETRIC_PALETTE)) {
-      // JPEG can't store palette images, such as posterized ones.
-      method = COMPRESSION_LZW;
+    if (photometric == PHOTOMETRIC_PALETTE) {
+      // Palette images, such as posterized ones, have their own setting.
+      int method = compression.palette;
+      if (method == COMPRESSION_JPEG) {
+        // JPEG can't store them.
+        method = COMPRESSION_LZW;
+      }
+      setCompression(tif, method, compression.jpegQuality);
+      // Up to 16 colors fit into 4 bits, which every TIFF reader understands.
+      if (maxColorIndex(image) < 16) {
+        bitsPerSample = 4;
+      }
+    } else {
+      setCompression(tif, compression.color, compression.jpegQuality);
+      setPredictor(tif, compression.color);
     }
-    setCompression(tif, method, compression.jpegQuality);
   } else {
     setCompression(tif, compression.bw, compression.jpegQuality);
   }
@@ -313,7 +349,7 @@ bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif,
   }
 
   if (image.format() == QImage::Format_Indexed8) {
-    return write8bitLines(tif, image);
+    return (bitsPerSample == 4) ? write4bitLines(tif, image) : write8bitLines(tif, image);
   } else {
     if (image.format() == QImage::Format_MonoLSB) {
       return writeBinaryLinesReversed(tif, image);
@@ -328,6 +364,7 @@ bool TiffWriter::writeRGB32Image(const TiffHandle& tif, const QImage& image, con
 
   TIFFSetField(tif.handle(), TIFFTAG_SAMPLESPERPIXEL, uint16_t(3));
   setCompression(tif, compression.color, compression.jpegQuality);
+  setPredictor(tif, compression.color);
   TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, uint16_t(8));
   if (compression.color == COMPRESSION_JPEG) {
     // The usual form of JPEG in TIFF: brightness and color separately, the color
@@ -371,6 +408,7 @@ bool TiffWriter::writeARGB32Image(const TiffHandle& tif, const QImage& image, co
   // JPEG can't store the alpha channel.
   const int method = (compression.color == COMPRESSION_JPEG) ? COMPRESSION_LZW : compression.color;
   setCompression(tif, method, compression.jpegQuality);
+  setPredictor(tif, method);
   TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, uint16_t(8));
   TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 
@@ -412,6 +450,26 @@ bool TiffWriter::write8bitLines(const TiffHandle& tif, const QImage& image) {
   for (int y = 0; y < height; ++y) {
     const uint8_t* srcLine = image.scanLine(y);
     memcpy(&tmpLine[0], srcLine, tmpLine.size());
+    if (TIFFWriteScanline(tif.handle(), &tmpLine[0], y) == -1) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool TiffWriter::write4bitLines(const TiffHandle& tif, const QImage& image) {
+  const int width = image.width();
+  const int height = image.height();
+
+  // Two pixels per byte, the left one in the high bits.
+  std::vector<uint8_t> tmpLine((width + 1) / 2, 0);
+
+  for (int y = 0; y < height; ++y) {
+    const uint8_t* srcLine = image.scanLine(y);
+    for (int x = 0; x < width; x += 2) {
+      const uint8_t right = (x + 1 < width) ? srcLine[x + 1] : 0;
+      tmpLine[x / 2] = static_cast<uint8_t>((srcLine[x] << 4) | (right & 0x0F));
+    }
     if (TIFFWriteScanline(tif.handle(), &tmpLine[0], y) == -1) {
       return false;
     }

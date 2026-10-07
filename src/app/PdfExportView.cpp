@@ -308,6 +308,11 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
 
   auto* buttons = new QHBoxLayout;
   buttons->addStretch(1);
+  // About what happens after creating, not about the content of the PDF, so next to the button.
+  m_openAfterCreation = new QCheckBox(tr("Open the PDF after creating it"));
+  m_openAfterCreation->setChecked(ApplicationSettings::getInstance().isPdfOpenAfterCreationEnabled());
+  buttons->addWidget(m_openAfterCreation);
+  buttons->addSpacing(12);
   m_cancelButton = new QPushButton(tr("Cancel"));
   m_cancelButton->setVisible(false);
   m_createButton = new QPushButton(tr("Create PDF"));
@@ -333,6 +338,7 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   connect(m_browseButton, &QPushButton::clicked, this, &PdfExportView::browse);
   connect(m_createButton, &QPushButton::clicked, this, &PdfExportView::startExport);
   connect(m_cancelButton, &QPushButton::clicked, this, &PdfExportView::cancelExport);
+  connect(m_openAfterCreation, &QCheckBox::toggled, this, &PdfExportView::saveSettings);
 
   updateControls();
 }
@@ -356,8 +362,10 @@ QWidget* PdfExportView::createOptionsWidget() {
   auto* compressionGroup = new CollapsibleGroupBox(tr("PDF compression"));
   compressionGroup->setObjectName("pdfCompressionPanel");
   auto* optionsLayout = new QFormLayout(compressionGroup);
-  // The options panel is narrow: put the fields below their labels if needed.
-  optionsLayout->setRowWrapPolicy(QFormLayout::WrapLongRows);
+  // All lists start after the longest label and keep their width instead of filling a widened
+  // panel.  The rows don't wrap: the panel is at least as wide as the longest row anyway.
+  optionsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+  optionsLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 
   // The group has a part for each kind of page, each with a bold heading.
   auto addHeading = [optionsLayout](const QString& text, const QString& toolTip, const bool first) {
@@ -409,7 +417,9 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_backgroundScale->setToolTip(
       tr("Resolution of the pictures of pages with split output, relative to the output resolution.  The text "
          "is always stored at full resolution."));
-  optionsLayout->addRow(tr("Resolution of split pages:"), m_backgroundScale);
+  auto* backgroundScaleLabel = new QLabel(tr("Resolution of split pages:"));
+  backgroundScaleLabel->setToolTip(m_backgroundScale->toolTip());
+  optionsLayout->addRow(backgroundScaleLabel, m_backgroundScale);
 
   // Posterized pages.
   addHeading(tr("Posterized pages"),
@@ -447,6 +457,15 @@ QWidget* PdfExportView::createOptionsWidget() {
       tr("All methods are lossless.  JBIG2 makes the smallest files.  CCITT G4 files are about a third larger, but "
          "can be shown by very old PDF programs, too.  Deflate and None make much larger files."));
   optionsLayout->addRow(tr("Method:"), m_bitonalCompression);
+
+  // The lists of the group line up.
+  int listWidth = 0;
+  for (QComboBox* box : {m_colorCompression, m_backgroundScale, m_paletteCompression, m_bitonalCompression}) {
+    listWidth = std::max(listWidth, box->sizeHint().width());
+  }
+  for (QComboBox* box : {m_colorCompression, m_backgroundScale, m_paletteCompression, m_bitonalCompression}) {
+    box->setFixedWidth(listWidth);
+  }
 
   layout->addWidget(compressionGroup);
 
@@ -508,6 +527,7 @@ QWidget* PdfExportView::createOptionsWidget() {
 
   auto* layoutRow = new QFormLayout;
   layoutRow->setRowWrapPolicy(QFormLayout::WrapLongRows);
+  layoutRow->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
   m_pageLayout = new QComboBox;
   m_pageLayout->addItem(tr("Automatic"), static_cast<int>(OcrEngine::AUTOMATIC_LAYOUT));
   m_pageLayout->addItem(tr("Single column"), static_cast<int>(OcrEngine::SINGLE_COLUMN));
@@ -533,12 +553,6 @@ QWidget* PdfExportView::createOptionsWidget() {
   connect(m_languageList, &QListWidget::itemChanged, this, &PdfExportView::saveSettings);
   connect(m_pageLayout, qOverload<int>(&QComboBox::currentIndexChanged), this, &PdfExportView::saveSettings);
 #endif
-
-  // Not about the content of the PDF, so outside the groups.
-  m_openAfterCreation = new QCheckBox(tr("Open the PDF after creating it"));
-  m_openAfterCreation->setChecked(settings.isPdfOpenAfterCreationEnabled());
-  layout->addWidget(m_openAfterCreation);
-  connect(m_openAfterCreation, &QCheckBox::toggled, this, &PdfExportView::saveSettings);
 
   layout->addStretch(1);
   return widget;

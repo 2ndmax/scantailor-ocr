@@ -480,6 +480,9 @@ bool writeTiffWith(const QString& path, const QImage& image, const TiffWriter::C
 struct WrittenTags {
   uint16_t compression = 0;
   uint16_t photometric = 0;
+  uint16_t bitsPerSample = 0;
+  // Without compression, libtiff has no predictor tag at all and reports 0.
+  uint16_t predictor = PREDICTOR_NONE;
 };
 
 WrittenTags readWrittenTags(const QString& path) {
@@ -488,6 +491,11 @@ WrittenTags readWrittenTags(const QString& path) {
   if (tif) {
     TIFFGetField(tif, TIFFTAG_COMPRESSION, &tags.compression);
     TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &tags.photometric);
+    TIFFGetFieldDefaulted(tif, TIFFTAG_BITSPERSAMPLE, &tags.bitsPerSample);
+    TIFFGetFieldDefaulted(tif, TIFFTAG_PREDICTOR, &tags.predictor);
+    if (tags.predictor == 0) {
+      tags.predictor = PREDICTOR_NONE;
+    }
     TIFFClose(tif);
   }
   return tags;
@@ -579,7 +587,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_gray) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_falls_back_to_lzw) {
   QTemporaryDir dir;
-  const TiffWriter::Compression jpeg{COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 85};
+  const TiffWriter::Compression jpeg{COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 85, COMPRESSION_JPEG};
 
   // A palette image, as posterizing produces.  JPEG can't store it.
   QImage palette(40, 30, QImage::Format_Indexed8);
@@ -623,7 +631,11 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_bitonal_compressions) {
     }
   }
 
-  for (const int method : {COMPRESSION_CCITTFAX4, COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_NONE}) {
+  for (const int method :
+       {COMPRESSION_CCITTFAX4, COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_LZMA, COMPRESSION_NONE}) {
+    if (!TIFFIsCODECConfigured(uint16_t(method))) {
+      continue;
+    }
     const QString path = dir.filePath(QStringLiteral("bw_%1.tif").arg(method));
     BOOST_REQUIRE(writeTiffWith(path, image, {method, COMPRESSION_JPEG, 85}));
     BOOST_CHECK_EQUAL(readWrittenTags(path).compression, method);
@@ -632,6 +644,100 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_bitonal_compressions) {
     BOOST_CHECK_EQUAL(grayAt(readBack, 10, 10), 0);
     BOOST_CHECK_EQUAL(grayAt(readBack, 30, 10), 255);
   }
+}
+
+QImage makePaletteImage(const int numColors) {
+  QImage image(41, 30, QImage::Format_Indexed8);
+  image.setColorCount(numColors);
+  for (int i = 0; i < numColors; ++i) {
+    image.setColor(i, qRgb((i * 53) & 255, (i * 97) & 255, 255 - i * 7));
+  }
+  for (int y = 0; y < image.height(); ++y) {
+    for (int x = 0; x < image.width(); ++x) {
+      image.scanLine(y)[x] = static_cast<uint8_t>((x + y) % numColors);
+    }
+  }
+  return image;
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_writer_palette_compression_and_depth) {
+  QTemporaryDir dir;
+  // The palette setting applies, not the one for color.  An odd width tests the last half byte.
+  for (const int method : {COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_LZMA, COMPRESSION_NONE}) {
+    if (!TIFFIsCODECConfigured(uint16_t(method))) {
+      continue;
+    }
+    for (const int numColors : {3, 16, 17}) {
+      const QImage image = makePaletteImage(numColors);
+      const QString path = dir.filePath(QStringLiteral("palette_%1_%2.tif").arg(method).arg(numColors));
+      BOOST_REQUIRE(writeTiffWith(path, image, {COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 85, method}));
+      const WrittenTags tags = readWrittenTags(path);
+      BOOST_CHECK_EQUAL(tags.compression, method);
+      BOOST_CHECK_EQUAL(tags.photometric, PHOTOMETRIC_PALETTE);
+      BOOST_CHECK_EQUAL(tags.bitsPerSample, (numColors <= 16) ? 4 : 8);
+      BOOST_CHECK_EQUAL(tags.predictor, PREDICTOR_NONE);
+
+      const QImage readBack = readTiff(path);
+      BOOST_REQUIRE(!readBack.isNull());
+      for (const QPoint& p : {QPoint(0, 0), QPoint(1, 0), QPoint(40, 0), QPoint(40, 29), QPoint(17, 11)}) {
+        BOOST_CHECK(readBack.pixel(p) == image.pixel(p));
+      }
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_writer_predictor) {
+  QTemporaryDir dir;
+  QImage color(64, 40, QImage::Format_RGB32);
+  for (int y = 0; y < color.height(); ++y) {
+    for (int x = 0; x < color.width(); ++x) {
+      color.setPixel(x, y, qRgb(x * 4, y * 6, (x * y) & 255));
+    }
+  }
+  QImage gray(64, 40, QImage::Format_Indexed8);
+  gray.setColorCount(256);
+  for (int i = 0; i < 256; ++i) {
+    gray.setColor(i, qRgb(i, i, i));
+  }
+  for (int y = 0; y < gray.height(); ++y) {
+    for (int x = 0; x < gray.width(); ++x) {
+      gray.scanLine(y)[x] = static_cast<uint8_t>(x * 3 + y);
+    }
+  }
+
+  for (const int method : {COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_LZMA, COMPRESSION_NONE}) {
+    if (!TIFFIsCODECConfigured(uint16_t(method))) {
+      continue;
+    }
+    const uint16_t expectedPredictor = (method == COMPRESSION_NONE) ? PREDICTOR_NONE : PREDICTOR_HORIZONTAL;
+
+    const QString colorPath = dir.filePath(QStringLiteral("color_%1.tif").arg(method));
+    BOOST_REQUIRE(writeTiffWith(colorPath, color, {COMPRESSION_CCITTFAX4, method, 85}));
+    BOOST_CHECK_EQUAL(readWrittenTags(colorPath).predictor, expectedPredictor);
+    const QImage colorBack = readTiff(colorPath);
+    BOOST_REQUIRE(!colorBack.isNull());
+    BOOST_CHECK(colorBack.pixel(37, 21) == color.pixel(37, 21));
+    BOOST_CHECK(colorBack.pixel(63, 39) == color.pixel(63, 39));
+
+    const QString grayPath = dir.filePath(QStringLiteral("gray_%1.tif").arg(method));
+    BOOST_REQUIRE(writeTiffWith(grayPath, gray, {COMPRESSION_CCITTFAX4, method, 85}));
+    const WrittenTags grayTags = readWrittenTags(grayPath);
+    BOOST_CHECK_EQUAL(grayTags.photometric, PHOTOMETRIC_MINISBLACK);
+    BOOST_CHECK_EQUAL(grayTags.predictor, expectedPredictor);
+    const QImage grayBack = readTiff(grayPath);
+    BOOST_REQUIRE(!grayBack.isNull());
+    BOOST_CHECK_EQUAL(grayAt(grayBack, 37, 21), 37 * 3 + 21);
+  }
+
+  // Not for black and white images.
+  QImage bw(40, 30, QImage::Format_Mono);
+  bw.setColorCount(2);
+  bw.setColor(0, qRgb(255, 255, 255));
+  bw.setColor(1, qRgb(0, 0, 0));
+  bw.fill(0);
+  const QString bwPath = dir.filePath("bw_lzw.tif");
+  BOOST_REQUIRE(writeTiffWith(bwPath, bw, {COMPRESSION_LZW, COMPRESSION_LZW, 85}));
+  BOOST_CHECK_EQUAL(readWrittenTags(bwPath).predictor, PREDICTOR_NONE);
 }
 
 BOOST_AUTO_TEST_CASE(test_compression_names) {

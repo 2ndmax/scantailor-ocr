@@ -216,6 +216,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   ConnectionManager m_connectionManager;
   QComboBox* m_tiffColorCompression = nullptr;
   QSpinBox* m_tiffJpegQuality = nullptr;
+  QComboBox* m_tiffPaletteCompression = nullptr;
   QComboBox* m_tiffBwCompression = nullptr;
 };
 }  // namespace output

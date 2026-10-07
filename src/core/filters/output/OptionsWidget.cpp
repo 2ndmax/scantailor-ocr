@@ -7,6 +7,7 @@
 #include <tiff.h>
 
 #include <QButtonGroup>
+#include <QCoreApplication>
 #include <QFormLayout>
 #include <QIntValidator>
 #include <QLineEdit>
@@ -16,6 +17,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "../../SectionHeading.h"
 #include "../../Utils.h"
 #include "ApplyColorsDialog.h"
 #include "FillZoneComparator.h"
@@ -134,40 +136,96 @@ void OptionsWidget::setupTiffCompressionPanel() {
          "current page right away, the other pages during the next batch processing.  Other projects keep their "
          "files until their pages are processed again."));
   auto* layout = new QFormLayout(group);
-  // The options panel is narrow: put the fields below their labels if needed.
-  layout->setRowWrapPolicy(QFormLayout::WrapLongRows);
+  // The lists keep their width instead of filling a widened panel, as in the PDF step.
+  layout->setRowWrapPolicy(QFormLayout::DontWrapRows);
+  layout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 
+  // A part for each kind of page, each with a bold heading.
+  auto addHeading = [layout](const QString& text, const QString& toolTip, const bool first) {
+    auto* heading = new SectionHeading(text);
+    heading->setToolTip(toolTip);
+    heading->setFirst(first);
+    layout->addRow(heading);
+  };
+  // A stored value that isn't offered falls back to the default, as the writer would get it.
+  auto selectData = [](QComboBox* box, const int value, const int defaultValue) {
+    int index = box->findData(value);
+    if (index < 0) {
+      index = box->findData(defaultValue);
+    }
+    box->setCurrentIndex(std::max(0, index));
+  };
+  const QString lzmaNote = tr(
+      "LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program "
+      "and its PDF export can.");
+
+  // Color and grayscale.
+  addHeading(tr("Color and grayscale"),
+             tr("Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split "
+                "output."),
+             true);
   m_tiffColorCompression = new QComboBox;
   m_tiffColorCompression->addItem(tr("None"), COMPRESSION_NONE);
   m_tiffColorCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
   m_tiffColorCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
+  m_tiffColorCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
   m_tiffColorCompression->addItem(QStringLiteral("JPEG"), COMPRESSION_JPEG);
-  m_tiffColorCompression->setCurrentIndex(
-      std::max(0, m_tiffColorCompression->findData(settings.getTiffColorCompression())));
+  selectData(m_tiffColorCompression, settings.getTiffColorCompression(), COMPRESSION_LZW);
   m_tiffColorCompression->setToolTip(
-      tr("Compression of color and grayscale pages and of the pictures of pages with split output.  None, LZW and "
-         "Deflate are lossless; Deflate usually gives the smallest files of them.  JPEG gives much smaller files, "
-         "but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split "
-         "output the text gets blurred.  Posterized pages are stored with LZW instead of JPEG."));
-  layout->addRow(tr("Color and grayscale:"), m_tiffColorCompression);
+      tr("All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.") + QStringLiteral("  ")
+      + lzmaNote + QStringLiteral("  ")
+      + tr("JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and "
+           "on mixed pages without split output the text gets blurred."));
+  auto* colorMethodLabel = new QLabel(tr("Method:"));
+  // The label column is as wide as in the PDF compression panel, whose longest label is this one,
+  // so the lists stand at the same place in both steps.
+  colorMethodLabel->setMinimumWidth(colorMethodLabel->fontMetrics().horizontalAdvance(
+      QCoreApplication::translate("PdfExportView", "Resolution of split pages:")));
+  layout->addRow(colorMethodLabel, m_tiffColorCompression);
 
   m_tiffJpegQuality = new QSpinBox;
   m_tiffJpegQuality->setRange(10, 100);
   m_tiffJpegQuality->setValue(settings.getTiffJpegQuality());
   m_tiffJpegQuality->setToolTip(
       tr("Higher values give better pictures and larger files.  Only used with JPEG compression."));
-  layout->addRow(tr("JPEG quality:"), m_tiffJpegQuality);
+  layout->addRow(tr("Quality:"), m_tiffJpegQuality);
 
+  // Posterized pages.
+  addHeading(tr("Posterized pages"),
+             tr("Color pages that were posterized, and posterized pictures of pages with split output.  Posterized "
+                "grayscale pages can't be told apart from other grayscale pages; they follow \"Color and "
+                "grayscale\"."),
+             false);
+  m_tiffPaletteCompression = new QComboBox;
+  m_tiffPaletteCompression->addItem(tr("None"), COMPRESSION_NONE);
+  m_tiffPaletteCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
+  m_tiffPaletteCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
+  m_tiffPaletteCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
+  selectData(m_tiffPaletteCompression, settings.getTiffPaletteCompression(), COMPRESSION_LZW);
+  m_tiffPaletteCompression->setToolTip(tr("All methods are lossless.") + QStringLiteral("  ") + lzmaNote);
+  layout->addRow(tr("Method:"), m_tiffPaletteCompression);
+
+  // Black and white.
+  addHeading(tr("Black and white"), tr("Black and white pages and the text of pages with split output."), false);
   m_tiffBwCompression = new QComboBox;
   m_tiffBwCompression->addItem(tr("None"), COMPRESSION_NONE);
   m_tiffBwCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
   m_tiffBwCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
+  m_tiffBwCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
   m_tiffBwCompression->addItem(QStringLiteral("CCITT G4"), COMPRESSION_CCITTFAX4);
-  m_tiffBwCompression->setCurrentIndex(std::max(0, m_tiffBwCompression->findData(settings.getTiffBwCompression())));
-  m_tiffBwCompression->setToolTip(
-      tr("Compression of black and white pages and of the text of pages with split output.  All methods are "
-         "lossless; CCITT G4 gives the smallest files."));
-  layout->addRow(tr("Black and white:"), m_tiffBwCompression);
+  selectData(m_tiffBwCompression, settings.getTiffBwCompression(), COMPRESSION_CCITTFAX4);
+  m_tiffBwCompression->setToolTip(tr("All methods are lossless; CCITT G4 usually gives the smallest files.")
+                                  + QStringLiteral("  ") + lzmaNote);
+  layout->addRow(tr("Method:"), m_tiffBwCompression);
+
+  // The lists of the three parts line up.
+  int listWidth = 0;
+  for (QComboBox* box : {m_tiffColorCompression, m_tiffPaletteCompression, m_tiffBwCompression}) {
+    listWidth = std::max(listWidth, box->sizeHint().width());
+  }
+  for (QComboBox* box : {m_tiffColorCompression, m_tiffPaletteCompression, m_tiffBwCompression}) {
+    box->setFixedWidth(listWidth);
+  }
 
   m_tiffJpegQuality->setEnabled(m_tiffColorCompression->currentData().toInt() == COMPRESSION_JPEG);
 
@@ -177,6 +235,8 @@ void OptionsWidget::setupTiffCompressionPanel() {
   connect(m_tiffColorCompression, qOverload<int>(&QComboBox::currentIndexChanged), this,
           [this]() { tiffCompressionChanged(false); });
   connect(m_tiffJpegQuality, qOverload<int>(&QSpinBox::valueChanged), this, [this]() { tiffCompressionChanged(true); });
+  connect(m_tiffPaletteCompression, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          [this]() { tiffCompressionChanged(false); });
   connect(m_tiffBwCompression, qOverload<int>(&QComboBox::currentIndexChanged), this,
           [this]() { tiffCompressionChanged(false); });
 }
@@ -185,12 +245,15 @@ void OptionsWidget::tiffCompressionChanged(const bool delayReload) {
   ApplicationSettings& settings = ApplicationSettings::getInstance();
   const int color = m_tiffColorCompression->currentData().toInt();
   const int quality = m_tiffJpegQuality->value();
+  const int palette = m_tiffPaletteCompression->currentData().toInt();
   const int bw = m_tiffBwCompression->currentData().toInt();
 
-  const bool changed = (color != settings.getTiffColorCompression()) || (bw != settings.getTiffBwCompression())
+  const bool changed = (color != settings.getTiffColorCompression())
+                       || (palette != settings.getTiffPaletteCompression()) || (bw != settings.getTiffBwCompression())
                        || ((color == COMPRESSION_JPEG) && (quality != settings.getTiffJpegQuality()));
   settings.setTiffColorCompression(color);
   settings.setTiffJpegQuality(quality);
+  settings.setTiffPaletteCompression(palette);
   settings.setTiffBwCompression(bw);
   m_tiffJpegQuality->setEnabled(color == COMPRESSION_JPEG);
   if (!changed) {

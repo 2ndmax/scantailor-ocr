@@ -234,10 +234,21 @@ from working:
 ### Output: TIFF compression
 
 * The compression of the output TIFF files moved from the settings window to a new panel
-  **TIFF compression** at the bottom of the output options: *Color and grayscale* (None, LZW,
-  Deflate, JPEG), *JPEG quality* (new, default 85) and *Black and white* (None, LZW, Deflate,
-  CCITT G4). Like the PDF options, they apply to all projects, are saved as soon as they are
-  changed and are not stored in the project file. Previously chosen values are kept.
+  **TIFF compression** at the bottom of the output options, with a part for each kind of page
+  like the PDF compression:
+  * *Color and grayscale*: None, LZW (default), Deflate, LZMA or JPEG, and the JPEG quality
+    (default 85).
+  * *Posterized pages* (palette images, new setting): None, LZW (default), Deflate or LZMA.
+    Before, they followed the color setting.
+  * *Black and white*: None, LZW, Deflate, LZMA or CCITT G4 (default).
+
+  Like the PDF options, they apply to all projects, are saved as soon as they are changed and
+  are not stored in the project file. Previously chosen values are kept.
+* **LZMA** makes the smallest lossless files, but is slow, and few other programs can read it;
+  this program and its PDF export can.
+* Smaller files without a setting: grayscale and color pages compressed with LZW, Deflate or
+  LZMA use the horizontal *predictor* (smaller files with smooth pictures, readable everywhere), and
+  posterized pages with up to 16 colors are stored with 4 bits per pixel instead of 8.
 * After a change, the output of the open project is created again: the current page right away,
   the other pages during the next batch processing. Other projects keep their files until their
   pages are processed again.
@@ -247,8 +258,8 @@ from working:
 * Color JPEG is stored in YCbCr, the usual form of JPEG in TIFF, instead of RGB, which makes the
   files much smaller at the same quality.
 * **Fixed:** posterized pages (palette images) couldn't be written with JPEG compression, as JPEG
-  can't store palette images. They are stored with LZW instead, as are images with an alpha
-  channel.
+  can't store palette images. They have their own setting now, without JPEG; images with an
+  alpha channel are stored with LZW instead of JPEG.
 * The PDF export compresses the pages itself, so these options don't change the PDF – except
   that JPEG-compressed TIFF files lose quality before they reach the PDF.
 
@@ -279,6 +290,9 @@ from working:
 * All "apply to other pages" dialogs offer the same seven choices, also in the Output step
   (formerly four there), and those that apply only some of the settings list them below the
   choice of pages under "Apply parameters".
+* *Create PDF*: "Open the PDF after creating it" sits next to the **Create PDF** button, as it
+  concerns creating rather than the content of the PDF. The lists of the compression panels
+  (also of *TIFF compression*) keep their width and line up instead of filling a widened panel.
 * Nothing changes in the processing or in the project file.
 
 ### Zone editors (picture zones and fill zones)

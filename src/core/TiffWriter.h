@@ -20,10 +20,12 @@ class TiffWriter {
   struct Compression {
     /** For black and white images. */
     int bw;
-    /** For grayscale, color and palette images. */
+    /** For grayscale and color images. */
     int color;
     /** For JPEG compression, 1 to 100. */
     int jpegQuality;
+    /** For palette images, such as posterized pages. */
+    int palette = COMPRESSION_LZW;
 
     /** The compression set by the user. */
     static Compression fromSettings();
@@ -57,6 +59,10 @@ class TiffWriter {
    *
    * Palette images and images with an alpha channel can't be stored as JPEG; they are
    * stored with LZW instead.  Color images are stored as JPEG in YCbCr.
+   *
+   * Grayscale and color images compressed with LZW, Deflate or LZMA use the horizontal
+   * predictor, which makes them smaller.  Palette images with up to 16 colors are stored
+   * with 4 bits per pixel.
    */
   static bool writeImage(QIODevice& device, const QImage& image, const Compression& compression);
 
@@ -69,6 +75,9 @@ class TiffWriter {
 
   static void setCompression(const TiffHandle& tif, int compression, int jpegQuality);
 
+  /** For 8-bit samples: sets the horizontal predictor if the compression benefits from it. */
+  static void setPredictor(const TiffHandle& tif, int compression);
+
   static bool writeBitonalOrIndexed8Image(const TiffHandle& tif, const QImage& image, const Compression& compression);
 
   static bool writeRGB32Image(const TiffHandle& tif, const QImage& image, const Compression& compression);
@@ -76,6 +85,8 @@ class TiffWriter {
   static bool writeARGB32Image(const TiffHandle& tif, const QImage& image, const Compression& compression);
 
   static bool write8bitLines(const TiffHandle& tif, const QImage& image);
+
+  static bool write4bitLines(const TiffHandle& tif, const QImage& image);
 
   static bool writeBinaryLinesAsIs(const TiffHandle& tif, const QImage& image);
 
