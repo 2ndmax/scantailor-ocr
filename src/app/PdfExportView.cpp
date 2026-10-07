@@ -782,7 +782,12 @@ void PdfExportView::startExport() {
     QMessageBox::warning(this, title, tr("%1 is a folder.").arg(QDir::toNativeSeparators(path)));
     return;
   }
-  if (fileInfo.exists() && (path != m_overwriteConfirmed)) {
+  // The confirmation of the file dialog only counts for the PDF created right after it.
+  // Each further time an existing file is asked about again, even if this view created it:
+  // it may have been changed outside the program since.
+  const bool confirmedInDialog = (path == m_overwriteConfirmed);
+  m_overwriteConfirmed.clear();
+  if (fileInfo.exists() && !confirmedInDialog) {
     const QMessageBox::StandardButton answer = QMessageBox::question(
         this, title, tr("The file %1 already exists.\nDo you want to replace it?").arg(QDir::toNativeSeparators(path)),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
@@ -892,8 +897,6 @@ void PdfExportView::exportFinished() {
   if (job->succeeded()) {
     const QString size = QLocale().formattedDataSize(QFileInfo(m_runningFile).size());
     m_statusLabel->setText(tr("The PDF was created: %1 (%2)").arg(nativePath, size));
-    // Creating it again shouldn't ask about replacing our own file.
-    m_overwriteConfirmed = m_runningFile;
     if (m_openAfterCreation->isChecked()) {
       QDesktopServices::openUrl(QUrl::fromLocalFile(m_runningFile));
     }

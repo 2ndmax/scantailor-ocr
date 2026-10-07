@@ -85,7 +85,10 @@ The changes were developed with the help of Claude (Anthropic).
   very old PDF programs.
 * The compression options and "open the PDF after creating it" are kept as program settings,
   saved as soon as they are changed. By default
-  the PDF is saved next to the project file and named after it.
+  the PDF is saved next to the project file and named after it. Replacing an existing PDF is
+  always confirmed first, also when the program created it before, as it may have been changed
+  since; only right after choosing it in the file dialog, which asked already, there's no
+  second question.
 * Several pages are prepared in parallel, with progress display and cancelling. The PDF is
   written to a temporary file first, so a failed or cancelled export never leaves a broken file
   behind or damages an existing one.
