@@ -4,6 +4,7 @@
 #include "Utils.h"
 
 #include <QDir>
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QTextDocument>
 #include <cmath>
@@ -17,9 +18,31 @@
 #endif
 
 namespace core {
+#ifdef Q_OS_WIN
+namespace {
+/**
+ * The path in the form that lets the Windows API handle more than MAX_PATH (260) characters,
+ * whether or not long paths are enabled in Windows: absolute, with backslashes and "\\?\".
+ */
+std::wstring longWindowsPath(const QString& path) {
+  QString native = QDir::toNativeSeparators(QDir::cleanPath(QFileInfo(path).absoluteFilePath()));
+  if (native.startsWith(QLatin1String("\\\\?\\"))) {
+    return native.toStdWString();
+  }
+  if (native.startsWith(QLatin1String("\\\\"))) {
+    // A network path: \\server\share\... becomes \\?\UNC\server\share\...
+    native = QLatin1String("\\\\?\\UNC\\") + native.mid(2);
+  } else {
+    native = QLatin1String("\\\\?\\") + native;
+  }
+  return native.toStdWString();
+}
+}  // namespace
+#endif
+
 bool Utils::overwritingRename(const QString& from, const QString& to) {
 #ifdef Q_OS_WIN
-  return MoveFileExW((WCHAR*) from.utf16(), (WCHAR*) to.utf16(), MOVEFILE_REPLACE_EXISTING) != 0;
+  return MoveFileExW(longWindowsPath(from).c_str(), longWindowsPath(to).c_str(), MOVEFILE_REPLACE_EXISTING) != 0;
 #else
   return rename(QFile::encodeName(from).data(), QFile::encodeName(to).data()) == 0;
 #endif

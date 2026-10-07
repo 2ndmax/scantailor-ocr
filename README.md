@@ -286,6 +286,10 @@ from working:
 
 ### Correctness and robustness
 
+* **Fixed outdated thumbnails** on Windows when the path of a thumbnail is longer than 260
+  characters, as with pages whose names grew with each scan inserted after them: the new
+  thumbnail couldn't replace the old one, which then kept being shown, also in the PDF step.
+  Replacing files now works with long paths, which also applies to saving the project file.
 * Radio buttons are round in the light and dark color schemes at every font size. With the
   usual Windows font size, unselected ones were drawn as squares: after rounding the size to
   whole pixels, the corner radius was slightly more than half of it, and Qt then drops it.

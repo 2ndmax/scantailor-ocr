@@ -40,6 +40,7 @@ class Utils {
 
   /**
    * Unlike QFile::rename(), this one overwrites existing files.
+   * On Windows, it also works with paths longer than 260 characters.
    */
   static bool overwritingRename(const QString& from, const QString& to);
 

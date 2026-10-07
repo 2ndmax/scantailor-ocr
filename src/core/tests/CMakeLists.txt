@@ -18,7 +18,8 @@ set(sources
     TestOcrLanguages.cpp
     TestSelectContentApply.cpp
     TestSmartFilenameOrdering.cpp
-    TestUnits.cpp)
+    TestUnits.cpp
+    TestUtils.cpp)
 
 add_executable(core_tests ${sources})
 target_link_libraries(
