@@ -1927,6 +1927,11 @@ Uruchom przetwarzanie wsadowe w &quot;Wybierz zawartość&quot; lub &quot;Margin
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/PdfExportView.cpp" line="349"/>
+        <source>PDF compression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/PdfExportView.cpp" line="362"/>
         <source>JPEG quality:</source>
         <translation type="unfinished"></translation>
@@ -2049,11 +2054,6 @@ Uruchom przetwarzanie wsadowe w &quot;Wybierz zawartość&quot; lub &quot;Margin
     <message>
         <location filename="../app/PdfExportView.cpp" line="272"/>
         <source>Move the selected pages one place towards the end of the PDF.  Pages can also be moved with drag and drop.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="349"/>
-        <source>Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2558,46 +2558,46 @@ Należy je usunąć z projektu.</translation>
         <translation>Pokaż pytanie dotyczące anulowania zaznaczenia wielu stron</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="339"/>
+        <location filename="../app/SettingsDialog.ui" line="293"/>
         <source>Processing</source>
         <translation>Przetwarzanie</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="374"/>
+        <location filename="../app/SettingsDialog.ui" line="328"/>
         <source>Deviation</source>
         <translation>Odchylenie</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="380"/>
+        <location filename="../app/SettingsDialog.ui" line="334"/>
         <source>Highlight the thumbnails of pages with high deviation</source>
         <translation>Podświetl strony z dużym odchyleniem</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="387"/>
+        <location filename="../app/SettingsDialog.ui" line="341"/>
         <source>Params</source>
         <translation>Parametry</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="402"/>
+        <location filename="../app/SettingsDialog.ui" line="356"/>
         <source>Select content:</source>
         <translation>Wybierz zawartość:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="409"/>
-        <location filename="../app/SettingsDialog.ui" line="432"/>
-        <location filename="../app/SettingsDialog.ui" line="480"/>
+        <location filename="../app/SettingsDialog.ui" line="363"/>
+        <location filename="../app/SettingsDialog.ui" line="386"/>
+        <location filename="../app/SettingsDialog.ui" line="434"/>
         <source>Deviation multiplier: a higher value means lower sensivity.</source>
         <translation>Współczynnik odchylenia: wyższa wartość oznacza niższą czułość.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="425"/>
+        <location filename="../app/SettingsDialog.ui" line="379"/>
         <source>Margins:</source>
         <translation>Marginesy:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="448"/>
-        <location filename="../app/SettingsDialog.ui" line="464"/>
-        <location filename="../app/SettingsDialog.ui" line="496"/>
+        <location filename="../app/SettingsDialog.ui" line="402"/>
+        <location filename="../app/SettingsDialog.ui" line="418"/>
+        <location filename="../app/SettingsDialog.ui" line="450"/>
         <source>The minimum deviation to be highlighted.</source>
         <translation>Podświetl minimalne odchylenie.</translation>
     </message>
@@ -2612,70 +2612,27 @@ Należy je usunąć z projektu.</translation>
         <translation>Język: </translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="279"/>
-        <source>Saving</source>
-        <translation>Zapisywanie</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="287"/>
-        <source>B&amp;W Compression: </source>
-        <translation>Kompresja B&amp;W: </translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="297"/>
-        <source>Color Compression: </source>
-        <translation>Kompresja kolorów: </translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="25"/>
+        <location filename="../app/SettingsDialog.cpp" line="24"/>
         <source>Your hardware / driver don&apos;t provide the necessary features</source>
         <translation>Twój sprzęt/sterownik nie zapewnia niezbędnych funkcji</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="32"/>
+        <location filename="../app/SettingsDialog.cpp" line="31"/>
         <source>Dark</source>
         <translation>Ciemny</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="33"/>
+        <location filename="../app/SettingsDialog.cpp" line="32"/>
         <source>Light</source>
         <translation>Jasny</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="41"/>
-        <location filename="../app/SettingsDialog.cpp" line="47"/>
-        <source>None</source>
-        <translation>Bez kompresji</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="42"/>
-        <location filename="../app/SettingsDialog.cpp" line="48"/>
-        <source>LZW</source>
-        <translation>LZW</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="43"/>
-        <location filename="../app/SettingsDialog.cpp" line="49"/>
-        <source>Deflate</source>
-        <translation>Deflate</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="44"/>
-        <source>CCITT G4</source>
-        <translation>CCITT G4</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="50"/>
-        <source>JPEG</source>
-        <translation>JPEG</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="37"/>
+        <location filename="../app/SettingsDialog.cpp" line="36"/>
         <source>Information</source>
         <translation>Informacja</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="38"/>
+        <location filename="../app/SettingsDialog.cpp" line="37"/>
         <source>ScanTailor need to be restarted to apply the color scheme changes.</source>
         <translation>Aby zastosować motyw, należy ponownie uruchomić program ScanTailor.</translation>
     </message>
@@ -2710,32 +2667,32 @@ Należy je usunąć z projektu.</translation>
         <translation>Rozmiar miniatury w widoku. Wartość domyślna to 250.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="345"/>
+        <location filename="../app/SettingsDialog.ui" line="299"/>
         <source>White on black detection</source>
         <translation>Wykrywanie bieli na czarnym</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="351"/>
+        <location filename="../app/SettingsDialog.ui" line="305"/>
         <source>Auto detect pages with light content on dark background. The corrections to all the auto algorithms are made for such pages.</source>
         <translation>Automatyczne wykrywanie stron z jasną zawartością na ciemnym tle. Dla takich stron wprowadzane są poprawki do wszystkich algorytmów automatycznych.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="354"/>
+        <location filename="../app/SettingsDialog.ui" line="308"/>
         <source>Auto detect light content on dark background</source>
         <translation>Automatyczne wykrywanie jasnej zawartości na ciemnym tle</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="361"/>
+        <location filename="../app/SettingsDialog.ui" line="315"/>
         <source>Whether to use auto detection at the output stage. The wrong result can be changed manually in the output filter options.</source>
         <translation>Czy używać automatycznego wykrywania na stopniu wyjściowym. Błędny wynik można zmienić ręcznie w opcjach filtra wyjściowego.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="364"/>
+        <location filename="../app/SettingsDialog.ui" line="318"/>
         <source>Use auto detection at the output stage</source>
         <translation>Użyj automatycznego wykrywania na etapie wyjściowym</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="34"/>
+        <location filename="../app/SettingsDialog.cpp" line="33"/>
         <source>Native</source>
         <translation>Orginalny</translation>
     </message>
@@ -2745,7 +2702,7 @@ Należy je usunąć z projektu.</translation>
         <translation>Wyświetlanie miniatur w jednej kolumnie</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="395"/>
+        <location filename="../app/SettingsDialog.ui" line="349"/>
         <source>Deskew:</source>
         <translation>Prostowanie:</translation>
     </message>
@@ -3058,12 +3015,12 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>TiffWriter</name>
     <message>
-        <location filename="../core/TiffWriter.cpp" line="116"/>
+        <location filename="../core/TiffWriter.cpp" line="117"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffWriter.cpp" line="125"/>
+        <location filename="../core/TiffWriter.cpp" line="126"/>
         <source>There is no image to write.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3673,138 +3630,184 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="38"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="43"/>
         <source>Black and White</source>
         <translation>Czarno-biały</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="39"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="44"/>
         <source>Color / Grayscale</source>
         <translation>Kolor / szary</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="40"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="45"/>
         <source>Mixed</source>
         <translation>Mieszany</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="42"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="47"/>
         <source>Otsu</source>
         <translation>Otsu</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="43"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="48"/>
         <source>Sauvola</source>
         <translation>Sauvola</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="44"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="49"/>
         <source>Wolf</source>
         <translation>Wolf</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="45"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="50"/>
         <source>Fox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="46"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="51"/>
         <source>Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="47"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="52"/>
         <source>Bradley</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="48"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="53"/>
         <source>Grad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="49"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="54"/>
         <source>EdgePlus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="50"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="55"/>
         <source>BlurDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="51"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="56"/>
         <source>EdgeDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="53"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="58"/>
         <source>Background</source>
         <translation>Tło</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="54"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="59"/>
         <source>White</source>
         <translation>Biały</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="55"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="60"/>
         <source>Black</source>
         <translation>Czarny</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="89"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="94"/>
         <source>Free</source>
         <translation>Luźne</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="90"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
         <source>Rectangular</source>
         <translation>Prostokątny</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="340"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="114"/>
+        <source>TIFF compression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="117"/>
+        <source>Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed separately, so this doesn&apos;t change it.  After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing.  Other projects keep their files until their pages are processed again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="126"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="147"/>
+        <source>None</source>
+        <translation type="unfinished">Bez kompresji</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="133"/>
+        <source>Compression of color and grayscale pages and of the pictures of pages with split output.  None, LZW and Deflate are lossless; Deflate usually gives the smallest files of them.  JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.  Posterized pages are stored with LZW instead of JPEG.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="137"/>
+        <source>Color and grayscale:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="143"/>
+        <source>Higher values give better pictures and larger files.  Only used with JPEG compression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="144"/>
+        <source>JPEG quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="153"/>
+        <source>Compression of black and white pages and of the text of pages with split output.  All methods are lossless; CCITT G4 gives the smallest files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="155"/>
+        <source>Black and white:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="433"/>
         <source>Apply Splitting Settings</source>
         <translation>Zastosuj ustawienia podziału</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="422"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
         <source>Apply Despeckling Level</source>
         <translation>Zastosuj poziom oczyszczania</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="498"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="591"/>
         <source>Apply Depth Perception</source>
         <translation>Zastosuj percepcję głębi</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="88"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="730"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="93"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="823"/>
         <source>Off</source>
         <translation>Wyłączone</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="733"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="826"/>
         <source>Auto</source>
         <translation>Automatyczne</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="736"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="829"/>
         <source>Manual</source>
         <translation>Ręcznie</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="739"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="832"/>
         <source>Marginal</source>
         <translation>Wokół krawędzi</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="749"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="842"/>
         <source>deskew disabled</source>
         <translation>Prostowanie wyłączone</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1044"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1137"/>
         <source>Apply Processing Settings</source>
         <translation>Zastosuj ustawienia przetwarzania</translation>
     </message>
@@ -4109,7 +4112,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation>Korekcja zniekształceń</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="747"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="840"/>
         <source>deskew</source>
         <translation>prostowanie</translation>
     </message>

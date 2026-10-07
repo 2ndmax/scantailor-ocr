@@ -3,7 +3,12 @@
 
 #include "OptionsWidget.h"
 
+#include <core/ApplicationSettings.h>
+#include <tiff.h>
+
+#include <QFormLayout>
 #include <QToolTip>
+#include <algorithm>
 #include <utility>
 
 #include "../../Utils.h"
@@ -95,10 +100,98 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
 
   connect(binarizationOptions, SIGNAL(currentChanged(int)), this, SLOT(updateBinarizationOptionsDisplay(int)));
 
+  setupTiffCompressionPanel();
   setupUiConnections();
 }
 
 OptionsWidget::~OptionsWidget() = default;
+
+void OptionsWidget::setupTiffCompressionPanel() {
+  const ApplicationSettings& settings = ApplicationSettings::getInstance();
+
+  // Built like the compression panel of the PDF step.  Unlike the other panels of this
+  // step, it applies to all pages and projects, so there is no "Apply To ..." button.
+  auto* group = new CollapsibleGroupBox(tr("TIFF compression"));
+  group->setObjectName("tiffCompressionPanel");
+  group->setToolTip(
+      tr("Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed "
+         "separately, so this doesn't change it.  After a change, the output of this project is created again: the "
+         "current page right away, the other pages during the next batch processing.  Other projects keep their "
+         "files until their pages are processed again."));
+  auto* layout = new QFormLayout(group);
+  // The options panel is narrow: put the fields below their labels if needed.
+  layout->setRowWrapPolicy(QFormLayout::WrapLongRows);
+
+  m_tiffColorCompression = new QComboBox;
+  m_tiffColorCompression->addItem(tr("None"), COMPRESSION_NONE);
+  m_tiffColorCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
+  m_tiffColorCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
+  m_tiffColorCompression->addItem(QStringLiteral("JPEG"), COMPRESSION_JPEG);
+  m_tiffColorCompression->setCurrentIndex(
+      std::max(0, m_tiffColorCompression->findData(settings.getTiffColorCompression())));
+  m_tiffColorCompression->setToolTip(
+      tr("Compression of color and grayscale pages and of the pictures of pages with split output.  None, LZW and "
+         "Deflate are lossless; Deflate usually gives the smallest files of them.  JPEG gives much smaller files, "
+         "but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split "
+         "output the text gets blurred.  Posterized pages are stored with LZW instead of JPEG."));
+  layout->addRow(tr("Color and grayscale:"), m_tiffColorCompression);
+
+  m_tiffJpegQuality = new QSpinBox;
+  m_tiffJpegQuality->setRange(10, 100);
+  m_tiffJpegQuality->setValue(settings.getTiffJpegQuality());
+  m_tiffJpegQuality->setToolTip(
+      tr("Higher values give better pictures and larger files.  Only used with JPEG compression."));
+  layout->addRow(tr("JPEG quality:"), m_tiffJpegQuality);
+
+  m_tiffBwCompression = new QComboBox;
+  m_tiffBwCompression->addItem(tr("None"), COMPRESSION_NONE);
+  m_tiffBwCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
+  m_tiffBwCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
+  m_tiffBwCompression->addItem(QStringLiteral("CCITT G4"), COMPRESSION_CCITTFAX4);
+  m_tiffBwCompression->setCurrentIndex(std::max(0, m_tiffBwCompression->findData(settings.getTiffBwCompression())));
+  m_tiffBwCompression->setToolTip(
+      tr("Compression of black and white pages and of the text of pages with split output.  All methods are "
+         "lossless; CCITT G4 gives the smallest files."));
+  layout->addRow(tr("Black and white:"), m_tiffBwCompression);
+
+  m_tiffJpegQuality->setEnabled(m_tiffColorCompression->currentData().toInt() == COMPRESSION_JPEG);
+
+  // At the bottom, above the spacer that pushes the panels up.
+  verticalLayout_3->insertWidget(verticalLayout_3->count() - 1, group);
+
+  connect(m_tiffColorCompression, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          [this]() { tiffCompressionChanged(false); });
+  connect(m_tiffJpegQuality, qOverload<int>(&QSpinBox::valueChanged), this, [this]() { tiffCompressionChanged(true); });
+  connect(m_tiffBwCompression, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          [this]() { tiffCompressionChanged(false); });
+}
+
+void OptionsWidget::tiffCompressionChanged(const bool delayReload) {
+  ApplicationSettings& settings = ApplicationSettings::getInstance();
+  const int color = m_tiffColorCompression->currentData().toInt();
+  const int quality = m_tiffJpegQuality->value();
+  const int bw = m_tiffBwCompression->currentData().toInt();
+
+  const bool changed = (color != settings.getTiffColorCompression()) || (bw != settings.getTiffBwCompression())
+                       || ((color == COMPRESSION_JPEG) && (quality != settings.getTiffJpegQuality()));
+  settings.setTiffColorCompression(color);
+  settings.setTiffJpegQuality(quality);
+  settings.setTiffBwCompression(bw);
+  m_tiffJpegQuality->setEnabled(color == COMPRESSION_JPEG);
+  if (!changed) {
+    return;
+  }
+
+  // The existing output files keep their compression unless they are written again.
+  m_settings->removeAllOutputParams();
+  emit invalidateAllThumbnails();
+  if (delayReload) {
+    // Don't recreate the page for every step of the spin box.
+    m_delayedReloadRequest.start(750);
+  } else {
+    emit reloadRequested();
+  }
+}
 
 void OptionsWidget::preUpdateUI(const PageId& pageId) {
   auto block = m_connectionManager.getScopedBlock();

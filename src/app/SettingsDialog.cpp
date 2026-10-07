@@ -4,7 +4,6 @@
 #include "SettingsDialog.h"
 
 #include <core/ApplicationSettings.h>
-#include <tiff.h>
 
 #include <QtCore/QDir>
 #include <QtWidgets/QMessageBox>
@@ -37,18 +36,6 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
     QMessageBox::information(this, tr("Information"),
                              tr("ScanTailor need to be restarted to apply the color scheme changes."));
   });
-
-  ui.tiffCompressionBWBox->addItem(tr("None"), COMPRESSION_NONE);
-  ui.tiffCompressionBWBox->addItem(tr("LZW"), COMPRESSION_LZW);
-  ui.tiffCompressionBWBox->addItem(tr("Deflate"), COMPRESSION_DEFLATE);
-  ui.tiffCompressionBWBox->addItem(tr("CCITT G4"), COMPRESSION_CCITTFAX4);
-  ui.tiffCompressionBWBox->setCurrentIndex(ui.tiffCompressionBWBox->findData(settings.getTiffBwCompression()));
-
-  ui.tiffCompressionColorBox->addItem(tr("None"), COMPRESSION_NONE);
-  ui.tiffCompressionColorBox->addItem(tr("LZW"), COMPRESSION_LZW);
-  ui.tiffCompressionColorBox->addItem(tr("Deflate"), COMPRESSION_DEFLATE);
-  ui.tiffCompressionColorBox->addItem(tr("JPEG"), COMPRESSION_JPEG);
-  ui.tiffCompressionColorBox->setCurrentIndex(ui.tiffCompressionColorBox->findData(settings.getTiffColorCompression()));
 
   {
     auto* app = static_cast<Application*>(qApp);
@@ -99,8 +86,6 @@ void SettingsDialog::commitChanges() {
   settings.setHighlightDeviationEnabled(ui.highlightDeviationCB->isChecked());
   settings.setColorScheme(ui.colorSchemeBox->currentData().toString());
 
-  settings.setTiffBwCompression(ui.tiffCompressionBWBox->currentData().toInt());
-  settings.setTiffColorCompression(ui.tiffCompressionColorBox->currentData().toInt());
   settings.setLanguage(ui.languageBox->currentData().toString());
 
   settings.setDeskewDeviationCoef(ui.deskewDeviationCoefSB->value());

@@ -13,6 +13,7 @@ const QString ApplicationSettings::DEFAULT_COLOR_SCHEME = "dark";
 const bool ApplicationSettings::DEFAULT_AUTO_SAVE_PROJECT = false;
 const int ApplicationSettings::DEFAULT_TIFF_BW_COMPRESSION = COMPRESSION_CCITTFAX4;
 const int ApplicationSettings::DEFAULT_TIFF_COLOR_COMPRESSION = COMPRESSION_LZW;
+const int ApplicationSettings::DEFAULT_TIFF_JPEG_QUALITY = 85;
 const bool ApplicationSettings::DEFAULT_BLACK_ON_WHITE_DETECTION = true;
 const bool ApplicationSettings::DEFAULT_BLACK_ON_WHITE_DETECTION_OUTPUT = true;
 const bool ApplicationSettings::DEFAULT_HIGHLIGHT_DEVIATION = true;
@@ -36,6 +37,7 @@ const QString ApplicationSettings::AUTO_SAVE_PROJECT_KEY = "auto_save_project";
 const QString ApplicationSettings::COLOR_SCHEME_KEY = "color_scheme";
 const QString ApplicationSettings::TIFF_BW_COMPRESSION_KEY = "bw_compression";
 const QString ApplicationSettings::TIFF_COLOR_COMPRESSION_KEY = "color_compression";
+const QString ApplicationSettings::TIFF_JPEG_QUALITY_KEY = "tiff_jpeg_quality";
 const QString ApplicationSettings::BLACK_ON_WHITE_DETECTION_KEY = "black_on_white_detection";
 const QString ApplicationSettings::BLACK_ON_WHITE_DETECTION_OUTPUT_KEY = "black_on_white_detection_at_output";
 const QString ApplicationSettings::HIGHLIGHT_DEVIATION_KEY = "highlight_deviation";
@@ -131,6 +133,16 @@ int ApplicationSettings::getTiffColorCompression() const {
 
 void ApplicationSettings::setTiffColorCompression(int compression) {
   writeValue(getKey(TIFF_COLOR_COMPRESSION_KEY), compression);
+}
+
+int ApplicationSettings::getTiffJpegQuality() const {
+  bool ok = false;
+  const int v = readValue(getKey(TIFF_JPEG_QUALITY_KEY), DEFAULT_TIFF_JPEG_QUALITY).toInt(&ok);
+  return ok ? qBound(10, v, 100) : DEFAULT_TIFF_JPEG_QUALITY;
+}
+
+void ApplicationSettings::setTiffJpegQuality(const int quality) {
+  writeValue(getKey(TIFF_JPEG_QUALITY_KEY), qBound(10, quality, 100));
 }
 
 bool ApplicationSettings::isBlackOnWhiteDetectionEnabled() const {

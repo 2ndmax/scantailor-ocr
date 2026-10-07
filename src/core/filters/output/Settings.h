@@ -65,6 +65,9 @@ class Settings {
 
   void removeOutputParams(const PageId& pageId);
 
+  /** Makes the output of all pages be created again. */
+  void removeAllOutputParams();
+
   void setOutputParams(const PageId& pageId, const OutputParams& params);
 
   ZoneSet pictureZonesForPage(const PageId& pageId) const;

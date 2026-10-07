@@ -42,6 +42,11 @@ class ApplicationSettings {
 
   void setTiffColorCompression(int compression);
 
+  /** JPEG quality (10 to 100) for TIFF files with JPEG compression. */
+  int getTiffJpegQuality() const;
+
+  void setTiffJpegQuality(int quality);
+
   bool isBlackOnWhiteDetectionEnabled() const;
 
   void setBlackOnWhiteDetectionEnabled(bool enabled);
@@ -171,6 +176,7 @@ class ApplicationSettings {
   static const bool DEFAULT_AUTO_SAVE_PROJECT;
   static const int DEFAULT_TIFF_BW_COMPRESSION;
   static const int DEFAULT_TIFF_COLOR_COMPRESSION;
+  static const int DEFAULT_TIFF_JPEG_QUALITY;
   static const bool DEFAULT_BLACK_ON_WHITE_DETECTION;
   static const bool DEFAULT_BLACK_ON_WHITE_DETECTION_OUTPUT;
   static const bool DEFAULT_HIGHLIGHT_DEVIATION;
@@ -194,6 +200,7 @@ class ApplicationSettings {
   static const QString COLOR_SCHEME_KEY;
   static const QString TIFF_BW_COMPRESSION_KEY;
   static const QString TIFF_COLOR_COMPRESSION_KEY;
+  static const QString TIFF_JPEG_QUALITY_KEY;
   static const QString BLACK_ON_WHITE_DETECTION_KEY;
   static const QString BLACK_ON_WHITE_DETECTION_OUTPUT_KEY;
   static const QString HIGHLIGHT_DEVIATION_KEY;

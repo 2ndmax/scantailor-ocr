@@ -16,6 +16,19 @@ class Dpm;
 
 class TiffWriter {
  public:
+  /** How images are compressed.  The values are libtiff's COMPRESSION_* constants. */
+  struct Compression {
+    /** For black and white images. */
+    int bw;
+    /** For grayscale, color and palette images. */
+    int color;
+    /** For JPEG compression, 1 to 100. */
+    int jpegQuality;
+
+    /** The compression set by the user. */
+    static Compression fromSettings();
+  };
+
   /**
    * \brief Writes a QImage in TIFF format to a file.
    *
@@ -38,6 +51,15 @@ class TiffWriter {
    */
   static bool writeImage(QIODevice& device, const QImage& image);
 
+  /**
+   * \brief Like writeImage(QIODevice&, const QImage&), but with the given compression
+   *        instead of the one set by the user.
+   *
+   * Palette images and images with an alpha channel can't be stored as JPEG; they are
+   * stored with LZW instead.  Color images are stored as JPEG in YCbCr.
+   */
+  static bool writeImage(QIODevice& device, const QImage& image, const Compression& compression);
+
  private:
   class TiffHandle;
 
@@ -45,11 +67,13 @@ class TiffWriter {
 
   static void setDpm(const TiffHandle& tif, const Dpm& dpm);
 
-  static bool writeBitonalOrIndexed8Image(const TiffHandle& tif, const QImage& image);
+  static void setCompression(const TiffHandle& tif, int compression, int jpegQuality);
 
-  static bool writeRGB32Image(const TiffHandle& tif, const QImage& image);
+  static bool writeBitonalOrIndexed8Image(const TiffHandle& tif, const QImage& image, const Compression& compression);
 
-  static bool writeARGB32Image(const TiffHandle& tif, const QImage& image);
+  static bool writeRGB32Image(const TiffHandle& tif, const QImage& image, const Compression& compression);
+
+  static bool writeARGB32Image(const TiffHandle& tif, const QImage& image, const Compression& compression);
 
   static bool write8bitLines(const TiffHandle& tif, const QImage& image);
 

@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QStringList>
 #include <QtCore/QFile>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
@@ -147,7 +148,16 @@ bool TiffWriter::writeImageToFile(const QString& filePath, const QImage& image) 
   return ok;
 }
 
+TiffWriter::Compression TiffWriter::Compression::fromSettings() {
+  const ApplicationSettings& settings = ApplicationSettings::getInstance();
+  return {settings.getTiffBwCompression(), settings.getTiffColorCompression(), settings.getTiffJpegQuality()};
+}
+
 bool TiffWriter::writeImage(QIODevice& device, const QImage& image) {
+  return writeImage(device, image, Compression::fromSettings());
+}
+
+bool TiffWriter::writeImage(QIODevice& device, const QImage& image, const Compression& compression) {
   if (image.isNull()) {
     return false;
   }
@@ -179,13 +189,13 @@ bool TiffWriter::writeImage(QIODevice& device, const QImage& image) {
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
     case QImage::Format_Indexed8:
-      ok = writeBitonalOrIndexed8Image(tif, image);
+      ok = writeBitonalOrIndexed8Image(tif, image, compression);
       break;
     default:
       if (image.hasAlphaChannel()) {
-        ok = writeARGB32Image(tif, image.convertToFormat(QImage::Format_ARGB32));
+        ok = writeARGB32Image(tif, image.convertToFormat(QImage::Format_ARGB32), compression);
       } else {
-        ok = writeRGB32Image(tif, image.convertToFormat(QImage::Format_RGB32));
+        ok = writeRGB32Image(tif, image.convertToFormat(QImage::Format_RGB32), compression);
       }
       break;
   }
@@ -229,7 +239,17 @@ void TiffWriter::setDpm(const TiffHandle& tif, const Dpm& dpm) {
   TIFFSetField(tif.handle(), TIFFTAG_RESOLUTIONUNIT, unit);
 }
 
-bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif, const QImage& image) {
+void TiffWriter::setCompression(const TiffHandle& tif, const int compression, const int jpegQuality) {
+  TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION, uint16_t(compression));
+  if (compression == COMPRESSION_JPEG) {
+    // A pseudo tag of the JPEG codec, so it has to follow the compression.
+    TIFFSetField(tif.handle(), TIFFTAG_JPEGQUALITY, std::clamp(jpegQuality, 1, 100));
+  }
+}
+
+bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif,
+                                             const QImage& image,
+                                             const Compression& compression) {
   TIFFSetField(tif.handle(), TIFFTAG_SAMPLESPERPIXEL, uint16_t(1));
 
   uint16_t bitsPerSample = 8;
@@ -261,11 +281,14 @@ bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif, const QImage
   }
 
   if (image.format() == QImage::Format_Indexed8) {
-    TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION,
-                 uint16_t(ApplicationSettings::getInstance().getTiffColorCompression()));
+    int method = compression.color;
+    if ((method == COMPRESSION_JPEG) && (photometric == PHOTOMETRIC_PALETTE)) {
+      // JPEG can't store palette images, such as posterized ones.
+      method = COMPRESSION_LZW;
+    }
+    setCompression(tif, method, compression.jpegQuality);
   } else {
-    TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION,
-                 uint16_t(ApplicationSettings::getInstance().getTiffBwCompression()));
+    setCompression(tif, compression.bw, compression.jpegQuality);
   }
 
   TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, bitsPerSample);
@@ -300,14 +323,21 @@ bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif, const QImage
   }
 }  // TiffWriter::writeBitonalOrIndexed8Image
 
-bool TiffWriter::writeRGB32Image(const TiffHandle& tif, const QImage& image) {
+bool TiffWriter::writeRGB32Image(const TiffHandle& tif, const QImage& image, const Compression& compression) {
   assert(image.format() == QImage::Format_RGB32);
 
   TIFFSetField(tif.handle(), TIFFTAG_SAMPLESPERPIXEL, uint16_t(3));
-  TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION,
-               uint16_t(ApplicationSettings::getInstance().getTiffColorCompression()));
+  setCompression(tif, compression.color, compression.jpegQuality);
   TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, uint16_t(8));
-  TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+  if (compression.color == COMPRESSION_JPEG) {
+    // The usual form of JPEG in TIFF: brightness and color separately, the color
+    // at half resolution.  This makes the files much smaller than JPEG in RGB.
+    // libtiff converts the RGB lines we pass.
+    TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR);
+    TIFFSetField(tif.handle(), TIFFTAG_JPEGCOLORMODE, JPEGCOLORMODE_RGB);
+  } else {
+    TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+  }
 
   const int width = image.width();
   const int height = image.height();
@@ -334,12 +364,13 @@ bool TiffWriter::writeRGB32Image(const TiffHandle& tif, const QImage& image) {
   return true;
 }  // TiffWriter::writeRGB32Image
 
-bool TiffWriter::writeARGB32Image(const TiffHandle& tif, const QImage& image) {
+bool TiffWriter::writeARGB32Image(const TiffHandle& tif, const QImage& image, const Compression& compression) {
   assert(image.format() == QImage::Format_ARGB32);
 
   TIFFSetField(tif.handle(), TIFFTAG_SAMPLESPERPIXEL, uint16_t(4));
-  TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION,
-               uint16_t(ApplicationSettings::getInstance().getTiffColorCompression()));
+  // JPEG can't store the alpha channel.
+  const int method = (compression.color == COMPRESSION_JPEG) ? COMPRESSION_LZW : compression.color;
+  setCompression(tif, method, compression.jpegQuality);
   TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, uint16_t(8));
   TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 

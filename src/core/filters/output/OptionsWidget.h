@@ -183,6 +183,10 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void setupUiConnections();
 
+  void setupTiffCompressionPanel();
+
+  void tiffCompressionChanged(bool delayReload);
+
   std::shared_ptr<Settings> m_settings;
   PageSelectionAccessor m_pageSelectionAccessor;
   PageId m_pageId;
@@ -197,6 +201,9 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   QTimer m_delayedReloadRequest;
 
   ConnectionManager m_connectionManager;
+  QComboBox* m_tiffColorCompression = nullptr;
+  QSpinBox* m_tiffJpegQuality = nullptr;
+  QComboBox* m_tiffBwCompression = nullptr;
 };
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_OPTIONSWIDGET_H_

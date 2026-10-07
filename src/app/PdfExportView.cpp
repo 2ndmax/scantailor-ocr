@@ -346,7 +346,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   layout->setContentsMargins(0, 0, 0, 0);
 
   // Collapsible like the panels of the other steps; the object name keeps its collapsed state.
-  auto* compressionGroup = new CollapsibleGroupBox(tr("Compression"));
+  auto* compressionGroup = new CollapsibleGroupBox(tr("PDF compression"));
   compressionGroup->setObjectName("pdfCompressionPanel");
   auto* optionsLayout = new QFormLayout(compressionGroup);
   // The options panel is narrow: put the fields below their labels if needed.

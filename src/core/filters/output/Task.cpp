@@ -385,6 +385,15 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
       invalidateParams = true;
     } else {
       deleteMutuallyExclusiveOutputFiles();
+      // Show the stored file rather than the computed image, the same as when the page is
+      // shown later without processing.  With lossy compression such as JPEG they differ.
+      QFile outFile(outFilePath);
+      if (outFile.open(QIODevice::ReadOnly)) {
+        const QImage storedImg = ImageLoader::load(outFile, 0);
+        if (!storedImg.isNull() && (storedImg.size() == outImg.size())) {
+          outImg = storedImg;
+        }
+      }
     }
 
     if (writeSpecklesFile && specklesImg.isNull()) {

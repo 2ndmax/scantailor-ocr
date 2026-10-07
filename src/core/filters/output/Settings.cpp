@@ -216,6 +216,11 @@ void Settings::removeOutputParams(const PageId& pageId) {
   m_perPageOutputParams.erase(pageId);
 }
 
+void Settings::removeAllOutputParams() {
+  const QMutexLocker locker(&m_mutex);
+  m_perPageOutputParams.clear();
+}
+
 void Settings::setOutputParams(const PageId& pageId, const OutputParams& params) {
   const QMutexLocker locker(&m_mutex);
   Utils::mapSetValue(m_perPageOutputParams, pageId, params);

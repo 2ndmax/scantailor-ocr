@@ -11,6 +11,7 @@
 #include <tiffio.h>
 
 #include <QFile>
+#include <QFileInfo>
 #include <QImage>
 #include <QTemporaryDir>
 #include <algorithm>
@@ -466,6 +467,171 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_round_trip_and_failure) {
   QObject::disconnect(connection);
   BOOST_CHECK(!reported.isEmpty());
   BOOST_CHECK(!QFile::exists(badPath));
+}
+
+bool writeTiffWith(const QString& path, const QImage& image, const TiffWriter::Compression& compression) {
+  QFile file(path);
+  if (!file.open(QIODevice::WriteOnly)) {
+    return false;
+  }
+  return TiffWriter::writeImage(file, image, compression);
+}
+
+struct WrittenTags {
+  uint16_t compression = 0;
+  uint16_t photometric = 0;
+};
+
+WrittenTags readWrittenTags(const QString& path) {
+  WrittenTags tags;
+  TIFF* tif = TIFFOpen(QFile::encodeName(path).constData(), "r");
+  if (tif) {
+    TIFFGetField(tif, TIFFTAG_COMPRESSION, &tags.compression);
+    TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &tags.photometric);
+    TIFFClose(tif);
+  }
+  return tags;
+}
+
+bool isNear(const QRgb actual, const QRgb expected, const int tolerance) {
+  return (std::abs(qRed(actual) - qRed(expected)) <= tolerance)
+         && (std::abs(qGreen(actual) - qGreen(expected)) <= tolerance)
+         && (std::abs(qBlue(actual) - qBlue(expected)) <= tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_color_is_ycbcr) {
+  if (!TIFFIsCODECConfigured(COMPRESSION_JPEG)) {
+    BOOST_TEST_MESSAGE("libtiff has no JPEG support, skipped");
+    return;
+  }
+  QTemporaryDir dir;
+  const QRgb red = qRgb(200, 30, 30);
+  const QRgb blue = qRgb(30, 60, 200);
+  QImage image(64, 48, QImage::Format_RGB32);
+  for (int y = 0; y < image.height(); ++y) {
+    for (int x = 0; x < image.width(); ++x) {
+      image.setPixel(x, y, x < 32 ? red : blue);
+    }
+  }
+
+  const QString path = dir.filePath("jpeg_color.tif");
+  BOOST_REQUIRE(writeTiffWith(path, image, {COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 85}));
+  const WrittenTags tags = readWrittenTags(path);
+  BOOST_CHECK_EQUAL(tags.compression, COMPRESSION_JPEG);
+  BOOST_CHECK_EQUAL(tags.photometric, PHOTOMETRIC_YCBCR);
+
+  const QImage readBack = readTiff(path);
+  BOOST_REQUIRE(!readBack.isNull());
+  BOOST_CHECK(readBack.size() == image.size());
+  // Lossy, so only roughly.
+  BOOST_CHECK(isNear(readBack.pixel(10, 24), red, 16));
+  BOOST_CHECK(isNear(readBack.pixel(54, 24), blue, 16));
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_quality) {
+  if (!TIFFIsCODECConfigured(COMPRESSION_JPEG)) {
+    BOOST_TEST_MESSAGE("libtiff has no JPEG support, skipped");
+    return;
+  }
+  QTemporaryDir dir;
+  // Fine detail, so the quality makes a difference.
+  QImage image(128, 128, QImage::Format_RGB32);
+  for (int y = 0; y < image.height(); ++y) {
+    for (int x = 0; x < image.width(); ++x) {
+      image.setPixel(x, y, qRgb((x * 37 + y * 11) & 255, (x * 13 ^ y * 29) & 255, (x * y) & 255));
+    }
+  }
+
+  const QString lowPath = dir.filePath("low.tif");
+  const QString highPath = dir.filePath("high.tif");
+  BOOST_REQUIRE(writeTiffWith(lowPath, image, {COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 20}));
+  BOOST_REQUIRE(writeTiffWith(highPath, image, {COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 95}));
+  BOOST_CHECK(QFileInfo(lowPath).size() < QFileInfo(highPath).size());
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_gray) {
+  if (!TIFFIsCODECConfigured(COMPRESSION_JPEG)) {
+    BOOST_TEST_MESSAGE("libtiff has no JPEG support, skipped");
+    return;
+  }
+  QTemporaryDir dir;
+  QImage image(64, 48, QImage::Format_Indexed8);
+  image.setColorCount(256);
+  for (int i = 0; i < 256; ++i) {
+    image.setColor(i, qRgb(i, i, i));
+  }
+  for (int y = 0; y < image.height(); ++y) {
+    std::memset(image.scanLine(y), 0, 32);
+    std::memset(image.scanLine(y) + 32, 220, 32);
+  }
+
+  const QString path = dir.filePath("jpeg_gray.tif");
+  BOOST_REQUIRE(writeTiffWith(path, image, {COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 85}));
+  const WrittenTags tags = readWrittenTags(path);
+  BOOST_CHECK_EQUAL(tags.compression, COMPRESSION_JPEG);
+  BOOST_CHECK_EQUAL(tags.photometric, PHOTOMETRIC_MINISBLACK);
+
+  const QImage readBack = readTiff(path);
+  BOOST_REQUIRE(!readBack.isNull());
+  BOOST_CHECK(std::abs(grayAt(readBack, 10, 24) - 0) < 12);
+  BOOST_CHECK(std::abs(grayAt(readBack, 54, 24) - 220) < 12);
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_falls_back_to_lzw) {
+  QTemporaryDir dir;
+  const TiffWriter::Compression jpeg{COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 85};
+
+  // A palette image, as posterizing produces.  JPEG can't store it.
+  QImage palette(40, 30, QImage::Format_Indexed8);
+  palette.setColorCount(3);
+  palette.setColor(0, qRgb(255, 255, 255));
+  palette.setColor(1, qRgb(200, 0, 0));
+  palette.setColor(2, qRgb(0, 0, 160));
+  for (int y = 0; y < palette.height(); ++y) {
+    for (int x = 0; x < palette.width(); ++x) {
+      palette.scanLine(y)[x] = static_cast<uint8_t>((x / 10) % 3);
+    }
+  }
+  const QString palettePath = dir.filePath("palette.tif");
+  BOOST_REQUIRE(writeTiffWith(palettePath, palette, jpeg));
+  const WrittenTags paletteTags = readWrittenTags(palettePath);
+  BOOST_CHECK_EQUAL(paletteTags.compression, COMPRESSION_LZW);
+  BOOST_CHECK_EQUAL(paletteTags.photometric, PHOTOMETRIC_PALETTE);
+  const QImage paletteBack = readTiff(palettePath);
+  BOOST_REQUIRE(!paletteBack.isNull());
+  BOOST_CHECK(paletteBack.pixel(15, 5) == qRgb(200, 0, 0));
+  BOOST_CHECK(paletteBack.pixel(25, 5) == qRgb(0, 0, 160));
+
+  // JPEG can't store an alpha channel either.
+  QImage alpha(20, 10, QImage::Format_ARGB32);
+  alpha.fill(qRgba(10, 20, 30, 128));
+  const QString alphaPath = dir.filePath("alpha.tif");
+  BOOST_REQUIRE(writeTiffWith(alphaPath, alpha, jpeg));
+  BOOST_CHECK_EQUAL(readWrittenTags(alphaPath).compression, COMPRESSION_LZW);
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_writer_bitonal_compressions) {
+  QTemporaryDir dir;
+  QImage image(40, 30, QImage::Format_Mono);
+  image.setColorCount(2);
+  image.setColor(0, qRgb(255, 255, 255));
+  image.setColor(1, qRgb(0, 0, 0));
+  image.fill(0);
+  for (int y = 5; y < 25; ++y) {
+    for (int x = 8; x < 20; ++x) {
+      image.setPixel(x, y, 1);
+    }
+  }
+
+  for (const int method : {COMPRESSION_CCITTFAX4, COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_NONE}) {
+    const QString path = dir.filePath(QStringLiteral("bw_%1.tif").arg(method));
+    BOOST_REQUIRE(writeTiffWith(path, image, {method, COMPRESSION_JPEG, 85}));
+    BOOST_CHECK_EQUAL(readWrittenTags(path).compression, method);
+    const QImage readBack = readTiff(path);
+    BOOST_REQUIRE(!readBack.isNull());
+    BOOST_CHECK_EQUAL(grayAt(readBack, 10, 10), 0);
+    BOOST_CHECK_EQUAL(grayAt(readBack, 30, 10), 255);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_compression_names) {

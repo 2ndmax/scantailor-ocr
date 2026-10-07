@@ -63,8 +63,9 @@ The changes were developed with the help of Claude (Anthropic).
   The arithmetic coder is taken from [jbig2enc](https://github.com/agl/jbig2enc) (Apache License
   2.0, see `src/core/jbig2enc`); no extra library is needed. CCITT G4 remains selectable for
   very old PDF programs.
-* JPEG quality (default 85), picture resolution, black and white compression and "open the PDF
-  after creating it" are kept as program settings, saved as soon as they are changed. By default
+* JPEG quality (default 85), picture resolution, black and white compression (panel
+  *PDF compression*) and "open the PDF after creating it" are kept as program settings, saved as
+  soon as they are changed. By default
   the PDF is saved next to the project file and named after it.
 * Several pages are prepared in parallel, with progress display and cancelling. The PDF is
   written to a temporary file first, so a failed or cancelled export never leaves a broken file
@@ -207,6 +208,27 @@ from working:
   and the message "1 output files could not be written" when it is off. Such pages now come out
   as white pages, with white split layers.
   ([upstream #172](https://github.com/ScanTailor-Advanced/scantailor-advanced/issues/172))
+
+### Output: TIFF compression
+
+* The compression of the output TIFF files moved from the settings window to a new panel
+  **TIFF compression** at the bottom of the output options: *Color and grayscale* (None, LZW,
+  Deflate, JPEG), *JPEG quality* (new, default 85) and *Black and white* (None, LZW, Deflate,
+  CCITT G4). Like the PDF options, they apply to all projects, are saved as soon as they are
+  changed and are not stored in the project file. Previously chosen values are kept.
+* After a change, the output of the open project is created again: the current page right away,
+  the other pages during the next batch processing. Other projects keep their files until their
+  pages are processed again.
+* After processing, the output step shows the stored file instead of the computed image, as it
+  already did for pages shown later without processing. So the losses of JPEG compression are
+  visible right away, in the page view and in the thumbnail.
+* Color JPEG is stored in YCbCr, the usual form of JPEG in TIFF, instead of RGB, which makes the
+  files much smaller at the same quality.
+* **Fixed:** posterized pages (palette images) couldn't be written with JPEG compression, as JPEG
+  can't store palette images. They are stored with LZW instead, as are images with an alpha
+  channel.
+* The PDF export compresses the pages itself, so these options don't change the PDF – except
+  that JPEG-compressed TIFF files lose quality before they reach the PDF.
 
 ### Zone editors (picture zones and fill zones)
 
