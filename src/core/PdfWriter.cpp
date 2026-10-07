@@ -33,22 +33,47 @@ bool PdfWriter::addPage(const Page& page) {
     const int imageId = allocateObject();
     QByteArray dict = "/Type /XObject /Subtype /Image /Width " + QByteArray::number(image.width) + " /Height "
                       + QByteArray::number(image.height);
-    if ((image.encoding == Image::Encoding::CCITT_G4) || (image.encoding == Image::Encoding::JBIG2)) {
-      if (image.isMask) {
-        // Decoded black pixels are 0 with both filters, which an image mask paints with the fill colour.
-        dict += " /ImageMask true /BitsPerComponent 1";
+    const bool bitonalFilter
+        = (image.encoding == Image::Encoding::CCITT_G4) || (image.encoding == Image::Encoding::JBIG2);
+    const int bitsPerComponent = bitonalFilter                               ? 1
+                                 : (image.encoding == Image::Encoding::JPEG) ? 8
+                                                                             : image.bitsPerComponent;
+    if (image.isMask) {
+      // Decoded black pixels are 0 with all filters used, which an image mask paints with the fill colour.
+      dict += " /ImageMask true /BitsPerComponent 1";
+    } else {
+      if (!image.palette.isEmpty() && !bitonalFilter && (image.encoding != Image::Encoding::JPEG)) {
+        const int colorCount = static_cast<int>(image.palette.size() / 3);
+        dict += " /ColorSpace [/Indexed /DeviceRGB " + QByteArray::number(colorCount - 1) + " <" + image.palette.toHex()
+                + ">]";
+      } else if (!bitonalFilter && (image.components == 3)) {
+        dict += " /ColorSpace /DeviceRGB";
       } else {
-        dict += " /ColorSpace /DeviceGray /BitsPerComponent 1";
+        dict += " /ColorSpace /DeviceGray";
       }
-      if (image.encoding == Image::Encoding::CCITT_G4) {
+      dict += " /BitsPerComponent " + QByteArray::number(bitsPerComponent);
+    }
+    switch (image.encoding) {
+      case Image::Encoding::CCITT_G4:
         dict += " /Filter /CCITTFaxDecode /DecodeParms << /K -1 /Columns " + QByteArray::number(image.width) + " /Rows "
                 + QByteArray::number(image.height) + " >>";
-      } else {
+        break;
+      case Image::Encoding::JBIG2:
         dict += " /Filter /JBIG2Decode";
-      }
-    } else {
-      dict += (image.components == 3) ? " /ColorSpace /DeviceRGB" : " /ColorSpace /DeviceGray";
-      dict += " /BitsPerComponent 8 /Filter /DCTDecode";
+        break;
+      case Image::Encoding::JPEG:
+        dict += " /Filter /DCTDecode";
+        break;
+      case Image::Encoding::FLATE:
+        dict += " /Filter /FlateDecode";
+        if (image.pngPredictors) {
+          const int colors = image.palette.isEmpty() ? image.components : 1;
+          dict += " /DecodeParms << /Predictor 15 /Colors " + QByteArray::number(colors) + " /BitsPerComponent "
+                  + QByteArray::number(bitsPerComponent) + " /Columns " + QByteArray::number(image.width) + " >>";
+        }
+        break;
+      case Image::Encoding::RAW:
+        break;
     }
     writeStreamObject(imageId, dict, image.data);
     xobjects += name + ' ' + QByteArray::number(imageId) + " 0 R ";

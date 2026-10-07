@@ -33,19 +33,30 @@ class PdfWriter {
 
  public:
   struct Image {
-    enum class Encoding { CCITT_G4, JBIG2, JPEG };
+    enum class Encoding { CCITT_G4, JBIG2, JPEG, RAW, FLATE };
 
     Encoding encoding = Encoding::JPEG;
     /**
      * CCITT G4 data (0 = white, 1 = black, rows MSB first), JBIG2 segments
-     * (see PdfImageEncoder::encodeJbig2) or a complete JPEG file.
+     * (see PdfImageEncoder::encodeJbig2), a complete JPEG file, or for RAW
+     * the samples (see PdfImageEncoder::rawSamples) and for FLATE the same
+     * compressed as a zlib stream (see PdfImageEncoder::deflate).
      */
     QByteArray data;
     int width = 0;
     int height = 0;
-    /** JPEG only: 1 for grayscale, 3 for RGB.  G4 and JBIG2 images are always 1 bit gray. */
+    /** JPEG, RAW and FLATE: 1 for grayscale, 3 for RGB.  Not used for palette images. */
     int components = 1;
-    /** G4 and JBIG2 only: paint the black pixels in black and leave the rest of the page untouched. */
+    /** RAW and FLATE: 1, 2, 4 or 8.  G4 and JBIG2 images are always 1 bit gray, JPEG images 8 bit. */
+    int bitsPerComponent = 8;
+    /** RAW and FLATE: if not empty, the samples are indexes into these RGB triples. */
+    QByteArray palette;
+    /** FLATE only: the rows were filtered with PNG predictors before compressing. */
+    bool pngPredictors = false;
+    /**
+     * 1 bit images only: paint the black pixels (samples 0) in black and leave
+     * the rest of the page untouched.
+     */
     bool isMask = false;
     /** Where the image goes on the page, in points, relative to the top left corner of the page. */
     QRectF rect;

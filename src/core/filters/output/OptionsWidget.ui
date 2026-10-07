@@ -1454,7 +1454,7 @@
           <item>
            <widget class="QCheckBox" name="blackOnWhiteCB">
             <property name="toolTip">
-             <string>This option should be enabled when the page has dark content on light background and disabled if vice versa in order to correct processing algorithms.</string>
+             <string>On for dark content on a light background, off for light content on a dark background, such as white text on black. Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection at the output stage&quot; are turned on in the settings. A change made here by hand takes precedence over the detection.</string>
             </property>
             <property name="text">
              <string>Black on white mode</string>

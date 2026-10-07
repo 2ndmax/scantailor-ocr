@@ -352,14 +352,47 @@ QWidget* PdfExportView::createOptionsWidget() {
   // The options panel is narrow: put the fields below their labels if needed.
   optionsLayout->setRowWrapPolicy(QFormLayout::WrapLongRows);
 
-  m_jpegQuality = new QSpinBox;
-  m_jpegQuality->setRange(10, 100);
-  m_jpegQuality->setValue(settings.getPdfJpegQuality());
-  m_jpegQuality->setToolTip(
-      tr("Higher values give better pictures and larger files.  Applies to grayscale and color pages and to the "
-         "pictures of pages with split output.  All pages that are neither black and white nor have split output "
-         "are stored as JPEG."));
-  optionsLayout->addRow(tr("JPEG quality:"), m_jpegQuality);
+  // The group has a part for each kind of page, each with a bold heading.
+  auto addHeading = [optionsLayout](const QString& text, const QString& toolTip, const bool first) {
+    auto* heading = new QLabel(text);
+    QFont font = heading->font();
+    font.setBold(true);
+    heading->setFont(font);
+    heading->setToolTip(toolTip);
+    if (!first) {
+      heading->setContentsMargins(0, 8, 0, 0);
+    }
+    optionsLayout->addRow(heading);
+  };
+  auto selectData = [](QComboBox* box, const int value, const PdfCompression defaultValue) {
+    int index = box->findData(value);
+    if (index < 0) {
+      index = box->findData(static_cast<int>(defaultValue));
+    }
+    box->setCurrentIndex(index);
+  };
+  const QString qualityToolTip = tr("Higher values give better pictures and larger files.  Only used with JPEG.");
+
+  // Color and grayscale.
+  addHeading(tr("Color and grayscale"),
+             tr("Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split "
+                "output."),
+             true);
+  m_colorCompression = new QComboBox;
+  m_colorCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
+  m_colorCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
+  m_colorCompression->addItem(QStringLiteral("JPEG"), static_cast<int>(PdfCompression::JPEG));
+  selectData(m_colorCompression, settings.getPdfColorCompression(), PdfCompression::JPEG);
+  m_colorCompression->setToolTip(
+      tr("JPEG makes small files and loses a little quality, mostly at the edges of text.  Deflate is lossless, "
+         "but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB."));
+  optionsLayout->addRow(tr("Method:"), m_colorCompression);
+
+  m_colorQuality = new QSpinBox;
+  m_colorQuality->setRange(10, 100);
+  m_colorQuality->setValue(settings.getPdfColorQuality());
+  m_colorQuality->setToolTip(qualityToolTip);
+  optionsLayout->addRow(tr("Quality:"), m_colorQuality);
 
   m_backgroundScale = new QComboBox;
   m_backgroundScale->addItem(tr("Full"), 1);
@@ -369,23 +402,55 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_backgroundScale->setToolTip(
       tr("Resolution of the pictures of pages with split output, relative to the output resolution.  The text "
          "is always stored at full resolution."));
-  optionsLayout->addRow(tr("Picture resolution:"), m_backgroundScale);
+  optionsLayout->addRow(tr("Resolution of split pages:"), m_backgroundScale);
 
+  // Posterized pages.
+  addHeading(tr("Posterized pages"),
+             tr("Color pages that were posterized in the Output stage, and posterized pictures of pages with split "
+                "output.  Posterized grayscale pages can't be told apart from other grayscale pages; they follow "
+                "\"Color and grayscale\"."),
+             false);
+  m_paletteCompression = new QComboBox;
+  m_paletteCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
+  m_paletteCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
+  m_paletteCompression->addItem(QStringLiteral("JPEG"), static_cast<int>(PdfCompression::JPEG));
+  selectData(m_paletteCompression, settings.getPdfPaletteCompression(), PdfCompression::DEFLATE);
+  m_paletteCompression->setToolTip(
+      tr("Deflate is lossless and keeps the few colors exactly, which makes small and sharp files.  JPEG converts "
+         "the page to full color first, which blurs the color areas and often makes the file larger.  None is "
+         "lossless, but large."));
+  optionsLayout->addRow(tr("Method:"), m_paletteCompression);
+
+  m_paletteQuality = new QSpinBox;
+  m_paletteQuality->setRange(10, 100);
+  m_paletteQuality->setValue(settings.getPdfPaletteQuality());
+  m_paletteQuality->setToolTip(qualityToolTip);
+  optionsLayout->addRow(tr("Quality:"), m_paletteQuality);
+
+  // Black and white.
+  addHeading(tr("Black and white"), tr("Black and white pages and the text of pages with split output."), false);
   m_bitonalCompression = new QComboBox;
-  m_bitonalCompression->addItem(QStringLiteral("JBIG2"), true);
-  m_bitonalCompression->addItem(QStringLiteral("CCITT G4"), false);
-  m_bitonalCompression->setCurrentIndex(settings.isPdfJbig2Enabled() ? 0 : 1);
+  m_bitonalCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
+  m_bitonalCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
+  m_bitonalCompression->addItem(QStringLiteral("CCITT G4"), static_cast<int>(PdfCompression::CCITT_G4));
+  m_bitonalCompression->addItem(QStringLiteral("JBIG2"), static_cast<int>(PdfCompression::JBIG2));
+  selectData(m_bitonalCompression, settings.getPdfBitonalCompression(), PdfCompression::JBIG2);
   m_bitonalCompression->setToolTip(
-      tr("Compression of black and white pages and of the text of pages with split output.  Both are lossless.  "
-         "JBIG2 makes the files about a third smaller; CCITT G4 is only needed for very old PDF programs that "
-         "can't show JBIG2."));
-  optionsLayout->addRow(tr("Black and white:"), m_bitonalCompression);
+      tr("All methods are lossless.  JBIG2 makes the smallest files.  CCITT G4 files are about a third larger, but "
+         "can be shown by very old PDF programs, too.  Deflate and None make much larger files."));
+  optionsLayout->addRow(tr("Method:"), m_bitonalCompression);
 
   layout->addWidget(compressionGroup);
 
-  connect(m_jpegQuality, qOverload<int>(&QSpinBox::valueChanged), this, &PdfExportView::saveSettings);
-  connect(m_backgroundScale, qOverload<int>(&QComboBox::currentIndexChanged), this, &PdfExportView::saveSettings);
-  connect(m_bitonalCompression, qOverload<int>(&QComboBox::currentIndexChanged), this, &PdfExportView::saveSettings);
+  m_colorQuality->setEnabled(m_colorCompression->currentData().toInt() == static_cast<int>(PdfCompression::JPEG));
+  m_paletteQuality->setEnabled(m_paletteCompression->currentData().toInt() == static_cast<int>(PdfCompression::JPEG));
+
+  for (QComboBox* box : {m_colorCompression, m_backgroundScale, m_paletteCompression, m_bitonalCompression}) {
+    connect(box, qOverload<int>(&QComboBox::currentIndexChanged), this, &PdfExportView::compressionChanged);
+  }
+  for (QSpinBox* box : {m_colorQuality, m_paletteQuality}) {
+    connect(box, qOverload<int>(&QSpinBox::valueChanged), this, &PdfExportView::saveSettings);
+  }
 
 #ifdef ENABLE_OCR
   // Text recognition.  Like the panels of the other steps, the check box that turns it on
@@ -727,9 +792,12 @@ void PdfExportView::startExport() {
   }
 
   PdfExportOptions options;
-  options.jpegQuality = m_jpegQuality->value();
+  options.colorCompression = static_cast<PdfCompression>(m_colorCompression->currentData().toInt());
+  options.colorQuality = m_colorQuality->value();
   options.backgroundScale = m_backgroundScale->currentData().toInt();
-  options.jbig2 = m_bitonalCompression->currentData().toBool();
+  options.paletteCompression = static_cast<PdfCompression>(m_paletteCompression->currentData().toInt());
+  options.paletteQuality = m_paletteQuality->value();
+  options.bitonalCompression = static_cast<PdfCompression>(m_bitonalCompression->currentData().toInt());
   options.threadCount = PdfExportJob::defaultThreadCount();
 
 #ifdef ENABLE_OCR
@@ -859,9 +927,12 @@ void PdfExportView::updateControls() {
 
 void PdfExportView::saveSettings() {
   ApplicationSettings& settings = ApplicationSettings::getInstance();
-  settings.setPdfJpegQuality(m_jpegQuality->value());
+  settings.setPdfColorCompression(m_colorCompression->currentData().toInt());
+  settings.setPdfColorQuality(m_colorQuality->value());
   settings.setPdfBackgroundScale(m_backgroundScale->currentData().toInt());
-  settings.setPdfJbig2Enabled(m_bitonalCompression->currentData().toBool());
+  settings.setPdfPaletteCompression(m_paletteCompression->currentData().toInt());
+  settings.setPdfPaletteQuality(m_paletteQuality->value());
+  settings.setPdfBitonalCompression(m_bitonalCompression->currentData().toInt());
   settings.setPdfOpenAfterCreationEnabled(m_openAfterCreation->isChecked());
 #ifdef ENABLE_OCR
   settings.setPdfOcrEnabled(m_ocrEnabled->isChecked());
@@ -967,17 +1038,44 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail) const {
 }
 
 QString PdfExportView::kindText(const PdfExportPage& page) const {
+  // The name of the method chosen in a box, as shown there.
+  auto method = [this](const QComboBox* box) {
+    return (box->currentData().toInt() == static_cast<int>(PdfCompression::NONE)) ? tr("uncompressed")
+                                                                                  : box->currentText();
+  };
   switch (page.kind()) {
     case PdfExportPage::MISSING:
       return tr("Not output yet");
     case PdfExportPage::BITONAL:
-      return tr("Black and white (lossless)");
+      return tr("Black and white (%1)").arg(method(m_bitonalCompression));
     case PdfExportPage::MRC:
-      return tr("Split output (picture JPEG, text lossless)");
+      return tr("Split output (picture %1, text %2)")
+          .arg(method(page.hasPalettePicture() ? m_paletteCompression : m_colorCompression),
+               method(m_bitonalCompression));
     case PdfExportPage::IMAGE:
-      return tr("JPEG image");
+      return tr("Color or grayscale (%1)").arg(method(m_colorCompression));
+    case PdfExportPage::PALETTE:
+      return tr("Posterized (%1)").arg(method(m_paletteCompression));
   }
   return QString();
+}
+
+void PdfExportView::updateKindTexts() {
+  for (int row = 0; row < m_pageList->count(); ++row) {
+    QListWidgetItem* item = m_pageList->item(row);
+    const Entry& entry = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()];
+    item->setData(KIND_ROLE, kindText(entry.page));
+    if (entry.page.warning().isEmpty()) {
+      item->setToolTip(entry.label + '\n' + kindText(entry.page));
+    }
+  }
+}
+
+void PdfExportView::compressionChanged() {
+  m_colorQuality->setEnabled(m_colorCompression->currentData().toInt() == static_cast<int>(PdfCompression::JPEG));
+  m_paletteQuality->setEnabled(m_paletteCompression->currentData().toInt() == static_cast<int>(PdfCompression::JPEG));
+  saveSettings();
+  updateKindTexts();
 }
 
 void PdfExportView::fillLanguageList(const QStringList& checked) {

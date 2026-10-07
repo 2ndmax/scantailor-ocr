@@ -9,16 +9,26 @@
 #include <atomic>
 #include <vector>
 
+#include "PdfCompression.h"
 #include "PdfExportPage.h"
 #include "PdfWriter.h"
 
 struct PdfExportOptions {
+  /** Grayscale and colour pages and the pictures of split pages: NONE, DEFLATE or JPEG. */
+  PdfCompression colorCompression = PdfCompression::JPEG;
   /** 1 to 100. */
-  int jpegQuality = 85;
+  int colorQuality = 85;
   /** The background of split pages is stored at 1 / backgroundScale of the output resolution. */
   int backgroundScale = 2;
-  /** Black and white images (and the text of split pages) as JBIG2 instead of CCITT G4. */
-  bool jbig2 = true;
+  /**
+   * Posterized colour pages and pictures of split pages (see PdfImageEncoder::isPalette()):
+   * NONE, DEFLATE or JPEG.
+   */
+  PdfCompression paletteCompression = PdfCompression::DEFLATE;
+  /** 1 to 100. */
+  int paletteQuality = 85;
+  /** Black and white pages and the text of split pages: NONE, DEFLATE, CCITT_G4 or JBIG2. */
+  PdfCompression bitonalCompression = PdfCompression::JBIG2;
   /** The number of pages prepared in parallel. */
   int threadCount = 1;
   /** Add an invisible text layer.  Requires a build with ENABLE_OCR. */

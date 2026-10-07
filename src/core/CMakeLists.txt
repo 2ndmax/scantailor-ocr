@@ -120,6 +120,7 @@ set(common_sources
     ZoneModeListener.h
     ContentMask.cpp ContentMask.h
     PdfWriter.cpp PdfWriter.h
+    PdfCompression.h
     PdfImageEncoder.cpp PdfImageEncoder.h
     jbig2enc/jbig2arith.cpp jbig2enc/jbig2arith.h
     PdfExportPage.cpp PdfExportPage.h

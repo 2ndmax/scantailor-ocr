@@ -58,20 +58,63 @@ QRectF toPoints(const QRectF& pixelRect, const QSizeF& perPoint) {
                 pixelRect.width() / perPoint.width(), pixelRect.height() / perPoint.height());
 }
 
+/** Stores \p image uncompressed or with Deflate, keeping a palette.  1 bit images become masks if \p isMask. */
+bool makeLosslessImage(const QImage& image,
+                       const QString& filePath,
+                       const PdfCompression compression,
+                       const bool isMask,
+                       const QRectF& rect,
+                       PdfWriter::Image* result,
+                       QStringList* errors) {
+  ImageLoadErrorCapture capture;
+  QByteArray samples
+      = PdfImageEncoder::rawSamples(image, &result->components, &result->bitsPerComponent, &result->palette);
+  if (compression == PdfCompression::DEFLATE) {
+    // The predictors help with photos, not with few colours or black and white.
+    const bool predictors = result->palette.isEmpty() && (result->bitsPerComponent == 8);
+    result->encoding = PdfWriter::Image::Encoding::FLATE;
+    result->pngPredictors = predictors;
+    result->data = samples.isEmpty()
+                       ? QByteArray()
+                       : PdfImageEncoder::deflate(samples, image.width(), image.height(), result->components,
+                                                  result->bitsPerComponent, predictors);
+  } else {
+    result->encoding = PdfWriter::Image::Encoding::RAW;
+    result->data = std::move(samples);
+  }
+  result->width = image.width();
+  result->height = image.height();
+  result->isMask = isMask && (result->bitsPerComponent == 1) && result->palette.isEmpty();
+  result->rect = rect;
+  if (result->data.isEmpty()) {
+    errors->push_back(describeFailure(PdfExportJob::tr("Could not compress %1."), filePath, capture.messages()));
+    return false;
+  }
+  return true;
+}
+
 bool makeBitonalImage(const QImage& image,
                       const QString& filePath,
                       const bool isMask,
-                      const bool jbig2,
+                      const PdfCompression compression,
                       const QRectF& rect,
                       PdfWriter::Image* result,
                       QStringList* errors) {
+  if ((compression == PdfCompression::NONE) || (compression == PdfCompression::DEFLATE)) {
+    // The image is converted to 1 bit like for the other methods.
+    QImage mono = image;
+    if (!PdfImageEncoder::isBitonal(mono)) {
+      mono = mono.convertToFormat(QImage::Format_Mono, Qt::ThresholdDither);
+    }
+    return makeLosslessImage(mono, filePath, compression, isMask, rect, result, errors);
+  }
   ImageLoadErrorCapture capture;
-  if (jbig2) {
-    result->encoding = PdfWriter::Image::Encoding::JBIG2;
-    result->data = PdfImageEncoder::encodeJbig2(image);
-  } else {
+  if (compression == PdfCompression::CCITT_G4) {
     result->encoding = PdfWriter::Image::Encoding::CCITT_G4;
     result->data = PdfImageEncoder::encodeG4(image);
+  } else {
+    result->encoding = PdfWriter::Image::Encoding::JBIG2;
+    result->data = PdfImageEncoder::encodeJbig2(image);
   }
   result->width = image.width();
   result->height = image.height();
@@ -101,6 +144,35 @@ bool makeJpegImage(const QImage& image,
     return false;
   }
   return true;
+}
+
+/** Grayscale, colour and palette images. */
+bool makeColorImage(const QImage& image,
+                    const QString& filePath,
+                    const PdfCompression compression,
+                    const int quality,
+                    const QRectF& rect,
+                    PdfWriter::Image* result,
+                    QStringList* errors) {
+  if ((compression == PdfCompression::NONE) || (compression == PdfCompression::DEFLATE)) {
+    return makeLosslessImage(image, filePath, compression, false, rect, result, errors);
+  }
+  // A palette image is converted to full colour for JPEG.
+  return makeJpegImage(image, filePath, quality, rect, result, errors);
+}
+
+/** Scales a palette image without smoothing, so no colours are added. */
+QImage scalePaletteImage(const QImage& image, const int width, const int height) {
+  QImage scaled(width, height, QImage::Format_Indexed8);
+  scaled.setColorTable(image.colorTable());
+  for (int y = 0; y < height; ++y) {
+    const uchar* src = image.constScanLine(static_cast<int>(static_cast<qint64>(y) * image.height() / height));
+    uchar* dst = scaled.scanLine(y);
+    for (int x = 0; x < width; ++x) {
+      dst[x] = src[static_cast<qint64>(x) * image.width() / width];
+    }
+  }
+  return scaled;
 }
 
 /** Recognizes the text of \p image, if requested, and adds it to the page as invisible text. */
@@ -175,6 +247,7 @@ bool PdfExportJob::preparePage(const PdfExportPage& page,
       return false;
     }
     case PdfExportPage::BITONAL:
+    case PdfExportPage::PALETTE:
     case PdfExportPage::IMAGE: {
       const QImage image = loadImage(page.mainFile(), errors);
       if (image.isNull()) {
@@ -186,9 +259,16 @@ bool PdfExportJob::preparePage(const PdfExportPage& page,
 
       PdfWriter::Image pdfImage;
       // The kind was determined from the file header; decide by the actual image to be safe.
-      const bool ok = PdfImageEncoder::isBitonal(image)
-                          ? makeBitonalImage(image, page.mainFile(), false, options.jbig2, rect, &pdfImage, errors)
-                          : makeJpegImage(image, page.mainFile(), options.jpegQuality, rect, &pdfImage, errors);
+      bool ok;
+      if (PdfImageEncoder::isBitonal(image)) {
+        ok = makeBitonalImage(image, page.mainFile(), false, options.bitonalCompression, rect, &pdfImage, errors);
+      } else if (PdfImageEncoder::isPalette(image)) {
+        ok = makeColorImage(image, page.mainFile(), options.paletteCompression, options.paletteQuality, rect, &pdfImage,
+                            errors);
+      } else {
+        ok = makeColorImage(image, page.mainFile(), options.colorCompression, options.colorQuality, rect, &pdfImage,
+                            errors);
+      }
       if (!ok) {
         return false;
       }
@@ -213,16 +293,23 @@ bool PdfExportJob::preparePage(const PdfExportPage& page,
         if (!content.isEmpty()) {
           QImage part = background.copy(content);
           background = QImage();
-          part = part.convertToFormat(part.isGrayscale() ? QImage::Format_Grayscale8 : QImage::Format_RGB32);
+          // Posterized pictures keep their palette.
+          const bool palette = PdfImageEncoder::isPalette(part);
+          if (!palette) {
+            part = part.convertToFormat(part.isGrayscale() ? QImage::Format_Grayscale8 : QImage::Format_RGB32);
+          }
           const int scale = std::max(1, options.backgroundScale);
           if (scale > 1) {
             const int width = std::max(1, static_cast<int>(std::ceil(part.width() / static_cast<double>(scale))));
             const int height = std::max(1, static_cast<int>(std::ceil(part.height() / static_cast<double>(scale))));
-            part = part.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            part = palette ? scalePaletteImage(part, width, height)
+                           : part.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
           }
           PdfWriter::Image pdfImage;
-          if (!makeJpegImage(part, page.backgroundFile(), options.jpegQuality, toPoints(QRectF(content), perPoint),
-                             &pdfImage, errors)) {
+          const PdfCompression compression = palette ? options.paletteCompression : options.colorCompression;
+          const int quality = palette ? options.paletteQuality : options.colorQuality;
+          if (!makeColorImage(part, page.backgroundFile(), compression, quality, toPoints(QRectF(content), perPoint),
+                              &pdfImage, errors)) {
             return false;
           }
           result->images.push_back(std::move(pdfImage));
@@ -230,8 +317,8 @@ bool PdfExportJob::preparePage(const PdfExportPage& page,
       }
 
       PdfWriter::Image mask;
-      if (!makeBitonalImage(foreground, page.foregroundFile(), true, options.jbig2, QRectF(QPointF(0, 0), result->size),
-                            &mask, errors)) {
+      if (!makeBitonalImage(foreground, page.foregroundFile(), true, options.bitonalCompression,
+                            QRectF(QPointF(0, 0), result->size), &mask, errors)) {
         return false;
       }
       result->images.push_back(std::move(mask));
@@ -267,13 +354,24 @@ void PdfExportJob::run() {
     bool ok = false;
     PdfWriter::Page page;
     QStringList errors;
+
+    qint64 bytes() const {
+      qint64 sum = 0;
+      for (const PdfWriter::Image& image : page.images) {
+        sum += image.data.size();
+      }
+      return sum;
+    }
   };
 
   // Workers prepare pages in parallel, this thread writes them in order.
-  // To limit memory usage, workers don't run too far ahead of the writer.
+  // To limit memory usage, workers don't run too far ahead of the writer,
+  // neither in pages nor in bytes: uncompressed pages can be dozens of MB.
   std::mutex mutex;
   std::condition_variable condition;
   std::map<int, Prepared> prepared;
+  qint64 preparedBytes = 0;
+  const qint64 maxPreparedBytes = qint64(512) * 1024 * 1024;
   int nextToPrepare = 0;
   int nextToWrite = 0;
   bool stop = false;
@@ -292,7 +390,13 @@ void PdfExportJob::run() {
       int index;
       {
         std::unique_lock<std::mutex> lock(mutex);
-        condition.wait(lock, [&] { return stop || (nextToPrepare < std::min(pageCount, nextToWrite + maxAhead)); });
+        // The page the writer waits for is always being prepared already, so waiting
+        // for memory to be freed can't block the writer.
+        condition.wait(lock, [&] {
+          return stop
+                 || ((nextToPrepare < std::min(pageCount, nextToWrite + maxAhead))
+                     && ((preparedBytes < maxPreparedBytes) || prepared.empty()));
+        });
         if (stop || (nextToPrepare >= pageCount)) {
           return;
         }
@@ -334,6 +438,7 @@ void PdfExportJob::run() {
 
       {
         std::lock_guard<std::mutex> lock(mutex);
+        preparedBytes += item.bytes();
         prepared[index] = std::move(item);
       }
       condition.notify_all();
@@ -361,6 +466,7 @@ void PdfExportJob::run() {
       auto it = prepared.find(nextToWrite);
       item = std::move(it->second);
       prepared.erase(it);
+      preparedBytes -= item.bytes();
       ++nextToWrite;
     }
     condition.notify_all();

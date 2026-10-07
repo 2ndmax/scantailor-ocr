@@ -22,6 +22,42 @@ class PdfImageEncoder {
   static bool isBitonal(const QImage& image);
 
   /**
+   * True for palette images that aren't gray, such as posterized pages.
+   * Posterized grayscale images can't be told apart from other grayscale images.
+   */
+  static bool isPalette(const QImage& image);
+
+  /**
+   * \brief The uncompressed samples of an image, the way PdfWriter's RAW and FLATE
+   *        encodings expect them.
+   *
+   * 1 bit images become 1 bit gray with black as 0.  Palette images (see isPalette())
+   * keep their palette, with 1, 2, 4 or 8 bits per index.  Other gray images become
+   * 8 bit gray, all others 8 bit RGB.  Each row starts at a whole byte.
+   *
+   * \param[out] components 1 or 3.
+   * \param[out] bitsPerComponent 1, 2, 4 or 8.
+   * \param[out] palette The RGB triples of a palette image, empty otherwise.
+   * \return The samples, or an empty array for a null image.
+   */
+  static QByteArray rawSamples(const QImage& image, int* components, int* bitsPerComponent, QByteArray* palette);
+
+  /**
+   * \brief Compresses samples (see rawSamples()) to a zlib stream for PDF's FlateDecode.
+   *
+   * \param pngPredictors Filter each row with the best fitting PNG predictor first
+   *        (PDF's /Predictor 15).  This makes photos much smaller, but doesn't help
+   *        with few colours, so it's only meant for 8 bit gray and RGB.
+   * \return The stream, or an empty array on failure.
+   */
+  static QByteArray deflate(const QByteArray& samples,
+                            int width,
+                            int height,
+                            int components,
+                            int bitsPerComponent,
+                            bool pngPredictors);
+
+  /**
    * \brief Encodes an image as CCITT G4 (as used by PDF's CCITTFaxDecode with K = -1).
    *
    * The image is converted to 1 bit if necessary.  In the encoded data, dark pixels
@@ -61,9 +97,10 @@ class PdfImageEncoder {
   /**
    * \brief Reads size and bits per pixel of a TIFF file without decoding the image.
    *
+   * \param[out] palette Optional: whether the image uses a colour palette.
    * \return false if the file can't be read as TIFF.
    */
-  static bool readTiffInfo(const QString& filePath, QSize* size, int* bitsPerPixel);
+  static bool readTiffInfo(const QString& filePath, QSize* size, int* bitsPerPixel, bool* palette = nullptr);
 };
 
 

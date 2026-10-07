@@ -125,6 +125,12 @@ class PdfExportView : public QWidget {
 
   QString kindText(const PdfExportPage& page) const;
 
+  /** Shows the kind of each page with the compression currently chosen. */
+  void updateKindTexts();
+
+  /** Greys out the quality fields that the chosen compression doesn't use, and updates the kinds. */
+  void compressionChanged();
+
   int checkedCount() const;
 
   /** The codes of the ticked OCR languages. */
@@ -165,8 +171,11 @@ class PdfExportView : public QWidget {
   QPushButton* m_cancelButton = nullptr;
 
   std::unique_ptr<QWidget> m_optionsWidget;
-  QSpinBox* m_jpegQuality = nullptr;
+  QComboBox* m_colorCompression = nullptr;
+  QSpinBox* m_colorQuality = nullptr;
   QComboBox* m_backgroundScale = nullptr;
+  QComboBox* m_paletteCompression = nullptr;
+  QSpinBox* m_paletteQuality = nullptr;
   QComboBox* m_bitonalCompression = nullptr;
   QCheckBox* m_openAfterCreation = nullptr;
   /** The OCR options; these stay null in builds without OCR. */

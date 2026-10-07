@@ -14,12 +14,14 @@ class PdfExportPage {
   enum Kind {
     /** There is no output file yet. */
     MISSING,
-    /** 1 bit output, stored as JBIG2 or CCITT G4. */
+    /** 1 bit output. */
     BITONAL,
-    /** Split output: JPEG background with a JBIG2 or G4 foreground mask on top. */
+    /** Split output: the background picture with a 1 bit foreground mask on top. */
     MRC,
-    /** Grayscale or colour output, stored as one JPEG image. */
-    IMAGE
+    /** Grayscale or colour output, stored as one image. */
+    IMAGE,
+    /** Posterized colour output (a palette image), stored as one image. */
+    PALETTE
   };
 
   PdfExportPage() = default;
@@ -47,6 +49,9 @@ class PdfExportPage {
 
   Kind kind() const { return m_kind; }
 
+  /** MRC only: whether the background picture is posterized (a palette image). */
+  bool hasPalettePicture() const { return m_palettePicture; }
+
   /** Empty if there is nothing to warn about. */
   const QString& warning() const { return m_warning; }
 
@@ -56,6 +61,7 @@ class PdfExportPage {
   QString m_backgroundFile;
   bool m_mixedMode = false;
   Kind m_kind = MISSING;
+  bool m_palettePicture = false;
   QString m_warning;
 };
 

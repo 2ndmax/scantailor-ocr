@@ -8,6 +8,8 @@
 #include <QLocale>
 #include <QtCore/QSettings>
 
+#include "PdfCompression.h"
+
 const bool ApplicationSettings::DEFAULT_OPENGL_STATE = false;
 const QString ApplicationSettings::DEFAULT_COLOR_SCHEME = "dark";
 const bool ApplicationSettings::DEFAULT_AUTO_SAVE_PROJECT = false;
@@ -66,6 +68,10 @@ const QString ApplicationSettings::PDF_JPEG_QUALITY_KEY = "pdf_jpeg_quality";
 const QString ApplicationSettings::PDF_BACKGROUND_SCALE_KEY = "pdf_background_scale";
 const QString ApplicationSettings::PDF_OPEN_AFTER_CREATION_KEY = "pdf_open_after_creation";
 const QString ApplicationSettings::PDF_JBIG2_KEY = "pdf_jbig2";
+const QString ApplicationSettings::PDF_COLOR_COMPRESSION_KEY = "pdf_color_compression";
+const QString ApplicationSettings::PDF_PALETTE_COMPRESSION_KEY = "pdf_palette_compression";
+const QString ApplicationSettings::PDF_PALETTE_QUALITY_KEY = "pdf_palette_quality";
+const QString ApplicationSettings::PDF_BITONAL_COMPRESSION_KEY = "pdf_bitonal_compression";
 const int ApplicationSettings::DEFAULT_PDF_JPEG_QUALITY = 85;
 const int ApplicationSettings::DEFAULT_PDF_BACKGROUND_SCALE = 2;
 const bool ApplicationSettings::DEFAULT_PDF_OPEN_AFTER_CREATION = true;
@@ -307,14 +313,58 @@ void ApplicationSettings::setDeskewHandleDistance(const int percent) {
              qBound(MIN_DESKEW_HANDLE_DISTANCE, percent, MAX_DESKEW_HANDLE_DISTANCE));
 }
 
-int ApplicationSettings::getPdfJpegQuality() const {
+int ApplicationSettings::getPdfColorCompression() const {
+  bool ok = false;
+  const int v = readValue(getKey(PDF_COLOR_COMPRESSION_KEY), static_cast<int>(PdfCompression::JPEG)).toInt(&ok);
+  return ok ? v : static_cast<int>(PdfCompression::JPEG);
+}
+
+void ApplicationSettings::setPdfColorCompression(const int compression) {
+  writeValue(getKey(PDF_COLOR_COMPRESSION_KEY), compression);
+}
+
+int ApplicationSettings::getPdfColorQuality() const {
+  // The key dates from when JPEG was the only choice.
   bool ok = false;
   const int v = readValue(getKey(PDF_JPEG_QUALITY_KEY), DEFAULT_PDF_JPEG_QUALITY).toInt(&ok);
   return ok ? qBound(10, v, 100) : DEFAULT_PDF_JPEG_QUALITY;
 }
 
-void ApplicationSettings::setPdfJpegQuality(const int quality) {
+void ApplicationSettings::setPdfColorQuality(const int quality) {
   writeValue(getKey(PDF_JPEG_QUALITY_KEY), qBound(10, quality, 100));
+}
+
+int ApplicationSettings::getPdfPaletteCompression() const {
+  bool ok = false;
+  const int v = readValue(getKey(PDF_PALETTE_COMPRESSION_KEY), static_cast<int>(PdfCompression::DEFLATE)).toInt(&ok);
+  return ok ? v : static_cast<int>(PdfCompression::DEFLATE);
+}
+
+void ApplicationSettings::setPdfPaletteCompression(const int compression) {
+  writeValue(getKey(PDF_PALETTE_COMPRESSION_KEY), compression);
+}
+
+int ApplicationSettings::getPdfPaletteQuality() const {
+  bool ok = false;
+  const int v = readValue(getKey(PDF_PALETTE_QUALITY_KEY), DEFAULT_PDF_JPEG_QUALITY).toInt(&ok);
+  return ok ? qBound(10, v, 100) : DEFAULT_PDF_JPEG_QUALITY;
+}
+
+void ApplicationSettings::setPdfPaletteQuality(const int quality) {
+  writeValue(getKey(PDF_PALETTE_QUALITY_KEY), qBound(10, quality, 100));
+}
+
+int ApplicationSettings::getPdfBitonalCompression() const {
+  // Earlier versions only had the choice between JBIG2 and CCITT G4.
+  const bool jbig2 = readValue(getKey(PDF_JBIG2_KEY), DEFAULT_PDF_JBIG2).toBool();
+  const int fallback = static_cast<int>(jbig2 ? PdfCompression::JBIG2 : PdfCompression::CCITT_G4);
+  bool ok = false;
+  const int v = readValue(getKey(PDF_BITONAL_COMPRESSION_KEY), fallback).toInt(&ok);
+  return ok ? v : fallback;
+}
+
+void ApplicationSettings::setPdfBitonalCompression(const int compression) {
+  writeValue(getKey(PDF_BITONAL_COMPRESSION_KEY), compression);
 }
 
 int ApplicationSettings::getPdfBackgroundScale() const {
@@ -325,14 +375,6 @@ int ApplicationSettings::getPdfBackgroundScale() const {
 
 void ApplicationSettings::setPdfBackgroundScale(const int scale) {
   writeValue(getKey(PDF_BACKGROUND_SCALE_KEY), qBound(1, scale, 3));
-}
-
-bool ApplicationSettings::isPdfJbig2Enabled() const {
-  return readValue(getKey(PDF_JBIG2_KEY), DEFAULT_PDF_JBIG2).toBool();
-}
-
-void ApplicationSettings::setPdfJbig2Enabled(const bool enabled) {
-  writeValue(getKey(PDF_JBIG2_KEY), enabled);
 }
 
 bool ApplicationSettings::isPdfOpenAfterCreationEnabled() const {

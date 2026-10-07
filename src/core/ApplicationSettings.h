@@ -133,20 +133,35 @@ class ApplicationSettings {
   static const int MIN_DESKEW_HANDLE_DISTANCE;
   static const int MAX_DESKEW_HANDLE_DISTANCE;
 
-  /** PDF export: JPEG quality (10 to 100) for grayscale / colour pages and backgrounds. */
-  int getPdfJpegQuality() const;
+  /** PDF export: compression of grayscale / colour pages and backgrounds, a PdfCompression value. */
+  int getPdfColorCompression() const;
 
-  void setPdfJpegQuality(int quality);
+  void setPdfColorCompression(int compression);
+
+  /** PDF export: quality (10 to 100) of grayscale / colour pages and backgrounds. */
+  int getPdfColorQuality() const;
+
+  void setPdfColorQuality(int quality);
 
   /** PDF export: the background of split pages is stored at 1 / scale of the output resolution (1 to 3). */
   int getPdfBackgroundScale() const;
 
   void setPdfBackgroundScale(int scale);
 
-  /** PDF export: compress black and white images as JBIG2 (true) or CCITT G4 (false). */
-  bool isPdfJbig2Enabled() const;
+  /** PDF export: compression of posterized pages and backgrounds, a PdfCompression value. */
+  int getPdfPaletteCompression() const;
 
-  void setPdfJbig2Enabled(bool enabled);
+  void setPdfPaletteCompression(int compression);
+
+  /** PDF export: quality (10 to 100) of posterized pages and backgrounds. */
+  int getPdfPaletteQuality() const;
+
+  void setPdfPaletteQuality(int quality);
+
+  /** PDF export: compression of black and white images, a PdfCompression value. */
+  int getPdfBitonalCompression() const;
+
+  void setPdfBitonalCompression(int compression);
 
   /** PDF export: open the PDF in the default viewer once it's created. */
   bool isPdfOpenAfterCreationEnabled() const;
@@ -229,6 +244,10 @@ class ApplicationSettings {
   static const QString PDF_BACKGROUND_SCALE_KEY;
   static const QString PDF_OPEN_AFTER_CREATION_KEY;
   static const QString PDF_JBIG2_KEY;
+  static const QString PDF_COLOR_COMPRESSION_KEY;
+  static const QString PDF_PALETTE_COMPRESSION_KEY;
+  static const QString PDF_PALETTE_QUALITY_KEY;
+  static const QString PDF_BITONAL_COMPRESSION_KEY;
   static const int DEFAULT_PDF_JPEG_QUALITY;
   static const int DEFAULT_PDF_BACKGROUND_SCALE;
   static const bool DEFAULT_PDF_OPEN_AFTER_CREATION;

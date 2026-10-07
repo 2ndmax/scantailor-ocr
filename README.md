@@ -50,22 +50,35 @@ The changes were developed with the help of Claude (Anthropic).
   pages disappear. The selection and order aren't saved, and the project file isn't changed.
 * While a PDF is being created, the other steps and opening, creating or closing a project are
   locked. Closing the program asks whether to cancel the PDF.
-* Small files, similar in size to Adobe Acrobat's output:
-  * Black and white pages are stored losslessly as **JBIG2** (default) or CCITT G4.
+* Small files, similar in size to Adobe Acrobat's output, by default:
+  * Black and white pages are stored losslessly as **JBIG2**.
   * Mixed pages with **split output** are stored in layers. Only the picture area of the
     background is stored, as JPEG at reduced resolution (full, half or one third). The text is
-    painted losslessly on top as a JBIG2 or G4 mask.
+    painted losslessly on top as a JBIG2 mask.
+  * Posterized color pages keep their few colors: they are stored losslessly with **Deflate** as
+    palette images, which is sharp and small.
   * All other pages are stored as JPEG. Mixed pages without split output get a warning, as they
     make the PDF much larger.
+* The panel **PDF compression** has a part for each kind of page:
+  * *Color and grayscale* (also the pictures of split pages): JPEG (default), Deflate or None,
+    the quality for JPEG and the resolution of the pictures of split pages.
+  * *Posterized pages* (also posterized pictures of split pages): Deflate (default), JPEG or
+    None, and the quality for JPEG. Posterized grayscale pages can't be told apart from other
+    grayscale pages and follow *Color and grayscale*.
+  * *Black and white* (also the text of split pages): JBIG2 (default), CCITT G4, Deflate or None.
+
+  Deflate and None are lossless; Deflate uses PNG predictors for photos. The quality fields are
+  greyed out unless JPEG is chosen. The page tiles show the method each page will get. To keep
+  memory use in bounds with large uncompressed pages, at most 512 MB of prepared pages wait for
+  being written.
 * **JBIG2** makes black and white pages about a third smaller than CCITT G4, with exactly the
   same pixels. Only JBIG2's lossless "generic region" coding is used, never the symbol mode
   that stores similar-looking letters only once and can swap characters (such as 6 and 8).
   The arithmetic coder is taken from [jbig2enc](https://github.com/agl/jbig2enc) (Apache License
   2.0, see `src/core/jbig2enc`); no extra library is needed. CCITT G4 remains selectable for
   very old PDF programs.
-* JPEG quality (default 85), picture resolution, black and white compression (panel
-  *PDF compression*) and "open the PDF after creating it" are kept as program settings, saved as
-  soon as they are changed. By default
+* The compression options and "open the PDF after creating it" are kept as program settings,
+  saved as soon as they are changed. By default
   the PDF is saved next to the project file and named after it.
 * Several pages are prepared in parallel, with progress display and cancelling. The PDF is
   written to a temporary file first, so a failed or cancelled export never leaves a broken file

@@ -302,7 +302,7 @@
           <item>
            <widget class="QCheckBox" name="blackOnWhiteDetectionCB">
             <property name="toolTip">
-             <string>Auto detect pages with light content on dark background. The corrections to all the auto algorithms are made for such pages.</string>
+             <string>Detects pages with light content on a dark background, such as white text on black. Such pages are inverted internally, so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing and is kept, so changing this setting doesn't affect pages that are deskewed already.</string>
             </property>
             <property name="text">
              <string>Auto detect light content on dark background</string>
@@ -312,7 +312,7 @@
           <item>
            <widget class="QCheckBox" name="blackOnWhiteDetectionAtOutputCB">
             <property name="toolTip">
-             <string>Whether to use auto detection at the output stage. The wrong result can be changed manually in the output filter options.</string>
+             <string>Also sets the &quot;Black on white mode&quot; of the Output stage according to the detection. Turned off, the detection only helps deskewing and content detection, and the Output stage treats all pages as dark content on a light background. A change made by hand in the Output stage always takes precedence.</string>
             </property>
             <property name="text">
              <string>Use auto detection at the output stage</string>
