@@ -59,13 +59,13 @@ The changes were developed with the help of Claude (Anthropic).
     palette images, which is sharp and small.
   * All other pages are stored as JPEG. Mixed pages without split output get a warning, as they
     make the PDF much larger.
-* The panel **PDF compression** has a part for each kind of page:
-  * *Color and grayscale* (also the pictures of split pages): JPEG (default), **JPEG 2000**,
+* The panel **PDF Compression** has a part for each kind of page:
+  * *Color and Grayscale* (also the pictures of split pages): JPEG (default), **JPEG 2000**,
     Deflate or None, the quality and the resolution of the pictures of split pages.
-  * *Posterized pages* (also posterized pictures of split pages): Deflate (default), JPEG,
+  * *Posterized Pages* (also posterized pictures of split pages): Deflate (default), JPEG,
     JPEG 2000 or None, and the quality. Posterized grayscale pages can't be told apart from
-    other grayscale pages and follow *Color and grayscale*.
-  * *Black and white* (also the text of split pages): JBIG2 (default), CCITT G4, Deflate or None.
+    other grayscale pages and follow *Color and Grayscale*.
+  * *Black and White* (also the text of split pages): JBIG2 (default), CCITT G4, Deflate or None.
 
   Deflate and None are lossless; Deflate uses PNG predictors for photos. The quality (10 to 100)
   applies to JPEG and JPEG 2000 and is greyed out for the other methods. The page tiles show the
@@ -138,7 +138,7 @@ The changes were developed with the help of Claude (Anthropic).
   the deskew nor the oblique angle.
 * The drag handles for rotation and oblique correction sit closer to the image center, away from
   the edge of the view. How close is adjustable under *Settings → General → Deskew handle distance*
-  (default 75 %).
+  (default 90 %).
 * The project and profile XML format is unchanged, so existing projects and profiles keep working.
 
 ### New project
@@ -147,7 +147,7 @@ The changes were developed with the help of Claude (Anthropic).
   `<input folder>\<folder name>.ScanTailor` and follows the input folder until it is changed.
   The project is saved there as soon as the dialog is confirmed; an existing file is only
   overwritten after asking.
-* With **Import new scans** ticked, a project may start without any images. Such an empty
+* With **Import new scans automatically from input folder** ticked, a project may start without any images. Such an empty
   project opens with the processing steps and the page list instead of the start page. Its
   project file keeps the input folder as a directory without files; other ScanTailor versions
   can't open a project without images, but open it normally once it contains one.
@@ -155,7 +155,7 @@ The changes were developed with the help of Claude (Anthropic).
 ### Automatic import of new scans
 
 * Step 1 is called **Import** now; fixing the orientation is one of its settings. Its new
-  panel **Automatic import** watches a folder, e.g. the one a scanning program saves to, and
+  panel **Automatic Import** watches a folder, e.g. the one a scanning program saves to, and
   adds every new image to the end of the project. In step 1 the new scan is selected and
   shown; in the other steps it is only added, so it isn't processed right away with automatic
   settings. The project is saved after each scan.
@@ -163,7 +163,7 @@ The changes were developed with the help of Claude (Anthropic).
   stayed the same for a moment and the whole image can be loaded (in the background). A file
   that still can't be opened after a minute is reported and skipped. Subfolders such as `out`
   are not watched.
-* The panel shows the folder (changeable) and is switched on with **Import new scans**. When
+* The panel shows the folder (changeable) and is switched on with **Watch folder**. When
   it is switched on in a project, or another folder is chosen, the images already in the
   folder but not in the project can be chosen once, in the same lists as in the "Project
   Files" dialog. Importing is always off when a project is opened; it needs a saved project.
@@ -222,7 +222,7 @@ from working:
 * **New option "Grayscale output"** in the output options and in the default parameters
   (profiles), for *Color / Grayscale* and *Mixed* mode. A color scan is then processed like a
   grayscale scan: the whole page in color mode, pictures and colored text in mixed mode come out
-  in grayscale, with much smaller files. *Black and white* mode is not affected, as its color
+  in grayscale, with much smaller files. *Black and White* mode is not affected, as its color
   segmentation keeps colored text on purpose. The option is stored in the project only when
   it is turned on; other versions ignore it (and produce color output again).
   ([upstream #179](https://github.com/ScanTailor-Advanced/scantailor-advanced/issues/179))
@@ -234,13 +234,13 @@ from working:
 ### Output: TIFF compression
 
 * The compression of the output TIFF files moved from the settings window to a new panel
-  **TIFF compression** at the bottom of the output options, with a part for each kind of page
+  **TIFF Compression** at the bottom of the output options, with a part for each kind of page
   like the PDF compression:
-  * *Color and grayscale*: None, LZW (default), Deflate, LZMA or JPEG, and the JPEG quality
+  * *Color and Grayscale*: None, LZW (default), Deflate, LZMA or JPEG, and the JPEG quality
     (default 85).
-  * *Posterized pages* (palette images, new setting): None, LZW (default), Deflate or LZMA.
+  * *Posterized Pages* (palette images, new setting): None, LZW (default), Deflate or LZMA.
     Before, they followed the color setting.
-  * *Black and white*: None, LZW, Deflate, LZMA or CCITT G4 (default).
+  * *Black and White*: None, LZW, Deflate, LZMA or CCITT G4 (default).
 
   Like the PDF options, they apply to all projects, are saved as soon as they are changed and
   are not stored in the project file. Previously chosen values are kept.
@@ -265,35 +265,75 @@ from working:
 
 ### Options panels: one layout for all steps
 
-* Each panel holds what its **Apply To ...** button applies to other pages. Parts of a panel are
-  divided by bold headings instead of nested collapsible boxes, and **Apply To ...** is the last
+* Each panel holds what its **Apply to ...** button applies to other pages. Parts of a panel are
+  divided by bold headings instead of nested collapsible boxes, and **Apply to ...** is the last
   line of the panel. Its tooltip says what is applied. The buttons have the same width in all
   steps, and the dialogs they open have distinct titles.
-* *Import*: "Rotate" and "Crop scan (trim)" are one panel, **Rotate and trim**, as the button
+* *Import*: "Rotate" and "Crop scan (trim)" are one panel, **Rotate and Trim**, as the button
   applied both anyway. The "Reset" and "Reset trim" buttons are gone: the arrows rotate back, and
   the check box turns the trim off.
 * *Split Pages*: the page type is switched with **Auto / Manual** buttons in the panel, as is the
   split line. Before, going back to automatic detection was only possible in the dialog behind
-  "Change ...". That dialog is now an **Apply To ...** dialog with two options: *Page type* and
+  "Change ...". That dialog is now an **Apply to ...** dialog with two options: *Page type* and
   *Split line* (formerly "Apply cut": the position of the split line, adapted to each page).
-* *Deskew*: headings "Rotation angle" and "Oblique".
-* *Select Content*: "Page Box" and "Content Box" are one panel, **Page and content box**.
-* *Page Layout*: "Fix all..." and "Match size to all pages" have their own line above
-  **Apply To ...**.
+* *Deskew*: the panel **Deskew and Oblique** has the headings "Deskew" and "Oblique". The options
+  of its **Apply to ...** dialog are named like them, *Deskew* and *Oblique* (formerly "Deskew
+  angle and mode" and "Oblique angle and mode").
+* *Select Content*: "Page Box" and "Content Box" are one panel, **Page and Content Box**.
+* *Page Layout*: "Fix all ..." and "Match size to all pages" have their own line above
+  **Apply to ...**.
 * *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Filling",
-  "Threshold", "Color operations" and "Picture Shape". The collapsed state saved for the old
+  "Threshold", "Color Operations" and "Picture Zones" (formerly "Picture Shape", like the tab
+  in which picture zones are edited). The collapsed state saved for the old
   nested boxes is no longer used.
 * *Output*: the **output resolution** (a list with 300, 400, 600 and 1200 DPI; other values can
   be typed in) and the **dewarping** mode with "Post deskew" are set in the panels and apply to
-  the current page at once, like all other settings. "Change ..." became **Apply To ...**. The
+  the current page at once, like all other settings. "Change ..." became **Apply to ...**. The
   angle found by "Post deskew" is shown next to it.
 * All "apply to other pages" dialogs offer the same seven choices, also in the Output step
   (formerly four there), and those that apply only some of the settings list them below the
-  choice of pages under "Apply parameters".
+  choice of pages under "Apply Parameters".
 * *Create PDF*: "Open the PDF after creating it" sits next to the **Create PDF** button, as it
   concerns creating rather than the content of the PDF. The lists of the compression panels
-  (also of *TIFF compression*) keep their width and line up instead of filling a widened panel.
+  (also of *TIFF Compression*) keep their width and line up instead of filling a widened panel.
+* *Import*: the button **Change ...** of **Automatic Import** sits next to **Watch folder**, and
+  the folder is shown below at full width; the line "Folder:" is gone.
+* *Output*: **Wiener denoiser** has a check box. Below it, its two values are named, *Strength*
+  (0.01 to 1) and *Window size* (now 3 to 99). Turned off, the strength is stored as 0, as
+  before; turned on again, the last strength is used (0.10 at first). The three values of
+  **Color segmentation** have the headings *Red*, *Green* and *Blue* above them and a normal
+  frame. The four dewarping buttons are arranged two by two (Off, Auto / Marginal, Manual), so they
+  don't make the panel wider.
+* *Margins*: the source DPI is set in two lists (horizontal × vertical) with 300, 400, 600 and
+  1200 DPI that also take any other value; the separate list of presets is gone. A value chosen
+  from a list sets both while they are the same; typing changes only the one field. "Lock
+  aggregate size for matching" is now called "Lock common size".
+* The options panels are at least 320 pixels wide (formerly 274), so a scroll bar doesn't cover
+  their content.
+* Native color scheme on Windows 11: the arrows of number fields are placed above each other
+  instead of next to each other, so the fields are as narrow as in the other color schemes and
+  rows of them (e.g. the trim values) fit into the panels.
 * Nothing changes in the processing or in the project file.
+
+### Consistent wording
+
+* Panel titles, headings, window titles and menu entries are written in title case throughout,
+  e.g. **Page and Content Box**, **TIFF Compression** or *Tools → Default Parameters ...*. Check
+  boxes, buttons and labels keep sentence case, except the buttons **Apply to ...**. A "..." is
+  always preceded by a space.
+* The check box of the panel **Automatic Import** is called **Watch folder**.
+* *Output*: the dialogs of the panels Mode, Splitting and Processing are called "Apply Mode",
+  "Apply Splitting" and "Apply Processing", like the dialogs of the other panels.
+* *Settings*: "Params" became "Parameters". *Default Parameters*: the first tab is called
+  "Import" like the step.
+* *Output*, **Picture Zones**: the shapes are called "Free shape" and "Rectangle" (formerly "Free"
+  and "Rectangular").
+* "Folder" instead of "directory", as in Windows, e.g. **Input Folder** and **Output Folder** in
+  the "Project Files" dialog.
+* "Project Files" dialog: after moving files to the other list, the next file is selected, so
+  the arrow button can be clicked repeatedly without selecting a file each time.
+* German translation: the same thing is called the same everywhere (e.g. "Schwarz-Weiß",
+  "Geraderichten", "Ordner"), and "..." is preceded by a space.
 
 ### Zone editors (picture zones and fill zones)
 
@@ -397,7 +437,7 @@ from working:
 * The Flatpak manifest (now `flatpak/io.github._2ndmax.ScanTailorOCR.json`) builds this fork's own code
   instead of upstream's version 1.1.1, with the KDE 6.10 runtime (Qt 6), Boost as an extra
   module and the correct program name. The Flatpak workflow can be started by hand.
-* Fixed compiler warnings: a possibly dangling reference in "Go To Page", the member
+* Fixed compiler warnings: a possibly dangling reference in "Go to Page", the member
   initialization order in the margins options, and an obsolete combo box setting that Qt 6
   ignored anyway.
 * The `update_translations` target works with Qt 6 again: it passes a file list to `lupdate`

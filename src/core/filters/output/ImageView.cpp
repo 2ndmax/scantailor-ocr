@@ -44,7 +44,7 @@ void ImageView::drawGuides(QPainter& painter) {
 
 void ImageView::contextMenuEvent(QContextMenuEvent* event) {
   QMenu menu(this);
-  QAction* showGuidesAction = menu.addAction(tr("Show guides"));
+  QAction* showGuidesAction = menu.addAction(tr("Show Guides"));
   showGuidesAction->setCheckable(true);
   showGuidesAction->setChecked(ApplicationSettings::getInstance().isOutputShowGuidesEnabled());
   connect(showGuidesAction, &QAction::toggled,

@@ -99,6 +99,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void higherSearchSensivityToggled(bool checked);
 
+  void wienerToggled(bool checked);
+
   void wienerCoefChanged(double value);
 
   void wienerWindowSizeChanged(int value);
@@ -208,6 +210,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   DepthPerception m_depthPerception;
   DewarpingOptions m_dewarpingOptions;
   double m_despeckleLevel;
+  // A strength of 0 turns the Wiener denoiser off; turning it on again restores the last strength.
+  double m_wienerCoefWhenOn = 0.1;
   ImageViewTab m_lastTab;
   QTimer m_delayedReloadRequest;
   bool m_checkingDpi = false;

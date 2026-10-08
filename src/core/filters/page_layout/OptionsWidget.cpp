@@ -467,9 +467,10 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(leftRightLink, SIGNAL(clicked()), this, SLOT(leftRightLinkClicked()));
   CONNECT(applyMarginsBtn, SIGNAL(clicked()), this, SLOT(showApplyMarginsDialog()));
   CONNECT(fixDpiBtn, SIGNAL(clicked()), this, SLOT(onFixDpiClicked()));
-  CONNECT(sourceDpiCombo, SIGNAL(activated(int)), this, SLOT(sourceDpiComboActivated(int)));
-  CONNECT(sourceXDpi, SIGNAL(editingFinished()), this, SLOT(sourceDpiEditingFinished()));
-  CONNECT(sourceYDpi, SIGNAL(editingFinished()), this, SLOT(sourceDpiEditingFinished()));
+  CONNECT(sourceXDpi, SIGNAL(activated(int)), this, SLOT(sourceDpiActivated()));
+  CONNECT(sourceYDpi, SIGNAL(activated(int)), this, SLOT(sourceDpiActivated()));
+  CONNECT(sourceXDpi->lineEdit(), SIGNAL(editingFinished()), this, SLOT(sourceDpiEditingFinished()));
+  CONNECT(sourceYDpi->lineEdit(), SIGNAL(editingFinished()), this, SLOT(sourceDpiEditingFinished()));
   CONNECT(alignWithOthersCB, SIGNAL(toggled(bool)), this, SLOT(alignWithOthersToggled()));
   CONNECT(applyAlignmentBtn, SIGNAL(clicked()), this, SLOT(showApplyAlignmentDialog()));
   CONNECT(matchSizeToAllBtn, SIGNAL(clicked()), this, SLOT(matchSizeToAllPages()));
@@ -566,18 +567,15 @@ void OptionsWidget::onFixDpiClicked() {
 }
 
 void OptionsWidget::setupSourceDpiControls() {
-  sourceDpiCombo->addItem(tr("Custom"), QVariant());
-  sourceDpiCombo->addItem(QStringLiteral("300 x 300"), QSize(300, 300));
-  sourceDpiCombo->addItem(QStringLiteral("400 x 400"), QSize(400, 400));
-  sourceDpiCombo->addItem(QStringLiteral("600 x 600"), QSize(600, 600));
-  sourceDpiCombo->addItem(QStringLiteral("1200 x 1200"), QSize(1200, 1200));
+  // Lists of the usual values that also take any other value typed in.
+  for (QComboBox* field : {sourceXDpi, sourceYDpi}) {
+    field->addItems({QStringLiteral("300"), QStringLiteral("400"), QStringLiteral("600"), QStringLiteral("1200")});
+    field->setInsertPolicy(QComboBox::NoInsert);
+    field->lineEdit()->setMaxLength(4);
+    field->setValidator(new QIntValidator(field));
+  }
 
-  sourceXDpi->setMaxLength(4);
-  sourceYDpi->setMaxLength(4);
-  sourceXDpi->setValidator(new QIntValidator(sourceXDpi));
-  sourceYDpi->setValidator(new QIntValidator(sourceYDpi));
-
-  m_sourceDpiNormalPalette = sourceXDpi->palette();
+  m_sourceDpiNormalPalette = sourceXDpi->lineEdit()->palette();
   m_sourceDpiErrorPalette = m_sourceDpiNormalPalette;
   const QColor errorColor(ColorSchemeManager::instance().getColorParam("FixDpiDialogErrorText", QColor(Qt::red)));
   m_sourceDpiErrorPalette.setColor(QPalette::Text, errorColor);
@@ -587,14 +585,12 @@ void OptionsWidget::updateSourceDpiDisplay() {
   auto block = m_connectionManager.getScopedBlock();
 
   if (m_dpi.isNull()) {
-    sourceXDpi->clear();
-    sourceYDpi->clear();
+    sourceXDpi->setEditText(QString());
+    sourceYDpi->setEditText(QString());
   } else {
-    sourceXDpi->setText(QString::number(m_dpi.horizontal()));
-    sourceYDpi->setText(QString::number(m_dpi.vertical()));
+    sourceXDpi->setEditText(QString::number(m_dpi.horizontal()));
+    sourceYDpi->setEditText(QString::number(m_dpi.vertical()));
   }
-
-  updateSourceDpiComboFromFields();
 
   const ImageMetadata metadata(m_sourceImagePixelSize, m_dpi);
   decorateSourceDpiField(sourceXDpi, metadata.horizontalDpiStatus());
@@ -608,8 +604,8 @@ void OptionsWidget::commitSourceDpiIfValid() {
 
   bool xOk = false;
   bool yOk = false;
-  const int horizontalDpi = sourceXDpi->text().toInt(&xOk);
-  const int verticalDpi = sourceYDpi->text().toInt(&yOk);
+  const int horizontalDpi = sourceXDpi->currentText().toInt(&xOk);
+  const int verticalDpi = sourceYDpi->currentText().toInt(&yOk);
   if (!xOk || !yOk) {
     return;
   }
@@ -631,14 +627,14 @@ void OptionsWidget::commitSourceDpiIfValid() {
   updateMarginsDisplay();
 }
 
-void OptionsWidget::decorateSourceDpiField(QLineEdit* field, const ImageMetadata::DpiStatus dpiStatus) {
+void OptionsWidget::decorateSourceDpiField(QComboBox* field, const ImageMetadata::DpiStatus dpiStatus) {
   if (dpiStatus == ImageMetadata::DPI_OK) {
-    field->setPalette(m_sourceDpiNormalPalette);
+    field->lineEdit()->setPalette(m_sourceDpiNormalPalette);
     field->setToolTip(QString());
     return;
   }
 
-  field->setPalette(m_sourceDpiErrorPalette);
+  field->lineEdit()->setPalette(m_sourceDpiErrorPalette);
   switch (dpiStatus) {
     case ImageMetadata::DPI_TOO_LARGE:
       field->setToolTip(tr("DPI is too large and most likely wrong."));
@@ -658,28 +654,8 @@ void OptionsWidget::decorateSourceDpiField(QLineEdit* field, const ImageMetadata
   }
 }
 
-void OptionsWidget::updateSourceDpiComboFromFields() {
-  bool xOk = false;
-  bool yOk = false;
-  const QSize dpi(sourceXDpi->text().toInt(&xOk), sourceYDpi->text().toInt(&yOk));
-
-  if (xOk && yOk) {
-    const int count = sourceDpiCombo->count();
-    for (int i = 0; i < count; ++i) {
-      const QVariant data(sourceDpiCombo->itemData(i));
-      if (data.isValid() && (dpi == data.toSize())) {
-        sourceDpiCombo->setCurrentIndex(i);
-        return;
-      }
-    }
-  }
-
-  sourceDpiCombo->setCurrentIndex(0);
-}
-
 void OptionsWidget::keepSourceDpiFieldsEnabled() {
   sourceDpiLabel->setEnabled(true);
-  sourceDpiCombo->setEnabled(true);
   sourceDpiTimesLabel->setEnabled(true);
   sourceXDpi->setEnabled(true);
   sourceYDpi->setEnabled(true);
@@ -688,28 +664,29 @@ void OptionsWidget::keepSourceDpiFieldsEnabled() {
 
 bool OptionsWidget::isSourceDpiFieldFocused() const {
   const QWidget* const focused = focusWidget();
-  return (focused == sourceXDpi) || (focused == sourceYDpi) || (focused == sourceDpiCombo);
+  return (focused == sourceXDpi) || (focused == sourceYDpi) || (focused == sourceXDpi->lineEdit())
+         || (focused == sourceYDpi->lineEdit());
 }
 
-void OptionsWidget::sourceDpiComboActivated(const int index) {
-  const QVariant data(sourceDpiCombo->itemData(index));
-  if (!data.isValid()) {
+void OptionsWidget::sourceDpiActivated() {
+  auto* chosen = qobject_cast<QComboBox*>(sender());
+  if (!chosen) {
     return;
   }
-
-  const QSize dpi(data.toSize());
-  sourceXDpi->setText(QString::number(dpi.width()));
-  sourceYDpi->setText(QString::number(dpi.height()));
+  // Both values are almost always the same, so a value chosen from the list sets both while
+  // they are.  Different values stay different; typing changes only the one field.
+  QComboBox* other = (chosen == sourceXDpi) ? sourceYDpi : sourceXDpi;
+  if (m_dpi.isNull() || (m_dpi.horizontal() == m_dpi.vertical())) {
+    other->setEditText(chosen->currentText());
+  }
   sourceDpiEditingFinished();
 }
 
 void OptionsWidget::sourceDpiEditingFinished() {
-  updateSourceDpiComboFromFields();
-
   bool xOk = false;
   bool yOk = false;
-  const int horizontalDpi = sourceXDpi->text().toInt(&xOk);
-  const int verticalDpi = sourceYDpi->text().toInt(&yOk);
+  const int horizontalDpi = sourceXDpi->currentText().toInt(&xOk);
+  const int verticalDpi = sourceYDpi->currentText().toInt(&yOk);
   if (xOk && yOk) {
     const ImageMetadata metadata(m_sourceImagePixelSize, Dpi(horizontalDpi, verticalDpi));
     decorateSourceDpiField(sourceXDpi, metadata.horizontalDpiStatus());

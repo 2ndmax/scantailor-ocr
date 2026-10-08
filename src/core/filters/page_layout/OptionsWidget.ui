@@ -279,6 +279,19 @@ QToolButton:pressed {
       <item>
        <layout class="QHBoxLayout" name="sourceDpiLayout">
         <item>
+         <spacer name="sourceDpiSpacerLeft">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QLabel" name="sourceDpiLabel">
           <property name="text">
            <string>Source DPI</string>
@@ -286,15 +299,15 @@ QToolButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="sourceDpiCombo"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="sourceXDpi">
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
+         <widget class="QComboBox" name="sourceXDpi">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -306,14 +319,30 @@ QToolButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="sourceYDpi">
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
+         <widget class="QComboBox" name="sourceYDpi">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="sourceDpiSpacerRight">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -341,7 +370,7 @@ QToolButton:pressed {
            </size>
           </property>
           <property name="text">
-           <string>Fix all...</string>
+           <string>Fix all ...</string>
           </property>
          </widget>
         </item>
@@ -390,7 +419,7 @@ QToolButton:pressed {
            <string>Applies the margins of this page to other pages.</string>
           </property>
           <property name="text">
-           <string>Apply To ...</string>
+           <string>Apply to ...</string>
           </property>
          </widget>
         </item>
@@ -812,7 +841,7 @@ QToolButton:pressed {
          <string>Keep the aggregate page size used for matching fixed while you switch pages, so the reference dimensions do not jump.</string>
         </property>
         <property name="text">
-         <string>Lock aggregate size for matching</string>
+         <string>Lock common size</string>
         </property>
        </widget>
       </item>
@@ -892,7 +921,7 @@ QToolButton:pressed {
            <string>Applies the alignment of this page to other pages.</string>
           </property>
           <property name="text">
-           <string>Apply To ...</string>
+           <string>Apply to ...</string>
           </property>
          </widget>
         </item>

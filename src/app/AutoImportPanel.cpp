@@ -22,27 +22,26 @@ AutoImportPanel::AutoImportPanel(QWidget* parent) : QWidget(parent) {
                              layout->contentsMargins().right(), 0);
 
   // Collapsible like the other panels; the object name keeps its collapsed state.
-  auto* group = new CollapsibleGroupBox(tr("Automatic import"));
+  auto* group = new CollapsibleGroupBox(tr("Automatic Import"));
   group->setObjectName("autoImportPanel");
   auto* groupLayout = new QVBoxLayout(group);
   layout->addWidget(group);
 
-  m_importCheck = new QCheckBox(tr("Import new scans"));
-  groupLayout->addWidget(m_importCheck);
+  // The button shares the line of the check box, so the path below has the full width.
+  auto* checkLayout = new QHBoxLayout;
+  m_importCheck = new QCheckBox(tr("Watch folder"));
   setImportPossible(true);
-
-  // The label on a line of its own leaves the path the width next to the button.
-  groupLayout->addWidget(new QLabel(tr("Folder:")));
-  auto* dirLayout = new QHBoxLayout;
-  m_dirLabel = new QLabel;
-  // Long paths are shortened at the front instead of widening the panel.
-  m_dirLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_changeDirBtn = new QPushButton(tr("Change ..."));
   m_changeDirBtn->setToolTip(tr("Choose the folder the scanning program saves its images to."));
   m_changeDirBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  dirLayout->addWidget(m_dirLabel, 1);
-  dirLayout->addWidget(m_changeDirBtn);
-  groupLayout->addLayout(dirLayout);
+  checkLayout->addWidget(m_importCheck, 1);
+  checkLayout->addWidget(m_changeDirBtn);
+  groupLayout->addLayout(checkLayout);
+
+  m_dirLabel = new QLabel;
+  // Long paths are shortened at the front instead of widening the panel.
+  m_dirLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+  groupLayout->addWidget(m_dirLabel);
 
   m_appendMode = new QRadioButton(tr("Add at the end"));
   m_appendMode->setToolTip(tr("Each new scan becomes the last page."));

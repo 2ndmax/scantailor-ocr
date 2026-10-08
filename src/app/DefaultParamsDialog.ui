@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Default parameters</string>
+   <string>Default Parameters</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -119,7 +119,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Fix Orientation</string>
+       <string>Import</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="leftMargin">
@@ -2125,7 +2125,7 @@ QToolButton:pressed {
                      <string notr="true"/>
                     </property>
                     <property name="title">
-                     <string>Color operations</string>
+                     <string>Color Operations</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -3103,7 +3103,7 @@ QToolButton:pressed {
                   <item>
                    <widget class="QGroupBox" name="pictureShapeOptions">
                     <property name="title">
-                     <string>Picture Shape</string>
+                     <string>Picture Zones</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -3221,7 +3221,7 @@ QToolButton:pressed {
                        <item>
                         <widget class="QCheckBox" name="higherSearchSensitivityCB">
                          <property name="text">
-                          <string>Higher search sensivity</string>
+                          <string>Higher search sensitivity</string>
                          </property>
                         </widget>
                        </item>
@@ -3665,7 +3665,7 @@ QToolButton:pressed {
              <item>
               <widget class="QGroupBox" name="depthPerceptionPanel">
                <property name="title">
-                <string>Depth perception</string>
+                <string>Depth Perception</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>

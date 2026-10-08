@@ -96,8 +96,8 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   updateBinarizationOptionsDisplay(binarizationOptions->currentIndex());
 
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
-  pictureShapeSelector->addItem(tr("Free"), FREE_SHAPE);
-  pictureShapeSelector->addItem(tr("Rectangular"), RECTANGULAR_SHAPE);
+  pictureShapeSelector->addItem(tr("Free shape"), FREE_SHAPE);
+  pictureShapeSelector->addItem(tr("Rectangle"), RECTANGULAR_SHAPE);
 
   // Common resolutions; others can be typed in.
   for (const int dpi : {300, 400, 600, 1200}) {
@@ -127,8 +127,8 @@ void OptionsWidget::setupTiffCompressionPanel() {
   const ApplicationSettings& settings = ApplicationSettings::getInstance();
 
   // Built like the compression panel of the PDF step.  Unlike the other panels of this
-  // step, it applies to all pages and projects, so there is no "Apply To ..." button.
-  auto* group = new CollapsibleGroupBox(tr("TIFF compression"));
+  // step, it applies to all pages and projects, so there is no "Apply to ..." button.
+  auto* group = new CollapsibleGroupBox(tr("TIFF Compression"));
   group->setObjectName("tiffCompressionPanel");
   group->setToolTip(
       tr("Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed "
@@ -160,7 +160,7 @@ void OptionsWidget::setupTiffCompressionPanel() {
       "and its PDF export can.");
 
   // Color and grayscale.
-  addHeading(tr("Color and grayscale"),
+  addHeading(tr("Color and Grayscale"),
              tr("Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split "
                 "output."),
              true);
@@ -191,10 +191,10 @@ void OptionsWidget::setupTiffCompressionPanel() {
   layout->addRow(tr("Quality:"), m_tiffJpegQuality);
 
   // Posterized pages.
-  addHeading(tr("Posterized pages"),
+  addHeading(tr("Posterized Pages"),
              tr("Color pages that were posterized, and posterized pictures of pages with split output.  Posterized "
                 "grayscale pages can't be told apart from other grayscale pages; they follow \"Color and "
-                "grayscale\"."),
+                "Grayscale\"."),
              false);
   m_tiffPaletteCompression = new QComboBox;
   m_tiffPaletteCompression->addItem(tr("None"), COMPRESSION_NONE);
@@ -206,7 +206,7 @@ void OptionsWidget::setupTiffCompressionPanel() {
   layout->addRow(tr("Method:"), m_tiffPaletteCompression);
 
   // Black and white.
-  addHeading(tr("Black and white"), tr("Black and white pages and the text of pages with split output."), false);
+  addHeading(tr("Black and White"), tr("Black and white pages and the text of pages with split output."), false);
   m_tiffBwCompression = new QComboBox;
   m_tiffBwCompression->addItem(tr("None"), COMPRESSION_NONE);
   m_tiffBwCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
@@ -532,7 +532,7 @@ void OptionsWidget::applyColorsConfirmed(const std::set<PageId>& pages) {
 void OptionsWidget::applySplittingButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Splitting Settings"));
+  dialog->setWindowTitle(tr("Apply Splitting"));
   connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
           SLOT(applySplittingOptionsConfirmed(const std::set<PageId>&)));
   dialog->show();
@@ -892,7 +892,14 @@ void OptionsWidget::updateColorsDisplay() {
     posterizeCB->setEnabled(true);
     posterizeOptionsWidget->setEnabled(colorCommonOptions.getPosterizationOptions().isEnabled());
   }
-  wienerCoef->setValue(colorCommonOptions.wienerCoef());
+  // The check box first: the strength shown while it is off is only kept for turning it on.
+  const bool wienerOn = colorCommonOptions.wienerCoef() > 0.0;
+  if (wienerOn) {
+    m_wienerCoefWhenOn = colorCommonOptions.wienerCoef();
+  }
+  wienerCB->setChecked(wienerOn);
+  wienerOptionsWidget->setEnabled(wienerOn);
+  wienerCoef->setValue(m_wienerCoefWhenOn);
   wienerWindowSize->setValue(colorCommonOptions.wienerWindowSize());
   colorSegmentationCB->setChecked(blackWhiteOptions.getColorSegmenterOptions().isEnabled());
   reduceNoiseSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getNoiseReduction());
@@ -1019,7 +1026,21 @@ void OptionsWidget::originalBackgroundToggled(bool checked) {
   emit reloadRequested();
 }
 
+void OptionsWidget::wienerToggled(bool checked) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setWienerCoef(checked ? m_wienerCoefWhenOn : 0.0);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  wienerOptionsWidget->setEnabled(checked);
+  emit reloadRequested();
+}
+
 void OptionsWidget::wienerCoefChanged(double value) {
+  if (!wienerCB->isChecked()) {
+    return;
+  }
+  m_wienerCoefWhenOn = value;
   ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
   colorCommonOptions.setWienerCoef(value);
   m_colorParams.setColorCommonOptions(colorCommonOptions);
@@ -1183,6 +1204,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(pictureShapeSensitivitySB, SIGNAL(valueChanged(int)), this, SLOT(pictureShapeSensitivityChanged(int)));
   CONNECT(higherSearchSensitivityCB, SIGNAL(clicked(bool)), this, SLOT(higherSearchSensivityToggled(bool)));
 
+  CONNECT(wienerCB, SIGNAL(clicked(bool)), this, SLOT(wienerToggled(bool)));
   CONNECT(wienerCoef, SIGNAL(valueChanged(double)), this, SLOT(wienerCoefChanged(double)));
   CONNECT(wienerWindowSize, SIGNAL(valueChanged(int)), this, SLOT(wienerWindowSizeChanged(int)));
   CONNECT(colorSegmentationCB, SIGNAL(clicked(bool)), this, SLOT(colorSegmentationToggled(bool)));
@@ -1250,7 +1272,7 @@ void OptionsWidget::blackOnWhiteToggled(bool value) {
 void OptionsWidget::applyProcessingParamsClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Processing Settings"));
+  dialog->setWindowTitle(tr("Apply Processing"));
   connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
           SLOT(applyProcessingParamsConfirmed(const std::set<PageId>&)));
   dialog->show();

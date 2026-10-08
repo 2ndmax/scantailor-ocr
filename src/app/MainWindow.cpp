@@ -1122,12 +1122,12 @@ void MainWindow::pageContextMenuRequested(const PageInfo& pageInfo_, const QPoin
   QMenu menu(thumbView);
 
   auto& iconProvider = IconProvider::getInstance();
-  QAction* insBefore = menu.addAction(iconProvider.getIcon("insert-before"), tr("Insert before ..."));
-  QAction* insAfter = menu.addAction(iconProvider.getIcon("insert-after"), tr("Insert after ..."));
+  QAction* insBefore = menu.addAction(iconProvider.getIcon("insert-before"), tr("Insert Before ..."));
+  QAction* insAfter = menu.addAction(iconProvider.getIcon("insert-after"), tr("Insert After ..."));
 
   menu.addSeparator();
 
-  QAction* remove = menu.addAction(iconProvider.getIcon("user-trash"), tr("Remove from project ..."));
+  QAction* remove = menu.addAction(iconProvider.getIcon("user-trash"), tr("Remove from Project ..."));
 
   QAction* action = menu.exec(screenPos);
   if (action == insBefore) {
@@ -1157,7 +1157,7 @@ void MainWindow::pastLastPageContextMenuRequested(const QPoint& screenPos) {
   }
 
   QMenu menu(thumbView);
-  menu.addAction(IconProvider::getInstance().getIcon("insert-here"), tr("Insert here ..."));
+  menu.addAction(IconProvider::getInstance().getIcon("insert-here"), tr("Insert Here ..."));
 
   if (menu.exec(screenPos)) {
     showInsertFileDialog(BEFORE, ImageId());
@@ -2121,7 +2121,7 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
       dialogDir = m_projectFile.isEmpty() ? QDir::homePath() : QFileInfo(m_projectFile).absolutePath();
     }
   }
-  auto dialog = std::make_unique<QFileDialog>(this, tr("Files to insert"), dialogDir);
+  auto dialog = std::make_unique<QFileDialog>(this, tr("Files to Insert"), dialogDir);
   dialog->setFileMode(QFileDialog::ExistingFiles);
   dialog->setProxyModel(new ProxyModel(*m_pages));
   dialog->setNameFilter(tr("Images not in project (%1)")
@@ -2385,7 +2385,7 @@ ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& n
 
 void MainWindow::showImportWarning(const QString& text) {
   // Not modal, so further scans are still imported.
-  auto* box = new QMessageBox(QMessageBox::Warning, tr("Automatic import"), text, QMessageBox::Ok, this);
+  auto* box = new QMessageBox(QMessageBox::Warning, tr("Automatic Import"), text, QMessageBox::Ok, this);
   box->setAttribute(Qt::WA_DeleteOnClose);
   box->setWindowModality(Qt::NonModal);
   box->show();
@@ -2427,7 +2427,7 @@ QString MainWindow::suggestedImportDirectory() const {
 
 bool MainWindow::startAutoImport(const QString& dir, const bool chooseExistingImages) {
   if (dir.isEmpty() || !QDir(dir).exists()) {
-    QMessageBox::warning(this, tr("Automatic import"),
+    QMessageBox::warning(this, tr("Automatic Import"),
                          tr("The folder %1 doesn't exist.").arg(QDir::toNativeSeparators(dir)));
     return false;
   }
@@ -2856,7 +2856,7 @@ void MainWindow::execGotoPageDialog() {
   const PageSequence pageSequence = m_thumbSequence->toPageSequence();
   const PageId selectionLeader = m_thumbSequence->selectionLeader().id();
   int pageNumber
-      = QInputDialog::getInt(this, tr("Go To Page"), tr("Enter the page number:"),
+      = QInputDialog::getInt(this, tr("Go to Page"), tr("Enter the page number:"),
                              pageSequence.pageNo(selectionLeader) + 1, 1, (int) (pageSequence.numPages()), 1, &ok);
   if (ok) {
     const PageId& newSelectionLeader = pageSequence.pageAt(pageNumber - 1).id();

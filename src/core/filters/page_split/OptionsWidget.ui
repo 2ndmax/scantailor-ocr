@@ -32,7 +32,7 @@
       <item>
        <widget class="SectionHeading" name="layoutTypeHeading">
         <property name="text">
-         <string>Page type</string>
+         <string>Page Type</string>
         </property>
         <property name="first">
          <bool>true</bool>
@@ -271,7 +271,7 @@
            <string>Applies the page type of this page to other pages, and on request its split line.</string>
           </property>
           <property name="text">
-           <string>Apply To ...</string>
+           <string>Apply to ...</string>
           </property>
          </widget>
         </item>

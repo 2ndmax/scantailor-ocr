@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Out of memory</string>
+   <string>Out of Memory</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -76,7 +76,7 @@ font-weight: bold;</string>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
-           <string>Possible reasons</string>
+           <string>Possible Reasons</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="spacing">
@@ -189,7 +189,7 @@ font-weight: bold;</string>
          </widget>
          <widget class="QWidget" name="tab_2">
           <attribute name="title">
-           <string>What can help</string>
+           <string>What Can Help</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <property name="spacing">
@@ -319,7 +319,7 @@ font-weight: bold;</string>
          </widget>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
-           <string>What won't help</string>
+           <string>What Won't Help</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_8">
            <property name="leftMargin">

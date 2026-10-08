@@ -17,7 +17,7 @@
    <item>
     <widget class="CollapsibleGroupBox" name="rotateGroupBox">
      <property name="title">
-      <string>Rotate and trim</string>
+      <string>Rotate and Trim</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

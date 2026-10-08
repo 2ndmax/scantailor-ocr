@@ -20,7 +20,7 @@
       <string>If content is cropped incorrectly, check the Split Pages step: with columns, a split line set by hand and applied to other pages often works better.</string>
      </property>
      <property name="title">
-      <string>Page and content box</string>
+      <string>Page and Content Box</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

@@ -17,7 +17,7 @@
    <item>
     <widget class="CollapsibleGroupBox" name="deskewGroupBox">
      <property name="title">
-      <string>Deskew</string>
+      <string>Deskew and Oblique</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -26,7 +26,7 @@
       <item>
        <widget class="SectionHeading" name="deskewHeading">
         <property name="text">
-         <string>Rotation angle</string>
+         <string>Deskew</string>
         </property>
         <property name="first">
          <bool>true</bool>
@@ -210,7 +210,7 @@
            <string>Applies the rotation angle and the oblique correction of this page to other pages.</string>
           </property>
           <property name="text">
-           <string>Apply To ...</string>
+           <string>Apply to ...</string>
           </property>
          </widget>
         </item>

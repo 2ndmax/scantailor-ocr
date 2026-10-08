@@ -359,7 +359,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   layout->setContentsMargins(0, 0, 0, 0);
 
   // Collapsible like the panels of the other steps; the object name keeps its collapsed state.
-  auto* compressionGroup = new CollapsibleGroupBox(tr("PDF compression"));
+  auto* compressionGroup = new CollapsibleGroupBox(tr("PDF Compression"));
   compressionGroup->setObjectName("pdfCompressionPanel");
   auto* optionsLayout = new QFormLayout(compressionGroup);
   // All lists start after the longest label and keep their width instead of filling a widened
@@ -386,7 +386,7 @@ QWidget* PdfExportView::createOptionsWidget() {
       "JPEG 2000, 100 is lossless; with JPEG, it's only nearly lossless.");
 
   // Color and grayscale.
-  addHeading(tr("Color and grayscale"),
+  addHeading(tr("Color and Grayscale"),
              tr("Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split "
                 "output."),
              true);
@@ -422,10 +422,10 @@ QWidget* PdfExportView::createOptionsWidget() {
   optionsLayout->addRow(backgroundScaleLabel, m_backgroundScale);
 
   // Posterized pages.
-  addHeading(tr("Posterized pages"),
+  addHeading(tr("Posterized Pages"),
              tr("Color pages that were posterized in the Output stage, and posterized pictures of pages with split "
                 "output.  Posterized grayscale pages can't be told apart from other grayscale pages; they follow "
-                "\"Color and grayscale\"."),
+                "\"Color and Grayscale\"."),
              false);
   m_paletteCompression = new QComboBox;
   m_paletteCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
@@ -446,7 +446,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   optionsLayout->addRow(tr("Quality:"), m_paletteQuality);
 
   // Black and white.
-  addHeading(tr("Black and white"), tr("Black and white pages and the text of pages with split output."), false);
+  addHeading(tr("Black and White"), tr("Black and white pages and the text of pages with split output."), false);
   m_bitonalCompression = new QComboBox;
   m_bitonalCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
   m_bitonalCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
@@ -482,7 +482,7 @@ QWidget* PdfExportView::createOptionsWidget() {
 #ifdef ENABLE_OCR
   // Text recognition.  Like the panels of the other steps, the check box that turns it on
   // is the first entry, not part of the title.
-  auto* ocrGroup = new CollapsibleGroupBox(tr("Text recognition (OCR)"));
+  auto* ocrGroup = new CollapsibleGroupBox(tr("Text Recognition (OCR)"));
   ocrGroup->setObjectName("pdfOcrPanel");
   auto* ocrGroupLayout = new QVBoxLayout(ocrGroup);
   m_ocrEnabled = new QCheckBox(tr("Recognize text"));
@@ -748,7 +748,7 @@ void PdfExportView::moveBack() {
 }
 
 void PdfExportView::browse() {
-  QString path = QFileDialog::getSaveFileName(this, tr("Save PDF as"), m_fileEdit->text(), tr("PDF files (*.pdf)"));
+  QString path = QFileDialog::getSaveFileName(this, tr("Save PDF As"), m_fileEdit->text(), tr("PDF files (*.pdf)"));
   if (path.isEmpty()) {
     return;
   }

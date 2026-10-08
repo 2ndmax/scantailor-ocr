@@ -23,9 +23,9 @@
 #include "PageSelectionAccessor.h"
 #include "ui_OptionsWidget.h"
 
+class QComboBox;
 class QToolButton;
 class ProjectPages;
-class QLineEdit;
 
 namespace page_layout {
 class Settings;
@@ -99,7 +99,7 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   void onFixDpiClicked();
 
-  void sourceDpiComboActivated(int index);
+  void sourceDpiActivated();
 
   void sourceDpiEditingFinished();
 
@@ -138,9 +138,7 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   void commitSourceDpiIfValid();
 
-  void decorateSourceDpiField(QLineEdit* field, ImageMetadata::DpiStatus dpiStatus);
-
-  void updateSourceDpiComboFromFields();
+  void decorateSourceDpiField(QComboBox* field, ImageMetadata::DpiStatus dpiStatus);
 
   void keepSourceDpiFieldsEnabled();
 

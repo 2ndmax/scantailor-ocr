@@ -79,7 +79,7 @@ void ImageLoadErrorNotifier::showPending() {
   if (!m_messageBox) {
     auto* box = new QMessageBox(m_parentWindow);
     box->setIcon(QMessageBox::Warning);
-    box->setWindowTitle(tr("Problems with image files"));
+    box->setWindowTitle(tr("Problems with Image Files"));
     box->setStandardButtons(QMessageBox::Ok);
     box->setWindowModality(Qt::NonModal);
     box->setAttribute(Qt::WA_DeleteOnClose);

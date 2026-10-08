@@ -82,7 +82,7 @@ OptionsWidget::~OptionsWidget() = default;
 void OptionsWidget::showDeskewDialog() {
   auto* dialog = new ApplyDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Deskew"));
+  dialog->setWindowTitle(tr("Apply Deskew and Oblique"));
   connect(dialog, &ApplyDialog::appliedTo, this, &OptionsWidget::appliedTo);
   connect(dialog, &ApplyDialog::appliedToAllPages, this, &OptionsWidget::appliedToAllPages);
   dialog->show();

@@ -546,7 +546,7 @@ QToolButton:pressed {
           </size>
          </property>
          <property name="toolTip">
-          <string>Go To Page...  (Ctrl+G)</string>
+          <string>Go to page ...  (Ctrl+G)</string>
          </property>
          <property name="styleSheet">
           <string notr="true">QToolButton:!hover {
@@ -955,7 +955,7 @@ QToolButton:pressed {
    </property>
    <property name="minimumSize">
     <size>
-     <width>274</width>
+     <width>320</width>
      <height>204</height>
     </size>
    </property>
@@ -1269,7 +1269,7 @@ QToolButton:pressed {
   </action>
   <action name="actionReverseTwoPageOrder">
    <property name="text">
-    <string>Reverse two-page spread order</string>
+    <string>Reverse Two-Page Spread Order</string>
    </property>
    <property name="toolTip">
     <string>Swap left/right page order for two-page scans (e.g. Japanese book reading order).</string>
@@ -1423,7 +1423,7 @@ QToolButton:pressed {
   </action>
   <action name="actionDefaults">
    <property name="text">
-    <string>Default parameters ...</string>
+    <string>Default Parameters ...</string>
    </property>
    <property name="shortcut">
     <string notr="true"/>
@@ -1490,7 +1490,7 @@ QToolButton:pressed {
   </action>
   <action name="actionGotoPage">
    <property name="text">
-    <string>Go To Page</string>
+    <string>Go to Page</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+G</string>
@@ -1501,7 +1501,7 @@ QToolButton:pressed {
   </action>
   <action name="actionMagnifyThumbnails">
    <property name="text">
-    <string>Magnify thumbnails</string>
+    <string>Magnify Thumbnails</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl++</string>
@@ -1509,7 +1509,7 @@ QToolButton:pressed {
   </action>
   <action name="actionDiminishThumbnails">
    <property name="text">
-    <string>Diminish thumbnails</string>
+    <string>Diminish Thumbnails</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+-</string>
@@ -1517,7 +1517,7 @@ QToolButton:pressed {
   </action>
   <action name="actionReloadPage">
    <property name="text">
-    <string>Reload current page</string>
+    <string>Reload Current Page</string>
    </property>
    <property name="toolTip">
     <string>Reload current page</string>

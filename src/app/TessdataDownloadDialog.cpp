@@ -26,7 +26,7 @@ const int kHeaderItem = -1;
 }  // namespace
 
 TessdataDownloadDialog::TessdataDownloadDialog(QWidget* parent) : QDialog(parent) {
-  setWindowTitle(tr("Download OCR languages"));
+  setWindowTitle(tr("Download OCR Languages"));
 
   auto* layout = new QVBoxLayout(this);
   auto* intro = new QLabel(

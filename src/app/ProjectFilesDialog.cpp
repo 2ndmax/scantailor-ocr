@@ -13,6 +13,7 @@
 #include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QVector>
+#include <algorithm>
 #include <deque>
 
 #include "ImageLoadErrors.h"
@@ -283,7 +284,7 @@ void ProjectFilesDialog::inpDirBrowse() {
     initialDir = QDir(initialDir).absolutePath();
   }
 
-  const QString dir(QFileDialog::getExistingDirectory(this, tr("Input Directory"), initialDir));
+  const QString dir(QFileDialog::getExistingDirectory(this, tr("Input Folder"), initialDir));
 
   if (!dir.isEmpty()) {
     setInputDir(dir);
@@ -297,7 +298,7 @@ void ProjectFilesDialog::outDirBrowse() {
     initialDir = QDir::home().absolutePath();
   }
 
-  const QString dir(QFileDialog::getExistingDirectory(this, tr("Output Directory"), initialDir));
+  const QString dir(QFileDialog::getExistingDirectory(this, tr("Output Folder"), initialDir));
 
   if (!dir.isEmpty()) {
     setOutputDir(dir);
@@ -346,6 +347,30 @@ struct FileInfoLess {
     return lhs.absoluteFilePath() < rhs.absoluteFilePath();
   }
 };
+
+/** The topmost selected row of the list, or -1 if nothing is selected. */
+int firstSelectedRow(const QListView* list) {
+  int row = -1;
+  for (const QModelIndex& index : list->selectionModel()->selectedIndexes()) {
+    if ((row < 0) || (index.row() < row)) {
+      row = index.row();
+    }
+  }
+  return row;
+}
+
+/**
+ * Selects the entry that took the place of the moved ones, or the last entry if they were at
+ * the end, so the move button can be clicked again right away.
+ */
+void selectRowAfterMove(QListView* list, const int row) {
+  const QAbstractItemModel* model = list->model();
+  if ((row < 0) || (model->rowCount() == 0)) {
+    return;
+  }
+  const QModelIndex index = model->index(std::min(row, model->rowCount() - 1), 0);
+  list->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+}
 
 }  // namespace
 
@@ -415,7 +440,7 @@ bool ProjectFilesDialog::checkProjectFile() {
 
   const QFileInfo fileInfo(file);
   if (file.isEmpty() || !fileInfo.isAbsolute() || !fileInfo.absoluteDir().exists() || fileInfo.isDir()) {
-    QMessageBox::warning(this, tr("Error"), tr("Project file is not set or its directory doesn't exist."));
+    QMessageBox::warning(this, tr("Error"), tr("Project file is not set or its folder doesn't exist."));
     return false;
   }
 
@@ -430,6 +455,7 @@ bool ProjectFilesDialog::checkProjectFile() {
 }
 
 void ProjectFilesDialog::addToProject() {
+  const int firstRow = firstSelectedRow(offProjectList);
   const QItemSelection selection(
       m_offProjectFilesSorted->model()->mapSelectionToSource(offProjectList->selectionModel()->selection()));
 
@@ -440,12 +466,14 @@ void ProjectFilesDialog::addToProject() {
 
   m_inProjectFiles->append(items.begin(), items.end());
   m_offProjectFiles->remove(selection);
+  selectRowAfterMove(offProjectList, firstRow);
 }
 
 
 void ProjectFilesDialog::removeFromProject() {
   const QDir inputDir(inpDirLine->text());
 
+  const int firstRow = firstSelectedRow(inProjectList);
   const QItemSelection selection(
       m_inProjectFilesSorted->model()->mapSelectionToSource(inProjectList->selectionModel()->selection()));
 
@@ -460,6 +488,7 @@ void ProjectFilesDialog::removeFromProject() {
 
   m_offProjectFiles->append(items.begin(), items.end());
   m_inProjectFiles->remove(selection);
+  selectRowAfterMove(inProjectList, firstRow);
 }
 
 void ProjectFilesDialog::onOK() {
@@ -481,13 +510,13 @@ void ProjectFilesDialog::onOK() {
 
   const QDir inpDir(inpDirLine->text());
   if (!inpDir.isAbsolute() || !inpDir.exists()) {
-    QMessageBox::warning(this, tr("Error"), tr("Input directory is not set or doesn't exist."));
+    QMessageBox::warning(this, tr("Error"), tr("Input folder is not set or doesn't exist."));
     return;
   }
 
   const QDir outDir(outDirLine->text());
   if (inpDir == outDir) {
-    QMessageBox::warning(this, tr("Error"), tr("Input and output directories can't be the same."));
+    QMessageBox::warning(this, tr("Error"), tr("Input and output folders can't be the same."));
     return;
   }
 
@@ -499,7 +528,7 @@ void ProjectFilesDialog::onOK() {
     // Maybe create it.
     bool create = m_autoOutDir;
     if (!m_autoOutDir) {
-      create = QMessageBox::question(this, tr("Create Directory?"), tr("Output directory doesn't exist.  Create it?"),
+      create = QMessageBox::question(this, tr("Create Folder?"), tr("Output folder doesn't exist.  Create it?"),
                                      QMessageBox::Yes | QMessageBox::No)
                == QMessageBox::Yes;
       if (!create) {
@@ -508,13 +537,13 @@ void ProjectFilesDialog::onOK() {
     }
     if (create) {
       if (!outDir.mkpath(outDir.path())) {
-        QMessageBox::warning(this, tr("Error"), tr("Unable to create output directory."));
+        QMessageBox::warning(this, tr("Error"), tr("Unable to create output folder."));
         return;
       }
     }
   }
   if (!outDir.isAbsolute() || !outDir.exists()) {
-    QMessageBox::warning(this, tr("Error"), tr("Output directory is not set or doesn't exist."));
+    QMessageBox::warning(this, tr("Error"), tr("Output folder is not set or doesn't exist."));
     return;
   }
 

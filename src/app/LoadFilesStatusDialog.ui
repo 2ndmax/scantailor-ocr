@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Some files failed to load</string>
+   <string>Some Files Failed to Load</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>

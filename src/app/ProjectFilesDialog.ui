@@ -24,7 +24,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Input Directory</string>
+      <string>Input Folder</string>
      </property>
      <layout class="QHBoxLayout">
       <item>
@@ -37,7 +37,7 @@
       <item>
        <widget class="QPushButton" name="inpDirBrowseBtn">
         <property name="text">
-         <string>Browse</string>
+         <string>Browse ...</string>
         </property>
        </widget>
       </item>
@@ -47,7 +47,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Output Directory</string>
+      <string>Output Folder</string>
      </property>
      <layout class="QHBoxLayout">
       <item>
@@ -56,7 +56,7 @@
       <item>
        <widget class="QPushButton" name="outDirBrowseBtn">
         <property name="text">
-         <string>Browse</string>
+         <string>Browse ...</string>
         </property>
        </widget>
       </item>
@@ -75,7 +75,7 @@
       <item>
        <widget class="QPushButton" name="projectFileBrowseBtn">
         <property name="text">
-         <string>Browse</string>
+         <string>Browse ...</string>
         </property>
        </widget>
       </item>
@@ -85,10 +85,10 @@
    <item>
     <widget class="QCheckBox" name="importNewScansCB">
      <property name="toolTip">
-      <string>New images saved to the input directory are added to the project automatically. The project may then start empty.</string>
+      <string>New images saved to the input folder are added to the project automatically.  The project may then start empty.</string>
      </property>
      <property name="text">
-      <string>Import new scans</string>
+      <string>Import new scans automatically from input folder</string>
      </property>
     </widget>
    </item>
@@ -97,7 +97,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox_3">
        <property name="title">
-        <string>Files Not In Project</string>
+        <string>Files Not in Project</string>
        </property>
        <layout class="QVBoxLayout">
         <item>
@@ -208,7 +208,7 @@ p, li { white-space: pre-wrap; }
      <item>
       <widget class="QGroupBox" name="groupBox_4">
        <property name="title">
-        <string>Files In Project</string>
+        <string>Files in Project</string>
        </property>
        <layout class="QVBoxLayout">
         <item>

@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Apply Mode and Settings</string>
+   <string>Apply Mode</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>

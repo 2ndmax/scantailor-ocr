@@ -70,7 +70,7 @@ void RelinkingDialog::pathButtonClicked(const QString& prefixPath, const QString
   } else {
     const QDir dir(prefixPath);
     replacementPath = QFileDialog::getExistingDirectory(
-        this, tr("Substitution Directory for %1").arg(QDir::toNativeSeparators(prefixPath)),
+        this, tr("Substitution Folder for %1").arg(QDir::toNativeSeparators(prefixPath)),
         dir.exists() ? prefixPath : m_projectFileDir, QFileDialog::DontUseNativeDialog);
   }
   // So what's wrong with native dialogs? The one for directory selection won't show files

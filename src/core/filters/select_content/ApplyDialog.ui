@@ -145,7 +145,7 @@
    <item>
     <widget class="QGroupBox" name="optionsBox">
      <property name="title">
-      <string>Apply parameters</string>
+      <string>Apply Parameters</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
