@@ -1017,6 +1017,7 @@ void DefaultParamsDialog::wienerToggled(const bool checked) {
 void DefaultParamsDialog::dewarpingModeChanged() {
   const int mode = m_dewarpingModeGroup->checkedId();
   dewarpingPostDeskewCB->setEnabled((mode == MANUAL) || (mode == MARGINAL));
+  depthPerceptionPanel->setEnabled(mode != OFF);
 }
 
 void DefaultParamsDialog::depthPerceptionChangedSlot(const int val) {

@@ -169,10 +169,6 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void dewarpingChanged(const std::set<PageId>& pages, const DewarpingOptions& opt);
 
-  void applyDepthPerceptionButtonClicked();
-
-  void applyDepthPerceptionConfirmed(const std::set<PageId>& pages);
-
   void depthPerceptionChangedSlot(int val);
 
   void updateBinarizationOptionsDisplay(int idx);

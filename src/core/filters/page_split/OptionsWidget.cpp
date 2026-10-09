@@ -68,7 +68,7 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
       break;
   }
 
-  splitLineGroup->setVisible(layoutType != SINGLE_PAGE_UNCUT);
+  splitLineGroup->setEnabled(layoutType != SINGLE_PAGE_UNCUT);
 
   // Until the page is processed, the detected page type isn't known.
   setLayoutModeButtons(layoutType == AUTO_LAYOUT_TYPE);
@@ -117,7 +117,7 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
       break;
   }
 
-  splitLineGroup->setVisible(layoutType != PageLayout::SINGLE_PAGE_UNCUT);
+  splitLineGroup->setEnabled(layoutType != PageLayout::SINGLE_PAGE_UNCUT);
 
   setLayoutModeButtons(uiData.layoutTypeAutoDetected());
 }  // OptionsWidget::postUpdateUI
@@ -179,7 +179,7 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
   Settings::UpdateAction update;
   update.setLayoutType(lt);
 
-  splitLineGroup->setVisible(lt != SINGLE_PAGE_UNCUT);
+  splitLineGroup->setEnabled(lt != SINGLE_PAGE_UNCUT);
   setLayoutModeButtons(false);
 
   m_pages->setLayoutTypeFor(m_pageId.imageId(), plt);

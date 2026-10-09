@@ -310,6 +310,15 @@ from working:
   aggregate size for matching" is now called "Lock common size".
 * The options panels are at least 320 pixels wide (formerly 274), so a scroll bar doesn't cover
   their content.
+* Settings that don't apply at the moment are grayed out instead of hidden, so the panels don't
+  jump: in *Split Pages* the split line of a single page, in *Select Content* the fine tuning
+  and the size of the page box, in *Output* the parts that the color mode doesn't use
+  (threshold, picture zones, splitting, despeckling, filling and some general options), the
+  picture zone sensitivity, and the depth perception while there is no dewarping. The Mode and
+  Despeckling panels and the depth perception are shown in every view of the Output step.
+* *Output*: the depth perception, which only the dewarping uses, is part of the **Dewarping**
+  panel (also in the default parameters dialog), and its **Apply to ...** applies it together
+  with the dewarping mode. Its own panel and dialog are gone.
 * Native color scheme on Windows 11: the arrows of number fields are placed above each other
   instead of next to each other, so the fields are as narrow as in the other color schemes and
   rows of them (e.g. the trim values) fit into the panels.

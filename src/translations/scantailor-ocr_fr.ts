@@ -676,6 +676,16 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Coeff:</translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3458"/>
+        <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3476"/>
+        <source>Depth perception:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2206"/>
         <location filename="../app/DefaultParamsDialog.ui" line="2759"/>
         <location filename="../app/DefaultParamsDialog.ui" line="2876"/>
@@ -751,7 +761,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3162"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="975"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="992"/>
         <source>Output Resolution (DPI)</source>
         <translation>Résolution de sortie (DPI)</translation>
     </message>
@@ -831,109 +841,104 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Post-redressement</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3461"/>
-        <source>Depth Perception</source>
-        <translation>Perception de la profondeur</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="54"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="56"/>
         <source>Black and White</source>
         <translation>Noir et blanc</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="55"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="57"/>
         <source>Color / Grayscale</source>
         <translation>Couleur / nuances de gris</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="56"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="58"/>
         <source>Mixed</source>
         <translation>Mixe</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="58"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="60"/>
         <source>Background</source>
         <translation>Arrière-plan</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="59"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="61"/>
         <source>White</source>
         <translation>Blanc</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="60"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
         <source>Black</source>
         <translation>Noir</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
         <source>Otsu</source>
         <translation>Otsu</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
         <source>Sauvola</source>
         <translation>Sauvola</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
         <source>Wolf</source>
         <translation>Wolf</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
         <source>Fox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
         <source>Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
         <source>Bradley</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
         <source>Grad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
         <source>EdgePlus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
         <source>BlurDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
         <source>EdgeDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3394"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
         <source>Off</source>
         <translation>Désactivé</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
         <source>Free shape</source>
         <translation>Libre</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
         <source>Rectangle</source>
         <translation>Rectangulaire</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="102"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1098"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="104"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1116"/>
         <source>Custom</source>
         <translation>Personnalisé</translation>
     </message>
@@ -943,46 +948,46 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Marginal</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="93"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="95"/>
         <source>Default</source>
         <translation>Par défaut</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="94"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="96"/>
         <source>Source</source>
         <translation>Source</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="975"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="992"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1061"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1087"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1104"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1119"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1079"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1085"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1105"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1122"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1137"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1085"/>
         <source>Error loading the profile.</source>
         <translation>Erreur lors du chargement du profil.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1088"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1106"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Le nom rentre en conflit avec un profil par défaut. Veuillez entrer un autre nom.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1104"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1122"/>
         <source>Error saving the profile.</source>
         <translation>Erreur lors de l&apos;enregistrement du profil.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1119"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1137"/>
         <source>Error deleting the profile.</source>
         <translation>Erreur lors de la suppression du profil.</translation>
     </message>
@@ -1002,7 +1007,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Détacher</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1061"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1079"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Le fichier de profil n&apos;est pas compatible avec la version courante de l&apos;application. Supprimer?</translation>
     </message>
@@ -3875,12 +3880,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="710"/>
-        <source>Apply Depth Perception</source>
-        <translation>Appliquer la perception de la profondeur</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1793"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1704"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="98"/>
         <source>Off</source>
         <translation>Désactivé</translation>
@@ -3891,12 +3891,12 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1841"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1752"/>
         <source>Manual</source>
         <translation>Manuel</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1275"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1255"/>
         <source>Apply Processing</source>
         <translation>Appliquer les paramètres de traitement</translation>
     </message>
@@ -4110,49 +4110,59 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1790"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1701"/>
         <source>No dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1806"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1717"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1809"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1720"/>
         <source>Auto</source>
         <translation type="unfinished">Auto</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1822"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1733"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1825"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1736"/>
         <source>Marginal</source>
         <translation type="unfinished">Marginal</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1838"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1749"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1856"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1767"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1859"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="955"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1770"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="936"/>
         <source>Post deskew</source>
         <translation type="unfinished">Post-redressement</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1890"/>
-        <source>Applies the dewarping mode and &quot;Post deskew&quot; of this page to other pages.</source>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1777"/>
+        <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1795"/>
+        <source>Depth perception:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1848"/>
+        <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4161,8 +4171,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <location filename="../core/filters/output/OptionsWidget.ui" line="1402"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1557"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1662"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1751"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1893"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1851"/>
         <source>Apply to ...</source>
         <translation>Appliquer à ...</translation>
     </message>
@@ -4278,16 +4287,6 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1687"/>
-        <source>Depth Perception</source>
-        <translation>Perception de la profondeur</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1748"/>
-        <source>Applies the depth perception of this page to other pages.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1776"/>
         <source>Dewarping</source>
         <translation>Dégauchissement</translation>
     </message>

@@ -347,8 +347,8 @@ void OptionsWidget::pictureShapeChanged(const int idx) {
   m_pictureShapeOptions.setPictureShape(shapeMode);
   m_settings->setPictureShapeOptions(m_pageId, m_pictureShapeOptions);
 
-  pictureShapeSensitivityOptions->setVisible(shapeMode == RECTANGULAR_SHAPE);
-  higherSearchSensitivityCB->setVisible(shapeMode != OFF_SHAPE);
+  pictureShapeSensitivityOptions->setEnabled(shapeMode == RECTANGULAR_SHAPE);
+  higherSearchSensitivityCB->setEnabled(shapeMode != OFF_SHAPE);
 
   emit reloadRequested();
 }
@@ -660,6 +660,10 @@ void OptionsWidget::applyDewarpingButtonClicked() {
 }
 
 void OptionsWidget::applyDewarpingConfirmed(const std::set<PageId>& pages) {
+  // The depth perception belongs to the dewarping and is applied with it.
+  for (const PageId& pageId : pages) {
+    m_settings->setDepthPerception(pageId, m_depthPerception);
+  }
   dewarpingChanged(pages, m_dewarpingOptions);
 }
 
@@ -704,32 +708,6 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
   }
 }  // OptionsWidget::dewarpingChanged
 
-void OptionsWidget::applyDepthPerceptionButtonClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Depth Perception"));
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
-          SLOT(applyDepthPerceptionConfirmed(const std::set<PageId>&)));
-  dialog->show();
-}
-
-void OptionsWidget::applyDepthPerceptionConfirmed(const std::set<PageId>& pages) {
-  for (const PageId& pageId : pages) {
-    m_settings->setDepthPerception(pageId, m_depthPerception);
-  }
-
-  if (pages.size() > 1) {
-    emit invalidateAllThumbnails();
-  } else {
-    for (const PageId& pageId : pages) {
-      emit invalidateThumbnail(pageId);
-    }
-  }
-
-  if (pages.find(m_pageId) != pages.end()) {
-    emit reloadRequested();
-  }
-}
 
 void OptionsWidget::depthPerceptionChangedSlot(int val) {
   m_depthPerception.setValue(0.1 * val);
@@ -826,7 +804,7 @@ void OptionsWidget::updateColorsDisplay() {
       break;
   }
 
-  commonOptions->setVisible(true);
+  // All settings stay visible; those that the color mode doesn't use are grayed out.
   ColorCommonOptions colorCommonOptions(m_colorParams.colorCommonOptions());
   BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
 
@@ -837,29 +815,25 @@ void OptionsWidget::updateColorsDisplay() {
   m_settings->setColorParams(m_pageId, m_colorParams);
 
   fillMarginsCB->setChecked(colorCommonOptions.fillMargins());
-  fillMarginsCB->setVisible(true);
   fillOffcutCB->setChecked(colorCommonOptions.fillOffcut());
-  fillOffcutCB->setVisible(true);
   fillOutsidePageBoxCB->setChecked(colorCommonOptions.fillOutsidePageBox());
-  fillOutsidePageBoxCB->setVisible(true);
   equalizeIlluminationCB->setChecked(blackWhiteOptions.normalizeIllumination());
-  equalizeIlluminationCB->setVisible(colorMode != COLOR_GRAYSCALE);
+  equalizeIlluminationCB->setEnabled(colorMode != COLOR_GRAYSCALE);
   equalizeIlluminationColorCB->setChecked(colorCommonOptions.normalizeIllumination());
-  equalizeIlluminationColorCB->setVisible(colorMode != BLACK_AND_WHITE);
-  equalizeIlluminationColorCB->setEnabled(colorMode == COLOR_GRAYSCALE || blackWhiteOptions.normalizeIllumination());
+  equalizeIlluminationColorCB->setEnabled(colorMode == COLOR_GRAYSCALE
+                                          || (colorMode == MIXED && blackWhiteOptions.normalizeIllumination()));
   grayscaleOutputCB->setChecked(colorCommonOptions.isGrayscaleOutput());
-  grayscaleOutputCB->setVisible(colorMode != BLACK_AND_WHITE);
+  grayscaleOutputCB->setEnabled(colorMode != BLACK_AND_WHITE);
   savitzkyGolaySmoothingCB->setChecked(blackWhiteOptions.isSavitzkyGolaySmoothingEnabled());
-  savitzkyGolaySmoothingCB->setVisible(thresholdOptionsVisible);
+  savitzkyGolaySmoothingCB->setEnabled(thresholdOptionsVisible);
   morphologicalSmoothingCB->setChecked(blackWhiteOptions.isMorphologicalSmoothingEnabled());
-  morphologicalSmoothingCB->setVisible(thresholdOptionsVisible);
+  morphologicalSmoothingCB->setEnabled(thresholdOptionsVisible);
 
-  modePanel->setVisible(m_lastTab != TAB_DEWARPING);
-  pictureShapeOptions->setVisible(pictureShapeVisible);
-  thresholdOptions->setVisible(thresholdOptionsVisible);
-  despecklePanel->setVisible(thresholdOptionsVisible && m_lastTab != TAB_DEWARPING);
+  pictureShapeOptions->setEnabled(pictureShapeVisible);
+  thresholdOptions->setEnabled(thresholdOptionsVisible);
+  despecklePanel->setEnabled(thresholdOptionsVisible);
 
-  splittingOptions->setVisible(splittingOptionsVisible);
+  splittingOptions->setEnabled(splittingOptionsVisible);
   splittingCB->setChecked(m_splittingOptions.isSplitOutput());
   switch (m_splittingOptions.getSplittingMode()) {
     case BLACK_AND_WHITE_FOREGROUND:
@@ -878,12 +852,12 @@ void OptionsWidget::updateColorsDisplay() {
   thresholdMethodBox->setCurrentIndex((int) blackWhiteOptions.getBinarizationMethod());
   binarizationOptions->setCurrentIndex((int) blackWhiteOptions.getBinarizationMethod());
 
-  fillingOptions->setVisible(colorMode != BLACK_AND_WHITE);
+  fillingOptions->setEnabled(colorMode != BLACK_AND_WHITE);
   fillingColorBox->setCurrentIndex((int) colorCommonOptions.getFillingColor());
 
-  colorSegmentationCB->setVisible(thresholdOptionsVisible);
-  segmenterOptionsWidget->setVisible(thresholdOptionsVisible);
-  segmenterOptionsWidget->setEnabled(blackWhiteOptions.getColorSegmenterOptions().isEnabled());
+  colorSegmentationCB->setEnabled(thresholdOptionsVisible);
+  segmenterOptionsWidget->setEnabled(thresholdOptionsVisible
+                                     && blackWhiteOptions.getColorSegmenterOptions().isEnabled());
   if (thresholdOptionsVisible) {
     posterizeCB->setEnabled(blackWhiteOptions.getColorSegmenterOptions().isEnabled());
     posterizeOptionsWidget->setEnabled(blackWhiteOptions.getColorSegmenterOptions().isEnabled()
@@ -911,16 +885,22 @@ void OptionsWidget::updateColorsDisplay() {
   posterizeNormalizationCB->setChecked(colorCommonOptions.getPosterizationOptions().isNormalizationEnabled());
   posterizeForceBwCB->setChecked(colorCommonOptions.getPosterizationOptions().isForceBlackAndWhite());
 
-  if (pictureShapeVisible) {
+  // Also shown, grayed out, in the modes that don't use them; only the stored values are displayed.
+  {
+    const QSignalBlocker shapeBlocker(pictureShapeSelector);
+    const QSignalBlocker sensitivityBlocker(pictureShapeSensitivitySB);
+    const QSignalBlocker higherBlocker(higherSearchSensitivityCB);
     const int pictureShapeIdx = pictureShapeSelector->findData(m_pictureShapeOptions.getPictureShape());
     pictureShapeSelector->setCurrentIndex(pictureShapeIdx);
     pictureShapeSensitivitySB->setValue(m_pictureShapeOptions.getSensitivity());
-    pictureShapeSensitivityOptions->setVisible(m_pictureShapeOptions.getPictureShape() == RECTANGULAR_SHAPE);
+    pictureShapeSensitivityOptions->setEnabled(m_pictureShapeOptions.getPictureShape() == RECTANGULAR_SHAPE);
     higherSearchSensitivityCB->setChecked(m_pictureShapeOptions.isHigherSearchSensitivity());
-    higherSearchSensitivityCB->setVisible(m_pictureShapeOptions.getPictureShape() != OFF_SHAPE);
+    higherSearchSensitivityCB->setEnabled(m_pictureShapeOptions.getPictureShape() != OFF_SHAPE);
   }
 
-  if (thresholdOptionsVisible) {
+  {
+    const QSignalBlocker despeckleBlocker(despeckleCB);
+    const QSignalBlocker sliderBlocker(despeckleSlider);
     if (m_despeckleLevel != 0) {
       despeckleCB->setChecked(true);
       despeckleSlider->setValue(qRound(10 * m_despeckleLevel));
@@ -929,18 +909,19 @@ void OptionsWidget::updateColorsDisplay() {
     }
     despeckleSlider->setEnabled(m_despeckleLevel != 0);
     despeckleSlider->setToolTip(QString::number(0.1 * despeckleSlider->value()));
+  }
 
-    for (int i = 0; i < binarizationOptions->count(); i++) {
-      auto* widget = dynamic_cast<OptionsWidgetBinarization*>(binarizationOptions->widget(i));
-      widget->updateUi(m_pageId);
-    }
+  for (int i = 0; i < binarizationOptions->count(); i++) {
+    auto* widget = dynamic_cast<OptionsWidgetBinarization*>(binarizationOptions->widget(i));
+    widget->updateUi(m_pageId);
   }
 
   colorModeSelector->blockSignals(false);
 }  // OptionsWidget::updateColorsDisplay
 
 void OptionsWidget::updateDewarpingDisplay() {
-  depthPerceptionPanel->setVisible(m_lastTab == TAB_DEWARPING);
+  // Shown in every view, grayed out while there is no dewarping.
+  depthPerceptionPanel->setEnabled(m_dewarpingOptions.dewarpingMode() != OFF);
 
   {
     const QSignalBlocker modeBlocker(m_dewarpingModeGroup);
@@ -1237,7 +1218,6 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(dewarpingPostDeskewCB, SIGNAL(clicked(bool)), this, SLOT(dewarpingPostDeskewToggled(bool)));
   CONNECT(applyDewarpingButton, SIGNAL(clicked()), this, SLOT(applyDewarpingButtonClicked()));
 
-  CONNECT(applyDepthPerceptionButton, SIGNAL(clicked()), this, SLOT(applyDepthPerceptionButtonClicked()));
 
   CONNECT(despeckleCB, SIGNAL(clicked(bool)), this, SLOT(despeckleToggled(bool)));
   CONNECT(despeckleSlider, SIGNAL(sliderReleased()), this, SLOT(despeckleSliderReleased()));

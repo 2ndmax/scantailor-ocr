@@ -1682,95 +1682,6 @@
     </widget>
    </item>
    <item>
-    <widget class="CollapsibleGroupBox" name="depthPerceptionPanel">
-     <property name="title">
-      <string>Depth Perception</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_8">
-      <property name="leftMargin">
-       <number>15</number>
-      </property>
-      <property name="rightMargin">
-       <number>15</number>
-      </property>
-      <item>
-       <widget class="QSlider" name="depthPerceptionSlider">
-        <property name="minimum">
-         <number>10</number>
-        </property>
-        <property name="maximum">
-         <number>30</number>
-        </property>
-        <property name="pageStep">
-         <number>5</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_10">
-        <property name="topMargin">
-         <number>8</number>
-        </property>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="applyDepthPerceptionButton">
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Applies the depth perception of this page to other pages.</string>
-          </property>
-          <property name="text">
-           <string>Apply to ...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <widget class="CollapsibleGroupBox" name="dewarpingPanel">
      <property name="title">
       <string>Dewarping</string>
@@ -1861,6 +1772,53 @@
        </widget>
       </item>
       <item>
+       <widget class="QWidget" name="depthPerceptionPanel" native="true">
+        <property name="toolTip">
+         <string>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="depthPerceptionLabel">
+           <property name="text">
+            <string>Depth perception:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="depthPerceptionSlider">
+           <property name="minimum">
+            <number>10</number>
+           </property>
+           <property name="maximum">
+            <number>30</number>
+           </property>
+           <property name="pageStep">
+            <number>5</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_8">
         <property name="topMargin">
          <number>8</number>
@@ -1887,7 +1845,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Applies the dewarping mode and "Post deskew" of this page to other pages.</string>
+           <string>Applies the dewarping mode, "Post deskew" and the depth perception of this page to other pages.</string>
           </property>
           <property name="text">
            <string>Apply to ...</string>

@@ -32,10 +32,6 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo) {
   contentBoxGroup->setEnabled(false);
   pageBoxGroup->setEnabled(false);
 
-  pageDetectOptions->setVisible(false);
-  fineTuneBtn->setVisible(false);
-  dimensionsWidget->setVisible(false);
-
   onUnitsChanged(UnitsProvider::getInstance().getUnits());
 }
 
@@ -149,9 +145,9 @@ void OptionsWidget::updatePageModeIndication(const AutoManualMode mode) {
 
 void OptionsWidget::updatePageDetectOptionsDisplay() {
   fineTuneBtn->setChecked(m_uiData.isFineTuningCornersEnabled());
-  pageDetectOptions->setVisible(m_uiData.pageDetectionMode() != MODE_DISABLED);
-  fineTuneBtn->setVisible(m_uiData.pageDetectionMode() == MODE_AUTO);
-  dimensionsWidget->setVisible(m_uiData.pageDetectionMode() == MODE_MANUAL);
+  // Always shown, grayed out where the page box mode doesn't use them.
+  fineTuneBtn->setEnabled(m_uiData.pageDetectionMode() == MODE_AUTO);
+  dimensionsWidget->setEnabled(m_uiData.pageDetectionMode() == MODE_MANUAL);
 }
 
 void OptionsWidget::dimensionsChangedLocally(double) {
