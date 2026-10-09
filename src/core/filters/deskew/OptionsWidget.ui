@@ -66,7 +66,7 @@
          <string>Use the top page edge for deskew (recommended for book scans with dark background).</string>
         </property>
         <property name="text">
-         <string>Top page edge (book scans)</string>
+         <string>Top page edge</string>
         </property>
         <property name="checked">
          <bool>false</bool>

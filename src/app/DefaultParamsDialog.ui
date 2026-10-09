@@ -883,7 +883,7 @@
                     <string>Shift with corners while they are in black. </string>
                    </property>
                    <property name="text">
-                    <string>Fine Tune Page Corners</string>
+                    <string>Fine tune page corners</string>
                    </property>
                   </widget>
                  </item>
@@ -1141,7 +1141,7 @@
                   <item>
                    <widget class="QCheckBox" name="autoMargins">
                     <property name="text">
-                     <string>Auto Margins</string>
+                     <string>Auto margins</string>
                     </property>
                     <property name="checked">
                      <bool>false</bool>
@@ -2207,7 +2207,7 @@ QToolButton:pressed {
                      <item>
                       <widget class="QLabel" name="fillingColorLabel">
                        <property name="text">
-                        <string>Color: </string>
+                        <string>Color:</string>
                        </property>
                       </widget>
                      </item>

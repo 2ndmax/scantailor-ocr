@@ -329,7 +329,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="886"/>
-        <source>Fine Tune Page Corners</source>
+        <source>Fine tune page corners</source>
         <translation>Dopasuj rogi strony</translation>
     </message>
     <message>
@@ -355,7 +355,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1144"/>
-        <source>Auto Margins</source>
+        <source>Auto margins</source>
         <translation>Automatyczne marginesy</translation>
     </message>
     <message>
@@ -551,7 +551,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2210"/>
-        <source>Color: </source>
+        <source>Color:</source>
         <translation>Kolor: </translation>
     </message>
     <message>
@@ -3465,7 +3465,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.ui" line="69"/>
-        <source>Top page edge (book scans)</source>
+        <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4006,7 +4006,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="546"/>
-        <source>Color: </source>
+        <source>Color:</source>
         <translation>Kolor: </translation>
     </message>
     <message>
@@ -4772,7 +4772,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="44"/>
-        <source>Auto Margins</source>
+        <source>Auto margins</source>
         <translation>Automatyczne marginesy</translation>
     </message>
     <message>
@@ -4812,7 +4812,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="297"/>
-        <source>Source DPI</source>
+        <source>Source DPI:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5311,7 +5311,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="123"/>
-        <source>Fine Tune Page Corners</source>
+        <source>Fine tune page corners</source>
         <translation>Dopasuj krawędzie strony</translation>
     </message>
     <message>

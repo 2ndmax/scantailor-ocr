@@ -330,7 +330,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="886"/>
-        <source>Fine Tune Page Corners</source>
+        <source>Fine tune page corners</source>
         <translation>Feinabstimmung der Seitenecken</translation>
     </message>
     <message>
@@ -356,7 +356,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1144"/>
-        <source>Auto Margins</source>
+        <source>Auto margins</source>
         <translation>Automatische Seitenränder</translation>
     </message>
     <message>
@@ -547,8 +547,8 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2210"/>
-        <source>Color: </source>
-        <translation>Farbe: </translation>
+        <source>Color:</source>
+        <translation>Farbe:</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2256"/>
@@ -3461,8 +3461,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.ui" line="69"/>
-        <source>Top page edge (book scans)</source>
-        <translation>Obere Seitenkante (Buchscans)</translation>
+        <source>Top page edge</source>
+        <translation>Obere Seitenkante</translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.ui" line="119"/>
@@ -4000,8 +4000,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="546"/>
-        <source>Color: </source>
-        <translation>Farbe: </translation>
+        <source>Color:</source>
+        <translation>Farbe:</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="589"/>
@@ -4764,7 +4764,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="44"/>
-        <source>Auto Margins</source>
+        <source>Auto margins</source>
         <translation>Automatische Seitenränder</translation>
     </message>
     <message>
@@ -4804,8 +4804,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="297"/>
-        <source>Source DPI</source>
-        <translation>Quell-DPI</translation>
+        <source>Source DPI:</source>
+        <translation>Quell-DPI:</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="419"/>
@@ -5301,7 +5301,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="123"/>
-        <source>Fine Tune Page Corners</source>
+        <source>Fine tune page corners</source>
         <translation>Feinabstimmung der Seitenecken</translation>
     </message>
     <message>

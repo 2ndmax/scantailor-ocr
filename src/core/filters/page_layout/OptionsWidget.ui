@@ -41,7 +41,7 @@
         <item>
          <widget class="QCheckBox" name="autoMargins">
           <property name="text">
-           <string>Auto Margins</string>
+           <string>Auto margins</string>
           </property>
           <property name="checked">
            <bool>false</bool>
@@ -294,7 +294,7 @@ QToolButton:pressed {
         <item>
          <widget class="QLabel" name="sourceDpiLabel">
           <property name="text">
-           <string>Source DPI</string>
+           <string>Source DPI:</string>
           </property>
          </widget>
         </item>

@@ -543,7 +543,7 @@
            <item>
             <widget class="QLabel" name="fillingColorLabel">
              <property name="text">
-              <string>Color: </string>
+              <string>Color:</string>
              </property>
             </widget>
            </item>

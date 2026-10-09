@@ -351,6 +351,10 @@ from working:
   "Geraderichten", "Ordner"), and "..." is preceded by a space.
 * *Output*, Wolf threshold: "Lower bound:", "Upper bound:" and "Coef:" as with Sauvola (formerly
   "Upper Bound:" and "Coeff:").
+* Check boxes in sentence case also in *Select Content* and *Margins*: "Fine tune page corners"
+  and "Auto margins". "Source DPI:" has a colon like the other labels, "Color:" (*Output*,
+  Filling) no longer a trailing space. *Deskew*: the check box is called "Top page edge"; that it
+  is meant for book scans with a dark background stays in its tooltip.
 
 ### Default parameters dialog
 

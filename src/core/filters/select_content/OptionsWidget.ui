@@ -120,7 +120,7 @@
                <string>Shift with corners while they are in black. </string>
               </property>
               <property name="text">
-               <string>Fine Tune Page Corners</string>
+               <string>Fine tune page corners</string>
               </property>
              </widget>
             </item>
