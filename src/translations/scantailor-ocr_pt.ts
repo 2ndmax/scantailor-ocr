@@ -162,7 +162,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="69"/>
-        <source>Set the DPI with Tools &gt; Fix DPI ...</source>
+        <source>Set the DPI with Tools &gt; Fix DPI of All Images ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1062,8 +1062,8 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     <name>FixDpiDialog</name>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="14"/>
-        <source>Fix DPI</source>
-        <translation>Corrigir DPI</translation>
+        <source>Fix DPI of All Images</source>
+        <translation>Corrigir DPI de todas as imagens</translation>
     </message>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="24"/>
@@ -1452,8 +1452,8 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1250"/>
-        <source>Fix DPI ...</source>
-        <translation>Corrigir DPI...</translation>
+        <source>Fix DPI of All Images ...</source>
+        <translation>Corrigir DPI de todas as imagens...</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1261"/>
@@ -1869,7 +1869,7 @@ Para determinar o tamanho da páginas, execute o processamento em lote em &quot;
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="141"/>
-        <source>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI&quot; dialog, which is also accessible from the Tools menu.</source>
+        <source>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
         <translation type="unfinished">Pode acontecer as suas imagens de origem terem o valor dos DPIs incorreto incorporado nelas. O Scan Tailor tenta detectar essa situação, mas nem sempre é possível. Talvez seja necessário verificar &quot;Fixar DPI mesmo se  parecer normal&quot; ao criar um projecto deve ver em &quot;Todas as páginas&quot; na caixa de diálogo &quot;Fixar DPI&quot;, que também pode ser acedida no menu Ferramentas.</translation>
     </message>
     <message>
@@ -4789,27 +4789,27 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="323"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="324"/>
         <source>Apply Margins</source>
         <translation>Aplicar Margens</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="332"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="333"/>
         <source>Apply Alignment</source>
         <translation>Aplicar Alinhamento</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="645"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="647"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation type="unfinished">DPI muito grande e provavelmente está errado.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="649"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="651"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation type="unfinished">DPI muito pequeno. Mesmo se estiver correcto,  não obterá resultados aceitáveis.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="653"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="655"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4819,118 +4819,133 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation>Formulário</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="20"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="141"/>
         <source>Margins</source>
         <translation>Margens</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="31"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="152"/>
         <source>Auto margins</source>
         <translation>Margens Automáticas</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="91"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="160"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="542"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="565"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="588"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="611"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="634"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="660"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="683"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="706"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="729"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="212"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="281"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="563"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="586"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="609"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="632"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="655"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="681"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="704"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="727"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="750"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="108"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="229"/>
         <source>Top:</source>
         <translation>Topo</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="115"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="236"/>
         <source>Right:</source>
         <translation>Direita</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="122"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="243"/>
         <source>Left:</source>
         <translation>Esquerda</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="219"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="340"/>
         <source>Bottom:</source>
         <translation>Base</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="258"/>
-        <source>Source DPI:</source>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="34"/>
+        <source>Resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="380"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="401"/>
         <source>Applies the margins of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="383"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="852"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="404"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="873"/>
         <source>Apply to ...</source>
         <translation>Aplicar a...</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="334"/>
-        <source>Fix all ...</source>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="116"/>
+        <source>Fix DPI of all images ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="408"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="20"/>
+        <source>Source Resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="31"/>
+        <source>Resolution of the scanned image (horizontal × vertical).  It applies right away to the whole image, so to both pages of a split scan.  Sizes and margins in millimetres or inches depend on it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="113"/>
+        <source>Opens a window with the DPI of all images of the project, where you can check and correct them.  The same as Tools &gt; Fix DPI of All Images ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="429"/>
         <source>Alignment</source>
         <translation>Alinhamento</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="425"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="446"/>
         <source>Match size with other pages</source>
         <translation>Fazer corresponder o tamanho com outras páginas</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="457"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="478"/>
         <source>Horizontal mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="464"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="485"/>
         <source>Vertical mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="769"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="790"/>
         <source>Keep the aggregate page size used for matching fixed while you switch pages, so the reference dimensions do not jump.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="772"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="793"/>
         <source>Lock common size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="800"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="821"/>
         <source>Match size to all pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="803"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="824"/>
         <source>Apply &quot;Match size with other pages&quot; to every page so they all share the same output size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="849"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="870"/>
         <source>Applies the alignment of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="952"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="973"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -4944,28 +4959,28 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="475"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="497"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="496"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="518"/>
         <source>Auto</source>
         <comment>auto</comment>
         <translation>Automático</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="480"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="502"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="501"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="523"/>
         <source>Manual</source>
         <comment>manual</comment>
         <translation>Manual</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="485"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="507"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="506"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="528"/>
         <source>Original</source>
         <comment>original</comment>
         <translation>Original</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="883"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="904"/>
         <source>Guides Help</source>
         <translation>Guias de Ajuda</translation>
     </message>

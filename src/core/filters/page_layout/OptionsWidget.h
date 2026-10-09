@@ -140,8 +140,6 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   void decorateSourceDpiField(QComboBox* field, ImageMetadata::DpiStatus dpiStatus);
 
-  void keepSourceDpiFieldsEnabled();
-
   bool isSourceDpiFieldFocused() const;
 
   std::shared_ptr<Settings> m_settings;

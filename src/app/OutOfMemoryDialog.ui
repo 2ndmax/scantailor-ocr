@@ -138,7 +138,7 @@ font-weight: bold;</string>
                <item>
                 <widget class="QLabel" name="label_6">
                  <property name="text">
-                  <string>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it's not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI&quot; dialog, which is also accessible from the Tools menu.</string>
+                  <string>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it's not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>

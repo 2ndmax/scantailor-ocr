@@ -66,7 +66,7 @@ AutoImportPanel::AutoImportPanel(QWidget* parent) : QWidget(parent) {
 
   m_noDpiLabel = new QLabel;
   m_noDpiLabel->setWordWrap(true);
-  m_noDpiLabel->setToolTip(tr("Set the DPI with Tools > Fix DPI ..."));
+  m_noDpiLabel->setToolTip(tr("Set the DPI with Tools > Fix DPI of All Images ..."));
   m_noDpiLabel->hide();
   groupLayout->addWidget(m_noDpiLabel);
 

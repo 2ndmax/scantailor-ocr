@@ -193,7 +193,7 @@ The changes were developed with the help of Claude (Anthropic).
   with gaps in the selection it is disabled.
 * Scans arriving during batch processing or while a PDF is created are added afterwards.
   Scans without DPI are added, too; the panel counts them, and their DPI can be set with
-  Tools > Fix DPI.
+  Tools > Fix DPI of All Images.
 
 ### Image import
 
@@ -290,8 +290,7 @@ from working:
   of its **Apply to ...** dialog are named like them, *Deskew* and *Oblique* (formerly "Deskew
   angle and mode" and "Oblique angle and mode").
 * *Select Content*: "Page Box" and "Content Box" are one panel, **Page and Content Box**.
-* *Page Layout*: "Fix all ..." and "Match size to all pages" have their own line above
-  **Apply to ...**.
+* *Page Layout*: "Match size to all pages" has its own line above **Apply to ...**.
 * *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Denoising",
   "Filling", "Threshold", "Color Operations" and "Picture Zones" (formerly "Picture Shape", like
   the tab in which picture zones are edited). The collapsed state saved for the old nested boxes
@@ -314,10 +313,13 @@ from working:
   **Color segmentation** have the headings *Red*, *Green* and *Blue* above them and a normal
   frame. The four dewarping buttons are arranged two by two (Off, Auto / Marginal, Manual), so they
   don't make the panel wider.
-* *Margins*: the source DPI is set in two lists (horizontal × vertical) with 300, 400, 600 and
-  1200 DPI that also take any other value; the separate list of presets is gone. A value chosen
-  from a list sets both while they are the same; typing changes only the one field. "Lock
-  aggregate size for matching" is now called "Lock common size".
+* *Margins*: the source DPI has its own panel, **Source Resolution**, above **Margins**, whose
+  **Apply to ...** never applied it. "Resolution:" has two lists (horizontal × vertical) with
+  300, 400, 600 and 1200 dpi that also take any other value, typed with or without "dpi"; the
+  separate list of presets is gone. A value chosen from a list sets both while they are the
+  same; typing changes only the one field. The button "Fix DPI of all images ..." (formerly
+  "Fix all ...") opens the same window as *Tools > Fix DPI of All Images ...* (formerly "Fix
+  DPI ..."). "Lock aggregate size for matching" is now called "Lock common size".
 * The options panels are at least 320 pixels wide (formerly 274), so a scroll bar doesn't cover
   their content.
 * Settings that don't apply at the moment are grayed out instead of hidden, so the panels don't
@@ -378,7 +380,7 @@ from working:
 * *Output*, Wolf threshold: "Lower bound:", "Upper bound:" and "Coef:" as with Sauvola (formerly
   "Upper Bound:" and "Coeff:").
 * Check boxes in sentence case also in *Select Content* and *Margins*: "Fine tune page corners"
-  and "Auto margins". "Source DPI:" has a colon like the other labels, "Color:" (*Output*,
+  and "Auto margins". "Resolution:" has a colon like the other labels, "Color:" (*Output*,
   Filling) no longer a trailing space. *Deskew*: the detection method is called "Top page edge";
   that it is meant for book scans with a dark background stays in the tooltip.
 
@@ -449,7 +451,7 @@ from working:
   Replacing files now works with long paths, which also applies to saving the project file.
 * **Fixed: changing the source DPI in the Margins panel had no visible effect** until another
   step was chosen. The page list keeps its own copy of the DPI, which the processing uses; it
-  is now updated right away, as after *Tools → Fix DPI*.
+  is now updated right away, as after *Tools → Fix DPI of All Images*.
 * Radio buttons are round in the light and dark color schemes at every font size. With the
   usual Windows font size, unselected ones were drawn as squares: after rounding the size to
   whole pixels, the corner radius was slightly more than half of it, and Qt then drops it.

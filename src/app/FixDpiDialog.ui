@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Fix DPI</string>
+   <string>Fix DPI of All Images</string>
   </property>
   <layout class="QVBoxLayout">
    <item>

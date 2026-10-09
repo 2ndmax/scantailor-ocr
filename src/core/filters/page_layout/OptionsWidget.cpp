@@ -7,7 +7,6 @@
 #include <UnitsProvider.h>
 #include <core/IconProvider.h>
 
-#include <QIntValidator>
 #include <QLineEdit>
 #include <QSettings>
 #include <utility>
@@ -123,9 +122,9 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const Margins& margins
   updateLinkDisplay(topBottomLink, m_topBottomLinked);
   updateLinkDisplay(leftRightLink, m_leftRightLinked);
 
+  // The source resolution stays editable while the page is reloaded.
   marginsGroup->setEnabled(false);
   alignmentGroup->setEnabled(false);
-  keepSourceDpiFieldsEnabled();
 
   onUnitsChanged(UnitsProvider::getInstance().getUnits());
 }  // OptionsWidget::preUpdateUI
@@ -574,10 +573,11 @@ void OptionsWidget::onFixDpiClicked() {
 void OptionsWidget::setupSourceDpiControls() {
   // Lists of the usual values that also take any other value typed in.
   for (QComboBox* field : {sourceXDpi, sourceYDpi}) {
-    field->addItems({QStringLiteral("300"), QStringLiteral("400"), QStringLiteral("600"), QStringLiteral("1200")});
+    for (const int dpi : {300, 400, 600, 1200}) {
+      field->addItem(core::Utils::dpiText(dpi));
+    }
     field->setInsertPolicy(QComboBox::NoInsert);
-    field->lineEdit()->setMaxLength(4);
-    field->setValidator(new QIntValidator(field));
+    field->setValidator(core::Utils::createDpiValidator(field));
   }
 
   m_sourceDpiNormalPalette = sourceXDpi->lineEdit()->palette();
@@ -593,8 +593,8 @@ void OptionsWidget::updateSourceDpiDisplay() {
     sourceXDpi->setEditText(QString());
     sourceYDpi->setEditText(QString());
   } else {
-    sourceXDpi->setEditText(QString::number(m_dpi.horizontal()));
-    sourceYDpi->setEditText(QString::number(m_dpi.vertical()));
+    sourceXDpi->setEditText(core::Utils::dpiText(m_dpi.horizontal()));
+    sourceYDpi->setEditText(core::Utils::dpiText(m_dpi.vertical()));
   }
 
   const ImageMetadata metadata(m_sourceImagePixelSize, m_dpi);
@@ -609,8 +609,8 @@ void OptionsWidget::commitSourceDpiIfValid() {
 
   bool xOk = false;
   bool yOk = false;
-  const int horizontalDpi = sourceXDpi->currentText().toInt(&xOk);
-  const int verticalDpi = sourceYDpi->currentText().toInt(&yOk);
+  const int horizontalDpi = core::Utils::dpiFromText(sourceXDpi->currentText(), &xOk);
+  const int verticalDpi = core::Utils::dpiFromText(sourceYDpi->currentText(), &yOk);
   if (!xOk || !yOk) {
     return;
   }
@@ -635,7 +635,7 @@ void OptionsWidget::commitSourceDpiIfValid() {
 void OptionsWidget::decorateSourceDpiField(QComboBox* field, const ImageMetadata::DpiStatus dpiStatus) {
   if (dpiStatus == ImageMetadata::DPI_OK) {
     field->lineEdit()->setPalette(m_sourceDpiNormalPalette);
-    field->setToolTip(QString());
+    field->setToolTip(sourceDpiLabel->toolTip());
     return;
   }
 
@@ -654,17 +654,9 @@ void OptionsWidget::decorateSourceDpiField(QComboBox* field, const ImageMetadata
              "question."));
       break;
     default:
-      field->setToolTip(QString());
+      field->setToolTip(sourceDpiLabel->toolTip());
       break;
   }
-}
-
-void OptionsWidget::keepSourceDpiFieldsEnabled() {
-  sourceDpiLabel->setEnabled(true);
-  sourceDpiTimesLabel->setEnabled(true);
-  sourceXDpi->setEnabled(true);
-  sourceYDpi->setEnabled(true);
-  fixDpiBtn->setEnabled(true);
 }
 
 bool OptionsWidget::isSourceDpiFieldFocused() const {
@@ -690,9 +682,12 @@ void OptionsWidget::sourceDpiActivated() {
 void OptionsWidget::sourceDpiEditingFinished() {
   bool xOk = false;
   bool yOk = false;
-  const int horizontalDpi = sourceXDpi->currentText().toInt(&xOk);
-  const int verticalDpi = sourceYDpi->currentText().toInt(&yOk);
+  const int horizontalDpi = core::Utils::dpiFromText(sourceXDpi->currentText(), &xOk);
+  const int verticalDpi = core::Utils::dpiFromText(sourceYDpi->currentText(), &yOk);
   if (xOk && yOk) {
+    // Typed without the unit, the value is shown like the others.
+    sourceXDpi->setEditText(core::Utils::dpiText(horizontalDpi));
+    sourceYDpi->setEditText(core::Utils::dpiText(verticalDpi));
     const ImageMetadata metadata(m_sourceImagePixelSize, Dpi(horizontalDpi, verticalDpi));
     decorateSourceDpiField(sourceXDpi, metadata.horizontalDpiStatus());
     decorateSourceDpiField(sourceYDpi, metadata.verticalDpiStatus());
