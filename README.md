@@ -387,6 +387,8 @@ from working:
   the screen. It can be made lower, but not narrower, so only the height ever scrolls.
 * Fixed: the threshold methods Bradley, Grad, EdgePlus, BlurDiv and EdgeDiv showed the settings
   of another method; and the upper bound of the Wolf method was not saved in a profile.
+* Fixed: the deskew angle of the *Deskew* tab took only 0 to 99.99 degrees; it now takes -45 to
+  45 degrees, as in the Deskew step.
 
 ### Zone editors (picture zones and fill zones)
 

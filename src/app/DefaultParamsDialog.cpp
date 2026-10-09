@@ -133,6 +133,9 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   lighterThresholdLink->setText(Utils::richTextForLink(lighterThresholdLink->text()));
   thresholdSlider->setToolTip(QString::number(thresholdSlider->value()));
 
+  // The same range as in the Deskew step.
+  angleSpinBox->setRange(-45.0, 45.0);
+
   thresholdSlider->setMinimum(-100);
   thresholdSlider->setMaximum(100);
   thresholLabel->setText(QString::number(thresholdSlider->value()));
