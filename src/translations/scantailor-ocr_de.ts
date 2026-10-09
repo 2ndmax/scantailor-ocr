@@ -2951,17 +2951,17 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <translation>Rechteck-Auswahl (C)</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="196"/>
+        <location filename="../app/StatusBarPanel.cpp" line="208"/>
         <source>Polygon selection</source>
         <translation>Polygon-Auswahl</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="192"/>
+        <location filename="../app/StatusBarPanel.cpp" line="204"/>
         <source>Lasso selection</source>
         <translation>Lasso-Auswahl</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="188"/>
+        <location filename="../app/StatusBarPanel.cpp" line="200"/>
         <source>Rectangle selection</source>
         <translation>Rechteck-Auswahl</translation>
     </message>
@@ -2982,13 +2982,13 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="114"/>
-        <source>Image size.</source>
-        <translation>Bildgröße</translation>
+        <source>Image size and resolution.</source>
+        <translation>Bildgröße und Auflösung</translation>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="117"/>
-        <source>Image size in current units.</source>
-        <translation>Bildgröße in derzeitiger Einheit</translation>
+        <source>Image size in current units and resolution of the image shown.</source>
+        <translation>Bildgröße in derzeitiger Einheit und Auflösung des angezeigten Bildes</translation>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="149"/>
@@ -3016,12 +3016,12 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <translation>S. %1 / %2</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="85"/>
+        <location filename="../app/StatusBarPanel.cpp" line="87"/>
         <source> [L]</source>
         <translation> [L]</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="85"/>
+        <location filename="../app/StatusBarPanel.cpp" line="87"/>
         <source> [R]</source>
         <translation> [R]</translation>
     </message>
@@ -4796,27 +4796,27 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="324"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="322"/>
         <source>Apply Margins</source>
         <translation>Ränder anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="333"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="331"/>
         <source>Apply Alignment</source>
         <translation>Ausrichtung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="647"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="645"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation>DPI ist zu groß und höchstwahrscheinlich falsch.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="651"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="649"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie keine akzeptablen Resultate erhalten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="655"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="653"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation>Ein extrem niedriger DPI-Wert. Er entspräche bei dieser Pixelgröße einem sehr großen Papierformat.</translation>
     </message>

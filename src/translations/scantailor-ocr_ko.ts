@@ -2974,27 +2974,27 @@ You should remove them from the project.</source>
         <translation>페이지. %1 / %2</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="85"/>
+        <location filename="../app/StatusBarPanel.cpp" line="87"/>
         <source> [L]</source>
         <translation> [L]</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="85"/>
+        <location filename="../app/StatusBarPanel.cpp" line="87"/>
         <source> [R]</source>
         <translation> [R]</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="188"/>
+        <location filename="../app/StatusBarPanel.cpp" line="200"/>
         <source>Rectangle selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="192"/>
+        <location filename="../app/StatusBarPanel.cpp" line="204"/>
         <source>Lasso selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="196"/>
+        <location filename="../app/StatusBarPanel.cpp" line="208"/>
         <source>Polygon selection</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3005,12 +3005,12 @@ You should remove them from the project.</source>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="114"/>
-        <source>Image size.</source>
+        <source>Image size and resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="117"/>
-        <source>Image size in current units.</source>
+        <source>Image size in current units and resolution of the image shown.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4781,27 +4781,27 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="324"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="322"/>
         <source>Apply Margins</source>
         <translation>테두리 적용</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="333"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="331"/>
         <source>Apply Alignment</source>
         <translation>위치 조정 적용</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="647"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="645"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation type="unfinished">DPI가 너무 크고 잘못된 것 같습니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="651"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="649"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation type="unfinished">DPI가 너무 작습니다. 정확한 DPI여도, 괜찮은 결과물을 얻지 못할 것입니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="655"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="653"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation type="unfinished"></translation>
     </message>

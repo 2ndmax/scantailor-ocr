@@ -77,16 +77,23 @@ void StatusBarPanel::updatePage(int pageNumber, size_t pageCount, const PageId& 
   ui.pageNoLabel->setText(tr("p. %1 / %2").arg(pageNumber).arg(pageCount));
   ui.pageNoLabel->setVisible(true);
 
-  QString pageFileInfo = QFileInfo(pageId.imageId().filePath()).completeBaseName();
-  if (pageFileInfo.size() > 15) {
-    pageFileInfo = "..." + pageFileInfo.right(13);
-  }
+  // At most this many characters; a longer name is shortened at the front, as its end usually
+  // holds the number.  The full name is in the tooltip.
+  const int maxChars = 50;
+  const QFileInfo fileInfo(pageId.imageId().filePath());
+  QString pageFileInfo = fileInfo.completeBaseName();
+  QString subPageSuffix;
   if (pageId.subPage() != PageId::SINGLE_PAGE) {
-    pageFileInfo = pageFileInfo.right(11) + ((pageId.subPage() == PageId::LEFT_PAGE) ? tr(" [L]") : tr(" [R]"));
+    subPageSuffix = (pageId.subPage() == PageId::LEFT_PAGE) ? tr(" [L]") : tr(" [R]");
+  }
+  const int nameChars = maxChars - subPageSuffix.size();
+  if (pageFileInfo.size() > nameChars) {
+    pageFileInfo = "..." + pageFileInfo.right(nameChars - 3);
   }
 
   ui.pageInfoLine->setVisible(true);
-  ui.pageInfoLabel->setText(pageFileInfo);
+  ui.pageInfoLabel->setText(pageFileInfo + subPageSuffix);
+  ui.pageInfoLabel->setToolTip(fileInfo.fileName() + subPageSuffix);
   ui.pageInfoLabel->setVisible(true);
 }
 
@@ -169,7 +176,12 @@ void StatusBarPanel::physSizeChanged() {
     }
 
     ui.physSizeLine->setVisible(true);
-    ui.physSizeLabel->setText(QString("%1 x %2 %3").arg(width).arg(height).arg(unitsToLocalizedString(units)));
+    // The resolution of the image shown: the source resolution, in Output the output resolution.
+    const QString dpiText = (m_dpi.horizontal() == m_dpi.vertical())
+                                ? QString("%1 dpi").arg(m_dpi.horizontal())
+                                : QString("%1 x %2 dpi").arg(m_dpi.horizontal()).arg(m_dpi.vertical());
+    ui.physSizeLabel->setText(
+        QString("%1 x %2 %3 / %4").arg(width).arg(height).arg(unitsToLocalizedString(units)).arg(dpiText));
     ui.physSizeLabel->setVisible(true);
   } else {
     clearAndHideLabel(ui.physSizeLabel);

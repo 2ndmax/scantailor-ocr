@@ -111,10 +111,10 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Image size.</string>
+      <string>Image size and resolution.</string>
      </property>
      <property name="statusTip">
-      <string>Image size in current units.</string>
+      <string>Image size in current units and resolution of the image shown.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

@@ -322,6 +322,10 @@ from working:
   DPI ..."). "Lock aggregate size for matching" is now called "Lock common size".
 * The options panels are at least 320 pixels wide (formerly 274), so a scroll bar doesn't cover
   their content.
+* Status bar: the file name shows up to 50 characters (formerly 15, with split pages 11); the
+  full name is in the tooltip. The image size is followed by the resolution of the image shown,
+  e.g. "210 x 297 mm / 300 dpi" (in *Output* the output resolution), so a wrong source DPI can
+  be seen in every step.
 * Settings that don't apply at the moment are grayed out instead of hidden, so the panels don't
   jump: in *Split Pages* the split line of a single page, in *Select Content* the fine tuning
   and the size of the page box, in *Output* the parts that the color mode doesn't use

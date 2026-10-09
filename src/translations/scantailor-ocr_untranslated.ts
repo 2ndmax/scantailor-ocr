@@ -2930,12 +2930,12 @@ You should remove them from the project.</source>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="114"/>
-        <source>Image size.</source>
+        <source>Image size and resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="117"/>
-        <source>Image size in current units.</source>
+        <source>Image size in current units and resolution of the image shown.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2979,27 +2979,27 @@ You should remove them from the project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="85"/>
+        <location filename="../app/StatusBarPanel.cpp" line="87"/>
         <source> [L]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="85"/>
+        <location filename="../app/StatusBarPanel.cpp" line="87"/>
         <source> [R]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="188"/>
+        <location filename="../app/StatusBarPanel.cpp" line="200"/>
         <source>Rectangle selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="192"/>
+        <location filename="../app/StatusBarPanel.cpp" line="204"/>
         <source>Lasso selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.cpp" line="196"/>
+        <location filename="../app/StatusBarPanel.cpp" line="208"/>
         <source>Polygon selection</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4942,27 +4942,27 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="324"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="322"/>
         <source>Apply Margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="333"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="331"/>
         <source>Apply Alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="647"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="645"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="651"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="649"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="655"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="653"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation type="unfinished"></translation>
     </message>
