@@ -355,8 +355,8 @@ QWidget* PdfExportView::createOptionsWidget() {
   const ApplicationSettings& settings = ApplicationSettings::getInstance();
 
   auto* widget = new QWidget;
+  // The default margins, as around the options of the other steps.
   auto* layout = new QVBoxLayout(widget);
-  layout->setContentsMargins(0, 0, 0, 0);
 
   // Collapsible like the panels of the other steps; the object name keeps its collapsed state.
   auto* compressionGroup = new CollapsibleGroupBox(tr("PDF Compression"));
@@ -490,7 +490,16 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_ocrEnabled->setToolTip(
       tr("Adds an invisible text layer, so the text of the PDF can be searched, selected and copied.  Text "
          "recognition takes a few seconds per page."));
-  ocrGroupLayout->addWidget(m_ocrEnabled);
+  // The button shares the line of the check box, as in the Automatic Import panel.  It stays
+  // usable while text recognition is off, so languages can be added first.
+  auto* moreLanguagesButton = new QPushButton(tr("More languages ..."));
+  moreLanguagesButton->setToolTip(tr("Download more languages from the internet."));
+  moreLanguagesButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  auto* ocrEnabledRow = new QHBoxLayout;
+  ocrEnabledRow->addWidget(m_ocrEnabled, 1);
+  ocrEnabledRow->addWidget(moreLanguagesButton);
+  ocrGroupLayout->addLayout(ocrEnabledRow);
+  connect(moreLanguagesButton, &QPushButton::clicked, this, &PdfExportView::downloadLanguages);
 
   // Greyed out while text recognition is off.
   m_ocrOptions = new QWidget;
@@ -514,14 +523,6 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_noLanguagesLabel->setWordWrap(true);
   m_noLanguagesLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   ocrLayout->addWidget(m_noLanguagesLabel);
-
-  auto* moreLanguagesButton = new QPushButton(tr("More languages ..."));
-  moreLanguagesButton->setToolTip(tr("Download more languages from the internet."));
-  auto* moreLanguagesRow = new QHBoxLayout;
-  moreLanguagesRow->addStretch(1);
-  moreLanguagesRow->addWidget(moreLanguagesButton);
-  ocrLayout->addLayout(moreLanguagesRow);
-  connect(moreLanguagesButton, &QPushButton::clicked, this, &PdfExportView::downloadLanguages);
 
   fillLanguageList(settings.getPdfOcrLanguages());
 

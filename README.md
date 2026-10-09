@@ -282,10 +282,10 @@ from working:
 * *Select Content*: "Page Box" and "Content Box" are one panel, **Page and Content Box**.
 * *Page Layout*: "Fix all ..." and "Match size to all pages" have their own line above
   **Apply to ...**.
-* *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Filling",
-  "Threshold", "Color Operations" and "Picture Zones" (formerly "Picture Shape", like the tab
-  in which picture zones are edited). The collapsed state saved for the old
-  nested boxes is no longer used.
+* *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Denoising",
+  "Filling", "Threshold", "Color Operations" and "Picture Zones" (formerly "Picture Shape", like
+  the tab in which picture zones are edited). The collapsed state saved for the old nested boxes
+  is no longer used.
 * *Output*: the **output resolution** (a list with 300, 400, 600 and 1200 DPI; other values can
   be typed in) and the **dewarping** mode with "Post deskew" are set in the panels and apply to
   the current page at once, like all other settings. "Change ..." became **Apply to ...**. The
@@ -316,6 +316,12 @@ from working:
   (threshold, picture zones, splitting, despeckling, filling and some general options), the
   picture zone sensitivity, and the depth perception while there is no dewarping. The Mode and
   Despeckling panels and the depth perception are shown in every view of the Output step.
+* *Create PDF*: the options have the same margins as in the other steps, and **More languages
+  ...** sits next to **Recognize text**, as **Change ...** next to **Watch folder**; it can be
+  used while text recognition is off.
+* *Output*: **Wiener denoiser** has its own heading, "Denoising", right after "General" (also in
+  the default parameters dialog), instead of being under "Color Operations": it reduces the
+  noise of the image before all other processing, in every color mode.
 * *Output*: the depth perception, which only the dewarping uses, is part of the **Dewarping**
   panel (also in the default parameters dialog), and its **Apply to ...** applies it together
   with the dewarping mode. Its own panel and dialog are gone.
