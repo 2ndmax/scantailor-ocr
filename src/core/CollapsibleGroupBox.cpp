@@ -5,11 +5,61 @@
 
 #include <foundation/ScopedIncDec.h>
 
+#include <QApplication>
 #include <QSettings>
 #include <QtCore/QEvent>
 #include <QtGui/QShowEvent>
+#include <QtWidgets/QStyleOptionGroupBox>
+#include <QtWidgets/QStylePainter>
 
 #include "IconProvider.h"
+
+namespace {
+// Paints a group box like QGroupBox::paintEvent(), but the title with a bold font.  Setting a
+// bold font on the group box itself would make all of its content bold as well.
+class BoldTitlePainter : public QObject {
+ public:
+  using QObject::QObject;
+
+ protected:
+  bool eventFilter(QObject* watched, QEvent* event) override {
+    auto* groupBox = qobject_cast<QGroupBox*>(watched);
+    if (!groupBox || (event->type() != QEvent::Paint)) {
+      return false;
+    }
+
+    QFont font = groupBox->font();
+    font.setBold(true);
+
+    QStyleOptionGroupBox option;
+    option.initFrom(groupBox);
+    option.fontMetrics = QFontMetrics(font);
+    option.text = groupBox->title();
+    option.lineWidth = 1;
+    option.midLineWidth = 0;
+    option.textAlignment = groupBox->alignment();
+    option.subControls = QStyle::SC_GroupBoxFrame;
+    if (groupBox->isFlat()) {
+      option.features |= QStyleOptionFrame::Flat;
+    }
+    if (groupBox->isCheckable()) {
+      option.subControls |= QStyle::SC_GroupBoxCheckBox;
+      option.state |= groupBox->isChecked() ? QStyle::State_On : QStyle::State_Off;
+    }
+    if (!option.palette.isBrushSet(QPalette::Current, QPalette::WindowText)) {
+      option.textColor = QColor(groupBox->style()->styleHint(QStyle::SH_GroupBox_TextLabelColor, &option, groupBox));
+    }
+    if (!option.text.isEmpty()) {
+      option.subControls |= QStyle::SC_GroupBoxLabel;
+    }
+
+    QStylePainter painter(groupBox);
+    painter.setFont(font);
+    painter.drawComplexControl(QStyle::CC_GroupBox, option);
+    return true;
+  }
+};
+}  // namespace
 
 CollapsibleGroupBox::CollapsibleGroupBox(QWidget* parent) : QGroupBox(parent) {
   initialize();
@@ -32,6 +82,7 @@ void CollapsibleGroupBox::initialize() {
   setFocusPolicy(Qt::StrongFocus);
 
   this->setAlignment(Qt::AlignCenter);
+  makeTitleBold(this);
 
   connect(m_collapseButton, &QAbstractButton::clicked, this, &CollapsibleGroupBox::toggleCollapsed);
   connect(this, &QGroupBox::toggled, this, &CollapsibleGroupBox::checkToggled);
@@ -49,6 +100,11 @@ void CollapsibleGroupBox::setCollapsed(const bool collapse) {
 
     emit collapsedStateChanged(isCollapsed());
   }
+}
+
+void CollapsibleGroupBox::makeTitleBold(QGroupBox* groupBox) {
+  static BoldTitlePainter* const painter = new BoldTitlePainter(qApp);
+  groupBox->installEventFilter(painter);
 }
 
 bool CollapsibleGroupBox::isCollapsed() const {

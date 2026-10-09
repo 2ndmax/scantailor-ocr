@@ -106,15 +106,7 @@ void OptionsWidget::setRotation(const OrthogonalRotation& rotation) {
 }
 
 void OptionsWidget::trimEnableToggled(const bool checked) {
-  trimLeftSpin->setEnabled(checked);
-  trimRightSpin->setEnabled(checked);
-  trimTopSpin->setEnabled(checked);
-  trimBottomSpin->setEnabled(checked);
-  labelTrimTopLeft->setEnabled(checked);
-  labelTrimTopRight->setEnabled(checked);
-  labelTrimCenter->setEnabled(checked);
-  labelTrimBottomLeft->setEnabled(checked);
-  labelTrimBottomRight->setEnabled(checked);
+  trimFieldsWidget->setEnabled(checked);
   if (!checked) {
     m_settings->clearTrim(m_pageId.imageId());
     emit invalidateThumbnail(m_pageId);
@@ -151,15 +143,7 @@ void OptionsWidget::pullTrimToControls() {
   trimRightSpin->setValue(trim.right);
   trimTopSpin->setValue(trim.top);
   trimBottomSpin->setValue(trim.bottom);
-  trimLeftSpin->setEnabled(trim.enabled);
-  trimRightSpin->setEnabled(trim.enabled);
-  trimTopSpin->setEnabled(trim.enabled);
-  trimBottomSpin->setEnabled(trim.enabled);
-  labelTrimTopLeft->setEnabled(trim.enabled);
-  labelTrimTopRight->setEnabled(trim.enabled);
-  labelTrimCenter->setEnabled(trim.enabled);
-  labelTrimBottomLeft->setEnabled(trim.enabled);
-  labelTrimBottomRight->setEnabled(trim.enabled);
+  trimFieldsWidget->setEnabled(trim.enabled);
 }
 
 void OptionsWidget::pushTrimFromControls() {

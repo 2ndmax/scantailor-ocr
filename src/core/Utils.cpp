@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QTextDocument>
 #include <cmath>
 
@@ -94,5 +95,24 @@ QString Utils::qssConvertPxToEm(const QString& stylesheet, const double base, co
   }
   result.append(stylesheet.mid(prevIndex));
   return result;
+}
+
+QString Utils::dpiText(const int dpi) {
+  return QStringLiteral("%1 dpi").arg(dpi);
+}
+
+int Utils::dpiFromText(const QString& text, bool* ok) {
+  const QRegularExpressionMatch match = QRegularExpression(QStringLiteral("\\d+")).match(text);
+  if (!match.hasMatch()) {
+    *ok = false;
+    return 0;
+  }
+  return match.captured().toInt(ok);
+}
+
+QValidator* Utils::createDpiValidator(QObject* parent) {
+  return new QRegularExpressionValidator(
+      QRegularExpression(QStringLiteral(R"(\s*\d{0,4}\s*(d(p(i)?)?)?\s*)"), QRegularExpression::CaseInsensitiveOption),
+      parent);
 }
 }  // namespace core

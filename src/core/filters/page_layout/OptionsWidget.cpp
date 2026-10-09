@@ -183,6 +183,11 @@ void OptionsWidget::onUnitsChanged(Units units) {
   leftMarginSpinBox->setSingleStep(step);
   rightMarginSpinBox->setDecimals(decimals);
   rightMarginSpinBox->setSingleStep(step);
+  // The unit is shown in the fields.
+  const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
+  for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
+    spinBox->setSuffix(unitSuffix);
+  }
 
   updateMarginsDisplay();
 }

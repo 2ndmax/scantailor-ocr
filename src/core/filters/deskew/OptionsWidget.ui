@@ -61,37 +61,18 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="topEdgeCheckBox">
-        <property name="toolTip">
-         <string>Use the top page edge for deskew (recommended for book scans with dark background).</string>
-        </property>
-        <property name="text">
-         <string>Top page edge</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout">
+       <layout class="QHBoxLayout" name="angleLayout">
         <item>
-         <spacer>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <widget class="QLabel" name="angleLabel">
+          <property name="text">
+           <string>Angle:</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
+         </widget>
         </item>
         <item>
          <widget class="QDoubleSpinBox" name="angleSpinBox">
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
           <property name="singleStep">
            <double>0.010000000000000</double>
@@ -112,6 +93,19 @@
          </spacer>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="topEdgeCheckBox">
+        <property name="toolTip">
+         <string>Use the top page edge for deskew (recommended for book scans with dark background).</string>
+        </property>
+        <property name="text">
+         <string>Top page edge</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="SectionHeading" name="obliqueModeLabel">
@@ -158,14 +152,14 @@
         <item>
          <widget class="QLabel" name="obliqueLabel">
           <property name="text">
-           <string>Oblique (°):</string>
+           <string>Angle:</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QDoubleSpinBox" name="obliqueSpinBox">
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
           <property name="minimum">
            <double>-5.000000000000000</double>
@@ -177,6 +171,19 @@
            <double>0.100000000000000</double>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>

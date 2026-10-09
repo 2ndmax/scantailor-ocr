@@ -152,87 +152,92 @@
        </widget>
       </item>
       <item>
-       <layout class="QGridLayout" name="trimGridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="labelTrimTopLeft">
-          <property name="text">
-           <string notr="true">|=</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QSpinBox" name="trimTopSpin">
-          <property name="minimum">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="labelTrimTopRight">
-          <property name="text">
-           <string notr="true">=|</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeft|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QSpinBox" name="trimLeftSpin">
-          <property name="minimum">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="labelTrimCenter">
-          <property name="text">
-           <string notr="true">-|-</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="trimRightSpin">
-          <property name="minimum">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="labelTrimBottomLeft">
-          <property name="text">
-           <string notr="true">|___</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="trimBottomSpin">
-          <property name="minimum">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLabel" name="labelTrimBottomRight">
-          <property name="text">
-           <string notr="true">___|</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeft|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
+       <widget class="QWidget" name="trimFieldsWidget">
+        <layout class="QGridLayout" name="trimGridLayout">
+         <property name="leftMargin">
+          <number>15</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="trimTopLabel">
+            <property name="text">
+             <string>Top:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="trimTopSpin">
+            <property name="suffix">
+             <string notr="true"> px</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="trimBottomLabel">
+            <property name="text">
+             <string>Bottom:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="trimBottomSpin">
+            <property name="suffix">
+             <string notr="true"> px</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="trimLeftLabel">
+            <property name="text">
+             <string>Left:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="trimLeftSpin">
+            <property name="suffix">
+             <string notr="true"> px</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="trimRightLabel">
+            <property name="text">
+             <string>Right:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="trimRightSpin">
+            <property name="suffix">
+             <string notr="true"> px</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" rowspan="4">
+           <spacer name="trimFieldsSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>1</width>
+              <height>1</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
       <item>
        <layout class="QHBoxLayout">
         <property name="topMargin">

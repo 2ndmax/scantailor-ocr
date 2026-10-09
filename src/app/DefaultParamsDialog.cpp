@@ -11,7 +11,6 @@
 #include <filters/page_split/LayoutType.h>
 
 #include <QCoreApplication>
-#include <QIntValidator>
 #include <QLineEdit>
 #include <QScreen>
 #include <QScrollArea>
@@ -26,6 +25,7 @@
 #include <memory>
 #include <vector>
 
+#include "CollapsibleGroupBox.h"
 #include "DefaultParamsProvider.h"
 #include "UnitsProvider.h"
 #include "Utils.h"
@@ -42,6 +42,10 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
       m_currentUnits(MILLIMETRES),
       m_connectionManager(std::bind(&DefaultParamsDialog::setupUiConnections, this)) {
   setupUi(this);
+  // Bold group titles, as in the options panels.
+  for (QGroupBox* groupBox : findChildren<QGroupBox*>()) {
+    CollapsibleGroupBox::makeTitleBold(groupBox);
+  }
   setupIcons();
 
   // The deskew mode buttons and the oblique mode buttons share a parent widget, so autoExclusive
@@ -78,9 +82,9 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
 
   // Common resolutions; others can be typed in, as in the Output step.
   for (const int dpi : {300, 400, 600, 1200}) {
-    dpiSelector->addItem(QString::number(dpi));
+    dpiSelector->addItem(Utils::dpiText(dpi));
   }
-  dpiSelector->setValidator(new QIntValidator(0, 9999, dpiSelector));
+  dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
 
   m_dewarpingModeGroup = new QButtonGroup(this);
   m_dewarpingModeGroup->addButton(dewarpingOffBtn, OFF);
@@ -404,7 +408,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   higherSearchSensitivityCB->setChecked(pictureShapeOptions.isHigherSearchSensitivity());
 
   m_outputDpi = params.getDpi().vertical();
-  dpiSelector->setEditText(QString::number(m_outputDpi));
+  dpiSelector->setEditText(Utils::dpiText(m_outputDpi));
 
   const SplittingOptions& splittingOptions = params.getSplittingOptions();
   splittingCB->setChecked(splittingOptions.isSplitOutput());
@@ -889,6 +893,13 @@ void DefaultParamsDialog::updateUnits(const Units units) {
     rightMarginSpinBox->setDecimals(decimals);
     rightMarginSpinBox->setSingleStep(step);
   }
+
+  // The unit is shown in the fields.
+  const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
+  for (QDoubleSpinBox* spinBox :
+       {widthSpinBox, heightSpinBox, topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
+    spinBox->setSuffix(unitSuffix);
+  }
 }
 
 void DefaultParamsDialog::setLinkButtonLinked(QToolButton* button, bool linked) {
@@ -986,11 +997,11 @@ void DefaultParamsDialog::dpiSelectionChanged() {
     return;
   }
   bool ok = false;
-  const int dpi = dpiSelector->currentText().trimmed().toInt(&ok);
+  const int dpi = Utils::dpiFromText(dpiSelector->currentText(), &ok);
   if (!ok || (dpi < 72) || (dpi > 1200)) {
     m_checkingDpi = true;
-    QMessageBox::warning(this, tr("Output Resolution (DPI)"), tr("The resolution must be between 72 and 1200 DPI."));
-    dpiSelector->setEditText(QString::number(m_outputDpi));
+    QMessageBox::warning(this, tr("Output Resolution"), tr("The resolution must be between 72 and 1200 DPI."));
+    dpiSelector->setEditText(Utils::dpiText(m_outputDpi));
     m_checkingDpi = false;
     return;
   }

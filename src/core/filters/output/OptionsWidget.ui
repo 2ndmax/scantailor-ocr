@@ -23,7 +23,7 @@
       <string notr="true"/>
      </property>
      <property name="title">
-      <string>Output Resolution (DPI)</string>
+      <string>Output Resolution</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -34,19 +34,13 @@
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <spacer name="horizontalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
+<item>
+<widget class="QLabel" name="dpiLabel">
+<property name="text">
+<string>Resolution:</string>
+</property>
+</widget>
+</item>
         <item>
          <widget class="QComboBox" name="dpiSelector">
           <property name="toolTip">
@@ -142,21 +136,18 @@
       <bool>false</bool>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
+<item>
+<widget class="SectionHeading" name="colorModeHeading">
+<property name="text">
+<string>Color Mode</string>
+</property>
+<property name="first">
+<bool>true</bool>
+</property>
+</widget>
+</item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item>
          <widget class="QComboBox" name="colorModeSelector"/>
         </item>
@@ -212,25 +203,12 @@
           <number>0</number>
          </property>
          <item>
-          <spacer name="horizontalSpacer_13">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>1</width>
-             <height>1</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <property name="spacing">
             <number>2</number>
            </property>
            <property name="leftMargin">
-            <number>5</number>
+            <number>0</number>
            </property>
            <property name="topMargin">
             <number>5</number>
@@ -354,25 +332,12 @@
          <item>
           <layout class="QHBoxLayout" name="denoisingOptionsHLayout">
            <item>
-            <spacer name="denoisingOptionsLeftSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>1</width>
-               <height>1</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <layout class="QVBoxLayout" name="denoisingOptionsVLayout">
              <property name="spacing">
               <number>2</number>
              </property>
              <property name="leftMargin">
-              <number>5</number>
+              <number>0</number>
              </property>
              <property name="topMargin">
               <number>5</number>
@@ -456,6 +421,9 @@
                 </item>
                 <item row="1" column="2">
                  <widget class="QSpinBox" name="wienerWindowSize">
+                <property name="suffix">
+                 <string notr="true"> px</string>
+                </property>
                   <property name="toolTip">
                    <string>The dimensions of a pixel neighborhood to consider.</string>
                   </property>
@@ -528,19 +496,6 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_23">
            <item>
-            <spacer name="horizontalSpacer_43">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>1</width>
-               <height>1</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="QLabel" name="fillingColorLabel">
              <property name="text">
               <string>Color:</string>
@@ -592,19 +547,6 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_22">
-           <item>
-            <spacer name="horizontalSpacer_42">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>1</width>
-               <height>1</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
            <item>
             <widget class="QLabel" name="thresholMethodLabel">
              <property name="text">
@@ -679,25 +621,12 @@
           <number>0</number>
          </property>
          <item>
-          <spacer name="horizontalSpacer_30">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>1</width>
-             <height>1</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <property name="spacing">
             <number>2</number>
            </property>
            <property name="leftMargin">
-            <number>5</number>
+            <number>0</number>
            </property>
            <property name="topMargin">
             <number>5</number>
@@ -1160,19 +1089,6 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_13">
            <item>
-            <spacer name="horizontalSpacer_23">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>1</width>
-               <height>1</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="QComboBox" name="pictureShapeSelector"/>
            </item>
            <item>
@@ -1206,27 +1122,17 @@
              <number>0</number>
             </property>
             <item>
-             <spacer name="horizontalSpacer_27">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>1</width>
-                <height>1</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
              <widget class="QLabel" name="pictureShapeSensitivityLabel">
               <property name="text">
-               <string>Sensitivity (%):</string>
+               <string>Sensitivity:</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QSpinBox" name="pictureShapeSensitivitySB">
+             <property name="suffix">
+              <string notr="true"> %</string>
+             </property>
               <property name="frame">
                <bool>true</bool>
               </property>
@@ -1256,19 +1162,6 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_20">
-           <item>
-            <spacer name="horizontalSpacer_38">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>1</width>
-               <height>0</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
            <item>
             <widget class="QCheckBox" name="higherSearchSensitivityCB">
              <property name="text">
@@ -1361,19 +1254,6 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_12">
         <item>
-         <spacer name="horizontalSpacer_21">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <widget class="QCheckBox" name="splittingCB">
@@ -1382,6 +1262,11 @@
             </property>
            </widget>
           </item>
+<item>
+<layout class="QVBoxLayout" name="splittingSubLayout">
+<property name="leftMargin">
+<number>15</number>
+</property>
           <item>
            <widget class="QRadioButton" name="bwForegroundRB">
             <property name="text">
@@ -1426,6 +1311,8 @@
             </property>
            </widget>
           </item>
+</layout>
+</item>
          </layout>
         </item>
         <item>
@@ -1536,19 +1423,6 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_25">
           <item>
-           <spacer name="horizontalSpacer_48">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <layout class="QVBoxLayout" name="verticalLayout_20">
             <item>
              <widget class="QCheckBox" name="despeckleCB">
@@ -1574,6 +1448,11 @@
           </item>
          </layout>
         </item>
+<item>
+<layout class="QVBoxLayout" name="despeckleSliderLayout">
+<property name="leftMargin">
+<number>15</number>
+</property>
         <item>
          <widget class="QSlider" name="despeckleSlider">
           <property name="minimum">
@@ -1596,6 +1475,8 @@
           </property>
          </widget>
         </item>
+</layout>
+</item>
        </layout>
       </item>
       <item>
@@ -1661,19 +1542,6 @@
      <layout class="QVBoxLayout" name="verticalLayout_17">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_24">
-        <item>
-         <spacer name="horizontalSpacer_47">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_16">
           <item>

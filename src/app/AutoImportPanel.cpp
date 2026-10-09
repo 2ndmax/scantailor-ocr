@@ -55,9 +55,13 @@ AutoImportPanel::AutoImportPanel(QWidget* parent) : QWidget(parent) {
   m_modes->addButton(m_appendMode, APPEND);
   m_modes->addButton(m_insertAfterMode, INSERT_AFTER);
   m_modes->addButton(m_replaceMode, REPLACE);
+  // Indented below the check box, as options that belong to it.
+  auto* modesLayout = new QVBoxLayout;
+  modesLayout->setContentsMargins(15, 0, 0, 0);
   for (QRadioButton* mode : {m_appendMode, m_insertAfterMode, m_replaceMode}) {
-    groupLayout->addWidget(mode);
+    modesLayout->addWidget(mode);
   }
+  groupLayout->addLayout(modesLayout);
   m_appendMode->setChecked(true);
 
   m_noDpiLabel = new QLabel;

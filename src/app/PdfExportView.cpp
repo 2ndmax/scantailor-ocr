@@ -501,10 +501,10 @@ QWidget* PdfExportView::createOptionsWidget() {
   ocrGroupLayout->addLayout(ocrEnabledRow);
   connect(moreLanguagesButton, &QPushButton::clicked, this, &PdfExportView::downloadLanguages);
 
-  // Greyed out while text recognition is off.
+  // Greyed out while text recognition is off, and indented below its check box.
   m_ocrOptions = new QWidget;
   auto* ocrLayout = new QVBoxLayout(m_ocrOptions);
-  ocrLayout->setContentsMargins(0, 0, 0, 0);
+  ocrLayout->setContentsMargins(15, 0, 0, 0);
   ocrGroupLayout->addWidget(m_ocrOptions);
   ocrLayout->addWidget(new QLabel(tr("Languages:")));
   m_languageList = new QListWidget;

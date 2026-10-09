@@ -322,6 +322,22 @@ from working:
 * *Output*: **Wiener denoiser** has its own heading, "Denoising", right after "General" (also in
   the default parameters dialog), instead of being under "Color Operations": it reduces the
   noise of the image before all other processing, in every color mode.
+* One alignment in all options panels (also in the default parameters dialog): check boxes,
+  option buttons and "label: field" lines start at the left edge of the panel. What depends on
+  a check box is indented below it, one step further for each level (e.g. the modes of
+  **Watch folder**, the trim values, "Original background" below "B&W foreground", the
+  languages of **Recognize text**). What depends on Auto / Manual buttons or a list is grayed
+  out, but not indented. Values have their label on the same line ("Angle:", "Width:",
+  "Top:") and the unit in the field (°, px, %, or the chosen unit of measurement).
+* *Import*: the trim values are named *Top*, *Bottom*, *Left* and *Right*, as the margins in
+  *Margins*, instead of the signs next to the fields.
+* *Deskew*: the angle comes right below Auto / Manual, before "Top page edge". Both angles
+  are named *Angle*, have the degree sign in the field, are left-aligned and equally wide.
+* *Output*: the output resolution is chosen after **Resolution:** in the panel **Output Resolution**
+  (formerly "Output Resolution (DPI)"), and its list shows the unit ("300 dpi"; typed values are
+  read with or without it). The color mode list has its own bold heading, **Color Mode**.
+* The titles of all options panels (and of the panels in the default parameters dialog) are
+  bold.
 * *Output*: the depth perception, which only the dewarping uses, is part of the **Dewarping**
   panel (also in the default parameters dialog), and its **Apply to ...** applies it together
   with the dewarping mode. Its own panel and dialog are gone.

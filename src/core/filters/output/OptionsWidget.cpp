@@ -9,7 +9,6 @@
 #include <QButtonGroup>
 #include <QCoreApplication>
 #include <QFormLayout>
-#include <QIntValidator>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QSignalBlocker>
@@ -101,9 +100,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
 
   // Common resolutions; others can be typed in.
   for (const int dpi : {300, 400, 600, 1200}) {
-    dpiSelector->addItem(QString::number(dpi));
+    dpiSelector->addItem(Utils::dpiText(dpi));
   }
-  dpiSelector->setValidator(new QIntValidator(0, 9999, dpiSelector));
+  dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
 
   m_dewarpingModeGroup = new QButtonGroup(this);
   m_dewarpingModeGroup->addButton(dewarpingOffBtn, OFF);
@@ -451,10 +450,10 @@ void OptionsWidget::dpiSelectionChanged() {
     return;
   }
   bool ok = false;
-  const int dpi = dpiSelector->currentText().trimmed().toInt(&ok);
+  const int dpi = Utils::dpiFromText(dpiSelector->currentText(), &ok);
   if (!ok || (dpi < 72) || (dpi > 1200)) {
     m_checkingDpi = true;
-    QMessageBox::warning(this, tr("Output Resolution (DPI)"), tr("The resolution must be between 72 and 1200 DPI."));
+    QMessageBox::warning(this, tr("Output Resolution"), tr("The resolution must be between 72 and 1200 DPI."));
     updateDpiDisplay();
     m_checkingDpi = false;
     return;
@@ -779,7 +778,7 @@ void OptionsWidget::reloadIfNecessary() {
 void OptionsWidget::updateDpiDisplay() {
   // Changing the resolution sets the same value for both directions.
   const QSignalBlocker blocker(dpiSelector);
-  dpiSelector->setEditText(QString::number(std::max(m_outputDpi.horizontal(), m_outputDpi.vertical())));
+  dpiSelector->setEditText(Utils::dpiText(std::max(m_outputDpi.horizontal(), m_outputDpi.vertical())));
 }
 
 void OptionsWidget::updateColorsDisplay() {

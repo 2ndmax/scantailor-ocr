@@ -633,23 +633,20 @@
               </item>
               <item>
                <layout class="QHBoxLayout" name="_7">
-                <item>
-                 <spacer>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
+<item>
+<widget class="QLabel" name="angleLabel">
+<property name="text">
+<string>Angle:</string>
+</property>
+</widget>
+</item>
                 <item>
                  <widget class="QDoubleSpinBox" name="angleSpinBox">
+<property name="suffix">
+<string notr="true">°</string>
+</property>
                   <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   <set>Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                   <property name="singleStep">
                    <double>0.010000000000000</double>
@@ -903,24 +900,11 @@
                      <number>0</number>
                     </property>
                     <item>
-                     <spacer name="horizontalSpacer_11">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>1</width>
-                        <height>1</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
                      <layout class="QGridLayout" name="gridLayout_6">
                       <item row="0" column="0">
                        <widget class="QLabel" name="label">
                         <property name="text">
-                         <string>Width</string>
+                         <string>Width:</string>
                         </property>
                        </widget>
                       </item>
@@ -940,7 +924,7 @@
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_2">
                         <property name="text">
-                         <string>Height</string>
+                         <string>Height:</string>
                         </property>
                        </widget>
                       </item>
@@ -1126,19 +1110,6 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_8">
                   <item>
-                   <spacer name="horizontalSpacer_21">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>1</width>
-                      <height>1</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
                    <widget class="QCheckBox" name="autoMargins">
                     <property name="text">
                      <string>Auto margins</string>
@@ -1166,19 +1137,6 @@
                 <item>
                  <widget class="QWidget" name="marginsWidget" native="true">
                   <layout class="QHBoxLayout" name="horizontalLayout_9">
-                   <item>
-                    <spacer name="horizontalSpacer_23">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>1</width>
-                       <height>1</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
                    <item>
                     <layout class="QGridLayout" name="gridLayout_9">
                      <item row="0" column="2" rowspan="2">
@@ -1232,21 +1190,21 @@ QToolButton:pressed {
                      <item row="0" column="0">
                       <widget class="QLabel" name="label_3">
                        <property name="text">
-                        <string>Top</string>
+                        <string>Top:</string>
                        </property>
                       </widget>
                      </item>
                      <item row="3" column="0">
                       <widget class="QLabel" name="label_4">
                        <property name="text">
-                        <string>Right</string>
+                        <string>Right:</string>
                        </property>
                       </widget>
                      </item>
                      <item row="2" column="0">
                       <widget class="QLabel" name="label_5">
                        <property name="text">
-                        <string>Left</string>
+                        <string>Left:</string>
                        </property>
                       </widget>
                      </item>
@@ -1334,7 +1292,7 @@ QToolButton:pressed {
                      <item row="1" column="0">
                       <widget class="QLabel" name="label_6">
                        <property name="text">
-                        <string>Bottom</string>
+                        <string>Bottom:</string>
                        </property>
                       </widget>
                      </item>
@@ -1425,19 +1383,6 @@ QToolButton:pressed {
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_26">
                 <item>
-                 <spacer name="horizontalSpacer_15">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
                  <widget class="QCheckBox" name="alignWithOthersCB">
                   <property name="text">
                    <string>Match size with other pages</string>
@@ -1464,19 +1409,9 @@ QToolButton:pressed {
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_20">
-                <item>
-                 <spacer name="horizontalSpacer_74">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
+<property name="leftMargin">
+<number>15</number>
+</property>
                 <item>
                  <layout class="QGridLayout" name="gridLayout_15">
                   <item row="0" column="0">
@@ -1556,19 +1491,9 @@ QToolButton:pressed {
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_5">
-                <item>
-                 <spacer name="horizontalSpacer_17">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
+<property name="leftMargin">
+<number>15</number>
+</property>
                 <item>
                  <layout class="QGridLayout" name="gridLayout_8">
                   <property name="spacing">
@@ -1860,20 +1785,19 @@ QToolButton:pressed {
                <number>18</number>
               </property>
               <item row="0" column="0" colspan="2">
+<layout class="QVBoxLayout" name="colorModeLayout">
+<item>
+<widget class="SectionHeading" name="colorModeHeading">
+<property name="text">
+<string>Color Mode</string>
+</property>
+<property name="first">
+<bool>true</bool>
+</property>
+</widget>
+</item>
+<item>
                <layout class="QHBoxLayout" name="horizontalLayout_13">
-                <item>
-                 <spacer name="horizontalSpacer_33">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
                 <item>
                  <widget class="QComboBox" name="colorModeSelector"/>
                 </item>
@@ -1891,6 +1815,8 @@ QToolButton:pressed {
                  </spacer>
                 </item>
                </layout>
+</item>
+</layout>
               </item>
               <item row="1" column="0">
                <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -1914,33 +1840,17 @@ QToolButton:pressed {
                      <property name="text">
                       <string>General</string>
                      </property>
-                     <property name="first">
-                      <bool>true</bool>
-                     </property>
                     </widget>
                    </item>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_14">
-                     <item>
-                      <spacer name="horizontalSpacer_35">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>1</width>
-                         <height>1</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
                      <item>
                       <layout class="QVBoxLayout" name="verticalLayout_13">
                        <property name="spacing">
                         <number>2</number>
                        </property>
                        <property name="leftMargin">
-                        <number>5</number>
+                        <number>0</number>
                        </property>
                        <property name="topMargin">
                         <number>5</number>
@@ -2137,6 +2047,9 @@ QToolButton:pressed {
                       </item>
                       <item row="1" column="2">
                        <widget class="QSpinBox" name="wienerWindowSize">
+<property name="suffix">
+<string notr="true"> px</string>
+</property>
                         <property name="toolTip">
                          <string>The dimensions of a pixel neighborhood to consider.</string>
                         </property>
@@ -2191,19 +2104,6 @@ QToolButton:pressed {
                    </item>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_23">
-                     <item>
-                      <spacer name="horizontalSpacer_43">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>1</width>
-                         <height>1</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
                      <item>
                       <widget class="QLabel" name="fillingColorLabel">
                        <property name="text">
@@ -2565,19 +2465,6 @@ QToolButton:pressed {
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_22">
                      <item>
-                      <spacer name="horizontalSpacer_42">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>1</width>
-                         <height>1</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                     <item>
                       <widget class="QLabel" name="thresholMethodLabel">
                        <property name="text">
                         <string>Method:</string>
@@ -2737,19 +2624,6 @@ QToolButton:pressed {
                        <item>
                         <layout class="QHBoxLayout" name="horizontalLayout_12">
                          <item>
-                          <spacer name="horizontalSpacer_20">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>1</width>
-                             <height>1</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item>
                           <layout class="QGridLayout" name="gridLayout_11">
                            <item row="0" column="0">
                             <widget class="QLabel" name="sauvolaDeltaLabel">
@@ -2783,6 +2657,9 @@ QToolButton:pressed {
                            </item>
                            <item row="1" column="1">
                             <widget class="QSpinBox" name="sauvolaWindowSize">
+<property name="suffix">
+<string notr="true"> px</string>
+</property>
                              <property name="toolTip">
                               <string>The dimensions of a pixel neighborhood to consider.</string>
                              </property>
@@ -2854,19 +2731,6 @@ QToolButton:pressed {
                        <item>
                         <layout class="QHBoxLayout" name="horizontalLayout_17">
                          <item>
-                          <spacer name="horizontalSpacer_26">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>1</width>
-                             <height>1</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item>
                           <layout class="QGridLayout" name="gridLayout_12">
                            <item row="0" column="0">
                             <widget class="QLabel" name="wolfDeltaLabel">
@@ -2900,6 +2764,9 @@ QToolButton:pressed {
                            </item>
                            <item row="1" column="1">
                             <widget class="QSpinBox" name="wolfWindowSize">
+<property name="suffix">
+<string notr="true"> px</string>
+</property>
                              <property name="toolTip">
                               <string>The dimensions of a pixel neighborhood to consider.</string>
                              </property>
@@ -3036,19 +2903,6 @@ QToolButton:pressed {
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_15">
                      <item>
-                      <spacer name="horizontalSpacer_37">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>1</width>
-                         <height>1</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                     <item>
                       <widget class="QComboBox" name="pictureShapeSelector"/>
                      </item>
                      <item>
@@ -3082,27 +2936,17 @@ QToolButton:pressed {
                        <number>0</number>
                       </property>
                       <item>
-                       <spacer name="horizontalSpacer_39">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>1</width>
-                          <height>1</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
                        <widget class="QLabel" name="pictureShapeSensitivityLabel">
                         <property name="text">
-                         <string>Sensitivity (%):</string>
+                         <string>Sensitivity:</string>
                         </property>
                        </widget>
                       </item>
                       <item>
                        <widget class="QSpinBox" name="pictureShapeSensitivitySB">
+<property name="suffix">
+<string notr="true"> %</string>
+</property>
                         <property name="maximum">
                          <number>100</number>
                         </property>
@@ -3126,19 +2970,6 @@ QToolButton:pressed {
                    </item>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_34">
-                     <item>
-                      <spacer name="horizontalSpacer_72">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>1</width>
-                         <height>1</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
                      <item>
                       <widget class="QCheckBox" name="higherSearchSensitivityCB">
                        <property name="text">
@@ -3187,25 +3018,19 @@ QToolButton:pressed {
              <item>
               <widget class="QGroupBox" name="dpiPanel">
                <property name="title">
-                <string>Output Resolution (DPI)</string>
+                <string>Output Resolution</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_7">
-                <item>
-                 <spacer name="horizontalSpacer_30">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
+<item>
+<widget class="QLabel" name="dpiLabel">
+<property name="text">
+<string>Resolution:</string>
+</property>
+</widget>
+</item>
                 <item>
                  <widget class="QComboBox" name="dpiSelector">
                   <property name="toolTip">
@@ -3245,19 +3070,6 @@ QToolButton:pressed {
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_18">
                 <item>
-                 <spacer name="horizontalSpacer_47">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
                  <layout class="QVBoxLayout" name="verticalLayout_22">
                   <item>
                    <widget class="QCheckBox" name="splittingCB">
@@ -3266,6 +3078,11 @@ QToolButton:pressed {
                     </property>
                    </widget>
                   </item>
+<item>
+<layout class="QVBoxLayout" name="splittingSubLayout">
+<property name="leftMargin">
+<number>15</number>
+</property>
                   <item>
                    <widget class="QRadioButton" name="bwForegroundRB">
                     <property name="text">
@@ -3313,6 +3130,8 @@ QToolButton:pressed {
                     </property>
                    </widget>
                   </item>
+</layout>
+</item>
                  </layout>
                 </item>
                 <item>
@@ -3343,19 +3162,6 @@ QToolButton:pressed {
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_37">
                   <item>
-                   <spacer name="horizontalSpacer_51">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>1</width>
-                      <height>1</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
                    <widget class="QCheckBox" name="despeckleCB">
                     <property name="text">
                      <string>Despeckle</string>
@@ -3377,6 +3183,11 @@ QToolButton:pressed {
                   </item>
                  </layout>
                 </item>
+<item>
+<layout class="QVBoxLayout" name="despeckleSliderLayout">
+<property name="leftMargin">
+<number>15</number>
+</property>
                 <item>
                  <widget class="QSlider" name="despeckleSlider">
                   <property name="minimum">
@@ -3399,6 +3210,8 @@ QToolButton:pressed {
                   </property>
                  </widget>
                 </item>
+</layout>
+</item>
                </layout>
               </widget>
              </item>

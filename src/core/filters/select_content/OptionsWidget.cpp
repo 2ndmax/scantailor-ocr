@@ -281,6 +281,10 @@ void OptionsWidget::onUnitsChanged(Units units) {
   widthSpinBox->setSingleStep(step);
   heightSpinBox->setDecimals(decimals);
   heightSpinBox->setSingleStep(step);
+  // The unit is shown in the fields.
+  const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
+  widthSpinBox->setSuffix(unitSuffix);
+  heightSpinBox->setSuffix(unitSuffix);
 
   updatePageRectSize(m_uiData.pageRect().size());
 }

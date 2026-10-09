@@ -6,6 +6,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QValidator>
 #include <map>
 #include <unordered_map>
 
@@ -57,6 +58,15 @@ class Utils {
   static QString richTextForLink(const QString& label, const QString& target = QString(QChar('#')));
 
   static QString qssConvertPxToEm(const QString& stylesheet, double base, int precise);
+
+  /// A resolution as shown in the lists of resolutions, e.g. "300 dpi".
+  static QString dpiText(int dpi);
+
+  /// Reads a resolution typed into such a list, with or without "dpi".
+  static int dpiFromText(const QString& text, bool* ok);
+
+  /// Accepts up to four digits, optionally followed by "dpi".
+  static QValidator* createDpiValidator(QObject* parent);
 
   Utils() = delete;
 };

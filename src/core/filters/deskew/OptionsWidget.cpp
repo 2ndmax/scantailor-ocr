@@ -4,6 +4,7 @@
 #include "OptionsWidget.h"
 
 #include <QtWidgets/QButtonGroup>
+#include <algorithm>
 #include <utility>
 
 #include <core/DefaultParams.h>
@@ -56,6 +57,11 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   angleSpinBox->setSuffix(QChar(0x00B0));  // the degree symbol
   angleSpinBox->setRange(-MAX_ANGLE, MAX_ANGLE);
   angleSpinBox->adjustSize();
+  obliqueSpinBox->setSuffix(QChar(0x00B0));
+  // Both angles get the same width, although their ranges differ.
+  const int angleWidth = std::max(angleSpinBox->sizeHint().width(), obliqueSpinBox->sizeHint().width());
+  angleSpinBox->setMinimumWidth(angleWidth);
+  obliqueSpinBox->setMinimumWidth(angleWidth);
   setSpinBoxUnknownState();
   topEdgeCheckBox->setChecked(!m_settings->algoContentBased());
 
