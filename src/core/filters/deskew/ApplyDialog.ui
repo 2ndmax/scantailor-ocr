@@ -148,7 +148,7 @@
       <item>
        <widget class="QCheckBox" name="applyDeskewCheckBox">
         <property name="toolTip">
-         <string>The rotation angle, or automatic detection if it is set to Auto.</string>
+         <string>The rotation angle, or automatic detection with its detection method if it is set to Auto.  Each page is then measured on its own.</string>
         </property>
         <property name="text">
          <string>Deskew</string>

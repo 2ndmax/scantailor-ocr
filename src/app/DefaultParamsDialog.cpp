@@ -135,6 +135,9 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
 
   // The same range as in the Deskew step.
   angleSpinBox->setRange(-45.0, 45.0);
+  // The items follow the order of deskew::SkewDetection, as in the Deskew step.
+  deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Content"));
+  deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Top page edge"));
 
   thresholdSlider->setMinimum(-100);
   thresholdSlider->setMaximum(100);
@@ -268,6 +271,9 @@ void DefaultParamsDialog::updateDeskewDisplay(const DefaultParams::DeskewParams&
   }
   angleSpinBox->setEnabled(mode == MODE_MANUAL);
   angleSpinBox->setValue(params.getDeskewAngleDeg());
+  deskewDetectionLabel->setEnabled(mode == MODE_AUTO);
+  deskewDetectionCB->setEnabled(mode == MODE_AUTO);
+  deskewDetectionCB->setCurrentIndex(params.getDetection());
   if (params.isAutoOblique()) {
     deskewObliqueAutoBtn->setChecked(true);
   } else {
@@ -561,6 +567,8 @@ void DefaultParamsDialog::layoutModeToggled(const bool manual) {
 
 void DefaultParamsDialog::deskewModeChanged(const bool autoMode) {
   angleSpinBox->setEnabled(!autoMode);
+  deskewDetectionLabel->setEnabled(autoMode);
+  deskewDetectionCB->setEnabled(autoMode);
 }
 
 void DefaultParamsDialog::pageDetectAutoToggled() {
@@ -727,6 +735,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
 
   DefaultParams::DeskewParams deskewParams(angleSpinBox->value(), deskewAutoBtn->isChecked() ? MODE_AUTO : MODE_MANUAL,
                                            deskewObliqueAutoBtn->isChecked());
+  deskewParams.setDetection(static_cast<deskew::SkewDetection>(deskewDetectionCB->currentIndex()));
 
   const AutoManualMode pageBoxMode = pageDetectDisableBtn->isChecked()  ? MODE_DISABLED
                                      : pageDetectManualBtn->isChecked() ? MODE_MANUAL

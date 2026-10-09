@@ -20,19 +20,25 @@ namespace {
 Params mergeParamsForApply(const std::unique_ptr<Params>& existing,
                            const OptionsWidget::UiData& cur,
                            const bool applyDeskew,
-                           const bool applyOblique) {
+                           const bool applyOblique,
+                           const bool isCurrentPage) {
   // Dependencies describe the image a page was computed from, so they are never transferable
   // between pages. Keep the ones the target page already has; a page we know nothing about gets
   // empty dependencies, which makes the task recompute (auto mode) or fill them in (manual mode).
-  const Dependencies deps(existing ? existing->dependencies() : Dependencies());
+  // Automatic deskew is measured on each page itself, with the detection method applied, rather
+  // than copying the angle of the current page.
+  const bool remeasure = applyDeskew && cur.mode() == MODE_AUTO && !isCurrentPage;
+  const Dependencies deps(existing && !remeasure ? existing->dependencies() : Dependencies());
   if (!existing) {
     return Params(applyDeskew ? cur.effectiveDeskewAngle() : 0.0, applyOblique ? cur.effectiveObliqueAngle() : 0.0,
-                  deps, applyDeskew ? cur.mode() : MODE_AUTO, applyOblique ? cur.obliqueMode() : MODE_AUTO);
+                  deps, applyDeskew ? cur.mode() : MODE_AUTO, applyOblique ? cur.obliqueMode() : MODE_AUTO,
+                  applyDeskew ? cur.detection()
+                              : DefaultParamsProvider::getInstance().getParams().getDeskewParams().getDetection());
   }
   return Params(applyDeskew ? cur.effectiveDeskewAngle() : existing->deskewAngle(),
                 applyOblique ? cur.effectiveObliqueAngle() : existing->obliqueAngle(), deps,
-                applyDeskew ? cur.mode() : existing->mode(),
-                applyOblique ? cur.obliqueMode() : existing->obliqueMode());
+                applyDeskew ? cur.mode() : existing->mode(), applyOblique ? cur.obliqueMode() : existing->obliqueMode(),
+                applyDeskew ? cur.detection() : existing->detection());
 }
 
 void setDefaultAutoOblique(const bool enabled) {
@@ -63,7 +69,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   angleSpinBox->setMinimumWidth(angleWidth);
   obliqueSpinBox->setMinimumWidth(angleWidth);
   setSpinBoxUnknownState();
-  topEdgeCheckBox->setChecked(!m_settings->algoContentBased());
+  // The items follow the order of SkewDetection.
+  detectionComboBox->addItem(tr("Content"));
+  detectionComboBox->addItem(tr("Top page edge"));
 
   // Each pair of Auto / Manual buttons needs its own exclusive group. Relying on autoExclusive
   // would put all four buttons into a single group, as they share the same parent widget.
@@ -101,7 +109,7 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDes
 
   for (const PageId& pageId : pages) {
     std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
-    const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique));
+    const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique, pageId == m_pageId));
     m_settings->setPageParams(pageId, merged);
   }
 
@@ -121,7 +129,7 @@ void OptionsWidget::appliedToAllPages(const std::set<PageId>& pages, const bool 
 
   for (const PageId& pageId : pages) {
     std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
-    const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique));
+    const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique, pageId == m_pageId));
     m_settings->setPageParams(pageId, merged);
   }
   emit invalidateAllThumbnails();
@@ -159,6 +167,7 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
   manualBtn->setEnabled(false);
   obliqueAutoBtn->setEnabled(false);
   obliqueManualBtn->setEnabled(false);
+  updateDetectionIndication();
 }
 
 void OptionsWidget::postUpdateUI(const UiData& uiData) {
@@ -173,9 +182,7 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
   updateObliqueModeIndication(uiData.obliqueMode());
   setSpinBoxKnownState(degreesToSpinBox(uiData.effectiveDeskewAngle()));
   obliqueSpinBox->setValue(m_uiData.effectiveObliqueAngle());
-  // The settings may have been replaced since this widget was constructed (e.g. by loading
-  // another project), so the check box can't be synchronized in the constructor alone.
-  topEdgeCheckBox->setChecked(!m_settings->algoContentBased());
+  updateDetectionIndication();
 }
 
 void OptionsWidget::spinBoxValueChanged(const double value) {
@@ -198,12 +205,25 @@ void OptionsWidget::modeChanged(const bool autoMode) {
       m_uiData.setEffectiveObliqueAngle(0.0);
     }
     m_settings->setPendingAutoOblique(m_pageId, obliqueAutoBtn->isChecked());
-    m_settings->clearPageParams(m_pageId);
+    // Empty dependencies make the task measure the page again. Unlike clearing the parameters,
+    // this keeps the page's detection method.
+    m_uiData.setDependencies(Dependencies());
+    commitCurrentParams();
+    updateDetectionIndication();
     emit reloadRequested();
   } else {
     m_uiData.setMode(MODE_MANUAL);
     commitCurrentParams();
+    updateDetectionIndication();
   }
+}
+
+void OptionsWidget::detectionChanged(const int index) {
+  m_uiData.setDetection(static_cast<SkewDetection>(index));
+  // The method is only selectable in automatic mode: measure the page again with it.
+  m_uiData.setDependencies(Dependencies());
+  commitCurrentParams();
+  emit reloadRequested();
 }
 
 void OptionsWidget::obliqueModeChanged(const bool autoMode) {
@@ -244,6 +264,7 @@ void OptionsWidget::updateModeIndication(const AutoManualMode mode) {
   } else {
     manualBtn->setChecked(true);
   }
+  updateDetectionIndication();
 }
 
 void OptionsWidget::updateObliqueModeIndication(const AutoManualMode mode) {
@@ -254,6 +275,16 @@ void OptionsWidget::updateObliqueModeIndication(const AutoManualMode mode) {
   } else {
     obliqueManualBtn->setChecked(true);
   }
+}
+
+void OptionsWidget::updateDetectionIndication() {
+  auto block = m_connectionManager.getScopedBlock();
+
+  detectionComboBox->setCurrentIndex(m_uiData.detection());
+  // The detection method only matters in automatic mode; otherwise it just shows the stored one.
+  const bool enabled = autoBtn->isEnabled() && autoBtn->isChecked();
+  detectionLabel->setEnabled(enabled);
+  detectionComboBox->setEnabled(enabled);
 }
 
 void OptionsWidget::setSpinBoxUnknownState() {
@@ -285,7 +316,7 @@ void OptionsWidget::setSpinBoxKnownState(const double angle) {
 
 void OptionsWidget::commitCurrentParams() {
   Params params(m_uiData.effectiveDeskewAngle(), m_uiData.effectiveObliqueAngle(), m_uiData.dependencies(),
-                m_uiData.mode(), m_uiData.obliqueMode());
+                m_uiData.mode(), m_uiData.obliqueMode(), m_uiData.detection());
   m_settings->setPageParams(m_pageId, params);
 }
 
@@ -303,13 +334,6 @@ double OptionsWidget::degreesToSpinBox(const double degrees) {
 }
 
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
-
-void OptionsWidget::topEdgeToggled(bool checked) {
-  m_settings->setAlgoContentBased(!checked);
-  if (autoBtn->isChecked()) {
-    emit reloadRequested();
-  }
-}
 
 void OptionsWidget::obliqueSpinBoxValueChanged(double value) {
   auto block = m_connectionManager.getScopedBlock();
@@ -329,7 +353,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(obliqueSpinBox, SIGNAL(valueChanged(double)), this, SLOT(obliqueSpinBoxValueChanged(double)));
   CONNECT(autoBtn, SIGNAL(toggled(bool)), this, SLOT(modeChanged(bool)));
   CONNECT(obliqueAutoBtn, SIGNAL(toggled(bool)), this, SLOT(obliqueModeChanged(bool)));
-  CONNECT(topEdgeCheckBox, SIGNAL(toggled(bool)), this, SLOT(topEdgeToggled(bool)));
+  CONNECT(detectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(detectionChanged(int)));
   CONNECT(applyDeskewBtn, SIGNAL(clicked()), this, SLOT(showDeskewDialog()));
 }
 
@@ -338,7 +362,11 @@ void OptionsWidget::setupUiConnections() {
 /*========================== OptionsWidget::UiData =========================*/
 
 OptionsWidget::UiData::UiData()
-    : m_effDeskewAngle(0.0), m_effObliqueAngle(0.0), m_mode(MODE_AUTO), m_obliqueMode(MODE_MANUAL) {}
+    : m_effDeskewAngle(0.0),
+      m_effObliqueAngle(0.0),
+      m_mode(MODE_AUTO),
+      m_obliqueMode(MODE_MANUAL),
+      m_detection(DETECT_CONTENT) {}
 
 OptionsWidget::UiData::~UiData() = default;
 }  // namespace deskew

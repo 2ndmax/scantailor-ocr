@@ -32,8 +32,9 @@ Params::Params(const double deskewAngleDeg,
                const double obliqueDeg,
                const Dependencies& deps,
                const AutoManualMode deskewMode,
-               const AutoManualMode obliqueMode)
-    : m_rotation{deskewAngleDeg, deskewMode}, m_oblique{obliqueDeg, obliqueMode}, m_deps(deps) {}
+               const AutoManualMode obliqueMode,
+               const SkewDetection detection)
+    : m_rotation{deskewAngleDeg, deskewMode, detection}, m_oblique{obliqueDeg, obliqueMode}, m_deps(deps) {}
 
 Params::Params(const double deskewAngleDeg,
                const double obliqueDeg,
@@ -41,9 +42,10 @@ Params::Params(const double deskewAngleDeg,
                const AutoManualMode mode)
     : m_rotation{deskewAngleDeg, mode}, m_oblique{obliqueDeg, mode}, m_deps(deps) {}
 
-Params::Params(const QDomElement& deskewEl)
+Params::Params(const QDomElement& deskewEl, const SkewDetection legacyDetection)
     : m_rotation{deskewEl.attribute("angle").toDouble(),
-                 deskewEl.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO},
+                 deskewEl.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO,
+                 skewDetectionFromString(deskewEl.attribute("detection"), legacyDetection)},
       m_oblique{deskewEl.attribute("oblique").toDouble(), obliqueModeFromXml(deskewEl)},
       m_deps(deskewEl.namedItem("dependencies").toElement()) {}
 
@@ -53,6 +55,7 @@ QDomElement Params::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("mode", m_rotation.mode == MODE_AUTO ? "auto" : "manual");
   el.setAttribute("angle", Utils::doubleToString(m_rotation.angle));
+  el.setAttribute("detection", skewDetectionToString(m_rotation.detection));
   el.setAttribute("oblique", Utils::doubleToString(m_oblique.obliqueAngle));
   el.setAttribute("oblique-mode", m_oblique.mode == MODE_AUTO ? "auto" : "manual");
   el.appendChild(m_deps.toXml(doc, "dependencies"));

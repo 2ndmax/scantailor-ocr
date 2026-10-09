@@ -139,7 +139,17 @@ The changes were developed with the help of Claude (Anthropic).
 * The drag handles for rotation and oblique correction sit closer to the image center, away from
   the edge of the view. How close is adjustable under *Settings → General → Deskew handle distance*
   (default 90 %).
-* The project and profile XML format is unchanged, so existing projects and profiles keep working.
+* **Detection method per page.** "Top page edge" used to be one check box for the whole
+  project. The line **Detection: [Content / Top page edge]** below Auto / Manual now sets it for
+  each page; it is grayed out in Manual mode. Changing it measures the page again. **Apply to
+  ...** transfers it with the deskew part, and the default parameters dialog sets it for new
+  pages.
+* **Apply to ... in Auto mode measures every target page on its own** (with the detection method
+  applied) instead of copying the angle of the current page.
+* Switching deskew back to *Auto* keeps a manually set oblique angle instead of resetting it to 0.
+* Projects store the detection method per page (attribute `detection`). Older projects keep
+  their project-wide setting, which is still written for other ScanTailor versions (it gets
+  the method most pages use), so projects and profiles stay compatible both ways.
 
 ### New project
 
@@ -331,7 +341,7 @@ from working:
   "Top:") and the unit in the field (°, px, %, or the chosen unit of measurement).
 * *Import*: the trim values are named *Top*, *Bottom*, *Left* and *Right*, as the margins in
   *Margins*, instead of the signs next to the fields.
-* *Deskew*: the angle comes right below Auto / Manual, before "Top page edge". Both angles
+* *Deskew*: the angle comes right below Auto / Manual, before "Detection:". Both angles
   are named *Angle*, have the degree sign in the field, are left-aligned and equally wide.
 * *Output*: the output resolution is chosen after **Resolution:** in the panel **Output Resolution**
   (formerly "Output Resolution (DPI)"), and its list shows the unit ("300 dpi"; typed values are
@@ -369,8 +379,8 @@ from working:
   "Upper Bound:" and "Coeff:").
 * Check boxes in sentence case also in *Select Content* and *Margins*: "Fine tune page corners"
   and "Auto margins". "Source DPI:" has a colon like the other labels, "Color:" (*Output*,
-  Filling) no longer a trailing space. *Deskew*: the check box is called "Top page edge"; that it
-  is meant for book scans with a dark background stays in its tooltip.
+  Filling) no longer a trailing space. *Deskew*: the detection method is called "Top page edge";
+  that it is meant for book scans with a dark background stays in the tooltip.
 
 ### Default parameters dialog
 

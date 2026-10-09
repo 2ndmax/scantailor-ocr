@@ -669,6 +669,37 @@
                </layout>
               </item>
               <item>
+               <layout class="QHBoxLayout" name="deskewDetectionLayout">
+                <item>
+                 <widget class="QLabel" name="deskewDetectionLabel">
+                  <property name="text">
+                   <string>Detection:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="deskewDetectionCB">
+                  <property name="toolTip">
+                   <string>How Auto finds the angle of new pages: from the lines of the content, or from the top edge of the page (recommended for book scans with a dark background).</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>1</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
                <widget class="SectionHeading" name="obliqueHeading">
                 <property name="text">
                  <string>Oblique</string>

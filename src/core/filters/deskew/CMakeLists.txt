@@ -15,6 +15,7 @@ set(sources
     Dependencies.cpp Dependencies.h
     ObliqueFinder.cpp ObliqueFinder.h
     Params.cpp Params.h
+    SkewDetection.h
     ApplyDialog.cpp ApplyDialog.h
     Utils.cpp Utils.h)
 

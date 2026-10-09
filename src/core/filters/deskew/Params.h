@@ -13,16 +13,18 @@
 
 #include "AutoManualMode.h"
 #include "Dependencies.h"
+#include "SkewDetection.h"
 
 class QDomDocument;
 class QDomElement;
 
 namespace deskew {
 
-/** Rotation (deskew) angle and auto/manual mode. */
+/** Rotation (deskew) angle, auto/manual mode and how the angle is found in auto mode. */
 struct RotationParams {
   double angle = 0.0;
   AutoManualMode mode = MODE_AUTO;
+  SkewDetection detection = DETECT_CONTENT;
 };
 
 /** Oblique (shear) angle in degrees and its own auto/manual mode (issue #117). */
@@ -41,12 +43,17 @@ class Params {
          double obliqueDeg,
          const Dependencies& deps,
          AutoManualMode deskewMode,
-         AutoManualMode obliqueMode);
+         AutoManualMode obliqueMode,
+         SkewDetection detection = DETECT_CONTENT);
 
   /** Legacy: oblique mode matches \p mode (coupled deskew/oblique). */
   Params(double deskewAngleDeg, double obliqueDeg, const Dependencies& deps, AutoManualMode mode);
 
-  explicit Params(const QDomElement& deskewEl);
+  /**
+   * \p legacyDetection is used when the element has no "detection" attribute. Projects saved
+   * before it existed had one detection method for the whole project.
+   */
+  explicit Params(const QDomElement& deskewEl, SkewDetection legacyDetection = DETECT_CONTENT);
 
   ~Params();
 
@@ -59,6 +66,8 @@ class Params {
   AutoManualMode mode() const;
 
   AutoManualMode obliqueMode() const;
+
+  SkewDetection detection() const;
 
   /** Legacy (#114): true when oblique runs in automatic mode. */
   bool autoOblique() const;
@@ -90,6 +99,10 @@ inline AutoManualMode Params::mode() const {
 
 inline AutoManualMode Params::obliqueMode() const {
   return m_oblique.mode;
+}
+
+inline SkewDetection Params::detection() const {
+  return m_rotation.detection;
 }
 
 inline bool Params::autoOblique() const {

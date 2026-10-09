@@ -53,10 +53,24 @@ void Filter::preUpdateUI(FilterUiInterface* const ui, const PageInfo& pageInfo) 
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
   QDomElement filterEl(doc.createElement("deskew"));
-  filterEl.setAttribute("algoContentBased", m_settings->algoContentBased() ? "1" : "0");
 
-  writer.enumPages(
-      [&](const PageId& pageId, const int numericId) { this->writeParams(doc, filterEl, pageId, numericId); });
+  int contentPages = 0;
+  int topEdgePages = 0;
+  writer.enumPages([&](const PageId& pageId, const int numericId) {
+    this->writeParams(doc, filterEl, pageId, numericId);
+    const std::unique_ptr<Params> params(m_settings->getPageParams(pageId));
+    if (!params) {
+      return;
+    }
+    if (params->detection() == DETECT_TOP_EDGE) {
+      ++topEdgePages;
+    } else {
+      ++contentPages;
+    }
+  });
+  // The detection method is stored per page. Other ScanTailor versions only know this project-wide
+  // attribute, so it gets the method most pages use.
+  filterEl.setAttribute("algoContentBased", topEdgePages > contentPages ? "0" : "1");
 
   saveImageSettings(writer, doc, filterEl);
   return filterEl;
@@ -66,9 +80,9 @@ void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filter
   m_settings->clear();
 
   const QDomElement filterEl(filtersEl.namedItem("deskew").toElement());
-  if (!filterEl.isNull()) {
-    m_settings->setAlgoContentBased(filterEl.attribute("algoContentBased", "1") != "0");
-  }
+  // Projects without a per-page detection method had one for the whole project.
+  const SkewDetection legacyDetection
+      = filterEl.attribute("algoContentBased", "1") != "0" ? DETECT_CONTENT : DETECT_TOP_EDGE;
 
   const QString pageTagName("page");
   QDomNode node(filterEl.firstChild());
@@ -97,7 +111,7 @@ void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filter
       continue;
     }
 
-    const Params params(paramsEl);
+    const Params params(paramsEl, legacyDetection);
     m_settings->setPageParams(pageId, params);
   }
 

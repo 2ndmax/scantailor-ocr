@@ -10,7 +10,7 @@
 using namespace core;
 
 namespace deskew {
-Settings::Settings() : m_algoContentBased(true) {
+Settings::Settings() {
   m_deviationProvider.setComputeValueByKey([this](const PageId& pageId) -> double {
     auto it(m_perPageParams.find(pageId));
     if (it != m_perPageParams.end()) {
@@ -28,8 +28,6 @@ void Settings::clear() {
   m_perPageParams.clear();
   m_pendingAutoOblique.clear();
   m_deviationProvider.clear();
-  // Must not leak into the next project.
-  m_algoContentBased = true;
 }
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {
@@ -98,16 +96,6 @@ bool Settings::isParamsNull(const PageId& pageId) const {
 
 const DeviationProvider<PageId>& Settings::deviationProvider() const {
   return m_deviationProvider;
-}
-
-void Settings::setAlgoContentBased(bool contentBased) {
-  QMutexLocker locker(&m_mutex);
-  m_algoContentBased = contentBased;
-}
-
-bool Settings::algoContentBased() const {
-  QMutexLocker locker(&m_mutex);
-  return m_algoContentBased;
 }
 
 void Settings::setPendingAutoOblique(const PageId& pageId, const bool enabled) {

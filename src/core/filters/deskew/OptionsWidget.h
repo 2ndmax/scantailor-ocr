@@ -15,6 +15,7 @@
 #include "FilterOptionsWidget.h"
 #include "PageId.h"
 #include "PageSelectionAccessor.h"
+#include "SkewDetection.h"
 #include "ui_OptionsWidget.h"
 
 class QButtonGroup;
@@ -52,12 +53,17 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
     AutoManualMode obliqueMode() const;
 
+    void setDetection(SkewDetection detection);
+
+    SkewDetection detection() const;
+
    private:
     double m_effDeskewAngle;
     double m_effObliqueAngle;
     Dependencies m_deps;
     AutoManualMode m_mode;
     AutoManualMode m_obliqueMode;
+    SkewDetection m_detection;
   };
 
 
@@ -92,7 +98,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void obliqueModeChanged(bool autoMode);
 
-  void topEdgeToggled(bool checked);
+  void detectionChanged(int index);
 
   void showDeskewDialog();
 
@@ -104,6 +110,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   void updateModeIndication(AutoManualMode mode);
 
   void updateObliqueModeIndication(AutoManualMode mode);
+
+  void updateDetectionIndication();
 
   void setSpinBoxUnknownState();
 
@@ -171,6 +179,14 @@ inline void OptionsWidget::UiData::setObliqueMode(const AutoManualMode mode) {
 
 inline AutoManualMode OptionsWidget::UiData::obliqueMode() const {
   return m_obliqueMode;
+}
+
+inline void OptionsWidget::UiData::setDetection(const SkewDetection detection) {
+  m_detection = detection;
+}
+
+inline SkewDetection OptionsWidget::UiData::detection() const {
+  return m_detection;
 }
 }  // namespace deskew
 

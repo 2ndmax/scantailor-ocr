@@ -106,9 +106,10 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
       uiData.setEffectiveObliqueAngle(params->obliqueAngle());
       uiData.setMode(params->mode());
       uiData.setObliqueMode(params->obliqueMode());
+      uiData.setDetection(params->detection());
 
       Params newParams(uiData.effectiveDeskewAngle(), uiData.effectiveObliqueAngle(), deps, uiData.mode(),
-                       uiData.obliqueMode());
+                       uiData.obliqueMode(), uiData.detection());
       m_settings->setPageParams(m_pageId, newParams);
     }
   }
@@ -135,6 +136,10 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
       autoObliqueEnabled = autoObliqueByDefault;
     }
 
+    uiData.setDetection(priorParamsBeforeRecompute
+                            ? priorParamsBeforeRecompute->detection()
+                            : DefaultParamsProvider::getInstance().getParams().getDeskewParams().getDetection());
+
     double preservedObliqueDeg = 0.;
     if (!autoObliqueEnabled && priorParamsBeforeRecompute && !priorParamsBeforeRecompute->autoOblique()) {
       preservedObliqueDeg = priorParamsBeforeRecompute->obliqueAngle();
@@ -159,8 +164,8 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
 
       SkewFinder skewFinder;
       skewFinder.setResolutionRatio((double) rotatedDpm.horizontal() / rotatedDpm.vertical());
-      const Skew skew(m_settings->algoContentBased() ? skewFinder.findSkew(rotatedImage)
-                                                     : skewFinder.findSkewFromTopEdge(rotatedImage));
+      const Skew skew(uiData.detection() == DETECT_TOP_EDGE ? skewFinder.findSkewFromTopEdge(rotatedImage)
+                                                            : skewFinder.findSkew(rotatedImage));
 
       if (skew.confidence() >= Skew::GOOD_CONFIDENCE) {
         uiData.setEffectiveDeskewAngle(-skew.angle());
@@ -206,7 +211,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
       }
 
       Params newParams(uiData.effectiveDeskewAngle(), uiData.effectiveObliqueAngle(), deps, uiData.mode(),
-                       uiData.obliqueMode());
+                       uiData.obliqueMode(), uiData.detection());
       m_settings->setPageParams(m_pageId, newParams);
 
       status.throwIfCancelled();

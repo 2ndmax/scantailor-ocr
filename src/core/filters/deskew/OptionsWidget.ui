@@ -95,17 +95,35 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="topEdgeCheckBox">
-        <property name="toolTip">
-         <string>Use the top page edge for deskew (recommended for book scans with dark background).</string>
-        </property>
-        <property name="text">
-         <string>Top page edge</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="detectionLayout">
+        <item>
+         <widget class="QLabel" name="detectionLabel">
+          <property name="text">
+           <string>Detection:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="detectionComboBox">
+          <property name="toolTip">
+           <string>How Auto finds the angle of this page: from the lines of the content, or from the top edge of the page (recommended for book scans with a dark background).</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="SectionHeading" name="obliqueModeLabel">
@@ -214,7 +232,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Applies the rotation angle and the oblique correction of this page to other pages.</string>
+           <string>Applies the rotation angle (with Auto: the detection method) and the oblique correction of this page to other pages.</string>
           </property>
           <property name="text">
            <string>Apply to ...</string>

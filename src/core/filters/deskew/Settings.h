@@ -43,10 +43,6 @@ class Settings {
 
   const DeviationProvider<PageId>& deviationProvider() const;
 
-  void setAlgoContentBased(bool contentBased);
-
-  bool algoContentBased() const;
-
   void setPendingAutoOblique(const PageId& pageId, bool enabled);
 
   std::optional<bool> takePendingAutoOblique(const PageId& pageId);
@@ -57,7 +53,6 @@ class Settings {
   mutable QMutex m_mutex;
   PerPageParams m_perPageParams;
   DeviationProvider<PageId> m_deviationProvider;
-  bool m_algoContentBased;
   std::unordered_map<PageId, bool> m_pendingAutoOblique;
 };
 }  // namespace deskew

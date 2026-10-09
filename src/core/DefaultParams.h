@@ -5,6 +5,7 @@
 #define SCANTAILOR_CORE_DEFAULTPARAMS_H_
 
 
+#include <filters/deskew/SkewDetection.h>
 #include <filters/output/ColorParams.h>
 #include <filters/output/DepthPerception.h>
 #include <filters/output/DespeckleLevel.h>
@@ -63,10 +64,15 @@ class DefaultParams {
 
     void setAutoOblique(bool autoOblique);
 
+    deskew::SkewDetection getDetection() const;
+
+    void setDetection(deskew::SkewDetection detection);
+
    private:
     double m_deskewAngleDeg;
     AutoManualMode m_mode;
     bool m_autoOblique;
+    deskew::SkewDetection m_detection;
   };
 
   class PageSplitParams {
@@ -344,6 +350,14 @@ inline bool DefaultParams::DeskewParams::isAutoOblique() const {
 
 inline void DefaultParams::DeskewParams::setAutoOblique(const bool autoOblique) {
   DeskewParams::m_autoOblique = autoOblique;
+}
+
+inline deskew::SkewDetection DefaultParams::DeskewParams::getDetection() const {
+  return m_detection;
+}
+
+inline void DefaultParams::DeskewParams::setDetection(const deskew::SkewDetection detection) {
+  DeskewParams::m_detection = detection;
 }
 
 inline page_split::LayoutType DefaultParams::PageSplitParams::getLayoutType() const {

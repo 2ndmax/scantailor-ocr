@@ -147,6 +147,46 @@ BOOST_AUTO_TEST_CASE(default_params_deskew_auto_oblique_off_by_default) {
   BOOST_CHECK(!deskew.isAutoOblique());
 }
 
+BOOST_AUTO_TEST_CASE(params_detection_roundtrip_xml) {
+  const Dependencies deps;
+  const Params original(0.5, 0.0, deps, MODE_AUTO, MODE_MANUAL, DETECT_TOP_EDGE);
+
+  QDomDocument doc;
+  const QDomElement el = original.toXml(doc, "params");
+  doc.appendChild(el);
+
+  BOOST_CHECK(el.attribute("detection") == "top-edge");
+  // The stored method wins over the project-wide one of older projects.
+  const Params restored(doc.documentElement(), DETECT_CONTENT);
+  BOOST_CHECK(restored.detection() == DETECT_TOP_EDGE);
+}
+
+BOOST_AUTO_TEST_CASE(params_missing_detection_uses_legacy_method) {
+  QDomDocument doc;
+  QDomElement el(doc.createElement("params"));
+  el.setAttribute("mode", "auto");
+  el.setAttribute("angle", "0");
+  const Dependencies deps;
+  el.appendChild(deps.toXml(doc, "dependencies"));
+  doc.appendChild(el);
+
+  BOOST_CHECK(Params(doc.documentElement()).detection() == DETECT_CONTENT);
+  BOOST_CHECK(Params(doc.documentElement(), DETECT_TOP_EDGE).detection() == DETECT_TOP_EDGE);
+}
+
+BOOST_AUTO_TEST_CASE(default_params_deskew_detection_roundtrip_xml) {
+  DefaultParams::DeskewParams original;
+  BOOST_CHECK(original.getDetection() == DETECT_CONTENT);
+  original.setDetection(DETECT_TOP_EDGE);
+
+  QDomDocument doc;
+  const QDomElement el = original.toXml(doc, "deskew-params");
+  doc.appendChild(el);
+
+  const DefaultParams::DeskewParams restored(doc.documentElement());
+  BOOST_CHECK(restored.getDetection() == DETECT_TOP_EDGE);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(ImageTransformationObliqueTestSuite)
