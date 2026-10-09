@@ -93,8 +93,6 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   void showApplyAlignmentDialog();
 
-  void matchSizeToAllPages();
-
   void freezeAggregateHardSizeToggled(bool checked);
 
   void onFixDpiClicked();

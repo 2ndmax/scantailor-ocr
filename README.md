@@ -290,7 +290,10 @@ from working:
   of its **Apply to ...** dialog are named like them, *Deskew* and *Oblique* (formerly "Deskew
   angle and mode" and "Oblique angle and mode").
 * *Select Content*: "Page Box" and "Content Box" are one panel, **Page and Content Box**.
-* *Page Layout*: "Match size to all pages" has its own line above **Apply to ...**.
+* *Page Layout*: the button "Match size to all pages" is gone. It applied the whole alignment
+  (not only the matched size) to all pages, like **Apply to ...** with all pages, and didn't
+  store the check box "Match size with other pages" for the current page. The tooltip of
+  **Apply to ...** says what is applied. The nine alignment buttons are centered.
 * *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Denoising",
   "Filling", "Threshold", "Color Operations" and "Picture Zones" (formerly "Picture Shape", like
   the tab in which picture zones are edited). The collapsed state saved for the old nested boxes

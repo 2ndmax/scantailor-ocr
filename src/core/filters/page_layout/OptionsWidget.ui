@@ -549,9 +549,19 @@ QToolButton:pressed {
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <property name="leftMargin">
-         <number>15</number>
-        </property>
+        <item>
+         <spacer name="alignmentButtonsSpacerLeft">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_2">
           <property name="spacing">
@@ -795,52 +805,6 @@ QToolButton:pressed {
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="matchSizeToAllLayout">
-        <item>
-         <spacer name="matchSizeToAllSpacerLeft">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="matchSizeToAllBtn">
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Match size to all pages</string>
-          </property>
-          <property name="toolTip">
-           <string>Apply &quot;Match size with other pages&quot; to every page so they all share the same output size.</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="matchSizeToAllSpacerRight">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <property name="topMargin">
          <number>8</number>
@@ -867,7 +831,7 @@ QToolButton:pressed {
            </size>
           </property>
           <property name="toolTip">
-           <string>Applies the alignment of this page to other pages.</string>
+           <string>Applies the alignment of this page to other pages: whether the size is matched with other pages, the modes and the position.  With all pages and the size matched, all pages get the same output size.</string>
           </property>
           <property name="text">
            <string>Apply to ...</string>

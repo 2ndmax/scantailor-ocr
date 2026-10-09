@@ -385,22 +385,6 @@ void OptionsWidget::applyAlignment(const std::set<PageId>& pages) {
   emit invalidateAllThumbnails();
 }
 
-void OptionsWidget::matchSizeToAllPages() {
-  std::set<PageId> allPages;
-  m_pageSelectionAccessor.allPages().selectAll().swap(allPages);
-  if (allPages.empty()) {
-    return;
-  }
-  m_alignment.setNull(false);
-  {
-    auto block = m_connectionManager.getScopedBlock();
-    alignWithOthersCB->setChecked(true);
-    updateAlignmentButtonsEnabled();
-  }
-  applyAlignment(allPages);
-  emit aggregateHardSizeChanged();
-}
-
 void OptionsWidget::freezeAggregateHardSizeToggled(const bool checked) {
   m_settings->setAggregateHardSizeFrozen(checked);
   emit aggregateHardSizeChanged();
@@ -477,7 +461,6 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(sourceYDpi->lineEdit(), SIGNAL(editingFinished()), this, SLOT(sourceDpiEditingFinished()));
   CONNECT(alignWithOthersCB, SIGNAL(toggled(bool)), this, SLOT(alignWithOthersToggled()));
   CONNECT(applyAlignmentBtn, SIGNAL(clicked()), this, SLOT(showApplyAlignmentDialog()));
-  CONNECT(matchSizeToAllBtn, SIGNAL(clicked()), this, SLOT(matchSizeToAllPages()));
   CONNECT(freezeAggregateHardSizeCb, SIGNAL(clicked(bool)), this, SLOT(freezeAggregateHardSizeToggled(bool)));
   for (const auto& kv : m_alignmentByButton) {
     CONNECT(kv.first, SIGNAL(clicked()), this, SLOT(alignmentButtonClicked()));

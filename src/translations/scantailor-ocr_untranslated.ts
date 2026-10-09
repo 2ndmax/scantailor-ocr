@@ -4788,15 +4788,15 @@ Without an internet connection, the installed languages can still be used.  Lang
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="212"/>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="281"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="563"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="586"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="609"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="632"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="655"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="681"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="704"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="727"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="750"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="573"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="596"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="619"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="642"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="665"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="691"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="714"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="737"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="760"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4827,7 +4827,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="404"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="873"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="837"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4898,37 +4898,27 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="790"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="800"/>
         <source>Keep the aggregate page size used for matching fixed while you switch pages, so the reference dimensions do not jump.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="793"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="803"/>
         <source>Lock common size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="821"/>
-        <source>Match size to all pages</source>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="834"/>
+        <source>Applies the alignment of this page to other pages: whether the size is matched with other pages, the modes and the position.  With all pages and the size matched, all pages get the same output size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="824"/>
-        <source>Apply &quot;Match size with other pages&quot; to every page so they all share the same output size.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="870"/>
-        <source>Applies the alignment of this page to other pages.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="904"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="868"/>
         <source>Guides Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="973"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="937"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -4952,17 +4942,17 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="645"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="628"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="649"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="632"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="653"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="636"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation type="unfinished"></translation>
     </message>
