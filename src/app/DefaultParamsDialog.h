@@ -24,15 +24,16 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   ~DefaultParamsDialog() override = default;
 
+ protected:
+  void showEvent(QShowEvent* event) override;
+
  private slots:
 
   void rotateLeft();
 
   void rotateRight();
 
-  void resetRotation();
-
-  void layoutModeChanged(int idx);
+  void layoutModeToggled(bool manual);
 
   void deskewModeChanged(bool autoMode);
 
@@ -72,6 +73,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void thresholdSliderValueChanged(int value);
 
+  void thresholdDeltaChanged(double value);
+
   void colorSegmentationToggled(bool checked);
 
   void posterizeToggled(bool checked);
@@ -82,9 +85,15 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void setNeutralThreshold();
 
-  void dpiSelectionChanged(int index);
+  void dpiSelectionChanged();
 
-  void dpiEditTextChanged(const QString& text);
+  void fillOffcutToggled(bool checked);
+
+  void fillOutsidePageBoxToggled(bool checked);
+
+  void wienerToggled(bool checked);
+
+  void dewarpingModeChanged();
 
   void depthPerceptionChangedSlot(int val);
 
@@ -141,6 +150,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void setupIcons();
 
+  void fitToContents();
+
   QIcon m_chainIcon;
   QIcon m_brokenChainIcon;
   bool m_leftRightLinkEnabled;
@@ -149,8 +160,13 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   std::unordered_map<QToolButton*, page_layout::Alignment> m_alignmentByButton;
   QButtonGroup* m_alignmentButtonGroup;
   DefaultParamsProfileManager m_profileManager;
-  int m_customDpiItemIdx;
-  QString m_customDpiValue;
+  QButtonGroup* m_dewarpingModeGroup;
+  // The output resolution shown before the current editing, restored after an invalid value.
+  int m_outputDpi = 600;
+  // A strength of 0 turns the Wiener denoiser off; turning it on again restores the last strength.
+  double m_wienerCoefWhenOn = 0.1;
+  bool m_checkingDpi = false;
+  bool m_fittedToContents = false;
   int m_customProfileItemIdx;
   Units m_currentUnits;
   std::set<QString> m_reservedProfileNames;

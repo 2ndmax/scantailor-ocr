@@ -10,12 +10,21 @@
 #include <filters/output/PictureShapeOptions.h>
 #include <filters/page_split/LayoutType.h>
 
+#include <QCoreApplication>
+#include <QIntValidator>
 #include <QLineEdit>
+#include <QScreen>
+#include <QScrollArea>
+#include <QSignalBlocker>
+#include <QStyle>
+#include <QWindow>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QToolTip>
+#include <algorithm>
 #include <cassert>
 #include <memory>
+#include <vector>
 
 #include "DefaultParamsProvider.h"
 #include "UnitsProvider.h"
@@ -44,9 +53,6 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   deskewObliqueModeGroup->addButton(deskewObliqueAutoBtn);
   deskewObliqueModeGroup->addButton(deskewObliqueManualBtn);
 
-  layoutModeCB->addItem(tr("Auto"), MODE_AUTO);
-  layoutModeCB->addItem(tr("Manual"), MODE_MANUAL);
-
   colorModeSelector->addItem(tr("Black and White"), BLACK_AND_WHITE);
   colorModeSelector->addItem(tr("Color / Grayscale"), COLOR_GRAYSCALE);
   colorModeSelector->addItem(tr("Mixed"), MIXED);
@@ -58,6 +64,8 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   thresholdMethodBox->addItem(tr("Otsu"), T_OTSU);
   thresholdMethodBox->addItem(tr("Sauvola"), T_SAUVOLA);
   thresholdMethodBox->addItem(tr("Wolf"), T_WOLF);
+  thresholdMethodBox->addItem(tr("Fox"), T_FOX);
+  thresholdMethodBox->addItem(tr("Window"), T_WINDOW);
   thresholdMethodBox->addItem(tr("Bradley"), T_BRADLEY);
   thresholdMethodBox->addItem(tr("Grad"), T_GRAD);
   thresholdMethodBox->addItem(tr("EdgePlus"), T_EDGEPLUS);
@@ -68,18 +76,17 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   pictureShapeSelector->addItem(tr("Free shape"), FREE_SHAPE);
   pictureShapeSelector->addItem(tr("Rectangle"), RECTANGULAR_SHAPE);
 
-  dpiSelector->addItem("300", "300");
-  dpiSelector->addItem("400", "400");
-  dpiSelector->addItem("600", "600");
-  dpiSelector->addItem("1200", "1200");
-  m_customDpiItemIdx = dpiSelector->count();
-  m_customDpiValue = "200";
-  dpiSelector->addItem(tr("Custom"), m_customDpiValue);
+  // Common resolutions; others can be typed in, as in the Output step.
+  for (const int dpi : {300, 400, 600, 1200}) {
+    dpiSelector->addItem(QString::number(dpi));
+  }
+  dpiSelector->setValidator(new QIntValidator(0, 9999, dpiSelector));
 
-  dewarpingModeCB->addItem(tr("Off"), OFF);
-  dewarpingModeCB->addItem(tr("Auto"), AUTO);
-  dewarpingModeCB->addItem(tr("Manual"), MANUAL);
-  dewarpingModeCB->addItem(tr("Marginal"), MARGINAL);
+  m_dewarpingModeGroup = new QButtonGroup(this);
+  m_dewarpingModeGroup->addButton(dewarpingOffBtn, OFF);
+  m_dewarpingModeGroup->addButton(dewarpingAutoBtn, AUTO);
+  m_dewarpingModeGroup->addButton(dewarpingMarginalBtn, MARGINAL);
+  m_dewarpingModeGroup->addButton(dewarpingManualBtn, MANUAL);
 
   m_reservedProfileNames.insert("Default");
   m_reservedProfileNames.insert("Source");
@@ -143,6 +150,72 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   setupUiConnections();
 }
 
+void DefaultParamsDialog::showEvent(QShowEvent* event) {
+  QDialog::showEvent(event);
+  // Before the window appears on the screen.
+  if (!m_fittedToContents) {
+    m_fittedToContents = true;
+    fitToContents();
+  }
+}
+
+void DefaultParamsDialog::fitToContents() {
+  QSize available(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+  if (const QScreen* screen = this->screen()) {
+    available = screen->availableGeometry().size() - QSize(40, 80);
+  }
+
+  // A scroll area asks for little space on its own, so the window would open smaller than its
+  // contents.  For the first layout, each one asks for the full size of its contents.  The width
+  // stays the minimum, with room for a vertical scroll bar, so only the height ever scrolls.
+  // A tab that was never shown reports too small a size, so each one is shown once.
+  const int currentTab = tabWidget->currentIndex();
+  std::vector<QScrollArea*> scrollAreas;
+  for (int i = 0; i < tabWidget->count(); ++i) {
+    tabWidget->setCurrentIndex(i);
+    for (QScrollArea* scrollArea : tabWidget->widget(i)->findChildren<QScrollArea*>()) {
+      QWidget* contents = scrollArea->widget();
+      if (!contents) {
+        continue;
+      }
+      const int frame = 2 * scrollArea->frameWidth();
+      const int scrollBar = style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr, scrollArea);
+      const QSize hint = contents->sizeHint();
+      scrollArea->setMinimumSize(std::min(hint.width() + frame + scrollBar, available.width()), hint.height() + frame);
+      scrollAreas.push_back(scrollArea);
+    }
+  }
+  tabWidget->setCurrentIndex(currentTab);
+
+  // The layouts take the new minimum sizes into account only with their pending layout requests,
+  // otherwise the window grows later, after it has been centered.
+  QCoreApplication::sendPostedEvents(nullptr, QEvent::LayoutRequest);
+  layout()->invalidate();
+  layout()->activate();
+  // Not adjustSize(): it limits a window to two thirds of the screen.
+  resize(sizeHint().expandedTo(minimumSizeHint()).boundedTo(available));
+  // The dialog was centered for its earlier size.  Center it again, with its title bar and frame,
+  // and keep it on the screen.
+  QMargins frame;
+  if (const QWindow* window = windowHandle()) {
+    frame = window->frameMargins();
+  }
+  const QSize frameSize = size() + QSize(frame.left() + frame.right(), frame.top() + frame.bottom());
+  const QRect screenRect = this->screen() ? this->screen()->availableGeometry() : QRect();
+  const QPoint center = parentWidget() ? parentWidget()->window()->frameGeometry().center() : screenRect.center();
+  QPoint topLeft = center - QPoint(frameSize.width() / 2, frameSize.height() / 2);
+  if (screenRect.isValid()) {
+    topLeft.setX(std::max(screenRect.left(), std::min(topLeft.x(), screenRect.right() + 1 - frameSize.width())));
+    topLeft.setY(std::max(screenRect.top(), std::min(topLeft.y(), screenRect.bottom() + 1 - frameSize.height())));
+  }
+  move(topLeft);
+
+  // Afterwards the window may be made lower again, but not narrower.
+  for (QScrollArea* scrollArea : scrollAreas) {
+    scrollArea->setMinimumHeight(0);
+  }
+}
+
 void DefaultParamsDialog::updateFixOrientationDisplay(const DefaultParams::FixOrientationParams& params) {
   m_orthogonalRotation = params.getImageRotation();
   setRotationPixmap();
@@ -151,10 +224,10 @@ void DefaultParamsDialog::updateFixOrientationDisplay(const DefaultParams::FixOr
 void DefaultParamsDialog::updatePageSplitDisplay(const DefaultParams::PageSplitParams& params) {
   LayoutType layoutType = params.getLayoutType();
   if (layoutType == AUTO_LAYOUT_TYPE) {
-    layoutModeCB->setCurrentIndex(layoutModeCB->findData(static_cast<int>(MODE_AUTO)));
+    layoutAutoBtn->setChecked(true);
     pageLayoutGroup->setEnabled(false);
   } else {
-    layoutModeCB->setCurrentIndex(layoutModeCB->findData(static_cast<int>(MODE_MANUAL)));
+    layoutManualBtn->setChecked(true);
     pageLayoutGroup->setEnabled(true);
   }
 
@@ -285,6 +358,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   const BlackWhiteOptions& blackWhiteOptions = colorParams.blackWhiteOptions();
   fillMarginsCB->setChecked(colorCommonOptions.fillMargins());
   fillOffcutCB->setChecked(colorCommonOptions.fillOffcut());
+  fillOutsidePageBoxCB->setChecked(colorCommonOptions.fillOutsidePageBox());
   equalizeIlluminationCB->setChecked(blackWhiteOptions.normalizeIllumination());
   equalizeIlluminationColorCB->setChecked(colorCommonOptions.normalizeIllumination());
   grayscaleOutputCB->setChecked(colorCommonOptions.isGrayscaleOutput());
@@ -292,6 +366,15 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   morphologicalSmoothingCB->setChecked(blackWhiteOptions.isMorphologicalSmoothingEnabled());
 
   fillingColorBox->setCurrentIndex(fillingColorBox->findData(colorCommonOptions.getFillingColor()));
+
+  // The strength shown while the denoiser is off is only kept for turning it on.
+  const bool wienerOn = colorCommonOptions.wienerCoef() > 0.0;
+  if (wienerOn) {
+    m_wienerCoefWhenOn = colorCommonOptions.wienerCoef();
+  }
+  wienerCB->setChecked(wienerOn);
+  wienerCoef->setValue(m_wienerCoefWhenOn);
+  wienerWindowSize->setValue(colorCommonOptions.wienerWindowSize());
 
   colorSegmentationCB->setChecked(blackWhiteOptions.getColorSegmenterOptions().isEnabled());
   reduceNoiseSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getNoiseReduction());
@@ -306,6 +389,8 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   thresholdMethodBox->setCurrentIndex(thresholdMethodBox->findData(blackWhiteOptions.getBinarizationMethod()));
   thresholdSlider->setValue(blackWhiteOptions.thresholdAdjustment());
   thresholLabel->setText(QString::number(thresholdSlider->value()));
+  sauvolaDelta->setValue(thresholdSlider->value());
+  wolfDelta->setValue(thresholdSlider->value());
   sauvolaWindowSize->setValue(blackWhiteOptions.getWindowSize());
   wolfWindowSize->setValue(blackWhiteOptions.getWindowSize());
   sauvolaCoef->setValue(blackWhiteOptions.getSauvolaCoef());
@@ -318,13 +403,8 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   pictureShapeSensitivitySB->setValue(pictureShapeOptions.getSensitivity());
   higherSearchSensitivityCB->setChecked(pictureShapeOptions.isHigherSearchSensitivity());
 
-  int dpiIndex = dpiSelector->findData(QString::number(params.getDpi().vertical()));
-  if (dpiIndex != -1) {
-    dpiSelector->setCurrentIndex(dpiIndex);
-  } else {
-    dpiSelector->setCurrentIndex(m_customDpiItemIdx);
-    m_customDpiValue = QString::number(params.getDpi().vertical());
-  }
+  m_outputDpi = params.getDpi().vertical();
+  dpiSelector->setEditText(QString::number(m_outputDpi));
 
   const SplittingOptions& splittingOptions = params.getSplittingOptions();
   splittingCB->setChecked(splittingOptions.isSplitOutput());
@@ -347,7 +427,9 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   }
   despeckleSlider->setToolTip(QString::number(0.1 * despeckleSlider->value()));
 
-  dewarpingModeCB->setCurrentIndex(dewarpingModeCB->findData(params.getDewarpingOptions().dewarpingMode()));
+  if (QAbstractButton* dewarpingModeBtn = m_dewarpingModeGroup->button(params.getDewarpingOptions().dewarpingMode())) {
+    dewarpingModeBtn->setChecked(true);
+  }
   dewarpingPostDeskewCB->setChecked(params.getDewarpingOptions().needPostDeskew());
   depthPerceptionSlider->setValue(qRound(params.getDepthPerception().value() * 10));
 
@@ -357,8 +439,9 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   pictureShapeChanged(pictureShapeSelector->currentIndex());
   equalizeIlluminationToggled(equalizeIlluminationCB->isChecked());
   splittingToggled(splittingCB->isChecked());
-  dpiSelectionChanged(dpiSelector->currentIndex());
   despeckleToggled(despeckleCB->isChecked());
+  wienerOptionsWidget->setEnabled(wienerOn);
+  dewarpingModeChanged();
 }
 
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
@@ -366,8 +449,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
 void DefaultParamsDialog::setupUiConnections() {
   CONNECT(rotateLeftBtn, SIGNAL(clicked()), this, SLOT(rotateLeft()));
   CONNECT(rotateRightBtn, SIGNAL(clicked()), this, SLOT(rotateRight()));
-  CONNECT(resetBtn, SIGNAL(clicked()), this, SLOT(resetRotation()));
-  CONNECT(layoutModeCB, SIGNAL(currentIndexChanged(int)), this, SLOT(layoutModeChanged(int)));
+  CONNECT(layoutManualBtn, SIGNAL(toggled(bool)), this, SLOT(layoutModeToggled(bool)));
   CONNECT(deskewAutoBtn, SIGNAL(toggled(bool)), this, SLOT(deskewModeChanged(bool)));
   CONNECT(pageDetectAutoBtn, SIGNAL(pressed()), this, SLOT(pageDetectAutoToggled()));
   CONNECT(pageDetectManualBtn, SIGNAL(pressed()), this, SLOT(pageDetectManualToggled()));
@@ -393,8 +475,14 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(darkerThresholdLink, SIGNAL(linkActivated(const QString&)), this, SLOT(setDarkerThreshold()));
   CONNECT(thresholdSlider, SIGNAL(valueChanged(int)), this, SLOT(thresholdSliderValueChanged(int)));
   CONNECT(neutralThresholdBtn, SIGNAL(clicked()), this, SLOT(setNeutralThreshold()));
-  CONNECT(dpiSelector, SIGNAL(activated(int)), this, SLOT(dpiSelectionChanged(int)));
-  CONNECT(dpiSelector, SIGNAL(editTextChanged(const QString&)), this, SLOT(dpiEditTextChanged(const QString&)));
+  CONNECT(sauvolaDelta, SIGNAL(valueChanged(double)), this, SLOT(thresholdDeltaChanged(double)));
+  CONNECT(wolfDelta, SIGNAL(valueChanged(double)), this, SLOT(thresholdDeltaChanged(double)));
+  CONNECT(dpiSelector, SIGNAL(activated(int)), this, SLOT(dpiSelectionChanged()));
+  CONNECT(dpiSelector->lineEdit(), SIGNAL(editingFinished()), this, SLOT(dpiSelectionChanged()));
+  CONNECT(fillOffcutCB, SIGNAL(clicked(bool)), this, SLOT(fillOffcutToggled(bool)));
+  CONNECT(fillOutsidePageBoxCB, SIGNAL(clicked(bool)), this, SLOT(fillOutsidePageBoxToggled(bool)));
+  CONNECT(wienerCB, SIGNAL(clicked(bool)), this, SLOT(wienerToggled(bool)));
+  CONNECT(m_dewarpingModeGroup, SIGNAL(idClicked(int)), this, SLOT(dewarpingModeChanged()));
   CONNECT(depthPerceptionSlider, SIGNAL(valueChanged(int)), this, SLOT(depthPerceptionChangedSlot(int)));
   CONNECT(profileCB, SIGNAL(currentIndexChanged(int)), this, SLOT(profileChanged(int)));
   CONNECT(profileSaveButton, SIGNAL(pressed()), this, SLOT(profileSavePressed()));
@@ -417,10 +505,6 @@ void DefaultParamsDialog::rotateRight() {
   OrthogonalRotation rotation(m_orthogonalRotation);
   rotation.nextClockwiseDirection();
   setRotation(rotation);
-}
-
-void DefaultParamsDialog::resetRotation() {
-  setRotation(OrthogonalRotation());
 }
 
 void DefaultParamsDialog::setRotation(const OrthogonalRotation& rotation) {
@@ -454,9 +538,8 @@ void DefaultParamsDialog::setRotationPixmap() {
   rotationIndicator->setPixmap(icon.pixmap(QSize(32, 32)));
 }
 
-void DefaultParamsDialog::layoutModeChanged(const int idx) {
-  const AutoManualMode mode = static_cast<AutoManualMode>(layoutModeCB->itemData(idx).toInt());
-  if (mode == MODE_AUTO) {
+void DefaultParamsDialog::layoutModeToggled(const bool manual) {
+  if (!manual) {
     // Uncheck all buttons.  Can only be done
     // by playing with exclusiveness.
     twoPagesBtn->setChecked(true);
@@ -466,7 +549,7 @@ void DefaultParamsDialog::layoutModeChanged(const int idx) {
   } else {
     singlePageUncutBtn->setChecked(true);
   }
-  pageLayoutGroup->setEnabled(mode == MODE_MANUAL);
+  pageLayoutGroup->setEnabled(manual);
 }
 
 void DefaultParamsDialog::deskewModeChanged(const bool autoMode) {
@@ -549,7 +632,25 @@ void DefaultParamsDialog::colorModeChanged(const int idx) {
 }
 
 void DefaultParamsDialog::thresholdMethodChanged(const int idx) {
-  binarizationOptions->setCurrentIndex(idx);
+  // The methods share three pages of settings, as in the Output step.
+  switch (static_cast<BinarizationMethod>(thresholdMethodBox->itemData(idx).toInt())) {
+    case T_SAUVOLA:
+    case T_BRADLEY:
+    case T_EDGEPLUS:
+    case T_BLURDIV:
+    case T_EDGEDIV:
+      binarizationOptions->setCurrentWidget(page_2);
+      break;
+    case T_WOLF:
+    case T_FOX:
+    case T_WINDOW:
+    case T_GRAD:
+      binarizationOptions->setCurrentWidget(page_3);
+      break;
+    default:
+      binarizationOptions->setCurrentWidget(page);
+      break;
+  }
 }
 
 void DefaultParamsDialog::pictureShapeChanged(const int idx) {
@@ -606,7 +707,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   DefaultParams::FixOrientationParams fixOrientationParams(m_orthogonalRotation);
 
   LayoutType layoutType;
-  if (layoutModeCB->currentData() == MODE_AUTO) {
+  if (layoutAutoBtn->isChecked()) {
     layoutType = AUTO_LAYOUT_TYPE;
   } else if (singlePageUncutBtn->isChecked()) {
     layoutType = SINGLE_PAGE_UNCUT;
@@ -660,8 +761,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
                                                            rightMarginSpinBox->value(), bottomMarginSpinBox->value()),
                                                    alignment, autoMargins->isChecked());
 
-  const int dpi = (dpiSelector->currentIndex() != m_customDpiItemIdx) ? dpiSelector->currentText().toInt()
-                                                                      : m_customDpiValue.toInt();
+  const int dpi = m_outputDpi;
   ColorParams colorParams;
   colorParams.setColorMode(static_cast<ColorMode>(colorModeSelector->currentData().toInt()));
 
@@ -669,6 +769,9 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   colorCommonOptions.setFillingColor(static_cast<FillingColor>(fillingColorBox->currentData().toInt()));
   colorCommonOptions.setFillMargins(fillMarginsCB->isChecked());
   colorCommonOptions.setFillOffcut(fillOffcutCB->isChecked());
+  colorCommonOptions.setFillOutsidePageBox(fillOutsidePageBoxCB->isChecked());
+  colorCommonOptions.setWienerCoef(wienerCB->isChecked() ? wienerCoef->value() : 0.0);
+  colorCommonOptions.setWienerWindowSize(wienerWindowSize->value());
   colorCommonOptions.setNormalizeIllumination(equalizeIlluminationColorCB->isChecked());
   colorCommonOptions.setGrayscaleOutput(grayscaleOutputCB->isChecked());
   ColorCommonOptions::PosterizationOptions posterizationOptions = colorCommonOptions.getPosterizationOptions();
@@ -690,11 +793,12 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   if (binarizationMethod == T_SAUVOLA || binarizationMethod == T_BRADLEY || binarizationMethod == T_EDGEPLUS
       || binarizationMethod == T_BLURDIV || binarizationMethod == T_EDGEDIV) {
     blackWhiteOptions.setWindowSize(sauvolaWindowSize->value());
-  } else if (binarizationMethod == T_WOLF || binarizationMethod == T_GRAD) {
+  } else if (binarizationMethod == T_WOLF || binarizationMethod == T_FOX || binarizationMethod == T_WINDOW
+             || binarizationMethod == T_GRAD) {
     blackWhiteOptions.setWindowSize(wolfWindowSize->value());
   }
   blackWhiteOptions.setWolfCoef(wolfCoef->value());
-  blackWhiteOptions.setWolfLowerBound(upperBound->value());
+  blackWhiteOptions.setWolfUpperBound(upperBound->value());
   blackWhiteOptions.setWolfLowerBound(lowerBound->value());
   BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
   segmenterOptions.setEnabled(colorSegmentationCB->isChecked());
@@ -716,7 +820,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   pictureShapeOptions.setHigherSearchSensitivity(higherSearchSensitivityCB->isChecked());
 
   DewarpingOptions dewarpingOptions;
-  dewarpingOptions.setDewarpingMode(static_cast<DewarpingMode>(dewarpingModeCB->currentData().toInt()));
+  dewarpingOptions.setDewarpingMode(static_cast<DewarpingMode>(m_dewarpingModeGroup->checkedId()));
   dewarpingOptions.setPostDeskew(dewarpingPostDeskewCB->isChecked());
 
   double despeckleLevel;
@@ -832,6 +936,12 @@ void DefaultParamsDialog::thresholdSliderValueChanged(int value) {
   thresholdSlider->setToolTip(tooltipText);
 
   thresholLabel->setText(QString::number(value));
+  {
+    const QSignalBlocker sauvolaBlocker(sauvolaDelta);
+    const QSignalBlocker wolfBlocker(wolfDelta);
+    sauvolaDelta->setValue(value);
+    wolfDelta->setValue(value);
+  }
 
   // Show the tooltip immediately.
   const QPoint center(thresholdSlider->rect().center());
@@ -840,6 +950,19 @@ void DefaultParamsDialog::thresholdSliderValueChanged(int value) {
   tooltipPos.setX(qBound(0, tooltipPos.x(), thresholdSlider->width()));
   tooltipPos = thresholdSlider->mapToGlobal(tooltipPos);
   QToolTip::showText(tooltipPos, tooltipText, thresholdSlider);
+}
+
+void DefaultParamsDialog::thresholdDeltaChanged(const double value) {
+  // "Delta" of Sauvola and Wolf is the same value as the slider of Otsu, as in the Output step.
+  const int delta = static_cast<int>(value);
+  {
+    const QSignalBlocker sliderBlocker(thresholdSlider);
+    thresholdSlider->setValue(delta);
+  }
+  thresholLabel->setText(QString::number(thresholdSlider->value()));
+  QDoubleSpinBox* other = (sender() == sauvolaDelta) ? wolfDelta : sauvolaDelta;
+  const QSignalBlocker otherBlocker(other);
+  other->setValue(delta);
 }
 
 void DefaultParamsDialog::setLighterThreshold() {
@@ -857,21 +980,43 @@ void DefaultParamsDialog::setNeutralThreshold() {
   thresholLabel->setText(QString::number(thresholdSlider->value()));
 }
 
-void DefaultParamsDialog::dpiSelectionChanged(int index) {
-  dpiSelector->setEditable(index == m_customDpiItemIdx);
-  if (index == m_customDpiItemIdx) {
-    dpiSelector->setEditText(m_customDpiValue);
-    dpiSelector->lineEdit()->selectAll();
-    // It looks like we need to set a new validator
-    // every time we make the combo box editable.
-    dpiSelector->setValidator(new QIntValidator(0, 9999, dpiSelector));
+void DefaultParamsDialog::dpiSelectionChanged() {
+  // The message box takes the focus, which finishes the editing a second time.
+  if (m_checkingDpi) {
+    return;
+  }
+  bool ok = false;
+  const int dpi = dpiSelector->currentText().trimmed().toInt(&ok);
+  if (!ok || (dpi < 72) || (dpi > 1200)) {
+    m_checkingDpi = true;
+    QMessageBox::warning(this, tr("Output Resolution (DPI)"), tr("The resolution must be between 72 and 1200 DPI."));
+    dpiSelector->setEditText(QString::number(m_outputDpi));
+    m_checkingDpi = false;
+    return;
+  }
+  m_outputDpi = dpi;
+}
+
+void DefaultParamsDialog::fillOffcutToggled(const bool checked) {
+  // Filling the offcut and filling outside the page box exclude each other, as in the Output step.
+  if (checked) {
+    fillOutsidePageBoxCB->setChecked(false);
   }
 }
 
-void DefaultParamsDialog::dpiEditTextChanged(const QString& text) {
-  if (dpiSelector->currentIndex() == m_customDpiItemIdx) {
-    m_customDpiValue = text;
+void DefaultParamsDialog::fillOutsidePageBoxToggled(const bool checked) {
+  if (checked) {
+    fillOffcutCB->setChecked(false);
   }
+}
+
+void DefaultParamsDialog::wienerToggled(const bool checked) {
+  wienerOptionsWidget->setEnabled(checked);
+}
+
+void DefaultParamsDialog::dewarpingModeChanged() {
+  const int mode = m_dewarpingModeGroup->checkedId();
+  dewarpingPostDeskewCB->setEnabled((mode == MANUAL) || (mode == MARGINAL));
 }
 
 void DefaultParamsDialog::depthPerceptionChangedSlot(const int val) {

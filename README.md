@@ -334,6 +334,24 @@ from working:
   the arrow button can be clicked repeatedly without selecting a file each time.
 * German translation: the same thing is called the same everywhere (e.g. "Schwarz-Weiß",
   "Geraderichten", "Ordner"), and "..." is preceded by a space.
+* *Output*, Wolf threshold: "Lower bound:", "Upper bound:" and "Coef:" as with Sauvola (formerly
+  "Upper Bound:" and "Coeff:").
+
+### Default parameters dialog
+
+* Each tab is laid out like the options panel of its step: the same panel titles, bold headings
+  instead of nested boxes, the same buttons and names. *Import*: "Reset" is gone, as in the step.
+  *Split Pages*: **Auto / Manual** buttons instead of a list. *Deskew*: **Deskew and Oblique**.
+  *Select Content*: **Page and Content Box**. *Output*: the output resolution is an editable list
+  (72 to 1200 DPI), dewarping uses the four buttons of the Output step, and color segmentation
+  shows *Red*, *Green* and *Blue* above its fields.
+* New in the dialog, as in the Output step: **Wiener denoiser**, **Fill outside page box**, the
+  threshold methods **Fox** and **Window**, and **Delta** for Sauvola and Wolf (the same value as
+  the Otsu slider). Profiles stored these values before, but the dialog always reset them.
+* The window opens large enough to show the largest tab without scrolling, at most as large as
+  the screen. It can be made lower, but not narrower, so only the height ever scrolls.
+* Fixed: the threshold methods Bradley, Grad, EdgePlus, BlurDiv and EdgeDiv showed the settings
+  of another method; and the upper bound of the Wolf method was not saved in a profile.
 
 ### Zone editors (picture zones and fill zones)
 

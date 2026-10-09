@@ -96,7 +96,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="lowerBoundLabel">
        <property name="text">
-        <string>Lower bound: </string>
+        <string>Lower bound:</string>
        </property>
       </widget>
      </item>
@@ -116,7 +116,7 @@
      <item row="3" column="0">
       <widget class="QLabel" name="upperBoundLabel">
        <property name="text">
-        <string>Upper Bound: </string>
+        <string>Upper bound:</string>
        </property>
       </widget>
      </item>
@@ -136,7 +136,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="wolfCoefLabel">
        <property name="text">
-        <string>Coeff:</string>
+        <string>Coef:</string>
        </property>
       </widget>
      </item>
