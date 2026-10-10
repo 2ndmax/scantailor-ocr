@@ -152,6 +152,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void fitToContents();
 
+  void updateBinarizationPageSizes();
+
   QIcon m_chainIcon;
   QIcon m_brokenChainIcon;
   bool m_leftRightLinkEnabled;

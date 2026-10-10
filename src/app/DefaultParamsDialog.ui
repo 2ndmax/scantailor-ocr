@@ -2173,311 +2173,6 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QWidget" name="colorOperationsOptions" native="true">
-                  <layout class="QVBoxLayout" name="verticalLayout_31">
-                   <property name="spacing">
-                    <number>2</number>
-                   </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <widget class="SectionHeading" name="colorOperationsHeading">
-                     <property name="text">
-                      <string>Color Operations</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QCheckBox" name="colorSegmentationCB">
-                     <property name="toolTip">
-                      <string>Split the image into color segments and colorize b&amp;w mask.</string>
-                     </property>
-                     <property name="text">
-                      <string>Color segmentation</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QWidget" name="segmenterOptionsWidget" native="true">
-                     <layout class="QGridLayout" name="segmenterChannelsLayout">
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="verticalSpacing">
-                       <number>0</number>
-                      </property>
-                      <item row="0" column="0" rowspan="3">
-                       <spacer name="horizontalSpacer_61">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                         <enum>QSizePolicy::Fixed</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>15</width>
-                          <height>1</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLabel" name="redLabel">
-                        <property name="text">
-                         <string>Red</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignHCenter|Qt::AlignBottom</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="2">
-                       <widget class="QLabel" name="greenLabel">
-                        <property name="text">
-                         <string>Green</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignHCenter|Qt::AlignBottom</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="3">
-                       <widget class="QLabel" name="blueLabel">
-                        <property name="text">
-                         <string>Blue</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignHCenter|Qt::AlignBottom</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QSpinBox" name="redAdjustmentSB">
-                        <property name="toolTip">
-                         <string>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</string>
-                        </property>
-                        <property name="minimum">
-                         <number>-99</number>
-                        </property>
-                        <property name="maximum">
-                         <number>99</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2">
-                       <widget class="QSpinBox" name="greenAdjustmentSB">
-                        <property name="toolTip">
-                         <string>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</string>
-                        </property>
-                        <property name="minimum">
-                         <number>-99</number>
-                        </property>
-                        <property name="maximum">
-                         <number>99</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="3">
-                       <widget class="QSpinBox" name="blueAdjustmentSB">
-                        <property name="toolTip">
-                         <string>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</string>
-                        </property>
-                        <property name="minimum">
-                         <number>-99</number>
-                        </property>
-                        <property name="maximum">
-                         <number>99</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="1" colspan="3">
-                       <layout class="QHBoxLayout" name="horizontalLayout_30">
-                        <property name="topMargin">
-                         <number>4</number>
-                        </property>
-                        <item>
-                         <widget class="QLabel" name="reduceNoiseLabel">
-                          <property name="text">
-                           <string>Reduce noise:</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QSpinBox" name="reduceNoiseSB">
-                          <property name="maximum">
-                           <number>999</number>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_64">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>1</width>
-                            <height>1</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="0" column="4" rowspan="3">
-                       <spacer name="horizontalSpacer_62">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>1</width>
-                          <height>1</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QCheckBox" name="posterizeCB">
-                     <property name="toolTip">
-                      <string>Reduce the number of colors of the output image by grouping similar colors.</string>
-                     </property>
-                     <property name="text">
-                      <string>Posterize</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QWidget" name="posterizeOptionsWidget" native="true">
-                     <layout class="QGridLayout" name="posterizeOptionsLayout">
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="verticalSpacing">
-                       <number>2</number>
-                      </property>
-                      <item row="0" column="0" rowspan="3">
-                       <spacer name="horizontalSpacer_65">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                         <enum>QSizePolicy::Fixed</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>15</width>
-                          <height>1</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLabel" name="posterizeLevelLabel">
-                        <property name="text">
-                         <string>Level:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="2">
-                       <widget class="QSpinBox" name="posterizeLevelSB">
-                        <property name="toolTip">
-                         <string>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</string>
-                        </property>
-                        <property name="minimum">
-                         <number>2</number>
-                        </property>
-                        <property name="maximum">
-                         <number>255</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1" colspan="2">
-                       <widget class="QCheckBox" name="posterizeNormalizationCB">
-                        <property name="text">
-                         <string>Normalize</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="1" colspan="2">
-                       <widget class="QCheckBox" name="posterizeForceBwCB">
-                        <property name="toolTip">
-                         <string>Make dark and light gray gradients black and white respectively.</string>
-                        </property>
-                        <property name="text">
-                         <string>Force b&amp;&amp;w</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="3" rowspan="3">
-                       <spacer name="horizontalSpacer_66">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>1</width>
-                          <height>1</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer_14">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item row="1" column="1">
-               <layout class="QVBoxLayout" name="verticalLayout_27">
-                <item>
                  <widget class="QWidget" name="thresholdOptions" native="true">
                   <layout class="QVBoxLayout" name="verticalLayout_19">
                    <property name="leftMargin">
@@ -2496,9 +2191,6 @@ QToolButton:pressed {
                     <widget class="SectionHeading" name="thresholdOptionsHeading">
                      <property name="text">
                       <string>Threshold</string>
-                     </property>
-                     <property name="first">
-                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -2941,6 +2633,314 @@ QToolButton:pressed {
                       </widget>
                      </item>
                     </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_14">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>1</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="1">
+               <layout class="QVBoxLayout" name="verticalLayout_27">
+                <item>
+                 <widget class="QWidget" name="colorOperationsOptions" native="true">
+                  <layout class="QVBoxLayout" name="verticalLayout_31">
+                   <property name="spacing">
+                    <number>2</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="SectionHeading" name="colorOperationsHeading">
+                     <property name="text">
+                      <string>Color Operations</string>
+                     </property>
+                     <property name="first">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="colorSegmentationCB">
+                     <property name="toolTip">
+                      <string>Split the image into color segments and colorize b&amp;w mask.</string>
+                     </property>
+                     <property name="text">
+                      <string>Color segmentation</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QWidget" name="segmenterOptionsWidget" native="true">
+                     <layout class="QGridLayout" name="segmenterChannelsLayout">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="verticalSpacing">
+                       <number>0</number>
+                      </property>
+                      <item row="0" column="0" rowspan="3">
+                       <spacer name="horizontalSpacer_61">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                         <enum>QSizePolicy::Fixed</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>15</width>
+                          <height>1</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="redLabel">
+                        <property name="text">
+                         <string>Red</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignHCenter|Qt::AlignBottom</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="2">
+                       <widget class="QLabel" name="greenLabel">
+                        <property name="text">
+                         <string>Green</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignHCenter|Qt::AlignBottom</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="3">
+                       <widget class="QLabel" name="blueLabel">
+                        <property name="text">
+                         <string>Blue</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignHCenter|Qt::AlignBottom</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QSpinBox" name="redAdjustmentSB">
+                        <property name="toolTip">
+                         <string>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</string>
+                        </property>
+                        <property name="minimum">
+                         <number>-99</number>
+                        </property>
+                        <property name="maximum">
+                         <number>99</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2">
+                       <widget class="QSpinBox" name="greenAdjustmentSB">
+                        <property name="toolTip">
+                         <string>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</string>
+                        </property>
+                        <property name="minimum">
+                         <number>-99</number>
+                        </property>
+                        <property name="maximum">
+                         <number>99</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="3">
+                       <widget class="QSpinBox" name="blueAdjustmentSB">
+                        <property name="toolTip">
+                         <string>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</string>
+                        </property>
+                        <property name="minimum">
+                         <number>-99</number>
+                        </property>
+                        <property name="maximum">
+                         <number>99</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1" colspan="3">
+                       <layout class="QHBoxLayout" name="horizontalLayout_30">
+                        <property name="topMargin">
+                         <number>4</number>
+                        </property>
+                        <item>
+                         <widget class="QLabel" name="reduceNoiseLabel">
+                          <property name="text">
+                           <string>Reduce noise:</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QSpinBox" name="reduceNoiseSB">
+                          <property name="maximum">
+                           <number>999</number>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="horizontalSpacer_64">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>1</width>
+                            <height>1</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </item>
+                      <item row="0" column="4" rowspan="3">
+                       <spacer name="horizontalSpacer_62">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>1</width>
+                          <height>1</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="posterizeCB">
+                     <property name="toolTip">
+                      <string>Reduce the number of colors of the output image by grouping similar colors.</string>
+                     </property>
+                     <property name="text">
+                      <string>Posterize</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QWidget" name="posterizeOptionsWidget" native="true">
+                     <layout class="QGridLayout" name="posterizeOptionsLayout">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="verticalSpacing">
+                       <number>2</number>
+                      </property>
+                      <item row="0" column="0" rowspan="3">
+                       <spacer name="horizontalSpacer_65">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                         <enum>QSizePolicy::Fixed</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>15</width>
+                          <height>1</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="posterizeLevelLabel">
+                        <property name="text">
+                         <string>Level:</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="2">
+                       <widget class="QSpinBox" name="posterizeLevelSB">
+                        <property name="toolTip">
+                         <string>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</string>
+                        </property>
+                        <property name="minimum">
+                         <number>2</number>
+                        </property>
+                        <property name="maximum">
+                         <number>255</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1" colspan="2">
+                       <widget class="QCheckBox" name="posterizeNormalizationCB">
+                        <property name="text">
+                         <string>Normalize</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1" colspan="2">
+                       <widget class="QCheckBox" name="posterizeForceBwCB">
+                        <property name="toolTip">
+                         <string>Make dark and light gray gradients black and white respectively.</string>
+                        </property>
+                        <property name="text">
+                         <string>Force b&amp;&amp;w</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="3" rowspan="3">
+                       <spacer name="horizontalSpacer_66">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>1</width>
+                          <height>1</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </widget>
                    </item>
                   </layout>
                  </widget>

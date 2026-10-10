@@ -15,6 +15,7 @@
 #include <QScreen>
 #include <QScrollArea>
 #include <QSignalBlocker>
+#include <QStackedWidget>
 #include <QStyle>
 #include <QWindow>
 #include <QtWidgets/QButtonGroup>
@@ -156,8 +157,23 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   profileChanged(profileCB->currentIndex());
 
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(commitChanges()));
+  connect(binarizationOptions, &QStackedWidget::currentChanged, this,
+          &DefaultParamsDialog::updateBinarizationPageSizes);
+  updateBinarizationPageSizes();
 
   setupUiConnections();
+}
+
+void DefaultParamsDialog::updateBinarizationPageSizes() {
+  // Only the page of the chosen method counts for the height, so the smoothing options follow
+  // right below its settings.  The widest page still counts for the width, so the window keeps
+  // its width when the method changes.
+  for (int i = 0; i < binarizationOptions->count(); ++i) {
+    QWidget* page = binarizationOptions->widget(i);
+    const bool current = (i == binarizationOptions->currentIndex());
+    page->setSizePolicy(QSizePolicy::Preferred, current ? QSizePolicy::Preferred : QSizePolicy::Ignored);
+  }
+  binarizationOptions->updateGeometry();
 }
 
 void DefaultParamsDialog::showEvent(QShowEvent* event) {
@@ -183,6 +199,10 @@ void DefaultParamsDialog::fitToContents() {
   std::vector<QScrollArea*> scrollAreas;
   for (int i = 0; i < tabWidget->count(); ++i) {
     tabWidget->setCurrentIndex(i);
+    // Only once polished, with the style sheet applied, do the widgets report their final size;
+    // measured earlier, the Output tab came out too narrow and got a horizontal scroll bar.
+    tabWidget->widget(i)->ensurePolished();
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::LayoutRequest);
     for (QScrollArea* scrollArea : tabWidget->widget(i)->findChildren<QScrollArea*>()) {
       QWidget* contents = scrollArea->widget();
       if (!contents) {

@@ -521,12 +521,12 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2932"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2624"/>
         <source>Savitzky-Golay smoothing</source>
         <translation>Savitzky-Golay 스무딩</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2939"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2631"/>
         <source>Morphological smoothing</source>
         <translation>Morphological(형태학적) 스무딩</translation>
     </message>
@@ -541,7 +541,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>색상: </translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2196"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2678"/>
         <source>Color Operations</source>
         <translation>색상 조정</translation>
     </message>
@@ -586,105 +586,105 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2203"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2688"/>
         <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation>이미지를 색상 조각으로 분할하고 흑백 마스크로 칠합니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2206"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2691"/>
         <source>Color segmentation</source>
         <translation>색상 분할</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2277"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2762"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation>빨간색 요소 조정. 음수의 경우 빨간색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2290"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2775"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation>초록색 요소 조정. 음수의 경우 초록색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2303"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2788"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation>파란색 요소 조정. 음수의 경우 파란색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2321"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2806"/>
         <source>Reduce noise:</source>
         <translation>노이즈 줄이기:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2366"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2851"/>
         <source>Reduce the number of colors of the output image by grouping similar colors.</source>
         <translation>유사한 색상을 그룹화해 출력 이미지의 색상 종류를 줄여줍니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2369"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2854"/>
         <source>Posterize</source>
         <translation>Posterize(명암 단위 제한)</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2410"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2895"/>
         <source>Level:</source>
         <translation>레벨:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2417"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2902"/>
         <source>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</source>
         <translation>값이 낮을수록 출력 이미지의 색상 수가 적어집니다. 2~6은 인덱스 이미지를 보장합니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2430"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2915"/>
         <source>Normalize</source>
         <translation>일반화</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2437"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2922"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation>어두은 회색, 밝은 회색 그라디언트를 각각 흑백으로 만듭니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2440"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2925"/>
         <source>Force b&amp;&amp;w</source>
         <translation>강제 흑백화</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2498"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2193"/>
         <source>Threshold</source>
         <translation>임계값</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2510"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2202"/>
         <source>Method:</source>
         <translation>방법</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2609"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2301"/>
         <source>Thinner</source>
         <translation>얇게</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2638"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2330"/>
         <source>Thicker</source>
         <translation>굵게</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2671"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2778"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2363"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2470"/>
         <source>Delta:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2678"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2785"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2370"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2477"/>
         <source>Default value is 0.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2717"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2864"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2409"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2556"/>
         <source>Coef:</source>
         <translation>계수</translation>
     </message>
@@ -700,60 +700,60 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2057"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2704"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2811"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2396"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2503"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation>고려해야할 주변 픽셀수의 범위를 설정합니다.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2047"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2694"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2801"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2386"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2493"/>
         <source>Window size:</source>
         <translation>창 크기:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2247"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2732"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2257"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2742"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2267"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2752"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2724"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2416"/>
         <source>Default value is 0.34.</source>
         <translation>기본값은 0.34입니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2831"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2523"/>
         <source>The minimum possible gray level that can be made white.</source>
         <translation>흰색으로 만들 수 있는 회색 레벨의 최소값입니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2844"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2536"/>
         <source>Upper bound:</source>
         <translation>상한:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2824"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2516"/>
         <source>Lower bound:</source>
         <translation>하한:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2851"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2543"/>
         <source>The maximum possible gray level that can be made black.</source>
         <translation>흰색으로 만들 수 있는 회색 레벨의 최대값입니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2871"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2563"/>
         <source>Default value is 0.3.</source>
         <translation>기본값은 0.3입니다.</translation>
     </message>
@@ -774,7 +774,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3088"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1017"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1037"/>
         <source>Output Resolution</source>
         <translation>출력 해상도 (DPI)</translation>
     </message>
@@ -859,99 +859,99 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>사전 기울기 보정</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="60"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="61"/>
         <source>Black and White</source>
         <translation>흑백</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="61"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
         <source>Color / Grayscale</source>
         <translation>컬러 / 회색조</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
         <source>Mixed</source>
         <translation>혼합</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
         <source>Background</source>
         <translation>배경</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
         <source>White</source>
         <translation>흰색</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
         <source>Otsu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
         <source>Sauvola</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
         <source>Wolf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
         <source>Fox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
         <source>Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
         <source>Bradley</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
         <source>Grad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
         <source>EdgePlus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
         <source>BlurDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
         <source>EdgeDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3302"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
         <source>Off</source>
         <translation>끄기</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
         <source>Free shape</source>
         <translation>자유</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
         <source>Rectangle</source>
         <translation>직사각형</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="108"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1141"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="109"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1161"/>
         <source>Custom</source>
         <translation>커스텀</translation>
     </message>
@@ -961,46 +961,46 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>테두리</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="99"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="100"/>
         <source>Default</source>
         <translation>기본값</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="100"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="101"/>
         <source>Source</source>
         <translation>원본</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1017"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1037"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1104"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1110"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1124"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1130"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1147"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1150"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1167"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1182"/>
         <source>Error</source>
         <translation>에러</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1110"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1130"/>
         <source>Error loading the profile.</source>
         <translation>프로필을 불러오는데 실패했습니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1131"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1151"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>이름이 기본 프로필과 동일합니다. 다른 이름을 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1147"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1167"/>
         <source>Error saving the profile.</source>
         <translation>프로필을 저장하는데 실패했습니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1182"/>
         <source>Error deleting the profile.</source>
         <translation>프로필을 삭제하는데 실패했습니다.</translation>
     </message>
@@ -1020,7 +1020,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>얼룩 제거</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1104"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1124"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>이 프로필은 현재 프로그램에 호환되지 않습니다. 삭제 하시겠습니까?</translation>
     </message>
@@ -1035,7 +1035,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3434,7 +3434,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <name>deskew::OptionsWidget</name>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="73"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="139"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="140"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3493,7 +3493,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="74"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="140"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>

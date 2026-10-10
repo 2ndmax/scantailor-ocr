@@ -300,7 +300,10 @@ from working:
   the tab in which picture zones are edited). The collapsed state saved for the old nested boxes
   is no longer used. "Fill offcut", "Fill outside page box" and "Fill margins" are under
   "Filling" with the color, the two smoothing options (black and white only) under "Threshold";
-  the same in the Default Parameters window.
+  the same in the Default Parameters window, where "Threshold" now comes before "Color
+  Operations" as in the Output step. There, the smoothing options follow right below the
+  settings of the chosen threshold method, and the window is measured once its tabs are fully
+  set up, so the Output tab no longer gets a horizontal scroll bar.
 * *Output*: the **output resolution** (a list with 300, 400, 600 and 1200 DPI; other values can
   be typed in) and the **dewarping** mode with "Post deskew" are set in the panels and apply to
   the current page at once, like all other settings. "Change ..." became **Apply to ...**. The

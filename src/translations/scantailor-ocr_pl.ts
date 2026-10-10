@@ -545,12 +545,12 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2932"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2624"/>
         <source>Savitzky-Golay smoothing</source>
         <translation>Wygładzanie Savitzky-Golay</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2939"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2631"/>
         <source>Morphological smoothing</source>
         <translation>Wygładzanie morfologiczne</translation>
     </message>
@@ -570,7 +570,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Kolor: </translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2196"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2678"/>
         <source>Color Operations</source>
         <translation>Operacje kolorów</translation>
     </message>
@@ -600,100 +600,100 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2206"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2691"/>
         <source>Color segmentation</source>
         <translation>Segmentacja kolorów</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2277"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2762"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation>Regulacja czerwonego elementu. Wartość ujemna oznacza, że segmentator będzie bardziej czuły na kolor czerwony i odwrotnie w przypadku wartości dodatniej.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2290"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2775"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation>Regulacja zielonego elementu. Wartość ujemna oznacza, że segmentator będzie bardziej czuły na kolor zielony i odwrotnie w przypadku wartości dodatniej.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2303"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2788"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation>Regulacja niebieskiego elementu. Wartość ujemna oznacza, że segmentator będzie bardziej czuły na kolor niebieski i odwrotnie w przypadku wartości dodatniej.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2321"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2806"/>
         <source>Reduce noise:</source>
         <translation>Redukcja szumów:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2366"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2851"/>
         <source>Reduce the number of colors of the output image by grouping similar colors.</source>
         <translation>Zmniejsz liczbę kolorów obrazu wyjściowego, grupując podobne kolory.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2369"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2854"/>
         <source>Posterize</source>
         <translation>Posteryzuj</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2410"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2895"/>
         <source>Level:</source>
         <translation>Poziom:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2417"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2902"/>
         <source>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</source>
         <translation>Niższa wartość oznacza mniejszą liczbę kolorów w obrazie wyjściowym, wartości od 2 do 6 włącznie gwarantują zindeksowany obraz.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2430"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2915"/>
         <source>Normalize</source>
         <translation>Normalizuj</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2437"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2922"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation>Ustaw odpowiednio ciemne i jasnoszare gradienty jako czarny i biały.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2440"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2925"/>
         <source>Force b&amp;&amp;w</source>
         <translation>Wymuś czarno-biały</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2498"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2193"/>
         <source>Threshold</source>
         <translation>Próg</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2510"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2202"/>
         <source>Method:</source>
         <translation>Metoda:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2609"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2301"/>
         <source>Thinner</source>
         <translation>Cieńszy</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2638"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2330"/>
         <source>Thicker</source>
         <translation>Grubszy</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2671"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2778"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2363"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2470"/>
         <source>Delta:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2678"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2785"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2370"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2477"/>
         <source>Default value is 0.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2717"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2864"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2409"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2556"/>
         <source>Coef:</source>
         <translation>Współczynnik:</translation>
     </message>
@@ -709,60 +709,60 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2057"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2704"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2811"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2396"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2503"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation>Rozmiar obszaru z sąsiadującymi pikselami, który należy wziąć pod uwagę.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2047"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2694"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2801"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2386"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2493"/>
         <source>Window size:</source>
         <translation>Rozmiar okna:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2247"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2732"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2257"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2742"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2267"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2752"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2724"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2416"/>
         <source>Default value is 0.34.</source>
         <translation>Wartość domyślna to 0.34.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2831"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2523"/>
         <source>The minimum possible gray level that can be made white.</source>
         <translation>Minimalny poziom szarości, który można zmienić na biały.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2844"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2536"/>
         <source>Upper bound:</source>
         <translation>Górna granica: </translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2824"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2516"/>
         <source>Lower bound:</source>
         <translation>Dolna granica: </translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2851"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2543"/>
         <source>The maximum possible gray level that can be made black.</source>
         <translation>Maksymalny poziom szarości, który można zmienić na czarny.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2871"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2563"/>
         <source>Default value is 0.3.</source>
         <translation>Wartość domyślna to 0.3.</translation>
     </message>
@@ -783,7 +783,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3088"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1017"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1037"/>
         <source>Output Resolution</source>
         <translation>Rozdzielczość wyjściowa (DPI)</translation>
     </message>
@@ -868,104 +868,104 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Kompensacja rotacji</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="60"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="61"/>
         <source>Black and White</source>
         <translation>Czarno-biały</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="61"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
         <source>Color / Grayscale</source>
         <translation>Kolor / Skala szarości</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
         <source>Mixed</source>
         <translation>Mieszany</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
         <source>Background</source>
         <translation>Tło</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
         <source>White</source>
         <translation>Biały</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
         <source>Black</source>
         <translation>Czarny</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
         <source>Otsu</source>
         <translation>Otsu</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
         <source>Sauvola</source>
         <translation>Sauvola</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
         <source>Wolf</source>
         <translation>Wolf</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
         <source>Fox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
         <source>Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
         <source>Bradley</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
         <source>Grad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
         <source>EdgePlus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
         <source>BlurDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
         <source>EdgeDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3302"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
         <source>Off</source>
         <translation>Wyłączone</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
         <source>Free shape</source>
         <translation>Swobodne</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
         <source>Rectangle</source>
         <translation>Prostokątny</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="108"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1141"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="109"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1161"/>
         <source>Custom</source>
         <translation>Własne</translation>
     </message>
@@ -975,46 +975,46 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Wokół krawędzi</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="99"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="100"/>
         <source>Default</source>
         <translation>Domyślne</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="100"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="101"/>
         <source>Source</source>
         <translation>Źródło</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1017"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1037"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1104"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1110"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1124"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1130"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1147"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1150"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1167"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1182"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1110"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1130"/>
         <source>Error loading the profile.</source>
         <translation>Błąd podczas ładowania profilu.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1131"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1151"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Nazwa jest w konflikcie z domyślną nazwą profilu. Proszę podać inną nazwę.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1147"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1167"/>
         <source>Error saving the profile.</source>
         <translation>Błąd podczas zapisywania profilu.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1182"/>
         <source>Error deleting the profile.</source>
         <translation>Błąd podczas usuwania profilu.</translation>
     </message>
@@ -1029,7 +1029,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Wypełnij marginesy</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2203"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2688"/>
         <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation>Podziel obraz na kolorowe segmenty i pokoloruj czarno-białą maskę.</translation>
     </message>
@@ -1039,7 +1039,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Usuń plamy</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1104"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1124"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Plik profilu nie jest zgodny z bieżącą wersją aplikacji. Usunąć?</translation>
     </message>
@@ -3453,7 +3453,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <name>deskew::OptionsWidget</name>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="73"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="139"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="140"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3512,7 +3512,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="74"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="140"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
