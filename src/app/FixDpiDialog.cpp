@@ -5,8 +5,6 @@
 
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "ColorSchemeManager.h"
 #include "Utils.h"
@@ -692,9 +690,8 @@ void FixDpiDialog::TreeModel::emitItemChanged(const QModelIndex& idx) {
 }
 
 FixDpiDialog::SizeGroup& FixDpiDialog::TreeModel::sizeGroupFor(const QSize size) {
-  using namespace boost::lambda;
-
-  const auto it(std::find_if(m_sizes.begin(), m_sizes.end(), bind(&SizeGroup::size, _1) == size));
+  const auto it(
+      std::find_if(m_sizes.begin(), m_sizes.end(), [size](const SizeGroup& group) { return group.size() == size; }));
   if (it != m_sizes.end()) {
     return *it;
   } else {

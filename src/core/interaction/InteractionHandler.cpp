@@ -5,8 +5,6 @@
 
 #include <QKeyEvent>
 #include <QPainter>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/construct.hpp>
 
 #include "InteractionState.h"
 
@@ -56,9 +54,9 @@ InteractionHandler::InteractionHandler()
     : m_preceeders(std::make_shared<HandlerList>()), m_followers(std::make_shared<HandlerList>()) {}
 
 InteractionHandler::~InteractionHandler() {
-  using namespace boost::lambda;
-  m_preceeders->clear_and_dispose(bind(delete_ptr(), _1));
-  m_followers->clear_and_dispose(bind(delete_ptr(), _1));
+  const auto deleteHandler = [](InteractionHandler* handler) { delete handler; };
+  m_preceeders->clear_and_dispose(deleteHandler);
+  m_followers->clear_and_dispose(deleteHandler);
 }
 
 void InteractionHandler::paint(QPainter& painter, const InteractionState& interaction) {

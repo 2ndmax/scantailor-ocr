@@ -9,8 +9,6 @@
 #include <QImage>
 #include <QPainter>
 #include <QRandomGenerator>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "DebugImages.h"
 #include "VecNT.h"
@@ -218,8 +216,6 @@ bool SequentialColumnProcessor::segmentIsTooLong(const QPoint p1, const QPoint p
 }
 
 QLineF SequentialColumnProcessor::approximateWithLine(std::vector<Segment>* dbgSegments) const {
-  using namespace boost::lambda;
-
   const size_t numPoints = m_path.size();
 
   std::vector<Segment> segments;
@@ -249,9 +245,11 @@ QLineF SequentialColumnProcessor::approximateWithLine(std::vector<Segment>* dbgS
   // to the edge, so let's sort segments appropriately
   // and manually feed the best ones to RANSAC.
   const size_t numBestSegments = std::min<size_t>(6, segments.size());
-  std::partial_sort(
-      segments.begin(), segments.begin() + numBestSegments, segments.end(),
-      bind(&Segment::distToVertLine, _1, m_leadingTop.x()) < bind(&Segment::distToVertLine, _2, m_leadingTop.x()));
+  const auto leadingX = m_leadingTop.x();
+  std::partial_sort(segments.begin(), segments.begin() + numBestSegments, segments.end(),
+                    [leadingX](const Segment& lhs, const Segment& rhs) {
+                      return lhs.distToVertLine(leadingX) < rhs.distToVertLine(leadingX);
+                    });
   for (size_t i = 0; i < numBestSegments; ++i) {
     ransac.buildAndAssessModel(segments[i]);
   }

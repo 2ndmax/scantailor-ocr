@@ -5,8 +5,6 @@
 
 #include <SEDM.h>
 
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <cassert>
 #include <cmath>
 
@@ -154,9 +152,8 @@ void TowardsLineTracer::setupSteps() {
   }
 
   // Sort by decreasing alignment with m_normalTowardsLine.
-  using namespace boost::lambda;
-  std::sort(m_steps, m_steps + m_numSteps,
-            bind(&Vec2d::dot, m_normalTowardsLine, bind<const Vec2d&>(&Step::unitVec, _1))
-                > bind(&Vec2d::dot, m_normalTowardsLine, bind<const Vec2d&>(&Step::unitVec, _2)));
+  std::sort(m_steps, m_steps + m_numSteps, [this](const Step& lhs, const Step& rhs) {
+    return m_normalTowardsLine.dot(lhs.unitVec) > m_normalTowardsLine.dot(rhs.unitVec);
+  });
 }  // TowardsLineTracer::setupSteps
 }  // namespace dewarping

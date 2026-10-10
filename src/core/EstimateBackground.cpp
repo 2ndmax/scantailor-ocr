@@ -18,9 +18,6 @@
 #include <Transform.h>
 
 #include <QDebug>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/control_structures.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "DebugImages.h"
 #include "ImageTransformation.h"
@@ -63,8 +60,6 @@ static void seedFillTopBottomInPlace(GrayImage& image) {
 }
 
 static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg) {
-  using namespace boost::lambda;
-
   // We do morphological preprocessing with one of two methods.  The first
   // one is good for cases when the dark area is in the middle of the image,
   // touching at least one of the vertical edges and not touching the horizontal one.
@@ -91,7 +86,8 @@ static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg
 
   // Take the difference between two methods.
   GrayImage diff(image);
-  rasterOpGeneric(diff.data(), diff.stride(), diff.size(), method1.data(), method1.stride(), _1 -= _2);
+  rasterOpGeneric(diff.data(), diff.stride(), diff.size(), method1.data(), method1.stride(),
+                  [](uint8_t& diff, const uint8_t method1) { diff -= method1; });
   if (dbg) {
     dbg->add(diff, "raw_diff");
   }
@@ -106,7 +102,13 @@ static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg
   // Now let's take the difference between the original difference
   // and approximated difference.
   rasterOpGeneric(diff.data(), diff.stride(), diff.size(), approximated.data(), approximated.stride(),
-                  if_then_else(_1 > _2, _1 -= _2, _1 = _2 - _1));
+                  [](uint8_t& diff, const uint8_t approx) {
+                    if (diff > approx) {
+                      diff -= approx;
+                    } else {
+                      diff = static_cast<uint8_t>(approx - diff);
+                    }
+                  });
   approximated = GrayImage();  // save memory.
   if (dbg) {
     dbg->add(diff, "raw_vs_approx_diff");

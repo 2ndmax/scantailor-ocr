@@ -7,7 +7,6 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QShortcut>
-#include <boost/lambda/lambda.hpp>
 #include <functional>
 
 #include "ImageViewBase.h"
@@ -18,7 +17,7 @@ ZoneCreationInteraction::ZoneCreationInteraction(ZoneInteractionContext& context
       m_dragHandler(context.imageView(),
                     std::bind(&ZoneCreationInteraction::isDragHandlerPermitted, this, std::placeholders::_1)),
       m_dragWatcher(m_dragHandler),
-      m_zoomHandler(context.imageView(), boost::lambda::constant(true)),
+      m_zoomHandler(context.imageView(), [](const InteractionState&) { return true; }),
       m_spline(std::make_shared<EditableSpline>()),
       m_initialZoneCreationMode(context.getZoneCreationMode()),
       m_leftMouseButtonPressed(m_initialZoneCreationMode == ZoneCreationMode::LASSO) {

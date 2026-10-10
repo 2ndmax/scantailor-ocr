@@ -6,7 +6,6 @@
 #include <QDomDocument>
 #include <QFileInfo>
 #include <QMutex>
-#include <boost/lambda/lambda.hpp>
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -75,7 +74,7 @@ class FileNameDisambiguator::Impl {
 FileNameDisambiguator::FileNameDisambiguator() : m_impl(std::make_unique<Impl>()) {}
 
 FileNameDisambiguator::FileNameDisambiguator(const QDomElement& disambiguatorEl)
-    : m_impl(std::make_unique<Impl>(disambiguatorEl, boost::lambda::_1)) {}
+    : m_impl(std::make_unique<Impl>(disambiguatorEl, [](const QString& path) { return path; })) {}
 
 FileNameDisambiguator::FileNameDisambiguator(const QDomElement& disambiguatorEl,
                                              const std::function<QString(const QString&)>& filePathUnpacker)
@@ -84,7 +83,7 @@ FileNameDisambiguator::FileNameDisambiguator(const QDomElement& disambiguatorEl,
 FileNameDisambiguator::~FileNameDisambiguator() = default;
 
 QDomElement FileNameDisambiguator::toXml(QDomDocument& doc, const QString& name) const {
-  return m_impl->toXml(doc, name, boost::lambda::_1);
+  return m_impl->toXml(doc, name, [](const QString& path) { return path; });
 }
 
 QDomElement FileNameDisambiguator::toXml(QDomDocument& doc,

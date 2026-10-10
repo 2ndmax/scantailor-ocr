@@ -33,7 +33,7 @@ namespace imageproc {
  *        SrcIt src_it = ...;
  *        const T var(srcReader(*src_it));
  *        \endcode
- *        Consider using boost::lambda for constructing such a functor,
+ *        Consider using a lambda for constructing such a functor,
  *        possibly combined with one of the functors from ValueConf.h
  * \param tmp Pointer or a random access iterator to the top-left corner
  *        of the temporary grid.  The temporary grid will have the same

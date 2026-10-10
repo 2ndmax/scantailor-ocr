@@ -8,8 +8,6 @@
 
 #include <QDebug>
 #include <QPainter>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <cmath>
 
 #include "DebugImages.h"
@@ -134,18 +132,20 @@ void TextLineRefiner::refine(std::list<std::vector<QPointF>>& polylines, const i
 }  // TextLineRefiner::refine
 
 void TextLineRefiner::calcBlurredGradient(Grid<float>& gradient, float hSigma, float vSigma) const {
-  using namespace boost::lambda;
-
   const float downscale = 1.0f / (255.0f * 8.0f);
+  const auto scaled = [downscale](const auto value) { return value * downscale; };
+  const auto identity = [](const auto value) { return value; };
+  const auto assign = [](auto& dst, const auto value) { dst = value; };
   Grid<float> vertGrad(m_image.width(), m_image.height(), /*padding=*/0);
-  horizontalSobel<float>(m_image.width(), m_image.height(), m_image.data(), m_image.stride(), _1 * downscale,
-                         gradient.data(), gradient.stride(), _1 = _2, _1, gradient.data(), gradient.stride(), _1 = _2);
-  verticalSobel<float>(m_image.width(), m_image.height(), m_image.data(), m_image.stride(), _1 * downscale,
-                       vertGrad.data(), vertGrad.stride(), _1 = _2, _1, gradient.data(), gradient.stride(),
-                       _1 = _1 * m_unitDownVec[0] + _2 * m_unitDownVec[1]);
+  horizontalSobel<float>(m_image.width(), m_image.height(), m_image.data(), m_image.stride(), scaled, gradient.data(),
+                         gradient.stride(), assign, identity, gradient.data(), gradient.stride(), assign);
+  verticalSobel<float>(
+      m_image.width(), m_image.height(), m_image.data(), m_image.stride(), scaled, vertGrad.data(), vertGrad.stride(),
+      assign, identity, gradient.data(), gradient.stride(),
+      [this](float& dst, const float value) { dst = dst * m_unitDownVec[0] + value * m_unitDownVec[1]; });
   Grid<float>().swap(vertGrad);  // Save memory.
-  gaussBlurGeneric(m_image.size(), hSigma, vSigma, gradient.data(), gradient.stride(), _1, gradient.data(),
-                   gradient.stride(), _1 = _2);
+  gaussBlurGeneric(m_image.size(), hSigma, vSigma, gradient.data(), gradient.stride(), identity, gradient.data(),
+                   gradient.stride(), assign);
 }
 
 float TextLineRefiner::externalEnergyAt(const Grid<float>& gradient, const Vec2f& pos, float penaltyIfOutside) {

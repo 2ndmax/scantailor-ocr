@@ -20,7 +20,6 @@
 #include <QStackedLayout>
 #include <QThread>
 #include <QtWidgets/QInputDialog>
-#include <boost/lambda/lambda.hpp>
 #include <map>
 #include <memory>
 

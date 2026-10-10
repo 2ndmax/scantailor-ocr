@@ -25,8 +25,6 @@
 
 #include <QDebug>
 #include <QPainter>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "ContentSpanFinder.h"
 #include "DebugImages.h"

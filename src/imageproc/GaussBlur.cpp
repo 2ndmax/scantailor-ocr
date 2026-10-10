@@ -4,8 +4,6 @@
 
 #include "GaussBlur.h"
 
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <cmath>
 
 #include "Constants.h"
@@ -76,15 +74,14 @@ void findIirConstants(float* nP, float* nM, float* dP, float* dM, float* bdP, fl
 }  // namespace gauss_blur_impl
 
 GrayImage gaussBlur(const GrayImage& src, float hSigma, float vSigma) {
-  using namespace boost::lambda;
-
   if (src.isNull()) {
     return src;
   }
 
   GrayImage dst(src.size());
   gaussBlurGeneric(src.size(), hSigma, vSigma, src.data(), src.stride(), StaticCastValueConv<float>(), dst.data(),
-                   dst.stride(), _1 = bind<uint8_t>(RoundAndClipValueConv<uint8_t>(), _2));
+                   dst.stride(),
+                   [](uint8_t& dst, const float value) { dst = RoundAndClipValueConv<uint8_t>()(value); });
   return dst;
 }
 }  // namespace imageproc

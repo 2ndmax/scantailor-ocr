@@ -12,7 +12,6 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
-#include <boost/lambda/lambda.hpp>
 #include <functional>
 
 #include "ImagePresentation.h"
@@ -65,10 +64,10 @@ ImageView::ImageView(const std::shared_ptr<Settings>& settings,
   static const int masks_by_corner[] = {TOP | LEFT, TOP | RIGHT, BOTTOM | RIGHT, BOTTOM | LEFT};
   for (int i = 0; i < 4; ++i) {
     // Proximity priority - inner rect higher than middle, corners higher than edges.
-    m_innerCorners[i].setProximityPriorityCallback(boost::lambda::constant(4));
-    m_innerEdges[i].setProximityPriorityCallback(boost::lambda::constant(3));
-    m_middleCorners[i].setProximityPriorityCallback(boost::lambda::constant(2));
-    m_middleEdges[i].setProximityPriorityCallback(boost::lambda::constant(1));
+    m_innerCorners[i].setProximityPriorityCallback([] { return 4; });
+    m_innerEdges[i].setProximityPriorityCallback([] { return 3; });
+    m_middleCorners[i].setProximityPriorityCallback([] { return 2; });
+    m_middleEdges[i].setProximityPriorityCallback([] { return 1; });
 
     // Proximity.
     m_innerCorners[i].setProximityCallback(
