@@ -352,6 +352,10 @@ from working:
   "Resolution: [300 dpi] × [300 dpi]" instead of a list of presets and two plain text fields;
   the button is called "Apply to selection". The window opens larger, and the list of images
   takes the extra height.
+* *Fix DPI of All Images*: several images or size groups can be selected with Ctrl and Shift,
+  and "Apply to selection" sets the resolution of all of them. The fields show the resolution
+  if all selected images have the same one; the entered value is checked against every
+  selected pixel size.
 * The resolution fields (*Margins*, *Output*, *Default Parameters*, *Fix DPI of All Images*) are
   wide enough for "1200 dpi".
 * *Margins*: "Lock aggregate size for matching" applies to all pages, not to the page, so it

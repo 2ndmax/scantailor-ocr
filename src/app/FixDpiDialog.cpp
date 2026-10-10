@@ -5,6 +5,7 @@
 
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
+#include <algorithm>
 
 #include "ColorSchemeManager.h"
 #include "Utils.h"
@@ -129,7 +130,12 @@ class FixDpiDialog::TreeModel : private QAbstractItemModel {
 
   void applyDpiToSelection(Scope scope, const Dpi& dpi, const QItemSelection& selection);
 
+  /** The pixel sizes of the images an item stands for: all pages, one size group or one image. */
+  std::vector<QSize> pixelSizesOf(const QModelIndex& index) const;
+
  private:
+  void applyDpiToIndex(Scope scope, const Dpi& dpi, const QModelIndex& selected);
+
   struct Tag {};
 
   int columnCount(const QModelIndex& parent) const override;
@@ -212,6 +218,10 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
   undefinedDpiView->setModel(m_undefinedDpiPages->model()), undefinedDpiView->header()->hide();
   allPagesView->setModel(m_pages->model());
   allPagesView->header()->hide();
+  // Several pages or size groups can be selected with Ctrl and Shift.
+  for (QTreeView* view : {undefinedDpiView, allPagesView}) {
+    view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  }
 
   connect(tabWidget, &QTabWidget::currentChanged, this, &FixDpiDialog::tabChanged);
 
@@ -236,15 +246,17 @@ const std::vector<ImageFileInfo>& FixDpiDialog::files() const {
   return m_pages->files();
 }
 
+QTreeView* FixDpiDialog::currentView() const {
+  return (tabWidget->currentIndex() == ALL_PAGES_TAB) ? allPagesView : undefinedDpiView;
+}
+
 void FixDpiDialog::tabChanged(const int tab) {
-  QTreeView* views[2];
-  views[NEED_FIXING_TAB] = undefinedDpiView;
-  views[ALL_PAGES_TAB] = allPagesView;
-  updateDpiFromSelection(views[tab]->selectionModel()->selection());
+  updateDpiFromSelection(currentView()->selectionModel()->selection());
 }
 
 void FixDpiDialog::selectionChanged(const QItemSelection& selection) {
-  updateDpiFromSelection(selection);
+  // The argument holds only the newly selected items, not the whole selection.
+  updateDpiFromSelection(currentView()->selectionModel()->selection());
 }
 
 void FixDpiDialog::dpiChosenFromList() {
@@ -271,23 +283,26 @@ Dpi FixDpiDialog::enteredDpi() const {
 
 void FixDpiDialog::dpiValueChanged() {
   const Dpi dpi(enteredDpi());
-  const ImageMetadata metadata(m_selectedItemPixelSize, dpi);
 
-  decorateDpiInputField(xDpi, metadata.horizontalDpiStatus());
-  decorateDpiInputField(yDpi, metadata.verticalDpiStatus());
-
-  if (dpi.toSize() == m_initialDpi) {
-    applyBtn->setEnabled(false);
-    return;
+  // The resolution must suit every selected pixel size; a field shows the first problem found.
+  ImageMetadata::DpiStatus horizontalStatus = ImageMetadata::DPI_OK;
+  ImageMetadata::DpiStatus verticalStatus = ImageMetadata::DPI_OK;
+  bool dpiOK = !m_selectedPixelSizes.empty();
+  for (const QSize& pixelSize : m_selectedPixelSizes) {
+    const ImageMetadata metadata(pixelSize, dpi);
+    if (horizontalStatus == ImageMetadata::DPI_OK) {
+      horizontalStatus = metadata.horizontalDpiStatus();
+    }
+    if (verticalStatus == ImageMetadata::DPI_OK) {
+      verticalStatus = metadata.verticalDpiStatus();
+    }
+    dpiOK = dpiOK && metadata.isDpiOK();
   }
 
+  decorateDpiInputField(xDpi, horizontalStatus);
+  decorateDpiInputField(yDpi, verticalStatus);
 
-  if (metadata.isDpiOK()) {
-    applyBtn->setEnabled(true);
-    return;
-  }
-
-  applyBtn->setEnabled(false);
+  applyBtn->setEnabled(dpiOK && (dpi.toSize() != m_initialDpi));
 }
 
 void FixDpiDialog::applyClicked() {
@@ -314,25 +329,44 @@ void FixDpiDialog::enableDisableOkButton() {
 }
 
 /**
- * This function work with both TreeModel and FilterModel selections.
- * It is assumed that only a single item is selected.
+ * This function works with both TreeModel and FilterModel selections.
+ * The fields show the resolution if all selected items have the same one, else they are empty.
  */
 void FixDpiDialog::updateDpiFromSelection(const QItemSelection& selection) {
-  const bool enabled = !selection.isEmpty();
+  const QModelIndexList indexes(selection.indexes());
+  const bool enabled = !indexes.isEmpty();
   // applyBtn is managed elsewhere.
   for (QWidget* widget : {static_cast<QWidget*>(dpiLabel), static_cast<QWidget*>(xDpi),
                           static_cast<QWidget*>(dpiTimesLabel), static_cast<QWidget*>(yDpi)}) {
     widget->setEnabled(enabled);
   }
-  if (!enabled) {
-    resetDpiForm();
-    return;
+
+  m_selectedPixelSizes.clear();
+  Dpi commonDpi;
+  bool sameDpi = true;
+  for (const QModelIndex& index : indexes) {
+    const QAbstractProxyModel* const filter = m_undefinedDpiPages->model();
+    const QModelIndex sourceIndex = (index.model() == filter) ? filter->mapToSource(index) : index;
+    for (const QSize& pixelSize : m_pages->pixelSizesOf(sourceIndex)) {
+      if (std::find(m_selectedPixelSizes.begin(), m_selectedPixelSizes.end(), pixelSize)
+          == m_selectedPixelSizes.end()) {
+        m_selectedPixelSizes.push_back(pixelSize);
+      }
+    }
+
+    // FilterModel may replace AGGREGATE_METADATA_ROLE with AGGREGATE_NOT_OK_METADATA_ROLE.
+    // A null resolution means "undefined" or "different ones".
+    const QVariant data(index.data(AGGREGATE_METADATA_ROLE));
+    const Dpi dpi = data.isValid() ? data.value<ImageMetadata>().dpi() : Dpi();
+    if (index == indexes.front()) {
+      commonDpi = dpi;
+    } else if (dpi.toSize() != commonDpi.toSize()) {
+      sameDpi = false;
+    }
   }
 
-  // FilterModel may replace AGGREGATE_METADATA_ROLE with AGGREGATE_NOT_OK_METADATA_ROLE.
-  const QVariant data(selection.front().topLeft().data(AGGREGATE_METADATA_ROLE));
-  if (data.isValid()) {
-    setDpiForm(data.value<ImageMetadata>());
+  if (enabled && sameDpi) {
+    setDpiForm(commonDpi);
   } else {
     resetDpiForm();
   }
@@ -345,16 +379,13 @@ void FixDpiDialog::resetDpiForm() {
   dpiValueChanged();
 }
 
-void FixDpiDialog::setDpiForm(const ImageMetadata& metadata) {
-  const Dpi dpi(metadata.dpi());
-
+void FixDpiDialog::setDpiForm(const Dpi& dpi) {
   if (dpi.isNull()) {
     resetDpiForm();
     return;
   }
 
   m_initialDpi = dpi.toSize();
-  m_selectedItemPixelSize = metadata.size();
   xDpi->setEditText(core::Utils::dpiText(dpi.horizontal()));
   yDpi->setEditText(core::Utils::dpiText(dpi.vertical()));
   dpiValueChanged();
@@ -480,12 +511,35 @@ bool FixDpiDialog::TreeModel::isVisibleForFilter(const QModelIndex& parent, int 
 }
 
 void FixDpiDialog::TreeModel::applyDpiToSelection(const Scope scope, const Dpi& dpi, const QItemSelection& selection) {
-  if (selection.isEmpty()) {
-    return;
+  // The tree doesn't change its rows here, so the indexes stay valid.
+  for (const QModelIndex& index : selection.indexes()) {
+    applyDpiToIndex(scope, dpi, index);
   }
+}
 
-  const QModelIndex parent(selection.front().parent());
-  const int row = selection.front().top();
+std::vector<QSize> FixDpiDialog::TreeModel::pixelSizesOf(const QModelIndex& index) const {
+  const QModelIndex parent(index.parent());
+  const void* const ptr = parent.internalPointer();
+
+  std::vector<QSize> sizes;
+  if (!parent.isValid()) {
+    // All pages.
+    for (const SizeGroup& group : m_sizes) {
+      sizes.push_back(group.size());
+    }
+  } else if (ptr == &m_allPagesNodeId) {
+    // A size group.
+    sizes.push_back(m_sizes[index.row()].size());
+  } else if (ptr == &m_sizeGroupNodeId) {
+    // An image within a size group.
+    sizes.push_back(m_sizes[parent.row()].size());
+  }
+  return sizes;
+}
+
+void FixDpiDialog::TreeModel::applyDpiToIndex(const Scope scope, const Dpi& dpi, const QModelIndex& selected) {
+  const QModelIndex parent(selected.parent());
+  const int row = selected.row();
   const void* const ptr = parent.internalPointer();
   const QModelIndex idx(index(row, 0, parent));
 

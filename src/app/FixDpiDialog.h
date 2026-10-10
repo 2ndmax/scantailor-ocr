@@ -50,11 +50,14 @@ class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
 
   void enableDisableOkButton();
 
+  /** The tree view of the current tab. */
+  QTreeView* currentView() const;
+
   void updateDpiFromSelection(const QItemSelection& selection);
 
   void resetDpiForm();
 
-  void setDpiForm(const ImageMetadata& metadata);
+  void setDpiForm(const Dpi& dpi);
 
   /** The resolution in the two fields; a field without a number counts as 0. */
   Dpi enteredDpi() const;
@@ -65,7 +68,8 @@ class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
   std::unique_ptr<FilterModel> m_undefinedDpiPages;
   /** The resolution of the selected images when they were selected; (0, 0) if none. */
   QSize m_initialDpi;
-  QSize m_selectedItemPixelSize;
+  /** The pixel sizes of all selected images; the entered resolution is checked against each. */
+  std::vector<QSize> m_selectedPixelSizes;
   QPalette m_normalPalette;
   QPalette m_errorPalette;
 };
