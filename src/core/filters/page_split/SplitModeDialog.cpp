@@ -12,29 +12,9 @@ SplitModeDialog::SplitModeDialog(QWidget* const parent,
                                  const PageId& curPage,
                                  const PageSelectionAccessor& pageSelectionAccessor,
                                  const LayoutType layoutType)
-    : QDialog(parent),
-      m_pages(pageSelectionAccessor.allPages()),
-      m_selectedPages(pageSelectionAccessor.selectedPages()),
-      m_curPage(curPage),
-      m_scopeGroup(new QButtonGroup(this)),
-      m_layoutType(layoutType) {
+    : QDialog(parent), m_layoutType(layoutType) {
   setupUi(this);
-  m_scopeGroup->addButton(thisPageRB);
-  m_scopeGroup->addButton(allPagesRB);
-  m_scopeGroup->addButton(thisPageAndFollowersRB);
-  m_scopeGroup->addButton(thisEveryOtherRB);
-  m_scopeGroup->addButton(everyOtherRB);
-  m_scopeGroup->addButton(selectedPagesRB);
-  m_scopeGroup->addButton(everyOtherSelectedRB);
-  // Pages selected in the thumbnail list are most likely the ones to apply to.
-  if (m_selectedPages.size() > 1) {
-    selectedPagesRB->setChecked(true);
-  } else {
-    selectedPagesRB->setEnabled(false);
-    selectedPagesHint->setEnabled(false);
-    everyOtherSelectedRB->setEnabled(false);
-    everyOtherSelectedHint->setEnabled(false);
-  }
+  scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
   // Only a page type set by hand has a split line to apply; an automatic one is detected anew.
   if ((m_layoutType == AUTO_LAYOUT_TYPE) || (m_layoutType == SINGLE_PAGE_UNCUT)) {
@@ -64,24 +44,8 @@ void SplitModeDialog::updateOptions() {
 void SplitModeDialog::onSubmit() {
   const LayoutType layoutType = m_layoutType;
 
-  std::set<PageId> pages;
-
-  // thisPageRB is intentionally not handled: the options panel has already applied it.
-  if (allPagesRB->isChecked()) {
-    m_pages.selectAll().swap(pages);
-  } else if (thisPageAndFollowersRB->isChecked()) {
-    m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
-  } else if (selectedPagesRB->isChecked()) {
-    emit accepted(m_selectedPages, layoutType, applyCutOption->isChecked());
-    accept();
-    return;
-  } else if (everyOtherRB->isChecked()) {
-    m_pages.selectEveryOther(m_curPage).swap(pages);
-  } else if (thisEveryOtherRB->isChecked()) {
-    m_pages.selectThisPageAndFollowingEveryOther(m_curPage).swap(pages);
-  } else if (everyOtherSelectedRB->isChecked()) {
-    m_pages.selectEveryOtherInSubsetFromPage(m_curPage, m_selectedPages).swap(pages);
-  }
+  // "This page only" is not handled: the options panel has already applied it.
+  const std::set<PageId> pages = scopeGroupBox->isThisPageOnly() ? std::set<PageId>() : scopeGroupBox->pages();
 
   emit accepted(pages, layoutType, applyCutOption->isChecked());
   // We assume the default connection from accepted() to accept()

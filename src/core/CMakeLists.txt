@@ -109,6 +109,7 @@ set(common_sources
     SkinnedButton.cpp SkinnedButton.h
     CollapsibleGroupBox.cpp CollapsibleGroupBox.h
     SectionHeading.cpp SectionHeading.h
+    PageScopeGroupBox.cpp PageScopeGroupBox.h
     ColorSchemeFactory.cpp ColorSchemeFactory.h
     ApplicationSettings.cpp ApplicationSettings.h
     IconProvider.cpp IconProvider.h

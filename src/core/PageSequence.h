@@ -33,10 +33,11 @@ class PageSequence {
   std::set<PageId> selectThisPageAndFollowingEveryOther(const PageId& page) const;
 
   /**
-   * Among pages in \p subset, in document order, take \p base and every second page after it
-   * within that ordered subset (issue #84; fixes std::set iteration order in some Apply dialogs).
+   * Among pages in \p subset, in document order, every second page before and after \p base,
+   * \p base included.  Gaps between the pages of the subset don't count.  Returns an empty set
+   * if \p base isn't in the subset.
    */
-  std::set<PageId> selectEveryOtherInSubsetFromPage(const PageId& base, const std::set<PageId>& subset) const;
+  std::set<PageId> selectEveryOtherInSubset(const PageId& base, const std::set<PageId>& subset) const;
 
   std::vector<PageInfo>::iterator begin();
 

@@ -4,14 +4,11 @@
 #ifndef SCANTAILOR_PAGE_SPLIT_SPLITMODEDIALOG_H_
 #define SCANTAILOR_PAGE_SPLIT_SPLITMODEDIALOG_H_
 
-#include <QButtonGroup>
 #include <QDialog>
-#include <memory>
 #include <set>
 
 #include "LayoutType.h"
 #include "PageId.h"
-#include "PageSequence.h"
 #include "ui_SplitModeDialog.h"
 
 class ProjectPages;
@@ -43,10 +40,6 @@ class SplitModeDialog : public QDialog, private Ui::SplitModeDialog {
  private:
   void updateOptions();
 
-  PageSequence m_pages;
-  std::set<PageId> m_selectedPages;
-  PageId m_curPage;
-  QButtonGroup* m_scopeGroup;
   LayoutType m_layoutType;
 };
 }  // namespace page_split

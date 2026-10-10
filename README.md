@@ -468,6 +468,12 @@ from working:
   selected page, and this page only. The selection can then be adjusted with Ctrl and Shift.
 * When several pages are selected, the "Apply to ..." windows open with "Selected pages"
   chosen.
+* All "Apply to ..." windows share one page choice. Each entry shows how many pages it applies
+  to, and "Every other page" says whether the odd or even pages are meant.
+* "Every other selected page" now works the same in all steps: every other page of all
+  selected pages, before and after the current page, which is included. Before, some steps
+  only counted onwards from the current page, others only looked at the first block of
+  adjacent selected pages and applied nothing if the current page wasn't in it.
 
 ### Start page
 

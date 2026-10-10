@@ -7,6 +7,7 @@
 #include <UnitsProvider.h>
 #include <core/IconProvider.h>
 
+#include <QButtonGroup>
 #include <QLineEdit>
 #include <QSettings>
 #include <cmath>

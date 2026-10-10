@@ -5,6 +5,7 @@
 
 #include <core/IconProvider.h>
 
+#include <QButtonGroup>
 #include <QSignalBlocker>
 #include <algorithm>
 #include <cassert>

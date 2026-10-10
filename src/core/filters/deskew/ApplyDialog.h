@@ -4,13 +4,11 @@
 #ifndef SCANTAILOR_DESKEW_APPLYDIALOG_H_
 #define SCANTAILOR_DESKEW_APPLYDIALOG_H_
 
-#include <QButtonGroup>
 #include <QDialog>
 #include <memory>
 #include <set>
 
 #include "PageId.h"
-#include "PageSequence.h"
 #include "ui_ApplyDialog.h"
 
 class PageSelectionAccessor;
@@ -32,12 +30,6 @@ class ApplyDialog : public QDialog, private Ui::ApplyDialog {
  private slots:
 
   void onSubmit();
-
- private:
-  PageSequence m_pages;
-  PageId m_curPage;
-  std::set<PageId> m_selectedPages;
-  QButtonGroup* m_scopeGroup;
 };
 }  // namespace deskew
 #endif  // ifndef SCANTAILOR_DESKEW_APPLYDIALOG_H_

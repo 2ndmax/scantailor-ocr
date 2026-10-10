@@ -78,6 +78,33 @@ BOOST_AUTO_TEST_CASE(select_this_page_and_following_every_other_partitions_75_pa
   }
 }
 
+BOOST_AUTO_TEST_CASE(select_every_other_in_subset_goes_both_ways_and_over_gaps) {
+  PageSequence seq;
+  std::vector<PageInfo> pages;
+  for (int i = 0; i < 12; ++i) {
+    pages.push_back(makePage("/scan", i));
+    seq.append(pages.back());
+  }
+  // Selected: 0..3 and 7..10 (a gap of three pages), base in the second block.
+  std::set<PageId> subset;
+  for (int i : {0, 1, 2, 3, 7, 8, 9, 10}) {
+    subset.insert(pages[static_cast<size_t>(i)].id());
+  }
+
+  // Positions in the subset: 0 1 2 3 | 7 8 9 10 -> 7 is at position 4, so 0, 2, 7, 9.
+  const std::set<PageId> result = seq.selectEveryOtherInSubset(pages[7].id(), subset);
+  const std::set<PageId> expected = {pages[0].id(), pages[2].id(), pages[7].id(), pages[9].id()};
+  BOOST_CHECK(result == expected);
+
+  // The other half of the subset.
+  const std::set<PageId> other = seq.selectEveryOtherInSubset(pages[8].id(), subset);
+  const std::set<PageId> expectedOther = {pages[1].id(), pages[3].id(), pages[8].id(), pages[10].id()};
+  BOOST_CHECK(other == expectedOther);
+
+  // A base outside the subset selects nothing.
+  BOOST_CHECK(seq.selectEveryOtherInSubset(pages[5].id(), subset).empty());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 }  // namespace Tests

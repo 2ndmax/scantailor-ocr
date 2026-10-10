@@ -1167,7 +1167,7 @@ void MainWindow::pageContextMenuRequested(const PageInfo& pageInfo_, const QPoin
   } else if (action == selectThisEveryOther) {
     m_thumbSequence->selectPages(pages.selectThisPageAndFollowingEveryOther(pageId), pageId);
   } else if (action == selectEveryOtherSelected) {
-    m_thumbSequence->selectPages(pages.selectEveryOtherInSubsetFromPage(pageId, selection), pageId);
+    m_thumbSequence->selectPages(pages.selectEveryOtherInSubset(pageId, selection), pageId);
   } else if (action == selectThisOnly) {
     m_thumbSequence->selectPages({pageId}, pageId);
   }

@@ -4,13 +4,10 @@
 #ifndef SCANTAILOR_PAGE_LAYOUT_APPLYMARGINSDIALOG_H_
 #define SCANTAILOR_PAGE_LAYOUT_APPLYMARGINSDIALOG_H_
 
-#include <QButtonGroup>
 #include <QDialog>
 #include <set>
 
 #include "PageId.h"
-#include "PageRange.h"
-#include "PageSequence.h"
 #include "ui_ApplyMarginsDialog.h"
 
 class PageSelectionAccessor;
@@ -30,13 +27,6 @@ class ApplyMarginsDialog : public QDialog, private Ui::ApplyMarginsDialog {
  private slots:
 
   void onSubmit();
-
- private:
-  PageSequence m_pages;
-  std::set<PageId> m_selectedPages;
-  std::vector<PageRange> m_selectedRanges;
-  PageId m_curPage;
-  QButtonGroup* m_scopeGroup;
 };
 }  // namespace page_layout
 #endif  // ifndef SCANTAILOR_PAGE_LAYOUT_APPLYMARGINSDIALOG_H_

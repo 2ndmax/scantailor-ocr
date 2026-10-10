@@ -92,8 +92,7 @@ std::set<PageId> PageSequence::selectThisPageAndFollowingEveryOther(const PageId
   return selection;
 }
 
-std::set<PageId> PageSequence::selectEveryOtherInSubsetFromPage(const PageId& base,
-                                                                const std::set<PageId>& subset) const {
+std::set<PageId> PageSequence::selectEveryOtherInSubset(const PageId& base, const std::set<PageId>& subset) const {
   std::set<PageId> selection;
   if (subset.empty()) {
     return selection;
@@ -116,7 +115,7 @@ std::set<PageId> PageSequence::selectEveryOtherInSubsetFromPage(const PageId& ba
   if (start < 0) {
     return selection;
   }
-  for (int i = start; i < static_cast<int>(ordered.size()); i += 2) {
+  for (int i = start % 2; i < static_cast<int>(ordered.size()); i += 2) {
     selection.insert(ordered[i]);
   }
   return selection;

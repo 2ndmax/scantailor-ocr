@@ -9,28 +9,9 @@
 
 namespace deskew {
 ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelectionAccessor& pageSelectionAccessor)
-    : QDialog(parent),
-      m_pages(pageSelectionAccessor.allPages()),
-      m_curPage(curPage),
-      m_selectedPages(pageSelectionAccessor.selectedPages()),
-      m_scopeGroup(new QButtonGroup(this)) {
+    : QDialog(parent) {
   setupUi(this);
-  m_scopeGroup->addButton(thisPageRB);
-  m_scopeGroup->addButton(allPagesRB);
-  m_scopeGroup->addButton(thisPageAndFollowersRB);
-  m_scopeGroup->addButton(everyOtherRB);
-  m_scopeGroup->addButton(thisEveryOtherRB);
-  m_scopeGroup->addButton(selectedPagesRB);
-  m_scopeGroup->addButton(everyOtherSelectedRB);
-  // Pages selected in the thumbnail list are most likely the ones to apply to.
-  if (m_selectedPages.size() > 1) {
-    selectedPagesRB->setChecked(true);
-  } else {
-    selectedPagesRB->setEnabled(false);
-    selectedPagesHint->setEnabled(false);
-    everyOtherSelectedRB->setEnabled(false);
-    everyOtherSelectedHint->setEnabled(false);
-  }
+  scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
   // Applying neither the deskew nor the oblique angle would silently do nothing.
   const auto updateOkButton = [this]() {
@@ -51,26 +32,10 @@ void ApplyDialog::onSubmit() {
   const bool applyDeskew = applyDeskewCheckBox->isChecked();
   const bool applyOblique = applyObliqueCheckBox->isChecked();
 
-  std::set<PageId> pages;
-  if (thisPageRB->isChecked()) {
-    pages.insert(m_curPage);
-    emit appliedTo(pages, applyDeskew, applyOblique);
-  } else if (allPagesRB->isChecked()) {
-    m_pages.selectAll().swap(pages);
+  const std::set<PageId> pages = scopeGroupBox->pages();
+  if (scopeGroupBox->isAllPages()) {
     emit appliedToAllPages(pages, applyDeskew, applyOblique);
-  } else if (thisPageAndFollowersRB->isChecked()) {
-    m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
-    emit appliedTo(pages, applyDeskew, applyOblique);
-  } else if (selectedPagesRB->isChecked()) {
-    emit appliedTo(m_selectedPages, applyDeskew, applyOblique);
-  } else if (everyOtherRB->isChecked()) {
-    m_pages.selectEveryOther(m_curPage).swap(pages);
-    emit appliedTo(pages, applyDeskew, applyOblique);
-  } else if (thisEveryOtherRB->isChecked()) {
-    m_pages.selectThisPageAndFollowingEveryOther(m_curPage).swap(pages);
-    emit appliedTo(pages, applyDeskew, applyOblique);
-  } else if (everyOtherSelectedRB->isChecked()) {
-    m_pages.selectEveryOtherInSubsetFromPage(m_curPage, m_selectedPages).swap(pages);
+  } else {
     emit appliedTo(pages, applyDeskew, applyOblique);
   }
   accept();

@@ -2057,6 +2057,75 @@ Pour la déterminer, exécuter le traitement de toutes les images à l&apos;éta
     </message>
 </context>
 <context>
+    <name>PageScopeGroupBox</name>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="32"/>
+        <source>Apply to</source>
+        <translation>Appliquer à</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="33"/>
+        <source>This page only (already applied)</source>
+        <translation>Cette page seulement (déjà appliqué)</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="34"/>
+        <source>All pages</source>
+        <translation>Toutes les pages</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="35"/>
+        <source>This page and the following ones</source>
+        <translation>Cette page et les suivantes</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="38"/>
+        <source>This page and the following every other page</source>
+        <translation>Cette page et les suivantes, en alternance</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="40"/>
+        <source>Every other page (odd pages)</source>
+        <extracomment>All odd pages; the text for even pages is used when the current page is even.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="41"/>
+        <source>Selected pages</source>
+        <translation>Pages sélectionnées</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="42"/>
+        <source>Every other selected page</source>
+        <translation>Pages sélectionnées, en alternance</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="43"/>
+        <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
+        <translation>Utiliser Ctrl+Clic / Maj+Ctrl+Clic pour sélectionner plusieurs pages.</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="44"/>
+        <source>The current page will be included.</source>
+        <translation>La page courante sera incluse.</translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="78"/>
+        <source>Every other page (even pages)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="83"/>
+        <source>1 page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/PageScopeGroupBox.cpp" line="83"/>
+        <source>%1 pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PdfExportJob</name>
     <message>
         <location filename="../core/PdfExportJob.cpp" line="39"/>
@@ -3427,79 +3496,27 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>deskew::ApplyDialog</name>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="20"/>
-        <source>Apply to</source>
-        <translation>Appliquer à</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="26"/>
-        <source>This page only (already applied)</source>
-        <translation>Cette page seulement (déjà appliqué)</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="36"/>
-        <source>All pages</source>
-        <translation>Toutes les pages</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="43"/>
-        <source>This page and the following ones</source>
-        <translation>Cette page et les suivantes</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="50"/>
-        <source>This page and the following every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Cette page et les suivantes, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="57"/>
-        <source>Every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Toutes les pages, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="64"/>
-        <source>Selected pages</source>
-        <translation>Pages sélectionnées</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="94"/>
-        <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation>Utiliser Ctrl+Clic / Maj+Ctrl+Clic pour sélectionner plusieurs pages.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="103"/>
-        <source>Every other selected page</source>
-        <translation>Pages sélectionnées, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="133"/>
-        <source>The current page will be included.</source>
-        <translation>La page courante sera incluse.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="145"/>
+        <location filename="../core/filters/deskew/ApplyDialog.ui" line="23"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="151"/>
+        <location filename="../core/filters/deskew/ApplyDialog.ui" line="29"/>
         <source>The rotation angle, or automatic detection with its detection method if it is set to Auto.  Each page is then measured on its own.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="154"/>
+        <location filename="../core/filters/deskew/ApplyDialog.ui" line="32"/>
         <source>Deskew</source>
         <translation type="unfinished">Redressement</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="164"/>
+        <location filename="../core/filters/deskew/ApplyDialog.ui" line="42"/>
         <source>The oblique correction, or automatic detection if it is set to Auto.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="167"/>
+        <location filename="../core/filters/deskew/ApplyDialog.ui" line="45"/>
         <source>Oblique</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3635,58 +3652,6 @@ Without an internet connection, the installed languages can still be used.  Lang
         <source>Apply Rotation and Trim</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="23"/>
-        <source>Apply to</source>
-        <translation>Appliquer à</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="29"/>
-        <source>This page only (already applied)</source>
-        <translation>Cette page seulement (déjà appliqué)</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="39"/>
-        <source>All pages</source>
-        <translation>Toutes les pages</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="46"/>
-        <source>This page and the following ones</source>
-        <translation>Cette page et les suivantes</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="53"/>
-        <source>This page and the following every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Cette page et les suivantes, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="60"/>
-        <source>Every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Toutes les pages, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="67"/>
-        <source>Selected pages</source>
-        <translation>Pages sélectionnées</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="97"/>
-        <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation>Utiliser Ctrl+Clic / Maj+Ctrl+Clic pour sélectionner plusieurs pages.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="106"/>
-        <source>Every other selected page</source>
-        <translation>Pages sélectionnées, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="136"/>
-        <source>The current page will be included.</source>
-        <translation>La page courante sera incluse.</translation>
-    </message>
 </context>
 <context>
     <name>fix_orientation::Filter</name>
@@ -3766,58 +3731,6 @@ Without an internet connection, the installed languages can still be used.  Lang
         <location filename="../core/filters/output/ApplyColorsDialog.ui" line="17"/>
         <source>Apply Mode</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="23"/>
-        <source>Apply to</source>
-        <translation>Appliquer à</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="29"/>
-        <source>This page only (already applied)</source>
-        <translation>Cette page seulement (déjà appliqué)</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="39"/>
-        <source>All pages</source>
-        <translation>Toutes les pages</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="46"/>
-        <source>This page and the following ones</source>
-        <translation>Cette page et les suivantes</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="53"/>
-        <source>This page and the following every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation type="unfinished">Cette page et les suivantes, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="60"/>
-        <source>Every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation type="unfinished">Toutes les pages, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="67"/>
-        <source>Selected pages</source>
-        <translation>Pages sélectionnées</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="100"/>
-        <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation>Utiliser Ctrl+Clic / Maj+Ctrl+Clic pour sélectionner plusieurs pages.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="109"/>
-        <source>Every other selected page</source>
-        <translation type="unfinished">Pages sélectionnées, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="139"/>
-        <source>The current page will be included.</source>
-        <translation type="unfinished">La page courante sera incluse.</translation>
     </message>
 </context>
 <context>
@@ -4740,136 +4653,29 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
 </context>
 <context>
-    <name>page_layout::ApplyDialog</name>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="20"/>
-        <source>Apply to</source>
-        <translation>Appliquer à</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="26"/>
-        <source>This page only (already applied)</source>
-        <translation>Cette page seulement (déjà appliqué)</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="36"/>
-        <source>All pages</source>
-        <translation>Toutes les pages</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="43"/>
-        <source>This page and the following ones</source>
-        <translation>Cette page et les suivantes</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="50"/>
-        <source>This page and the following every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Cette page et les suivantes, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="57"/>
-        <source>Every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Toutes les pages, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="64"/>
-        <source>Selected pages</source>
-        <translation>Pages sélectionnées</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="97"/>
-        <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation>Utiliser Ctrl+Clic / Maj+Ctrl+Clic pour sélectionner plusieurs pages.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="106"/>
-        <source>Every other selected page</source>
-        <translation>Pages sélectionnées, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyDialog.ui" line="136"/>
-        <source>The current page will be included.</source>
-        <translation>La page courante sera incluse.</translation>
-    </message>
-</context>
-<context>
     <name>page_layout::ApplyMarginsDialog</name>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="20"/>
-        <source>Apply to</source>
-        <translation type="unfinished">Appliquer à</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="26"/>
-        <source>This page only (already applied)</source>
-        <translation type="unfinished">Cette page seulement (déjà appliqué)</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="36"/>
-        <source>All pages</source>
-        <translation type="unfinished">Toutes les pages</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="43"/>
-        <source>This page and the following ones</source>
-        <translation type="unfinished">Cette page et les suivantes</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="50"/>
-        <source>This page and the following every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation type="unfinished">Cette page et les suivantes, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="57"/>
-        <source>Every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation type="unfinished">Toutes les pages, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="64"/>
-        <source>Selected pages</source>
-        <translation type="unfinished">Pages sélectionnées</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="94"/>
-        <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation type="unfinished">Utiliser Ctrl+Clic / Maj+Ctrl+Clic pour sélectionner plusieurs pages.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="103"/>
-        <source>Every other selected page</source>
-        <translation type="unfinished">Pages sélectionnées, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="133"/>
-        <source>The current page will be included.</source>
-        <translation type="unfinished">La page courante sera incluse.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="145"/>
+        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="23"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="151"/>
+        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="29"/>
         <source>Left</source>
         <translation type="unfinished">Gauche</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="161"/>
+        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="39"/>
         <source>Right</source>
         <translation type="unfinished">Droite</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="171"/>
+        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="49"/>
         <source>Top</source>
         <translation type="unfinished">Haut</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="181"/>
+        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="59"/>
         <source>Bottom</source>
         <translation type="unfinished">Bas</translation>
     </message>
@@ -4953,32 +4759,32 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="329"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="330"/>
         <source>Apply Margins</source>
         <translation>Appliquer les marges</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="338"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="339"/>
         <source>Apply Alignment</source>
         <translation>Appliquer l&apos;alignement</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="405"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="406"/>
         <source>no matched pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="664"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="665"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation type="unfinished">Cette valeur de DPI est trop grande et probablement incorrecte.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="668"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="669"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation type="unfinished">Cette valeur de DPI est trop petite. Même si elle est correcte, le résultat final ne sera bon.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="672"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="673"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5273,79 +5079,27 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="23"/>
-        <source>Apply to</source>
-        <translation>Appliquer à</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="29"/>
-        <source>This page only (already applied)</source>
-        <translation type="unfinished">Cette page seulement (déjà appliqué)</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="39"/>
-        <source>All pages</source>
-        <translation>Toutes les pages</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="46"/>
-        <source>This page and the following ones</source>
-        <translation>Cette page et les suivantes</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="53"/>
-        <source>This page and the following every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Cette page et les suivantes, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="60"/>
-        <source>Every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Toutes les pages, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="67"/>
-        <source>Selected pages</source>
-        <translation>Pages sélectionnées</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="100"/>
-        <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation>Utiliser Ctrl+Clic / Maj+Ctrl+Clic pour sélectionner plusieurs pages.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="109"/>
-        <source>Every other selected page</source>
-        <translation>Pages sélectionnées, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="139"/>
-        <source>The current page will be included.</source>
-        <translation>La page courante sera incluse.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="151"/>
+        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="26"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="157"/>
+        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="32"/>
         <source>The page type, or automatic detection if it is set to Auto.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="160"/>
+        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="35"/>
         <source>Page type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="170"/>
+        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="45"/>
         <source>The position of the split line, adapted to the size of each page.  Without it, each page keeps its own split line or detects one.  Only for a page type set by hand that has a split line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="173"/>
+        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="48"/>
         <source>Split line</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5366,69 +5120,17 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="23"/>
-        <source>Apply to</source>
-        <translation>Appliquer à</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="29"/>
-        <source>This page only (already applied)</source>
-        <translation>Cette page seulement (déjà appliqué)</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="39"/>
-        <source>All pages</source>
-        <translation>Toutes les pages</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="46"/>
-        <source>This page and the following ones</source>
-        <translation>Cette page et les suivantes</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="53"/>
-        <source>This page and the following every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Cette page et les suivantes, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="60"/>
-        <source>Every other page</source>
-        <extracomment>All odd or even pages, depending on the current page being odd or even.</extracomment>
-        <translation>Toutes les pages, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="67"/>
-        <source>Selected pages</source>
-        <translation>Pages sélectionnées</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="97"/>
-        <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation>Utiliser Ctrl+Clic / Maj+Ctrl+Clic pour sélectionner plusieurs pages.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="106"/>
-        <source>Every other selected page</source>
-        <translation>Pages sélectionnées, en alternance</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="136"/>
-        <source>The current page will be included.</source>
-        <translation>La page courante sera incluse.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="148"/>
+        <location filename="../core/filters/select_content/ApplyDialog.ui" line="26"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="154"/>
+        <location filename="../core/filters/select_content/ApplyDialog.ui" line="32"/>
         <source>Page box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="164"/>
+        <location filename="../core/filters/select_content/ApplyDialog.ui" line="42"/>
         <source>Content box</source>
         <translation type="unfinished"></translation>
     </message>

@@ -4,13 +4,10 @@
 #ifndef SCANTAILOR_OUTPUT_APPLYCOLORSDIALOG_H_
 #define SCANTAILOR_OUTPUT_APPLYCOLORSDIALOG_H_
 
-#include <QButtonGroup>
 #include <QDialog>
-#include <memory>
 #include <set>
 
 #include "PageId.h"
-#include "PageSequence.h"
 #include "ui_ApplyColorsDialog.h"
 
 class PageSelectionAccessor;
@@ -30,12 +27,6 @@ class ApplyColorsDialog : public QDialog, private Ui::ApplyColorsDialog {
  private slots:
 
   void onSubmit();
-
- private:
-  PageSequence m_pages;
-  std::set<PageId> m_selectedPages;
-  PageId m_curPage;
-  QButtonGroup* m_scopeGroup;
 };
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_APPLYCOLORSDIALOG_H_

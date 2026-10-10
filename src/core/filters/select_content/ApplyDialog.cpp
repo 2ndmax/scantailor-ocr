@@ -3,36 +3,13 @@
 
 #include "ApplyDialog.h"
 
-#include <cassert>
-
 #include "PageSelectionAccessor.h"
 
 namespace select_content {
 ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelectionAccessor& pageSelectionAccessor)
-    : QDialog(parent),
-      m_pages(pageSelectionAccessor.allPages()),
-      m_selectedPages(pageSelectionAccessor.selectedPages()),
-      m_selectedRanges(pageSelectionAccessor.selectedRanges()),
-      m_curPage(curPage),
-      m_btnGroup(new QButtonGroup(this)) {
+    : QDialog(parent) {
   setupUi(this);
-  m_btnGroup->addButton(thisPageOnlyRB);
-  m_btnGroup->addButton(allPagesRB);
-  m_btnGroup->addButton(thisPageAndFollowersRB);
-  m_btnGroup->addButton(selectedPagesRB);
-  m_btnGroup->addButton(everyOtherRB);
-  m_btnGroup->addButton(thisEveryOtherRB);
-  m_btnGroup->addButton(everyOtherSelectedRB);
-
-  // Pages selected in the thumbnail list are most likely the ones to apply to.
-  if (m_selectedPages.size() > 1) {
-    selectedPagesRB->setChecked(true);
-  } else {
-    selectedPagesRB->setEnabled(false);
-    selectedPagesHint->setEnabled(false);
-    everyOtherSelectedRB->setEnabled(false);
-    everyOtherSelectedHint->setEnabled(false);
-  }
+  scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
@@ -40,25 +17,8 @@ ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelec
 ApplyDialog::~ApplyDialog() = default;
 
 void ApplyDialog::onSubmit() {
-  std::set<PageId> pages;
-
-  // thisPageOnlyRB is intentionally not handled.
-  if (allPagesRB->isChecked()) {
-    m_pages.selectAll().swap(pages);
-  } else if (thisPageAndFollowersRB->isChecked()) {
-    m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
-  } else if (selectedPagesRB->isChecked()) {
-    m_selectedPages.swap(pages);
-  } else if (everyOtherRB->isChecked()) {
-    m_pages.selectEveryOther(m_curPage).swap(pages);
-  } else if (thisEveryOtherRB->isChecked()) {
-    m_pages.selectThisPageAndFollowingEveryOther(m_curPage).swap(pages);
-  } else if (everyOtherSelectedRB->isChecked()) {
-    assert(m_selectedRanges.size() == 1);
-    const PageRange& range = m_selectedRanges.front();
-    range.selectEveryOther(m_curPage).swap(pages);
-  }
-
+  // "This page only" is not handled: the options panel has already applied it.
+  const std::set<PageId> pages = scopeGroupBox->isThisPageOnly() ? std::set<PageId>() : scopeGroupBox->pages();
   emit applySelection(pages, applyContentBoxOption->isChecked(), applyPageBoxOption->isChecked());
   // We assume the default connection from accept() to accepted() was removed.
   accept();

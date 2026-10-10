@@ -4,15 +4,10 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_APPLYDIALOG_H_
 #define SCANTAILOR_SELECT_CONTENT_APPLYDIALOG_H_
 
-#include <QButtonGroup>
 #include <QDialog>
-#include <memory>
 #include <set>
-#include <vector>
 
 #include "PageId.h"
-#include "PageRange.h"
-#include "PageSequence.h"
 #include "ui_ApplyDialog.h"
 
 class PageSelectionAccessor;
@@ -32,13 +27,6 @@ class ApplyDialog : public QDialog, private Ui::ApplyDialog {
  private slots:
 
   void onSubmit();
-
- private:
-  PageSequence m_pages;
-  std::set<PageId> m_selectedPages;
-  std::vector<PageRange> m_selectedRanges;
-  PageId m_curPage;
-  QButtonGroup* m_btnGroup;
 };
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_APPLYDIALOG_H_
