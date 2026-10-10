@@ -12,6 +12,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPen>
 #include <QRubberBand>
 #include <QStyleOptionGraphicsItem>
 #include <QtWidgets/QCheckBox>
@@ -1723,11 +1725,30 @@ void ThumbnailSequence::CompositeItem::paint(QPainter* painter,
   const QBrush selectionLeaderBackgroundColor = ColorSchemeManager::instance().getColorParam(
       "ThumbnailSequenceSelectionLeaderBackground", selectedItemBackgroundColor);
 
-  if (m_item->isSelectionLeader()) {
-    painter->fillRect(boundingRect(), selectionLeaderBackgroundColor);
-  } else if (m_item->isSelected()) {
-    painter->fillRect(boundingRect(), selectedItemBackgroundColor);
+  const QColor selectedItemBorderColor = ColorSchemeManager::instance().getColorParam(
+      "ThumbnailSequenceSelectedItemBorder", QApplication::palette().color(QPalette::Highlight).darker(150));
+  const QColor selectionLeaderBorderColor
+      = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectionLeaderBorder", selectedItemBorderColor);
+
+  if (!m_item->isSelected()) {
+    return;
   }
+
+  const bool leader = m_item->isSelectionLeader();
+  const QRectF rect = boundingRect();
+  painter->fillRect(rect, leader ? selectionLeaderBackgroundColor : selectedItemBackgroundColor);
+
+  // A thin border in the selection color makes the selected pages stand out; the leader gets a wider one.
+  const qreal borderWidth = leader ? 3.0 : 2.0;
+  QPen pen(leader ? selectionLeaderBorderColor : selectedItemBorderColor, borderWidth);
+  pen.setJoinStyle(Qt::MiterJoin);
+  painter->save();
+  painter->setRenderHint(QPainter::Antialiasing, false);
+  painter->setPen(pen);
+  painter->setBrush(Qt::NoBrush);
+  const qreal inset = 0.5 * borderWidth;
+  painter->drawRect(rect.adjusted(inset, inset, -inset, -inset));
+  painter->restore();
 }
 
 void ThumbnailSequence::CompositeItem::mousePressEvent(QGraphicsSceneMouseEvent* const event) {

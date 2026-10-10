@@ -82,6 +82,7 @@ void DarkColorScheme::loadStyleSheet() {
 void DarkColorScheme::loadColorParams() {
   m_customColors["ThumbnailSequenceSelectedItemBackground"] = "#424242";
   m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = "#555555";
+  m_customColors["ThumbnailSequenceSelectedItemBorder"] = "#3399ff";
   m_customColors["OpenNewProjectBorder"] = "#535353";
   m_customColors["ProcessingIndicationFade"] = "#282828";
   m_customColors["ProcessingIndicationHead"] = m_palette.color(QPalette::WindowText);

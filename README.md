@@ -458,6 +458,11 @@ from working:
   The Windows ZIP ships Qt's translations for the program's languages in `translations`; on
   Linux they come from the system (`qt6-translations-l10n`, recommended by the `.deb`).
 
+### Thumbnails and page selection
+
+* Selected thumbnails have a blue border (2 pixels, 3 pixels for the current page), so the
+  selection stands out from the grey background in the light and dark colour schemes.
+
 ### Start page
 
 * "New Project" and "Open Project" are buttons now instead of blue links.
