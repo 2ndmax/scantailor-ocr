@@ -80,11 +80,7 @@ class RecentProjectEntry : public QWidget {
   }
 
   void mouseReleaseEvent(QMouseEvent* event) override {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPoint pos = event->position().toPoint();
-#else
-    const QPoint pos = event->pos();
-#endif
     if ((event->button() == Qt::LeftButton) && rect().contains(pos)) {
       m_activate();
     }

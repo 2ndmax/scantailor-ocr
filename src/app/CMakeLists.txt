@@ -86,7 +86,7 @@ target_include_directories(
     "$<TARGET_PROPERTY:TIFF::TIFF,INTERFACE_INCLUDE_DIRECTORIES>")
 install(TARGETS ${target_name} RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
-if (Qt6_FOUND AND WIN32)
+if (WIN32)
   #manage plugins with windeployqt, if the Qt installation ships it (vcpkg does not).
   find_program(
       WINDEPLOYQT_EXECUTABLE windeployqt

@@ -32,7 +32,7 @@ TessdataDownloader::TessdataDownloader(QObject* parent) : QObject(parent), m_net
   // Use the proxy settings of the system, as needed in many company and school networks.
   QNetworkProxyFactory::setUseSystemConfiguration(true);
 
-#if QT_CONFIG(ssl) && (QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)) && defined(Q_OS_WIN)
+#if QT_CONFIG(ssl) && defined(Q_OS_WIN)
   // Qt prefers its OpenSSL backend, but OpenSSL isn't shipped with the program.
   // Windows' own TLS implementation (Schannel) needs no extra files and uses the
   // certificates of the system.  This only works before the first TLS connection.

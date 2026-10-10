@@ -205,7 +205,6 @@ QString OcrLanguages::displayName(const QString& code) {
   if (extra != extraNames.end()) {
     name = QCoreApplication::translate("OcrLanguages", extra->second);
   }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
   if (name.isEmpty()) {
     const QLocale::Language language = QLocale::codeToLanguage(base, QLocale::ISO639Part2);
     if ((language != QLocale::AnyLanguage) && (language != QLocale::C)) {
@@ -215,7 +214,6 @@ QString OcrLanguages::displayName(const QString& code) {
       }
     }
   }
-#endif
   if (name.isEmpty()) {
     return code;
   }

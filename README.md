@@ -580,8 +580,9 @@ from working:
   finding and gathering language files, download checksums.
 * CI installs Tesseract on Linux and Windows; the Flatpak is built without text recognition for
   now, as its runtime doesn't include Tesseract.
-* CI builds Linux with both Qt 5 and Qt 6; the Linux packages (DEB, RPM, AppImage) are built
-  with Qt 6, like the Windows version. The Windows job keeps vcpkg's intermediate files off the
+* Qt 5 is no longer supported; the program needs Qt 6.4 or later (the version of Ubuntu 24.04).
+  The code paths for older Qt versions are removed. CI builds Linux with Qt 6; the Linux
+  packages (DEB, RPM, AppImage) are built with Qt 6, like the Windows version. The Windows job keeps vcpkg's intermediate files off the
   runner's small system drive and only saves a new package cache when something was rebuilt.
 * The Lint workflow uses clang-format 22.1.3, the version that comes with Visual Studio 2026, so
   that a local check gives the same result (other versions format some lines differently).
@@ -721,7 +722,7 @@ cmake --fresh -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCH
 
 ### Linux (Debian / Ubuntu)
 
-With Qt 6 (recommended; the Linux packages from CI are built this way):
+Qt 6.4 or later is required (Ubuntu 24.04 or later):
 
 ```
 sudo apt install build-essential cmake \
@@ -732,10 +733,6 @@ mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j$(nproc)
 ```
-
-Qt 5 still works: install `qtbase5-dev libqt5svg5-dev qttools5-dev qttools5-dev-tools
-libqt5opengl5-dev` instead of the Qt 6 packages. If both are installed, CMake picks Qt 6;
-add `-DCMAKE_DISABLE_FIND_PACKAGE_Qt6=ON` to the `cmake` call to use Qt 5.
 
 ### Build options
 

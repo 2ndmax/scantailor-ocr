@@ -442,11 +442,7 @@ void TextLineTracer::findMidLineSeeds(const SEDM& sedm, QLineF midLine, std::vec
 
 QLineF TextLineTracer::calcMidLine(const QLineF& line1, const QLineF& line2) {
   QPointF intersection;
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-  auto is = line1.intersect(line2, &intersection);
-#else
   auto is = line1.intersects(line2, &intersection);
-#endif
   if (is == QLineF::NoIntersection) {
     // Lines are parallel.
     const QPointF p1(line2.p1());

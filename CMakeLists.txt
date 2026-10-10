@@ -320,43 +320,25 @@ endif()
 
 #=================================== Qt ===================================#
 
-set(qt_min_version 5.9)
+# Qt 6.4 is the version of Ubuntu 24.04.
+set(qt_min_version 6.4)
 
 find_package(
-    Qt6
+    Qt6 ${qt_min_version}
     COMPONENTS Core Gui Widgets Xml Network LinguistTools OpenGL Svg OpenGLWidgets Test
-    CONFIG)
-if (Qt6_FOUND)
-    set(QT_BINDIR "${QT6_INSTALL_PREFIX}/bin")
-else()
-  find_package(Qt5 ${qt_min_version}
-    COMPONENTS Core Gui Widgets Xml Network LinguistTools OpenGL Svg Test
     CONFIG REQUIRED)
-    set(QT_BINDIR "${QT5_INSTALL_PREFIX}/bin")
-endif()
+set(QT_BINDIR "${QT6_INSTALL_PREFIX}/bin")
 
-if(Qt6_FOUND)
-  set(Qt_Core_lib Qt::Core)
-  set(Qt_Gui_lib Qt::Gui)
-  set(Qt_Network_lib Qt::Network)
-  set(Qt_OpenGL_lib Qt::OpenGL)
-  set(Qt_Svg_lib Qt::Svg)
-  set(Qt_Widgets_lib Qt::Widgets)
-  set(Qt_Xml_lib Qt::Xml)
-  set(Qt_OpenGLWidgets_lib Qt::OpenGLWidgets)
-  set(Qt_Test_lib Qt::Test)
-  set(Qt_lupdate_target Qt6::lupdate)
-else()
-  set(Qt_Core_lib Qt5::Core)
-  set(Qt_Gui_lib Qt5::Gui)
-  set(Qt_Network_lib Qt5::Network)
-  set(Qt_OpenGL_lib Qt5::OpenGL)
-  set(Qt_Svg_lib Qt5::Svg)
-  set(Qt_Widgets_lib Qt5::Widgets)
-  set(Qt_Xml_lib Qt5::Xml)
-  set(Qt_Test_lib Qt5::Test)
-  set(Qt_lupdate_target Qt5::lupdate)
-endif()
+set(Qt_Core_lib Qt::Core)
+set(Qt_Gui_lib Qt::Gui)
+set(Qt_Network_lib Qt::Network)
+set(Qt_OpenGL_lib Qt::OpenGL)
+set(Qt_Svg_lib Qt::Svg)
+set(Qt_Widgets_lib Qt::Widgets)
+set(Qt_Xml_lib Qt::Xml)
+set(Qt_OpenGLWidgets_lib Qt::OpenGLWidgets)
+set(Qt_Test_lib Qt::Test)
+set(Qt_lupdate_target Qt6::lupdate)
 
 
 #=================================== Threads ===================================#
@@ -451,11 +433,7 @@ finalize_translations(scantailor ${translation_files})
 update_translations_target(update_translations scantailor)
 
 list(FILTER translation_files EXCLUDE REGEX ".*untranslated.ts")
-if(Qt6_FOUND)
-  Qt_add_translation(qm_files ${translation_files})
-else()
-  Qt5_add_translation(qm_files ${translation_files})
-endif()
+Qt_add_translation(qm_files ${translation_files})
 add_custom_target(compile_translations ALL DEPENDS ${qm_files})
 if (WIN32)
   install(FILES ${qm_files} DESTINATION "${CMAKE_INSTALL_BINDIR}/translations")
@@ -486,17 +464,10 @@ if (WIN32)
   endmacro()
 
   # Install the DLLs of the dependencies.
-  if(Qt6_FOUND)
-    set(dep_libs
-        JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF ${OPENJPEG_TARGET}
-        Qt::Core Qt::Gui Qt::Widgets Qt::Xml
-        Qt::Network Qt::OpenGL Qt::Svg Qt6::OpenGLWidgets)
-  else()
-    set(dep_libs
-        JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF ${OPENJPEG_TARGET}
-        Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml
-        Qt5::Network Qt5::OpenGL Qt5::Svg)
-  endif()
+  set(dep_libs
+      JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF ${OPENJPEG_TARGET}
+      Qt::Core Qt::Gui Qt::Widgets Qt::Xml
+      Qt::Network Qt::OpenGL Qt::Svg Qt6::OpenGLWidgets)
 
   foreach (_target ${dep_libs})
     get_target_property(target_type ${_target} TYPE)
@@ -514,37 +485,6 @@ if (WIN32)
     add_runtime_libs_to_install(RELEASE "${release_loc}")
     add_runtime_libs_to_install(DEBUG "${debug_loc}")
   endforeach()
-
-  #with Qt6, winqtdeploy is used to deploy plugins; the method below does not work anymore.
-  if (NOT Qt6_FOUND)
-    # Install Qt plugins.
-    macro (install_qt_plugin SubDir Target)
-      if (TARGET ${Target})
-        get_target_property(target_type ${Target} TYPE)
-        if (target_type STREQUAL "MODULE_LIBRARY")
-          get_target_property(release_loc ${Target} LOCATION_RELEASE)
-          get_target_property(debug_loc ${Target} LOCATION_DEBUG)
-          set_if_undefined(debug_loc "${release_loc}")
-
-          copy_to_build_dir("${release_loc}" SUBDIR ${SubDir} CONFIGURATIONS Release MinSizeRel RelWithDebInfo)
-          install(PROGRAMS "${release_loc}"
-            CONFIGURATIONS Release MinSizeRel RelWithDebInfo
-            DESTINATION "${CMAKE_INSTALL_BINDIR}/${SubDir}")
-          copy_to_build_dir("${debug_loc}" SUBDIR ${SubDir} CONFIGURATIONS Debug)
-          install(PROGRAMS "${debug_loc}"
-            CONFIGURATIONS Debug
-            DESTINATION "${CMAKE_INSTALL_BINDIR}/${SubDir}")
-        endif()
-      endif()
-    endmacro()
-
-    install_qt_plugin("platforms" Qt::QWindowsIntegrationPlugin)
-    install_qt_plugin("styles" Qt::QWindowsVistaStylePlugin)
-    install_qt_plugin("imageformats" Qt::QJpegPlugin)
-    install_qt_plugin("accessible"  Qt::QAccessiblePlugin)
-    install_qt_plugin("iconengines" Qt::QSvgIconPlugin)
-    install_qt_plugin("imageformats" Qt::QSvgPlugin)
-  endif()
 
   # Install MinGW runtime components.
   if (MINGW)

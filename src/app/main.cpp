@@ -65,20 +65,6 @@ void takeOverOldSettings() {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-#if QT_VERSION_MAJOR == 5
-  // Issue #97: Qt5 on Wayland can corrupt dialogs; use X11 unless opted out.
-  if (!qEnvironmentVariableIsSet("SCANTAILOR_NO_XCB_FALLBACK")) {
-    if (qgetenv("XDG_SESSION_TYPE") == "wayland" && qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
-      qputenv("QT_QPA_PLATFORM", QByteArrayLiteral("xcb"));
-    }
-  }
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-  // Issue #99: better quality with fractional UI scaling (125%, 150%, etc.)
-  QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-#endif
-#endif
   Application app(argc, argv);
 
 #ifdef _WIN32

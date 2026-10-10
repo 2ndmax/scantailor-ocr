@@ -10,20 +10,8 @@ on:
 
 jobs:
   build-linux:
-    name: Build (Ubuntu, Qt ${{ matrix.qt }})
+    name: Build (Ubuntu, Qt 6)
     runs-on: ubuntu-24.04
-    strategy:
-      # Report both Qt versions even if one fails.
-      fail-fast: false
-      matrix:
-        include:
-          - qt: 5
-            qt_packages: qtbase5-dev libqt5svg5-dev qttools5-dev qttools5-dev-tools libqt5opengl5-dev
-            # Qt 6 is preferred by CMakeLists.txt; make sure Qt 5 is used.
-            cmake_args: -DCMAKE_DISABLE_FIND_PACKAGE_Qt6=ON
-          - qt: 6
-            qt_packages: qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libqt6opengl6-dev libgl-dev
-            cmake_args: ""
     steps:
       - uses: actions/checkout@v7
 
@@ -32,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             build-essential cmake \
-            ${{ matrix.qt_packages }} \
+            qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libqt6opengl6-dev libgl-dev \
             libboost-test-dev libboost-dev \
             libjpeg-dev libpng-dev libtiff-dev zlib1g-dev libopenjp2-7-dev \
             libtesseract-dev libleptonica-dev \
@@ -41,7 +29,7 @@ jobs:
       - name: Configure and build
         run: |
           mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }} ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           make -j$(nproc)
 
       # Failing tests fail the build.

@@ -6,9 +6,7 @@
 #include <QDebug>
 #include <QImage>
 #include <QPainter>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 #include <QRandomGenerator>
-#endif
 #include <boost/foreach.hpp>
 
 #include "CylindricalSurfaceDewarper.h"
@@ -159,20 +157,11 @@ DistortionModel DistortionModelBuilder::tryBuildModel(DebugImages* dbg, const QI
     }
   }
   // Continue by throwing in some random pairs of lines.
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-  qsrand(0);  // Repeatablity is important.
-#else
   QRandomGenerator prng(0);  // Repeatablity is important.
-#endif
   int randomPairsRemaining = 10;
   while (randomPairsRemaining-- > 0) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-    int i = qrand() % numCurves;
-    int j = qrand() % numCurves;
-#else
     int i = prng.generate() % numCurves;
     int j = prng.generate() % numCurves;
-#endif
     if (i > j) {
       std::swap(i, j);
     }
@@ -296,11 +285,7 @@ void DistortionModelBuilder::intersectFront(std::deque<QPointF>& polyline, const
 
   const QLineF frontSegment(polyline.front(), polyline[1]);
   QPointF intersection;
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-  auto intersect = bound.intersect(frontSegment, &intersection);
-#else
   auto intersect = bound.intersects(frontSegment, &intersection);
-#endif
   if (intersect != QLineF::NoIntersection) {
     polyline.front() = intersection;
   }
@@ -311,11 +296,7 @@ void DistortionModelBuilder::intersectBack(std::deque<QPointF>& polyline, const 
 
   const QLineF backSegment(polyline[polyline.size() - 2], polyline.back());
   QPointF intersection;
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-  auto intersect = bound.intersect(backSegment, &intersection);
-#else
   auto intersect = bound.intersects(backSegment, &intersection);
-#endif
   if (intersect != QLineF::NoIntersection) {
     polyline.back() = intersection;
   }

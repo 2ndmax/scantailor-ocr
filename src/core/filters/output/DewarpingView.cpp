@@ -214,13 +214,8 @@ void DewarpingView::onPaint(QPainter& painter, const InteractionState& interacti
     const dewarping::Curve& bottomCurve = m_distortionModel.bottomCurve();
     painter.drawLine(topCurve.polyline().front(), bottomCurve.polyline().front());
     painter.drawLine(topCurve.polyline().back(), bottomCurve.polyline().back());
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    painter.drawPolyline(QVector<QPointF>::fromStdVector(topCurve.polyline()));
-    painter.drawPolyline(QVector<QPointF>::fromStdVector(bottomCurve.polyline()));
-#else
     painter.drawPolyline(QVector<QPointF>(topCurve.polyline().begin(), topCurve.polyline().end()));
     painter.drawPolyline(QVector<QPointF>(bottomCurve.polyline().begin(), bottomCurve.polyline().end()));
-#endif
   }
 
   paintXSpline(painter, interaction, m_topSpline);

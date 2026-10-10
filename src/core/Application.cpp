@@ -90,11 +90,7 @@ void Application::installQtLanguage(const QString& locale) {
   }
   // Shipped next to the program on Windows, part of the system's Qt on Linux.
   QStringList dirs = translationDirs();
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
   dirs.append(QLibraryInfo::path(QLibraryInfo::TranslationsPath));
-#else
-  dirs.append(QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-#endif
   // QLocale also tries the country variants, e.g. "qtbase_pt_BR" for "pt".
   const QLocale qtLocale(locale);
   for (const QString& dir : dirs) {
@@ -117,11 +113,7 @@ std::list<QString> Application::getLanguagesList() const {
 }
 
 QStringList Application::translationDirs() const {
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-  auto opt = QString::SkipEmptyParts;
-#else
   auto opt = Qt::SkipEmptyParts;
-#endif
   QStringList dirs;
   for (const QString& path : QString::fromUtf8(TRANSLATION_DIRS).split(QChar(':'), opt)) {
     dirs.append(QDir::isAbsolutePath(path) ? QDir::cleanPath(path)

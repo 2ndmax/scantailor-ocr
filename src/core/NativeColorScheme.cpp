@@ -11,7 +11,6 @@
 #include <QStyleOptionSpinBox>
 
 namespace {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
 /**
  * The Windows 11 style puts the two arrows of a spin box next to each other, which makes each
  * spin box about 40 pixels wider than in the other color schemes, so rows of spin boxes don't
@@ -83,7 +82,6 @@ class CompactSpinBoxStyle : public QProxyStyle {
  private:
   static int buttonColumnWidth(const QStyleOptionSpinBox& spinBox) { return spinBox.fontMetrics.height(); }
 };
-#endif
 }  // namespace
 
 NativeColorScheme::NativeColorScheme() {
@@ -92,14 +90,12 @@ NativeColorScheme::NativeColorScheme() {
 }
 
 QStyle* NativeColorScheme::getStyle() const {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
   // The scheme is set once at startup, so the application still has the platform's style.
   if (qApp->style()->name() == QLatin1String("windows11")) {
     if (QStyle* windows11 = QStyleFactory::create(QStringLiteral("windows11"))) {
       return new CompactSpinBoxStyle(windows11);
     }
   }
-#endif
   return nullptr;
 }
 

@@ -8,12 +8,7 @@
 
 #include <QApplication>
 
-#if QT_VERSION_MAJOR == 5
-#include <QGLWidget>
-#define QOpenGLWidget QGLWidget
-#else
 #include <QtOpenGLWidgets/QOpenGLWidget>
-#endif
 
 #include <QMouseEvent>
 #include <QPaintEngine>
@@ -532,11 +527,7 @@ void ImageViewBase::mouseMoveEvent(QMouseEvent* event) {
   event->setAccepted(true);
   updateStatusTipAndCursor();
   maybeQueueRedraw();
-#if QT_VERSION_MAJOR == 5
-  updateCursorPos(event->localPos());
-#else
   updateCursorPos(event->position());
-#endif
 }
 
 void ImageViewBase::wheelEvent(QWheelEvent* event) {
@@ -575,11 +566,7 @@ void ImageViewBase::resizeEvent(QResizeEvent* event) {
   }
 }
 
-#if QT_VERSION_MAJOR == 5
-void ImageViewBase::enterEvent(QEvent* event) {
-#else
 void ImageViewBase::enterEvent(QEnterEvent* event) {
-#endif
   viewport()->setFocus();
   QAbstractScrollArea::enterEvent(event);
 }

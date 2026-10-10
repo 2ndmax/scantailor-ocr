@@ -185,11 +185,7 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
     bool toggle = false;
     if ((event->type() == QEvent::MouseButtonRelease) || (event->type() == QEvent::MouseButtonDblClick)) {
       const auto* mouseEvent = static_cast<QMouseEvent*>(event);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
       const QPoint pos = mouseEvent->position().toPoint();
-#else
-      const QPoint pos = mouseEvent->pos();
-#endif
       if ((mouseEvent->button() != Qt::LeftButton) || !checkRect(option).adjusted(-2, -2, 2, 2).contains(pos)) {
         return false;
       }

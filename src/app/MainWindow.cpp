@@ -1472,14 +1472,10 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
           // Note: started detached rather than through std::system(), which
           // would block the GUI thread until the sound has finished playing
           // and would pass the command through a shell.
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
           const QStringList cmdParts = QProcess::splitCommand(cmd);
           if (!cmdParts.isEmpty()) {
             QProcess::startDetached(cmdParts.first(), cmdParts.mid(1));
           }
-#else
-          QProcess::startDetached(cmd);
-#endif
         }
       }
 
