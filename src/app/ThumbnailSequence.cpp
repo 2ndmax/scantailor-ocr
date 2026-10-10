@@ -1709,20 +1709,18 @@ void ThumbnailSequence::LabelGroup::updateAppearence(bool selected, bool selecti
 
   const QBrush itemTextColor
       = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceItemText", QApplication::palette().text());
-  const QBrush selectedItemTextColor = ColorSchemeManager::instance().getColorParam(
-      "ThumbnailSequenceSelectedItemText", QApplication::palette().highlightedText());
 
+  // Only the selection leader is drawn on a filled background; other selected pages keep the
+  // normal text color and icon.
   if (selectionLeader) {
     assert(selected);
-  } else if (selected) {
-    m_normalLabel->setBrush(selectedItemTextColor);
   } else {
     m_normalLabel->setBrush(itemTextColor);
   }
 
   if (m_pixmap && m_pixmapSelected) {
-    m_pixmap->setVisible(!selected);
-    m_pixmapSelected->setVisible(selected);
+    m_pixmap->setVisible(!selectionLeader);
+    m_pixmapSelected->setVisible(selectionLeader);
   }
 }
 
@@ -1782,23 +1780,22 @@ void ThumbnailSequence::CompositeItem::paint(QPainter* painter,
       "ThumbnailSequenceSelectedItemBackground", QApplication::palette().color(QPalette::Highlight));
   const QBrush selectionLeaderBackgroundColor = ColorSchemeManager::instance().getColorParam(
       "ThumbnailSequenceSelectionLeaderBackground", selectedItemBackgroundColor);
-
   const QColor selectedItemBorderColor = ColorSchemeManager::instance().getColorParam(
       "ThumbnailSequenceSelectedItemBorder", QApplication::palette().color(QPalette::Highlight).darker(150));
-  const QColor selectionLeaderBorderColor
-      = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectionLeaderBorder", selectedItemBorderColor);
 
   if (!m_item->isSelected()) {
     return;
   }
 
-  const bool leader = m_item->isSelectionLeader();
+  // Every selected page gets a border in the selection color; only the selection leader,
+  // the page shown, is filled, so it stands out among the other selected pages.
   const QRectF rect = boundingRect();
-  painter->fillRect(rect, leader ? selectionLeaderBackgroundColor : selectedItemBackgroundColor);
+  if (m_item->isSelectionLeader()) {
+    painter->fillRect(rect, selectionLeaderBackgroundColor);
+  }
 
-  // A thin border in the selection color makes the selected pages stand out; the leader gets a wider one.
-  const qreal borderWidth = leader ? 3.0 : 2.0;
-  QPen pen(leader ? selectionLeaderBorderColor : selectedItemBorderColor, borderWidth);
+  const qreal borderWidth = 3.0;
+  QPen pen(selectedItemBorderColor, borderWidth);
   pen.setJoinStyle(Qt::MiterJoin);
   painter->save();
   painter->setRenderHint(QPainter::Antialiasing, false);

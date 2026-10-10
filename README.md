@@ -460,8 +460,9 @@ from working:
 
 ### Thumbnails and page selection
 
-* Selected thumbnails have a blue border (2 pixels, 3 pixels for the current page), so the
-  selection stands out from the grey background in the light and dark colour schemes.
+* Selected thumbnails have a blue border, so the selection stands out in all colour schemes.
+  Only the current page is also filled, with a stronger grey than before, so it can be told
+  apart from the other selected pages at a glance.
 * The context menu of a thumbnail has a submenu "Select" to select pages by pattern, counted
   from the page clicked: all pages, this page and the following ones, every other page (odd or
   even pages, as named in the menu), this page and every other following page, every other

@@ -83,7 +83,7 @@ void LightColorScheme::loadColorParams() {
   m_customColors["ThumbnailSequenceSelectedItemBackground"] = "#727272";
   m_customColors["ThumbnailSequenceSelectedItemText"] = Qt::white;
   m_customColors["ThumbnailSequenceItemText"] = Qt::black;
-  m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = "#5E5E5E";
+  m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = "#4A4A4A";
   m_customColors["ThumbnailSequenceSelectedItemBorder"] = "#3399ff";
   m_customColors["OpenNewProjectBorder"] = "#CCCCCC";
   m_customColors["ProcessingIndicationFade"] = "#939393";
