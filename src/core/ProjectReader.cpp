@@ -72,7 +72,9 @@ QString ProjectReader::resolvePath(const QString& path) const {
   if (m_projectDirPath.isEmpty() || QDir::isAbsolutePath(path)) {
     return path;
   }
-  return QDir(m_projectDirPath).absoluteFilePath(path);
+  // cleanPath() turns "<project folder>/." into "<project folder>".  Otherwise the image paths
+  // contain "/./" and don't match the same paths from elsewhere, e.g. the Fix DPI dialog.
+  return QDir::cleanPath(QDir(m_projectDirPath).absoluteFilePath(path));
 }
 
 void ProjectReader::readFilterSettings(const std::vector<FilterPtr>& filters) const {

@@ -2,7 +2,10 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <FileNameDisambiguator.h>
+#include <ImageFileInfo.h>
+#include <ImageInfo.h>
 #include <OutputFileNameGenerator.h>
+#include <PageSequence.h>
 #include <ProjectPages.h>
 #include <ProjectReader.h>
 #include <ProjectWriter.h>
@@ -53,6 +56,33 @@ BOOST_AUTO_TEST_CASE(test_empty_project_keeps_input_dir) {
   BOOST_CHECK(reader.outputDirectory() == QDir(inputDir).absoluteFilePath("out"));
   BOOST_REQUIRE_EQUAL(reader.directories().size(), 1u);
   BOOST_CHECK(QDir(reader.directories().front()) == QDir(inputDir));
+  // The folder of the project file is stored as "."; the path must not end in "/." then,
+  // because image paths are compared as text (e.g. after the Fix DPI dialog).
+  BOOST_CHECK(reader.directories().front() == inputDir);
+}
+
+BOOST_AUTO_TEST_CASE(test_metadata_update_keeps_pages_of_multi_page_files) {
+  const QString multiPage = QDir(QDir::tempPath()).absoluteFilePath("multi.tif");
+  const QString singlePage = QDir(QDir::tempPath()).absoluteFilePath("single.png");
+  const ImageMetadata metadata(QSize(2000, 3000), Dpi(300, 300));
+  // Pages of a multi-page file count from 1, a single-page file has 0.
+  ProjectPages pages({ImageInfo(ImageId(multiPage, 1), metadata, 1, false, false),
+                      ImageInfo(ImageId(multiPage, 2), metadata, 1, false, false),
+                      ImageInfo(ImageId(multiPage, 3), metadata, 1, false, false),
+                      ImageInfo(ImageId(singlePage, 0), metadata, 1, false, false)},
+                     Qt::LeftToRight);
+
+  // As the Fix DPI dialog does: change the second page of the multi-page file.
+  std::vector<ImageFileInfo> files = pages.toImageFileInfo();
+  BOOST_REQUIRE_EQUAL(files.size(), 2u);
+  BOOST_REQUIRE_EQUAL(files[0].imageInfo().size(), 3u);
+  files[0].imageInfo()[1] = ImageMetadata(QSize(2000, 3000), Dpi(600, 600));
+  pages.updateMetadataFrom(files);
+
+  for (const PageInfo& page : pages.toPageSequence(IMAGE_VIEW)) {
+    const bool changed = (page.imageId() == ImageId(multiPage, 2));
+    BOOST_CHECK_EQUAL(page.metadata().dpi().horizontal(), changed ? 600 : 300);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_empty_project_without_input_dir) {

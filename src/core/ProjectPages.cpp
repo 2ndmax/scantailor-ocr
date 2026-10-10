@@ -304,24 +304,29 @@ std::vector<ImageFileInfo> ProjectPages::toImageFileInfo() const {
 }
 
 void ProjectPages::updateMetadataFrom(const std::vector<ImageFileInfo>& files) {
-  using MetadataMap = std::unordered_map<ImageId, ImageMetadata>;
-  MetadataMap metadataMap;
-
+  // toImageFileInfo() lists the images of each file in the order of m_images, so the
+  // metadata goes back in the same order.  Page numbers can't be used for this: images of
+  // multi-page files count from 1, those of single-page files are 0.
+  struct Source {
+    const std::vector<ImageMetadata>* metadata;
+    size_t next;
+  };
+  std::unordered_map<QString, Source> sources;
   for (const ImageFileInfo& file : files) {
-    const QString filePath(file.fileInfo().absoluteFilePath());
-    int page = 0;
-    for (const ImageMetadata& metadata : file.imageInfo()) {
-      metadataMap[ImageId(filePath, page)] = metadata;
-      ++page;
-    }
+    sources[file.fileInfo().absoluteFilePath()] = Source{&file.imageInfo(), 0};
   }
 
   QMutexLocker locker(&m_mutex);
 
   for (ImageDesc& image : m_images) {
-    const MetadataMap::const_iterator it(metadataMap.find(image.id));
-    if (it != metadataMap.end()) {
-      image.metadata = it->second;
+    // The same conversion as in toImageFileInfo().
+    const auto it = sources.find(QFileInfo(image.id.filePath()).absoluteFilePath());
+    if (it == sources.end()) {
+      continue;
+    }
+    Source& source = it->second;
+    if (source.next < source.metadata->size()) {
+      image.metadata = (*source.metadata)[source.next++];
     }
   }
 }
