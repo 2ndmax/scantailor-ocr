@@ -322,6 +322,8 @@ endif()
 
 # Qt 6.4 is the version of Ubuntu 24.04.
 set(qt_min_version 6.4)
+# Functions deprecated up to that version are not available, so new code can't use them.
+add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x060400)
 
 find_package(
     Qt6 ${qt_min_version}
