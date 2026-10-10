@@ -775,8 +775,8 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2163"/>
         <location filename="../app/DefaultParamsDialog.ui" line="2173"/>
-        <source>The color of the filled areas: the background color found on the page, white or black.</source>
-        <translation>Die Farbe der gefüllten Flächen: die auf der Seite gefundene Hintergrundfarbe, Weiß oder Schwarz.</translation>
+        <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
+        <translation>Die Farbe der gefüllten Flächen: die auf der Seite gefundene Hintergrundfarbe, Weiß oder Schwarz. Im Farbmodus Gemischt ergibt „Hintergrund“ Weiß.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2222"/>
@@ -4189,8 +4189,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="605"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="615"/>
-        <source>The color of the filled areas: the background color found on the page, white or black.</source>
-        <translation>Die Farbe der gefüllten Flächen: die auf der Seite gefundene Hintergrundfarbe, Weiß oder Schwarz.</translation>
+        <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
+        <translation>Die Farbe der gefüllten Flächen: die auf der Seite gefundene Hintergrundfarbe, Weiß oder Schwarz. Im Farbmodus Gemischt ergibt „Hintergrund“ Weiß.</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="664"/>

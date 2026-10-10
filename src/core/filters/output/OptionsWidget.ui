@@ -602,7 +602,7 @@
            <item>
             <widget class="QLabel" name="fillingColorLabel">
              <property name="toolTip">
-              <string>The color of the filled areas: the background color found on the page, white or black.</string>
+              <string>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</string>
              </property>
              <property name="text">
               <string>Color:</string>
@@ -612,7 +612,7 @@
            <item>
             <widget class="QComboBox" name="fillingColorBox">
              <property name="toolTip">
-              <string>The color of the filled areas: the background color found on the page, white or black.</string>
+              <string>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</string>
              </property>
             </widget>
            </item>

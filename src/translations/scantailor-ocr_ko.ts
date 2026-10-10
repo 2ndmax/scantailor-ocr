@@ -760,7 +760,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2163"/>
         <location filename="../app/DefaultParamsDialog.ui" line="2173"/>
-        <source>The color of the filled areas: the background color found on the page, white or black.</source>
+        <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4174,7 +4174,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="605"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="615"/>
-        <source>The color of the filled areas: the background color found on the page, white or black.</source>
+        <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

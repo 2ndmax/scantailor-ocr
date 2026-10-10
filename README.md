@@ -320,6 +320,9 @@ from working:
   processed in the Output step. A page with dewarping "Auto" switches to "Manual" when its
   resolution changes, so it keeps the curves found; without curves found yet, "Manual" meant no
   dewarping at all. Such pages now stay on "Auto". The tooltip of the resolution says so.
+* **Fixed: the filling color "Black" was ignored with dewarping**; the filled areas got the
+  background color (color mode) or white (mixed mode). Dewarped pages now use the same filling
+  colors as the others. The tooltip says that "Background" gives white in mixed mode.
 * *Output*: the **output resolution** (a list with 300, 400, 600 and 1200 DPI; other values can
   be typed in) and the **dewarping** mode with "Post deskew" are set in the panels and apply to
   the current page at once, like all other settings. "Change ..." became **Apply to ...**. The
