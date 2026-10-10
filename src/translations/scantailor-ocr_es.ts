@@ -2001,8 +2001,8 @@ Para determinarlo, ejecute el proceso por lotes en «Seleccionar contenido» o �
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="46"/>
-        <source>Out of Memory Situation in Scan Tailor</source>
-        <translation>Situación de memoria agotada en Scan Tailor</translation>
+        <source>Out of Memory Situation in ScanTailor OCR</source>
+        <translation>Situación de memoria agotada en ScanTailor OCR</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="79"/>
@@ -2016,8 +2016,8 @@ Para determinarlo, ejecute el proceso por lotes en «Seleccionar contenido» o �
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="141"/>
-        <source>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
-        <translation>A veces, las imágenes originales pueden tener un valor PPP incorrecto embebido. Scan Tailor intenta detectarlas, pero no siempre es fácil. Puede que deba marcar «Corregir los PPP incluso si parecen normales» al crear un proyecto y mirar en la pestaña «Todas las páginas» del diálogo &quot;Corregir PPP», que también es accesible desde el menú Herramientas.</translation>
+        <source>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPIs, even if they look OK&quot; when creating a project and look into &quot;All Pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
+        <translation>A veces, las imágenes originales pueden tener un valor PPP incorrecto embebido. ScanTailor OCR intenta detectarlas, pero no siempre es fácil. Puede que deba marcar «Corregir los PPP incluso si parecen normales» al crear un proyecto y mirar en la pestaña «Todas las páginas» del diálogo &quot;Corregir PPP», que también es accesible desde el menú Herramientas.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="161"/>
@@ -2037,8 +2037,8 @@ Para determinarlo, ejecute el proceso por lotes en «Seleccionar contenido» o �
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="251"/>
-        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of Scan Tailor.</source>
-        <translation>Si su hardware y sistema operativo son de 64-bits, considere cambiar a la versión de 64-bits de Scan Tailor.</translation>
+        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of ScanTailor OCR.</source>
+        <translation>Si su hardware y sistema operativo son de 64-bits, considere cambiar a la versión de 64-bits de ScanTailor OCR.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="271"/>
@@ -2057,22 +2057,22 @@ Para determinarlo, ejecute el proceso por lotes en «Seleccionar contenido» o �
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="361"/>
-        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit Scan Tailor.</source>
+        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit ScanTailor OCR.</source>
         <translation>Sorprendentemente, aumentar la RAM no es de ayuda en este caso. La falta de RAM se compensa con el mecanismo de intercambio a disco, que enlencete las cosas, pero mantiene los programas en funcionamiento. Un error de memoria agotada significa que se ha quedado sin espacio de direcciones de memoria, que no tiene nada que ver con la cantidad de RAM que tenga.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="397"/>
-        <source>Save Project</source>
+        <source>Save project</source>
         <translation>Guardar proyecto</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="420"/>
-        <source>Save Project As ...</source>
+        <source>Save project as ...</source>
         <translation>Guardar proyecto como...</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="440"/>
-        <source>Don&apos;t Save</source>
+        <source>Don&apos;t save</source>
         <translation>No guardar</translation>
     </message>
     <message>
@@ -2082,8 +2082,8 @@ Para determinarlo, ejecute el proceso por lotes en «Seleccionar contenido» o �
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="489"/>
-        <source>Please note that while Scan Tailor tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
-        <translation>Tenga en cuenta que aunque Scan Tailor intenta capturar las situaciones de memoria agotada y darle la oportunidad de guardar su proyecto, no siempre es posible. Esta vez tuvo éxito, pero la siguiente puede fallar.</translation>
+        <source>Please note that while ScanTailor OCR tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
+        <translation>Tenga en cuenta que aunque ScanTailor OCR intenta capturar las situaciones de memoria agotada y darle la oportunidad de guardar su proyecto, no siempre es posible. Esta vez tuvo éxito, pero la siguiente puede fallar.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>

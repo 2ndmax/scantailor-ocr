@@ -2006,7 +2006,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="46"/>
-        <source>Out of Memory Situation in Scan Tailor</source>
+        <source>Out of Memory Situation in ScanTailor OCR</source>
         <translation>Недостаточно памяти для продолжения работы</translation>
     </message>
     <message>
@@ -2021,8 +2021,8 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="141"/>
-        <source>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
-        <translation>Иногда неправильные DPI прописаны прямо в исходных изображениях. Scan Tailor пытается обнаруживать такие случаи, но это не всегда ему удается. Возможно вам стоило поставить галочку &quot;Править DPI, даже если они выглядят нормальными&quot; при создании проекта, и проверить файлы во вкладке &quot;Все страницы&quot; диалога исправления DPI. После создания проекта, этот диалог доступен из меню &quot;Инструменты&quot;.</translation>
+        <source>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPIs, even if they look OK&quot; when creating a project and look into &quot;All Pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
+        <translation>Иногда неправильные DPI прописаны прямо в исходных изображениях. ScanTailor OCR пытается обнаруживать такие случаи, но это не всегда ему удается. Возможно вам стоило поставить галочку &quot;Править DPI, даже если они выглядят нормальными&quot; при создании проекта, и проверить файлы во вкладке &quot;Все страницы&quot; диалога исправления DPI. После создания проекта, этот диалог доступен из меню &quot;Инструменты&quot;.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="161"/>
@@ -2043,8 +2043,8 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="251"/>
-        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of Scan Tailor.</source>
-        <translation>Если ваше железо и операционная система 64х-битные, вам стоит перейти на 64х-битную версию Scan Tailor.</translation>
+        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of ScanTailor OCR.</source>
+        <translation>Если ваше железо и операционная система 64х-битные, вам стоит перейти на 64х-битную версию ScanTailor OCR.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="271"/>
@@ -2063,22 +2063,22 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="361"/>
-        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit Scan Tailor.</source>
-        <translation>Удивительно, но покупка дополнительной памяти не решит данную проблему. Нехватка памяти компенсируется механизмом подкачки, который вызывает &quot;тормоза&quot;, но все-же позволяет программам продолжать работать. В данном случае произошла нехватка не просто памяти, а адресного пространства памяти, которое не имеет ничего общего с реальным объемом памяти, установленном на компьютере. Единственный способ увеличить адресное пространство - переход на 64х-битное железо, 64х-битную операционную систему и 64х-битный Scan Tailor.</translation>
+        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit ScanTailor OCR.</source>
+        <translation>Удивительно, но покупка дополнительной памяти не решит данную проблему. Нехватка памяти компенсируется механизмом подкачки, который вызывает &quot;тормоза&quot;, но все-же позволяет программам продолжать работать. В данном случае произошла нехватка не просто памяти, а адресного пространства памяти, которое не имеет ничего общего с реальным объемом памяти, установленном на компьютере. Единственный способ увеличить адресное пространство - переход на 64х-битное железо, 64х-битную операционную систему и 64х-битный ScanTailor OCR.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="397"/>
-        <source>Save Project</source>
+        <source>Save project</source>
         <translation>Сохранить проект</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="420"/>
-        <source>Save Project As ...</source>
+        <source>Save project as ...</source>
         <translation>Сохранить проект как ...</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="440"/>
-        <source>Don&apos;t Save</source>
+        <source>Don&apos;t save</source>
         <translation>Не сохранять</translation>
     </message>
     <message>
@@ -2088,8 +2088,8 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="489"/>
-        <source>Please note that while Scan Tailor tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
-        <translation>Обратите внимание на то, что хотя Scan Tailor и пытается обработать ситуации нехватки памяти, чтобы дать вам возможность сохранить проект, это не всегда бывает возможно. В этот раз все получилось, но в следующий раз программа может просто &quot;упасть&quot;.</translation>
+        <source>Please note that while ScanTailor OCR tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
+        <translation>Обратите внимание на то, что хотя ScanTailor OCR и пытается обработать ситуации нехватки памяти, чтобы дать вам возможность сохранить проект, это не всегда бывает возможно. В этот раз все получилось, но в следующий раз программа может просто &quot;упасть&quot;.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>

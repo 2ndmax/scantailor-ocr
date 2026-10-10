@@ -1995,8 +1995,8 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="46"/>
-        <source>Out of Memory Situation in Scan Tailor</source>
-        <translation>Scan Tailor에서 메모리 부족 현상이 발생했습니다.</translation>
+        <source>Out of Memory Situation in ScanTailor OCR</source>
+        <translation>ScanTailor OCR에서 메모리 부족 현상이 발생했습니다.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="79"/>
@@ -2010,8 +2010,8 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="141"/>
-        <source>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
-        <translation>때때로 원본 이미지가 잘못된 DPI가 포함되어 있을수도 있습니다. Scan Tailor가 이를 감지할려 하지만, 쉬운 일이 아닙니다. 프로젝트를 새로 시작할 때 DPI가 정상적인 것 처럼 보여도 &quot;도구 -&gt; DPI 수정&quot;을 이용해 확인해봐야 합니다.</translation>
+        <source>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPIs, even if they look OK&quot; when creating a project and look into &quot;All Pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
+        <translation>때때로 원본 이미지가 잘못된 DPI가 포함되어 있을수도 있습니다. ScanTailor OCR가 이를 감지할려 하지만, 쉬운 일이 아닙니다. 프로젝트를 새로 시작할 때 DPI가 정상적인 것 처럼 보여도 &quot;도구 -&gt; DPI 수정&quot;을 이용해 확인해봐야 합니다.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="161"/>
@@ -2031,8 +2031,8 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="251"/>
-        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of Scan Tailor.</source>
-        <translation>만약 64비트 컴퓨터를 사용중이시라면, Scan Tailor의 64비트 버전으로 교체해 사용해주세요.</translation>
+        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of ScanTailor OCR.</source>
+        <translation>만약 64비트 컴퓨터를 사용중이시라면, ScanTailor OCR의 64비트 버전으로 교체해 사용해주세요.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="271"/>
@@ -2051,22 +2051,22 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="361"/>
-        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit Scan Tailor.</source>
-        <translation>놀랍게도, RAM을 업그레이드 하는게 도움이 안 될 수 있습니다. RAM부족 현상은 스왑 메커니즘에 의해 보완되므로 속도가 굉장히 느려지지만 프로그램은 계속 실행이 가능합니다. 이는 실제 RAM 용량과는 관련이 없습니다. 메모리 주소 공간을 늘리는 유일한 방법은 64비트 OS와 64비트 Scan Tailor를 사용하는 방법 뿐입니다.</translation>
+        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit ScanTailor OCR.</source>
+        <translation>놀랍게도, RAM을 업그레이드 하는게 도움이 안 될 수 있습니다. RAM부족 현상은 스왑 메커니즘에 의해 보완되므로 속도가 굉장히 느려지지만 프로그램은 계속 실행이 가능합니다. 이는 실제 RAM 용량과는 관련이 없습니다. 메모리 주소 공간을 늘리는 유일한 방법은 64비트 OS와 64비트 ScanTailor OCR를 사용하는 방법 뿐입니다.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="397"/>
-        <source>Save Project</source>
+        <source>Save project</source>
         <translation>프로젝트 저장</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="420"/>
-        <source>Save Project As ...</source>
+        <source>Save project as ...</source>
         <translation>프로젝트 다른 이름으로 저장</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="440"/>
-        <source>Don&apos;t Save</source>
+        <source>Don&apos;t save</source>
         <translation>저장하지 않기</translation>
     </message>
     <message>
@@ -2076,8 +2076,8 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="489"/>
-        <source>Please note that while Scan Tailor tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
-        <translation>Scan Tailor는 항상 메모리 부족 현상을 탐지하고 튕기기 직전 프로젝트를 저장할 기회를 줄려 노력하지만, 항상 가능한 것은 아닙니다. 운 좋게 이번에는 저장했지만 다음은 아닐 수도 있습니다.</translation>
+        <source>Please note that while ScanTailor OCR tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
+        <translation>ScanTailor OCR는 항상 메모리 부족 현상을 탐지하고 튕기기 직전 프로젝트를 저장할 기회를 줄려 노력하지만, 항상 가능한 것은 아닙니다. 운 좋게 이번에는 저장했지만 다음은 아닐 수도 있습니다.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>

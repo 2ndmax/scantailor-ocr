@@ -2001,12 +2001,12 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="14"/>
         <source>Out of Memory</source>
-        <translation>Nicht genügend Speicherplatz</translation>
+        <translation>Nicht genügend Arbeitsspeicher</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="46"/>
-        <source>Out of Memory Situation in Scan Tailor</source>
-        <translation>Speicherplatzmangel in Scan Tailor</translation>
+        <source>Out of Memory Situation in ScanTailor OCR</source>
+        <translation>Arbeitsspeicher erschöpft in ScanTailor OCR</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="79"/>
@@ -2020,8 +2020,14 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="141"/>
-        <source>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
-        <translation>Manchmal sind in Ihren Quellbildern falsche DPI-Werte eingebettet. Scan Tailor versucht, diese zu erkennen, aber es ist nicht immer einfach, sie zu identifizieren. Möglicherweise müssen Sie beim Erstellen eines Projekts &quot;DPI-Werte korrigieren, auch wenn sie in Ordnung scheinen&quot; ankreuzen; Schauen Sie ebenfalls im Tab &quot;Alle Seiten&quot; im Dialog &quot;DPI aller Bilder korrigieren&quot; nach, welcher über das Menü Werkzeuge zugänglich ist.</translation>
+        <source>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPIs, even if they look OK&quot; when creating a project and look into &quot;All Pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
+        <translation variants="yes">
+            <lengthvariant>Manchmal sind in Ihren Quellbildern falsche DPI-Werte eingebettet. ScanTailor OCR versucht, diese zu erkennen, aber das gelingt nicht immer. MÃ¶glicherweise mÃ¼ssen Sie beim Erstellen eines Projekts âDPI-Werte korrigieren, auch wenn sie in Ordnung scheinenâ</lengthvariant>
+            <lengthvariant> anhaken und im Fenster âDPI aller Bilder korrigierenâ</lengthvariant>
+            <lengthvariant> (MenÃ¼ âWerkzeugeâ</lengthvariant>
+            <lengthvariant>) den Reiter âAlle Seitenâ</lengthvariant>
+            <lengthvariant> prÃ¼fen.</lengthvariant>
+        </translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="161"/>
@@ -2041,8 +2047,8 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="251"/>
-        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of Scan Tailor.</source>
-        <translation>Wenn Ihre Hardware und Ihr Betriebssystem 64-Bit-fähig sind, sollten Sie den Wechsel zu einer 64-Bit-Version von Scan Tailor in Betracht ziehen.</translation>
+        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of ScanTailor OCR.</source>
+        <translation>Wenn Ihre Hardware und Ihr Betriebssystem 64-Bit-fähig sind, sollten Sie den Wechsel zu einer 64-Bit-Version von ScanTailor OCR in Betracht ziehen.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="271"/>
@@ -2061,22 +2067,22 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="361"/>
-        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit Scan Tailor.</source>
-        <translation>Überraschenderweise hilft eine Aufrüstung des Arbeitsspeichers hier nicht weiter. Der fehlende Arbeitsspeicher wird durch den Swap-Mechanismus kompensiert, der die Dinge langsam macht, aber die Programme dennoch ausführen lässt. Wenn der Arbeitsspeicher nicht ausreicht, bedeutet dies, dass der Speicheradressraum erschöpft ist, was nichts mit der Menge des Arbeitsspeichers zu tun hat, den Sie haben. Die einzige Möglichkeit, den Speicheradressraum zu vergrößern, besteht darin, 64-Bit-Hardware, ein 64-Bit-Betriebssystem und 64-Bit-Scan Tailor einzusetzen.</translation>
+        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit ScanTailor OCR.</source>
+        <translation>Überraschenderweise hilft eine Aufrüstung des Arbeitsspeichers hier nicht weiter. Der fehlende Arbeitsspeicher wird durch den Swap-Mechanismus kompensiert, der die Dinge langsam macht, aber die Programme dennoch ausführen lässt. Wenn der Arbeitsspeicher nicht ausreicht, bedeutet dies, dass der Speicheradressraum erschöpft ist, was nichts mit der Menge des Arbeitsspeichers zu tun hat, den Sie haben. Die einzige Möglichkeit, den Speicheradressraum zu vergrößern, besteht darin, 64-Bit-Hardware, ein 64-Bit-Betriebssystem und 64-Bit-ScanTailor OCR einzusetzen.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="397"/>
-        <source>Save Project</source>
+        <source>Save project</source>
         <translation>Projekt speichern</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="420"/>
-        <source>Save Project As ...</source>
+        <source>Save project as ...</source>
         <translation>Projekt speichern unter ...</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="440"/>
-        <source>Don&apos;t Save</source>
+        <source>Don&apos;t save</source>
         <translation>Nicht speichern</translation>
     </message>
     <message>
@@ -2086,8 +2092,8 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="489"/>
-        <source>Please note that while Scan Tailor tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
-        <translation>Bitte beachten Sie, dass Scan Tailor zwar versucht, Situationen, in denen der Speicher voll ist, abzufangen und Ihnen die Möglichkeit zu geben, Ihr Projekt zu speichern, aber das ist nicht immer möglich. Dieses Mal hat es geklappt, aber beim nächsten Mal könnte es einfach abstürzen.</translation>
+        <source>Please note that while ScanTailor OCR tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
+        <translation>Bitte beachten Sie, dass ScanTailor OCR zwar versucht, Situationen, in denen der Speicher voll ist, abzufangen und Ihnen die Möglichkeit zu geben, Ihr Projekt zu speichern, aber das ist nicht immer möglich. Dieses Mal hat es geklappt, aber beim nächsten Mal könnte es einfach abstürzen.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>

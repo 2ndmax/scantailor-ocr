@@ -43,7 +43,7 @@
 font-weight: bold;</string>
          </property>
          <property name="text">
-          <string>Out of Memory Situation in Scan Tailor</string>
+          <string>Out of Memory Situation in ScanTailor OCR</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -138,7 +138,7 @@ font-weight: bold;</string>
                <item>
                 <widget class="QLabel" name="label_6">
                  <property name="text">
-                  <string>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it's not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</string>
+                  <string>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it's not always easy to tell. You may need to check &quot;Fix DPIs, even if they look OK&quot; when creating a project and look into &quot;All Pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
@@ -248,7 +248,7 @@ font-weight: bold;</string>
                <item>
                 <widget class="QLabel" name="only_32bit_1">
                  <property name="text">
-                  <string>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of Scan Tailor.</string>
+                  <string>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of ScanTailor OCR.</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
@@ -358,7 +358,7 @@ font-weight: bold;</string>
                <item>
                 <widget class="QLabel" name="label_5">
                  <property name="text">
-                  <string>Surprisingly, upgrading your RAM won't help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit Scan Tailor.</string>
+                  <string>Surprisingly, upgrading your RAM won't help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit ScanTailor OCR.</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
@@ -394,7 +394,7 @@ font-weight: bold;</string>
          <item>
           <widget class="QPushButton" name="saveProjectBtn">
            <property name="text">
-            <string>Save Project</string>
+            <string>Save project</string>
            </property>
            <property name="default">
             <bool>true</bool>
@@ -417,7 +417,7 @@ font-weight: bold;</string>
          <item>
           <widget class="QPushButton" name="saveProjectAsBtn">
            <property name="text">
-            <string>Save Project As ...</string>
+            <string>Save project as ...</string>
            </property>
           </widget>
          </item>
@@ -437,7 +437,7 @@ font-weight: bold;</string>
          <item>
           <widget class="QPushButton" name="dontSaveBtn">
            <property name="text">
-            <string>Don't Save</string>
+            <string>Don't save</string>
            </property>
           </widget>
          </item>
@@ -486,7 +486,7 @@ font-weight: bold;</string>
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Please note that while Scan Tailor tries to catch out-of-memory situations and give you the opportunity to save your project, it's not always possible. This time it succeeded, but the next time it might just crash.</string>
+          <string>Please note that while ScanTailor OCR tries to catch out-of-memory situations and give you the opportunity to save your project, it's not always possible. This time it succeeded, but the next time it might just crash.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
