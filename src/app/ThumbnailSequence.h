@@ -142,6 +142,15 @@ class ThumbnailSequence : public QObject {
   bool setSelection(const PageId& pageId, SelectionAction selectionAction = FORCE_RESET_SELECTION);
 
   /**
+   * \brief Selects exactly the given pages.
+   *
+   * The current selection leader stays if it is among the pages, otherwise
+   * \p leader becomes the selection leader.  Pages not in the list are ignored.
+   * The newSelectionLeader() signal is emitted as for a selection by the user.
+   */
+  void selectPages(const std::set<PageId>& pages, const PageId& leader);
+
+  /**
    * \brief Returns the current selection leader.
    *
    * A null PageInfo is returned if no items are currently selected.

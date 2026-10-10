@@ -111,6 +111,8 @@ class ThumbnailSequence::Impl {
 
   bool setSelection(const PageId& pageId, SelectionAction selectionAction);
 
+  void selectPages(const std::set<PageId>& pages, const PageId& leader);
+
   PageInfo selectionLeader() const;
 
   PageInfo prevPage(const PageId& referencePage) const;
@@ -402,6 +404,10 @@ void ThumbnailSequence::invalidateAllThumbnails() {
 
 bool ThumbnailSequence::setSelection(const PageId& pageId, const SelectionAction selectionAction) {
   return m_impl->setSelection(pageId, selectionAction);
+}
+
+void ThumbnailSequence::selectPages(const std::set<PageId>& pages, const PageId& leader) {
+  m_impl->selectPages(pages, leader);
 }
 
 PageInfo ThumbnailSequence::selectionLeader() const {
@@ -875,6 +881,58 @@ bool ThumbnailSequence::Impl::setSelection(const PageId& pageId, const Selection
   m_owner.emitNewSelectionLeader(idIt->pageInfo, idIt->composite, flags);
   return true;
 }  // ThumbnailSequence::Impl::setSelection
+
+void ThumbnailSequence::Impl::selectPages(const std::set<PageId>& pages, const PageId& leader) {
+  const Item* newLeader = m_selectionLeader;
+  if (!newLeader || (pages.count(newLeader->pageInfo.id()) == 0)) {
+    const ItemsById::iterator idIt(m_itemsById.find(leader));
+    if ((idIt == m_itemsById.end()) || (pages.count(leader) == 0)) {
+      return;
+    }
+    newLeader = &*idIt;
+  }
+
+  // Unselect the pages that aren't wanted any more.
+  SelectedThenUnselected::iterator it(m_selectedThenUnselected.begin());
+  while (it != m_selectedThenUnselected.end()) {
+    const Item& item = *it;
+    if (!item.isSelected()) {
+      break;
+    }
+    ++it;
+    if (pages.count(item.pageInfo.id()) == 0) {
+      item.setSelected(false);
+      moveToUnselected(&item);
+    }
+  }
+
+  for (const PageId& pageId : pages) {
+    const ItemsById::iterator idIt(m_itemsById.find(pageId));
+    if ((idIt != m_itemsById.end()) && !idIt->isSelected()) {
+      idIt->setSelected(true);
+      moveToSelected(&*idIt);
+    }
+  }
+
+  SelectionFlags flags = SELECTED_BY_USER;
+  if (newLeader == m_selectionLeader) {
+    flags |= REDUNDANT_SELECTION;
+  } else {
+    if (m_preReorderNeighbours && !(m_preReorderNeighbours->page == newLeader->pageInfo.id())) {
+      m_preReorderNeighbours.reset();
+    }
+    if (m_selectionLeader && m_selectionLeader->isSelected()) {
+      m_selectionLeader->setSelectionLeader(false);
+    }
+    m_selectionLeader = newLeader;
+    m_selectionLeader->setSelectionLeader(true);
+  }
+  if (!multipleItemsSelected()) {
+    flags |= SELECTION_CLEARED;
+  }
+
+  m_owner.emitNewSelectionLeader(m_selectionLeader->pageInfo, m_selectionLeader->composite, flags);
+}  // ThumbnailSequence::Impl::selectPages
 
 PageInfo ThumbnailSequence::Impl::selectionLeader() const {
   if (m_selectionLeader) {

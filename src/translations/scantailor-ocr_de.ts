@@ -1598,7 +1598,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1493"/>
-        <location filename="../app/MainWindow.cpp" line="2859"/>
+        <location filename="../app/MainWindow.cpp" line="2893"/>
         <source>Go to Page</source>
         <translation>Gehe zu Seite</translation>
     </message>
@@ -1648,135 +1648,175 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Aus Projekt entfernen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1160"/>
+        <location filename="../app/MainWindow.cpp" line="1194"/>
         <source>Insert Here ...</source>
         <translation>Hier einfügen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1991"/>
+        <location filename="../app/MainWindow.cpp" line="2025"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1631"/>
-        <location filename="../app/MainWindow.cpp" line="1692"/>
+        <location filename="../app/MainWindow.cpp" line="1665"/>
+        <location filename="../app/MainWindow.cpp" line="1726"/>
         <source>Scan Tailor Projects</source>
         <translation>Scan Tailor Projekte</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1691"/>
+        <location filename="../app/MainWindow.cpp" line="1140"/>
+        <source>Select</source>
+        <translation>Auswählen</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1141"/>
+        <source>All Pages</source>
+        <translation>Alle Seiten</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1142"/>
+        <source>This Page and the Following Ones</source>
+        <translation>Diese und darauffolgende Seiten</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1144"/>
+        <source>Every Other Page (Odd Pages)</source>
+        <translation>Jede zweite Seite (ungerade Seiten)</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1144"/>
+        <source>Every Other Page (Even Pages)</source>
+        <translation>Jede zweite Seite (gerade Seiten)</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1145"/>
+        <source>This Page and Every Other Following Page</source>
+        <translation>Diese Seite und darauffolgend jede zweite Seite</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1146"/>
+        <source>Every Other Selected Page</source>
+        <translation>Jede zweite ausgewählte Seite</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1149"/>
+        <source>This Page Only</source>
+        <translation>Nur diese Seite</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1725"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1704"/>
-        <location filename="../app/MainWindow.cpp" line="1710"/>
-        <location filename="../app/MainWindow.cpp" line="2045"/>
-        <location filename="../app/MainWindow.cpp" line="2069"/>
+        <location filename="../app/MainWindow.cpp" line="1738"/>
+        <location filename="../app/MainWindow.cpp" line="1744"/>
+        <location filename="../app/MainWindow.cpp" line="2079"/>
+        <location filename="../app/MainWindow.cpp" line="2103"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1704"/>
+        <location filename="../app/MainWindow.cpp" line="1738"/>
         <source>Unable to open the project file.</source>
         <translation>Die Projektdatei kann nicht geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1710"/>
+        <location filename="../app/MainWindow.cpp" line="1744"/>
         <source>The project file is broken.</source>
         <translation>Die Projektdatei ist beschädigt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1792"/>
+        <location filename="../app/MainWindow.cpp" line="1826"/>
         <source>version </source>
         <translation>Version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1937"/>
+        <location filename="../app/MainWindow.cpp" line="1971"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
 Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt auswählen&quot; oder &quot;Ränder&quot; aus.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1971"/>
+        <location filename="../app/MainWindow.cpp" line="2005"/>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1976"/>
+        <location filename="../app/MainWindow.cpp" line="2010"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation>%2 - ScanTailor OCR [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1991"/>
+        <location filename="../app/MainWindow.cpp" line="2025"/>
         <source>A PDF is being created.  Do you want to cancel it?</source>
         <translation>Ein PDF wird gerade erstellt.  Möchten Sie das abbrechen?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2045"/>
-        <location filename="../app/MainWindow.cpp" line="2069"/>
+        <location filename="../app/MainWindow.cpp" line="2079"/>
+        <location filename="../app/MainWindow.cpp" line="2103"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2124"/>
+        <location filename="../app/MainWindow.cpp" line="2158"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2127"/>
+        <location filename="../app/MainWindow.cpp" line="2161"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2178"/>
+        <location filename="../app/MainWindow.cpp" line="2212"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2228"/>
+        <location filename="../app/MainWindow.cpp" line="2262"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2388"/>
-        <location filename="../app/MainWindow.cpp" line="2430"/>
+        <location filename="../app/MainWindow.cpp" line="2422"/>
+        <location filename="../app/MainWindow.cpp" line="2464"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2382"/>
+        <location filename="../app/MainWindow.cpp" line="2416"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2407"/>
+        <location filename="../app/MainWindow.cpp" line="2441"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2431"/>
+        <location filename="../app/MainWindow.cpp" line="2465"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2487"/>
+        <location filename="../app/MainWindow.cpp" line="2521"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2545"/>
+        <location filename="../app/MainWindow.cpp" line="2579"/>
         <source>Only pages next to each other can be replaced together.  The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen.  Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2617"/>
+        <location filename="../app/MainWindow.cpp" line="2651"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2859"/>
+        <location filename="../app/MainWindow.cpp" line="2893"/>
         <source>Enter the page number:</source>
         <translation>Zielseite:</translation>
     </message>
@@ -2709,17 +2749,17 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <translation>in</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="794"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="802"/>
         <source>Canceling Multi-Page Selection</source>
         <translation>Aufhebung der Mehrseitenauswahl</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="795"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="803"/>
         <source>%1 pages selection are going to be canceled. Continue?</source>
         <translation>Die Auswahl von %1 Seiten wird abgebrochen. Fortfahren?</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="799"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="807"/>
         <source>Don&apos;t show this message again.</source>
         <translation>Diese Meldung nicht mehr anzeigen.</translation>
     </message>
@@ -3235,7 +3275,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="1481"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="1541"/>
         <source>%1 (page %2)</source>
         <translation>%1 (Seite %2)</translation>
     </message>

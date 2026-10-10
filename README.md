@@ -462,6 +462,12 @@ from working:
 
 * Selected thumbnails have a blue border (2 pixels, 3 pixels for the current page), so the
   selection stands out from the grey background in the light and dark colour schemes.
+* The context menu of a thumbnail has a submenu "Select" to select pages by pattern, counted
+  from the page clicked: all pages, this page and the following ones, every other page (odd or
+  even pages, as named in the menu), this page and every other following page, every other
+  selected page, and this page only. The selection can then be adjusted with Ctrl and Shift.
+* When several pages are selected, the "Apply to ..." windows open with "Selected pages"
+  chosen.
 
 ### Start page
 

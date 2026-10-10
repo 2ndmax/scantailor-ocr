@@ -1129,6 +1129,28 @@ void MainWindow::pageContextMenuRequested(const PageInfo& pageInfo_, const QPoin
 
   QAction* remove = menu.addAction(iconProvider.getIcon("user-trash"), tr("Remove from Project ..."));
 
+  // Selecting by pattern, relative to the page clicked.  The pages can then be adjusted with
+  // Ctrl and Shift, and "Apply to ..." offers them as the selected pages.
+  const PageId pageId = pageInfo.id();
+  const PageSequence pages = allPages();
+  const std::set<PageId> selection = m_thumbSequence->selectedItems();
+  const bool pageSelected = selection.count(pageId) != 0;
+  const bool oddPage = (pages.pageNo(pageId) % 2) == 0;
+
+  auto* selectMenu = new QMenu(tr("Select"), &menu);
+  QAction* selectAll = selectMenu->addAction(tr("All Pages"));
+  QAction* selectFollowers = selectMenu->addAction(tr("This Page and the Following Ones"));
+  QAction* selectEveryOther
+      = selectMenu->addAction(oddPage ? tr("Every Other Page (Odd Pages)") : tr("Every Other Page (Even Pages)"));
+  QAction* selectThisEveryOther = selectMenu->addAction(tr("This Page and Every Other Following Page"));
+  QAction* selectEveryOtherSelected = selectMenu->addAction(tr("Every Other Selected Page"));
+  selectEveryOtherSelected->setEnabled(pageSelected && (selection.size() > 1));
+  selectMenu->addSeparator();
+  QAction* selectThisOnly = selectMenu->addAction(tr("This Page Only"));
+  selectThisOnly->setEnabled(selection.size() > 1);
+  menu.insertMenu(insBefore, selectMenu);
+  menu.insertSeparator(insBefore);
+
   QAction* action = menu.exec(screenPos);
   if (action == insBefore) {
     showInsertFileDialog(BEFORE, pageInfo.imageId());
@@ -1136,6 +1158,18 @@ void MainWindow::pageContextMenuRequested(const PageInfo& pageInfo_, const QPoin
     showInsertFileDialog(AFTER, pageInfo.imageId());
   } else if (action == remove) {
     showRemovePagesDialog(m_thumbSequence->selectedItems());
+  } else if (action == selectAll) {
+    m_thumbSequence->selectPages(pages.selectAll(), pageId);
+  } else if (action == selectFollowers) {
+    m_thumbSequence->selectPages(pages.selectPagePlusFollowers(pageId), pageId);
+  } else if (action == selectEveryOther) {
+    m_thumbSequence->selectPages(pages.selectEveryOther(pageId), pageId);
+  } else if (action == selectThisEveryOther) {
+    m_thumbSequence->selectPages(pages.selectThisPageAndFollowingEveryOther(pageId), pageId);
+  } else if (action == selectEveryOtherSelected) {
+    m_thumbSequence->selectPages(pages.selectEveryOtherInSubsetFromPage(pageId, selection), pageId);
+  } else if (action == selectThisOnly) {
+    m_thumbSequence->selectPages({pageId}, pageId);
   }
 }  // MainWindow::pageContextMenuRequested
 

@@ -26,7 +26,10 @@ ApplyMarginsDialog::ApplyMarginsDialog(QWidget* parent,
   m_scopeGroup->addButton(thisEveryOtherRB);
   m_scopeGroup->addButton(everyOtherSelectedRB);
 
-  if (m_selectedPages.size() <= 1) {
+  // Pages selected in the thumbnail list are most likely the ones to apply to.
+  if (m_selectedPages.size() > 1) {
+    selectedPagesRB->setChecked(true);
+  } else {
     selectedPagesRB->setEnabled(false);
     selectedPagesHint->setEnabled(false);
     everyOtherSelectedRB->setEnabled(false);
