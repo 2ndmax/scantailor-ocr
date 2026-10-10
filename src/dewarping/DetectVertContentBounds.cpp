@@ -34,8 +34,8 @@ struct Segment {
   Vec2d unitVec;
   int vertDist;
 
-  bool distToVertLine(int vertLineX) const {
-    return (bool) std::min<int>(std::abs(line.p1().x() - vertLineX), std::abs(line.p2().x() - vertLineX));
+  int distToVertLine(int vertLineX) const {
+    return std::min<int>(std::abs(line.p1().x() - vertLineX), std::abs(line.p2().x() - vertLineX));
   }
 
   Segment(const QLine& line, const Vec2d& vec, int dist) : line(line), unitVec(vec), vertDist(dist) {}
