@@ -61,11 +61,13 @@ PageScopeGroupBox::PageScopeGroupBox(QWidget* parent)
   layout->setColumnStretch(0, 1);
   m_buttons[THIS_PAGE]->setChecked(true);
 
-  connect(m_group, &QButtonGroup::buttonToggled, this, [this](QAbstractButton*, const bool checked) {
-    if (checked) {
-      emit scopeChanged();
-    }
-  });
+  // Qt 5 also has buttonToggled(int, bool), so the overload is named.
+  connect(m_group, qOverload<QAbstractButton*, bool>(&QButtonGroup::buttonToggled), this,
+          [this](QAbstractButton*, const bool checked) {
+            if (checked) {
+              emit scopeChanged();
+            }
+          });
 }
 
 void PageScopeGroupBox::setPages(const PageId& curPage, const PageSelectionAccessor& pageSelectionAccessor) {
