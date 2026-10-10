@@ -1905,22 +1905,29 @@ QToolButton:pressed {
                        <item>
                         <widget class="QCheckBox" name="equalizeIlluminationCB">
                          <property name="toolTip">
-                          <string>Normalize illumination before binarization.</string>
+                          <string>Evens out uneven lighting, such as a shadow near the spine.  In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</string>
                          </property>
                          <property name="text">
-                          <string>Equalize illumination (B&amp;&amp;W)</string>
+                          <string>Equalize illumination</string>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="equalizeIlluminationColorCB">
-                         <property name="toolTip">
-                          <string>Normalize illumination in color mode / in picture zones in mixed mode.</string>
+                        <layout class="QHBoxLayout" name="equalizeIlluminationColorLayout">
+                         <property name="leftMargin">
+                          <number>15</number>
                          </property>
-                         <property name="text">
-                          <string>Equalize illumination (Color)</string>
-                         </property>
-                        </widget>
+                         <item>
+                          <widget class="QCheckBox" name="equalizeIlluminationColorCB">
+                           <property name="toolTip">
+                            <string>Mixed mode only: also evens out the lighting in the picture zones.  Needs &quot;Equalize illumination&quot;.</string>
+                           </property>
+                           <property name="text">
+                            <string>Also in picture zones</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </item>
                        <item>
                         <widget class="QCheckBox" name="grayscaleOutputCB">

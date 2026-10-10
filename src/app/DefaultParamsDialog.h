@@ -65,6 +65,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void equalizeIlluminationToggled(bool checked);
 
+  void equalizeIlluminationColorToggled(bool checked);
+
   void splittingToggled(bool checked);
 
   void bwForegroundToggled(bool checked);
@@ -154,6 +156,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void updateBinarizationPageSizes();
 
+  void updateEqualizeIlluminationDisplay();
+
   QIcon m_chainIcon;
   QIcon m_brokenChainIcon;
   bool m_leftRightLinkEnabled;
@@ -169,6 +173,10 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   double m_wienerCoefWhenOn = 0.1;
   bool m_checkingDpi = false;
   bool m_fittedToContents = false;
+  // The two stored "Equalize illumination" settings; which check box shows which depends on the
+  // color mode.
+  bool m_bwNormalizeIllumination = false;
+  bool m_colorNormalizeIllumination = false;
   int m_customProfileItemIdx;
   Units m_currentUnits;
   std::set<QString> m_reservedProfileNames;

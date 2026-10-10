@@ -304,6 +304,15 @@ from working:
   Operations" as in the Output step. There, the smoothing options follow right below the
   settings of the chosen threshold method, and the window is measured once its tabs are fully
   set up, so the Output tab no longer gets a horizontal scroll bar.
+* *Output*: "Equalize illumination (B&W)" and "Equalize illumination (Color)" are one check box,
+  "Equalize illumination", for the setting the color mode uses, with "Also in picture zones"
+  below it for mixed mode (both settings are stored as before). In the Default Parameters
+  window, "Also in picture zones" now also needs "Equalize illumination", as in the Output step.
+* *Output*: the panel "Processing" is called **Content** and comes right after **Output
+  Resolution**; its check box "Black on white mode" is called "Dark content on a light
+  background". The tooltips say that the page is inverted when it is off and that **Apply to
+  ...** sets the value by hand on the other pages, so the automatic detection no longer changes
+  it there.
 * *Output*: the **output resolution** (a list with 300, 400, 600 and 1200 DPI; other values can
   be typed in) and the **dewarping** mode with "Post deskew" are set in the panels and apply to
   the current page at once, like all other settings. "Change ..." became **Apply to ...**. The

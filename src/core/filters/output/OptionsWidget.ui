@@ -122,6 +122,98 @@
     </widget>
    </item>
    <item>
+    <widget class="CollapsibleGroupBox" name="processingOptionsPanel">
+     <property name="title">
+      <string>Content</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_17">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_24">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_16">
+          <item>
+           <widget class="QCheckBox" name="blackOnWhiteCB">
+            <property name="toolTip">
+             <string>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing.  Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection at the output stage&quot; are turned on in the settings.  A change made here by hand takes precedence over the detection.</string>
+            </property>
+            <property name="text">
+             <string>Dark content on a light background</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_46">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_21">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
+        <item>
+         <spacer name="horizontalSpacer_40">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="applyProcessingOptionsButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies &quot;Dark content on a light background&quot; of this page to other pages.  There it counts as set by hand, so the automatic detection no longer changes it.</string>
+          </property>
+          <property name="text">
+           <string>Apply to ...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_45">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="CollapsibleGroupBox" name="modePanel">
      <property name="title">
       <string>Mode</string>
@@ -222,22 +314,29 @@
            <item>
             <widget class="QCheckBox" name="equalizeIlluminationCB">
              <property name="toolTip">
-              <string>Normalize illumination before binarization.</string>
+              <string>Evens out uneven lighting, such as a shadow near the spine.  In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</string>
              </property>
              <property name="text">
-              <string>Equalize illumination (B&amp;&amp;W)</string>
+              <string>Equalize illumination</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="equalizeIlluminationColorCB">
-             <property name="toolTip">
-              <string>Normalize illumination in color mode / in picture zones in mixed mode.</string>
+            <layout class="QHBoxLayout" name="equalizeIlluminationColorLayout">
+             <property name="leftMargin">
+              <number>15</number>
              </property>
-             <property name="text">
-              <string>Equalize illumination (Color)</string>
-             </property>
-            </widget>
+             <item>
+              <widget class="QCheckBox" name="equalizeIlluminationColorCB">
+               <property name="toolTip">
+                <string>Mixed mode only: also evens out the lighting in the picture zones.  Needs &quot;Equalize illumination&quot;.</string>
+               </property>
+               <property name="text">
+                <string>Also in picture zones</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
             <widget class="QCheckBox" name="grayscaleOutputCB">
@@ -1541,98 +1640,6 @@
         </item>
         <item>
          <spacer name="horizontalSpacer_16">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="CollapsibleGroupBox" name="processingOptionsPanel">
-     <property name="title">
-      <string>Processing</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_17">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_24">
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_16">
-          <item>
-           <widget class="QCheckBox" name="blackOnWhiteCB">
-            <property name="toolTip">
-             <string>On for dark content on a light background, off for light content on a dark background, such as white text on black. Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection at the output stage&quot; are turned on in the settings. A change made here by hand takes precedence over the detection.</string>
-            </property>
-            <property name="text">
-             <string>Black on white mode</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_46">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_21">
-        <property name="topMargin">
-         <number>8</number>
-        </property>
-        <item>
-         <spacer name="horizontalSpacer_40">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="applyProcessingOptionsButton">
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Applies the black on white mode of this page to other pages.</string>
-          </property>
-          <property name="text">
-           <string>Apply to ...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_45">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>

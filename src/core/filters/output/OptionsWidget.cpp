@@ -403,20 +403,29 @@ void OptionsWidget::fillOutsidePageBoxToggled(const bool checked) {
 }
 
 void OptionsWidget::equalizeIlluminationToggled(const bool checked) {
-  BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
-  blackWhiteOptions.setNormalizeIllumination(checked);
+  // One check box for the setting the color mode uses: the color one in color mode, otherwise
+  // the black and white one.
+  if (m_colorParams.colorMode() == COLOR_GRAYSCALE) {
+    ColorCommonOptions colorCommonOptions(m_colorParams.colorCommonOptions());
+    colorCommonOptions.setNormalizeIllumination(checked);
+    m_colorParams.setColorCommonOptions(colorCommonOptions);
+    equalizeIlluminationColorCB->setChecked(checked);
+  } else {
+    BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
+    blackWhiteOptions.setNormalizeIllumination(checked);
+    m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
 
-  if (m_colorParams.colorMode() == MIXED) {
-    if (!checked) {
-      ColorCommonOptions colorCommonOptions(m_colorParams.colorCommonOptions());
-      colorCommonOptions.setNormalizeIllumination(false);
-      equalizeIlluminationColorCB->setChecked(false);
-      m_colorParams.setColorCommonOptions(colorCommonOptions);
+    if (m_colorParams.colorMode() == MIXED) {
+      if (!checked) {
+        ColorCommonOptions colorCommonOptions(m_colorParams.colorCommonOptions());
+        colorCommonOptions.setNormalizeIllumination(false);
+        equalizeIlluminationColorCB->setChecked(false);
+        m_colorParams.setColorCommonOptions(colorCommonOptions);
+      }
+      equalizeIlluminationColorCB->setEnabled(checked);
     }
-    equalizeIlluminationColorCB->setEnabled(checked);
   }
 
-  m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
   emit reloadRequested();
 }
@@ -816,11 +825,12 @@ void OptionsWidget::updateColorsDisplay() {
   fillMarginsCB->setChecked(colorCommonOptions.fillMargins());
   fillOffcutCB->setChecked(colorCommonOptions.fillOffcut());
   fillOutsidePageBoxCB->setChecked(colorCommonOptions.fillOutsidePageBox());
-  equalizeIlluminationCB->setChecked(blackWhiteOptions.normalizeIllumination());
-  equalizeIlluminationCB->setEnabled(colorMode != COLOR_GRAYSCALE);
+  // "Equalize illumination" shows the setting the color mode uses; "Also in picture zones" is the
+  // color setting, used in mixed mode on top of the black and white one.
+  equalizeIlluminationCB->setChecked((colorMode == COLOR_GRAYSCALE) ? colorCommonOptions.normalizeIllumination()
+                                                                    : blackWhiteOptions.normalizeIllumination());
   equalizeIlluminationColorCB->setChecked(colorCommonOptions.normalizeIllumination());
-  equalizeIlluminationColorCB->setEnabled(colorMode == COLOR_GRAYSCALE
-                                          || (colorMode == MIXED && blackWhiteOptions.normalizeIllumination()));
+  equalizeIlluminationColorCB->setEnabled(colorMode == MIXED && blackWhiteOptions.normalizeIllumination());
   grayscaleOutputCB->setChecked(colorCommonOptions.isGrayscaleOutput());
   grayscaleOutputCB->setEnabled(colorMode != BLACK_AND_WHITE);
   savitzkyGolaySmoothingCB->setChecked(blackWhiteOptions.isSavitzkyGolaySmoothingEnabled());
@@ -1253,7 +1263,7 @@ void OptionsWidget::blackOnWhiteToggled(bool value) {
 void OptionsWidget::applyProcessingParamsClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Processing"));
+  dialog->setWindowTitle(tr("Apply Content"));
   connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
           SLOT(applyProcessingParamsConfirmed(const std::set<PageId>&)));
   dialog->show();

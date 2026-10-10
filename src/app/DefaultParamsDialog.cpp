@@ -392,8 +392,8 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   fillMarginsCB->setChecked(colorCommonOptions.fillMargins());
   fillOffcutCB->setChecked(colorCommonOptions.fillOffcut());
   fillOutsidePageBoxCB->setChecked(colorCommonOptions.fillOutsidePageBox());
-  equalizeIlluminationCB->setChecked(blackWhiteOptions.normalizeIllumination());
-  equalizeIlluminationColorCB->setChecked(colorCommonOptions.normalizeIllumination());
+  m_bwNormalizeIllumination = blackWhiteOptions.normalizeIllumination();
+  m_colorNormalizeIllumination = colorCommonOptions.normalizeIllumination();
   grayscaleOutputCB->setChecked(colorCommonOptions.isGrayscaleOutput());
   savitzkyGolaySmoothingCB->setChecked(blackWhiteOptions.isSavitzkyGolaySmoothingEnabled());
   morphologicalSmoothingCB->setChecked(blackWhiteOptions.isMorphologicalSmoothingEnabled());
@@ -470,7 +470,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   colorModeChanged(colorModeSelector->currentIndex());
   thresholdMethodChanged(thresholdMethodBox->currentIndex());
   pictureShapeChanged(pictureShapeSelector->currentIndex());
-  equalizeIlluminationToggled(equalizeIlluminationCB->isChecked());
+  updateEqualizeIlluminationDisplay();
   splittingToggled(splittingCB->isChecked());
   despeckleToggled(despeckleCB->isChecked());
   wienerOptionsWidget->setEnabled(wienerOn);
@@ -501,6 +501,7 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(thresholdMethodBox, SIGNAL(currentIndexChanged(int)), this, SLOT(thresholdMethodChanged(int)));
   CONNECT(pictureShapeSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(pictureShapeChanged(int)));
   CONNECT(equalizeIlluminationCB, SIGNAL(clicked(bool)), this, SLOT(equalizeIlluminationToggled(bool)));
+  CONNECT(equalizeIlluminationColorCB, SIGNAL(clicked(bool)), this, SLOT(equalizeIlluminationColorToggled(bool)));
   CONNECT(splittingCB, SIGNAL(clicked(bool)), this, SLOT(splittingToggled(bool)));
   CONNECT(bwForegroundRB, SIGNAL(clicked(bool)), this, SLOT(bwForegroundToggled(bool)));
   CONNECT(colorForegroundRB, SIGNAL(clicked(bool)), this, SLOT(colorForegroundToggled(bool)));
@@ -645,15 +646,8 @@ void DefaultParamsDialog::colorModeChanged(const int idx) {
   fillingColorLabel->setEnabled(colorMode != BLACK_AND_WHITE);
   fillingColorBox->setEnabled(colorMode != BLACK_AND_WHITE);
 
-  equalizeIlluminationCB->setEnabled(colorMode != COLOR_GRAYSCALE);
-  equalizeIlluminationColorCB->setEnabled(colorMode != BLACK_AND_WHITE);
+  updateEqualizeIlluminationDisplay();
   grayscaleOutputCB->setEnabled(colorMode != BLACK_AND_WHITE);
-  if ((colorMode == MIXED)) {
-    if (equalizeIlluminationColorCB->isChecked()) {
-      equalizeIlluminationColorCB->setChecked(equalizeIlluminationCB->isChecked());
-    }
-    equalizeIlluminationColorCB->setEnabled(equalizeIlluminationCB->isChecked());
-  }
   savitzkyGolaySmoothingCB->setEnabled(colorMode != COLOR_GRAYSCALE);
   morphologicalSmoothingCB->setEnabled(colorMode != COLOR_GRAYSCALE);
 
@@ -697,13 +691,31 @@ void DefaultParamsDialog::pictureShapeChanged(const int idx) {
 }
 
 void DefaultParamsDialog::equalizeIlluminationToggled(const bool checked) {
+  // As in the Output step: the color setting in color mode, otherwise the black and white one.
   const auto colorMode = static_cast<ColorMode>(colorModeSelector->currentData().toInt());
-  if (colorMode == MIXED) {
-    if (equalizeIlluminationColorCB->isChecked()) {
-      equalizeIlluminationColorCB->setChecked(checked);
+  if (colorMode == COLOR_GRAYSCALE) {
+    m_colorNormalizeIllumination = checked;
+  } else {
+    m_bwNormalizeIllumination = checked;
+    if ((colorMode == MIXED) && !checked) {
+      m_colorNormalizeIllumination = false;
     }
-    equalizeIlluminationColorCB->setEnabled(checked);
   }
+  updateEqualizeIlluminationDisplay();
+}
+
+void DefaultParamsDialog::equalizeIlluminationColorToggled(const bool checked) {
+  m_colorNormalizeIllumination = checked;
+}
+
+void DefaultParamsDialog::updateEqualizeIlluminationDisplay() {
+  const auto colorMode = static_cast<ColorMode>(colorModeSelector->currentData().toInt());
+  const QSignalBlocker blocker(equalizeIlluminationCB);
+  const QSignalBlocker colorBlocker(equalizeIlluminationColorCB);
+  equalizeIlluminationCB->setChecked((colorMode == COLOR_GRAYSCALE) ? m_colorNormalizeIllumination
+                                                                    : m_bwNormalizeIllumination);
+  equalizeIlluminationColorCB->setChecked(m_colorNormalizeIllumination);
+  equalizeIlluminationColorCB->setEnabled((colorMode == MIXED) && m_bwNormalizeIllumination);
 }
 
 void DefaultParamsDialog::splittingToggled(const bool checked) {
@@ -810,7 +822,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   colorCommonOptions.setFillOutsidePageBox(fillOutsidePageBoxCB->isChecked());
   colorCommonOptions.setWienerCoef(wienerCB->isChecked() ? wienerCoef->value() : 0.0);
   colorCommonOptions.setWienerWindowSize(wienerWindowSize->value());
-  colorCommonOptions.setNormalizeIllumination(equalizeIlluminationColorCB->isChecked());
+  colorCommonOptions.setNormalizeIllumination(m_colorNormalizeIllumination);
   colorCommonOptions.setGrayscaleOutput(grayscaleOutputCB->isChecked());
   ColorCommonOptions::PosterizationOptions posterizationOptions = colorCommonOptions.getPosterizationOptions();
   posterizationOptions.setEnabled(posterizeCB->isChecked());
@@ -821,7 +833,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   colorParams.setColorCommonOptions(colorCommonOptions);
 
   BlackWhiteOptions blackWhiteOptions;
-  blackWhiteOptions.setNormalizeIllumination(equalizeIlluminationCB->isChecked());
+  blackWhiteOptions.setNormalizeIllumination(m_bwNormalizeIllumination);
   blackWhiteOptions.setSavitzkyGolaySmoothingEnabled(savitzkyGolaySmoothingCB->isChecked());
   blackWhiteOptions.setMorphologicalSmoothingEnabled(morphologicalSmoothingCB->isChecked());
   BinarizationMethod binarizationMethod = static_cast<BinarizationMethod>(thresholdMethodBox->currentData().toInt());
