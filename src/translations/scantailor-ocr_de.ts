@@ -3745,6 +3745,31 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <source>Apply Rotation and Trim</source>
         <translation>Drehen und Beschneiden anwenden</translation>
     </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="26"/>
+        <source>Apply Parameters</source>
+        <translation>Parameter anwenden</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="32"/>
+        <source>The rotation of the page.</source>
+        <translation>Die Drehung der Seite.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="35"/>
+        <source>Rotate</source>
+        <translation>Drehen</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="45"/>
+        <source>The trim of the page, or no trim if &quot;Enable manual trim&quot; is turned off.</source>
+        <translation>Der Beschnitt der Seite, oder kein Beschnitt, wenn „Manuellen Beschnitt aktivieren“ ausgeschaltet ist.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="48"/>
+        <source>Trim</source>
+        <translation>Beschneiden</translation>
+    </message>
 </context>
 <context>
     <name>fix_orientation::Filter</name>

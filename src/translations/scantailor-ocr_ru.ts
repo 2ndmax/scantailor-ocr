@@ -3740,6 +3740,31 @@ Without an internet connection, the installed languages can still be used.  Lang
         <source>Apply Rotation and Trim</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="26"/>
+        <source>Apply Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="32"/>
+        <source>The rotation of the page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="35"/>
+        <source>Rotate</source>
+        <translation type="unfinished">Поворот</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="45"/>
+        <source>The trim of the page, or no trim if &quot;Enable manual trim&quot; is turned off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="48"/>
+        <source>Trim</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>fix_orientation::Filter</name>

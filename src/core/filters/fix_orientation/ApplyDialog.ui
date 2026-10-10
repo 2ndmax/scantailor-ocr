@@ -21,6 +21,41 @@
     <widget class="PageScopeGroupBox" name="scopeGroupBox"/>
    </item>
    <item>
+    <widget class="QGroupBox" name="applyPartsGroupBox">
+     <property name="title">
+      <string>Apply Parameters</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_apply_parts">
+      <item>
+       <widget class="QCheckBox" name="applyRotationCheckBox">
+        <property name="toolTip">
+         <string>The rotation of the page.</string>
+        </property>
+        <property name="text">
+         <string>Rotate</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="applyTrimCheckBox">
+        <property name="toolTip">
+         <string>The trim of the page, or no trim if &quot;Enable manual trim&quot; is turned off.</string>
+        </property>
+        <property name="text">
+         <string>Trim</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer>
      <property name="orientation">
       <enum>Qt::Vertical</enum>

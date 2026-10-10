@@ -22,9 +22,9 @@ class ApplyDialog : public QDialog, private Ui::ApplyDialog {
 
  signals:
 
-  void appliedTo(const std::set<PageId>& pages);
+  void appliedTo(const std::set<PageId>& pages, bool applyRotation, bool applyTrim);
 
-  void appliedToAllPages(const std::set<PageId>& pages);
+  void appliedToAllPages(const std::set<PageId>& pages, bool applyRotation, bool applyTrim);
 
  private slots:
 

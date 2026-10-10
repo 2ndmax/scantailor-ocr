@@ -480,6 +480,8 @@ from working:
   chosen.
 * All "Apply to ..." windows share one page choice. Each entry shows how many pages it applies
   to, and "Every other page" says whether the odd or even pages are meant.
+* *Import*: "Apply Rotation and Trim" lets you choose to apply only the rotation or only the
+  trim, like the other "Apply to ..." windows.
 * "Every other selected page" now works the same in all steps: every other page of all
   selected pages, before and after the current page, which is included. Before, some steps
   only counted onwards from the current page, others only looked at the first block of

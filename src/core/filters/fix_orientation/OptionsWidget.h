@@ -42,15 +42,17 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void showApplyToDialog();
 
-  void appliedTo(const std::set<PageId>& pages);
+  void appliedTo(const std::set<PageId>& pages, bool applyRotation, bool applyTrim);
 
-  void appliedToAllPages(const std::set<PageId>& pages);
+  void appliedToAllPages(const std::set<PageId>& pages, bool applyRotation, bool applyTrim);
 
   void trimEnableToggled(bool checked);
 
   void trimMarginsChanged(int value);
 
  private:
+  void applyParts(const std::set<PageId>& pages, bool applyRotation, bool applyTrim);
+
   void setRotation(const OrthogonalRotation& rotation);
 
   void setRotationPixmap();
