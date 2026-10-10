@@ -140,25 +140,10 @@ BinaryImage binarizeWolf(const QImage& src,
   const int w = gray.width();
   const int h = gray.height();
 
-  IntegralImage<uint32_t> integralImage(w, h);
-  IntegralImage<uint64_t> integralSqimage(w, h);
-
   const uint8_t* grayLine = gray.bits();
   const int grayBpl = gray.bytesPerLine();
 
   uint32_t minGrayLevel = 255;
-
-  for (int y = 0; y < h; ++y) {
-    integralImage.beginRow();
-    integralSqimage.beginRow();
-    for (int x = 0; x < w; ++x) {
-      const uint32_t pixel = grayLine[x];
-      integralImage.push(pixel);
-      integralSqimage.push(pixel * pixel);
-      minGrayLevel = std::min(minGrayLevel, pixel);
-    }
-    grayLine += grayBpl;
-  }
 
   const int windowLowerHalf = windowSize.height() >> 1;
   const int windowUpperHalf = windowSize.height() - windowLowerHalf;
@@ -173,35 +158,52 @@ BinaryImage binarizeWolf(const QImage& src,
 
   double maxDeviation = 0;
 
-  for (int y = 0; y < h; ++y) {
-    const int top = std::max(0, y - windowLowerHalf);
-    const int bottom = std::min(h, y + windowUpperHalf);  // exclusive
-    for (int x = 0; x < w; ++x) {
-      const int left = std::max(0, x - windowLeftHalf);
-      const int right = std::min(w, x + windowRightHalf);  // exclusive
-      const int area = (bottom - top) * (right - left);
-      assert(area > 0);  // because windowSize > 0 and w > 0 and h > 0
-      const QRect rect(left, top, right - left, bottom - top);
-      const double windowSum = integralImage.sum(rect);
-      const double windowSqsum = integralSqimage.sum(rect);
+  {
+    // The integral images (12 bytes per pixel) are freed at the end of this
+    // block, before the binary image is allocated.
+    IntegralImage<uint32_t> integralImage(w, h);
+    IntegralImage<uint64_t> integralSqimage(w, h);
 
-      const double rArea = 1.0 / area;
-      const double mean = windowSum * rArea;
-      const double sqmean = windowSqsum * rArea;
+    for (int y = 0; y < h; ++y) {
+      integralImage.beginRow();
+      integralSqimage.beginRow();
+      for (int x = 0; x < w; ++x) {
+        const uint32_t pixel = grayLine[x];
+        integralImage.push(pixel);
+        integralSqimage.push(pixel * pixel);
+        minGrayLevel = std::min(minGrayLevel, pixel);
+      }
+      grayLine += grayBpl;
+    }
 
-      const double variance = sqmean - mean * mean;
-      const double deviation = std::sqrt(std::fabs(variance));
-      maxDeviation = std::max(maxDeviation, deviation);
-      means[static_cast<size_t>(y) * w + x] = (float) mean;
-      deviations[static_cast<size_t>(y) * w + x] = (float) deviation;
+    for (int y = 0; y < h; ++y) {
+      const int top = std::max(0, y - windowLowerHalf);
+      const int bottom = std::min(h, y + windowUpperHalf);  // exclusive
+      for (int x = 0; x < w; ++x) {
+        const int left = std::max(0, x - windowLeftHalf);
+        const int right = std::min(w, x + windowRightHalf);  // exclusive
+        const int area = (bottom - top) * (right - left);
+        assert(area > 0);  // because windowSize > 0 and w > 0 and h > 0
+        const QRect rect(left, top, right - left, bottom - top);
+        const double windowSum = integralImage.sum(rect);
+        const double windowSqsum = integralSqimage.sum(rect);
+
+        const double rArea = 1.0 / area;
+        const double mean = windowSum * rArea;
+        const double sqmean = windowSqsum * rArea;
+
+        const double variance = sqmean - mean * mean;
+        const double deviation = std::sqrt(std::fabs(variance));
+        maxDeviation = std::max(maxDeviation, deviation);
+        means[static_cast<size_t>(y) * w + x] = (float) mean;
+        deviations[static_cast<size_t>(y) * w + x] = (float) deviation;
+      }
     }
   }
   // A perfectly uniform image (a blank page, for example) has no deviation
   // at all.  Without this guard, deviation / maxDeviation below would be
   // 0.0 / 0.0 == NaN, making every threshold comparison false.
   maxDeviation = (maxDeviation > 0.0) ? maxDeviation : 1.0;
-
-  // TODO: integral images can be disposed at this point.
 
   BinaryImage bwImg(w, h);
   uint32_t* bwLine = bwImg.data();

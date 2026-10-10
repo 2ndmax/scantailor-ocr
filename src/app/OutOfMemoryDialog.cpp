@@ -3,13 +3,11 @@
 
 #include "OutOfMemoryDialog.h"
 
-#include <QFileDialog>
 #include <QMessageBox>
-#include <QSettings>
 #include <utility>
 
+#include "ProjectFileDialogs.h"
 #include "ProjectWriter.h"
-#include "RecentProjects.h"
 
 OutOfMemoryDialog::OutOfMemoryDialog(QWidget* parent) : QDialog(parent) {
   ui.setupUi(this);
@@ -48,39 +46,17 @@ void OutOfMemoryDialog::saveProject() {
 }
 
 void OutOfMemoryDialog::saveProjectAs() {
-  // XXX: this function is duplicated MainWindow
-
-  QString projectDir;
-  if (!m_projectFile.isEmpty()) {
-    projectDir = QFileInfo(m_projectFile).absolutePath();
-  } else {
-    QSettings settings;
-    projectDir = settings.value("project/lastDir").toString();
-  }
-
-  QString projectFile(
-      QFileDialog::getSaveFileName(this, QString(), projectDir, tr("ScanTailor OCR Projects") + " (*.ScanTailor)"));
+  const QString projectFile = project_file_dialogs::askForFileToSave(this, m_projectFile);
   if (projectFile.isEmpty()) {
     return;
-  }
-
-  if (!projectFile.endsWith(".ScanTailor", Qt::CaseInsensitive)) {
-    projectFile += ".ScanTailor";
   }
 
   if (saveProjectWithFeedback(projectFile)) {
     m_projectFile = projectFile;
     showSaveSuccessScreen();
-
-    QSettings settings;
-    settings.setValue("project/lastDir", QFileInfo(m_projectFile).absolutePath());
-
-    RecentProjects rp;
-    rp.read();
-    rp.setMostRecent(m_projectFile);
-    rp.write();
+    project_file_dialogs::rememberSavedProject(m_projectFile);
   }
-}  // OutOfMemoryDialog::saveProjectAs
+}
 
 bool OutOfMemoryDialog::saveProjectWithFeedback(const QString& projectFile) {
   ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen);

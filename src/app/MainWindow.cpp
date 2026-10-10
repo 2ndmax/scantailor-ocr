@@ -51,6 +51,7 @@
 #include "ProcessingIndicationWidget.h"
 #include "ProcessingTaskQueue.h"
 #include "ProjectCreationContext.h"
+#include "ProjectFileDialogs.h"
 #include "ProjectFilesDialog.h"
 #include "ProjectOpeningContext.h"
 #include "ProjectPages.h"
@@ -1640,30 +1641,15 @@ void MainWindow::saveProjectTriggered() {
 }
 
 void MainWindow::saveProjectAsTriggered() {
-  // XXX: this function is duplicated in OutOfMemoryDialog.
-
-  QString projectDir;
-  if (!m_projectFile.isEmpty()) {
-    projectDir = QFileInfo(m_projectFile).absolutePath();
-  } else {
-    QSettings settings;
-    projectDir = settings.value("project/lastDir").toString();
-  }
-
-  QString projectFile(
-      QFileDialog::getSaveFileName(this, QString(), projectDir, tr("ScanTailor OCR Projects") + " (*.ScanTailor)"));
+  const QString projectFile = project_file_dialogs::askForFileToSave(this, m_projectFile);
   if (projectFile.isEmpty()) {
     return;
-  }
-
-  if (!projectFile.endsWith(".ScanTailor", Qt::CaseInsensitive)) {
-    projectFile += ".ScanTailor";
   }
 
   if (saveProjectWithFeedback(projectFile)) {
     setSavedProjectFile(projectFile);
   }
-}  // MainWindow::saveProjectAsTriggered
+}
 
 void MainWindow::setSavedProjectFile(const QString& projectFile) {
   m_projectFile = projectFile;
@@ -1671,13 +1657,7 @@ void MainWindow::setSavedProjectFile(const QString& projectFile) {
   // Importing scans needs a saved project.
   updateAutoImportPanel();
 
-  QSettings settings;
-  settings.setValue("project/lastDir", QFileInfo(m_projectFile).absolutePath());
-
-  RecentProjects rp;
-  rp.read();
-  rp.setMostRecent(m_projectFile);
-  rp.write();
+  project_file_dialogs::rememberSavedProject(m_projectFile);
 }
 
 void MainWindow::newProject() {

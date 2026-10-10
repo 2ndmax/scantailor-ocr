@@ -3,7 +3,8 @@ set(sources
     TestConstants.cpp
     TestLineIntersectionScalar.cpp
     TestProximity.cpp
-    TestUtils.cpp)
+    TestUtils.cpp
+    TestXmlMarshalling.cpp)
 
 add_executable(foundation_tests ${sources})
 target_link_libraries(

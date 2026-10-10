@@ -11,7 +11,8 @@
 #include <QString>
 
 QString XmlUnmarshaller::string(const QDomElement& el) {
-  return el.text();  // FIXME: this needs unescaping, but Qt doesn't provide such functionality
+  // QDom has already unescaped the text when reading the document.
+  return el.text();
 }
 
 QSize XmlUnmarshaller::size(const QDomElement& el) {
