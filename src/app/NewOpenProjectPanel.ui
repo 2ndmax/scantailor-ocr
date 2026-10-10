@@ -58,10 +58,11 @@
         </item>
         <item>
          <widget class="QPushButton" name="newProjectButton">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
           </property>
           <property name="text">
            <string>New Project</string>
@@ -89,10 +90,11 @@
         </item>
         <item>
          <widget class="QPushButton" name="openProjectButton">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
           </property>
           <property name="text">
            <string>Open Project</string>
@@ -138,9 +140,12 @@
       </item>
       <item>
        <widget class="QGroupBox" name="recentProjectsGroup">
+        <property name="alignment">
+         <set>Qt::AlignHCenter</set>
+        </property>
         <property name="font">
          <font>
-          <pointsize>16</pointsize>
+          <pointsize>11</pointsize>
           <kerning>true</kerning>
          </font>
         </property>

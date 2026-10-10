@@ -509,6 +509,9 @@ from working:
   opens on click or with Enter/Space. The full path is shown as a tooltip.
 * The start page has the window background, so its text is no longer drawn on the mid-grey
   image area of the light colour scheme.
+* The buttons "New Project" and "Open Project" look like the other buttons of the program.
+  "Recent Projects" is a bold title centred on its frame line in all colour schemes; the
+  project names are bold and one point larger than the normal text, the folders normal.
 
 ### Error reporting
 

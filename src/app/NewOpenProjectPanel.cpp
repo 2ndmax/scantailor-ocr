@@ -3,6 +3,7 @@
 
 #include "NewOpenProjectPanel.h"
 
+#include <QApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QKeyEvent>
@@ -13,6 +14,7 @@
 #include <functional>
 #include <utility>
 
+#include "CollapsibleGroupBox.h"
 #include "ColorSchemeManager.h"
 #include "RecentProjects.h"
 
@@ -36,14 +38,16 @@ class RecentProjectEntry : public QWidget {
 
     auto* nameLabel = new QLabel(baseName, this);
     nameLabel->setTextFormat(Qt::PlainText);
+    // The name one point larger than the program's text and bold, the folder in its normal size.
     QFont nameFont(baseFont);
-    nameFont.setPointSize(baseFont.pointSize() - 3);
+    nameFont.setPointSize(QApplication::font().pointSize() + 1);
+    nameFont.setBold(true);
     nameLabel->setFont(nameFont);
 
     auto* dirLabel = new QLabel(this);
     dirLabel->setTextFormat(Qt::PlainText);
     QFont dirFont(baseFont);
-    dirFont.setPointSize(baseFont.pointSize() - 6);
+    dirFont.setPointSize(QApplication::font().pointSize());
     dirLabel->setFont(dirFont);
     const QFontMetrics dirMetrics(dirFont);
     dirLabel->setText(dirMetrics.elidedText(QDir::toNativeSeparators(fileInfo.absolutePath()), Qt::ElideMiddle,
@@ -106,6 +110,8 @@ class RecentProjectEntry : public QWidget {
 NewOpenProjectPanel::NewOpenProjectPanel(QWidget* parent) : QWidget(parent) {
   setupUi(this);
 
+  // Bold like the panel titles of the steps.
+  CollapsibleGroupBox::makeTitleBold(recentProjectsGroup);
   recentProjectsGroup->layout()->setSpacing(2);
 
   RecentProjects rp;

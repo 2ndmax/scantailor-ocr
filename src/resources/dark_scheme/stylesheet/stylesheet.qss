@@ -250,17 +250,15 @@ QGroupBox#recentProjectsGroup {
   background-color: transparent;
   border: 1px solid #0f64d2;
   border-radius: 0px;
-  margin-top: 14px;
+  margin-top: 0.75em;  /* half the title height: the line runs through the middle of the title */
+  padding-top: 0.5em;
 }
 
 QGroupBox#recentProjectsGroup::title {
   subcontrol-origin: margin;
   subcontrol-position: top center;
-  margin: 0px 4px 0px 4px;
-}
-
-QPushButton#newProjectButton, QPushButton#openProjectButton {
-  padding: 6px 18px 6px 18px;
+  padding: 0px 4px 0px 4px;
+  background-color: palette(window);  /* hides the line behind the title */
 }
 
 QMenuBar {
