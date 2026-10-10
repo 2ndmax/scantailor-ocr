@@ -621,7 +621,9 @@ void DefaultParamsDialog::colorModeChanged(const int idx) {
   pictureShapeOptions->setEnabled(pictureShapeVisible);
   splittingOptions->setEnabled(splittingOptionsVisible);
 
-  fillingOptions->setEnabled(colorMode != BLACK_AND_WHITE);
+  // The areas to fill are used in every color mode, the color not in black and white.
+  fillingColorLabel->setEnabled(colorMode != BLACK_AND_WHITE);
+  fillingColorBox->setEnabled(colorMode != BLACK_AND_WHITE);
 
   equalizeIlluminationCB->setEnabled(colorMode != COLOR_GRAYSCALE);
   equalizeIlluminationColorCB->setEnabled(colorMode != BLACK_AND_WHITE);

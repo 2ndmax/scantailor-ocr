@@ -851,7 +851,9 @@ void OptionsWidget::updateColorsDisplay() {
   thresholdMethodBox->setCurrentIndex((int) blackWhiteOptions.getBinarizationMethod());
   binarizationOptions->setCurrentIndex((int) blackWhiteOptions.getBinarizationMethod());
 
-  fillingOptions->setEnabled(colorMode != BLACK_AND_WHITE);
+  // The areas to fill are used in every color mode, the color not in black and white.
+  fillingColorLabel->setEnabled(colorMode != BLACK_AND_WHITE);
+  fillingColorBox->setEnabled(colorMode != BLACK_AND_WHITE);
   fillingColorBox->setCurrentIndex((int) colorCommonOptions.getFillingColor());
 
   colorSegmentationCB->setEnabled(thresholdOptionsVisible);

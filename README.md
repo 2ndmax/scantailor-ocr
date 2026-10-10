@@ -298,7 +298,9 @@ from working:
 * *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Denoising",
   "Filling", "Threshold", "Color Operations" and "Picture Zones" (formerly "Picture Shape", like
   the tab in which picture zones are edited). The collapsed state saved for the old nested boxes
-  is no longer used.
+  is no longer used. "Fill offcut", "Fill outside page box" and "Fill margins" are under
+  "Filling" with the color, the two smoothing options (black and white only) under "Threshold";
+  the same in the Default Parameters window.
 * *Output*: the **output resolution** (a list with 300, 400, 600 and 1200 DPI; other values can
   be typed in) and the **dewarping** mode with "Post deskew" are set in the panels and apply to
   the current page at once, like all other settings. "Change ..." became **Apply to ...**. The

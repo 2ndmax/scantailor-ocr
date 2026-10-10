@@ -1903,30 +1903,6 @@ QToolButton:pressed {
                         <number>5</number>
                        </property>
                        <item>
-                        <widget class="QCheckBox" name="fillOffcutCB">
-                         <property name="text">
-                          <string>Fill offcut</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="fillOutsidePageBoxCB">
-                         <property name="toolTip">
-                          <string>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</string>
-                         </property>
-                         <property name="text">
-                          <string>Fill outside page box</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="fillMarginsCB">
-                         <property name="text">
-                          <string>Fill margins</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
                         <widget class="QCheckBox" name="equalizeIlluminationCB">
                          <property name="toolTip">
                           <string>Normalize illumination before binarization.</string>
@@ -1953,20 +1929,6 @@ QToolButton:pressed {
                          </property>
                          <property name="text">
                           <string>Grayscale output</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="savitzkyGolaySmoothingCB">
-                         <property name="text">
-                          <string>Savitzky-Golay smoothing</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="morphologicalSmoothingCB">
-                         <property name="text">
-                          <string>Morphological smoothing</string>
                          </property>
                         </widget>
                        </item>
@@ -2142,6 +2104,43 @@ QToolButton:pressed {
                       <string>Filling</string>
                      </property>
                     </widget>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="fillingAreasLayout">
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>5</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>5</number>
+                     </property>
+                     <item>
+                      <widget class="QCheckBox" name="fillOffcutCB">
+                       <property name="text">
+                        <string>Fill offcut</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="fillOutsidePageBoxCB">
+                       <property name="toolTip">
+                        <string>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</string>
+                       </property>
+                       <property name="text">
+                        <string>Fill outside page box</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="fillMarginsCB">
+                       <property name="text">
+                        <string>Fill margins</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_23">
@@ -2915,6 +2914,33 @@ QToolButton:pressed {
                       </layout>
                      </widget>
                     </widget>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="smoothingOptionsLayout">
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>5</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>5</number>
+                     </property>
+                     <item>
+                      <widget class="QCheckBox" name="savitzkyGolaySmoothingCB">
+                       <property name="text">
+                        <string>Savitzky-Golay smoothing</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="morphologicalSmoothingCB">
+                       <property name="text">
+                        <string>Morphological smoothing</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                   </layout>
                  </widget>
