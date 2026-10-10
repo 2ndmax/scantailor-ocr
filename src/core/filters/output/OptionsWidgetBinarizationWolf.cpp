@@ -89,12 +89,12 @@ void OptionsWidgetBinarizationWolf::sendStateChanged() {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidgetBinarizationWolf::setupUiConnections() {
-  CONNECT(wolfDelta, SIGNAL(valueChanged(double)), this, SLOT(wolfDeltaChanged(double)));
-  CONNECT(windowSize, SIGNAL(valueChanged(int)), this, SLOT(windowSizeChanged(int)));
-  CONNECT(lowerBound, SIGNAL(valueChanged(int)), this, SLOT(lowerBoundChanged(int)));
-  CONNECT(upperBound, SIGNAL(valueChanged(int)), this, SLOT(upperBoundChanged(int)));
-  CONNECT(wolfCoef, SIGNAL(valueChanged(double)), this, SLOT(wolfCoefChanged(double)));
-  CONNECT(&m_delayedStateChanger, SIGNAL(timeout()), this, SLOT(sendStateChanged()));
+  CONNECT(wolfDelta, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::wolfDeltaChanged);
+  CONNECT(windowSize, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::windowSizeChanged);
+  CONNECT(lowerBound, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::lowerBoundChanged);
+  CONNECT(upperBound, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::upperBoundChanged);
+  CONNECT(wolfCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::wolfCoefChanged);
+  CONNECT(&m_delayedStateChanger, &QTimer::timeout, this, &OptionsWidgetBinarizationWolf::sendStateChanged);
 }
 
 #undef CONNECT

@@ -63,7 +63,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   ui.blackOnWhiteDetectionCB->setChecked(settings.isBlackOnWhiteDetectionEnabled());
   ui.blackOnWhiteDetectionAtOutputCB->setEnabled(ui.blackOnWhiteDetectionCB->isChecked());
   ui.blackOnWhiteDetectionAtOutputCB->setChecked(settings.isBlackOnWhiteDetectionOutputEnabled());
-  connect(ui.blackOnWhiteDetectionCB, SIGNAL(clicked(bool)), SLOT(blackOnWhiteDetectionToggled(bool)));
+  connect(ui.blackOnWhiteDetectionCB, &QAbstractButton::clicked, this, &SettingsDialog::blackOnWhiteDetectionToggled);
 
   ui.highlightDeviationCB->setChecked(settings.isHighlightDeviationEnabled());
 
@@ -86,7 +86,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
                                       ApplicationSettings::MAX_DESKEW_HANDLE_DISTANCE);
   ui.deskewHandleDistanceSB->setValue(settings.getDeskewHandleDistance());
 
-  connect(ui.buttonBox, SIGNAL(accepted()), SLOT(commitChanges()));
+  connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::commitChanges);
 }
 
 SettingsDialog::~SettingsDialog() = default;

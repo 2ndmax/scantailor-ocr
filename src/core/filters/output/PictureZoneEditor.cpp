@@ -93,7 +93,7 @@ PictureZoneEditor::PictureZoneEditor(const QImage& image,
   context().setShowPropertiesCommand(
       boost::bind(&PictureZoneEditor::showPropertiesDialog, this, boost::placeholders::_1));
 
-  connect(&zones(), SIGNAL(committed()), SLOT(commitZones()));
+  connect(&zones(), &EditableZoneSet::committed, this, &PictureZoneEditor::commitZones);
 
   makeLastFollower(*context().createDefaultInteraction());
 
@@ -105,11 +105,11 @@ PictureZoneEditor::PictureZoneEditor(const QImage& image,
   rootInteractionHandler().makeLastFollower(m_dragHandler);
   rootInteractionHandler().makeLastFollower(m_zoomHandler);
 
-  connect(&m_pictureMaskAnimateTimer, SIGNAL(timeout()), SLOT(advancePictureMaskAnimation()));
+  connect(&m_pictureMaskAnimateTimer, &QTimer::timeout, this, &PictureZoneEditor::advancePictureMaskAnimation);
   m_pictureMaskAnimateTimer.setSingleShot(true);
   m_pictureMaskAnimateTimer.setInterval(120);
 
-  connect(&m_pictureMaskRebuildTimer, SIGNAL(timeout()), SLOT(initiateBuildingScreenPictureMask()));
+  connect(&m_pictureMaskRebuildTimer, &QTimer::timeout, this, &PictureZoneEditor::initiateBuildingScreenPictureMask);
   m_pictureMaskRebuildTimer.setSingleShot(true);
   m_pictureMaskRebuildTimer.setInterval(150);
 
@@ -268,7 +268,7 @@ void PictureZoneEditor::showPropertiesDialog(const EditableZoneSet::Zone& zone) 
   // We can't connect to the update() slot directly, as since some time,
   // Qt ignores such update requests on inactive windows.  Updating
   // it through a proxy slot does work though.
-  connect(&dialog, SIGNAL(updated()), SLOT(updateRequested()));
+  connect(&dialog, &PictureZonePropDialog::updated, this, &PictureZoneEditor::updateRequested);
 
   if (dialog.exec() == QDialog::Accepted) {
     zones().setDefaultProperties(*zone.properties());

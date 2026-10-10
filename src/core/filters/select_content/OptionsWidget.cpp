@@ -189,8 +189,7 @@ void OptionsWidget::updateDependenciesIfNecessary() {
 void OptionsWidget::showApplyToDialog() {
   auto* dialog = new ApplyDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  connect(dialog, SIGNAL(applySelection(const std::set<PageId>&, bool, bool)), this,
-          SLOT(applySelection(const std::set<PageId>&, bool, bool)));
+  connect(dialog, &ApplyDialog::applySelection, this, &OptionsWidget::applySelection);
   dialog->show();
 }
 
@@ -292,8 +291,8 @@ void OptionsWidget::onUnitsChanged(Units units) {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidget::setupUiConnections() {
-  CONNECT(widthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(dimensionsChangedLocally(double)));
-  CONNECT(heightSpinBox, SIGNAL(valueChanged(double)), this, SLOT(dimensionsChangedLocally(double)));
+  CONNECT(widthSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::dimensionsChangedLocally);
+  CONNECT(heightSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::dimensionsChangedLocally);
   CONNECT(contentDetectAutoBtn, &QPushButton::pressed, this,
           boost::bind(&OptionsWidget::contentDetectToggled, this, MODE_AUTO));
   CONNECT(contentDetectManualBtn, &QPushButton::pressed, this,
@@ -306,8 +305,8 @@ void OptionsWidget::setupUiConnections() {
           boost::bind(&OptionsWidget::pageDetectToggled, this, MODE_MANUAL));
   CONNECT(pageDetectDisableBtn, &QPushButton::pressed, this,
           boost::bind(&OptionsWidget::pageDetectToggled, this, MODE_DISABLED));
-  CONNECT(fineTuneBtn, SIGNAL(toggled(bool)), this, SLOT(fineTuningChanged(bool)));
-  CONNECT(applyToBtn, SIGNAL(clicked()), this, SLOT(showApplyToDialog()));
+  CONNECT(fineTuneBtn, &QAbstractButton::toggled, this, &OptionsWidget::fineTuningChanged);
+  CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyToDialog);
 }
 
 #undef CONNECT

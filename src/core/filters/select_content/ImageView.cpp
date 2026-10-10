@@ -153,8 +153,8 @@ ImageView::ImageView(const QImage& image,
   remove->setShortcut(QKeySequence("Delete"));
   addAction(create);
   addAction(remove);
-  connect(create, SIGNAL(triggered(bool)), this, SLOT(createContentBox()));
-  connect(remove, SIGNAL(triggered(bool)), this, SLOT(removeContentBox()));
+  connect(create, &QAction::triggered, this, &ImageView::createContentBox);
+  connect(remove, &QAction::triggered, this, &ImageView::removeContentBox);
 }
 
 ImageView::~ImageView() = default;

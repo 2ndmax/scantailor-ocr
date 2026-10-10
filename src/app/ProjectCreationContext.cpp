@@ -69,8 +69,8 @@ void ProjectCreationContext::showProjectFilesDialog() {
   if (m_parent) {
     m_projectFilesDialog->setWindowModality(Qt::WindowModal);
   }
-  connect(m_projectFilesDialog, SIGNAL(accepted()), this, SLOT(projectFilesSubmitted()));
-  connect(m_projectFilesDialog, SIGNAL(destroyed(QObject*)), this, SLOT(projectFilesDialogDestroyed()));
+  connect(m_projectFilesDialog, &QDialog::accepted, this, &ProjectCreationContext::projectFilesSubmitted);
+  connect(m_projectFilesDialog, &QObject::destroyed, this, &ProjectCreationContext::projectFilesDialogDestroyed);
   m_projectFilesDialog->show();
 }
 
@@ -82,7 +82,7 @@ void ProjectCreationContext::showFixDpiDialog() {
   if (m_parent) {
     m_fixDpiDialog->setWindowModality(Qt::WindowModal);
   }
-  connect(m_fixDpiDialog, SIGNAL(accepted()), this, SLOT(fixedDpiSubmitted()));
-  connect(m_fixDpiDialog, SIGNAL(destroyed(QObject*)), this, SLOT(fixDpiDialogDestroyed()));
+  connect(m_fixDpiDialog, &QDialog::accepted, this, &ProjectCreationContext::fixedDpiSubmitted);
+  connect(m_fixDpiDialog, &QObject::destroyed, this, &ProjectCreationContext::fixDpiDialogDestroyed);
   m_fixDpiDialog->show();
 }

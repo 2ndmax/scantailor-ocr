@@ -349,12 +349,12 @@ void OptionsWidget::obliqueSpinBoxValueChanged(double value) {
 }
 
 void OptionsWidget::setupUiConnections() {
-  CONNECT(angleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(spinBoxValueChanged(double)));
-  CONNECT(obliqueSpinBox, SIGNAL(valueChanged(double)), this, SLOT(obliqueSpinBoxValueChanged(double)));
-  CONNECT(autoBtn, SIGNAL(toggled(bool)), this, SLOT(modeChanged(bool)));
-  CONNECT(obliqueAutoBtn, SIGNAL(toggled(bool)), this, SLOT(obliqueModeChanged(bool)));
-  CONNECT(detectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(detectionChanged(int)));
-  CONNECT(applyDeskewBtn, SIGNAL(clicked()), this, SLOT(showDeskewDialog()));
+  CONNECT(angleSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::spinBoxValueChanged);
+  CONNECT(obliqueSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::obliqueSpinBoxValueChanged);
+  CONNECT(autoBtn, &QAbstractButton::toggled, this, &OptionsWidget::modeChanged);
+  CONNECT(obliqueAutoBtn, &QAbstractButton::toggled, this, &OptionsWidget::obliqueModeChanged);
+  CONNECT(detectionComboBox, &QComboBox::currentIndexChanged, this, &OptionsWidget::detectionChanged);
+  CONNECT(applyDeskewBtn, &QAbstractButton::clicked, this, &OptionsWidget::showDeskewDialog);
 }
 
 #undef CONNECT

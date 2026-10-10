@@ -333,11 +333,9 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   auto* view = new ImageView(m_image, m_downscaledImage, m_xform);
   ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
 
-  QObject::connect(view, SIGNAL(manualDeskewAngleSet(double)), optWidget, SLOT(manualDeskewAngleSetExternally(double)));
-  QObject::connect(optWidget, SIGNAL(manualDeskewAngleSet(double)), view, SLOT(manualDeskewAngleSetExternally(double)));
-  QObject::connect(view, SIGNAL(manualObliqueAngleSet(double)), optWidget,
-                   SLOT(manualObliqueAngleSetExternally(double)));
-  QObject::connect(optWidget, SIGNAL(manualObliqueAngleSet(double)), view,
-                   SLOT(manualObliqueAngleSetExternally(double)));
+  QObject::connect(view, &ImageView::manualDeskewAngleSet, optWidget, &OptionsWidget::manualDeskewAngleSetExternally);
+  QObject::connect(optWidget, &OptionsWidget::manualDeskewAngleSet, view, &ImageView::manualDeskewAngleSetExternally);
+  QObject::connect(view, &ImageView::manualObliqueAngleSet, optWidget, &OptionsWidget::manualObliqueAngleSetExternally);
+  QObject::connect(optWidget, &OptionsWidget::manualObliqueAngleSet, view, &ImageView::manualObliqueAngleSetExternally);
 }
 }  // namespace deskew

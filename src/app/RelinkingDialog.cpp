@@ -21,16 +21,15 @@ RelinkingDialog::RelinkingDialog(const QString& projectFilePath, QWidget* parent
   ui.errorLabel->setVisible(false);
   ui.undoButton->setVisible(false);
 
-  connect(ui.listView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-          SLOT(selectionChanged(const QItemSelection&, const QItemSelection&)));
+  connect(ui.listView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+          &RelinkingDialog::selectionChanged);
 
-  connect(ui.pathVisualization, SIGNAL(clicked(const QString&, const QString&, int)),
-          SLOT(pathButtonClicked(const QString&, const QString&, int)));
+  connect(ui.pathVisualization, &RelinkablePathVisualization::clicked, this, &RelinkingDialog::pathButtonClicked);
 
-  connect(ui.undoButton, SIGNAL(clicked()), SLOT(undoButtonClicked()));
+  connect(ui.undoButton, &QAbstractButton::clicked, this, &RelinkingDialog::undoButtonClicked);
 
-  disconnect(ui.buttonBox, SIGNAL(accepted()));
-  connect(ui.buttonBox, SIGNAL(accepted()), SLOT(commitChanges()));
+  disconnect(ui.buttonBox, &QDialogButtonBox::accepted, nullptr, nullptr);
+  connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &RelinkingDialog::commitChanges);
 }
 
 void RelinkingDialog::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {

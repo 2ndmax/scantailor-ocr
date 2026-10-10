@@ -24,7 +24,7 @@ SplitModeDialog::SplitModeDialog(QWidget* const parent,
   connect(applyCutOption, &QCheckBox::toggled, this, &SplitModeDialog::updateOptions);
   updateOptions();
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &SplitModeDialog::onSubmit);
 }
 
 SplitModeDialog::~SplitModeDialog() = default;

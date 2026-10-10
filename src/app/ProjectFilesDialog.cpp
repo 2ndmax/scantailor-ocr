@@ -187,15 +187,15 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
   offProjectList->setModel(m_offProjectFilesSorted->model());
   inProjectList->setModel(m_inProjectFilesSorted->model());
 
-  connect(inpDirBrowseBtn, SIGNAL(clicked()), this, SLOT(inpDirBrowse()));
-  connect(outDirBrowseBtn, SIGNAL(clicked()), this, SLOT(outDirBrowse()));
-  connect(inpDirLine, SIGNAL(textEdited(const QString&)), this, SLOT(inpDirEdited(const QString&)));
-  connect(outDirLine, SIGNAL(textEdited(const QString&)), this, SLOT(outDirEdited(const QString&)));
-  connect(projectFileBrowseBtn, SIGNAL(clicked()), this, SLOT(projectFileBrowse()));
-  connect(projectFileLine, SIGNAL(textEdited(const QString&)), this, SLOT(projectFileEdited(const QString&)));
-  connect(addToProjectBtn, SIGNAL(clicked()), this, SLOT(addToProject()));
-  connect(removeFromProjectBtn, SIGNAL(clicked()), this, SLOT(removeFromProject()));
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(onOK()));
+  connect(inpDirBrowseBtn, &QAbstractButton::clicked, this, &ProjectFilesDialog::inpDirBrowse);
+  connect(outDirBrowseBtn, &QAbstractButton::clicked, this, &ProjectFilesDialog::outDirBrowse);
+  connect(inpDirLine, &QLineEdit::textEdited, this, &ProjectFilesDialog::inpDirEdited);
+  connect(outDirLine, &QLineEdit::textEdited, this, &ProjectFilesDialog::outDirEdited);
+  connect(projectFileBrowseBtn, &QAbstractButton::clicked, this, &ProjectFilesDialog::projectFileBrowse);
+  connect(projectFileLine, &QLineEdit::textEdited, this, &ProjectFilesDialog::projectFileEdited);
+  connect(addToProjectBtn, &QAbstractButton::clicked, this, &ProjectFilesDialog::addToProject);
+  connect(removeFromProjectBtn, &QAbstractButton::clicked, this, &ProjectFilesDialog::removeFromProject);
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &ProjectFilesDialog::onOK);
 }
 
 ProjectFilesDialog::~ProjectFilesDialog() = default;

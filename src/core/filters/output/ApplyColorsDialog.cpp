@@ -13,7 +13,7 @@ ApplyColorsDialog::ApplyColorsDialog(QWidget* parent,
   setupUi(this);
   scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyColorsDialog::onSubmit);
 }
 
 ApplyColorsDialog::~ApplyColorsDialog() = default;

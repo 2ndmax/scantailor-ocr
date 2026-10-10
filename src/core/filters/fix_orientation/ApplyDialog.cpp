@@ -23,7 +23,7 @@ ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelec
   connect(applyTrimCheckBox, &QCheckBox::toggled, this, updateOkButton);
   updateOkButton();
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyDialog::onSubmit);
 }
 
 ApplyDialog::~ApplyDialog() = default;

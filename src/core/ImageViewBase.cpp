@@ -173,7 +173,7 @@ ImageViewBase::ImageViewBase(const QImage& image,
 
   m_timer.setSingleShot(true);
   m_timer.setInterval(150);  // msec
-  connect(&m_timer, SIGNAL(timeout()), this, SLOT(initiateBuildingHqVersion()));
+  connect(&m_timer, &QTimer::timeout, this, &ImageViewBase::initiateBuildingHqVersion);
 
   setMouseTracking(true);
   m_cursorTrackerTimer.setSingleShot(true);
@@ -193,10 +193,10 @@ ImageViewBase::ImageViewBase(const QImage& image,
   interactionState().setDefaultStatusTip(tr("Use the mouse wheel or +/- to zoom.  When zoomed, dragging is possible."));
   ensureStatusTip(interactionState().statusTip());
 
-  connect(horizontalScrollBar(), SIGNAL(sliderReleased()), SLOT(updateScrollBars()));
-  connect(verticalScrollBar(), SIGNAL(sliderReleased()), SLOT(updateScrollBars()));
-  connect(horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(reactToScrollBars()));
-  connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(reactToScrollBars()));
+  connect(horizontalScrollBar(), &QAbstractSlider::sliderReleased, this, &ImageViewBase::updateScrollBars);
+  connect(verticalScrollBar(), &QAbstractSlider::sliderReleased, this, &ImageViewBase::updateScrollBars);
+  connect(horizontalScrollBar(), &QAbstractSlider::valueChanged, this, &ImageViewBase::reactToScrollBars);
+  connect(verticalScrollBar(), &QAbstractSlider::valueChanged, this, &ImageViewBase::reactToScrollBars);
 }
 
 ImageViewBase::~ImageViewBase() = default;

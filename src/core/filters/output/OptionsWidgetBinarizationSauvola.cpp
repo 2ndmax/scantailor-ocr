@@ -70,10 +70,10 @@ void OptionsWidgetBinarizationSauvola::sendStateChanged() {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidgetBinarizationSauvola::setupUiConnections() {
-  CONNECT(sauvolaDelta, SIGNAL(valueChanged(double)), this, SLOT(sauvolaDeltaChanged(double)));
-  CONNECT(windowSize, SIGNAL(valueChanged(int)), this, SLOT(windowSizeChanged(int)));
-  CONNECT(sauvolaCoef, SIGNAL(valueChanged(double)), this, SLOT(sauvolaCoefChanged(double)));
-  CONNECT(&m_delayedStateChanger, SIGNAL(timeout()), this, SLOT(sendStateChanged()));
+  CONNECT(sauvolaDelta, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationSauvola::sauvolaDeltaChanged);
+  CONNECT(windowSize, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationSauvola::windowSizeChanged);
+  CONNECT(sauvolaCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationSauvola::sauvolaCoefChanged);
+  CONNECT(&m_delayedStateChanger, &QTimer::timeout, this, &OptionsWidgetBinarizationSauvola::sendStateChanged);
 }
 
 #undef CONNECT

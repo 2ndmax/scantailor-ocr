@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 
+class SkinnedButton;
 class StageSequence;
 
 class StageListView : public QTableView {
@@ -74,7 +75,7 @@ class StageListView : public QTableView {
   Model* m_model;
   LeftColDelegate* m_firstColDelegate;
   RightColDelegate* m_secondColDelegate;
-  QWidget* m_launchBtn;
+  SkinnedButton* m_launchBtn;
   std::vector<QPixmap> m_batchAnimationPixmaps;
   int m_curBatchAnimationFrame;
   int m_timerId;

@@ -216,19 +216,19 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
   allPagesView->setModel(m_pages->model());
   allPagesView->header()->hide();
 
-  connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
+  connect(tabWidget, &QTabWidget::currentChanged, this, &FixDpiDialog::tabChanged);
 
-  connect(undefinedDpiView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-          this, SLOT(selectionChanged(const QItemSelection&)));
-  connect(allPagesView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
-          SLOT(selectionChanged(const QItemSelection&)));
+  connect(undefinedDpiView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+          &FixDpiDialog::selectionChanged);
+  connect(allPagesView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+          &FixDpiDialog::selectionChanged);
 
-  connect(xDpi, SIGNAL(activated(int)), this, SLOT(dpiChosenFromList()));
-  connect(yDpi, SIGNAL(activated(int)), this, SLOT(dpiChosenFromList()));
-  connect(xDpi->lineEdit(), SIGNAL(textEdited(const QString&)), this, SLOT(dpiValueChanged()));
-  connect(yDpi->lineEdit(), SIGNAL(textEdited(const QString&)), this, SLOT(dpiValueChanged()));
+  connect(xDpi, &QComboBox::activated, this, &FixDpiDialog::dpiChosenFromList);
+  connect(yDpi, &QComboBox::activated, this, &FixDpiDialog::dpiChosenFromList);
+  connect(xDpi->lineEdit(), &QLineEdit::textEdited, this, &FixDpiDialog::dpiValueChanged);
+  connect(yDpi->lineEdit(), &QLineEdit::textEdited, this, &FixDpiDialog::dpiValueChanged);
 
-  connect(applyBtn, SIGNAL(clicked()), this, SLOT(applyClicked()));
+  connect(applyBtn, &QAbstractButton::clicked, this, &FixDpiDialog::applyClicked);
 
   enableDisableOkButton();
 }

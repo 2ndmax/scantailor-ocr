@@ -216,13 +216,10 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
                              m_uiData.pageRect(), m_uiData.pageDetectionMode() != MODE_DISABLED);
   ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
 
-  QObject::connect(view, SIGNAL(manualContentRectSet(const QRectF&)), optWidget,
-                   SLOT(manualContentRectSet(const QRectF&)));
-  QObject::connect(view, SIGNAL(manualPageRectSet(const QRectF&)), optWidget, SLOT(manualPageRectSet(const QRectF&)));
-  QObject::connect(view, SIGNAL(pageRectSizeChanged(const QSizeF&)), optWidget,
-                   SLOT(updatePageRectSize(const QSizeF&)));
-  QObject::connect(optWidget, SIGNAL(pageRectChangedLocally(const QRectF&)), view,
-                   SLOT(pageRectSetExternally(const QRectF&)));
-  QObject::connect(optWidget, SIGNAL(pageRectStateChanged(bool)), view, SLOT(setPageRectEnabled(bool)));
+  QObject::connect(view, &ImageView::manualContentRectSet, optWidget, &OptionsWidget::manualContentRectSet);
+  QObject::connect(view, &ImageView::manualPageRectSet, optWidget, &OptionsWidget::manualPageRectSet);
+  QObject::connect(view, &ImageView::pageRectSizeChanged, optWidget, &OptionsWidget::updatePageRectSize);
+  QObject::connect(optWidget, &OptionsWidget::pageRectChangedLocally, view, &ImageView::pageRectSetExternally);
+  QObject::connect(optWidget, &OptionsWidget::pageRectStateChanged, view, &ImageView::setPageRectEnabled);
 }
 }  // namespace select_content

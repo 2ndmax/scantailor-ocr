@@ -119,6 +119,6 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
 
   auto* view = new ImageView(m_image, m_downscaledImage, m_xform);
   ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
-  QObject::connect(optWidget, SIGNAL(rotated(OrthogonalRotation)), view, SLOT(setPreRotation(OrthogonalRotation)));
+  QObject::connect(optWidget, &OptionsWidget::rotated, view, &ImageView::setPreRotation);
 }
 }  // namespace fix_orientation

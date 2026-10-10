@@ -106,9 +106,9 @@ StageListView::StageListView(QWidget* parent)
   m_launchBtn->setStatusTip(tr("Launch batch processing"));
   m_launchBtn->hide();
 
-  connect(m_launchBtn, SIGNAL(clicked()), this, SIGNAL(launchBatchProcessing()));
+  connect(m_launchBtn, &QAbstractButton::clicked, this, &StageListView::launchBatchProcessing);
 
-  connect(verticalScrollBar(), SIGNAL(rangeChanged(int, int)), this, SLOT(ensureSelectedRowVisible()),
+  connect(verticalScrollBar(), &QAbstractSlider::rangeChanged, this, &StageListView::ensureSelectedRowVisible,
           Qt::QueuedConnection);
 }
 

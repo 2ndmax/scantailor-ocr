@@ -121,12 +121,14 @@ void OptionsWidgetBinarizationOtsu::updateView() {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidgetBinarizationOtsu::setupUiConnections() {
-  CONNECT(lighterThresholdLink, SIGNAL(linkActivated(const QString&)), this, SLOT(setLighterThreshold()));
-  CONNECT(darkerThresholdLink, SIGNAL(linkActivated(const QString&)), this, SLOT(setDarkerThreshold()));
-  CONNECT(thresholdSlider, SIGNAL(sliderReleased()), this, SLOT(thresholdSliderReleased()));
-  CONNECT(thresholdSlider, SIGNAL(valueChanged(int)), this, SLOT(thresholdSliderValueChanged(int)));
-  CONNECT(neutralThresholdBtn, SIGNAL(clicked()), this, SLOT(setNeutralThreshold()));
-  CONNECT(&m_delayedStateChanger, SIGNAL(timeout()), this, SLOT(sendStateChanged()));
+  CONNECT(lighterThresholdLink, &QLabel::linkActivated, this, &OptionsWidgetBinarizationOtsu::setLighterThreshold);
+  CONNECT(darkerThresholdLink, &QLabel::linkActivated, this, &OptionsWidgetBinarizationOtsu::setDarkerThreshold);
+  CONNECT(thresholdSlider, &QAbstractSlider::sliderReleased, this,
+          &OptionsWidgetBinarizationOtsu::thresholdSliderReleased);
+  CONNECT(thresholdSlider, &QAbstractSlider::valueChanged, this,
+          &OptionsWidgetBinarizationOtsu::thresholdSliderValueChanged);
+  CONNECT(neutralThresholdBtn, &QAbstractButton::clicked, this, &OptionsWidgetBinarizationOtsu::setNeutralThreshold);
+  CONNECT(&m_delayedStateChanger, &QTimer::timeout, this, &OptionsWidgetBinarizationOtsu::sendStateChanged);
 }
 
 #undef CONNECT

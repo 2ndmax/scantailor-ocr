@@ -13,7 +13,7 @@ ApplyMarginsDialog::ApplyMarginsDialog(QWidget* parent,
   setupUi(this);
   scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyMarginsDialog::onSubmit);
 }
 
 ApplyMarginsDialog::~ApplyMarginsDialog() = default;

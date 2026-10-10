@@ -56,12 +56,12 @@ ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const I
 
   auto* rotateLeft = new QAction(nullptr);
   rotateLeft->setShortcut(QKeySequence(","));
-  connect(rotateLeft, SIGNAL(triggered(bool)), SLOT(doRotateLeft()));
+  connect(rotateLeft, &QAction::triggered, this, &ImageView::doRotateLeft);
   addAction(rotateLeft);
 
   auto* rotateRight = new QAction(nullptr);
   rotateRight->setShortcut(QKeySequence("."));
-  connect(rotateRight, SIGNAL(triggered(bool)), SLOT(doRotateRight()));
+  connect(rotateRight, &QAction::triggered, this, &ImageView::doRotateRight);
   addAction(rotateRight);
 }
 

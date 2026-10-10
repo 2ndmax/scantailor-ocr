@@ -32,11 +32,11 @@ PictureZonePropDialog::PictureZonePropDialog(std::shared_ptr<PropertySet> props,
       break;
   }
 
-  connect(ui.zoneeraser1, SIGNAL(toggled(bool)), SLOT(itemToggled(bool)));
-  connect(ui.zonepainter2, SIGNAL(toggled(bool)), SLOT(itemToggled(bool)));
-  connect(ui.zoneeraser3, SIGNAL(toggled(bool)), SLOT(itemToggled(bool)));
-  connect(ui.zoneforeground, SIGNAL(toggled(bool)), SLOT(itemToggled(bool)));
-  connect(ui.zonebackground, SIGNAL(toggled(bool)), SLOT(itemToggled(bool)));
+  connect(ui.zoneeraser1, &QAbstractButton::toggled, this, &PictureZonePropDialog::itemToggled);
+  connect(ui.zonepainter2, &QAbstractButton::toggled, this, &PictureZonePropDialog::itemToggled);
+  connect(ui.zoneeraser3, &QAbstractButton::toggled, this, &PictureZonePropDialog::itemToggled);
+  connect(ui.zoneforeground, &QAbstractButton::toggled, this, &PictureZonePropDialog::itemToggled);
+  connect(ui.zonebackground, &QAbstractButton::toggled, this, &PictureZonePropDialog::itemToggled);
 }
 
 void PictureZonePropDialog::itemToggled(bool selected) {

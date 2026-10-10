@@ -112,7 +112,7 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(ZoneInteractionContext& c
   }
   // The queued connection is used to ensure it gets called *after*
   // QAction::triggered().
-  connect(m_menu.get(), SIGNAL(aboutToHide()), SLOT(menuAboutToHide()), Qt::QueuedConnection);
+  connect(m_menu.get(), &QMenu::aboutToHide, this, &ZoneContextMenuInteraction::menuAboutToHide, Qt::QueuedConnection);
 
   highlightItem(0);
   const QPoint menuPos
@@ -144,7 +144,7 @@ void ZoneContextMenuInteraction::menuAboutToHide() {
   // to tell whether the menu was just dismissed or a menu item was clicked.
   // The only way to tell is to check back later, which we do here.
   if (m_extraDelaysDone++ < 1) {
-    QTimer::singleShot(200, this, SLOT(menuAboutToHide()));
+    QTimer::singleShot(200, this, &ZoneContextMenuInteraction::menuAboutToHide);
     return;
   }
 #endif

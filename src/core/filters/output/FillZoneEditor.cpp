@@ -53,7 +53,7 @@ FillZoneEditor::FillZoneEditor(const QImage& image,
   context().setContextMenuInteractionCreator(
       boost::bind(&FillZoneEditor::createContextMenuInteraction, this, boost::placeholders::_1));
 
-  connect(&zones(), SIGNAL(committed()), SLOT(commitZones()));
+  connect(&zones(), &EditableZoneSet::committed, this, &FillZoneEditor::commitZones);
 
   makeLastFollower(*context().createDefaultInteraction());
 

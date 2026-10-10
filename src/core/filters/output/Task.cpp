@@ -531,10 +531,10 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
       m_virtContentRect, m_pageId, m_params.dewarpingOptions(), m_params.distortionModel(),
       optWidget->depthPerception());
   const QPixmap downscaledOrigPixmap(dewarpingView->downscaledPixmap());
-  QObject::connect(optWidget, SIGNAL(depthPerceptionChanged(double)), dewarpingView.get(),
-                   SLOT(depthPerceptionChanged(double)));
-  QObject::connect(dewarpingView.get(), SIGNAL(distortionModelChanged(const dewarping::DistortionModel&)), optWidget,
-                   SLOT(distortionModelChanged(const dewarping::DistortionModel&)));
+  QObject::connect(optWidget, &OptionsWidget::depthPerceptionChanged, dewarpingView.get(),
+                   &DewarpingView::depthPerceptionChanged);
+  QObject::connect(dewarpingView.get(), &DewarpingView::distortionModelChanged, optWidget,
+                   &OptionsWidget::distortionModelChanged);
   tabImageRectMap->insert(
       std::pair<ImageViewTab, QRectF>(TAB_DEWARPING, m_xform.resultingPreCropArea().boundingRect()));
 
@@ -545,8 +545,8 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
     pictureZoneEditor = std::make_unique<output::PictureZoneEditor>(m_origImage, downscaledOrigPixmap, m_pictureMask,
                                                                     m_xform.transform(), m_xform.resultingPreCropArea(),
                                                                     m_pageId, m_settings);
-    QObject::connect(pictureZoneEditor.get(), SIGNAL(invalidateThumbnail(const PageId&)), optWidget,
-                     SIGNAL(invalidateThumbnail(const PageId&)));
+    QObject::connect(static_cast<PictureZoneEditor*>(pictureZoneEditor.get()), &PictureZoneEditor::invalidateThumbnail,
+                     optWidget, qOverload<const PageId&>(&OptionsWidget::invalidateThumbnail));
     tabImageRectMap->insert(
         std::pair<ImageViewTab, QRectF>(TAB_PICTURE_ZONES, m_xform.resultingPreCropArea().boundingRect()));
   }
@@ -573,8 +573,8 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
 
   auto fillZoneEditor = std::make_unique<FillZoneEditor>(m_outputImage, downscaledOutputPixmap, origToOutput,
                                                          outputToOrig, m_pageId, m_settings);
-  QObject::connect(fillZoneEditor.get(), SIGNAL(invalidateThumbnail(const PageId&)), optWidget,
-                   SIGNAL(invalidateThumbnail(const PageId&)));
+  QObject::connect(fillZoneEditor.get(), &FillZoneEditor::invalidateThumbnail, optWidget,
+                   qOverload<const PageId&>(&OptionsWidget::invalidateThumbnail));
   tabImageRectMap->insert(std::pair<ImageViewTab, QRectF>(TAB_FILL_ZONES, m_xform.resultingRect()));
 
   std::unique_ptr<QWidget> despeckleView;
@@ -582,8 +582,8 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
     despeckleView = std::make_unique<ErrorWidget>(tr("Despeckling can't be done in Color / Grayscale mode."));
   } else {
     despeckleView = std::make_unique<output::DespeckleView>(m_despeckleState, m_despeckleVisualization, m_debug);
-    QObject::connect(optWidget, SIGNAL(despeckleLevelChanged(double, bool*)), despeckleView.get(),
-                     SLOT(despeckleLevelChanged(double, bool*)));
+    QObject::connect(optWidget, &OptionsWidget::despeckleLevelChanged, static_cast<DespeckleView*>(despeckleView.get()),
+                     &DespeckleView::despeckleLevelChanged);
     tabImageRectMap->insert(std::pair<ImageViewTab, QRectF>(TAB_DESPECKLING, m_xform.resultingRect()));
   }
 
@@ -598,7 +598,7 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   tabWidget->setCurrentTab(optWidget->lastTab());
   tabWidget->setImageRectMap(std::move(tabImageRectMap));
 
-  QObject::connect(tabWidget.get(), SIGNAL(tabChanged(ImageViewTab)), optWidget, SLOT(tabChanged(ImageViewTab)));
+  QObject::connect(tabWidget.get(), &TabbedImageView::tabChanged, optWidget, &OptionsWidget::tabChanged);
 
   ui->setImageWidget(tabWidget.release(), ui->TRANSFER_OWNERSHIP, m_dbg.get());
 }  // Task::UiUpdater::updateUI

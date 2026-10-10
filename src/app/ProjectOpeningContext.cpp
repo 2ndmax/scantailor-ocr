@@ -57,7 +57,7 @@ void ProjectOpeningContext::showFixDpiDialog() {
   if (m_parent) {
     m_fixDpiDialog->setWindowModality(Qt::WindowModal);
   }
-  connect(m_fixDpiDialog, SIGNAL(accepted()), this, SLOT(fixedDpiSubmitted()));
-  connect(m_fixDpiDialog, SIGNAL(destroyed(QObject*)), this, SLOT(fixDpiDialogDestroyed()));
+  connect(m_fixDpiDialog, &QDialog::accepted, this, &ProjectOpeningContext::fixedDpiSubmitted);
+  connect(m_fixDpiDialog, &QObject::destroyed, this, &ProjectOpeningContext::fixDpiDialogDestroyed);
   m_fixDpiDialog->show();
 }

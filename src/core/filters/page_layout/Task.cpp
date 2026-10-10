@@ -154,17 +154,14 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
                              m_adaptedContentRect, *optWidget);
   ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
 
-  QObject::connect(view, SIGNAL(invalidateThumbnail(const PageId&)), optWidget,
-                   SIGNAL(invalidateThumbnail(const PageId&)));
-  QObject::connect(view, SIGNAL(invalidateAllThumbnails()), optWidget, SIGNAL(invalidateAllThumbnails()));
-  QObject::connect(view, SIGNAL(marginsSetLocally(const Margins&)), optWidget,
-                   SLOT(marginsSetExternally(const Margins&)));
-  QObject::connect(optWidget, SIGNAL(marginsSetLocally(const Margins&)), view,
-                   SLOT(marginsSetExternally(const Margins&)));
-  QObject::connect(optWidget, SIGNAL(topBottomLinkToggled(bool)), view, SLOT(topBottomLinkToggled(bool)));
-  QObject::connect(optWidget, SIGNAL(leftRightLinkToggled(bool)), view, SLOT(leftRightLinkToggled(bool)));
-  QObject::connect(optWidget, SIGNAL(alignmentChanged(const Alignment&)), view,
-                   SLOT(alignmentChanged(const Alignment&)));
-  QObject::connect(optWidget, SIGNAL(aggregateHardSizeChanged()), view, SLOT(aggregateHardSizeChanged()));
+  QObject::connect(view, &ImageView::invalidateThumbnail, optWidget,
+                   qOverload<const PageId&>(&OptionsWidget::invalidateThumbnail));
+  QObject::connect(view, &ImageView::invalidateAllThumbnails, optWidget, &OptionsWidget::invalidateAllThumbnails);
+  QObject::connect(view, &ImageView::marginsSetLocally, optWidget, &OptionsWidget::marginsSetExternally);
+  QObject::connect(optWidget, &OptionsWidget::marginsSetLocally, view, &ImageView::marginsSetExternally);
+  QObject::connect(optWidget, &OptionsWidget::topBottomLinkToggled, view, &ImageView::topBottomLinkToggled);
+  QObject::connect(optWidget, &OptionsWidget::leftRightLinkToggled, view, &ImageView::leftRightLinkToggled);
+  QObject::connect(optWidget, &OptionsWidget::alignmentChanged, view, &ImageView::alignmentChanged);
+  QObject::connect(optWidget, &OptionsWidget::aggregateHardSizeChanged, view, &ImageView::aggregateHardSizeChanged);
 }  // Task::UiUpdater::updateUI
 }  // namespace page_layout

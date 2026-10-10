@@ -27,11 +27,11 @@ SystemLoadWidget::SystemLoadWidget(QWidget* parent) : QWidget(parent), m_maxThre
   ui.slider->setRange(1, m_maxThreads);
   ui.slider->setValue(numThreads);
 
-  connect(ui.slider, SIGNAL(sliderPressed()), SLOT(sliderPressed()));
-  connect(ui.slider, SIGNAL(sliderMoved(int)), SLOT(sliderMoved(int)));
-  connect(ui.slider, SIGNAL(valueChanged(int)), SLOT(valueChanged(int)));
-  connect(ui.minusBtn, SIGNAL(clicked()), SLOT(decreaseLoad()));
-  connect(ui.plusBtn, SIGNAL(clicked()), SLOT(increaseLoad()));
+  connect(ui.slider, &QAbstractSlider::sliderPressed, this, &SystemLoadWidget::sliderPressed);
+  connect(ui.slider, &QAbstractSlider::sliderMoved, this, &SystemLoadWidget::sliderMoved);
+  connect(ui.slider, &QAbstractSlider::valueChanged, this, &SystemLoadWidget::valueChanged);
+  connect(ui.minusBtn, &QAbstractButton::clicked, this, &SystemLoadWidget::decreaseLoad);
+  connect(ui.plusBtn, &QAbstractButton::clicked, this, &SystemLoadWidget::increaseLoad);
 }
 
 void SystemLoadWidget::sliderPressed() {

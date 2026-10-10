@@ -219,8 +219,7 @@ void OptionsWidget::showApplyDialog() {
 
   auto* dialog = new SplitModeDialog(this, m_pageId, m_pageSelectionAccessor, record.combinedLayoutType());
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&, LayoutType, bool)), this,
-          SLOT(layoutTypeSet(const std::set<PageId>&, LayoutType, bool)));
+  connect(dialog, &SplitModeDialog::accepted, this, &OptionsWidget::layoutTypeSet);
   dialog->show();
 }
 
@@ -304,13 +303,13 @@ void OptionsWidget::commitCurrentParams() {
 
 void OptionsWidget::setupUiConnections() {
   // Clicked rather than toggled: clicking the type that was detected also sets it by hand.
-  CONNECT(singlePageUncutBtn, SIGNAL(clicked(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
-  CONNECT(pagePlusOffcutBtn, SIGNAL(clicked(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
-  CONNECT(twoPagesBtn, SIGNAL(clicked(bool)), this, SLOT(layoutTypeButtonToggled(bool)));
-  CONNECT(layoutAutoBtn, SIGNAL(toggled(bool)), this, SLOT(layoutAutoToggled(bool)));
-  CONNECT(layoutManualBtn, SIGNAL(toggled(bool)), this, SLOT(layoutManualToggled(bool)));
-  CONNECT(applyToBtn, SIGNAL(clicked()), this, SLOT(showApplyDialog()));
-  CONNECT(autoBtn, SIGNAL(toggled(bool)), this, SLOT(splitLineModeChanged(bool)));
+  CONNECT(singlePageUncutBtn, &QAbstractButton::clicked, this, &OptionsWidget::layoutTypeButtonToggled);
+  CONNECT(pagePlusOffcutBtn, &QAbstractButton::clicked, this, &OptionsWidget::layoutTypeButtonToggled);
+  CONNECT(twoPagesBtn, &QAbstractButton::clicked, this, &OptionsWidget::layoutTypeButtonToggled);
+  CONNECT(layoutAutoBtn, &QAbstractButton::toggled, this, &OptionsWidget::layoutAutoToggled);
+  CONNECT(layoutManualBtn, &QAbstractButton::toggled, this, &OptionsWidget::layoutManualToggled);
+  CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyDialog);
+  CONNECT(autoBtn, &QAbstractButton::toggled, this, &OptionsWidget::splitLineModeChanged);
 }
 
 #undef CONNECT

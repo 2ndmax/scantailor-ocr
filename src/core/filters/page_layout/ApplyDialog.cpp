@@ -11,7 +11,7 @@ ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelec
   setupUi(this);
   scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyDialog::onSubmit);
 }
 
 ApplyDialog::~ApplyDialog() = default;

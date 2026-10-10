@@ -15,7 +15,7 @@ ErrorWidget::ErrorWidget(const QString& text, Qt::TextFormat fmt) : ui(std::make
   QIcon icon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning));
   ui->imageLabel->setPixmap(icon.pixmap(48, 48));
 
-  connect(ui->textLabel, SIGNAL(linkActivated(const QString&)), SLOT(linkActivated(const QString&)));
+  connect(ui->textLabel, &QLabel::linkActivated, this, &ErrorWidget::linkActivated);
 }
 
 ErrorWidget::~ErrorWidget() = default;

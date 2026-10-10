@@ -198,14 +198,14 @@ void OptionsWidget::setRotationPixmap() {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidget::setupUiConnections() {
-  CONNECT(rotateLeftBtn, SIGNAL(clicked()), this, SLOT(rotateLeft()));
-  CONNECT(rotateRightBtn, SIGNAL(clicked()), this, SLOT(rotateRight()));
-  CONNECT(applyToBtn, SIGNAL(clicked()), this, SLOT(showApplyToDialog()));
-  CONNECT(trimEnabledCheck, SIGNAL(toggled(bool)), this, SLOT(trimEnableToggled(bool)));
-  CONNECT(trimLeftSpin, SIGNAL(valueChanged(int)), this, SLOT(trimMarginsChanged(int)));
-  CONNECT(trimRightSpin, SIGNAL(valueChanged(int)), this, SLOT(trimMarginsChanged(int)));
-  CONNECT(trimTopSpin, SIGNAL(valueChanged(int)), this, SLOT(trimMarginsChanged(int)));
-  CONNECT(trimBottomSpin, SIGNAL(valueChanged(int)), this, SLOT(trimMarginsChanged(int)));
+  CONNECT(rotateLeftBtn, &QAbstractButton::clicked, this, &OptionsWidget::rotateLeft);
+  CONNECT(rotateRightBtn, &QAbstractButton::clicked, this, &OptionsWidget::rotateRight);
+  CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyToDialog);
+  CONNECT(trimEnabledCheck, &QAbstractButton::toggled, this, &OptionsWidget::trimEnableToggled);
+  CONNECT(trimLeftSpin, &QSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
+  CONNECT(trimRightSpin, &QSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
+  CONNECT(trimTopSpin, &QSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
+  CONNECT(trimBottomSpin, &QSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
 }
 
 #undef CONNECT

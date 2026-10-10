@@ -123,8 +123,8 @@ NewOpenProjectPanel::NewOpenProjectPanel(QWidget* parent) : QWidget(parent) {
     rp.enumerate([this](const QString& filePath) { addRecentProject(filePath); });
   }
 
-  connect(newProjectButton, SIGNAL(clicked()), this, SIGNAL(newProject()));
-  connect(openProjectButton, SIGNAL(clicked()), this, SIGNAL(openProject()));
+  connect(newProjectButton, &QAbstractButton::clicked, this, &NewOpenProjectPanel::newProject);
+  connect(openProjectButton, &QAbstractButton::clicked, this, &NewOpenProjectPanel::openProject);
 }
 
 void NewOpenProjectPanel::addRecentProject(const QString& filePath) {

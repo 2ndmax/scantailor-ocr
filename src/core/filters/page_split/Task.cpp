@@ -230,11 +230,9 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
                             m_pageInfo.leftHalfRemoved(), m_pageInfo.rightHalfRemoved());
   ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
 
-  QObject::connect(view, SIGNAL(invalidateThumbnail(const PageInfo&)), optWidget,
-                   SIGNAL(invalidateThumbnail(const PageInfo&)));
-  QObject::connect(view, SIGNAL(pageLayoutSetLocally(const PageLayout&)), optWidget,
-                   SLOT(pageLayoutSetExternally(const PageLayout&)));
-  QObject::connect(optWidget, SIGNAL(pageLayoutSetLocally(const PageLayout&)), view,
-                   SLOT(pageLayoutSetExternally(const PageLayout&)));
+  QObject::connect(view, &ImageView::invalidateThumbnail, optWidget,
+                   qOverload<const PageInfo&>(&OptionsWidget::invalidateThumbnail));
+  QObject::connect(view, &ImageView::pageLayoutSetLocally, optWidget, &OptionsWidget::pageLayoutSetExternally);
+  QObject::connect(optWidget, &OptionsWidget::pageLayoutSetLocally, view, &ImageView::pageLayoutSetExternally);
 }  // Task::UiUpdater::updateUI
 }  // namespace page_split
