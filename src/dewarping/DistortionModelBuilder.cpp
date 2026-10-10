@@ -60,8 +60,6 @@ class DistortionModelBuilder::RansacAlgo {
   const RansacModel& bestModel() const { return m_bestModel; }
 
  private:
-  double calcReferenceHeight(const CylindricalSurfaceDewarper& dewarper, const QPointF& loc);
-
   RansacModel m_bestModel;
   const std::vector<TracedCurve>& m_allCurves;
 };
@@ -415,7 +413,8 @@ void DistortionModelBuilder::RansacAlgo::buildAndAssessModel(const TracedCurve* 
   double error = 0;
   for (const TracedCurve& curve : m_allCurves) {
     const size_t polylineSize = curve.trimmedPolyline.size();
-    const double rReferenceHeight = 1.0 / 1.0;  // calcReferenceHeight(dewarper, curve.centroid);
+    // The errors are not scaled by the local line height.
+    const double rReferenceHeight = 1.0;
 
     // We are going to approximate the dewarped polyline by a straight line
     // using linear least-squares: At*A*x = At*B -> x = (At*A)-1 * At*B
@@ -476,18 +475,6 @@ void DistortionModelBuilder::RansacAlgo::buildAndAssessModel(const TracedCurve* 
 catch (const std::runtime_error&) {
   // Probably CylindricalSurfaceDewarper didn't like something.
 }
-
-#if 0
-    double DistortionModelBuilder::RansacAlgo::calcReferenceHeight(const CylindricalSurfaceDewarper& dewarper,
-                                                                   const QPointF& loc) {
-    // TODO: ideally, we would use the counterpart of CylindricalSurfaceDewarper::mapGeneratrix(),
-    // that would map it the other way, and which doesn't currently exist.
-
-        const QPointF pt1(dewarper.mapToDewarpedSpace(loc + QPointF(0.0, -10)));
-        const QPointF pt2(dewarper.mapToDewarpedSpace(loc + QPointF(0.0, 10)));
-        return std::fabs(pt1.y() - pt2.y());
-    }
-#endif
 
 QImage DistortionModelBuilder::visualizeTrimmedPolylines(const QImage& background,
                                                          const std::vector<TracedCurve>& curves) const {
