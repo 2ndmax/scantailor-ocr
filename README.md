@@ -417,10 +417,19 @@ from working:
   "Geraderichten", "Ordner"), and "..." is preceded by a space.
 * *Output*, Wolf threshold: "Lower bound:", "Upper bound:" and "Coef:" as with Sauvola (formerly
   "Upper Bound:" and "Coeff:").
-* Check boxes in sentence case also in *Select Content* and *Margins*: "Fine tune page corners"
+* Check boxes in sentence case also in *Select Content* and *Margins*: "Fine-tune page corners"
   and "Auto margins". "Resolution:" has a colon like the other labels, "Color:" (*Output*,
   Filling) no longer a trailing space. *Deskew*: the detection method is called "Top page edge";
   that it is meant for book scans with a dark background stays in the tooltip.
+* *Select Content*: the page and content box mode is "Off" (formerly the verb "Disable"), as in
+  the Output step.
+* Tooltips for the rotate buttons (*Import*), the split line modes (*Split Pages*), the deskew
+  modes (*Deskew*) and the page and content box modes (*Select Content*), also in the Default
+  Parameters. "Fine-tune page corners" explains that it shrinks the page box from each dark
+  corner.
+* *Settings*: labels without a trailing space; "Use auto detection in the Output step" and its
+  tooltip name the current check box of the Output step ("Dark content on a light background").
+* File dialogs offer "ScanTailor OCR Projects"; the menu entry is "Go to Page ...".
 
 ### Default parameters dialog
 

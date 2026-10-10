@@ -330,13 +330,8 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Caixa de Página</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="932"/>
-        <source>Shift with corners while they are in black. </source>
-        <translation>Mudar com os cantos enquanto estão a preto. </translation>
-    </message>
-    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="935"/>
-        <source>Fine tune page corners</source>
+        <source>Fine-tune page corners</source>
         <translation>Ajuste Fino dos Cantos da Página</translation>
     </message>
     <message>
@@ -766,6 +761,11 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="898"/>
         <source>Use a page box of the size set below for new pages.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="932"/>
+        <source>Shrinks the detected page box from each corner as long as the corner lies on a dark area, such as the scanner background showing in the corners of a page placed askew.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5355,12 +5355,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="129"/>
-        <source>Shift with corners while they are in black. </source>
-        <translation>Mudar com os cantos enquanto estão a preto. </translation>
+        <source>Shrinks the detected page box from each corner as long as the corner lies on a dark area, such as the scanner background showing in the corners of a page placed askew.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="132"/>
-        <source>Fine tune page corners</source>
+        <source>Fine-tune page corners</source>
         <translation>Ajuste Fino dos Cantos da Página</translation>
     </message>
     <message>

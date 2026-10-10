@@ -929,10 +929,10 @@
                  <item>
                   <widget class="QCheckBox" name="fineTuneBtn">
                    <property name="toolTip">
-                    <string>Shift with corners while they are in black. </string>
+                    <string>Shrinks the detected page box from each corner as long as the corner lies on a dark area, such as the scanner background showing in the corners of a page placed askew.</string>
                    </property>
                    <property name="text">
-                    <string>Fine tune page corners</string>
+                    <string>Fine-tune page corners</string>
                    </property>
                   </widget>
                  </item>

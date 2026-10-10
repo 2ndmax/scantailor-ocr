@@ -318,13 +318,8 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Seitenbereich</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="932"/>
-        <source>Shift with corners while they are in black. </source>
-        <translation>Ecken verschieben solange sie Schwarz sind. </translation>
-    </message>
-    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="935"/>
-        <source>Fine tune page corners</source>
+        <source>Fine-tune page corners</source>
         <translation>Feinabstimmung der Seitenecken</translation>
     </message>
     <message>
@@ -765,6 +760,11 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <location filename="../app/DefaultParamsDialog.ui" line="898"/>
         <source>Use a page box of the size set below for new pages.</source>
         <translation>Verwendet für neue Seiten einen Seitenbereich der darunter eingestellten Größe.</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="932"/>
+        <source>Shrinks the detected page box from each corner as long as the corner lies on a dark area, such as the scanner background showing in the corners of a page placed askew.</source>
+        <translation>Verkleinert den erkannten Seitenbereich von jeder Ecke aus, solange die Ecke auf dunklem Grund liegt, etwa auf dem Scannerhintergrund, der bei einer schief aufgelegten Seite in den Ecken zu sehen ist.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1045"/>
@@ -5371,12 +5371,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="129"/>
-        <source>Shift with corners while they are in black. </source>
-        <translation>Ecken verschieben solange sie Schwarz sind. </translation>
+        <source>Shrinks the detected page box from each corner as long as the corner lies on a dark area, such as the scanner background showing in the corners of a page placed askew.</source>
+        <translation>Verkleinert den erkannten Seitenbereich von jeder Ecke aus, solange die Ecke auf dunklem Grund liegt, etwa auf dem Scannerhintergrund, der bei einer schief aufgelegten Seite in den Ecken zu sehen ist.</translation>
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="132"/>
-        <source>Fine tune page corners</source>
+        <source>Fine-tune page corners</source>
         <translation>Feinabstimmung der Seitenecken</translation>
     </message>
     <message>
