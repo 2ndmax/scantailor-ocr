@@ -313,6 +313,13 @@ from working:
   background". The tooltips say that the page is inverted when it is off and that **Apply to
   ...** sets the value by hand on the other pages, so the automatic detection no longer changes
   it there.
+* *Output*: tooltips for "Fill offcut", "Fill margins", the filling color, both smoothing
+  options, the threshold method, the picture zones, "Higher search sensitivity", "Despeckle",
+  "Split output" and the two kinds of foreground, also in the Default Parameters window.
+* **Fixed: changing the output resolution turned off automatic dewarping** on pages not yet
+  processed in the Output step. A page with dewarping "Auto" switches to "Manual" when its
+  resolution changes, so it keeps the curves found; without curves found yet, "Manual" meant no
+  dewarping at all. Such pages now stay on "Auto". The tooltip of the resolution says so.
 * *Output*: the **output resolution** (a list with 300, 400, 600 and 1200 DPI; other values can
   be typed in) and the **dewarping** mode with "Post deskew" are set in the panels and apply to
   the current page at once, like all other settings. "Change ..." became **Apply to ...**. The

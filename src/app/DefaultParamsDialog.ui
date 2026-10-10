@@ -2125,6 +2125,9 @@ QToolButton:pressed {
                      </property>
                      <item>
                       <widget class="QCheckBox" name="fillOffcutCB">
+                       <property name="toolTip">
+                        <string>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</string>
+                       </property>
                        <property name="text">
                         <string>Fill offcut</string>
                        </property>
@@ -2142,6 +2145,9 @@ QToolButton:pressed {
                      </item>
                      <item>
                       <widget class="QCheckBox" name="fillMarginsCB">
+                       <property name="toolTip">
+                        <string>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</string>
+                       </property>
                        <property name="text">
                         <string>Fill margins</string>
                        </property>
@@ -2153,13 +2159,20 @@ QToolButton:pressed {
                     <layout class="QHBoxLayout" name="horizontalLayout_23">
                      <item>
                       <widget class="QLabel" name="fillingColorLabel">
+                       <property name="toolTip">
+                        <string>The color of the filled areas: the background color found on the page, white or black.</string>
+                       </property>
                        <property name="text">
                         <string>Color:</string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QComboBox" name="fillingColorBox"/>
+                      <widget class="QComboBox" name="fillingColorBox">
+                       <property name="toolTip">
+                        <string>The color of the filled areas: the background color found on the page, white or black.</string>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <spacer name="horizontalSpacer_44">
@@ -2205,13 +2218,20 @@ QToolButton:pressed {
                     <layout class="QHBoxLayout" name="horizontalLayout_22">
                      <item>
                       <widget class="QLabel" name="thresholMethodLabel">
+                       <property name="toolTip">
+                        <string>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</string>
+                       </property>
                        <property name="text">
                         <string>Method:</string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QComboBox" name="thresholdMethodBox"/>
+                      <widget class="QComboBox" name="thresholdMethodBox">
+                       <property name="toolTip">
+                        <string>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</string>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <spacer name="horizontalSpacer_41">
@@ -2627,6 +2647,9 @@ QToolButton:pressed {
                      </property>
                      <item>
                       <widget class="QCheckBox" name="savitzkyGolaySmoothingCB">
+                       <property name="toolTip">
+                        <string>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</string>
+                       </property>
                        <property name="text">
                         <string>Savitzky-Golay smoothing</string>
                        </property>
@@ -2634,6 +2657,9 @@ QToolButton:pressed {
                      </item>
                      <item>
                       <widget class="QCheckBox" name="morphologicalSmoothingCB">
+                       <property name="toolTip">
+                        <string>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</string>
+                       </property>
                        <property name="text">
                         <string>Morphological smoothing</string>
                        </property>
@@ -2977,7 +3003,11 @@ QToolButton:pressed {
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_15">
                      <item>
-                      <widget class="QComboBox" name="pictureShapeSelector"/>
+                      <widget class="QComboBox" name="pictureShapeSelector">
+                       <property name="toolTip">
+                        <string>Mixed mode only: how pictures are found, not at all, as free shapes or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</string>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <spacer name="horizontalSpacer_38">
@@ -3046,6 +3076,9 @@ QToolButton:pressed {
                     <layout class="QHBoxLayout" name="horizontalLayout_34">
                      <item>
                       <widget class="QCheckBox" name="higherSearchSensitivityCB">
+                       <property name="toolTip">
+                        <string>Also finds pictures with weak contrast; text may then be taken for a picture, too.</string>
+                       </property>
                        <property name="text">
                         <string>Higher search sensitivity</string>
                        </property>
@@ -3147,6 +3180,9 @@ QToolButton:pressed {
                  <layout class="QVBoxLayout" name="verticalLayout_22">
                   <item>
                    <widget class="QCheckBox" name="splittingCB">
+                    <property name="toolTip">
+                     <string>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</string>
+                    </property>
                     <property name="text">
                      <string>Split output</string>
                     </property>
@@ -3159,6 +3195,9 @@ QToolButton:pressed {
 </property>
                   <item>
                    <widget class="QRadioButton" name="bwForegroundRB">
+                    <property name="toolTip">
+                     <string>The text is saved in black and white.</string>
+                    </property>
                     <property name="text">
                      <string>B&amp;&amp;W foreground</string>
                     </property>
@@ -3199,6 +3238,9 @@ QToolButton:pressed {
                   </item>
                   <item>
                    <widget class="QRadioButton" name="colorForegroundRB">
+                    <property name="toolTip">
+                     <string>The text keeps its colors.</string>
+                    </property>
                     <property name="text">
                      <string>Color foreground</string>
                     </property>
@@ -3237,6 +3279,9 @@ QToolButton:pressed {
                  <layout class="QHBoxLayout" name="horizontalLayout_37">
                   <item>
                    <widget class="QCheckBox" name="despeckleCB">
+                    <property name="toolTip">
+                     <string>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</string>
+                    </property>
                     <property name="text">
                      <string>Despeckle</string>
                     </property>
