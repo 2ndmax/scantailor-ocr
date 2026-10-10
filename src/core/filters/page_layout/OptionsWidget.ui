@@ -795,16 +795,6 @@ QToolButton:pressed {
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="freezeAggregateHardSizeCb">
-        <property name="toolTip">
-         <string>Keep the aggregate page size used for matching fixed while you switch pages, so the reference dimensions do not jump.</string>
-        </property>
-        <property name="text">
-         <string>Lock common size</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <property name="topMargin">
          <number>8</number>
@@ -852,6 +842,65 @@ QToolButton:pressed {
          </spacer>
         </item>
        </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="CollapsibleGroupBox" name="commonSizeGroup">
+     <property name="title">
+      <string>Common Size</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <layout class="QVBoxLayout" name="commonSizeGroupLayout">
+      <item>
+       <layout class="QHBoxLayout" name="commonSizeLayout">
+        <item>
+         <widget class="QLabel" name="commonSizeLabel">
+          <property name="toolTip">
+           <string>The largest width and the largest height of all pages whose size is matched with other pages, margins included.  These pages are enlarged to this size.</string>
+          </property>
+          <property name="text">
+           <string>Size:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="commonSizeValue">
+          <property name="toolTip">
+           <string>The largest width and the largest height of all pages whose size is matched with other pages, margins included.  These pages are enlarged to this size.</string>
+          </property>
+          <property name="text">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="commonSizeSpacerRight">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="freezeAggregateHardSizeCb">
+        <property name="toolTip">
+         <string>Keeps the common size fixed while you edit margins and content boxes, so the other pages don&apos;t change with every edit.  It also applies to the output.  It is released when the project is closed.</string>
+        </property>
+        <property name="text">
+         <string>Lock for now</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

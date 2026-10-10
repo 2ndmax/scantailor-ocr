@@ -323,7 +323,13 @@ from working:
   separate list of presets is gone. A value chosen from a list sets both while they are the
   same; typing changes only the one field. The button "Fix DPI of all images ..." (formerly
   "Fix all ...") opens the same window as *Tools > Fix DPI of All Images ...* (formerly "Fix
-  DPI ..."). "Lock aggregate size for matching" is now called "Lock common size".
+  DPI ...").
+* *Margins*: "Lock aggregate size for matching" applies to all pages, not to the page, so it
+  has its own panel, **Common Size**, below **Alignment** (no **Apply to ...**). The panel
+  shows the common size of the pages whose size is matched, in the current units; the check box
+  is called "Lock for now", and its tooltip says that the locked size also applies to the
+  output and is released when the project is closed. Releasing the lock now updates the
+  thumbnails.
 * The options panels are at least 320 pixels wide (formerly 274), so a scroll bar doesn't cover
   their content.
 * Status bar: the file name shows up to 50 characters (formerly 15, with split pages 11); the

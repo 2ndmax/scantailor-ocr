@@ -9,6 +9,7 @@
 
 #include <QLineEdit>
 #include <QSettings>
+#include <cmath>
 #include <utility>
 
 #include "../../Utils.h"
@@ -60,6 +61,10 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   }
 
   setupUiConnections();
+
+  // The common size can change whenever a page is redrawn with new settings.
+  connect(this, SIGNAL(invalidateThumbnail(const PageId&)), this, SLOT(updateCommonSizeDisplay()));
+  connect(this, SIGNAL(invalidateAllThumbnails()), this, SLOT(updateCommonSizeDisplay()));
 }
 
 OptionsWidget::~OptionsWidget() = default;
@@ -138,6 +143,7 @@ void OptionsWidget::postUpdateUI() {
   m_marginsMM = m_settings->getHardMarginsMM(m_pageId);
   updateMarginsDisplay();
   updateSourceDpiDisplay();
+  updateCommonSizeDisplay();
 
   if (m_sourceDpiFocusWidget) {
     m_sourceDpiFocusWidget->setFocus(Qt::OtherFocusReason);
@@ -189,6 +195,7 @@ void OptionsWidget::onUnitsChanged(Units units) {
   }
 
   updateMarginsDisplay();
+  updateCommonSizeDisplay();
 }
 
 void OptionsWidget::horMarginsChanged(const double val) {
@@ -388,6 +395,35 @@ void OptionsWidget::applyAlignment(const std::set<PageId>& pages) {
 void OptionsWidget::freezeAggregateHardSizeToggled(const bool checked) {
   m_settings->setAggregateHardSizeFrozen(checked);
   emit aggregateHardSizeChanged();
+  // Released, the size may differ from the one the other pages were drawn with.
+  emit invalidateAllThumbnails();
+}
+
+void OptionsWidget::updateCommonSizeDisplay() {
+  const QSizeF sizeMm(m_settings->getAggregateHardSizeMM());
+  if (sizeMm.isEmpty() || m_dpi.isNull()) {
+    commonSizeValue->setText(tr("no matched pages"));
+    return;
+  }
+
+  double width = sizeMm.width();
+  double height = sizeMm.height();
+  UnitsProvider::getInstance().convertFrom(width, height, MILLIMETRES, m_dpi);
+
+  // Rounded like the image size in the status bar.
+  const Units units = UnitsProvider::getInstance().getUnits();
+  switch (units) {
+    case PIXELS:
+    case MILLIMETRES:
+      width = std::round(width);
+      height = std::round(height);
+      break;
+    default:
+      width = std::round(width * 10) / 10;
+      height = std::round(height * 10) / 10;
+      break;
+  }
+  commonSizeValue->setText(QString("%1 x %2 %3").arg(width).arg(height).arg(unitsToLocalizedString(units)));
 }
 
 void OptionsWidget::updateMarginsDisplay() {

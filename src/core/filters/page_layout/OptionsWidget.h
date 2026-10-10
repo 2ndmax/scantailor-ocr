@@ -71,6 +71,8 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
  private slots:
 
+  void updateCommonSizeDisplay();
+
   void horMarginsChanged(double val);
 
   void vertMarginsChanged(double val);
