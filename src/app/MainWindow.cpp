@@ -133,7 +133,7 @@ MainWindow::MainWindow()
   m_thumbSequence = std::make_unique<ThumbnailSequence>(m_maxLogicalThumbSize, viewMode);
 
   m_autoSaveTimer.setSingleShot(true);
-  connect(&m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSaveProject()));
+  connect(&m_autoSaveTimer, &QTimer::timeout, this, &MainWindow::autoSaveProject);
 
   setupUi(this);
   setupIcons();
@@ -241,19 +241,20 @@ MainWindow::MainWindow()
   // Should be enough to save a project.
   OutOfMemoryHandler::instance().allocateEmergencyMemory(3 * 1024 * 1024);
 
-  connect(actionFirstPage, SIGNAL(triggered(bool)), SLOT(goFirstPage()));
-  connect(actionLastPage, SIGNAL(triggered(bool)), SLOT(goLastPage()));
-  connect(actionPrevPage, SIGNAL(triggered(bool)), SLOT(goPrevPage()));
-  connect(actionNextPage, SIGNAL(triggered(bool)), SLOT(goNextPage()));
-  connect(actionPrevPageQ, SIGNAL(triggered(bool)), this, SLOT(goPrevPage()));
-  connect(actionNextPageW, SIGNAL(triggered(bool)), this, SLOT(goNextPage()));
-  connect(actionPrevSelectedPage, SIGNAL(triggered(bool)), SLOT(goPrevSelectedPage()));
-  connect(actionNextSelectedPage, SIGNAL(triggered(bool)), SLOT(goNextSelectedPage()));
-  connect(actionPrevSelectedPageQ, SIGNAL(triggered(bool)), this, SLOT(goPrevSelectedPage()));
-  connect(actionNextSelectedPageW, SIGNAL(triggered(bool)), this, SLOT(goNextSelectedPage()));
-  connect(actionGotoPage, SIGNAL(triggered(bool)), this, SLOT(execGotoPageDialog()));
-  connect(actionAbout, SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
-  connect(&OutOfMemoryHandler::instance(), SIGNAL(outOfMemory()), SLOT(handleOutOfMemorySituation()));
+  connect(actionFirstPage, &QAction::triggered, this, &MainWindow::goFirstPage);
+  connect(actionLastPage, &QAction::triggered, this, &MainWindow::goLastPage);
+  connect(actionPrevPage, &QAction::triggered, this, &MainWindow::goPrevPage);
+  connect(actionNextPage, &QAction::triggered, this, &MainWindow::goNextPage);
+  connect(actionPrevPageQ, &QAction::triggered, this, &MainWindow::goPrevPage);
+  connect(actionNextPageW, &QAction::triggered, this, &MainWindow::goNextPage);
+  connect(actionPrevSelectedPage, &QAction::triggered, this, &MainWindow::goPrevSelectedPage);
+  connect(actionNextSelectedPage, &QAction::triggered, this, &MainWindow::goNextSelectedPage);
+  connect(actionPrevSelectedPageQ, &QAction::triggered, this, &MainWindow::goPrevSelectedPage);
+  connect(actionNextSelectedPageW, &QAction::triggered, this, &MainWindow::goNextSelectedPage);
+  connect(actionGotoPage, &QAction::triggered, this, &MainWindow::execGotoPageDialog);
+  connect(actionAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
+  connect(&OutOfMemoryHandler::instance(), &OutOfMemoryHandler::outOfMemory, this,
+          &MainWindow::handleOutOfMemorySituation);
   connect(prevPageBtn, &QToolButton::clicked, this, [this]() {
     if (filterSelectedBtn->isChecked()) {
       goPrevSelectedPage();
@@ -268,7 +269,7 @@ MainWindow::MainWindow()
       goNextPage();
     }
   });
-  connect(gotoPageBtn, SIGNAL(clicked()), this, SLOT(execGotoPageDialog()));
+  connect(gotoPageBtn, &QAbstractButton::clicked, this, &MainWindow::execGotoPageDialog);
 
   auto magnifyThumbnails = [this]() { scaleThumbnails(1); };
   auto diminishThumbnails = [this]() { scaleThumbnails(-1); };
@@ -276,35 +277,33 @@ MainWindow::MainWindow()
   connect(diminishThumbnailsBtn, &QPushButton::clicked, diminishThumbnails);
   connect(actionMagnifyThumbnails, &QAction::triggered, magnifyThumbnails);
   connect(actionDiminishThumbnails, &QAction::triggered, diminishThumbnails);
-  connect(actionReloadPage, SIGNAL(triggered(bool)), SLOT(reloadCurrentPage()));
+  connect(actionReloadPage, &QAction::triggered, this, &MainWindow::reloadCurrentPage);
 
-  connect(actionSwitchFilter1, SIGNAL(triggered(bool)), SLOT(switchFilter1()));
-  connect(actionSwitchFilter2, SIGNAL(triggered(bool)), SLOT(switchFilter2()));
-  connect(actionSwitchFilter3, SIGNAL(triggered(bool)), SLOT(switchFilter3()));
-  connect(actionSwitchFilter4, SIGNAL(triggered(bool)), SLOT(switchFilter4()));
-  connect(actionSwitchFilter5, SIGNAL(triggered(bool)), SLOT(switchFilter5()));
-  connect(actionSwitchFilter6, SIGNAL(triggered(bool)), SLOT(switchFilter6()));
+  connect(actionSwitchFilter1, &QAction::triggered, this, &MainWindow::switchFilter1);
+  connect(actionSwitchFilter2, &QAction::triggered, this, &MainWindow::switchFilter2);
+  connect(actionSwitchFilter3, &QAction::triggered, this, &MainWindow::switchFilter3);
+  connect(actionSwitchFilter4, &QAction::triggered, this, &MainWindow::switchFilter4);
+  connect(actionSwitchFilter5, &QAction::triggered, this, &MainWindow::switchFilter5);
+  connect(actionSwitchFilter6, &QAction::triggered, this, &MainWindow::switchFilter6);
 
-  connect(filterList->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
-          SLOT(filterSelectionChanged(const QItemSelection&)));
-  connect(filterList, SIGNAL(launchBatchProcessing()), this, SLOT(startBatchProcessing()));
+  connect(filterList->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+          &MainWindow::filterSelectionChanged);
+  connect(filterList, &StageListView::launchBatchProcessing, this, &MainWindow::startBatchProcessing);
 
-  connect(m_workerThreadPool.get(), SIGNAL(taskResult(const BackgroundTaskPtr&, const FilterResultPtr&)), this,
-          SLOT(filterResult(const BackgroundTaskPtr&, const FilterResultPtr&)));
+  connect(m_workerThreadPool.get(), &WorkerThreadPool::taskResult, this, &MainWindow::filterResult);
 
-  connect(m_thumbSequence.get(),
-          SIGNAL(newSelectionLeader(const PageInfo&, const QRectF&, ThumbnailSequence::SelectionFlags)), this,
-          SLOT(currentPageChanged(const PageInfo&, const QRectF&, ThumbnailSequence::SelectionFlags)));
-  connect(m_thumbSequence.get(), SIGNAL(pageContextMenuRequested(const PageInfo&, const QPoint&, bool)), this,
-          SLOT(pageContextMenuRequested(const PageInfo&, const QPoint&, bool)));
-  connect(m_thumbSequence.get(), SIGNAL(pastLastPageContextMenuRequested(const QPoint&)),
-          SLOT(pastLastPageContextMenuRequested(const QPoint&)));
-  connect(selectionModeBtn, SIGNAL(clicked(bool)), m_thumbSequence.get(), SLOT(setSelectionModeEnabled(bool)));
+  connect(m_thumbSequence.get(), &ThumbnailSequence::newSelectionLeader, this, &MainWindow::currentPageChanged);
+  connect(m_thumbSequence.get(), &ThumbnailSequence::pageContextMenuRequested, this,
+          &MainWindow::pageContextMenuRequested);
+  connect(m_thumbSequence.get(), &ThumbnailSequence::pastLastPageContextMenuRequested, this,
+          &MainWindow::pastLastPageContextMenuRequested);
+  connect(selectionModeBtn, &QAbstractButton::clicked, m_thumbSequence.get(),
+          &ThumbnailSequence::setSelectionModeEnabled);
 
-  connect(thumbView->verticalScrollBar(), SIGNAL(sliderMoved(int)), this, SLOT(thumbViewScrolled()));
-  connect(thumbView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(thumbViewScrolled()));
-  connect(focusButton, SIGNAL(clicked(bool)), this, SLOT(thumbViewFocusToggled(bool)));
-  connect(sortOptions, SIGNAL(currentIndexChanged(int)), this, SLOT(pageOrderingChanged(int)));
+  connect(thumbView->verticalScrollBar(), &QAbstractSlider::sliderMoved, this, &MainWindow::thumbViewScrolled);
+  connect(thumbView->verticalScrollBar(), &QAbstractSlider::valueChanged, this, &MainWindow::thumbViewScrolled);
+  connect(focusButton, &QAbstractButton::clicked, this, &MainWindow::thumbViewFocusToggled);
+  connect(sortOptions, &QComboBox::currentIndexChanged, this, &MainWindow::pageOrderingChanged);
   connect(thumbColumnViewBtn, &QToolButton::clicked, this, [this, &settings](bool checked) {
     settings.setSingleColumnThumbnailDisplayEnabled(checked);
     updateThumbnailViewMode();
@@ -323,24 +322,24 @@ MainWindow::MainWindow()
     m_thumbSequence->invalidateAllThumbnails();
   });
 
-  connect(actionFixDpi, SIGNAL(triggered(bool)), SLOT(fixDpiDialogRequested()));
-  connect(actionReverseTwoPageOrder, SIGNAL(triggered(bool)), SLOT(toggleTwoPageSpreadReadingOrder()));
-  connect(actionRelinking, SIGNAL(triggered(bool)), SLOT(showRelinkingDialog()));
+  connect(actionFixDpi, &QAction::triggered, this, &MainWindow::fixDpiDialogRequested);
+  connect(actionReverseTwoPageOrder, &QAction::triggered, this, &MainWindow::toggleTwoPageSpreadReadingOrder);
+  connect(actionRelinking, &QAction::triggered, this, &MainWindow::showRelinkingDialog);
 #ifdef ENABLE_DEBUG_FEATURES
-  connect(actionDebug, SIGNAL(toggled(bool)), SLOT(debugToggled(bool)));
+  connect(actionDebug, &QAction::toggled, this, &MainWindow::debugToggled);
 #else
   actionDebug->setVisible(false);
 #endif
 
-  connect(actionSettings, SIGNAL(triggered(bool)), this, SLOT(openSettingsDialog()));
-  connect(actionDefaults, SIGNAL(triggered(bool)), this, SLOT(openDefaultParamsDialog()));
+  connect(actionSettings, &QAction::triggered, this, &MainWindow::openSettingsDialog);
+  connect(actionDefaults, &QAction::triggered, this, &MainWindow::openDefaultParamsDialog);
 
-  connect(actionNewProject, SIGNAL(triggered(bool)), this, SLOT(newProject()));
-  connect(actionOpenProject, SIGNAL(triggered(bool)), this, SLOT(openProject()));
-  connect(actionSaveProject, SIGNAL(triggered(bool)), this, SLOT(saveProjectTriggered()));
-  connect(actionSaveProjectAs, SIGNAL(triggered(bool)), this, SLOT(saveProjectAsTriggered()));
-  connect(actionCloseProject, SIGNAL(triggered(bool)), this, SLOT(closeProject()));
-  connect(actionQuit, SIGNAL(triggered(bool)), this, SLOT(close()));
+  connect(actionNewProject, &QAction::triggered, this, &MainWindow::newProject);
+  connect(actionOpenProject, &QAction::triggered, this, qOverload<>(&MainWindow::openProject));
+  connect(actionSaveProject, &QAction::triggered, this, &MainWindow::saveProjectTriggered);
+  connect(actionSaveProjectAs, &QAction::triggered, this, &MainWindow::saveProjectAsTriggered);
+  connect(actionCloseProject, &QAction::triggered, this, &MainWindow::closeProject);
+  connect(actionQuit, &QAction::triggered, this, &MainWindow::close);
 
   updateProjectActions();
   updateWindowTitle();
@@ -484,8 +483,8 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
     m_curFilter = 0;
     // Setting a data model also implicitly sets a new
     // selection model, so we have to reconnect to it.
-    connect(filterList->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
-            SLOT(filterSelectionChanged(const QItemSelection&)));
+    connect(filterList->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            &MainWindow::filterSelectionChanged);
   }
 
   updateSortOptions();
@@ -526,9 +525,9 @@ void MainWindow::showNewOpenProjectPanel() {
   // We use asynchronous connections because otherwise we
   // would be deleting a widget from its event handler, which
   // Qt doesn't like.
-  connect(nop, SIGNAL(newProject()), this, SLOT(newProject()), Qt::QueuedConnection);
-  connect(nop, SIGNAL(openProject()), this, SLOT(openProject()), Qt::QueuedConnection);
-  connect(nop, SIGNAL(openRecentProject(const QString&)), this, SLOT(openProject(const QString&)),
+  connect(nop, &NewOpenProjectPanel::newProject, this, &MainWindow::newProject, Qt::QueuedConnection);
+  connect(nop, &NewOpenProjectPanel::openProject, this, qOverload<>(&MainWindow::openProject), Qt::QueuedConnection);
+  connect(nop, &NewOpenProjectPanel::openRecentProject, this, qOverload<const QString&>(&MainWindow::openProject),
           Qt::QueuedConnection);
 
   layout->addWidget(nop, 1, 1);
@@ -571,7 +570,7 @@ void MainWindow::createBatchProcessingWidget() {
   layout->setRowStretch(0, 1);
   layout->setRowStretch(row, 1);
 
-  connect(stopBtn, SIGNAL(clicked()), SLOT(stopBatchProcessing()));
+  connect(stopBtn, &SkinnedButton::clicked, this, [this] { stopBatchProcessing(); });
 }  // MainWindow::createBatchProcessingWidget
 
 void MainWindow::updateThumbViewMinWidth() {
@@ -776,15 +775,8 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
   }
 
   if (m_optionsWidget) {
-    disconnect(m_optionsWidget, SIGNAL(reloadRequested()), this, SLOT(reloadRequested()));
-    disconnect(m_optionsWidget, SIGNAL(invalidateThumbnail(const PageId&)), this,
-               SLOT(invalidateThumbnail(const PageId&)));
-    disconnect(m_optionsWidget, SIGNAL(invalidateThumbnail(const PageInfo&)), this,
-               SLOT(invalidateThumbnail(const PageInfo&)));
-    disconnect(m_optionsWidget, SIGNAL(invalidateAllThumbnails()), this, SLOT(invalidateAllThumbnails()));
-    disconnect(m_optionsWidget, SIGNAL(goToPage(const PageId&)), this, SLOT(goToPage(const PageId&)));
-    disconnect(m_optionsWidget, SIGNAL(fixDpiRequested()), this, SLOT(fixDpiDialogRequested()));
-    disconnect(m_optionsWidget, SIGNAL(sourceDpiChanged()), this, SLOT(sourceDpiChanged()));
+    // All the connections made below, including the lambda.
+    disconnect(m_optionsWidget, nullptr, this, nullptr);
   }
 
   m_optionsFrameLayout->addWidget(widget);
@@ -794,14 +786,16 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
   // will probably delete the options panel, which could be
   // responsible for the emission of this signal.  Qt doesn't
   // like when we delete an object while it's emitting a signal.
-  connect(widget, SIGNAL(reloadRequested()), this, SLOT(reloadRequested()), Qt::QueuedConnection);
-  connect(widget, SIGNAL(invalidateThumbnail(const PageId&)), this, SLOT(invalidateThumbnail(const PageId&)));
-  connect(widget, SIGNAL(invalidateThumbnail(const PageInfo&)), this, SLOT(invalidateThumbnail(const PageInfo&)));
-  connect(widget, SIGNAL(invalidateAllThumbnails()), this, SLOT(invalidateAllThumbnails()));
-  connect(widget, SIGNAL(goToPage(const PageId&)), this, SLOT(goToPage(const PageId&)));
-  connect(widget, SIGNAL(fixDpiRequested()), this, SLOT(fixDpiDialogRequested()));
+  connect(widget, &FilterOptionsWidget::reloadRequested, this, &MainWindow::reloadRequested, Qt::QueuedConnection);
+  connect(widget, qOverload<const PageId&>(&FilterOptionsWidget::invalidateThumbnail), this,
+          qOverload<const PageId&>(&MainWindow::invalidateThumbnail));
+  connect(widget, qOverload<const PageInfo&>(&FilterOptionsWidget::invalidateThumbnail), this,
+          qOverload<const PageInfo&>(&MainWindow::invalidateThumbnail));
+  connect(widget, &FilterOptionsWidget::invalidateAllThumbnails, this, &MainWindow::invalidateAllThumbnails);
+  connect(widget, &FilterOptionsWidget::goToPage, this, [this](const PageId& pageId) { goToPage(pageId); });
+  connect(widget, &FilterOptionsWidget::fixDpiRequested, this, &MainWindow::fixDpiDialogRequested);
   // Asynchronous for the same reason as reloadRequested().
-  connect(widget, SIGNAL(sourceDpiChanged()), this, SLOT(sourceDpiChanged()), Qt::QueuedConnection);
+  connect(widget, &FilterOptionsWidget::sourceDpiChanged, this, &MainWindow::sourceDpiChanged, Qt::QueuedConnection);
 }  // MainWindow::setOptionsWidget
 
 ImageViewBase* MainWindow::findPrimaryImageView(QWidget* root) {
@@ -1515,7 +1509,7 @@ void MainWindow::fixDpiDialogRequested() {
   m_fixDpiDialog->setAttribute(Qt::WA_DeleteOnClose);
   m_fixDpiDialog->setWindowModality(Qt::WindowModal);
 
-  connect(m_fixDpiDialog, SIGNAL(accepted()), SLOT(fixedDpiSubmitted()));
+  connect(m_fixDpiDialog, &FixDpiDialog::accepted, this, &MainWindow::fixedDpiSubmitted);
 
   m_fixDpiDialog->show();
 }
@@ -1694,7 +1688,7 @@ void MainWindow::newProject() {
 
   // It will delete itself when it's done.
   auto* context = new ProjectCreationContext(this);
-  connect(context, SIGNAL(done(ProjectCreationContext*)), this, SLOT(newProjectCreated(ProjectCreationContext*)));
+  connect(context, &ProjectCreationContext::done, this, &MainWindow::newProjectCreated);
 }
 
 void MainWindow::newProjectCreated(ProjectCreationContext* context) {
@@ -1744,7 +1738,7 @@ void MainWindow::openProject(const QString& projectFile) {
   file.close();
 
   auto* context = new ProjectOpeningContext(this, projectFile, doc);
-  connect(context, SIGNAL(done(ProjectOpeningContext*)), SLOT(projectOpened(ProjectOpeningContext*)));
+  connect(context, &ProjectOpeningContext::done, this, &MainWindow::projectOpened);
   context->proceed();
 }
 
@@ -1768,7 +1762,7 @@ void MainWindow::openSettingsDialog() {
   auto* dialog = new SettingsDialog(this);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowModality(Qt::WindowModal);
-  connect(dialog, SIGNAL(settingsChanged()), this, SLOT(onSettingsChanged()));
+  connect(dialog, &SettingsDialog::settingsChanged, this, &MainWindow::onSettingsChanged);
   dialog->show();
 }
 

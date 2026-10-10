@@ -64,8 +64,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   setupUiConnections();
 
   // The common size can change whenever a page is redrawn with new settings.
-  connect(this, SIGNAL(invalidateThumbnail(const PageId&)), this, SLOT(updateCommonSizeDisplay()));
-  connect(this, SIGNAL(invalidateAllThumbnails()), this, SLOT(updateCommonSizeDisplay()));
+  connect(this, qOverload<const PageId&>(&OptionsWidget::invalidateThumbnail), this,
+          &OptionsWidget::updateCommonSizeDisplay);
+  connect(this, &OptionsWidget::invalidateAllThumbnails, this, &OptionsWidget::updateCommonSizeDisplay);
 }
 
 OptionsWidget::~OptionsWidget() = default;
@@ -328,8 +329,7 @@ void OptionsWidget::showApplyMarginsDialog() {
   auto* dialog = new ApplyMarginsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowTitle(tr("Apply Margins"));
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&, bool, bool, bool, bool)), this,
-          SLOT(applyMargins(const std::set<PageId>&, bool, bool, bool, bool)));
+  connect(dialog, &ApplyMarginsDialog::accepted, this, &OptionsWidget::applyMargins);
   dialog->show();
 }
 
@@ -337,7 +337,7 @@ void OptionsWidget::showApplyAlignmentDialog() {
   auto* dialog = new ApplyDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowTitle(tr("Apply Alignment"));
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this, SLOT(applyAlignment(const std::set<PageId>&)));
+  connect(dialog, &ApplyDialog::accepted, this, &OptionsWidget::applyAlignment);
   dialog->show();
 }
 
@@ -481,26 +481,26 @@ void OptionsWidget::updateMarginsControlsEnabled() {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidget::setupUiConnections() {
-  CONNECT(topMarginSpinBox, SIGNAL(valueChanged(double)), this, SLOT(vertMarginsChanged(double)));
-  CONNECT(bottomMarginSpinBox, SIGNAL(valueChanged(double)), this, SLOT(vertMarginsChanged(double)));
-  CONNECT(leftMarginSpinBox, SIGNAL(valueChanged(double)), this, SLOT(horMarginsChanged(double)));
-  CONNECT(rightMarginSpinBox, SIGNAL(valueChanged(double)), this, SLOT(horMarginsChanged(double)));
-  CONNECT(autoMargins, SIGNAL(toggled(bool)), this, SLOT(autoMarginsToggled(bool)));
-  CONNECT(hAlignmentModeCB, SIGNAL(currentIndexChanged(int)), this, SLOT(horizontalAlignmentModeChanged(int)));
-  CONNECT(vAlignmentModeCB, SIGNAL(currentIndexChanged(int)), this, SLOT(verticalAlignmentModeChanged(int)));
-  CONNECT(topBottomLink, SIGNAL(clicked()), this, SLOT(topBottomLinkClicked()));
-  CONNECT(leftRightLink, SIGNAL(clicked()), this, SLOT(leftRightLinkClicked()));
-  CONNECT(applyMarginsBtn, SIGNAL(clicked()), this, SLOT(showApplyMarginsDialog()));
-  CONNECT(fixDpiBtn, SIGNAL(clicked()), this, SLOT(onFixDpiClicked()));
-  CONNECT(sourceXDpi, SIGNAL(activated(int)), this, SLOT(sourceDpiActivated()));
-  CONNECT(sourceYDpi, SIGNAL(activated(int)), this, SLOT(sourceDpiActivated()));
-  CONNECT(sourceXDpi->lineEdit(), SIGNAL(editingFinished()), this, SLOT(sourceDpiEditingFinished()));
-  CONNECT(sourceYDpi->lineEdit(), SIGNAL(editingFinished()), this, SLOT(sourceDpiEditingFinished()));
-  CONNECT(alignWithOthersCB, SIGNAL(toggled(bool)), this, SLOT(alignWithOthersToggled()));
-  CONNECT(applyAlignmentBtn, SIGNAL(clicked()), this, SLOT(showApplyAlignmentDialog()));
-  CONNECT(freezeAggregateHardSizeCb, SIGNAL(clicked(bool)), this, SLOT(freezeAggregateHardSizeToggled(bool)));
+  CONNECT(topMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::vertMarginsChanged);
+  CONNECT(bottomMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::vertMarginsChanged);
+  CONNECT(leftMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::horMarginsChanged);
+  CONNECT(rightMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::horMarginsChanged);
+  CONNECT(autoMargins, &QAbstractButton::toggled, this, &OptionsWidget::autoMarginsToggled);
+  CONNECT(hAlignmentModeCB, &QComboBox::currentIndexChanged, this, &OptionsWidget::horizontalAlignmentModeChanged);
+  CONNECT(vAlignmentModeCB, &QComboBox::currentIndexChanged, this, &OptionsWidget::verticalAlignmentModeChanged);
+  CONNECT(topBottomLink, &QAbstractButton::clicked, this, &OptionsWidget::topBottomLinkClicked);
+  CONNECT(leftRightLink, &QAbstractButton::clicked, this, &OptionsWidget::leftRightLinkClicked);
+  CONNECT(applyMarginsBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyMarginsDialog);
+  CONNECT(fixDpiBtn, &QAbstractButton::clicked, this, &OptionsWidget::onFixDpiClicked);
+  CONNECT(sourceXDpi, &QComboBox::activated, this, &OptionsWidget::sourceDpiActivated);
+  CONNECT(sourceYDpi, &QComboBox::activated, this, &OptionsWidget::sourceDpiActivated);
+  CONNECT(sourceXDpi->lineEdit(), &QLineEdit::editingFinished, this, &OptionsWidget::sourceDpiEditingFinished);
+  CONNECT(sourceYDpi->lineEdit(), &QLineEdit::editingFinished, this, &OptionsWidget::sourceDpiEditingFinished);
+  CONNECT(alignWithOthersCB, &QAbstractButton::toggled, this, &OptionsWidget::alignWithOthersToggled);
+  CONNECT(applyAlignmentBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyAlignmentDialog);
+  CONNECT(freezeAggregateHardSizeCb, &QAbstractButton::clicked, this, &OptionsWidget::freezeAggregateHardSizeToggled);
   for (const auto& kv : m_alignmentByButton) {
-    CONNECT(kv.first, SIGNAL(clicked()), this, SLOT(alignmentButtonClicked()));
+    CONNECT(kv.first, &QAbstractButton::clicked, this, &OptionsWidget::alignmentButtonClicked);
   }
 }
 

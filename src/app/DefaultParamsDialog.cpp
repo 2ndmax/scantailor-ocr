@@ -157,7 +157,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   }
   profileChanged(profileCB->currentIndex());
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(commitChanges()));
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &DefaultParamsDialog::commitChanges);
   connect(binarizationOptions, &QStackedWidget::currentChanged, this,
           &DefaultParamsDialog::updateBinarizationPageSizes);
   updateBinarizationPageSizes();
@@ -481,51 +481,53 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void DefaultParamsDialog::setupUiConnections() {
-  CONNECT(rotateLeftBtn, SIGNAL(clicked()), this, SLOT(rotateLeft()));
-  CONNECT(rotateRightBtn, SIGNAL(clicked()), this, SLOT(rotateRight()));
-  CONNECT(layoutManualBtn, SIGNAL(toggled(bool)), this, SLOT(layoutModeToggled(bool)));
-  CONNECT(deskewAutoBtn, SIGNAL(toggled(bool)), this, SLOT(deskewModeChanged(bool)));
-  CONNECT(pageDetectAutoBtn, SIGNAL(pressed()), this, SLOT(pageDetectAutoToggled()));
-  CONNECT(pageDetectManualBtn, SIGNAL(pressed()), this, SLOT(pageDetectManualToggled()));
-  CONNECT(pageDetectDisableBtn, SIGNAL(pressed()), this, SLOT(pageDetectDisableToggled()));
-  CONNECT(autoMargins, SIGNAL(toggled(bool)), this, SLOT(autoMarginsToggled(bool)));
-  CONNECT(hAlignmentModeCB, SIGNAL(currentIndexChanged(int)), this, SLOT(alignmentModeChanged(int)));
-  CONNECT(vAlignmentModeCB, SIGNAL(currentIndexChanged(int)), this, SLOT(alignmentModeChanged(int)));
-  CONNECT(alignWithOthersCB, SIGNAL(toggled(bool)), this, SLOT(alignWithOthersToggled(bool)));
-  CONNECT(topBottomLink, SIGNAL(clicked()), this, SLOT(topBottomLinkClicked()));
-  CONNECT(leftRightLink, SIGNAL(clicked()), this, SLOT(leftRightLinkClicked()));
-  CONNECT(topMarginSpinBox, SIGNAL(valueChanged(double)), this, SLOT(vertMarginsChanged(double)));
-  CONNECT(bottomMarginSpinBox, SIGNAL(valueChanged(double)), this, SLOT(vertMarginsChanged(double)));
-  CONNECT(leftMarginSpinBox, SIGNAL(valueChanged(double)), this, SLOT(horMarginsChanged(double)));
-  CONNECT(rightMarginSpinBox, SIGNAL(valueChanged(double)), this, SLOT(horMarginsChanged(double)));
-  CONNECT(colorModeSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(colorModeChanged(int)));
-  CONNECT(thresholdMethodBox, SIGNAL(currentIndexChanged(int)), this, SLOT(thresholdMethodChanged(int)));
-  CONNECT(pictureShapeSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(pictureShapeChanged(int)));
-  CONNECT(equalizeIlluminationCB, SIGNAL(clicked(bool)), this, SLOT(equalizeIlluminationToggled(bool)));
-  CONNECT(equalizeIlluminationColorCB, SIGNAL(clicked(bool)), this, SLOT(equalizeIlluminationColorToggled(bool)));
-  CONNECT(splittingCB, SIGNAL(clicked(bool)), this, SLOT(splittingToggled(bool)));
-  CONNECT(bwForegroundRB, SIGNAL(clicked(bool)), this, SLOT(bwForegroundToggled(bool)));
-  CONNECT(colorForegroundRB, SIGNAL(clicked(bool)), this, SLOT(colorForegroundToggled(bool)));
-  CONNECT(lighterThresholdLink, SIGNAL(linkActivated(const QString&)), this, SLOT(setLighterThreshold()));
-  CONNECT(darkerThresholdLink, SIGNAL(linkActivated(const QString&)), this, SLOT(setDarkerThreshold()));
-  CONNECT(thresholdSlider, SIGNAL(valueChanged(int)), this, SLOT(thresholdSliderValueChanged(int)));
-  CONNECT(neutralThresholdBtn, SIGNAL(clicked()), this, SLOT(setNeutralThreshold()));
-  CONNECT(sauvolaDelta, SIGNAL(valueChanged(double)), this, SLOT(thresholdDeltaChanged(double)));
-  CONNECT(wolfDelta, SIGNAL(valueChanged(double)), this, SLOT(thresholdDeltaChanged(double)));
-  CONNECT(dpiSelector, SIGNAL(activated(int)), this, SLOT(dpiSelectionChanged()));
-  CONNECT(dpiSelector->lineEdit(), SIGNAL(editingFinished()), this, SLOT(dpiSelectionChanged()));
-  CONNECT(fillOffcutCB, SIGNAL(clicked(bool)), this, SLOT(fillOffcutToggled(bool)));
-  CONNECT(fillOutsidePageBoxCB, SIGNAL(clicked(bool)), this, SLOT(fillOutsidePageBoxToggled(bool)));
-  CONNECT(wienerCB, SIGNAL(clicked(bool)), this, SLOT(wienerToggled(bool)));
-  CONNECT(m_dewarpingModeGroup, SIGNAL(idClicked(int)), this, SLOT(dewarpingModeChanged()));
-  CONNECT(depthPerceptionSlider, SIGNAL(valueChanged(int)), this, SLOT(depthPerceptionChangedSlot(int)));
-  CONNECT(profileCB, SIGNAL(currentIndexChanged(int)), this, SLOT(profileChanged(int)));
-  CONNECT(profileSaveButton, SIGNAL(pressed()), this, SLOT(profileSavePressed()));
-  CONNECT(profileDeleteButton, SIGNAL(pressed()), this, SLOT(profileDeletePressed()));
-  CONNECT(colorSegmentationCB, SIGNAL(clicked(bool)), this, SLOT(colorSegmentationToggled(bool)));
-  CONNECT(posterizeCB, SIGNAL(clicked(bool)), this, SLOT(posterizeToggled(bool)));
-  CONNECT(despeckleCB, SIGNAL(clicked(bool)), this, SLOT(despeckleToggled(bool)));
-  CONNECT(despeckleSlider, SIGNAL(valueChanged(int)), this, SLOT(despeckleSliderValueChanged(int)));
+  CONNECT(rotateLeftBtn, &QAbstractButton::clicked, this, &DefaultParamsDialog::rotateLeft);
+  CONNECT(rotateRightBtn, &QAbstractButton::clicked, this, &DefaultParamsDialog::rotateRight);
+  CONNECT(layoutManualBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::layoutModeToggled);
+  CONNECT(deskewAutoBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::deskewModeChanged);
+  CONNECT(pageDetectAutoBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectAutoToggled);
+  CONNECT(pageDetectManualBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectManualToggled);
+  CONNECT(pageDetectDisableBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectDisableToggled);
+  CONNECT(autoMargins, &QAbstractButton::toggled, this, &DefaultParamsDialog::autoMarginsToggled);
+  CONNECT(hAlignmentModeCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::alignmentModeChanged);
+  CONNECT(vAlignmentModeCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::alignmentModeChanged);
+  CONNECT(alignWithOthersCB, &QAbstractButton::toggled, this, &DefaultParamsDialog::alignWithOthersToggled);
+  CONNECT(topBottomLink, &QAbstractButton::clicked, this, &DefaultParamsDialog::topBottomLinkClicked);
+  CONNECT(leftRightLink, &QAbstractButton::clicked, this, &DefaultParamsDialog::leftRightLinkClicked);
+  CONNECT(topMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::vertMarginsChanged);
+  CONNECT(bottomMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::vertMarginsChanged);
+  CONNECT(leftMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::horMarginsChanged);
+  CONNECT(rightMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::horMarginsChanged);
+  CONNECT(colorModeSelector, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::colorModeChanged);
+  CONNECT(thresholdMethodBox, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::thresholdMethodChanged);
+  CONNECT(pictureShapeSelector, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::pictureShapeChanged);
+  CONNECT(equalizeIlluminationCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::equalizeIlluminationToggled);
+  CONNECT(equalizeIlluminationColorCB, &QAbstractButton::clicked, this,
+          &DefaultParamsDialog::equalizeIlluminationColorToggled);
+  CONNECT(splittingCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::splittingToggled);
+  CONNECT(bwForegroundRB, &QAbstractButton::clicked, this, &DefaultParamsDialog::bwForegroundToggled);
+  CONNECT(colorForegroundRB, &QAbstractButton::clicked, this, &DefaultParamsDialog::colorForegroundToggled);
+  CONNECT(lighterThresholdLink, &QLabel::linkActivated, this, &DefaultParamsDialog::setLighterThreshold);
+  CONNECT(darkerThresholdLink, &QLabel::linkActivated, this, &DefaultParamsDialog::setDarkerThreshold);
+  CONNECT(thresholdSlider, &QAbstractSlider::valueChanged, this, &DefaultParamsDialog::thresholdSliderValueChanged);
+  CONNECT(neutralThresholdBtn, &QAbstractButton::clicked, this, &DefaultParamsDialog::setNeutralThreshold);
+  CONNECT(sauvolaDelta, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::thresholdDeltaChanged);
+  CONNECT(wolfDelta, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::thresholdDeltaChanged);
+  CONNECT(dpiSelector, &QComboBox::activated, this, &DefaultParamsDialog::dpiSelectionChanged);
+  CONNECT(dpiSelector->lineEdit(), &QLineEdit::editingFinished, this, &DefaultParamsDialog::dpiSelectionChanged);
+  CONNECT(fillOffcutCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOffcutToggled);
+  CONNECT(fillOutsidePageBoxCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOutsidePageBoxToggled);
+  CONNECT(wienerCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::wienerToggled);
+  CONNECT(m_dewarpingModeGroup, &QButtonGroup::idClicked, this, &DefaultParamsDialog::dewarpingModeChanged);
+  CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this,
+          &DefaultParamsDialog::depthPerceptionChangedSlot);
+  CONNECT(profileCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::profileChanged);
+  CONNECT(profileSaveButton, &QAbstractButton::pressed, this, &DefaultParamsDialog::profileSavePressed);
+  CONNECT(profileDeleteButton, &QAbstractButton::pressed, this, &DefaultParamsDialog::profileDeletePressed);
+  CONNECT(colorSegmentationCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::colorSegmentationToggled);
+  CONNECT(posterizeCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::posterizeToggled);
+  CONNECT(despeckleCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::despeckleToggled);
+  CONNECT(despeckleSlider, &QAbstractSlider::valueChanged, this, &DefaultParamsDialog::despeckleSliderValueChanged);
 }
 
 #undef CONNECT

@@ -115,7 +115,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   updateColorsDisplay();
   updateDewarpingDisplay();
 
-  connect(binarizationOptions, SIGNAL(currentChanged(int)), this, SLOT(updateBinarizationOptionsDisplay(int)));
+  connect(binarizationOptions, &QStackedWidget::currentChanged, this, &OptionsWidget::updateBinarizationOptionsDisplay);
 
   setupTiffCompressionPanel();
   setupUiConnections();
@@ -478,7 +478,7 @@ void OptionsWidget::applyDpiButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowTitle(tr("Apply Output Resolution"));
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this, SLOT(applyDpiConfirmed(const std::set<PageId>&)));
+  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyDpiConfirmed);
   dialog->show();
 }
 
@@ -489,7 +489,7 @@ void OptionsWidget::applyDpiConfirmed(const std::set<PageId>& pages) {
 void OptionsWidget::applyColorsButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this, SLOT(applyColorsConfirmed(const std::set<PageId>&)));
+  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyColorsConfirmed);
   dialog->show();
 }
 
@@ -545,8 +545,7 @@ void OptionsWidget::applySplittingButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowTitle(tr("Apply Splitting"));
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
-          SLOT(applySplittingOptionsConfirmed(const std::set<PageId>&)));
+  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applySplittingOptionsConfirmed);
   dialog->show();
 }
 
@@ -627,8 +626,7 @@ void OptionsWidget::applyDespeckleButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowTitle(tr("Apply Despeckling"));
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
-          SLOT(applyDespeckleConfirmed(const std::set<PageId>&)));
+  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyDespeckleConfirmed);
   dialog->show();
 }
 
@@ -666,8 +664,7 @@ void OptionsWidget::applyDewarpingButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowTitle(tr("Apply Dewarping"));
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
-          SLOT(applyDewarpingConfirmed(const std::set<PageId>&)));
+  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyDewarpingConfirmed);
   dialog->show();
 }
 
@@ -1167,7 +1164,8 @@ void OptionsWidget::updateBinarizationOptionsDisplay(int idx) {
     currentWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     currentWidget->resize(0, 0);
 
-    disconnect(currentWidget, SIGNAL(stateChanged()), this, SLOT(binarizationSettingsChanged()));
+    disconnect(static_cast<OptionsWidgetBinarization*>(currentWidget), &OptionsWidgetBinarization::stateChanged, this,
+               &OptionsWidget::binarizationSettingsChanged);
   }
 
   QWidget* widget = binarizationOptions->widget(idx);
@@ -1175,7 +1173,8 @@ void OptionsWidget::updateBinarizationOptionsDisplay(int idx) {
   widget->adjustSize();
   binarizationOptions->adjustSize();
 
-  connect(widget, SIGNAL(stateChanged()), this, SLOT(binarizationSettingsChanged()));
+  connect(static_cast<OptionsWidgetBinarization*>(widget), &OptionsWidgetBinarization::stateChanged, this,
+          &OptionsWidget::binarizationSettingsChanged);
 }
 
 void OptionsWidget::addOptionsWidgetBinarization(OptionsWidgetBinarization* widget) {
@@ -1190,59 +1189,60 @@ void OptionsWidget::sendReloadRequested() {
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidget::setupUiConnections() {
-  CONNECT(dpiSelector, SIGNAL(activated(int)), this, SLOT(dpiSelectionChanged()));
-  CONNECT(dpiSelector->lineEdit(), SIGNAL(editingFinished()), this, SLOT(dpiSelectionChanged()));
-  CONNECT(applyDpiButton, SIGNAL(clicked()), this, SLOT(applyDpiButtonClicked()));
-  CONNECT(colorModeSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(colorModeChanged(int)));
-  CONNECT(thresholdMethodBox, SIGNAL(currentIndexChanged(int)), this, SLOT(thresholdMethodChanged(int)));
-  CONNECT(fillingColorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fillingColorChanged(int)));
-  CONNECT(pictureShapeSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(pictureShapeChanged(int)));
-  CONNECT(pictureShapeSensitivitySB, SIGNAL(valueChanged(int)), this, SLOT(pictureShapeSensitivityChanged(int)));
-  CONNECT(higherSearchSensitivityCB, SIGNAL(clicked(bool)), this, SLOT(higherSearchSensivityToggled(bool)));
+  CONNECT(dpiSelector, &QComboBox::activated, this, &OptionsWidget::dpiSelectionChanged);
+  CONNECT(dpiSelector->lineEdit(), &QLineEdit::editingFinished, this, &OptionsWidget::dpiSelectionChanged);
+  CONNECT(applyDpiButton, &QAbstractButton::clicked, this, &OptionsWidget::applyDpiButtonClicked);
+  CONNECT(colorModeSelector, &QComboBox::currentIndexChanged, this, &OptionsWidget::colorModeChanged);
+  CONNECT(thresholdMethodBox, &QComboBox::currentIndexChanged, this, &OptionsWidget::thresholdMethodChanged);
+  CONNECT(fillingColorBox, &QComboBox::currentIndexChanged, this, &OptionsWidget::fillingColorChanged);
+  CONNECT(pictureShapeSelector, &QComboBox::currentIndexChanged, this, &OptionsWidget::pictureShapeChanged);
+  CONNECT(pictureShapeSensitivitySB, &QSpinBox::valueChanged, this, &OptionsWidget::pictureShapeSensitivityChanged);
+  CONNECT(higherSearchSensitivityCB, &QAbstractButton::clicked, this, &OptionsWidget::higherSearchSensivityToggled);
 
-  CONNECT(wienerCB, SIGNAL(clicked(bool)), this, SLOT(wienerToggled(bool)));
-  CONNECT(wienerCoef, SIGNAL(valueChanged(double)), this, SLOT(wienerCoefChanged(double)));
-  CONNECT(wienerWindowSize, SIGNAL(valueChanged(int)), this, SLOT(wienerWindowSizeChanged(int)));
-  CONNECT(colorSegmentationCB, SIGNAL(clicked(bool)), this, SLOT(colorSegmentationToggled(bool)));
-  CONNECT(reduceNoiseSB, SIGNAL(valueChanged(int)), this, SLOT(reduceNoiseChanged(int)));
-  CONNECT(redAdjustmentSB, SIGNAL(valueChanged(int)), this, SLOT(redAdjustmentChanged(int)));
-  CONNECT(greenAdjustmentSB, SIGNAL(valueChanged(int)), this, SLOT(greenAdjustmentChanged(int)));
-  CONNECT(blueAdjustmentSB, SIGNAL(valueChanged(int)), this, SLOT(blueAdjustmentChanged(int)));
-  CONNECT(posterizeCB, SIGNAL(clicked(bool)), this, SLOT(posterizeToggled(bool)));
-  CONNECT(posterizeLevelSB, SIGNAL(valueChanged(int)), this, SLOT(posterizeLevelChanged(int)));
-  CONNECT(posterizeNormalizationCB, SIGNAL(clicked(bool)), this, SLOT(posterizeNormalizationToggled(bool)));
-  CONNECT(posterizeForceBwCB, SIGNAL(clicked(bool)), this, SLOT(posterizeForceBwToggled(bool)));
+  CONNECT(wienerCB, &QAbstractButton::clicked, this, &OptionsWidget::wienerToggled);
+  CONNECT(wienerCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::wienerCoefChanged);
+  CONNECT(wienerWindowSize, &QSpinBox::valueChanged, this, &OptionsWidget::wienerWindowSizeChanged);
+  CONNECT(colorSegmentationCB, &QAbstractButton::clicked, this, &OptionsWidget::colorSegmentationToggled);
+  CONNECT(reduceNoiseSB, &QSpinBox::valueChanged, this, &OptionsWidget::reduceNoiseChanged);
+  CONNECT(redAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::redAdjustmentChanged);
+  CONNECT(greenAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::greenAdjustmentChanged);
+  CONNECT(blueAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::blueAdjustmentChanged);
+  CONNECT(posterizeCB, &QAbstractButton::clicked, this, &OptionsWidget::posterizeToggled);
+  CONNECT(posterizeLevelSB, &QSpinBox::valueChanged, this, &OptionsWidget::posterizeLevelChanged);
+  CONNECT(posterizeNormalizationCB, &QAbstractButton::clicked, this, &OptionsWidget::posterizeNormalizationToggled);
+  CONNECT(posterizeForceBwCB, &QAbstractButton::clicked, this, &OptionsWidget::posterizeForceBwToggled);
 
-  CONNECT(fillMarginsCB, SIGNAL(clicked(bool)), this, SLOT(fillMarginsToggled(bool)));
-  CONNECT(fillOffcutCB, SIGNAL(clicked(bool)), this, SLOT(fillOffcutToggled(bool)));
-  CONNECT(fillOutsidePageBoxCB, SIGNAL(clicked(bool)), this, SLOT(fillOutsidePageBoxToggled(bool)));
-  CONNECT(equalizeIlluminationCB, SIGNAL(clicked(bool)), this, SLOT(equalizeIlluminationToggled(bool)));
-  CONNECT(equalizeIlluminationColorCB, SIGNAL(clicked(bool)), this, SLOT(equalizeIlluminationColorToggled(bool)));
-  CONNECT(grayscaleOutputCB, SIGNAL(clicked(bool)), this, SLOT(grayscaleOutputToggled(bool)));
-  CONNECT(savitzkyGolaySmoothingCB, SIGNAL(clicked(bool)), this, SLOT(savitzkyGolaySmoothingToggled(bool)));
-  CONNECT(morphologicalSmoothingCB, SIGNAL(clicked(bool)), this, SLOT(morphologicalSmoothingToggled(bool)));
-  CONNECT(splittingCB, SIGNAL(clicked(bool)), this, SLOT(splittingToggled(bool)));
-  CONNECT(bwForegroundRB, SIGNAL(clicked(bool)), this, SLOT(bwForegroundToggled(bool)));
-  CONNECT(colorForegroundRB, SIGNAL(clicked(bool)), this, SLOT(colorForegroundToggled(bool)));
-  CONNECT(originalBackgroundCB, SIGNAL(clicked(bool)), this, SLOT(originalBackgroundToggled(bool)));
-  CONNECT(applyColorsButton, SIGNAL(clicked()), this, SLOT(applyColorsButtonClicked()));
+  CONNECT(fillMarginsCB, &QAbstractButton::clicked, this, &OptionsWidget::fillMarginsToggled);
+  CONNECT(fillOffcutCB, &QAbstractButton::clicked, this, &OptionsWidget::fillOffcutToggled);
+  CONNECT(fillOutsidePageBoxCB, &QAbstractButton::clicked, this, &OptionsWidget::fillOutsidePageBoxToggled);
+  CONNECT(equalizeIlluminationCB, &QAbstractButton::clicked, this, &OptionsWidget::equalizeIlluminationToggled);
+  CONNECT(equalizeIlluminationColorCB, &QAbstractButton::clicked, this,
+          &OptionsWidget::equalizeIlluminationColorToggled);
+  CONNECT(grayscaleOutputCB, &QAbstractButton::clicked, this, &OptionsWidget::grayscaleOutputToggled);
+  CONNECT(savitzkyGolaySmoothingCB, &QAbstractButton::clicked, this, &OptionsWidget::savitzkyGolaySmoothingToggled);
+  CONNECT(morphologicalSmoothingCB, &QAbstractButton::clicked, this, &OptionsWidget::morphologicalSmoothingToggled);
+  CONNECT(splittingCB, &QAbstractButton::clicked, this, &OptionsWidget::splittingToggled);
+  CONNECT(bwForegroundRB, &QAbstractButton::clicked, this, &OptionsWidget::bwForegroundToggled);
+  CONNECT(colorForegroundRB, &QAbstractButton::clicked, this, &OptionsWidget::colorForegroundToggled);
+  CONNECT(originalBackgroundCB, &QAbstractButton::clicked, this, &OptionsWidget::originalBackgroundToggled);
+  CONNECT(applyColorsButton, &QAbstractButton::clicked, this, &OptionsWidget::applyColorsButtonClicked);
 
-  CONNECT(applySplittingButton, SIGNAL(clicked()), this, SLOT(applySplittingButtonClicked()));
+  CONNECT(applySplittingButton, &QAbstractButton::clicked, this, &OptionsWidget::applySplittingButtonClicked);
 
-  CONNECT(m_dewarpingModeGroup, SIGNAL(idClicked(int)), this, SLOT(dewarpingModeChanged(int)));
-  CONNECT(dewarpingPostDeskewCB, SIGNAL(clicked(bool)), this, SLOT(dewarpingPostDeskewToggled(bool)));
-  CONNECT(applyDewarpingButton, SIGNAL(clicked()), this, SLOT(applyDewarpingButtonClicked()));
+  CONNECT(m_dewarpingModeGroup, &QButtonGroup::idClicked, this, &OptionsWidget::dewarpingModeChanged);
+  CONNECT(dewarpingPostDeskewCB, &QAbstractButton::clicked, this, &OptionsWidget::dewarpingPostDeskewToggled);
+  CONNECT(applyDewarpingButton, &QAbstractButton::clicked, this, &OptionsWidget::applyDewarpingButtonClicked);
 
 
-  CONNECT(despeckleCB, SIGNAL(clicked(bool)), this, SLOT(despeckleToggled(bool)));
-  CONNECT(despeckleSlider, SIGNAL(sliderReleased()), this, SLOT(despeckleSliderReleased()));
-  CONNECT(despeckleSlider, SIGNAL(valueChanged(int)), this, SLOT(despeckleSliderValueChanged(int)));
-  CONNECT(applyDespeckleButton, SIGNAL(clicked()), this, SLOT(applyDespeckleButtonClicked()));
-  CONNECT(depthPerceptionSlider, SIGNAL(valueChanged(int)), this, SLOT(depthPerceptionChangedSlot(int)));
-  CONNECT(&m_delayedReloadRequest, SIGNAL(timeout()), this, SLOT(sendReloadRequested()));
+  CONNECT(despeckleCB, &QAbstractButton::clicked, this, &OptionsWidget::despeckleToggled);
+  CONNECT(despeckleSlider, &QAbstractSlider::sliderReleased, this, &OptionsWidget::despeckleSliderReleased);
+  CONNECT(despeckleSlider, &QAbstractSlider::valueChanged, this, &OptionsWidget::despeckleSliderValueChanged);
+  CONNECT(applyDespeckleButton, &QAbstractButton::clicked, this, &OptionsWidget::applyDespeckleButtonClicked);
+  CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this, &OptionsWidget::depthPerceptionChangedSlot);
+  CONNECT(&m_delayedReloadRequest, &QTimer::timeout, this, &OptionsWidget::sendReloadRequested);
 
-  CONNECT(blackOnWhiteCB, SIGNAL(clicked(bool)), this, SLOT(blackOnWhiteToggled(bool)));
-  CONNECT(applyProcessingOptionsButton, SIGNAL(clicked()), this, SLOT(applyProcessingParamsClicked()));
+  CONNECT(blackOnWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::blackOnWhiteToggled);
+  CONNECT(applyProcessingOptionsButton, &QAbstractButton::clicked, this, &OptionsWidget::applyProcessingParamsClicked);
 }
 
 #undef CONNECT
@@ -1268,8 +1268,7 @@ void OptionsWidget::applyProcessingParamsClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowTitle(tr("Apply Content"));
-  connect(dialog, SIGNAL(accepted(const std::set<PageId>&)), this,
-          SLOT(applyProcessingParamsConfirmed(const std::set<PageId>&)));
+  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyProcessingParamsConfirmed);
   dialog->show();
 }
 
