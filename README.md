@@ -293,7 +293,8 @@ from working:
 * *Page Layout*: the button "Match size to all pages" is gone. It applied the whole alignment
   (not only the matched size) to all pages, like **Apply to ...** with all pages, and didn't
   store the check box "Match size with other pages" for the current page. The tooltip of
-  **Apply to ...** says what is applied. The nine alignment buttons are centered.
+  **Apply to ...** says what is applied. The nine alignment buttons are centered, also in the
+  Default Parameters window.
 * *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Denoising",
   "Filling", "Threshold", "Color Operations" and "Picture Zones" (formerly "Picture Shape", like
   the tab in which picture zones are edited). The collapsed state saved for the old nested boxes
