@@ -321,7 +321,7 @@ void ProjectFilesDialog::projectFileBrowse() {
 
   // Overwriting is asked about when the dialog is accepted.
   QString file(QFileDialog::getSaveFileName(this, tr("Project File"), initialPath,
-                                            tr("Scan Tailor Projects") + " (*.ScanTailor)", nullptr,
+                                            tr("ScanTailor OCR Projects") + " (*.ScanTailor)", nullptr,
                                             QFileDialog::DontConfirmOverwrite));
   if (file.isEmpty()) {
     return;

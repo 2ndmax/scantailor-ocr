@@ -180,6 +180,9 @@
                 </item>
                 <item>
                  <widget class="QToolButton" name="rotateLeftBtn">
+                  <property name="toolTip">
+                   <string>Rotate new pages a quarter turn counterclockwise.</string>
+                  </property>
                   <property name="text">
                    <string>...</string>
                   </property>
@@ -197,6 +200,9 @@
                 </item>
                 <item>
                  <widget class="QToolButton" name="rotateRightBtn">
+                  <property name="toolTip">
+                   <string>Rotate new pages a quarter turn clockwise.</string>
+                  </property>
                   <property name="text">
                    <string>...</string>
                   </property>
@@ -608,6 +614,9 @@
                <layout class="QHBoxLayout" name="_6">
                 <item>
                  <widget class="QPushButton" name="deskewAutoBtn">
+                  <property name="toolTip">
+                   <string>Detect the rotation angle of new pages automatically, with the method chosen under &quot;Detection&quot;.</string>
+                  </property>
                   <property name="text">
                    <string>Auto</string>
                   </property>
@@ -621,6 +630,9 @@
                 </item>
                 <item>
                  <widget class="QPushButton" name="deskewManualBtn">
+                  <property name="toolTip">
+                   <string>Use the angle set below for new pages.</string>
+                  </property>
                   <property name="text">
                    <string>Manual</string>
                   </property>
@@ -847,8 +859,11 @@
               </item>
               <item row="1" column="0" colspan="2">
                <widget class="QPushButton" name="pageDetectDisableBtn">
+                <property name="toolTip">
+                 <string>Use the whole image as the page box.</string>
+                </property>
                 <property name="text">
-                 <string>Disable</string>
+                 <string>Off</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -863,6 +878,9 @@
               </item>
               <item row="2" column="0">
                <widget class="QPushButton" name="pageDetectAutoBtn">
+                <property name="toolTip">
+                 <string>Detect the page box automatically.</string>
+                </property>
                 <property name="text">
                  <string>Auto</string>
                 </property>
@@ -876,6 +894,9 @@
               </item>
               <item row="2" column="1">
                <widget class="QPushButton" name="pageDetectManualBtn">
+                <property name="toolTip">
+                 <string>Use a page box of the size set below for new pages.</string>
+                </property>
                 <property name="text">
                  <string>Manual</string>
                 </property>
@@ -1020,8 +1041,11 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="contentDetectDisableBtn">
+                   <property name="toolTip">
+                    <string>Use the whole page box as the content box.</string>
+                   </property>
                    <property name="text">
-                    <string>Disable</string>
+                    <string>Off</string>
                    </property>
                    <property name="checkable">
                     <bool>true</bool>
@@ -1033,6 +1057,9 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="contentDetectAutoBtn">
+                   <property name="toolTip">
+                    <string>Detect the content box automatically.</string>
+                   </property>
                    <property name="text">
                     <string>Auto</string>
                    </property>

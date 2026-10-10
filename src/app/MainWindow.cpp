@@ -1662,7 +1662,7 @@ void MainWindow::saveProjectAsTriggered() {
   }
 
   QString projectFile(
-      QFileDialog::getSaveFileName(this, QString(), projectDir, tr("Scan Tailor Projects") + " (*.ScanTailor)"));
+      QFileDialog::getSaveFileName(this, QString(), projectDir, tr("ScanTailor OCR Projects") + " (*.ScanTailor)"));
   if (projectFile.isEmpty()) {
     return;
   }
@@ -1723,7 +1723,7 @@ void MainWindow::openProject() {
 
   const QString projectDir(QSettings().value("project/lastDir").toString());
   const QString projectFile(QFileDialog::getOpenFileName(this, tr("Open Project"), projectDir,
-                                                         tr("Scan Tailor Projects") + " (*.ScanTailor)"));
+                                                         tr("ScanTailor OCR Projects") + " (*.ScanTailor)"));
   if (projectFile.isEmpty()) {
     // Cancelled by user.
     return;

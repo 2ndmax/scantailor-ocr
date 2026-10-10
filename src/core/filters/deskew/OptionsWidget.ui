@@ -37,6 +37,9 @@
        <layout class="QHBoxLayout">
         <item>
          <widget class="QPushButton" name="autoBtn">
+          <property name="toolTip">
+           <string>Detect the rotation angle automatically, with the method chosen under &quot;Detection&quot;.</string>
+          </property>
           <property name="text">
            <string>Auto</string>
           </property>
@@ -50,6 +53,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="manualBtn">
+          <property name="toolTip">
+           <string>Keep the angle set below.</string>
+          </property>
           <property name="text">
            <string>Manual</string>
           </property>
@@ -140,7 +146,7 @@
            <string>Auto</string>
           </property>
           <property name="toolTip">
-           <string>Automatically estimate oblique (shear) correction.</string>
+           <string>Detect the oblique angle automatically.</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -156,7 +162,7 @@
            <string>Manual</string>
           </property>
           <property name="toolTip">
-           <string>Keep the oblique angle set in the spin box.</string>
+           <string>Keep the oblique angle set below.</string>
           </property>
           <property name="checkable">
            <bool>true</bool>

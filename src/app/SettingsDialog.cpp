@@ -173,5 +173,5 @@ void SettingsDialog::updateAccentColorDisplay() {
 
 void SettingsDialog::showRestartNotice() {
   QMessageBox::information(this, tr("Information"),
-                           tr("ScanTailor need to be restarted to apply the color scheme changes."));
+                           tr("ScanTailor OCR needs to be restarted to apply the color scheme changes."));
 }

@@ -110,7 +110,7 @@
         <item>
          <widget class="QPushButton" name="offProjectSelectAllBtn">
           <property name="text">
-           <string>Select All</string>
+           <string>Select all</string>
           </property>
          </widget>
         </item>
@@ -224,7 +224,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QPushButton" name="inProjectSelectAllBtn">
           <property name="text">
-           <string>Select All</string>
+           <string>Select all</string>
           </property>
          </widget>
         </item>

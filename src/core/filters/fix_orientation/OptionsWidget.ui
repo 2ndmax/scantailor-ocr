@@ -50,6 +50,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="rotateLeftBtn">
+          <property name="toolTip">
+           <string>Rotate the page a quarter turn counterclockwise.</string>
+          </property>
           <property name="text">
            <string>...</string>
           </property>
@@ -67,6 +70,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="rotateRightBtn">
+          <property name="toolTip">
+           <string>Rotate the page a quarter turn clockwise.</string>
+          </property>
           <property name="text">
            <string>...</string>
           </property>

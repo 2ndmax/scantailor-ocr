@@ -209,6 +209,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <widget class="QPushButton" name="autoBtn">
+             <property name="toolTip">
+              <string>Detect the split line automatically.</string>
+             </property>
              <property name="text">
               <string>Auto</string>
              </property>
@@ -225,6 +228,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="manualBtn">
+             <property name="toolTip">
+              <string>Keep the split line set by hand in the image.</string>
+             </property>
              <property name="text">
               <string>Manual</string>
              </property>

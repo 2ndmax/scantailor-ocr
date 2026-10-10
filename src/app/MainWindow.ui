@@ -1490,7 +1490,7 @@ QToolButton:pressed {
   </action>
   <action name="actionGotoPage">
    <property name="text">
-    <string>Go to Page</string>
+    <string>Go to Page ...</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+G</string>

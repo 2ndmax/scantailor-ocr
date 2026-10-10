@@ -137,7 +137,7 @@
           <item>
            <widget class="QCheckBox" name="blackOnWhiteCB">
             <property name="toolTip">
-             <string>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing.  Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection at the output stage&quot; are turned on in the settings.  A change made here by hand takes precedence over the detection.</string>
+             <string>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing.  Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection in the Output step&quot; are turned on in the settings.  A change made here by hand takes precedence over the detection.</string>
             </property>
             <property name="text">
              <string>Dark content on a light background</string>

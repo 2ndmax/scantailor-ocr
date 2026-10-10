@@ -59,7 +59,7 @@
             <item>
              <widget class="QLabel" name="colorSchemeLabel">
               <property name="text">
-               <string>Color Scheme: </string>
+               <string>Color scheme:</string>
               </property>
              </widget>
             </item>
@@ -127,7 +127,7 @@
             <item>
              <widget class="QLabel" name="languageLabel">
               <property name="text">
-               <string>Language: </string>
+               <string>Language:</string>
               </property>
              </widget>
             </item>
@@ -154,7 +154,7 @@
             <item>
              <widget class="QLabel" name="deskewHandleDistanceLabel">
               <property name="text">
-               <string>Deskew handle distance: </string>
+               <string>Deskew handle distance:</string>
               </property>
               <property name="buddy">
                <cstring>deskewHandleDistanceSB</cstring>
@@ -353,10 +353,10 @@
           <item>
            <widget class="QCheckBox" name="blackOnWhiteDetectionAtOutputCB">
             <property name="toolTip">
-             <string>Also sets the &quot;Black on white mode&quot; of the Output stage according to the detection. Turned off, the detection only helps deskewing and content detection, and the Output stage treats all pages as dark content on a light background. A change made by hand in the Output stage always takes precedence.</string>
+             <string>Also sets &quot;Dark content on a light background&quot; in the Output step according to the detection.  Turned off, the detection only helps deskewing and content detection, and the Output step treats all pages as dark content on a light background.  A change made by hand in the Output step always takes precedence.</string>
             </property>
             <property name="text">
-             <string>Use auto detection at the output stage</string>
+             <string>Use auto detection in the Output step</string>
             </property>
            </widget>
           </item>
