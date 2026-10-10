@@ -86,6 +86,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
     dpiSelector->addItem(Utils::dpiText(dpi));
   }
   dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
+  Utils::setDpiFieldWidth(dpiSelector);
 
   m_dewarpingModeGroup = new QButtonGroup(this);
   m_dewarpingModeGroup->addButton(dewarpingOffBtn, OFF);

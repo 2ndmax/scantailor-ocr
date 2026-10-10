@@ -3,11 +3,14 @@
 
 #include "Utils.h"
 
+#include <QComboBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QFontMetrics>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QTextDocument>
+#include <algorithm>
 #include <cmath>
 
 #include "ApplicationSettings.h"
@@ -123,6 +126,23 @@ int Utils::dpiFromText(const QString& text, bool* ok) {
     return 0;
   }
   return match.captured().toInt(ok);
+}
+
+void Utils::setDpiFieldWidth(QComboBox* field) {
+  // The size hint of an editable list leaves out the padding the style sheets give its text field,
+  // so the longest entry would be cut off by a few pixels.  A fixed width doesn't help, as the
+  // style sheet's min-width replaces the minimum width again.  Instead the size hint is enlarged:
+  // a minimum contents length (counted in widths of "X") covering the longest entry plus about
+  // two thirds of a digit.
+  const QFontMetrics metrics(field->fontMetrics());
+  int widest = 0;
+  for (int i = 0; i < field->count(); ++i) {
+    widest = std::max(widest, metrics.horizontalAdvance(field->itemText(i)));
+  }
+  widest += (2 * metrics.horizontalAdvance(QLatin1Char('0')) + 2) / 3;
+  const int charWidth = std::max(1, metrics.horizontalAdvance(QLatin1Char('X')));
+  field->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  field->setMinimumContentsLength((widest + charWidth - 1) / charWidth);
 }
 
 QValidator* Utils::createDpiValidator(QObject* parent) {

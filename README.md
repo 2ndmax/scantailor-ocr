@@ -348,6 +348,12 @@ from working:
   same; typing changes only the one field. The button "Fix DPI of all images ..." (formerly
   "Fix all ...") opens the same window as *Tools > Fix DPI of All Images ...* (formerly "Fix
   DPI ...").
+* *Fix DPI of All Images*: the resolution is set like in **Source Resolution**, with two lists
+  "Resolution: [300 dpi] × [300 dpi]" instead of a list of presets and two plain text fields;
+  the button is called "Apply to selection". The window opens larger, and the list of images
+  takes the extra height.
+* The resolution fields (*Margins*, *Output*, *Default Parameters*, *Fix DPI of All Images*) are
+  wide enough for "1200 dpi".
 * *Margins*: "Lock aggregate size for matching" applies to all pages, not to the page, so it
   has its own panel, **Common Size**, below **Alignment** (no **Apply to ...**). The panel
   shows the common size of the pages whose size is matched, in the current units; the check box

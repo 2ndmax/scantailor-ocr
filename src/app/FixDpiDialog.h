@@ -34,7 +34,7 @@ class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
 
   void selectionChanged(const QItemSelection& selection);
 
-  void dpiComboChangedByUser(int index);
+  void dpiChosenFromList();
 
   void dpiValueChanged();
 
@@ -56,14 +56,15 @@ class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
 
   void setDpiForm(const ImageMetadata& metadata);
 
-  void updateDpiCombo();
+  /** The resolution in the two fields; a field without a number counts as 0. */
+  Dpi enteredDpi() const;
 
-  void decorateDpiInputField(QLineEdit* field, ImageMetadata::DpiStatus dpiStatus) const;
+  void decorateDpiInputField(QComboBox* field, ImageMetadata::DpiStatus dpiStatus) const;
 
   std::unique_ptr<TreeModel> m_pages;
   std::unique_ptr<FilterModel> m_undefinedDpiPages;
-  QString m_xDpiInitialValue;
-  QString m_yDpiInitialValue;
+  /** The resolution of the selected images when they were selected; (0, 0) if none. */
+  QSize m_initialDpi;
   QSize m_selectedItemPixelSize;
   QPalette m_normalPalette;
   QPalette m_errorPalette;

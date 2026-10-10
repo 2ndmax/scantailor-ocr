@@ -1178,52 +1178,57 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="47"/>
-        <source>DPI</source>
-        <translation>DPI</translation>
+        <source>Resolution</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.ui" line="70"/>
-        <source>Custom</source>
-        <translation>커스텀</translation>
+        <location filename="../app/FixDpiDialog.ui" line="69"/>
+        <source>Resolution of the images selected in the list (horizontal × vertical).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.ui" line="91"/>
-        <source>x</source>
-        <translation>x</translation>
+        <location filename="../app/FixDpiDialog.ui" line="72"/>
+        <source>Resolution:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.ui" line="114"/>
-        <source>Apply</source>
-        <translation>적용</translation>
+        <location filename="../app/FixDpiDialog.ui" line="112"/>
+        <source>Sets this resolution for the images selected in the list.  OK takes over the resolutions of all images.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="206"/>
+        <location filename="../app/FixDpiDialog.ui" line="115"/>
+        <source>Apply to selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/FixDpiDialog.cpp" line="212"/>
         <source>Need Fixing</source>
         <translation>수정 필요</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="207"/>
-        <location filename="../app/FixDpiDialog.cpp" line="593"/>
+        <location filename="../app/FixDpiDialog.cpp" line="213"/>
+        <location filename="../app/FixDpiDialog.cpp" line="579"/>
         <source>All Pages</source>
         <translation>모든 페이지</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="392"/>
+        <location filename="../app/FixDpiDialog.cpp" line="378"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation>DPI가 너무 크고 잘못된 것 같습니다.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="396"/>
+        <location filename="../app/FixDpiDialog.cpp" line="382"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation>DPI가 너무 작습니다. 정확한 DPI여도, 괜찮은 결과물을 얻지 못할 것입니다.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="400"/>
+        <location filename="../app/FixDpiDialog.cpp" line="386"/>
         <source>DPI is too small for this pixel size. Such combination would probably lead to out of memory errors.</source>
         <translation>픽셀 크기에 비해 DPI가 너무 작습니다. 메모리 에러가 일어날 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="619"/>
+        <location filename="../app/FixDpiDialog.cpp" line="605"/>
         <source>%1 (page %2)</source>
         <translation>%1 (페이지 %2)</translation>
     </message>

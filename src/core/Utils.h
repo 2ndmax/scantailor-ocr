@@ -12,6 +12,8 @@
 
 #include "ThumbnailPixmapCache.h"
 
+class QComboBox;
+
 namespace core {
 class Utils {
  public:
@@ -74,6 +76,9 @@ class Utils {
 
   /// Accepts up to four digits, optionally followed by "dpi".
   static QValidator* createDpiValidator(QObject* parent);
+
+  /// Makes an editable list of resolutions wide enough for its longest entry, e.g. "1200 dpi".
+  static void setDpiFieldWidth(QComboBox* field);
 
   Utils() = delete;
 };

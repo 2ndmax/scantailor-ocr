@@ -3,12 +3,14 @@
 
 #include "FixDpiDialog.h"
 
+#include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <boost/foreach.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 
 #include "ColorSchemeManager.h"
+#include "Utils.h"
 
 // To be able to use it in QVariant
 Q_DECLARE_METATYPE(ImageMetadata)
@@ -193,26 +195,26 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
       m_undefinedDpiPages(std::make_unique<FilterModel>(*m_pages)) {
   setupUi(this);
 
-  m_normalPalette = xDpi->palette();
+  // Lists of the usual values that also take any other value typed in, as in the Margins step.
+  for (QComboBox* field : {xDpi, yDpi}) {
+    for (const int dpi : {300, 400, 600, 1200}) {
+      field->addItem(core::Utils::dpiText(dpi));
+    }
+    field->setInsertPolicy(QComboBox::NoInsert);
+    field->setValidator(core::Utils::createDpiValidator(field));
+    core::Utils::setDpiFieldWidth(field);
+  }
+
+  m_normalPalette = xDpi->lineEdit()->palette();
   m_errorPalette = m_normalPalette;
   const QColor errorTextColor = ColorSchemeManager::instance().getColorParam("FixDpiDialogErrorText", QColor(Qt::red));
   m_errorPalette.setColor(QPalette::Text, errorTextColor);
-
-  dpiCombo->addItem("300 x 300", QSize(300, 300));
-  dpiCombo->addItem("400 x 400", QSize(400, 400));
-  dpiCombo->addItem("600 x 600", QSize(600, 600));
-  dpiCombo->addItem("1200 x 1200", QSize(1200, 1200));
 
   tabWidget->setTabText(NEED_FIXING_TAB, tr("Need Fixing"));
   tabWidget->setTabText(ALL_PAGES_TAB, tr("All Pages"));
   undefinedDpiView->setModel(m_undefinedDpiPages->model()), undefinedDpiView->header()->hide();
   allPagesView->setModel(m_pages->model());
   allPagesView->header()->hide();
-
-  xDpi->setMaxLength(4);
-  yDpi->setMaxLength(4);
-  xDpi->setValidator(new QIntValidator(xDpi));
-  yDpi->setValidator(new QIntValidator(yDpi));
 
   connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 
@@ -221,10 +223,10 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
   connect(allPagesView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
           SLOT(selectionChanged(const QItemSelection&)));
 
-  connect(dpiCombo, SIGNAL(activated(int)), this, SLOT(dpiComboChangedByUser(int)));
-
-  connect(xDpi, SIGNAL(textEdited(const QString&)), this, SLOT(dpiValueChanged()));
-  connect(yDpi, SIGNAL(textEdited(const QString&)), this, SLOT(dpiValueChanged()));
+  connect(xDpi, SIGNAL(activated(int)), this, SLOT(dpiChosenFromList()));
+  connect(yDpi, SIGNAL(activated(int)), this, SLOT(dpiChosenFromList()));
+  connect(xDpi->lineEdit(), SIGNAL(textEdited(const QString&)), this, SLOT(dpiValueChanged()));
+  connect(yDpi->lineEdit(), SIGNAL(textEdited(const QString&)), this, SLOT(dpiValueChanged()));
 
   connect(applyBtn, SIGNAL(clicked()), this, SLOT(applyClicked()));
 
@@ -248,26 +250,36 @@ void FixDpiDialog::selectionChanged(const QItemSelection& selection) {
   updateDpiFromSelection(selection);
 }
 
-void FixDpiDialog::dpiComboChangedByUser(const int index) {
-  const QVariant data(dpiCombo->itemData(index));
-  if (data.isValid()) {
-    const QSize dpi(data.toSize());
-    xDpi->setText(QString::number(dpi.width()));
-    yDpi->setText(QString::number(dpi.height()));
-    dpiValueChanged();
+void FixDpiDialog::dpiChosenFromList() {
+  auto* chosen = qobject_cast<QComboBox*>(sender());
+  if (!chosen) {
+    return;
   }
+  // Both values are almost always the same, so a value chosen from the list sets both while
+  // they are.  Different values stay different; typing changes only the one field.
+  QComboBox* other = (chosen == xDpi) ? yDpi : xDpi;
+  if (m_initialDpi.isEmpty() || (m_initialDpi.width() == m_initialDpi.height())) {
+    other->setEditText(chosen->currentText());
+  }
+  dpiValueChanged();
+}
+
+Dpi FixDpiDialog::enteredDpi() const {
+  bool xOk = false;
+  bool yOk = false;
+  const int horizontal = core::Utils::dpiFromText(xDpi->currentText(), &xOk);
+  const int vertical = core::Utils::dpiFromText(yDpi->currentText(), &yOk);
+  return Dpi(xOk ? horizontal : 0, yOk ? vertical : 0);
 }
 
 void FixDpiDialog::dpiValueChanged() {
-  updateDpiCombo();
-
-  const Dpi dpi(xDpi->text().toInt(), yDpi->text().toInt());
+  const Dpi dpi(enteredDpi());
   const ImageMetadata metadata(m_selectedItemPixelSize, dpi);
 
   decorateDpiInputField(xDpi, metadata.horizontalDpiStatus());
   decorateDpiInputField(yDpi, metadata.verticalDpiStatus());
 
-  if ((m_xDpiInitialValue == xDpi->text()) && (m_yDpiInitialValue == yDpi->text())) {
+  if (dpi.toSize() == m_initialDpi) {
     applyBtn->setEnabled(false);
     return;
   }
@@ -282,7 +294,7 @@ void FixDpiDialog::dpiValueChanged() {
 }
 
 void FixDpiDialog::applyClicked() {
-  const Dpi dpi(xDpi->text().toInt(), yDpi->text().toInt());
+  const Dpi dpi(enteredDpi());
   QItemSelectionModel* selectionModel = nullptr;
 
   if (tabWidget->currentIndex() == ALL_PAGES_TAB) {
@@ -309,18 +321,16 @@ void FixDpiDialog::enableDisableOkButton() {
  * It is assumed that only a single item is selected.
  */
 void FixDpiDialog::updateDpiFromSelection(const QItemSelection& selection) {
-  if (selection.isEmpty()) {
+  const bool enabled = !selection.isEmpty();
+  // applyBtn is managed elsewhere.
+  for (QWidget* widget : {static_cast<QWidget*>(dpiLabel), static_cast<QWidget*>(xDpi),
+                          static_cast<QWidget*>(dpiTimesLabel), static_cast<QWidget*>(yDpi)}) {
+    widget->setEnabled(enabled);
+  }
+  if (!enabled) {
     resetDpiForm();
-    dpiCombo->setEnabled(false);
-    xDpi->setEnabled(false);
-    yDpi->setEnabled(false);
-    // applyBtn is managed elsewhere.
     return;
   }
-
-  dpiCombo->setEnabled(true);
-  xDpi->setEnabled(true);
-  yDpi->setEnabled(true);
 
   // FilterModel may replace AGGREGATE_METADATA_ROLE with AGGREGATE_NOT_OK_METADATA_ROLE.
   const QVariant data(selection.front().topLeft().data(AGGREGATE_METADATA_ROLE));
@@ -332,11 +342,9 @@ void FixDpiDialog::updateDpiFromSelection(const QItemSelection& selection) {
 }
 
 void FixDpiDialog::resetDpiForm() {
-  dpiCombo->setCurrentIndex(0);
-  m_xDpiInitialValue.clear();
-  m_yDpiInitialValue.clear();
-  xDpi->setText(m_xDpiInitialValue);
-  yDpi->setText(m_yDpiInitialValue);
+  m_initialDpi = QSize(0, 0);
+  xDpi->setEditText(QString());
+  yDpi->setEditText(QString());
   dpiValueChanged();
 }
 
@@ -348,39 +356,18 @@ void FixDpiDialog::setDpiForm(const ImageMetadata& metadata) {
     return;
   }
 
-  m_xDpiInitialValue = QString::number(dpi.horizontal());
-  m_yDpiInitialValue = QString::number(dpi.vertical());
+  m_initialDpi = dpi.toSize();
   m_selectedItemPixelSize = metadata.size();
-  xDpi->setText(m_xDpiInitialValue);
-  yDpi->setText(m_yDpiInitialValue);
+  xDpi->setEditText(core::Utils::dpiText(dpi.horizontal()));
+  yDpi->setEditText(core::Utils::dpiText(dpi.vertical()));
   dpiValueChanged();
 }
 
-void FixDpiDialog::updateDpiCombo() {
-  bool xOk = true, y_ok = true;
-  const QSize dpi(xDpi->text().toInt(&xOk), yDpi->text().toInt(&y_ok));
-
-  if (xOk && y_ok) {
-    const int count = dpiCombo->count();
-    for (int i = 0; i < count; ++i) {
-      const QVariant data(dpiCombo->itemData(i));
-      if (data.isValid()) {
-        if (dpi == data.toSize()) {
-          dpiCombo->setCurrentIndex(i);
-          return;
-        }
-      }
-    }
-  }
-
-  dpiCombo->setCurrentIndex(0);
-}
-
-void FixDpiDialog::decorateDpiInputField(QLineEdit* field, ImageMetadata::DpiStatus dpiStatus) const {
+void FixDpiDialog::decorateDpiInputField(QComboBox* field, ImageMetadata::DpiStatus dpiStatus) const {
   if (dpiStatus == ImageMetadata::DPI_OK) {
-    field->setPalette(m_normalPalette);
+    field->lineEdit()->setPalette(m_normalPalette);
   } else {
-    field->setPalette(m_errorPalette);
+    field->lineEdit()->setPalette(m_errorPalette);
   }
 
   switch (dpiStatus) {

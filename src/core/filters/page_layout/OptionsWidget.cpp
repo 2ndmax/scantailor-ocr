@@ -598,6 +598,7 @@ void OptionsWidget::setupSourceDpiControls() {
     }
     field->setInsertPolicy(QComboBox::NoInsert);
     field->setValidator(core::Utils::createDpiValidator(field));
+    core::Utils::setDpiFieldWidth(field);
   }
 
   m_sourceDpiNormalPalette = sourceXDpi->lineEdit()->palette();
