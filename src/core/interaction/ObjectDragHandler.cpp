@@ -3,10 +3,10 @@
 
 #include "ObjectDragHandler.h"
 
+#include <QGuiApplication>
 #include <QMouseEvent>
 
-ObjectDragHandler::ObjectDragHandler(DraggableObject* obj)
-    : m_obj(obj), m_keyboardModifiersSet({Qt::NoModifier}), m_activeKeyboardModifiers(Qt::NoModifier) {
+ObjectDragHandler::ObjectDragHandler(DraggableObject* obj) : m_obj(obj), m_keyboardModifiersSet({Qt::NoModifier}) {
   setProximityCursor(Qt::OpenHandCursor);
   setInteractionCursor(Qt::ClosedHandCursor);
 }
@@ -45,7 +45,7 @@ void ObjectDragHandler::onPaint(QPainter& painter, const InteractionState& inter
 }
 
 void ObjectDragHandler::onProximityUpdate(const QPointF& screenMousePos, InteractionState& interaction) {
-  if (m_keyboardModifiersSet.find(m_activeKeyboardModifiers) == m_keyboardModifiersSet.end()) {
+  if (!modifiersAllowed()) {
     return;
   }
 
@@ -54,8 +54,7 @@ void ObjectDragHandler::onProximityUpdate(const QPointF& screenMousePos, Interac
 }
 
 void ObjectDragHandler::onMousePressEvent(QMouseEvent* event, InteractionState& interaction) {
-  if (interaction.captured() || (event->button() != Qt::LeftButton)
-      || (m_keyboardModifiersSet.find(m_activeKeyboardModifiers) == m_keyboardModifiersSet.end())) {
+  if (interaction.captured() || (event->button() != Qt::LeftButton) || !modifiersAllowed()) {
     return;
   }
 
@@ -82,10 +81,8 @@ void ObjectDragHandler::setKeyboardModifiers(const std::set<Qt::KeyboardModifier
   m_keyboardModifiersSet = modifiersSet;
 }
 
-void ObjectDragHandler::onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) {
-  m_activeKeyboardModifiers = event->modifiers();
-}
-
-void ObjectDragHandler::onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) {
-  m_activeKeyboardModifiers = event->modifiers();
+bool ObjectDragHandler::modifiersAllowed() const {
+  // Asked for each time instead of remembering key events: a key released
+  // in another window (Alt+Tab) would otherwise stay pressed for us.
+  return m_keyboardModifiersSet.find(QGuiApplication::keyboardModifiers()) != m_keyboardModifiersSet.end();
 }

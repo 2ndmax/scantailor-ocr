@@ -37,10 +37,6 @@ class ZoneDefaultInteraction : public InteractionHandler {
 
   void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
 
-  void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) override;
-
-  void onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) override;
-
   void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction) override;
 
  private:
@@ -56,7 +52,6 @@ class ZoneDefaultInteraction : public InteractionHandler {
   InteractionState::Captor m_zoneAreaDragProximity;
   InteractionState::Captor m_zoneAreaDragCopyProximity;
   QPointF m_screenMousePos;
-  Qt::KeyboardModifiers m_activeKeyboardModifiers;
 
   /**
    * We want our own drag handler, to be able to monitor it

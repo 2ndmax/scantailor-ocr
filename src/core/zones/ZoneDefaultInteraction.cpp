@@ -3,6 +3,7 @@
 
 #include "ZoneDefaultInteraction.h"
 
+#include <QGuiApplication>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QShortcut>
@@ -162,9 +163,12 @@ void ZoneDefaultInteraction::onProximityUpdate(const QPointF& mousePos, Interact
   if (m_splineUnderMouse) {
     const Proximity zoneAreaProximity(std::min(bestVertexProximity, bestSegmentProximity));
     interaction.updateProximity(m_zoneAreaProximity, zoneAreaProximity, -1, zoneAreaProximity);
-    if (m_activeKeyboardModifiers == Qt::ShiftModifier) {
+    // Asked for each time instead of remembering key events: a key released
+    // in another window (Alt+Tab) would otherwise stay pressed for us.
+    const Qt::KeyboardModifiers modifiers = QGuiApplication::keyboardModifiers();
+    if (modifiers == Qt::ShiftModifier) {
       interaction.updateProximity(m_zoneAreaDragProximity, Proximity::fromSqDist(0), 0);
-    } else if (m_activeKeyboardModifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
+    } else if (modifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
       interaction.updateProximity(m_zoneAreaDragCopyProximity, Proximity::fromSqDist(0), 0);
     }
   }
@@ -217,7 +221,7 @@ void ZoneDefaultInteraction::onMouseReleaseEvent(QMouseEvent* event, Interaction
     return;
   }
 
-  if (m_activeKeyboardModifiers == (Qt::ControlModifier | Qt::AltModifier)) {
+  if (event->modifiers() == (Qt::ControlModifier | Qt::AltModifier)) {
     const QTransform fromScreen(m_context.imageView().widgetToImage());
 
     EditableZoneSet::const_iterator latestZone = --m_context.zones().end();
@@ -249,14 +253,6 @@ void ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionSta
 
   m_screenMousePos = toScreen.map(event->pos() + QPointF(0.5, 0.5));
   m_context.imageView().update();
-}
-
-void ZoneDefaultInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) {
-  m_activeKeyboardModifiers = event->modifiers();
-}
-
-void ZoneDefaultInteraction::onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) {
-  m_activeKeyboardModifiers = event->modifiers();
 }
 
 void ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction) {

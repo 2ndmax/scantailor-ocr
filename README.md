@@ -565,6 +565,9 @@ from working:
   another place or computer, and relinking is offered as before.
 * Switching back to a step after batch processing or after "Create PDF" no longer connects the
   signals of its options panel a second time.
+* After switching to another window with Alt+Tab and back, the drag handles (split line,
+  deskew, content box, margins) and the zone editors react to the mouse again; before, Alt
+  counted as still pressed until another page was shown.
 * Code cleanups based on the compiler's static code analysis.
 
 ### Build and tests

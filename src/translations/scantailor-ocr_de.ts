@@ -4718,7 +4718,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/output/PictureZonePropDialog.ui" line="34"/>
         <source>Subtract from auto layer</source>
-        <translation>Aus Auto-Ebene substrahieren</translation>
+        <translation>Aus Auto-Ebene subtrahieren</translation>
     </message>
     <message>
         <location filename="../core/filters/output/PictureZonePropDialog.ui" line="41"/>

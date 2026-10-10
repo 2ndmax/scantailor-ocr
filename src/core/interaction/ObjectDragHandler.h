@@ -51,15 +51,12 @@ class ObjectDragHandler : public InteractionHandler {
 
   void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
 
-  void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) override;
-
-  void onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) override;
-
  private:
+  bool modifiersAllowed() const;
+
   DraggableObject* m_obj;
   InteractionState::Captor m_interaction;
   std::set<Qt::KeyboardModifiers> m_keyboardModifiersSet;
-  Qt::KeyboardModifiers m_activeKeyboardModifiers;
 };
 
 
