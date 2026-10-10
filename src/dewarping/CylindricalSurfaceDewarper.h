@@ -6,7 +6,7 @@
 
 #include <QLineF>
 #include <QPointF>
-#include <boost/array.hpp>
+#include <array>
 #include <utility>
 #include <vector>
 
@@ -79,11 +79,9 @@ class CylindricalSurfaceDewarper {
                                      HomographicTransform<2, double> pln2img,
                                      HomographicTransform<2, double> img2pln);
 
-  static HomographicTransform<2, double> fourPoint2DHomography(
-      const boost::array<std::pair<QPointF, QPointF>, 4>& pairs);
+  static HomographicTransform<2, double> fourPoint2DHomography(const std::array<std::pair<QPointF, QPointF>, 4>& pairs);
 
-  static HomographicTransform<1, double> threePoint1DHomography(
-      const boost::array<std::pair<double, double>, 3>& pairs);
+  static HomographicTransform<1, double> threePoint1DHomography(const std::array<std::pair<double, double>, 3>& pairs);
 
   void initArcLengthMapper(const std::vector<QPointF>& imgDirectrix1, const std::vector<QPointF>& imgDirectrix2);
 

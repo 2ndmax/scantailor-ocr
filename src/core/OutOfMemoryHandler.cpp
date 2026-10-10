@@ -19,7 +19,7 @@ OutOfMemoryHandler& OutOfMemoryHandler::instance() {
 void OutOfMemoryHandler::allocateEmergencyMemory(size_t bytes) {
   const QMutexLocker locker(&m_mutex);
 
-  boost::scoped_array<char>(new char[bytes]).swap(m_emergencyBuffer);
+  std::unique_ptr<char[]>(new char[bytes]).swap(m_emergencyBuffer);
 }
 
 void OutOfMemoryHandler::handleOutOfMemorySituation() {
@@ -30,7 +30,7 @@ void OutOfMemoryHandler::handleOutOfMemorySituation() {
   }
 
   m_hadOOM = true;
-  boost::scoped_array<char>().swap(m_emergencyBuffer);
+  std::unique_ptr<char[]>().swap(m_emergencyBuffer);
   QMetaObject::invokeMethod(this, "outOfMemory", Qt::QueuedConnection);
 }
 

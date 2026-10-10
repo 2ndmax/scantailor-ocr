@@ -5,9 +5,7 @@
 #define SCANTAILOR_ZONES_EDITABLEZONESET_H_
 
 #include <QObject>
-#include <boost/foreach.hpp>
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/mpl/bool.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/sequenced_index.hpp>

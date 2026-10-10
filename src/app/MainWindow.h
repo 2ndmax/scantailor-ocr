@@ -10,7 +10,7 @@
 #include <QSizeF>
 #include <QString>
 #include <QTimer>
-#include <boost/function.hpp>
+#include <functional>
 #include <memory>
 #include <set>
 #include <vector>
@@ -453,7 +453,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   ScanInsertionAnchor m_insertAnchor;
   /** While non-zero, page selections don't move the anchor, e.g. while removing pages. */
   int m_ignoreAnchorSelection = 0;
-  boost::function<bool()> m_checkBeepWhenFinished;
+  std::function<bool()> m_checkBeepWhenFinished;
   SelectedPage m_selectedPage;
   QObjectCleanupHandler m_optionsWidgetCleanup;
   QObjectCleanupHandler m_imageWidgetCleanup;

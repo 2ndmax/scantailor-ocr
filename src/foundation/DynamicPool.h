@@ -5,8 +5,8 @@
 #define SCANTAILOR_FOUNDATION_DYNAMICPOOL_H_
 
 #include <boost/intrusive/list.hpp>
-#include <boost/scoped_array.hpp>
 #include <cstddef>
+#include <memory>
 
 #include "NonCopyable.h"
 
@@ -42,13 +42,13 @@ class DynamicPool {
   /**< Don't overallocate too much. */
 
   struct Chunk : public boost::intrusive::list_base_hook<> {
-    boost::scoped_array<T> storage;
+    std::unique_ptr<T[]> storage;
     T* pData;
     size_t remainingElements;
 
     Chunk() : pData(0), remainingElements(0) {}
 
-    void init(boost::scoped_array<T>& data, size_t size) {
+    void init(std::unique_ptr<T[]>& data, size_t size) {
       data.swap(storage);
       pData = storage.get();
       remainingElements = size;
@@ -86,7 +86,7 @@ T* DynamicPool<T>::alloc(size_t numElements) {
   if (!chunk) {
     // Create a new chunk.
     const size_t chunkSize = adviseChunkSize(numElements);
-    boost::scoped_array<T> data(new T[chunkSize]);
+    std::unique_ptr<T[]> data(new T[chunkSize]);
     chunk = &*m_chunkList.insert(m_chunkList.end(), *new Chunk);
     chunk->init(data, chunkSize);
   }

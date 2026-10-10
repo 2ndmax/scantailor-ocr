@@ -4,7 +4,6 @@
 #include "CylindricalSurfaceDewarper.h"
 
 #include <QDebug>
-#include <boost/foreach.hpp>
 
 #include "NumericTraits.h"
 #include "ToLineProjector.h"
@@ -91,7 +90,7 @@ CylindricalSurfaceDewarper::Generatrix CylindricalSurfaceDewarper::mapGeneratrix
   const double imgDirectrix2Proj(projector.projectionScalar(imgDirectrix2Pt));
   const double imgStraightLineProj(projector.projectionScalar(imgStraightLinePt));
 
-  boost::array<std::pair<double, double>, 3> pairs;
+  std::array<std::pair<double, double>, 3> pairs;
   pairs[0] = std::make_pair(0.0, imgDirectrix1Proj);
   pairs[1] = std::make_pair(1.0, imgDirectrix2Proj);
   if ((std::fabs(m_plnStraightLineY) < 0.05) || (std::fabs(m_plnStraightLineY - 1.0) < 0.05)) {
@@ -122,7 +121,7 @@ QPointF CylindricalSurfaceDewarper::mapToDewarpedSpace(const QPointF& imgPt) con
   const double imgDirectrix2Proj(projector.projectionScalar(imgDirectrix2Pt));
   const double imgStraightLineProj(projector.projectionScalar(imgStraightLinePt));
 
-  boost::array<std::pair<double, double>, 3> pairs;
+  std::array<std::pair<double, double>, 3> pairs;
   pairs[0] = std::make_pair(imgDirectrix1Proj, 0.0);
   pairs[1] = std::make_pair(imgDirectrix2Proj, 1.0);
   if ((std::fabs(m_plnStraightLineY) < 0.05) || (std::fabs(m_plnStraightLineY - 1.0) < 0.05)) {
@@ -146,7 +145,7 @@ QPointF CylindricalSurfaceDewarper::mapToWarpedSpace(const QPointF& crvPt) const
 HomographicTransform<2, double> CylindricalSurfaceDewarper::calcPlnToImgHomography(
     const std::vector<QPointF>& imgDirectrix1,
     const std::vector<QPointF>& imgDirectrix2) {
-  boost::array<std::pair<QPointF, QPointF>, 4> pairs;
+  std::array<std::pair<QPointF, QPointF>, 4> pairs;
   pairs[0] = std::make_pair(QPointF(0, 0), imgDirectrix1.front());
   pairs[1] = std::make_pair(QPointF(1, 0), imgDirectrix1.back());
   pairs[2] = std::make_pair(QPointF(0, 1), imgDirectrix2.front());
@@ -190,7 +189,7 @@ double CylindricalSurfaceDewarper::calcPlnStraightLineY(const std::vector<QPoint
 }  // CylindricalSurfaceDewarper::calcPlnStraightLineY
 
 HomographicTransform<2, double> CylindricalSurfaceDewarper::fourPoint2DHomography(
-    const boost::array<std::pair<QPointF, QPointF>, 4>& pairs) {
+    const std::array<std::pair<QPointF, QPointF>, 4>& pairs) {
   VecNT<64, double> A;
   VecNT<8, double> B;
   double* pa = A.data();
@@ -236,7 +235,7 @@ HomographicTransform<2, double> CylindricalSurfaceDewarper::fourPoint2DHomograph
 }  // CylindricalSurfaceDewarper::fourPoint2DHomography
 
 HomographicTransform<1, double> CylindricalSurfaceDewarper::threePoint1DHomography(
-    const boost::array<std::pair<double, double>, 3>& pairs) {
+    const std::array<std::pair<double, double>, 3>& pairs) {
   VecNT<9, double> A;
   VecNT<3, double> B;
   double* pa = A.data();

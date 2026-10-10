@@ -14,7 +14,7 @@
 
 #ifndef Q_MOC_RUN
 
-#include <boost/bind/bind.hpp>
+#include <functional>
 
 #endif
 
@@ -42,13 +42,13 @@ void InteractiveXSpline::setSpline(const XSpline& spline) {
   const int numControlPoints = spline.numControlPoints();
 
   XSpline newSpline(spline);
-  boost::scoped_array<ControlPoint> newControlPoints(new ControlPoint[numControlPoints]);
+  std::unique_ptr<ControlPoint[]> newControlPoints(new ControlPoint[numControlPoints]);
 
   for (int i = 0; i < numControlPoints; ++i) {
-    newControlPoints[i].point.setPositionCallback(boost::bind(&InteractiveXSpline::controlPointPosition, this, i));
-    newControlPoints[i].point.setMoveRequestCallback(boost::bind(&InteractiveXSpline::controlPointMoveRequest, this, i,
-                                                                 boost::placeholders::_1, boost::placeholders::_2));
-    newControlPoints[i].point.setDragFinishedCallback(boost::bind(&InteractiveXSpline::dragFinished, this));
+    newControlPoints[i].point.setPositionCallback(std::bind(&InteractiveXSpline::controlPointPosition, this, i));
+    newControlPoints[i].point.setMoveRequestCallback(
+        std::bind(&InteractiveXSpline::controlPointMoveRequest, this, i, std::placeholders::_1, std::placeholders::_2));
+    newControlPoints[i].point.setDragFinishedCallback(std::bind(&InteractiveXSpline::dragFinished, this));
 
     if ((i == 0) || (i == numControlPoints - 1)) {
       newControlPoints[i].handler.setKeyboardModifiers(

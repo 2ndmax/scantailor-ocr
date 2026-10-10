@@ -9,8 +9,8 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
-#include <boost/bind/bind.hpp>
 #include <cmath>
+#include <functional>
 #include <map>
 
 #include "ImagePresentation.h"
@@ -58,30 +58,30 @@ ImageView::ImageView(const QImage& image,
 
     // Setup corner drag handlers.
     m_contentRectCorners[i].setPositionCallback(
-        boost::bind(&ImageView::contentRectCornerPosition, this, masks_by_corner[i]));
+        std::bind(&ImageView::contentRectCornerPosition, this, masks_by_corner[i]));
     m_contentRectCorners[i].setMoveRequestCallback(
-        boost::bind(&ImageView::contentRectCornerMoveRequest, this, masks_by_corner[i], boost::placeholders::_1));
-    m_contentRectCorners[i].setDragFinishedCallback(boost::bind(&ImageView::contentRectDragFinished, this));
+        std::bind(&ImageView::contentRectCornerMoveRequest, this, masks_by_corner[i], std::placeholders::_1));
+    m_contentRectCorners[i].setDragFinishedCallback(std::bind(&ImageView::contentRectDragFinished, this));
     m_contentRectCornerHandlers[i].setObject(&m_contentRectCorners[i]);
     m_contentRectCornerHandlers[i].setProximityStatusTip(contentRectDragTip);
-    m_pageRectCorners[i].setPositionCallback(boost::bind(&ImageView::pageRectCornerPosition, this, masks_by_corner[i]));
+    m_pageRectCorners[i].setPositionCallback(std::bind(&ImageView::pageRectCornerPosition, this, masks_by_corner[i]));
     m_pageRectCorners[i].setMoveRequestCallback(
-        boost::bind(&ImageView::pageRectCornerMoveRequest, this, masks_by_corner[i], boost::placeholders::_1));
-    m_pageRectCorners[i].setDragFinishedCallback(boost::bind(&ImageView::pageRectDragFinished, this));
+        std::bind(&ImageView::pageRectCornerMoveRequest, this, masks_by_corner[i], std::placeholders::_1));
+    m_pageRectCorners[i].setDragFinishedCallback(std::bind(&ImageView::pageRectDragFinished, this));
     m_pageRectCornerHandlers[i].setObject(&m_pageRectCorners[i]);
     m_pageRectCornerHandlers[i].setProximityStatusTip(pageRectDragTip);
 
     // Setup edge drag handlers.
-    m_contentRectEdges[i].setPositionCallback(boost::bind(&ImageView::contentRectEdgePosition, this, masks_by_edge[i]));
+    m_contentRectEdges[i].setPositionCallback(std::bind(&ImageView::contentRectEdgePosition, this, masks_by_edge[i]));
     m_contentRectEdges[i].setMoveRequestCallback(
-        boost::bind(&ImageView::contentRectEdgeMoveRequest, this, masks_by_edge[i], boost::placeholders::_1));
-    m_contentRectEdges[i].setDragFinishedCallback(boost::bind(&ImageView::contentRectDragFinished, this));
+        std::bind(&ImageView::contentRectEdgeMoveRequest, this, masks_by_edge[i], std::placeholders::_1));
+    m_contentRectEdges[i].setDragFinishedCallback(std::bind(&ImageView::contentRectDragFinished, this));
     m_contentRectEdgeHandlers[i].setObject(&m_contentRectEdges[i]);
     m_contentRectEdgeHandlers[i].setProximityStatusTip(contentRectDragTip);
-    m_pageRectEdges[i].setPositionCallback(boost::bind(&ImageView::pageRectEdgePosition, this, masks_by_edge[i]));
+    m_pageRectEdges[i].setPositionCallback(std::bind(&ImageView::pageRectEdgePosition, this, masks_by_edge[i]));
     m_pageRectEdges[i].setMoveRequestCallback(
-        boost::bind(&ImageView::pageRectEdgeMoveRequest, this, masks_by_edge[i], boost::placeholders::_1));
-    m_pageRectEdges[i].setDragFinishedCallback(boost::bind(&ImageView::pageRectDragFinished, this));
+        std::bind(&ImageView::pageRectEdgeMoveRequest, this, masks_by_edge[i], std::placeholders::_1));
+    m_pageRectEdges[i].setDragFinishedCallback(std::bind(&ImageView::pageRectDragFinished, this));
     m_pageRectEdgeHandlers[i].setObject(&m_pageRectEdges[i]);
     m_pageRectEdgeHandlers[i].setProximityStatusTip(pageRectDragTip);
 
@@ -113,16 +113,16 @@ ImageView::ImageView(const QImage& image,
     m_pageRectArea.setProximityPriority(1);
 
     // Setup rectangle drag interaction
-    m_contentRectArea.setPositionCallback(boost::bind(&ImageView::contentRectPosition, this));
+    m_contentRectArea.setPositionCallback(std::bind(&ImageView::contentRectPosition, this));
     m_contentRectArea.setMoveRequestCallback(
-        boost::bind(&ImageView::contentRectMoveRequest, this, boost::placeholders::_1));
-    m_contentRectArea.setDragFinishedCallback(boost::bind(&ImageView::contentRectDragFinished, this));
+        std::bind(&ImageView::contentRectMoveRequest, this, std::placeholders::_1));
+    m_contentRectArea.setDragFinishedCallback(std::bind(&ImageView::contentRectDragFinished, this));
     m_contentRectAreaHandler.setObject(&m_contentRectArea);
     m_contentRectAreaHandler.setProximityStatusTip(tr("Hold left mouse button to drag the content box."));
     m_contentRectAreaHandler.setInteractionStatusTip(tr("Release left mouse button to finish dragging."));
-    m_pageRectArea.setPositionCallback(boost::bind(&ImageView::pageRectPosition, this));
-    m_pageRectArea.setMoveRequestCallback(boost::bind(&ImageView::pageRectMoveRequest, this, boost::placeholders::_1));
-    m_pageRectArea.setDragFinishedCallback(boost::bind(&ImageView::pageRectDragFinished, this));
+    m_pageRectArea.setPositionCallback(std::bind(&ImageView::pageRectPosition, this));
+    m_pageRectArea.setMoveRequestCallback(std::bind(&ImageView::pageRectMoveRequest, this, std::placeholders::_1));
+    m_pageRectArea.setDragFinishedCallback(std::bind(&ImageView::pageRectDragFinished, this));
     m_pageRectAreaHandler.setObject(&m_pageRectArea);
     m_pageRectAreaHandler.setProximityStatusTip(tr("Hold left mouse button to drag the page box."));
     m_pageRectAreaHandler.setInteractionStatusTip(tr("Release left mouse button to finish dragging."));

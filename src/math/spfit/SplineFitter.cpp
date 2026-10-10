@@ -3,7 +3,6 @@
 
 #include "SplineFitter.h"
 
-#include <boost/foreach.hpp>
 
 #include "ConstraintSet.h"
 #include "ModelShape.h"

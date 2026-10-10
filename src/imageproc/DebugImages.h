@@ -5,8 +5,8 @@
 #define SCANTAILOR_IMAGEPROC_DEBUGIMAGES_H_
 
 #include <QString>
-#include <boost/function.hpp>
 #include <deque>
+#include <functional>
 
 #include "AutoRemovingFile.h"
 
@@ -26,15 +26,13 @@ class DebugImages {
 
   virtual void add(const QImage& image,
                    const QString& label,
-                   const boost::function<QWidget*(const QImage&)>& imageViewFactory
-                   = boost::function<QWidget*(const QImage&)>())
-      = 0;
+                   const std::function<QWidget*(const QImage&)>& imageViewFactory
+                   = std::function<QWidget*(const QImage&)>()) = 0;
 
   virtual void add(const imageproc::BinaryImage& image,
                    const QString& label,
-                   const boost::function<QWidget*(const QImage&)>& imageViewFactory
-                   = boost::function<QWidget*(const QImage&)>())
-      = 0;
+                   const std::function<QWidget*(const QImage&)>& imageViewFactory
+                   = std::function<QWidget*(const QImage&)>()) = 0;
 
   virtual bool empty() const = 0;
 
@@ -46,8 +44,7 @@ class DebugImages {
    * Returns a null AutoRemovingFile if image sequence is empty.
    */
   virtual AutoRemovingFile retrieveNext(QString* label = nullptr,
-                                        boost::function<QWidget*(const QImage&)>* imageViewFactory = nullptr)
-      = 0;
+                                        std::function<QWidget*(const QImage&)>* imageViewFactory = nullptr) = 0;
 };
 
 

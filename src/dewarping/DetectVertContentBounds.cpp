@@ -9,7 +9,6 @@
 #include <QImage>
 #include <QPainter>
 #include <QRandomGenerator>
-#include <boost/foreach.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 

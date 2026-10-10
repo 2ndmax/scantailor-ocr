@@ -4,7 +4,6 @@
 #include "XSpline.h"
 
 #include <QDebug>
-#include <boost/foreach.hpp>
 #include <cmath>
 
 #include "ToLineProjector.h"

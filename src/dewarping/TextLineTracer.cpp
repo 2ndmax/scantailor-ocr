@@ -18,7 +18,6 @@
 #include <Sobel.h>
 
 #include <QPainter>
-#include <boost/foreach.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
 #include <boost/lambda/lambda.hpp>

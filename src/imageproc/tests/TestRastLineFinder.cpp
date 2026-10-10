@@ -5,7 +5,6 @@
 
 #include <QLineF>
 #include <QPointF>
-#include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 #include <set>
 #include <vector>

@@ -6,7 +6,6 @@
 #include <QImage>
 #include <QPainterPath>
 #include <QPolygonF>
-#include <boost/foreach.hpp>
 #include <cassert>
 #include <stdexcept>
 

@@ -3,7 +3,6 @@
 
 #include "ConstraintSet.h"
 
-#include <boost/foreach.hpp>
 
 #include "FittableSpline.h"
 

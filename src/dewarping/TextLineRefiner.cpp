@@ -8,7 +8,6 @@
 
 #include <QDebug>
 #include <QPainter>
-#include <boost/foreach.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <cmath>

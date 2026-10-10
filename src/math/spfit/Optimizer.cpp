@@ -3,7 +3,6 @@
 
 #include "Optimizer.h"
 
-#include <boost/foreach.hpp>
 
 #include "MatrixCalc.h"
 

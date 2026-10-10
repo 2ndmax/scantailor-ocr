@@ -6,9 +6,9 @@
 #define SCANTAILOR_IMAGEPROC_GAUSSBLUR_H_
 
 #include <QSize>
-#include <boost/scoped_array.hpp>
 #include <cstring>
 #include <iterator>
+#include <memory>
 
 #include "ValueConv.h"
 
@@ -115,9 +115,9 @@ void gaussBlurGeneric(const QSize size,
   const int height = size.height();
   const int widthHeightMax = width > height ? width : height;
 
-  boost::scoped_array<float> valP(new float[widthHeightMax]);
-  boost::scoped_array<float> valM(new float[widthHeightMax]);
-  boost::scoped_array<float> intermediateImage(new float[width * height]);
+  std::unique_ptr<float[]> valP(new float[widthHeightMax]);
+  std::unique_ptr<float[]> valM(new float[widthHeightMax]);
+  std::unique_ptr<float[]> intermediateImage(new float[width * height]);
   const int intermediateStride = width;
 
   // IIR parameters.

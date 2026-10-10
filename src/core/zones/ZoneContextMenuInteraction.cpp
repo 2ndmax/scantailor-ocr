@@ -8,7 +8,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QPainterPath>
-#include <boost/bind/bind.hpp>
+#include <functional>
 
 #include "ImageViewBase.h"
 #include "ZoneInteractionContext.h"
@@ -27,9 +27,9 @@ class ZoneContextMenuInteraction::OrderByArea {
 
 ZoneContextMenuInteraction* ZoneContextMenuInteraction::create(ZoneInteractionContext& context,
                                                                InteractionState& interaction) {
-  return create(context, interaction,
-                boost::bind(&ZoneContextMenuInteraction::defaultMenuCustomizer, boost::placeholders::_1,
-                            boost::placeholders::_2));
+  return create(
+      context, interaction,
+      std::bind(&ZoneContextMenuInteraction::defaultMenuCustomizer, std::placeholders::_1, std::placeholders::_2));
 }
 
 ZoneContextMenuInteraction* ZoneContextMenuInteraction::create(ZoneInteractionContext& context,
@@ -102,10 +102,9 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(ZoneInteractionContext& c
 
     for (const ZoneContextMenuItem& item : menuCustomizer(*it, stdItems)) {
       QAction* action = m_menu->addAction(pixmap, item.label());
-      connect(
-          action, &QAction::triggered,
-          boost::bind(&ZoneContextMenuInteraction::menuItemTriggered, this, boost::ref(interaction), item.callback()));
-      connect(action, &QAction::hovered, this, boost::bind(&ZoneContextMenuInteraction::highlightItem, this, i));
+      connect(action, &QAction::triggered,
+              std::bind(&ZoneContextMenuInteraction::menuItemTriggered, this, std::ref(interaction), item.callback()));
+      connect(action, &QAction::hovered, this, std::bind(&ZoneContextMenuInteraction::highlightItem, this, i));
     }
 
     m_menu->addSeparator();
@@ -186,11 +185,11 @@ InteractionHandler* ZoneContextMenuInteraction::deleteRequest(const EditableZone
 }
 
 ZoneContextMenuItem ZoneContextMenuInteraction::deleteMenuItemFor(const EditableZoneSet::Zone& zone) {
-  return ZoneContextMenuItem(tr("Delete"), boost::bind(&ZoneContextMenuInteraction::deleteRequest, this, zone));
+  return ZoneContextMenuItem(tr("Delete"), std::bind(&ZoneContextMenuInteraction::deleteRequest, this, zone));
 }
 
 ZoneContextMenuItem ZoneContextMenuInteraction::propertiesMenuItemFor(const EditableZoneSet::Zone& zone) {
-  return ZoneContextMenuItem(tr("Properties"), boost::bind(&ZoneContextMenuInteraction::propertiesRequest, this, zone));
+  return ZoneContextMenuItem(tr("Properties"), std::bind(&ZoneContextMenuInteraction::propertiesRequest, this, zone));
 }
 
 void ZoneContextMenuInteraction::highlightItem(const int zoneIdx) {

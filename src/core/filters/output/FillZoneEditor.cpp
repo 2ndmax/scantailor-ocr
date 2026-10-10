@@ -5,7 +5,7 @@
 
 #include <QPainter>
 #include <QPointer>
-#include <boost/bind/bind.hpp>
+#include <functional>
 #include <utility>
 
 #include "ImagePresentation.h"
@@ -33,8 +33,8 @@ class FillZoneEditor::MenuCustomizer {
 
 FillZoneEditor::FillZoneEditor(const QImage& image,
                                const ImagePixmapUnion& downscaledVersion,
-                               const boost::function<QPointF(const QPointF&)>& origToImage,
-                               const boost::function<QPointF(const QPointF&)>& imageToOrig,
+                               const std::function<QPointF(const QPointF&)>& origToImage,
+                               const std::function<QPointF(const QPointF&)>& imageToOrig,
                                const PageId& pageId,
                                std::shared_ptr<Settings> settings)
     : ZoneEditorBase(image, downscaledVersion, ImagePresentation(QTransform(), QRectF(image.rect())), OutputMargins()),
@@ -51,7 +51,7 @@ FillZoneEditor::FillZoneEditor(const QImage& image,
   setMouseTracking(true);
 
   context().setContextMenuInteractionCreator(
-      boost::bind(&FillZoneEditor::createContextMenuInteraction, this, boost::placeholders::_1));
+      std::bind(&FillZoneEditor::createContextMenuInteraction, this, std::placeholders::_1));
 
   connect(&zones(), &EditableZoneSet::committed, this, &FillZoneEditor::commitZones);
 
@@ -159,8 +159,8 @@ std::vector<ZoneContextMenuItem> FillZoneEditor::MenuCustomizer::operator()(cons
                                                                             const StdMenuItems& stdItems) {
   std::vector<ZoneContextMenuItem> items;
   items.reserve(2);
-  items.emplace_back(tr("Pick color"), boost::bind(&FillZoneEditor::createColorPickupInteraction, m_editor, zone,
-                                                   boost::placeholders::_1));
+  items.emplace_back(tr("Pick color"),
+                     std::bind(&FillZoneEditor::createColorPickupInteraction, m_editor, zone, std::placeholders::_1));
   items.push_back(stdItems.deleteItem);
   return items;
 }

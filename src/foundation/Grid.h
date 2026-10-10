@@ -4,8 +4,8 @@
 #ifndef SCANTAILOR_FOUNDATION_GRID_H_
 #define SCANTAILOR_FOUNDATION_GRID_H_
 
-#include <boost/scoped_array.hpp>
 #include <cstddef>
+#include <memory>
 
 template <typename Node>
 class Grid {
@@ -84,7 +84,7 @@ class Grid {
     o2 = tmp;
   }
 
-  boost::scoped_array<Node> m_storage;
+  std::unique_ptr<Node[]> m_storage;
   Node* m_data;
   int m_width;
   int m_height;

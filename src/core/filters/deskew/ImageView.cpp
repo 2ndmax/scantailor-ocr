@@ -12,7 +12,7 @@
 #include <QScrollBar>
 #include <QStyle>
 #include <QWheelEvent>
-#include <boost/bind/bind.hpp>
+#include <functional>
 
 #include "ImagePresentation.h"
 
@@ -38,9 +38,9 @@ ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const I
   const double hitRadius = std::max<double>(0.5 * m_handlePixmap.width(), 15.0);
   for (int i = 0; i < 4; ++i) {
     m_handles[i].setHitRadius(hitRadius);
-    m_handles[i].setPositionCallback(boost::bind(&ImageView::handlePosition, this, i));
-    m_handles[i].setMoveRequestCallback(boost::bind(&ImageView::handleMoveRequest, this, i, boost::placeholders::_1));
-    m_handles[i].setDragFinishedCallback(boost::bind(&ImageView::dragFinished, this));
+    m_handles[i].setPositionCallback(std::bind(&ImageView::handlePosition, this, i));
+    m_handles[i].setMoveRequestCallback(std::bind(&ImageView::handleMoveRequest, this, i, std::placeholders::_1));
+    m_handles[i].setDragFinishedCallback(std::bind(&ImageView::dragFinished, this));
 
     m_handleInteractors[i].setProximityStatusTip(i < 2 ? rotationTip : obliqueTip);
     m_handleInteractors[i].setObject(&m_handles[i]);

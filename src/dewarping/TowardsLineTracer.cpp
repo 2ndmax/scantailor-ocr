@@ -5,7 +5,6 @@
 
 #include <SEDM.h>
 
-#include <boost/foreach.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <cassert>

@@ -4,7 +4,6 @@
 #ifndef SCANTAILOR_CORE_THUMBNAILPIXMAPCACHE_H_
 #define SCANTAILOR_CORE_THUMBNAILPIXMAPCACHE_H_
 
-#include <boost/weak_ptr.hpp>
 #include <memory>
 
 #include "AbstractCommand.h"
@@ -83,24 +82,10 @@ class ThumbnailPixmapCache {
    *
    * \param imageId The identifier of the full size image and its thumbnail.
    * \param[out] pixmap If the pixmap is cached, store it here.
-   * \param completionHandler A functor that will be called on request
-   * completion.  The best way to construct such a functor would be:
-   * \code
-   * class X : public boost::signals::trackable
-   * {
-   * public:
-   *  void handleCompletion(const ThumbnailLoadResult& result);
-   * };
-   *
-   * X x;
-   * cache->loadRequest(imageId, pixmap, boost::bind(&X::handleCompletion, x, _1));
-   * \endcode
-   * Note that deriving X from boost::signals::trackable (with public inheritance)
-   * allows to safely delete the x object without worrying about callbacks
-   * it may receive in the future.  Keep in mind however, that deleting
-   * x is only safe when done from the GUI thread.  Another thing to
-   * keep in mind is that only boost::bind() can handle trackable binds.
-   * Other methods, for example boost::lambda::bind() can't do that.
+   * \param completionHandler A handler that will be called on request
+   * completion.  As only a weak pointer is kept, the handler may be
+   * destroyed before that; it is then simply not called.  Destroy it
+   * from the GUI thread only.
    */
   Status loadRequest(const ImageId& imageId,
                      QPixmap& pixmap,

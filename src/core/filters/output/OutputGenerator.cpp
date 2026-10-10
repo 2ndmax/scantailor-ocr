@@ -47,9 +47,8 @@
 #include <QPolygonF>
 #include <QSize>
 #include <QTransform>
-#include <boost/bind/bind.hpp>
-#include <boost/function.hpp>
 #include <cmath>
+#include <functional>
 #include <stdexcept>
 
 #include "ColorParams.h"
@@ -673,7 +672,7 @@ Zone createPictureZoneFromPoly(const QPolygonF& polygon) {
 
 void applyFillZonesInPlace(QImage& img,
                            const ZoneSet& zones,
-                           const boost::function<QPointF(const QPointF&)>& origToOutput,
+                           const std::function<QPointF(const QPointF&)>& origToOutput,
                            bool antialiasing = true) {
   if (zones.empty()) {
     return;
@@ -704,13 +703,13 @@ using MapPointFunc = QPointF (QTransform::*)(const QPointF&) const;
 
 void applyFillZonesInPlace(QImage& img, const ZoneSet& zones, const QTransform& transform, bool antialiasing = true) {
   applyFillZonesInPlace(img, zones,
-                        boost::bind(static_cast<MapPointFunc>(&QTransform::map), transform, boost::placeholders::_1),
+                        std::bind(static_cast<MapPointFunc>(&QTransform::map), transform, std::placeholders::_1),
                         antialiasing);
 }
 
 void applyFillZonesInPlace(BinaryImage& img,
                            const ZoneSet& zones,
-                           const boost::function<QPointF(const QPointF&)>& origToOutput) {
+                           const std::function<QPointF(const QPointF&)>& origToOutput) {
   if (zones.empty()) {
     return;
   }
@@ -725,12 +724,12 @@ void applyFillZonesInPlace(BinaryImage& img,
 
 void applyFillZonesInPlace(BinaryImage& img, const ZoneSet& zones, const QTransform& transform) {
   applyFillZonesInPlace(img, zones,
-                        boost::bind(static_cast<MapPointFunc>(&QTransform::map), transform, boost::placeholders::_1));
+                        std::bind(static_cast<MapPointFunc>(&QTransform::map), transform, std::placeholders::_1));
 }
 
 void applyFillZonesToMixedInPlace(QImage& img,
                                   const ZoneSet& zones,
-                                  const boost::function<QPointF(const QPointF&)>& origToOutput,
+                                  const std::function<QPointF(const QPointF&)>& origToOutput,
                                   const BinaryImage& pictureMask,
                                   bool binaryMode) {
   if (binaryMode) {
@@ -752,14 +751,14 @@ void applyFillZonesToMixedInPlace(QImage& img,
                                   const QTransform& transform,
                                   const BinaryImage& pictureMask,
                                   bool binaryMode) {
-  applyFillZonesToMixedInPlace(
-      img, zones, boost::bind(static_cast<MapPointFunc>(&QTransform::map), transform, boost::placeholders::_1),
-      pictureMask, binaryMode);
+  applyFillZonesToMixedInPlace(img, zones,
+                               std::bind(static_cast<MapPointFunc>(&QTransform::map), transform, std::placeholders::_1),
+                               pictureMask, binaryMode);
 }
 
 void applyFillZonesToMask(BinaryImage& mask,
                           const ZoneSet& zones,
-                          const boost::function<QPointF(const QPointF&)>& origToOutput,
+                          const std::function<QPointF(const QPointF&)>& origToOutput,
                           const BWColor fillColor = BLACK) {
   if (zones.empty()) {
     return;
@@ -775,7 +774,7 @@ void applyFillZonesToMask(BinaryImage& mask,
                           const ZoneSet& zones,
                           const QTransform& transform,
                           const BWColor fillColor = BLACK) {
-  applyFillZonesToMask(mask, zones, boost::bind((MapPointFunc) &QTransform::map, transform, boost::placeholders::_1),
+  applyFillZonesToMask(mask, zones, std::bind((MapPointFunc) &QTransform::map, transform, std::placeholders::_1),
                        fillColor);
 }
 
@@ -1696,8 +1695,8 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
 
   auto mapper = std::make_shared<DewarpingPointMapper>(distortionModel, depthPerception.value(), m_xform.transform(),
                                                        m_croppedContentRect, rotateXform);
-  const boost::function<QPointF(const QPointF&)> origToOutput(
-      boost::bind(&DewarpingPointMapper::mapToDewarpedSpace, mapper, boost::placeholders::_1));
+  const std::function<QPointF(const QPointF&)> origToOutput(
+      std::bind(&DewarpingPointMapper::mapToDewarpedSpace, mapper, std::placeholders::_1));
 
   BinaryImage dewarpingContentAreaMask(m_inputGrayImage.size(), BLACK);
   {

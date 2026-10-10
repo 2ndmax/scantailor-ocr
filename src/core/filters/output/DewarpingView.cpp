@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QShortcut>
-#include <boost/bind/bind.hpp>
+#include <functional>
 
 #include "ImagePresentation.h"
 #include "ToLineProjector.h"
@@ -77,10 +77,10 @@ DewarpingView::DewarpingView(const QImage& image,
   int curveIdx = -1;
   for (InteractiveXSpline* spline : splines) {
     ++curveIdx;
-    spline->setModifiedCallback(boost::bind(&DewarpingView::curveModified, this, curveIdx));
-    spline->setDragFinishedCallback(boost::bind(&DewarpingView::dragFinished, this));
-    spline->setStorageTransform(boost::bind(&DewarpingView::sourceToWidget, this, boost::placeholders::_1),
-                                boost::bind(&DewarpingView::widgetToSource, this, boost::placeholders::_1));
+    spline->setModifiedCallback(std::bind(&DewarpingView::curveModified, this, curveIdx));
+    spline->setDragFinishedCallback(std::bind(&DewarpingView::dragFinished, this));
+    spline->setStorageTransform(std::bind(&DewarpingView::sourceToWidget, this, std::placeholders::_1),
+                                std::bind(&DewarpingView::widgetToSource, this, std::placeholders::_1));
     makeLastFollower(*spline);
   }
 

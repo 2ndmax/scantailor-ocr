@@ -11,7 +11,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
-#include <boost/bind/bind.hpp>
+#include <functional>
 #include <utility>
 
 #include "DebugImagesImpl.h"
@@ -556,19 +556,19 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   // In OptionsWidget::dewarpingChanged() we make sure to reload
   // if we are on the "Fill Zones" tab, and if not, it will be reloaded
   // anyway when another tab is selected.
-  boost::function<QPointF(const QPointF&)> origToOutput;
-  boost::function<QPointF(const QPointF&)> outputToOrig;
+  std::function<QPointF(const QPointF&)> origToOutput;
+  std::function<QPointF(const QPointF&)> outputToOrig;
   if ((m_params.dewarpingOptions().dewarpingMode() != OFF) && m_params.distortionModel().isValid()) {
     const QTransform rotateXform
         = Utils::rotate(m_params.dewarpingOptions().getPostDeskewAngle(), m_xform.resultingRect().toRect());
     auto mapper = std::make_shared<DewarpingPointMapper>(m_params.distortionModel(), m_params.depthPerception().value(),
                                                          m_xform.transform(), m_virtContentRect, rotateXform);
-    origToOutput = boost::bind(&DewarpingPointMapper::mapToDewarpedSpace, mapper, boost::placeholders::_1);
-    outputToOrig = boost::bind(&DewarpingPointMapper::mapToWarpedSpace, mapper, boost::placeholders::_1);
+    origToOutput = std::bind(&DewarpingPointMapper::mapToDewarpedSpace, mapper, std::placeholders::_1);
+    outputToOrig = std::bind(&DewarpingPointMapper::mapToWarpedSpace, mapper, std::placeholders::_1);
   } else {
     using MapPointFunc = QPointF (QTransform::*)(const QPointF&) const;
-    origToOutput = boost::bind((MapPointFunc) &QTransform::map, m_xform.transform(), boost::placeholders::_1);
-    outputToOrig = boost::bind((MapPointFunc) &QTransform::map, m_xform.transformBack(), boost::placeholders::_1);
+    origToOutput = std::bind((MapPointFunc) &QTransform::map, m_xform.transform(), std::placeholders::_1);
+    outputToOrig = std::bind((MapPointFunc) &QTransform::map, m_xform.transformBack(), std::placeholders::_1);
   }
 
   auto fillZoneEditor = std::make_unique<FillZoneEditor>(m_outputImage, downscaledOutputPixmap, origToOutput,
