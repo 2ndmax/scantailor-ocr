@@ -356,6 +356,10 @@ from working:
   and "Apply to selection" sets the resolution of all of them. The fields show the resolution
   if all selected images have the same one; the entered value is checked against every
   selected pixel size.
+* If an image file of the project is replaced by one with a different pixel size (a new scan),
+  its resolution is taken over as well, as long as it is plausible (the resolution field
+  would not be marked red). Otherwise the stored resolution stays, as it may have been
+  corrected by hand.
 * The resolution fields (*Margins*, *Output*, *Default Parameters*, *Fix DPI of All Images*) are
   wide enough for "1200 dpi".
 * *Margins*: "Lock aggregate size for matching" applies to all pages, not to the page, so it

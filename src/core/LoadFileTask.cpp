@@ -102,14 +102,17 @@ FilterResultPtr LoadFileTask::processingFailed(const QString& reason) const {
 void LoadFileTask::updateImageSizeIfChanged(const QImage& image) {
   // The user might just replace a file with another one.
   // In that case, we update its size that we store.
-  // Note that we don't do the same about DPI, because
-  // a DPI mismatch between the image and the stored value
-  // may indicate that the DPI was overridden.
-  // TODO: do something about DPIs when we have the ability
-  // to change DPIs at any point in time (not just when
-  // creating a project).
+  // A changed size is the only sign of a replaced file, so only then the resolution of the new
+  // file is taken as well, and only if it's plausible.  Otherwise the stored resolution stays,
+  // as it may have been corrected by hand.  An image without a resolution gets Qt's default
+  // of 96 dpi, which is not plausible either.
   if (image.size() != m_imageMetadata.size()) {
     m_imageMetadata.setSize(image.size());
+    const ImageMetadata fromFile(image.size(), Dpi(Dpm(image)));
+    if ((fromFile.horizontalDpiStatus() == ImageMetadata::DPI_OK)
+        && (fromFile.verticalDpiStatus() == ImageMetadata::DPI_OK)) {
+      m_imageMetadata.setDpi(fromFile.dpi());
+    }
     m_pages->updateImageMetadata(m_imageId, m_imageMetadata);
   }
 }
