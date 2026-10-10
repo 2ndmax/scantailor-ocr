@@ -12,6 +12,9 @@
 
 class LightColorScheme : public ColorScheme {
  public:
+  /** The color of the borders of focused and hovered controls, unless the user chose another one. */
+  static constexpr const char* DEFAULT_ACCENT_COLOR = "#1e76e3";
+
   LightColorScheme();
 
   QStyle* getStyle() const override;

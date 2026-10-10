@@ -4,6 +4,7 @@
 #ifndef SCANTAILOR_APP_SETTINGSDIALOG_H_
 #define SCANTAILOR_APP_SETTINGSDIALOG_H_
 
+#include <QColor>
 #include <QDialog>
 
 #include "ui_SettingsDialog.h"
@@ -24,7 +25,18 @@ class SettingsDialog : public QDialog {
   void blackOnWhiteDetectionToggled(bool checked);
 
  private:
+  void chooseAccentColor();
+
+  /** The chosen accent color, or the default of the selected color scheme. */
+  QColor displayedAccentColor() const;
+
+  void updateAccentColorDisplay();
+
+  void showRestartNotice();
+
   Ui::SettingsDialog ui;
+  /** The chosen accent color, or an invalid color for the default of the color scheme. */
+  QColor m_accentColor;
 };
 
 

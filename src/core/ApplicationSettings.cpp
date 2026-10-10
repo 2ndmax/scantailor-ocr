@@ -38,6 +38,7 @@ const QString ApplicationSettings::ROOT_KEY = "settings";
 const QString ApplicationSettings::OPENGL_STATE_KEY = "enable_opengl";
 const QString ApplicationSettings::AUTO_SAVE_PROJECT_KEY = "auto_save_project";
 const QString ApplicationSettings::COLOR_SCHEME_KEY = "color_scheme";
+const QString ApplicationSettings::ACCENT_COLOR_KEY = "accent_color";
 const QString ApplicationSettings::TIFF_BW_COMPRESSION_KEY = "bw_compression";
 const QString ApplicationSettings::TIFF_COLOR_COMPRESSION_KEY = "color_compression";
 const QString ApplicationSettings::TIFF_PALETTE_COMPRESSION_KEY = "tiff_palette_compression";
@@ -117,6 +118,15 @@ QString ApplicationSettings::getColorScheme() const {
 
 void ApplicationSettings::setColorScheme(const QString& scheme) {
   writeValue(getKey(COLOR_SCHEME_KEY), scheme);
+}
+
+QColor ApplicationSettings::getAccentColor() const {
+  const QString name = readValue(getKey(ACCENT_COLOR_KEY), QString()).toString();
+  return name.isEmpty() ? QColor() : QColor(name);
+}
+
+void ApplicationSettings::setAccentColor(const QColor& color) {
+  writeValue(getKey(ACCENT_COLOR_KEY), color.isValid() ? color.name() : QString());
 }
 
 bool ApplicationSettings::isAutoSaveProjectEnabled() const {

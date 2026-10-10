@@ -97,6 +97,21 @@ QString Utils::qssConvertPxToEm(const QString& stylesheet, const double base, co
   return result;
 }
 
+QString Utils::qssApplyAccentColor(const QString& stylesheet, const QString& defaultAccentColor) {
+  const QColor accent = ApplicationSettings::getInstance().getAccentColor();
+  if (!accent.isValid()) {
+    return stylesheet;
+  }
+  const QString accentName = accent.name();
+
+  QString result = stylesheet;
+  result.replace(defaultAccentColor, accentName, Qt::CaseInsensitive);
+  // The selection color is left as it is; only the progress bar takes the accent color.
+  const QRegularExpression progressBarColor(R"((QProgressBar::chunk\s*\{[^}]*background-color:\s*)#[0-9a-fA-F]{6})");
+  result.replace(progressBarColor, QStringLiteral("\\1") + accentName);
+  return result;
+}
+
 QString Utils::dpiText(const int dpi) {
   return QStringLiteral("%1 dpi").arg(dpi);
 }

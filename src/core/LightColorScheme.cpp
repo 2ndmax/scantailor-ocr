@@ -7,6 +7,7 @@
 #include <QStyle>
 #include <QStyleFactory>
 
+#include "ApplicationSettings.h"
 #include "Utils.h"
 
 using namespace core;
@@ -71,6 +72,7 @@ void LightColorScheme::loadStyleSheet() {
     m_styleSheet = styleSheetFile.readAll();
     styleSheetFile.close();
   }
+  m_styleSheet = Utils::qssApplyAccentColor(m_styleSheet, DEFAULT_ACCENT_COLOR);
 
 #ifdef _WIN32
   m_styleSheet = Utils::qssConvertPxToEm(m_styleSheet, 13, 4);
@@ -84,7 +86,8 @@ void LightColorScheme::loadColorParams() {
   m_customColors["ThumbnailSequenceSelectedItemText"] = Qt::white;
   m_customColors["ThumbnailSequenceItemText"] = Qt::black;
   m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = "#4A4A4A";
-  m_customColors["ThumbnailSequenceSelectedItemBorder"] = "#3399ff";
+  const QColor accent = ApplicationSettings::getInstance().getAccentColor();
+  m_customColors["ThumbnailSequenceSelectedItemBorder"] = accent.isValid() ? accent : QColor("#3399ff");
   m_customColors["OpenNewProjectBorder"] = "#CCCCCC";
   m_customColors["ProcessingIndicationFade"] = "#939393";
   m_customColors["ProcessingIndicationHead"] = m_palette.color(QPalette::WindowText);

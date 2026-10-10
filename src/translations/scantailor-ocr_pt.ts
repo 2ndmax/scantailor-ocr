@@ -2907,76 +2907,96 @@ Deve removê-los do projeto.</translation>
         <translation>Salvar automaticamente o projecto existente</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="116"/>
+        <location filename="../app/SettingsDialog.ui" line="89"/>
+        <source>Accent color:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="96"/>
+        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar.  Takes effect after a restart.  Not used by the native color scheme, which takes the colors of the system.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="103"/>
+        <source>Use the accent color of the color scheme.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="106"/>
+        <source>Default</source>
+        <translation type="unfinished">Padrão</translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="157"/>
         <source>Deskew handle distance: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="126"/>
+        <location filename="../app/SettingsDialog.ui" line="167"/>
         <source>How far the drag handles for rotation and oblique correction are placed from the image center, in percent of the largest possible distance. Smaller values move them away from the edge of the view, but make the angle react more strongly to the mouse.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="129"/>
+        <location filename="../app/SettingsDialog.ui" line="170"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="269"/>
+        <location filename="../app/SettingsDialog.ui" line="310"/>
         <source>Show question on canceling multi page selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="293"/>
+        <location filename="../app/SettingsDialog.ui" line="334"/>
         <source>Processing</source>
         <translation>Em processamento</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="305"/>
+        <location filename="../app/SettingsDialog.ui" line="346"/>
         <source>Detects pages with light content on a dark background, such as white text on black. Such pages are inverted internally, so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing and is kept, so changing this setting doesn&apos;t affect pages that are deskewed already.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="315"/>
+        <location filename="../app/SettingsDialog.ui" line="356"/>
         <source>Also sets the &quot;Black on white mode&quot; of the Output stage according to the detection. Turned off, the detection only helps deskewing and content detection, and the Output stage treats all pages as dark content on a light background. A change made by hand in the Output stage always takes precedence.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="328"/>
+        <location filename="../app/SettingsDialog.ui" line="369"/>
         <source>Deviation</source>
         <translation>Desvio</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="334"/>
+        <location filename="../app/SettingsDialog.ui" line="375"/>
         <source>Highlight the thumbnails of pages with high deviation</source>
         <translation>Destacar as miniaturas de páginas com elevado desvio</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="341"/>
+        <location filename="../app/SettingsDialog.ui" line="382"/>
         <source>Parameters</source>
         <translation>Parâmetros</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="356"/>
+        <location filename="../app/SettingsDialog.ui" line="397"/>
         <source>Select content:</source>
         <translation>Seleccionar o conteúdo:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="363"/>
-        <location filename="../app/SettingsDialog.ui" line="386"/>
-        <location filename="../app/SettingsDialog.ui" line="434"/>
+        <location filename="../app/SettingsDialog.ui" line="404"/>
+        <location filename="../app/SettingsDialog.ui" line="427"/>
+        <location filename="../app/SettingsDialog.ui" line="475"/>
         <source>Deviation multiplier: a higher value means lower sensitivity.</source>
         <translation>Multiplicador de desvio: um valor mais alto significa menor sensibilidade.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="379"/>
+        <location filename="../app/SettingsDialog.ui" line="420"/>
         <source>Margins:</source>
         <translation>Margens:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="402"/>
-        <location filename="../app/SettingsDialog.ui" line="418"/>
-        <location filename="../app/SettingsDialog.ui" line="450"/>
+        <location filename="../app/SettingsDialog.ui" line="443"/>
+        <location filename="../app/SettingsDialog.ui" line="459"/>
+        <location filename="../app/SettingsDialog.ui" line="491"/>
         <source>The minimum deviation to be highlighted.</source>
         <translation>O desvio mínimo a ser destacado.</translation>
     </message>
@@ -2986,32 +3006,37 @@ Deve removê-los do projeto.</translation>
         <translation>Esquema de Cor: </translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="89"/>
+        <location filename="../app/SettingsDialog.ui" line="130"/>
         <source>Language: </source>
         <translation>Língua: </translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="24"/>
+        <location filename="../app/SettingsDialog.cpp" line="28"/>
         <source>Your hardware / driver don&apos;t provide the necessary features</source>
         <translation>O seu hardware / driver não fornece os recursos necessários</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="31"/>
+        <location filename="../app/SettingsDialog.cpp" line="35"/>
         <source>Dark</source>
         <translation>Escuro</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="32"/>
+        <location filename="../app/SettingsDialog.cpp" line="36"/>
         <source>Light</source>
         <translation>Claro</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="36"/>
+        <location filename="../app/SettingsDialog.cpp" line="138"/>
+        <source>Accent Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.cpp" line="175"/>
         <source>Information</source>
         <translation>Informação</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="37"/>
+        <location filename="../app/SettingsDialog.cpp" line="176"/>
         <source>ScanTailor need to be restarted to apply the color scheme changes.</source>
         <translation>O ScanTailor precisa ser reiniciado para aplicar as alterações no esquema de cores.</translation>
     </message>
@@ -3021,57 +3046,57 @@ Deve removê-los do projeto.</translation>
         <translation>Interface de Utilizador</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="169"/>
+        <location filename="../app/SettingsDialog.ui" line="210"/>
         <source>Thumbnails</source>
         <translation>Miniaturas</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="179"/>
+        <location filename="../app/SettingsDialog.ui" line="220"/>
         <source>Quality:</source>
         <translation>Qualidade:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="186"/>
+        <location filename="../app/SettingsDialog.ui" line="227"/>
         <source>The pixel size of the thumbnail image. The default value is 200.</source>
         <translation>O tamanho do pixel da miniatura. O valor padrão é 200.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="222"/>
+        <location filename="../app/SettingsDialog.ui" line="263"/>
         <source>Size:</source>
         <translation>Tamanho:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="229"/>
+        <location filename="../app/SettingsDialog.ui" line="270"/>
         <source>The thumbnail size in the view. The default value is 250.</source>
         <translation>O tamanho da miniatura na visualização. O valor padrão é 250.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="299"/>
+        <location filename="../app/SettingsDialog.ui" line="340"/>
         <source>White on Black Detection</source>
         <translation>Detecção de braco em preto</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="308"/>
+        <location filename="../app/SettingsDialog.ui" line="349"/>
         <source>Auto detect light content on dark background</source>
         <translation>Detectar automaticamente o conteúdo de luz em fundo escuro</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="318"/>
+        <location filename="../app/SettingsDialog.ui" line="359"/>
         <source>Use auto detection at the output stage</source>
         <translation>Use a detecção automática no estágio de finalização</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="33"/>
+        <location filename="../app/SettingsDialog.cpp" line="37"/>
         <source>Native</source>
         <translation>Nativo</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="262"/>
+        <location filename="../app/SettingsDialog.ui" line="303"/>
         <source>Single column thumbnail display</source>
         <translation>Ver miniaturas em coluna simples</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="349"/>
+        <location filename="../app/SettingsDialog.ui" line="390"/>
         <source>Deskew:</source>
         <translation>Desenviesar:</translation>
     </message>

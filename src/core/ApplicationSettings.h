@@ -7,6 +7,7 @@
 
 #include <foundation/NonCopyable.h>
 
+#include <QColor>
 #include <QMutex>
 #include <QSettings>
 #include <QSize>
@@ -29,6 +30,11 @@ class ApplicationSettings {
   QString getColorScheme() const;
 
   void setColorScheme(const QString& scheme);
+
+  /** The accent color chosen by the user, or an invalid color for the default of the color scheme. */
+  QColor getAccentColor() const;
+
+  void setAccentColor(const QColor& color);
 
   bool isAutoSaveProjectEnabled() const;
 
@@ -219,6 +225,7 @@ class ApplicationSettings {
   static const QString OPENGL_STATE_KEY;
   static const QString AUTO_SAVE_PROJECT_KEY;
   static const QString COLOR_SCHEME_KEY;
+  static const QString ACCENT_COLOR_KEY;
   static const QString TIFF_BW_COMPRESSION_KEY;
   static const QString TIFF_COLOR_COMPRESSION_KEY;
   static const QString TIFF_PALETTE_COMPRESSION_KEY;

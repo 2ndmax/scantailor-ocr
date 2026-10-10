@@ -4,7 +4,11 @@
 #include "SettingsDialog.h"
 
 #include <core/ApplicationSettings.h>
+#include <core/DarkColorScheme.h>
+#include <core/LightColorScheme.h>
 
+#include <QColorDialog>
+#include <QPainter>
 #include <QtCore/QDir>
 #include <QtWidgets/QMessageBox>
 #include <cmath>
@@ -33,9 +37,18 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   ui.colorSchemeBox->addItem(tr("Native"), "native");
   ui.colorSchemeBox->setCurrentIndex(ui.colorSchemeBox->findData(settings.getColorScheme()));
   connect(ui.colorSchemeBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int) {
-    QMessageBox::information(this, tr("Information"),
-                             tr("ScanTailor need to be restarted to apply the color scheme changes."));
+    updateAccentColorDisplay();
+    showRestartNotice();
   });
+
+  m_accentColor = settings.getAccentColor();
+  connect(ui.accentColorButton, &QPushButton::clicked, this, &SettingsDialog::chooseAccentColor);
+  connect(ui.accentColorDefaultButton, &QPushButton::clicked, this, [this]() {
+    m_accentColor = QColor();
+    updateAccentColorDisplay();
+    showRestartNotice();
+  });
+  updateAccentColorDisplay();
 
   {
     auto* app = static_cast<Application*>(qApp);
@@ -85,6 +98,7 @@ void SettingsDialog::commitChanges() {
   settings.setAutoSaveProjectEnabled(ui.autoSaveProjectCB->isChecked());
   settings.setHighlightDeviationEnabled(ui.highlightDeviationCB->isChecked());
   settings.setColorScheme(ui.colorSchemeBox->currentData().toString());
+  settings.setAccentColor(m_accentColor);
 
   settings.setLanguage(ui.languageBox->currentData().toString());
 
@@ -117,4 +131,47 @@ void SettingsDialog::commitChanges() {
 
 void SettingsDialog::blackOnWhiteDetectionToggled(bool checked) {
   ui.blackOnWhiteDetectionAtOutputCB->setEnabled(checked);
+}
+
+void SettingsDialog::chooseAccentColor() {
+  const QColor shown = displayedAccentColor();
+  const QColor color = QColorDialog::getColor(shown, this, tr("Accent Color"));
+  if (!color.isValid() || (color == shown)) {
+    return;
+  }
+  m_accentColor = color;
+  updateAccentColorDisplay();
+  showRestartNotice();
+}
+
+QColor SettingsDialog::displayedAccentColor() const {
+  if (m_accentColor.isValid()) {
+    return m_accentColor;
+  }
+  return QColor((ui.colorSchemeBox->currentData().toString() == "light") ? LightColorScheme::DEFAULT_ACCENT_COLOR
+                                                                         : DarkColorScheme::DEFAULT_ACCENT_COLOR);
+}
+
+void SettingsDialog::updateAccentColorDisplay() {
+  // The native color scheme takes its colors from the system.
+  const bool native = (ui.colorSchemeBox->currentData().toString() == "native");
+  const QColor shown = displayedAccentColor();
+
+  QPixmap swatch(16, 16);
+  swatch.fill(shown);
+  {
+    QPainter painter(&swatch);
+    painter.setPen(palette().color(QPalette::WindowText));
+    painter.drawRect(swatch.rect().adjusted(0, 0, -1, -1));
+  }
+  ui.accentColorButton->setIcon(QIcon(swatch));
+  ui.accentColorButton->setText(shown.name());
+  ui.accentColorLabel->setEnabled(!native);
+  ui.accentColorButton->setEnabled(!native);
+  ui.accentColorDefaultButton->setEnabled(!native && m_accentColor.isValid());
+}
+
+void SettingsDialog::showRestartNotice() {
+  QMessageBox::information(this, tr("Information"),
+                           tr("ScanTailor need to be restarted to apply the color scheme changes."));
 }

@@ -2900,56 +2900,76 @@ You should remove them from the project.</source>
         <translation>작업 중인 프로젝트를 자동 저장하기</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="293"/>
+        <location filename="../app/SettingsDialog.ui" line="89"/>
+        <source>Accent color:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="96"/>
+        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar.  Takes effect after a restart.  Not used by the native color scheme, which takes the colors of the system.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="103"/>
+        <source>Use the accent color of the color scheme.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="106"/>
+        <source>Default</source>
+        <translation type="unfinished">기본값</translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="334"/>
         <source>Processing</source>
         <translation>작업</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="305"/>
+        <location filename="../app/SettingsDialog.ui" line="346"/>
         <source>Detects pages with light content on a dark background, such as white text on black. Such pages are inverted internally, so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing and is kept, so changing this setting doesn&apos;t affect pages that are deskewed already.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="315"/>
+        <location filename="../app/SettingsDialog.ui" line="356"/>
         <source>Also sets the &quot;Black on white mode&quot; of the Output stage according to the detection. Turned off, the detection only helps deskewing and content detection, and the Output stage treats all pages as dark content on a light background. A change made by hand in the Output stage always takes precedence.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="328"/>
+        <location filename="../app/SettingsDialog.ui" line="369"/>
         <source>Deviation</source>
         <translation>편차</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="334"/>
+        <location filename="../app/SettingsDialog.ui" line="375"/>
         <source>Highlight the thumbnails of pages with high deviation</source>
         <translation>편집 편차가 심한 페이지를 강조 표시합니다</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="341"/>
+        <location filename="../app/SettingsDialog.ui" line="382"/>
         <source>Parameters</source>
         <translation>매개 변수</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="356"/>
+        <location filename="../app/SettingsDialog.ui" line="397"/>
         <source>Select content:</source>
         <translation>컨텐츠 선택:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="363"/>
-        <location filename="../app/SettingsDialog.ui" line="386"/>
-        <location filename="../app/SettingsDialog.ui" line="434"/>
+        <location filename="../app/SettingsDialog.ui" line="404"/>
+        <location filename="../app/SettingsDialog.ui" line="427"/>
+        <location filename="../app/SettingsDialog.ui" line="475"/>
         <source>Deviation multiplier: a higher value means lower sensitivity.</source>
         <translation>편차 값: 높은 값일수록 덜 민감합니다.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="379"/>
+        <location filename="../app/SettingsDialog.ui" line="420"/>
         <source>Margins:</source>
         <translation>테두리:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="402"/>
-        <location filename="../app/SettingsDialog.ui" line="418"/>
-        <location filename="../app/SettingsDialog.ui" line="450"/>
+        <location filename="../app/SettingsDialog.ui" line="443"/>
+        <location filename="../app/SettingsDialog.ui" line="459"/>
+        <location filename="../app/SettingsDialog.ui" line="491"/>
         <source>The minimum deviation to be highlighted.</source>
         <translation>최소 편차가 강조될 것입니다.</translation>
     </message>
@@ -2959,32 +2979,37 @@ You should remove them from the project.</source>
         <translation>색 테마: </translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="89"/>
+        <location filename="../app/SettingsDialog.ui" line="130"/>
         <source>Language: </source>
         <translation>언어: </translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="24"/>
+        <location filename="../app/SettingsDialog.cpp" line="28"/>
         <source>Your hardware / driver don&apos;t provide the necessary features</source>
         <translation>하드웨어 / 드라이버가 필요한 기능을 제공하지 않습니다.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="31"/>
+        <location filename="../app/SettingsDialog.cpp" line="35"/>
         <source>Dark</source>
         <translation>다크</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="32"/>
+        <location filename="../app/SettingsDialog.cpp" line="36"/>
         <source>Light</source>
         <translation>라이트</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="36"/>
+        <location filename="../app/SettingsDialog.cpp" line="138"/>
+        <source>Accent Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.cpp" line="175"/>
         <source>Information</source>
         <translation>정보</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="37"/>
+        <location filename="../app/SettingsDialog.cpp" line="176"/>
         <source>ScanTailor need to be restarted to apply the color scheme changes.</source>
         <translation>ScanTailor는 색 테마 변경후 재시작해야 적용됩니다.</translation>
     </message>
@@ -2994,77 +3019,77 @@ You should remove them from the project.</source>
         <translation>유저 인터페이스</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="116"/>
+        <location filename="../app/SettingsDialog.ui" line="157"/>
         <source>Deskew handle distance: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="126"/>
+        <location filename="../app/SettingsDialog.ui" line="167"/>
         <source>How far the drag handles for rotation and oblique correction are placed from the image center, in percent of the largest possible distance. Smaller values move them away from the edge of the view, but make the angle react more strongly to the mouse.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="129"/>
+        <location filename="../app/SettingsDialog.ui" line="170"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="169"/>
+        <location filename="../app/SettingsDialog.ui" line="210"/>
         <source>Thumbnails</source>
         <translation>미리보기</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="179"/>
+        <location filename="../app/SettingsDialog.ui" line="220"/>
         <source>Quality:</source>
         <translation>퀄리티:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="186"/>
+        <location filename="../app/SettingsDialog.ui" line="227"/>
         <source>The pixel size of the thumbnail image. The default value is 200.</source>
         <translation>미리보기 이미지의 픽셀 개수입니다. 기본 값은 200 입니다.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="222"/>
+        <location filename="../app/SettingsDialog.ui" line="263"/>
         <source>Size:</source>
         <translation>크기:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="229"/>
+        <location filename="../app/SettingsDialog.ui" line="270"/>
         <source>The thumbnail size in the view. The default value is 250.</source>
         <translation>실제 볼때의 미리보기 이미지 크기입니다. 기본 값은 250 입니다.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="299"/>
+        <location filename="../app/SettingsDialog.ui" line="340"/>
         <source>White on Black Detection</source>
         <translation>검은색 위 흰색 인식</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="308"/>
+        <location filename="../app/SettingsDialog.ui" line="349"/>
         <source>Auto detect light content on dark background</source>
         <translation>검은 배경 위 흰색 글씨 인식</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="318"/>
+        <location filename="../app/SettingsDialog.ui" line="359"/>
         <source>Use auto detection at the output stage</source>
         <translation>출력 단계에서 자동 인식 사용하기</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="33"/>
+        <location filename="../app/SettingsDialog.cpp" line="37"/>
         <source>Native</source>
         <translation>네이티브</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="262"/>
+        <location filename="../app/SettingsDialog.ui" line="303"/>
         <source>Single column thumbnail display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="269"/>
+        <location filename="../app/SettingsDialog.ui" line="310"/>
         <source>Show question on canceling multi page selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="349"/>
+        <location filename="../app/SettingsDialog.ui" line="390"/>
         <source>Deskew:</source>
         <translation type="unfinished"></translation>
     </message>

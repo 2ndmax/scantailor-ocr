@@ -11,6 +11,9 @@
 
 class DarkColorScheme : public ColorScheme {
  public:
+  /** The color of the borders of focused and hovered controls, unless the user chose another one. */
+  static constexpr const char* DEFAULT_ACCENT_COLOR = "#0f64d2";
+
   DarkColorScheme();
 
   QStyle* getStyle() const override;

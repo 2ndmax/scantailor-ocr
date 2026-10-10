@@ -476,6 +476,14 @@ from working:
   only counted onwards from the current page, others only looked at the first block of
   adjacent selected pages and applied nothing if the current page wasn't in it.
 
+### Accent color
+
+* Settings > "Accent color": a color picker for the accent color of the light and dark color
+  schemes. It replaces the blue of the borders of hovered and focused controls, of the selected
+  thumbnails and of the progress bar; the background of selected text keeps its color.
+  "Default" goes back to the blue of the color scheme. The setting takes effect after a
+  restart and isn't used by the native color scheme, which takes the colors of the system.
+
 ### Start page
 
 * "New Project" and "Open Project" are buttons now instead of blue links.

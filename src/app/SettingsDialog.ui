@@ -82,6 +82,47 @@
            </layout>
           </item>
           <item>
+           <layout class="QHBoxLayout" name="accentColorLayout">
+            <item>
+             <widget class="QLabel" name="accentColorLabel">
+              <property name="text">
+               <string>Accent color:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="accentColorButton">
+              <property name="toolTip">
+               <string>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar.  Takes effect after a restart.  Not used by the native color scheme, which takes the colors of the system.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="accentColorDefaultButton">
+              <property name="toolTip">
+               <string>Use the accent color of the color scheme.</string>
+              </property>
+              <property name="text">
+               <string>Default</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="accentColorSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>1</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
              <widget class="QLabel" name="languageLabel">
