@@ -12,6 +12,7 @@
 #include "BrightnessFilter.h"
 #include "GrayImage.h"
 #include "IntegralImage.h"
+#include "ParallelFor.h"
 
 namespace imageproc {
 void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
@@ -26,7 +27,7 @@ void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
 
   const int w = image.width();
   const int h = image.height();
-  uint8_t* line = image.data();
+  uint8_t* const data = image.data();
   const int stride = image.stride();
 
   // Sums can exceed 32 bits, but the wrap-around cancels out in the window sums.
@@ -34,42 +35,45 @@ void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
   for (int y = 0; y < h; ++y) {
     integral.beginRow();
     for (int x = 0; x < w; ++x) {
-      integral.push(line[y * stride + x]);
+      integral.push(data[y * stride + x]);
     }
   }
 
   const float areaInv = 1.0f / static_cast<float>((2 * radius + 1) * (2 * radius + 1));
   const float noiseWeight = static_cast<float>(1.0 / (coef * coef));
   const float pixelWeight = 1.0f / 255.0f;
-  for (int y = 0; y < h; ++y) {
-    for (int x = 0; x < w; ++x) {
-      const float origin = line[x];
-      float count = areaInv;
-      float sumWeights = 1.0f;
-      float color = origin;
-      for (int r = 1; r <= radius; ++r) {
-        const int left = std::max(x - r, 0);
-        const int right = std::min(x + r, w - 1);
-        const int top = std::max(y - r, 0);
-        const int bottom = std::min(y + r, h - 1);
-        const QRect rect(left, top, right - left + 1, bottom - top + 1);
-        const float mean = static_cast<float>(integral.sum(rect)) / static_cast<float>(rect.width() * rect.height());
-        const float delta = (origin - mean) * pixelWeight * static_cast<float>(r);
-        const float weightF = std::exp(-(static_cast<float>(r * r) * areaInv + delta * delta * noiseWeight));
-        const auto weightR = static_cast<float>(8 * r);
-        color += mean * weightF * weightR;
-        sumWeights += weightF * weightR;
-        if (weightF > kThresholdWeight) {
-          count += areaInv * weightR;
+  // Each pixel only reads the integral image, so the rows can be computed in parallel.
+  parallelFor(h, [&](const int yBegin, const int yEnd) {
+    for (int y = yBegin; y < yEnd; ++y) {
+      uint8_t* const line = data + y * stride;
+      for (int x = 0; x < w; ++x) {
+        const float origin = line[x];
+        float count = areaInv;
+        float sumWeights = 1.0f;
+        float color = origin;
+        for (int r = 1; r <= radius; ++r) {
+          const int left = std::max(x - r, 0);
+          const int right = std::min(x + r, w - 1);
+          const int top = std::max(y - r, 0);
+          const int bottom = std::min(y + r, h - 1);
+          const QRect rect(left, top, right - left + 1, bottom - top + 1);
+          const float mean = static_cast<float>(integral.sum(rect)) / static_cast<float>(rect.width() * rect.height());
+          const float delta = (origin - mean) * pixelWeight * static_cast<float>(r);
+          const float weightF = std::exp(-(static_cast<float>(r * r) * areaInv + delta * delta * noiseWeight));
+          const auto weightR = static_cast<float>(8 * r);
+          color += mean * weightF * weightR;
+          sumWeights += weightF * weightR;
+          if (weightF > kThresholdWeight) {
+            count += areaInv * weightR;
+          }
         }
+        color /= sumWeights;
+        const float lerp = (count > kThresholdLerp) ? kNoiseLerp : (1.0f - kNoiseLerp);
+        color += (origin - color) * lerp;
+        line[x] = static_cast<uint8_t>(std::clamp(color, 0.0f, 255.0f) + 0.5f);
       }
-      color /= sumWeights;
-      const float lerp = (count > kThresholdLerp) ? kNoiseLerp : (1.0f - kNoiseLerp);
-      color += (origin - color) * lerp;
-      line[x] = static_cast<uint8_t>(std::clamp(color, 0.0f, 255.0f) + 0.5f);
     }
-    line += stride;
-  }
+  });
 }
 
 void knnDenoiseColorInPlace(QImage& image, const int radius, const double coef) {

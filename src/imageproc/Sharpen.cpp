@@ -10,6 +10,7 @@
 #include "BrightnessFilter.h"
 #include "GaussBlur.h"
 #include "GrayImage.h"
+#include "ParallelFor.h"
 
 namespace imageproc {
 void sharpenInPlace(GrayImage& image, const int radius, const double coef) {
@@ -20,19 +21,20 @@ void sharpenInPlace(GrayImage& image, const int radius, const double coef) {
   const GrayImage blurred = gaussBlur(image, sigma, sigma);
   const auto amount = static_cast<float>(coef);
 
-  uint8_t* line = image.data();
+  const int w = image.width();
+  uint8_t* const data = image.data();
   const int stride = image.stride();
-  const uint8_t* blurLine = blurred.data();
-  const int blurStride = blurred.stride();
-  for (int y = 0; y < image.height(); ++y) {
-    for (int x = 0; x < image.width(); ++x) {
-      const float origin = line[x];
-      const float val = origin + amount * (origin - static_cast<float>(blurLine[x]));
-      line[x] = static_cast<uint8_t>(std::clamp(val, 0.0f, 255.0f) + 0.5f);
+  parallelFor(image.height(), [&](const int yBegin, const int yEnd) {
+    for (int y = yBegin; y < yEnd; ++y) {
+      uint8_t* const line = data + y * stride;
+      const uint8_t* const blurLine = blurred.data() + y * blurred.stride();
+      for (int x = 0; x < w; ++x) {
+        const float origin = line[x];
+        const float val = origin + amount * (origin - static_cast<float>(blurLine[x]));
+        line[x] = static_cast<uint8_t>(std::clamp(val, 0.0f, 255.0f) + 0.5f);
+      }
     }
-    line += stride;
-    blurLine += blurStride;
-  }
+  });
 }
 
 void sharpenColorInPlace(QImage& image, const int radius, const double coef) {

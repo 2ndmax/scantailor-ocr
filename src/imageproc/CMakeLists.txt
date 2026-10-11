@@ -30,6 +30,7 @@ set(sources
     BrightnessFilter.cpp BrightnessFilter.h
     ChromaDenoiser.cpp ChromaDenoiser.h
     KnnDenoiser.cpp KnnDenoiser.h
+    ParallelFor.h
     Sharpen.cpp Sharpen.h
     Sobel.h
     MorphGradientDetect.cpp MorphGradientDetect.h

@@ -7,9 +7,12 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <thread>
+#include <utility>
 
 #include "GaussBlur.h"
 #include "GrayImage.h"
+#include "ParallelFor.h"
 
 namespace imageproc {
 namespace {
@@ -35,46 +38,61 @@ void chromaDenoiseInPlace(QImage& image, const int radius, const int grayLimit) 
   // Colour differences, stored around 128.
   GrayImage cb(QSize(w, h));
   GrayImage cr(QSize(w, h));
-  for (int y = 0; y < h; ++y) {
-    const auto* pixels = reinterpret_cast<const QRgb*>(image.constScanLine(y));
-    uint8_t* cbLine = cb.data() + y * cb.stride();
-    uint8_t* crLine = cr.data() + y * cr.stride();
-    for (int x = 0; x < w; ++x) {
-      const float r = qRed(pixels[x]);
-      const float g = qGreen(pixels[x]);
-      const float b = qBlue(pixels[x]);
-      const float luma = kR * r + kG * g + kB * b;
-      cbLine[x] = clampToByte(128.0f + kCb * (b - luma));
-      crLine[x] = clampToByte(128.0f + kCr * (r - luma));
+  // Rows and the two channels are independent, so they are computed in parallel.
+  const uchar* const src = image.constBits();
+  const qsizetype srcStride = image.bytesPerLine();
+  uint8_t* const cbData = cb.data();
+  uint8_t* const crData = cr.data();
+  parallelFor(h, [&](const int yBegin, const int yEnd) {
+    for (int y = yBegin; y < yEnd; ++y) {
+      const auto* pixels = reinterpret_cast<const QRgb*>(src + y * srcStride);
+      uint8_t* cbLine = cbData + y * cb.stride();
+      uint8_t* crLine = crData + y * cr.stride();
+      for (int x = 0; x < w; ++x) {
+        const float r = qRed(pixels[x]);
+        const float g = qGreen(pixels[x]);
+        const float b = qBlue(pixels[x]);
+        const float luma = kR * r + kG * g + kB * b;
+        cbLine[x] = clampToByte(128.0f + kCb * (b - luma));
+        crLine[x] = clampToByte(128.0f + kCr * (r - luma));
+      }
     }
-  }
+  });
 
   const auto sigma = static_cast<float>(radius);
-  const GrayImage cbBlurred = gaussBlur(cb, sigma, sigma);
+  GrayImage cbBlurred;
+  std::thread cbThread([&] { cbBlurred = gaussBlur(cb, sigma, sigma); });
   const GrayImage crBlurred = gaussBlur(cr, sigma, sigma);
+  cbThread.join();
 
   const auto limit = static_cast<float>(grayLimit);
-  for (int y = 0; y < h; ++y) {
-    auto* pixels = reinterpret_cast<QRgb*>(image.scanLine(y));
-    const uint8_t* cbLine = cbBlurred.data() + y * cbBlurred.stride();
-    const uint8_t* crLine = crBlurred.data() + y * crBlurred.stride();
-    for (int x = 0; x < w; ++x) {
-      const QRgb px = pixels[x];
-      const float luma = kR * qRed(px) + kG * qGreen(px) + kB * qBlue(px);
-      float dCb = static_cast<float>(cbLine[x]) - 128.0f;
-      float dCr = static_cast<float>(crLine[x]) - 128.0f;
-      if (limit > 0.0f) {
-        // Below the limit gray, above twice the limit unchanged, a smooth transition between.
-        const float strength = std::sqrt(dCb * dCb + dCr * dCr);
-        const float keep = std::clamp((strength - limit) / limit, 0.0f, 1.0f);
-        dCb *= keep;
-        dCr *= keep;
+  uchar* const dst = image.bits();
+  const qsizetype dstStride = image.bytesPerLine();
+  const uint8_t* const cbBlurredData = std::as_const(cbBlurred).data();
+  const uint8_t* const crBlurredData = crBlurred.data();
+  parallelFor(h, [&](const int yBegin, const int yEnd) {
+    for (int y = yBegin; y < yEnd; ++y) {
+      auto* pixels = reinterpret_cast<QRgb*>(dst + y * dstStride);
+      const uint8_t* cbLine = cbBlurredData + y * cbBlurred.stride();
+      const uint8_t* crLine = crBlurredData + y * crBlurred.stride();
+      for (int x = 0; x < w; ++x) {
+        const QRgb px = pixels[x];
+        const float luma = kR * qRed(px) + kG * qGreen(px) + kB * qBlue(px);
+        float dCb = static_cast<float>(cbLine[x]) - 128.0f;
+        float dCr = static_cast<float>(crLine[x]) - 128.0f;
+        if (limit > 0.0f) {
+          // Below the limit gray, above twice the limit unchanged, a smooth transition between.
+          const float strength = std::sqrt(dCb * dCb + dCr * dCr);
+          const float keep = std::clamp((strength - limit) / limit, 0.0f, 1.0f);
+          dCb *= keep;
+          dCr *= keep;
+        }
+        const float r = luma + dCr / kCr;
+        const float b = luma + dCb / kCb;
+        const float g = (luma - kR * r - kB * b) / kG;
+        pixels[x] = qRgba(clampToByte(r), clampToByte(g), clampToByte(b), qAlpha(px));
       }
-      const float r = luma + dCr / kCr;
-      const float b = luma + dCb / kCb;
-      const float g = (luma - kR * r - kB * b) / kG;
-      pixels[x] = qRgba(clampToByte(r), clampToByte(g), clampToByte(b), qAlpha(px));
     }
-  }
+  });
 }
 }  // namespace imageproc
