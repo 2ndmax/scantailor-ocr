@@ -8,6 +8,8 @@
 
 #include <QPolygonF>
 
+#include "DetectionOptions.h"
+
 class QDomDocument;
 class QDomElement;
 class QString;
@@ -28,7 +30,8 @@ class Dependencies {
   explicit Dependencies(const QPolygonF& rotatedPageOutline,
                         AutoManualMode contentDetectionMode,
                         AutoManualMode pageDetectionMode,
-                        bool fineTuneCorners);
+                        bool fineTuneCorners,
+                        const DetectionOptions& detectionOptions);
 
   explicit Dependencies(const QDomElement& depsEl);
 
@@ -51,7 +54,10 @@ class Dependencies {
    public:
     Params();
 
-    Params(AutoManualMode contentDetectionMode, AutoManualMode pageDetectionMode, bool fineTuneCorners);
+    Params(AutoManualMode contentDetectionMode,
+           AutoManualMode pageDetectionMode,
+           bool fineTuneCorners,
+           const DetectionOptions& detectionOptions);
 
     explicit Params(const QDomElement& el);
 
@@ -71,6 +77,7 @@ class Dependencies {
     AutoManualMode m_contentDetectionMode;
     AutoManualMode m_pageDetectionMode;
     bool m_fineTuneCorners;
+    DetectionOptions m_detectionOptions;
   };
 
   QPolygonF m_rotatedPageOutline;

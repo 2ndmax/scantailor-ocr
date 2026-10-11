@@ -14,6 +14,7 @@ set(sources
     Task.cpp Task.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     Dependencies.cpp Dependencies.h
+    DetectionOptions.h
     Params.cpp Params.h
     Settings.cpp Settings.h
     Thumbnail.cpp Thumbnail.h

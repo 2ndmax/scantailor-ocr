@@ -16,14 +16,16 @@ Params::Params(const QRectF& contentRect,
                const Dependencies& deps,
                const AutoManualMode contentDetectionMode,
                const AutoManualMode pageDetectionMode,
-               const bool fineTuneCorners)
+               const bool fineTuneCorners,
+               const DetectionOptions& detectionOptions)
     : m_contentRect(contentRect),
       m_pageRect(pageRect),
       m_contentSizeMM(contentSizeMm),
       m_deps(deps),
       m_contentDetectionMode(contentDetectionMode),
       m_pageDetectionMode(pageDetectionMode),
-      m_fineTuneCorners(fineTuneCorners) {}
+      m_fineTuneCorners(fineTuneCorners),
+      m_detectionOptions(detectionOptions) {}
 
 Params::Params(const QDomElement& filterEl)
     : m_contentRect(XmlUnmarshaller::rectF(filterEl.namedItem("content-rect").toElement())),
@@ -32,7 +34,8 @@ Params::Params(const QDomElement& filterEl)
       m_deps(filterEl.namedItem("dependencies").toElement()),
       m_contentDetectionMode(stringToAutoManualMode(filterEl.attribute("contentDetectionMode"))),
       m_pageDetectionMode(stringToAutoManualMode(filterEl.attribute("pageDetectionMode"))),
-      m_fineTuneCorners(filterEl.attribute("fineTuneCorners") == "1") {}
+      m_fineTuneCorners(filterEl.attribute("fineTuneCorners") == "1"),
+      m_detectionOptions(filterEl) {}
 
 Params::~Params() = default;
 
@@ -43,6 +46,7 @@ QDomElement Params::toXml(QDomDocument& doc, const QString& name) const {
   el.setAttribute("contentDetectionMode", autoManualModeToString(m_contentDetectionMode));
   el.setAttribute("pageDetectionMode", autoManualModeToString(m_pageDetectionMode));
   el.setAttribute("fineTuneCorners", m_fineTuneCorners ? "1" : "0");
+  m_detectionOptions.writeTo(el);
   el.appendChild(marshaller.rectF(m_contentRect, "content-rect"));
   el.appendChild(marshaller.rectF(m_pageRect, "page-rect"));
   el.appendChild(marshaller.sizeF(m_contentSizeMM, "content-size-mm"));

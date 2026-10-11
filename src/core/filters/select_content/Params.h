@@ -30,7 +30,8 @@ class Params {
          const Dependencies& deps,
          AutoManualMode contentDetectionMode,
          AutoManualMode pageDetectionMode,
-         bool fineTuneCorners);
+         bool fineTuneCorners,
+         const DetectionOptions& detectionOptions);
 
   explicit Params(const QDomElement& filterEl);
 
@@ -52,6 +53,8 @@ class Params {
 
   bool isFineTuningEnabled() const;
 
+  const DetectionOptions& detectionOptions() const;
+
   void setContentDetectionMode(AutoManualMode mode);
 
   void setPageDetectionMode(AutoManualMode mode);
@@ -66,6 +69,8 @@ class Params {
 
   void setFineTuneCornersEnabled(bool fineTuneCorners);
 
+  void setDetectionOptions(const DetectionOptions& detectionOptions);
+
  private:
   QRectF m_contentRect;
   QRectF m_pageRect;
@@ -74,6 +79,7 @@ class Params {
   AutoManualMode m_contentDetectionMode;
   AutoManualMode m_pageDetectionMode;
   bool m_fineTuneCorners;
+  DetectionOptions m_detectionOptions;
 };
 
 
@@ -129,8 +135,16 @@ inline void Params::setDependencies(const Dependencies& deps) {
   m_deps = deps;
 }
 
+inline const DetectionOptions& Params::detectionOptions() const {
+  return m_detectionOptions;
+}
+
 inline void Params::setFineTuneCornersEnabled(bool fineTuneCorners) {
   m_fineTuneCorners = fineTuneCorners;
+}
+
+inline void Params::setDetectionOptions(const DetectionOptions& detectionOptions) {
+  m_detectionOptions = detectionOptions;
 }
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_PARAMS_H_

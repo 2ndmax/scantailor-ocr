@@ -73,7 +73,15 @@ struct PreferVertical {
 QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
                                         const FilterData& data,
                                         const QRectF& pageRect,
+                                        const DetectionOptions& options,
                                         DebugImages* dbg) {
+  // Adopted from ScanTailor Spectre: from 95 % on, everything inside the page box counts as
+  // content (for art books and photo pages).
+  if (options.fillFactor() >= 95) {
+    return pageRect;
+  }
+  const double maxFillFactor = options.fillFactor() / 100.0;
+
   ImageTransformation xform150dpi(data.xform());
   xform150dpi.preScaleToDpi(Dpi(150, 150));
 
@@ -166,7 +174,10 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
   status.throwIfCancelled();
 
   BinaryImage content(bw150.release());
-  rasterOp<RopSubtract<RopDst, RopSrc>>(content, garbage);
+  // Above 85 %, shadows are not subtracted, so large dark areas such as photo backgrounds stay.
+  if (options.fillFactor() <= 85) {
+    rasterOp<RopSubtract<RopDst, RopSrc>>(content, garbage);
+  }
   if (dbg) {
     dbg->add(content, "content");
   }
@@ -261,12 +272,12 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
 
   despeckled.release();
 
-  inPlaceRemoveAreasTouchingBorders(contentBlocks, dbg);
+  inPlaceRemoveAreasTouchingBorders(contentBlocks, options.borderTolerance(), dbg);
   if (dbg) {
     dbg->add(contentBlocks, "except_bordering");
   }
 
-  BinaryImage textMask(estimateTextMask(content, contentBlocks, dbg));
+  BinaryImage textMask(estimateTextMask(content, contentBlocks, maxFillFactor, dbg));
   if (dbg) {
     QImage textMaskVisualized(content.size(), QImage::Format_ARGB32_Premultiplied);
     textMaskVisualized.fill(0xffffffff);  // Opaque white.
@@ -476,7 +487,9 @@ void ContentBoxFinder::trimContentBlocksInPlace(const imageproc::BinaryImage& co
   }
 }  // ContentBoxFinder::trimContentBlocksInPlace
 
-void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage& contentBlocks, DebugImages* dbg) {
+void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage& contentBlocks,
+                                                         const int borderTolerance,
+                                                         DebugImages* dbg) {
   // We could just do a seed fill from borders, but that
   // has the potential to remove too much.  Instead, we
   // do something similar to a seed fill, but with a limited
@@ -486,7 +499,14 @@ void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage&
   const int width = contentBlocks.width();
   const int height = contentBlocks.height();
 
-  const auto maxSpreadDist = static_cast<uint16_t>(std::min(width, height) / 4);
+  // The border tolerance (0..100 %) shortens the spread distance: 0 keeps the full distance,
+  // 100 removes only the pixels on the border itself.
+  const int fullSpreadDist = std::min(width, height) / 4;
+  const int spreadDist = (borderTolerance <= 0)
+                             ? fullSpreadDist
+                             : std::max(1, fullSpreadDist * (DetectionOptions::MAX_BORDER_TOLERANCE - borderTolerance)
+                                               / DetectionOptions::MAX_BORDER_TOLERANCE);
+  const auto maxSpreadDist = static_cast<uint16_t>(spreadDist);
 
   std::vector<uint16_t> map((width + 2) * (height + 2), std::numeric_limits<uint16_t>::max());
 
@@ -656,6 +676,7 @@ void ContentBoxFinder::segmentGarbage(const imageproc::BinaryImage& garbage,
 
 imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::BinaryImage& content,
                                                           const imageproc::BinaryImage& contentBlocks,
+                                                          const double maxFillFactor,
                                                           DebugImages* dbg) {
   // We differentiate between a text line and a slightly skewed straight
   // line (which may have a fill factor similar to that of text) by the
@@ -793,7 +814,6 @@ imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::Binar
       }
 
       const double minFillFactor = 0.22;
-      const double maxFillFactor = 0.65;
 
       const auto centerY = static_cast<int>((weightedY + totalWeight / 2) / totalWeight);
       int top = centerY - minTextHeight / 2;
@@ -848,7 +868,10 @@ imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::Binar
       lineRect.setBottom(cc.rect().top() + bottom);
 
       // Check if there are enough ultimate eroded points on the line.
-      auto uepsTodo = int(0.4 * lineRect.width() / lineRect.height());
+      // Pictures have few of them, so above a fill factor of 85 % fewer are required
+      // (adopted from ScanTailor Spectre).
+      const double uepFactor = (maxFillFactor > 0.85) ? 0.1 : 0.4;
+      auto uepsTodo = int(uepFactor * lineRect.width() / lineRect.height());
       if (uepsTodo) {
         BinaryImage lineUeps(lineRect.size());
         rasterOp<RopSrc>(lineUeps, lineUeps.rect(), contentBlocks, lineRect.topLeft());
@@ -1236,7 +1259,7 @@ void ContentBoxFinder::filterShadows(const TaskStatus& status,
       dbg->add(mask, "shadows_no_holes");
     }
 
-    BinaryImage textMask(estimateTextMask(invShadows, mask, dbg));
+    BinaryImage textMask(estimateTextMask(invShadows, mask, DetectionOptions::DEFAULT_FILL_FACTOR / 100.0, dbg));
     invShadows.release();
     mask.release();
     textMask = seedFill(textMask, shadows, CONN8);

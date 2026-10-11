@@ -651,8 +651,22 @@ reimplemented rather than copied.
 
 ### Adopted from ScanTailor Spectre
 
-Fixes taken over from [ScanTailor Spectre](https://github.com/abandoned-industries/scantailor-spectre),
-a macOS fork of ScanTailor Advanced.
+Ideas and fixes taken over from
+[ScanTailor Spectre](https://github.com/abandoned-industries/scantailor-spectre), a macOS fork of
+ScanTailor Advanced.
+
+* **Settings for the automatic content box detection** in *Select Content*, for art books and
+  photo pages (also in the default parameters dialog):
+  * "Fill factor" (30–100 %, default 65 %): the highest share of black pixels a line may have to
+    count as text. Above 85 %, shadows are no longer subtracted and pictures count as content;
+    from 95 % on, the whole page box is the content box.
+  * "Border tolerance" (0–100 %, default 0 %): how much of the content touching the image border
+    is kept, e.g. pictures that reach the edge of the page.
+
+  Unlike in ScanTailor Spectre, the settings belong to each page, are saved in the project and
+  are applied to other pages together with the content box. The defaults give exactly the
+  detection as before; ScanTailor Spectre's border tolerance changes it even at its default.
+  Its additional detection of photo plates relies on Apple Vision and was not adopted.
 
 * **Seed fill propagates completely.** The seed fill used for picture detection, background
   estimation and despeckling marked a pixel as "queued" and never cleared the mark after

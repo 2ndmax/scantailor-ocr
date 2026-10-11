@@ -46,6 +46,7 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
   contentBoxGroup->setEnabled(true);
   pageBoxGroup->setEnabled(true);
 
+  updateContentDetectOptionsDisplay();
   updatePageDetectOptionsDisplay();
   updatePageRectSize(m_uiData.pageRect().size());
 }
@@ -54,6 +55,7 @@ void OptionsWidget::manualContentRectSet(const QRectF& contentRect) {
   m_uiData.setContentRect(contentRect);
   m_uiData.setContentDetectionMode(MODE_MANUAL);
   updateContentModeIndication(MODE_MANUAL);
+  updateContentDetectOptionsDisplay();
 
   commitCurrentParams();
 
@@ -85,6 +87,7 @@ void OptionsWidget::updatePageRectSize(const QSizeF& size) {
 
 void OptionsWidget::contentDetectToggled(const AutoManualMode mode) {
   m_uiData.setContentDetectionMode(mode);
+  updateContentDetectOptionsDisplay();
   commitCurrentParams();
 
   if (mode != MODE_MANUAL) {
@@ -111,6 +114,14 @@ void OptionsWidget::fineTuningChanged(bool checked) {
   m_uiData.setFineTuneCornersEnabled(checked);
   commitCurrentParams();
   if (m_uiData.pageDetectionMode() == MODE_AUTO) {
+    emit reloadRequested();
+  }
+}
+
+void OptionsWidget::detectionOptionsChanged() {
+  m_uiData.setDetectionOptions(DetectionOptions(fillFactorSpinBox->value(), borderToleranceSpinBox->value()));
+  commitCurrentParams();
+  if (m_uiData.contentDetectionMode() == MODE_AUTO) {
     emit reloadRequested();
   }
 }
@@ -150,6 +161,15 @@ void OptionsWidget::updatePageDetectOptionsDisplay() {
   dimensionsWidget->setEnabled(m_uiData.pageDetectionMode() == MODE_MANUAL);
 }
 
+void OptionsWidget::updateContentDetectOptionsDisplay() {
+  auto block = m_connectionManager.getScopedBlock();
+
+  fillFactorSpinBox->setValue(m_uiData.detectionOptions().fillFactor());
+  borderToleranceSpinBox->setValue(m_uiData.detectionOptions().borderTolerance());
+  // Always shown, grayed out where the content box mode doesn't use them.
+  contentDetectOptions->setEnabled(m_uiData.contentDetectionMode() == MODE_AUTO);
+}
+
 void OptionsWidget::dimensionsChangedLocally(double) {
   double widthSpinBoxValue = widthSpinBox->value();
   double heightSpinBoxValue = heightSpinBox->value();
@@ -165,7 +185,8 @@ void OptionsWidget::commitCurrentParams() {
   updateDependenciesIfNecessary();
 
   Params params(m_uiData.contentRect(), m_uiData.contentSizeMM(), m_uiData.pageRect(), m_uiData.dependencies(),
-                m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(), m_uiData.isFineTuningCornersEnabled());
+                m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(), m_uiData.isFineTuningCornersEnabled(),
+                m_uiData.detectionOptions());
   m_settings->setPageParams(m_pageId, params);
 }
 
@@ -200,7 +221,7 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
 
   const Params params(m_uiData.contentRect(), m_uiData.contentSizeMM(), m_uiData.pageRect(), Dependencies(),
                       m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(),
-                      m_uiData.isFineTuningCornersEnabled());
+                      m_uiData.isFineTuningCornersEnabled(), m_uiData.detectionOptions());
 
   for (const PageId& pageId : pages) {
     if (m_pageId == pageId) {
@@ -226,6 +247,9 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
           }
         }
       }
+      if (!applyContentBox) {
+        newParams.setDetectionOptions(oldParams->detectionOptions());
+      }
       if (newParams.contentDetectionMode() == MODE_MANUAL) {
         if (!applyContentBox) {
           newParams.setContentRect(oldParams->contentRect());
@@ -240,8 +264,8 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
     }
 
     if (applyContentBox && newParams.contentDetectionMode() == MODE_AUTO) {
-      newParams.setDependencies(
-          Dependencies(QPolygonF(), MODE_DISABLED, newParams.pageDetectionMode(), newParams.isFineTuningEnabled()));
+      newParams.setDependencies(Dependencies(QPolygonF(), MODE_DISABLED, newParams.pageDetectionMode(),
+                                             newParams.isFineTuningEnabled(), newParams.detectionOptions()));
     }
 
     m_settings->setPageParams(pageId, newParams);
@@ -306,6 +330,8 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(pageDetectDisableBtn, &QPushButton::pressed, this,
           std::bind(&OptionsWidget::pageDetectToggled, this, MODE_DISABLED));
   CONNECT(fineTuneBtn, &QAbstractButton::toggled, this, &OptionsWidget::fineTuningChanged);
+  CONNECT(fillFactorSpinBox, &QSpinBox::valueChanged, this, &OptionsWidget::detectionOptionsChanged);
+  CONNECT(borderToleranceSpinBox, &QSpinBox::valueChanged, this, &OptionsWidget::detectionOptionsChanged);
   CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyToDialog);
 }
 

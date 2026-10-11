@@ -58,6 +58,10 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
     void setFineTuneCornersEnabled(bool fineTune);
 
+    const DetectionOptions& detectionOptions() const;
+
+    void setDetectionOptions(const DetectionOptions& detectionOptions);
+
     AutoManualMode contentDetectionMode() const;
 
     AutoManualMode pageDetectionMode() const;
@@ -70,6 +74,7 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
     AutoManualMode m_contentDetectionMode;
     AutoManualMode m_pageDetectionMode;
     bool m_fineTuneCornersEnabled;
+    DetectionOptions m_detectionOptions;
   };
 
 
@@ -109,6 +114,8 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   void fineTuningChanged(bool checked);
 
+  void detectionOptionsChanged();
+
   void dimensionsChangedLocally(double);
 
  private:
@@ -117,6 +124,8 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   void updatePageModeIndication(AutoManualMode mode);
 
   void updatePageDetectOptionsDisplay();
+
+  void updateContentDetectOptionsDisplay();
 
   void commitCurrentParams();
 
@@ -187,6 +196,14 @@ inline void OptionsWidget::UiData::setFineTuneCornersEnabled(bool fineTune) {
 
 inline bool OptionsWidget::UiData::isFineTuningCornersEnabled() const {
   return m_fineTuneCornersEnabled;
+}
+
+inline const DetectionOptions& OptionsWidget::UiData::detectionOptions() const {
+  return m_detectionOptions;
+}
+
+inline void OptionsWidget::UiData::setDetectionOptions(const DetectionOptions& detectionOptions) {
+  m_detectionOptions = detectionOptions;
 }
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_OPTIONSWIDGET_H_

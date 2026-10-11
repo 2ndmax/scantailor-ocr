@@ -6,6 +6,8 @@
 
 #include <BinaryThreshold.h>
 
+#include "DetectionOptions.h"
+
 class TaskStatus;
 class DebugImages;
 class FilterData;
@@ -26,6 +28,7 @@ class ContentBoxFinder {
   static QRectF findContentBox(const TaskStatus& status,
                                const FilterData& data,
                                const QRectF& pageRect,
+                               const DetectionOptions& options,
                                DebugImages* dbg = nullptr);
 
  private:
@@ -38,10 +41,13 @@ class ContentBoxFinder {
 
   static void trimContentBlocksInPlace(const imageproc::BinaryImage& content, imageproc::BinaryImage& contentBlocks);
 
-  static void inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage& contentBlocks, DebugImages* dbg);
+  static void inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage& contentBlocks,
+                                                int borderTolerance,
+                                                DebugImages* dbg);
 
   static imageproc::BinaryImage estimateTextMask(const imageproc::BinaryImage& content,
                                                  const imageproc::BinaryImage& contentBlocks,
+                                                 double maxFillFactor,
                                                  DebugImages* dbg);
 
   static void filterShadows(const TaskStatus& status, imageproc::BinaryImage& shadows, DebugImages* dbg);

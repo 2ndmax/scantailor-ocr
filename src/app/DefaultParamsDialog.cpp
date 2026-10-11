@@ -330,6 +330,9 @@ void DefaultParamsDialog::updateSelectContentDisplay(const DefaultParams::Select
   } else {
     contentDetectDisableBtn->setChecked(true);
   }
+  fillFactorSpinBox->setValue(params.getDetectionOptions().fillFactor());
+  borderToleranceSpinBox->setValue(params.getDetectionOptions().borderTolerance());
+  contentDetectOptions->setEnabled(params.isContentDetectEnabled());
 
   QSizeF pageRectSize = params.getPageRectSize();
   widthSpinBox->setValue(pageRectSize.width());
@@ -525,6 +528,7 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(layoutManualBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::layoutModeToggled);
   CONNECT(deskewAutoBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::deskewModeChanged);
   CONNECT(pageDetectAutoBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectAutoToggled);
+  CONNECT(contentDetectAutoBtn, &QAbstractButton::toggled, contentDetectOptions, &QWidget::setEnabled);
   CONNECT(pageDetectManualBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectManualToggled);
   CONNECT(pageDetectDisableBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectDisableToggled);
   CONNECT(autoMargins, &QAbstractButton::toggled, this, &DefaultParamsDialog::autoMarginsToggled);
@@ -836,9 +840,10 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   const AutoManualMode pageBoxMode = pageDetectDisableBtn->isChecked()  ? MODE_DISABLED
                                      : pageDetectManualBtn->isChecked() ? MODE_MANUAL
                                                                         : MODE_AUTO;
-  DefaultParams::SelectContentParams selectContentParams(QSizeF(widthSpinBox->value(), heightSpinBox->value()),
-                                                         !contentDetectDisableBtn->isChecked(), pageBoxMode,
-                                                         fineTuneBtn->isChecked());
+  DefaultParams::SelectContentParams selectContentParams(
+      QSizeF(widthSpinBox->value(), heightSpinBox->value()), !contentDetectDisableBtn->isChecked(), pageBoxMode,
+      fineTuneBtn->isChecked(),
+      select_content::DetectionOptions(fillFactorSpinBox->value(), borderToleranceSpinBox->value()));
 
   Alignment alignment;
   switch (hAlignmentModeCB->currentIndex()) {
