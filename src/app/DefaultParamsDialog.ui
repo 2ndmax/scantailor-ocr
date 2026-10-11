@@ -2535,108 +2535,6 @@ QToolButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QWidget" name="fillingOptions" native="true">
-                  <layout class="QVBoxLayout" name="verticalLayout_18">
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <widget class="SectionHeading" name="fillingOptionsHeading">
-                     <property name="text">
-                      <string>Filling</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <layout class="QVBoxLayout" name="fillingAreasLayout">
-                     <property name="spacing">
-                      <number>2</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>5</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>5</number>
-                     </property>
-                     <item>
-                      <widget class="QCheckBox" name="fillOffcutCB">
-                       <property name="toolTip">
-                        <string>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</string>
-                       </property>
-                       <property name="text">
-                        <string>Fill offcut</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QCheckBox" name="fillOutsidePageBoxCB">
-                       <property name="toolTip">
-                        <string>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</string>
-                       </property>
-                       <property name="text">
-                        <string>Fill outside page box</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QCheckBox" name="fillMarginsCB">
-                       <property name="toolTip">
-                        <string>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</string>
-                       </property>
-                       <property name="text">
-                        <string>Fill margins</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_23">
-                     <item>
-                      <widget class="QLabel" name="fillingColorLabel">
-                       <property name="toolTip">
-                        <string>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</string>
-                       </property>
-                       <property name="text">
-                        <string>Color:</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QComboBox" name="fillingColorBox">
-                       <property name="toolTip">
-                        <string>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <spacer name="horizontalSpacer_44">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>1</width>
-                         <height>1</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QWidget" name="thresholdOptions" native="true">
                   <layout class="QVBoxLayout" name="verticalLayout_19">
                    <property name="leftMargin">
@@ -3530,6 +3428,108 @@ QToolButton:pressed {
                      </item>
                      <item>
                       <spacer name="horizontalSpacer_73">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>1</width>
+                         <height>1</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QWidget" name="fillingOptions" native="true">
+                  <layout class="QVBoxLayout" name="verticalLayout_18">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="SectionHeading" name="fillingOptionsHeading">
+                     <property name="text">
+                      <string>Filling</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="fillingAreasLayout">
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>5</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>5</number>
+                     </property>
+                     <item>
+                      <widget class="QCheckBox" name="fillOffcutCB">
+                       <property name="toolTip">
+                        <string>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</string>
+                       </property>
+                       <property name="text">
+                        <string>Fill offcut</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="fillOutsidePageBoxCB">
+                       <property name="toolTip">
+                        <string>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</string>
+                       </property>
+                       <property name="text">
+                        <string>Fill outside page box</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="fillMarginsCB">
+                       <property name="toolTip">
+                        <string>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</string>
+                       </property>
+                       <property name="text">
+                        <string>Fill margins</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_23">
+                     <item>
+                      <widget class="QLabel" name="fillingColorLabel">
+                       <property name="toolTip">
+                        <string>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</string>
+                       </property>
+                       <property name="text">
+                        <string>Color:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QComboBox" name="fillingColorBox">
+                       <property name="toolTip">
+                        <string>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_44">
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>
                        </property>

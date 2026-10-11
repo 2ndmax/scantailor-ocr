@@ -504,8 +504,11 @@ from working:
 * New in the dialog, as in the Output step: **Wiener denoiser**, **Fill outside page box**, the
   threshold methods **Fox** and **Window**, and **Delta** for Sauvola and Wolf (the same value as
   the Otsu slider). Profiles stored these values before, but the dialog always reset them.
-* The window opens large enough to show the largest tab without scrolling, at most as large as
-  the screen. It can be made lower, but not narrower, so only the height ever scrolls.
+* The window opens large enough to show every tab but *Output* without scrolling, at most as
+  large as the screen. *Output*, much taller with its filters, gets one and a half times the
+  height of the tallest other tab and scrolls beyond that; its group *Filling* moved to the
+  right column, so that both columns are about equally long. The window can be made lower, but
+  not narrower, so only the height ever scrolls.
 * Fixed: the threshold methods Bradley, Grad, EdgePlus, BlurDiv and EdgeDiv showed the settings
   of another method; and the upper bound of the Wolf method was not saved in a profile.
 * Fixed: the deskew angle of the *Deskew* tab took only 0 to 99.99 degrees; it now takes -45 to

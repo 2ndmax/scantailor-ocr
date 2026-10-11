@@ -189,8 +189,13 @@ void DefaultParamsDialog::fitToContents() {
   // contents.  For the first layout, each one asks for the full size of its contents.  The width
   // stays the minimum, with room for a vertical scroll bar, so only the height ever scrolls.
   // A tab that was never shown reports too small a size, so each one is shown once.
+  // The Output tab, with its many filters, is much taller than the others.  It gets one and a half
+  // times the height of the tallest other tab and scrolls beyond that; the others never scroll.
   const int currentTab = tabWidget->currentIndex();
+  const int outputTab = tabWidget->indexOf(tab_6);
   std::vector<QScrollArea*> scrollAreas;
+  std::vector<QScrollArea*> outputScrollAreas;
+  int otherTabsHeight = 0;
   for (int i = 0; i < tabWidget->count(); ++i) {
     tabWidget->setCurrentIndex(i);
     // Only once polished, with the style sheet applied, do the widgets report their final size;
@@ -207,7 +212,15 @@ void DefaultParamsDialog::fitToContents() {
       const QSize hint = contents->sizeHint();
       scrollArea->setMinimumSize(std::min(hint.width() + frame + scrollBar, available.width()), hint.height() + frame);
       scrollAreas.push_back(scrollArea);
+      if (i == outputTab) {
+        outputScrollAreas.push_back(scrollArea);
+      } else {
+        otherTabsHeight = std::max(otherTabsHeight, hint.height() + frame);
+      }
     }
+  }
+  for (QScrollArea* scrollArea : outputScrollAreas) {
+    scrollArea->setMinimumHeight(std::min(scrollArea->minimumHeight(), otherTabsHeight * 3 / 2));
   }
   tabWidget->setCurrentIndex(currentTab);
 
