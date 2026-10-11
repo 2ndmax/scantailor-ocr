@@ -850,8 +850,8 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3035"/>
-        <source>Mixed mode only: how pictures are found, not at all, as free shapes or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
-        <translation>Nur im Farbmodus Gemischt: wie Bilder gefunden werden, gar nicht, als freie Formen oder als Rechtecke. Bilder bleiben farbig bzw. grau, der Rest wird schwarz-weiß.</translation>
+        <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
+        <translation>Nur im Farbmodus Gemischt: wie Bilder gefunden werden, gar nicht, als Maske entlang der Bildumrisse oder als Rechtecke. Bilder bleiben farbig bzw. grau, der Rest wird schwarz-weiß.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3072"/>
@@ -1064,8 +1064,8 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
-        <source>Free shape</source>
-        <translation>Freiform</translation>
+        <source>Contour mask</source>
+        <translation>Konturmaske</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
@@ -3985,8 +3985,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="98"/>
-        <source>Free shape</source>
-        <translation>Freiform</translation>
+        <source>Contour mask</source>
+        <translation>Konturmaske</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="99"/>
@@ -4354,8 +4354,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1245"/>
-        <source>Mixed mode only: how pictures are found, not at all, as free shapes or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
-        <translation>Nur im Farbmodus Gemischt: wie Bilder gefunden werden, gar nicht, als freie Formen oder als Rechtecke. Bilder bleiben farbig bzw. grau, der Rest wird schwarz-weiß.</translation>
+        <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
+        <translation>Nur im Farbmodus Gemischt: wie Bilder gefunden werden, gar nicht, als Maske entlang der Bildumrisse oder als Rechtecke. Bilder bleiben farbig bzw. grau, der Rest wird schwarz-weiß.</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1282"/>

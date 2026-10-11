@@ -421,7 +421,7 @@ from working:
   "Apply Splitting" and "Apply Processing", like the dialogs of the other panels.
 * *Settings*: "Params" became "Parameters". *Default Parameters*: the first tab is called
   "Import" like the step.
-* *Output*, **Picture Zones**: the shapes are called "Free shape" and "Rectangle" (formerly "Free"
+* *Output*, **Picture Zones**: the shapes are called "Contour mask" and "Rectangle" (formerly "Free"
   and "Rectangular").
 * "Folder" instead of "directory", as in Windows, e.g. **Input Folder** and **Output Folder** in
   the "Project Files" dialog.

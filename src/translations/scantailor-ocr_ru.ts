@@ -849,7 +849,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3035"/>
-        <source>Mixed mode only: how pictures are found, not at all, as free shapes or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
+        <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1063,8 +1063,8 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
-        <source>Free shape</source>
-        <translation>Свободная</translation>
+        <source>Contour mask</source>
+        <translation>Контурная маска</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
@@ -3980,8 +3980,8 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="98"/>
-        <source>Free shape</source>
-        <translation>Свободная</translation>
+        <source>Contour mask</source>
+        <translation>Контурная маска</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="99"/>
@@ -4354,7 +4354,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1245"/>
-        <source>Mixed mode only: how pictures are found, not at all, as free shapes or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
+        <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

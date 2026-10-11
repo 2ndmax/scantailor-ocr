@@ -95,7 +95,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   updateBinarizationOptionsDisplay(binarizationOptions->currentIndex());
 
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
-  pictureShapeSelector->addItem(tr("Free shape"), FREE_SHAPE);
+  pictureShapeSelector->addItem(tr("Contour mask"), FREE_SHAPE);
   pictureShapeSelector->addItem(tr("Rectangle"), RECTANGULAR_SHAPE);
 
   // Common resolutions; others can be typed in.

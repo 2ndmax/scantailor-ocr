@@ -3032,7 +3032,7 @@ QToolButton:pressed {
                      <item>
                       <widget class="QComboBox" name="pictureShapeSelector">
                        <property name="toolTip">
-                        <string>Mixed mode only: how pictures are found, not at all, as free shapes or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</string>
+                        <string>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</string>
                        </property>
                       </widget>
                      </item>
