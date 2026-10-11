@@ -15,6 +15,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
+#include <QImageReader>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QStringList>
@@ -66,6 +67,10 @@ void takeOverOldSettings() {
 
 int main(int argc, char* argv[]) {
   Application app(argc, argv);
+
+  // Qt 6 refuses to decode images needing more than 256 MB by default,
+  // which large colour scans (e.g. A3 at 600 dpi) easily exceed.
+  QImageReader::setAllocationLimit(0);
 
 #ifdef _WIN32
   // Get rid of all references to Qt's installation directory.
