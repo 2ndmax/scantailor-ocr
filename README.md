@@ -630,6 +630,12 @@ reimplemented rather than copied.
   differ widely (window 40 for Robust, strength 0.1 for Nick). Every method in the list now has
   a tooltip saying what it suits. The other methods of ScanTailor Experimental were compared on
   sample pages and left out: they hardly differed from these or from the existing ones.
+* **Double-click shows the whole page again** after zooming in, in the image views of all steps
+  except *Select Content* and *Margins*, where a double click already corrects the content box
+  or attaches the content to the nearest guide. The status bar hint says so.
+* **The automatic content detection** in *Select Content* binarizes the page with BlurDiv
+  instead of the Wolf threshold. BlurDiv evens out the paper first, so shadows at the spine and
+  yellowed edges are less often taken for content. Content boxes already set are not changed.
 * **Deliberately not adopted: "unPaper" and "Balance".** unPaper sets the paper to one color
   for the whole page (yellowed paper stays yellow, shadows and gradients stay), and pale
   colored areas can be flattened with it; Balance chains four overlay blends of blurred copies

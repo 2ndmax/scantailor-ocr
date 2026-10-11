@@ -145,6 +145,8 @@ ImageView::ImageView(const QImage& image,
 
   rootInteractionHandler().makeLastFollower(*this);
   rootInteractionHandler().makeLastFollower(m_dragHandler);
+  // A double click corrects the content box here.
+  m_zoomHandler.setZoomAllOnDoubleClick(false);
   rootInteractionHandler().makeLastFollower(m_zoomHandler);
 
   QAction* create = m_noContentMenu->addAction(tr("Create Content Box"));

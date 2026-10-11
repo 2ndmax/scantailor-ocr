@@ -6,6 +6,7 @@
 #include <QShortcut>
 #include <QWheelEvent>
 #include <cmath>
+#include <limits>
 
 #include "ImageViewBase.h"
 
@@ -86,6 +87,15 @@ void ZoomHandler::zoom(double factor) {
   }
   m_imageView.setWidgetFocalPointWithoutMoving(focusPoint);
   m_imageView.setZoomLevel(zoom);  // this will call update()
+}
+
+void ZoomHandler::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) {
+  // As in ScanTailor Experimental: back to the whole page.
+  if (!m_zoomAllOnDoubleClick || (event->button() != Qt::LeftButton) || !m_interactionPermitter(interaction)) {
+    return;
+  }
+  m_imageView.setZoomLevel(1.0);
+  m_imageView.moveTowardsIdealPosition(std::numeric_limits<double>::max());
 }
 
 void ZoomHandler::onMouseMoveEvent(QMouseEvent* event, InteractionState&) {

@@ -146,6 +146,8 @@ ImageView::ImageView(const std::shared_ptr<Settings>& settings,
 
   rootInteractionHandler().makeLastFollower(*this);
   rootInteractionHandler().makeLastFollower(m_dragHandler);
+  // A double click attaches the content to the nearest guide here.
+  m_zoomHandler.setZoomAllOnDoubleClick(false);
   rootInteractionHandler().makeLastFollower(m_zoomHandler);
 
   setupContextMenuInteraction();

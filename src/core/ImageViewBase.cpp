@@ -190,7 +190,8 @@ ImageViewBase::ImageViewBase(const QImage& image,
 
   updateWidgetTransformAndFixFocalPoint(CENTER_IF_FITS);
 
-  interactionState().setDefaultStatusTip(tr("Use the mouse wheel or +/- to zoom.  When zoomed, dragging is possible."));
+  interactionState().setDefaultStatusTip(tr(
+      "Use the mouse wheel or +/- to zoom.  When zoomed, dragging is possible.  Double-click to see the whole page."));
   ensureStatusTip(interactionState().statusTip());
 
   connect(horizontalScrollBar(), &QAbstractSlider::sliderReleased, this, &ImageViewBase::updateScrollBars);

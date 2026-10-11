@@ -94,7 +94,9 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
     dbg->add(gray150, "gray150");
   }
 
-  BinaryImage bw150(binarizeWolf(gray150, QSize(51, 51), 50));
+  // As in ScanTailor Experimental: BlurDiv evens out the paper first, so shadows at the spine and
+  // yellowed edges are less often taken for content than with the Wolf threshold used before.
+  BinaryImage bw150(binarizeEdgeDiv(gray150, QSize(51, 51), 0.0, 0.75));
   if (dbg) {
     dbg->add(bw150, "bw150");
   }
