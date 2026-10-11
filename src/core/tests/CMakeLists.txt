@@ -20,6 +20,7 @@ set(sources
     TestSmartFilenameOrdering.cpp
     TestUnits.cpp
     TestWidthCorrection.cpp
+    TestWidthProfile.cpp
     TestUtils.cpp)
 
 add_executable(core_tests ${sources})

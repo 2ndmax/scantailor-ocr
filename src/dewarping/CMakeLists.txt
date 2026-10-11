@@ -3,6 +3,7 @@ set(sources
     DistortionModel.cpp DistortionModel.h
     DistortionModelBuilder.cpp DistortionModelBuilder.h
     WidthCorrection.cpp WidthCorrection.h
+    WidthProfile.cpp WidthProfile.h
     DetectVertContentBounds.cpp DetectVertContentBounds.h
     TowardsLineTracer.cpp TowardsLineTracer.h
     TextLineTracer.cpp TextLineTracer.h
