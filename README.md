@@ -409,6 +409,11 @@ from working:
   after "General" (also in the default parameters dialog), instead of being under "Color
   Operations": it reduces the noise of the image before all other processing, in every color
   mode.
+* *Output*: the sliders **Depth perception** and **Despeckle** show their value above them, as
+  the Otsu slider does (also in the default parameters dialog). Moving the depth perception
+  slider now recalculates the page once it is released; before, the page was only marked as
+  outdated after switching to another page. On the Dewarping tab the preview follows the slider
+  as before.
 * One alignment in all options panels (also in the default parameters dialog): check boxes,
   option buttons and "label: field" lines start at the left edge of the panel. What depends on
   a check box is indented below it, one step further for each level (e.g. the modes of

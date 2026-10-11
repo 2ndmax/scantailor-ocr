@@ -12,6 +12,7 @@
 
 #include <QCoreApplication>
 #include <QLineEdit>
+#include <QLocale>
 #include <QScreen>
 #include <QScrollArea>
 #include <QSignalBlocker>
@@ -467,7 +468,8 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   } else {
     despeckleCB->setChecked(false);
   }
-  despeckleSlider->setToolTip(QString::number(0.1 * despeckleSlider->value()));
+  despeckleSlider->setToolTip(QLocale().toString(0.1 * despeckleSlider->value(), 'f', 1));
+  despeckleValueLabel->setText(despeckleSlider->toolTip());
 
   if (QAbstractButton* dewarpingModeBtn = m_dewarpingModeGroup->button(params.getDewarpingOptions().dewarpingMode())) {
     dewarpingModeBtn->setChecked(true);
@@ -475,6 +477,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   dewarpingPostDeskewCB->setChecked(params.getDewarpingOptions().needPostDeskew());
   evenOutLetterWidthsCB->setChecked(params.getDewarpingOptions().evenOutLetterWidths());
   depthPerceptionSlider->setValue(qRound(params.getDepthPerception().value() * 10));
+  depthPerceptionValueLabel->setText(QLocale().toString(params.getDepthPerception().value(), 'f', 1));
 
   // update the display
   colorModeChanged(colorModeSelector->currentIndex());
@@ -1101,8 +1104,9 @@ void DefaultParamsDialog::dewarpingModeChanged() {
 }
 
 void DefaultParamsDialog::depthPerceptionChangedSlot(const int val) {
-  const QString tooltipText(QString::number(0.1 * val));
+  const QString tooltipText(QLocale().toString(0.1 * val, 'f', 1));
   depthPerceptionSlider->setToolTip(tooltipText);
+  depthPerceptionValueLabel->setText(tooltipText);
 
   // Show the tooltip immediately.
   const QPoint center(depthPerceptionSlider->rect().center());
@@ -1311,13 +1315,15 @@ QToolButton* DefaultParamsDialog::getCheckedAlignmentButton() const {
 
 void DefaultParamsDialog::despeckleToggled(bool checked) {
   despeckleSlider->setEnabled(checked);
+  despeckleValueLabel->setEnabled(checked);
 }
 
 void DefaultParamsDialog::despeckleSliderValueChanged(int value) {
   const double newValue = 0.1 * value;
 
-  const QString tooltipText(QString::number(newValue));
+  const QString tooltipText(QLocale().toString(newValue, 'f', 1));
   despeckleSlider->setToolTip(tooltipText);
+  despeckleValueLabel->setText(tooltipText);
 
   // Show the tooltip immediately.
   const QPoint center(despeckleSlider->rect().center());

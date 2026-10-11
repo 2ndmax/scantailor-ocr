@@ -181,6 +181,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void depthPerceptionChangedSlot(int val);
 
+  void depthPerceptionSliderReleased();
+
   void updateBinarizationOptionsDisplay(int idx);
 
   void sendReloadRequested();

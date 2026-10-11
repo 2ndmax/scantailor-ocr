@@ -1737,6 +1737,43 @@
 <number>15</number>
 </property>
         <item>
+         <layout class="QHBoxLayout" name="despeckleValueLayout">
+         <item>
+          <spacer name="despeckleValueLeftSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>1</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="despeckleValueLabel">
+           <property name="text">
+            <string notr="true">1.0</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="despeckleValueRightSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>1</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QSlider" name="despeckleSlider">
           <property name="minimum">
            <number>5</number>
@@ -1928,6 +1965,43 @@
             <string>Depth perception:</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="depthPerceptionValueLayout">
+          <item>
+           <spacer name="depthPerceptionValueLeftSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>1</width>
+              <height>1</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="depthPerceptionValueLabel">
+            <property name="text">
+             <string notr="true">2.0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="depthPerceptionValueRightSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>1</width>
+              <height>1</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          </layout>
          </item>
          <item>
           <widget class="QSlider" name="depthPerceptionSlider">

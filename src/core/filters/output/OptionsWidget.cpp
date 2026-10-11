@@ -10,6 +10,7 @@
 #include <QCoreApplication>
 #include <QFormLayout>
 #include <QLineEdit>
+#include <QLocale>
 #include <QMessageBox>
 #include <QSignalBlocker>
 #include <QToolTip>
@@ -575,6 +576,7 @@ void OptionsWidget::despeckleToggled(bool checked) {
   };
 
   despeckleSlider->setEnabled(checked);
+  despeckleValueLabel->setEnabled(checked);
 }
 
 void OptionsWidget::despeckleSliderReleased() {
@@ -585,8 +587,9 @@ void OptionsWidget::despeckleSliderReleased() {
 void OptionsWidget::despeckleSliderValueChanged(int value) {
   const double newValue = 0.1 * value;
 
-  const QString tooltipText(QString::number(newValue));
+  const QString tooltipText(QLocale().toString(newValue, 'f', 1));
   despeckleSlider->setToolTip(tooltipText);
+  despeckleValueLabel->setText(tooltipText);
 
   // Show the tooltip immediately.
   const QPoint center(despeckleSlider->rect().center());
@@ -726,8 +729,9 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
 
 void OptionsWidget::depthPerceptionChangedSlot(int val) {
   m_depthPerception.setValue(0.1 * val);
-  const QString tooltipText(QString::number(m_depthPerception.value()));
+  const QString tooltipText(QLocale().toString(m_depthPerception.value(), 'f', 1));
   depthPerceptionSlider->setToolTip(tooltipText);
+  depthPerceptionValueLabel->setText(tooltipText);
 
   // Show the tooltip immediately.
   const QPoint center(depthPerceptionSlider->rect().center());
@@ -740,6 +744,18 @@ void OptionsWidget::depthPerceptionChangedSlot(int val) {
   m_settings->setDepthPerception(m_pageId, m_depthPerception);
   // Propagate the signal.
   emit depthPerceptionChanged(m_depthPerception.value());
+
+  // While dragging, the page is recalculated only once the slider is released.
+  if (!depthPerceptionSlider->isSliderDown()) {
+    depthPerceptionSliderReleased();
+  }
+}
+
+void OptionsWidget::depthPerceptionSliderReleased() {
+  // The Dewarping tab follows the slider by itself; other tabs need the page recalculated.
+  if (m_lastTab != TAB_DEWARPING) {
+    m_delayedReloadRequest.start(750);
+  }
 }
 
 void OptionsWidget::reloadIfNecessary() {
@@ -938,7 +954,9 @@ void OptionsWidget::updateColorsDisplay() {
       despeckleCB->setChecked(false);
     }
     despeckleSlider->setEnabled(m_despeckleLevel != 0);
-    despeckleSlider->setToolTip(QString::number(0.1 * despeckleSlider->value()));
+    despeckleValueLabel->setEnabled(m_despeckleLevel != 0);
+    despeckleSlider->setToolTip(QLocale().toString(0.1 * despeckleSlider->value(), 'f', 1));
+    despeckleValueLabel->setText(despeckleSlider->toolTip());
   }
 
   for (int i = 0; i < binarizationOptions->count(); i++) {
@@ -980,6 +998,7 @@ void OptionsWidget::updateDewarpingDisplay() {
   depthPerceptionSlider->blockSignals(true);
   depthPerceptionSlider->setValue(qRound(m_depthPerception.value() * 10));
   depthPerceptionSlider->blockSignals(false);
+  depthPerceptionValueLabel->setText(QLocale().toString(m_depthPerception.value(), 'f', 1));
 }
 
 void OptionsWidget::savitzkyGolaySmoothingToggled(bool checked) {
@@ -1306,6 +1325,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(despeckleSlider, &QAbstractSlider::valueChanged, this, &OptionsWidget::despeckleSliderValueChanged);
   CONNECT(applyDespeckleButton, &QAbstractButton::clicked, this, &OptionsWidget::applyDespeckleButtonClicked);
   CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this, &OptionsWidget::depthPerceptionChangedSlot);
+  CONNECT(depthPerceptionSlider, &QAbstractSlider::sliderReleased, this, &OptionsWidget::depthPerceptionSliderReleased);
   CONNECT(&m_delayedReloadRequest, &QTimer::timeout, this, &OptionsWidget::sendReloadRequested);
 
   CONNECT(blackOnWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::blackOnWhiteToggled);
