@@ -649,6 +649,21 @@ reimplemented rather than copied.
   similar flatbed scans and weakens the curvature correction by up to a third without a clear
   reason.
 
+### Adopted from ScanTailor Spectre
+
+Fixes taken over from [ScanTailor Spectre](https://github.com/abandoned-industries/scantailor-spectre),
+a macOS fork of ScanTailor Advanced.
+
+* **Seed fill propagates completely.** The seed fill used for picture detection, background
+  estimation and despeckling marked a pixel as "queued" and never cleared the mark after
+  processing it. If the pixel was improved again later, the improvement no longer spread to its
+  neighbors. A second fix: one neighbor in the 8-connected fill used the wrong row stride.
+  Results change only marginally (a few pixels at letter edges on some pages).
+* **Faster grayscale conversion.** Converting 32-bit color images to grayscale, and computing
+  their histograms, now reads the image line by line instead of pixel by pixel. Unlike in
+  ScanTailor Spectre, only formats whose stored values are identical are read directly, so the
+  output stays byte-identical.
+
 ### Correctness and robustness
 
 * **Fixed outdated thumbnails** on Windows when the path of a thumbnail is longer than 260

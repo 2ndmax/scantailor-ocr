@@ -91,6 +91,12 @@ static QImage monoLsbToGrayscale(const QImage& src) {
   return dst;
 }  // monoLsbToGrayscale
 
+// For RGB32 and ARGB32, the stored pixel values are what pixel() returns, so they can be read
+// line by line, which is much faster. Other formats keep using pixel(), so results stay the same.
+static bool hasDirectRgbAccess(const QImage& img) {
+  return (img.format() == QImage::Format_RGB32) || (img.format() == QImage::Format_ARGB32);
+}
+
 static QImage anyToGrayscale(const QImage& src) {
   const int width = src.width();
   const int height = src.height();
@@ -103,10 +109,18 @@ static QImage anyToGrayscale(const QImage& src) {
 
   uint8_t* dstLine = dst.bits();
   const int dstBpl = dst.bytesPerLine();
+  const bool directAccess = hasDirectRgbAccess(src);
 
   for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      dstLine[x] = static_cast<uint8_t>(qGray(src.pixel(x, y)));
+    if (directAccess) {
+      const auto* srcLine = reinterpret_cast<const QRgb*>(src.constScanLine(y));
+      for (int x = 0; x < width; ++x) {
+        dstLine[x] = static_cast<uint8_t>(qGray(srcLine[x]));
+      }
+    } else {
+      for (int x = 0; x < width; ++x) {
+        dstLine[x] = static_cast<uint8_t>(qGray(src.pixel(x, y)));
+      }
     }
     dstLine += dstBpl;
   }
@@ -428,10 +442,18 @@ void GrayscaleHistogram::fromGrayscaleImage(const QImage& img, const BinaryImage
 void GrayscaleHistogram::fromAnyImage(const QImage& img) {
   const int w = img.width();
   const int h = img.height();
+  const bool directAccess = hasDirectRgbAccess(img);
 
   for (int y = 0; y < h; ++y) {
-    for (int x = 0; x < w; ++x) {
-      ++m_pixels[qGray(img.pixel(x, y))];
+    if (directAccess) {
+      const auto* line = reinterpret_cast<const QRgb*>(img.constScanLine(y));
+      for (int x = 0; x < w; ++x) {
+        ++m_pixels[qGray(line[x])];
+      }
+    } else {
+      for (int x = 0; x < w; ++x) {
+        ++m_pixels[qGray(img.pixel(x, y))];
+      }
     }
   }
 }
@@ -442,11 +464,13 @@ void GrayscaleHistogram::fromAnyImage(const QImage& img, const BinaryImage& mask
   const uint32_t* maskLine = mask.data();
   const int maskWpl = mask.wordsPerLine();
   const uint32_t msb = uint32_t(1) << 31;
+  const bool directAccess = hasDirectRgbAccess(img);
 
   for (int y = 0; y < h; ++y, maskLine += maskWpl) {
+    const auto* line = directAccess ? reinterpret_cast<const QRgb*>(img.constScanLine(y)) : nullptr;
     for (int x = 0; x < w; ++x) {
       if (maskLine[x >> 5] & (msb >> (x & 31))) {
-        ++m_pixels[qGray(img.pixel(x, y))];
+        ++m_pixels[qGray(line ? line[x] : img.pixel(x, y))];
       }
     }
   }

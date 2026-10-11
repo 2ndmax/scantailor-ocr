@@ -113,6 +113,9 @@ void spread4(SpreadOp spreadOp,
     const HTransition ht(hTransitions[pos.x]);
     const VTransition vt(vTransitions[pos.y]);
     uint32_t* const inQueueLine = inQueueData + inQueueStride * pos.y;
+    // Clear the in-queue flag, so that if this pixel is improved again by a
+    // later update, it gets re-enqueued and the improvement keeps propagating.
+    inQueueLine[pos.x >> 5] &= ~((uint32_t(1) << 31) >> (pos.x & 31));
     T* seed;
     const T* mask;
 
@@ -158,6 +161,9 @@ void spread8(SpreadOp spreadOp,
     const HTransition ht(hTransitions[pos.x]);
     const VTransition vt(vTransitions[pos.y]);
     uint32_t* const inQueueLine = inQueueData + inQueueStride * pos.y;
+    // Clear the in-queue flag, so that if this pixel is improved again by a
+    // later update, it gets re-enqueued and the improvement keeps propagating.
+    inQueueLine[pos.x >> 5] &= ~((uint32_t(1) << 31) >> (pos.x & 31));
     T* seed;
     const T* mask;
 
@@ -203,7 +209,7 @@ void spread8(SpreadOp spreadOp,
 
     // South-Western neighbor.
     seed = pos.seed + (seedStride & vt.southMask) + ht.westDelta;
-    mask = pos.mask + (seedStride & vt.southMask) + ht.westDelta;
+    mask = pos.mask + (maskStride & vt.southMask) + ht.westDelta;
     processNeighbor(spreadOp, maskOp, queue, inQueueLine + (inQueueStride & vt.southMask), thisVal, seed, mask, pos,
                     ht.westDelta, 1 & vt.southMask);
   }
