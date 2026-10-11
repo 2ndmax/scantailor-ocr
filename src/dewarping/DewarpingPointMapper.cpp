@@ -15,7 +15,8 @@ DewarpingPointMapper::DewarpingPointMapper(const DistortionModel& distortionMode
                                            const QTransform& postTransform)
     : m_dewarper(CylindricalSurfaceDewarper(distortionModel.topCurve().polyline(),
                                             distortionModel.bottomCurve().polyline(),
-                                            depthPerception)),
+                                            depthPerception,
+                                            distortionModel.widthCorrection())),
       m_postTransform(postTransform) {
   // Model domain is a rectangle in output image coordinates that
   // will be mapped to our curved quadrilateral.

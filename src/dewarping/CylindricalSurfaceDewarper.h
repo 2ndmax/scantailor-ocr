@@ -13,6 +13,7 @@
 #include "ArcLengthMapper.h"
 #include "HomographicTransform.h"
 #include "PolylineIntersector.h"
+#include "WidthCorrection.h"
 
 namespace dewarping {
 class CylindricalSurfaceDewarper {
@@ -42,7 +43,8 @@ class CylindricalSurfaceDewarper {
    */
   CylindricalSurfaceDewarper(const std::vector<QPointF>& imgDirectrix1,
                              const std::vector<QPointF>& imgDirectrix2,
-                             double depthPerception);
+                             double depthPerception,
+                             const WidthCorrection& widthCorrection = WidthCorrection());
 
   /**
    * \brief Returns the arc length of a directrix, assuming its
@@ -91,6 +93,7 @@ class CylindricalSurfaceDewarper {
   double m_plnStraightLineY;
   double m_directrixArcLength;
   ArcLengthMapper m_arcLengthMapper;
+  WidthCorrection m_widthCorrection;
   PolylineIntersector m_imgDirectrix1Intersector;
   PolylineIntersector m_imgDirectrix2Intersector;
 };

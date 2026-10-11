@@ -13,7 +13,9 @@ namespace dewarping {
 DistortionModel::DistortionModel() = default;
 
 DistortionModel::DistortionModel(const QDomElement& el)
-    : m_topCurve(el.namedItem("top-curve").toElement()), m_bottomCurve(el.namedItem("bottom-curve").toElement()) {}
+    : m_topCurve(el.namedItem("top-curve").toElement()),
+      m_bottomCurve(el.namedItem("bottom-curve").toElement()),
+      m_widthCorrection(el.namedItem("width-correction").toElement()) {}
 
 QDomElement DistortionModel::toXml(QDomDocument& doc, const QString& name) const {
   if (!isValid()) {
@@ -23,6 +25,9 @@ QDomElement DistortionModel::toXml(QDomDocument& doc, const QString& name) const
   QDomElement el(doc.createElement(name));
   el.appendChild(m_topCurve.toXml(doc, "top-curve"));
   el.appendChild(m_bottomCurve.toXml(doc, "bottom-curve"));
+  if (!m_widthCorrection.isNull()) {
+    el.appendChild(m_widthCorrection.toXml(doc, "width-correction"));
+  }
   return el;
 }
 
@@ -79,6 +84,8 @@ bool DistortionModel::matches(const DistortionModel& other) const {
   if (!m_topCurve.matches(other.m_topCurve)) {
     return false;
   } else if (!m_bottomCurve.matches(other.m_bottomCurve)) {
+    return false;
+  } else if (!m_widthCorrection.matches(other.m_widthCorrection)) {
     return false;
   }
   return true;

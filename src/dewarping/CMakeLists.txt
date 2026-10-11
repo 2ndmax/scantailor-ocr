@@ -2,6 +2,7 @@ set(sources
     Curve.cpp Curve.h
     DistortionModel.cpp DistortionModel.h
     DistortionModelBuilder.cpp DistortionModelBuilder.h
+    WidthCorrection.cpp WidthCorrection.h
     DetectVertContentBounds.cpp DetectVertContentBounds.h
     TowardsLineTracer.cpp TowardsLineTracer.h
     TextLineTracer.cpp TextLineTracer.h

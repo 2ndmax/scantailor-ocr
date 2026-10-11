@@ -5,6 +5,7 @@
 #define SCANTAILOR_DEWARPING_DISTORTIONMODEL_H_
 
 #include "Curve.h"
+#include "WidthCorrection.h"
 
 class QDomDocument;
 class QDomElement;
@@ -32,13 +33,24 @@ class DistortionModel {
    */
   bool isValid() const;
 
-  void setTopCurve(const Curve& curve) { m_topCurve = curve; }
+  // Changing a curve discards the width correction, which was measured with the old curves.
+  void setTopCurve(const Curve& curve) {
+    m_topCurve = curve;
+    m_widthCorrection = WidthCorrection();
+  }
 
-  void setBottomCurve(const Curve& curve) { m_bottomCurve = curve; }
+  void setBottomCurve(const Curve& curve) {
+    m_bottomCurve = curve;
+    m_widthCorrection = WidthCorrection();
+  }
 
   const Curve& topCurve() const { return m_topCurve; }
 
   const Curve& bottomCurve() const { return m_bottomCurve; }
+
+  void setWidthCorrection(const WidthCorrection& correction) { m_widthCorrection = correction; }
+
+  const WidthCorrection& widthCorrection() const { return m_widthCorrection; }
 
   bool matches(const DistortionModel& other) const;
 
@@ -62,6 +74,7 @@ class DistortionModel {
 
   Curve m_topCurve;
   Curve m_bottomCurve;
+  WidthCorrection m_widthCorrection;
 };
 }  // namespace dewarping
 #endif  // ifndef SCANTAILOR_DEWARPING_DISTORTIONMODEL_H_

@@ -63,19 +63,22 @@ class CylindricalSurfaceDewarper::CoupledPolylinesIterator {
 
 CylindricalSurfaceDewarper::CylindricalSurfaceDewarper(const std::vector<QPointF>& imgDirectrix1,
                                                        const std::vector<QPointF>& imgDirectrix2,
-                                                       double depthPerception)
+                                                       double depthPerception,
+                                                       const WidthCorrection& widthCorrection)
     : m_pln2img(calcPlnToImgHomography(imgDirectrix1, imgDirectrix2)),
       m_img2pln(m_pln2img.inv()),
       m_depthPerception(depthPerception),
       m_plnStraightLineY(calcPlnStraightLineY(imgDirectrix1, imgDirectrix2, m_pln2img, m_img2pln)),
       m_directrixArcLength(1.0),
+      m_widthCorrection(widthCorrection),
       m_imgDirectrix1Intersector(imgDirectrix1),
       m_imgDirectrix2Intersector(imgDirectrix2) {
   initArcLengthMapper(imgDirectrix1, imgDirectrix2);
 }
 
 CylindricalSurfaceDewarper::Generatrix CylindricalSurfaceDewarper::mapGeneratrix(double crvX, State& state) const {
-  const double plnX = m_arcLengthMapper.arcLenToX(crvX, state.m_arcLengthHint);
+  // crvX is a corrected position; the arc length mapper works with uncorrected ones.
+  const double plnX = m_arcLengthMapper.arcLenToX(m_widthCorrection.unmap(crvX), state.m_arcLengthHint);
 
   const Vec2d plnTopPt(plnX, 0);
   const Vec2d plnBottomPt(plnX, 1);
@@ -106,7 +109,7 @@ QPointF CylindricalSurfaceDewarper::mapToDewarpedSpace(const QPointF& imgPt) con
   State state;
 
   const double plnX = m_img2pln(imgPt)[0];
-  const double crvX = m_arcLengthMapper.xToArcLen(plnX, state.m_arcLengthHint);
+  const double crvX = m_widthCorrection.map(m_arcLengthMapper.xToArcLen(plnX, state.m_arcLengthHint));
 
   const Vec2d plnTopPt(plnX, 0);
   const Vec2d plnBottomPt(plnX, 1);

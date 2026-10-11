@@ -2108,7 +2108,7 @@ CylindricalSurfaceDewarper OutputGenerator::Processor::createDewarper(const Dist
                                                                       double depthPerception) {
   if (distortionModelToTarget.isIdentity()) {
     return CylindricalSurfaceDewarper(distortionModel.topCurve().polyline(), distortionModel.bottomCurve().polyline(),
-                                      depthPerception);
+                                      depthPerception, distortionModel.widthCorrection());
   }
 
   std::vector<QPointF> topPolyline(distortionModel.topCurve().polyline());
@@ -2119,7 +2119,7 @@ CylindricalSurfaceDewarper OutputGenerator::Processor::createDewarper(const Dist
   for (QPointF& pt : bottomPolyline) {
     pt = distortionModelToTarget.map(pt);
   }
-  return CylindricalSurfaceDewarper(topPolyline, bottomPolyline, depthPerception);
+  return CylindricalSurfaceDewarper(topPolyline, bottomPolyline, depthPerception, distortionModel.widthCorrection());
 }
 
 /**
