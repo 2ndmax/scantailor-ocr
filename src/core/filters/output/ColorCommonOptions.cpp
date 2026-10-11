@@ -14,6 +14,9 @@ ColorCommonOptions::ColorCommonOptions()
       m_grayscaleOutput(false),
       m_wienerCoef(0.0),
       m_wienerWindowSize(5),
+      m_subtractBackgroundCoef(0.0),
+      m_subtractBackgroundRadius(45),
+      m_subtractBackgroundWhite(false),
       m_fillingColor(FILL_BACKGROUND) {}
 
 ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
@@ -25,6 +28,10 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
       m_grayscaleOutput(el.attribute("grayscaleOutput") == "1"),
       m_wienerCoef(el.attribute("wienerCoef").toDouble()),
       m_wienerWindowSize(el.attribute("wienerWinSize").toInt()),
+      // Absent in projects from other versions, where the filter is then off.
+      m_subtractBackgroundCoef(el.attribute("subtractBgCoef").toDouble()),
+      m_subtractBackgroundRadius(el.attribute("subtractBgRadius").toInt()),
+      m_subtractBackgroundWhite(el.attribute("subtractBgWhite") == "1"),
       m_fillingColor(parseFillingColor(el.attribute("fillingColor"))),
       m_posterizationOptions(el.namedItem("posterization-options").toElement()) {
   if (m_wienerCoef < 0.0 || m_wienerCoef > 1.0) {
@@ -32,6 +39,12 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
   }
   if (m_wienerWindowSize < 3) {
     m_wienerWindowSize = 5;
+  }
+  if (m_subtractBackgroundCoef < 0.0 || m_subtractBackgroundCoef > 1.0) {
+    m_subtractBackgroundCoef = 0.0;
+  }
+  if (m_subtractBackgroundRadius < 1) {
+    m_subtractBackgroundRadius = 45;
   }
 }
 
@@ -49,6 +62,14 @@ QDomElement ColorCommonOptions::toXml(QDomDocument& doc, const QString& name) co
   el.appendChild(m_posterizationOptions.toXml(doc, "posterization-options"));
   el.setAttribute("wienerCoef", m_wienerCoef);
   el.setAttribute("wienerWinSize", m_wienerWindowSize);
+  if (m_subtractBackgroundCoef > 0.0) {
+    // Only written when on, like grayscaleOutput.
+    el.setAttribute("subtractBgCoef", m_subtractBackgroundCoef);
+    el.setAttribute("subtractBgRadius", m_subtractBackgroundRadius);
+    if (m_subtractBackgroundWhite) {
+      el.setAttribute("subtractBgWhite", "1");
+    }
+  }
   return el;
 }
 
@@ -57,7 +78,10 @@ bool ColorCommonOptions::operator==(const ColorCommonOptions& other) const {
          && (m_fillMargins == other.m_fillMargins) && (m_fillOffcut == other.m_fillOffcut)
          && (m_fillOutsidePageBox == other.m_fillOutsidePageBox) && (m_fillingColor == other.m_fillingColor)
          && (m_posterizationOptions == other.m_posterizationOptions) && (m_wienerCoef == other.m_wienerCoef)
-         && (m_wienerWindowSize == other.m_wienerWindowSize);
+         && (m_wienerWindowSize == other.m_wienerWindowSize)
+         && (m_subtractBackgroundCoef == other.m_subtractBackgroundCoef)
+         && (m_subtractBackgroundRadius == other.m_subtractBackgroundRadius)
+         && (m_subtractBackgroundWhite == other.m_subtractBackgroundWhite);
 }
 
 bool ColorCommonOptions::operator!=(const ColorCommonOptions& other) const {

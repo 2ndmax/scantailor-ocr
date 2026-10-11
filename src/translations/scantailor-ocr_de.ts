@@ -294,7 +294,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <location filename="../app/DefaultParamsDialog.ui" line="729"/>
         <location filename="../app/DefaultParamsDialog.ui" line="885"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1064"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3397"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3510"/>
         <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
@@ -303,7 +303,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <location filename="../app/DefaultParamsDialog.ui" line="637"/>
         <location filename="../app/DefaultParamsDialog.ui" line="742"/>
         <location filename="../app/DefaultParamsDialog.ui" line="901"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3423"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3536"/>
         <source>Manual</source>
         <translation>Manuell</translation>
     </message>
@@ -490,42 +490,42 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Allgemein</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2166"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2279"/>
         <source>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</source>
         <translation>Das gesamte Rechteck der Ausgabeseite außerhalb des Seiteninhalts mit der Hintergrundfarbe füllen, statt der Form des Reststücks zu folgen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2169"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2282"/>
         <source>Fill outside page box</source>
         <translation>Außerhalb der Seite füllen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2681"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2794"/>
         <source>Savitzky-Golay smoothing</source>
         <translation>Savitzky-Golay-Glättung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2691"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2804"/>
         <source>Morphological smoothing</source>
         <translation>Morphologische Glättung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2138"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2251"/>
         <source>Filling</source>
         <translation>Füllung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2193"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2306"/>
         <source>Color:</source>
         <translation>Farbe:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2738"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2851"/>
         <source>Color Operations</source>
         <translation>Farboperationen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2017"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2130"/>
         <source>Reduces the noise of the image before the other processing.</source>
         <translation>Mindert das Rauschen im Bild vor der weiteren Verarbeitung.</translation>
     </message>
@@ -545,184 +545,180 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Wie „Automatisch“ den Winkel neuer Seiten findet: aus den Zeilen des Inhalts oder aus der oberen Seitenkante (empfohlen für Buchscans mit dunklem Hintergrund).</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2010"/>
-        <source>Denoising</source>
-        <translation>Entrauschen</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2020"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2133"/>
         <source>Wiener denoiser</source>
         <translation>Rauschfilter (Wiener)</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2058"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2171"/>
         <source>Strength:</source>
         <translation>Stärke:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2065"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2178"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
         <translation>Die Stärke der Rauschminderung, von 0,01 bis 1.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2748"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2861"/>
         <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation>Aufteilen des Bildes in Farbsegmente und Einfärben der Schwarz-Weiß-Maske.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2751"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2864"/>
         <source>Color segmentation</source>
         <translation>Farbsegmentierung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2822"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2935"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation>Einstellung des Rotanteils. Ein negativer Wert bedeutet, dass der Segmentierer empfindlicher auf Rot reagiert, ein positiver Wert bedeutet das Gegenteil.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2835"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2948"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation>Einstellung der Grünkomponente. Ein negativer Wert bedeutet, dass der Segmentierer empfindlicher auf Grün reagiert, ein positiver Wert bedeutet das Gegenteil.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2848"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2961"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation>Einstellung des Blauanteils. Ein negativer Wert bedeutet, dass der Segmentierer empfindlicher auf Blau reagiert, ein positiver Wert bedeutet das Gegenteil.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2866"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2979"/>
         <source>Reduce noise:</source>
         <translation>Rauschreduzierung:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2911"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3024"/>
         <source>Reduce the number of colors of the output image by grouping similar colors.</source>
         <translation>Farben des Ausgabebildes reduzieren, indem ähnliche Farben gruppiert werden.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2914"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3027"/>
         <source>Posterize</source>
         <translation>Tontrennung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2955"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3068"/>
         <source>Level:</source>
         <translation>Stufe:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2962"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3075"/>
         <source>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</source>
         <translation>Ein niedriger Wert bedeutet eine geringere Anzahl von Farben im Ausgabebild, Werte zwischen 2 und 6 garantieren ein indiziertes Bild.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2975"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3088"/>
         <source>Normalize</source>
         <translation>Normalisierung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2982"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3095"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation>Dunkle und helle Grauverläufe schwarz bzw. weiß machen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2985"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3098"/>
         <source>Force b&amp;&amp;w</source>
         <translation>S/W erzwingen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2240"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2353"/>
         <source>Threshold</source>
         <translation>Schwellwert</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2252"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2365"/>
         <source>Method:</source>
         <translation>Verfahren:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2355"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2468"/>
         <source>Thinner</source>
         <translation>Dünner</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2384"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2497"/>
         <source>Thicker</source>
         <translation>Dicker</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2417"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2524"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2530"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2637"/>
         <source>Delta:</source>
         <translation>Delta:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2424"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2531"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2537"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2644"/>
         <source>Default value is 0.</source>
         <translation>Standardwert ist 0.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2463"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2610"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2576"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2723"/>
         <source>Coef:</source>
         <translation>Koeffizient:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3445"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3558"/>
         <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
         <translation>Wie stark die Seite beim Glätten als vom Betrachter weg gewölbt angenommen wird; das bestimmt vor allem, wie weit die Schrift am Bund gedehnt wird.  Wird nur beim Entzerren verwendet.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3463"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3576"/>
         <source>Depth perception:</source>
         <translation>Tiefenwahrnehmung:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2091"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2450"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2557"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2204"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2563"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2670"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation>Die Größe der Pixelumgebung, die berücksichtigt werden soll.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2081"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2440"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2547"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2194"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2553"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2660"/>
         <source>Window size:</source>
         <translation>Fenstergröße:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2792"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2905"/>
         <source>Red</source>
         <translation>Rot</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2802"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2915"/>
         <source>Green</source>
         <translation>Grün</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2812"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2925"/>
         <source>Blue</source>
         <translation>Blau</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2470"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2583"/>
         <source>Default value is 0.34.</source>
         <translation>Standardwert ist 0,34.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2577"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2690"/>
         <source>The minimum possible gray level that can be made white.</source>
         <translation>Der niedrigste Grauwert, der weiß werden kann.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2590"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2703"/>
         <source>Upper bound:</source>
         <translation>Oberer Grenzwert:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2570"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2683"/>
         <source>Lower bound:</source>
         <translation>Unterer Grenzwert:</translation>
     </message>
@@ -802,175 +798,215 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Auch in Bildzonen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2156"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2010"/>
+        <source>Enhancement</source>
+        <translation>Bildverbesserung</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2017"/>
+        <source>Evens out the paper background (stains, yellowing, shadows) before the other processing. Pictures are flattened as well.</source>
+        <translation>Gleicht den Papierhintergrund (Flecken, Vergilbung, Schatten) vor der weiteren Verarbeitung aus. Bilder werden dabei ebenfalls abgeflacht.</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2020"/>
+        <source>Even out background</source>
+        <translation>Hintergrund angleichen</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2065"/>
+        <source>How far the background is evened out, from 0.01 to 1.</source>
+        <translation>Wie stark der Hintergrund ausgeglichen wird, von 0,01 bis 1.</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2081"/>
+        <source>Radius:</source>
+        <translation>Radius:</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2091"/>
+        <source>The size of the area used to estimate the background. It should be clearly larger than the letters.</source>
+        <translation>Die Größe des Bereichs, aus dem der Hintergrund geschätzt wird. Er sollte deutlich größer als die Buchstaben sein.</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2104"/>
+        <source>Also takes the paper to white and removes a color cast such as yellowing.  Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
+        <translation>Macht das Papier außerdem weiß und entfernt einen Farbstich wie Vergilbung. Jeder Farbkanal wird einzeln ausgeglichen, deshalb verschieben sich auch die Farben von Bildern.</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2107"/>
+        <source>Make paper white</source>
+        <translation>Papier weiß machen</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2269"/>
         <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</source>
         <translation>Füllt das Reststück, also was beim Import abgeschnitten oder in „Seiten teilen“ von der Trennlinie abgetrennt wurde, etwa einen Teil der Gegenseite, mit der Füllfarbe. Sonst bleibt es sichtbar, wo die Seite hineinreicht.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2176"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2289"/>
         <source>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</source>
         <translation>Füllt die Ränder, also alles außerhalb des Inhaltsbereichs, mit der Füllfarbe, sodass Schmutz und Kanten dort verschwinden.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2190"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2200"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2303"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2313"/>
         <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
         <translation>Die Farbe der gefüllten Flächen: die auf der Seite gefundene Hintergrundfarbe, Weiß oder Schwarz. Im Farbmodus Gemischt ergibt „Hintergrund“ Weiß.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2249"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2259"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2362"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2372"/>
         <source>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation>Wie die Seite in Schwarz-Weiß umgewandelt wird. Otsu verwendet einen Schwellwert für die ganze Seite; die anderen Verfahren passen ihn jedem Bereich der Seite an, was bei ungleichmäßiger Beleuchtung hilft.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2597"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2710"/>
         <source>The maximum possible gray level that can be made black.</source>
         <translation>Der höchste Grauwert, der schwarz werden kann.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2617"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2730"/>
         <source>Default value is 0.3.</source>
         <translation>Standardwert ist 0,3.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2678"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2791"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation>Glättet das Graustufenbild vor der Umwandlung in Schwarz-Weiß, für glattere Buchstabenkanten.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2688"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2801"/>
         <source>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</source>
         <translation>Glättet die Kanten des Schwarz-Weiß-Ergebnisses: Einzelne überstehende oder fehlende Pixel an den Rändern der Buchstaben werden entfernt oder ergänzt.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3026"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3139"/>
         <source>Picture Zones</source>
         <translation>Bildzonen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3035"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3148"/>
         <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation>Nur im Farbmodus Gemischt: wie Bilder gefunden werden, gar nicht, als Maske entlang der Bildumrisse oder als Rechtecke. Bilder bleiben farbig bzw. grau, der Rest wird schwarz-weiß.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3072"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3185"/>
         <source>Sensitivity:</source>
         <translation>Empfindlichkeit:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3107"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3220"/>
         <source>Also finds pictures with weak contrast; text may then be taken for a picture, too.</source>
         <translation>Findet auch Bilder mit schwachem Kontrast; dabei kann auch Text für ein Bild gehalten werden.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3110"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3223"/>
         <source>Higher search sensitivity</source>
         <translation>Höhere Suchempfindlichkeit</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3155"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1049"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3268"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1065"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3164"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3277"/>
         <source>Resolution:</source>
         <translation>Auflösung:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3171"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3284"/>
         <source>Common resolutions; others between 72 and 1200 DPI can be typed in.</source>
         <translation>Übliche Auflösungen; andere zwischen 72 und 1200 DPI lassen sich eintippen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3200"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3313"/>
         <source>Splitting</source>
         <translation>Aufteilung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3211"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3324"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation>Nur im Farbmodus Gemischt: speichert die Seite zusätzlich als zwei Dateien, den Text im Ordner „foreground“ und die Bilder im Ordner „background“ neben den Ausgabedateien.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3214"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3327"/>
         <source>Split output</source>
         <translation>Geteilte Ausgabe</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3226"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3339"/>
         <source>The text is saved in black and white.</source>
         <translation>Der Text wird schwarz-weiß gespeichert.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3229"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3342"/>
         <source>B&amp;&amp;W foreground</source>
         <translation>S/W-Vordergrund</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3257"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3370"/>
         <source>Save the original background of the foreground layer.</source>
         <translation>Ursprünglichen Hintergrund der Vordergrundebene speichern</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3260"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3373"/>
         <source>Original background</source>
         <translation>Original-Hintergrund</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3269"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3382"/>
         <source>The text keeps its colors.</source>
         <translation>Der Text behält seine Farben.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3272"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3385"/>
         <source>Color foreground</source>
         <translation>Farbiger Vordergrund</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3299"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3412"/>
         <source>Despeckling</source>
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3310"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3423"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
         <translation>Entfernt kleine Flecken wie Staub und Schmutz aus dem Schwarz-Weiß-Ergebnis. Der Regler bestimmt, wie stark.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3367"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3480"/>
         <source>Dewarping</source>
         <translation>Entzerren</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3378"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3491"/>
         <source>No dewarping.</source>
         <translation>Keine Entzerrung.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3394"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3507"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation>Findet die Krümmung der Textzeilen automatisch.  Experimentell.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3407"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3520"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation>Findet die Krümmung anhand der oberen und unteren Seitenkante vor dunklem Hintergrund.  Experimentell.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3420"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3533"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation>Sie legen die Kurven selbst im Reiter „Entzerrung“ fest.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3435"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3548"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation>Richtet die Seite nach dem Entzerren noch einmal gerade.  Nur bei Manuell und Randbereich.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3438"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3551"/>
         <source>Post deskew</source>
         <translation>Nachträglich geraderichten</translation>
     </message>
@@ -1057,7 +1093,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="866"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1048"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3381"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3494"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
         <source>Off</source>
         <translation>Deaktiviert</translation>
@@ -1073,77 +1109,77 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="109"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1173"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="110"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1193"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3410"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3523"/>
         <source>Marginal</source>
         <translation>Randbereich</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="100"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="101"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="101"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="102"/>
         <source>Source</source>
         <translation>Quelle</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1049"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1065"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1136"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1142"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1156"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1179"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1194"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1182"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1142"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
         <source>Error loading the profile.</source>
         <translation>Fehler beim Laden des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1163"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1183"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Der Name steht im Widerspruch zu einem Standardprofilnamen. Bitte geben Sie einen anderen Namen ein.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1179"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
         <source>Error saving the profile.</source>
         <translation>Fehler beim Speichern des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1194"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
         <source>Error deleting the profile.</source>
         <translation>Fehler beim Löschen des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2159"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2272"/>
         <source>Fill offcut</source>
         <translation>Reststück füllen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2179"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2292"/>
         <source>Fill margins</source>
         <translation>Ränder füllen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3313"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3426"/>
         <source>Despeckle</source>
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1136"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1156"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Die Profildatei ist nicht mit der aktuellen Anwendungsversion kompatibel. Entfernen?</translation>
     </message>
@@ -1197,43 +1233,43 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Auflösung:</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.ui" line="112"/>
+        <location filename="../app/FixDpiDialog.ui" line="124"/>
         <source>Sets this resolution for the images selected in the list.  OK takes over the resolutions of all images.</source>
         <translation>Setzt diese Auflösung für die in der Liste markierten Bilder.  „OK“ übernimmt die Auflösungen aller Bilder.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.ui" line="115"/>
+        <location filename="../app/FixDpiDialog.ui" line="127"/>
         <source>Apply to selection</source>
         <translation>Auf Auswahl anwenden</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="212"/>
+        <location filename="../app/FixDpiDialog.cpp" line="216"/>
         <source>Need Fixing</source>
         <translation>Korrektur nötig</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="213"/>
-        <location filename="../app/FixDpiDialog.cpp" line="579"/>
+        <location filename="../app/FixDpiDialog.cpp" line="217"/>
+        <location filename="../app/FixDpiDialog.cpp" line="631"/>
         <source>All Pages</source>
         <translation>Alle Seiten</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="378"/>
+        <location filename="../app/FixDpiDialog.cpp" line="407"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation>DPI ist zu groß und höchstwahrscheinnlich falsch.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="382"/>
+        <location filename="../app/FixDpiDialog.cpp" line="411"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie keine akzeptablen Resultate erhalten.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="386"/>
+        <location filename="../app/FixDpiDialog.cpp" line="415"/>
         <source>DPI is too small for this pixel size. Such combination would probably lead to out of memory errors.</source>
         <translation>DPI ist zu klein für diese Pixelgröße. Eine solche Kombination würde wahrscheinlich zu Fehlern führen, wenn der Speicher voll ist.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="605"/>
+        <location filename="../app/FixDpiDialog.cpp" line="657"/>
         <source>%1 (page %2)</source>
         <translation>%1 (Seite %2)</translation>
     </message>
@@ -1315,7 +1351,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
 <context>
     <name>ImageViewBase</name>
     <message>
-        <location filename="../core/ImageViewBase.cpp" line="198"/>
+        <location filename="../core/ImageViewBase.cpp" line="193"/>
         <source>Use the mouse wheel or +/- to zoom.  When zoomed, dragging is possible.</source>
         <translation>Verwenden Sie das Mausrad oder +/- zum Zoomen.  Im gezoomten Zustand ist das Ziehen möglich.</translation>
     </message>
@@ -1354,20 +1390,20 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
 <context>
     <name>LoadFileTask</name>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="162"/>
-        <location filename="../core/LoadFileTask.cpp" line="172"/>
+        <location filename="../core/LoadFileTask.cpp" line="165"/>
+        <location filename="../core/LoadFileTask.cpp" line="175"/>
         <source>Reason:</source>
         <translation>Grund:</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="160"/>
+        <location filename="../core/LoadFileTask.cpp" line="163"/>
         <source>This page could not be processed because of an unexpected error:
 %1</source>
         <translation>Diese Seite konnte wegen eines unerwarteten Fehlers nicht verarbeitet werden:
 %1</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="165"/>
+        <location filename="../core/LoadFileTask.cpp" line="168"/>
         <source>Changing the settings of this page or of a previous step may help. Please report this error together with the steps that led to it.</source>
         <translation>Möglicherweise hilft es, die Einstellungen dieser Seite oder eines vorherigen Schritts zu ändern. Bitte melden Sie diesen Fehler zusammen mit den Schritten, die dazu geführt haben.</translation>
     </message>
@@ -1377,14 +1413,14 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Unbekannter Fehler.</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="170"/>
+        <location filename="../core/LoadFileTask.cpp" line="173"/>
         <source>The following file could not be loaded:
 %1</source>
         <translation>Die folgende Datei konnte nicht geladen werden:
 %1</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="176"/>
+        <location filename="../core/LoadFileTask.cpp" line="179"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use the &lt;a href=&quot;#relink&quot;&gt;Relinking Tool&lt;/a&gt; to locate it.</source>
         <translation>Die folgende Datei existiert nicht:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Benutzen Sie das &lt;a href=&quot;#relink&quot;&gt;Tool zum erneuten Verknüpfen&lt;/a&gt; zur Lokalisierung.</translation>
     </message>
@@ -1501,7 +1537,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1096"/>
-        <location filename="../app/MainWindow.cpp" line="640"/>
+        <location filename="../app/MainWindow.cpp" line="639"/>
         <source>Save Project</source>
         <translation>Projekt speichern</translation>
     </message>
@@ -1648,7 +1684,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2893"/>
+        <location filename="../app/MainWindow.cpp" line="2862"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
@@ -1673,200 +1709,200 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Aktuelle Seite neu laden</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="553"/>
+        <location filename="../app/MainWindow.cpp" line="552"/>
         <source>Stop batch processing</source>
         <translation>Stapelverarbeitung abbrechen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="640"/>
+        <location filename="../app/MainWindow.cpp" line="639"/>
         <source>Save the project?</source>
         <translation>Projekt speichern?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1125"/>
+        <location filename="../app/MainWindow.cpp" line="1119"/>
         <source>Insert Before ...</source>
         <translation>Einfügen vor ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1126"/>
+        <location filename="../app/MainWindow.cpp" line="1120"/>
         <source>Insert After ...</source>
         <translation>Einfügen nach ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1130"/>
+        <location filename="../app/MainWindow.cpp" line="1124"/>
         <source>Remove from Project ...</source>
         <translation>Aus Projekt entfernen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1194"/>
+        <location filename="../app/MainWindow.cpp" line="1188"/>
         <source>Insert Here ...</source>
         <translation>Hier einfügen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2025"/>
+        <location filename="../app/MainWindow.cpp" line="1994"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1665"/>
-        <location filename="../app/MainWindow.cpp" line="1726"/>
+        <location filename="../app/MainWindow.cpp" line="1695"/>
+        <location filename="../app/ProjectFileDialogs.cpp" line="26"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor-OCR-Projekte</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1140"/>
+        <location filename="../app/MainWindow.cpp" line="1134"/>
         <source>Select</source>
         <translation>Auswählen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1141"/>
+        <location filename="../app/MainWindow.cpp" line="1135"/>
         <source>All Pages</source>
         <translation>Alle Seiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1142"/>
+        <location filename="../app/MainWindow.cpp" line="1136"/>
         <source>This Page and the Following Ones</source>
         <translation>Diese und darauffolgende Seiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1144"/>
+        <location filename="../app/MainWindow.cpp" line="1138"/>
         <source>Every Other Page (Odd Pages)</source>
         <translation>Jede zweite Seite (ungerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1144"/>
+        <location filename="../app/MainWindow.cpp" line="1138"/>
         <source>Every Other Page (Even Pages)</source>
         <translation>Jede zweite Seite (gerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1145"/>
+        <location filename="../app/MainWindow.cpp" line="1139"/>
         <source>This Page and Every Other Following Page</source>
         <translation>Diese Seite und darauffolgend jede zweite Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1146"/>
+        <location filename="../app/MainWindow.cpp" line="1140"/>
         <source>Every Other Selected Page</source>
         <translation>Jede zweite ausgewählte Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1149"/>
+        <location filename="../app/MainWindow.cpp" line="1143"/>
         <source>This Page Only</source>
         <translation>Nur diese Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1725"/>
+        <location filename="../app/MainWindow.cpp" line="1694"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1738"/>
-        <location filename="../app/MainWindow.cpp" line="1744"/>
-        <location filename="../app/MainWindow.cpp" line="2079"/>
-        <location filename="../app/MainWindow.cpp" line="2103"/>
+        <location filename="../app/MainWindow.cpp" line="1707"/>
+        <location filename="../app/MainWindow.cpp" line="1713"/>
+        <location filename="../app/MainWindow.cpp" line="2048"/>
+        <location filename="../app/MainWindow.cpp" line="2072"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1738"/>
+        <location filename="../app/MainWindow.cpp" line="1707"/>
         <source>Unable to open the project file.</source>
         <translation>Die Projektdatei kann nicht geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1744"/>
+        <location filename="../app/MainWindow.cpp" line="1713"/>
         <source>The project file is broken.</source>
         <translation>Die Projektdatei ist beschädigt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1826"/>
+        <location filename="../app/MainWindow.cpp" line="1795"/>
         <source>version </source>
         <translation>Version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1971"/>
+        <location filename="../app/MainWindow.cpp" line="1940"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
 Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt auswählen&quot; oder &quot;Ränder&quot; aus.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2005"/>
+        <location filename="../app/MainWindow.cpp" line="1974"/>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2010"/>
+        <location filename="../app/MainWindow.cpp" line="1979"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation>%2 - ScanTailor OCR [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2025"/>
+        <location filename="../app/MainWindow.cpp" line="1994"/>
         <source>A PDF is being created.  Do you want to cancel it?</source>
         <translation>Ein PDF wird gerade erstellt.  Möchten Sie das abbrechen?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2079"/>
-        <location filename="../app/MainWindow.cpp" line="2103"/>
+        <location filename="../app/MainWindow.cpp" line="2048"/>
+        <location filename="../app/MainWindow.cpp" line="2072"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2158"/>
+        <location filename="../app/MainWindow.cpp" line="2127"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2161"/>
+        <location filename="../app/MainWindow.cpp" line="2130"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2212"/>
+        <location filename="../app/MainWindow.cpp" line="2181"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2262"/>
+        <location filename="../app/MainWindow.cpp" line="2231"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2422"/>
-        <location filename="../app/MainWindow.cpp" line="2464"/>
+        <location filename="../app/MainWindow.cpp" line="2391"/>
+        <location filename="../app/MainWindow.cpp" line="2433"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2416"/>
+        <location filename="../app/MainWindow.cpp" line="2385"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2441"/>
+        <location filename="../app/MainWindow.cpp" line="2410"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2465"/>
+        <location filename="../app/MainWindow.cpp" line="2434"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2521"/>
+        <location filename="../app/MainWindow.cpp" line="2490"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2579"/>
+        <location filename="../app/MainWindow.cpp" line="2548"/>
         <source>Only pages next to each other can be replaced together.  The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen.  Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2651"/>
+        <location filename="../app/MainWindow.cpp" line="2620"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2893"/>
+        <location filename="../app/MainWindow.cpp" line="2862"/>
         <source>Enter the page number:</source>
         <translation>Zielseite:</translation>
     </message>
@@ -1910,17 +1946,17 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
         <translation>Form</translation>
     </message>
     <message>
-        <location filename="../app/NewOpenProjectPanel.ui" line="67"/>
+        <location filename="../app/NewOpenProjectPanel.ui" line="68"/>
         <source>New Project</source>
         <translation>Neues Projekt</translation>
     </message>
     <message>
-        <location filename="../app/NewOpenProjectPanel.ui" line="98"/>
+        <location filename="../app/NewOpenProjectPanel.ui" line="100"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../app/NewOpenProjectPanel.ui" line="151"/>
+        <location filename="../app/NewOpenProjectPanel.ui" line="156"/>
         <source>Recent Projects</source>
         <translation>Kürzliche Projekte</translation>
     </message>
@@ -2101,17 +2137,12 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
         <translation>Bitte beachten Sie, dass ScanTailor OCR zwar versucht, Situationen, in denen der Speicher voll ist, abzufangen und Ihnen die Möglichkeit zu geben, Ihr Projekt zu speichern, aber das ist nicht immer möglich. Dieses Mal hat es geklappt, aber beim nächsten Mal könnte es einfach abstürzen.</translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>
-        <source>ScanTailor OCR Projects</source>
-        <translation>ScanTailor-OCR-Projekte</translation>
-    </message>
-    <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="89"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="65"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="89"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="65"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
@@ -2170,17 +2201,17 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
         <translation>Die aktuelle Seite wird einbezogen.</translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="78"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="80"/>
         <source>Every other page (even pages)</source>
         <translation>Jede zweite Seite (gerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="83"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="85"/>
         <source>1 page</source>
         <translation>1 Seite</translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="83"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="85"/>
         <source>%1 pages</source>
         <translation>%1 Seiten</translation>
     </message>
@@ -2268,369 +2299,369 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
 <context>
     <name>PdfExportView</name>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="318"/>
-        <location filename="../app/PdfExportView.cpp" line="770"/>
-        <location filename="../app/PdfExportView.cpp" line="927"/>
+        <location filename="../app/PdfExportView.cpp" line="314"/>
+        <location filename="../app/PdfExportView.cpp" line="766"/>
+        <location filename="../app/PdfExportView.cpp" line="923"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="247"/>
+        <location filename="../app/PdfExportView.cpp" line="243"/>
         <source>Pages</source>
         <translation>Seiten</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="269"/>
+        <location filename="../app/PdfExportView.cpp" line="265"/>
         <source>All</source>
         <translation>Alle</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="270"/>
-        <location filename="../app/PdfExportView.cpp" line="394"/>
-        <location filename="../app/PdfExportView.cpp" line="431"/>
-        <location filename="../app/PdfExportView.cpp" line="451"/>
+        <location filename="../app/PdfExportView.cpp" line="266"/>
+        <location filename="../app/PdfExportView.cpp" line="390"/>
+        <location filename="../app/PdfExportView.cpp" line="427"/>
+        <location filename="../app/PdfExportView.cpp" line="447"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="273"/>
+        <location filename="../app/PdfExportView.cpp" line="269"/>
         <source>Include all output pages in the PDF.</source>
         <translation>Alle ausgegebenen Seiten in die PDF-Datei aufnehmen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="274"/>
+        <location filename="../app/PdfExportView.cpp" line="270"/>
         <source>Exclude all pages from the PDF.</source>
         <translation>Keine Seite in die PDF-Datei aufnehmen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="362"/>
+        <location filename="../app/PdfExportView.cpp" line="358"/>
         <source>PDF Compression</source>
         <translation>PDF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="413"/>
+        <location filename="../app/PdfExportView.cpp" line="409"/>
         <source>Full</source>
         <translation>Voll</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="414"/>
+        <location filename="../app/PdfExportView.cpp" line="410"/>
         <source>Half</source>
         <translation>Halb</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="415"/>
+        <location filename="../app/PdfExportView.cpp" line="411"/>
         <source>One third</source>
         <translation>Ein Drittel</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="418"/>
+        <location filename="../app/PdfExportView.cpp" line="414"/>
         <source>Resolution of the pictures of pages with split output, relative to the output resolution.  The text is always stored at full resolution.</source>
         <translation>Auflösung der Bilder von Seiten mit geteilter Ausgabe, bezogen auf die Ausgabeauflösung.  Der Text wird immer in voller Auflösung gespeichert.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="312"/>
+        <location filename="../app/PdfExportView.cpp" line="308"/>
         <source>Open the PDF after creating it</source>
         <translation>PDF-Datei nach dem Erstellen öffnen</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="485"/>
+        <location filename="../app/PdfExportView.cpp" line="481"/>
         <source>Text Recognition (OCR)</source>
         <translation>Texterkennung (OCR)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="389"/>
+        <location filename="../app/PdfExportView.cpp" line="385"/>
         <source>Color and Grayscale</source>
         <translation>Farbe und Graustufen</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="390"/>
+        <location filename="../app/PdfExportView.cpp" line="386"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation>Farb- und Graustufenseiten, auch Graustufenseiten mit Tontrennung, und die Bilder von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="404"/>
-        <location filename="../app/PdfExportView.cpp" line="440"/>
-        <location filename="../app/PdfExportView.cpp" line="459"/>
+        <location filename="../app/PdfExportView.cpp" line="400"/>
+        <location filename="../app/PdfExportView.cpp" line="436"/>
+        <location filename="../app/PdfExportView.cpp" line="455"/>
         <source>Method:</source>
         <translation>Verfahren:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="410"/>
-        <location filename="../app/PdfExportView.cpp" line="446"/>
+        <location filename="../app/PdfExportView.cpp" line="406"/>
+        <location filename="../app/PdfExportView.cpp" line="442"/>
         <source>Quality:</source>
         <translation>Qualität:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="182"/>
-        <location filename="../app/PdfExportView.cpp" line="420"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="183"/>
+        <location filename="../app/PdfExportView.cpp" line="416"/>
         <source>Resolution of split pages:</source>
         <translation>Auflösung geteilter Seiten:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="425"/>
+        <location filename="../app/PdfExportView.cpp" line="421"/>
         <source>Posterized Pages</source>
         <translation>Seiten mit Tontrennung</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="426"/>
+        <location filename="../app/PdfExportView.cpp" line="422"/>
         <source>Color pages that were posterized in the Output stage, and posterized pictures of pages with split output.  Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
         <translation>Farbseiten, die im Schritt „Ausgabe“ mit Tontrennung bearbeitet wurden, und Bilder mit Tontrennung auf Seiten mit geteilter Ausgabe.  Graustufenseiten mit Tontrennung lassen sich nicht von anderen Graustufenseiten unterscheiden; sie folgen „Farbe und Graustufen“.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="449"/>
+        <location filename="../app/PdfExportView.cpp" line="445"/>
         <source>Black and White</source>
         <translation>Schwarz-Weiß</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="449"/>
+        <location filename="../app/PdfExportView.cpp" line="445"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation>Schwarz-Weiß-Seiten und der Text von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="457"/>
+        <location filename="../app/PdfExportView.cpp" line="453"/>
         <source>All methods are lossless.  JBIG2 makes the smallest files.  CCITT G4 files are about a third larger, but can be shown by very old PDF programs, too.  Deflate and None make much larger files.</source>
         <translation>Alle Verfahren sind verlustfrei.  JBIG2 ergibt die kleinsten Dateien.  Dateien mit CCITT G4 sind etwa ein Drittel größer, können aber auch von sehr alten PDF-Programmen angezeigt werden.  Deflate und Keine ergeben viel größere Dateien.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="509"/>
+        <location filename="../app/PdfExportView.cpp" line="505"/>
         <source>Languages:</source>
         <translation>Sprachen:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="513"/>
+        <location filename="../app/PdfExportView.cpp" line="509"/>
         <source>Tick the languages of the text.  Several languages can be ticked.</source>
         <translation>Kreuzen Sie die Sprachen des Textes an.  Mehrere Sprachen sind möglich.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="520"/>
+        <location filename="../app/PdfExportView.cpp" line="516"/>
         <source>No language files were found.  Download them with &quot;More languages&quot;, or put *.traineddata files (from tessdata_best) into one of these folders:</source>
         <translation>Es wurden keine Sprachdateien gefunden.  Laden Sie sie über „Weitere Sprachen“ herunter, oder legen Sie *.traineddata-Dateien (aus tessdata_best) in einen dieser Ordner:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="495"/>
+        <location filename="../app/PdfExportView.cpp" line="491"/>
         <source>More languages ...</source>
         <translation>Weitere Sprachen ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="496"/>
+        <location filename="../app/PdfExportView.cpp" line="492"/>
         <source>Download more languages from the internet.</source>
         <translation>Weitere Sprachen aus dem Internet herunterladen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="533"/>
+        <location filename="../app/PdfExportView.cpp" line="529"/>
         <source>Automatic</source>
         <translation>Automatisch</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="534"/>
+        <location filename="../app/PdfExportView.cpp" line="530"/>
         <source>Single column</source>
         <translation>Eine Spalte</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="535"/>
+        <location filename="../app/PdfExportView.cpp" line="531"/>
         <source>Single block of text</source>
         <translation>Ein Textblock</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="291"/>
+        <location filename="../app/PdfExportView.cpp" line="287"/>
         <source>PDF file:</source>
         <translation>PDF-Datei:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="294"/>
+        <location filename="../app/PdfExportView.cpp" line="290"/>
         <source>Browse ...</source>
         <translation>Durchsuchen ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="885"/>
+        <location filename="../app/PdfExportView.cpp" line="881"/>
         <source>Cancelling ...</source>
         <translation>Wird abgebrochen ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="752"/>
+        <location filename="../app/PdfExportView.cpp" line="748"/>
         <source>Save PDF As</source>
         <translation>PDF-Datei speichern unter</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="271"/>
+        <location filename="../app/PdfExportView.cpp" line="267"/>
         <source>Move forward</source>
         <translation>Nach vorn</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="272"/>
+        <location filename="../app/PdfExportView.cpp" line="268"/>
         <source>Move back</source>
         <translation>Nach hinten</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="276"/>
+        <location filename="../app/PdfExportView.cpp" line="272"/>
         <source>Move the selected pages one place towards the start of the PDF.  Pages can also be moved with drag and drop.</source>
         <translation>Die ausgewählten Seiten um eine Stelle zum Anfang des PDFs verschieben.  Seiten lassen sich auch mit der Maus ziehen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="279"/>
+        <location filename="../app/PdfExportView.cpp" line="275"/>
         <source>Move the selected pages one place towards the end of the PDF.  Pages can also be moved with drag and drop.</source>
         <translation>Die ausgewählten Seiten um eine Stelle zum Ende des PDFs verschieben.  Seiten lassen sich auch mit der Maus ziehen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="384"/>
+        <location filename="../app/PdfExportView.cpp" line="380"/>
         <source>Higher values give better pictures and larger files.  Only used with JPEG and JPEG 2000.  With JPEG 2000, 100 is lossless; with JPEG, it&apos;s only nearly lossless.</source>
         <translation>Höhere Werte ergeben bessere Bilder und größere Dateien.  Wird nur bei JPEG und JPEG 2000 verwendet.  Bei JPEG 2000 ist 100 verlustfrei, bei JPEG nur nahezu verlustfrei.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="400"/>
+        <location filename="../app/PdfExportView.cpp" line="396"/>
         <source>JPEG makes small files and loses a little quality, mostly at the edges of text.  JPEG 2000 looks better at the same size, or makes smaller files at the same quality, but takes much longer to create, and some simple or old PDF programs can&apos;t show it.  Deflate is lossless, but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB.</source>
         <translation>JPEG ergibt kleine Dateien und verliert etwas Qualität, vor allem an Schriftkanten.  JPEG 2000 sieht bei gleicher Größe besser aus oder ergibt bei gleicher Qualität kleinere Dateien, braucht aber deutlich länger zum Erstellen, und manche einfachen oder älteren PDF-Programme können es nicht anzeigen.  Deflate ist verlustfrei, macht das PDF aber sehr groß: Eine Farbseite kann 10 bis 25 MB belegen, unkomprimiert (Keine) bis zu 45 MB.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="437"/>
+        <location filename="../app/PdfExportView.cpp" line="433"/>
         <source>Deflate is lossless and keeps the few colors exactly, which makes small and sharp files.  JPEG and JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file larger.  None is lossless, but large.</source>
         <translation>Deflate ist verlustfrei und behält die wenigen Farben exakt bei; das ergibt kleine und scharfe Dateien.  JPEG und JPEG 2000 wandeln die Seite zuerst in volle Farbe um; das verwischt die Farbflächen und macht die Datei oft größer.  Keine ist verlustfrei, aber groß.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="488"/>
+        <location filename="../app/PdfExportView.cpp" line="484"/>
         <source>Recognize text</source>
         <translation>Text erkennen</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="491"/>
+        <location filename="../app/PdfExportView.cpp" line="487"/>
         <source>Adds an invisible text layer, so the text of the PDF can be searched, selected and copied.  Text recognition takes a few seconds per page.</source>
         <translation>Fügt eine unsichtbare Textebene hinzu, sodass sich der Text der PDF-Datei durchsuchen, markieren und kopieren lässt.  Die Texterkennung dauert einige Sekunden pro Seite.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="537"/>
+        <location filename="../app/PdfExportView.cpp" line="533"/>
         <source>How the text is arranged on the pages.  This decides the order in which the text is recognized, e.g. for searching and copying; the look of the PDF doesn&apos;t change.  &quot;Automatic&quot; detects columns, pictures and captions and is usually right.  &quot;Single column&quot; helps if copied text comes out in the wrong order, e.g. with indented lines or tables.  &quot;Single block of text&quot; suits pages with only one short text, such as a label or a note.</source>
         <translation>Wie der Text auf den Seiten angeordnet ist.  Davon hängt ab, in welcher Reihenfolge der Text erkannt wird, zum Beispiel beim Suchen oder Kopieren; das Aussehen des PDFs ändert sich nicht.  „Automatisch“ erkennt Spalten, Bilder und Bildunterschriften und ist meist richtig.  „Eine Spalte“ hilft, wenn kopierter Text in falscher Reihenfolge herauskommt, etwa bei Einrückungen oder Tabellen.  „Ein Textblock“ passt für Seiten mit nur einem kurzen Text, zum Beispiel einem Etikett oder einer Notiz.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="544"/>
+        <location filename="../app/PdfExportView.cpp" line="540"/>
         <source>Text layout:</source>
         <translation>Textanordnung:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="752"/>
+        <location filename="../app/PdfExportView.cpp" line="748"/>
         <source>PDF files (*.pdf)</source>
         <translation>PDF-Dateien (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="774"/>
+        <location filename="../app/PdfExportView.cpp" line="770"/>
         <source>Please enter the file name of the PDF.</source>
         <translation>Bitte geben Sie den Dateinamen der PDF-Datei ein.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="782"/>
+        <location filename="../app/PdfExportView.cpp" line="778"/>
         <source>Please enter the complete path of the PDF, including the folder.</source>
         <translation>Bitte geben Sie den vollständigen Pfad der PDF-Datei einschließlich des Ordners ein.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="789"/>
+        <location filename="../app/PdfExportView.cpp" line="785"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="793"/>
+        <location filename="../app/PdfExportView.cpp" line="789"/>
         <source>%1 is a folder.</source>
         <translation>%1 ist ein Ordner.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="803"/>
+        <location filename="../app/PdfExportView.cpp" line="799"/>
         <source>The file %1 already exists.
 Do you want to replace it?</source>
         <translation>Die Datei %1 existiert bereits.
 Möchten Sie sie ersetzen?</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="818"/>
+        <location filename="../app/PdfExportView.cpp" line="814"/>
         <source>Please tick the pages to include in the PDF.</source>
         <translation>Bitte kreuzen Sie die Seiten an, die in die PDF-Datei aufgenommen werden sollen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="836"/>
+        <location filename="../app/PdfExportView.cpp" line="832"/>
         <source>Please tick at least one language for the text recognition, or turn it off.</source>
         <translation>Bitte kreuzen Sie mindestens eine Sprache für die Texterkennung an, oder schalten Sie sie aus.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="843"/>
+        <location filename="../app/PdfExportView.cpp" line="839"/>
         <source>Copying language files ...</source>
         <translation>Sprachdateien werden kopiert ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="851"/>
+        <location filename="../app/PdfExportView.cpp" line="847"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation>Die Dateien der gewählten Sprachen liegen in verschiedenen Ordnern und konnten nicht in einen gemeinsamen Ordner kopiert werden, den die Texterkennung braucht.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="874"/>
+        <location filename="../app/PdfExportView.cpp" line="870"/>
         <source>Recognizing the text and creating the PDF ...</source>
         <translation>Text wird erkannt und PDF-Datei wird erstellt ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="875"/>
+        <location filename="../app/PdfExportView.cpp" line="871"/>
         <source>Creating the PDF ...</source>
         <translation>PDF-Datei wird erstellt ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="910"/>
+        <location filename="../app/PdfExportView.cpp" line="906"/>
         <source>The PDF was created: %1 (%2)</source>
         <translation>Die PDF-Datei wurde erstellt: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="916"/>
+        <location filename="../app/PdfExportView.cpp" line="912"/>
         <source>Cancelled.  No PDF was written.</source>
         <translation>Abgebrochen.  Es wurde keine PDF-Datei geschrieben.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="919"/>
-        <location filename="../app/PdfExportView.cpp" line="928"/>
+        <location filename="../app/PdfExportView.cpp" line="915"/>
+        <location filename="../app/PdfExportView.cpp" line="924"/>
         <source>The PDF could not be created.</source>
         <translation>Die PDF-Datei konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="925"/>
+        <location filename="../app/PdfExportView.cpp" line="921"/>
         <source>... and %1 more.</source>
         <translation>... und %1 weitere.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="941"/>
+        <location filename="../app/PdfExportView.cpp" line="937"/>
         <source>%1 of %2 output pages selected</source>
         <translation>%1 von %2 ausgegebenen Seiten ausgewählt</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="945"/>
+        <location filename="../app/PdfExportView.cpp" line="941"/>
         <source>(%1 pages not output yet)</source>
         <translation>(%1 Seiten noch nicht ausgegeben)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1069"/>
+        <location filename="../app/PdfExportView.cpp" line="1065"/>
         <source>uncompressed</source>
         <translation>unkomprimiert</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1074"/>
+        <location filename="../app/PdfExportView.cpp" line="1070"/>
         <source>Not output yet</source>
         <translation>Noch nicht ausgegeben</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1076"/>
+        <location filename="../app/PdfExportView.cpp" line="1072"/>
         <source>Black and white (%1)</source>
         <translation>Schwarz-Weiß (%1)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1078"/>
+        <location filename="../app/PdfExportView.cpp" line="1074"/>
         <source>Split output (picture %1, text %2)</source>
         <translation>Geteilte Ausgabe (Bild %1, Text %2)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1082"/>
+        <location filename="../app/PdfExportView.cpp" line="1078"/>
         <source>Color or grayscale (%1)</source>
         <translation>Farbe oder Graustufen (%1)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1084"/>
+        <location filename="../app/PdfExportView.cpp" line="1080"/>
         <source>Posterized (%1)</source>
         <translation>Tontrennung (%1)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="316"/>
+        <location filename="../app/PdfExportView.cpp" line="312"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
@@ -2874,17 +2905,17 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <translation>in</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="802"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="798"/>
         <source>Canceling Multi-Page Selection</source>
         <translation>Aufhebung der Mehrseitenauswahl</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="803"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="799"/>
         <source>%1 pages selection are going to be canceled. Continue?</source>
         <translation>Die Auswahl von %1 Seiten wird abgebrochen. Fortfahren?</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="807"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="803"/>
         <source>Don&apos;t show this message again.</source>
         <translation>Diese Meldung nicht mehr anzeigen.</translation>
     </message>
@@ -2907,17 +2938,17 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="68"/>
+        <location filename="../app/RelinkingDialog.cpp" line="67"/>
         <source>Substitution File for %1</source>
         <translation>Ersetzungsdatei für %1</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="73"/>
+        <location filename="../app/RelinkingDialog.cpp" line="72"/>
         <source>Substitution Folder for %1</source>
         <translation>Ersatzordner für %1</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="97"/>
+        <location filename="../app/RelinkingDialog.cpp" line="96"/>
         <source>This change would merge several files into one.</source>
         <translation>Diese Änderung würde mehrere Dateien zu einer einzigen zusammenführen.</translation>
     </message>
@@ -3425,7 +3456,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="1541"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="1537"/>
         <source>%1 (page %2)</source>
         <translation>%1 (Seite %2)</translation>
     </message>
@@ -3484,12 +3515,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>ZoneContextMenuInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="189"/>
+        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="188"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="193"/>
+        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="192"/>
         <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
@@ -3497,32 +3528,32 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>ZoneCreationInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="306"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="305"/>
         <source>Rectangle selection: move to the opposite corner and click to finish.  ESC to cancel.</source>
         <translation>Rechteck-Auswahl: zur gegenüberliegenden Ecke fahren und klicken, um abzuschließen.  ESC für Abbruch.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="310"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="309"/>
         <source>Lasso selection: click here to close the zone.  ESC to cancel.</source>
         <translation>Lasso-Auswahl: hier klicken, um die Zone zu schließen.  ESC für Abbruch.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="312"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="311"/>
         <source>Lasso selection: hold the left mouse button and draw around the area. The zone closes when you reach the starting point.  ESC to cancel.</source>
         <translation>Lasso-Auswahl: mit gedrückter linker Maustaste um den Bereich zeichnen. Die Zone schließt sich, sobald Sie den Startpunkt erreichen.  ESC für Abbruch.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="319"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="318"/>
         <source>Polygon selection: click here to close the zone.  ESC to cancel.</source>
         <translation>Polygon-Auswahl: hier klicken, um die Zone zu schließen.  ESC für Abbruch.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="321"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="320"/>
         <source>Polygon selection: click to add a corner, click the first corner to close the zone.  ESC to cancel.</source>
         <translation>Polygon-Auswahl: klicken, um eine Ecke hinzuzufügen; auf die erste Ecke klicken, um die Zone zu schließen.  ESC für Abbruch.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="325"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="324"/>
         <source>Polygon selection: click to add corners. Clicking the last corner again removes it.  X switches to lasso.  ESC to cancel.</source>
         <translation>Polygon-Auswahl: klicken, um Ecken hinzuzufügen. Ein erneuter Klick auf die letzte Ecke entfernt sie.  X wechselt zum Lasso.  ESC für Abbruch.</translation>
     </message>
@@ -3530,32 +3561,32 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>ZoneDefaultInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="20"/>
+        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="21"/>
         <source>Drag the vertex. Hold Ctrl to make the vertex angle right. Press D to delete the vertex.</source>
         <translation>Ziehen Sie den Scheitelpunkt. Halten Sie die Strg-Taste gedrückt, um den Scheitelpunktwinkel nach rechts zu verschieben. Drücken Sie D, um den Scheitelpunkt zu löschen.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="21"/>
+        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="22"/>
         <source>Click to create a new vertex here.</source>
         <translation>Klicken Sie hier, um einen neuen Scheitelpunkt zu erstellen.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="23"/>
+        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="24"/>
         <source>Right click to edit zone properties. Hold Shift to drag the zone or Shift+Ctrl to copy. Press Del to delete this zone.</source>
         <translation>Klicken Sie mit der rechten Maustaste, um die Zoneneigenschaften zu bearbeiten. Halten Sie die Umschalttaste gedrückt, um die Zone zu ziehen, oder drücken Sie Umschalt+Strg, um sie zu kopieren. Drücken Sie Entf, um diese Zone zu löschen.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="25"/>
+        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="26"/>
         <source>Hold left mouse button to drag the zone.</source>
         <translation>Halten Sie die linke Maustaste gedrückt, um den Bereich zu ziehen.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="27"/>
+        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="28"/>
         <source>Hold left mouse button to copy and drag the zone.</source>
         <translation>Halten Sie die linke Maustaste zum Kopieren gedrückt und ziehen Sie den Bereich.</translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="30"/>
+        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="31"/>
         <source>Click to start a new zone (lasso selection: hold the left mouse button and draw). Ctrl+Alt+Click copies the latest created zone. Z, X, C or the button at the bottom right switch the selection mode.</source>
         <translation>Klicken, um eine neue Zone zu beginnen (Lasso-Auswahl: mit gedrückter linker Maustaste zeichnen). Strg+Alt+Klick kopiert die zuletzt erstellte Zone. Z, X, C oder der Knopf unten rechts wechseln den Auswahlmodus.</translation>
     </message>
@@ -3649,7 +3680,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <name>deskew::OptionsWidget</name>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="73"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="140"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
         <source>Content</source>
         <translation>Inhalt</translation>
     </message>
@@ -3728,7 +3759,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="74"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
         <source>Top page edge</source>
         <translation>Obere Seitenkante</translation>
     </message>
@@ -3904,7 +3935,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <name>output::OptionsWidget</name>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="47"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="208"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="209"/>
         <source>Black and White</source>
         <translation>Schwarz-Weiß</translation>
     </message>
@@ -3994,109 +4025,109 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="130"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="131"/>
         <source>TIFF Compression</source>
         <translation>TIFF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="133"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="134"/>
         <source>Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed separately, so this doesn&apos;t change it.  After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing.  Other projects keep their files until their pages are processed again.</source>
         <translation>Komprimierung der TIFF-Dateien im Ausgabeordner.  Gilt für alle Projekte.  Das PDF wird eigenständig komprimiert und ändert sich dadurch nicht.  Nach einer Änderung wird die Ausgabe dieses Projekts neu erzeugt: die aktuelle Seite sofort, die übrigen Seiten bei der nächsten Stapelverarbeitung.  Andere Projekte behalten ihre Dateien, bis ihre Seiten erneut verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="157"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="158"/>
         <source>LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program and its PDF export can.</source>
         <translation>LZMA ergibt die kleinsten verlustfreien Dateien, ist aber langsam und wird nur von wenigen anderen Programmen gelesen; dieses Programm und sein PDF-Export können es.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="162"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="163"/>
         <source>Color and Grayscale</source>
         <translation>Farbe und Graustufen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="163"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="164"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation>Farb- und Graustufenseiten, auch Graustufenseiten mit Tontrennung, und die Bilder von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="167"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="199"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="210"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="168"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="200"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="211"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="174"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="175"/>
         <source>All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.</source>
         <translation>Alle Verfahren außer JPEG sind verlustfrei; Deflate ergibt meist kleinere Dateien als LZW.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="176"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="177"/>
         <source>JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.</source>
         <translation>JPEG ergibt viel kleinere Dateien, verliert aber Qualität: Das PDF komprimiert die Bilder ein zweites Mal, und auf gemischten Seiten ohne geteilte Ausgabe wird der Text unscharf.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="190"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="191"/>
         <source>Quality:</source>
         <translation>Qualität:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="193"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="194"/>
         <source>Posterized Pages</source>
         <translation>Seiten mit Tontrennung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="194"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="195"/>
         <source>Color pages that were posterized, and posterized pictures of pages with split output.  Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
         <translation>Farbseiten mit Tontrennung und Bilder mit Tontrennung auf Seiten mit geteilter Ausgabe.  Graustufenseiten mit Tontrennung lassen sich nicht von anderen Graustufenseiten unterscheiden; sie folgen „Farbe und Graustufen“.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="204"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="205"/>
         <source>All methods are lossless.</source>
         <translation>Alle Verfahren sind verlustfrei.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="208"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="209"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation>Schwarz-Weiß-Seiten und der Text von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="216"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="217"/>
         <source>All methods are lossless; CCITT G4 usually gives the smallest files.</source>
         <translation>Alle Verfahren sind verlustfrei; CCITT G4 ergibt meist die kleinsten Dateien.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1269"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1324"/>
         <source>Apply Content</source>
         <translation>Inhalt anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="189"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="190"/>
         <source>Higher values give better pictures and larger files.  Only used with JPEG compression.</source>
         <translation>Höhere Werte ergeben bessere Bilder und größere Dateien.  Wird nur bei JPEG-Komprimierung verwendet.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="465"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="466"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="479"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="480"/>
         <source>Apply Output Resolution</source>
         <translation>Ausgabeauflösung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="546"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="547"/>
         <source>Apply Splitting</source>
         <translation>Aufteilung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="667"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="666"/>
         <source>Apply Dewarping</source>
         <translation>Entzerrung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1724"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1837"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="97"/>
         <source>Off</source>
         <translation>Deaktiviert</translation>
@@ -4107,7 +4138,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Flecken entfernen anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1772"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1885"/>
         <source>Manual</source>
         <translation>Manuell</translation>
     </message>
@@ -4118,7 +4149,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="465"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="466"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -4128,12 +4159,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Modus</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="574"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="687"/>
         <source>Fill offcut</source>
         <translation>Reststück füllen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="594"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="707"/>
         <source>Fill margins</source>
         <translation>Ränder füllen</translation>
     </message>
@@ -4153,55 +4184,55 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Allgemein</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="581"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="694"/>
         <source>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</source>
         <translation>Das gesamte Rechteck der Ausgabeseite außerhalb des Seiteninhalts mit der Hintergrundfarbe füllen, statt der Form des Reststücks zu folgen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="584"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="697"/>
         <source>Fill outside page box</source>
         <translation>Außerhalb der Seite füllen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="719"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="832"/>
         <source>Savitzky-Golay smoothing</source>
         <translation>Savitzky-Golay-Glättung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="729"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="842"/>
         <source>Morphological smoothing</source>
         <translation>Morphologische Glättung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="553"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="666"/>
         <source>Filling</source>
         <translation>Füllung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="608"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="721"/>
         <source>Color:</source>
         <translation>Farbe:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="655"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="768"/>
         <source>Threshold</source>
         <translation>Schwellwert</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="667"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="178"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="205"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="218"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="780"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="179"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="219"/>
         <source>Method:</source>
         <translation>Verfahren:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="756"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="869"/>
         <source>Color Operations</source>
         <translation>Farboperationen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="418"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="531"/>
         <source>Wiener denoiser</source>
         <translation>Rauschfilter (Wiener)</translation>
     </message>
@@ -4241,225 +4272,230 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Auch in Bildzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="389"/>
-        <source>Denoising</source>
-        <translation>Entrauschen</translation>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="502"/>
+        <source>Also takes the paper to white and removes a color cast such as yellowing.  Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
+        <translation>Macht das Papier außerdem weiß und entfernt einen Farbstich wie Vergilbung. Jeder Farbkanal wird einzeln ausgeglichen, deshalb verschieben sich auch die Farben von Bildern.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="489"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="505"/>
+        <source>Make paper white</source>
+        <translation>Papier weiß machen</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="602"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation>Die Größe der Pixelumgebung, die berücksichtigt werden soll.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="571"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="684"/>
         <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</source>
         <translation>Füllt das Reststück, also was beim Import abgeschnitten oder in „Seiten teilen“ von der Trennlinie abgetrennt wurde, etwa einen Teil der Gegenseite, mit der Füllfarbe. Sonst bleibt es sichtbar, wo die Seite hineinreicht.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="591"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="704"/>
         <source>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</source>
         <translation>Füllt die Ränder, also alles außerhalb des Inhaltsbereichs, mit der Füllfarbe, sodass Schmutz und Kanten dort verschwinden.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="605"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="615"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="718"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="728"/>
         <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
         <translation>Die Farbe der gefüllten Flächen: die auf der Seite gefundene Hintergrundfarbe, Weiß oder Schwarz. Im Farbmodus Gemischt ergibt „Hintergrund“ Weiß.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="664"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="674"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="777"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="787"/>
         <source>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation>Wie die Seite in Schwarz-Weiß umgewandelt wird. Otsu verwendet einen Schwellwert für die ganze Seite; die anderen Verfahren passen ihn jedem Bereich der Seite an, was bei ungleichmäßiger Beleuchtung hilft.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="716"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="829"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation>Glättet das Graustufenbild vor der Umwandlung in Schwarz-Weiß, für glattere Buchstabenkanten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="726"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="839"/>
         <source>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</source>
         <translation>Glättet die Kanten des Schwarz-Weiß-Ergebnisses: Einzelne überstehende oder fehlende Pixel an den Rändern der Buchstaben werden entfernt oder ergänzt.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="794"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="907"/>
         <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation>Aufteilen des Bildes in Farbsegmente und Einfärben der Schwarz-Weiß-Maske.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="800"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="913"/>
         <source>Color segmentation</source>
         <translation>Farbsegmentierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="873"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="986"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation>Einstellung des Rotanteils. Ein negativer Wert bedeutet, dass der Segmentierer empfindlicher auf Rot reagiert, ein positiver Wert bedeutet das Gegenteil.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="892"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1005"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation>Einstellung der Grünkomponente. Ein negativer Wert bedeutet, dass der Segmentierer empfindlicher auf Grün reagiert, ein positiver Wert bedeutet das Gegenteil.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="911"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1024"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation>Einstellung des Blauanteils. Ein negativer Wert bedeutet, dass der Segmentierer empfindlicher auf Blau reagiert, ein positiver Wert bedeutet das Gegenteil.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="963"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1076"/>
         <source>Reduce noise:</source>
         <translation>Rauschreduzierung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1010"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1123"/>
         <source>Reduce the number of colors of the output image by grouping similar colors.</source>
         <translation>Farben des Ausgabebildes reduzieren, indem ähnliche Farben gruppiert werden.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1016"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1129"/>
         <source>Posterize</source>
         <translation>Tontrennung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1059"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1172"/>
         <source>Level:</source>
         <translation>Stufe:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1066"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1179"/>
         <source>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</source>
         <translation>Ein niedriger Wert bedeutet eine geringere Anzahl von Farben im Ausgabebild, Werte zwischen 2 und 6 garantieren ein indiziertes Bild.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1127"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1240"/>
         <source>Normalize</source>
         <translation>Normalisierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1170"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1283"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation>Dunkle und helle Grauverläufe schwarz bzw. weiß machen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1176"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1289"/>
         <source>Force b&amp;&amp;w</source>
         <translation>S/W erzwingen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1236"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1349"/>
         <source>Picture Zones</source>
         <translation>Bildzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1245"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1358"/>
         <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation>Nur im Farbmodus Gemischt: wie Bilder gefunden werden, gar nicht, als Maske entlang der Bildumrisse oder als Rechtecke. Bilder bleiben farbig bzw. grau, der Rest wird schwarz-weiß.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1282"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1395"/>
         <source>Sensitivity:</source>
         <translation>Empfindlichkeit:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1323"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1436"/>
         <source>Also finds pictures with weak contrast; text may then be taken for a picture, too.</source>
         <translation>Findet auch Bilder mit schwachem Kontrast; dabei kann auch Text für ein Bild gehalten werden.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1326"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1439"/>
         <source>Higher search sensitivity</source>
         <translation>Höhere Suchempfindlichkeit</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1375"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1488"/>
         <source>Applies the mode and all settings of this panel to other pages.</source>
         <translation>Überträgt den Modus und alle Einstellungen dieser Gruppe auf andere Seiten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1419"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1532"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation>Nur im Farbmodus Gemischt: speichert die Seite zusätzlich als zwei Dateien, den Text im Ordner „foreground“ und die Bilder im Ordner „background“ neben den Ausgabedateien.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1434"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1547"/>
         <source>The text is saved in black and white.</source>
         <translation>Der Text wird schwarz-weiß gespeichert.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1474"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1587"/>
         <source>The text keeps its colors.</source>
         <translation>Der Text behält seine Farben.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1597"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1710"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
         <translation>Entfernt kleine Flecken wie Staub und Schmutz aus dem Schwarz-Weiß-Ergebnis. Der Regler bestimmt, wie stark.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1721"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1834"/>
         <source>No dewarping.</source>
         <translation>Keine Entzerrung.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1737"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1850"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation>Findet die Krümmung der Textzeilen automatisch.  Experimentell.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1740"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1853"/>
         <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1753"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1866"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation>Findet die Krümmung anhand der oberen und unteren Seitenkante vor dunklem Hintergrund.  Experimentell.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1756"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1869"/>
         <source>Marginal</source>
         <translation>Randbereich</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1769"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1882"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation>Sie legen die Kurven selbst im Reiter „Entzerrung“ fest.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1787"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1900"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation>Richtet die Seite nach dem Entzerren noch einmal gerade.  Nur bei Manuell und Randbereich.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1790"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="950"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1903"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="957"/>
         <source>Post deskew</source>
         <translation>Nachträglich geraderichten</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1797"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1910"/>
         <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
         <translation>Wie stark die Seite beim Glätten als vom Betrachter weg gewölbt angenommen wird; das bestimmt vor allem, wie weit die Schrift am Bund gedehnt wird.  Wird nur beim Entzerren verwendet.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1815"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1928"/>
         <source>Depth perception:</source>
         <translation>Tiefenwahrnehmung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1868"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1981"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation>Überträgt den Entzerrungsmodus, „Nachträglich geraderichten“ und die Tiefenwahrnehmung dieser Seite auf andere Seiten.</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="102"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="194"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1378"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1530"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1682"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1871"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1491"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1643"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1795"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1984"/>
         <source>Apply to ...</source>
         <translation>Anwenden auf ...</translation>
     </message>
@@ -4489,92 +4525,123 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Farbmodus</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="415"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="528"/>
         <source>Reduces the noise of the image before the other processing.</source>
         <translation>Mindert das Rauschen im Bild vor der weiteren Verarbeitung.</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="456"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="569"/>
         <source>Strength:</source>
         <translation>Stärke:</translation>
     </message>
     <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="389"/>
+        <source>Enhancement</source>
+        <translation>Bildverbesserung</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="415"/>
+        <source>Evens out the paper background (stains, yellowing, shadows) before the other processing. Pictures are flattened as well.</source>
+        <translation>Gleicht den Papierhintergrund (Flecken, Vergilbung, Schatten) vor der weiteren Verarbeitung aus. Bilder werden dabei ebenfalls abgeflacht.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="418"/>
+        <source>Even out background</source>
+        <translation>Hintergrund angleichen</translation>
+    </message>
+    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="463"/>
+        <source>How far the background is evened out, from 0.01 to 1.</source>
+        <translation>Wie stark der Hintergrund ausgeglichen wird, von 0,01 bis 1.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="479"/>
+        <source>Radius:</source>
+        <translation>Radius:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="489"/>
+        <source>The size of the area used to estimate the background. It should be clearly larger than the letters.</source>
+        <translation>Die Größe des Bereichs, aus dem der Hintergrund geschätzt wird. Er sollte deutlich größer als die Buchstaben sein.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="576"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
         <translation>Die Stärke der Rauschminderung, von 0,01 bis 1.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="479"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="592"/>
         <source>Window size:</source>
         <translation>Fenstergröße:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="843"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="956"/>
         <source>Red</source>
         <translation>Rot</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="853"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="966"/>
         <source>Green</source>
         <translation>Grün</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="863"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="976"/>
         <source>Blue</source>
         <translation>Blau</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1406"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1519"/>
         <source>Splitting</source>
         <translation>Aufteilung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1422"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1535"/>
         <source>Split output</source>
         <translation>Geteilte Ausgabe</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1437"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1550"/>
         <source>B&amp;&amp;W foreground</source>
         <translation>S/W-Vordergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1462"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1575"/>
         <source>Save the original background of the foreground layer.</source>
         <translation>Ursprünglichen Hintergrund der Vordergrundebene speichern</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1465"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1578"/>
         <source>Original background</source>
         <translation>Original-Hintergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1477"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1590"/>
         <source>Color foreground</source>
         <translation>Farbiger Vordergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1527"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1640"/>
         <source>Applies the splitting settings of this page to other pages.</source>
         <translation>Überträgt die Einstellungen zur Aufteilung dieser Seite auf andere Seiten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1555"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1668"/>
         <source>Despeckling</source>
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1600"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1713"/>
         <source>Despeckle</source>
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1679"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1792"/>
         <source>Applies the despeckling of this page to other pages.</source>
         <translation>Überträgt das Entfernen von Flecken dieser Seite auf andere Seiten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1707"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1820"/>
         <source>Dewarping</source>
         <translation>Entzerren</translation>
     </message>
@@ -4844,47 +4911,47 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>page_layout::ImageView</name>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="61"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="60"/>
         <source>Resize margins by dragging any of the solid lines.</source>
         <translation>Ändern Sie die Größe der Ränder, indem Sie an einer der durchgezogenen Linien ziehen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="138"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="137"/>
         <source>Hold left mouse button to drag the page content.</source>
         <translation>Halten Sie die linke Maustaste gedrückt, um den Seiteninhalt zu ziehen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="139"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="138"/>
         <source>Release left mouse button to finish dragging.</source>
         <translation>Lassen Sie die linke Maustaste los, um das Ziehen zu beenden.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="652"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="651"/>
         <source>Add a Horizontal Guide</source>
         <translation>Horizontale Hilfslinie hinzufügen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="653"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="652"/>
         <source>Add a Vertical Guide</source>
         <translation>Vertikale Hilfslinie hinzufügen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="654"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="653"/>
         <source>Remove All the Guides</source>
         <translation>Alle Hilfslinien entfernen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="655"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="654"/>
         <source>Remove This Guide</source>
         <translation>Diese Hilfslinie entfernen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="657"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="656"/>
         <source>Show Hard Margins Rectangle</source>
         <translation>Rechteck mit harten Rändern anzeigen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="804"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="803"/>
         <source>Drag the guide.</source>
         <translation>Hilfslinie ziehen</translation>
     </message>
@@ -4892,7 +4959,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="330"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="331"/>
         <source>Apply Margins</source>
         <translation>Ränder anwenden</translation>
     </message>
@@ -4907,17 +4974,17 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>keine angeglichenen Seiten</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="665"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="666"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation>DPI ist zu groß und höchstwahrscheinlich falsch.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="669"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="670"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie keine akzeptablen Resultate erhalten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="673"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="674"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation>Ein extrem niedriger DPI-Wert. Er entspräche bei dieser Pixelgröße einem sehr großen Papierformat.</translation>
     </message>
@@ -5129,7 +5196,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>page_split::ImageView</name>
     <message>
-        <location filename="../core/filters/page_split/ImageView.cpp" line="60"/>
+        <location filename="../core/filters/page_split/ImageView.cpp" line="59"/>
         <source>Drag the line or the handles.</source>
         <translation>Ziehen Sie die Linie oder die Griffe.</translation>
     </message>

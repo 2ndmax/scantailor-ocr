@@ -402,6 +402,14 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   fillingColorBox->setCurrentIndex(fillingColorBox->findData(colorCommonOptions.getFillingColor()));
 
   // The strength shown while the denoiser is off is only kept for turning it on.
+  const bool subtractBgOn = colorCommonOptions.subtractBackgroundCoef() > 0.0;
+  if (subtractBgOn) {
+    m_subtractBgCoefWhenOn = colorCommonOptions.subtractBackgroundCoef();
+  }
+  subtractBgCB->setChecked(subtractBgOn);
+  subtractBgCoef->setValue(m_subtractBgCoefWhenOn);
+  subtractBgRadius->setValue(colorCommonOptions.subtractBackgroundRadius());
+  subtractBgWhiteCB->setChecked(colorCommonOptions.subtractBackgroundWhite());
   const bool wienerOn = colorCommonOptions.wienerCoef() > 0.0;
   if (wienerOn) {
     m_wienerCoefWhenOn = colorCommonOptions.wienerCoef();
@@ -474,6 +482,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   updateEqualizeIlluminationDisplay();
   splittingToggled(splittingCB->isChecked());
   despeckleToggled(despeckleCB->isChecked());
+  subtractBgOptionsWidget->setEnabled(subtractBgOn);
   wienerOptionsWidget->setEnabled(wienerOn);
   dewarpingModeChanged();
 }
@@ -517,6 +526,7 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(dpiSelector->lineEdit(), &QLineEdit::editingFinished, this, &DefaultParamsDialog::dpiSelectionChanged);
   CONNECT(fillOffcutCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOffcutToggled);
   CONNECT(fillOutsidePageBoxCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOutsidePageBoxToggled);
+  CONNECT(subtractBgCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::subtractBgToggled);
   CONNECT(wienerCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::wienerToggled);
   CONNECT(m_dewarpingModeGroup, &QButtonGroup::idClicked, this, &DefaultParamsDialog::dewarpingModeChanged);
   CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this,
@@ -823,6 +833,9 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   colorCommonOptions.setFillMargins(fillMarginsCB->isChecked());
   colorCommonOptions.setFillOffcut(fillOffcutCB->isChecked());
   colorCommonOptions.setFillOutsidePageBox(fillOutsidePageBoxCB->isChecked());
+  colorCommonOptions.setSubtractBackgroundCoef(subtractBgCB->isChecked() ? subtractBgCoef->value() : 0.0);
+  colorCommonOptions.setSubtractBackgroundRadius(subtractBgRadius->value());
+  colorCommonOptions.setSubtractBackgroundWhite(subtractBgWhiteCB->isChecked());
   colorCommonOptions.setWienerCoef(wienerCB->isChecked() ? wienerCoef->value() : 0.0);
   colorCommonOptions.setWienerWindowSize(wienerWindowSize->value());
   colorCommonOptions.setNormalizeIllumination(m_colorNormalizeIllumination);
@@ -1068,6 +1081,10 @@ void DefaultParamsDialog::fillOutsidePageBoxToggled(const bool checked) {
   if (checked) {
     fillOffcutCB->setChecked(false);
   }
+}
+
+void DefaultParamsDialog::subtractBgToggled(const bool checked) {
+  subtractBgOptionsWidget->setEnabled(checked);
 }
 
 void DefaultParamsDialog::wienerToggled(const bool checked) {

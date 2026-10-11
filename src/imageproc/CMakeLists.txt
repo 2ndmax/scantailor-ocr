@@ -26,6 +26,7 @@ set(sources
     HoughLineDetector.cpp HoughLineDetector.h
     GaussBlur.cpp GaussBlur.h
     WienerFilter.cpp WienerFilter.h
+    SubtractBackground.cpp SubtractBackground.h
     Sobel.h
     MorphGradientDetect.cpp MorphGradientDetect.h
     PolynomialLine.cpp PolynomialLine.h

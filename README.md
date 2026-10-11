@@ -295,7 +295,7 @@ from working:
   store the check box "Match size with other pages" for the current page. The tooltip of
   **Apply to ...** says what is applied. The nine alignment buttons are centered, also in the
   Default Parameters window.
-* *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Denoising",
+* *Output*: the panel **Mode** has the headings "General" (formerly "Options"), "Enhancement",
   "Filling", "Threshold", "Color Operations" and "Picture Zones" (formerly "Picture Shape", like
   the tab in which picture zones are edited). The collapsed state saved for the old nested boxes
   is no longer used. "Fill offcut", "Fill outside page box" and "Fill margins" are under
@@ -383,9 +383,10 @@ from working:
 * *Create PDF*: the options have the same margins as in the other steps, and **More languages
   ...** sits next to **Recognize text**, as **Change ...** next to **Watch folder**; it can be
   used while text recognition is off.
-* *Output*: **Wiener denoiser** has its own heading, "Denoising", right after "General" (also in
-  the default parameters dialog), instead of being under "Color Operations": it reduces the
-  noise of the image before all other processing, in every color mode.
+* *Output*: **Wiener denoiser** has its own heading, "Enhancement" (formerly "Denoising"), right
+  after "General" (also in the default parameters dialog), instead of being under "Color
+  Operations": it reduces the noise of the image before all other processing, in every color
+  mode.
 * One alignment in all options panels (also in the default parameters dialog): check boxes,
   option buttons and "label: field" lines start at the left edge of the panel. What depends on
   a check box is indented below it, one step further for each level (e.g. the modes of
@@ -534,6 +535,29 @@ from working:
   a failed write no longer leaves a damaged file behind.
 * Malformed values in project files (e.g. a missing binarisation threshold) no longer turn
   into settings that black out a page.
+
+### Adopted from ScanTailor Experimental
+
+Ideas and fixes taken over from
+[ScanTailor Experimental](https://github.com/ImageProcessing-ElectronicPublications/scantailor-experimental),
+a separate fork of the original ScanTailor. Its code is structured differently, so they were
+reimplemented rather than copied.
+
+* **Large images load again.** Qt 6 refuses to decode images that need more than 256 MB, so
+  large color JPEG or PNG scans (e.g. 11000 × 8500 pixels) could not be loaded. The limit is
+  lifted. TIFF and JPEG 2000 were not affected.
+* **New filter "Even out background"** (in ScanTailor Experimental: "Subtract background") under
+  *Output* → "Enhancement" (also in the default parameters dialog). It evens out the paper
+  background (stains, uneven yellowing, shadows near the spine) before the other processing:
+  the background is estimated with a median filter and raised to the brightness of its brightest
+  part. *Strength* (0.01–1) and *Radius* (5–300 px) can be set; the radius should be clearly
+  larger than the letters. Pictures are flattened as well. Unlike in ScanTailor Experimental,
+  the median is computed on a reduced image, which keeps large radii fast, and the paper is not
+  darkened to a middle gray. The values are stored in the project only when the filter is on.
+  * New, not in ScanTailor Experimental: **"Make paper white"**. The filter normally works on
+    the brightness only, so evenly yellowed paper stays yellow in color output. With this check
+    box each color channel is divided by its own background, which takes the paper to white and
+    removes the color cast; dark text stays dark, the colors of pictures shift as well.
 
 ### Correctness and robustness
 

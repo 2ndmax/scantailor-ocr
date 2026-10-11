@@ -37,6 +37,7 @@
 #include <imageproc/PolygonUtils.h>
 #include <imageproc/Posterizer.h>
 #include <imageproc/SkewFinder.h>
+#include <imageproc/SubtractBackground.h>
 #include <imageproc/WienerFilter.h>
 
 #include <QColor>
@@ -1301,6 +1302,9 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
   }
 
   const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
+  subtractBackgroundColorInPlace(maybeNormalized, colorCommonOptions.subtractBackgroundRadius(),
+                                 colorCommonOptions.subtractBackgroundCoef(),
+                                 colorCommonOptions.subtractBackgroundWhite());
   wienerColorFilterInPlace(maybeNormalized,
                            QSize(colorCommonOptions.wienerWindowSize(), colorCommonOptions.wienerWindowSize()),
                            colorCommonOptions.wienerCoef());
@@ -1602,6 +1606,9 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   m_status.throwIfCancelled();
 
   const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
+  subtractBackgroundColorInPlace(normalizedOriginal, colorCommonOptions.subtractBackgroundRadius(),
+                                 colorCommonOptions.subtractBackgroundCoef(),
+                                 colorCommonOptions.subtractBackgroundWhite());
   wienerColorFilterInPlace(normalizedOriginal,
                            QSize(colorCommonOptions.wienerWindowSize(), colorCommonOptions.wienerWindowSize()),
                            colorCommonOptions.wienerCoef());

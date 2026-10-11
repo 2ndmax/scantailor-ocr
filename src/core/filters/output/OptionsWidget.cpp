@@ -879,6 +879,15 @@ void OptionsWidget::updateColorsDisplay() {
     posterizeOptionsWidget->setEnabled(colorCommonOptions.getPosterizationOptions().isEnabled());
   }
   // The check box first: the strength shown while it is off is only kept for turning it on.
+  const bool subtractBgOn = colorCommonOptions.subtractBackgroundCoef() > 0.0;
+  if (subtractBgOn) {
+    m_subtractBgCoefWhenOn = colorCommonOptions.subtractBackgroundCoef();
+  }
+  subtractBgCB->setChecked(subtractBgOn);
+  subtractBgOptionsWidget->setEnabled(subtractBgOn);
+  subtractBgCoef->setValue(m_subtractBgCoefWhenOn);
+  subtractBgRadius->setValue(colorCommonOptions.subtractBackgroundRadius());
+  subtractBgWhiteCB->setChecked(colorCommonOptions.subtractBackgroundWhite());
   const bool wienerOn = colorCommonOptions.wienerCoef() > 0.0;
   if (wienerOn) {
     m_wienerCoefWhenOn = colorCommonOptions.wienerCoef();
@@ -1016,6 +1025,47 @@ void OptionsWidget::originalBackgroundToggled(bool checked) {
   m_splittingOptions.setOriginalBackgroundEnabled(checked);
 
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
+  emit reloadRequested();
+}
+
+void OptionsWidget::subtractBgToggled(bool checked) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setSubtractBackgroundCoef(checked ? m_subtractBgCoefWhenOn : 0.0);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  subtractBgOptionsWidget->setEnabled(checked);
+  emit reloadRequested();
+}
+
+void OptionsWidget::subtractBgCoefChanged(double value) {
+  if (!subtractBgCB->isChecked()) {
+    return;
+  }
+  m_subtractBgCoefWhenOn = value;
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setSubtractBackgroundCoef(value);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  m_delayedReloadRequest.start(750);
+}
+
+void OptionsWidget::subtractBgRadiusChanged(int value) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setSubtractBackgroundRadius(value);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  m_delayedReloadRequest.start(750);
+}
+
+void OptionsWidget::subtractBgWhiteToggled(bool checked) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setSubtractBackgroundWhite(checked);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
   emit reloadRequested();
 }
 
@@ -1199,6 +1249,10 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(pictureShapeSensitivitySB, &QSpinBox::valueChanged, this, &OptionsWidget::pictureShapeSensitivityChanged);
   CONNECT(higherSearchSensitivityCB, &QAbstractButton::clicked, this, &OptionsWidget::higherSearchSensivityToggled);
 
+  CONNECT(subtractBgCB, &QAbstractButton::clicked, this, &OptionsWidget::subtractBgToggled);
+  CONNECT(subtractBgCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::subtractBgCoefChanged);
+  CONNECT(subtractBgRadius, &QSpinBox::valueChanged, this, &OptionsWidget::subtractBgRadiusChanged);
+  CONNECT(subtractBgWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::subtractBgWhiteToggled);
   CONNECT(wienerCB, &QAbstractButton::clicked, this, &OptionsWidget::wienerToggled);
   CONNECT(wienerCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::wienerCoefChanged);
   CONNECT(wienerWindowSize, &QSpinBox::valueChanged, this, &OptionsWidget::wienerWindowSizeChanged);

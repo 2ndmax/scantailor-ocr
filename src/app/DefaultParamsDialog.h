@@ -93,6 +93,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void fillOutsidePageBoxToggled(bool checked);
 
+  void subtractBgToggled(bool checked);
+
   void wienerToggled(bool checked);
 
   void dewarpingModeChanged();
@@ -169,6 +171,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   QButtonGroup* m_dewarpingModeGroup;
   // The output resolution shown before the current editing, restored after an invalid value.
   int m_outputDpi = 600;
+  // A strength of 0 turns "Subtract background" off; turning it on again restores the last strength.
+  double m_subtractBgCoefWhenOn = 1.0;
   // A strength of 0 turns the Wiener denoiser off; turning it on again restores the last strength.
   double m_wienerCoefWhenOn = 0.1;
   bool m_checkingDpi = false;

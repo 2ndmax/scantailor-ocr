@@ -82,6 +82,14 @@ class ColorCommonOptions {
   int wienerWindowSize() const;
   void setWienerWindowSize(int val);
 
+  // A strength of 0 turns "Subtract background" off.
+  double subtractBackgroundCoef() const;
+  void setSubtractBackgroundCoef(double val);
+  int subtractBackgroundRadius() const;
+  void setSubtractBackgroundRadius(int val);
+  bool subtractBackgroundWhite() const;
+  void setSubtractBackgroundWhite(bool val);
+
   FillingColor getFillingColor() const;
 
   void setFillingColor(FillingColor fillingColor);
@@ -107,6 +115,9 @@ class ColorCommonOptions {
   bool m_grayscaleOutput;
   double m_wienerCoef;
   int m_wienerWindowSize;
+  double m_subtractBackgroundCoef;
+  int m_subtractBackgroundRadius;
+  bool m_subtractBackgroundWhite;
   FillingColor m_fillingColor;
   PosterizationOptions m_posterizationOptions;
 };
@@ -155,6 +166,24 @@ inline int ColorCommonOptions::wienerWindowSize() const {
 }
 inline void ColorCommonOptions::setWienerWindowSize(int val) {
   m_wienerWindowSize = val;
+}
+inline double ColorCommonOptions::subtractBackgroundCoef() const {
+  return m_subtractBackgroundCoef;
+}
+inline void ColorCommonOptions::setSubtractBackgroundCoef(double val) {
+  m_subtractBackgroundCoef = val;
+}
+inline int ColorCommonOptions::subtractBackgroundRadius() const {
+  return m_subtractBackgroundRadius;
+}
+inline void ColorCommonOptions::setSubtractBackgroundRadius(int val) {
+  m_subtractBackgroundRadius = val;
+}
+inline bool ColorCommonOptions::subtractBackgroundWhite() const {
+  return m_subtractBackgroundWhite;
+}
+inline void ColorCommonOptions::setSubtractBackgroundWhite(bool val) {
+  m_subtractBackgroundWhite = val;
 }
 
 inline const ColorCommonOptions::PosterizationOptions& ColorCommonOptions::getPosterizationOptions() const {

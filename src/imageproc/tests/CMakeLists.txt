@@ -16,6 +16,7 @@ set(sources
     TestSeedFill.cpp
     TestSEDM.cpp
     TestRastLineFinder.cpp
+    TestSubtractBackground.cpp
     Utils.cpp Utils.h)
 
 remove_definitions(-DBUILDING_IMAGEPROC)
