@@ -558,6 +558,13 @@ reimplemented rather than copied.
     the brightness only, so evenly yellowed paper stays yellow in color output. With this check
     box each color channel is divided by its own background, which takes the paper to white and
     removes the color cast; dark text stays dark, the colors of pictures shift as well.
+* **Deliberately not adopted: the "horizontal barreling" correction of the dewarping.** On
+  synthetic test pages with known geometry (bent, keystoned and barreled) and on a real book
+  page it brought no measurable improvement: the straightness of the lines changed by less
+  than 0.2 px at 600 dpi. Its actual barreling term was tiny; what it mainly changed was a
+  weighting factor taken from the perspective of the page, which jumps between 0 and 1 on
+  similar flatbed scans and weakens the curvature correction by up to a third without a clear
+  reason.
 
 ### Correctness and robustness
 
