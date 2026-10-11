@@ -287,6 +287,11 @@ from working:
   is also used for binarization and dewarping, now spread their work over all processor cores.
   On a 24-megapixel color scan, removing color noise, evening out the background and the KNN
   denoiser together take 1.3 s instead of 5 s. The results are byte for byte the same.
+* **With dewarping, the enhancement filters now work on the dewarped page** in output
+  resolution, as without dewarping. Before, they filtered the whole original image in its own
+  resolution – for a two-page scan both halves filtered the whole spread – so a radius meant a
+  different size on paper with and without dewarping. Pages without these filters are
+  unchanged.
 
 ### Output: even out letter widths after dewarping
 

@@ -218,6 +218,9 @@ class OutputGenerator::Processor {
 
   QImage transformToWorkingCs(bool normalize) const;
 
+  // The filters under "Enhancement", applied to the image in output resolution.
+  void applyEnhancementFilters(QImage& image) const;
+
   DistortionModel buildAutoDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal) const;
 
   DistortionModel buildMarginalDistortionModel() const;
@@ -1314,18 +1317,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
     m_dbg->add(maybeNormalized, "maybeNormalized");
   }
 
-  const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
-  if (colorCommonOptions.chromaDenoise()) {
-    chromaDenoiseInPlace(maybeNormalized, colorCommonOptions.chromaRadius(), colorCommonOptions.chromaGrayLimit());
-  }
-  subtractBackgroundColorInPlace(maybeNormalized, colorCommonOptions.subtractBackgroundRadius(),
-                                 colorCommonOptions.subtractBackgroundCoef(),
-                                 colorCommonOptions.subtractBackgroundWhite());
-  knnDenoiseColorInPlace(maybeNormalized, colorCommonOptions.knnRadius(), colorCommonOptions.knnCoef());
-  wienerColorFilterInPlace(maybeNormalized,
-                           QSize(colorCommonOptions.wienerWindowSize(), colorCommonOptions.wienerWindowSize()),
-                           colorCommonOptions.wienerCoef());
-  sharpenColorInPlace(maybeNormalized, colorCommonOptions.sharpenRadius(), colorCommonOptions.sharpenCoef());
+  applyEnhancementFilters(maybeNormalized);
 
   if (m_renderParams.normalizeIllumination()) {
     m_outsideBackgroundColor
@@ -1623,19 +1615,6 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
 
   m_status.throwIfCancelled();
 
-  const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
-  if (colorCommonOptions.chromaDenoise()) {
-    chromaDenoiseInPlace(normalizedOriginal, colorCommonOptions.chromaRadius(), colorCommonOptions.chromaGrayLimit());
-  }
-  subtractBackgroundColorInPlace(normalizedOriginal, colorCommonOptions.subtractBackgroundRadius(),
-                                 colorCommonOptions.subtractBackgroundCoef(),
-                                 colorCommonOptions.subtractBackgroundWhite());
-  knnDenoiseColorInPlace(normalizedOriginal, colorCommonOptions.knnRadius(), colorCommonOptions.knnCoef());
-  wienerColorFilterInPlace(normalizedOriginal,
-                           QSize(colorCommonOptions.wienerWindowSize(), colorCommonOptions.wienerWindowSize()),
-                           colorCommonOptions.wienerCoef());
-  sharpenColorInPlace(normalizedOriginal, colorCommonOptions.sharpenRadius(), colorCommonOptions.sharpenCoef());
-
   // Picture mask (white indicate a picture) in the same coordinates as
   // warpedGrayOutput.  Only built for Mixed mode.
   BinaryImage warpedBwMask;
@@ -1722,7 +1701,8 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   normalizedOriginal = QImage();  // Save memory.
   m_settings->setDewarpingOptions(m_pageId, m_dewarpingOptions);
   applyAffineTransform(dewarped, rotateXform, m_outsideBackgroundColor);
-  normalizedOriginal = QImage();  // Save memory.
+  // As without dewarping, the filters work on the page in output resolution.
+  applyEnhancementFilters(dewarped);
   if (m_dbg) {
     m_dbg->add(dewarped, "dewarped");
   }
@@ -2673,6 +2653,20 @@ ForegroundType OutputGenerator::Processor::getForegroundType() const {
   } else {
     return ForegroundType::COLOR;
   }
+}
+
+void OutputGenerator::Processor::applyEnhancementFilters(QImage& image) const {
+  const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
+  if (colorCommonOptions.chromaDenoise()) {
+    chromaDenoiseInPlace(image, colorCommonOptions.chromaRadius(), colorCommonOptions.chromaGrayLimit());
+  }
+  subtractBackgroundColorInPlace(image, colorCommonOptions.subtractBackgroundRadius(),
+                                 colorCommonOptions.subtractBackgroundCoef(),
+                                 colorCommonOptions.subtractBackgroundWhite());
+  knnDenoiseColorInPlace(image, colorCommonOptions.knnRadius(), colorCommonOptions.knnCoef());
+  wienerColorFilterInPlace(image, QSize(colorCommonOptions.wienerWindowSize(), colorCommonOptions.wienerWindowSize()),
+                           colorCommonOptions.wienerCoef());
+  sharpenColorInPlace(image, colorCommonOptions.sharpenRadius(), colorCommonOptions.sharpenCoef());
 }
 
 QImage OutputGenerator::Processor::transformToWorkingCs(bool normalize) const {
