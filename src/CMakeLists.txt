@@ -10,3 +10,7 @@ add_subdirectory(app)
 if (BUILD_TESTS)
   add_subdirectory(qt_tests)
 endif()
+
+if (BUILD_DEV_TOOLS)
+  add_subdirectory(tools/binarization_compare)
+endif()

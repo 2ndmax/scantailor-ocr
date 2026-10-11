@@ -678,6 +678,13 @@ reimplemented rather than copied.
 
 * CMake verifies which compression schemes libtiff supports (LZMA etc. are required).
 * Optional static code analysis: `-DENABLE_CODE_ANALYSIS=ON` (MSVC: `/W4 /analyze`).
+* Optional developer tool `binarization_compare` (`-DBUILD_DEV_TOOLS=ON`): binarizes sample
+  pages with our methods and those of ScanTailor Experimental and writes a web page that shows
+  the same part of the page for every method side by side, with zoom and computing times.
+  Call it as `binarization_compare <output folder> <image file or folder>...`; pages already
+  computed are only computed again when the image changed, so sample pages can be added later.
+  The code of ScanTailor Experimental it uses is kept unchanged in
+  `src/tools/binarization_compare/experimental` (left out of the formatting check).
 * New tests for the image readers and the TIFF writer; CI now fails on failing tests and also
   builds on Windows.
 * New tests for the PDF export: file structure and cross-reference offsets, page size from the
