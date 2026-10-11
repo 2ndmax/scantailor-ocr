@@ -191,6 +191,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   // color mode.
   bool m_bwNormalizeIllumination = false;
   bool m_colorNormalizeIllumination = false;
+  // The binarization method shown, to know which one the selector switches from.
+  int m_binarizationMethod = 0;
   int m_customProfileItemIdx;
   Units m_currentUnits;
   std::set<QString> m_reservedProfileNames;

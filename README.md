@@ -615,6 +615,18 @@ reimplemented rather than copied.
   background, KNN denoiser, Wiener denoiser, sharpen – smoothing first, so that sharpening does
   not amplify the noise. In color they work on the brightness, colors keep their hue. Values
   are stored in the project only when a filter is on.
+* **Five new binarization methods** in the method list under *Output* → "Black and white" (also
+  in the default parameters dialog): **Gatos** (estimates the paper first; for yellowed,
+  stained or unevenly lit pages), **Nick** (little noise on empty paper; for faint print),
+  **Singh** (mean and local contrast, fast), **Robust** (dark letters against a brighter
+  surround, hardly affected by shadows near the spine) and **MultiScale** (several window sizes;
+  for text of very different sizes). Each has a window size and a strength. Unlike the features
+  above, their code is taken over unchanged (`imageproc/ExperimentalBinarization.cpp`), and
+  gives the same result pixel for pixel. Switching to or from one of them sets the window size
+  and strength to the values of the new method, as ScanTailor Experimental does, since they
+  differ widely (window 40 for Robust, strength 0.1 for Nick). Every method in the list now has
+  a tooltip saying what it suits. The other methods of ScanTailor Experimental were compared on
+  sample pages and left out: they hardly differed from these or from the existing ones.
 * **Deliberately not adopted: "unPaper" and "Balance".** unPaper sets the paper to one color
   for the whole page (yellowed paper stays yellow, shadows and gradients stay), and pale
   colored areas can be flattened with it; Balance chains four overlay blends of blurred copies

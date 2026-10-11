@@ -34,6 +34,7 @@
 #include <imageproc/BackgroundColorCalculator.h>
 #include <imageproc/ChromaDenoiser.h>
 #include <imageproc/ColorSegmenter.h>
+#include <imageproc/ExperimentalBinarization.h>
 #include <imageproc/ImageCombination.h>
 #include <imageproc/KnnDenoiser.h>
 #include <imageproc/OrthogonalRotation.h>
@@ -2471,6 +2472,34 @@ BinaryImage OutputGenerator::Processor::binarize(const QImage& image) const {
       const double thresholdCoef = blackWhiteOptions.getSauvolaCoef();
 
       binarized = binarizeEdgeDiv(image, windowsSize, thresholdCoef, thresholdCoef, thresholdDelta);
+      break;
+    }
+    case T_GATOS:
+    case T_NICK:
+    case T_SINGH:
+    case T_ROBUST:
+    case T_MULTISCALE: {
+      const GrayImage gray(image);
+      const int windowSize = blackWhiteOptions.getWindowSize();
+      const double coef = blackWhiteOptions.getSauvolaCoef();
+      const int delta = blackWhiteOptions.thresholdAdjustment();
+      switch (binarizationMethod) {
+        case T_GATOS:
+          binarized = binarizeGatos(gray, windowSize, coef, delta);
+          break;
+        case T_NICK:
+          binarized = binarizeNick(gray, windowSize, coef, delta);
+          break;
+        case T_SINGH:
+          binarized = binarizeSingh(gray, windowSize, coef, delta);
+          break;
+        case T_ROBUST:
+          binarized = binarizeRobust(gray, windowSize, coef, delta);
+          break;
+        default:
+          binarized = binarizeMultiScale(gray, windowSize, coef, delta);
+          break;
+      }
       break;
     }
   }

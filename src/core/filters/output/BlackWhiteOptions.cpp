@@ -86,6 +86,16 @@ BinarizationMethod BlackWhiteOptions::parseBinarizationMethod(const QString& str
     return T_BLURDIV;
   } else if (str == "edgediv") {
     return T_EDGEDIV;
+  } else if (str == "gatos") {
+    return T_GATOS;
+  } else if (str == "nick") {
+    return T_NICK;
+  } else if (str == "singh") {
+    return T_SINGH;
+  } else if (str == "robust") {
+    return T_ROBUST;
+  } else if (str == "multiscale") {
+    return T_MULTISCALE;
   } else {
     return T_OTSU;
   }
@@ -123,6 +133,21 @@ QString BlackWhiteOptions::formatBinarizationMethod(BinarizationMethod type) {
       break;
     case T_EDGEDIV:
       str = "edgediv";
+      break;
+    case T_GATOS:
+      str = "gatos";
+      break;
+    case T_NICK:
+      str = "nick";
+      break;
+    case T_SINGH:
+      str = "singh";
+      break;
+    case T_ROBUST:
+      str = "robust";
+      break;
+    case T_MULTISCALE:
+      str = "multiscale";
       break;
   }
   return str;

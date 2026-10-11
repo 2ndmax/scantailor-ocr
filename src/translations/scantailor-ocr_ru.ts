@@ -215,6 +215,84 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
 </context>
 <context>
+    <name>BinarizationMethods</name>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="20"/>
+        <source>One threshold for the whole page. Fast; suited to clean pages with even lighting.</source>
+        <translation>Один порог для всей страницы. Быстро; для чистых страниц с равномерным освещением.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="24"/>
+        <source>Local threshold from the mean and the contrast around each pixel. A good general choice for printed text.</source>
+        <translation>Локальный порог по среднему и контрасту вокруг каждого пикселя. Хороший общий выбор для печатного текста.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="28"/>
+        <source>A variant of Sauvola for low contrast, with a lower and an upper bound.</source>
+        <translation>Вариант Sauvola для низкого контраста, с нижней и верхней границей.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="30"/>
+        <source>Wolf combined with the contrast measure of Singh.</source>
+        <translation>Wolf в сочетании с мерой контраста Singh.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="32"/>
+        <source>Local threshold with windows that adapt to the content.</source>
+        <translation>Локальный порог с окнами, подстраивающимися под содержимое.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="34"/>
+        <source>Compares each pixel with the mean of its surroundings. Simple and fast.</source>
+        <translation>Сравнивает каждый пиксель со средним значением окружения. Просто и быстро.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="37"/>
+        <source>Threshold from the gradients of the page.</source>
+        <translation>Порог по градиентам страницы.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="39"/>
+        <source>Strengthens the edges of the letters against their surroundings before the threshold.</source>
+        <translation>Перед порогом усиливает края букв относительно окружения.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="43"/>
+        <source>Divides by a blurred copy of the page before the threshold, which evens out the paper.</source>
+        <translation>Перед порогом делит на размытую копию страницы, что выравнивает бумагу.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="46"/>
+        <source>EdgePlus and BlurDiv combined.</source>
+        <translation>EdgePlus и BlurDiv вместе.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="48"/>
+        <source>Estimates the paper first, then thresholds by the distance to it. For yellowed, stained or unevenly lit pages.</source>
+        <translation>Сначала оценивает бумагу, затем задаёт порог по расстоянию до неё. Для пожелтевших, запятнанных или неравномерно освещённых страниц.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="52"/>
+        <source>A variant of Niblack with little noise on empty paper. For faint print on old documents.</source>
+        <translation>Вариант Niblack с малым шумом на пустой бумаге. Для бледной печати в старых документах.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="56"/>
+        <source>Local threshold from the mean and the local contrast, computed quickly.</source>
+        <translation>Локальный порог по среднему и локальному контрасту, быстро вычисляется.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="59"/>
+        <source>Finds dark letters against a brighter surround, hardly affected by shadows, for example near the spine.</source>
+        <translation>Находит тёмные буквы на более светлом окружении, почти не чувствителен к теням, например у корешка.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="63"/>
+        <source>Combines thresholds over several window sizes. For pages with text of very different sizes.</source>
+        <translation>Объединяет пороги для нескольких размеров окна. Для страниц с текстом очень разного размера.</translation>
+    </message>
+</context>
+<context>
     <name>ColorPickupInteraction</name>
     <message>
         <location filename="../core/filters/output/ColorPickupInteraction.cpp" line="18"/>
@@ -971,7 +1049,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3572"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1100"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1109"/>
         <source>Output Resolution</source>
         <translation>Разрешение на выходе (DPI)</translation>
     </message>
@@ -1086,106 +1164,56 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
         <source>Black and White</source>
         <translation>Черно-белый</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
         <source>Color / Grayscale</source>
         <translation>Цветной / Серый</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
         <source>Mixed</source>
         <translation>Смешанный</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
         <source>Background</source>
         <translation>Фон</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
         <source>White</source>
         <translation>Белый</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
         <source>Black</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
-        <source>Otsu</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
-        <source>Sauvola</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
-        <source>Wolf</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
-        <source>Fox</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
-        <source>Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
-        <source>Bradley</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
-        <source>Grad</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
-        <source>EdgePlus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
-        <source>BlurDiv</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
-        <source>EdgeDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="866"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1048"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3835"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
         <source>Off</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
         <source>Contour mask</source>
         <translation>Контурная маска</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
         <source>Rectangle</source>
         <translation>Прямоугольная</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="111"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1242"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="103"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>Custom</source>
         <translation>Выборочный</translation>
     </message>
@@ -1195,46 +1223,46 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>По краям</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="102"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="94"/>
         <source>Default</source>
         <translation>Стандартный</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="103"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="95"/>
         <source>Source</source>
         <translation>Источник</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1100"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1109"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1205"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1211"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1231"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1248"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1263"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1220"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1240"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1257"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1272"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1211"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1220"/>
         <source>Error loading the profile.</source>
         <translation>Ошибка при загрузке профиля.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1232"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1241"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Это имя конфликтует со стандартным именем профиля. Введите другое имя.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1248"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1257"/>
         <source>Error saving the profile.</source>
         <translation>Ошибка при сохранении профиля.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1263"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1272"/>
         <source>Error deleting the profile.</source>
         <translation>Ошибка при удалении профиля.</translation>
     </message>
@@ -1254,7 +1282,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>Удалить пятна</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1205"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Файл профиля несовместим с текущей версией приложения. Удалить?</translation>
     </message>
@@ -2464,7 +2492,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
         <translation type="unfinished">Качество:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="184"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="180"/>
         <location filename="../app/PdfExportView.cpp" line="416"/>
         <source>Resolution of split pages:</source>
         <translation type="unfinished"></translation>
@@ -3751,7 +3779,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <name>deskew::OptionsWidget</name>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="73"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="134"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3830,7 +3858,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="74"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="135"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4005,206 +4033,156 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="48"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="210"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="49"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
         <source>Black and White</source>
         <translation>Черно-белый</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="49"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="50"/>
         <source>Color / Grayscale</source>
         <translation>Цветной / Серый</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="50"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="51"/>
         <source>Mixed</source>
         <translation>Смешанный</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="52"/>
-        <source>Otsu</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="53"/>
-        <source>Sauvola</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="54"/>
-        <source>Wolf</source>
-        <translation></translation>
-    </message>
-    <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="55"/>
-        <source>Fox</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="56"/>
-        <source>Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="57"/>
-        <source>Bradley</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="58"/>
-        <source>Grad</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="59"/>
-        <source>EdgePlus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="60"/>
-        <source>BlurDiv</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="61"/>
-        <source>EdgeDiv</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="63"/>
         <source>Background</source>
         <translation>Фон</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="64"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="56"/>
         <source>White</source>
         <translation>Белый</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="65"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="57"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="99"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
         <source>Contour mask</source>
         <translation>Контурная маска</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="100"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="96"/>
         <source>Rectangle</source>
         <translation>Прямоугольная</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="132"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="128"/>
         <source>TIFF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="135"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="131"/>
         <source>Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed separately, so this doesn&apos;t change it.  After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing.  Other projects keep their files until their pages are processed again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="159"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="155"/>
         <source>LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program and its PDF export can.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="164"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="160"/>
         <source>Color and Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="165"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="161"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="169"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="201"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="212"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="165"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="197"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="208"/>
         <source>None</source>
         <translation type="unfinished">Без сжатия</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="176"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="172"/>
         <source>All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="178"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="174"/>
         <source>JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="192"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="188"/>
         <source>Quality:</source>
         <translation type="unfinished">Качество:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="195"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="191"/>
         <source>Posterized Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="196"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="192"/>
         <source>Color pages that were posterized, and posterized pictures of pages with split output.  Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="202"/>
         <source>All methods are lossless.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="210"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="218"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="214"/>
         <source>All methods are lossless; CCITT G4 usually gives the smallest files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1478"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1484"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="191"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="187"/>
         <source>Higher values give better pictures and larger files.  Only used with JPEG compression.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="467"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="473"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="481"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="487"/>
         <source>Apply Output Resolution</source>
         <translation type="unfinished">Разрешение на выходе</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="548"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="554"/>
         <source>Apply Splitting</source>
         <translation>Применить настройки разделения</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="675"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="681"/>
         <source>Apply Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2178"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="98"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="94"/>
         <source>Off</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="631"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="637"/>
         <source>Apply Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4220,7 +4198,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="467"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="473"/>
         <source>Output Resolution</source>
         <translation>Разрешение на выходе (DPI)</translation>
     </message>
@@ -4291,9 +4269,9 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1084"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="180"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="207"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="220"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="176"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="203"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="216"/>
         <source>Method:</source>
         <translation>Метод:</translation>
     </message>
@@ -4606,7 +4584,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2244"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1007"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1013"/>
         <source>Post deskew</source>
         <translation type="unfinished">Компенсировать поворот</translation>
     </message>

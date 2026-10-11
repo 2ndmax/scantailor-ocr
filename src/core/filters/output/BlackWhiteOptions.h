@@ -19,7 +19,13 @@ enum BinarizationMethod {
   T_GRAD,
   T_EDGEPLUS,
   T_BLURDIV,
-  T_EDGEDIV
+  T_EDGEDIV,
+  // Taken from ScanTailor Experimental.
+  T_GATOS,
+  T_NICK,
+  T_SINGH,
+  T_ROBUST,
+  T_MULTISCALE
 };
 
 class BlackWhiteOptions {

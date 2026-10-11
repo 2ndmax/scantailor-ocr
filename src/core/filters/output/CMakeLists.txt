@@ -24,6 +24,7 @@ set(sources
     Utils.cpp Utils.h
     Params.cpp Params.h
     BlackWhiteOptions.cpp BlackWhiteOptions.h
+    BinarizationMethods.cpp BinarizationMethods.h
     ColorCommonOptions.cpp ColorCommonOptions.h
     RenderParams.cpp RenderParams.h
     ColorParams.cpp ColorParams.h

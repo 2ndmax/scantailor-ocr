@@ -216,6 +216,84 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
 </context>
 <context>
+    <name>BinarizationMethods</name>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="20"/>
+        <source>One threshold for the whole page. Fast; suited to clean pages with even lighting.</source>
+        <translation>Eine Schwelle für die ganze Seite. Schnell; für saubere, gleichmäßig beleuchtete Seiten.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="24"/>
+        <source>Local threshold from the mean and the contrast around each pixel. A good general choice for printed text.</source>
+        <translation>Örtliche Schwelle aus Mittelwert und Kontrast um jeden Bildpunkt. Eine gute Wahl für gedruckten Text.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="28"/>
+        <source>A variant of Sauvola for low contrast, with a lower and an upper bound.</source>
+        <translation>Eine Variante von Sauvola für geringen Kontrast, mit unterer und oberer Grenze.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="30"/>
+        <source>Wolf combined with the contrast measure of Singh.</source>
+        <translation>Wolf, kombiniert mit dem Kontrastmaß von Singh.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="32"/>
+        <source>Local threshold with windows that adapt to the content.</source>
+        <translation>Örtliche Schwelle mit Fenstern, die sich dem Inhalt anpassen.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="34"/>
+        <source>Compares each pixel with the mean of its surroundings. Simple and fast.</source>
+        <translation>Vergleicht jeden Bildpunkt mit dem Mittelwert seiner Umgebung. Einfach und schnell.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="37"/>
+        <source>Threshold from the gradients of the page.</source>
+        <translation>Schwelle aus den Helligkeitsverläufen der Seite.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="39"/>
+        <source>Strengthens the edges of the letters against their surroundings before the threshold.</source>
+        <translation>Verstärkt vor der Schwelle die Kanten der Buchstaben gegenüber ihrer Umgebung.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="43"/>
+        <source>Divides by a blurred copy of the page before the threshold, which evens out the paper.</source>
+        <translation>Teilt vor der Schwelle durch eine weichgezeichnete Kopie der Seite, das gleicht das Papier an.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="46"/>
+        <source>EdgePlus and BlurDiv combined.</source>
+        <translation>EdgePlus und BlurDiv zusammen.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="48"/>
+        <source>Estimates the paper first, then thresholds by the distance to it. For yellowed, stained or unevenly lit pages.</source>
+        <translation>Schätzt zuerst das Papier und setzt die Schwelle nach dem Abstand dazu. Für vergilbte, fleckige oder ungleichmäßig beleuchtete Seiten.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="52"/>
+        <source>A variant of Niblack with little noise on empty paper. For faint print on old documents.</source>
+        <translation>Eine Variante von Niblack mit wenig Rauschen auf leerem Papier. Für schwachen Druck auf alten Vorlagen.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="56"/>
+        <source>Local threshold from the mean and the local contrast, computed quickly.</source>
+        <translation>Örtliche Schwelle aus Mittelwert und örtlichem Kontrast, schnell berechnet.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="59"/>
+        <source>Finds dark letters against a brighter surround, hardly affected by shadows, for example near the spine.</source>
+        <translation>Findet dunkle Buchstaben vor hellerer Umgebung, kaum gestört durch Schatten, etwa am Falz.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/BinarizationMethods.cpp" line="63"/>
+        <source>Combines thresholds over several window sizes. For pages with text of very different sizes.</source>
+        <translation>Verbindet Schwellen aus mehreren Fenstergrößen. Für Seiten mit sehr unterschiedlich großer Schrift.</translation>
+    </message>
+</context>
+<context>
     <name>ColorPickupInteraction</name>
     <message>
         <location filename="../core/filters/output/ColorPickupInteraction.cpp" line="18"/>
@@ -972,7 +1050,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3572"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1100"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1109"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -1087,106 +1165,56 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Buchstabenbreite angleichen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
         <source>Black and White</source>
         <translation>Schwarz-Weiß</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
         <source>Color / Grayscale</source>
         <translation>Farbe / Graustufen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
         <source>Mixed</source>
         <translation>Gemischt</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
         <source>Background</source>
         <translation>Hintergrund</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
         <source>White</source>
         <translation>Weiß</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
         <source>Black</source>
         <translation>Schwarz</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
-        <source>Otsu</source>
-        <translation>Otsu</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
-        <source>Sauvola</source>
-        <translation>Sauvola</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
-        <source>Wolf</source>
-        <translation>Wolf</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
-        <source>Fox</source>
-        <translation>Fox</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
-        <source>Window</source>
-        <translation>Window</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
-        <source>Bradley</source>
-        <translation>Bradley</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
-        <source>Grad</source>
-        <translation>Grad</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
-        <source>EdgePlus</source>
-        <translation>EdgePlus</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
-        <source>BlurDiv</source>
-        <translation>BlurDiv</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
-        <source>EdgeDiv</source>
-        <translation>EdgeDiv</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="866"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1048"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3835"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
         <source>Off</source>
         <translation>Deaktiviert</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
         <source>Contour mask</source>
         <translation>Konturmaske</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
         <source>Rectangle</source>
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="111"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1242"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="103"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
@@ -1196,46 +1224,46 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Randbereich</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="102"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="94"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="103"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="95"/>
         <source>Source</source>
         <translation>Quelle</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1100"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1109"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1205"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1211"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1231"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1248"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1263"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1220"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1240"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1257"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1272"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1211"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1220"/>
         <source>Error loading the profile.</source>
         <translation>Fehler beim Laden des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1232"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1241"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Der Name steht im Widerspruch zu einem Standardprofilnamen. Bitte geben Sie einen anderen Namen ein.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1248"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1257"/>
         <source>Error saving the profile.</source>
         <translation>Fehler beim Speichern des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1263"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1272"/>
         <source>Error deleting the profile.</source>
         <translation>Fehler beim Löschen des Profils.</translation>
     </message>
@@ -1255,7 +1283,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1205"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Die Profildatei ist nicht mit der aktuellen Anwendungsversion kompatibel. Entfernen?</translation>
     </message>
@@ -2468,7 +2496,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
         <translation>Qualität:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="184"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="180"/>
         <location filename="../app/PdfExportView.cpp" line="416"/>
         <source>Resolution of split pages:</source>
         <translation>Auflösung geteilter Seiten:</translation>
@@ -3756,7 +3784,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <name>deskew::OptionsWidget</name>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="73"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="134"/>
         <source>Content</source>
         <translation>Inhalt</translation>
     </message>
@@ -3835,7 +3863,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="74"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="135"/>
         <source>Top page edge</source>
         <translation>Obere Seitenkante</translation>
     </message>
@@ -4010,206 +4038,156 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="48"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="210"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="49"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
         <source>Black and White</source>
         <translation>Schwarz-Weiß</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="49"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="50"/>
         <source>Color / Grayscale</source>
         <translation>Farbe / Graustufen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="50"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="51"/>
         <source>Mixed</source>
         <translation>Gemischt</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="52"/>
-        <source>Otsu</source>
-        <translation>Otsu</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="53"/>
-        <source>Sauvola</source>
-        <translation>Sauvola</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="54"/>
-        <source>Wolf</source>
-        <translation>Wolf</translation>
-    </message>
-    <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="55"/>
-        <source>Fox</source>
-        <translation>Fox</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="56"/>
-        <source>Window</source>
-        <translation>Window</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="57"/>
-        <source>Bradley</source>
-        <translation>Bradley</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="58"/>
-        <source>Grad</source>
-        <translation>Grad</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="59"/>
-        <source>EdgePlus</source>
-        <translation>EdgePlus</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="60"/>
-        <source>BlurDiv</source>
-        <translation>BlurDiv</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="61"/>
-        <source>EdgeDiv</source>
-        <translation>EdgeDiv</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="63"/>
         <source>Background</source>
         <translation>Hintergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="64"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="56"/>
         <source>White</source>
         <translation>Weiß</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="65"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="57"/>
         <source>Black</source>
         <translation>Schwarz</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="99"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
         <source>Contour mask</source>
         <translation>Konturmaske</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="100"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="96"/>
         <source>Rectangle</source>
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="132"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="128"/>
         <source>TIFF Compression</source>
         <translation>TIFF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="135"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="131"/>
         <source>Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed separately, so this doesn&apos;t change it.  After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing.  Other projects keep their files until their pages are processed again.</source>
         <translation>Komprimierung der TIFF-Dateien im Ausgabeordner.  Gilt für alle Projekte.  Das PDF wird eigenständig komprimiert und ändert sich dadurch nicht.  Nach einer Änderung wird die Ausgabe dieses Projekts neu erzeugt: die aktuelle Seite sofort, die übrigen Seiten bei der nächsten Stapelverarbeitung.  Andere Projekte behalten ihre Dateien, bis ihre Seiten erneut verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="159"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="155"/>
         <source>LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program and its PDF export can.</source>
         <translation>LZMA ergibt die kleinsten verlustfreien Dateien, ist aber langsam und wird nur von wenigen anderen Programmen gelesen; dieses Programm und sein PDF-Export können es.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="164"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="160"/>
         <source>Color and Grayscale</source>
         <translation>Farbe und Graustufen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="165"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="161"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation>Farb- und Graustufenseiten, auch Graustufenseiten mit Tontrennung, und die Bilder von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="169"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="201"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="212"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="165"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="197"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="208"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="176"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="172"/>
         <source>All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.</source>
         <translation>Alle Verfahren außer JPEG sind verlustfrei; Deflate ergibt meist kleinere Dateien als LZW.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="178"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="174"/>
         <source>JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.</source>
         <translation>JPEG ergibt viel kleinere Dateien, verliert aber Qualität: Das PDF komprimiert die Bilder ein zweites Mal, und auf gemischten Seiten ohne geteilte Ausgabe wird der Text unscharf.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="192"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="188"/>
         <source>Quality:</source>
         <translation>Qualität:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="195"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="191"/>
         <source>Posterized Pages</source>
         <translation>Seiten mit Tontrennung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="196"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="192"/>
         <source>Color pages that were posterized, and posterized pictures of pages with split output.  Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
         <translation>Farbseiten mit Tontrennung und Bilder mit Tontrennung auf Seiten mit geteilter Ausgabe.  Graustufenseiten mit Tontrennung lassen sich nicht von anderen Graustufenseiten unterscheiden; sie folgen „Farbe und Graustufen“.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="202"/>
         <source>All methods are lossless.</source>
         <translation>Alle Verfahren sind verlustfrei.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="210"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation>Schwarz-Weiß-Seiten und der Text von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="218"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="214"/>
         <source>All methods are lossless; CCITT G4 usually gives the smallest files.</source>
         <translation>Alle Verfahren sind verlustfrei; CCITT G4 ergibt meist die kleinsten Dateien.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1478"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1484"/>
         <source>Apply Content</source>
         <translation>Inhalt anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="191"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="187"/>
         <source>Higher values give better pictures and larger files.  Only used with JPEG compression.</source>
         <translation>Höhere Werte ergeben bessere Bilder und größere Dateien.  Wird nur bei JPEG-Komprimierung verwendet.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="467"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="473"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="481"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="487"/>
         <source>Apply Output Resolution</source>
         <translation>Ausgabeauflösung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="548"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="554"/>
         <source>Apply Splitting</source>
         <translation>Aufteilung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="675"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="681"/>
         <source>Apply Dewarping</source>
         <translation>Entzerrung anwenden</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2178"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="98"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="94"/>
         <source>Off</source>
         <translation>Deaktiviert</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="631"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="637"/>
         <source>Apply Despeckling</source>
         <translation>Flecken entfernen anwenden</translation>
     </message>
@@ -4225,7 +4203,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="467"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="473"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -4296,9 +4274,9 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1084"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="180"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="207"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="220"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="176"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="203"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="216"/>
         <source>Method:</source>
         <translation>Verfahren:</translation>
     </message>
@@ -4606,7 +4584,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2244"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1007"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1013"/>
         <source>Post deskew</source>
         <translation>Nachträglich geraderichten</translation>
     </message>

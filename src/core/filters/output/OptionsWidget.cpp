@@ -20,6 +20,7 @@
 #include "../../SectionHeading.h"
 #include "../../Utils.h"
 #include "ApplyColorsDialog.h"
+#include "BinarizationMethods.h"
 #include "FillZoneComparator.h"
 #include "OptionsWidgetBinarizationOtsu.h"
 #include "OptionsWidgetBinarizationSauvola.h"
@@ -49,16 +50,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   colorModeSelector->addItem(tr("Color / Grayscale"), COLOR_GRAYSCALE);
   colorModeSelector->addItem(tr("Mixed"), MIXED);
 
-  thresholdMethodBox->addItem(tr("Otsu"), T_OTSU);
-  thresholdMethodBox->addItem(tr("Sauvola"), T_SAUVOLA);
-  thresholdMethodBox->addItem(tr("Wolf"), T_WOLF);
-  thresholdMethodBox->addItem(tr("Fox"), T_FOX);
-  thresholdMethodBox->addItem(tr("Window"), T_WINDOW);
-  thresholdMethodBox->addItem(tr("Bradley"), T_BRADLEY);
-  thresholdMethodBox->addItem(tr("Grad"), T_GRAD);
-  thresholdMethodBox->addItem(tr("EdgePlus"), T_EDGEPLUS);
-  thresholdMethodBox->addItem(tr("BlurDiv"), T_BLURDIV);
-  thresholdMethodBox->addItem(tr("EdgeDiv"), T_EDGEDIV);
+  fillBinarizationMethodBox(thresholdMethodBox);
 
   fillingColorBox->addItem(tr("Background"), FILL_BACKGROUND);
   fillingColorBox->addItem(tr("White"), FILL_WHITE);
@@ -93,6 +85,10 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   addOptionsWidgetBinarization(edgeplusOptionsWidgetBinarization);
   addOptionsWidgetBinarization(blurdivOptionsWidgetBinarization);
   addOptionsWidgetBinarization(edgedivOptionsWidgetBinarization);
+  // The methods from ScanTailor Experimental have a window size and strength, as Sauvola.
+  for (int i = T_GATOS; i <= T_MULTISCALE; ++i) {
+    addOptionsWidgetBinarization(new OptionsWidgetBinarizationSauvola(m_settings));
+  }
   updateBinarizationOptionsDisplay(binarizationOptions->currentIndex());
 
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
@@ -326,9 +322,19 @@ void OptionsWidget::colorModeChanged(const int idx) {
 void OptionsWidget::thresholdMethodChanged(int idx) {
   const BinarizationMethod method = (BinarizationMethod) thresholdMethodBox->itemData(idx).toInt();
   BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
+  const bool ownDefaults = needsOwnBinarizationDefaults(blackWhiteOptions.getBinarizationMethod(), method);
   blackWhiteOptions.setBinarizationMethod(method);
+  if (ownDefaults) {
+    applyBinarizationDefaults(blackWhiteOptions);
+  }
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  if (ownDefaults) {
+    // Show the new window size and strength.
+    for (int i = 0; i < binarizationOptions->count(); i++) {
+      static_cast<OptionsWidgetBinarization*>(binarizationOptions->widget(i))->updateUi(m_pageId);
+    }
+  }
 
   emit reloadRequested();
 }

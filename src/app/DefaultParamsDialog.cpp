@@ -5,6 +5,7 @@
 
 #include <core/ApplicationSettings.h>
 #include <core/IconProvider.h>
+#include <filters/output/BinarizationMethods.h>
 #include <filters/output/ColorParams.h>
 #include <filters/output/DewarpingOptions.h>
 #include <filters/output/PictureShapeOptions.h>
@@ -67,16 +68,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   fillingColorBox->addItem(tr("White"), FILL_WHITE);
   fillingColorBox->addItem(tr("Black"), FILL_BLACK);
 
-  thresholdMethodBox->addItem(tr("Otsu"), T_OTSU);
-  thresholdMethodBox->addItem(tr("Sauvola"), T_SAUVOLA);
-  thresholdMethodBox->addItem(tr("Wolf"), T_WOLF);
-  thresholdMethodBox->addItem(tr("Fox"), T_FOX);
-  thresholdMethodBox->addItem(tr("Window"), T_WINDOW);
-  thresholdMethodBox->addItem(tr("Bradley"), T_BRADLEY);
-  thresholdMethodBox->addItem(tr("Grad"), T_GRAD);
-  thresholdMethodBox->addItem(tr("EdgePlus"), T_EDGEPLUS);
-  thresholdMethodBox->addItem(tr("BlurDiv"), T_BLURDIV);
-  thresholdMethodBox->addItem(tr("EdgeDiv"), T_EDGEDIV);
+  fillBinarizationMethodBox(thresholdMethodBox);
 
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
   pictureShapeSelector->addItem(tr("Contour mask"), FREE_SHAPE);
@@ -447,6 +439,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   posterizeForceBwCB->setChecked(colorCommonOptions.getPosterizationOptions().isForceBlackAndWhite());
 
   thresholdMethodBox->setCurrentIndex(thresholdMethodBox->findData(blackWhiteOptions.getBinarizationMethod()));
+  m_binarizationMethod = blackWhiteOptions.getBinarizationMethod();
   thresholdSlider->setValue(blackWhiteOptions.thresholdAdjustment());
   thresholLabel->setText(QString::number(thresholdSlider->value()));
   sauvolaDelta->setValue(thresholdSlider->value());
@@ -703,13 +696,29 @@ void DefaultParamsDialog::colorModeChanged(const int idx) {
 }
 
 void DefaultParamsDialog::thresholdMethodChanged(const int idx) {
+  const auto method = static_cast<BinarizationMethod>(thresholdMethodBox->itemData(idx).toInt());
+  if (needsOwnBinarizationDefaults(static_cast<BinarizationMethod>(m_binarizationMethod), method)) {
+    BlackWhiteOptions defaults;
+    defaults.setBinarizationMethod(method);
+    applyBinarizationDefaults(defaults);
+    sauvolaWindowSize->setValue(defaults.getWindowSize());
+    wolfWindowSize->setValue(defaults.getWindowSize());
+    sauvolaCoef->setValue(defaults.getSauvolaCoef());
+  }
+  m_binarizationMethod = method;
+
   // The methods share three pages of settings, as in the Output step.
-  switch (static_cast<BinarizationMethod>(thresholdMethodBox->itemData(idx).toInt())) {
+  switch (method) {
     case T_SAUVOLA:
     case T_BRADLEY:
     case T_EDGEPLUS:
     case T_BLURDIV:
     case T_EDGEDIV:
+    case T_GATOS:
+    case T_NICK:
+    case T_SINGH:
+    case T_ROBUST:
+    case T_MULTISCALE:
       binarizationOptions->setCurrentWidget(page_2);
       break;
     case T_WOLF:
@@ -891,7 +900,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   blackWhiteOptions.setThresholdAdjustment(thresholdSlider->value());
   blackWhiteOptions.setSauvolaCoef(sauvolaCoef->value());
   if (binarizationMethod == T_SAUVOLA || binarizationMethod == T_BRADLEY || binarizationMethod == T_EDGEPLUS
-      || binarizationMethod == T_BLURDIV || binarizationMethod == T_EDGEDIV) {
+      || binarizationMethod == T_BLURDIV || binarizationMethod == T_EDGEDIV || binarizationMethod >= T_GATOS) {
     blackWhiteOptions.setWindowSize(sauvolaWindowSize->value());
   } else if (binarizationMethod == T_WOLF || binarizationMethod == T_FOX || binarizationMethod == T_WINDOW
              || binarizationMethod == T_GRAD) {

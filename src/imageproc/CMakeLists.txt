@@ -32,6 +32,7 @@ set(sources
     KnnDenoiser.cpp KnnDenoiser.h
     ParallelFor.h
     Sharpen.cpp Sharpen.h
+    ExperimentalBinarization.cpp ExperimentalBinarization.h
     Sobel.h
     MorphGradientDetect.cpp MorphGradientDetect.h
     PolynomialLine.cpp PolynomialLine.h
