@@ -99,6 +99,12 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void higherSearchSensivityToggled(bool checked);
 
+  void chromaToggled(bool checked);
+
+  void chromaRadiusChanged(int value);
+
+  void chromaGrayLimitChanged(int value);
+
   void subtractBgToggled(bool checked);
 
   void subtractBgCoefChanged(double value);

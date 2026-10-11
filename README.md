@@ -273,6 +273,17 @@ from working:
 * The PDF export compresses the pages itself, so these options don't change the PDF – except
   that JPEG-compressed TIFF files lose quality before they reach the PDF.
 
+### Output: remove color noise
+
+* **New filter "Remove color noise"** under *Output* → "Enhancement", the first of the
+  filters (also in the default parameters dialog). Scanners and cameras often leave single red,
+  green and blue pixels on gray paper, which the other filters keep, as they work on the
+  brightness only. This filter splits the image into brightness and color (YCbCr, as in JPEG),
+  blurs the color (*Radius*, 1–10 px) and turns colors weaker than the *Gray limit* (0–60)
+  neutral gray, with a smooth transition up to twice that value; strong colors of pictures and
+  colored text stay. The brightness is not changed, so text stays sharp. Only color images are
+  affected. Not in ScanTailor Advanced or ScanTailor Experimental.
+
 ### Output: even out letter widths after dewarping
 
 * **New option "Even out letter widths"** under *Output* → "Dewarping", below *Depth

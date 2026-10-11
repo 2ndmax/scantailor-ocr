@@ -403,6 +403,9 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   fillingColorBox->setCurrentIndex(fillingColorBox->findData(colorCommonOptions.getFillingColor()));
 
   // The strength shown while the denoiser is off is only kept for turning it on.
+  chromaCB->setChecked(colorCommonOptions.chromaDenoise());
+  chromaRadius->setValue(colorCommonOptions.chromaRadius());
+  chromaGrayLimit->setValue(colorCommonOptions.chromaGrayLimit());
   const bool subtractBgOn = colorCommonOptions.subtractBackgroundCoef() > 0.0;
   if (subtractBgOn) {
     m_subtractBgCoefWhenOn = colorCommonOptions.subtractBackgroundCoef();
@@ -500,6 +503,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   updateEqualizeIlluminationDisplay();
   splittingToggled(splittingCB->isChecked());
   despeckleToggled(despeckleCB->isChecked());
+  chromaOptionsWidget->setEnabled(chromaCB->isChecked());
   subtractBgOptionsWidget->setEnabled(subtractBgOn);
   knnOptionsWidget->setEnabled(knnOn);
   sharpenOptionsWidget->setEnabled(sharpenOn);
@@ -546,6 +550,7 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(dpiSelector->lineEdit(), &QLineEdit::editingFinished, this, &DefaultParamsDialog::dpiSelectionChanged);
   CONNECT(fillOffcutCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOffcutToggled);
   CONNECT(fillOutsidePageBoxCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOutsidePageBoxToggled);
+  CONNECT(chromaCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::chromaToggled);
   CONNECT(subtractBgCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::subtractBgToggled);
   CONNECT(knnCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::knnToggled);
   CONNECT(sharpenCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::sharpenToggled);
@@ -855,6 +860,9 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   colorCommonOptions.setFillMargins(fillMarginsCB->isChecked());
   colorCommonOptions.setFillOffcut(fillOffcutCB->isChecked());
   colorCommonOptions.setFillOutsidePageBox(fillOutsidePageBoxCB->isChecked());
+  colorCommonOptions.setChromaDenoise(chromaCB->isChecked());
+  colorCommonOptions.setChromaRadius(chromaRadius->value());
+  colorCommonOptions.setChromaGrayLimit(chromaGrayLimit->value());
   colorCommonOptions.setSubtractBackgroundCoef(subtractBgCB->isChecked() ? subtractBgCoef->value() : 0.0);
   colorCommonOptions.setSubtractBackgroundRadius(subtractBgRadius->value());
   colorCommonOptions.setSubtractBackgroundWhite(subtractBgWhiteCB->isChecked());
@@ -1108,6 +1116,10 @@ void DefaultParamsDialog::fillOutsidePageBoxToggled(const bool checked) {
   if (checked) {
     fillOffcutCB->setChecked(false);
   }
+}
+
+void DefaultParamsDialog::chromaToggled(const bool checked) {
+  chromaOptionsWidget->setEnabled(checked);
 }
 
 void DefaultParamsDialog::subtractBgToggled(const bool checked) {

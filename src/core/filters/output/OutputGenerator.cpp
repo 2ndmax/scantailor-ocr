@@ -32,6 +32,7 @@
 #include <WidthProfile.h>
 #include <core/ApplicationSettings.h>
 #include <imageproc/BackgroundColorCalculator.h>
+#include <imageproc/ChromaDenoiser.h>
 #include <imageproc/ColorSegmenter.h>
 #include <imageproc/ImageCombination.h>
 #include <imageproc/KnnDenoiser.h>
@@ -1314,6 +1315,9 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
   }
 
   const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
+  if (colorCommonOptions.chromaDenoise()) {
+    chromaDenoiseInPlace(maybeNormalized, colorCommonOptions.chromaRadius(), colorCommonOptions.chromaGrayLimit());
+  }
   subtractBackgroundColorInPlace(maybeNormalized, colorCommonOptions.subtractBackgroundRadius(),
                                  colorCommonOptions.subtractBackgroundCoef(),
                                  colorCommonOptions.subtractBackgroundWhite());
@@ -1620,6 +1624,9 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   m_status.throwIfCancelled();
 
   const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
+  if (colorCommonOptions.chromaDenoise()) {
+    chromaDenoiseInPlace(normalizedOriginal, colorCommonOptions.chromaRadius(), colorCommonOptions.chromaGrayLimit());
+  }
   subtractBackgroundColorInPlace(normalizedOriginal, colorCommonOptions.subtractBackgroundRadius(),
                                  colorCommonOptions.subtractBackgroundCoef(),
                                  colorCommonOptions.subtractBackgroundWhite());

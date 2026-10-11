@@ -1,11 +1,13 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <ChromaDenoiser.h>
 #include <GrayImage.h>
 #include <KnnDenoiser.h>
 #include <Sharpen.h>
 
 #include <QImage>
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdlib>
@@ -103,6 +105,40 @@ BOOST_AUTO_TEST_CASE(test_color_keeps_hue) {
   knnDenoiseColorInPlace(image, 5, 0.5);
   const QRgb red = image.pixel(10, 20);
   BOOST_CHECK_GT(qRed(red), qGreen(red) + 100);
+}
+
+BOOST_AUTO_TEST_CASE(test_chroma_denoise_removes_color_noise) {
+  // Gray paper (180) with single red, green and blue pixels of about the same brightness,
+  // and a strongly colored patch.
+  QImage image(80, 60, QImage::Format_RGB32);
+  image.fill(qRgb(180, 180, 180));
+  const QRgb noise[] = {qRgb(215, 165, 175), qRgb(165, 200, 160), qRgb(170, 175, 215)};
+  for (int i = 0; i < 300; ++i) {
+    image.setPixel((i * 37) % 40, (i * 53) % 60, noise[i % 3]);
+  }
+  for (int y = 20; y < 40; ++y) {
+    for (int x = 55; x < 75; ++x) {
+      image.setPixel(x, y, qRgb(200, 30, 30));
+    }
+  }
+  const QImage original = image.copy();
+  chromaDenoiseInPlace(image, 3, 15);
+
+  int maxSpread = 0;
+  for (int y = 0; y < 60; ++y) {
+    for (int x = 0; x < 40; ++x) {
+      const QRgb px = image.pixel(x, y);
+      maxSpread = std::max(maxSpread,
+                           std::max({qRed(px), qGreen(px), qBlue(px)}) - std::min({qRed(px), qGreen(px), qBlue(px)}));
+      // The brightness (as in JPEG) stays.
+      const QRgb o = original.pixel(x, y);
+      const auto luma = [](QRgb c) { return 0.299 * qRed(c) + 0.587 * qGreen(c) + 0.114 * qBlue(c); };
+      BOOST_REQUIRE_SMALL(luma(px) - luma(o), 1.5);
+    }
+  }
+  BOOST_CHECK_LE(maxSpread, 3);
+  const QRgb red = image.pixel(65, 30);
+  BOOST_CHECK_GT(qRed(red), qGreen(red) + 120);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

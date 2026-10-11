@@ -410,6 +410,104 @@
               <number>5</number>
              </property>
              <item>
+              <widget class="QCheckBox" name="chromaCB">
+               <property name="toolTip">
+                <string>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters.  The brightness is not changed.</string>
+               </property>
+               <property name="text">
+                <string>Remove color noise</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="chromaOptionsWidget" native="true">
+               <layout class="QGridLayout" name="chromaOptionsLayout">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item row="0" column="0" rowspan="2">
+                 <spacer name="chromaIndent">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>15</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="chromaRadiusLabel">
+                  <property name="text">
+                   <string>Radius:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QSpinBox" name="chromaRadius">
+<property name="suffix"><string notr="true"> px</string></property>
+                  <property name="toolTip">
+                   <string>How far the colors are smoothed.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLabel" name="chromaGrayLimitLabel">
+                  <property name="text">
+                   <string>Gray limit:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QSpinBox" name="chromaGrayLimit">
+                  <property name="toolTip">
+                   <string>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay.  0 only smooths.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>0</number>
+                  </property>
+                  <property name="maximum">
+                   <number>60</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3" rowspan="2">
+                 <spacer name="chromaSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>1</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
               <widget class="QCheckBox" name="subtractBgCB">
                <property name="toolTip">
                 <string>Evens out the paper background (stains, yellowing, shadows) before the other processing. Pictures are flattened as well.</string>

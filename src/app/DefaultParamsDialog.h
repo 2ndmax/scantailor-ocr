@@ -93,6 +93,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void fillOutsidePageBoxToggled(bool checked);
 
+  void chromaToggled(bool checked);
+
   void subtractBgToggled(bool checked);
 
   void knnToggled(bool checked);

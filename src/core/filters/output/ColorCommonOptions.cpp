@@ -17,6 +17,9 @@ ColorCommonOptions::ColorCommonOptions()
       m_subtractBackgroundCoef(0.0),
       m_subtractBackgroundRadius(45),
       m_subtractBackgroundWhite(false),
+      m_chromaDenoise(false),
+      m_chromaRadius(3),
+      m_chromaGrayLimit(15),
       m_knnCoef(0.0),
       m_knnRadius(7),
       m_sharpenCoef(0.0),
@@ -36,6 +39,9 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
       m_subtractBackgroundCoef(el.attribute("subtractBgCoef").toDouble()),
       m_subtractBackgroundRadius(el.attribute("subtractBgRadius").toInt()),
       m_subtractBackgroundWhite(el.attribute("subtractBgWhite") == "1"),
+      m_chromaDenoise(el.attribute("chromaDenoise") == "1"),
+      m_chromaRadius(el.attribute("chromaRadius").toInt()),
+      m_chromaGrayLimit(el.attribute("chromaGrayLimit", "15").toInt()),
       m_knnCoef(el.attribute("knnCoef").toDouble()),
       m_knnRadius(el.attribute("knnRadius").toInt()),
       m_sharpenCoef(el.attribute("sharpenCoef").toDouble()),
@@ -53,6 +59,12 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
   }
   if (m_subtractBackgroundRadius < 1) {
     m_subtractBackgroundRadius = 45;
+  }
+  if (m_chromaRadius < 1) {
+    m_chromaRadius = 3;
+  }
+  if (m_chromaGrayLimit < 0) {
+    m_chromaGrayLimit = 15;
   }
   if (m_knnCoef < 0.0 || m_knnCoef > 1.0) {
     m_knnCoef = 0.0;
@@ -91,6 +103,11 @@ QDomElement ColorCommonOptions::toXml(QDomDocument& doc, const QString& name) co
     }
   }
   // The filters below are also only written when on.
+  if (m_chromaDenoise) {
+    el.setAttribute("chromaDenoise", "1");
+    el.setAttribute("chromaRadius", m_chromaRadius);
+    el.setAttribute("chromaGrayLimit", m_chromaGrayLimit);
+  }
   if (m_knnCoef > 0.0) {
     el.setAttribute("knnCoef", m_knnCoef);
     el.setAttribute("knnRadius", m_knnRadius);
@@ -110,9 +127,10 @@ bool ColorCommonOptions::operator==(const ColorCommonOptions& other) const {
          && (m_wienerWindowSize == other.m_wienerWindowSize)
          && (m_subtractBackgroundCoef == other.m_subtractBackgroundCoef)
          && (m_subtractBackgroundRadius == other.m_subtractBackgroundRadius)
-         && (m_subtractBackgroundWhite == other.m_subtractBackgroundWhite) && (m_knnCoef == other.m_knnCoef)
-         && (m_knnRadius == other.m_knnRadius) && (m_sharpenCoef == other.m_sharpenCoef)
-         && (m_sharpenRadius == other.m_sharpenRadius);
+         && (m_subtractBackgroundWhite == other.m_subtractBackgroundWhite) && (m_chromaDenoise == other.m_chromaDenoise)
+         && (m_chromaRadius == other.m_chromaRadius) && (m_chromaGrayLimit == other.m_chromaGrayLimit)
+         && (m_knnCoef == other.m_knnCoef) && (m_knnRadius == other.m_knnRadius)
+         && (m_sharpenCoef == other.m_sharpenCoef) && (m_sharpenRadius == other.m_sharpenRadius);
 }
 
 bool ColorCommonOptions::operator!=(const ColorCommonOptions& other) const {

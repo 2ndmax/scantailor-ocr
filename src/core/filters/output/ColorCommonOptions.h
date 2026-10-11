@@ -90,6 +90,13 @@ class ColorCommonOptions {
   bool subtractBackgroundWhite() const;
   void setSubtractBackgroundWhite(bool val);
 
+  bool chromaDenoise() const { return m_chromaDenoise; }
+  void setChromaDenoise(bool val) { m_chromaDenoise = val; }
+  int chromaRadius() const { return m_chromaRadius; }
+  void setChromaRadius(int val) { m_chromaRadius = val; }
+  int chromaGrayLimit() const { return m_chromaGrayLimit; }
+  void setChromaGrayLimit(int val) { m_chromaGrayLimit = val; }
+
   // A strength of 0 turns the KNN denoiser or sharpening off.
   double knnCoef() const { return m_knnCoef; }
   void setKnnCoef(double val) { m_knnCoef = val; }
@@ -128,6 +135,9 @@ class ColorCommonOptions {
   double m_subtractBackgroundCoef;
   int m_subtractBackgroundRadius;
   bool m_subtractBackgroundWhite;
+  bool m_chromaDenoise;
+  int m_chromaRadius;
+  int m_chromaGrayLimit;
   double m_knnCoef;
   int m_knnRadius;
   double m_sharpenCoef;

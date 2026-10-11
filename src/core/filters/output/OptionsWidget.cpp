@@ -904,6 +904,10 @@ void OptionsWidget::updateColorsDisplay() {
     posterizeOptionsWidget->setEnabled(colorCommonOptions.getPosterizationOptions().isEnabled());
   }
   // The check box first: the strength shown while it is off is only kept for turning it on.
+  chromaCB->setChecked(colorCommonOptions.chromaDenoise());
+  chromaOptionsWidget->setEnabled(colorCommonOptions.chromaDenoise());
+  chromaRadius->setValue(colorCommonOptions.chromaRadius());
+  chromaGrayLimit->setValue(colorCommonOptions.chromaGrayLimit());
   const bool subtractBgOn = colorCommonOptions.subtractBackgroundCoef() > 0.0;
   if (subtractBgOn) {
     m_subtractBgCoefWhenOn = colorCommonOptions.subtractBackgroundCoef();
@@ -1073,6 +1077,34 @@ void OptionsWidget::originalBackgroundToggled(bool checked) {
 
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
   emit reloadRequested();
+}
+
+void OptionsWidget::chromaToggled(bool checked) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setChromaDenoise(checked);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  chromaOptionsWidget->setEnabled(checked);
+  emit reloadRequested();
+}
+
+void OptionsWidget::chromaRadiusChanged(int value) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setChromaRadius(value);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  m_delayedReloadRequest.start(750);
+}
+
+void OptionsWidget::chromaGrayLimitChanged(int value) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setChromaGrayLimit(value);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  m_delayedReloadRequest.start(750);
 }
 
 void OptionsWidget::subtractBgToggled(bool checked) {
@@ -1360,6 +1392,9 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(pictureShapeSensitivitySB, &QSpinBox::valueChanged, this, &OptionsWidget::pictureShapeSensitivityChanged);
   CONNECT(higherSearchSensitivityCB, &QAbstractButton::clicked, this, &OptionsWidget::higherSearchSensivityToggled);
 
+  CONNECT(chromaCB, &QAbstractButton::clicked, this, &OptionsWidget::chromaToggled);
+  CONNECT(chromaRadius, &QSpinBox::valueChanged, this, &OptionsWidget::chromaRadiusChanged);
+  CONNECT(chromaGrayLimit, &QSpinBox::valueChanged, this, &OptionsWidget::chromaGrayLimitChanged);
   CONNECT(subtractBgCB, &QAbstractButton::clicked, this, &OptionsWidget::subtractBgToggled);
   CONNECT(subtractBgCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::subtractBgCoefChanged);
   CONNECT(subtractBgRadius, &QSpinBox::valueChanged, this, &OptionsWidget::subtractBgRadiusChanged);
