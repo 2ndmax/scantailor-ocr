@@ -32,7 +32,7 @@ jobs:
         id: changed
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-                        | grep -v '/color_detect/spectre/' \nBASE="${{ github.event.pull_request.base.sha }}"
+            BASE="${{ github.event.pull_request.base.sha }}"
           else
             BASE="${{ github.event.before }}"
           fi
@@ -46,7 +46,6 @@ jobs:
             | grep -v '/translations/' \
             | grep -v '/jbig2enc/' \
             | grep -v '/binarization_compare/experimental/' \
-            | grep -v '/color_detect/spectre/' \
             || true)
           if [ -z "$SRC_FILES" ]; then
             COUNT=0

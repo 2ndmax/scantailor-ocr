@@ -1,11 +1,12 @@
 // Copyright (C) 2024  ScanTailor Advanced contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
+// Taken from ScanTailor Spectre (src/core); debug output removed.
 
 #ifndef SCANTAILOR_CORE_LEPTONICADETECTOR_H_
 #define SCANTAILOR_CORE_LEPTONICADETECTOR_H_
 
-#include <QSize>
 #include <QRect>
+#include <QSize>
 #include <QString>
 #include <QVector>
 
@@ -65,12 +66,7 @@ class LeptonicaDetector {
   };
 
   struct DetectionEvidence {
-    enum class CastPath {
-      None,
-      NoSignificantCast,
-      WhiteBalanceRecheck,
-      SelectiveNeutralizationRecheck
-    };
+    enum class CastPath { None, NoSignificantCast, WhiteBalanceRecheck, SelectiveNeutralizationRecheck };
 
     QSize analysisSize;
     QSize sourceSize;
@@ -145,7 +141,8 @@ class LeptonicaDetector {
   static ColorType detectWithCastCompensation(const QImage& image,
                                               int midtoneThreshold = 10,
                                               DetectionEvidence* evidence = nullptr,
-                                              const AnalysisScalePolicy& scalePolicy = AnalysisScalePolicy::productionDefault(),
+                                              const AnalysisScalePolicy& scalePolicy
+                                              = AnalysisScalePolicy::productionDefault(),
                                               const TaskStatus* status = nullptr);
 
   /**

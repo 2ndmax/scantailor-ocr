@@ -1,28 +1,24 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-// Developer tool: runs the color mode detection of ScanTailor Spectre (LeptonicaDetector) on a folder
-// of scans and writes the verdicts with their evidence to a CSV file, plus contact sheets.
+// Developer tool: runs the color mode detection (ColorModeDetector, based on the detection of
+// ScanTailor Spectre) on a folder of scans and writes the verdicts with their evidence to a CSV
+// file, plus contact sheets.
 //
-// Usage: color_detect <input folder> <output folder> [--whole] [--nosplit] [--masks] [--nozones] [--mincolor=1]
-// [--mincolorpic=0.5] [--minpicture=25]
+// Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3]
 //
 // Raw scans of two-page spreads are not split yet, so each scan is cropped to the bright page area
 // (dark scanner borders removed) and cut in half across its longer side. Rotation hardly matters
-// for the detector (histograms and tile regions). With --whole, the whole cropped scan is analyzed
-// as well. With --nosplit, single pages are analyzed as they are.
+// for the detector (histograms and tile regions). With --nosplit, single pages are analyzed as they
+// are. In the program, the detection gets the content area of the page; to come close to it, the
+// edges (book edge, gutter shadow, scanner border) are left out here.
+// --zones uses our picture zone detection as a second opinion, --mincolor sets the minimum share of
+// color outside pictures (in percent) for a color page.
 
-#include <BinaryImage.h>
-#include <ConnectivityMap.h>
-#include <GrayImage.h>
-#include <GrayRasterOp.h>
-#include <Grayscale.h>
+#include <ColorModeDetector.h>
 #include <ImageLoader.h>
-#include <Morphology.h>
-#include <Scale.h>
-#include <SeedFill.h>
+#include <NullTaskStatus.h>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QGuiApplication>
@@ -32,10 +28,8 @@
 #include <iostream>
 #include <vector>
 
-#include "LeptonicaDetector.h"
-
 namespace {
-using ColorType = LeptonicaDetector::ColorType;
+using Mode = ColorModeDetector::Mode;
 
 // Crops dark scanner borders: removes edge rows and columns whose mean brightness is low.
 QRect brightArea(const QImage& image) {
@@ -74,106 +68,15 @@ QRect brightArea(const QImage& image) {
   return QRect(QPoint(left, top), QPoint(right, bottom));
 }
 
-// The same steps as OutputGenerator::Processor::detectPictures() (picture zones of the Mixed mode).
-struct CombineInverted {
-  static uint8_t transform(uint8_t src, uint8_t dst) {
-    const unsigned dilated = dst;
-    const unsigned eroded = src;
-    return static_cast<uint8_t>(255 - (255 - dilated) * eroded / 255);
-  }
-};
-
-imageproc::GrayImage detectPictures(const imageproc::GrayImage& input300dpi, bool higherSensitivity) {
-  using namespace imageproc;
-  GrayImage stretched(stretchGrayRange(input300dpi, 0.01, 0.01));
-  GrayImage eroded(erodeGray(stretched, QSize(3, 3), 0x00));
-  GrayImage dilated(dilateGray(stretched, QSize(3, 3), 0xff));
-  grayRasterOp<CombineInverted>(dilated, eroded);
-  GrayImage grayGradient(dilated);
-  GrayImage marker(erodeGray(grayGradient, QSize(35, 35), 0x00));
-  seedFillGrayInPlace(marker, grayGradient, CONN8);
-  GrayImage reconstructed(marker);
-  grayRasterOp<GRopInvert<GRopSrc>>(reconstructed, reconstructed);
-  GrayImage holesFilled(createFramedImage(reconstructed.size()));
-  seedFillGrayInPlace(holesFilled, reconstructed, CONN8);
-  if (higherSensitivity) {
-    return stretchGrayRange(holesFilled, 5.0, 0.01);
-  }
-  return holesFilled;
-}
-
-struct PictureEvidence {
-  double fraction = 0;         // Share of the part covered by picture areas.
-  double largestFraction = 0;  // Share of the largest connected picture area.
-  double colorInPictures = 0;  // Share of the part that is colored and inside picture areas.
-  double colorOutside = 0;     // Share of the part that is colored outside picture areas
-                               // (headings, boxes, thumb index tabs).
-};
-
-// A pixel counts as colored when its channels differ clearly (not gray) and it is not nearly black.
-bool isColored(QRgb rgb) {
-  const int r = qRed(rgb), g = qGreen(rgb), b = qBlue(rgb);
-  const int mx = std::max({r, g, b});
-  const int mn = std::min({r, g, b});
-  return (mx - mn >= 40) && (mx >= 60);
-}
-
-PictureEvidence pictureEvidence(const QImage& part, const QString& maskFile = QString()) {
-  using namespace imageproc;
-  const double dpm = part.dotsPerMeterX() > 0 ? part.dotsPerMeterX() : 300 / 0.0254;
-  const double scale = std::min(1.0, (300 / 0.0254) / dpm);
-  const QSize size300(std::max(1, qRound(part.width() * scale)), std::max(1, qRound(part.height() * scale)));
-  const GrayImage gray300(scaleToGray(GrayImage(part), size300));
-  const BinaryImage pictures(detectPictures(gray300, false).toQImage(), BinaryThreshold(48));
-  if (!maskFile.isEmpty()) {
-    pictures.toQImage().save(maskFile);
-  }
-
-  // Light areas are pictures; BinaryImage stores them as WHITE.
-  const BinaryImage pictureMask(pictures.inverted());
-  PictureEvidence ev;
-  const double total = double(pictureMask.width()) * pictureMask.height();
-  ev.fraction = pictureMask.countBlackPixels() / total;
-
-  if (part.format() != QImage::Format_Grayscale8 && part.format() != QImage::Format_Indexed8
-      && part.format() != QImage::Format_Mono && part.format() != QImage::Format_MonoLSB) {
-    const QImage color300
-        = part.scaled(size300, Qt::IgnoreAspectRatio, Qt::SmoothTransformation).convertToFormat(QImage::Format_RGB32);
-    long inPictures = 0, outside = 0;
-    for (int y = 0; y < color300.height(); ++y) {
-      const auto* line = reinterpret_cast<const QRgb*>(color300.constScanLine(y));
-      for (int x = 0; x < color300.width(); ++x) {
-        if (isColored(line[x])) {
-          ++(pictureMask.getPixel(x, y) == BLACK ? inPictures : outside);
-        }
-      }
-    }
-    ev.colorInPictures = inPictures / total;
-    ev.colorOutside = outside / total;
-  }
-  ConnectivityMap cmap(pictureMask, CONN8);
-  std::vector<int> areas(cmap.maxLabel() + 1, 0);
-  const uint32_t* line = cmap.data();
-  for (int y = 0; y < cmap.size().height(); ++y, line += cmap.stride()) {
-    for (int x = 0; x < cmap.size().width(); ++x) {
-      ++areas[line[x]];
-    }
-  }
-  for (size_t label = 1; label < areas.size(); ++label) {
-    ev.largestFraction = std::max(ev.largestFraction, areas[label] / total);
-  }
-  return ev;
-}
-
-QColor verdictColor(ColorType type) {
+QColor verdictColor(Mode type) {
   switch (type) {
-    case ColorType::BlackWhite:
+    case Mode::BlackWhite:
       return QColor(120, 120, 120);
-    case ColorType::Grayscale:
+    case Mode::Grayscale:
       return QColor(40, 90, 200);
-    case ColorType::Mixed:
+    case Mode::Mixed:
       return QColor(230, 130, 0);
-    case ColorType::Color:
+    case Mode::Color:
       return QColor(200, 30, 30);
   }
   return Qt::black;
@@ -182,7 +85,7 @@ QColor verdictColor(ColorType type) {
 struct Result {
   QString label;
   QImage thumb;
-  ColorType type;
+  Mode type;
 };
 
 void writeSheets(const std::vector<Result>& results, const QString& outDir) {
@@ -206,7 +109,7 @@ void writeSheets(const std::vector<Result>& results, const QString& outDir) {
       p.fillRect(QRect(cell.left(), cell.top(), cellW, 26), verdictColor(r.type));
       p.setPen(Qt::white);
       p.drawText(QRect(cell.left() + 4, cell.top(), cellW - 8, 26), Qt::AlignVCenter | Qt::AlignLeft,
-                 r.label + "  " + LeptonicaDetector::colorTypeToString(r.type));
+                 r.label + "  " + ColorModeDetector::modeToString(r.type));
       const QImage t = r.thumb.scaled(cellW - 8, cellH - 34, Qt::KeepAspectRatio, Qt::SmoothTransformation);
       p.drawImage(cell.left() + (cellW - t.width()) / 2, cell.top() + 30, t);
     }
@@ -220,28 +123,19 @@ int main(int argc, char** argv) {
   QGuiApplication app(argc, argv);  // QPainter needs fonts.
   const QStringList args = app.arguments();
   if (args.size() < 3) {
-    std::cerr << "Usage: color_detect <input folder> <output folder> [--whole] [--nosplit] [--masks] [--nozones] "
-                 "[--mincolor=1] [--mincolorpic=0.5] [--minpicture=25]\n";
+    std::cerr << "Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3]\n";
     return 1;
   }
   const QDir inDir(args[1]);
   const QString outDir = args[2];
-  const bool whole = args.contains("--whole");
   const bool noSplit = args.contains("--nosplit");
-  const bool saveMasks = args.contains("--masks");
-  const bool useZones = !args.contains("--nozones");
-  auto optionValue = [&args](const QString& name, double defaultValue) {
-    for (const QString& arg : args) {
-      if (arg.startsWith(name + "=")) {
-        return arg.mid(name.size() + 1).toDouble();
-      }
+  ColorModeDetector::Options options;
+  options.usePictureZones = args.contains("--zones");
+  for (const QString& arg : args) {
+    if (arg.startsWith("--mincolor=")) {
+      options.minColorShare = arg.mid(11).toDouble() / 100;
     }
-    return defaultValue;
-  };
-  // Shares of the analyzed part, in percent on the command line.
-  const double minColor = optionValue("--mincolor", 1.0) / 100;
-  const double minColorInPictures = optionValue("--mincolorpic", 0.5) / 100;
-  const double minPicture = optionValue("--minpicture", 25) / 100;
+  }
   QDir().mkpath(outDir);
 
   QFile csvFile(outDir + "/color_detect.csv");
@@ -250,10 +144,10 @@ int main(int argc, char** argv) {
     return 1;
   }
   QTextStream csv(&csvFile);
-  csv << "file;part;verdict;reason;darkRatio;midtoneRatio;lightRatio;colorFraction;toneTiles;regions;"
-         "largestRegionTiles;largestRegionCoverage;toneCoverage;pictures;largestPicture;colorInPictures;"
-         "colorOutside;combined;combinedReason\n";
+  csv << "file;part;mode;reason;spectre;darkRatio;midtoneRatio;lightRatio;colorFraction;toneTiles;"
+         "largestRegionCoverage;pictureShare;largestPicture;colorInPictures;colorOutside;textOutside\n";
 
+  const NullTaskStatus status;
   std::vector<Result> results;
   const QStringList files = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
   int fileNo = 0;
@@ -266,9 +160,6 @@ int main(int argc, char** argv) {
     }
     const QRect area = brightArea(image);
     std::vector<std::pair<QString, QRect>> parts;
-    if (whole) {
-      parts.emplace_back("whole", area);
-    }
     if (noSplit) {
       parts.emplace_back("page", area);
     } else if (area.width() >= area.height()) {
@@ -283,55 +174,22 @@ int main(int argc, char** argv) {
 
     for (const auto& [partName, rect] : parts) {
       const QImage part = image.copy(rect);
-      LeptonicaDetector::DetectionEvidence ev;
-      const ColorType type = LeptonicaDetector::detectWithCastCompensation(part, 10, &ev);
-      csv << name << ';' << partName << ';' << LeptonicaDetector::colorTypeToString(type) << ';'
-          << LeptonicaDetector::classificationReason(ev) << ';' << ev.darkRatio << ';' << ev.midtoneRatio << ';'
-          << ev.lightRatio << ';' << ev.colorFraction << ';' << ev.continuousToneTileCount << ';'
-          << ev.continuousToneRegionCount << ';' << ev.largestRegionTileCount << ';' << ev.largestRegionCoverage << ';'
-          << ev.continuousToneCoverage;
-      // Our picture detection runs on the content area in the program, so leave out the edges
-      // (book edge, gutter shadow, scanner border) here.
       const int inset = noSplit ? 3 : 8;
-      const QImage inner = part.copy(part.rect().adjusted(part.width() * inset / 100, part.height() * inset / 100,
-                                                          -part.width() * inset / 100, -part.height() * inset / 100));
-      QString maskFile;
-      if (saveMasks) {
-        QDir().mkpath(outDir + "/masks");
-        maskFile = QStringLiteral("%1/masks/%2_%3.png").arg(outDir).arg(fileNo, 3, 10, QChar('0')).arg(partName);
-      }
-      const PictureEvidence pic = pictureEvidence(inner, maskFile);
-
-      // Combined verdict:
-      // - Color only if enough color lies outside picture areas (headings, tabs and narrow boxes
-      //   below the minimum share are ignored).
-      // - Otherwise colored pictures make the page Mixed.
-      // - Otherwise the page is judged again without color, with our picture zones as a second opinion.
-      ColorType combined = type;
-      QString why = "spectre";
-      if (type == ColorType::Color && pic.colorOutside < minColor) {
-        if (pic.colorInPictures >= minColorInPictures) {
-          combined = ColorType::Mixed;
-          why = "color_only_in_pictures";
-        } else {
-          LeptonicaDetector::DetectionEvidence grayEv;
-          combined = LeptonicaDetector::detect(part.convertToFormat(QImage::Format_Grayscale8), 10, &grayEv);
-          ev.darkRatio = grayEv.darkRatio;
-          why = "too_little_color";
-        }
-      }
-      if (useZones && combined == ColorType::BlackWhite && pic.largestFraction >= minPicture
-          && pic.largestFraction < 0.95 && ev.darkRatio >= 0.01) {
-        combined = ColorType::Mixed;
-        why += "+picture_zone";
-      }
-      csv << ';' << pic.fraction << ';' << pic.largestFraction << ';' << pic.colorInPictures << ';' << pic.colorOutside
-          << ';' << LeptonicaDetector::colorTypeToString(combined) << ';' << why << '\n';
+      const QImage content = part.copy(part.rect().adjusted(part.width() * inset / 100, part.height() * inset / 100,
+                                                            -part.width() * inset / 100, -part.height() * inset / 100));
+      ColorModeDetector::Evidence ev;
+      const Mode mode = ColorModeDetector::detect(content, options, status, &ev);
+      csv << name << ';' << partName << ';' << ColorModeDetector::modeToString(mode) << ';' << ev.reason << ';'
+          << LeptonicaDetector::colorTypeToString(ev.spectreVerdict) << ';' << ev.spectre.darkRatio << ';'
+          << ev.spectre.midtoneRatio << ';' << ev.spectre.lightRatio << ';' << ev.spectre.colorFraction << ';'
+          << ev.spectre.continuousToneTileCount << ';' << ev.spectre.largestRegionCoverage << ';' << ev.pictureShare
+          << ';' << ev.largestPicture << ';' << ev.colorInPictures << ';' << ev.colorOutside << ';' << ev.textOutside
+          << '\n';
       results.push_back({QStringLiteral("%1 %2 (%3)")
                              .arg(fileNo)
                              .arg(partName)
-                             .arg(QString::fromLatin1(LeptonicaDetector::colorTypeToString(type))),
-                         part.scaled(600, 600, Qt::KeepAspectRatio, Qt::SmoothTransformation), combined});
+                             .arg(QString::fromLatin1(LeptonicaDetector::colorTypeToString(ev.spectreVerdict))),
+                         part.scaled(600, 600, Qt::KeepAspectRatio, Qt::SmoothTransformation), mode});
     }
     std::cout << fileNo << "/" << files.size() << " " << name.toStdString() << "\n" << std::flush;
   }

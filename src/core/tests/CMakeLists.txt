@@ -22,6 +22,10 @@ set(sources
     TestWidthCorrection.cpp
     TestWidthProfile.cpp
     TestUtils.cpp)
+# The color mode detection comes with OCR (Leptonica).
+if (TESSERACT_TARGET)
+  list(APPEND sources TestColorModeDetector.cpp)
+endif()
 
 add_executable(core_tests ${sources})
 target_link_libraries(

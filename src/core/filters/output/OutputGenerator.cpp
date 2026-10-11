@@ -19,6 +19,7 @@
 #include <InfluenceMap.h>
 #include <Morphology.h>
 #include <OrthogonalRotation.h>
+#include <PictureDetection.h>
 #include <PolygonRasterizer.h>
 #include <PolynomialSurface.h>
 #include <RasterDewarper.h>
@@ -390,15 +391,6 @@ struct RaiseAboveBackground {
     const unsigned orig = src;
     const unsigned background = dst;
     return static_cast<uint8_t>((orig * 255 + background / 2) / background);
-  }
-};
-
-struct CombineInverted {
-  static uint8_t transform(uint8_t src, uint8_t dst) {
-    const unsigned dilated = dst;
-    const unsigned eroded = src;
-    const unsigned res = 255 - (255 - dilated) * eroded / 255;
-    return static_cast<uint8_t>(res);
   }
 };
 
@@ -2182,81 +2174,7 @@ void OutputGenerator::Processor::evenOutLetterWidths(DistortionModel& distortion
 }
 
 GrayImage OutputGenerator::Processor::detectPictures(const GrayImage& input300dpi) const {
-  // We stretch the range of gray levels to cover the whole
-  // range of [0, 255].  We do it because we want text
-  // and background to be equally far from the center
-  // of the whole range.  Otherwise text printed with a big
-  // font will be considered a picture.
-  GrayImage stretched(stretchGrayRange(input300dpi, 0.01, 0.01));
-  if (m_dbg) {
-    m_dbg->add(stretched, "stretched");
-  }
-
-  m_status.throwIfCancelled();
-
-  GrayImage eroded(erodeGray(stretched, QSize(3, 3), 0x00));
-  if (m_dbg) {
-    m_dbg->add(eroded, "eroded");
-  }
-
-  m_status.throwIfCancelled();
-
-  GrayImage dilated(dilateGray(stretched, QSize(3, 3), 0xff));
-  if (m_dbg) {
-    m_dbg->add(dilated, "dilated");
-  }
-
-  stretched = GrayImage();  // Save memory.
-  m_status.throwIfCancelled();
-
-  grayRasterOp<CombineInverted>(dilated, eroded);
-  GrayImage grayGradient(dilated);
-  dilated = GrayImage();
-  eroded = GrayImage();
-  if (m_dbg) {
-    m_dbg->add(grayGradient, "grayGradient");
-  }
-
-  m_status.throwIfCancelled();
-
-  GrayImage marker(erodeGray(grayGradient, QSize(35, 35), 0x00));
-  if (m_dbg) {
-    m_dbg->add(marker, "marker");
-  }
-
-  m_status.throwIfCancelled();
-
-  seedFillGrayInPlace(marker, grayGradient, CONN8);
-  GrayImage reconstructed(marker);
-  marker = GrayImage();
-  if (m_dbg) {
-    m_dbg->add(reconstructed, "reconstructed");
-  }
-
-  m_status.throwIfCancelled();
-
-  grayRasterOp<GRopInvert<GRopSrc>>(reconstructed, reconstructed);
-  if (m_dbg) {
-    m_dbg->add(reconstructed, "reconstructed_inverted");
-  }
-
-  m_status.throwIfCancelled();
-
-  GrayImage holesFilled(createFramedImage(reconstructed.size()));
-  seedFillGrayInPlace(holesFilled, reconstructed, CONN8);
-  reconstructed = GrayImage();
-  if (m_dbg) {
-    m_dbg->add(holesFilled, "holesFilled");
-  }
-
-  if (m_pictureShapeOptions.isHigherSearchSensitivity()) {
-    GrayImage stretched2(stretchGrayRange(holesFilled, 5.0, 0.01));
-    if (m_dbg) {
-      m_dbg->add(stretched2, "stretched2");
-    }
-    return stretched2;
-  }
-  return holesFilled;
+  return ::detectPictures(input300dpi, m_pictureShapeOptions.isHigherSearchSensitivity(), m_status, m_dbg);
 }
 
 BinaryThreshold OutputGenerator::Processor::adjustThreshold(BinaryThreshold threshold) const {

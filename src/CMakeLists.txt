@@ -13,5 +13,8 @@ endif()
 
 if (BUILD_DEV_TOOLS)
   add_subdirectory(tools/binarization_compare)
-  add_subdirectory(tools/color_detect)
+  # Needs the color mode detection, which comes with OCR (Leptonica).
+  if (TESSERACT_TARGET)
+    add_subdirectory(tools/color_detect)
+  endif()
 endif()
