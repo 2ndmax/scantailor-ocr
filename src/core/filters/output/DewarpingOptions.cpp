@@ -11,23 +11,30 @@ using namespace foundation;
 
 namespace output {
 DewarpingOptions::DewarpingOptions(DewarpingMode mode, bool needPostDeskew)
-    : m_mode(mode), m_needPostDeskew(needPostDeskew), m_postDeskewAngle(0.0) {}
+    : m_mode(mode), m_needPostDeskew(needPostDeskew), m_postDeskewAngle(0.0), m_evenOutLetterWidths(false) {}
 
 DewarpingOptions::DewarpingOptions(const QDomElement& el)
     : m_mode(parseDewarpingMode(el.attribute("mode"))),
       m_needPostDeskew(el.attribute("postDeskew", "1") == "1"),
-      m_postDeskewAngle(el.attribute("postDeskewAngle").toDouble()) {}
+      m_postDeskewAngle(el.attribute("postDeskewAngle").toDouble()),
+      // Absent in projects from other versions, where it is then off.
+      m_evenOutLetterWidths(el.attribute("evenOutLetterWidths") == "1") {}
 
 QDomElement DewarpingOptions::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("mode", formatDewarpingMode(m_mode));
   el.setAttribute("postDeskew", m_needPostDeskew ? "1" : "0");
   el.setAttribute("postDeskewAngle", Utils::doubleToString(m_postDeskewAngle));
+  if (m_evenOutLetterWidths) {
+    // Only written when on, so projects not using it contain nothing unknown to other versions.
+    el.setAttribute("evenOutLetterWidths", "1");
+  }
   return el;
 }
 
 bool DewarpingOptions::operator==(const DewarpingOptions& other) const {
-  return (m_mode == other.m_mode) && (m_needPostDeskew == other.m_needPostDeskew);
+  return (m_mode == other.m_mode) && (m_needPostDeskew == other.m_needPostDeskew)
+         && (m_evenOutLetterWidths == other.m_evenOutLetterWidths);
 }
 
 bool DewarpingOptions::operator!=(const DewarpingOptions& other) const {

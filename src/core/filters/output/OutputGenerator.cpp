@@ -29,6 +29,7 @@
 #include <TextLineTracer.h>
 #include <TopBottomEdgeTracer.h>
 #include <Transform.h>
+#include <WidthProfile.h>
 #include <core/ApplicationSettings.h>
 #include <imageproc/BackgroundColorCalculator.h>
 #include <imageproc/ColorSegmenter.h>
@@ -154,6 +155,15 @@ class OutputGenerator::Processor {
                 const DistortionModel& distortionModel,
                 const DepthPerception& depthPerception,
                 const QColor& bgColor) const;
+
+  /**
+   * Measures the letter widths on the dewarped page.  If they differ enough,
+   * stores a width correction in the distortion model and dewarps src again.
+   */
+  void evenOutLetterWidths(DistortionModel& distortionModel,
+                           const DepthPerception& depthPerception,
+                           const QImage& src,
+                           QImage& dewarped) const;
 
   GrayImage normalizeIlluminationGray(const QImage& input,
                                       const QPolygonF& areaToConsider,
@@ -1677,8 +1687,13 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   QTransform rotateXform;
   QImage dewarped;
   try {
+    // A stored width correction comes from an earlier run; it is measured anew below.
+    distortionModel.setWidthCorrection(WidthCorrection());
     dewarped = dewarp(QTransform(), normalizedOriginal, m_xform.transform(), distortionModel, depthPerception,
                       m_outsideBackgroundColor);
+    if (m_dewarpingOptions.evenOutLetterWidths()) {
+      evenOutLetterWidths(distortionModel, depthPerception, normalizedOriginal, dewarped);
+    }
 
     const double deskewAngle = -findSkew(dewarped);
     rotateXform = Utils::rotate(deskewAngle, m_outRect);
@@ -2150,6 +2165,26 @@ QImage OutputGenerator::Processor::dewarp(const QTransform& origToSrc,
     return out;
   }
   return RasterDewarper::dewarp(src, m_outRect.size(), dewarper, modelDomain, bgColor);
+}
+
+void OutputGenerator::Processor::evenOutLetterWidths(DistortionModel& distortionModel,
+                                                     const DepthPerception& depthPerception,
+                                                     const QImage& src,
+                                                     QImage& dewarped) const {
+  const std::vector<WidthProfile::Sample> samples
+      = WidthProfile::measure(GrayImage(dewarped), m_croppedContentRect, m_dpi.horizontal());
+  // The same model domain as in dewarp(), where output x maps to (x - left) / (right - left).
+  const CylindricalSurfaceDewarper dewarper(createDewarper(distortionModel, QTransform(), depthPerception.value()));
+  const QRect modelDomain(distortionModel.modelDomain(dewarper, m_xform.transform(), m_outRect).toRect());
+  const WidthCorrection correction
+      = WidthProfile::toCorrection(samples, modelDomain.left(), modelDomain.right() - modelDomain.left());
+  if (correction.isNull()) {
+    return;
+  }
+  m_status.throwIfCancelled();
+
+  distortionModel.setWidthCorrection(correction);
+  dewarped = dewarp(QTransform(), src, m_xform.transform(), distortionModel, depthPerception, m_outsideBackgroundColor);
 }
 
 GrayImage OutputGenerator::Processor::detectPictures(const GrayImage& input300dpi) const {

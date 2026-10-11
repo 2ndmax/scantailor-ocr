@@ -327,8 +327,12 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
 
       params = m_settings->getParams(m_pageId);
 
-      if (((params.dewarpingOptions().dewarpingMode() == AUTO)
-           || (params.dewarpingOptions().dewarpingMode() == MARGINAL))
+      const DewarpingMode dewarpingMode = params.dewarpingOptions().dewarpingMode();
+      // In manual mode only the width correction can have changed.
+      const bool widthCorrectionChanged
+          = (dewarpingMode == MANUAL)
+            && !distortionModel.widthCorrection().matches(params.distortionModel().widthCorrection());
+      if (((dewarpingMode == AUTO) || (dewarpingMode == MARGINAL) || widthCorrectionChanged)
           && distortionModel.isValid()) {
         // A new distortion model was generated.
         // We need to save it to be able to modify it manually.

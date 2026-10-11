@@ -96,7 +96,8 @@ std::vector<WidthProfile::Sample> WidthProfile::measure(const imageproc::GrayIma
   std::sort(horRuns.begin(), horRuns.end());
   const int window = std::max(8, static_cast<int>(std::lround(dpi * kWindowInches)));
   const int step = window / 2;
-  std::vector<Sample> samples;
+  std::vector<Sample> candidates;
+  std::vector<double> counts;
   std::vector<int> lengths;
   auto first = horRuns.begin();
   for (int x0 = rect.left(); x0 + window <= rect.right() + 1; x0 += step) {
@@ -108,11 +109,21 @@ std::vector<WidthProfile::Sample> WidthProfile::measure(const imageproc::GrayIma
       lengths.push_back(it->second);
     }
     if (lengths.size() >= minRuns) {
-      samples.push_back({x0 + window / 2.0, trimmedMean(lengths) / thickness});
+      candidates.push_back({x0 + window / 2.0, trimmedMean(lengths) / thickness});
+      counts.push_back(static_cast<double>(lengths.size()));
     }
   }
-  if (samples.empty()) {
+  if (candidates.empty()) {
     return {};
+  }
+  // Windows with clearly less text than usual, such as at the ragged end of lines,
+  // come out too wide; they are left out.
+  const double minCount = 0.5 * median(counts);
+  std::vector<Sample> samples;
+  for (size_t i = 0; i < candidates.size(); ++i) {
+    if (counts[i] >= minCount) {
+      samples.push_back(candidates[i]);
+    }
   }
 
   std::vector<double> scales;

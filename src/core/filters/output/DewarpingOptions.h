@@ -34,6 +34,11 @@ class DewarpingOptions {
 
   void setPostDeskewAngle(double postDeskewAngle);
 
+  // "Even out letter widths": measure the letter widths on the dewarped page and correct them.
+  bool evenOutLetterWidths() const { return m_evenOutLetterWidths; }
+
+  void setEvenOutLetterWidths(bool on) { m_evenOutLetterWidths = on; }
+
   static DewarpingMode parseDewarpingMode(const QString& str);
 
   static QString formatDewarpingMode(DewarpingMode mode);
@@ -42,6 +47,7 @@ class DewarpingOptions {
   DewarpingMode m_mode;
   bool m_needPostDeskew;
   double m_postDeskewAngle;
+  bool m_evenOutLetterWidths;
 };
 
 

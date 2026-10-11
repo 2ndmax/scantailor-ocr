@@ -580,6 +580,16 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3605"/>
+        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3608"/>
+        <source>Even out letter widths</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1962"/>
         <source>Output color scans in grayscale: the whole page in color mode, pictures and colored text in mixed mode. Grayscale files are much smaller.</source>
         <translation type="unfinished"></translation>
@@ -911,7 +921,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3268"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1065"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1120,7 +1130,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="110"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1193"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1196"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1140,41 +1150,41 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1065"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1156"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1182"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1159"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1165"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1185"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1202"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1217"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1156"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1159"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1165"/>
         <source>Error loading the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1183"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1186"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1202"/>
         <source>Error saving the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1217"/>
         <source>Error deleting the profile.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4235,7 +4245,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1903"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="957"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="969"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4250,7 +4260,17 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1981"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1957"/>
+        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1960"/>
+        <source>Even out letter widths</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1991"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4260,7 +4280,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <location filename="../core/filters/output/OptionsWidget.ui" line="1491"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1643"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1795"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1984"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1994"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4527,7 +4547,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1324"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1337"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4605,7 +4625,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="666"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="672"/>
         <source>Apply Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4778,7 +4798,7 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="352"/>
+        <location filename="../core/filters/output/Task.cpp" line="356"/>
         <source>The split output layers could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4786,37 +4806,37 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="543"/>
+        <location filename="../core/filters/output/Task.cpp" line="547"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="582"/>
+        <location filename="../core/filters/output/Task.cpp" line="586"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="593"/>
+        <location filename="../core/filters/output/Task.cpp" line="597"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="594"/>
+        <location filename="../core/filters/output/Task.cpp" line="598"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="595"/>
+        <location filename="../core/filters/output/Task.cpp" line="599"/>
         <source>Fill Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="596"/>
+        <location filename="../core/filters/output/Task.cpp" line="600"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="597"/>
+        <location filename="../core/filters/output/Task.cpp" line="601"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>

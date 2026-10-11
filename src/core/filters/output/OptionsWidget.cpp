@@ -660,6 +660,12 @@ void OptionsWidget::dewarpingPostDeskewToggled(const bool checked) {
   dewarpingChanged({m_pageId}, opt);
 }
 
+void OptionsWidget::evenOutLetterWidthsToggled(const bool checked) {
+  DewarpingOptions opt(m_dewarpingOptions);
+  opt.setEvenOutLetterWidths(checked);
+  dewarpingChanged({m_pageId}, opt);
+}
+
 void OptionsWidget::applyDewarpingButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -771,6 +777,9 @@ void OptionsWidget::reloadIfNecessary() {
 
   if ((savedDewarpingOptions.dewarpingMode() == OFF) && (params.dewarpingOptions().dewarpingMode() == OFF)) {
   } else if (savedDepthPerception.value() != params.depthPerception().value()) {
+    emit reloadRequested();
+    return;
+  } else if (savedDewarpingOptions.evenOutLetterWidths() != params.dewarpingOptions().evenOutLetterWidths()) {
     emit reloadRequested();
     return;
   } else if ((savedDewarpingOptions.dewarpingMode() == AUTO) && (params.dewarpingOptions().dewarpingMode() == AUTO)) {
@@ -943,14 +952,17 @@ void OptionsWidget::updateColorsDisplay() {
 void OptionsWidget::updateDewarpingDisplay() {
   // Shown in every view, grayed out while there is no dewarping.
   depthPerceptionPanel->setEnabled(m_dewarpingOptions.dewarpingMode() != OFF);
+  evenOutLetterWidthsCB->setEnabled(m_dewarpingOptions.dewarpingMode() != OFF);
 
   {
     const QSignalBlocker modeBlocker(m_dewarpingModeGroup);
     const QSignalBlocker postDeskewBlocker(dewarpingPostDeskewCB);
+    const QSignalBlocker evenOutBlocker(evenOutLetterWidthsCB);
     if (QAbstractButton* button = m_dewarpingModeGroup->button(m_dewarpingOptions.dewarpingMode())) {
       button->setChecked(true);
     }
     dewarpingPostDeskewCB->setChecked(m_dewarpingOptions.needPostDeskew());
+    evenOutLetterWidthsCB->setChecked(m_dewarpingOptions.evenOutLetterWidths());
   }
 
   // The angle found by the post deskew is shown where it is used.
@@ -1285,6 +1297,7 @@ void OptionsWidget::setupUiConnections() {
 
   CONNECT(m_dewarpingModeGroup, &QButtonGroup::idClicked, this, &OptionsWidget::dewarpingModeChanged);
   CONNECT(dewarpingPostDeskewCB, &QAbstractButton::clicked, this, &OptionsWidget::dewarpingPostDeskewToggled);
+  CONNECT(evenOutLetterWidthsCB, &QAbstractButton::clicked, this, &OptionsWidget::evenOutLetterWidthsToggled);
   CONNECT(applyDewarpingButton, &QAbstractButton::clicked, this, &OptionsWidget::applyDewarpingButtonClicked);
 
 

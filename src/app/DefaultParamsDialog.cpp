@@ -473,6 +473,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
     dewarpingModeBtn->setChecked(true);
   }
   dewarpingPostDeskewCB->setChecked(params.getDewarpingOptions().needPostDeskew());
+  evenOutLetterWidthsCB->setChecked(params.getDewarpingOptions().evenOutLetterWidths());
   depthPerceptionSlider->setValue(qRound(params.getDepthPerception().value() * 10));
 
   // update the display
@@ -888,6 +889,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   DewarpingOptions dewarpingOptions;
   dewarpingOptions.setDewarpingMode(static_cast<DewarpingMode>(m_dewarpingModeGroup->checkedId()));
   dewarpingOptions.setPostDeskew(dewarpingPostDeskewCB->isChecked());
+  dewarpingOptions.setEvenOutLetterWidths(evenOutLetterWidthsCB->isChecked());
 
   double despeckleLevel;
   if (despeckleCB->isChecked()) {
@@ -1095,6 +1097,7 @@ void DefaultParamsDialog::dewarpingModeChanged() {
   const int mode = m_dewarpingModeGroup->checkedId();
   dewarpingPostDeskewCB->setEnabled((mode == MANUAL) || (mode == MARGINAL));
   depthPerceptionPanel->setEnabled(mode != OFF);
+  evenOutLetterWidthsCB->setEnabled(mode != OFF);
 }
 
 void DefaultParamsDialog::depthPerceptionChangedSlot(const int val) {

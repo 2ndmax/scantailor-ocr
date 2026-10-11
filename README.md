@@ -273,6 +273,28 @@ from working:
 * The PDF export compresses the pages itself, so these options don't change the PDF – except
   that JPEG-compressed TIFF files lose quality before they reach the PDF.
 
+### Output: even out letter widths after dewarping
+
+* **New option "Even out letter widths"** under *Output* → "Dewarping", below *Depth
+  perception* (also in the default parameters dialog), off by default. Dewarping straightens
+  the lines well, but the letters often come out too narrow near the spine and too wide further
+  away – on a real book page from −18 % to +13 %. *Depth perception* only scales this
+  correction as a whole, so a higher value fixes the spine and overstretches the rest.
+* With the option on, the dewarped page is measured: the vertical stems of letters have the
+  same width everywhere on a printed page, while horizontal strokes are not affected by a
+  horizontal compression, so their ratio shows the local scale. It is measured in windows of
+  about 7 mm. From this profile a correction is computed that stretches the compressed and
+  compresses the overstretched areas, keeping the page width and margins; then the page is
+  dewarped once more. On the real book page the deviations dropped to −9 % at the spine and
+  ±2 % elsewhere; synthetic pages with known geometry and a flat control page were used to
+  check the measurement.
+* No correction for pages with too little text, deviations below 3 % or windows with clearly
+  less text than usual (the ragged end of lines); at most 40 % in either direction.
+* The correction is stored with the distortion model in the project, so zones and the views
+  use the same mapping as the output; moving a curve by hand discards it. Dewarping takes about
+  twice as long for pages with the option on. Not in ScanTailor Advanced or ScanTailor
+  Experimental.
+
 ### Options panels: one layout for all steps
 
 * Each panel holds what its **Apply to ...** button applies to other pages. Parts of a panel are

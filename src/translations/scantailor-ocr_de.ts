@@ -906,7 +906,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3268"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1065"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -1011,6 +1011,16 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Nachträglich geraderichten</translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3605"/>
+        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
+        <translation>Misst die Breite der Buchstaben auf der entzerrten Seite und dehnt oder staucht die Seite dort, wo sie zu schmal oder zu breit geraten sind, etwa am Bund.  Verlangsamt die Verarbeitung.  Wird nur beim Entzerren verwendet.</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3608"/>
+        <source>Even out letter widths</source>
+        <translation>Buchstabenbreite angleichen</translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="61"/>
         <source>Black and White</source>
         <translation>Schwarz-Weiß</translation>
@@ -1110,7 +1120,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="110"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1193"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1196"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
@@ -1130,36 +1140,36 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Quelle</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1065"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1156"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1182"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1159"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1165"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1185"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1202"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1217"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1165"/>
         <source>Error loading the profile.</source>
         <translation>Fehler beim Laden des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1183"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1186"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Der Name steht im Widerspruch zu einem Standardprofilnamen. Bitte geben Sie einen anderen Namen ein.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1202"/>
         <source>Error saving the profile.</source>
         <translation>Fehler beim Speichern des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1217"/>
         <source>Error deleting the profile.</source>
         <translation>Fehler beim Löschen des Profils.</translation>
     </message>
@@ -1179,7 +1189,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1156"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1159"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Die Profildatei ist nicht mit der aktuellen Anwendungsversion kompatibel. Entfernen?</translation>
     </message>
@@ -4097,7 +4107,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Alle Verfahren sind verlustfrei; CCITT G4 ergibt meist die kleinsten Dateien.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1324"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1337"/>
         <source>Apply Content</source>
         <translation>Inhalt anwenden</translation>
     </message>
@@ -4122,7 +4132,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Aufteilung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="666"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="672"/>
         <source>Apply Dewarping</source>
         <translation>Entzerrung anwenden</translation>
     </message>
@@ -4470,7 +4480,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1903"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="957"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="969"/>
         <source>Post deskew</source>
         <translation>Nachträglich geraderichten</translation>
     </message>
@@ -4485,7 +4495,17 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Tiefenwahrnehmung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1981"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1957"/>
+        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
+        <translation>Misst die Breite der Buchstaben auf der entzerrten Seite und dehnt oder staucht die Seite dort, wo sie zu schmal oder zu breit geraten sind, etwa am Bund.  Verlangsamt die Verarbeitung.  Wird nur beim Entzerren verwendet.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1960"/>
+        <source>Even out letter widths</source>
+        <translation>Buchstabenbreite angleichen</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1991"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation>Überträgt den Entzerrungsmodus, „Nachträglich geraderichten“ und die Tiefenwahrnehmung dieser Seite auf andere Seiten.</translation>
     </message>
@@ -4495,7 +4515,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <location filename="../core/filters/output/OptionsWidget.ui" line="1491"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1643"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1795"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1984"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1994"/>
         <source>Apply to ...</source>
         <translation>Anwenden auf ...</translation>
     </message>
@@ -4809,7 +4829,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="352"/>
+        <location filename="../core/filters/output/Task.cpp" line="356"/>
         <source>The split output layers could not be created.</source>
         <translation>Die Ebenen der aufgeteilten Ausgabe konnten nicht erzeugt werden.</translation>
     </message>
@@ -4817,37 +4837,37 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="543"/>
+        <location filename="../core/filters/output/Task.cpp" line="547"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation>Bildzonen sind nur im Gemischtmodus verfügbar.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="582"/>
+        <location filename="../core/filters/output/Task.cpp" line="586"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation>Flecken können nicht im Farb / Graustufenmodus entfernt werden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="593"/>
+        <location filename="../core/filters/output/Task.cpp" line="597"/>
         <source>Output</source>
         <translation>Ausgabe</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="594"/>
+        <location filename="../core/filters/output/Task.cpp" line="598"/>
         <source>Picture Zones</source>
         <translation>Bildzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="595"/>
+        <location filename="../core/filters/output/Task.cpp" line="599"/>
         <source>Fill Zones</source>
         <translation>Füllzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="596"/>
+        <location filename="../core/filters/output/Task.cpp" line="600"/>
         <source>Dewarping</source>
         <translation>Entzerren</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="597"/>
+        <location filename="../core/filters/output/Task.cpp" line="601"/>
         <source>Despeckling</source>
         <translation>Fleckenentfernung</translation>
     </message>

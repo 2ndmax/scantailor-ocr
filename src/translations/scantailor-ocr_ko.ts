@@ -891,7 +891,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3268"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1065"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
         <source>Output Resolution</source>
         <translation>출력 해상도 (DPI)</translation>
     </message>
@@ -996,6 +996,16 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>사전 기울기 보정</translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3605"/>
+        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3608"/>
+        <source>Even out letter widths</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="61"/>
         <source>Black and White</source>
         <translation>흑백</translation>
@@ -1090,7 +1100,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="110"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1193"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1196"/>
         <source>Custom</source>
         <translation>커스텀</translation>
     </message>
@@ -1110,36 +1120,36 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>원본</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1065"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1156"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1182"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1159"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1165"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1185"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1202"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1217"/>
         <source>Error</source>
         <translation>에러</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1162"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1165"/>
         <source>Error loading the profile.</source>
         <translation>프로필을 불러오는데 실패했습니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1183"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1186"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>이름이 기본 프로필과 동일합니다. 다른 이름을 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1202"/>
         <source>Error saving the profile.</source>
         <translation>프로필을 저장하는데 실패했습니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1214"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1217"/>
         <source>Error deleting the profile.</source>
         <translation>프로필을 삭제하는데 실패했습니다.</translation>
     </message>
@@ -1159,7 +1169,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>얼룩 제거</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1156"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1159"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>이 프로필은 현재 프로그램에 호환되지 않습니다. 삭제 하시겠습니까?</translation>
     </message>
@@ -4071,7 +4081,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1324"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1337"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4096,7 +4106,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation>분할 설정 적용</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="666"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="672"/>
         <source>Apply Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4449,7 +4459,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1903"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="957"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="969"/>
         <source>Post deskew</source>
         <translation type="unfinished">사전 기울기 보정</translation>
     </message>
@@ -4464,7 +4474,17 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1981"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1957"/>
+        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1960"/>
+        <source>Even out letter widths</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1991"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4474,7 +4494,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <location filename="../core/filters/output/OptionsWidget.ui" line="1491"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1643"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1795"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1984"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1994"/>
         <source>Apply to ...</source>
         <translation type="unfinished">적용하기</translation>
     </message>
@@ -4788,7 +4808,7 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="352"/>
+        <location filename="../core/filters/output/Task.cpp" line="356"/>
         <source>The split output layers could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4796,37 +4816,37 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="543"/>
+        <location filename="../core/filters/output/Task.cpp" line="547"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation>그림 영역은 혼합 모드에서만 사용 가능합니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="582"/>
+        <location filename="../core/filters/output/Task.cpp" line="586"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation>얼룩 제거는 컬러 / 회색조 모드에서 적용 불가능합니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="593"/>
+        <location filename="../core/filters/output/Task.cpp" line="597"/>
         <source>Output</source>
         <translation>출력</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="594"/>
+        <location filename="../core/filters/output/Task.cpp" line="598"/>
         <source>Picture Zones</source>
         <translation>사진 영역</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="595"/>
+        <location filename="../core/filters/output/Task.cpp" line="599"/>
         <source>Fill Zones</source>
         <translation>채우기 영역</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="596"/>
+        <location filename="../core/filters/output/Task.cpp" line="600"/>
         <source>Dewarping</source>
         <translation>왜곡 보정</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="597"/>
+        <location filename="../core/filters/output/Task.cpp" line="601"/>
         <source>Despeckling</source>
         <translation>얼룩 제거</translation>
     </message>

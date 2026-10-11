@@ -1952,6 +1952,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="evenOutLetterWidthsCB">
+        <property name="toolTip">
+         <string>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</string>
+        </property>
+        <property name="text">
+         <string>Even out letter widths</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_8">
         <property name="topMargin">
          <number>8</number>

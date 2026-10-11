@@ -171,6 +171,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void dewarpingPostDeskewToggled(bool checked);
 
+  void evenOutLetterWidthsToggled(bool checked);
+
   void applyDewarpingButtonClicked();
 
   void applyDewarpingConfirmed(const std::set<PageId>& pages);
