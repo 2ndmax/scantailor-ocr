@@ -13,4 +13,5 @@ endif()
 
 if (BUILD_DEV_TOOLS)
   add_subdirectory(tools/binarization_compare)
+  add_subdirectory(tools/color_detect)
 endif()
