@@ -90,6 +90,16 @@ class ColorCommonOptions {
   bool subtractBackgroundWhite() const;
   void setSubtractBackgroundWhite(bool val);
 
+  // A strength of 0 turns the KNN denoiser or sharpening off.
+  double knnCoef() const { return m_knnCoef; }
+  void setKnnCoef(double val) { m_knnCoef = val; }
+  int knnRadius() const { return m_knnRadius; }
+  void setKnnRadius(int val) { m_knnRadius = val; }
+  double sharpenCoef() const { return m_sharpenCoef; }
+  void setSharpenCoef(double val) { m_sharpenCoef = val; }
+  int sharpenRadius() const { return m_sharpenRadius; }
+  void setSharpenRadius(int val) { m_sharpenRadius = val; }
+
   FillingColor getFillingColor() const;
 
   void setFillingColor(FillingColor fillingColor);
@@ -118,6 +128,10 @@ class ColorCommonOptions {
   double m_subtractBackgroundCoef;
   int m_subtractBackgroundRadius;
   bool m_subtractBackgroundWhite;
+  double m_knnCoef;
+  int m_knnRadius;
+  double m_sharpenCoef;
+  int m_sharpenRadius;
   FillingColor m_fillingColor;
   PosterizationOptions m_posterizationOptions;
 };

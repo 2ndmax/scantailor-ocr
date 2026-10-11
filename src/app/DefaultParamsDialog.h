@@ -95,6 +95,10 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void subtractBgToggled(bool checked);
 
+  void knnToggled(bool checked);
+
+  void sharpenToggled(bool checked);
+
   void wienerToggled(bool checked);
 
   void dewarpingModeChanged();
@@ -173,6 +177,10 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   int m_outputDpi = 600;
   // A strength of 0 turns "Subtract background" off; turning it on again restores the last strength.
   double m_subtractBgCoefWhenOn = 1.0;
+  // A strength of 0 turns the KNN denoiser off; turning it on again restores the last strength.
+  double m_knnCoefWhenOn = 0.3;
+  // A strength of 0 turns sharpening off; turning it on again restores the last strength.
+  double m_sharpenCoefWhenOn = 1.0;
   // A strength of 0 turns the Wiener denoiser off; turning it on again restores the last strength.
   double m_wienerCoefWhenOn = 0.1;
   bool m_checkingDpi = false;

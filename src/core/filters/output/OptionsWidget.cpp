@@ -913,6 +913,22 @@ void OptionsWidget::updateColorsDisplay() {
   subtractBgCoef->setValue(m_subtractBgCoefWhenOn);
   subtractBgRadius->setValue(colorCommonOptions.subtractBackgroundRadius());
   subtractBgWhiteCB->setChecked(colorCommonOptions.subtractBackgroundWhite());
+  const bool knnOn = colorCommonOptions.knnCoef() > 0.0;
+  if (knnOn) {
+    m_knnCoefWhenOn = colorCommonOptions.knnCoef();
+  }
+  knnCB->setChecked(knnOn);
+  knnOptionsWidget->setEnabled(knnOn);
+  knnCoef->setValue(m_knnCoefWhenOn);
+  knnRadius->setValue(colorCommonOptions.knnRadius());
+  const bool sharpenOn = colorCommonOptions.sharpenCoef() > 0.0;
+  if (sharpenOn) {
+    m_sharpenCoefWhenOn = colorCommonOptions.sharpenCoef();
+  }
+  sharpenCB->setChecked(sharpenOn);
+  sharpenOptionsWidget->setEnabled(sharpenOn);
+  sharpenCoef->setValue(m_sharpenCoefWhenOn);
+  sharpenRadius->setValue(colorCommonOptions.sharpenRadius());
   const bool wienerOn = colorCommonOptions.wienerCoef() > 0.0;
   if (wienerOn) {
     m_wienerCoefWhenOn = colorCommonOptions.wienerCoef();
@@ -1100,6 +1116,70 @@ void OptionsWidget::subtractBgWhiteToggled(bool checked) {
   emit reloadRequested();
 }
 
+void OptionsWidget::knnToggled(bool checked) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setKnnCoef(checked ? m_knnCoefWhenOn : 0.0);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  knnOptionsWidget->setEnabled(checked);
+  emit reloadRequested();
+}
+
+void OptionsWidget::knnCoefChanged(double value) {
+  if (!knnCB->isChecked()) {
+    return;
+  }
+  m_knnCoefWhenOn = value;
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setKnnCoef(value);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  m_delayedReloadRequest.start(750);
+}
+
+void OptionsWidget::knnRadiusChanged(int value) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setKnnRadius(value);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  m_delayedReloadRequest.start(750);
+}
+
+void OptionsWidget::sharpenToggled(bool checked) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setSharpenCoef(checked ? m_sharpenCoefWhenOn : 0.0);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  sharpenOptionsWidget->setEnabled(checked);
+  emit reloadRequested();
+}
+
+void OptionsWidget::sharpenCoefChanged(double value) {
+  if (!sharpenCB->isChecked()) {
+    return;
+  }
+  m_sharpenCoefWhenOn = value;
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setSharpenCoef(value);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  m_delayedReloadRequest.start(750);
+}
+
+void OptionsWidget::sharpenRadiusChanged(int value) {
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  colorCommonOptions.setSharpenRadius(value);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  m_delayedReloadRequest.start(750);
+}
+
 void OptionsWidget::wienerToggled(bool checked) {
   ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
   colorCommonOptions.setWienerCoef(checked ? m_wienerCoefWhenOn : 0.0);
@@ -1284,6 +1364,12 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(subtractBgCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::subtractBgCoefChanged);
   CONNECT(subtractBgRadius, &QSpinBox::valueChanged, this, &OptionsWidget::subtractBgRadiusChanged);
   CONNECT(subtractBgWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::subtractBgWhiteToggled);
+  CONNECT(knnCB, &QAbstractButton::clicked, this, &OptionsWidget::knnToggled);
+  CONNECT(knnCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::knnCoefChanged);
+  CONNECT(knnRadius, &QSpinBox::valueChanged, this, &OptionsWidget::knnRadiusChanged);
+  CONNECT(sharpenCB, &QAbstractButton::clicked, this, &OptionsWidget::sharpenToggled);
+  CONNECT(sharpenCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::sharpenCoefChanged);
+  CONNECT(sharpenRadius, &QSpinBox::valueChanged, this, &OptionsWidget::sharpenRadiusChanged);
   CONNECT(wienerCB, &QAbstractButton::clicked, this, &OptionsWidget::wienerToggled);
   CONNECT(wienerCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::wienerCoefChanged);
   CONNECT(wienerWindowSize, &QSpinBox::valueChanged, this, &OptionsWidget::wienerWindowSizeChanged);

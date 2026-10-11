@@ -27,6 +27,9 @@ set(sources
     GaussBlur.cpp GaussBlur.h
     WienerFilter.cpp WienerFilter.h
     SubtractBackground.cpp SubtractBackground.h
+    BrightnessFilter.cpp BrightnessFilter.h
+    KnnDenoiser.cpp KnnDenoiser.h
+    Sharpen.cpp Sharpen.h
     Sobel.h
     MorphGradientDetect.cpp MorphGradientDetect.h
     PolynomialLine.cpp PolynomialLine.h

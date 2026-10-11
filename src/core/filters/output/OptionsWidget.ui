@@ -523,6 +523,109 @@
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="knnCB">
+               <property name="toolTip">
+                <string>Reduces the noise of the image while keeping the edges of letters sharp, before the other processing.</string>
+               </property>
+               <property name="text">
+                <string>KNN denoiser</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="knnOptionsWidget" native="true">
+               <layout class="QGridLayout" name="knnOptionsLayout">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item row="0" column="0" rowspan="2">
+                 <spacer name="knnIndent">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>15</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="knnCoefLabel">
+                  <property name="text">
+                   <string>Strength:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QDoubleSpinBox" name="knnCoef">
+                  <property name="toolTip">
+                   <string>The strength of the noise reduction, from 0.01 to 1.</string>
+                  </property>
+                  <property name="minimum">
+                   <double>0.01</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.0</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.01</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLabel" name="knnRadiusLabel">
+                  <property name="text">
+                   <string>Radius:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QSpinBox" name="knnRadius">
+                <property name="suffix">
+                 <string notr="true"> px</string>
+                </property>
+                  <property name="toolTip">
+                   <string>The size of the neighborhood that is averaged.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>20</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3" rowspan="2">
+                 <spacer name="knnSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>1</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
               <widget class="QCheckBox" name="wienerCB">
                <property name="toolTip">
                 <string>Reduces the noise of the image before the other processing.</string>
@@ -611,6 +714,109 @@
                 </item>
                 <item row="0" column="3" rowspan="2">
                  <spacer name="wienerSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>1</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="sharpenCB">
+               <property name="toolTip">
+                <string>Sharpens blurred edges, after the other filters.</string>
+               </property>
+               <property name="text">
+                <string>Sharpen</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="sharpenOptionsWidget" native="true">
+               <layout class="QGridLayout" name="sharpenOptionsLayout">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item row="0" column="0" rowspan="2">
+                 <spacer name="sharpenIndent">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>15</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="sharpenCoefLabel">
+                  <property name="text">
+                   <string>Strength:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QDoubleSpinBox" name="sharpenCoef">
+                  <property name="toolTip">
+                   <string>How strongly the edges are sharpened, from 0.1 to 3.</string>
+                  </property>
+                  <property name="minimum">
+                   <double>0.1</double>
+                  </property>
+                  <property name="maximum">
+                   <double>3.0</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.1</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLabel" name="sharpenRadiusLabel">
+                  <property name="text">
+                   <string>Radius:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QSpinBox" name="sharpenRadius">
+                <property name="suffix">
+                 <string notr="true"> px</string>
+                </property>
+                  <property name="toolTip">
+                   <string>The size of the details that are sharpened; larger values also sharpen coarser details.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3" rowspan="2">
+                 <spacer name="sharpenSpacer">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>

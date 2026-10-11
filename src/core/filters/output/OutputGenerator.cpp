@@ -34,9 +34,11 @@
 #include <imageproc/BackgroundColorCalculator.h>
 #include <imageproc/ColorSegmenter.h>
 #include <imageproc/ImageCombination.h>
+#include <imageproc/KnnDenoiser.h>
 #include <imageproc/OrthogonalRotation.h>
 #include <imageproc/PolygonUtils.h>
 #include <imageproc/Posterizer.h>
+#include <imageproc/Sharpen.h>
 #include <imageproc/SkewFinder.h>
 #include <imageproc/SubtractBackground.h>
 #include <imageproc/WienerFilter.h>
@@ -1315,9 +1317,11 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
   subtractBackgroundColorInPlace(maybeNormalized, colorCommonOptions.subtractBackgroundRadius(),
                                  colorCommonOptions.subtractBackgroundCoef(),
                                  colorCommonOptions.subtractBackgroundWhite());
+  knnDenoiseColorInPlace(maybeNormalized, colorCommonOptions.knnRadius(), colorCommonOptions.knnCoef());
   wienerColorFilterInPlace(maybeNormalized,
                            QSize(colorCommonOptions.wienerWindowSize(), colorCommonOptions.wienerWindowSize()),
                            colorCommonOptions.wienerCoef());
+  sharpenColorInPlace(maybeNormalized, colorCommonOptions.sharpenRadius(), colorCommonOptions.sharpenCoef());
 
   if (m_renderParams.normalizeIllumination()) {
     m_outsideBackgroundColor
@@ -1619,9 +1623,11 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   subtractBackgroundColorInPlace(normalizedOriginal, colorCommonOptions.subtractBackgroundRadius(),
                                  colorCommonOptions.subtractBackgroundCoef(),
                                  colorCommonOptions.subtractBackgroundWhite());
+  knnDenoiseColorInPlace(normalizedOriginal, colorCommonOptions.knnRadius(), colorCommonOptions.knnCoef());
   wienerColorFilterInPlace(normalizedOriginal,
                            QSize(colorCommonOptions.wienerWindowSize(), colorCommonOptions.wienerWindowSize()),
                            colorCommonOptions.wienerCoef());
+  sharpenColorInPlace(normalizedOriginal, colorCommonOptions.sharpenRadius(), colorCommonOptions.sharpenCoef());
 
   // Picture mask (white indicate a picture) in the same coordinates as
   // warpedGrayOutput.  Only built for Mixed mode.

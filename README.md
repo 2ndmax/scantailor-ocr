@@ -585,6 +585,21 @@ reimplemented rather than copied.
     the brightness only, so evenly yellowed paper stays yellow in color output. With this check
     box each color channel is divided by its own background, which takes the paper to white and
     removes the color cast; dark text stays dark, the colors of pictures shift as well.
+* **New filters "KNN denoiser" and "Sharpen"** under *Output* → "Enhancement" (also in the
+  default parameters dialog), each with *Strength* and *Radius*. The KNN denoiser averages each
+  pixel with growing windows around it, weighted so that windows reaching across an edge count
+  little: it reduces noise and keeps the edges of letters sharp (strength 0.01–1, radius
+  1–20 px; unlike in ScanTailor Experimental the windows are symmetric). "Sharpen" is an unsharp
+  mask (strength 0.1–3, radius 1–10 px), not in ScanTailor Experimental in this form; there,
+  a negative blur does the same. The filters run in the order of the panel: even out
+  background, KNN denoiser, Wiener denoiser, sharpen – smoothing first, so that sharpening does
+  not amplify the noise. In color they work on the brightness, colors keep their hue. Values
+  are stored in the project only when a filter is on.
+* **Deliberately not adopted: "unPaper" and "Balance".** unPaper sets the paper to one color
+  for the whole page (yellowed paper stays yellow, shadows and gradients stay), and pale
+  colored areas can be flattened with it; Balance chains four overlay blends of blurred copies
+  on the brightness only. "Make paper white" removes the color cast and follows shadows and
+  gradients, and the denoisers smooth the paper texture.
 * **Deliberately not adopted: the "horizontal barreling" correction of the dewarping.** On
   synthetic test pages with known geometry (bent, keystoned and barreled) and on a real book
   page it brought no measurable improvement: the straightness of the lines changed by less

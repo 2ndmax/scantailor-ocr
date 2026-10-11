@@ -411,6 +411,20 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   subtractBgCoef->setValue(m_subtractBgCoefWhenOn);
   subtractBgRadius->setValue(colorCommonOptions.subtractBackgroundRadius());
   subtractBgWhiteCB->setChecked(colorCommonOptions.subtractBackgroundWhite());
+  const bool knnOn = colorCommonOptions.knnCoef() > 0.0;
+  if (knnOn) {
+    m_knnCoefWhenOn = colorCommonOptions.knnCoef();
+  }
+  knnCB->setChecked(knnOn);
+  knnCoef->setValue(m_knnCoefWhenOn);
+  knnRadius->setValue(colorCommonOptions.knnRadius());
+  const bool sharpenOn = colorCommonOptions.sharpenCoef() > 0.0;
+  if (sharpenOn) {
+    m_sharpenCoefWhenOn = colorCommonOptions.sharpenCoef();
+  }
+  sharpenCB->setChecked(sharpenOn);
+  sharpenCoef->setValue(m_sharpenCoefWhenOn);
+  sharpenRadius->setValue(colorCommonOptions.sharpenRadius());
   const bool wienerOn = colorCommonOptions.wienerCoef() > 0.0;
   if (wienerOn) {
     m_wienerCoefWhenOn = colorCommonOptions.wienerCoef();
@@ -487,6 +501,8 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   splittingToggled(splittingCB->isChecked());
   despeckleToggled(despeckleCB->isChecked());
   subtractBgOptionsWidget->setEnabled(subtractBgOn);
+  knnOptionsWidget->setEnabled(knnOn);
+  sharpenOptionsWidget->setEnabled(sharpenOn);
   wienerOptionsWidget->setEnabled(wienerOn);
   dewarpingModeChanged();
 }
@@ -531,6 +547,8 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(fillOffcutCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOffcutToggled);
   CONNECT(fillOutsidePageBoxCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOutsidePageBoxToggled);
   CONNECT(subtractBgCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::subtractBgToggled);
+  CONNECT(knnCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::knnToggled);
+  CONNECT(sharpenCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::sharpenToggled);
   CONNECT(wienerCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::wienerToggled);
   CONNECT(m_dewarpingModeGroup, &QButtonGroup::idClicked, this, &DefaultParamsDialog::dewarpingModeChanged);
   CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this,
@@ -840,6 +858,10 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   colorCommonOptions.setSubtractBackgroundCoef(subtractBgCB->isChecked() ? subtractBgCoef->value() : 0.0);
   colorCommonOptions.setSubtractBackgroundRadius(subtractBgRadius->value());
   colorCommonOptions.setSubtractBackgroundWhite(subtractBgWhiteCB->isChecked());
+  colorCommonOptions.setKnnCoef(knnCB->isChecked() ? knnCoef->value() : 0.0);
+  colorCommonOptions.setKnnRadius(knnRadius->value());
+  colorCommonOptions.setSharpenCoef(sharpenCB->isChecked() ? sharpenCoef->value() : 0.0);
+  colorCommonOptions.setSharpenRadius(sharpenRadius->value());
   colorCommonOptions.setWienerCoef(wienerCB->isChecked() ? wienerCoef->value() : 0.0);
   colorCommonOptions.setWienerWindowSize(wienerWindowSize->value());
   colorCommonOptions.setNormalizeIllumination(m_colorNormalizeIllumination);
@@ -1090,6 +1112,14 @@ void DefaultParamsDialog::fillOutsidePageBoxToggled(const bool checked) {
 
 void DefaultParamsDialog::subtractBgToggled(const bool checked) {
   subtractBgOptionsWidget->setEnabled(checked);
+}
+
+void DefaultParamsDialog::knnToggled(const bool checked) {
+  knnOptionsWidget->setEnabled(checked);
+}
+
+void DefaultParamsDialog::sharpenToggled(const bool checked) {
+  sharpenOptionsWidget->setEnabled(checked);
 }
 
 void DefaultParamsDialog::wienerToggled(const bool checked) {

@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "BrightnessFilter.h"
 #include "GrayImage.h"
 
 namespace imageproc {
@@ -239,43 +240,12 @@ void subtractBackgroundColorInPlace(QImage& image, const int radius, const doubl
     return;
   }
 
-  const GrayImage gray(image);
-  GrayImage filtered(gray);
-  if (whitePaper) {
-    whitenInPlace(filtered, radius, coef);
-  } else {
-    subtractBackgroundInPlace(filtered, radius, coef);
-  }
-
-  const int w = image.width();
-  const int h = image.height();
-  uint8_t* line = image.bits();
-  const int stride = image.bytesPerLine();
-  const uint8_t* grayLine = gray.data();
-  const uint8_t* filteredLine = filtered.data();
-  const int grayStride = gray.stride();
-  const int filteredStride = filtered.stride();
-  for (int y = 0; y < h; ++y) {
-    if (depth == 8) {
-      // As in wienerColorFilterInPlace(), 8-bit images carry gray levels directly.
-      std::copy(filteredLine, filteredLine + w, line);
+  filterBrightnessInPlace(image, [&](GrayImage& gray) {
+    if (whitePaper) {
+      whitenInPlace(gray, radius, coef);
     } else {
-      auto* pixels = reinterpret_cast<QRgb*>(line);
-      for (int x = 0; x < w; ++x) {
-        // Shift the brightness and scale the deviation of each channel from it,
-        // so that colours keep their hue.
-        const float origin = grayLine[x];
-        const float target = filteredLine[x];
-        const float scale = (target + 1.0f) / (origin + 1.0f);
-        const QRgb px = pixels[x];
-        pixels[x] = qRgba(clampToByte(target + (qRed(px) - origin) * scale),
-                          clampToByte(target + (qGreen(px) - origin) * scale),
-                          clampToByte(target + (qBlue(px) - origin) * scale), qAlpha(px));
-      }
+      subtractBackgroundInPlace(gray, radius, coef);
     }
-    line += stride;
-    grayLine += grayStride;
-    filteredLine += filteredStride;
-  }
+  });
 }
 }  // namespace imageproc

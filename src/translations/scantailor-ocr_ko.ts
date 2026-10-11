@@ -289,7 +289,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <location filename="../app/DefaultParamsDialog.ui" line="729"/>
         <location filename="../app/DefaultParamsDialog.ui" line="885"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1064"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3510"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3753"/>
         <source>Auto</source>
         <translation>자동</translation>
     </message>
@@ -298,7 +298,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <location filename="../app/DefaultParamsDialog.ui" line="637"/>
         <location filename="../app/DefaultParamsDialog.ui" line="742"/>
         <location filename="../app/DefaultParamsDialog.ui" line="901"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3536"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3779"/>
         <source>Manual</source>
         <translation>수동</translation>
     </message>
@@ -470,12 +470,12 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished">일반</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2279"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2485"/>
         <source>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2282"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2488"/>
         <source>Fill outside page box</source>
         <translation type="unfinished"></translation>
     </message>
@@ -490,32 +490,32 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2794"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3000"/>
         <source>Savitzky-Golay smoothing</source>
         <translation>Savitzky-Golay 스무딩</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2804"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3010"/>
         <source>Morphological smoothing</source>
         <translation>Morphological(형태학적) 스무딩</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2251"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2457"/>
         <source>Filling</source>
         <translation>채우기</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2306"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2512"/>
         <source>Color:</source>
         <translation>색상: </translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2851"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3057"/>
         <source>Color Operations</source>
         <translation>색상 조정</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2130"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2233"/>
         <source>Reduces the noise of the image before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -535,180 +535,183 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2133"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2236"/>
         <source>Wiener denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2058"/>
         <location filename="../app/DefaultParamsDialog.ui" line="2171"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2274"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2377"/>
         <source>Strength:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2178"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2281"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2861"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3067"/>
         <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation>이미지를 색상 조각으로 분할하고 흑백 마스크로 칠합니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2864"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3070"/>
         <source>Color segmentation</source>
         <translation>색상 분할</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2935"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3141"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation>빨간색 요소 조정. 음수의 경우 빨간색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2948"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3154"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation>초록색 요소 조정. 음수의 경우 초록색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2961"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3167"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation>파란색 요소 조정. 음수의 경우 파란색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2979"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3185"/>
         <source>Reduce noise:</source>
         <translation>노이즈 줄이기:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3024"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3230"/>
         <source>Reduce the number of colors of the output image by grouping similar colors.</source>
         <translation>유사한 색상을 그룹화해 출력 이미지의 색상 종류를 줄여줍니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3027"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3233"/>
         <source>Posterize</source>
         <translation>Posterize(명암 단위 제한)</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3068"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3274"/>
         <source>Level:</source>
         <translation>레벨:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3075"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3281"/>
         <source>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</source>
         <translation>값이 낮을수록 출력 이미지의 색상 수가 적어집니다. 2~6은 인덱스 이미지를 보장합니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3088"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3294"/>
         <source>Normalize</source>
         <translation>일반화</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3095"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3301"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation>어두은 회색, 밝은 회색 그라디언트를 각각 흑백으로 만듭니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3098"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3304"/>
         <source>Force b&amp;&amp;w</source>
         <translation>강제 흑백화</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2353"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2559"/>
         <source>Threshold</source>
         <translation>임계값</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2365"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2571"/>
         <source>Method:</source>
         <translation>방법</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2468"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2674"/>
         <source>Thinner</source>
         <translation>얇게</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2497"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2703"/>
         <source>Thicker</source>
         <translation>굵게</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2530"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2637"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2736"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2843"/>
         <source>Delta:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2537"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2644"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2743"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2850"/>
         <source>Default value is 0.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2576"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2723"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2782"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2929"/>
         <source>Coef:</source>
         <translation>계수</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3558"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3801"/>
         <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3576"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3819"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2204"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2563"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2670"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2307"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2769"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2876"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation>고려해야할 주변 픽셀수의 범위를 설정합니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2194"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2553"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2660"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2297"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2759"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2866"/>
         <source>Window size:</source>
         <translation>창 크기:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2905"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3111"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2915"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3121"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2925"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3131"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2583"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2789"/>
         <source>Default value is 0.34.</source>
         <translation>기본값은 0.34입니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2690"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2896"/>
         <source>The minimum possible gray level that can be made white.</source>
         <translation>흰색으로 만들 수 있는 회색 레벨의 최소값입니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2703"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2909"/>
         <source>Upper bound:</source>
         <translation>상한:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2683"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2889"/>
         <source>Lower bound:</source>
         <translation>하한:</translation>
     </message>
@@ -804,6 +807,8 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2081"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2194"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2400"/>
         <source>Radius:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -823,353 +828,388 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2269"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2130"/>
+        <source>Reduces the noise of the image while keeping the edges of letters sharp, before the other processing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2133"/>
+        <source>KNN denoiser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2204"/>
+        <source>The size of the neighborhood that is averaged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2336"/>
+        <source>Sharpens blurred edges, after the other filters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2339"/>
+        <source>Sharpen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2384"/>
+        <source>How strongly the edges are sharpened, from 0.1 to 3.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2410"/>
+        <source>The size of the details that are sharpened; larger values also sharpen coarser details.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2475"/>
         <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2289"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2495"/>
         <source>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2303"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2313"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2509"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2519"/>
         <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2362"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2372"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2568"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2578"/>
         <source>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2710"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2916"/>
         <source>The maximum possible gray level that can be made black.</source>
         <translation>흰색으로 만들 수 있는 회색 레벨의 최대값입니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2730"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2936"/>
         <source>Default value is 0.3.</source>
         <translation>기본값은 0.3입니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2791"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2997"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2801"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3007"/>
         <source>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3139"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3345"/>
         <source>Picture Zones</source>
         <translation>사진 모양</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3148"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3354"/>
         <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3185"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3391"/>
         <source>Sensitivity:</source>
         <translation>민감도 (%):</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3220"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3426"/>
         <source>Also finds pictures with weak contrast; text may then be taken for a picture, too.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3223"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3429"/>
         <source>Higher search sensitivity</source>
         <translation>더 높은 검색 민감도</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3268"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3474"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1092"/>
         <source>Output Resolution</source>
         <translation>출력 해상도 (DPI)</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3277"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3483"/>
         <source>Resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3284"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3490"/>
         <source>Common resolutions; others between 72 and 1200 DPI can be typed in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3313"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3519"/>
         <source>Splitting</source>
         <translation>분할</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3324"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3530"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3327"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3533"/>
         <source>Split output</source>
         <translation>분할 결과</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3339"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3545"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3342"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3548"/>
         <source>B&amp;&amp;W foreground</source>
         <translation>흑백 전경</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3370"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3576"/>
         <source>Save the original background of the foreground layer.</source>
         <translation>전경 부분을 원본 배경으로 저장합니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3373"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3579"/>
         <source>Original background</source>
         <translation>원본 배경</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3382"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3588"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3385"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3591"/>
         <source>Color foreground</source>
         <translation>색상 전경</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3412"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3618"/>
         <source>Despeckling</source>
         <translation>얼룩 제거</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3423"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3629"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3480"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3723"/>
         <source>Dewarping</source>
         <translation>왜곡 보정</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3491"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3734"/>
         <source>No dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3507"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3750"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3520"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3763"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3533"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3776"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3548"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3791"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3551"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3794"/>
         <source>Post deskew</source>
         <translation>사전 기울기 보정</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3605"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3885"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3608"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3888"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="61"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
         <source>Black and White</source>
         <translation>흑백</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="62"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
         <source>Color / Grayscale</source>
         <translation>컬러 / 회색조</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="63"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="64"/>
         <source>Mixed</source>
         <translation>혼합</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="65"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
         <source>Background</source>
         <translation>배경</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="66"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
         <source>White</source>
         <translation>흰색</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
         <source>Otsu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
         <source>Sauvola</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
         <source>Wolf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
         <source>Fox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
         <source>Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
         <source>Bradley</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
         <source>Grad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
         <source>EdgePlus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
         <source>BlurDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
         <source>EdgeDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="866"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1048"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3494"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3737"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
         <source>Off</source>
         <translation>끄기</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
         <source>Contour mask</source>
         <translation>윤곽 마스크</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
         <source>Rectangle</source>
         <translation>직사각형</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="110"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1196"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="111"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1230"/>
         <source>Custom</source>
         <translation>커스텀</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3523"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3766"/>
         <source>Marginal</source>
         <translation>테두리</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="101"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="102"/>
         <source>Default</source>
         <translation>기본값</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="102"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="103"/>
         <source>Source</source>
         <translation>원본</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1067"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1092"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1159"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1165"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1185"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1202"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1217"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1193"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1219"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1236"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>Error</source>
         <translation>에러</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1165"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1199"/>
         <source>Error loading the profile.</source>
         <translation>프로필을 불러오는데 실패했습니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1186"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1220"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>이름이 기본 프로필과 동일합니다. 다른 이름을 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1202"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1236"/>
         <source>Error saving the profile.</source>
         <translation>프로필을 저장하는데 실패했습니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1217"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>Error deleting the profile.</source>
         <translation>프로필을 삭제하는데 실패했습니다.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2272"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2478"/>
         <source>Fill offcut</source>
         <translation>오프컷 채우기</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2292"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2498"/>
         <source>Fill margins</source>
         <translation>테두리 채우기</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3426"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3632"/>
         <source>Despeckle</source>
         <translation>얼룩 제거</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1159"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1193"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>이 프로필은 현재 프로그램에 호환되지 않습니다. 삭제 하시겠습니까?</translation>
     </message>
@@ -1184,7 +1224,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="67"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2386,7 +2426,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
         <translation type="unfinished">퀄리티:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="183"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="184"/>
         <location filename="../app/PdfExportView.cpp" line="416"/>
         <source>Resolution of split pages:</source>
         <translation type="unfinished"></translation>
@@ -3669,7 +3709,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <name>deskew::OptionsWidget</name>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="73"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3748,7 +3788,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="74"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3923,206 +3963,206 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="47"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="209"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="48"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="210"/>
         <source>Black and White</source>
         <translation>흑백</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="48"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="49"/>
         <source>Color / Grayscale</source>
         <translation>컬러 / 회색조</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="49"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="50"/>
         <source>Mixed</source>
         <translation>혼합</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="51"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="52"/>
         <source>Otsu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="52"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="53"/>
         <source>Sauvola</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="53"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="54"/>
         <source>Wolf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="54"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="55"/>
         <source>Fox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="55"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="56"/>
         <source>Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="56"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="57"/>
         <source>Bradley</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="57"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="58"/>
         <source>Grad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="58"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="59"/>
         <source>EdgePlus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="59"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="60"/>
         <source>BlurDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="60"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="61"/>
         <source>EdgeDiv</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="62"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="63"/>
         <source>Background</source>
         <translation>배경</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="63"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="64"/>
         <source>White</source>
         <translation>흰색</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="98"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="99"/>
         <source>Contour mask</source>
         <translation>윤곽 마스크</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="99"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="100"/>
         <source>Rectangle</source>
         <translation>직사각형</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="131"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="132"/>
         <source>TIFF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="134"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="135"/>
         <source>Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed separately, so this doesn&apos;t change it.  After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing.  Other projects keep their files until their pages are processed again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="158"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="159"/>
         <source>LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program and its PDF export can.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="163"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="164"/>
         <source>Color and Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="164"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="165"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="168"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="200"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="211"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="169"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="201"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="212"/>
         <source>None</source>
         <translation type="unfinished">없음</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="175"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="176"/>
         <source>All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="177"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="178"/>
         <source>JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="191"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="192"/>
         <source>Quality:</source>
         <translation type="unfinished">퀄리티:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="194"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="195"/>
         <source>Posterized Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="195"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="196"/>
         <source>Color pages that were posterized, and posterized pictures of pages with split output.  Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="205"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
         <source>All methods are lossless.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="209"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="210"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="217"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="218"/>
         <source>All methods are lossless; CCITT G4 usually gives the smallest files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1337"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1443"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="190"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="191"/>
         <source>Higher values give better pictures and larger files.  Only used with JPEG compression.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="466"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="467"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="480"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="481"/>
         <source>Apply Output Resolution</source>
         <translation type="unfinished">출력 해상도 적용</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="547"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="548"/>
         <source>Apply Splitting</source>
         <translation>분할 설정 적용</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="672"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="675"/>
         <source>Apply Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1837"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="97"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2080"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="98"/>
         <source>Off</source>
         <translation>끄기</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="628"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="631"/>
         <source>Apply Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1885"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2128"/>
         <source>Manual</source>
         <translation>수동</translation>
     </message>
@@ -4133,7 +4173,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="466"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="467"/>
         <source>Output Resolution</source>
         <translation type="unfinished">출력 해상도 (DPI)</translation>
     </message>
@@ -4148,22 +4188,22 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished">일반</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="687"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="893"/>
         <source>Fill offcut</source>
         <translation type="unfinished">오프컷 채우기</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="694"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="900"/>
         <source>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="697"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="903"/>
         <source>Fill outside page box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="707"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="913"/>
         <source>Fill margins</source>
         <translation type="unfinished">테두리 채우기</translation>
     </message>
@@ -4178,45 +4218,45 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="832"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1038"/>
         <source>Savitzky-Golay smoothing</source>
         <translation type="unfinished">Savitzky-Golay 스무딩</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="842"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1048"/>
         <source>Morphological smoothing</source>
         <translation type="unfinished">Morphological(형태학적) 스무딩</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="666"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="872"/>
         <source>Filling</source>
         <translation type="unfinished">채우기</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="721"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="927"/>
         <source>Color:</source>
         <translation type="unfinished">색상: </translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="768"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="974"/>
         <source>Threshold</source>
         <translation type="unfinished">임계값</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="780"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="179"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="206"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="219"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="986"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="180"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="207"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="220"/>
         <source>Method:</source>
         <translation type="unfinished">방법</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="869"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1075"/>
         <source>Color Operations</source>
         <translation type="unfinished">색상 조정</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="528"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="631"/>
         <source>Reduces the noise of the image before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4266,235 +4306,270 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="528"/>
+        <source>Reduces the noise of the image while keeping the edges of letters sharp, before the other processing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="531"/>
-        <source>Wiener denoiser</source>
+        <source>KNN denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="602"/>
+        <source>The size of the neighborhood that is averaged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="634"/>
+        <source>Wiener denoiser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="705"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation type="unfinished">고려해야할 주변 픽셀수의 범위를 설정합니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="684"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="734"/>
+        <source>Sharpens blurred edges, after the other filters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="737"/>
+        <source>Sharpen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="782"/>
+        <source>How strongly the edges are sharpened, from 0.1 to 3.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="808"/>
+        <source>The size of the details that are sharpened; larger values also sharpen coarser details.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="890"/>
         <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="704"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="910"/>
         <source>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="718"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="728"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="924"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="934"/>
         <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="777"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="787"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="983"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="993"/>
         <source>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="829"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1035"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="839"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1045"/>
         <source>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="907"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1113"/>
         <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation type="unfinished">이미지를 색상 조각으로 분할하고 흑백 마스크로 칠합니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="913"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1119"/>
         <source>Color segmentation</source>
         <translation type="unfinished">색상 분할</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="986"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1192"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation type="unfinished">빨간색 요소 조정. 음수의 경우 빨간색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1005"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1211"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation type="unfinished">초록색 요소 조정. 음수의 경우 초록색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1024"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1230"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation type="unfinished">파란색 요소 조정. 음수의 경우 파란색에 더 민감하고 양수의 경우 덜 민감해집니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1076"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1282"/>
         <source>Reduce noise:</source>
         <translation type="unfinished">노이즈 줄이기:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1123"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1329"/>
         <source>Reduce the number of colors of the output image by grouping similar colors.</source>
         <translation type="unfinished">유사한 색상을 그룹화해 출력 이미지의 색상 종류를 줄여줍니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1129"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1335"/>
         <source>Posterize</source>
         <translation type="unfinished">Posterize(명암 단위 제한)</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1172"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1378"/>
         <source>Level:</source>
         <translation type="unfinished">레벨:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1179"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1385"/>
         <source>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</source>
         <translation type="unfinished">값이 낮을수록 출력 이미지의 색상 수가 적어집니다. 2~6은 인덱스 이미지를 보장합니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1240"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1446"/>
         <source>Normalize</source>
         <translation type="unfinished">일반화</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1283"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1489"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation type="unfinished">어두은 회색, 밝은 회색 그라디언트를 각각 흑백으로 만듭니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1289"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1495"/>
         <source>Force b&amp;&amp;w</source>
         <translation type="unfinished">강제 흑백화</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1349"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1555"/>
         <source>Picture Zones</source>
         <translation type="unfinished">사진 모양</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1358"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1564"/>
         <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1395"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1601"/>
         <source>Sensitivity:</source>
         <translation type="unfinished">민감도 (%):</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1436"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1642"/>
         <source>Also finds pictures with weak contrast; text may then be taken for a picture, too.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1439"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1645"/>
         <source>Higher search sensitivity</source>
         <translation type="unfinished">더 높은 검색 민감도</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1488"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1694"/>
         <source>Applies the mode and all settings of this panel to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1532"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1738"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1547"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1753"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1587"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1793"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1710"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1916"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1834"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2077"/>
         <source>No dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1850"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2093"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1853"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2096"/>
         <source>Auto</source>
         <translation type="unfinished">자동</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1866"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2109"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1869"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2112"/>
         <source>Marginal</source>
         <translation type="unfinished">테두리</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1882"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2125"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1900"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2143"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1903"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="969"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2146"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1003"/>
         <source>Post deskew</source>
         <translation type="unfinished">사전 기울기 보정</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1910"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2153"/>
         <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1928"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2171"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1957"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2237"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1960"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2240"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1991"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2271"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="102"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="194"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1491"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1643"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1795"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1994"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1697"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1849"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2038"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2274"/>
         <source>Apply to ...</source>
         <translation type="unfinished">적용하기</translation>
     </message>
@@ -4541,6 +4616,8 @@ Without an internet connection, the installed languages can still be used.  Lang
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="456"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="569"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="672"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="775"/>
         <source>Strength:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4551,6 +4628,8 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="479"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="592"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="798"/>
         <source>Radius:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4561,86 +4640,87 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="576"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="679"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="592"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="695"/>
         <source>Window size:</source>
         <translation type="unfinished">창 크기:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="956"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1162"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="966"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1172"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="976"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1182"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1519"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1725"/>
         <source>Splitting</source>
         <translation type="unfinished">분할</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1535"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1741"/>
         <source>Split output</source>
         <translation type="unfinished">분할 결과</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1550"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1756"/>
         <source>B&amp;&amp;W foreground</source>
         <translation type="unfinished">흑백 전경</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1575"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1781"/>
         <source>Save the original background of the foreground layer.</source>
         <translation type="unfinished">전경 부분을 원본 배경으로 저장합니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1578"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1784"/>
         <source>Original background</source>
         <translation type="unfinished">원본 배경</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1590"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1796"/>
         <source>Color foreground</source>
         <translation type="unfinished">색상 전경</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1640"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1846"/>
         <source>Applies the splitting settings of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1668"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1874"/>
         <source>Despeckling</source>
         <translation type="unfinished">얼룩 제거</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1713"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1919"/>
         <source>Despeckle</source>
         <translation type="unfinished">얼룩 제거</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1792"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2035"/>
         <source>Applies the despeckling of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1820"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2063"/>
         <source>Dewarping</source>
         <translation type="unfinished">왜곡 보정</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="64"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="65"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>

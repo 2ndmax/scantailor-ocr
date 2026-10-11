@@ -107,6 +107,18 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void subtractBgWhiteToggled(bool checked);
 
+  void knnToggled(bool checked);
+
+  void knnCoefChanged(double value);
+
+  void knnRadiusChanged(int value);
+
+  void sharpenToggled(bool checked);
+
+  void sharpenCoefChanged(double value);
+
+  void sharpenRadiusChanged(int value);
+
   void wienerToggled(bool checked);
 
   void wienerCoefChanged(double value);
@@ -220,6 +232,10 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   double m_despeckleLevel;
   // A strength of 0 turns "Subtract background" off; turning it on again restores the last strength.
   double m_subtractBgCoefWhenOn = 1.0;
+  // A strength of 0 turns the KNN denoiser off; turning it on again restores the last strength.
+  double m_knnCoefWhenOn = 0.3;
+  // A strength of 0 turns sharpening off; turning it on again restores the last strength.
+  double m_sharpenCoefWhenOn = 1.0;
   // A strength of 0 turns the Wiener denoiser off; turning it on again restores the last strength.
   double m_wienerCoefWhenOn = 0.1;
   ImageViewTab m_lastTab;

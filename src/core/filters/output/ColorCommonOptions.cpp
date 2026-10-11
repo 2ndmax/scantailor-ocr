@@ -17,6 +17,10 @@ ColorCommonOptions::ColorCommonOptions()
       m_subtractBackgroundCoef(0.0),
       m_subtractBackgroundRadius(45),
       m_subtractBackgroundWhite(false),
+      m_knnCoef(0.0),
+      m_knnRadius(7),
+      m_sharpenCoef(0.0),
+      m_sharpenRadius(2),
       m_fillingColor(FILL_BACKGROUND) {}
 
 ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
@@ -32,6 +36,10 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
       m_subtractBackgroundCoef(el.attribute("subtractBgCoef").toDouble()),
       m_subtractBackgroundRadius(el.attribute("subtractBgRadius").toInt()),
       m_subtractBackgroundWhite(el.attribute("subtractBgWhite") == "1"),
+      m_knnCoef(el.attribute("knnCoef").toDouble()),
+      m_knnRadius(el.attribute("knnRadius").toInt()),
+      m_sharpenCoef(el.attribute("sharpenCoef").toDouble()),
+      m_sharpenRadius(el.attribute("sharpenRadius").toInt()),
       m_fillingColor(parseFillingColor(el.attribute("fillingColor"))),
       m_posterizationOptions(el.namedItem("posterization-options").toElement()) {
   if (m_wienerCoef < 0.0 || m_wienerCoef > 1.0) {
@@ -45,6 +53,18 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
   }
   if (m_subtractBackgroundRadius < 1) {
     m_subtractBackgroundRadius = 45;
+  }
+  if (m_knnCoef < 0.0 || m_knnCoef > 1.0) {
+    m_knnCoef = 0.0;
+  }
+  if (m_knnRadius < 1) {
+    m_knnRadius = 7;
+  }
+  if (m_sharpenCoef < 0.0 || m_sharpenCoef > 3.0) {
+    m_sharpenCoef = 0.0;
+  }
+  if (m_sharpenRadius < 1) {
+    m_sharpenRadius = 2;
   }
 }
 
@@ -70,6 +90,15 @@ QDomElement ColorCommonOptions::toXml(QDomDocument& doc, const QString& name) co
       el.setAttribute("subtractBgWhite", "1");
     }
   }
+  // The filters below are also only written when on.
+  if (m_knnCoef > 0.0) {
+    el.setAttribute("knnCoef", m_knnCoef);
+    el.setAttribute("knnRadius", m_knnRadius);
+  }
+  if (m_sharpenCoef > 0.0) {
+    el.setAttribute("sharpenCoef", m_sharpenCoef);
+    el.setAttribute("sharpenRadius", m_sharpenRadius);
+  }
   return el;
 }
 
@@ -81,7 +110,9 @@ bool ColorCommonOptions::operator==(const ColorCommonOptions& other) const {
          && (m_wienerWindowSize == other.m_wienerWindowSize)
          && (m_subtractBackgroundCoef == other.m_subtractBackgroundCoef)
          && (m_subtractBackgroundRadius == other.m_subtractBackgroundRadius)
-         && (m_subtractBackgroundWhite == other.m_subtractBackgroundWhite);
+         && (m_subtractBackgroundWhite == other.m_subtractBackgroundWhite) && (m_knnCoef == other.m_knnCoef)
+         && (m_knnRadius == other.m_knnRadius) && (m_sharpenCoef == other.m_sharpenCoef)
+         && (m_sharpenRadius == other.m_sharpenRadius);
 }
 
 bool ColorCommonOptions::operator!=(const ColorCommonOptions& other) const {
