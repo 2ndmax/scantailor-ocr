@@ -5,6 +5,7 @@
 #define SCANTAILOR_CORE_FILTEROPTIONSWIDGET_H_
 
 #include <QWidget>
+#include <set>
 
 #include "PageId.h"
 #include "PageInfo.h"
@@ -36,6 +37,9 @@ class FilterOptionsWidget : public QWidget {
 
   /** Emitted when the user requests the Fix DPI dialog (e.g. from Margins panel, issue #93). */
   void fixDpiRequested();
+
+  /** Asks the main window to detect the color mode of these pages (Output step). */
+  void colorModeDetectionRequested(const std::set<PageId>& pages);
 
   /**
    * Emitted after the DPI of the current image was changed in the panel.  The page list keeps

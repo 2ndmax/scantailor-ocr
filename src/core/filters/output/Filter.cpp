@@ -3,13 +3,24 @@
 
 #include "Filter.h"
 
+#include <ApplicationSettings.h>
+#include <Dpm.h>
+#include <ImageLoader.h>
 #include <OrderByCompletenessProvider.h>
+#include <Transform.h>
+#ifdef ENABLE_OCR
+#include <ColorModeDetector.h>
+#endif
 
 #include <utility>
 
 #include "CacheDrivenTask.h"
 #include "FilterUiInterface.h"
+#include "GeometryCollector.h"
+#include "ImageTransformation.h"
 #include "OptionsWidget.h"
+#include "OutputGenerator.h"
+#include "PageInfo.h"
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "Settings.h"
@@ -161,6 +172,65 @@ OptionsWidget* Filter::optionsWidget() {
 
 bool Filter::isMixedMode(const PageId& pageId) const {
   return m_settings->getParams(pageId).colorParams().colorMode() == MIXED;
+}
+
+bool Filter::detectColorMode(const PageInfo& pageInfo,
+                             const GeometryCollector& geometry,
+                             const TaskStatus& status,
+                             ColorMode* detectedMode) {
+#ifdef ENABLE_OCR
+  const QImage source = ImageLoader::load(pageInfo.id().imageId());
+  if (source.isNull()) {
+    return false;
+  }
+
+  // The content area at 300 dpi, independent of the output resolution.
+  const Dpi detectionDpi(300, 300);
+  ImageTransformation xform(geometry.xform());
+  xform.postScaleToDpi(detectionDpi);
+  const QRect contentRect = OutputGenerator(xform, geometry.contentRectPhys()).outputContentRect();
+
+  ColorMode mode = BLACK_AND_WHITE;  // A page without content stays black and white.
+  if ((contentRect.width() >= 16) && (contentRect.height() >= 16)) {
+    QImage content = imageproc::transform(source, xform.transform(), contentRect,
+                                          imageproc::OutsidePixels::assumeWeakColor(Qt::white));
+    const Dpm dpm(detectionDpi);
+    content.setDotsPerMeterX(dpm.horizontal());
+    content.setDotsPerMeterY(dpm.vertical());
+
+    const ApplicationSettings& appSettings = ApplicationSettings::getInstance();
+    ColorModeDetector::Options options;
+    options.minColorShare = appSettings.getColorDetectionMinColor() / 100.0;
+    options.usePictureZones = appSettings.isColorDetectionZones();
+    options.minPictureShare = appSettings.getColorDetectionMinPicture() / 100.0;
+    switch (ColorModeDetector::detect(content, options, status)) {
+      case ColorModeDetector::Mode::BlackWhite:
+        mode = BLACK_AND_WHITE;
+        break;
+      case ColorModeDetector::Mode::Mixed:
+        mode = MIXED;
+        break;
+      case ColorModeDetector::Mode::Grayscale:
+      case ColorModeDetector::Mode::Color:
+        mode = COLOR_GRAYSCALE;
+        break;
+    }
+  }
+
+  ColorParams colorParams = m_settings->getParams(pageInfo.id()).colorParams();
+  colorParams.setColorMode(mode);
+  m_settings->setColorParams(pageInfo.id(), colorParams);
+  if (detectedMode) {
+    *detectedMode = mode;
+  }
+  return true;
+#else
+  Q_UNUSED(pageInfo);
+  Q_UNUSED(geometry);
+  Q_UNUSED(status);
+  Q_UNUSED(detectedMode);
+  return false;
+#endif
 }
 
 std::vector<PageOrderOption> Filter::pageOrderOptions() const {

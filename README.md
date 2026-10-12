@@ -667,6 +667,29 @@ ScanTailor Advanced.
   are applied to other pages together with the content box. The defaults give exactly the
   detection as before; ScanTailor Spectre's border tolerance changes it even at its default.
   Its additional detection of photo plates relies on Apple Vision and was not adopted.
+* **Color mode detection** in *Output*. The color mode is now chosen with three buttons (Black
+  and White, Color / Grayscale, Mixed), so the active one is visible at a glance. Above them, the
+  new group "Color Mode Detection" detects the color mode of chosen pages ("Detect ...", with the
+  usual page selection) and sets it. It takes the geometry from the steps before, as the
+  thumbnails do, and only loads the source images, so it is fast and creates no output files.
+  Pages whose earlier steps have not been done yet are skipped. The project file stores only the
+  color mode, as before.
+
+  The detection of ScanTailor Spectre (based on Leptonica, which comes with Tesseract) was
+  extended after measurements on a grayscale-scanned book with photos and a color atlas:
+  * "Color from" (default 3 %): a page counts as a color page only if enough of it is colored
+    outside pictures, so colored headings, boxes and thumb index tabs alone don't make a color
+    page.
+  * Color only in pictures makes the page Mixed; a grayscale page with text beside the picture,
+    such as a caption, is Mixed as well.
+  * "Also check picture zones" with "Pictures from" (default 5 %): our picture zone detection as a
+    second opinion finds light, small or very dark photos that the Spectre detection misses. Only
+    zones that look like pictures count (mostly dark, or evenly gray), so dense text and empty
+    paper are not taken for pictures.
+
+  The three settings apply to all projects and are also in the default parameters dialog.
+  "Apply to ..." of the Mode group can now apply the color mode and the other settings of the
+  group separately. Without OCR, the detection is not available.
 
 * **Seed fill propagates completely.** The seed fill used for picture detection, background
   estimation and despeckling marked a pixel as "queued" and never cleared the mark after

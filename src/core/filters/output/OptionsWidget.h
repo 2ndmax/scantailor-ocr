@@ -77,11 +77,19 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void dpiChanged(const std::set<PageId>& pages, const Dpi& dpi);
 
-  void applyColorsConfirmed(const std::set<PageId>& pages);
+  void applyColorsConfirmed(const std::set<PageId>& pages, bool applyColorMode, bool applyOtherSettings);
 
   void applySplittingOptionsConfirmed(const std::set<PageId>& pages);
 
-  void colorModeChanged(int idx);
+  void colorModeChanged(ColorMode mode);
+
+  void colorDetectionMinColorChanged(int percent);
+
+  void colorDetectionZonesToggled(bool checked);
+
+  void colorDetectionMinPictureChanged(int percent);
+
+  void colorDetectionButtonClicked();
 
   void blackOnWhiteToggled(bool value);
 

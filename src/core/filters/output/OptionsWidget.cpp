@@ -46,9 +46,10 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   despeckleSlider->setMinimum(qRound(0.5 * 10));
   despeckleSlider->setMaximum(qRound(3.5 * 10));
 
-  colorModeSelector->addItem(tr("Black and White"), BLACK_AND_WHITE);
-  colorModeSelector->addItem(tr("Color / Grayscale"), COLOR_GRAYSCALE);
-  colorModeSelector->addItem(tr("Mixed"), MIXED);
+#ifndef ENABLE_OCR
+  // The color mode detection comes with OCR (Leptonica).
+  colorDetectionPanel->setVisible(false);
+#endif
 
   fillBinarizationMethodBox(thresholdMethodBox);
 
@@ -311,12 +312,34 @@ void OptionsWidget::distortionModelChanged(const dewarping::DistortionModel& mod
   updateDewarpingDisplay();
 }
 
-void OptionsWidget::colorModeChanged(const int idx) {
-  const int mode = colorModeSelector->itemData(idx).toInt();
-  m_colorParams.setColorMode((ColorMode) mode);
+void OptionsWidget::colorModeChanged(const ColorMode mode) {
+  m_colorParams.setColorMode(mode);
   m_settings->setColorParams(m_pageId, m_colorParams);
   updateColorsDisplay();
   emit reloadRequested();
+}
+
+void OptionsWidget::colorDetectionMinColorChanged(const int percent) {
+  ApplicationSettings::getInstance().setColorDetectionMinColor(percent);
+}
+
+void OptionsWidget::colorDetectionZonesToggled(const bool checked) {
+  ApplicationSettings::getInstance().setColorDetectionZones(checked);
+  colorDetectionMinPictureLabel->setEnabled(checked);
+  colorDetectionMinPictureSB->setEnabled(checked);
+}
+
+void OptionsWidget::colorDetectionMinPictureChanged(const int percent) {
+  ApplicationSettings::getInstance().setColorDetectionMinPicture(percent);
+}
+
+void OptionsWidget::colorDetectionButtonClicked() {
+  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setWindowTitle(tr("Detect Color Mode"));
+  dialog->setThisPageIncluded(true);
+  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::colorModeDetectionRequested);
+  dialog->show();
 }
 
 void OptionsWidget::thresholdMethodChanged(int idx) {
@@ -496,7 +519,10 @@ void OptionsWidget::applyDpiConfirmed(const std::set<PageId>& pages) {
 void OptionsWidget::applyColorsButtonClicked() {
   auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyColorsConfirmed);
+  dialog->showModeParts();
+  connect(dialog, &ApplyColorsDialog::accepted, this, [this, dialog](const std::set<PageId>& pages) {
+    applyColorsConfirmed(pages, dialog->isColorModeChosen(), dialog->isOtherSettingsChosen());
+  });
   dialog->show();
 }
 
@@ -529,10 +555,21 @@ void OptionsWidget::dpiChanged(const std::set<PageId>& pages, const Dpi& dpi) {
   }
 }
 
-void OptionsWidget::applyColorsConfirmed(const std::set<PageId>& pages) {
+void OptionsWidget::applyColorsConfirmed(const std::set<PageId>& pages,
+                                         const bool applyColorMode,
+                                         const bool applyOtherSettings) {
   for (const PageId& pageId : pages) {
-    m_settings->setColorParams(pageId, m_colorParams);
-    m_settings->setPictureShapeOptions(pageId, m_pictureShapeOptions);
+    // The color mode and the other settings of the Mode group can be applied separately.
+    ColorParams colorParams = applyOtherSettings ? m_colorParams : m_settings->getParams(pageId).colorParams();
+    if (applyColorMode) {
+      colorParams.setColorMode(m_colorParams.colorMode());
+    } else {
+      colorParams.setColorMode(m_settings->getParams(pageId).colorParams().colorMode());
+    }
+    m_settings->setColorParams(pageId, colorParams);
+    if (applyOtherSettings) {
+      m_settings->setPictureShapeOptions(pageId, m_pictureShapeOptions);
+    }
   }
 
   if (pages.size() > 1) {
@@ -823,11 +860,20 @@ void OptionsWidget::updateDpiDisplay() {
 }
 
 void OptionsWidget::updateColorsDisplay() {
-  colorModeSelector->blockSignals(true);
+  const QSignalBlocker minColorBlocker(colorDetectionMinColorSB);
+  const QSignalBlocker zonesBlocker(colorDetectionZonesCB);
+  const QSignalBlocker minPictureBlocker(colorDetectionMinPictureSB);
 
   const ColorMode colorMode = m_colorParams.colorMode();
-  const int colorModeIdx = colorModeSelector->findData(colorMode);
-  colorModeSelector->setCurrentIndex(colorModeIdx);
+  colorModeBWBtn->setChecked(colorMode == BLACK_AND_WHITE);
+  colorModeColorBtn->setChecked(colorMode == COLOR_GRAYSCALE);
+  colorModeMixedBtn->setChecked(colorMode == MIXED);
+  colorDetectionMinColorSB->setValue(ApplicationSettings::getInstance().getColorDetectionMinColor());
+  colorDetectionZonesCB->setChecked(ApplicationSettings::getInstance().isColorDetectionZones());
+  colorDetectionMinPictureSB->setValue(ApplicationSettings::getInstance().getColorDetectionMinPicture());
+  // Only used with the picture zones.
+  colorDetectionMinPictureLabel->setEnabled(colorDetectionZonesCB->isChecked());
+  colorDetectionMinPictureSB->setEnabled(colorDetectionZonesCB->isChecked());
 
   bool thresholdOptionsVisible = false;
   bool pictureShapeVisible = false;
@@ -990,7 +1036,6 @@ void OptionsWidget::updateColorsDisplay() {
     widget->updateUi(m_pageId);
   }
 
-  colorModeSelector->blockSignals(false);
 }  // OptionsWidget::updateColorsDisplay
 
 void OptionsWidget::updateDewarpingDisplay() {
@@ -1391,7 +1436,13 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(dpiSelector, &QComboBox::activated, this, &OptionsWidget::dpiSelectionChanged);
   CONNECT(dpiSelector->lineEdit(), &QLineEdit::editingFinished, this, &OptionsWidget::dpiSelectionChanged);
   CONNECT(applyDpiButton, &QAbstractButton::clicked, this, &OptionsWidget::applyDpiButtonClicked);
-  CONNECT(colorModeSelector, &QComboBox::currentIndexChanged, this, &OptionsWidget::colorModeChanged);
+  CONNECT(colorModeBWBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(BLACK_AND_WHITE); });
+  CONNECT(colorModeColorBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(COLOR_GRAYSCALE); });
+  CONNECT(colorModeMixedBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(MIXED); });
+  CONNECT(colorDetectionBtn, &QAbstractButton::clicked, this, &OptionsWidget::colorDetectionButtonClicked);
+  CONNECT(colorDetectionMinColorSB, &QSpinBox::valueChanged, this, &OptionsWidget::colorDetectionMinColorChanged);
+  CONNECT(colorDetectionZonesCB, &QAbstractButton::clicked, this, &OptionsWidget::colorDetectionZonesToggled);
+  CONNECT(colorDetectionMinPictureSB, &QSpinBox::valueChanged, this, &OptionsWidget::colorDetectionMinPictureChanged);
   CONNECT(thresholdMethodBox, &QComboBox::currentIndexChanged, this, &OptionsWidget::thresholdMethodChanged);
   CONNECT(fillingColorBox, &QComboBox::currentIndexChanged, this, &OptionsWidget::fillingColorChanged);
   CONNECT(pictureShapeSelector, &QComboBox::currentIndexChanged, this, &OptionsWidget::pictureShapeChanged);

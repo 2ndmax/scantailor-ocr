@@ -20,6 +20,19 @@ class ApplyColorsDialog : public QDialog, private Ui::ApplyColorsDialog {
 
   ~ApplyColorsDialog() override;
 
+  /** Shows the choice of the parts to apply: the color mode and the other settings of the Mode group. */
+  void showModeParts();
+
+  bool isColorModeChosen() const;
+
+  bool isOtherSettingsChosen() const;
+
+  /**
+   * For actions that have not been done on the current page yet: "This page only" then gives the
+   * current page instead of no page.
+   */
+  void setThisPageIncluded(bool included);
+
  signals:
 
   void accepted(const std::set<PageId>& pages);
@@ -27,6 +40,11 @@ class ApplyColorsDialog : public QDialog, private Ui::ApplyColorsDialog {
  private slots:
 
   void onSubmit();
+
+ private:
+  PageId m_curPage;
+  bool m_thisPageIncluded = false;
+  bool m_modeParts = false;
 };
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_APPLYCOLORSDIALOG_H_

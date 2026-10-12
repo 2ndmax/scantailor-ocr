@@ -10,6 +10,7 @@
 
 #include <QImage>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 
 #include "PictureDetection.h"
@@ -20,16 +21,22 @@ using namespace imageproc;
 namespace {
 // Measured on a grayscale-scanned book with photos and on a color atlas (2026-10-11).
 const double MIN_COLOR_IN_PICTURES = 0.005;  // Colored share of the page inside picture areas.
-const double MIN_PICTURE = 0.25;             // Largest picture area for the second opinion.
 const double MAX_PICTURE = 0.95;             // Above this, the "picture" is the empty page itself.
-const double MIN_DARK = 0.01;                // Pages with less dark content count as empty.
-const int TEXT_GRAY = 110;                   // Darker pixels count as text (or picture).
-const double MIN_TEXT = 0.002;               // Share of text pixels beside pictures for a caption.
-const double MAX_TEXT = 0.4;                 // More is a dark page, not text.
+// A picture zone has to look like a picture: mostly dark, or evenly gray (a light photo). Dense text
+// taken for a picture zone has about 15-30 % dark pixels and a high spread.
+const double MIN_PICTURE_DARK = 0.4;
+const double MAX_EVEN_STDDEV = 45;
+const double MIN_DARK = 0.01;   // Pages with less dark content count as empty.
+const int TEXT_GRAY = 110;      // Darker pixels count as text (or picture).
+const double MIN_TEXT = 0.002;  // Share of text pixels beside pictures for a caption.
+const double MAX_TEXT = 0.4;    // More is a dark page, not text.
 
 struct PictureMeasurement {
   double share = 0;
   double largest = 0;
+  double largestMean = 0;
+  double largestStdDev = 0;
+  double largestDark = 0;
   double colorInPictures = 0;
   double colorOutside = 0;
   double textOutside = 0;
@@ -69,8 +76,39 @@ PictureMeasurement measurePictures(const QImage& content, const TaskStatus& stat
       ++areas[line[x]];
     }
   }
+  uint32_t largestLabel = 0;
   for (size_t label = 1; label < areas.size(); ++label) {
-    result.largest = std::max(result.largest, areas[label] / total);
+    if (areas[label] / total > result.largest) {
+      result.largest = areas[label] / total;
+      largestLabel = static_cast<uint32_t>(label);
+    }
+  }
+
+  // Brightness and its spread inside the largest picture area: pictures have dark parts and
+  // structure, while empty paper taken for a picture is light and even.
+  if (largestLabel != 0) {
+    double sum = 0;
+    double sumSq = 0;
+    long dark = 0;
+    long count = 0;
+    const uint32_t* labelLine = cmap.data();
+    for (int y = 0; y < gray300.height(); ++y, labelLine += cmap.stride()) {
+      const uint8_t* grayLine = gray300.data() + y * gray300.stride();
+      for (int x = 0; x < gray300.width(); ++x) {
+        if (labelLine[x] == largestLabel) {
+          const int v = grayLine[x];
+          sum += v;
+          sumSq += double(v) * v;
+          dark += (v < 128) ? 1 : 0;
+          ++count;
+        }
+      }
+    }
+    if (count > 0) {
+      result.largestMean = sum / count;
+      result.largestStdDev = std::sqrt(std::max(0.0, sumSq / count - result.largestMean * result.largestMean));
+      result.largestDark = double(dark) / count;
+    }
   }
 
   // Dark pixels outside the pictures: text such as captions.
@@ -149,6 +187,9 @@ ColorModeDetector::Mode ColorModeDetector::detect(const QImage& content,
       ev.picturesMeasured = true;
       ev.pictureShare = pictures.share;
       ev.largestPicture = pictures.largest;
+      ev.largestPictureMean = pictures.largestMean;
+      ev.largestPictureStdDev = pictures.largestStdDev;
+      ev.largestPictureDark = pictures.largestDark;
       ev.colorInPictures = pictures.colorInPictures;
       ev.colorOutside = pictures.colorOutside;
       ev.textOutside = pictures.textOutside;
@@ -183,7 +224,9 @@ ColorModeDetector::Mode ColorModeDetector::detect(const QImage& content,
 
   if (options.usePictureZones && (mode == Mode::BlackWhite)) {
     ensurePictures();
-    if ((pictures.largest >= MIN_PICTURE) && (pictures.largest < MAX_PICTURE) && (darkRatio >= MIN_DARK)) {
+    const bool pictureLike = (pictures.largestDark >= MIN_PICTURE_DARK) || (pictures.largestStdDev < MAX_EVEN_STDDEV);
+    if ((pictures.largest >= options.minPictureShare) && (pictures.largest < MAX_PICTURE) && pictureLike
+        && (darkRatio >= MIN_DARK)) {
       mode = Mode::Mixed;
       ev.reason += QStringLiteral("+picture_zone");
     }

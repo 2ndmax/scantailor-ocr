@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "AbstractFilter.h"
+#include "ColorParams.h"
 #include "FillZonePropFactory.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
@@ -17,6 +18,8 @@
 #include "SafeDeletingQObjectPtr.h"
 
 class PageSelectionAccessor;
+class PageInfo;
+class TaskStatus;
 class ThumbnailPixmapCache;
 class OutputFileNameGenerator;
 class QString;
@@ -26,6 +29,7 @@ class OptionsWidget;
 class Task;
 class CacheDrivenTask;
 class Settings;
+class GeometryCollector;
 
 class Filter : public AbstractFilter {
   DECLARE_NON_COPYABLE(Filter)
@@ -62,6 +66,16 @@ class Filter : public AbstractFilter {
 
   /** Whether the page is set to the "Mixed" colour mode.  Used by the PDF export. */
   bool isMixedMode(const PageId& pageId) const;
+
+  /**
+   * Detects the color mode of a page and sets it. The geometry comes from the steps before (see
+   * GeometryCollector), so no image but the source is processed. Returns false if the source could
+   * not be loaded or the detection is not available (built without OCR).
+   */
+  bool detectColorMode(const PageInfo& pageInfo,
+                       const GeometryCollector& geometry,
+                       const TaskStatus& status,
+                       ColorMode* detectedMode = nullptr);
 
   std::vector<PageOrderOption> pageOrderOptions() const override;
 

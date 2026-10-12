@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "FillZoneComparator.h"
+#include "GeometryCollector.h"
 #include "IncompleteThumbnail.h"
 #include "OutputGenerator.h"
 #include "OutputParams.h"
@@ -31,6 +32,11 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
                               AbstractFilterDataCollector* collector,
                               const ImageTransformation& xform,
                               const QPolygonF& contentRectPhys) {
+  if (auto* geometryCollector = dynamic_cast<GeometryCollector*>(collector)) {
+    geometryCollector->setGeometry(xform, contentRectPhys);
+    return;
+  }
+
   if (auto* thumbCol = dynamic_cast<ThumbnailCollector*>(collector)) {
     const QFileInfo sourceFileInfo(pageInfo.id().imageId().filePath());
     const QString outFilePath(m_outFileNameGen.filePathFor(pageInfo.id()));

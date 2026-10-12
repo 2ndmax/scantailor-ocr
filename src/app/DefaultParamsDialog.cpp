@@ -60,9 +60,15 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   deskewObliqueModeGroup->addButton(deskewObliqueAutoBtn);
   deskewObliqueModeGroup->addButton(deskewObliqueManualBtn);
 
-  colorModeSelector->addItem(tr("Black and White"), BLACK_AND_WHITE);
-  colorModeSelector->addItem(tr("Color / Grayscale"), COLOR_GRAYSCALE);
-  colorModeSelector->addItem(tr("Mixed"), MIXED);
+#ifndef ENABLE_OCR
+  // The color mode detection comes with OCR (Leptonica).
+  colorDetectionHeading->setVisible(false);
+  colorDetectionMinColorLabel->setVisible(false);
+  colorDetectionMinColorSB->setVisible(false);
+  colorDetectionZonesCB->setVisible(false);
+  colorDetectionMinPictureLabel->setVisible(false);
+  colorDetectionMinPictureSB->setVisible(false);
+#endif
 
   fillingColorBox->addItem(tr("Background"), FILL_BACKGROUND);
   fillingColorBox->addItem(tr("White"), FILL_WHITE);
@@ -395,7 +401,15 @@ void DefaultParamsDialog::updatePageLayoutDisplay(const DefaultParams::PageLayou
 
 void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams& params) {
   const ColorParams& colorParams = params.getColorParams();
-  colorModeSelector->setCurrentIndex(colorModeSelector->findData(colorParams.colorMode()));
+  colorModeBWBtn->setChecked(colorParams.colorMode() == BLACK_AND_WHITE);
+  colorModeColorBtn->setChecked(colorParams.colorMode() == COLOR_GRAYSCALE);
+  colorModeMixedBtn->setChecked(colorParams.colorMode() == MIXED);
+  // Program settings, not part of the profile.
+  colorDetectionMinColorSB->setValue(ApplicationSettings::getInstance().getColorDetectionMinColor());
+  colorDetectionZonesCB->setChecked(ApplicationSettings::getInstance().isColorDetectionZones());
+  colorDetectionMinPictureSB->setValue(ApplicationSettings::getInstance().getColorDetectionMinPicture());
+  colorDetectionMinPictureLabel->setEnabled(colorDetectionZonesCB->isChecked());
+  colorDetectionMinPictureSB->setEnabled(colorDetectionZonesCB->isChecked());
 
   const ColorCommonOptions& colorCommonOptions = colorParams.colorCommonOptions();
   const BlackWhiteOptions& blackWhiteOptions = colorParams.blackWhiteOptions();
@@ -506,7 +520,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   depthPerceptionValueLabel->setText(QLocale().toString(params.getDepthPerception().value(), 'f', 1));
 
   // update the display
-  colorModeChanged(colorModeSelector->currentIndex());
+  colorModeChanged(currentColorMode());
   thresholdMethodChanged(thresholdMethodBox->currentIndex());
   pictureShapeChanged(pictureShapeSelector->currentIndex());
   updateEqualizeIlluminationDisplay();
@@ -541,7 +555,11 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(bottomMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::vertMarginsChanged);
   CONNECT(leftMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::horMarginsChanged);
   CONNECT(rightMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::horMarginsChanged);
-  CONNECT(colorModeSelector, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::colorModeChanged);
+  CONNECT(colorDetectionZonesCB, &QAbstractButton::toggled, colorDetectionMinPictureLabel, &QWidget::setEnabled);
+  CONNECT(colorDetectionZonesCB, &QAbstractButton::toggled, colorDetectionMinPictureSB, &QWidget::setEnabled);
+  CONNECT(colorModeBWBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(BLACK_AND_WHITE); });
+  CONNECT(colorModeColorBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(COLOR_GRAYSCALE); });
+  CONNECT(colorModeMixedBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(MIXED); });
   CONNECT(thresholdMethodBox, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::thresholdMethodChanged);
   CONNECT(pictureShapeSelector, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::pictureShapeChanged);
   CONNECT(equalizeIlluminationCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::equalizeIlluminationToggled);
@@ -671,8 +689,14 @@ void DefaultParamsDialog::alignWithOthersToggled(bool) {
   updateAlignmentModeEnabled();
 }
 
-void DefaultParamsDialog::colorModeChanged(const int idx) {
-  const auto colorMode = static_cast<ColorMode>(colorModeSelector->itemData(idx).toInt());
+ColorMode DefaultParamsDialog::currentColorMode() const {
+  if (colorModeMixedBtn->isChecked()) {
+    return MIXED;
+  }
+  return colorModeColorBtn->isChecked() ? COLOR_GRAYSCALE : BLACK_AND_WHITE;
+}
+
+void DefaultParamsDialog::colorModeChanged(const ColorMode colorMode) {
   bool thresholdOptionsVisible = false;
   bool pictureShapeVisible = false;
   bool splittingOptionsVisible = false;
@@ -758,7 +782,7 @@ void DefaultParamsDialog::pictureShapeChanged(const int idx) {
 
 void DefaultParamsDialog::equalizeIlluminationToggled(const bool checked) {
   // As in the Output step: the color setting in color mode, otherwise the black and white one.
-  const auto colorMode = static_cast<ColorMode>(colorModeSelector->currentData().toInt());
+  const auto colorMode = currentColorMode();
   if (colorMode == COLOR_GRAYSCALE) {
     m_colorNormalizeIllumination = checked;
   } else {
@@ -775,7 +799,7 @@ void DefaultParamsDialog::equalizeIlluminationColorToggled(const bool checked) {
 }
 
 void DefaultParamsDialog::updateEqualizeIlluminationDisplay() {
-  const auto colorMode = static_cast<ColorMode>(colorModeSelector->currentData().toInt());
+  const auto colorMode = currentColorMode();
   const QSignalBlocker blocker(equalizeIlluminationCB);
   const QSignalBlocker colorBlocker(equalizeIlluminationColorCB);
   equalizeIlluminationCB->setChecked((colorMode == COLOR_GRAYSCALE) ? m_colorNormalizeIllumination
@@ -880,7 +904,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
 
   const int dpi = m_outputDpi;
   ColorParams colorParams;
-  colorParams.setColorMode(static_cast<ColorMode>(colorModeSelector->currentData().toInt()));
+  colorParams.setColorMode(currentColorMode());
 
   ColorCommonOptions colorCommonOptions;
   colorCommonOptions.setFillingColor(static_cast<FillingColor>(fillingColorBox->currentData().toInt()));
@@ -1307,6 +1331,9 @@ void DefaultParamsDialog::commitChanges() {
   }
   DefaultParamsProvider::getInstance().setParams(std::move(params), profile);
   ApplicationSettings::getInstance().setCurrentProfile(profile);
+  ApplicationSettings::getInstance().setColorDetectionMinColor(colorDetectionMinColorSB->value());
+  ApplicationSettings::getInstance().setColorDetectionZones(colorDetectionZonesCB->isChecked());
+  ApplicationSettings::getInstance().setColorDetectionMinPicture(colorDetectionMinPictureSB->value());
 }
 
 void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {
@@ -1318,7 +1345,7 @@ void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {
 
 void DefaultParamsDialog::colorSegmentationToggled(bool checked) {
   segmenterOptionsWidget->setEnabled(checked);
-  if ((colorModeSelector->currentData() == BLACK_AND_WHITE) || (colorModeSelector->currentData() == MIXED)) {
+  if ((currentColorMode() == BLACK_AND_WHITE) || (currentColorMode() == MIXED)) {
     posterizeCB->setEnabled(checked);
     posterizeOptionsWidget->setEnabled(checked && posterizeCB->isChecked());
   }

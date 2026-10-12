@@ -57,7 +57,7 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void vertMarginsChanged(double val);
 
-  void colorModeChanged(int idx);
+  void colorModeChanged(output::ColorMode colorMode);
 
   void thresholdMethodChanged(int idx);
 
@@ -120,6 +120,9 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   void commitChanges();
 
  private:
+  // The color mode of the pressed mode button.
+  output::ColorMode currentColorMode() const;
+
   void updateFixOrientationDisplay(const DefaultParams::FixOrientationParams& params);
 
   void updatePageSplitDisplay(const DefaultParams::PageSplitParams& params);

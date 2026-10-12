@@ -18,6 +18,11 @@ const int ApplicationSettings::DEFAULT_TIFF_COLOR_COMPRESSION = COMPRESSION_LZW;
 const int ApplicationSettings::DEFAULT_TIFF_PALETTE_COMPRESSION = COMPRESSION_LZW;
 const int ApplicationSettings::DEFAULT_TIFF_JPEG_QUALITY = 85;
 const bool ApplicationSettings::DEFAULT_BLACK_ON_WHITE_DETECTION = true;
+const int ApplicationSettings::DEFAULT_CONTENT_FILL_FACTOR = 65;
+const int ApplicationSettings::DEFAULT_CONTENT_BORDER_TOLERANCE = 0;
+const int ApplicationSettings::DEFAULT_COLOR_DETECTION_MIN_COLOR = 3;
+const bool ApplicationSettings::DEFAULT_COLOR_DETECTION_ZONES = false;
+const int ApplicationSettings::DEFAULT_COLOR_DETECTION_MIN_PICTURE = 5;
 const bool ApplicationSettings::DEFAULT_BLACK_ON_WHITE_DETECTION_OUTPUT = true;
 const bool ApplicationSettings::DEFAULT_HIGHLIGHT_DEVIATION = true;
 const double ApplicationSettings::DEFAULT_DESKEW_DEVIATION_COEF = 1.5;
@@ -44,6 +49,11 @@ const QString ApplicationSettings::TIFF_COLOR_COMPRESSION_KEY = "color_compressi
 const QString ApplicationSettings::TIFF_PALETTE_COMPRESSION_KEY = "tiff_palette_compression";
 const QString ApplicationSettings::TIFF_JPEG_QUALITY_KEY = "tiff_jpeg_quality";
 const QString ApplicationSettings::BLACK_ON_WHITE_DETECTION_KEY = "black_on_white_detection";
+const QString ApplicationSettings::CONTENT_FILL_FACTOR_KEY = "content_detection/fill_factor";
+const QString ApplicationSettings::CONTENT_BORDER_TOLERANCE_KEY = "content_detection/border_tolerance";
+const QString ApplicationSettings::COLOR_DETECTION_MIN_COLOR_KEY = "color_mode_detection/min_color";
+const QString ApplicationSettings::COLOR_DETECTION_ZONES_KEY = "color_mode_detection/picture_zones";
+const QString ApplicationSettings::COLOR_DETECTION_MIN_PICTURE_KEY = "color_mode_detection/min_picture";
 const QString ApplicationSettings::BLACK_ON_WHITE_DETECTION_OUTPUT_KEY = "black_on_white_detection_at_output";
 const QString ApplicationSettings::HIGHLIGHT_DEVIATION_KEY = "highlight_deviation";
 const QString ApplicationSettings::DESKEW_DEVIATION_COEF_KEY = "deskew_deviation_coef";
@@ -177,6 +187,46 @@ bool ApplicationSettings::isBlackOnWhiteDetectionEnabled() const {
 
 void ApplicationSettings::setBlackOnWhiteDetectionEnabled(bool enabled) {
   writeValue(getKey(BLACK_ON_WHITE_DETECTION_KEY), enabled);
+}
+
+int ApplicationSettings::getContentFillFactor() const {
+  return qBound(30, readValue(getKey(CONTENT_FILL_FACTOR_KEY), DEFAULT_CONTENT_FILL_FACTOR).toInt(), 100);
+}
+
+void ApplicationSettings::setContentFillFactor(const int percent) {
+  writeValue(getKey(CONTENT_FILL_FACTOR_KEY), qBound(30, percent, 100));
+}
+
+int ApplicationSettings::getContentBorderTolerance() const {
+  return qBound(0, readValue(getKey(CONTENT_BORDER_TOLERANCE_KEY), DEFAULT_CONTENT_BORDER_TOLERANCE).toInt(), 100);
+}
+
+void ApplicationSettings::setContentBorderTolerance(const int percent) {
+  writeValue(getKey(CONTENT_BORDER_TOLERANCE_KEY), qBound(0, percent, 100));
+}
+
+int ApplicationSettings::getColorDetectionMinColor() const {
+  return qBound(0, readValue(getKey(COLOR_DETECTION_MIN_COLOR_KEY), DEFAULT_COLOR_DETECTION_MIN_COLOR).toInt(), 100);
+}
+
+void ApplicationSettings::setColorDetectionMinColor(const int percent) {
+  writeValue(getKey(COLOR_DETECTION_MIN_COLOR_KEY), qBound(0, percent, 100));
+}
+
+bool ApplicationSettings::isColorDetectionZones() const {
+  return readValue(getKey(COLOR_DETECTION_ZONES_KEY), DEFAULT_COLOR_DETECTION_ZONES).toBool();
+}
+
+void ApplicationSettings::setColorDetectionZones(const bool zones) {
+  writeValue(getKey(COLOR_DETECTION_ZONES_KEY), zones);
+}
+
+int ApplicationSettings::getColorDetectionMinPicture() const {
+  return qBound(1, readValue(getKey(COLOR_DETECTION_MIN_PICTURE_KEY), DEFAULT_COLOR_DETECTION_MIN_PICTURE).toInt(), 95);
+}
+
+void ApplicationSettings::setColorDetectionMinPicture(const int percent) {
+  writeValue(getKey(COLOR_DETECTION_MIN_PICTURE_KEY), qBound(1, percent, 95));
 }
 
 bool ApplicationSettings::isBlackOnWhiteDetectionOutputEnabled() const {

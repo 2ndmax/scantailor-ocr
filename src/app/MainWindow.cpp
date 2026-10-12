@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
+#include <QProgressDialog>
 #include <QResource>
 #include <QScrollBar>
 #include <QSet>
@@ -43,6 +44,7 @@
 #include "LoadFileTask.h"
 #include "LoadFilesStatusDialog.h"
 #include "NewOpenProjectPanel.h"
+#include "NullTaskStatus.h"
 #include "OutOfMemoryDialog.h"
 #include "OutOfMemoryHandler.h"
 #include "PageOrientationPropagator.h"
@@ -78,6 +80,7 @@
 #include "filters/fix_orientation/Task.h"
 #include "filters/output/CacheDrivenTask.h"
 #include "filters/output/Filter.h"
+#include "filters/output/GeometryCollector.h"
 #include "filters/output/TabbedImageView.h"
 #include "filters/output/Task.h"
 #include "filters/output/Utils.h"
@@ -794,6 +797,7 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
   connect(widget, &FilterOptionsWidget::invalidateAllThumbnails, this, &MainWindow::invalidateAllThumbnails);
   connect(widget, &FilterOptionsWidget::goToPage, this, [this](const PageId& pageId) { goToPage(pageId); });
   connect(widget, &FilterOptionsWidget::fixDpiRequested, this, &MainWindow::fixDpiDialogRequested);
+  connect(widget, &FilterOptionsWidget::colorModeDetectionRequested, this, &MainWindow::colorModeDetectionRequested);
   // Asynchronous for the same reason as reloadRequested().
   connect(widget, &FilterOptionsWidget::sourceDpiChanged, this, &MainWindow::sourceDpiChanged, Qt::QueuedConnection);
 }  // MainWindow::setOptionsWidget
@@ -1497,6 +1501,84 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
 
 void MainWindow::debugToggled(const bool enabled) {
   m_debug = enabled;
+}
+
+void MainWindow::colorModeDetectionRequested(const std::set<PageId>& pages) {
+  if (pages.empty() || !isProjectLoaded()) {
+    return;
+  }
+
+  // The geometry of each page comes from the results of the steps before, as for the thumbnails,
+  // so only the source images have to be loaded.
+  const std::shared_ptr<CompositeCacheDrivenTask> geometryTask(
+      createCompositeCacheDrivenTask(m_stages->outputFilterIdx()));
+  std::vector<PageInfo> todo;
+  for (const PageInfo& page : m_thumbSequence->toPageSequence()) {
+    if (pages.find(page.id()) != pages.end()) {
+      todo.push_back(page);
+    }
+  }
+
+  QProgressDialog progress(tr("Detecting the color mode ..."), tr("Cancel"), 0, static_cast<int>(todo.size()), this);
+  progress.setWindowTitle(tr("Detect Color Mode"));
+  progress.setWindowModality(Qt::WindowModal);
+  progress.setMinimumDuration(0);
+
+  const NullTaskStatus status;
+  int bw = 0, color = 0, mixed = 0, skipped = 0, failed = 0;
+  bool cancelled = false;
+  for (size_t i = 0; i < todo.size(); ++i) {
+    progress.setValue(static_cast<int>(i));
+    if (progress.wasCanceled()) {
+      cancelled = true;
+      break;
+    }
+    output::GeometryCollector geometry;
+    geometryTask->process(todo[i], &geometry);
+    if (!geometry.hasGeometry()) {
+      ++skipped;
+      continue;
+    }
+    output::ColorMode mode;
+    if (!m_stages->outputFilter()->detectColorMode(todo[i], geometry, status, &mode)) {
+      ++failed;
+      continue;
+    }
+    switch (mode) {
+      case output::BLACK_AND_WHITE:
+        ++bw;
+        break;
+      case output::COLOR_GRAYSCALE:
+        ++color;
+        break;
+      case output::MIXED:
+        ++mixed;
+        break;
+    }
+  }
+  progress.setValue(static_cast<int>(todo.size()));
+
+  invalidateAllThumbnails();
+  if (m_curFilter == m_stages->outputFilterIdx()) {
+    reloadRequested();
+  }
+
+  QString summary = tr("Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.",
+                       nullptr, bw + color + mixed)
+                        .arg(bw)
+                        .arg(color)
+                        .arg(mixed);
+  if (skipped > 0) {
+    summary
+        += "\n\n" + tr("%n page(s) skipped because the steps before Output have not been done yet.", nullptr, skipped);
+  }
+  if (failed > 0) {
+    summary += "\n\n" + tr("%n page(s) could not be loaded.", nullptr, failed);
+  }
+  if (cancelled) {
+    summary += "\n\n" + tr("The detection was cancelled.");
+  }
+  QMessageBox::information(this, tr("Detect Color Mode"), summary);
 }
 
 void MainWindow::fixDpiDialogRequested() {

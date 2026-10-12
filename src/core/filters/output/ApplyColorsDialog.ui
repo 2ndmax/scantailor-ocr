@@ -21,6 +21,38 @@
     <widget class="PageScopeGroupBox" name="scopeGroupBox"/>
    </item>
    <item>
+    <widget class="QGroupBox" name="optionsBox">
+     <property name="title">
+      <string>Apply Parameters</string>
+     </property>
+     <layout class="QVBoxLayout" name="optionsBoxLayout">
+      <item>
+       <widget class="QCheckBox" name="applyColorModeOption">
+        <property name="text">
+         <string>Color mode</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="applyOtherSettingsOption">
+        <property name="toolTip">
+         <string>All other settings of the Mode group, such as the threshold, the filters and the shape of the picture zones.</string>
+        </property>
+        <property name="text">
+         <string>Other settings</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

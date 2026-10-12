@@ -5,7 +5,8 @@
 // ScanTailor Spectre) on a folder of scans and writes the verdicts with their evidence to a CSV
 // file, plus contact sheets.
 //
-// Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3]
+// Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3] [--minpicture=10]
+// [--only=<name part>] [--inset=<percent>]
 //
 // Raw scans of two-page spreads are not split yet, so each scan is cropped to the bright page area
 // (dark scanner borders removed) and cut in half across its longer side. Rotation hardly matters
@@ -123,15 +124,27 @@ int main(int argc, char** argv) {
   QGuiApplication app(argc, argv);  // QPainter needs fonts.
   const QStringList args = app.arguments();
   if (args.size() < 3) {
-    std::cerr << "Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3]\n";
+    std::cerr << "Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3] "
+                 "[--minpicture=10] [--only=<name part>] [--inset=<percent>]\n";
     return 1;
   }
   const QDir inDir(args[1]);
   const QString outDir = args[2];
   const bool noSplit = args.contains("--nosplit");
+  QString only;            // Only files whose name contains this.
+  int insetOverride = -1;  // Share of each edge left out, in percent.
   ColorModeDetector::Options options;
   options.usePictureZones = args.contains("--zones");
   for (const QString& arg : args) {
+    if (arg.startsWith("--only=")) {
+      only = arg.mid(7);
+    }
+    if (arg.startsWith("--inset=")) {
+      insetOverride = arg.mid(8).toInt();
+    }
+    if (arg.startsWith("--minpicture=")) {
+      options.minPictureShare = arg.mid(13).toDouble() / 100;
+    }
     if (arg.startsWith("--mincolor=")) {
       options.minColorShare = arg.mid(11).toDouble() / 100;
     }
@@ -145,11 +158,15 @@ int main(int argc, char** argv) {
   }
   QTextStream csv(&csvFile);
   csv << "file;part;mode;reason;spectre;darkRatio;midtoneRatio;lightRatio;colorFraction;toneTiles;"
-         "largestRegionCoverage;pictureShare;largestPicture;colorInPictures;colorOutside;textOutside\n";
+         "largestRegionCoverage;pictureShare;largestPicture;colorInPictures;colorOutside;textOutside;picMean;picStdDev;"
+         "picDark\n";
 
   const NullTaskStatus status;
   std::vector<Result> results;
-  const QStringList files = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
+  QStringList files = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
+  if (!only.isEmpty()) {
+    files = files.filter(only);
+  }
   int fileNo = 0;
   for (const QString& name : files) {
     ++fileNo;
@@ -174,7 +191,7 @@ int main(int argc, char** argv) {
 
     for (const auto& [partName, rect] : parts) {
       const QImage part = image.copy(rect);
-      const int inset = noSplit ? 3 : 8;
+      const int inset = (insetOverride >= 0) ? insetOverride : (noSplit ? 3 : 8);
       const QImage content = part.copy(part.rect().adjusted(part.width() * inset / 100, part.height() * inset / 100,
                                                             -part.width() * inset / 100, -part.height() * inset / 100));
       ColorModeDetector::Evidence ev;
@@ -184,7 +201,7 @@ int main(int argc, char** argv) {
           << ev.spectre.midtoneRatio << ';' << ev.spectre.lightRatio << ';' << ev.spectre.colorFraction << ';'
           << ev.spectre.continuousToneTileCount << ';' << ev.spectre.largestRegionCoverage << ';' << ev.pictureShare
           << ';' << ev.largestPicture << ';' << ev.colorInPictures << ';' << ev.colorOutside << ';' << ev.textOutside
-          << '\n';
+          << ';' << ev.largestPictureMean << ';' << ev.largestPictureStdDev << ';' << ev.largestPictureDark << '\n';
       results.push_back({QStringLiteral("%1 %2 (%3)")
                              .arg(fileNo)
                              .arg(partName)

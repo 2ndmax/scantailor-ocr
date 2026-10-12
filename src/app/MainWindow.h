@@ -165,6 +165,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void fixDpiDialogRequested();
 
+  void colorModeDetectionRequested(const std::set<PageId>& pages);
+
   void fixedDpiSubmitted();
 
   void sourceDpiChanged();

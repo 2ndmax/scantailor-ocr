@@ -17,6 +17,7 @@ set(sources
     OptionsWidget.cpp OptionsWidget.h
     Task.cpp Task.h
     CacheDrivenTask.cpp CacheDrivenTask.h
+    GeometryCollector.h
     OutputGenerator.cpp OutputGenerator.h
     OutputMargins.h
     Settings.cpp Settings.h

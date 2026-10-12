@@ -62,6 +62,30 @@ class ApplicationSettings {
 
   void setBlackOnWhiteDetectionEnabled(bool enabled);
 
+  // Automatic content box detection (Select Content): fill factor and border tolerance, in percent.
+  int getContentFillFactor() const;
+
+  void setContentFillFactor(int percent);
+
+  int getContentBorderTolerance() const;
+
+  void setContentBorderTolerance(int percent);
+
+  // Color mode detection (Output): share of color outside pictures (percent) for a color page, and
+  // whether the picture zones give a second opinion.
+  int getColorDetectionMinColor() const;
+
+  void setColorDetectionMinColor(int percent);
+
+  bool isColorDetectionZones() const;
+
+  void setColorDetectionZones(bool zones);
+
+  // Color mode detection: share of the page (percent) the largest picture zone needs.
+  int getColorDetectionMinPicture() const;
+
+  void setColorDetectionMinPicture(int percent);
+
   bool isBlackOnWhiteDetectionOutputEnabled() const;
 
   void setBlackOnWhiteDetectionOutputEnabled(bool enabled);
@@ -205,6 +229,11 @@ class ApplicationSettings {
   static const int DEFAULT_TIFF_PALETTE_COMPRESSION;
   static const int DEFAULT_TIFF_JPEG_QUALITY;
   static const bool DEFAULT_BLACK_ON_WHITE_DETECTION;
+  static const int DEFAULT_CONTENT_FILL_FACTOR;
+  static const int DEFAULT_CONTENT_BORDER_TOLERANCE;
+  static const int DEFAULT_COLOR_DETECTION_MIN_COLOR;
+  static const bool DEFAULT_COLOR_DETECTION_ZONES;
+  static const int DEFAULT_COLOR_DETECTION_MIN_PICTURE;
   static const bool DEFAULT_BLACK_ON_WHITE_DETECTION_OUTPUT;
   static const bool DEFAULT_HIGHLIGHT_DEVIATION;
   static const double DEFAULT_DESKEW_DEVIATION_COEF;
@@ -231,6 +260,11 @@ class ApplicationSettings {
   static const QString TIFF_PALETTE_COMPRESSION_KEY;
   static const QString TIFF_JPEG_QUALITY_KEY;
   static const QString BLACK_ON_WHITE_DETECTION_KEY;
+  static const QString CONTENT_FILL_FACTOR_KEY;
+  static const QString CONTENT_BORDER_TOLERANCE_KEY;
+  static const QString COLOR_DETECTION_MIN_COLOR_KEY;
+  static const QString COLOR_DETECTION_ZONES_KEY;
+  static const QString COLOR_DETECTION_MIN_PICTURE_KEY;
   static const QString BLACK_ON_WHITE_DETECTION_OUTPUT_KEY;
   static const QString HIGHLIGHT_DEVIATION_KEY;
   static const QString DESKEW_DEVIATION_COEF_KEY;

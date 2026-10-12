@@ -35,9 +35,12 @@ class ColorModeDetector {
     double minColorShare = 0.03;
     /** Use our picture zone detection as a second opinion on black and white pages. */
     bool usePictureZones = false;
+    /** Share of the page the largest picture zone needs for the second opinion. */
+    double minPictureShare = 0.05;
 
     bool operator==(const Options& other) const {
-      return (minColorShare == other.minColorShare) && (usePictureZones == other.usePictureZones);
+      return (minColorShare == other.minColorShare) && (usePictureZones == other.usePictureZones)
+             && (minPictureShare == other.minPictureShare);
     }
 
     bool operator!=(const Options& other) const { return !(*this == other); }
@@ -50,6 +53,10 @@ class ColorModeDetector {
     bool picturesMeasured = false;
     double pictureShare = 0;
     double largestPicture = 0;
+    // Inside the largest picture area: mean gray, its standard deviation and the share of dark pixels.
+    double largestPictureMean = 0;
+    double largestPictureStdDev = 0;
+    double largestPictureDark = 0;
     double colorInPictures = 0;
     double colorOutside = 0;
     double textOutside = 0;
