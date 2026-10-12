@@ -331,17 +331,17 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="187"/>
         <location filename="../app/DefaultParamsDialog.ui" line="207"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1336"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1405"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1675"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1698"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1721"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1744"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1767"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1793"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1816"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1839"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1862"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1354"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1423"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1693"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1716"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1739"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1762"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1785"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1811"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1834"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1857"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1880"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -351,7 +351,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1948"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1966"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -361,18 +361,18 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="559"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="606"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="577"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="624"/>
         <source>Deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="375"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="621"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="729"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="885"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1064"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4097"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="639"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="747"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="903"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1082"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4186"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
@@ -393,633 +393,643 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="394"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="637"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="742"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="901"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4123"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="655"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="760"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="919"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4212"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="437"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="443"/>
         <source>One page, not split.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="463"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="475"/>
         <source>One page and a strip to cut off, such as the edge of the opposite page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="486"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="504"/>
         <source>Two pages, split into two.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="597"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="615"/>
         <source>Deskew and Oblique</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="651"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="669"/>
         <source>Angle:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="688"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="706"/>
         <source>Detection:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="695"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="713"/>
         <source>How Auto finds the angle of new pages: from the lines of the content, or from the top edge of the page (recommended for book scans with a dark background).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="717"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="735"/>
         <source>Oblique</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="726"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="744"/>
         <source>Run automatic oblique (shear) correction on new pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="739"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="757"/>
         <source>Leave the oblique (shear) angle alone on new pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="791"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="809"/>
         <source>Select Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="829"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="847"/>
         <source>Page and Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="853"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="871"/>
         <source>Page Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="935"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="953"/>
         <source>Fine-tune page corners</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="959"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="977"/>
         <source>Width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="979"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="997"/>
         <source>Height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1038"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1056"/>
         <source>Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1097"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1107"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1115"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1125"/>
         <source>The highest share of black pixels a line may have to count as text. Raise it for art books and photo pages: above 85 %, shadows are kept and pictures count as content; from 95 % on, the whole page box is the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1100"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1118"/>
         <source>Fill factor:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1113"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1148"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1993"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2055"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1131"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1166"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3811"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3873"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1132"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1142"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1150"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1160"/>
         <source>How much of the content touching the image border is kept. At 0 %, it is removed as before (scanner edges, shadows); raise it for pictures that reach the edge of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1135"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1153"/>
         <source>Border tolerance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1219"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1264"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1237"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1282"/>
         <source>Margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1275"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1293"/>
         <source>Auto margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1353"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1371"/>
         <source>Top:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1360"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1378"/>
         <source>Right:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1367"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1385"/>
         <source>Left:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1455"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1473"/>
         <source>Bottom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1537"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1555"/>
         <source>Alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1548"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1566"/>
         <source>Match size with other pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1580"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1598"/>
         <source>Horizontal mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1587"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1605"/>
         <source>Vertical mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1598"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1620"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1616"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1638"/>
         <source>Auto</source>
         <comment>auto</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1603"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1625"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1621"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1643"/>
         <source>Manual</source>
         <comment>manual</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1608"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1630"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1626"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1648"/>
         <source>Original</source>
         <comment>original</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1910"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1928"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1968"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3784"/>
         <source>Color Mode Detection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1977"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1987"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3795"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3805"/>
         <source>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1980"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3798"/>
         <source>Color from:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2024"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3842"/>
         <source>Also look for picture zones on pages detected as black and white. Finds light or small photos, but takes longer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2027"/>
-        <source>Also check picture zones (more accurate, slower)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2039"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2049"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3857"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3867"/>
         <source>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2042"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3860"/>
         <source>Pictures from:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2155"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1998"/>
+        <source>Black and white: text and line art.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2030"/>
+        <source>Color / grayscale: the whole page as an image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2062"/>
+        <source>Mixed: pictures in color or grayscale, text in black and white.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="2118"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2181"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2144"/>
         <source>Evens out uneven lighting, such as a shadow near the spine.  In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2184"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2147"/>
         <source>Equalize illumination</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2196"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2159"/>
         <source>Mixed mode only: also evens out the lighting in the picture zones.  Needs &quot;Equalize illumination&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2199"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2162"/>
         <source>Also in picture zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2256"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2219"/>
         <source>Enhancement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2263"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2226"/>
         <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters.  The brightness is not changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2266"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2229"/>
         <source>Remove color noise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2312"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2275"/>
         <source>How far the colors are smoothed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2325"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2288"/>
         <source>Gray limit:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2332"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2295"/>
         <source>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay.  0 only smooths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2361"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2324"/>
         <source>Evens out the paper background (stains, yellowing, shadows) before the other processing. Pictures are flattened as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2364"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2327"/>
         <source>Even out background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2409"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2372"/>
         <source>How far the background is evened out, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2304"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2425"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2538"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2744"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2267"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2388"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2501"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2707"/>
         <source>Radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2435"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2398"/>
         <source>The size of the area used to estimate the background. It should be clearly larger than the letters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2448"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2411"/>
         <source>Also takes the paper to white and removes a color cast such as yellowing.  Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2451"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2414"/>
         <source>Make paper white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2474"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2437"/>
         <source>Reduces the noise of the image while keeping the edges of letters sharp, before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2477"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2440"/>
         <source>KNN denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2548"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2511"/>
         <source>The size of the neighborhood that is averaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2680"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2643"/>
         <source>Sharpens blurred edges, after the other filters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2683"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2646"/>
         <source>Sharpen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2728"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2691"/>
         <source>How strongly the edges are sharpened, from 0.1 to 3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2754"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2717"/>
         <source>The size of the details that are sharpened; larger values also sharpen coarser details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3729"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3692"/>
         <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3732"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3695"/>
         <source>Fill offcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3739"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3702"/>
         <source>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3742"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3705"/>
         <source>Fill outside page box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3749"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3712"/>
         <source>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3752"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3715"/>
         <source>Fill margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4229"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4318"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4232"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4321"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2208"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2171"/>
         <source>Output color scans in grayscale: the whole page in color mode, pictures and colored text in mixed mode. Grayscale files are much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2211"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2174"/>
         <source>Grayscale output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3242"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3205"/>
         <source>Savitzky-Golay smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3252"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3215"/>
         <source>Morphological smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3711"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3674"/>
         <source>Filling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3766"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3729"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3299"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3262"/>
         <source>Color Operations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2577"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2540"/>
         <source>Reduces the noise of the image before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2086"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1980"/>
         <source>Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2580"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2543"/>
         <source>Wiener denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2402"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2515"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2618"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2721"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2365"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2478"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2581"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2684"/>
         <source>Strength:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2522"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2625"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2485"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2588"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3309"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3272"/>
         <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3312"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3275"/>
         <source>Color segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3383"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3346"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3396"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3359"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3409"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3372"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3427"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3390"/>
         <source>Reduce noise:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3472"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3435"/>
         <source>Reduce the number of colors of the output image by grouping similar colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3475"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3438"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3516"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3479"/>
         <source>Level:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3523"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3486"/>
         <source>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3536"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3499"/>
         <source>Normalize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3543"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3506"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3546"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3509"/>
         <source>Force b&amp;&amp;w</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2801"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2764"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2813"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2776"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2916"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2879"/>
         <source>Thinner</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2945"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2908"/>
         <source>Thicker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2978"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3085"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2941"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3048"/>
         <source>Delta:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2985"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3092"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2948"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3055"/>
         <source>Default value is 0.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3024"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3171"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2987"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3134"/>
         <source>Coef:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4145"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4234"/>
         <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4163"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4252"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2651"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3011"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3118"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2614"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2974"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3081"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2641"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3001"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3108"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2604"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2964"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3071"/>
         <source>Window size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3353"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3316"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3363"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3326"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3373"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3336"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3031"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2994"/>
         <source>Default value is 0.34.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3138"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3101"/>
         <source>The minimum possible gray level that can be made white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3151"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3114"/>
         <source>Upper bound:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3131"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3094"/>
         <source>Lower bound:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1034,323 +1044,328 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="618"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="636"/>
         <source>Detect the rotation angle of new pages automatically, with the method chosen under &quot;Detection&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="634"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="652"/>
         <source>Use the angle set below for new pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="863"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="881"/>
         <source>Use the whole image as the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="882"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="900"/>
         <source>Detect the page box automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="898"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="916"/>
         <source>Use a page box of the size set below for new pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="932"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="950"/>
         <source>Shrinks the detected page box from each corner as long as the corner lies on a dark area, such as the scanner background showing in the corners of a page placed askew.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1045"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1063"/>
         <source>Use the whole page box as the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1061"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1079"/>
         <source>Detect the content box automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3763"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3773"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3726"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3736"/>
         <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2810"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2820"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2773"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2783"/>
         <source>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1965"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3781"/>
         <source>Settings of the color mode detection (Detect ... in the Output step). They apply to all projects.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3158"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3121"/>
         <source>The maximum possible gray level that can be made black.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3178"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3141"/>
         <source>Default value is 0.3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3239"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3202"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3249"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3212"/>
         <source>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3587"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3550"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3596"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3559"/>
         <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3633"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3596"/>
         <source>Sensitivity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3668"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3631"/>
         <source>Also finds pictures with weak contrast; text may then be taken for a picture, too.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3671"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3634"/>
         <source>Higher search sensitivity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3818"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1151"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3845"/>
+        <source>Also look for grayscale pictures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3907"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1146"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3827"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3916"/>
         <source>Resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3834"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3923"/>
         <source>Common resolutions; others between 72 and 1200 DPI can be typed in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3863"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3952"/>
         <source>Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3874"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3963"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3877"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3966"/>
         <source>Split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3889"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3978"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3892"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3981"/>
         <source>B&amp;&amp;W foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3920"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4009"/>
         <source>Save the original background of the foreground layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3923"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4012"/>
         <source>Original background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3932"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4021"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3935"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4024"/>
         <source>Color foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3962"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4051"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3973"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4062"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3976"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4065"/>
         <source>Despeckle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4067"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4156"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4078"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4167"/>
         <source>No dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4094"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4183"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4107"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4196"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4120"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4209"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4135"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4224"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4138"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4227"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2095"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2001"/>
         <source>Black and White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2108"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2033"/>
         <source>Color / Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2121"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2065"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="68"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="69"/>
         <source>White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="70"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="866"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1048"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4081"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="884"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1066"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4170"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
         <source>Contour mask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="109"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1293"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="104"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1288"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4110"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4199"/>
         <source>Marginal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="100"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="95"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="101"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="96"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1151"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1146"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1256"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1262"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1282"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1299"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1314"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1257"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1277"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1294"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1309"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1256"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1262"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1257"/>
         <source>Error loading the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1283"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1278"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1299"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1294"/>
         <source>Error saving the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1314"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1309"/>
         <source>Error deleting the profile.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3935,13 +3950,13 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="73"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="140"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="135"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="74"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="136"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4115,17 +4130,17 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::Filter</name>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="41"/>
+        <location filename="../core/filters/output/Filter.cpp" line="38"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="42"/>
+        <location filename="../core/filters/output/Filter.cpp" line="39"/>
         <source>Order by completeness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="48"/>
+        <location filename="../core/filters/output/Filter.cpp" line="45"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4157,67 +4172,67 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="477"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="560"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1189"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1272"/>
         <source>Fill offcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1196"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1279"/>
         <source>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1199"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1282"/>
         <source>Fill outside page box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1209"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1292"/>
         <source>Fill margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="542"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="625"/>
         <source>Output color scans in grayscale: the whole page in color mode, pictures and colored text in mixed mode. Grayscale files are much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="545"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="628"/>
         <source>Grayscale output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1334"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1417"/>
         <source>Savitzky-Golay smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1344"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1427"/>
         <source>Morphological smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1168"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1251"/>
         <source>Filling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1223"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1306"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1270"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1353"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1282"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1365"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="177"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="204"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="217"/>
@@ -4225,12 +4240,12 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1371"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1454"/>
         <source>Color Operations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="927"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1010"/>
         <source>Reduces the noise of the image before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4250,6 +4265,11 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="283"/>
+        <source>Also look for grayscale pictures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="295"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="305"/>
         <source>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</source>
@@ -4261,224 +4281,239 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="515"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="440"/>
+        <source>Black and white: text and line art.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="472"/>
+        <source>Color / grayscale: the whole page as an image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="504"/>
+        <source>Mixed: pictures in color or grayscale, text in black and white.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="598"/>
         <source>Evens out uneven lighting, such as a shadow near the spine.  In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="518"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="601"/>
         <source>Equalize illumination</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="530"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="613"/>
         <source>Mixed mode only: also evens out the lighting in the picture zones.  Needs &quot;Equalize illumination&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="533"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="616"/>
         <source>Also in picture zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="613"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="696"/>
         <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters.  The brightness is not changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="616"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="699"/>
         <source>Remove color noise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="662"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="745"/>
         <source>How far the colors are smoothed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="675"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="758"/>
         <source>Gray limit:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="682"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="765"/>
         <source>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay.  0 only smooths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="798"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="881"/>
         <source>Also takes the paper to white and removes a color cast such as yellowing.  Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="801"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="884"/>
         <source>Make paper white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="824"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="907"/>
         <source>Reduces the noise of the image while keeping the edges of letters sharp, before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="827"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="910"/>
         <source>KNN denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="898"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="981"/>
         <source>The size of the neighborhood that is averaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="930"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1013"/>
         <source>Wiener denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1001"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1084"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1030"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1113"/>
         <source>Sharpens blurred edges, after the other filters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1033"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1116"/>
         <source>Sharpen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1078"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1161"/>
         <source>How strongly the edges are sharpened, from 0.1 to 3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1104"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1187"/>
         <source>The size of the details that are sharpened; larger values also sharpen coarser details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1186"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1269"/>
         <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1206"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1289"/>
         <source>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1220"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1230"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1303"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1313"/>
         <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1279"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1289"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1362"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1372"/>
         <source>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1331"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1414"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1341"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1424"/>
         <source>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1409"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1492"/>
         <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1415"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1498"/>
         <source>Color segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1488"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1571"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1507"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1590"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1526"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1609"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1578"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1661"/>
         <source>Reduce noise:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1625"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1708"/>
         <source>Reduce the number of colors of the output image by grouping similar colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1631"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1714"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1674"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1757"/>
         <source>Level:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1681"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1764"/>
         <source>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1742"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1825"/>
         <source>Normalize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1785"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1868"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1791"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1874"/>
         <source>Force b&amp;&amp;w</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1851"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1934"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1860"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1943"/>
         <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1897"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1980"/>
         <source>Sensitivity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1938"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2021"/>
         <source>Also finds pictures with weak contrast; text may then be taken for a picture, too.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1941"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2024"/>
         <source>Higher search sensitivity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4510,11 +4545,6 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="283"/>
-        <source>Also check picture zones (more accurate, slower)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="366"/>
         <source>Detects the color mode of the chosen pages and sets it. Pages whose earlier steps have not been done yet are skipped.</source>
         <translation type="unfinished"></translation>
@@ -4525,103 +4555,103 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1990"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2073"/>
         <source>Applies the color mode and the other settings of this panel to other pages; either part can be chosen.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2034"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2117"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2049"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2132"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2089"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2172"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2212"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2295"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2373"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2456"/>
         <source>No dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2389"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2472"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2392"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2475"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2405"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2488"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2408"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2491"/>
         <source>Marginal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2421"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2504"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2439"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2522"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2442"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2525"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="1058"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2449"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2532"/>
         <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2467"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2550"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2533"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2616"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2536"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2619"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2567"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2650"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="102"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="194"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1993"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2145"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2334"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2570"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2076"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2228"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2417"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2653"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4651,69 +4681,69 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="587"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="670"/>
         <source>Enhancement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="711"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="794"/>
         <source>Evens out the paper background (stains, yellowing, shadows) before the other processing. Pictures are flattened as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="714"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="797"/>
         <source>Even out background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="752"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="865"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="968"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1071"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="835"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="948"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1051"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1154"/>
         <source>Strength:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="759"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="842"/>
         <source>How far the background is evened out, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="654"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="775"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="888"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1094"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="737"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="858"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="971"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1177"/>
         <source>Radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="785"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="868"/>
         <source>The size of the area used to estimate the background. It should be clearly larger than the letters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="872"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="975"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="955"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1058"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="991"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1074"/>
         <source>Window size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1458"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1541"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1468"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1551"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1478"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1561"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4723,73 +4753,73 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2021"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2104"/>
         <source>Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2037"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2120"/>
         <source>Split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2052"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2135"/>
         <source>B&amp;&amp;W foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2077"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2160"/>
         <source>Save the original background of the foreground layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2080"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2163"/>
         <source>Original background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2092"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2175"/>
         <source>Color foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2142"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2225"/>
         <source>Applies the splitting settings of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2170"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2253"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2215"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2298"/>
         <source>Despeckle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2331"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2414"/>
         <source>Applies the despeckling of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2359"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2442"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="421"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="443"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="207"/>
         <source>Black and White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="434"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="475"/>
         <source>Color / Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="447"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="507"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4854,7 +4884,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2376"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2459"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
@@ -4937,7 +4967,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2424"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2507"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5501,13 +5531,13 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="204"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="222"/>
         <source>Split Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/page_split/OptionsWidget.ui" line="50"/>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="216"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="234"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5528,42 +5558,42 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/page_split/OptionsWidget.ui" line="66"/>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="235"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="253"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="99"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="105"/>
         <source>One page, not split.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="125"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="137"/>
         <source>One page and a strip to cut off, such as the edge of the opposite page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="151"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="169"/>
         <source>Two pages, split into two.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="213"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="231"/>
         <source>Detect the split line automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="232"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="250"/>
         <source>Keep the split line set by hand in the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="277"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="295"/>
         <source>Applies the page type of this page to other pages, and on request its split line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="280"/>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="298"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>

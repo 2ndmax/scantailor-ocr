@@ -62,12 +62,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
 
 #ifndef ENABLE_OCR
   // The color mode detection comes with OCR (Leptonica).
-  colorDetectionHeading->setVisible(false);
-  colorDetectionMinColorLabel->setVisible(false);
-  colorDetectionMinColorSB->setVisible(false);
-  colorDetectionZonesCB->setVisible(false);
-  colorDetectionMinPictureLabel->setVisible(false);
-  colorDetectionMinPictureSB->setVisible(false);
+  colorDetectionPanel->setVisible(false);
 #endif
 
   fillingColorBox->addItem(tr("Background"), FILL_BACKGROUND);

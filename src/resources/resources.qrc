@@ -43,6 +43,11 @@
     <file>icons/single_page_uncut.svg</file>
     <file>icons/left_page_plus_offcut.svg</file>
     <file>icons/right_page_plus_offcut.svg</file>
+    <file>icons/color_mode_bw.svg</file>
+    <file>icons/color_mode_color.svg</file>
+    <file>icons/color_mode_mixed.svg</file>
+    <file>icons/color_mode_color_alt.svg</file>
+    <file>icons/color_mode_mixed_alt.svg</file>
     <file>icons/check-mark.svg</file>
     <file>icons/check-mark-disabled.svg</file>
     <file>icons/eye.svg</file>

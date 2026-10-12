@@ -684,10 +684,10 @@ ScanTailor Advanced.
     page.
   * Color only in pictures makes the page Mixed; a grayscale page with text beside the picture,
     such as a caption, is Mixed as well.
-  * "Also check picture zones" with "Pictures from" (default 5 %): our picture zone detection as a
-    second opinion finds light, small or very dark photos that the Spectre detection misses. Only
-    zones that look like pictures count (mostly dark, or evenly gray), so dense text and empty
-    paper are not taken for pictures.
+  * "Also look for grayscale pictures" with "Pictures from" (default 5 %): our picture zone
+    detection as a second opinion finds light, small or very dark photos that the Spectre
+    detection misses. Only zones that look like pictures count (mostly dark, or evenly gray), so
+    dense text and empty paper are not taken for pictures.
 
   The three settings apply to all projects and are also in the default parameters dialog.
   "Apply to ..." of the Mode group can now apply the color mode and the other settings of the

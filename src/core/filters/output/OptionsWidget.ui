@@ -280,7 +280,7 @@
          <string>Also look for picture zones on pages detected as black and white. Finds light or small photos, but takes longer.</string>
         </property>
         <property name="text">
-         <string>Also check picture zones (more accurate, slower)</string>
+         <string>Also look for grayscale pictures</string>
         </property>
        </widget>
       </item>
@@ -416,10 +416,42 @@
       <item>
        <layout class="QHBoxLayout" name="colorModeButtonsLayout">
         <item>
-         <widget class="QPushButton" name="colorModeBWBtn">
+         <spacer name="colorModeSpacer1">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="colorModeBWBtn">
+          <property name="minimumSize">
+           <size>
+            <width>42</width>
+            <height>42</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Black and white: text and line art.</string>
+          </property>
           <property name="text">
            <string>Black and White</string>
           </property>
+          <property name="icon">
+           <iconset resource="../../../resources/resources.qrc">
+            <normaloff>:/icons/color_mode_bw.svg</normaloff>:/icons/color_mode_bw.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>36</width>
+            <height>36</height>
+           </size>
+          </property>
           <property name="checkable">
            <bool>true</bool>
           </property>
@@ -429,10 +461,29 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="colorModeColorBtn">
+         <widget class="QToolButton" name="colorModeColorBtn">
+          <property name="minimumSize">
+           <size>
+            <width>42</width>
+            <height>42</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Color / grayscale: the whole page as an image.</string>
+          </property>
           <property name="text">
            <string>Color / Grayscale</string>
           </property>
+          <property name="icon">
+           <iconset resource="../../../resources/resources.qrc">
+            <normaloff>:/icons/color_mode_color.svg</normaloff>:/icons/color_mode_color.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>36</width>
+            <height>36</height>
+           </size>
+          </property>
           <property name="checkable">
            <bool>true</bool>
           </property>
@@ -442,9 +493,28 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="colorModeMixedBtn">
+         <widget class="QToolButton" name="colorModeMixedBtn">
+          <property name="minimumSize">
+           <size>
+            <width>42</width>
+            <height>42</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Mixed: pictures in color or grayscale, text in black and white.</string>
+          </property>
           <property name="text">
            <string>Mixed</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../resources/resources.qrc">
+            <normaloff>:/icons/color_mode_mixed.svg</normaloff>:/icons/color_mode_mixed.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>36</width>
+            <height>36</height>
+           </size>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -453,6 +523,19 @@
            <bool>true</bool>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="colorModeSpacer2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>

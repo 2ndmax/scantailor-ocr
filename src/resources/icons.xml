@@ -117,20 +117,29 @@
   <icon name="object-rotate-right" styled="on">
     <file>:/icons/object-rotate-right.svg</file>
   </icon>
-  <icon name="two_pages" styled="on">
+  <icon name="two_pages">
     <file>:/icons/two_pages.svg</file>
   </icon>
   <icon name="layout_type_auto" styled="on">
     <file>:/icons/layout_type_auto.svg</file>
   </icon>
-  <icon name="single_page_uncut" styled="on">
+  <icon name="single_page_uncut">
     <file>:/icons/single_page_uncut.svg</file>
   </icon>
-  <icon name="left_page_plus_offcut" styled="on">
+  <icon name="left_page_plus_offcut">
     <file>:/icons/left_page_plus_offcut.svg</file>
   </icon>
-  <icon name="right_page_plus_offcut" styled="on">
+  <icon name="right_page_plus_offcut">
     <file>:/icons/right_page_plus_offcut.svg</file>
+  </icon>
+  <icon name="color_mode_bw">
+    <file>:/icons/color_mode_bw.svg</file>
+  </icon>
+  <icon name="color_mode_color">
+    <file>:/icons/color_mode_color.svg</file>
+  </icon>
+  <icon name="color_mode_mixed">
+    <file>:/icons/color_mode_mixed.svg</file>
   </icon>
   <icon name="eye" styled="on">
     <file state="off">:/icons/eye-disabled.svg</file>

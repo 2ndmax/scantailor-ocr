@@ -433,6 +433,12 @@
                  </item>
                  <item>
                   <widget class="QToolButton" name="singlePageUncutBtn">
+                   <property name="minimumSize">
+                    <size>
+                     <width>42</width>
+                     <height>42</height>
+                    </size>
+                   </property>
                    <property name="toolTip">
                     <string>One page, not split.</string>
                    </property>
@@ -442,8 +448,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>32</width>
-                     <height>32</height>
+                     <width>36</width>
+                     <height>36</height>
                     </size>
                    </property>
                    <property name="checkable">
@@ -459,6 +465,12 @@
                  </item>
                  <item>
                   <widget class="QToolButton" name="pagePlusOffcutBtn">
+                   <property name="minimumSize">
+                    <size>
+                     <width>42</width>
+                     <height>42</height>
+                    </size>
+                   </property>
                    <property name="toolTip">
                     <string>One page and a strip to cut off, such as the edge of the opposite page.</string>
                    </property>
@@ -468,8 +480,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>32</width>
-                     <height>32</height>
+                     <width>36</width>
+                     <height>36</height>
                     </size>
                    </property>
                    <property name="checkable">
@@ -482,6 +494,12 @@
                  </item>
                  <item>
                   <widget class="QToolButton" name="twoPagesBtn">
+                   <property name="minimumSize">
+                    <size>
+                     <width>42</width>
+                     <height>42</height>
+                    </size>
+                   </property>
                    <property name="toolTip">
                     <string>Two pages, split into two.</string>
                    </property>
@@ -491,8 +509,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>32</width>
-                     <height>32</height>
+                     <width>36</width>
+                     <height>36</height>
                     </size>
                    </property>
                    <property name="checkable">
@@ -1954,146 +1972,44 @@ QToolButton:pressed {
               <property name="horizontalSpacing">
                <number>18</number>
               </property>
-              <item row="0" column="0" colspan="2">
-<layout class="QVBoxLayout" name="colorModeLayout">
-      <item>
-       <widget class="SectionHeading" name="colorDetectionHeading">
-        <property name="first">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Settings of the color mode detection (Detect ... in the Output step). They apply to all projects.</string>
-        </property>
-        <property name="text">
-         <string>Color Mode Detection</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="colorDetectionMinColorLayout">
-        <item>
-         <widget class="QLabel" name="colorDetectionMinColorLabel">
-          <property name="toolTip">
-           <string>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</string>
-          </property>
-          <property name="text">
-           <string>Color from:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="colorDetectionMinColorSB">
-          <property name="toolTip">
-           <string>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</string>
-          </property>
-          <property name="keyboardTracking">
-           <bool>false</bool>
-          </property>
-          <property name="suffix">
-           <string> %</string>
-          </property>
-          <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="value">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="colorDetectionMinColorSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="colorDetectionZonesCB">
-        <property name="toolTip">
-         <string>Also look for picture zones on pages detected as black and white. Finds light or small photos, but takes longer.</string>
-        </property>
-        <property name="text">
-         <string>Also check picture zones (more accurate, slower)</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="colorDetectionMinPictureLayout">
-        <property name="leftMargin">
-         <number>15</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="colorDetectionMinPictureLabel">
-          <property name="toolTip">
-           <string>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</string>
-          </property>
-          <property name="text">
-           <string>Pictures from:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="colorDetectionMinPictureSB">
-          <property name="toolTip">
-           <string>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</string>
-          </property>
-          <property name="keyboardTracking">
-           <bool>false</bool>
-          </property>
-          <property name="suffix">
-           <string> %</string>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>95</number>
-          </property>
-          <property name="value">
-           <number>5</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="colorDetectionMinPictureSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
+              <item row="1" column="0">
+               <layout class="QVBoxLayout" name="verticalLayout_16">
 <item>
 <widget class="SectionHeading" name="colorModeHeading">
 <property name="text">
 <string>Color Mode</string>
+</property>
+<property name="first">
+<bool>true</bool>
 </property>
 </widget>
 </item>
       <item>
        <layout class="QHBoxLayout" name="colorModeButtonsLayout">
         <item>
-         <widget class="QPushButton" name="colorModeBWBtn">
+         <widget class="QToolButton" name="colorModeBWBtn">
+          <property name="minimumSize">
+           <size>
+            <width>42</width>
+            <height>42</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Black and white: text and line art.</string>
+          </property>
           <property name="text">
            <string>Black and White</string>
           </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/icons/color_mode_bw.svg</normaloff>:/icons/color_mode_bw.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>36</width>
+            <height>36</height>
+           </size>
+          </property>
           <property name="checkable">
            <bool>true</bool>
           </property>
@@ -2103,10 +2019,29 @@ QToolButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="colorModeColorBtn">
+         <widget class="QToolButton" name="colorModeColorBtn">
+          <property name="minimumSize">
+           <size>
+            <width>42</width>
+            <height>42</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Color / grayscale: the whole page as an image.</string>
+          </property>
           <property name="text">
            <string>Color / Grayscale</string>
           </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/icons/color_mode_color.svg</normaloff>:/icons/color_mode_color.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>36</width>
+            <height>36</height>
+           </size>
+          </property>
           <property name="checkable">
            <bool>true</bool>
           </property>
@@ -2116,9 +2051,28 @@ QToolButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="colorModeMixedBtn">
+         <widget class="QToolButton" name="colorModeMixedBtn">
+          <property name="minimumSize">
+           <size>
+            <width>42</width>
+            <height>42</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Mixed: pictures in color or grayscale, text in black and white.</string>
+          </property>
           <property name="text">
            <string>Mixed</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/icons/color_mode_mixed.svg</normaloff>:/icons/color_mode_mixed.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>36</width>
+            <height>36</height>
+           </size>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -2128,12 +2082,21 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
+        <item>
+         <spacer name="colorModeSpacer2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </item>
-</layout>
-              </item>
-              <item row="1" column="0">
-               <layout class="QVBoxLayout" name="verticalLayout_16">
                 <item>
                  <widget class="QWidget" name="commonOptions" native="true">
                   <layout class="QVBoxLayout" name="commonOptionsLayout">
@@ -3812,6 +3775,132 @@ QToolButton:pressed {
            </item>
            <item row="0" column="2">
             <layout class="QVBoxLayout" name="verticalLayout_17">
+             <item>
+              <widget class="QGroupBox" name="colorDetectionPanel">
+               <property name="toolTip">
+                <string>Settings of the color mode detection (Detect ... in the Output step). They apply to all projects.</string>
+               </property>
+               <property name="title">
+                <string>Color Mode Detection</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <layout class="QVBoxLayout" name="colorDetectionPanelLayout">
+      <item>
+       <layout class="QHBoxLayout" name="colorDetectionMinColorLayout">
+        <item>
+         <widget class="QLabel" name="colorDetectionMinColorLabel">
+          <property name="toolTip">
+           <string>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</string>
+          </property>
+          <property name="text">
+           <string>Color from:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="colorDetectionMinColorSB">
+          <property name="toolTip">
+           <string>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</string>
+          </property>
+          <property name="keyboardTracking">
+           <bool>false</bool>
+          </property>
+          <property name="suffix">
+           <string> %</string>
+          </property>
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="colorDetectionMinColorSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="colorDetectionZonesCB">
+        <property name="toolTip">
+         <string>Also look for picture zones on pages detected as black and white. Finds light or small photos, but takes longer.</string>
+        </property>
+        <property name="text">
+         <string>Also look for grayscale pictures</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="colorDetectionMinPictureLayout">
+        <property name="leftMargin">
+         <number>15</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="colorDetectionMinPictureLabel">
+          <property name="toolTip">
+           <string>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</string>
+          </property>
+          <property name="text">
+           <string>Pictures from:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="colorDetectionMinPictureSB">
+          <property name="toolTip">
+           <string>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</string>
+          </property>
+          <property name="keyboardTracking">
+           <bool>false</bool>
+          </property>
+          <property name="suffix">
+           <string> %</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>95</number>
+          </property>
+          <property name="value">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="colorDetectionMinPictureSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+               </layout>
+              </widget>
+             </item>
              <item>
               <widget class="QGroupBox" name="dpiPanel">
                <property name="title">
