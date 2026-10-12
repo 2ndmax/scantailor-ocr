@@ -336,8 +336,9 @@ void DefaultParamsDialog::updateSelectContentDisplay(const DefaultParams::Select
   } else {
     contentDetectDisableBtn->setChecked(true);
   }
-  fillFactorSpinBox->setValue(params.getDetectionOptions().fillFactor());
-  borderToleranceSpinBox->setValue(params.getDetectionOptions().borderTolerance());
+  // Program settings, not part of the profile.
+  fillFactorSpinBox->setValue(ApplicationSettings::getInstance().getContentFillFactor());
+  borderToleranceSpinBox->setValue(ApplicationSettings::getInstance().getContentBorderTolerance());
   contentDetectOptions->setEnabled(params.isContentDetectEnabled());
 
   QSizeF pageRectSize = params.getPageRectSize();
@@ -864,10 +865,9 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   const AutoManualMode pageBoxMode = pageDetectDisableBtn->isChecked()  ? MODE_DISABLED
                                      : pageDetectManualBtn->isChecked() ? MODE_MANUAL
                                                                         : MODE_AUTO;
-  DefaultParams::SelectContentParams selectContentParams(
-      QSizeF(widthSpinBox->value(), heightSpinBox->value()), !contentDetectDisableBtn->isChecked(), pageBoxMode,
-      fineTuneBtn->isChecked(),
-      select_content::DetectionOptions(fillFactorSpinBox->value(), borderToleranceSpinBox->value()));
+  DefaultParams::SelectContentParams selectContentParams(QSizeF(widthSpinBox->value(), heightSpinBox->value()),
+                                                         !contentDetectDisableBtn->isChecked(), pageBoxMode,
+                                                         fineTuneBtn->isChecked());
 
   Alignment alignment;
   switch (hAlignmentModeCB->currentIndex()) {
@@ -1334,6 +1334,8 @@ void DefaultParamsDialog::commitChanges() {
   ApplicationSettings::getInstance().setColorDetectionMinColor(colorDetectionMinColorSB->value());
   ApplicationSettings::getInstance().setColorDetectionZones(colorDetectionZonesCB->isChecked());
   ApplicationSettings::getInstance().setColorDetectionMinPicture(colorDetectionMinPictureSB->value());
+  ApplicationSettings::getInstance().setContentFillFactor(fillFactorSpinBox->value());
+  ApplicationSettings::getInstance().setContentBorderTolerance(borderToleranceSpinBox->value());
 }
 
 void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {

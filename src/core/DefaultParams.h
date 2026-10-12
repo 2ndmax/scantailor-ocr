@@ -13,7 +13,6 @@
 #include <filters/output/PictureShapeOptions.h>
 #include <filters/page_layout/Alignment.h>
 #include <filters/page_split/LayoutType.h>
-#include <filters/select_content/DetectionOptions.h>
 
 #include <QtCore/QRectF>
 
@@ -101,8 +100,7 @@ class DefaultParams {
     SelectContentParams(const QSizeF& pageRectSize,
                         bool contentDetectEnabled,
                         AutoManualMode pageDetectMode,
-                        bool fineTuneCorners,
-                        const select_content::DetectionOptions& detectionOptions);
+                        bool fineTuneCorners);
 
     explicit SelectContentParams(const QDomElement& el);
 
@@ -124,16 +122,11 @@ class DefaultParams {
 
     void setPageDetectMode(AutoManualMode pageDetectMode);
 
-    const select_content::DetectionOptions& getDetectionOptions() const;
-
-    void setDetectionOptions(const select_content::DetectionOptions& detectionOptions);
-
    private:
     QSizeF m_pageRectSize;
     bool m_contentDetectEnabled;
     AutoManualMode m_pageDetectMode;
     bool m_fineTuneCorners;
-    select_content::DetectionOptions m_detectionOptions;
   };
 
   class PageLayoutParams {
@@ -397,15 +390,6 @@ inline bool DefaultParams::SelectContentParams::isFineTuneCorners() const {
 
 inline void DefaultParams::SelectContentParams::setFineTuneCorners(bool fineTuneCorners) {
   SelectContentParams::m_fineTuneCorners = fineTuneCorners;
-}
-
-inline const select_content::DetectionOptions& DefaultParams::SelectContentParams::getDetectionOptions() const {
-  return m_detectionOptions;
-}
-
-inline void DefaultParams::SelectContentParams::setDetectionOptions(
-    const select_content::DetectionOptions& detectionOptions) {
-  m_detectionOptions = detectionOptions;
 }
 
 inline AutoManualMode DefaultParams::SelectContentParams::getPageDetectMode() const {

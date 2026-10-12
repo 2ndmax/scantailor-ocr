@@ -663,9 +663,11 @@ ScanTailor Advanced.
   * "Border tolerance" (0–100 %, default 0 %): how much of the content touching the image border
     is kept, e.g. pictures that reach the edge of the page.
 
-  Unlike in ScanTailor Spectre, the settings belong to each page, are saved in the project and
-  are applied to other pages together with the content box. The defaults give exactly the
-  detection as before; ScanTailor Spectre's border tolerance changes it even at its default.
+  The settings are program settings, not saved in the project. Changing them detects the content
+  box of the current page again; other pages get the new settings when their content box is
+  applied to them with "Apply To ..." (or detected again for another reason).
+  The defaults give exactly the detection as before; ScanTailor Spectre's border tolerance
+  changes it even at its default.
   Its additional detection of photo plates relies on Apple Vision and was not adopted.
 * **Color mode detection** in *Output*. The color mode is now chosen with three buttons (Black
   and White, Color / Grayscale, Mixed), so the active one is visible at a glance. Above them, the

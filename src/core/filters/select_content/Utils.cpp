@@ -24,6 +24,5 @@ Params Utils::buildDefaultParams(const Dpi& dpi) {
 
   return Params(QRectF(), QSizeF(), QRectF(QPointF(0, 0), QSizeF(pageRectWidth, pageRectHeight)), Dependencies(),
                 selectContentParams.isContentDetectEnabled() ? MODE_AUTO : MODE_DISABLED,
-                selectContentParams.getPageDetectMode(), selectContentParams.isFineTuneCorners(),
-                selectContentParams.getDetectionOptions());
+                selectContentParams.getPageDetectMode(), selectContentParams.isFineTuneCorners());
 }

@@ -100,13 +100,11 @@ QDomElement DefaultParams::PageSplitParams::toXml(QDomDocument& doc, const QStri
 DefaultParams::SelectContentParams::SelectContentParams(const QSizeF& pageRectSize,
                                                         bool contentDetectEnabled,
                                                         AutoManualMode pageDetectMode,
-                                                        bool fineTuneCorners,
-                                                        const select_content::DetectionOptions& detectionOptions)
+                                                        bool fineTuneCorners)
     : m_pageRectSize(pageRectSize),
       m_contentDetectEnabled(contentDetectEnabled),
       m_pageDetectMode(pageDetectMode),
-      m_fineTuneCorners(fineTuneCorners),
-      m_detectionOptions(detectionOptions) {}
+      m_fineTuneCorners(fineTuneCorners) {}
 
 DefaultParams::SelectContentParams::SelectContentParams()
     : m_pageRectSize(QSizeF(210, 297)),
@@ -119,8 +117,7 @@ DefaultParams::SelectContentParams::SelectContentParams(const QDomElement& el)
       // A missing attribute must not turn content detection off - it defaults to enabled.
       m_contentDetectEnabled(el.attribute("contentDetectEnabled", "1") != "0"),
       m_pageDetectMode(stringToAutoManualMode(el.attribute("pageDetectMode"))),
-      m_fineTuneCorners(el.attribute("fineTuneCorners") == "1"),
-      m_detectionOptions(el) {}
+      m_fineTuneCorners(el.attribute("fineTuneCorners") == "1") {}
 
 QDomElement DefaultParams::SelectContentParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
@@ -128,7 +125,6 @@ QDomElement DefaultParams::SelectContentParams::toXml(QDomDocument& doc, const Q
   el.setAttribute("contentDetectEnabled", m_contentDetectEnabled ? "1" : "0");
   el.setAttribute("pageDetectMode", autoManualModeToString(m_pageDetectMode));
   el.setAttribute("fineTuneCorners", m_fineTuneCorners ? "1" : "0");
-  m_detectionOptions.writeTo(el);
   return el;
 }
 

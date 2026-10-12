@@ -16,10 +16,8 @@ Dependencies::Dependencies(const QPolygonF& rotatedPageOutline) : m_rotatedPageO
 Dependencies::Dependencies(const QPolygonF& rotatedPageOutline,
                            const AutoManualMode contentDetectionMode,
                            const AutoManualMode pageDetectionMode,
-                           const bool fineTuneCorners,
-                           const DetectionOptions& detectionOptions)
-    : m_rotatedPageOutline(rotatedPageOutline),
-      m_params(contentDetectionMode, pageDetectionMode, fineTuneCorners, detectionOptions) {}
+                           const bool fineTuneCorners)
+    : m_rotatedPageOutline(rotatedPageOutline), m_params(contentDetectionMode, pageDetectionMode, fineTuneCorners) {}
 
 Dependencies::Dependencies(const QDomElement& depsEl)
     : m_rotatedPageOutline(XmlUnmarshaller::polygonF(depsEl.namedItem("rotated-page-outline").toElement())),
@@ -83,33 +81,26 @@ Dependencies::Params::Params()
 
 Dependencies::Params::Params(const AutoManualMode contentDetectionMode,
                              const AutoManualMode pageDetectionMode,
-                             const bool fineTuneCorners,
-                             const DetectionOptions& detectionOptions)
+                             const bool fineTuneCorners)
     : m_contentDetectionMode(contentDetectionMode),
       m_pageDetectionMode(pageDetectionMode),
-      m_fineTuneCorners(fineTuneCorners),
-      m_detectionOptions(detectionOptions) {}
+      m_fineTuneCorners(fineTuneCorners) {}
 
 Dependencies::Params::Params(const QDomElement& el)
     : m_contentDetectionMode(stringToAutoManualMode(el.attribute("contentDetectionMode"))),
       m_pageDetectionMode(stringToAutoManualMode(el.attribute("pageDetectionMode"))),
-      m_fineTuneCorners(el.attribute("fineTuneCorners") == "1"),
-      m_detectionOptions(el) {}
+      m_fineTuneCorners(el.attribute("fineTuneCorners") == "1") {}
 
 QDomElement Dependencies::Params::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("contentDetectionMode", autoManualModeToString(m_contentDetectionMode));
   el.setAttribute("pageDetectionMode", autoManualModeToString(m_pageDetectionMode));
   el.setAttribute("fineTuneCorners", m_fineTuneCorners ? "1" : "0");
-  m_detectionOptions.writeTo(el);
   return el;
 }
 
 bool Dependencies::Params::compatibleWith(const Dependencies::Params& other) const {
   if ((m_contentDetectionMode != MODE_MANUAL) && (m_contentDetectionMode != other.m_contentDetectionMode)) {
-    return false;
-  }
-  if ((m_contentDetectionMode == MODE_AUTO) && (m_detectionOptions != other.m_detectionOptions)) {
     return false;
   }
   if ((m_pageDetectionMode != MODE_MANUAL) && (m_pageDetectionMode != other.m_pageDetectionMode)) {
@@ -122,10 +113,7 @@ bool Dependencies::Params::compatibleWith(const Dependencies::Params& other) con
 }
 
 bool Dependencies::Params::needUpdateContentBox(const Dependencies::Params& other) const {
-  if ((m_contentDetectionMode != MODE_MANUAL) && (m_contentDetectionMode != other.m_contentDetectionMode)) {
-    return true;
-  }
-  return (m_contentDetectionMode == MODE_AUTO) && (m_detectionOptions != other.m_detectionOptions);
+  return (m_contentDetectionMode != MODE_MANUAL) && (m_contentDetectionMode != other.m_contentDetectionMode);
 }
 
 bool Dependencies::Params::needUpdatePageBox(const Dependencies::Params& other) const {

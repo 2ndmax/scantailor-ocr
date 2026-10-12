@@ -3,12 +3,14 @@
 
 #include "OptionsWidget.h"
 
+#include <ApplicationSettings.h>
 #include <UnitsProvider.h>
 
 #include <functional>
 #include <utility>
 
 #include "ApplyDialog.h"
+#include "DetectionOptions.h"
 #include "Settings.h"
 
 namespace select_content {
@@ -119,9 +121,16 @@ void OptionsWidget::fineTuningChanged(bool checked) {
 }
 
 void OptionsWidget::detectionOptionsChanged() {
-  m_uiData.setDetectionOptions(DetectionOptions(fillFactorSpinBox->value(), borderToleranceSpinBox->value()));
-  commitCurrentParams();
+  // Program settings: only the current page is detected again; other pages keep their content box
+  // until it is detected again or applied to them.
+  ApplicationSettings& settings = ApplicationSettings::getInstance();
+  settings.setContentFillFactor(fillFactorSpinBox->value());
+  settings.setContentBorderTolerance(borderToleranceSpinBox->value());
   if (m_uiData.contentDetectionMode() == MODE_AUTO) {
+    Dependencies deps = m_uiData.dependencies();
+    deps.setContentDetectionMode(MODE_DISABLED);  // Makes the task detect the content box again.
+    m_uiData.setDependencies(deps);
+    commitCurrentParams();
     emit reloadRequested();
   }
 }
@@ -164,8 +173,9 @@ void OptionsWidget::updatePageDetectOptionsDisplay() {
 void OptionsWidget::updateContentDetectOptionsDisplay() {
   auto block = m_connectionManager.getScopedBlock();
 
-  fillFactorSpinBox->setValue(m_uiData.detectionOptions().fillFactor());
-  borderToleranceSpinBox->setValue(m_uiData.detectionOptions().borderTolerance());
+  const DetectionOptions options = DetectionOptions::fromSettings();
+  fillFactorSpinBox->setValue(options.fillFactor());
+  borderToleranceSpinBox->setValue(options.borderTolerance());
   // Always shown, grayed out where the content box mode doesn't use them.
   contentDetectOptions->setEnabled(m_uiData.contentDetectionMode() == MODE_AUTO);
 }
@@ -185,8 +195,7 @@ void OptionsWidget::commitCurrentParams() {
   updateDependenciesIfNecessary();
 
   Params params(m_uiData.contentRect(), m_uiData.contentSizeMM(), m_uiData.pageRect(), m_uiData.dependencies(),
-                m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(), m_uiData.isFineTuningCornersEnabled(),
-                m_uiData.detectionOptions());
+                m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(), m_uiData.isFineTuningCornersEnabled());
   m_settings->setPageParams(m_pageId, params);
 }
 
@@ -221,7 +230,7 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
 
   const Params params(m_uiData.contentRect(), m_uiData.contentSizeMM(), m_uiData.pageRect(), Dependencies(),
                       m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(),
-                      m_uiData.isFineTuningCornersEnabled(), m_uiData.detectionOptions());
+                      m_uiData.isFineTuningCornersEnabled());
 
   for (const PageId& pageId : pages) {
     if (m_pageId == pageId) {
@@ -247,9 +256,6 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
           }
         }
       }
-      if (!applyContentBox) {
-        newParams.setDetectionOptions(oldParams->detectionOptions());
-      }
       if (newParams.contentDetectionMode() == MODE_MANUAL) {
         if (!applyContentBox) {
           newParams.setContentRect(oldParams->contentRect());
@@ -264,8 +270,8 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
     }
 
     if (applyContentBox && newParams.contentDetectionMode() == MODE_AUTO) {
-      newParams.setDependencies(Dependencies(QPolygonF(), MODE_DISABLED, newParams.pageDetectionMode(),
-                                             newParams.isFineTuningEnabled(), newParams.detectionOptions()));
+      newParams.setDependencies(
+          Dependencies(QPolygonF(), MODE_DISABLED, newParams.pageDetectionMode(), newParams.isFineTuningEnabled()));
     }
 
     m_settings->setPageParams(pageId, newParams);

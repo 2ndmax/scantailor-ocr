@@ -4,13 +4,13 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_DETECTIONOPTIONS_H_
 #define SCANTAILOR_SELECT_CONTENT_DETECTIONOPTIONS_H_
 
-#include <QDomElement>
-#include <QString>
+#include <ApplicationSettings.h>
 
 namespace select_content {
 /**
  * Settings of the automatic content box detection (adopted from ScanTailor Spectre).
- * The defaults reproduce the detection as it was before these settings existed.
+ * The defaults reproduce the detection as it was before these settings existed. They are
+ * program settings and are not stored in the project.
  */
 class DetectionOptions {
  public:
@@ -25,14 +25,10 @@ class DetectionOptions {
   DetectionOptions(int fillFactor, int borderTolerance)
       : m_fillFactor(fillFactor), m_borderTolerance(borderTolerance) {}
 
-  // Reads the attributes written by writeTo(). Missing attributes give the defaults.
-  explicit DetectionOptions(const QDomElement& el)
-      : m_fillFactor(el.attribute("fillFactor", QString::number(DEFAULT_FILL_FACTOR)).toInt()),
-        m_borderTolerance(el.attribute("borderTolerance", QString::number(DEFAULT_BORDER_TOLERANCE)).toInt()) {}
-
-  void writeTo(QDomElement& el) const {
-    el.setAttribute("fillFactor", m_fillFactor);
-    el.setAttribute("borderTolerance", m_borderTolerance);
+  // The current program settings.
+  static DetectionOptions fromSettings() {
+    const ApplicationSettings& settings = ApplicationSettings::getInstance();
+    return DetectionOptions(settings.getContentFillFactor(), settings.getContentBorderTolerance());
   }
 
   /**
