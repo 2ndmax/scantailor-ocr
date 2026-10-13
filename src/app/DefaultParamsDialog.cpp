@@ -346,6 +346,14 @@ void DefaultParamsDialog::updatePageLayoutDisplay(const DefaultParams::PageLayou
   autoMargins->setChecked(params.isAutoMargins());
   marginsWidget->setEnabled(!params.isAutoMargins());
 
+  const page_layout::OutputSizeOptions& outputSizeOptions = params.getOutputSizeOptions();
+  ownTargetSizeCB->setChecked(outputSizeOptions.hasOwnTargetSize());
+  targetWidthSpinBox->setValue(outputSizeOptions.targetSizeMM().width());
+  targetHeightSpinBox->setValue(outputSizeOptions.targetSizeMM().height());
+  maxEnlargeSpinBox->setValue(outputSizeOptions.maxEnlargePercent());
+  minReduceSpinBox->setValue(outputSizeOptions.minReducePercent());
+  updateTargetSizeEnabled();
+
   const Margins& margins = params.getHardMargins();
   topMarginSpinBox->setValue(margins.top());
   rightMarginSpinBox->setValue(margins.right());
@@ -372,7 +380,7 @@ void DefaultParamsDialog::updatePageLayoutDisplay(const DefaultParams::PageLayou
   } else {
     vAlignmentModeCB->setCurrentIndex(1);
   }
-  alignWithOthersCB->setChecked(!alignment.isNull());
+  matchSizeModeCB->setCurrentIndex(alignment.isNull() ? 0 : (alignment.isScaleToFit() ? 2 : 1));
 
   for (const auto& [button, btnAlignment] : m_alignmentByButton) {
     if (alignment.isAutoVertical()) {
@@ -544,7 +552,8 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(autoMargins, &QAbstractButton::toggled, this, &DefaultParamsDialog::autoMarginsToggled);
   CONNECT(hAlignmentModeCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::alignmentModeChanged);
   CONNECT(vAlignmentModeCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::alignmentModeChanged);
-  CONNECT(alignWithOthersCB, &QAbstractButton::toggled, this, &DefaultParamsDialog::alignWithOthersToggled);
+  CONNECT(matchSizeModeCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::matchSizeModeChanged);
+  CONNECT(ownTargetSizeCB, &QAbstractButton::toggled, this, &DefaultParamsDialog::updateTargetSizeEnabled);
   CONNECT(topBottomLink, &QAbstractButton::clicked, this, &DefaultParamsDialog::topBottomLinkClicked);
   CONNECT(leftRightLink, &QAbstractButton::clicked, this, &DefaultParamsDialog::leftRightLinkClicked);
   CONNECT(topMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::vertMarginsChanged);
@@ -681,7 +690,15 @@ void DefaultParamsDialog::alignmentModeChanged(int) {
   updateAutoModeButtons();
 }
 
-void DefaultParamsDialog::alignWithOthersToggled(bool) {
+void DefaultParamsDialog::updateTargetSizeEnabled() {
+  const bool own = ownTargetSizeCB->isChecked();
+  targetSizeLabel->setEnabled(own);
+  targetWidthSpinBox->setEnabled(own);
+  targetSizeTimesLabel->setEnabled(own);
+  targetHeightSpinBox->setEnabled(own);
+}
+
+void DefaultParamsDialog::matchSizeModeChanged(int) {
   updateAlignmentModeEnabled();
 }
 
@@ -891,11 +908,19 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
     default:
       break;
   }
-  alignment.setNull(!alignWithOthersCB->isChecked());
+  alignment.setNull(matchSizeModeCB->currentIndex() == 0);
+  alignment.setScaleToFit(matchSizeModeCB->currentIndex() == 2);
 
   DefaultParams::PageLayoutParams pageLayoutParams(Margins(leftMarginSpinBox->value(), topMarginSpinBox->value(),
                                                            rightMarginSpinBox->value(), bottomMarginSpinBox->value()),
                                                    alignment, autoMargins->isChecked());
+  page_layout::OutputSizeOptions outputSizeOptions;
+  outputSizeOptions.setOwnTargetSize(ownTargetSizeCB->isChecked());
+  // In the units of the profile, like the margins.
+  outputSizeOptions.setTargetSizeMM(QSizeF(targetWidthSpinBox->value(), targetHeightSpinBox->value()));
+  outputSizeOptions.setMaxEnlargePercent(maxEnlargeSpinBox->value());
+  outputSizeOptions.setMinReducePercent(minReduceSpinBox->value());
+  pageLayoutParams.setOutputSizeOptions(outputSizeOptions);
 
   const int dpi = m_outputDpi;
   ColorParams colorParams;
@@ -1039,9 +1064,14 @@ void DefaultParamsDialog::updateUnits(const Units units) {
 
   // The unit is shown in the fields.
   const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
-  for (QDoubleSpinBox* spinBox :
-       {widthSpinBox, heightSpinBox, topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
+  for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox, topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox,
+                                  rightMarginSpinBox, targetWidthSpinBox, targetHeightSpinBox}) {
     spinBox->setSuffix(unitSuffix);
+  }
+  // Like the width and height of the content box.
+  for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
+    spinBox->setDecimals(widthSpinBox->decimals());
+    spinBox->setSingleStep(widthSpinBox->singleStep());
   }
 }
 
@@ -1353,8 +1383,9 @@ void DefaultParamsDialog::posterizeToggled(bool checked) {
 }
 
 void DefaultParamsDialog::updateAlignmentButtonsEnabled() {
-  bool enableHorizontalButtons = (hAlignmentModeCB->currentIndex() == 1) ? alignWithOthersCB->isChecked() : false;
-  bool enableVerticalButtons = (vAlignmentModeCB->currentIndex() == 1) ? alignWithOthersCB->isChecked() : false;
+  bool enableHorizontalButtons
+      = (hAlignmentModeCB->currentIndex() == 1) ? (matchSizeModeCB->currentIndex() != 0) : false;
+  bool enableVerticalButtons = (vAlignmentModeCB->currentIndex() == 1) ? (matchSizeModeCB->currentIndex() != 0) : false;
 
   alignTopLeftBtn->setEnabled(enableHorizontalButtons && enableVerticalButtons);
   alignTopBtn->setEnabled(enableVerticalButtons);
@@ -1428,7 +1459,7 @@ void DefaultParamsDialog::despeckleSliderValueChanged(int value) {
 }
 
 void DefaultParamsDialog::updateAlignmentModeEnabled() {
-  const bool isAlignmentNull = !alignWithOthersCB->isChecked();
+  const bool isAlignmentNull = (matchSizeModeCB->currentIndex() == 0);
 
   vAlignmentModeCB->setEnabled(!isAlignmentNull);
   hAlignmentModeCB->setEnabled(!isAlignmentNull);

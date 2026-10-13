@@ -285,4 +285,16 @@ Params Utils::buildDefaultParams(const Dpi& dpi) {
   return Params(Margins(leftMargin, topMargin, rightMargin, bottomMargin), QRectF(), QRectF(), QSizeF(),
                 pageLayoutParams.getAlignment(), pageLayoutParams.isAutoMargins());
 }
+
+OutputSizeOptions Utils::buildDefaultOutputSizeOptions() {
+  const DefaultParams& defaultParams = DefaultParamsProvider::getInstance().getParams();
+  OutputSizeOptions options(defaultParams.getPageLayoutParams().getOutputSizeOptions());
+
+  double width = options.targetSizeMM().width();
+  double height = options.targetSizeMM().height();
+  UnitsConverter(defaultParams.getOutputParams().getDpi())
+      .convert(width, height, defaultParams.getUnits(), MILLIMETRES);
+  options.setTargetSizeMM(QSizeF(width, height));
+  return options;
+}
 }  // namespace page_layout

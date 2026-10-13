@@ -407,12 +407,10 @@ from working:
   corrected by hand.
 * The resolution fields (*Margins*, *Output*, *Default Parameters*, *Fix DPI of All Images*) are
   wide enough for "1200 dpi".
-* *Margins*: "Lock aggregate size for matching" applies to all pages, not to the page, so it
-  has its own panel, **Common Size**, below **Alignment** (no **Apply to ...**). The panel
-  shows the common size of the pages whose size is matched, in the current units; the check box
-  is called "Lock for now", and its tooltip says that the locked size also applies to the
-  output and is released when the project is closed. Releasing the lock now updates the
-  thumbnails.
+* *Margins*: the panel **Output Size** (between **Margins** and **Alignment**) shows the common
+  size of the pages whose size is matched, in the current units. "Lock aggregate size for
+  matching" is replaced by an own target size, see "Scaling pages to the output size" under
+  "Adopted from ScanTailor Experimental".
 * The options panels are at least 320 pixels wide (formerly 274), so a scroll bar doesn't cover
   their content.
 * Status bar: the file name shows up to 50 characters (formerly 15, with split pages 11); the
@@ -595,6 +593,29 @@ Ideas and fixes taken over from
 [ScanTailor Experimental](https://github.com/ImageProcessing-ElectronicPublications/scantailor-experimental),
 a separate fork of the original ScanTailor. Its code is structured differently, so they were
 reimplemented rather than copied.
+
+* **Scaling pages to the output size** in *Margins* (ScanTailor Experimental: "match size
+  mode"). Pages scanned at different sizes, e.g. inserted sheets or pages from another copy, no
+  longer sit small in wide margins. The panel **Output Size** has two parts:
+  * *This Page*: "Match size" replaces the check box "Match size with other pages": **Off**
+    (the page keeps its own size), **Fill with margins** (as before) or **Scale**: the content is
+    enlarged or reduced to fit the output size, the margins keep their size in millimeters, and
+    the rest is filled with margins as aligned. "Factor" shows how much the content of the page
+    is scaled. The choice has its own **Apply to ...**; the one of **Alignment** applies only
+    the modes and the position now.
+  * *All Pages*: the common size (the largest width and height of the matched pages, as
+    before), "Own target size" with width × height for the output size (it starts with the
+    common size; it replaces "Lock for now" and is kept in the project), and the limits
+    "Enlarge to at most" (150 %) and "Reduce to at most" (50 %). Pages filled with margins are
+    never enlarged, but reduced when they are larger than an own target size.
+
+  Only the content is scaled, before binarization, so text stays smooth; the output files keep
+  the resolution set. Picture zones, fill zones and dewarping curves follow by themselves. The
+  page view of *Margins* shows a scaled page as it will look in the output, and the page size in
+  the status bar is the output size. The Default Parameters window sets "Match size" for new
+  pages and the own target size and the limits for new projects (a target size in pixels refers
+  to the output resolution there). Projects that use none of it give exactly the same output as before. Unlike ScanTailor
+  Experimental, there is no separate scaling of width and height (it would distort the text).
 
 * **Large images load again.** Qt 6 refuses to decode images that need more than 256 MB, so
   large color JPEG or PNG scans (e.g. 11000 × 8500 pixels) could not be loaded. The limit is

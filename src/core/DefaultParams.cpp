@@ -138,13 +138,17 @@ DefaultParams::PageLayoutParams::PageLayoutParams() : m_hardMargins(10, 5, 10, 5
 DefaultParams::PageLayoutParams::PageLayoutParams(const QDomElement& el)
     : m_hardMargins(el.namedItem("hardMargins").toElement()),
       m_alignment(el.namedItem("alignment").toElement()),
-      m_autoMargins(el.attribute("autoMargins") == "1") {}
+      m_autoMargins(el.attribute("autoMargins") == "1"),
+      m_outputSizeOptions(el.namedItem("output-size").toElement()) {}
 
 QDomElement DefaultParams::PageLayoutParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.appendChild(m_hardMargins.toXml(doc, "hardMargins"));
   el.appendChild(m_alignment.toXml(doc, "alignment"));
   el.setAttribute("autoMargins", m_autoMargins ? "1" : "0");
+  if (!m_outputSizeOptions.isDefault()) {
+    el.appendChild(m_outputSizeOptions.toXml(doc, "output-size"));
+  }
   return el;
 }
 

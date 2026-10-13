@@ -12,6 +12,7 @@
 #include <filters/output/DewarpingOptions.h>
 #include <filters/output/PictureShapeOptions.h>
 #include <filters/page_layout/Alignment.h>
+#include <filters/page_layout/OutputSizeOptions.h>
 #include <filters/page_split/LayoutType.h>
 
 #include <QtCore/QRectF>
@@ -151,10 +152,19 @@ class DefaultParams {
 
     void setAutoMargins(bool autoMargins);
 
+    /**
+     * The output size for new projects.  Unlike in a project, the target size is in the
+     * units of the profile, like the margins.
+     */
+    const page_layout::OutputSizeOptions& getOutputSizeOptions() const { return m_outputSizeOptions; }
+
+    void setOutputSizeOptions(const page_layout::OutputSizeOptions& options) { m_outputSizeOptions = options; }
+
    private:
     Margins m_hardMargins;
     page_layout::Alignment m_alignment;
     bool m_autoMargins;
+    page_layout::OutputSizeOptions m_outputSizeOptions;
   };
 
   class OutputParams {

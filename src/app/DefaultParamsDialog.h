@@ -47,7 +47,9 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void alignmentModeChanged(int);
 
-  void alignWithOthersToggled(bool);
+  void matchSizeModeChanged(int);
+
+  void updateTargetSizeEnabled();
 
   void topBottomLinkClicked();
 

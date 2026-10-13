@@ -21,6 +21,7 @@
 #include "PageSequence.h"
 #include "Params.h"
 #include "RelinkablePath.h"
+#include "Utils.h"
 
 
 using namespace ::boost;
@@ -370,7 +371,8 @@ Settings::Impl::Impl()
       m_defaultHardMarginsMM(Margins(10.0, 5.0, 10.0, 5.0)),
       m_defaultAlignment(Alignment::TOP, Alignment::HCENTER),
       m_autoMarginsDefault(false),
-      m_showMiddleRect(true) {
+      m_showMiddleRect(true),
+      m_outputSizeOptions(Utils::buildDefaultOutputSizeOptions()) {
   m_deviationProvider.setComputeValueByKey([this](const PageId& pageId) -> double {
     auto it = m_items.find(pageId);
     if (it != m_items.end()) {
@@ -389,7 +391,8 @@ void Settings::Impl::clear() {
   const QMutexLocker locker(&m_mutex);
   m_items.clear();
   m_deviationProvider.clear();
-  m_outputSizeOptions = OutputSizeOptions();
+  // A new project starts with the default parameters; a loaded one sets its own afterwards.
+  m_outputSizeOptions = Utils::buildDefaultOutputSizeOptions();
 }
 
 void Settings::Impl::performRelinking(const AbstractRelinker& relinker) {
