@@ -81,6 +81,22 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   }
   dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
   Utils::setDpiFieldWidth(dpiSelector);
+  // Percent fields are as wide as "1000 %".
+  for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox, fillFactorSpinBox, borderToleranceSpinBox,
+                            pictureShapeSensitivitySB, colorDetectionMinColorSB, colorDetectionMinPictureSB}) {
+    Utils::setNumberFieldWidth(spinBox, 1000);
+  }
+  // Pixel fields of the filters are as wide as "999 px", fields without a unit as "-100".
+  for (QSpinBox* spinBox : {chromaRadius, subtractBgRadius, knnRadius, wienerWindowSize, sharpenRadius,
+                            sauvolaWindowSize, wolfWindowSize}) {
+    Utils::setNumberFieldWidth(spinBox, 999);
+  }
+  for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{
+           chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, sauvolaDelta, sauvolaCoef, wolfDelta,
+           lowerBound, upperBound, wolfCoef, redAdjustmentSB, greenAdjustmentSB, blueAdjustmentSB, reduceNoiseSB,
+           posterizeLevelSB}) {
+    Utils::setNumberFieldWidth(spinBox, -100, 0);
+  }
 
   m_dewarpingModeGroup = new QButtonGroup(this);
   m_dewarpingModeGroup->addButton(dewarpingOffBtn, OFF);
@@ -131,6 +147,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
 
   // The same range as in the Deskew step.
   angleSpinBox->setRange(-45.0, 45.0);
+  Utils::setNumberFieldWidth(angleSpinBox, -45.0);
   // The items follow the order of deskew::SkewDetection, as in the Deskew step.
   deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Content"));
   deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Top page edge"));
@@ -1072,6 +1089,15 @@ void DefaultParamsDialog::updateUnits(const Units units) {
   for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
     spinBox->setDecimals(widthSpinBox->decimals());
     spinBox->setSingleStep(widthSpinBox->singleStep());
+  }
+  // As in the side bars: three digits before the decimal point, sizes in pixels four.
+  const double widestMargin = (units == PIXELS || units == MILLIMETRES) ? 999.9 : 99.99;
+  const double widestSize = (units == PIXELS) ? 9999.9 : widestMargin;
+  for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
+    Utils::setNumberFieldWidth(spinBox, widestMargin);
+  }
+  for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox, targetWidthSpinBox, targetHeightSpinBox}) {
+    Utils::setNumberFieldWidth(spinBox, widestSize);
   }
 }
 

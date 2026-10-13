@@ -5,6 +5,8 @@
 
 #include <utility>
 
+#include "../../Utils.h"
+
 
 namespace output {
 
@@ -12,6 +14,11 @@ OptionsWidgetBinarizationSauvola::OptionsWidgetBinarizationSauvola(std::shared_p
     : m_settings(std::move(settings)),
       m_connectionManager(std::bind(&OptionsWidgetBinarizationSauvola::setupUiConnections, this)) {
   setupUi(this);
+  // As the other fields in the step "Output": "999 px" and "-100".
+  core::Utils::setNumberFieldWidth(windowSize, 999);
+  for (QDoubleSpinBox* spinBox : {sauvolaDelta, sauvolaCoef}) {
+    core::Utils::setNumberFieldWidth(spinBox, -100, 0);
+  }
 
   m_delayedStateChanger.setSingleShot(true);
 

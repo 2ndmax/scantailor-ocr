@@ -5,12 +5,20 @@
 
 #include <utility>
 
+#include "../../Utils.h"
+
 namespace output {
 
 OptionsWidgetBinarizationWolf::OptionsWidgetBinarizationWolf(std::shared_ptr<Settings> settings)
     : m_settings(std::move(settings)),
       m_connectionManager(std::bind(&OptionsWidgetBinarizationWolf::setupUiConnections, this)) {
   setupUi(this);
+  // As the other fields in the step "Output": "999 px" and "-100".
+  core::Utils::setNumberFieldWidth(windowSize, 999);
+  for (QAbstractSpinBox* spinBox :
+       std::initializer_list<QAbstractSpinBox*>{wolfDelta, lowerBound, upperBound, wolfCoef}) {
+    core::Utils::setNumberFieldWidth(spinBox, -100, 0);
+  }
 
   m_delayedStateChanger.setSingleShot(true);
 

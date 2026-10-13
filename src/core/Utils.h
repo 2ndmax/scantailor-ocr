@@ -12,6 +12,7 @@
 
 #include "ThumbnailPixmapCache.h"
 
+class QAbstractSpinBox;
 class QComboBox;
 
 namespace core {
@@ -79,6 +80,12 @@ class Utils {
 
   /// Makes an editable list of resolutions wide enough for its longest entry, e.g. "1200 dpi".
   static void setDpiFieldWidth(QComboBox* field);
+
+  /// Makes a number field as wide as the given value with the field's decimals, prefix and suffix,
+  /// e.g. -999.9 for "-999.9 mm", instead of as wide as its range.  Fields of the same kind get the
+  /// same value and so the same width.  With decimals given, the value is written with them instead,
+  /// so fields with different decimals can get the same width.
+  static void setNumberFieldWidth(QAbstractSpinBox* field, double widestValue, int decimals = -1);
 
   Utils() = delete;
 };

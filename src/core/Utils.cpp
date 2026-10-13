@@ -5,10 +5,14 @@
 
 #include <QComboBox>
 #include <QDir>
+#include <QDoubleSpinBox>
 #include <QFileInfo>
 #include <QFontMetrics>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <QSpinBox>
+#include <QStyle>
+#include <QStyleOptionSpinBox>
 #include <QTextDocument>
 #include <algorithm>
 #include <cmath>
@@ -143,6 +147,38 @@ void Utils::setDpiFieldWidth(QComboBox* field) {
   const int charWidth = std::max(1, metrics.horizontalAdvance(QLatin1Char('X')));
   field->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   field->setMinimumContentsLength((widest + charWidth - 1) / charWidth);
+}
+
+void Utils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValue, const int decimals) {
+  QString prefix;
+  QString suffix;
+  int fieldDecimals = 0;
+  if (const auto* box = qobject_cast<QDoubleSpinBox*>(field)) {
+    prefix = box->prefix();
+    suffix = box->suffix();
+    fieldDecimals = box->decimals();
+  } else if (const auto* box = qobject_cast<QSpinBox*>(field)) {
+    prefix = box->prefix();
+    suffix = box->suffix();
+  }
+  QLocale locale = field->locale();
+  locale.setNumberOptions(locale.numberOptions() | QLocale::OmitGroupSeparator);
+  const QString text = prefix + locale.toString(widestValue, 'f', (decimals >= 0) ? decimals : fieldDecimals) + suffix;
+  QStyleOptionSpinBox option;
+  option.initFrom(field);
+  option.buttonSymbols = field->buttonSymbols();
+  option.subControls = QStyle::SC_SpinBoxFrame | QStyle::SC_SpinBoxEditField;
+  if (field->buttonSymbols() != QAbstractSpinBox::NoButtons) {
+    option.subControls |= QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
+  }
+  option.frame = field->hasFrame();
+  // The style's size hint is far wider than needed.  Instead the space taken by the frame, the
+  // padding and the arrows is measured, and the text is added with the text field's margins of
+  // 2 pixels on each side and 2 pixels for the cursor.
+  const QRect editField
+      = field->style()->subControlRect(QStyle::CC_SpinBox, &option, QStyle::SC_SpinBoxEditField, field);
+  const int overhead = option.rect.width() - editField.width();
+  field->setFixedWidth(field->fontMetrics().horizontalAdvance(text) + 6 + overhead);
 }
 
 QValidator* Utils::createDpiValidator(QObject* parent) {

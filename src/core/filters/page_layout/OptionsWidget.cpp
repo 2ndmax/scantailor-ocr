@@ -40,6 +40,10 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   }
 
   setupUi(this);
+  // Both limits are as wide as "1000 %".
+  for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox}) {
+    core::Utils::setNumberFieldWidth(spinBox, 1000);
+  }
   setupIcons();
   setupSourceDpiControls();
 
@@ -173,15 +177,28 @@ void OptionsWidget::onUnitsChanged(Units units) {
 
   int decimals;
   double step;
+  // The values the fields show well: three digits before the decimal point and one after, pixels
+  // of the size one more, as an A4 page at 300 dpi has 3508 pixels.  Larger values still fit.
+  double widestMargin;
+  double widestSize;
   switch (units) {
     case PIXELS:
+      decimals = 1;
+      step = 1.0;
+      widestMargin = 999.9;
+      widestSize = 9999.9;
+      break;
     case MILLIMETRES:
       decimals = 1;
       step = 1.0;
+      widestMargin = 999.9;
+      widestSize = 999.9;
       break;
     default:
       decimals = 2;
       step = 0.01;
+      widestMargin = 99.99;
+      widestSize = 99.99;
       break;
   }
 
@@ -197,11 +214,13 @@ void OptionsWidget::onUnitsChanged(Units units) {
   const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
     spinBox->setSuffix(unitSuffix);
+    core::Utils::setNumberFieldWidth(spinBox, widestMargin);
   }
   for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
     spinBox->setDecimals(decimals);
     spinBox->setSingleStep(step);
     spinBox->setSuffix(unitSuffix);
+    core::Utils::setNumberFieldWidth(spinBox, widestSize);
   }
 
   updateMarginsDisplay();

@@ -11,6 +11,7 @@
 #include <cassert>
 #include <utility>
 
+#include "../../Utils.h"
 #include "ApplyDialog.h"
 #include "Filter.h"
 #include "ProjectPages.h"
@@ -23,6 +24,10 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
       m_pageSelectionAccessor(pageSelectionAccessor),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
+  // The trim fields are as wide as "9999 px".
+  for (QSpinBox* spinBox : {trimTopSpin, trimBottomSpin, trimLeftSpin, trimRightSpin}) {
+    core::Utils::setNumberFieldWidth(spinBox, 9999);
+  }
   setupIcons();
 
   setupUiConnections();

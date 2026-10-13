@@ -42,6 +42,19 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
       m_lastTab(TAB_OUTPUT),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
+  // Percent fields are as wide as "1000 %", as in the step "Margins".
+  for (QSpinBox* spinBox : {colorDetectionMinColorSB, colorDetectionMinPictureSB, pictureShapeSensitivitySB}) {
+    core::Utils::setNumberFieldWidth(spinBox, 1000);
+  }
+  // Pixel fields of the filters are as wide as "999 px", fields without a unit as "-100".
+  for (QSpinBox* spinBox : {chromaRadius, subtractBgRadius, knnRadius, wienerWindowSize, sharpenRadius}) {
+    core::Utils::setNumberFieldWidth(spinBox, 999);
+  }
+  for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{
+           chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, redAdjustmentSB, greenAdjustmentSB,
+           blueAdjustmentSB, reduceNoiseSB, posterizeLevelSB}) {
+    core::Utils::setNumberFieldWidth(spinBox, -100, 0);
+  }
 
   m_delayedReloadRequest.setSingleShot(true);
 
@@ -190,6 +203,7 @@ void OptionsWidget::setupTiffCompressionPanel() {
 
   m_tiffJpegQuality = new QSpinBox;
   m_tiffJpegQuality->setRange(10, 100);
+  core::Utils::setNumberFieldWidth(m_tiffJpegQuality, -100, 0);
   m_tiffJpegQuality->setValue(settings.getTiffJpegQuality());
   m_tiffJpegQuality->setToolTip(
       tr("Higher values give better pictures and larger files.  Only used with JPEG compression."));
@@ -611,7 +625,6 @@ void OptionsWidget::setupPhotoAdjustmentsPanel() {
          {tr("Whites:"), tr("Positive values make the brightest tones whiter, negative values duller.")},
          {tr("Blacks:"), tr("Positive values make the darkest tones lighter, negative values deeper.")}};
 
-  int fieldWidth = 0;
   for (int row = 0; row < PHOTO_ADJUSTMENT_COUNT; ++row) {
     PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
     QWidget* parent = photoAdjustmentsPanel;
@@ -642,7 +655,6 @@ void OptionsWidget::setupPhotoAdjustmentsPanel() {
          {static_cast<QWidget*>(r.label), static_cast<QWidget*>(r.field), static_cast<QWidget*>(r.slider)}) {
       widget->setToolTip(texts[row].toolTip);
     }
-    fieldWidth = std::max(fieldWidth, r.field->sizeHint().width());
 
     QGridLayout* grid = (row <= TINT) ? colorBalanceGrid : toneGrid;
     const int gridRow = 2 * ((row <= TINT) ? row : row - EXPOSURE);
@@ -650,9 +662,11 @@ void OptionsWidget::setupPhotoAdjustmentsPanel() {
     grid->addWidget(r.field, gridRow, 1, Qt::AlignRight);
     grid->addWidget(r.slider, gridRow + 1, 0, 1, 2);
   }
-  // Equal fields, wide enough for the exposure.
+  // Equal fields, as wide as "-2.00 EV".
+  QAbstractSpinBox* exposureField = m_photoAdjustmentRows[EXPOSURE].field;
+  core::Utils::setNumberFieldWidth(exposureField, PhotoAdjustments::MIN_EXPOSURE);
   for (PhotoAdjustmentRow& r : m_photoAdjustmentRows) {
-    r.field->setFixedWidth(fieldWidth);
+    r.field->setFixedWidth(exposureField->minimumWidth());
   }
 }
 

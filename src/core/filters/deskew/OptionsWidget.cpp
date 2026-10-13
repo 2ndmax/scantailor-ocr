@@ -10,6 +10,7 @@
 #include <core/DefaultParams.h>
 #include <core/DefaultParamsProvider.h>
 
+#include "../../Utils.h"
 #include "ApplyDialog.h"
 #include "Params.h"
 #include "Settings.h"
@@ -62,12 +63,11 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   setupUi(this);
   angleSpinBox->setSuffix(QChar(0x00B0));  // the degree symbol
   angleSpinBox->setRange(-MAX_ANGLE, MAX_ANGLE);
-  angleSpinBox->adjustSize();
   obliqueSpinBox->setSuffix(QChar(0x00B0));
-  // Both angles get the same width, although their ranges differ.
-  const int angleWidth = std::max(angleSpinBox->sizeHint().width(), obliqueSpinBox->sizeHint().width());
-  angleSpinBox->setMinimumWidth(angleWidth);
-  obliqueSpinBox->setMinimumWidth(angleWidth);
+  // Both angles are as wide as "-45.00°", although their ranges differ.
+  for (QDoubleSpinBox* spinBox : {angleSpinBox, obliqueSpinBox}) {
+    core::Utils::setNumberFieldWidth(spinBox, -MAX_ANGLE);
+  }
   setSpinBoxUnknownState();
   // The items follow the order of SkewDetection.
   detectionComboBox->addItem(tr("Content"));
