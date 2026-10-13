@@ -166,6 +166,16 @@ class Settings::Impl {
 
   void enableShowingMiddleRect(bool state);
 
+  OutputSizeOptions outputSizeOptions() const {
+    const QMutexLocker locker(&m_mutex);
+    return m_outputSizeOptions;
+  }
+
+  void setOutputSizeOptions(const OutputSizeOptions& options) {
+    const QMutexLocker locker(&m_mutex);
+    m_outputSizeOptions = options;
+  }
+
  private:
   class SequencedTag;
   class DescWidthTag;
@@ -205,6 +215,7 @@ class Settings::Impl {
   DeviationProvider<PageId> m_deviationProvider;
   std::vector<Guide> m_guides;
   bool m_showMiddleRect;
+  OutputSizeOptions m_outputSizeOptions;
 
   std::optional<QSizeF> m_frozenAggregateHardSizeMm;
 };
@@ -320,6 +331,14 @@ void Settings::enableShowingMiddleRect(const bool state) {
   m_impl->enableShowingMiddleRect(state);
 }
 
+OutputSizeOptions Settings::outputSizeOptions() const {
+  return m_impl->outputSizeOptions();
+}
+
+void Settings::setOutputSizeOptions(const OutputSizeOptions& options) {
+  m_impl->setOutputSizeOptions(options);
+}
+
 /*============================== Settings::Item =============================*/
 
 Settings::Item::Item(const PageId& pageId,
@@ -385,6 +404,7 @@ void Settings::Impl::clear() {
   m_items.clear();
   m_deviationProvider.clear();
   m_frozenAggregateHardSizeMm.reset();
+  m_outputSizeOptions = OutputSizeOptions();
 }
 
 void Settings::Impl::performRelinking(const AbstractRelinker& relinker) {

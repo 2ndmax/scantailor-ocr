@@ -10,6 +10,7 @@
 
 #include "Margins.h"
 #include "NonCopyable.h"
+#include "OutputSizeOptions.h"
 
 class PageId;
 class Margins;
@@ -161,6 +162,11 @@ class Settings {
   bool isShowingMiddleRectEnabled() const;
 
   void enableShowingMiddleRect(bool state);
+
+  /** Target size and scaling limits of the pages matched to others, for the whole project. */
+  OutputSizeOptions outputSizeOptions() const;
+
+  void setOutputSizeOptions(const OutputSizeOptions& options);
 
  private:
   class Impl;

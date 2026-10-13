@@ -40,6 +40,17 @@ class Alignment {
 
   void setNull(bool isNull);
 
+  /**
+   * \brief With a non-null alignment: scale the content to the output size
+   *        (true) instead of only filling it with margins (false).
+   *
+   * Filling reduces pages larger than the output size as well; scaling also
+   * enlarges smaller pages.
+   */
+  bool isScaleToFit() const { return m_scaleToFit; }
+
+  void setScaleToFit(bool scale) { m_scaleToFit = scale; }
+
   bool isAutoVertical() const;
 
   bool isAutoHorizontal() const;
@@ -54,6 +65,7 @@ class Alignment {
   Vertical m_vertical;
   Horizontal m_horizontal;
   bool m_isNull;
+  bool m_scaleToFit = false;
 };
 
 

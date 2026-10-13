@@ -15,6 +15,7 @@ Alignment::Alignment(const QDomElement& el) {
   const QString vert = el.attribute("vert");
   const QString hor = el.attribute("hor");
   m_isNull = (el.attribute("null").toInt() != 0);
+  m_scaleToFit = (el.attribute("scale").toInt() != 0);
 
   if (vert == "top") {
     m_vertical = TOP;
@@ -84,11 +85,16 @@ QDomElement Alignment::toXml(QDomDocument& doc, const QString& name) const {
   el.setAttribute("vert", QString::fromLatin1(vert));
   el.setAttribute("hor", QString::fromLatin1(hor));
   el.setAttribute("null", m_isNull ? 1 : 0);
+  // Only when used, so that project files without scaling stay as they were.
+  if (m_scaleToFit) {
+    el.setAttribute("scale", 1);
+  }
   return el;
 }
 
 bool Alignment::operator==(const Alignment& other) const {
-  return (m_vertical == other.m_vertical) && (m_horizontal == other.m_horizontal) && (m_isNull == other.m_isNull);
+  return (m_vertical == other.m_vertical) && (m_horizontal == other.m_horizontal) && (m_isNull == other.m_isNull)
+         && (m_scaleToFit == other.m_scaleToFit);
 }
 
 bool Alignment::operator!=(const Alignment& other) const {

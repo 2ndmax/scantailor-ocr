@@ -7,6 +7,7 @@ set(ui_files
 
 set(sources
     Utils.cpp Utils.h
+    OutputSizeOptions.cpp OutputSizeOptions.h
     ImageView.cpp ImageView.h
     Filter.cpp Filter.h
     OptionsWidget.cpp OptionsWidget.h

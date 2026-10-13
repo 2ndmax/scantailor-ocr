@@ -106,7 +106,14 @@ void ImageTransformation::setPostOblique(const double degrees) {
 void ImageTransformation::setPostCropArea(const QPolygonF& area) {
   m_postCropArea = area;
   m_postCropXform = calcCropXform(area);
+  m_postScaleFactor = 1.0;
   resetPostScale();
+  update();
+}
+
+void ImageTransformation::setPostScaleFactor(const double factor) {
+  m_postScaleFactor = factor;
+  m_postScaleXform = calcPostScaleXform(m_postScaledDpi);
   update();
 }
 
@@ -151,7 +158,11 @@ QTransform ImageTransformation::calcPostRotateXform(const double rotationDegrees
 
 QTransform ImageTransformation::calcPostScaleXform(const Dpi& targetDpi) {
   if (targetDpi.isNull()) {
-    return QTransform();
+    QTransform xform;
+    if (m_postScaleFactor != 1.0) {
+      xform.scale(m_postScaleFactor, m_postScaleFactor);
+    }
+    return xform;
   }
 
   // We are going to measure the effective DPI after the previous transforms.
@@ -166,8 +177,12 @@ QTransform ImageTransformation::calcPostScaleXform(const Dpi& targetDpi) {
   const QLineF origHorUnit(toOrig.map(horUnit));
   const QLineF origVertUnit(toOrig.map(vertUnit));
 
-  const double xscale = targetDpi.horizontal() * origHorUnit.length() / m_origDpi.horizontal();
-  const double yscale = targetDpi.vertical() * origVertUnit.length() / m_origDpi.vertical();
+  double xscale = targetDpi.horizontal() * origHorUnit.length() / m_origDpi.horizontal();
+  double yscale = targetDpi.vertical() * origVertUnit.length() / m_origDpi.vertical();
+  if (m_postScaleFactor != 1.0) {
+    xscale *= m_postScaleFactor;
+    yscale *= m_postScaleFactor;
+  }
   QTransform xform;
   xform.scale(xscale, yscale);
   return xform;
@@ -187,6 +202,7 @@ void ImageTransformation::resetPostRotation() {
 void ImageTransformation::resetPostCrop() {
   m_postCropArea.clear();
   m_postCropXform.reset();
+  m_postScaleFactor = 1.0;
 }
 
 void ImageTransformation::resetPostScale() {

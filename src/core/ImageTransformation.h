@@ -164,6 +164,17 @@ class ImageTransformation {
   void setPostCropArea(const QPolygonF& area);
 
   /**
+   * \brief Enlarges (> 1) or reduces (< 1) the result of the post-crop area,
+   *        on top of the post-scaling to a DPI.
+   *
+   * Used to scale a page to the output size of the page layout. Reset to 1
+   * together with the post-crop area.
+   */
+  void setPostScaleFactor(double factor);
+
+  double postScaleFactor() const { return m_postScaleFactor; }
+
+  /**
    * \brief Returns the post-crop area after all transformations.
    *
    * If no post-crop area was set, the whole image is assumed to be
@@ -246,6 +257,7 @@ class ImageTransformation {
   Dpi m_origDpi;
   Dpi m_preScaledDpi;   // Always set, as preScaleToEqualizeDpi() is called from the constructor.
   Dpi m_postScaledDpi;  // Default constructed object if no post-scaling.
+  double m_postScaleFactor = 1.0;
   OrthogonalRotation m_preRotation;
 };
 

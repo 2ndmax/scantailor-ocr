@@ -7,6 +7,7 @@
 #include <core/DefaultParams.h>
 #include <core/DefaultParamsProvider.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
@@ -198,18 +199,72 @@ Margins Utils::calcSoftMarginsMM(const QSizeF& hardSizeMm,
 QPolygonF Utils::calcPageRectPhys(const ImageTransformation& xform,
                                   const QPolygonF& contentRectPhys,
                                   const Params& params,
-                                  const QSizeF& aggregateHardSizeMm) {
+                                  const QSizeF& aggregateHardSizeMm,
+                                  const OutputSizeOptions& outputSizeOptions,
+                                  double* scaleFactor) {
   const QTransform pixelsToMmTransform(UnitsConverter(xform.origDpi()).transform(PIXELS, MILLIMETRES));
 
   QPolygonF polyMm(pixelsToMmTransform.map(contentRectPhys));
-  extendPolyRectWithMargins(polyMm, params.hardMarginsMM());
+  const QSizeF contentSizeMm(QLineF(polyMm[0], polyMm[1]).length(), QLineF(polyMm[0], polyMm[3]).length());
+  const double factor = calcScaleFactor(contentSizeMm, params.hardMarginsMM(), params.alignment(),
+                                        aggregateHardSizeMm, outputSizeOptions);
+  if (scaleFactor) {
+    *scaleFactor = factor;
+  }
 
-  const QSizeF hardSizeMm(QLineF(polyMm[0], polyMm[1]).length(), QLineF(polyMm[0], polyMm[3]).length());
-  Margins softMarginsMm(calcSoftMarginsMM(hardSizeMm, aggregateHardSizeMm, params.alignment(), params.contentRect(),
-                                          params.contentSizeMM(), params.pageRect()));
+  if (factor == 1.0) {
+    extendPolyRectWithMargins(polyMm, params.hardMarginsMM());
 
-  extendPolyRectWithMargins(polyMm, softMarginsMm);
+    const QSizeF hardSizeMm(QLineF(polyMm[0], polyMm[1]).length(), QLineF(polyMm[0], polyMm[3]).length());
+    Margins softMarginsMm(calcSoftMarginsMM(hardSizeMm, outputSizeOptions.targetSizeMM(aggregateHardSizeMm),
+                                            params.alignment(), params.contentRect(), params.contentSizeMM(),
+                                            params.pageRect()));
+
+    extendPolyRectWithMargins(polyMm, softMarginsMm);
+    return pixelsToMmTransform.inverted().map(polyMm);
+  }
+
+  // The output enlarges the page rect by the factor (ImageTransformation::setPostScaleFactor()),
+  // so the margins are added divided by it: the content is scaled, the margins keep their size.
+  const Margins& hardMarginsMm = params.hardMarginsMM();
+  const QSizeF scaledHardSizeMm(contentSizeMm.width() * factor + hardMarginsMm.left() + hardMarginsMm.right(),
+                                contentSizeMm.height() * factor + hardMarginsMm.top() + hardMarginsMm.bottom());
+  const Margins softMarginsMm(calcSoftMarginsMM(scaledHardSizeMm, outputSizeOptions.targetSizeMM(aggregateHardSizeMm),
+                                                params.alignment(), params.contentRect(), params.contentSizeMM(),
+                                                params.pageRect()));
+  const Margins marginsMm(hardMarginsMm.left() + softMarginsMm.left(), hardMarginsMm.top() + softMarginsMm.top(),
+                          hardMarginsMm.right() + softMarginsMm.right(),
+                          hardMarginsMm.bottom() + softMarginsMm.bottom());
+  extendPolyRectWithMargins(polyMm, Margins(marginsMm.left() / factor, marginsMm.top() / factor,
+                                            marginsMm.right() / factor, marginsMm.bottom() / factor));
   return pixelsToMmTransform.inverted().map(polyMm);
+}
+
+double Utils::calcScaleFactor(const QSizeF& contentSizeMm,
+                              const Margins& hardMarginsMm,
+                              const Alignment& alignment,
+                              const QSizeF& commonSizeMm,
+                              const OutputSizeOptions& outputSizeOptions) {
+  // Filling with margins up to the common size is how it always was: never scaled.
+  if (alignment.isNull() || (!alignment.isScaleToFit() && !outputSizeOptions.hasOwnTargetSize())) {
+    return 1.0;
+  }
+  const QSizeF targetSizeMm(outputSizeOptions.targetSizeMM(commonSizeMm));
+  if (contentSizeMm.isEmpty() || targetSizeMm.isEmpty()) {
+    return 1.0;
+  }
+
+  const double availableWidth = targetSizeMm.width() - hardMarginsMm.left() - hardMarginsMm.right();
+  const double availableHeight = targetSizeMm.height() - hardMarginsMm.top() - hardMarginsMm.bottom();
+  double fit = std::min(availableWidth / contentSizeMm.width(), availableHeight / contentSizeMm.height());
+  // The largest page fits the common size exactly; don't scale it by a rounding error.
+  if (std::abs(fit - 1.0) < 1e-6) {
+    fit = 1.0;
+  }
+
+  const double minFactor = outputSizeOptions.minReducePercent() / 100.0;
+  const double maxFactor = alignment.isScaleToFit() ? outputSizeOptions.maxEnlargePercent() / 100.0 : 1.0;
+  return std::clamp(fit, minFactor, maxFactor);
 }
 
 QPointF Utils::getRightUnitVector(const QPolygonF& polyRect) {

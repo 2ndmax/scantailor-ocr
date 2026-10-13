@@ -93,10 +93,15 @@ FilterResultPtr Task::process(const TaskStatus& status,
 
   if (m_nextTask) {
     const QPolygonF contentRectPhys(data.xform().transformBack().map(adaptedContentRect));
-    const QPolygonF pageRectPhys(Utils::calcPageRectPhys(data.xform(), contentRectPhys, params, aggHardSizeAfter));
+    double scaleFactor = 1.0;
+    const QPolygonF pageRectPhys(Utils::calcPageRectPhys(data.xform(), contentRectPhys, params, aggHardSizeAfter,
+                                                         m_settings->outputSizeOptions(), &scaleFactor));
 
     ImageTransformation newXform(data.xform());
     newXform.setPostCropArea(Utils::shiftToRoundedOrigin(newXform.transform().map(pageRectPhys)));
+    if (scaleFactor != 1.0) {
+      newXform.setPostScaleFactor(scaleFactor);
+    }
     return m_nextTask->process(status, FilterData(data, newXform), contentRectPhys);
   } else {
     const ContentMask contentMask(data.grayImageBlackOnWhite(), data.xform(), status);

@@ -89,6 +89,12 @@ QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc)
     filterEl.appendChild(guidesEl);
   }
 
+  // Only when used, so that project files without it stay as they were.
+  const OutputSizeOptions outputSizeOptions(m_settings->outputSizeOptions());
+  if (!outputSizeOptions.isDefault()) {
+    filterEl.appendChild(outputSizeOptions.toXml(doc, "output-size"));
+  }
+
   writer.enumPages(
       [&](const PageId& pageId, int numericId) { this->writePageSettings(doc, filterEl, pageId, numericId); });
   return filterEl;
@@ -113,6 +119,7 @@ void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filter
   const QDomElement filterEl(filtersEl.namedItem("page-layout").toElement());
 
   m_settings->enableShowingMiddleRect(filterEl.attribute("showMiddleRect") == "1");
+  m_settings->setOutputSizeOptions(OutputSizeOptions(filterEl.namedItem("output-size").toElement()));
 
   const QDomElement guidesEl = filterEl.namedItem("guides").toElement();
   if (!guidesEl.isNull()) {
