@@ -600,11 +600,12 @@ void OptionsWidget::setupPhotoAdjustmentsPanel() {
     QString toolTip;
   };
   const RowText texts[PHOTO_ADJUSTMENT_COUNT]
-      = {{tr("Temperature:"), tr("Positive values make the pictures warmer (more yellow), negative values cooler (more blue).")},
+      = {{tr("Temperature:"),
+          tr("Positive values make the pictures warmer (more yellow), negative values cooler (more blue).")},
          {tr("Tint:"), tr("Positive values add magenta, negative values green.")},
          {tr("Exposure:"), tr("Brightens or darkens the pictures as a whole, in stops (EV).")},
-         {tr("Contrast:"),
-          tr("Positive values spread the tones apart, negative values bring them closer together, around the middle gray.")},
+         {tr("Contrast:"), tr("Positive values spread the tones apart, negative values bring them closer together, "
+                              "around the middle gray.")},
          {tr("Highlights:"), tr("Positive values brighten the bright parts, negative values darken them.")},
          {tr("Shadows:"), tr("Positive values brighten the dark parts, negative values darken them.")},
          {tr("Whites:"), tr("Positive values make the brightest tones whiter, negative values duller.")},
@@ -637,8 +638,8 @@ void OptionsWidget::setupPhotoAdjustmentsPanel() {
     }
     r.field->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     r.field->setKeyboardTracking(false);
-    for (QWidget* widget : {static_cast<QWidget*>(r.label), static_cast<QWidget*>(r.field),
-                            static_cast<QWidget*>(r.slider)}) {
+    for (QWidget* widget :
+         {static_cast<QWidget*>(r.label), static_cast<QWidget*>(r.field), static_cast<QWidget*>(r.slider)}) {
       widget->setToolTip(texts[row].toolTip);
     }
     fieldWidth = std::max(fieldWidth, r.field->sizeHint().width());
