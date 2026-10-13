@@ -328,6 +328,9 @@ from working:
   split line. Before, going back to automatic detection was only possible in the dialog behind
   "Change ...". That dialog is now an **Apply to ...** dialog with two options: *Page type* and
   *Split line* (formerly "Apply cut": the position of the split line, adapted to each page).
+  The pictures of the four page layout buttons are redrawn: white pages with a frame, the offcut
+  mid gray with a dashed edge and as wide as the page. They keep their colors in the dark color
+  scheme. The buttons are 42 x 42 pixels, without text; the tooltip names the layout.
 * *Deskew*: the panel **Deskew and Oblique** has the headings "Deskew" and "Oblique". The options
   of its **Apply to ...** dialog are named like them, *Deskew* and *Oblique* (formerly "Deskew
   angle and mode" and "Oblique angle and mode").
@@ -447,7 +450,7 @@ from working:
   are named *Angle*, have the degree sign in the field, are left-aligned and equally wide.
 * *Output*: the output resolution is chosen after **Resolution:** in the panel **Output Resolution**
   (formerly "Output Resolution (DPI)"), and its list shows the unit ("300 dpi"; typed values are
-  read with or without it). The color mode list has its own bold heading, **Color Mode**.
+  read with or without it). The color mode has its own bold heading, **Color Mode**.
 * The titles of all options panels (and of the panels in the default parameters dialog) are
   bold.
 * *Output*: the depth perception, which only the dewarping uses, is part of the **Dewarping**
@@ -669,10 +672,14 @@ ScanTailor Advanced.
   The defaults give exactly the detection as before; ScanTailor Spectre's border tolerance
   changes it even at its default.
   Its additional detection of photo plates relies on Apple Vision and was not adopted.
-* **Color mode detection** in *Output*. The color mode is now chosen with three buttons (Black
-  and White, Color / Grayscale, Mixed), so the active one is visible at a glance. Above them, the
-  new group "Color Mode Detection" detects the color mode of chosen pages ("Detect ...", with the
-  usual page selection) and sets it. It takes the geometry from the steps before, as the
+* **Color mode detection** in *Output*. The color mode is now chosen with three picture buttons
+  instead of a list, so the active one is visible at a glance: black text with a black picture
+  in the top right corner for Black and White, colored lines that turn gray below a diagonal for Color / Grayscale, a colored bar above
+  black text for Mixed. They have no text (the tooltip names the mode), are 42 x 42 pixels like
+  the page layout buttons of *Split Pages*, and keep their colors in the dark color scheme. In
+  the panel, the new group "Color Mode Detection" comes before the Mode group; in the default
+  parameters dialog it is a group of its own above Output Resolution. It detects the color mode
+  of chosen pages ("Detect ...", with the usual page selection) and sets it. It takes the geometry from the steps before, as the
   thumbnails do, and only loads the source images, so it is fast and creates no output files.
   Pages whose earlier steps have not been done yet are skipped. The project file stores only the
   color mode, as before.
