@@ -8,11 +8,16 @@
 
 #include <QButtonGroup>
 #include <QCoreApplication>
+#include <QDoubleSpinBox>
 #include <QFormLayout>
+#include <QGridLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QLocale>
 #include <QMessageBox>
 #include <QSignalBlocker>
+#include <QSlider>
+#include <QSpinBox>
 #include <QToolTip>
 #include <algorithm>
 #include <utility>
@@ -108,6 +113,8 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   m_dewarpingModeGroup->addButton(dewarpingAutoBtn, AUTO);
   m_dewarpingModeGroup->addButton(dewarpingMarginalBtn, MARGINAL);
   m_dewarpingModeGroup->addButton(dewarpingManualBtn, MANUAL);
+
+  setupPhotoAdjustmentsPanel();
 
   updateDpiDisplay();
   updateColorsDisplay();
@@ -561,6 +568,8 @@ void OptionsWidget::applyColorsConfirmed(const std::set<PageId>& pages,
   for (const PageId& pageId : pages) {
     // The color mode and the other settings of the Mode group can be applied separately.
     ColorParams colorParams = applyOtherSettings ? m_colorParams : m_settings->getParams(pageId).colorParams();
+    // The photo adjustments have their own "Apply to ...".
+    colorParams.setPhotoAdjustments(m_settings->getParams(pageId).colorParams().photoAdjustments());
     if (applyColorMode) {
       colorParams.setColorMode(m_colorParams.colorMode());
     } else {
@@ -570,6 +579,200 @@ void OptionsWidget::applyColorsConfirmed(const std::set<PageId>& pages,
     if (applyOtherSettings) {
       m_settings->setPictureShapeOptions(pageId, m_pictureShapeOptions);
     }
+  }
+
+  if (pages.size() > 1) {
+    emit invalidateAllThumbnails();
+  } else {
+    for (const PageId& pageId : pages) {
+      emit invalidateThumbnail(pageId);
+    }
+  }
+
+  if (pages.find(m_pageId) != pages.end()) {
+    emit reloadRequested();
+  }
+}
+
+void OptionsWidget::setupPhotoAdjustmentsPanel() {
+  struct RowText {
+    QString label;
+    QString toolTip;
+  };
+  const RowText texts[PHOTO_ADJUSTMENT_COUNT]
+      = {{tr("Temperature:"), tr("Positive values make the pictures warmer (more yellow), negative values cooler (more blue).")},
+         {tr("Tint:"), tr("Positive values add magenta, negative values green.")},
+         {tr("Exposure:"), tr("Brightens or darkens the pictures as a whole, in stops (EV).")},
+         {tr("Contrast:"),
+          tr("Positive values spread the tones apart, negative values bring them closer together, around the middle gray.")},
+         {tr("Highlights:"), tr("Positive values brighten the bright parts, negative values darken them.")},
+         {tr("Shadows:"), tr("Positive values brighten the dark parts, negative values darken them.")},
+         {tr("Whites:"), tr("Positive values make the brightest tones whiter, negative values duller.")},
+         {tr("Blacks:"), tr("Positive values make the darkest tones lighter, negative values deeper.")}};
+
+  int fieldWidth = 0;
+  for (int row = 0; row < PHOTO_ADJUSTMENT_COUNT; ++row) {
+    PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
+    QWidget* parent = photoAdjustmentsPanel;
+    r.label = new QLabel(texts[row].label, parent);
+    r.slider = new QSlider(Qt::Horizontal, parent);
+    if (row == EXPOSURE) {
+      // The slider counts hundredths of a stop.
+      auto* field = new QDoubleSpinBox(parent);
+      field->setRange(PhotoAdjustments::MIN_EXPOSURE, PhotoAdjustments::MAX_EXPOSURE);
+      field->setDecimals(2);
+      field->setSingleStep(0.05);
+      field->setSuffix(QStringLiteral(" EV"));
+      r.field = field;
+      r.slider->setRange(qRound(PhotoAdjustments::MIN_EXPOSURE * 100), qRound(PhotoAdjustments::MAX_EXPOSURE * 100));
+      r.slider->setSingleStep(5);
+      r.slider->setPageStep(25);
+    } else {
+      auto* field = new QSpinBox(parent);
+      field->setRange(PhotoAdjustments::MIN_VALUE, PhotoAdjustments::MAX_VALUE);
+      r.field = field;
+      r.slider->setRange(PhotoAdjustments::MIN_VALUE, PhotoAdjustments::MAX_VALUE);
+      r.slider->setSingleStep(1);
+      r.slider->setPageStep(10);
+    }
+    r.field->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    r.field->setKeyboardTracking(false);
+    for (QWidget* widget : {static_cast<QWidget*>(r.label), static_cast<QWidget*>(r.field),
+                            static_cast<QWidget*>(r.slider)}) {
+      widget->setToolTip(texts[row].toolTip);
+    }
+    fieldWidth = std::max(fieldWidth, r.field->sizeHint().width());
+
+    QGridLayout* grid = (row <= TINT) ? colorBalanceGrid : toneGrid;
+    const int gridRow = 2 * ((row <= TINT) ? row : row - EXPOSURE);
+    grid->addWidget(r.label, gridRow, 0);
+    grid->addWidget(r.field, gridRow, 1, Qt::AlignRight);
+    grid->addWidget(r.slider, gridRow + 1, 0, 1, 2);
+  }
+  // Equal fields, wide enough for the exposure.
+  for (PhotoAdjustmentRow& r : m_photoAdjustmentRows) {
+    r.field->setFixedWidth(fieldWidth);
+  }
+}
+
+int OptionsWidget::photoAdjustmentSliderValue(const int row) const {
+  const PhotoAdjustments& adjustments = m_colorParams.photoAdjustments();
+  switch (row) {
+    case TEMPERATURE:
+      return adjustments.temperature();
+    case TINT:
+      return adjustments.tint();
+    case EXPOSURE:
+      return qRound(adjustments.exposure() * 100);
+    case CONTRAST:
+      return adjustments.contrast();
+    case HIGHLIGHTS:
+      return adjustments.highlights();
+    case SHADOWS:
+      return adjustments.shadows();
+    case WHITES:
+      return adjustments.whites();
+    case BLACKS:
+      return adjustments.blacks();
+    default:
+      return 0;
+  }
+}
+
+void OptionsWidget::photoAdjustmentSliderChanged(const int row, const int value) {
+  PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
+  {
+    const QSignalBlocker blocker(r.field);
+    if (auto* field = qobject_cast<QDoubleSpinBox*>(r.field)) {
+      field->setValue(value / 100.0);
+    } else if (auto* field = qobject_cast<QSpinBox*>(r.field)) {
+      field->setValue(value);
+    }
+  }
+  // While dragging, the page is recalculated only once the slider is released.
+  if (!r.slider->isSliderDown()) {
+    commitPhotoAdjustments();
+  }
+}
+
+void OptionsWidget::photoAdjustmentFieldChanged(const int row) {
+  PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
+  {
+    const QSignalBlocker blocker(r.slider);
+    if (auto* field = qobject_cast<QDoubleSpinBox*>(r.field)) {
+      r.slider->setValue(qRound(field->value() * 100));
+    } else if (auto* field = qobject_cast<QSpinBox*>(r.field)) {
+      r.slider->setValue(field->value());
+    }
+  }
+  commitPhotoAdjustments();
+}
+
+void OptionsWidget::commitPhotoAdjustments() {
+  const auto value = [this](const int row) { return m_photoAdjustmentRows[row].slider->value(); };
+  PhotoAdjustments adjustments;
+  adjustments.setTemperature(value(TEMPERATURE));
+  adjustments.setTint(value(TINT));
+  adjustments.setExposure(value(EXPOSURE) / 100.0);
+  adjustments.setContrast(value(CONTRAST));
+  adjustments.setHighlights(value(HIGHLIGHTS));
+  adjustments.setShadows(value(SHADOWS));
+  adjustments.setWhites(value(WHITES));
+  adjustments.setBlacks(value(BLACKS));
+  adjustments.setKeepWhite(keepWhiteCB->isChecked());
+  if (adjustments == m_colorParams.photoAdjustments()) {
+    return;
+  }
+
+  m_colorParams.setPhotoAdjustments(adjustments);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+  // Don't recreate the page for every step of a field or of the keyboard.
+  m_delayedReloadRequest.start(300);
+}
+
+void OptionsWidget::updatePhotoAdjustmentsDisplay() {
+  for (int row = 0; row < PHOTO_ADJUSTMENT_COUNT; ++row) {
+    PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
+    const QSignalBlocker sliderBlocker(r.slider);
+    const QSignalBlocker fieldBlocker(r.field);
+    const int value = photoAdjustmentSliderValue(row);
+    r.slider->setValue(value);
+    if (auto* field = qobject_cast<QDoubleSpinBox*>(r.field)) {
+      field->setValue(value / 100.0);
+    } else if (auto* field = qobject_cast<QSpinBox*>(r.field)) {
+      field->setValue(value);
+    }
+  }
+  const QSignalBlocker keepWhiteBlocker(keepWhiteCB);
+  keepWhiteCB->setChecked(m_colorParams.photoAdjustments().keepWhite());
+
+  // Not used in black and white; the color balance not with grayscale output, "Keep white" only
+  // in color mode (in mixed mode only the pictures are changed).
+  const ColorMode colorMode = m_colorParams.colorMode();
+  const bool colorBalance = !m_colorParams.colorCommonOptions().isGrayscaleOutput();
+  photoAdjustmentsPanel->setEnabled(colorMode != BLACK_AND_WHITE);
+  colorBalanceHeading->setEnabled(colorBalance);
+  for (const int row : {TEMPERATURE, TINT}) {
+    m_photoAdjustmentRows[row].label->setEnabled(colorBalance);
+    m_photoAdjustmentRows[row].field->setEnabled(colorBalance);
+    m_photoAdjustmentRows[row].slider->setEnabled(colorBalance);
+  }
+  keepWhiteCB->setEnabled(colorMode == COLOR_GRAYSCALE);
+}
+
+void OptionsWidget::applyPhotoAdjustmentsButtonClicked() {
+  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setWindowTitle(tr("Apply Photo Adjustments"));
+  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyPhotoAdjustmentsConfirmed);
+  dialog->show();
+}
+
+void OptionsWidget::applyPhotoAdjustmentsConfirmed(const std::set<PageId>& pages) {
+  for (const PageId& pageId : pages) {
+    ColorParams colorParams = m_settings->getParams(pageId).colorParams();
+    colorParams.setPhotoAdjustments(m_colorParams.photoAdjustments());
+    m_settings->setColorParams(pageId, colorParams);
   }
 
   if (pages.size() > 1) {
@@ -919,6 +1122,8 @@ void OptionsWidget::updateColorsDisplay() {
   pictureShapeOptions->setEnabled(pictureShapeVisible);
   thresholdOptions->setEnabled(thresholdOptionsVisible);
   despecklePanel->setEnabled(thresholdOptionsVisible);
+
+  updatePhotoAdjustmentsDisplay();
 
   splittingOptions->setEnabled(splittingOptionsVisible);
   splittingCB->setChecked(m_splittingOptions.isSplitOutput());
@@ -1505,6 +1710,21 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this, &OptionsWidget::depthPerceptionChangedSlot);
   CONNECT(depthPerceptionSlider, &QAbstractSlider::sliderReleased, this, &OptionsWidget::depthPerceptionSliderReleased);
   CONNECT(&m_delayedReloadRequest, &QTimer::timeout, this, &OptionsWidget::sendReloadRequested);
+
+  for (int row = 0; row < PHOTO_ADJUSTMENT_COUNT; ++row) {
+    const PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
+    CONNECT(r.slider, &QAbstractSlider::valueChanged, this,
+            [this, row](const int value) { photoAdjustmentSliderChanged(row, value); });
+    CONNECT(r.slider, &QAbstractSlider::sliderReleased, this, &OptionsWidget::commitPhotoAdjustments);
+    if (auto* field = qobject_cast<QDoubleSpinBox*>(r.field)) {
+      CONNECT(field, &QDoubleSpinBox::valueChanged, this, [this, row] { photoAdjustmentFieldChanged(row); });
+    } else if (auto* field = qobject_cast<QSpinBox*>(r.field)) {
+      CONNECT(field, &QSpinBox::valueChanged, this, [this, row] { photoAdjustmentFieldChanged(row); });
+    }
+  }
+  CONNECT(keepWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::commitPhotoAdjustments);
+  CONNECT(applyPhotoAdjustmentsButton, &QAbstractButton::clicked, this,
+          &OptionsWidget::applyPhotoAdjustmentsButtonClicked);
 
   CONNECT(blackOnWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::blackOnWhiteToggled);
   CONNECT(applyProcessingOptionsButton, &QAbstractButton::clicked, this, &OptionsWidget::applyProcessingParamsClicked);

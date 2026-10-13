@@ -9,13 +9,18 @@ ColorParams::ColorParams() : m_colorMode(BLACK_AND_WHITE) {}
 ColorParams::ColorParams(const QDomElement& el)
     : m_colorMode(parseColorMode(el.attribute("colorMode"))),
       m_colorCommonOptions(el.namedItem("color-or-grayscale").toElement()),
-      m_bwOptions(el.namedItem("bw").toElement()) {}
+      m_bwOptions(el.namedItem("bw").toElement()),
+      m_photoAdjustments(el.namedItem("photo-adjustments").toElement()) {}
 
 QDomElement ColorParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("colorMode", formatColorMode(m_colorMode));
   el.appendChild(m_colorCommonOptions.toXml(doc, "color-or-grayscale"));
   el.appendChild(m_bwOptions.toXml(doc, "bw"));
+  // Only when used, so that project files without adjustments stay as they were.
+  if (!m_photoAdjustments.isDefault()) {
+    el.appendChild(m_photoAdjustments.toXml(doc, "photo-adjustments"));
+  }
   return el;
 }
 

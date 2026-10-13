@@ -29,6 +29,7 @@ set(sources
     ColorCommonOptions.cpp ColorCommonOptions.h
     RenderParams.cpp RenderParams.h
     ColorParams.cpp ColorParams.h
+    PhotoAdjustments.cpp PhotoAdjustments.h
     OutputImageParams.cpp OutputImageParams.h
     OutputFileParams.cpp OutputFileParams.h
     OutputParams.cpp OutputParams.h

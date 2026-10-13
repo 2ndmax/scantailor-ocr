@@ -700,6 +700,25 @@ ScanTailor Advanced.
   "Apply to ..." of the Mode group can now apply the color mode and the other settings of the
   group separately. Without OCR, the detection is not available.
 
+* **Photo adjustments** in *Output*: the new group "Photo Adjustments" after "Dewarping" (the
+  adjustments come after dewarping and despeckling) has the
+  sliders of a photo editor, each with a field for the exact value: *Temperature* and *Tint*
+  (color balance), *Exposure* (−2 to +2 EV), *Contrast*, *Highlights*, *Shadows*, *Whites* and
+  *Blacks*. The page is calculated again shortly after a slider is released. Unlike ScanTailor
+  Spectre, the adjustments are applied to the finished output instead of the source image, so
+  black and white text, picture detection, color mode detection and OCR stay as they were:
+  * Color / Grayscale: the whole page; the margins are never changed. "Keep white" (off by
+    default) also keeps pure white inside the page, such as a background made white.
+  * Mixed: only the picture zones; the text stays black and white.
+  * Black and White: not used (the group is grayed out). The color balance is grayed out with
+    "Grayscale output".
+
+  The values are saved per page in the project file, only for pages that use them, and have
+  their own "Apply to ...". As in Lightroom,
+  positive *Highlights* make the bright parts brighter (ScanTailor Spectre does the opposite).
+  The automatic suggestion of ScanTailor Spectre was not adopted: it measures the whole source
+  image, including the second page and the book edges, instead of the pictures.
+
 * **Seed fill propagates completely.** The seed fill used for picture detection, background
   estimation and despeckling marked a pixel as "queued" and never cleared the mark after
   processing it. If the pixel was improved again later, the improvement no longer spread to its

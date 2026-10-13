@@ -223,6 +223,10 @@ class OutputGenerator::Processor {
   // The filters under "Enhancement", applied to the image in output resolution.
   void applyEnhancementFilters(QImage& image) const;
 
+  // The photo adjustments, applied before the margins are filled. With a picture mask (mixed
+  // output), only the pictures are changed.
+  void applyPhotoAdjustments(QImage& image, const BinaryImage* pictureMask) const;
+
   DistortionModel buildAutoDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal) const;
 
   DistortionModel buildMarginalDistortionModel() const;
@@ -1487,10 +1491,16 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
       bwContent.release();  // Save memory.
     }
 
+    applyPhotoAdjustments(maybeNormalized, &bwMask);
+
     bwContentMaskOutput = BinaryImage(m_targetSize, BLACK);
     rasterOp<RopSrc>(bwContentMaskOutput, m_croppedContentRect, bwMask, m_contentRectInWorkingCs.topLeft());
   }
   // Mixed end
+
+  if (!m_renderParams.mixedOutput()) {
+    applyPhotoAdjustments(maybeNormalized, nullptr);
+  }
 
   assert(!m_targetSize.isEmpty());
   QImage dst(m_targetSize, maybeNormalized.format());
@@ -1884,6 +1894,8 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
       m_status.throwIfCancelled();
     }
   }
+
+  applyPhotoAdjustments(dewarped, m_renderParams.mixedOutput() ? &dewarpedBwMask : nullptr);
 
   // The same filling colors as without dewarping; "Black" was missing here.
   if (m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
@@ -2614,6 +2626,20 @@ void OutputGenerator::Processor::applyEnhancementFilters(QImage& image) const {
   wienerColorFilterInPlace(image, QSize(colorCommonOptions.wienerWindowSize(), colorCommonOptions.wienerWindowSize()),
                            colorCommonOptions.wienerCoef());
   sharpenColorInPlace(image, colorCommonOptions.sharpenRadius(), colorCommonOptions.sharpenCoef());
+}
+
+void OutputGenerator::Processor::applyPhotoAdjustments(QImage& image, const BinaryImage* pictureMask) const {
+  const PhotoAdjustments& adjustments = m_colorParams.photoAdjustments();
+  if (adjustments.isNeutral()) {
+    return;
+  }
+  // Pages with white text on black are processed inverted.
+  adjustments.applyInPlace(image, pictureMask, !m_blackOnWhite);
+  if (pictureMask && m_renderParams.needBinarization()) {
+    // Pure black and white mark the text of mixed output; the adjusted pictures must not use them.
+    reserveBlackAndWhite(image, pictureMask->inverted());
+  }
+  m_status.throwIfCancelled();
 }
 
 QImage OutputGenerator::Processor::transformToWorkingCs(bool normalize) const {

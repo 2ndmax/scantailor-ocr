@@ -6,6 +6,7 @@
 
 #include "BlackWhiteOptions.h"
 #include "ColorCommonOptions.h"
+#include "PhotoAdjustments.h"
 #include "SplittingOptions.h"
 
 class QDomDocument;
@@ -34,6 +35,10 @@ class ColorParams {
 
   void setBlackWhiteOptions(const BlackWhiteOptions& opt);
 
+  const PhotoAdjustments& photoAdjustments() const;
+
+  void setPhotoAdjustments(const PhotoAdjustments& adjustments);
+
  private:
   static ColorMode parseColorMode(const QString& str);
 
@@ -42,6 +47,7 @@ class ColorParams {
   ColorMode m_colorMode;
   ColorCommonOptions m_colorCommonOptions;
   BlackWhiteOptions m_bwOptions;
+  PhotoAdjustments m_photoAdjustments;
 };
 
 
@@ -67,6 +73,14 @@ inline const BlackWhiteOptions& ColorParams::blackWhiteOptions() const {
 
 inline void ColorParams::setBlackWhiteOptions(const BlackWhiteOptions& opt) {
   m_bwOptions = opt;
+}
+
+inline const PhotoAdjustments& ColorParams::photoAdjustments() const {
+  return m_photoAdjustments;
+}
+
+inline void ColorParams::setPhotoAdjustments(const PhotoAdjustments& adjustments) {
+  m_photoAdjustments = adjustments;
 }
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_COLORPARAMS_H_

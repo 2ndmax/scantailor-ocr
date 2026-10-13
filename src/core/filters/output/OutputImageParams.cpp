@@ -141,6 +141,9 @@ bool OutputImageParams::colorParamsMatch(const ColorParams& cp1,
   if (cp1.colorMode() != cp2.colorMode()) {
     return false;
   }
+  if (cp1.colorMode() != BLACK_AND_WHITE && cp1.photoAdjustments() != cp2.photoAdjustments()) {
+    return false;
+  }
 
   switch (cp1.colorMode()) {
     case MIXED:

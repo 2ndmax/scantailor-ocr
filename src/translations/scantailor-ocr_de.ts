@@ -2628,7 +2628,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt ausw�
         <translation>Qualität:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="181"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="188"/>
         <location filename="../app/PdfExportView.cpp" line="416"/>
         <source>Resolution of split pages:</source>
         <translation>Auflösung geteilter Seiten:</translation>
@@ -4191,7 +4191,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <name>output::OptionsWidget</name>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="443"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="207"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="214"/>
         <source>Black and White</source>
         <translation>Schwarz-Weiß</translation>
     </message>
@@ -4206,145 +4206,230 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Gemischt</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="56"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="61"/>
         <source>Background</source>
         <translation>Hintergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="57"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="62"/>
         <source>White</source>
         <translation>Weiß</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="58"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="63"/>
         <source>Black</source>
         <translation>Schwarz</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="96"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="101"/>
         <source>Contour mask</source>
         <translation>Konturmaske</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="97"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="102"/>
         <source>Rectangle</source>
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="129"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="136"/>
         <source>TIFF Compression</source>
         <translation>TIFF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="132"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="139"/>
         <source>Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed separately, so this doesn&apos;t change it.  After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing.  Other projects keep their files until their pages are processed again.</source>
         <translation>Komprimierung der TIFF-Dateien im Ausgabeordner.  Gilt für alle Projekte.  Das PDF wird eigenständig komprimiert und ändert sich dadurch nicht.  Nach einer Änderung wird die Ausgabe dieses Projekts neu erzeugt: die aktuelle Seite sofort, die übrigen Seiten bei der nächsten Stapelverarbeitung.  Andere Projekte behalten ihre Dateien, bis ihre Seiten erneut verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="156"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="163"/>
         <source>LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program and its PDF export can.</source>
         <translation>LZMA ergibt die kleinsten verlustfreien Dateien, ist aber langsam und wird nur von wenigen anderen Programmen gelesen; dieses Programm und sein PDF-Export können es.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="161"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="168"/>
         <source>Color and Grayscale</source>
         <translation>Farbe und Graustufen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="162"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="169"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation>Farb- und Graustufenseiten, auch Graustufenseiten mit Tontrennung, und die Bilder von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="166"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="198"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="209"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="173"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="205"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="216"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="173"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="180"/>
         <source>All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.</source>
         <translation>Alle Verfahren außer JPEG sind verlustfrei; Deflate ergibt meist kleinere Dateien als LZW.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="175"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="182"/>
         <source>JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.</source>
         <translation>JPEG ergibt viel kleinere Dateien, verliert aber Qualität: Das PDF komprimiert die Bilder ein zweites Mal, und auf gemischten Seiten ohne geteilte Ausgabe wird der Text unscharf.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="189"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="196"/>
         <source>Quality:</source>
         <translation>Qualität:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="192"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="199"/>
         <source>Posterized Pages</source>
         <translation>Seiten mit Tontrennung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="193"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="200"/>
         <source>Color pages that were posterized, and posterized pictures of pages with split output.  Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
         <translation>Farbseiten mit Tontrennung und Bilder mit Tontrennung auf Seiten mit geteilter Ausgabe.  Graustufenseiten mit Tontrennung lassen sich nicht von anderen Graustufenseiten unterscheiden; sie folgen „Farbe und Graustufen“.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="203"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="210"/>
         <source>All methods are lossless.</source>
         <translation>Alle Verfahren sind verlustfrei.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="207"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="214"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation>Schwarz-Weiß-Seiten und der Text von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="215"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="222"/>
         <source>All methods are lossless; CCITT G4 usually gives the smallest files.</source>
         <translation>Alle Verfahren sind verlustfrei; CCITT G4 ergibt meist die kleinsten Dateien.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="339"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="346"/>
         <source>Detect Color Mode</source>
         <translation>Farbmodus erkennen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1535"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="603"/>
+        <source>Temperature:</source>
+        <translation>Temperatur:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="603"/>
+        <source>Positive values make the pictures warmer (more yellow), negative values cooler (more blue).</source>
+        <translation>Positive Werte machen die Bilder wärmer (gelblicher), negative kühler (bläulicher).</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="604"/>
+        <source>Tint:</source>
+        <translation>Tönung:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="604"/>
+        <source>Positive values add magenta, negative values green.</source>
+        <translation>Positive Werte fügen Magenta hinzu, negative Grün.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
+        <source>Exposure:</source>
+        <translation>Belichtung:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
+        <source>Brightens or darkens the pictures as a whole, in stops (EV).</source>
+        <translation>Hellt die Bilder insgesamt auf oder dunkelt sie ab, in Blendenstufen (EV).</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="606"/>
+        <source>Contrast:</source>
+        <translation>Kontrast:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="607"/>
+        <source>Positive values spread the tones apart, negative values bring them closer together, around the middle gray.</source>
+        <translation>Positive Werte ziehen die Tonwerte auseinander, negative rücken sie zusammen, jeweils um das mittlere Grau.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="608"/>
+        <source>Highlights:</source>
+        <translation>Lichter:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="608"/>
+        <source>Positive values brighten the bright parts, negative values darken them.</source>
+        <translation>Positive Werte hellen die hellen Bereiche auf, negative dunkeln sie ab.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
+        <source>Shadows:</source>
+        <translation>Tiefen:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
+        <source>Positive values brighten the dark parts, negative values darken them.</source>
+        <translation>Positive Werte hellen die dunklen Bereiche auf, negative dunkeln sie ab.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
+        <source>Whites:</source>
+        <translation>Weiß:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
+        <source>Positive values make the brightest tones whiter, negative values duller.</source>
+        <translation>Positive Werte machen die hellsten Töne weißer, negative stumpfer.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
+        <source>Blacks:</source>
+        <translation>Schwarz:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
+        <source>Positive values make the darkest tones lighter, negative values deeper.</source>
+        <translation>Positive Werte machen die dunkelsten Töne heller, negative tiefer.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="766"/>
+        <source>Apply Photo Adjustments</source>
+        <translation>Fotoanpassung anwenden</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1755"/>
         <source>Apply Content</source>
         <translation>Inhalt anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="188"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="195"/>
         <source>Higher values give better pictures and larger files.  Only used with JPEG compression.</source>
         <translation>Höhere Werte ergeben bessere Bilder und größere Dateien.  Wird nur bei JPEG-Komprimierung verwendet.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="496"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="503"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="510"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
         <source>Apply Output Resolution</source>
         <translation>Ausgabeauflösung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="591"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="794"/>
         <source>Apply Splitting</source>
         <translation>Aufteilung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="718"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="921"/>
         <source>Apply Dewarping</source>
         <translation>Entzerrung anwenden</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2459"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="100"/>
         <source>Off</source>
         <translation>Deaktiviert</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="674"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="877"/>
         <source>Apply Despeckling</source>
         <translation>Flecken entfernen anwenden</translation>
     </message>
@@ -4360,7 +4445,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="496"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="503"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -4431,9 +4516,9 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1365"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="177"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="204"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="217"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="184"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="211"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="224"/>
         <source>Method:</source>
         <translation>Verfahren:</translation>
     </message>
@@ -4753,6 +4838,36 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Überträgt den Farbmodus und die weiteren Einstellungen dieser Gruppe auf andere Seiten; beide Teile lassen sich einzeln wählen.</translation>
     </message>
     <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2678"/>
+        <source>Adjusts the pictures after processing, like a photo editor.  In mixed mode only the picture zones are changed, the text stays black and white.  Not used in black and white mode.</source>
+        <translation>Passt die Bilder nach der Verarbeitung an, wie ein Bildbearbeitungsprogramm. Im Farbmodus Gemischt werden nur die Bildzonen verändert, der Text bleibt schwarz-weiß. Im Farbmodus Schwarz-Weiß ohne Wirkung.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2681"/>
+        <source>Photo Adjustments</source>
+        <translation>Fotoanpassung</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2702"/>
+        <source>Color Balance</source>
+        <translation>Farbbalance</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2719"/>
+        <source>Tone</source>
+        <translation>Tonwerte</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2736"/>
+        <source>Keep white</source>
+        <translation>Weiß beibehalten</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2767"/>
+        <source>Applies the photo adjustments of this page to other pages.</source>
+        <translation>Überträgt die Fotoanpassung dieser Seite auf andere Seiten.</translation>
+    </message>
+    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2117"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation>Nur im Farbmodus Gemischt: speichert die Seite zusätzlich als zwei Dateien, den Text im Ordner „foreground“ und die Bilder im Ordner „background“ neben den Ausgabedateien.</translation>
@@ -4809,7 +4924,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2525"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1058"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1263"/>
         <source>Post deskew</source>
         <translation>Nachträglich geraderichten</translation>
     </message>
@@ -4845,6 +4960,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <location filename="../core/filters/output/OptionsWidget.ui" line="2228"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2417"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2653"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2770"/>
         <source>Apply to ...</source>
         <translation>Anwenden auf ...</translation>
     </message>
@@ -4949,6 +5065,11 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <location filename="../core/filters/output/OptionsWidget.ui" line="219"/>
         <source>Detects the color mode of pages. The settings apply to all projects.</source>
         <translation>Erkennt den Farbmodus von Seiten. Die Einstellungen gelten für alle Projekte.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2733"/>
+        <source>Color / grayscale mode only: pure white stays white, such as a background made white.  The margins are never changed.</source>
+        <translation>Nur im Farbmodus Farbe / Graustufen: reines Weiß bleibt weiß, z. B. ein weiß gemachter Hintergrund. Die Ränder werden nie verändert.</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2104"/>

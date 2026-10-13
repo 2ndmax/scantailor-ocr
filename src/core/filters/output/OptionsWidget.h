@@ -11,6 +11,7 @@
 #include <QtCore/QTimer>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QStackedLayout>
+#include <array>
 #include <list>
 #include <memory>
 #include <set>
@@ -213,7 +214,34 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void sendReloadRequested();
 
+  void applyPhotoAdjustmentsButtonClicked();
+
+  void applyPhotoAdjustmentsConfirmed(const std::set<PageId>& pages);
+
  private:
+  // The sliders of the group "Photo Adjustments", in the order of the panel.
+  enum PhotoAdjustment { TEMPERATURE, TINT, EXPOSURE, CONTRAST, HIGHLIGHTS, SHADOWS, WHITES, BLACKS };
+  static constexpr int PHOTO_ADJUSTMENT_COUNT = BLACKS + 1;
+
+  struct PhotoAdjustmentRow {
+    QLabel* label = nullptr;
+    QAbstractSpinBox* field = nullptr;  // QDoubleSpinBox for the exposure, QSpinBox otherwise.
+    QSlider* slider = nullptr;
+  };
+
+  void setupPhotoAdjustmentsPanel();
+
+  void photoAdjustmentSliderChanged(int row, int value);
+
+  void photoAdjustmentFieldChanged(int row);
+
+  // Stores the values of the panel and recalculates the page shortly after.
+  void commitPhotoAdjustments();
+
+  void updatePhotoAdjustmentsDisplay();
+
+  int photoAdjustmentSliderValue(int row) const;
+
   void handleDespeckleLevelChange(double level, bool delay = false);
 
   void reloadIfNecessary();
@@ -256,6 +284,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   QTimer m_delayedReloadRequest;
   bool m_checkingDpi = false;
   QButtonGroup* m_dewarpingModeGroup = nullptr;
+  std::array<PhotoAdjustmentRow, PHOTO_ADJUSTMENT_COUNT> m_photoAdjustmentRows;
 
   ConnectionManager m_connectionManager;
   QComboBox* m_tiffColorCompression = nullptr;

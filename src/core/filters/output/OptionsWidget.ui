@@ -2096,158 +2096,6 @@
     </widget>
    </item>
    <item>
-    <widget class="CollapsibleGroupBox" name="splittingOptions">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="title">
-      <string>Splitting</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_9">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_12">
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QCheckBox" name="splittingCB">
-            <property name="toolTip">
-             <string>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</string>
-            </property>
-            <property name="text">
-             <string>Split output</string>
-            </property>
-           </widget>
-          </item>
-<item>
-<layout class="QVBoxLayout" name="splittingSubLayout">
-<property name="leftMargin">
-<number>15</number>
-</property>
-          <item>
-           <widget class="QRadioButton" name="bwForegroundRB">
-            <property name="toolTip">
-             <string>The text is saved in black and white.</string>
-            </property>
-            <property name="text">
-             <string>B&amp;&amp;W foreground</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_16">
-            <item>
-             <spacer name="horizontalSpacer_29">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>15</width>
-                <height>1</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="originalBackgroundCB">
-              <property name="toolTip">
-               <string>Save the original background of the foreground layer.</string>
-              </property>
-              <property name="text">
-               <string>Original background</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="colorForegroundRB">
-            <property name="toolTip">
-             <string>The text keeps its colors.</string>
-            </property>
-            <property name="text">
-             <string>Color foreground</string>
-            </property>
-           </widget>
-          </item>
-</layout>
-</item>
-         </layout>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_22">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_7">
-        <property name="topMargin">
-         <number>8</number>
-        </property>
-        <item>
-         <spacer name="horizontalSpacer_25">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="applySplittingButton">
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Applies the splitting settings of this page to other pages.</string>
-          </property>
-          <property name="text">
-           <string>Apply to ...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_26">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <widget class="CollapsibleGroupBox" name="despecklePanel">
      <property name="title">
       <string>Despeckling</string>
@@ -2656,6 +2504,275 @@
         </item>
         <item>
          <spacer name="horizontalSpacer_18">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="CollapsibleGroupBox" name="photoAdjustmentsPanel">
+     <property name="toolTip">
+      <string>Adjusts the pictures after processing, like a photo editor.  In mixed mode only the picture zones are changed, the text stays black and white.  Not used in black and white mode.</string>
+     </property>
+     <property name="title">
+      <string>Photo Adjustments</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <layout class="QVBoxLayout" name="photoAdjustmentsLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>15</number>
+      </property>
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>15</number>
+      </property>
+      <item>
+       <widget class="SectionHeading" name="colorBalanceHeading">
+        <property name="text">
+         <string>Color Balance</string>
+        </property>
+        <property name="first">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="colorBalanceGrid">
+        <property name="verticalSpacing">
+         <number>2</number>
+        </property>
+       </layout>
+      </item>
+      <item>
+       <widget class="SectionHeading" name="toneHeading">
+        <property name="text">
+         <string>Tone</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="toneGrid">
+        <property name="verticalSpacing">
+         <number>2</number>
+        </property>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="keepWhiteCB">
+        <property name="toolTip">
+         <string>Color / grayscale mode only: pure white stays white, such as a background made white.  The margins are never changed.</string>
+        </property>
+        <property name="text">
+         <string>Keep white</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="applyPhotoAdjustmentsLayout">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
+        <item>
+         <spacer name="applyPhotoAdjustmentsLeftSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="applyPhotoAdjustmentsButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the photo adjustments of this page to other pages.</string>
+          </property>
+          <property name="text">
+           <string>Apply to ...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="applyPhotoAdjustmentsRightSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="CollapsibleGroupBox" name="splittingOptions">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="title">
+      <string>Splitting</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_9">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_12">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QCheckBox" name="splittingCB">
+            <property name="toolTip">
+             <string>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</string>
+            </property>
+            <property name="text">
+             <string>Split output</string>
+            </property>
+           </widget>
+          </item>
+<item>
+<layout class="QVBoxLayout" name="splittingSubLayout">
+<property name="leftMargin">
+<number>15</number>
+</property>
+          <item>
+           <widget class="QRadioButton" name="bwForegroundRB">
+            <property name="toolTip">
+             <string>The text is saved in black and white.</string>
+            </property>
+            <property name="text">
+             <string>B&amp;&amp;W foreground</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_16">
+            <item>
+             <spacer name="horizontalSpacer_29">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>15</width>
+                <height>1</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="originalBackgroundCB">
+              <property name="toolTip">
+               <string>Save the original background of the foreground layer.</string>
+              </property>
+              <property name="text">
+               <string>Original background</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="colorForegroundRB">
+            <property name="toolTip">
+             <string>The text keeps its colors.</string>
+            </property>
+            <property name="text">
+             <string>Color foreground</string>
+            </property>
+           </widget>
+          </item>
+</layout>
+</item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_22">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
+        <item>
+         <spacer name="horizontalSpacer_25">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="applySplittingButton">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies the splitting settings of this page to other pages.</string>
+          </property>
+          <property name="text">
+           <string>Apply to ...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_26">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
