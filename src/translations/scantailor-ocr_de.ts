@@ -4328,32 +4328,32 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Temperatur:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="603"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="604"/>
         <source>Positive values make the pictures warmer (more yellow), negative values cooler (more blue).</source>
         <translation>Positive Werte machen die Bilder wärmer (gelblicher), negative kühler (bläulicher).</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="604"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
         <source>Tint:</source>
         <translation>Tönung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="604"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
         <source>Positive values add magenta, negative values green.</source>
         <translation>Positive Werte fügen Magenta hinzu, negative Grün.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="606"/>
         <source>Exposure:</source>
         <translation>Belichtung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="606"/>
         <source>Brightens or darkens the pictures as a whole, in stops (EV).</source>
         <translation>Hellt die Bilder insgesamt auf oder dunkelt sie ab, in Blendenstufen (EV).</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="606"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="607"/>
         <source>Contrast:</source>
         <translation>Kontrast:</translation>
     </message>
@@ -4363,52 +4363,52 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Positive Werte ziehen die Tonwerte auseinander, negative rücken sie zusammen, jeweils um das mittlere Grau.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="608"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
         <source>Highlights:</source>
         <translation>Lichter:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="608"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
         <source>Positive values brighten the bright parts, negative values darken them.</source>
         <translation>Positive Werte hellen die hellen Bereiche auf, negative dunkeln sie ab.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
         <source>Shadows:</source>
         <translation>Tiefen:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
         <source>Positive values brighten the dark parts, negative values darken them.</source>
         <translation>Positive Werte hellen die dunklen Bereiche auf, negative dunkeln sie ab.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
         <source>Whites:</source>
         <translation>Weiß:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
         <source>Positive values make the brightest tones whiter, negative values duller.</source>
         <translation>Positive Werte machen die hellsten Töne weißer, negative stumpfer.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="612"/>
         <source>Blacks:</source>
         <translation>Schwarz:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="612"/>
         <source>Positive values make the darkest tones lighter, negative values deeper.</source>
         <translation>Positive Werte machen die dunkelsten Töne heller, negative tiefer.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="766"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="767"/>
         <source>Apply Photo Adjustments</source>
         <translation>Fotoanpassung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1755"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1756"/>
         <source>Apply Content</source>
         <translation>Inhalt anwenden</translation>
     </message>
@@ -4428,12 +4428,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Ausgabeauflösung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="794"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="795"/>
         <source>Apply Splitting</source>
         <translation>Aufteilung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="921"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="922"/>
         <source>Apply Dewarping</source>
         <translation>Entzerrung anwenden</translation>
     </message>
@@ -4444,7 +4444,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Deaktiviert</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="877"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="878"/>
         <source>Apply Despeckling</source>
         <translation>Flecken entfernen anwenden</translation>
     </message>
@@ -4939,7 +4939,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2373"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1263"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1264"/>
         <source>Post deskew</source>
         <translation>Nachträglich geraderichten</translation>
     </message>
@@ -5422,32 +5422,32 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Lassen Sie die linke Maustaste los, um das Ziehen zu beenden.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="653"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="691"/>
         <source>Add a Horizontal Guide</source>
         <translation>Horizontale Hilfslinie hinzufügen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="654"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="692"/>
         <source>Add a Vertical Guide</source>
         <translation>Vertikale Hilfslinie hinzufügen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="655"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="693"/>
         <source>Remove All the Guides</source>
         <translation>Alle Hilfslinien entfernen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="656"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="694"/>
         <source>Remove This Guide</source>
         <translation>Diese Hilfslinie entfernen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="658"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="696"/>
         <source>Show Hard Margins Rectangle</source>
         <translation>Rechteck mit harten Rändern anzeigen</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="805"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="843"/>
         <source>Drag the guide.</source>
         <translation>Hilfslinie ziehen</translation>
     </message>
@@ -5455,32 +5455,37 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="331"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="422"/>
         <source>Apply Margins</source>
         <translation>Ränder anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="339"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="430"/>
         <source>Apply Alignment</source>
         <translation>Ausrichtung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="406"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="495"/>
+        <source>Apply Match Size</source>
+        <translation>Größe angleichen anwenden</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="526"/>
         <source>no matched pages</source>
         <translation>keine angeglichenen Seiten</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="666"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="791"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation>DPI ist zu groß und höchstwahrscheinlich falsch.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="670"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="795"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie keine akzeptablen Resultate erhalten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="674"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="799"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation>Ein extrem niedriger DPI-Wert. Er entspräche bei dieser Pixelgröße einem sehr großen Papierformat.</translation>
     </message>
@@ -5502,15 +5507,15 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="212"/>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="281"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="573"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="596"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="619"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="642"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="665"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="691"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="714"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="737"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="760"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="905"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="928"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="951"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="974"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="997"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1023"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1046"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1069"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1092"/>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -5546,7 +5551,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="404"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="827"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="766"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1159"/>
         <source>Apply to ...</source>
         <translation>Anwenden auf ...</translation>
     </message>
@@ -5571,27 +5577,117 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Öffnet ein Fenster mit der DPI aller Bilder des Projekts, in dem Sie sie prüfen und korrigieren können. Dasselbe wie Werkzeuge &gt; DPI aller Bilder korrigieren ...</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="429"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="791"/>
         <source>Alignment</source>
         <translation>Ausrichtung</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="446"/>
-        <source>Match size with other pages</source>
-        <translation>Größe an andere Seiten angleichen</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="478"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="810"/>
         <source>Horizontal mode:</source>
         <translation>Horizontal:</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="485"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="817"/>
         <source>Vertical mode:</source>
         <translation>Vertikal:</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="986"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="429"/>
+        <source>Output Size</source>
+        <translation>Ausgabegröße</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="438"/>
+        <source>This Page</source>
+        <translation>Diese Seite</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="450"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="462"/>
+        <source>Off: the page keeps its own size and is not part of the common size.
+Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;.  The content keeps its size; only pages larger than an own target size are reduced.
+Scale: the content is enlarged or reduced to fit the output size, within the limits below.  The margins keep their size; the rest is filled with margins.</source>
+        <translation>Aus: Die Seite behält ihre eigene Größe und zählt nicht zur gemeinsamen Größe.
+Mit Rand auffüllen: Die Seite wird mit Rändern auf die Ausgabegröße gebracht, ausgerichtet wie unter „Ausrichtung“ eingestellt. Der Inhalt behält seine Größe; nur Seiten, die größer als eine eigene Zielgröße sind, werden verkleinert.
+Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verkleinert, innerhalb der Grenzen unten. Die Ränder behalten ihre Größe; der Rest wird mit Rand aufgefüllt.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="455"/>
+        <source>Match size:</source>
+        <translation>Angleichen:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="538"/>
+        <source>These settings apply to the whole project.</source>
+        <translation>Diese Einstellungen gelten für das ganze Projekt.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="541"/>
+        <source>All Pages</source>
+        <translation>Alle Seiten</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="550"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="560"/>
+        <source>The largest width and the largest height of all pages whose size is matched, margins included.  Without an own target size, it is the output size.</source>
+        <translation>Die größte Breite und die größte Höhe aller angeglichenen Seiten, Ränder eingeschlossen. Ohne eigene Zielgröße ist das die Ausgabegröße.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="553"/>
+        <source>Common size:</source>
+        <translation>Gemeinsame Größe:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="585"/>
+        <source>Sets the output size by hand instead of using the common size.  Turned on, the fields start with the common size.  Pages larger than this size are reduced.</source>
+        <translation>Legt die Ausgabegröße von Hand fest, statt der gemeinsamen Größe. Beim Einschalten beginnen die Felder mit der gemeinsamen Größe. Größere Seiten werden verkleinert.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="588"/>
+        <source>Own target size</source>
+        <translation>Eigene Zielgröße</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="600"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="610"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="630"/>
+        <source>Width × height of the output pages, margins included.</source>
+        <translation>Breite × Höhe der Ausgabeseiten, Ränder eingeschlossen.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="660"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="670"/>
+        <source>Pages set to &quot;Scale&quot; are enlarged to at most this size.</source>
+        <translation>Seiten auf „Skalieren“ werden höchstens auf diese Größe vergrößert.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="663"/>
+        <source>Enlarge to at most:</source>
+        <translation>Vergrößern bis höchstens:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="692"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="702"/>
+        <source>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</source>
+        <translation>Seiten, die größer als die Ausgabegröße sind, werden höchstens auf diese Größe verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="695"/>
+        <source>Reduce to at most:</source>
+        <translation>Verkleinern bis höchstens:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="763"/>
+        <source>Applies &quot;Match size&quot; of this page to other pages.  The settings under &quot;All Pages&quot; apply to all pages anyway.</source>
+        <translation>Überträgt „Angleichen“ dieser Seite auf andere Seiten. Die Einstellungen unter „Alle Seiten“ gelten ohnehin für alle Seiten.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1156"/>
+        <source>Applies the alignment of this page to other pages: the modes and the position.  Whether the size is matched is applied under &quot;Output Size&quot;.</source>
+        <translation>Überträgt die Ausrichtung dieser Seite auf andere Seiten: die Modi und die Position. Ob die Größe angeglichen wird, überträgt „Anwenden auf ...“ unter „Ausgabegröße“.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1259"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -5614,59 +5710,59 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; Über das &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Kontextmenü&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; lässt sich das Rechteck der festen Ränder ein- und ausblenden.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="496"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="518"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="828"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="850"/>
         <source>Auto</source>
         <comment>auto</comment>
         <translation>Automatisch</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="501"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="523"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="468"/>
+        <source>Off</source>
+        <translation>Aus</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="473"/>
+        <source>Fill with margins</source>
+        <translation>Mit Rand auffüllen</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="478"/>
+        <source>Scale</source>
+        <translation>Skalieren</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="503"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="513"/>
+        <source>How much the content of this page is enlarged or reduced in the output.</source>
+        <translation>Wie stark der Inhalt dieser Seite in der Ausgabe vergrößert oder verkleinert wird.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="506"/>
+        <source>Factor:</source>
+        <translation>Faktor:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="833"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="855"/>
         <source>Manual</source>
         <comment>manual</comment>
         <translation>Manuell</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="506"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="528"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="838"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="860"/>
         <source>Original</source>
         <comment>original</comment>
         <translation>Original</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="824"/>
-        <source>Applies the alignment of this page to other pages: whether the size is matched with other pages, the modes and the position.  With all pages and the size matched, all pages get the same output size.</source>
-        <translation>Überträgt die Ausrichtung dieser Seite auf andere Seiten: ob die Größe an andere Seiten angeglichen wird, die Modi und die Position. Mit „Alle Seiten“ und angeglichener Größe erhalten alle Seiten dieselbe Ausgabegröße.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="852"/>
-        <source>Common Size</source>
-        <translation>Gemeinsame Größe</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="863"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="873"/>
-        <source>The largest width and the largest height of all pages whose size is matched with other pages, margins included.  These pages are enlarged to this size.</source>
-        <translation>Die größte Breite und die größte Höhe aller Seiten, deren Größe an andere Seiten angeglichen wird, jeweils mit Rändern. Diese Seiten werden auf diese Größe erweitert.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="866"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="603"/>
         <source>Size:</source>
         <translation>Größe:</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="898"/>
-        <source>Keeps the common size fixed while you edit margins and content boxes, so the other pages don&apos;t change with every edit.  It also applies to the output.  It is released when the project is closed.</source>
-        <translation>Hält die gemeinsame Größe fest, während Sie Ränder und Inhaltsbereiche bearbeiten, damit sich die anderen Seiten nicht bei jeder Änderung mitändern. Gilt auch für die Ausgabe. Wird beim Schließen des Projekts aufgehoben.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="901"/>
-        <source>Lock for now</source>
-        <translation>Vorübergehend festhalten</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="917"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1190"/>
         <source>Guides Help</source>
         <translation>Hilfe für Hilfslinien</translation>
     </message>

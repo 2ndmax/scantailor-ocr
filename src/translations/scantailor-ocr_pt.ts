@@ -4315,32 +4315,32 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="603"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="604"/>
         <source>Positive values make the pictures warmer (more yellow), negative values cooler (more blue).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="604"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
         <source>Tint:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="604"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
         <source>Positive values add magenta, negative values green.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="606"/>
         <source>Exposure:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="605"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="606"/>
         <source>Brightens or darkens the pictures as a whole, in stops (EV).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="606"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="607"/>
         <source>Contrast:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4350,52 +4350,52 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="608"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
         <source>Highlights:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="608"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
         <source>Positive values brighten the bright parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
         <source>Shadows:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="609"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
         <source>Positive values brighten the dark parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
         <source>Whites:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="610"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
         <source>Positive values make the brightest tones whiter, negative values duller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="612"/>
         <source>Blacks:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="611"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="612"/>
         <source>Positive values make the darkest tones lighter, negative values deeper.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="766"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="767"/>
         <source>Apply Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1755"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1756"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4415,12 +4415,12 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished">Aplicar resolução de saída</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="794"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="795"/>
         <source>Apply Splitting</source>
         <translation>Aplicar os Ajustes de Divisão</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="921"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="922"/>
         <source>Apply Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4431,7 +4431,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation>Desligado</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="877"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="878"/>
         <source>Apply Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4931,7 +4931,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2373"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1263"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1264"/>
         <source>Post deskew</source>
         <translation type="unfinished">Desenviesar posteriormente</translation>
     </message>
@@ -5409,32 +5409,32 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation>Solte o botão esquerdo do rato para terminar de arrastar.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="653"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="691"/>
         <source>Add a Horizontal Guide</source>
         <translation>Inserir uma guia horizontal</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="654"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="692"/>
         <source>Add a Vertical Guide</source>
         <translation>Inserir uma guia vertical</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="655"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="693"/>
         <source>Remove All the Guides</source>
         <translation>Eliminar todas as guias</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="656"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="694"/>
         <source>Remove This Guide</source>
         <translation>Eliminar esta guia</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="658"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="696"/>
         <source>Show Hard Margins Rectangle</source>
         <translation>Mostrar rectângulo nas margens fortes</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="805"/>
+        <location filename="../core/filters/page_layout/ImageView.cpp" line="843"/>
         <source>Drag the guide.</source>
         <translation>Arrastar a guia.</translation>
     </message>
@@ -5442,32 +5442,37 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="331"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="422"/>
         <source>Apply Margins</source>
         <translation>Aplicar Margens</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="339"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="430"/>
         <source>Apply Alignment</source>
         <translation>Aplicar Alinhamento</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="406"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="495"/>
+        <source>Apply Match Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="526"/>
         <source>no matched pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="666"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="791"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation type="unfinished">DPI muito grande e provavelmente está errado.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="670"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="795"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation type="unfinished">DPI muito pequeno. Mesmo se estiver correcto,  não obterá resultados aceitáveis.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="674"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="799"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5489,15 +5494,15 @@ Without an internet connection, the installed languages can still be used.  Lang
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="212"/>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="281"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="573"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="596"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="619"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="642"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="665"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="691"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="714"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="737"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="760"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="905"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="928"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="951"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="974"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="997"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1023"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1046"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1069"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1092"/>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -5533,7 +5538,8 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="404"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="827"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="766"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1159"/>
         <source>Apply to ...</source>
         <translation>Aplicar a...</translation>
     </message>
@@ -5558,27 +5564,115 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="429"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="791"/>
         <source>Alignment</source>
         <translation>Alinhamento</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="446"/>
-        <source>Match size with other pages</source>
-        <translation>Fazer corresponder o tamanho com outras páginas</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="478"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="810"/>
         <source>Horizontal mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="485"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="817"/>
         <source>Vertical mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="986"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="429"/>
+        <source>Output Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="438"/>
+        <source>This Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="450"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="462"/>
+        <source>Off: the page keeps its own size and is not part of the common size.
+Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;.  The content keeps its size; only pages larger than an own target size are reduced.
+Scale: the content is enlarged or reduced to fit the output size, within the limits below.  The margins keep their size; the rest is filled with margins.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="455"/>
+        <source>Match size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="538"/>
+        <source>These settings apply to the whole project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="541"/>
+        <source>All Pages</source>
+        <translation type="unfinished">Todas as Páginas</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="550"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="560"/>
+        <source>The largest width and the largest height of all pages whose size is matched, margins included.  Without an own target size, it is the output size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="553"/>
+        <source>Common size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="585"/>
+        <source>Sets the output size by hand instead of using the common size.  Turned on, the fields start with the common size.  Pages larger than this size are reduced.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="588"/>
+        <source>Own target size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="600"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="610"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="630"/>
+        <source>Width × height of the output pages, margins included.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="660"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="670"/>
+        <source>Pages set to &quot;Scale&quot; are enlarged to at most this size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="663"/>
+        <source>Enlarge to at most:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="692"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="702"/>
+        <source>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="695"/>
+        <source>Reduce to at most:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="763"/>
+        <source>Applies &quot;Match size&quot; of this page to other pages.  The settings under &quot;All Pages&quot; apply to all pages anyway.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1156"/>
+        <source>Applies the alignment of this page to other pages: the modes and the position.  Whether the size is matched is applied under &quot;Output Size&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1259"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -5592,59 +5686,59 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="496"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="518"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="828"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="850"/>
         <source>Auto</source>
         <comment>auto</comment>
         <translation>Automático</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="501"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="523"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="468"/>
+        <source>Off</source>
+        <translation type="unfinished">Desligado</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="473"/>
+        <source>Fill with margins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="478"/>
+        <source>Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="503"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="513"/>
+        <source>How much the content of this page is enlarged or reduced in the output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="506"/>
+        <source>Factor:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="833"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="855"/>
         <source>Manual</source>
         <comment>manual</comment>
         <translation>Manual</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="506"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="528"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="838"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="860"/>
         <source>Original</source>
         <comment>original</comment>
         <translation>Original</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="824"/>
-        <source>Applies the alignment of this page to other pages: whether the size is matched with other pages, the modes and the position.  With all pages and the size matched, all pages get the same output size.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="852"/>
-        <source>Common Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="863"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="873"/>
-        <source>The largest width and the largest height of all pages whose size is matched with other pages, margins included.  These pages are enlarged to this size.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="866"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="603"/>
         <source>Size:</source>
         <translation type="unfinished">Tamanho:</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="898"/>
-        <source>Keeps the common size fixed while you edit margins and content boxes, so the other pages don&apos;t change with every edit.  It also applies to the output.  It is released when the project is closed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="901"/>
-        <source>Lock for now</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="917"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1190"/>
         <source>Guides Help</source>
         <translation>Guias de Ajuda</translation>
     </message>

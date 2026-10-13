@@ -226,7 +226,13 @@ void ImageView::alignmentChanged(const Alignment& alignment) {
 void ImageView::aggregateHardSizeChanged() {
   m_aggregateHardSizeMM = m_settings->getAggregateHardSizeMM();
   m_committedAggregateHardSizeMM = m_aggregateHardSizeMM;
-  recalcOuterRect();
+  // The output size may have changed the scale factor as well.
+  const Margins marginsMm(calcHardMarginsMM());
+  if (calcScaleFactor(marginsMm) != m_scaleFactor) {
+    recalcBoxesAndFit(marginsMm);
+  } else {
+    recalcOuterRect();
+  }
   updatePresentationTransform(FIT);
 }
 
@@ -413,7 +419,7 @@ void ImageView::innerRectDragContinuation(int edgeMask, const QPointF& mousePos)
   fp += QPointF(effectiveDx, effectiveDy);
   setWidgetFocalPoint(fp);
 
-  m_aggregateHardSizeMM = m_settings->getAggregateHardSizeMM(m_pageId, origRectToSizeMM(m_middleRect), m_alignment);
+  m_aggregateHardSizeMM = m_settings->getAggregateHardSizeMM(m_pageId, hardSizeMM(), m_alignment);
 
   recalcOuterRect();
 
@@ -475,7 +481,7 @@ void ImageView::middleRectDragContinuation(const int edgeMask, const QPointF& mo
     forceNonNegativeHardMargins(m_middleRect);  // invalidates widgetRect
   }
 
-  m_aggregateHardSizeMM = m_settings->getAggregateHardSizeMM(m_pageId, origRectToSizeMM(m_middleRect), m_alignment);
+  m_aggregateHardSizeMM = m_settings->getAggregateHardSizeMM(m_pageId, hardSizeMM(), m_alignment);
 
   recalcOuterRect();
 
@@ -505,17 +511,20 @@ void ImageView::recalcBoxesAndFit(const Margins& marginsMm) {
   const QTransform virtToMm(virtualToImage() * m_pixelsToMmXform);
   const QTransform mmToVirt(m_mmToPixelsXform * imageToVirtual());
 
+  m_scaleFactor = calcScaleFactor(marginsMm);
+
   QPolygonF polyMm(virtToMm.map(m_innerRect));
-  Utils::extendPolyRectWithMargins(polyMm, marginsMm);
+  if (m_scaleFactor == 1.0) {
+    Utils::extendPolyRectWithMargins(polyMm, marginsMm);
+  } else {
+    Utils::extendPolyRectWithMargins(polyMm,
+                                     Margins(marginsMm.left() / m_scaleFactor, marginsMm.top() / m_scaleFactor,
+                                             marginsMm.right() / m_scaleFactor, marginsMm.bottom() / m_scaleFactor));
+  }
 
   const QRectF middleRect(mmToVirt.map(polyMm).boundingRect());
 
-  const QSizeF hardSizeMm(QLineF(polyMm[0], polyMm[1]).length(), QLineF(polyMm[0], polyMm[3]).length());
-  const Margins softMarginsMm(Utils::calcSoftMarginsMM(
-      hardSizeMm, m_aggregateHardSizeMM, m_alignment, m_settings->getPageParams(m_pageId)->contentRect(),
-      m_settings->getPageParams(m_pageId)->contentSizeMM(), m_settings->getPageParams(m_pageId)->pageRect()));
-
-  Utils::extendPolyRectWithMargins(polyMm, softMarginsMm);
+  extendWithSoftMargins(polyMm);
 
   const QRectF outerRect(mmToVirt.map(polyMm).boundingRect());
   updateTransformAndFixFocalPoint(
@@ -579,11 +588,13 @@ Margins ImageView::calcHardMarginsMM() const {
 
   const QTransform virtToMm(virtualToImage() * m_pixelsToMmXform);
 
+  // The margins are shown divided by the scale factor.
+  const double factor = m_scaleFactor;
   Margins margins;
-  margins.setTop(virtToMm.map(topMarginLine).length());
-  margins.setBottom(virtToMm.map(bottomMarginLine).length());
-  margins.setLeft(virtToMm.map(leftMarginLine).length());
-  margins.setRight(virtToMm.map(rightMarginLine).length());
+  margins.setTop(virtToMm.map(topMarginLine).length() * factor);
+  margins.setBottom(virtToMm.map(bottomMarginLine).length() * factor);
+  margins.setLeft(virtToMm.map(leftMarginLine).length() * factor);
+  margins.setRight(virtToMm.map(rightMarginLine).length() * factor);
   return margins;
 }  // ImageView::calcHardMarginsMM
 
@@ -596,18 +607,44 @@ void ImageView::recalcOuterRect() {
   const QTransform mmToVirt(m_mmToPixelsXform * imageToVirtual());
 
   QPolygonF polyMm(virtToMm.map(m_middleRect));
-
-  const QSizeF hardSizeMm(QLineF(polyMm[0], polyMm[1]).length(), QLineF(polyMm[0], polyMm[3]).length());
-  const Margins softMarginsMm(Utils::calcSoftMarginsMM(
-      hardSizeMm, m_aggregateHardSizeMM, m_alignment, m_settings->getPageParams(m_pageId)->contentRect(),
-      m_settings->getPageParams(m_pageId)->contentSizeMM(), m_settings->getPageParams(m_pageId)->pageRect()));
-
-  Utils::extendPolyRectWithMargins(polyMm, softMarginsMm);
+  extendWithSoftMargins(polyMm);
 
   m_outerRect = mmToVirt.map(polyMm).boundingRect();
   updatePhysSize();
 
   forceInscribeGuides();
+}
+
+double ImageView::calcScaleFactor(const Margins& hardMarginsMm) const {
+  return m_settings->outputSizeOptions().scaleFactor(origRectToSizeMM(m_innerRect), hardMarginsMm, m_alignment,
+                                                     m_aggregateHardSizeMM);
+}
+
+QSizeF ImageView::hardSizeMM() const {
+  if (m_scaleFactor == 1.0) {
+    return origRectToSizeMM(m_middleRect);
+  }
+  const QSizeF contentSizeMm(origRectToSizeMM(m_innerRect));
+  const Margins marginsMm(calcHardMarginsMM());
+  return QSizeF(contentSizeMm.width() + marginsMm.left() + marginsMm.right(),
+                contentSizeMm.height() + marginsMm.top() + marginsMm.bottom());
+}
+
+void ImageView::extendWithSoftMargins(QPolygonF& polyMm) const {
+  // The soft margins fill the scaled page up to the output size; shown divided by the factor.
+  const double factor = m_scaleFactor;
+  const QSizeF hardSizeMm(QLineF(polyMm[0], polyMm[1]).length() * factor,
+                          QLineF(polyMm[0], polyMm[3]).length() * factor);
+  const std::unique_ptr<Params> params(m_settings->getPageParams(m_pageId));
+  const Margins softMarginsMm(
+      Utils::calcSoftMarginsMM(hardSizeMm, m_settings->outputSizeOptions().targetSizeMM(m_aggregateHardSizeMM),
+                               m_alignment, params->contentRect(), params->contentSizeMM(), params->pageRect()));
+  if (factor == 1.0) {
+    Utils::extendPolyRectWithMargins(polyMm, softMarginsMm);
+  } else {
+    Utils::extendPolyRectWithMargins(polyMm, Margins(softMarginsMm.left() / factor, softMarginsMm.top() / factor,
+                                                     softMarginsMm.right() / factor, softMarginsMm.bottom() / factor));
+  }
 }
 
 QSizeF ImageView::origRectToSizeMM(const QRectF& rect) const {
@@ -643,7 +680,8 @@ void ImageView::invalidateThumbnails(const AggregateSizeChanged aggSizeChanged) 
 
 void ImageView::updatePhysSize() {
   if (m_outerRect.isValid()) {
-    infoProvider().setPhysSize(m_outerRect.size());
+    // The size of the output page: the page rect is enlarged by the scale factor.
+    infoProvider().setPhysSize(m_outerRect.size() * m_scaleFactor);
   } else {
     ImageViewBase::updatePhysSize();
   }
@@ -926,7 +964,7 @@ void ImageView::innerRectMoveRequest(const QPointF& mousePos, const Qt::Keyboard
   fp += delta;
   setWidgetFocalPoint(fp);
 
-  m_aggregateHardSizeMM = m_settings->getAggregateHardSizeMM(m_pageId, origRectToSizeMM(m_middleRect), m_alignment);
+  m_aggregateHardSizeMM = m_settings->getAggregateHardSizeMM(m_pageId, hardSizeMM(), m_alignment);
 
   recalcOuterRect();
 

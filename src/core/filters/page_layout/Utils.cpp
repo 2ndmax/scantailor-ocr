@@ -206,8 +206,8 @@ QPolygonF Utils::calcPageRectPhys(const ImageTransformation& xform,
 
   QPolygonF polyMm(pixelsToMmTransform.map(contentRectPhys));
   const QSizeF contentSizeMm(QLineF(polyMm[0], polyMm[1]).length(), QLineF(polyMm[0], polyMm[3]).length());
-  const double factor = calcScaleFactor(contentSizeMm, params.hardMarginsMM(), params.alignment(),
-                                        aggregateHardSizeMm, outputSizeOptions);
+  const double factor = calcScaleFactor(contentSizeMm, params.hardMarginsMM(), params.alignment(), aggregateHardSizeMm,
+                                        outputSizeOptions);
   if (scaleFactor) {
     *scaleFactor = factor;
   }
@@ -245,26 +245,7 @@ double Utils::calcScaleFactor(const QSizeF& contentSizeMm,
                               const Alignment& alignment,
                               const QSizeF& commonSizeMm,
                               const OutputSizeOptions& outputSizeOptions) {
-  // Filling with margins up to the common size is how it always was: never scaled.
-  if (alignment.isNull() || (!alignment.isScaleToFit() && !outputSizeOptions.hasOwnTargetSize())) {
-    return 1.0;
-  }
-  const QSizeF targetSizeMm(outputSizeOptions.targetSizeMM(commonSizeMm));
-  if (contentSizeMm.isEmpty() || targetSizeMm.isEmpty()) {
-    return 1.0;
-  }
-
-  const double availableWidth = targetSizeMm.width() - hardMarginsMm.left() - hardMarginsMm.right();
-  const double availableHeight = targetSizeMm.height() - hardMarginsMm.top() - hardMarginsMm.bottom();
-  double fit = std::min(availableWidth / contentSizeMm.width(), availableHeight / contentSizeMm.height());
-  // The largest page fits the common size exactly; don't scale it by a rounding error.
-  if (std::abs(fit - 1.0) < 1e-6) {
-    fit = 1.0;
-  }
-
-  const double minFactor = outputSizeOptions.minReducePercent() / 100.0;
-  const double maxFactor = alignment.isScaleToFit() ? outputSizeOptions.maxEnlargePercent() / 100.0 : 1.0;
-  return std::clamp(fit, minFactor, maxFactor);
+  return outputSizeOptions.scaleFactor(contentSizeMm, hardMarginsMm, alignment, commonSizeMm);
 }
 
 QPointF Utils::getRightUnitVector(const QPolygonF& polyRect) {

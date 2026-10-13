@@ -87,7 +87,11 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   void leftRightLinkClicked();
 
-  void alignWithOthersToggled();
+  void matchSizeModeChanged(int index);
+
+  void showApplyMatchSizeDialog();
+
+  void applyMatchSize(const std::set<PageId>& pages);
 
   void alignmentButtonClicked();
 
@@ -95,7 +99,9 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   void showApplyAlignmentDialog();
 
-  void freezeAggregateHardSizeToggled(bool checked);
+  void ownTargetSizeToggled(bool checked);
+
+  void outputSizeFieldChanged();
 
   void onFixDpiClicked();
 
@@ -112,6 +118,9 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   void applyAlignment(const std::set<PageId>& pages);
 
  private:
+  // The entries of the list "Match size".
+  enum MatchSizeMode { MATCH_SIZE_OFF, MATCH_SIZE_FILL, MATCH_SIZE_SCALE };
+
   using AlignmentByButton = std::unordered_map<QToolButton*, Alignment>;
 
   void updateMarginsDisplay();
@@ -125,6 +134,14 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   void updateAutoModeButtons();
 
   void updateAlignmentModeEnabled();
+
+  void updateMatchSizeDisplay();
+
+  // The output size group: common size, own target size and limits.
+  void updateOutputSizeDisplay();
+
+  // The factor this page is scaled with, from its current margins and alignment.
+  void updateScaleFactorDisplay();
 
   QToolButton* getCheckedAlignmentButton() const;
 

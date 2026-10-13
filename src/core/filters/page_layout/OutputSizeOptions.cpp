@@ -6,6 +6,10 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <algorithm>
+#include <cmath>
+
+#include "Alignment.h"
+#include "Margins.h"
 
 namespace page_layout {
 OutputSizeOptions::OutputSizeOptions(const QDomElement& el) {
@@ -54,5 +58,31 @@ QSizeF OutputSizeOptions::targetSizeMM(const QSizeF& commonSizeMm) const {
     return m_targetSizeMm;
   }
   return commonSizeMm;
+}
+
+double OutputSizeOptions::scaleFactor(const QSizeF& contentSizeMm,
+                                      const Margins& hardMarginsMm,
+                                      const Alignment& alignment,
+                                      const QSizeF& commonSizeMm) const {
+  // Filling with margins up to the common size is how it always was: never scaled.
+  if (alignment.isNull() || (!alignment.isScaleToFit() && !m_ownTargetSize)) {
+    return 1.0;
+  }
+  const QSizeF targetSizeMm(targetSizeMM(commonSizeMm));
+  if (contentSizeMm.isEmpty() || targetSizeMm.isEmpty()) {
+    return 1.0;
+  }
+
+  const double availableWidth = targetSizeMm.width() - hardMarginsMm.left() - hardMarginsMm.right();
+  const double availableHeight = targetSizeMm.height() - hardMarginsMm.top() - hardMarginsMm.bottom();
+  double fit = std::min(availableWidth / contentSizeMm.width(), availableHeight / contentSizeMm.height());
+  // The largest page fits the common size exactly; don't scale it by a rounding error.
+  if (std::abs(fit - 1.0) < 1e-6) {
+    fit = 1.0;
+  }
+
+  const double minFactor = m_minReducePercent / 100.0;
+  const double maxFactor = alignment.isScaleToFit() ? m_maxEnlargePercent / 100.0 : 1.0;
+  return std::clamp(fit, minFactor, maxFactor);
 }
 }  // namespace page_layout

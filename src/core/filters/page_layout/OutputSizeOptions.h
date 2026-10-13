@@ -9,8 +9,11 @@
 class QDomDocument;
 class QDomElement;
 class QString;
+class Margins;
 
 namespace page_layout {
+class Alignment;
+
 /**
  * \brief The output size of the pages matched to others, for the whole project.
  *
@@ -58,6 +61,12 @@ class OutputSizeOptions {
 
   /** The own target size if there is one, otherwise \p commonSizeMm. */
   QSizeF targetSizeMM(const QSizeF& commonSizeMm) const;
+
+  /** See Utils::calcScaleFactor(). */
+  double scaleFactor(const QSizeF& contentSizeMm,
+                     const Margins& hardMarginsMm,
+                     const Alignment& alignment,
+                     const QSizeF& commonSizeMm) const;
 
  private:
   bool m_ownTargetSize = false;

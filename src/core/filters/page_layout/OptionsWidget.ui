@@ -424,6 +424,368 @@ QToolButton:pressed {
     </widget>
    </item>
    <item>
+    <widget class="CollapsibleGroupBox" name="commonSizeGroup">
+     <property name="title">
+      <string>Output Size</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <layout class="QVBoxLayout" name="commonSizeGroupLayout">
+      <item>
+       <widget class="SectionHeading" name="thisPageHeading">
+        <property name="text">
+         <string>This Page</string>
+        </property>
+        <property name="first">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="matchSizeLayout">
+        <item>
+         <widget class="QLabel" name="matchSizeLabel">
+          <property name="toolTip">
+           <string>Off: the page keeps its own size and is not part of the common size.
+Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;.  The content keeps its size; only pages larger than an own target size are reduced.
+Scale: the content is enlarged or reduced to fit the output size, within the limits below.  The margins keep their size; the rest is filled with margins.</string>
+          </property>
+          <property name="text">
+           <string>Match size:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="matchSizeModeCB">
+          <property name="toolTip">
+           <string>Off: the page keeps its own size and is not part of the common size.
+Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;.  The content keeps its size; only pages larger than an own target size are reduced.
+Scale: the content is enlarged or reduced to fit the output size, within the limits below.  The margins keep their size; the rest is filled with margins.</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>Off</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Fill with margins</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Scale</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer name="matchSizeSpacerRight">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="scaleFactorLayout">
+        <item>
+         <widget class="QLabel" name="scaleFactorLabel">
+          <property name="toolTip">
+           <string>How much the content of this page is enlarged or reduced in the output.</string>
+          </property>
+          <property name="text">
+           <string>Factor:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="scaleFactorValue">
+          <property name="toolTip">
+           <string>How much the content of this page is enlarged or reduced in the output.</string>
+          </property>
+          <property name="text">
+           <string notr="true">100 %</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="scaleFactorSpacerRight">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="SectionHeading" name="allPagesHeading">
+        <property name="toolTip">
+         <string>These settings apply to the whole project.</string>
+        </property>
+        <property name="text">
+         <string>All Pages</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="commonSizeLayout">
+        <item>
+         <widget class="QLabel" name="commonSizeLabel">
+          <property name="toolTip">
+           <string>The largest width and the largest height of all pages whose size is matched, margins included.  Without an own target size, it is the output size.</string>
+          </property>
+          <property name="text">
+           <string>Common size:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="commonSizeValue">
+          <property name="toolTip">
+           <string>The largest width and the largest height of all pages whose size is matched, margins included.  Without an own target size, it is the output size.</string>
+          </property>
+          <property name="text">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="commonSizeSpacerRight">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="ownTargetSizeCB">
+        <property name="toolTip">
+         <string>Sets the output size by hand instead of using the common size.  Turned on, the fields start with the common size.  Pages larger than this size are reduced.</string>
+        </property>
+        <property name="text">
+         <string>Own target size</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="targetSizeLayout">
+        <property name="leftMargin">
+         <number>15</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="targetSizeLabel">
+          <property name="toolTip">
+           <string>Width × height of the output pages, margins included.</string>
+          </property>
+          <property name="text">
+           <string>Size:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="targetWidthSpinBox">
+          <property name="toolTip">
+           <string>Width × height of the output pages, margins included.</string>
+          </property>
+          <property name="keyboardTracking">
+           <bool>false</bool>
+          </property>
+          <property name="maximum">
+           <double>99999.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="targetSizeTimesLabel">
+          <property name="text">
+           <string notr="true">×</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="targetHeightSpinBox">
+          <property name="toolTip">
+           <string>Width × height of the output pages, margins included.</string>
+          </property>
+          <property name="keyboardTracking">
+           <bool>false</bool>
+          </property>
+          <property name="maximum">
+           <double>99999.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="targetSizeSpacerRight">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="scaleLimitsLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="maxEnlargeLabel">
+          <property name="toolTip">
+           <string>Pages set to &quot;Scale&quot; are enlarged to at most this size.</string>
+          </property>
+          <property name="text">
+           <string>Enlarge to at most:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSpinBox" name="maxEnlargeSpinBox">
+          <property name="toolTip">
+           <string>Pages set to &quot;Scale&quot; are enlarged to at most this size.</string>
+          </property>
+          <property name="keyboardTracking">
+           <bool>false</bool>
+          </property>
+          <property name="suffix">
+           <string notr="true"> %</string>
+          </property>
+          <property name="minimum">
+           <number>100</number>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="value">
+           <number>150</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="minReduceLabel">
+          <property name="toolTip">
+           <string>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</string>
+          </property>
+          <property name="text">
+           <string>Reduce to at most:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="minReduceSpinBox">
+          <property name="toolTip">
+           <string>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</string>
+          </property>
+          <property name="keyboardTracking">
+           <bool>false</bool>
+          </property>
+          <property name="suffix">
+           <string notr="true"> %</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <spacer name="scaleLimitsSpacerRight">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="applyMatchSizeLayout">
+        <property name="topMargin">
+         <number>8</number>
+        </property>
+        <item>
+         <spacer name="applyMatchSizeSpacerLeft">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="applyMatchSizeBtn">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Applies &quot;Match size&quot; of this page to other pages.  The settings under &quot;All Pages&quot; apply to all pages anyway.</string>
+          </property>
+          <property name="text">
+           <string>Apply to ...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="applyMatchSizeSpacerRight">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="CollapsibleGroupBox" name="alignmentGroup">
      <property name="title">
       <string>Alignment</string>
@@ -439,37 +801,7 @@ QToolButton:pressed {
        <number>9</number>
       </property>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_7">
-        <item>
-         <widget class="QCheckBox" name="alignWithOthersCB">
-          <property name="text">
-           <string>Match size with other pages</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_8">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_9">
-        <property name="leftMargin">
-         <number>15</number>
-        </property>
         <item>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
@@ -821,7 +1153,7 @@ QToolButton:pressed {
            </size>
           </property>
           <property name="toolTip">
-           <string>Applies the alignment of this page to other pages: whether the size is matched with other pages, the modes and the position.  With all pages and the size matched, all pages get the same output size.</string>
+           <string>Applies the alignment of this page to other pages: the modes and the position.  Whether the size is matched is applied under &quot;Output Size&quot;.</string>
           </property>
           <property name="text">
            <string>Apply to ...</string>
@@ -842,65 +1174,6 @@ QToolButton:pressed {
          </spacer>
         </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="CollapsibleGroupBox" name="commonSizeGroup">
-     <property name="title">
-      <string>Common Size</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <layout class="QVBoxLayout" name="commonSizeGroupLayout">
-      <item>
-       <layout class="QHBoxLayout" name="commonSizeLayout">
-        <item>
-         <widget class="QLabel" name="commonSizeLabel">
-          <property name="toolTip">
-           <string>The largest width and the largest height of all pages whose size is matched with other pages, margins included.  These pages are enlarged to this size.</string>
-          </property>
-          <property name="text">
-           <string>Size:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="commonSizeValue">
-          <property name="toolTip">
-           <string>The largest width and the largest height of all pages whose size is matched with other pages, margins included.  These pages are enlarged to this size.</string>
-          </property>
-          <property name="text">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="commonSizeSpacerRight">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="freezeAggregateHardSizeCb">
-        <property name="toolTip">
-         <string>Keeps the common size fixed while you edit margins and content boxes, so the other pages don&apos;t change with every edit.  It also applies to the output.  It is released when the project is closed.</string>
-        </property>
-        <property name="text">
-         <string>Lock for now</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
@@ -1023,6 +1296,11 @@ p, li { white-space: pre-wrap; }
    <extends>QGroupBox</extends>
    <header location="global">CollapsibleGroupBox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SectionHeading</class>
+   <extends>QLabel</extends>
+   <header location="global">SectionHeading.h</header>
   </customwidget>
  </customwidgets>
  <resources>

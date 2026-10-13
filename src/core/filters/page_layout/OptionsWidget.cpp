@@ -16,6 +16,7 @@
 #include "../../Utils.h"
 #include "ApplyDialog.h"
 #include "ApplyMarginsDialog.h"
+#include "Params.h"
 #include "ProjectPages.h"
 #include "Settings.h"
 
@@ -61,6 +62,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
     m_alignmentButtonGroup->addButton(buttonAndAlignment.first);
   }
 
+
   setupUiConnections();
 
   // The common size can change whenever a page is redrawn with new settings.
@@ -100,8 +102,7 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const Margins& margins
     }
   }
 
-  alignWithOthersCB->setChecked(!alignment.isNull());
-  freezeAggregateHardSizeCb->setChecked(m_settings->isAggregateHardSizeFrozen());
+  updateMatchSizeDisplay();
 
   if (alignment.horizontal() == Alignment::HAUTO) {
     hAlignmentModeCB->setCurrentIndex(0);
@@ -146,6 +147,7 @@ void OptionsWidget::postUpdateUI() {
   updateMarginsDisplay();
   updateSourceDpiDisplay();
   updateCommonSizeDisplay();
+  updateScaleFactorDisplay();
 
   if (m_sourceDpiFocusWidget) {
     m_sourceDpiFocusWidget->setFocus(Qt::OtherFocusReason);
@@ -163,6 +165,7 @@ void OptionsWidget::marginsSetExternally(const Margins& marginsMm) {
   }
 
   updateMarginsDisplay();
+  updateScaleFactorDisplay();
 }
 
 void OptionsWidget::onUnitsChanged(Units units) {
@@ -195,6 +198,11 @@ void OptionsWidget::onUnitsChanged(Units units) {
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
     spinBox->setSuffix(unitSuffix);
   }
+  for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
+    spinBox->setDecimals(decimals);
+    spinBox->setSingleStep(step);
+    spinBox->setSuffix(unitSuffix);
+  }
 
   updateMarginsDisplay();
   updateCommonSizeDisplay();
@@ -217,6 +225,7 @@ void OptionsWidget::horMarginsChanged(const double val) {
   m_marginsMM.setRight(rightMarginSpinBoxValue);
 
   emit marginsSetLocally(m_marginsMM);
+  updateScaleFactorDisplay();
 }
 
 void OptionsWidget::vertMarginsChanged(const double val) {
@@ -236,6 +245,7 @@ void OptionsWidget::vertMarginsChanged(const double val) {
   m_marginsMM.setBottom(bottomMarginSpinBoxValue);
 
   emit marginsSetLocally(m_marginsMM);
+  updateScaleFactorDisplay();
 }
 
 void OptionsWidget::topBottomLinkClicked() {
@@ -252,11 +262,90 @@ void OptionsWidget::leftRightLinkClicked() {
   leftRightLinkToggled(m_leftRightLinked);
 }
 
-void OptionsWidget::alignWithOthersToggled() {
-  m_alignment.setNull(!alignWithOthersCB->isChecked());
+void OptionsWidget::matchSizeModeChanged(const int index) {
+  m_alignment.setNull(index == MATCH_SIZE_OFF);
+  m_alignment.setScaleToFit(index == MATCH_SIZE_SCALE);
 
   updateAlignmentModeEnabled();
   emit alignmentChanged(m_alignment);
+  updateScaleFactorDisplay();
+}
+
+void OptionsWidget::updateMatchSizeDisplay() {
+  if (m_alignment.isNull()) {
+    matchSizeModeCB->setCurrentIndex(MATCH_SIZE_OFF);
+  } else if (m_alignment.isScaleToFit()) {
+    matchSizeModeCB->setCurrentIndex(MATCH_SIZE_SCALE);
+  } else {
+    matchSizeModeCB->setCurrentIndex(MATCH_SIZE_FILL);
+  }
+}
+
+void OptionsWidget::updateScaleFactorDisplay() {
+  double factor = 1.0;
+  const std::unique_ptr<Params> params(m_settings->getPageParams(m_pageId));
+  if (params) {
+    factor = m_settings->outputSizeOptions().scaleFactor(params->contentSizeMM(), m_marginsMM, m_alignment,
+                                                         m_settings->getAggregateHardSizeMM());
+  }
+  scaleFactorValue->setText(QString("%1 %").arg(std::round(factor * 100)));
+  scaleFactorLabel->setEnabled(!m_alignment.isNull());
+  scaleFactorValue->setEnabled(!m_alignment.isNull());
+}
+
+void OptionsWidget::ownTargetSizeToggled(const bool checked) {
+  OutputSizeOptions options(m_settings->outputSizeOptions());
+  options.setOwnTargetSize(checked);
+  if (checked && options.targetSizeMM().isEmpty()) {
+    // Start with the common size.
+    options.setTargetSizeMM(m_settings->getAggregateHardSizeMM());
+  }
+  m_settings->setOutputSizeOptions(options);
+  updateOutputSizeDisplay();
+  updateScaleFactorDisplay();
+
+  emit aggregateHardSizeChanged();
+  emit invalidateAllThumbnails();
+}
+
+void OptionsWidget::outputSizeFieldChanged() {
+  OutputSizeOptions options(m_settings->outputSizeOptions());
+  double width = targetWidthSpinBox->value();
+  double height = targetHeightSpinBox->value();
+  UnitsProvider::getInstance().convertTo(width, height, MILLIMETRES, m_dpi);
+  options.setTargetSizeMM(QSizeF(width, height));
+  options.setMaxEnlargePercent(maxEnlargeSpinBox->value());
+  options.setMinReducePercent(minReduceSpinBox->value());
+  if (options == m_settings->outputSizeOptions()) {
+    return;
+  }
+  m_settings->setOutputSizeOptions(options);
+  updateScaleFactorDisplay();
+
+  emit aggregateHardSizeChanged();
+  emit invalidateAllThumbnails();
+}
+
+void OptionsWidget::updateOutputSizeDisplay() {
+  auto block = m_connectionManager.getScopedBlock();
+
+  const OutputSizeOptions options(m_settings->outputSizeOptions());
+  ownTargetSizeCB->setChecked(options.hasOwnTargetSize());
+  // Without an own target size, the fields show the common size.
+  const QSizeF sizeMm(options.hasOwnTargetSize() ? options.targetSizeMM() : m_settings->getAggregateHardSizeMM());
+  double width = sizeMm.width();
+  double height = sizeMm.height();
+  if (!m_dpi.isNull()) {
+    UnitsProvider::getInstance().convertFrom(width, height, MILLIMETRES, m_dpi);
+  }
+  targetWidthSpinBox->setValue(width);
+  targetHeightSpinBox->setValue(height);
+  targetSizeLabel->setEnabled(options.hasOwnTargetSize());
+  targetWidthSpinBox->setEnabled(options.hasOwnTargetSize());
+  targetSizeTimesLabel->setEnabled(options.hasOwnTargetSize());
+  targetHeightSpinBox->setEnabled(options.hasOwnTargetSize());
+  maxEnlargeSpinBox->setValue(options.maxEnlargePercent());
+  minReduceSpinBox->setValue(options.minReducePercent());
 }
 
 void OptionsWidget::autoMarginsToggled(bool checked) {
@@ -319,7 +408,9 @@ void OptionsWidget::alignmentButtonClicked() {
   } else if (m_alignment.isAutoHorizontal()) {
     m_alignment.setVertical(alignment.vertical());
   } else {
-    m_alignment = alignment;
+    // Only the position; "Fill with margins" or "Scale" stays.
+    m_alignment.setHorizontal(alignment.horizontal());
+    m_alignment.setVertical(alignment.vertical());
   }
 
   emit alignmentChanged(m_alignment);
@@ -387,20 +478,49 @@ void OptionsWidget::applyAlignment(const std::set<PageId>& pages) {
       continue;
     }
 
-    m_settings->setPageAlignment(pageId, m_alignment);
+    // Only the modes and the position; "Match size" has its own "Apply to ...".
+    Alignment alignment(m_alignment);
+    const Alignment target(m_settings->getPageAlignment(pageId));
+    alignment.setNull(target.isNull());
+    alignment.setScaleToFit(target.isScaleToFit());
+    m_settings->setPageAlignment(pageId, alignment);
   }
 
   emit invalidateAllThumbnails();
 }
 
-void OptionsWidget::freezeAggregateHardSizeToggled(const bool checked) {
-  m_settings->setAggregateHardSizeFrozen(checked);
+void OptionsWidget::showApplyMatchSizeDialog() {
+  auto* dialog = new ApplyDialog(this, m_pageId, m_pageSelectionAccessor);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setWindowTitle(tr("Apply Match Size"));
+  connect(dialog, &ApplyDialog::accepted, this, &OptionsWidget::applyMatchSize);
+  dialog->show();
+}
+
+void OptionsWidget::applyMatchSize(const std::set<PageId>& pages) {
+  if (pages.empty()) {
+    return;
+  }
+
+  for (const PageId& pageId : pages) {
+    if (pageId == m_pageId) {
+      continue;
+    }
+
+    Alignment alignment(m_settings->getPageAlignment(pageId));
+    alignment.setNull(m_alignment.isNull());
+    alignment.setScaleToFit(m_alignment.isScaleToFit());
+    m_settings->setPageAlignment(pageId, alignment);
+  }
+
   emit aggregateHardSizeChanged();
-  // Released, the size may differ from the one the other pages were drawn with.
   emit invalidateAllThumbnails();
 }
 
 void OptionsWidget::updateCommonSizeDisplay() {
+  updateOutputSizeDisplay();
+  updateScaleFactorDisplay();
+
   const QSizeF sizeMm(m_settings->getAggregateHardSizeMM());
   if (sizeMm.isEmpty() || m_dpi.isNull()) {
     commonSizeValue->setText(tr("no matched pages"));
@@ -453,8 +573,8 @@ void OptionsWidget::updateLinkDisplay(QToolButton* button, const bool linked) {
 }
 
 void OptionsWidget::updateAlignmentButtonsEnabled() {
-  bool enableHorizontalButtons = !m_alignment.isAutoHorizontal() ? alignWithOthersCB->isChecked() : false;
-  bool enableVerticalButtons = !m_alignment.isAutoVertical() ? alignWithOthersCB->isChecked() : false;
+  bool enableHorizontalButtons = !m_alignment.isAutoHorizontal() ? !m_alignment.isNull() : false;
+  bool enableVerticalButtons = !m_alignment.isAutoVertical() ? !m_alignment.isNull() : false;
 
   alignTopLeftBtn->setEnabled(enableHorizontalButtons && enableVerticalButtons);
   alignTopBtn->setEnabled(enableVerticalButtons);
@@ -496,9 +616,14 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(sourceYDpi, &QComboBox::activated, this, &OptionsWidget::sourceDpiActivated);
   CONNECT(sourceXDpi->lineEdit(), &QLineEdit::editingFinished, this, &OptionsWidget::sourceDpiEditingFinished);
   CONNECT(sourceYDpi->lineEdit(), &QLineEdit::editingFinished, this, &OptionsWidget::sourceDpiEditingFinished);
-  CONNECT(alignWithOthersCB, &QAbstractButton::toggled, this, &OptionsWidget::alignWithOthersToggled);
+  CONNECT(matchSizeModeCB, &QComboBox::currentIndexChanged, this, &OptionsWidget::matchSizeModeChanged);
+  CONNECT(applyMatchSizeBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyMatchSizeDialog);
   CONNECT(applyAlignmentBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyAlignmentDialog);
-  CONNECT(freezeAggregateHardSizeCb, &QAbstractButton::clicked, this, &OptionsWidget::freezeAggregateHardSizeToggled);
+  CONNECT(ownTargetSizeCB, &QAbstractButton::clicked, this, &OptionsWidget::ownTargetSizeToggled);
+  CONNECT(targetWidthSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::outputSizeFieldChanged);
+  CONNECT(targetHeightSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::outputSizeFieldChanged);
+  CONNECT(maxEnlargeSpinBox, &QSpinBox::valueChanged, this, &OptionsWidget::outputSizeFieldChanged);
+  CONNECT(minReduceSpinBox, &QSpinBox::valueChanged, this, &OptionsWidget::outputSizeFieldChanged);
   for (const auto& kv : m_alignmentByButton) {
     CONNECT(kv.first, &QAbstractButton::clicked, this, &OptionsWidget::alignmentButtonClicked);
   }

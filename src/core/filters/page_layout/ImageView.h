@@ -135,6 +135,15 @@ class ImageView : public ImageViewBase, private InteractionHandler {
 
   QSizeF origRectToSizeMM(const QRectF& rect) const;
 
+  // The factor the content of the page is scaled with in the output, for these margins.
+  double calcScaleFactor(const Margins& hardMarginsMm) const;
+
+  // Content + hard margins in millimeters, unscaled, as the common size is computed.
+  QSizeF hardSizeMM() const;
+
+  // Adds the soft margins to \p polyMm, the page with hard margins in source millimeters.
+  void extendWithSoftMargins(QPolygonF& polyMm) const;
+
   AggregateSizeChanged commitHardMargins(const Margins& marginsMm);
 
   void invalidateThumbnails(AggregateSizeChanged aggSizeChanged);
@@ -254,6 +263,12 @@ class ImageView : public ImageViewBase, private InteractionHandler {
    * \see m_aggregateHardSizeMM
    */
   QSizeF m_committedAggregateHardSizeMM;
+
+  /**
+   * The output scales the content by this factor while the margins keep their size,
+   * so the margins are shown divided by it: the page looks as it will in the output.
+   */
+  double m_scaleFactor = 1.0;
 
   Alignment m_alignment;
 
