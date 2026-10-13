@@ -15,6 +15,7 @@ set(sources
     TabbedImageView.cpp TabbedImageView.h
     Filter.cpp Filter.h
     OptionsWidget.cpp OptionsWidget.h
+    OrderByColorModeProvider.cpp OrderByColorModeProvider.h
     Task.cpp Task.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     GeometryCollector.h

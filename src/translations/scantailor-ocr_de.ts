@@ -1875,7 +1875,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2944"/>
+        <location filename="../app/MainWindow.cpp" line="2947"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
@@ -1910,94 +1910,94 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         <translation>Projekt speichern?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1123"/>
+        <location filename="../app/MainWindow.cpp" line="1126"/>
         <source>Insert Before ...</source>
         <translation>Einfügen vor ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1124"/>
+        <location filename="../app/MainWindow.cpp" line="1127"/>
         <source>Insert After ...</source>
         <translation>Einfügen nach ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1128"/>
+        <location filename="../app/MainWindow.cpp" line="1131"/>
         <source>Remove from Project ...</source>
         <translation>Aus Projekt entfernen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1192"/>
+        <location filename="../app/MainWindow.cpp" line="1195"/>
         <source>Insert Here ...</source>
         <translation>Hier einfügen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2076"/>
+        <location filename="../app/MainWindow.cpp" line="2079"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1777"/>
+        <location filename="../app/MainWindow.cpp" line="1780"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="26"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor-OCR-Projekte</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1138"/>
+        <location filename="../app/MainWindow.cpp" line="1141"/>
         <source>Select</source>
         <translation>Auswählen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1139"/>
+        <location filename="../app/MainWindow.cpp" line="1142"/>
         <source>All Pages</source>
         <translation>Alle Seiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1140"/>
+        <location filename="../app/MainWindow.cpp" line="1143"/>
         <source>This Page and the Following Ones</source>
         <translation>Diese und darauffolgende Seiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1142"/>
+        <location filename="../app/MainWindow.cpp" line="1145"/>
         <source>Every Other Page (Odd Pages)</source>
         <translation>Jede zweite Seite (ungerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1142"/>
+        <location filename="../app/MainWindow.cpp" line="1145"/>
         <source>Every Other Page (Even Pages)</source>
         <translation>Jede zweite Seite (gerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1143"/>
+        <location filename="../app/MainWindow.cpp" line="1146"/>
         <source>This Page and Every Other Following Page</source>
         <translation>Diese Seite und darauffolgend jede zweite Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1144"/>
+        <location filename="../app/MainWindow.cpp" line="1147"/>
         <source>Every Other Selected Page</source>
         <translation>Jede zweite ausgewählte Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1147"/>
+        <location filename="../app/MainWindow.cpp" line="1150"/>
         <source>This Page Only</source>
         <translation>Nur diese Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1522"/>
+        <location filename="../app/MainWindow.cpp" line="1525"/>
         <source>Detecting the color mode ...</source>
         <translation>Der Farbmodus wird erkannt ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1522"/>
+        <location filename="../app/MainWindow.cpp" line="1525"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1523"/>
-        <location filename="../app/MainWindow.cpp" line="1581"/>
+        <location filename="../app/MainWindow.cpp" line="1526"/>
+        <location filename="../app/MainWindow.cpp" line="1584"/>
         <source>Detect Color Mode</source>
         <translation>Farbmodus erkennen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1566"/>
+        <location filename="../app/MainWindow.cpp" line="1569"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation>
             <numerusform>Farbmodus für %n Seite erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
@@ -2005,7 +2005,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1573"/>
+        <location filename="../app/MainWindow.cpp" line="1576"/>
         <source>%n page(s) skipped because the steps before Output have not been done yet.</source>
         <translation>
             <numerusform>%n Seite übersprungen, weil die Schritte vor der Ausgabe noch nicht ausgeführt wurden.</numerusform>
@@ -2013,7 +2013,7 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1576"/>
+        <location filename="../app/MainWindow.cpp" line="1579"/>
         <source>%n page(s) could not be loaded.</source>
         <translation>
             <numerusform>%n Seite konnte nicht geladen werden.</numerusform>
@@ -2021,124 +2021,124 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1579"/>
+        <location filename="../app/MainWindow.cpp" line="1582"/>
         <source>The detection was cancelled.</source>
         <translation>Die Erkennung wurde abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1776"/>
+        <location filename="../app/MainWindow.cpp" line="1779"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1789"/>
-        <location filename="../app/MainWindow.cpp" line="1795"/>
-        <location filename="../app/MainWindow.cpp" line="2130"/>
-        <location filename="../app/MainWindow.cpp" line="2154"/>
+        <location filename="../app/MainWindow.cpp" line="1792"/>
+        <location filename="../app/MainWindow.cpp" line="1798"/>
+        <location filename="../app/MainWindow.cpp" line="2133"/>
+        <location filename="../app/MainWindow.cpp" line="2157"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1789"/>
+        <location filename="../app/MainWindow.cpp" line="1792"/>
         <source>Unable to open the project file.</source>
         <translation>Die Projektdatei kann nicht geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1795"/>
+        <location filename="../app/MainWindow.cpp" line="1798"/>
         <source>The project file is broken.</source>
         <translation>Die Projektdatei ist beschädigt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1877"/>
+        <location filename="../app/MainWindow.cpp" line="1880"/>
         <source>version </source>
         <translation>Version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2022"/>
+        <location filename="../app/MainWindow.cpp" line="2025"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
 Um sie zu ermitteln, führen Sie die Stapelverarbeitung unter &quot;Inhalt auswählen&quot; oder &quot;Ränder&quot; aus.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2056"/>
+        <location filename="../app/MainWindow.cpp" line="2059"/>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2061"/>
+        <location filename="../app/MainWindow.cpp" line="2064"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation>%2 - ScanTailor OCR [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2076"/>
+        <location filename="../app/MainWindow.cpp" line="2079"/>
         <source>A PDF is being created.  Do you want to cancel it?</source>
         <translation>Ein PDF wird gerade erstellt.  Möchten Sie das abbrechen?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2130"/>
-        <location filename="../app/MainWindow.cpp" line="2154"/>
+        <location filename="../app/MainWindow.cpp" line="2133"/>
+        <location filename="../app/MainWindow.cpp" line="2157"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2209"/>
+        <location filename="../app/MainWindow.cpp" line="2212"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2212"/>
+        <location filename="../app/MainWindow.cpp" line="2215"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2263"/>
+        <location filename="../app/MainWindow.cpp" line="2266"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2313"/>
+        <location filename="../app/MainWindow.cpp" line="2316"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2473"/>
-        <location filename="../app/MainWindow.cpp" line="2515"/>
+        <location filename="../app/MainWindow.cpp" line="2476"/>
+        <location filename="../app/MainWindow.cpp" line="2518"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2467"/>
+        <location filename="../app/MainWindow.cpp" line="2470"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2492"/>
+        <location filename="../app/MainWindow.cpp" line="2495"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2516"/>
+        <location filename="../app/MainWindow.cpp" line="2519"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2572"/>
+        <location filename="../app/MainWindow.cpp" line="2575"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2630"/>
+        <location filename="../app/MainWindow.cpp" line="2633"/>
         <source>Only pages next to each other can be replaced together.  The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen.  Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2702"/>
+        <location filename="../app/MainWindow.cpp" line="2705"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2944"/>
+        <location filename="../app/MainWindow.cpp" line="2947"/>
         <source>Enter the page number:</source>
         <translation>Zielseite:</translation>
     </message>
@@ -4164,19 +4164,34 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>output::Filter</name>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="45"/>
+        <location filename="../core/filters/output/Filter.cpp" line="51"/>
         <source>Output</source>
         <translation>Ausgabe</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="38"/>
+        <location filename="../core/filters/output/Filter.cpp" line="39"/>
         <source>Natural order</source>
         <translation>Natürliche Sortierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="39"/>
+        <location filename="../core/filters/output/Filter.cpp" line="41"/>
         <source>Order by completeness</source>
         <translation>Sortierung nach Vollständigkeit</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Filter.cpp" line="42"/>
+        <source>Processed pages first, then the pages not processed yet, each in natural order.</source>
+        <translation>Zuerst die verarbeiteten Seiten, dann die noch nicht verarbeiteten, jeweils in natürlicher Reihenfolge.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Filter.cpp" line="44"/>
+        <source>Order by color mode</source>
+        <translation>Sortierung nach Farbmodus</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Filter.cpp" line="45"/>
+        <source>Black and white first, then color / grayscale, then mixed, each in natural order.</source>
+        <translation>Zuerst Schwarz-Weiß, dann Farbe / Graustufen, dann Gemischt, jeweils in natürlicher Reihenfolge.</translation>
     </message>
 </context>
 <context>
@@ -4423,7 +4438,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Entzerrung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2459"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2307"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="100"/>
         <source>Off</source>
         <translation>Deaktiviert</translation>
@@ -4434,7 +4449,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Flecken entfernen anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2507"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2355"/>
         <source>Manual</source>
         <translation>Manuell</translation>
     </message>
@@ -4838,118 +4853,118 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Überträgt den Farbmodus und die weiteren Einstellungen dieser Gruppe auf andere Seiten; beide Teile lassen sich einzeln wählen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2678"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2526"/>
         <source>Adjusts the pictures after processing, like a photo editor.  In mixed mode only the picture zones are changed, the text stays black and white.  Not used in black and white mode.</source>
         <translation>Passt die Bilder nach der Verarbeitung an, wie ein Bildbearbeitungsprogramm. Im Farbmodus Gemischt werden nur die Bildzonen verändert, der Text bleibt schwarz-weiß. Im Farbmodus Schwarz-Weiß ohne Wirkung.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2681"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2529"/>
         <source>Photo Adjustments</source>
         <translation>Fotoanpassung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2702"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2550"/>
         <source>Color Balance</source>
         <translation>Farbbalance</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2719"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2567"/>
         <source>Tone</source>
         <translation>Tonwerte</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2736"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2584"/>
         <source>Keep white</source>
         <translation>Weiß beibehalten</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2767"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2615"/>
         <source>Applies the photo adjustments of this page to other pages.</source>
         <translation>Überträgt die Fotoanpassung dieser Seite auf andere Seiten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2117"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2659"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation>Nur im Farbmodus Gemischt: speichert die Seite zusätzlich als zwei Dateien, den Text im Ordner „foreground“ und die Bilder im Ordner „background“ neben den Ausgabedateien.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2132"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2674"/>
         <source>The text is saved in black and white.</source>
         <translation>Der Text wird schwarz-weiß gespeichert.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2172"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2714"/>
         <source>The text keeps its colors.</source>
         <translation>Der Text behält seine Farben.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2295"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2143"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
         <translation>Entfernt kleine Flecken wie Staub und Schmutz aus dem Schwarz-Weiß-Ergebnis. Der Regler bestimmt, wie stark.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2456"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2304"/>
         <source>No dewarping.</source>
         <translation>Keine Entzerrung.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2472"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2320"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation>Findet die Krümmung der Textzeilen automatisch.  Experimentell.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2475"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2323"/>
         <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2488"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2336"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation>Findet die Krümmung anhand der oberen und unteren Seitenkante vor dunklem Hintergrund.  Experimentell.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2491"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2339"/>
         <source>Marginal</source>
         <translation>Randbereich</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2504"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2352"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation>Sie legen die Kurven selbst im Reiter „Entzerrung“ fest.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2522"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2370"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation>Richtet die Seite nach dem Entzerren noch einmal gerade.  Nur bei Manuell und Randbereich.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2525"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2373"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="1263"/>
         <source>Post deskew</source>
         <translation>Nachträglich geraderichten</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2532"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2380"/>
         <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
         <translation>Wie stark die Seite beim Glätten als vom Betrachter weg gewölbt angenommen wird; das bestimmt vor allem, wie weit die Schrift am Bund gedehnt wird.  Wird nur beim Entzerren verwendet.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2550"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2398"/>
         <source>Depth perception:</source>
         <translation>Tiefenwahrnehmung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2616"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2464"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
         <translation>Misst die Breite der Buchstaben auf der entzerrten Seite und dehnt oder staucht die Seite dort, wo sie zu schmal oder zu breit geraten sind, etwa am Bund.  Verlangsamt die Verarbeitung.  Wird nur beim Entzerren verwendet.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2619"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2467"/>
         <source>Even out letter widths</source>
         <translation>Buchstabenbreite angleichen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2650"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2498"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation>Überträgt den Entzerrungsmodus, „Nachträglich geraderichten“ und die Tiefenwahrnehmung dieser Seite auf andere Seiten.</translation>
     </message>
@@ -4957,9 +4972,9 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <location filename="../core/filters/output/OptionsWidget.ui" line="102"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="194"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2076"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2228"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2417"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2653"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2265"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2501"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2618"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2770"/>
         <source>Apply to ...</source>
         <translation>Anwenden auf ...</translation>
@@ -5067,62 +5082,62 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Erkennt den Farbmodus von Seiten. Die Einstellungen gelten für alle Projekte.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2733"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2581"/>
         <source>Color / grayscale mode only: pure white stays white, such as a background made white.  The margins are never changed.</source>
         <translation>Nur im Farbmodus Farbe / Graustufen: reines Weiß bleibt weiß, z. B. ein weiß gemachter Hintergrund. Die Ränder werden nie verändert.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2104"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2646"/>
         <source>Splitting</source>
         <translation>Aufteilung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2120"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2662"/>
         <source>Split output</source>
         <translation>Geteilte Ausgabe</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2135"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2677"/>
         <source>B&amp;&amp;W foreground</source>
         <translation>S/W-Vordergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2160"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2702"/>
         <source>Save the original background of the foreground layer.</source>
         <translation>Ursprünglichen Hintergrund der Vordergrundebene speichern</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2163"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2705"/>
         <source>Original background</source>
         <translation>Original-Hintergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2175"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2717"/>
         <source>Color foreground</source>
         <translation>Farbiger Vordergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2225"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2767"/>
         <source>Applies the splitting settings of this page to other pages.</source>
         <translation>Überträgt die Einstellungen zur Aufteilung dieser Seite auf andere Seiten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2253"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2101"/>
         <source>Despeckling</source>
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2298"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2146"/>
         <source>Despeckle</source>
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2414"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2262"/>
         <source>Applies the despeckling of this page to other pages.</source>
         <translation>Überträgt das Entfernen von Flecken dieser Seite auf andere Seiten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2442"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2290"/>
         <source>Dewarping</source>
         <translation>Entzerren</translation>
     </message>
@@ -5664,12 +5679,17 @@ p, li { white-space: pre-wrap; }
         <translation>Natürliche Sortierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/Filter.cpp" line="30"/>
+        <location filename="../core/filters/page_split/Filter.cpp" line="31"/>
         <source>Order by split type</source>
         <translation>Sortierung nach Teilungsart</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/Filter.cpp" line="36"/>
+        <location filename="../core/filters/page_split/Filter.cpp" line="32"/>
+        <source>One page first, then one page and a strip to cut off, then two pages, each in natural order.  Pages not processed yet come last.</source>
+        <translation>Zuerst eine Seite, dann eine Seite mit Streifen zum Abschneiden, dann zwei Seiten, jeweils in natürlicher Reihenfolge. Noch nicht verarbeitete Seiten kommen zuletzt.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_split/Filter.cpp" line="39"/>
         <source>Split Pages</source>
         <translation>Seiten teilen</translation>
     </message>

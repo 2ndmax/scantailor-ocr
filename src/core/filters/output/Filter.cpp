@@ -19,6 +19,7 @@
 #include "GeometryCollector.h"
 #include "ImageTransformation.h"
 #include "OptionsWidget.h"
+#include "OrderByColorModeProvider.h"
 #include "OutputGenerator.h"
 #include "PageInfo.h"
 #include "ProjectReader.h"
@@ -36,7 +37,12 @@ Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor)
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByCompleteness = std::make_shared<OrderByCompletenessProvider>();
   m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
-  m_pageOrderOptions.emplace_back(tr("Order by completeness"), orderByCompleteness);
+  m_pageOrderOptions.emplace_back(
+      tr("Order by completeness"), orderByCompleteness,
+      tr("Processed pages first, then the pages not processed yet, each in natural order."));
+  m_pageOrderOptions.emplace_back(
+      tr("Order by color mode"), std::make_shared<OrderByColorModeProvider>(m_settings),
+      tr("Black and white first, then color / grayscale, then mixed, each in natural order."));
 }
 
 Filter::~Filter() = default;

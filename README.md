@@ -700,6 +700,11 @@ ScanTailor Advanced.
   "Apply to ..." of the Mode group can now apply the color mode and the other settings of the
   group separately. Without OCR, the detection is not available.
 
+  The thumbnails of *Output* can be ordered by color mode ("Order by color mode": black and
+  white, color / grayscale, mixed, each in natural order), also for pages not processed yet, to
+  check the detected color modes page by page. This order, "Order by completeness" and "Order by
+  split type" explain their order in a tooltip.
+
 * **Photo adjustments** in *Output*: the new group "Photo Adjustments" after "Dewarping" (the
   adjustments come after dewarping and despeckling) has the
   sliders of a photo editor, each with a field for the exact value: *Temperature* and *Tint*

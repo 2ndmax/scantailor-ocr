@@ -707,6 +707,9 @@ void MainWindow::updateSortOptions() {
 
   for (const PageOrderOption& opt : filter->pageOrderOptions()) {
     sortOptions->addItem(opt.name());
+    if (!opt.toolTip().isEmpty()) {
+      sortOptions->setItemData(sortOptions->count() - 1, opt.toolTip(), Qt::ToolTipRole);
+    }
   }
 
   sortOptions->setVisible(sortOptions->count() > 0);

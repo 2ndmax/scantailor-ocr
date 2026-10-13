@@ -1830,227 +1830,227 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation>프로젝트를 저장하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1123"/>
+        <location filename="../app/MainWindow.cpp" line="1126"/>
         <source>Insert Before ...</source>
         <translation>앞에 파일 추가하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1124"/>
+        <location filename="../app/MainWindow.cpp" line="1127"/>
         <source>Insert After ...</source>
         <translation>뒤에 파일 추가하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1128"/>
+        <location filename="../app/MainWindow.cpp" line="1131"/>
         <source>Remove from Project ...</source>
         <translation>프로젝트에서 제거하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1192"/>
+        <location filename="../app/MainWindow.cpp" line="1195"/>
         <source>Insert Here ...</source>
         <translation>여기에 파일 추가하기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2076"/>
+        <location filename="../app/MainWindow.cpp" line="2079"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1777"/>
+        <location filename="../app/MainWindow.cpp" line="1780"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="26"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor OCR 프로젝트</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1138"/>
+        <location filename="../app/MainWindow.cpp" line="1141"/>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1139"/>
+        <location filename="../app/MainWindow.cpp" line="1142"/>
         <source>All Pages</source>
         <translation type="unfinished">모든 페이지</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1140"/>
+        <location filename="../app/MainWindow.cpp" line="1143"/>
         <source>This Page and the Following Ones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1142"/>
+        <location filename="../app/MainWindow.cpp" line="1145"/>
         <source>Every Other Page (Odd Pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1142"/>
+        <location filename="../app/MainWindow.cpp" line="1145"/>
         <source>Every Other Page (Even Pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1143"/>
+        <location filename="../app/MainWindow.cpp" line="1146"/>
         <source>This Page and Every Other Following Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1144"/>
+        <location filename="../app/MainWindow.cpp" line="1147"/>
         <source>Every Other Selected Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1147"/>
+        <location filename="../app/MainWindow.cpp" line="1150"/>
         <source>This Page Only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1522"/>
+        <location filename="../app/MainWindow.cpp" line="1525"/>
         <source>Detecting the color mode ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1522"/>
+        <location filename="../app/MainWindow.cpp" line="1525"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1523"/>
-        <location filename="../app/MainWindow.cpp" line="1581"/>
+        <location filename="../app/MainWindow.cpp" line="1526"/>
+        <location filename="../app/MainWindow.cpp" line="1584"/>
         <source>Detect Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1566"/>
+        <location filename="../app/MainWindow.cpp" line="1569"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1573"/>
+        <location filename="../app/MainWindow.cpp" line="1576"/>
         <source>%n page(s) skipped because the steps before Output have not been done yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1576"/>
+        <location filename="../app/MainWindow.cpp" line="1579"/>
         <source>%n page(s) could not be loaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1579"/>
+        <location filename="../app/MainWindow.cpp" line="1582"/>
         <source>The detection was cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1776"/>
+        <location filename="../app/MainWindow.cpp" line="1779"/>
         <source>Open Project</source>
         <translation>프로젝트 열기</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1789"/>
-        <location filename="../app/MainWindow.cpp" line="1795"/>
-        <location filename="../app/MainWindow.cpp" line="2130"/>
-        <location filename="../app/MainWindow.cpp" line="2154"/>
+        <location filename="../app/MainWindow.cpp" line="1792"/>
+        <location filename="../app/MainWindow.cpp" line="1798"/>
+        <location filename="../app/MainWindow.cpp" line="2133"/>
+        <location filename="../app/MainWindow.cpp" line="2157"/>
         <source>Error</source>
         <translation>에러</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1789"/>
+        <location filename="../app/MainWindow.cpp" line="1792"/>
         <source>Unable to open the project file.</source>
         <translation>프로젝트 파일을 열 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1795"/>
+        <location filename="../app/MainWindow.cpp" line="1798"/>
         <source>The project file is broken.</source>
         <translation>프로젝트 파일이 손상되었습니다.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1877"/>
+        <location filename="../app/MainWindow.cpp" line="1880"/>
         <source>version </source>
         <translation>버전 </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2022"/>
+        <location filename="../app/MainWindow.cpp" line="2025"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>페이지의 최종 크기를 알 수 없기 때문에 출력이 불가능합니다.
 &quot;컨텐츠 선택&quot; 또는 &quot;테두리&quot; 작업을 먼저 수행해 주세요.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2056"/>
+        <location filename="../app/MainWindow.cpp" line="2059"/>
         <source>Unnamed</source>
         <translation>이름 없음</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2061"/>
+        <location filename="../app/MainWindow.cpp" line="2064"/>
         <source>%2 - ScanTailor OCR [%1bit]</source>
         <translation>%2 - ScanTailor OCR [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2076"/>
+        <location filename="../app/MainWindow.cpp" line="2079"/>
         <source>A PDF is being created.  Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2130"/>
-        <location filename="../app/MainWindow.cpp" line="2154"/>
+        <location filename="../app/MainWindow.cpp" line="2133"/>
+        <location filename="../app/MainWindow.cpp" line="2157"/>
         <source>Error saving the project file!</source>
         <translation>프로젝트를 저장하는 데 실패했습니다!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2209"/>
+        <location filename="../app/MainWindow.cpp" line="2212"/>
         <source>Files to Insert</source>
         <translation>삽입할 파일</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2212"/>
+        <location filename="../app/MainWindow.cpp" line="2215"/>
         <source>Images not in project (%1)</source>
         <translation>프로젝트 (%1)에 이미지가 없습니다</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2263"/>
+        <location filename="../app/MainWindow.cpp" line="2266"/>
         <source>Skip failed files</source>
         <translation>실패한 파일 스킵</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2313"/>
+        <location filename="../app/MainWindow.cpp" line="2316"/>
         <source>Remove</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2473"/>
-        <location filename="../app/MainWindow.cpp" line="2515"/>
+        <location filename="../app/MainWindow.cpp" line="2476"/>
+        <location filename="../app/MainWindow.cpp" line="2518"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2467"/>
+        <location filename="../app/MainWindow.cpp" line="2470"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2492"/>
+        <location filename="../app/MainWindow.cpp" line="2495"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2516"/>
+        <location filename="../app/MainWindow.cpp" line="2519"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2572"/>
+        <location filename="../app/MainWindow.cpp" line="2575"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2630"/>
+        <location filename="../app/MainWindow.cpp" line="2633"/>
         <source>Only pages next to each other can be replaced together.  The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2702"/>
+        <location filename="../app/MainWindow.cpp" line="2705"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2131,7 +2131,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2944"/>
+        <location filename="../app/MainWindow.cpp" line="2947"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2156,7 +2156,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2944"/>
+        <location filename="../app/MainWindow.cpp" line="2947"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4140,19 +4140,34 @@ Without an internet connection, the installed languages can still be used.  Lang
 <context>
     <name>output::Filter</name>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="45"/>
+        <location filename="../core/filters/output/Filter.cpp" line="51"/>
         <source>Output</source>
         <translation>출력</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="38"/>
+        <location filename="../core/filters/output/Filter.cpp" line="39"/>
         <source>Natural order</source>
         <translation>자연적인 순서</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="39"/>
+        <location filename="../core/filters/output/Filter.cpp" line="41"/>
         <source>Order by completeness</source>
         <translation>완전성 순</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Filter.cpp" line="42"/>
+        <source>Processed pages first, then the pages not processed yet, each in natural order.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Filter.cpp" line="44"/>
+        <source>Order by color mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Filter.cpp" line="45"/>
+        <source>Black and white first, then color / grayscale, then mixed, each in natural order.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4394,7 +4409,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2459"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2307"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="100"/>
         <source>Off</source>
         <translation>끄기</translation>
@@ -4405,7 +4420,7 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2507"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2355"/>
         <source>Manual</source>
         <translation>수동</translation>
     </message>
@@ -4814,118 +4829,118 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2678"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2526"/>
         <source>Adjusts the pictures after processing, like a photo editor.  In mixed mode only the picture zones are changed, the text stays black and white.  Not used in black and white mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2681"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2529"/>
         <source>Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2702"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2550"/>
         <source>Color Balance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2719"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2567"/>
         <source>Tone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2736"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2584"/>
         <source>Keep white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2767"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2615"/>
         <source>Applies the photo adjustments of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2117"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2659"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2132"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2674"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2172"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2714"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2295"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2143"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2456"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2304"/>
         <source>No dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2472"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2320"/>
         <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2475"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2323"/>
         <source>Auto</source>
         <translation type="unfinished">자동</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2488"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2336"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2491"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2339"/>
         <source>Marginal</source>
         <translation type="unfinished">테두리</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2504"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2352"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2522"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2370"/>
         <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2525"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2373"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="1263"/>
         <source>Post deskew</source>
         <translation type="unfinished">사전 기울기 보정</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2532"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2380"/>
         <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2550"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2398"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2616"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2464"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2619"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2467"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2650"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2498"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4933,9 +4948,9 @@ Without an internet connection, the installed languages can still be used.  Lang
         <location filename="../core/filters/output/OptionsWidget.ui" line="102"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="194"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2076"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2228"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2417"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2653"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2265"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2501"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2618"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2770"/>
         <source>Apply to ...</source>
         <translation type="unfinished">적용하기</translation>
@@ -5038,62 +5053,62 @@ Without an internet connection, the installed languages can still be used.  Lang
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2733"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2581"/>
         <source>Color / grayscale mode only: pure white stays white, such as a background made white.  The margins are never changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2104"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2646"/>
         <source>Splitting</source>
         <translation type="unfinished">분할</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2120"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2662"/>
         <source>Split output</source>
         <translation type="unfinished">분할 결과</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2135"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2677"/>
         <source>B&amp;&amp;W foreground</source>
         <translation type="unfinished">흑백 전경</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2160"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2702"/>
         <source>Save the original background of the foreground layer.</source>
         <translation type="unfinished">전경 부분을 원본 배경으로 저장합니다.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2163"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2705"/>
         <source>Original background</source>
         <translation type="unfinished">원본 배경</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2175"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2717"/>
         <source>Color foreground</source>
         <translation type="unfinished">색상 전경</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2225"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2767"/>
         <source>Applies the splitting settings of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2253"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2101"/>
         <source>Despeckling</source>
         <translation type="unfinished">얼룩 제거</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2298"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2146"/>
         <source>Despeckle</source>
         <translation type="unfinished">얼룩 제거</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2414"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2262"/>
         <source>Applies the despeckling of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2442"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2290"/>
         <source>Dewarping</source>
         <translation type="unfinished">왜곡 보정</translation>
     </message>
@@ -5631,12 +5646,17 @@ p, li { white-space: pre-wrap; }
         <translation>일반적인 순서대로 정렬하기</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/Filter.cpp" line="30"/>
+        <location filename="../core/filters/page_split/Filter.cpp" line="31"/>
         <source>Order by split type</source>
         <translation>페이지 분할 종류에 따라 정렬하기</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/Filter.cpp" line="36"/>
+        <location filename="../core/filters/page_split/Filter.cpp" line="32"/>
+        <source>One page first, then one page and a strip to cut off, then two pages, each in natural order.  Pages not processed yet come last.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_split/Filter.cpp" line="39"/>
         <source>Split Pages</source>
         <translation>페이지 분할</translation>
     </message>

@@ -14,9 +14,13 @@ class PageOrderOption {
  public:
   using ProviderPtr = std::shared_ptr<const PageOrderProvider>;
 
-  PageOrderOption(const QString& name, ProviderPtr provider) : m_name(name), m_provider(std::move(provider)) {}
+  PageOrderOption(const QString& name, ProviderPtr provider, const QString& toolTip = QString())
+      : m_name(name), m_provider(std::move(provider)), m_toolTip(toolTip) {}
 
   const QString& name() const { return m_name; }
+
+  /** Explains the order, if the name doesn't. */
+  const QString& toolTip() const { return m_toolTip; }
 
   /**
    * Returns the ordering information provider.
@@ -27,6 +31,7 @@ class PageOrderOption {
  private:
   QString m_name;
   ProviderPtr m_provider;
+  QString m_toolTip;
 };
 
 
