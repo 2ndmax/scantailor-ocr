@@ -118,7 +118,7 @@ void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filter
 
   const QDomElement filterEl(filtersEl.namedItem("page-layout").toElement());
 
-  m_settings->enableShowingMiddleRect(filterEl.attribute("showMiddleRect") == "1");
+  m_settings->enableShowingMiddleRect(filterEl.attribute("showMiddleRect", "1") == "1");
   m_settings->setOutputSizeOptions(OutputSizeOptions(filterEl.namedItem("output-size").toElement()));
 
   const QDomElement guidesEl = filterEl.namedItem("guides").toElement();

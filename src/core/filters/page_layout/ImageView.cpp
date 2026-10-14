@@ -616,6 +616,10 @@ void ImageView::recalcOuterRect() {
 }
 
 double ImageView::calcScaleFactor(const Margins& hardMarginsMm) const {
+  // Like Utils::calcPageRectPhys(): a page without content is not scaled.
+  if (m_nullContentRect) {
+    return 1.0;
+  }
   return m_settings->outputSizeOptions().scaleFactor(origRectToSizeMM(m_innerRect), hardMarginsMm, m_alignment,
                                                      m_aggregateHardSizeMM);
 }

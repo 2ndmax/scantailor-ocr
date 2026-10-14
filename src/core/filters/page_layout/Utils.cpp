@@ -206,8 +206,12 @@ QPolygonF Utils::calcPageRectPhys(const ImageTransformation& xform,
 
   QPolygonF polyMm(pixelsToMmTransform.map(contentRectPhys));
   const QSizeF contentSizeMm(QLineF(polyMm[0], polyMm[1]).length(), QLineF(polyMm[0], polyMm[3]).length());
-  const double factor = calcScaleFactor(contentSizeMm, params.hardMarginsMM(), params.alignment(), aggregateHardSizeMm,
-                                        outputSizeOptions);
+  // A page without content comes with a tiny stand-in rect (adaptContentRect()) that would be
+  // scaled up to the maximum; such a page is not scaled, as the options panel shows.
+  const double factor = params.contentSizeMM().isEmpty()
+                            ? 1.0
+                            : calcScaleFactor(contentSizeMm, params.hardMarginsMM(), params.alignment(),
+                                              aggregateHardSizeMm, outputSizeOptions);
   if (scaleFactor) {
     *scaleFactor = factor;
   }

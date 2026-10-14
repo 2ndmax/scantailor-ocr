@@ -129,8 +129,14 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const Margins& margins
   autoMargins->setChecked(m_settings->isPageAutoMarginsEnabled(m_pageId));
   updateMarginsControlsEnabled();
 
-  m_leftRightLinked = m_leftRightLinked && (marginsMm.left() == marginsMm.right());
-  m_topBottomLinked = m_topBottomLinked && (marginsMm.top() == marginsMm.bottom());
+  // Each page starts with the saved choice; only unequal margins of this page unlink them.
+  {
+    QSettings appSettings;
+    m_leftRightLinked
+        = appSettings.value("margins/leftRightLinked", true).toBool() && (marginsMm.left() == marginsMm.right());
+    m_topBottomLinked
+        = appSettings.value("margins/topBottomLinked", true).toBool() && (marginsMm.top() == marginsMm.bottom());
+  }
   updateLinkDisplay(topBottomLink, m_topBottomLinked);
   updateLinkDisplay(leftRightLink, m_leftRightLinked);
 
@@ -329,10 +335,13 @@ void OptionsWidget::ownTargetSizeToggled(const bool checked) {
 
 void OptionsWidget::outputSizeFieldChanged() {
   OutputSizeOptions options(m_settings->outputSizeOptions());
-  double width = targetWidthSpinBox->value();
-  double height = targetHeightSpinBox->value();
-  UnitsProvider::getInstance().convertTo(width, height, MILLIMETRES, m_dpi);
-  options.setTargetSizeMM(QSizeF(width, height));
+  // Without an own target size the fields only show the common size; don't store it as the target.
+  if (options.hasOwnTargetSize()) {
+    double width = targetWidthSpinBox->value();
+    double height = targetHeightSpinBox->value();
+    UnitsProvider::getInstance().convertTo(width, height, MILLIMETRES, m_dpi);
+    options.setTargetSizeMM(QSizeF(width, height));
+  }
   options.setMaxEnlargePercent(maxEnlargeSpinBox->value());
   options.setMinReducePercent(minReduceSpinBox->value());
   if (options == m_settings->outputSizeOptions()) {

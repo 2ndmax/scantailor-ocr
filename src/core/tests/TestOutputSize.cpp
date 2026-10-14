@@ -107,6 +107,23 @@ BOOST_AUTO_TEST_CASE(scaled_page_has_the_target_size_and_unchanged_margins) {
   BOOST_CHECK_CLOSE(contentOut.left() - newXform.resultingRect().left(), 100.0, 1e-6);
 }
 
+BOOST_AUTO_TEST_CASE(page_without_content_is_not_scaled) {
+  const Dpi dpi(254, 254);
+  const ImageTransformation xform(QRectF(0, 0, 3000, 4000), dpi);
+  // The stand-in rect of Utils::adaptContentRect() for a page without content.
+  const QPolygonF contentRectPhys(QRectF(1499.99, 1999.99, 0.02, 0.02));
+  const Params params(MARGINS_MM, QRectF(), QRectF(), QSizeF(0, 0), scaling(), false);
+
+  double scale = 0;
+  const QPolygonF pageRectPhys(
+      Utils::calcPageRectPhys(xform, contentRectPhys, params, QSizeF(160, 230), OutputSizeOptions(), &scale));
+  BOOST_CHECK_EQUAL(scale, 1.0);
+  // The page still has the common size.
+  const QRectF pageRect(pageRectPhys.boundingRect());
+  BOOST_CHECK_CLOSE(pageRect.width(), 1600.0, 1e-6);
+  BOOST_CHECK_CLOSE(pageRect.height(), 2300.0, 1e-6);
+}
+
 BOOST_AUTO_TEST_CASE(options_and_alignment_are_stored_only_when_used) {
   QDomDocument doc;
   BOOST_CHECK(OutputSizeOptions().isDefault());
