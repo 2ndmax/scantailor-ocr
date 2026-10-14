@@ -9,9 +9,9 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
+#include <algorithm>
 #include <cmath>
 #include <functional>
-#include <map>
 
 #include "ImagePresentation.h"
 #include "ImageTransformation.h"
@@ -374,6 +374,7 @@ void ImageView::pageRectEdgeMoveRequest(int edge, const QLineF& line) {
 
 void ImageView::pageRectDragFinished() {
   emit manualPageRectSet(m_pageRect);
+  m_pageRectReloadRequested = false;
 }
 
 void ImageView::forceInsideImage(QRectF& widgetRect, const int edgeMask) const {
@@ -475,9 +476,9 @@ void ImageView::pageRectSetExternally(const QRectF& pageRect) {
   m_pageRect = pageRect;
 
   forcePageRectDescribeContent();
-  if (m_pageRectReloadRequested) {
-    emit manualPageRectSet(m_pageRect);
-  }
+  // A size typed in the options is a manual page box too, even if the content didn't make it grow.
+  emit manualPageRectSet(m_pageRect);
+  m_pageRectReloadRequested = false;
 
   update();
 }
@@ -521,21 +522,21 @@ void ImageView::correctContentBox(const QPointF& pos, const Qt::KeyboardModifier
     const double leftDist = posInVirtual.x() - m_contentRect.left();
     const double bottomDist = m_contentRect.bottom() - posInVirtual.y();
     const double rightDist = m_contentRect.right() - posInVirtual.x();
-    std::map<double, Edge> distanceMap;
-    distanceMap[topDist] = TOP;
-    distanceMap[leftDist] = LEFT;
-    distanceMap[bottomDist] = BOTTOM;
-    distanceMap[rightDist] = RIGHT;
+    // Compared directly: a map keyed by the distance would lose an edge when two distances are equal.
+    const int horEdge = (leftDist < rightDist) ? LEFT : RIGHT;
+    const int vertEdge = (topDist < bottomDist) ? TOP : BOTTOM;
+    const double horDist = std::min(leftDist, rightDist);
+    const double vertDist = std::min(topDist, bottomDist);
 
     int edgeMask;
     if (onlyHorizontalDirection) {
-      edgeMask = distanceMap.at(std::min(leftDist, rightDist));
+      edgeMask = horEdge;
     } else if (onlyVerticalDirection) {
-      edgeMask = distanceMap.at(std::min(topDist, bottomDist));
+      edgeMask = vertEdge;
     } else if (bothDirections) {
-      edgeMask = distanceMap.at(std::min(leftDist, rightDist)) | distanceMap.at(std::min(topDist, bottomDist));
+      edgeMask = horEdge | vertEdge;
     } else {
-      edgeMask = distanceMap.begin()->second;
+      edgeMask = (horDist <= vertDist) ? horEdge : vertEdge;
     }
 
     QPointF movePoint;

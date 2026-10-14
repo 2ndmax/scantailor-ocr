@@ -22,22 +22,22 @@ Thumbnail::Thumbnail(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
       m_deviant(deviant) {}
 
 void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDisplay, const QTransform& thumbToDisplay) {
+  const QRectF pageRect(virtToThumb().mapRect(m_pageRect));
+  painter.setRenderHint(QPainter::Antialiasing, false);
+
+  // The page box is shown also on pages without content, as in the image view.
+  if (m_pageRectEnabled && !m_pageRect.isNull()) {
+    QPen pen(QColor(0xff, 0x7f, 0x00));
+    pen.setWidth(1);
+    pen.setCosmetic(true);
+    painter.setPen(pen);
+
+    painter.setBrush(Qt::NoBrush);
+
+    painter.drawRect(pageRect);
+  }
+
   if (!m_contentRect.isNull()) {
-    QRectF pageRect(virtToThumb().mapRect(m_pageRect));
-
-    painter.setRenderHint(QPainter::Antialiasing, false);
-
-    if (m_pageRectEnabled) {
-      QPen pen(QColor(0xff, 0x7f, 0x00));
-      pen.setWidth(1);
-      pen.setCosmetic(true);
-      painter.setPen(pen);
-
-      painter.setBrush(Qt::NoBrush);
-
-      painter.drawRect(pageRect);
-    }
-
     QPen pen(QColor(0x00, 0x00, 0xff));
     pen.setWidth(1);
     pen.setCosmetic(true);

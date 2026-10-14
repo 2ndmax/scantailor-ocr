@@ -57,15 +57,16 @@ class ContentBoxFinder::Garbage {
 
 
 namespace {
+// 64 bit: already a whole A4 page at 150 dpi gives 1240 * 1240 * 1754 > 2^31.
 struct PreferHorizontal {
   bool operator()(const QRect& lhs, const QRect& rhs) const {
-    return lhs.width() * lhs.width() * lhs.height() < rhs.width() * rhs.width() * rhs.height();
+    return int64_t(lhs.width()) * lhs.width() * lhs.height() < int64_t(rhs.width()) * rhs.width() * rhs.height();
   }
 };
 
 struct PreferVertical {
   bool operator()(const QRect& lhs, const QRect& rhs) const {
-    return lhs.width() * lhs.height() * lhs.height() < rhs.width() * rhs.height() * rhs.height();
+    return int64_t(lhs.width()) * lhs.height() * lhs.height() < int64_t(rhs.width()) * rhs.height() * rhs.height();
   }
 };
 }  // namespace
@@ -111,8 +112,8 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
 
   const double xscale = 150.0 / data.xform().origDpi().horizontal();
   const double yscale = 150.0 / data.xform().origDpi().vertical();
-  QRectF pageRect150(pageRect.left() * xscale, pageRect.top() * yscale, pageRect.right() * xscale,
-                     pageRect.bottom() * yscale);
+  const QRectF pageRect150(QPointF(pageRect.left() * xscale, pageRect.top() * yscale),
+                           QPointF(pageRect.right() * xscale, pageRect.bottom() * yscale));
   PolygonRasterizer::fillExcept(bw150, BLACK, pageRect150, Qt::WindingFill);
 
   PolygonRasterizer::fillExcept(bw150, BLACK, xform150dpi.resultingPreCropArea(), Qt::WindingFill);
@@ -536,6 +537,7 @@ void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage&
       queue.push(&mapLine[x]);
     }
   }
+  mapLine += mapStride;
   for (int y = 1; y < height - 1; ++y) {
     if (mapLine[0] == 0) {
       mapLine[0] = maxSpreadDist;
@@ -842,8 +844,15 @@ imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::Binar
       while ((top > first || bottom < last) && std::abs((centerY - top) - (bottom - centerY)) <= 1) {
         const int newTop = (top > first) ? top - 1 : top;
         const int newBottom = (bottom < last) ? bottom + 1 : bottom;
-        numBlack += hist[newTop] + hist[newBottom];
-        numTotal += blockHist[newTop] + blockHist[newBottom];
+        // A side that is already at the border adds no new row.
+        if (newTop != top) {
+          numBlack += hist[newTop];
+          numTotal += blockHist[newTop];
+        }
+        if (newBottom != bottom) {
+          numBlack += hist[newBottom];
+          numTotal += blockHist[newBottom];
+        }
         if (numBlack < numTotal * minFillFactor) {
           break;
         }
@@ -1352,6 +1361,7 @@ void ContentBoxFinder::Garbage::add(const BinaryImage& garbage, const QRect& rec
 const SEDM& ContentBoxFinder::Garbage::sedm() {
   if (m_sedmUpdatePending) {
     m_sedm = SEDM(m_garbage, SEDM::DIST_TO_BLACK, m_sedmBorders);
+    m_sedmUpdatePending = false;
   }
   return m_sedm;
 }

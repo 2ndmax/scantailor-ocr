@@ -244,33 +244,38 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
 
     Params newParams(params);
     std::unique_ptr<Params> oldParams = m_settings->getPageParams(pageId);
+    // The box that isn't applied keeps its mode on the target page; a page without params
+    // keeps the defaults.
+    const Params keptParams = oldParams ? *oldParams : Params(Dependencies());
+    if (!applyPageBox) {
+      newParams.setPageDetectionMode(keptParams.pageDetectionMode());
+      newParams.setPageRect(keptParams.pageRect());
+      newParams.setFineTuneCornersEnabled(keptParams.isFineTuningEnabled());
+    }
+    if (!applyContentBox) {
+      newParams.setContentDetectionMode(keptParams.contentDetectionMode());
+      newParams.setContentRect(keptParams.contentRect());
+      newParams.setContentSizeMM(keptParams.contentSizeMM());
+    }
     if (oldParams) {
-      if (newParams.pageDetectionMode() == MODE_MANUAL) {
-        if (!applyPageBox) {
-          newParams.setPageRect(oldParams->pageRect());
-        } else {
-          QRectF correctedPageRect = newParams.pageRect();
-          // newParams carries empty dependencies by design, so the source image has to be
-          // taken from the page we are copying from.
-          const QRectF sourceImageRect = m_uiData.dependencies().rotatedPageOutline().boundingRect();
-          const QRectF currentImageRect = oldParams->dependencies().rotatedPageOutline().boundingRect();
-          if (sourceImageRect.isValid() && currentImageRect.isValid()) {
-            correctedPageRect.translate((currentImageRect.width() - sourceImageRect.width()) / 2,
-                                        (currentImageRect.height() - sourceImageRect.height()) / 2);
-            newParams.setPageRect(correctedPageRect);
-          }
+      if (applyPageBox && (newParams.pageDetectionMode() == MODE_MANUAL)) {
+        QRectF correctedPageRect = newParams.pageRect();
+        // newParams carries empty dependencies by design, so the source image has to be
+        // taken from the page we are copying from.
+        const QRectF sourceImageRect = m_uiData.dependencies().rotatedPageOutline().boundingRect();
+        const QRectF currentImageRect = oldParams->dependencies().rotatedPageOutline().boundingRect();
+        if (sourceImageRect.isValid() && currentImageRect.isValid()) {
+          correctedPageRect.translate((currentImageRect.width() - sourceImageRect.width()) / 2,
+                                      (currentImageRect.height() - sourceImageRect.height()) / 2);
+          newParams.setPageRect(correctedPageRect);
         }
       }
-      if (newParams.contentDetectionMode() == MODE_MANUAL) {
-        if (!applyContentBox) {
-          newParams.setContentRect(oldParams->contentRect());
-        } else if (!newParams.contentRect().isEmpty()) {
-          QRectF correctedContentRect = newParams.contentRect();
-          const QRectF& sourcePageRect = m_uiData.pageRect();
-          const QRectF& newPageRect = newParams.pageRect();
-          correctedContentRect.translate(newPageRect.x() - sourcePageRect.x(), newPageRect.y() - sourcePageRect.y());
-          newParams.setContentRect(correctedContentRect);
-        }
+      if (applyContentBox && (newParams.contentDetectionMode() == MODE_MANUAL) && !newParams.contentRect().isEmpty()) {
+        QRectF correctedContentRect = newParams.contentRect();
+        const QRectF& sourcePageRect = m_uiData.pageRect();
+        const QRectF& newPageRect = newParams.pageRect();
+        correctedContentRect.translate(newPageRect.x() - sourcePageRect.x(), newPageRect.y() - sourcePageRect.y());
+        newParams.setContentRect(correctedContentRect);
       }
     }
 
