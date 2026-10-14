@@ -413,57 +413,30 @@ void DistortionModelBuilder::RansacAlgo::buildAndAssessModel(const TracedCurve* 
   double error = 0;
   for (const TracedCurve& curve : m_allCurves) {
     const size_t polylineSize = curve.trimmedPolyline.size();
+    if (polylineSize == 0) {
+      continue;
+    }
+
+    // A properly dewarped line is straight and horizontal, so we measure
+    // how far the dewarped polyline deviates from a horizontal line.
+    // That penalizes both curvature and tilt, in the same units.
     // The errors are not scaled by the local line height.
-    const double rReferenceHeight = 1.0;
-
-    // We are going to approximate the dewarped polyline by a straight line
-    // using linear least-squares: At*A*x = At*B -> x = (At*A)-1 * At*B
-    std::vector<double> At;
-    At.reserve(polylineSize * 2);
-    std::vector<double> B;
-    B.reserve(polylineSize);
-
+    std::vector<double> ys;
+    ys.reserve(polylineSize);
+    double sumY = 0;
     for (const QPointF& warpedPt : curve.trimmedPolyline) {
       // TODO: add another signature with hint for efficiency.
-      const QPointF dewarpedPt(dewarper.mapToDewarpedSpace(warpedPt));
-
-      // ax + b = y  <-> x * a + 1 * b = y
-      At.push_back(dewarpedPt.x());
-      At.push_back(1);
-      B.push_back(dewarpedPt.y());
+      const double y = dewarper.mapToDewarpedSpace(warpedPt).y();
+      ys.push_back(y);
+      sumY += y;
     }
+    const double meanY = sumY / polylineSize;
 
-    DynamicMatrixCalc<double> mc;
-
-    // A = Att
-    std::unique_ptr<double[]> A(new double[polylineSize * 2]);
-    mc(&At[0], 2, (int) polylineSize).transWrite(&A[0]);
-
-    try {
-      std::unique_ptr<double[]> errvec(new double[polylineSize]);
-      double ab[2];  // As in "y = ax + b".
-
-      // errvec = B - A * (At*A)-1 * At * B
-      // ab = (At*A)-1 * At * B
-      (mc(&B[0], (int) polylineSize, 1)
-       - mc(&A[0], (int) polylineSize, 2)
-             * ((mc(&At[0], 2, (int) polylineSize) * mc(&A[0], (int) polylineSize, 2)).inv()
-                * (mc(&At[0], 2, (int) polylineSize) * mc(&B[0], (int) polylineSize, 1)))
-                   .write(ab))
-          .write(&errvec[0]);
-
-      double sumAbsErr = 0;
-      for (size_t i = 0; i < polylineSize; ++i) {
-        sumAbsErr += std::fabs(errvec[i]) * rReferenceHeight;
-      }
-      // Penalty for not being straight.
-      error += sumAbsErr / polylineSize;
-
-      // TODO: penalty for not being horizontal.
-    } catch (const std::runtime_error&) {
-      // Strictly vertical line?
-      error += 1000;
+    double sumAbsErr = 0;
+    for (const double y : ys) {
+      sumAbsErr += std::fabs(y - meanY);
     }
+    error += sumAbsErr / polylineSize;
   }
 
   if (error < m_bestModel.totalError) {

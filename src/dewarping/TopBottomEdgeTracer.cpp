@@ -556,12 +556,15 @@ std::vector<QPoint> TopBottomEdgeTracer::locateBestPathEndpoints(const Grid<Grid
     if (bestPaths.size() < numBestPaths) {
       bestPaths.emplace_back(pt, node->pathCost);
     } else {
-      // Find the one to kick out (if any).
+      // Kick out the worst one, if the new path is better.
+      Path* worstPath = &bestPaths.front();
       for (Path& path : bestPaths) {
-        if (node->pathCost < path.cost) {
-          path = Path(pt, node->pathCost);
-          break;
+        if (path.cost > worstPath->cost) {
+          worstPath = &path;
         }
+      }
+      if (node->pathCost < worstPath->cost) {
+        *worstPath = Path(pt, node->pathCost);
       }
     }
   }
