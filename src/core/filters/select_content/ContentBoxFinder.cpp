@@ -598,7 +598,8 @@ void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage&
   const uint32_t msb = uint32_t(1) << 31;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      if (mapLine[x] + 1 > 1) {  // If not 0 or ~uint16_t(0)
+      // Reached by the spread from the border: neither unreached black (0) nor white (max).
+      if ((mapLine[x] != 0) && (mapLine[x] != std::numeric_limits<uint16_t>::max())) {
         cbLine[x >> 5] &= ~(msb >> (x & 31));
       }
     }
@@ -886,8 +887,7 @@ imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::Binar
         rasterOp<RopSrc>(lineUeps, lineUeps.rect(), contentBlocks, lineRect.topLeft());
         rasterOp<RopAnd<RopSrc, RopDst>>(lineUeps, lineUeps.rect(), ueps, lineRect.topLeft());
         ConnCompEraser uepsEraser(lineUeps, CONN4);
-        ConnComp cc;
-        for (; uepsTodo && !(cc = uepsEraser.nextConnComp()).isNull(); --uepsTodo) {
+        for (; uepsTodo && !uepsEraser.nextConnComp().isNull(); --uepsTodo) {
           // Erase components until uepsTodo reaches zero or there are no more components.
         }
         if (uepsTodo) {
