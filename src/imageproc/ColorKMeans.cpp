@@ -187,20 +187,15 @@ QImage reduceColorsKMeans(const QImage& image, const int colors, const bool fixB
   return result;
 }
 
-QImage reduceTextColorsKMeans(const QImage& color,
-                              const BinaryImage& text,
-                              const int colors,
-                              const bool fixBlack,
-                              const int maxLetterPixels) {
-  return reduceTextColorsKMeans(color, text, ConnectivityMap(text, CONN8), colors, fixBlack, maxLetterPixels);
-}
-
-QImage reduceTextColorsKMeans(const QImage& color,
-                              const BinaryImage& text,
-                              const ConnectivityMap& segments,
-                              const int colors,
-                              const bool fixBlack,
-                              const int maxLetterPixels) {
+namespace {
+// components: the connected areas of the text, which decide what is a letter.
+QImage reduceTextColors(const QImage& color,
+                        const BinaryImage& text,
+                        const ConnectivityMap& components,
+                        const ConnectivityMap& segments,
+                        const int colors,
+                        const bool fixBlack,
+                        const int maxLetterPixels) {
   const QImage source = color.convertToFormat(QImage::Format_RGB32);
   QImage result(source.size(), QImage::Format_RGB32);
   result.fill(Qt::white);
@@ -233,7 +228,6 @@ QImage reduceTextColorsKMeans(const QImage& color,
   // Letters are the small connected areas of the text.  Each of their segments gets the group of its
   // average color; larger areas, such as pictures and the lines of drawings, keep a group for each
   // pixel and so their shading.
-  const ConnectivityMap components(text, CONN8);
   std::vector<int> componentSizes(components.maxLabel() + 1, 0);
   const uint32_t* labelLine = components.data();
   for (int y = 0; y < height; ++y) {
@@ -290,5 +284,25 @@ QImage reduceTextColorsKMeans(const QImage& color,
     segmentLine += segments.stride();
   }
   return result;
+}
+}  // namespace
+
+QImage reduceTextColorsKMeans(const QImage& color,
+                              const BinaryImage& text,
+                              const int colors,
+                              const bool fixBlack,
+                              const int maxLetterPixels) {
+  // The connected areas of the text are its segments as well.
+  const ConnectivityMap components(text, CONN8);
+  return reduceTextColors(color, text, components, components, colors, fixBlack, maxLetterPixels);
+}
+
+QImage reduceTextColorsKMeans(const QImage& color,
+                              const BinaryImage& text,
+                              const ConnectivityMap& segments,
+                              const int colors,
+                              const bool fixBlack,
+                              const int maxLetterPixels) {
+  return reduceTextColors(color, text, ConnectivityMap(text, CONN8), segments, colors, fixBlack, maxLetterPixels);
 }
 }  // namespace imageproc

@@ -35,8 +35,6 @@ struct Component {
   uint32_t size;
 
   Component() : size(0) {}
-
-  inline uint32_t square() const { return size; }
 };
 
 struct BoundingBox {
@@ -95,8 +93,9 @@ bool ComponentCleaner::eligibleForDelete(const Component& component, const Bound
     return true;
   }
 
-  double squareRelation = double(component.square()) / (boundingBox.height() * boundingBox.width());
-  double averageWidth = std::min(boundingBox.height(), boundingBox.width()) * squareRelation;
+  // The share of the bounding box the component fills.
+  const double fillRatio = double(component.size) / (boundingBox.height() * boundingBox.width());
+  const double averageWidth = std::min(boundingBox.height(), boundingBox.width()) * fillRatio;
   return (averageWidth <= m_minAverageWidthThreshold);
 }
 

@@ -50,7 +50,6 @@ QVector<QRgb> paletteFromRgb(const QImage& image) {
 }  // namespace
 
 QVector<QRgb> Posterizer::buildPalette(const QImage& image) {
-  std::unordered_map<uint32_t, int> paletteMap;
   switch (image.format()) {
     case QImage::Format_Indexed8:
       return image.colorTable();
@@ -352,8 +351,8 @@ QImage Posterizer::posterize(const QImage& image) const {
       const uint32_t normalizedColor = colorToNormalizedMap[color];
 
       const auto redGroupIdx = static_cast<int>(qRed(normalizedColor) / levelStride);
-      const auto blueGroupIdx = static_cast<int>(qGreen(normalizedColor) / levelStride);
-      const auto greenGroupIdx = static_cast<int>(qBlue(normalizedColor) / levelStride);
+      const auto greenGroupIdx = static_cast<int>(qGreen(normalizedColor) / levelStride);
+      const auto blueGroupIdx = static_cast<int>(qBlue(normalizedColor) / levelStride);
 
       auto group = static_cast<uint32_t>((redGroupIdx << 16) | (greenGroupIdx << 8) | (blueGroupIdx));
 
