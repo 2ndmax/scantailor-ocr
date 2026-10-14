@@ -91,6 +91,28 @@ void combineImagesColor(QImage& mixedImage, const QImage& foreground) {
   }
 }
 
+template <>
+void combineImagesColor<uint8_t>(QImage& mixedImage, const QImage& foreground) {
+  auto* mixedLine = mixedImage.bits();
+  const int mixedStride = mixedImage.bytesPerLine();
+  const auto* foregroundLine = foreground.bits();
+  const int foregroundStride = foreground.bytesPerLine();
+  const int width = mixedImage.width();
+  const int height = mixedImage.height();
+
+  // Both images are grayscale (index i is gray i), so white is 0xff.
+  // White foreground pixels are transparent, as in the 32-bit version.
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      if (foregroundLine[x] != 0xff) {
+        mixedLine[x] = foregroundLine[x];
+      }
+    }
+    mixedLine += mixedStride;
+    foregroundLine += foregroundStride;
+  }
+}
+
 template <typename MixedPixel, typename ForegroundPixel>
 void combineImagesColor(QImage& mixedImage, const QImage& foreground);
 
@@ -372,7 +394,7 @@ void combineImages(QImage& mixedImage, const BinaryImage& foreground) {
 
 void combineImages(QImage& mixedImage, const BinaryImage& foreground, const BinaryImage& mask) {
   checkImageFormatSupported(mixedImage);
-  checkImagesHaveEqualSize(mixedImage, foreground);
+  checkImagesHaveEqualSize(mixedImage, foreground, mask);
 
   impl::combineImagesMono(mixedImage, foreground, mask);
 }

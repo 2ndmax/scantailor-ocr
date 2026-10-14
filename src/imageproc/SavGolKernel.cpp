@@ -80,7 +80,7 @@ void SavGolKernel::QR() {
       const double b = m_equations[ij];
 
       if (b == 0.0) {
-        m_rotations.emplace_back(1.0, 0.0);
+        m_rotations.emplace_back(0.0, 1.0);  // Identity: sin = 0, cos = 1.
         continue;
       }
 

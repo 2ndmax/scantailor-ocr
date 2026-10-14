@@ -301,6 +301,12 @@ void PolygonRasterizer::Rasterizer::fillBinary(BinaryImage& image, const BWColor
   const int wpl = image.wordsPerLine();
   const uint32_t pattern = (color == WHITE) ? 0 : ~uint32_t(0);
 
+  if (m_invert && m_edges.empty()) {
+    // The polygon doesn't overlap the image, so the whole image is outside of it.
+    image.fill(color);
+    return;
+  }
+
   int i = qRound(m_boundingBox.top());
   line += i * wpl;
   const int limit = qRound(m_boundingBox.bottom());
@@ -336,6 +342,12 @@ void PolygonRasterizer::Rasterizer::fillBinary(BinaryImage& image, const BWColor
 void PolygonRasterizer::Rasterizer::fillGrayscale(QImage& image, const uint8_t color) const {
   std::vector<EdgeComponent> edgesForLine;
   using EdgeIter = std::vector<EdgeComponent>::const_iterator;
+
+  if (m_invert && m_edges.empty()) {
+    // The polygon doesn't overlap the image, so the whole image is outside of it.
+    image.fill(static_cast<uint>(color));
+    return;
+  }
 
   uint8_t* line = image.bits();
   const int bpl = image.bytesPerLine();

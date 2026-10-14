@@ -165,6 +165,17 @@ BOOST_AUTO_TEST_CASE(test_open_1x2_gray) {
   BOOST_CHECK(openGray(img, QSize(1, 2), 0x00) == control);
 }
 
+BOOST_AUTO_TEST_CASE(test_close_2x1_gray) {
+  // A brick of even size is not symmetric around its origin, so the
+  // intermediate image has to be extended on the correct side.
+  static const int inp[] = {1, 9, 1, 9, 9, 9};
+  static const int out[] = {1, 1, 1, 9, 9, 9};
+
+  const GrayImage img(makeGrayImage(inp, 6, 1));
+  const GrayImage control(makeGrayImage(out, 6, 1));
+  BOOST_CHECK(closeGray(img, QSize(2, 1), 0xff) == control);
+}
+
 BOOST_AUTO_TEST_CASE(test_dilate_5x5_white) {
   static const int inp[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

@@ -175,7 +175,7 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
   tempLine = tempArray.data() - shift;
   for (int y = kTop; y < height - kBottom; ++y) {
     for (int i = shift; i < width; ++i) {
-      float sum = 0.0f;
+      float sum = 0.5f;  // For rounding purposes, as in Kernel::convolve().
 
       float* tmp = tempLine + i;
       for (int j = 0; j < kh; ++j, tmp += tempStride) {
@@ -192,7 +192,7 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
 
   // Left area between two corners.
   kOrigin.setX(0);
-  kOrigin.setY(kCenter.y() + 1);
+  kOrigin.setY(kCenter.y());
   for (int x = 0; x < kLeft; ++x) {
     srcLine = srcData;
     dstLine = dstData + dstBpl * kTop;

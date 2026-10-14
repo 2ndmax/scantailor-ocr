@@ -126,7 +126,9 @@ void wienerColorFilterInPlace(QImage& image, QSize const& window_size, double co
     int const h = image.height();
     uint8_t* image_line = (uint8_t*) image.bits();
     int const image_bpl = image.bytesPerLine();
-    unsigned int const cnum = image_bpl / w;
+    // A 32-bit pixel has 3 color channels; the 4th byte is alpha (or unused) and stays as it is.
+    int const pixelBytes = image.depth() / 8;
+    int const cnum = (pixelBytes == 4) ? 3 : pixelBytes;
 
     GrayImage gray = GrayImage(image);
     uint8_t* gray_line = gray.data();
@@ -142,8 +144,8 @@ void wienerColorFilterInPlace(QImage& image, QSize const& window_size, double co
 
         float const colscale = (color + 1.0f) / (origin + 1.0f);
         float const coldelta = color - origin * colscale;
-        for (unsigned int c = 0; c < cnum; ++c) {
-          int const indx = x * cnum + c;
+        for (int c = 0; c < cnum; ++c) {
+          int const indx = x * pixelBytes + c;
           float origcol = image_line[indx];
           float val = origcol * colscale + coldelta;
           val = (val < 0.0f) ? 0.0f : (val < 255.0f) ? val : 255.0f;

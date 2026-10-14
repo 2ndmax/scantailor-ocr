@@ -4,6 +4,7 @@
 #include <BWColor.h>
 #include <BinaryImage.h>
 #include <BinaryThreshold.h>
+#include <Grayscale.h>
 #include <PolygonRasterizer.h>
 #include <RasterOp.h>
 
@@ -145,6 +146,25 @@ BOOST_AUTO_TEST_CASE(regression_test_1) {
   shape.push_back(QPointF(904.496, 1299.12));
   shape.push_back(QPointF(937.872, 24.559));
   BOOST_CHECK(testFillExceptShape(QSize(938, 1299), shape, Qt::WindingFill));
+}
+
+BOOST_AUTO_TEST_CASE(test_fill_except_polygon_outside_image) {
+  // Nothing of the image is inside the polygon, so everything gets filled.
+  const QPolygonF outside(QRectF(20, 20, 10, 10));
+  const QPolygonF empty;
+
+  for (const QPolygonF& poly : {outside, empty}) {
+    BinaryImage image(10, 10, WHITE);
+    PolygonRasterizer::fillExcept(image, BLACK, poly, Qt::WindingFill);
+    BOOST_CHECK_EQUAL(image.countBlackPixels(), 100);
+
+    QImage gray(10, 10, QImage::Format_Indexed8);
+    gray.setColorTable(createGrayscalePalette());
+    gray.fill(0);
+    PolygonRasterizer::grayFillExcept(gray, 200, poly, Qt::OddEvenFill);
+    BOOST_CHECK_EQUAL(qGray(gray.pixel(0, 0)), 200);
+    BOOST_CHECK_EQUAL(qGray(gray.pixel(9, 9)), 200);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

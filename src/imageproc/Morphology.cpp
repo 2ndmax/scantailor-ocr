@@ -867,7 +867,7 @@ GrayImage closeGray(const GrayImage& src,
 
   // We are going to make two operations:
   // tmp = dilateGray(src, brick1), then dst = erodeGray(tmp, brick2)
-  const QRect tmpRect(extendByBrick(dstArea, brick2));
+  const QRect tmpRect(extendByBrick(dstArea, brick1));
   CoordinateSystem tmpCs(tmpRect.topLeft());
 
   const GrayImage tmp(dilateOrErodeGray<Darker>(src, brick1, tmpRect, srcSurroundings));

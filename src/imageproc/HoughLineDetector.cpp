@@ -149,7 +149,8 @@ std::vector<HoughLine> HoughLineDetector::findLines(const unsigned qualityLowerB
 
     const QPoint center(cc.rect().center());
     const QPointF normUv(m_angleUnitVectors[center.y()]);
-    const double distance = (center.x() + 0.5) * m_distanceResolution - m_distanceBias;
+    // process() rounds to the nearest bin, so bin b is centered at b * m_distanceResolution.
+    const double distance = center.x() * m_distanceResolution - m_distanceBias;
     lines.emplace_back(normUv, distance, level);
   }
 

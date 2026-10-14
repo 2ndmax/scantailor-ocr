@@ -21,6 +21,9 @@ set(sources
     TestPosterizer.cpp
     TestColoredDimming.cpp
     TestEnhanceFilters.cpp
+    TestSavGolFilter.cpp
+    TestHoughLineDetector.cpp
+    TestImageCombination.cpp
     TestExperimentalBinarization.cpp
     Utils.cpp Utils.h)
 

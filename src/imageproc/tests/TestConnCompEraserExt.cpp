@@ -123,6 +123,31 @@ BOOST_AUTO_TEST_CASE(test_small_image) {
   BOOST_CHECK_MESSAGE(c8i.empty(), "Not all 8-connected blocks were found.");
 }
 
+BOOST_AUTO_TEST_CASE(test_component_ending_at_word_boundary) {
+  // The first component ends exactly at x = 32, the first bit of the second word.
+  // The second component's bounding box covers it, so a stale copy of the first
+  // component would show up in the second component's image.
+  BinaryImage image(40, 4, WHITE);
+  image.setPixel(32, 0, BLACK);
+  image.setPixel(32, 1, BLACK);
+  for (int y = 1; y <= 3; ++y) {
+    image.setPixel(30, y, BLACK);
+    image.setPixel(34, y, BLACK);
+  }
+  for (int x = 31; x <= 33; ++x) {
+    image.setPixel(x, 3, BLACK);
+  }
+
+  ConnCompEraserExt eraser(image, CONN4);
+  int numComponents = 0;
+  ConnComp cc;
+  while (!(cc = eraser.nextConnComp()).isNull()) {
+    ++numComponents;
+    BOOST_CHECK_EQUAL(eraser.computeConnCompImage().countBlackPixels(), cc.pixCount());
+  }
+  BOOST_CHECK_EQUAL(numComponents, 2);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

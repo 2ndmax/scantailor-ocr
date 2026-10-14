@@ -20,7 +20,7 @@ ConnComp ConnCompEraserExt::nextConnComp() {
     const size_t dstWpl = m_lastImage.wordsPerLine();
     const size_t firstWordIdx = rect.left() / 32;
     // Note: rect.right() == rect.x() + rect.width() - 1
-    const size_t spanLength = (rect.right() + 31) / 32 - firstWordIdx;
+    const size_t spanLength = rect.right() / 32 + 1 - firstWordIdx;
     const size_t srcInitialOffset = rect.top() * srcWpl + firstWordIdx;
     const size_t dstInitialOffset = rect.top() * dstWpl + firstWordIdx;
     const uint32_t* srcPos = src.data() + srcInitialOffset;

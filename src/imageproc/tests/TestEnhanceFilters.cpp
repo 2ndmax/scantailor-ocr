@@ -5,6 +5,7 @@
 #include <GrayImage.h>
 #include <KnnDenoiser.h>
 #include <Sharpen.h>
+#include <WienerFilter.h>
 
 #include <QImage>
 #include <algorithm>
@@ -139,6 +140,27 @@ BOOST_AUTO_TEST_CASE(test_chroma_denoise_removes_color_noise) {
   BOOST_CHECK_LE(maxSpread, 3);
   const QRgb red = image.pixel(65, 30);
   BOOST_CHECK_GT(qRed(red), qGreen(red) + 120);
+}
+
+BOOST_AUTO_TEST_CASE(test_wiener_keeps_alpha) {
+  const GrayImage gray(makeEdge(true));
+  QImage image(gray.width(), gray.height(), QImage::Format_ARGB32);
+  for (int y = 0; y < image.height(); ++y) {
+    for (int x = 0; x < image.width(); ++x) {
+      const int val = at(gray, x, y);
+      image.setPixel(x, y, qRgba(val, val, val, 255));
+    }
+  }
+  const QImage original(image);
+
+  wienerColorFilterInPlace(image, QSize(5, 5), 0.5);
+
+  BOOST_CHECK(image != original);
+  for (int y = 0; y < image.height(); ++y) {
+    for (int x = 0; x < image.width(); ++x) {
+      BOOST_REQUIRE_EQUAL(qAlpha(image.pixel(x, y)), 255);
+    }
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
