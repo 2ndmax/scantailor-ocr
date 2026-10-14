@@ -118,6 +118,7 @@ void gaussBlurGeneric(const QSize size,
   // Columns in the vertical pass and rows in the horizontal pass are independent, so they are
   // computed in parallel, each slice with its own buffers.  The horizontal pass only starts once
   // the vertical one is complete, so input and output may be the same image.
+
   // IIR parameters.
   float nP[5], nM[5], dP[5], dM[5], bdP[5], bdM[5];
   // Vertical pass.

@@ -106,8 +106,8 @@ QImage HoughLineDetector::visualizeHoughSpace(const unsigned lowerBound) const {
   histLine = &m_histogram[0];
   for (int y = 0; y < m_histHeight; ++y) {
     for (int x = 0; x < m_histWidth; ++x) {
-      const auto intensity = (unsigned) std::floor(histLine[x] * 255.0 / maxValue + 0.5);
-      intensityLine[x] = (unsigned char) intensity;
+      const auto level = (unsigned) std::floor(histLine[x] * 255.0 / maxValue + 0.5);
+      intensityLine[x] = (unsigned char) level;
     }
     intensityLine += intensityBpl;
     histLine += m_histWidth;
@@ -141,7 +141,6 @@ std::vector<HoughLine> HoughLineDetector::findLines(const unsigned qualityLowerB
 
   std::vector<HoughLine> lines;
 
-  const QRect peaksRect(peaks.rect());
   ConnCompEraser eraser(peaks.release(), CONN8);
   ConnComp cc;
   while (!(cc = eraser.nextConnComp()).isNull()) {
