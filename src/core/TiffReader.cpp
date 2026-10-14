@@ -26,7 +26,6 @@
 #include "Dpm.h"
 #include "ImageLoadErrors.h"
 #include "ImageMetadata.h"
-#include "NonCopyable.h"
 
 class TiffReader::TiffHeader {
  public:
@@ -60,48 +59,6 @@ class TiffReader::TiffHandle {
 
  private:
   TIFF* m_handle;
-};
-
-
-template <typename T>
-class TiffReader::TiffBuffer {
-  DECLARE_NON_COPYABLE(TiffBuffer)
-
- public:
-  TiffBuffer() : m_data(nullptr) {}
-
-  explicit TiffBuffer(size_t numItems) {
-    // The multiplication is done in size_t to avoid an overflow, which would
-    // silently allocate a buffer that's too small for the data we're about
-    // to put into it.
-    const size_t numBytes = numItems * sizeof(T);
-    if ((numItems != 0) && ((numBytes / numItems) != sizeof(T))) {
-      throw std::bad_alloc();
-    }
-    // libtiff sizes allocations with a signed type, which may be narrower
-    // than size_t.  Make sure the value survives the conversion.
-    const auto requestedSize = static_cast<tsize_t>(numBytes);
-    if ((requestedSize < 0) || (static_cast<size_t>(requestedSize) != numBytes)) {
-      throw std::bad_alloc();
-    }
-    m_data = (T*) _TIFFmalloc(requestedSize);
-    if (!m_data) {
-      throw std::bad_alloc();
-    }
-  }
-
-  ~TiffBuffer() {
-    if (m_data) {
-      _TIFFfree(m_data);
-    }
-  }
-
-  T* data() { return m_data; }
-
-  void swap(TiffBuffer& other) { std::swap(m_data, other.m_data); }
-
- private:
-  T* m_data;
 };
 
 
@@ -962,35 +919,16 @@ QImage TiffReader::readRgbaImage(const TiffHandle& tif, const TiffInfo& info) {
     throw std::bad_alloc();
   }
 
-  // For ABGR -> ARGB conversion.
-  TiffBuffer<uint32_t> tmpBuffer;
-  const uint32_t* srcLine = nullptr;
-
-  if (image.bytesPerLine() == 4 * info.width) {
-    // We can avoid creating a temporary buffer in this case.
-    if (!TIFFReadRGBAImageOriented(tif.handle(), info.width, info.height, (uint32_t*) image.bits(), ORIENTATION_TOPLEFT,
-                                   0)) {
-      return QImage();
-    }
-    srcLine = (const uint32_t*) image.bits();
-  } else {
-    // The multiplication is done in size_t to avoid an int overflow, which
-    // would size the buffer far too small for what TIFFReadRGBAImageOriented()
-    // is about to write into it.
-    TiffBuffer<uint32_t>(static_cast<size_t>(info.width) * static_cast<size_t>(info.height)).swap(tmpBuffer);
-    if (!TIFFReadRGBAImageOriented(tif.handle(), info.width, info.height, tmpBuffer.data(), ORIENTATION_TOPLEFT, 0)) {
-      return QImage();
-    }
-    srcLine = tmpBuffer.data();
+  // The lines of a 32-bit QImage have no padding, so libtiff can write into it directly.
+  assert(image.bytesPerLine() == 4 * info.width);
+  auto* pixels = reinterpret_cast<uint32_t*>(image.bits());
+  if (!TIFFReadRGBAImageOriented(tif.handle(), info.width, info.height, pixels, ORIENTATION_TOPLEFT, 0)) {
+    return QImage();
   }
-
-  auto* dstLine = (uint32_t*) image.bits();
-  assert(image.bytesPerLine() % 4 == 0);
-  const int dstStride = image.bytesPerLine() / 4;
+  // libtiff delivers ABGR words.
   for (int y = 0; y < info.height; ++y) {
-    convertAbgrToArgb(srcLine, dstLine, info.width);
-    srcLine += info.width;
-    dstLine += dstStride;
+    uint32_t* line = pixels + static_cast<size_t>(y) * info.width;
+    convertAbgrToArgb(line, line, info.width);
   }
   return image;
 }  // TiffReader::readRgbaImage

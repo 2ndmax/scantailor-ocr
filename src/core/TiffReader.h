@@ -55,9 +55,6 @@ class TiffReader {
 
   struct TiffInfo;
 
-  template <typename T>
-  class TiffBuffer;
-
   static TiffHeader readHeader(QIODevice& device);
 
   static bool checkHeader(const TiffHeader& header);
