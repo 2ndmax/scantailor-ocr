@@ -210,8 +210,8 @@ QPolygonF Utils::calcPageRectPhys(const ImageTransformation& xform,
   // scaled up to the maximum; such a page is not scaled, as the options panel shows.
   const double factor = params.contentSizeMM().isEmpty()
                             ? 1.0
-                            : calcScaleFactor(contentSizeMm, params.hardMarginsMM(), params.alignment(),
-                                              aggregateHardSizeMm, outputSizeOptions);
+                            : outputSizeOptions.scaleFactor(contentSizeMm, params.hardMarginsMM(), params.alignment(),
+                                                            aggregateHardSizeMm);
   if (scaleFactor) {
     *scaleFactor = factor;
   }
@@ -242,14 +242,6 @@ QPolygonF Utils::calcPageRectPhys(const ImageTransformation& xform,
   extendPolyRectWithMargins(polyMm, Margins(marginsMm.left() / factor, marginsMm.top() / factor,
                                             marginsMm.right() / factor, marginsMm.bottom() / factor));
   return pixelsToMmTransform.inverted().map(polyMm);
-}
-
-double Utils::calcScaleFactor(const QSizeF& contentSizeMm,
-                              const Margins& hardMarginsMm,
-                              const Alignment& alignment,
-                              const QSizeF& commonSizeMm,
-                              const OutputSizeOptions& outputSizeOptions) {
-  return outputSizeOptions.scaleFactor(contentSizeMm, hardMarginsMm, alignment, commonSizeMm);
 }
 
 QPointF Utils::getRightUnitVector(const QPolygonF& polyRect) {

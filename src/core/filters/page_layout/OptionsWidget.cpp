@@ -240,7 +240,7 @@ void OptionsWidget::horMarginsChanged(const double val) {
     rightMarginSpinBox->setValue(val);
   }
 
-  double dummy;
+  double dummy = 0;
   double leftMarginSpinBoxValue = leftMarginSpinBox->value();
   double rightMarginSpinBoxValue = rightMarginSpinBox->value();
   UnitsProvider::getInstance().convertTo(leftMarginSpinBoxValue, dummy, MILLIMETRES, m_dpi);
@@ -260,7 +260,7 @@ void OptionsWidget::vertMarginsChanged(const double val) {
     bottomMarginSpinBox->setValue(val);
   }
 
-  double dummy;
+  double dummy = 0;
   double topMarginSpinBoxValue = topMarginSpinBox->value();
   double bottomMarginSpinBoxValue = bottomMarginSpinBox->value();
   UnitsProvider::getInstance().convertTo(dummy, topMarginSpinBoxValue, MILLIMETRES, m_dpi);
@@ -601,8 +601,8 @@ void OptionsWidget::updateLinkDisplay(QToolButton* button, const bool linked) {
 }
 
 void OptionsWidget::updateAlignmentButtonsEnabled() {
-  bool enableHorizontalButtons = !m_alignment.isAutoHorizontal() ? !m_alignment.isNull() : false;
-  bool enableVerticalButtons = !m_alignment.isAutoVertical() ? !m_alignment.isNull() : false;
+  bool enableHorizontalButtons = !m_alignment.isAutoHorizontal() && !m_alignment.isNull();
+  bool enableVerticalButtons = !m_alignment.isAutoVertical() && !m_alignment.isNull();
 
   alignTopLeftBtn->setEnabled(enableHorizontalButtons && enableVerticalButtons);
   alignTopBtn->setEnabled(enableVerticalButtons);

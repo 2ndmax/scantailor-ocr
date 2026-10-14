@@ -39,7 +39,7 @@ OutputSizeOptions ownTarget(const QSizeF& sizeMm) {
 }
 
 double factor(const Alignment& alignment, const QSizeF& commonMm, const OutputSizeOptions& options) {
-  return Utils::calcScaleFactor(CONTENT_MM, MARGINS_MM, alignment, commonMm, options);
+  return options.scaleFactor(CONTENT_MM, MARGINS_MM, alignment, commonMm);
 }
 }  // namespace
 

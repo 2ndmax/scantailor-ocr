@@ -144,8 +144,6 @@ class Settings::Impl {
 
   QSizeF getAggregateHardSizeMM() const;
 
-  QSizeF getAggregateHardSizeMMLocked() const;
-
   QSizeF computeAggregateHardSizeMMLocked() const;
 
   QSizeF getAggregateHardSizeMM(const PageId& pageId, const QSizeF& hardSizeMm, const Alignment& alignment) const;
@@ -393,6 +391,8 @@ void Settings::Impl::clear() {
   m_deviationProvider.clear();
   // A new project starts with the default parameters; a loaded one sets its own afterwards.
   m_outputSizeOptions = Utils::buildDefaultOutputSizeOptions();
+  m_guides.clear();
+  m_showMiddleRect = true;
 }
 
 void Settings::Impl::performRelinking(const AbstractRelinker& relinker) {
@@ -488,7 +488,7 @@ Params Settings::Impl::updateContentSizeAndGetParams(const PageId& pageId,
   const QMutexLocker locker(&m_mutex);
 
   if (aggHardSizeBefore) {
-    *aggHardSizeBefore = getAggregateHardSizeMMLocked();
+    *aggHardSizeBefore = computeAggregateHardSizeMMLocked();
   }
 
   const Container::iterator it(m_items.find(pageId));
@@ -502,7 +502,7 @@ Params Settings::Impl::updateContentSizeAndGetParams(const PageId& pageId,
   }
 
   if (aggHardSizeAfter) {
-    *aggHardSizeAfter = getAggregateHardSizeMMLocked();
+    *aggHardSizeAfter = computeAggregateHardSizeMMLocked();
   }
 
   m_deviationProvider.addOrUpdate(pageId);
@@ -550,7 +550,7 @@ Alignment Settings::Impl::getPageAlignment(const PageId& pageId) const {
 Settings::AggregateSizeChanged Settings::Impl::setPageAlignment(const PageId& pageId, const Alignment& alignment) {
   const QMutexLocker locker(&m_mutex);
 
-  const QSizeF aggSizeBefore(getAggregateHardSizeMMLocked());
+  const QSizeF aggSizeBefore(computeAggregateHardSizeMMLocked());
 
   const Container::iterator it(m_items.find(pageId));
   if (it == m_items.end()) {
@@ -563,7 +563,7 @@ Settings::AggregateSizeChanged Settings::Impl::setPageAlignment(const PageId& pa
 
   m_deviationProvider.addOrUpdate(pageId);
 
-  const QSizeF aggSizeAfter(getAggregateHardSizeMMLocked());
+  const QSizeF aggSizeAfter(computeAggregateHardSizeMMLocked());
   if (aggSizeBefore == aggSizeAfter) {
     return AGGREGATE_SIZE_UNCHANGED;
   } else {
@@ -574,7 +574,7 @@ Settings::AggregateSizeChanged Settings::Impl::setPageAlignment(const PageId& pa
 Settings::AggregateSizeChanged Settings::Impl::setContentSizeMM(const PageId& pageId, const QSizeF& contentSizeMm) {
   const QMutexLocker locker(&m_mutex);
 
-  const QSizeF aggSizeBefore(getAggregateHardSizeMMLocked());
+  const QSizeF aggSizeBefore(computeAggregateHardSizeMMLocked());
 
   const Container::iterator it(m_items.find(pageId));
   if (it == m_items.end()) {
@@ -587,7 +587,7 @@ Settings::AggregateSizeChanged Settings::Impl::setContentSizeMM(const PageId& pa
 
   m_deviationProvider.addOrUpdate(pageId);
 
-  const QSizeF aggSizeAfter(getAggregateHardSizeMMLocked());
+  const QSizeF aggSizeAfter(computeAggregateHardSizeMMLocked());
   if (aggSizeBefore == aggSizeAfter) {
     return AGGREGATE_SIZE_UNCHANGED;
   } else {
@@ -608,7 +608,7 @@ void Settings::Impl::invalidateContentSize(const PageId& pageId) {
 
 QSizeF Settings::Impl::getAggregateHardSizeMM() const {
   const QMutexLocker locker(&m_mutex);
-  return getAggregateHardSizeMMLocked();
+  return computeAggregateHardSizeMMLocked();
 }
 
 QSizeF Settings::Impl::computeAggregateHardSizeMMLocked() const {
@@ -622,10 +622,6 @@ QSizeF Settings::Impl::computeAggregateHardSizeMMLocked() const {
   const double width = maxWidthItem.influenceHardWidthMM();
   const double height = maxHeightItem.influenceHardHeightMM();
   return QSizeF(width, height);
-}
-
-QSizeF Settings::Impl::getAggregateHardSizeMMLocked() const {
-  return computeAggregateHardSizeMMLocked();
 }
 
 QSizeF Settings::Impl::getAggregateHardSizeMM(const PageId& pageId,

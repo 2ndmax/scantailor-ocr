@@ -81,26 +81,6 @@ class Utils {
                                     const OutputSizeOptions& outputSizeOptions = OutputSizeOptions(),
                                     double* scaleFactor = nullptr);
 
-  /**
-   * \brief Calculates how much the content of a page is scaled to fit the output size.
-   *
-   * The hard margins keep their size.  Pages not matched to others are never scaled.
-   * Pages filled with margins are reduced only to an own target size, never enlarged;
-   * pages scaled to fit are enlarged or reduced, both within the limits.
-   *
-   * \param contentSizeMm The content size in millimeters.
-   * \param hardMarginsMm The hard margins in millimeters.
-   * \param alignment Whether and how the page is matched to others.
-   * \param commonSizeMm The common size of the matched pages.
-   * \param outputSizeOptions The own target size and the limits.
-   * \return The factor, 1 for no scaling.
-   */
-  static double calcScaleFactor(const QSizeF& contentSizeMm,
-                                const Margins& hardMarginsMm,
-                                const Alignment& alignment,
-                                const QSizeF& commonSizeMm,
-                                const OutputSizeOptions& outputSizeOptions);
-
   static QPolygonF shiftToRoundedOrigin(const QPolygonF& poly);
 
   static Params buildDefaultParams(const Dpi& dpi);
