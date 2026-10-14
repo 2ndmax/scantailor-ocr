@@ -18,8 +18,6 @@ class Utils {
 
   static QString automaskDir(const QString& outDir);
 
-  static QString predespeckleDir(const QString& outDir);
-
   static QString specklesDir(const QString& outDir);
 
   static QString foregroundDir(const QString& outDir);

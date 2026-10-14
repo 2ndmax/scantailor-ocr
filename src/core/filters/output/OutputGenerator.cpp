@@ -180,9 +180,7 @@ class OutputGenerator::Processor {
 
   GrayImage detectPictures(const GrayImage& input300dpi) const;
 
-  BinaryImage estimateBinarizationMask(const GrayImage& graySource,
-                                       const QRect& sourceRect,
-                                       const QRect& sourceSubRect) const;
+  BinaryImage estimateBinarizationMask(const GrayImage& graySource, const QRect& sourceRect) const;
 
   void modifyBinarizationMask(BinaryImage& bwMask,
                               BinaryImage& bwContent,
@@ -1151,52 +1149,6 @@ void drawPoint(QImage& image, const QPointF& pt) {
   }
 }
 
-void movePointToTopMargin(BinaryImage& bwImage, std::vector<QPointF>& polyline, int idx) {
-  QPointF& pos = polyline[idx];
-
-  for (int j = 0; j < pos.y(); j++) {
-    if (bwImage.getPixel(static_cast<int>(pos.x()), j) == WHITE) {
-      int count = 0;
-      int checkNum = 16;
-
-      for (int jj = j; jj < (j + checkNum); jj++) {
-        if (bwImage.getPixel(static_cast<int>(pos.x()), jj) == WHITE) {
-          count++;
-        }
-      }
-
-      if (count == checkNum) {
-        pos.setY(j);
-
-        break;
-      }
-    }
-  }
-}
-
-void movePointToBottomMargin(BinaryImage& bwImage, std::vector<QPointF>& polyline, int idx) {
-  QPointF& pos = polyline[idx];
-
-  for (int j = bwImage.height() - 1; j > pos.y(); j--) {
-    if (bwImage.getPixel(static_cast<int>(pos.x()), j) == WHITE) {
-      int count = 0;
-      int checkNum = 16;
-
-      for (int jj = j; jj > (j - checkNum); jj--) {
-        if (bwImage.getPixel(static_cast<int>(pos.x()), jj) == WHITE) {
-          count++;
-        }
-      }
-
-      if (count == checkNum) {
-        pos.setY(j);
-
-        break;
-      }
-    }
-  }
-}
-
 inline float vertBorderSkewAngle(const QPointF& top, const QPointF& bottom) {
   return static_cast<float>(
       std::abs(std::atan((bottom.x() - top.x()) / (bottom.y() - top.y())) * 180.0 / constants::PI));
@@ -2004,39 +1956,11 @@ GrayImage OutputGenerator::Processor::normalizeIlluminationGray(const QImage& in
 }
 
 BinaryImage OutputGenerator::Processor::estimateBinarizationMask(const GrayImage& graySource,
-                                                                 const QRect& sourceRect,
-                                                                 const QRect& sourceSubRect) const {
-  assert(sourceRect.contains(sourceSubRect));
+                                                                 const QRect& sourceRect) const {
+  const QSize downscaledSize(to300dpi(graySource.size(), m_dpi));
 
-  // If we need to strip some of the margins from a grayscale
-  // image, we may actually do it without copying anything.
-  // We are going to construct a QImage from existing data.
-  // That image won't own that data, but graySource is not
-  // going anywhere, so it's fine.
-
-  GrayImage trimmedImage;
-
-  if (sourceRect == sourceSubRect) {
-    trimmedImage = graySource;  // Shallow copy.
-  } else {
-    // Sub-rectangle in input image coordinates.
-    QRect relativeSubrect(sourceSubRect);
-    relativeSubrect.moveTopLeft(sourceSubRect.topLeft() - sourceRect.topLeft());
-
-    const int stride = graySource.stride();
-    const int offset = relativeSubrect.top() * stride + relativeSubrect.left();
-
-    trimmedImage = GrayImage(QImage(graySource.data() + offset, relativeSubrect.width(), relativeSubrect.height(),
-                                    stride, QImage::Format_Indexed8));
-  }
-
-  m_status.throwIfCancelled();
-
-  const QSize downscaledSize(to300dpi(trimmedImage.size(), m_dpi));
-
-  // A 300dpi version of trimmedImage.
-  GrayImage downscaledInput(scaleToGray(trimmedImage, downscaledSize));
-  trimmedImage = GrayImage();  // Save memory.
+  // A 300dpi version of graySource.
+  GrayImage downscaledInput(scaleToGray(graySource, downscaledSize));
   m_status.throwIfCancelled();
 
   // Light areas indicate pictures.
@@ -2046,7 +1970,7 @@ BinaryImage OutputGenerator::Processor::estimateBinarizationMask(const GrayImage
 
   const BinaryThreshold threshold(48);
   // Scale back to original size.
-  pictureAreas = scaleToGray(pictureAreas, sourceSubRect.size());
+  pictureAreas = scaleToGray(pictureAreas, sourceRect.size());
   return BinaryImage(pictureAreas, threshold);
 }
 
@@ -2160,9 +2084,7 @@ CylindricalSurfaceDewarper OutputGenerator::Processor::createDewarper(const Dist
  *                      to output image coordinates.
  * \param distortionModel Distortion model.
  * \param depthPerception Depth perception.
- * \param bgColor The color to use for areas outsize of \p src.
- * \param modified_content_rect A vertically shrunk version of outputContentRect().
- *                              See function definition for more details.
+ * \param bgColor The color to use for areas outside of \p src.
  */
 QImage OutputGenerator::Processor::dewarp(const QTransform& origToSrc,
                                           const QImage& src,
@@ -2634,7 +2556,7 @@ QImage OutputGenerator::Processor::colorText(const BinaryImage& text, const QIma
 void OutputGenerator::Processor::processPictureZones(BinaryImage& mask, ZoneSet& pictureZones, const GrayImage& image) {
   if ((m_pictureShapeOptions.getPictureShape() != RECTANGULAR_SHAPE) || !m_outputProcessingParams.isAutoZonesFound()) {
     if (m_pictureShapeOptions.getPictureShape() != OFF_SHAPE) {
-      mask = estimateBinarizationMask(image, m_workingBoundingRect, m_workingBoundingRect);
+      mask = estimateBinarizationMask(image, m_workingBoundingRect);
     }
 
     removeAutoPictureZones(pictureZones);
@@ -2763,15 +2685,10 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
     bottomPolyline.push_back(transform.map(i));
   }
 
-  QString stAngle;
-
   float maxAngle = 2.75;
 
   if ((m_pageId.subPage() == PageId::SINGLE_PAGE) || (m_pageId.subPage() == PageId::LEFT_PAGE)) {
     float vertSkewAngleLeft = vertBorderSkewAngle(topPolyline.front(), bottomPolyline.front());
-
-    stAngle.setNum(vertSkewAngleLeft);
-
 
     if (vertSkewAngleLeft > maxAngle) {
       auto topX = static_cast<float>(topPolyline.front().x());
@@ -2805,9 +2722,6 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
     }
   } else {
     float vertSkewAngleRight = vertBorderSkewAngle(topPolyline.back(), bottomPolyline.back());
-
-    stAngle.setNum(vertSkewAngleRight);
-
 
     if (vertSkewAngleRight > maxAngle) {
       auto topX = static_cast<float>(topPolyline.back().x());

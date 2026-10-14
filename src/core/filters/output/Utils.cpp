@@ -18,10 +18,6 @@ QString Utils::automaskDir(const QString& outDir) {
   return QDir(outDir).absoluteFilePath("cache/automask");
 }
 
-QString Utils::predespeckleDir(const QString& outDir) {
-  return QDir(outDir).absoluteFilePath("cache/predespeckle");
-}
-
 QString Utils::specklesDir(const QString& outDir) {
   return QDir(outDir).absoluteFilePath("cache/speckles");
 }
