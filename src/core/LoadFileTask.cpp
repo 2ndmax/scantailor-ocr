@@ -66,9 +66,9 @@ LoadFileTask::~LoadFileTask() = default;
 
 FilterResultPtr LoadFileTask::operator()() {
   QStringList loadErrors;
-  QImage image = ImageLoader::load(m_imageId, &loadErrors);
 
   try {
+    QImage image = ImageLoader::load(m_imageId, &loadErrors);
     throwIfCancelled();
 
     if (image.isNull()) {

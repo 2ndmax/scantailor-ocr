@@ -222,6 +222,9 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
   // The other possible value is JPEG_SUSPENDED, but we never suspend it.
   assert(headerStatus == JPEG_HEADER_OK);
 
+  // Without the buffered-image mode, jpeg_start_decompress() decodes all scans of a
+  // progressive file first, just to tell us the size.
+  cinfo->buffered_image = jpeg_has_multiple_scans(cinfo.ptr());
   if (!jpeg_start_decompress(cinfo.ptr())) {
     // libjpeg doesn't support all compression types.
     return GENERIC_ERROR;

@@ -954,7 +954,10 @@ QImage TiffReader::extractNumericImage(const TiffHandle& tif, const TiffInfo& in
 }  // TiffReader::extractNumericImage
 
 QImage TiffReader::readRgbaImage(const TiffHandle& tif, const TiffInfo& info) {
-  QImage image(info.width, info.height, info.samplesPerPixel == 3 ? QImage::Format_RGB32 : QImage::Format_ARGB32);
+  // libtiff's RGBA interface always returns associated (premultiplied) alpha,
+  // converting unassociated alpha if necessary.
+  QImage image(info.width, info.height,
+               info.samplesPerPixel == 3 ? QImage::Format_RGB32 : QImage::Format_ARGB32_Premultiplied);
   if (image.isNull()) {
     throw std::bad_alloc();
   }

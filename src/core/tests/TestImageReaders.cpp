@@ -18,9 +18,15 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <functional>
 #include <vector>
+
+extern "C" {
+#include <jpeglib.h>
+}
 
 namespace {
 // Describes a single-page TIFF to be written by writeTiff().
@@ -37,6 +43,7 @@ struct TiffSpec {
   uint32_t rowsPerStrip = 8;
   bool bigEndian = false;
   std::vector<uint16_t> colormap;  // 3 * 2^bitsPerSample entries for palette images.
+  int extraSample = -1;            // The kind of the last sample (EXTRASAMPLE_*), -1 for none.
 };
 
 // Returns the value of one sample of the image to be written.
@@ -99,6 +106,10 @@ bool writeTiff(const QString& path, const TiffSpec& spec, const SampleFunc& samp
   if (!spec.colormap.empty()) {
     const size_t n = spec.colormap.size() / 3;
     TIFFSetField(tif, TIFFTAG_COLORMAP, spec.colormap.data(), spec.colormap.data() + n, spec.colormap.data() + 2 * n);
+  }
+  if (spec.extraSample >= 0) {
+    const auto extra = static_cast<uint16_t>(spec.extraSample);
+    TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, uint16_t(1), &extra);
   }
 
   const bool separate = spec.planarConfig == PLANARCONFIG_SEPARATE;
@@ -372,6 +383,28 @@ BOOST_AUTO_TEST_CASE(test_float_rgb_separate_planes_tiff) {
   BOOST_CHECK_EQUAL(qBlue(px), 0);
 }
 
+BOOST_AUTO_TEST_CASE(test_unassociated_alpha_tiff) {
+  // libtiff premultiplies unassociated alpha; the image must say so.
+  QTemporaryDir dir;
+  const QString path = dir.filePath("rgba.tif");
+  TiffSpec spec;
+  spec.width = 20;
+  spec.height = 10;
+  spec.samplesPerPixel = 4;
+  spec.photometric = PHOTOMETRIC_RGB;
+  spec.extraSample = EXTRASAMPLE_UNASSALPHA;
+  const int rgba[] = {200, 100, 50, 128};
+  BOOST_REQUIRE(writeTiff(path, spec, [&rgba](int, int, int s) { return rgba[s]; }));
+
+  const QImage image = readTiff(path);
+  BOOST_REQUIRE(!image.isNull());
+  const QRgb px = image.convertToFormat(QImage::Format_ARGB32).pixel(7, 3);
+  BOOST_CHECK_EQUAL(qAlpha(px), 128);
+  BOOST_CHECK_LE(std::abs(qRed(px) - 200), 2);
+  BOOST_CHECK_LE(std::abs(qGreen(px) - 100), 2);
+  BOOST_CHECK_LE(std::abs(qBlue(px) - 50), 2);
+}
+
 BOOST_AUTO_TEST_CASE(test_lzma_and_zstd_tiff) {
   for (const uint16_t compression : {uint16_t(COMPRESSION_LZMA), uint16_t(COMPRESSION_ZSTD)}) {
     if (!TIFFIsCODECConfigured(compression)) {
@@ -406,6 +439,49 @@ BOOST_AUTO_TEST_CASE(test_tiff_metadata) {
   BOOST_REQUIRE(status == ImageMetadataLoader::LOADED);
   BOOST_REQUIRE_EQUAL(pages.size(), 1u);
   BOOST_CHECK(pages[0].size() == QSize(33, 44));
+  BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 300);
+}
+
+BOOST_AUTO_TEST_CASE(test_progressive_jpeg_metadata) {
+  QTemporaryDir dir;
+  const QString path = dir.filePath("progressive.jpg");
+  {
+    jpeg_compress_struct cinfo{};
+    jpeg_error_mgr jerr{};
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_compress(&cinfo);
+    unsigned char* buffer = nullptr;
+    unsigned long size = 0;
+    jpeg_mem_dest(&cinfo, &buffer, &size);
+    cinfo.image_width = 64;
+    cinfo.image_height = 48;
+    cinfo.input_components = 1;
+    cinfo.in_color_space = JCS_GRAYSCALE;
+    jpeg_set_defaults(&cinfo);
+    jpeg_simple_progression(&cinfo);
+    cinfo.density_unit = 1;  // dpi
+    cinfo.X_density = 300;
+    cinfo.Y_density = 300;
+    jpeg_start_compress(&cinfo, TRUE);
+    std::vector<JSAMPLE> row(64, 128);
+    while (cinfo.next_scanline < cinfo.image_height) {
+      JSAMPROW rowPtr = row.data();
+      jpeg_write_scanlines(&cinfo, &rowPtr, 1);
+    }
+    jpeg_finish_compress(&cinfo);
+    jpeg_destroy_compress(&cinfo);
+    QFile file(path);
+    BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
+    file.write(reinterpret_cast<const char*>(buffer), static_cast<qint64>(size));
+    free(buffer);
+  }
+
+  std::vector<ImageMetadata> pages;
+  const auto status
+      = ImageMetadataLoader::load(path, [&](const ImageMetadata& metadata) { pages.push_back(metadata); });
+  BOOST_REQUIRE(status == ImageMetadataLoader::LOADED);
+  BOOST_REQUIRE_EQUAL(pages.size(), 1u);
+  BOOST_CHECK(pages[0].size() == QSize(64, 48));
   BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 300);
 }
 
@@ -505,6 +581,29 @@ bool isNear(const QRgb actual, const QRgb expected, const int tolerance) {
   return (std::abs(qRed(actual) - qRed(expected)) <= tolerance)
          && (std::abs(qGreen(actual) - qGreen(expected)) <= tolerance)
          && (std::abs(qBlue(actual) - qBlue(expected)) <= tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_writer_marks_alpha) {
+  QTemporaryDir dir;
+  const QString path = dir.filePath("alpha.tif");
+  QImage image(20, 10, QImage::Format_ARGB32);
+  image.fill(qRgba(200, 100, 50, 128));
+  BOOST_REQUIRE(TiffWriter::writeImage(path, image));
+
+  uint16_t count = 0;
+  const uint16_t* kinds = nullptr;
+  TIFF* tif = TIFFOpen(QFile::encodeName(path).constData(), "r");
+  BOOST_REQUIRE(tif);
+  const bool hasTag = TIFFGetField(tif, TIFFTAG_EXTRASAMPLES, &count, &kinds) != 0;
+  const uint16_t kind = (hasTag && (count == 1)) ? kinds[0] : uint16_t(EXTRASAMPLE_UNSPECIFIED);
+  TIFFClose(tif);
+  BOOST_CHECK_EQUAL(kind, EXTRASAMPLE_UNASSALPHA);
+
+  const QImage readBack = readTiff(path);
+  BOOST_REQUIRE(!readBack.isNull());
+  const QRgb px = readBack.convertToFormat(QImage::Format_ARGB32).pixel(7, 3);
+  BOOST_CHECK_EQUAL(qAlpha(px), 128);
+  BOOST_CHECK(isNear(px, qRgb(200, 100, 50), 2));
 }
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_color_is_ycbcr) {

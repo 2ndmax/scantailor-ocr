@@ -405,6 +405,10 @@ bool TiffWriter::writeARGB32Image(const TiffHandle& tif, const QImage& image, co
   assert(image.format() == QImage::Format_ARGB32);
 
   TIFFSetField(tif.handle(), TIFFTAG_SAMPLESPERPIXEL, uint16_t(4));
+  // Without this, readers take the fourth sample for something unspecified (libtiff:
+  // premultiplied alpha).  QImage::Format_ARGB32 is not premultiplied.
+  const uint16_t extraSample = EXTRASAMPLE_UNASSALPHA;
+  TIFFSetField(tif.handle(), TIFFTAG_EXTRASAMPLES, uint16_t(1), &extraSample);
   // JPEG can't store the alpha channel.
   const int method = (compression.color == COMPRESSION_JPEG) ? COMPRESSION_LZW : compression.color;
   setCompression(tif, method, compression.jpegQuality);
