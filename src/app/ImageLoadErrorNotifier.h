@@ -46,9 +46,9 @@ class ImageLoadErrorNotifier : public QObject {
 
   struct Entry {
     QString filePath;
-    int page;
+    int page = 0;
     QStringList messages;
-    Kind kind;
+    Kind kind = Kind::LOAD;
   };
 
   void addEntry(Entry entry);
