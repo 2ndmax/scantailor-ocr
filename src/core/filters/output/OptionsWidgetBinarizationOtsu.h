@@ -27,22 +27,13 @@ class OptionsWidgetBinarizationOtsu : public OptionsWidgetBinarization, private 
 
  private slots:
 
-  void thresholdSliderReleased();
-
-  void thresholdSliderValueChanged(int value);
-
-  void setLighterThreshold();
-
-  void setDarkerThreshold();
-
-  void setNeutralThreshold();
+  void otsuDeltaChanged(double value);
 
   void sendStateChanged();
 
  private:
   void updateView();
 
-  void setThresholdAdjustment(int value);
 
   void setupUiConnections();
 

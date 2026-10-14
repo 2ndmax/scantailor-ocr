@@ -6,6 +6,7 @@
 #include <AdjustBrightness.h>
 #include <Binarize.h>
 #include <BlackOnWhiteEstimator.h>
+#include <ColoredDimming.h>
 #include <ConnCompEraser.h>
 #include <ConnectivityMap.h>
 #include <Constants.h>
@@ -1326,9 +1327,10 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
   if (m_renderParams.binaryOutput() || m_renderParams.mixedOutput()) {
     // BW mask begin
     if (!m_renderParams.needSavitzkyGolaySmoothing()) {
-      maybeSmoothed = maybeNormalized;
+      maybeSmoothed = dimColoredPixels(maybeNormalized, m_colorParams.blackWhiteOptions().getColoredDimming());
     } else {
-      maybeSmoothed = smoothToGrayscale(maybeNormalized, m_dpi);
+      maybeSmoothed = smoothToGrayscale(
+          dimColoredPixels(maybeNormalized, m_colorParams.blackWhiteOptions().getColoredDimming()), m_dpi);
       if (m_dbg) {
         m_dbg->add(maybeSmoothed, "smoothed");
       }
@@ -1728,9 +1730,10 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
     QImage dewarpedAndMaybeSmoothed;
     // We only do smoothing if we are going to do binarization later.
     if (!m_renderParams.needSavitzkyGolaySmoothing()) {
-      dewarpedAndMaybeSmoothed = dewarped;
+      dewarpedAndMaybeSmoothed = dimColoredPixels(dewarped, m_colorParams.blackWhiteOptions().getColoredDimming());
     } else {
-      dewarpedAndMaybeSmoothed = smoothToGrayscale(dewarped, m_dpi);
+      dewarpedAndMaybeSmoothed
+          = smoothToGrayscale(dimColoredPixels(dewarped, m_colorParams.blackWhiteOptions().getColoredDimming()), m_dpi);
       if (m_dbg) {
         m_dbg->add(dewarpedAndMaybeSmoothed, "smoothed");
       }
@@ -1811,9 +1814,10 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
     if (m_renderParams.needBinarization()) {
       QImage dewarpedAndMaybeSmoothed;
       if (!m_renderParams.needSavitzkyGolaySmoothing()) {
-        dewarpedAndMaybeSmoothed = dewarped;
+        dewarpedAndMaybeSmoothed = dimColoredPixels(dewarped, m_colorParams.blackWhiteOptions().getColoredDimming());
       } else {
-        dewarpedAndMaybeSmoothed = smoothToGrayscale(dewarped, m_dpi);
+        dewarpedAndMaybeSmoothed = smoothToGrayscale(
+            dimColoredPixels(dewarped, m_colorParams.blackWhiteOptions().getColoredDimming()), m_dpi);
         if (m_dbg) {
           m_dbg->add(dewarpedAndMaybeSmoothed, "smoothed");
         }
@@ -2432,6 +2436,18 @@ BinaryImage OutputGenerator::Processor::binarize(const QImage& image) const {
       }
       break;
     }
+  }
+
+  // The bounds apply to all methods: darker pixels are always black, lighter ones always white.
+  // Wolf, Fox, Window and Grad apply them themselves.  For the others the default bounds are left
+  // out, so their results stay as they were.
+  const int lowerBound = blackWhiteOptions.getWolfLowerBound();
+  const int upperBound = blackWhiteOptions.getWolfUpperBound();
+  const bool boundsBuiltIn = (binarizationMethod == T_WOLF) || (binarizationMethod == T_FOX)
+                             || (binarizationMethod == T_WINDOW) || (binarizationMethod == T_GRAD);
+  if (!boundsBuiltIn && ((lowerBound > 1) || (upperBound < 254))) {
+    rasterOp<RopAnd<RopSrc, RopDst>>(binarized, BinaryImage(image, BinaryThreshold(upperBound + 1)));
+    rasterOp<RopOr<RopSrc, RopDst>>(binarized, BinaryImage(image, BinaryThreshold(lowerBound)));
   }
   return binarized;
 }

@@ -55,6 +55,11 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
            blueAdjustmentSB, reduceNoiseSB, posterizeLevelSB}) {
     core::Utils::setNumberFieldWidth(spinBox, -100, 0);
   }
+  // As wide as the other fields without a unit.
+  for (QAbstractSpinBox* spinBox :
+       std::initializer_list<QAbstractSpinBox*>{coloredDimmingSB, lowerBoundSB, upperBoundSB}) {
+    core::Utils::setNumberFieldWidth(spinBox, -100, 0);
+  }
 
   m_delayedReloadRequest.setSingleShot(true);
 
@@ -108,6 +113,18 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   for (int i = T_GATOS; i <= T_MULTISCALE; ++i) {
     addOptionsWidgetBinarization(new OptionsWidgetBinarizationSauvola(m_settings));
   }
+  // "Colored" and "Bounds" apply to all methods and line up with the fields of the method shown.
+  QList<QGridLayout*> binarizationGrids = binarizationOptions->findChildren<QGridLayout*>();
+  binarizationGrids.append(allMethodsLayout);
+  core::Utils::alignLabelColumns(binarizationGrids);
+  // The fields of the enhancement filters start at the same place; column 0 is the indent.
+  core::Utils::alignLabelColumns(
+      {chromaOptionsLayout, subtractBgOptionsLayout, knnOptionsLayout, wienerOptionsLayout, sharpenOptionsLayout}, 1);
+  // The settings of the threshold method are indented below the method list, as the settings of
+  // the enhancement filters below their check boxes (a 15 px indent column plus the spacing).
+  const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
+  binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
+  allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
   updateBinarizationOptionsDisplay(binarizationOptions->currentIndex());
 
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
@@ -194,12 +211,8 @@ void OptionsWidget::setupTiffCompressionPanel() {
       + lzmaNote + QStringLiteral("  ")
       + tr("JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and "
            "on mixed pages without split output the text gets blurred."));
-  auto* colorMethodLabel = new QLabel(tr("Method:"));
-  // The label column is as wide as in the PDF compression panel, whose longest label is this one,
-  // so the lists stand at the same place in both steps.
-  colorMethodLabel->setMinimumWidth(colorMethodLabel->fontMetrics().horizontalAdvance(
-      QCoreApplication::translate("PdfExportView", "Resolution of split pages:")));
-  layout->addRow(colorMethodLabel, m_tiffColorCompression);
+  // The fields start right after the longest label of the group, the same for all parts.
+  layout->addRow(tr("Method:"), m_tiffColorCompression);
 
   m_tiffJpegQuality = new QSpinBox;
   m_tiffJpegQuality->setRange(10, 100);
@@ -659,7 +672,7 @@ void OptionsWidget::setupPhotoAdjustmentsPanel() {
     QGridLayout* grid = (row <= TINT) ? colorBalanceGrid : toneGrid;
     const int gridRow = 2 * ((row <= TINT) ? row : row - EXPOSURE);
     grid->addWidget(r.label, gridRow, 0);
-    grid->addWidget(r.field, gridRow, 1, Qt::AlignRight);
+    grid->addWidget(r.field, gridRow, 1, Qt::AlignLeft);
     grid->addWidget(r.slider, gridRow + 1, 0, 1, 2);
   }
   // Equal fields, as wide as "-2.00 EV".
@@ -667,6 +680,11 @@ void OptionsWidget::setupPhotoAdjustmentsPanel() {
   core::Utils::setNumberFieldWidth(exposureField, PhotoAdjustments::MIN_EXPOSURE);
   for (PhotoAdjustmentRow& r : m_photoAdjustmentRows) {
     r.field->setFixedWidth(exposureField->minimumWidth());
+  }
+  // The fields of both parts start at the same place.
+  core::Utils::alignLabelColumns({colorBalanceGrid, toneGrid});
+  for (QGridLayout* grid : {colorBalanceGrid, toneGrid}) {
+    grid->setColumnStretch(1, 1);
   }
 }
 
@@ -1081,6 +1099,9 @@ void OptionsWidget::updateColorsDisplay() {
   const QSignalBlocker minColorBlocker(colorDetectionMinColorSB);
   const QSignalBlocker zonesBlocker(colorDetectionZonesCB);
   const QSignalBlocker minPictureBlocker(colorDetectionMinPictureSB);
+  const QSignalBlocker coloredDimmingBlocker(coloredDimmingSB);
+  const QSignalBlocker lowerBoundBlocker(lowerBoundSB);
+  const QSignalBlocker upperBoundBlocker(upperBoundSB);
 
   const ColorMode colorMode = m_colorParams.colorMode();
   colorModeBWBtn->setChecked(colorMode == BLACK_AND_WHITE);
@@ -1133,6 +1154,9 @@ void OptionsWidget::updateColorsDisplay() {
   savitzkyGolaySmoothingCB->setEnabled(thresholdOptionsVisible);
   morphologicalSmoothingCB->setChecked(blackWhiteOptions.isMorphologicalSmoothingEnabled());
   morphologicalSmoothingCB->setEnabled(thresholdOptionsVisible);
+  coloredDimmingSB->setValue(blackWhiteOptions.getColoredDimming());
+  lowerBoundSB->setValue(blackWhiteOptions.getWolfLowerBound());
+  upperBoundSB->setValue(blackWhiteOptions.getWolfUpperBound());
 
   pictureShapeOptions->setEnabled(pictureShapeVisible);
   thresholdOptions->setEnabled(thresholdOptionsVisible);
@@ -1306,6 +1330,23 @@ void OptionsWidget::morphologicalSmoothingToggled(bool checked) {
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   emit reloadRequested();
+}
+
+void OptionsWidget::coloredDimmingChanged(const double value) {
+  BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
+  opt.setColoredDimming(value);
+  m_colorParams.setBlackWhiteOptions(opt);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+  m_delayedReloadRequest.start(750);
+}
+
+void OptionsWidget::binarizationBoundChanged() {
+  BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
+  opt.setWolfLowerBound(lowerBoundSB->value());
+  opt.setWolfUpperBound(upperBoundSB->value());
+  m_colorParams.setBlackWhiteOptions(opt);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+  m_delayedReloadRequest.start(750);
 }
 
 void OptionsWidget::bwForegroundToggled(bool checked) {
@@ -1704,6 +1745,9 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(grayscaleOutputCB, &QAbstractButton::clicked, this, &OptionsWidget::grayscaleOutputToggled);
   CONNECT(savitzkyGolaySmoothingCB, &QAbstractButton::clicked, this, &OptionsWidget::savitzkyGolaySmoothingToggled);
   CONNECT(morphologicalSmoothingCB, &QAbstractButton::clicked, this, &OptionsWidget::morphologicalSmoothingToggled);
+  CONNECT(coloredDimmingSB, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::coloredDimmingChanged);
+  CONNECT(lowerBoundSB, &QSpinBox::valueChanged, this, &OptionsWidget::binarizationBoundChanged);
+  CONNECT(upperBoundSB, &QSpinBox::valueChanged, this, &OptionsWidget::binarizationBoundChanged);
   CONNECT(splittingCB, &QAbstractButton::clicked, this, &OptionsWidget::splittingToggled);
   CONNECT(bwForegroundRB, &QAbstractButton::clicked, this, &OptionsWidget::bwForegroundToggled);
   CONNECT(colorForegroundRB, &QAbstractButton::clicked, this, &OptionsWidget::colorForegroundToggled);

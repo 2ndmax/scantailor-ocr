@@ -8,12 +8,14 @@
 #include <QDoubleSpinBox>
 #include <QFileInfo>
 #include <QFontMetrics>
+#include <QGridLayout>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QSpinBox>
 #include <QStyle>
 #include <QStyleOptionSpinBox>
 #include <QTextDocument>
+#include <QWidget>
 #include <algorithm>
 #include <cmath>
 
@@ -179,6 +181,39 @@ void Utils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValu
       = field->style()->subControlRect(QStyle::CC_SpinBox, &option, QStyle::SC_SpinBoxEditField, field);
   const int overhead = option.rect.width() - editField.width();
   field->setFixedWidth(field->fontMetrics().horizontalAdvance(text) + 6 + overhead);
+}
+
+void Utils::alignLabelColumns(const QList<QGridLayout*>& grids, const int column) {
+  int width = 0;
+  for (const QGridLayout* grid : grids) {
+    for (int row = 0; row < grid->rowCount(); ++row) {
+      QLayoutItem* item = grid->itemAtPosition(row, column);
+      if (!item) {
+        continue;
+      }
+      // Items spanning several columns, such as sliders below their labels, don't count.
+      int itemRow = 0;
+      int itemColumn = 0;
+      int rowSpan = 0;
+      int columnSpan = 0;
+      grid->getItemPosition(grid->indexOf(item), &itemRow, &itemColumn, &rowSpan, &columnSpan);
+      if (columnSpan == 1) {
+        // The style sheet may still change the font; the width is measured with the final one.
+        QWidget* widget = item->widget();
+        if (widget) {
+          widget->ensurePolished();
+        }
+        width = std::max(width, widget ? widget->sizeHint().width() : item->sizeHint().width());
+      }
+    }
+  }
+  // A grid without its own spacing takes that of its parent layout, which may differ between the
+  // grids; all get the spacing of the first one.
+  const int spacing = grids.isEmpty() ? 0 : grids.first()->horizontalSpacing();
+  for (QGridLayout* grid : grids) {
+    grid->setColumnMinimumWidth(column, width);
+    grid->setHorizontalSpacing(spacing);
+  }
 }
 
 QValidator* Utils::createDpiValidator(QObject* parent) {

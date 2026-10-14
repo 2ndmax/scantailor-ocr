@@ -81,6 +81,18 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   }
   dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
   Utils::setDpiFieldWidth(dpiSelector);
+  // "Colored" and "Bounds" apply to all methods and line up with the fields of the method shown.
+  QList<QGridLayout*> binarizationGrids = binarizationOptions->findChildren<QGridLayout*>();
+  binarizationGrids.append(allMethodsLayout);
+  Utils::alignLabelColumns(binarizationGrids);
+  // The fields of the enhancement filters start at the same place; column 0 is the indent.
+  Utils::alignLabelColumns(
+      {chromaOptionsLayout, subtractBgOptionsLayout, knnOptionsLayout, wienerOptionsLayout, sharpenOptionsLayout}, 1);
+  // The settings of the threshold method are indented below the method list, as the settings of
+  // the enhancement filters below their check boxes (a 15 px indent column plus the spacing).
+  const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
+  binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
+  allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
   // Percent fields are as wide as "1000 %".
   for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox, fillFactorSpinBox, borderToleranceSpinBox,
                             pictureShapeSensitivitySB, colorDetectionMinColorSB, colorDetectionMinPictureSB}) {
@@ -92,9 +104,9 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
     Utils::setNumberFieldWidth(spinBox, 999);
   }
   for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{
-           chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, sauvolaDelta, sauvolaCoef, wolfDelta,
-           lowerBound, upperBound, wolfCoef, redAdjustmentSB, greenAdjustmentSB, blueAdjustmentSB, reduceNoiseSB,
-           posterizeLevelSB}) {
+           chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, otsuDelta, sauvolaDelta, sauvolaCoef,
+           wolfDelta, lowerBound, upperBound, coloredDimmingSB, wolfCoef, redAdjustmentSB, greenAdjustmentSB,
+           blueAdjustmentSB, reduceNoiseSB, posterizeLevelSB}) {
     Utils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
@@ -141,10 +153,6 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
     m_alignmentButtonGroup->addButton(buttonAndAlignment.first);
   }
 
-  darkerThresholdLink->setText(Utils::richTextForLink(darkerThresholdLink->text()));
-  lighterThresholdLink->setText(Utils::richTextForLink(lighterThresholdLink->text()));
-  thresholdSlider->setToolTip(QString::number(thresholdSlider->value()));
-
   // The same range as in the Deskew step.
   angleSpinBox->setRange(-45.0, 45.0);
   Utils::setNumberFieldWidth(angleSpinBox, -45.0);
@@ -152,9 +160,6 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Content"));
   deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Top page edge"));
 
-  thresholdSlider->setMinimum(-100);
-  thresholdSlider->setMaximum(100);
-  thresholLabel->setText(QString::number(thresholdSlider->value()));
 
   depthPerceptionSlider->setMinimum(qRound(DepthPerception::minValue() * 10));
   depthPerceptionSlider->setMaximum(qRound(DepthPerception::maxValue() * 10));
@@ -491,15 +496,15 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
 
   thresholdMethodBox->setCurrentIndex(thresholdMethodBox->findData(blackWhiteOptions.getBinarizationMethod()));
   m_binarizationMethod = blackWhiteOptions.getBinarizationMethod();
-  thresholdSlider->setValue(blackWhiteOptions.thresholdAdjustment());
-  thresholLabel->setText(QString::number(thresholdSlider->value()));
-  sauvolaDelta->setValue(thresholdSlider->value());
-  wolfDelta->setValue(thresholdSlider->value());
+  for (QDoubleSpinBox* delta : {otsuDelta, sauvolaDelta, wolfDelta}) {
+    delta->setValue(blackWhiteOptions.thresholdAdjustment());
+  }
   sauvolaWindowSize->setValue(blackWhiteOptions.getWindowSize());
   wolfWindowSize->setValue(blackWhiteOptions.getWindowSize());
   sauvolaCoef->setValue(blackWhiteOptions.getSauvolaCoef());
   lowerBound->setValue(blackWhiteOptions.getWolfLowerBound());
   upperBound->setValue(blackWhiteOptions.getWolfUpperBound());
+  coloredDimmingSB->setValue(blackWhiteOptions.getColoredDimming());
   wolfCoef->setValue(blackWhiteOptions.getWolfCoef());
 
   const PictureShapeOptions& pictureShapeOptions = params.getPictureShapeOptions();
@@ -590,10 +595,7 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(splittingCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::splittingToggled);
   CONNECT(bwForegroundRB, &QAbstractButton::clicked, this, &DefaultParamsDialog::bwForegroundToggled);
   CONNECT(colorForegroundRB, &QAbstractButton::clicked, this, &DefaultParamsDialog::colorForegroundToggled);
-  CONNECT(lighterThresholdLink, &QLabel::linkActivated, this, &DefaultParamsDialog::setLighterThreshold);
-  CONNECT(darkerThresholdLink, &QLabel::linkActivated, this, &DefaultParamsDialog::setDarkerThreshold);
-  CONNECT(thresholdSlider, &QAbstractSlider::valueChanged, this, &DefaultParamsDialog::thresholdSliderValueChanged);
-  CONNECT(neutralThresholdBtn, &QAbstractButton::clicked, this, &DefaultParamsDialog::setNeutralThreshold);
+  CONNECT(otsuDelta, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::thresholdDeltaChanged);
   CONNECT(sauvolaDelta, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::thresholdDeltaChanged);
   CONNECT(wolfDelta, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::thresholdDeltaChanged);
   CONNECT(dpiSelector, &QComboBox::activated, this, &DefaultParamsDialog::dpiSelectionChanged);
@@ -976,7 +978,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   blackWhiteOptions.setMorphologicalSmoothingEnabled(morphologicalSmoothingCB->isChecked());
   BinarizationMethod binarizationMethod = static_cast<BinarizationMethod>(thresholdMethodBox->currentData().toInt());
   blackWhiteOptions.setBinarizationMethod(binarizationMethod);
-  blackWhiteOptions.setThresholdAdjustment(thresholdSlider->value());
+  blackWhiteOptions.setThresholdAdjustment(static_cast<int>(otsuDelta->value()));
   blackWhiteOptions.setSauvolaCoef(sauvolaCoef->value());
   if (binarizationMethod == T_SAUVOLA || binarizationMethod == T_BRADLEY || binarizationMethod == T_EDGEPLUS
       || binarizationMethod == T_BLURDIV || binarizationMethod == T_EDGEDIV || binarizationMethod >= T_GATOS) {
@@ -988,6 +990,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   blackWhiteOptions.setWolfCoef(wolfCoef->value());
   blackWhiteOptions.setWolfUpperBound(upperBound->value());
   blackWhiteOptions.setWolfLowerBound(lowerBound->value());
+  blackWhiteOptions.setColoredDimming(coloredDimmingSB->value());
   BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
   segmenterOptions.setEnabled(colorSegmentationCB->isChecked());
   segmenterOptions.setNoiseReduction(reduceNoiseSB->value());
@@ -1141,53 +1144,14 @@ void DefaultParamsDialog::vertMarginsChanged(double val) {
   }
 }
 
-void DefaultParamsDialog::thresholdSliderValueChanged(int value) {
-  const QString tooltipText(QString::number(value));
-  thresholdSlider->setToolTip(tooltipText);
-
-  thresholLabel->setText(QString::number(value));
-  {
-    const QSignalBlocker sauvolaBlocker(sauvolaDelta);
-    const QSignalBlocker wolfBlocker(wolfDelta);
-    sauvolaDelta->setValue(value);
-    wolfDelta->setValue(value);
-  }
-
-  // Show the tooltip immediately.
-  const QPoint center(thresholdSlider->rect().center());
-  QPoint tooltipPos(thresholdSlider->mapFromGlobal(QCursor::pos()));
-  tooltipPos.setY(center.y());
-  tooltipPos.setX(qBound(0, tooltipPos.x(), thresholdSlider->width()));
-  tooltipPos = thresholdSlider->mapToGlobal(tooltipPos);
-  QToolTip::showText(tooltipPos, tooltipText, thresholdSlider);
-}
-
 void DefaultParamsDialog::thresholdDeltaChanged(const double value) {
-  // "Delta" of Sauvola and Wolf is the same value as the slider of Otsu, as in the Output step.
-  const int delta = static_cast<int>(value);
-  {
-    const QSignalBlocker sliderBlocker(thresholdSlider);
-    thresholdSlider->setValue(delta);
+  // "Delta" is the same value for all methods, as in the Output step.
+  for (QDoubleSpinBox* delta : {otsuDelta, sauvolaDelta, wolfDelta}) {
+    if (delta != sender()) {
+      const QSignalBlocker blocker(delta);
+      delta->setValue(value);
+    }
   }
-  thresholLabel->setText(QString::number(thresholdSlider->value()));
-  QDoubleSpinBox* other = (sender() == sauvolaDelta) ? wolfDelta : sauvolaDelta;
-  const QSignalBlocker otherBlocker(other);
-  other->setValue(delta);
-}
-
-void DefaultParamsDialog::setLighterThreshold() {
-  thresholdSlider->setValue(thresholdSlider->value() - 1);
-  thresholLabel->setText(QString::number(thresholdSlider->value()));
-}
-
-void DefaultParamsDialog::setDarkerThreshold() {
-  thresholdSlider->setValue(thresholdSlider->value() + 1);
-  thresholLabel->setText(QString::number(thresholdSlider->value()));
-}
-
-void DefaultParamsDialog::setNeutralThreshold() {
-  thresholdSlider->setValue(0);
-  thresholLabel->setText(QString::number(thresholdSlider->value()));
 }
 
 void DefaultParamsDialog::dpiSelectionChanged() {

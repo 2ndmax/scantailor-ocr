@@ -33,10 +33,6 @@ class OptionsWidgetBinarizationWolf : public OptionsWidgetBinarization, private 
 
   void wolfCoefChanged(double value);
 
-  void lowerBoundChanged(int value);
-
-  void upperBoundChanged(int value);
-
   void sendStateChanged();
 
  private:

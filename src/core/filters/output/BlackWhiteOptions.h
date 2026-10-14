@@ -30,6 +30,9 @@ enum BinarizationMethod {
 
 class BlackWhiteOptions {
  public:
+  static constexpr double MIN_COLORED_DIMMING = -1.0;
+  static constexpr double MAX_COLORED_DIMMING = 2.0;
+
   class ColorSegmenterOptions {
    public:
     ColorSegmenterOptions();
@@ -107,6 +110,8 @@ class BlackWhiteOptions {
 
   int getWolfLowerBound() const;
 
+  /// The bounds apply to all binarization methods: darker pixels are always black, lighter ones always
+  /// white.  They keep their old names, as they were first used by the Wolf method.
   void setWolfLowerBound(int wolfLowerBound);
 
   int getWolfUpperBound() const;
@@ -116,6 +121,12 @@ class BlackWhiteOptions {
   double getWolfCoef() const;
 
   void setWolfCoef(double wolfCoef);
+
+  /// Colored pixels are darkened (positive, up to 2) or lightened towards white (negative, down to -1)
+  /// before binarization, the more the more saturated they are.  0 changes nothing.
+  double getColoredDimming() const { return m_coloredDimming; }
+
+  void setColoredDimming(double coloredDimming) { m_coloredDimming = coloredDimming; }
 
   BinarizationMethod getBinarizationMethod() const;
 
@@ -140,6 +151,7 @@ class BlackWhiteOptions {
   int m_wolfLowerBound;
   int m_wolfUpperBound;
   double m_wolfCoef;
+  double m_coloredDimming;
   BinarizationMethod m_binarizationMethod;
   ColorSegmenterOptions m_colorSegmenterOptions;
 };

@@ -75,19 +75,11 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void colorForegroundToggled(bool checked);
 
-  void thresholdSliderValueChanged(int value);
-
   void thresholdDeltaChanged(double value);
 
   void colorSegmentationToggled(bool checked);
 
   void posterizeToggled(bool checked);
-
-  void setLighterThreshold();
-
-  void setDarkerThreshold();
-
-  void setNeutralThreshold();
 
   void dpiSelectionChanged();
 

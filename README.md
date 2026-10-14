@@ -61,7 +61,8 @@ The changes were developed with the help of Claude (Anthropic).
     make the PDF much larger.
 * The panel **PDF Compression** has a part for each kind of page:
   * *Color and Grayscale* (also the pictures of split pages): JPEG (default), **JPEG 2000**,
-    Deflate or None, the quality and the resolution of the pictures of split pages.
+    Deflate or None, the quality and the resolution of the pictures of split pages
+    ("Background layer").
   * *Posterized Pages* (also posterized pictures of split pages): Deflate (default), JPEG,
     JPEG 2000 or None, and the quality. Posterized grayscale pages can't be told apart from
     other grayscale pages and follow *Color and Grayscale*.
@@ -654,6 +655,20 @@ reimplemented rather than copied.
   differ widely (window 40 for Robust, strength 0.1 for Nick). Every method in the list now has
   a tooltip saying what it suits. The other methods of ScanTailor Experimental were compared on
   sample pages and left out: they hardly differed from these or from the existing ones.
+* **Settings for all binarization methods** under *Output* → "Black and white", below the
+  settings of the chosen method (also in the default parameters dialog):
+  * **"Colored"** (ScanTailor Experimental: "dimming colored") darkens colored pixels before the
+    conversion to black and white, the more the more saturated they are, so that colored text
+    such as red headings comes out black. New, not in ScanTailor Experimental: negative values
+    lighten colored pixels instead, so that colored stamps, underlinings or highlighter marks
+    disappear from black and white pages. Gray pixels are never changed; 0 changes nothing.
+  * **"Bounds"**: pixels darker than the lower bound always become black, pixels lighter than
+    the upper bound always white. They were there before, but only for Wolf, Fox, Window and
+    Grad; now they apply to every method. The default bounds 1 and 254 leave the other methods
+    alone, so older projects keep their results.
+  * With this, **Otsu shows a "Delta" field** like the other methods instead of its slider (the
+    same value, -100 to 100: positive values make the letters thicker, negative ones thinner),
+    and the labels and fields of all methods line up with "Colored" and "Bounds" below them.
 * **Double-click shows the whole page again** after zooming in, in the image views of all steps
   except *Select Content* and *Margins*, where a double click already corrects the content box
   or attaches the content to the nearest guide. The status bar hint says so.

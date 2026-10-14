@@ -15,8 +15,7 @@ OptionsWidgetBinarizationWolf::OptionsWidgetBinarizationWolf(std::shared_ptr<Set
   setupUi(this);
   // As the other fields in the step "Output": "999 px" and "-100".
   core::Utils::setNumberFieldWidth(windowSize, 999);
-  for (QAbstractSpinBox* spinBox :
-       std::initializer_list<QAbstractSpinBox*>{wolfDelta, lowerBound, upperBound, wolfCoef}) {
+  for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{wolfDelta, wolfCoef}) {
     core::Utils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
@@ -54,24 +53,6 @@ void OptionsWidgetBinarizationWolf::windowSizeChanged(int value) {
   m_delayedStateChanger.start(750);
 }
 
-void OptionsWidgetBinarizationWolf::lowerBoundChanged(int value) {
-  BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  opt.setWolfLowerBound(value);
-  m_colorParams.setBlackWhiteOptions(opt);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedStateChanger.start(750);
-}
-
-void OptionsWidgetBinarizationWolf::upperBoundChanged(int value) {
-  BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  opt.setWolfUpperBound(value);
-  m_colorParams.setBlackWhiteOptions(opt);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedStateChanger.start(750);
-}
-
 void OptionsWidgetBinarizationWolf::wolfCoefChanged(double value) {
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setWolfCoef(value);
@@ -85,8 +66,6 @@ void OptionsWidgetBinarizationWolf::updateView() {
   BlackWhiteOptions blackWhiteOptions = m_colorParams.blackWhiteOptions();
   wolfDelta->setValue(blackWhiteOptions.thresholdAdjustment());
   windowSize->setValue(blackWhiteOptions.getWindowSize());
-  lowerBound->setValue(blackWhiteOptions.getWolfLowerBound());
-  upperBound->setValue(blackWhiteOptions.getWolfUpperBound());
   wolfCoef->setValue(blackWhiteOptions.getWolfCoef());
 }
 
@@ -99,8 +78,6 @@ void OptionsWidgetBinarizationWolf::sendStateChanged() {
 void OptionsWidgetBinarizationWolf::setupUiConnections() {
   CONNECT(wolfDelta, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::wolfDeltaChanged);
   CONNECT(windowSize, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::windowSizeChanged);
-  CONNECT(lowerBound, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::lowerBoundChanged);
-  CONNECT(upperBound, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::upperBoundChanged);
   CONNECT(wolfCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationWolf::wolfCoefChanged);
   CONNECT(&m_delayedStateChanger, &QTimer::timeout, this, &OptionsWidgetBinarizationWolf::sendStateChanged);
 }

@@ -4,6 +4,7 @@
 #ifndef SCANTAILOR_CORE_UTILS_H_
 #define SCANTAILOR_CORE_UTILS_H_
 
+#include <QList>
 #include <QObject>
 #include <QString>
 #include <QValidator>
@@ -13,6 +14,7 @@
 #include "ThumbnailPixmapCache.h"
 
 class QAbstractSpinBox;
+class QGridLayout;
 class QComboBox;
 
 namespace core {
@@ -86,6 +88,10 @@ class Utils {
   /// same value and so the same width.  With decimals given, the value is written with them instead,
   /// so fields with different decimals can get the same width.
   static void setNumberFieldWidth(QAbstractSpinBox* field, double widestValue, int decimals = -1);
+
+  /// Gives the label columns of the grids the same width and the grids the same spacing, so that
+  /// the labels and fields of grids shown below each other line up.
+  static void alignLabelColumns(const QList<QGridLayout*>& grids, int column = 0);
 
   Utils() = delete;
 };

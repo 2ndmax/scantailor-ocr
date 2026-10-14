@@ -2985,7 +2985,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       <number>0</number>
                      </property>
                      <widget class="QWidget" name="page">
-                      <layout class="QVBoxLayout" name="verticalLayout_24">
+                      <layout class="QHBoxLayout" name="otsuPageLayout">
                        <property name="leftMargin">
                         <number>0</number>
                        </property>
@@ -2993,116 +2993,44 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                         <number>0</number>
                        </property>
                        <item>
-                        <layout class="QHBoxLayout" name="horizontalLayout_11">
-                         <item>
-                          <spacer name="horizontalSpacer_45">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
+                        <layout class="QGridLayout" name="otsuGrid">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="otsuDeltaLabel">
+                           <property name="toolTip">
+                            <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</string>
                            </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>1</width>
-                             <height>1</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="thresholLabel">
                            <property name="text">
-                            <string notr="true">0</string>
+                            <string>Delta:</string>
                            </property>
                           </widget>
                          </item>
-                         <item>
-                          <spacer name="horizontalSpacer_46">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
+                         <item row="0" column="1">
+                          <widget class="QDoubleSpinBox" name="otsuDelta">
+                           <property name="toolTip">
+                            <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</string>
                            </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>1</width>
-                             <height>1</height>
-                            </size>
+                           <property name="decimals">
+                            <number>0</number>
                            </property>
-                          </spacer>
+                           <property name="minimum">
+                            <double>-100.0</double>
+                           </property>
+                           <property name="maximum">
+                            <double>100.0</double>
+                           </property>
+                          </widget>
                          </item>
                         </layout>
                        </item>
                        <item>
-                        <widget class="QSlider" name="thresholdSlider">
-                         <property name="minimum">
-                          <number>-30</number>
-                         </property>
-                         <property name="maximum">
-                          <number>30</number>
-                         </property>
-                         <property name="pageStep">
-                          <number>5</number>
-                         </property>
+                        <spacer name="otsuPageSpacer">
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
                          </property>
-                         <property name="tickPosition">
-                          <enum>QSlider::TicksBelow</enum>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <layout class="QHBoxLayout" name="horizontalLayout_10">
-                         <property name="spacing">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QLabel" name="lighterThresholdLink">
-                           <property name="text">
-                            <string>Thinner</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QToolButton" name="neutralThresholdBtn">
-                           <property name="cursor">
-                            <cursorShape>PointingHandCursor</cursorShape>
-                           </property>
-                           <property name="iconSize">
-                            <size>
-                             <width>12</width>
-                             <height>12</height>
-                            </size>
-                           </property>
-                           <property name="toolButtonStyle">
-                            <enum>Qt::ToolButtonIconOnly</enum>
-                           </property>
-                           <property name="autoRaise">
-                            <bool>true</bool>
-                           </property>
-                           <property name="arrowType">
-                            <enum>Qt::UpArrow</enum>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="darkerThresholdLink">
-                           <property name="text">
-                            <string>Thicker</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </item>
-                       <item>
-                        <spacer name="verticalSpacer_18">
-                         <property name="orientation">
-                          <enum>Qt::Vertical</enum>
-                         </property>
                          <property name="sizeHint" stdset="0">
                           <size>
-                           <width>1</width>
-                           <height>0</height>
+                           <width>0</width>
+                           <height>1</height>
                           </size>
                          </property>
                         </spacer>
@@ -3125,7 +3053,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                            <item row="0" column="1">
                             <widget class="QDoubleSpinBox" name="sauvolaDelta">
                              <property name="toolTip">
-                              <string>Default value is 0.</string>
+                              <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</string>
                              </property>
                              <property name="decimals">
                               <number>0</number>
@@ -3232,7 +3160,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                            <item row="0" column="1">
                             <widget class="QDoubleSpinBox" name="wolfDelta">
                              <property name="toolTip">
-                              <string>Default value is 0.</string>
+                              <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</string>
                              </property>
                              <property name="decimals">
                               <number>0</number>
@@ -3269,53 +3197,13 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                             </widget>
                            </item>
                            <item row="2" column="0">
-                            <widget class="QLabel" name="lowerBoundLabel">
-                             <property name="text">
-                              <string>Lower bound:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="1">
-                            <widget class="QSpinBox" name="lowerBound">
-                             <property name="toolTip">
-                              <string>The minimum possible gray level that can be made white.</string>
-                             </property>
-                             <property name="minimum">
-                              <number>1</number>
-                             </property>
-                             <property name="maximum">
-                              <number>254</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="3" column="0">
-                            <widget class="QLabel" name="upperBoundLabel">
-                             <property name="text">
-                              <string>Upper bound:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="3" column="1">
-                            <widget class="QSpinBox" name="upperBound">
-                             <property name="toolTip">
-                              <string>The maximum possible gray level that can be made black.</string>
-                             </property>
-                             <property name="minimum">
-                              <number>1</number>
-                             </property>
-                             <property name="maximum">
-                              <number>254</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="0">
                             <widget class="QLabel" name="wolfCoefLabel">
                              <property name="text">
                               <string>Coef:</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="1">
+                           <item row="2" column="1">
                             <widget class="QDoubleSpinBox" name="wolfCoef">
                              <property name="toolTip">
                               <string>Default value is 0.3.</string>
@@ -3365,6 +3253,110 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                      </widget>
                     </widget>
                    </item>
+         <item>
+          <layout class="QGridLayout" name="allMethodsLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="coloredDimmingLabel">
+             <property name="toolTip">
+              <string>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear.  The more saturated a color, the stronger the effect.  0 changes nothing.</string>
+             </property>
+             <property name="text">
+              <string>Colored:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="3">
+            <widget class="QDoubleSpinBox" name="coloredDimmingSB">
+             <property name="toolTip">
+              <string>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear.  The more saturated a color, the stronger the effect.  0 changes nothing.</string>
+             </property>
+             <property name="keyboardTracking">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>-1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>2.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="boundsLabel">
+             <property name="toolTip">
+              <string>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes.  1 and 254 leave the method alone.</string>
+             </property>
+             <property name="text">
+              <string>Bounds:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="lowerBound">
+             <property name="toolTip">
+              <string>Pixels darker than this always become black.</string>
+             </property>
+             <property name="keyboardTracking">
+              <bool>false</bool>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>255</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="boundsToLabel">
+             <property name="text">
+              <string>to</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QSpinBox" name="upperBound">
+             <property name="toolTip">
+              <string>Pixels lighter than this always become white.</string>
+             </property>
+             <property name="keyboardTracking">
+              <bool>false</bool>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>255</number>
+             </property>
+             <property name="value">
+              <number>254</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4" rowspan="2">
+            <spacer name="allMethodsSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
                    <item>
                     <layout class="QVBoxLayout" name="smoothingOptionsLayout">
                      <property name="spacing">

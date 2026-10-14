@@ -6,6 +6,7 @@
 #include <foundation/Utils.h>
 
 #include <QDomDocument>
+#include <algorithm>
 #include <cmath>
 
 using namespace foundation;
@@ -21,6 +22,7 @@ BlackWhiteOptions::BlackWhiteOptions()
       m_wolfLowerBound(1),
       m_wolfUpperBound(254),
       m_wolfCoef(0.3),
+      m_coloredDimming(0.0),
       m_binarizationMethod(T_OTSU) {}
 
 BlackWhiteOptions::BlackWhiteOptions(const QDomElement& el)
@@ -33,6 +35,7 @@ BlackWhiteOptions::BlackWhiteOptions(const QDomElement& el)
       m_wolfLowerBound(el.attribute("wolfLowerBound").toInt()),
       m_wolfUpperBound(el.attribute("wolfUpperBound").toInt()),
       m_wolfCoef(el.attribute("wolfCoef").toDouble()),
+      m_coloredDimming(std::clamp(el.attribute("coloredDimming").toDouble(), MIN_COLORED_DIMMING, MAX_COLORED_DIMMING)),
       m_binarizationMethod(parseBinarizationMethod(el.attribute("binarizationMethod"))),
       m_colorSegmenterOptions(el.namedItem("color-segmenter-options").toElement()) {}
 
@@ -47,6 +50,9 @@ QDomElement BlackWhiteOptions::toXml(QDomDocument& doc, const QString& name) con
   el.setAttribute("wolfLowerBound", m_wolfLowerBound);
   el.setAttribute("wolfUpperBound", m_wolfUpperBound);
   el.setAttribute("wolfCoef", Utils::doubleToString(m_wolfCoef));
+  if (m_coloredDimming != 0.0) {
+    el.setAttribute("coloredDimming", Utils::doubleToString(m_coloredDimming));
+  }
   el.setAttribute("binarizationMethod", formatBinarizationMethod(m_binarizationMethod));
   el.appendChild(m_colorSegmenterOptions.toXml(doc, "color-segmenter-options"));
   return el;
@@ -59,7 +65,7 @@ bool BlackWhiteOptions::operator==(const BlackWhiteOptions& other) const {
          && (m_normalizeIllumination == other.m_normalizeIllumination) && (m_windowSize == other.m_windowSize)
          && (m_sauvolaCoef == other.m_sauvolaCoef) && (m_wolfLowerBound == other.m_wolfLowerBound)
          && (m_wolfUpperBound == other.m_wolfUpperBound) && (m_wolfCoef == other.m_wolfCoef)
-         && (m_binarizationMethod == other.m_binarizationMethod)
+         && (m_coloredDimming == other.m_coloredDimming) && (m_binarizationMethod == other.m_binarizationMethod)
          && (m_colorSegmenterOptions == other.m_colorSegmenterOptions);
 }
 

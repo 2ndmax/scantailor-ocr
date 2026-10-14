@@ -411,9 +411,9 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_backgroundScale->addItem(tr("One third"), 3);
   m_backgroundScale->setCurrentIndex(std::max(0, m_backgroundScale->findData(settings.getPdfBackgroundScale())));
   m_backgroundScale->setToolTip(
-      tr("Resolution of the pictures of pages with split output, relative to the output resolution.  The text "
-         "is always stored at full resolution."));
-  auto* backgroundScaleLabel = new QLabel(tr("Resolution of split pages:"));
+      tr("Resolution of the background layer of pages with split output, that is of the pictures, relative to "
+         "the output resolution.  The text is always stored at full resolution."));
+  auto* backgroundScaleLabel = new QLabel(tr("Background layer:"));
   backgroundScaleLabel->setToolTip(m_backgroundScale->toolTip());
   optionsLayout->addRow(backgroundScaleLabel, m_backgroundScale);
 

@@ -13,6 +13,7 @@
 #include <NullTaskStatus.h>
 #include <PageId.h>
 #include <PropertySet.h>
+#include <filters/output/BlackWhiteOptions.h>
 #include <filters/output/ColorParams.h>
 #include <filters/output/DepthPerception.h>
 #include <filters/output/OutputGenerator.h>
@@ -36,15 +37,17 @@ using namespace output;
 
 namespace {
 const int WIDTH = 400;
-const int HEIGHT = 300;
+const int HEIGHT = 360;
 const Dpi DPI(300, 300);
 // The picture half, in source image coordinates, with some distance to the text half.
 const QRect PICTURE_RECT(220, 20, 160, 260);
 // Inside the text half, where only black strokes on white are.
 const QRect TEXT_RECT(20, 20, 160, 260);
+// Strokes in the stroke color of a run, below the text half.
+const QRect COLORED_RECT(20, 300, 160, 40);
 
 // Black strokes on the left half, a gradient on the right half; light gray elsewhere.
-QImage syntheticPage(const bool colored = false) {
+QImage syntheticPage(const bool colored, const QRgb strokeColor) {
   QImage image(WIDTH, HEIGHT, QImage::Format_RGB32);
   image.fill(qRgb(250, 250, 250));
   for (int y = TEXT_RECT.top(); y <= TEXT_RECT.bottom(); ++y) {
@@ -61,6 +64,13 @@ QImage syntheticPage(const bool colored = false) {
     for (int x = PICTURE_RECT.left(); x <= PICTURE_RECT.right(); ++x) {
       const int v = 60 + (x - PICTURE_RECT.left()) * 140 / PICTURE_RECT.width();
       image.setPixel(x, y, colored ? qRgb(v, 255 - v, 128) : qRgb(v, v, v));
+    }
+  }
+  for (int y = COLORED_RECT.top(); y <= COLORED_RECT.bottom(); ++y) {
+    for (int x = COLORED_RECT.left(); x <= COLORED_RECT.right(); ++x) {
+      if (((y / 6) % 3 == 0) && ((x / 5) % 2 == 0)) {
+        image.setPixel(x, y, strokeColor);
+      }
     }
   }
   const Dpm dpm(DPI);
@@ -82,6 +92,10 @@ struct Run {
   PhotoAdjustments adjustments;
   bool withPictureZone = false;
   bool colored = false;
+  QRgb strokeColor = qRgb(0, 0, 0);
+  double coloredDimming = 0.0;
+  int lowerBound = 1;
+  int upperBound = 254;
   double postScaleFactor = 1.0;
   QRectF content = QRectF(0, 0, WIDTH, HEIGHT);
 };
@@ -94,6 +108,11 @@ QImage process(const Run& run) {
   ColorParams colorParams;
   colorParams.setColorMode(run.mode);
   colorParams.setPhotoAdjustments(run.adjustments);
+  BlackWhiteOptions blackWhiteOptions = colorParams.blackWhiteOptions();
+  blackWhiteOptions.setColoredDimming(run.coloredDimming);
+  blackWhiteOptions.setWolfLowerBound(run.lowerBound);
+  blackWhiteOptions.setWolfUpperBound(run.upperBound);
+  colorParams.setBlackWhiteOptions(blackWhiteOptions);
   params.setColorParams(colorParams);
   // Only the manual zone counts as a picture, so the results don't depend on picture detection.
   PictureShapeOptions shapeOptions;
@@ -102,7 +121,7 @@ QImage process(const Run& run) {
   params.setDespeckleLevel(0.0);
   settings->setParams(pageId, params);
 
-  const FilterData data(syntheticPage(run.colored));
+  const FilterData data(syntheticPage(run.colored, run.strokeColor));
   ImageTransformation xform(data.xform());
   xform.postScaleToDpi(DPI);
   if (run.postScaleFactor != 1.0) {
@@ -255,6 +274,77 @@ BOOST_AUTO_TEST_CASE(color_margins_are_filled_with_the_page_background) {
   BOOST_REQUIRE_EQUAL(marginLevels.size(), 1u);
   BOOST_CHECK_GE(*marginLevels.begin(), 245);
   BOOST_CHECK_GT(grayLevels(output, inner(TEXT_RECT)).count(0), 0u);
+}
+
+// Light red strokes (gray about 190) come out white, dark red ones (gray about 60) black.
+const QRgb LIGHT_RED = qRgb(255, 170, 170);
+const QRgb DARK_RED = qRgb(200, 0, 0);
+
+bool hasBlack(const QImage& image, const QRect& rect) {
+  return grayLevels(image, rect).count(0) > 0;
+}
+
+int blackPixels(const QImage& image, const QRect& rect) {
+  int count = 0;
+  for (int y = rect.top(); y <= rect.bottom(); ++y) {
+    for (int x = rect.left(); x <= rect.right(); ++x) {
+      count += (qGray(image.pixel(x, y)) == 0) ? 1 : 0;
+    }
+  }
+  return count;
+}
+
+BOOST_AUTO_TEST_CASE(colored_strokes_without_dimming_follow_their_brightness) {
+  Run run;
+  run.strokeColor = LIGHT_RED;
+  BOOST_CHECK(!hasBlack(process(run), inner(COLORED_RECT)));
+  run.strokeColor = DARK_RED;
+  BOOST_CHECK(hasBlack(process(run), inner(COLORED_RECT)));
+}
+
+BOOST_AUTO_TEST_CASE(positive_dimming_makes_colored_text_black) {
+  Run run;
+  run.strokeColor = LIGHT_RED;
+  run.coloredDimming = 2.0;
+  BOOST_CHECK(hasBlack(process(run), inner(COLORED_RECT)));
+}
+
+BOOST_AUTO_TEST_CASE(negative_dimming_removes_colored_marks) {
+  Run run;
+  run.strokeColor = DARK_RED;
+  run.coloredDimming = -1.0;
+  const QImage output = process(run);
+  BOOST_CHECK(!hasBlack(output, inner(COLORED_RECT)));
+  // Black text isn't colored, so it stays.
+  BOOST_CHECK(hasBlack(output, inner(TEXT_RECT)));
+}
+
+BOOST_AUTO_TEST_CASE(lower_bound_makes_darker_pixels_black) {
+  Run run;
+  run.strokeColor = LIGHT_RED;
+  run.lowerBound = 200;
+  BOOST_CHECK(hasBlack(process(run), inner(COLORED_RECT)));
+}
+
+BOOST_AUTO_TEST_CASE(upper_bound_makes_lighter_pixels_white) {
+  Run run;
+  run.strokeColor = DARK_RED;
+  const int before = blackPixels(process(run), inner(COLORED_RECT));
+  run.upperBound = 40;
+  const QImage output = process(run);
+  // Savitzky-Golay smoothing darkens the edges of the strokes a little, so a thin outline stays.
+  BOOST_CHECK_LT(blackPixels(output, inner(COLORED_RECT)), before / 3);
+  BOOST_CHECK(hasBlack(output, inner(TEXT_RECT)));
+}
+
+BOOST_AUTO_TEST_CASE(default_bounds_change_nothing) {
+  // 1 and 254 are left out for Otsu, so the result is as without any bounds.
+  Run run;
+  run.strokeColor = LIGHT_RED;
+  const QImage withDefaults = process(run);
+  run.lowerBound = 0;
+  run.upperBound = 255;
+  BOOST_CHECK(withDefaults == process(run));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

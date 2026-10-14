@@ -174,6 +174,10 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void morphologicalSmoothingToggled(bool checked);
 
+  void coloredDimmingChanged(double value);
+
+  void binarizationBoundChanged();
+
   void splittingToggled(bool checked);
 
   void bwForegroundToggled(bool checked);

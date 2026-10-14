@@ -17,6 +17,7 @@ set(sources
     TestSEDM.cpp
     TestRastLineFinder.cpp
     TestSubtractBackground.cpp
+    TestColoredDimming.cpp
     TestEnhanceFilters.cpp
     TestExperimentalBinarization.cpp
     Utils.cpp Utils.h)
