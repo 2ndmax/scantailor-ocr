@@ -268,7 +268,6 @@ HomographicTransform<1, double> CylindricalSurfaceDewarper::threePoint1DHomograp
 
 void CylindricalSurfaceDewarper::initArcLengthMapper(const std::vector<QPointF>& imgDirectrix1,
                                                      const std::vector<QPointF>& imgDirectrix2) {
-  double prevElevation = 0;
   CoupledPolylinesIterator it(imgDirectrix1, imgDirectrix2, m_pln2img, m_img2pln);
   QPointF imgCurve1Pt;
   QPointF imgCurve2Pt;
@@ -294,7 +293,6 @@ void CylindricalSurfaceDewarper::initArcLengthMapper(const std::vector<QPointF>&
     elevation = qBound(-0.5, elevation, 0.5);
 
     m_arcLengthMapper.addSample(plnX, elevation);
-    prevElevation = elevation;
     prevPlnX = plnX;
   }
 

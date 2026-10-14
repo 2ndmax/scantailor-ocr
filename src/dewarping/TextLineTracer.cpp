@@ -55,7 +55,6 @@ void TextLineTracer::trace(const GrayImage& input,
   toOrig.scale(1.0 / downscaleXFactor, 1.0 / downscaleYFactor);
 
   const QRect downscaledContentRect(toOrig.inverted().mapRect(contentRect));
-  const Dpi downscaledDpi(qRound(dpi.horizontal() * downscaleXFactor), qRound(dpi.vertical() * downscaleYFactor));
 
   BinaryImage binarized(binarizeWolf(downscaled, QSize(31, 31)));
   if (dbg) {
@@ -496,7 +495,8 @@ QImage TextLineTracer::visualizeGradient(const QImage& background, const Grid<fl
       const float value = gradLine[x];
       if (value < minValue) {
         minValue = value;
-      } else if (value > maxValue) {
+      }
+      if (value > maxValue) {
         maxValue = value;
       }
     }
@@ -516,7 +516,7 @@ QImage TextLineTracer::visualizeGradient(const QImage& background, const Grid<fl
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       const float value = gradLine[x] * scale;
-      const int magnitude = qBound(0, static_cast<const int&>(std::round(std::fabs(value))), 255);
+      const int magnitude = qBound(0, static_cast<int>(std::round(std::fabs(value))), 255);
       if (value < 0) {
         overlayLine[x] = qRgba(0, 0, magnitude, magnitude);
       } else {

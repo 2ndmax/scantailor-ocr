@@ -307,7 +307,8 @@ QImage TextLineRefiner::visualizeGradient(const Grid<float>& gradient) const {
       const float value = gradientLine[x];
       if (value < minValue) {
         minValue = value;
-      } else if (value > maxValue) {
+      }
+      if (value > maxValue) {
         maxValue = value;
       }
     }
@@ -327,7 +328,7 @@ QImage TextLineRefiner::visualizeGradient(const Grid<float>& gradient) const {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       const float value = gradientLine[x] * scale;
-      const int magnitude = qBound(0, static_cast<const int&>(std::round(std::fabs(value))), 255);
+      const int magnitude = qBound(0, static_cast<int>(std::round(std::fabs(value))), 255);
       if (value > 0) {
         // Red for positive gradients which indicate bottom edges.
         overlayLine[x] = qRgba(magnitude, 0, 0, magnitude);
@@ -363,7 +364,7 @@ QImage TextLineRefiner::visualizeSnakes(const std::vector<Snake>& snakes, const 
   bottomPen.setWidthF(1.5);
 
   QPen middlePen(QColor(255, 0, 255));
-  middlePen.setWidth(static_cast<int>(1.5));
+  middlePen.setWidth(1);
 
   QBrush knotBrush(QColor(255, 255, 0, 180));
   painter.setBrush(knotBrush);
@@ -503,7 +504,7 @@ bool TextLineRefiner::Optimizer::tangentMovement(Snake& snake, const Grid<float>
   std::vector<uint32_t> newPaths;
   std::vector<Step> stepStorage;
   // Note that we don't move the first and the last node in tangent direction.
-  paths.push_back(static_cast<unsigned int&&>(stepStorage.size()));
+  paths.push_back(static_cast<uint32_t>(stepStorage.size()));
   stepStorage.emplace_back();
   stepStorage.back().prevStepIdx = ~uint32_t(0);
   stepStorage.back().node = snake.nodes.front();
@@ -541,7 +542,7 @@ bool TextLineRefiner::Optimizer::tangentMovement(Snake& snake, const Grid<float>
         }
       }
       assert(step.prevStepIdx != ~uint32_t(0));
-      newPaths.push_back(static_cast<unsigned int&&>(stepStorage.size()));
+      newPaths.push_back(static_cast<uint32_t>(stepStorage.size()));
       stepStorage.push_back(step);
     }
     assert(!newPaths.empty());
@@ -618,7 +619,7 @@ bool TextLineRefiner::Optimizer::normalMovement(Snake& snake, const Grid<float>&
       step.prevStepIdx = prevStepIdx;
       step.pathCost = stepStorage[prevStepIdx].pathCost + calcExternalEnergy(gradient, step.node, downNormal);
 
-      paths.push_back(static_cast<unsigned int&&>(stepStorage.size()));
+      paths.push_back(static_cast<uint32_t>(stepStorage.size()));
       stepStorage.push_back(step);
     }
   }
@@ -650,7 +651,7 @@ bool TextLineRefiner::Optimizer::normalMovement(Snake& snake, const Grid<float>&
         }
       }
       assert(step.prevStepIdx != ~uint32_t(0));
-      newPaths.push_back(static_cast<unsigned int&&>(stepStorage.size()));
+      newPaths.push_back(static_cast<uint32_t>(stepStorage.size()));
       stepStorage.push_back(step);
     }
     assert(!newPaths.empty());

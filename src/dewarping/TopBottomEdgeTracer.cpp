@@ -468,8 +468,7 @@ void TopBottomEdgeTracer::propagateShortestPaths(const Vec2f& direction, PrioQue
       GridNode* nbhNode = data + nbhGridIdx;
 
       assert(std::fabs(node->dirDeriv) <= 1.0);
-      const float newCost
-          = std::max<float>(node->pathCost, static_cast<const float&>(1.0f - std::fabs(node->dirDeriv)));
+      const float newCost = std::max<float>(node->pathCost, 1.0f - std::fabs(node->dirDeriv));
       if (newCost < nbhNode->pathCost) {
         nbhNode->pathCost = newCost;
         nbhNode->setPrevNeighbourIdx(prevNbhIndexes[i]);
@@ -576,33 +575,6 @@ std::vector<QPoint> TopBottomEdgeTracer::locateBestPathEndpoints(const Grid<Grid
   }
   return bestEndpoints;
 }  // TopBottomEdgeTracer::locateBestPathEndpoints
-
-std::vector<QPoint> TopBottomEdgeTracer::tracePathFromEndpoint(const Grid<GridNode>& grid, const QPoint& endpoint) {
-  static const int dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-  static const int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-  const int stride = grid.stride();
-  const int grid_offsets[8] = {-stride - 1, -stride, -stride + 1, -1, +1, +stride - 1, +stride, +stride + 1};
-
-  const GridNode* const data = grid.data();
-  std::vector<QPoint> path;
-
-  QPoint pt(endpoint);
-  int gridOffset = pt.x() + pt.y() * stride;
-  while (true) {
-    path.push_back(pt);
-
-    const GridNode* node = data + gridOffset;
-    if (!node->hasPathContinuation()) {
-      break;
-    }
-
-    const int nbhIdx = node->prevNeighbourIdx();
-    gridOffset += grid_offsets[nbhIdx];
-    pt += QPoint(dx[nbhIdx], dy[nbhIdx]);
-  }
-  return path;
-}  // TopBottomEdgeTracer::tracePathFromEndpoint
 
 std::vector<QPointF> TopBottomEdgeTracer::pathToSnake(const Grid<GridNode>& grid, const QPoint& endpoint) {
   const int maxDist = 15;  // Maximum distance between two snake knots.
@@ -777,7 +749,7 @@ void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Gr
           step.pathCost = bestCost;
         }
 
-        newPaths.push_back(static_cast<unsigned int&&>(stepStorage.size()));
+        newPaths.push_back(static_cast<uint32_t>(stepStorage.size()));
         stepStorage.push_back(step);
       }
       assert(!newPaths.empty());
@@ -904,7 +876,7 @@ void TopBottomEdgeTracer::upTheHillSnake(std::vector<QPointF>& snake, const Grid
           step.pathCost = bestCost;
         }
 
-        newPaths.push_back(static_cast<unsigned int&&>(stepStorage.size()));
+        newPaths.push_back(static_cast<uint32_t>(stepStorage.size()));
         stepStorage.push_back(step);
       }
       assert(!newPaths.empty());
@@ -966,7 +938,8 @@ QImage TopBottomEdgeTracer::visualizeGradient(const Grid<GridNode>& grid, const 
       const float value = gridLine[x].dirDeriv;
       if (value < minValue) {
         minValue = value;
-      } else if (value > maxValue) {
+      }
+      if (value > maxValue) {
         maxValue = value;
       }
     }
@@ -986,7 +959,7 @@ QImage TopBottomEdgeTracer::visualizeGradient(const Grid<GridNode>& grid, const 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       const float value = gridLine[x].dirDeriv * scale;
-      const int magnitude = qBound(0, static_cast<const int&>(std::round(std::fabs(value))), 255);
+      const int magnitude = qBound(0, static_cast<int>(std::round(std::fabs(value))), 255);
       if (value > 0) {
         // Red for positive gradients which indicate bottom edges.
         overlayLine[x] = qRgba(magnitude, 0, 0, magnitude);
@@ -1025,7 +998,8 @@ QImage TopBottomEdgeTracer::visualizeBlurredGradient(const Grid<GridNode>& grid)
       const float value = gridLine[x].blurred;
       if (value < minValue) {
         minValue = value;
-      } else if (value > maxValue) {
+      }
+      if (value > maxValue) {
         maxValue = value;
       }
     }
@@ -1045,7 +1019,7 @@ QImage TopBottomEdgeTracer::visualizeBlurredGradient(const Grid<GridNode>& grid)
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       const float value = gridLine[x].blurred * scale;
-      const int magnitude = qBound(0, static_cast<const int&>(std::round(std::fabs(value))), 255);
+      const int magnitude = qBound(0, static_cast<int>(std::round(std::fabs(value))), 255);
       overlayLine[x] = qRgba(magnitude, 0, 0, magnitude);
     }
     gridLine += gridStride;

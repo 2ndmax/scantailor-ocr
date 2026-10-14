@@ -65,8 +65,6 @@ class TopBottomEdgeTracer {
 
   static std::vector<QPoint> locateBestPathEndpoints(const Grid<GridNode>& grid, const QLineF& line);
 
-  static std::vector<QPoint> tracePathFromEndpoint(const Grid<GridNode>& grid, const QPoint& endpoint);
-
   static std::vector<QPointF> pathToSnake(const Grid<GridNode>& grid, const QPoint& endpoint);
 
   static void gaussBlurGradient(Grid<GridNode>& grid);
