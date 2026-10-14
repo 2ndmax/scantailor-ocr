@@ -74,6 +74,10 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
   pictureShapeSelector->addItem(tr("Contour mask"), FREE_SHAPE);
   pictureShapeSelector->addItem(tr("Rectangle"), RECTANGULAR_SHAPE);
+  // The order as in the Output step: none, posterize, K-means.
+  colorReductionCB->addItem(tr("None", "color reduction"));
+  colorReductionCB->addItem(tr("Posterize"));
+  colorReductionCB->addItem(tr("K-means"));
 
   // Common resolutions; others can be typed in, as in the Output step.
   for (const int dpi : {300, 400, 600, 1200}) {
@@ -106,7 +110,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{
            chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, otsuDelta, sauvolaDelta, sauvolaCoef,
            wolfDelta, lowerBound, upperBound, coloredDimmingSB, wolfCoef, redAdjustmentSB, greenAdjustmentSB,
-           blueAdjustmentSB, reduceNoiseSB, posterizeLevelSB}) {
+           blueAdjustmentSB, reduceNoiseSB, kmeansColorsSB, posterizeLevelSB}) {
     Utils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
@@ -490,6 +494,15 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   greenAdjustmentSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getGreenThresholdAdjustment());
   blueAdjustmentSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getBlueThresholdAdjustment());
   posterizeCB->setChecked(colorCommonOptions.getPosterizationOptions().isEnabled());
+  {
+    const BlackWhiteOptions::ColorSegmenterOptions& segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
+    // As in the Output step: K-means comes first, then posterizing.
+    colorReductionCB->setCurrentIndex(segmenterOptions.isKMeansEnabled()                         ? 2
+                                      : colorCommonOptions.getPosterizationOptions().isEnabled() ? 1
+                                                                                                 : 0);
+    kmeansColorsSB->setValue(segmenterOptions.getKMeansColors());
+    kmeansFixBlackCB->setChecked(segmenterOptions.isKMeansBlackFixed());
+  }
   posterizeLevelSB->setValue(colorCommonOptions.getPosterizationOptions().getLevel());
   posterizeNormalizationCB->setChecked(colorCommonOptions.getPosterizationOptions().isNormalizationEnabled());
   posterizeForceBwCB->setChecked(colorCommonOptions.getPosterizationOptions().isForceBlackAndWhite());
@@ -615,6 +628,8 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(profileDeleteButton, &QAbstractButton::pressed, this, &DefaultParamsDialog::profileDeletePressed);
   CONNECT(colorSegmentationCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::colorSegmentationToggled);
   CONNECT(posterizeCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::posterizeToggled);
+  CONNECT(colorReductionCB, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          &DefaultParamsDialog::updateColorReductionControls);
   CONNECT(despeckleCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::despeckleToggled);
   CONNECT(despeckleSlider, &QAbstractSlider::valueChanged, this, &DefaultParamsDialog::despeckleSliderValueChanged);
 }
@@ -758,14 +773,7 @@ void DefaultParamsDialog::colorModeChanged(const ColorMode colorMode) {
   morphologicalSmoothingCB->setEnabled(colorMode != COLOR_GRAYSCALE);
 
   colorSegmentationCB->setEnabled(thresholdOptionsVisible);
-  segmenterOptionsWidget->setEnabled(thresholdOptionsVisible && colorSegmentationCB->isChecked());
-  if (thresholdOptionsVisible) {
-    posterizeCB->setEnabled(colorSegmentationCB->isChecked());
-    posterizeOptionsWidget->setEnabled(colorSegmentationCB->isChecked() && posterizeCB->isChecked());
-  } else {
-    posterizeCB->setEnabled(true);
-    posterizeOptionsWidget->setEnabled(posterizeCB->isChecked());
-  }
+  updateColorReductionControls();
 }
 
 void DefaultParamsDialog::thresholdMethodChanged(const int idx) {
@@ -997,6 +1005,9 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   segmenterOptions.setRedThresholdAdjustment(redAdjustmentSB->value());
   segmenterOptions.setGreenThresholdAdjustment(greenAdjustmentSB->value());
   segmenterOptions.setBlueThresholdAdjustment(blueAdjustmentSB->value());
+  segmenterOptions.setKMeansEnabled(colorReductionCB->currentIndex() == 2);
+  segmenterOptions.setKMeansColors(kmeansColorsSB->value());
+  segmenterOptions.setKMeansBlackFixed(kmeansFixBlackCB->isChecked());
   blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
   colorParams.setBlackWhiteOptions(blackWhiteOptions);
 
@@ -1360,11 +1371,28 @@ void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {
   }
 }
 
-void DefaultParamsDialog::colorSegmentationToggled(bool checked) {
-  segmenterOptionsWidget->setEnabled(checked);
-  if ((currentColorMode() == BLACK_AND_WHITE) || (currentColorMode() == MIXED)) {
-    posterizeCB->setEnabled(checked);
-    posterizeOptionsWidget->setEnabled(checked && posterizeCB->isChecked());
+void DefaultParamsDialog::colorSegmentationToggled(bool) {
+  updateColorReductionControls();
+}
+
+void DefaultParamsDialog::updateColorReductionControls() {
+  // As in the Output step: in black and white and mixed mode, "Reduce colors" chooses how the colors
+  // of the text are reduced, and the check box "Posterize" only shows it.
+  const ColorMode colorMode = currentColorMode();
+  const bool textColors = (colorMode == BLACK_AND_WHITE) || (colorMode == MIXED);
+  const bool segmentation = textColors && colorSegmentationCB->isChecked();
+  const int reduction = colorReductionCB->currentIndex();
+  segmenterOptionsWidget->setEnabled(segmentation);
+  for (QWidget* widget : std::initializer_list<QWidget*>{kmeansColorsLabel, kmeansColorsSB, kmeansFixBlackCB}) {
+    widget->setEnabled(segmentation && (reduction == 2));
+  }
+  if (textColors) {
+    posterizeCB->setEnabled(false);
+    posterizeCB->setChecked(reduction == 1);
+    posterizeOptionsWidget->setEnabled(segmentation && (reduction == 1));
+  } else {
+    posterizeCB->setEnabled(true);
+    posterizeOptionsWidget->setEnabled(posterizeCB->isChecked());
   }
 }
 

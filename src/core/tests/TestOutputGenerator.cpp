@@ -26,6 +26,7 @@
 #include <zones/Zone.h>
 #include <zones/ZoneSet.h>
 
+#include <QDomDocument>
 #include <QImage>
 #include <QPolygonF>
 #include <boost/test/unit_test.hpp>
@@ -96,6 +97,8 @@ struct Run {
   double coloredDimming = 0.0;
   int lowerBound = 1;
   int upperBound = 254;
+  // Color segmentation with K-means, the number of colors; 0 is off.
+  int kmeansColors = 0;
   double postScaleFactor = 1.0;
   QRectF content = QRectF(0, 0, WIDTH, HEIGHT);
 };
@@ -112,6 +115,13 @@ QImage process(const Run& run) {
   blackWhiteOptions.setColoredDimming(run.coloredDimming);
   blackWhiteOptions.setWolfLowerBound(run.lowerBound);
   blackWhiteOptions.setWolfUpperBound(run.upperBound);
+  if (run.kmeansColors > 0) {
+    BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
+    segmenterOptions.setEnabled(true);
+    segmenterOptions.setKMeansEnabled(true);
+    segmenterOptions.setKMeansColors(run.kmeansColors);
+    blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
+  }
   colorParams.setBlackWhiteOptions(blackWhiteOptions);
   params.setColorParams(colorParams);
   // Only the manual zone counts as a picture, so the results don't depend on picture detection.
@@ -345,6 +355,49 @@ BOOST_AUTO_TEST_CASE(default_bounds_change_nothing) {
   run.lowerBound = 0;
   run.upperBound = 255;
   BOOST_CHECK(withDefaults == process(run));
+}
+
+BOOST_AUTO_TEST_CASE(kmeans_keeps_colored_text_in_few_colors) {
+  Run run;
+  run.strokeColor = DARK_RED;
+  run.kmeansColors = 3;
+  const QImage output = process(run);
+  std::set<QRgb> colors;
+  for (int y = 0; y < output.height(); ++y) {
+    for (int x = 0; x < output.width(); ++x) {
+      colors.insert(output.pixel(x, y) | 0xff000000u);
+    }
+  }
+  // Three colors, a fixed black among them, plus the white paper.
+  BOOST_CHECK_LE(colors.size(), 4u);
+  BOOST_CHECK(colors.count(qRgb(0, 0, 0)) == 1);
+  // The red strokes stay red, the black text black.
+  bool red = false;
+  for (int y = COLORED_RECT.top(); y <= COLORED_RECT.bottom(); ++y) {
+    for (int x = COLORED_RECT.left(); x <= COLORED_RECT.right(); ++x) {
+      const QRgb pixel = output.pixel(x, y);
+      red = red || ((qRed(pixel) > 120) && (qGreen(pixel) < 80) && (qBlue(pixel) < 80));
+    }
+  }
+  BOOST_CHECK(red);
+  BOOST_CHECK(hasBlack(output, inner(TEXT_RECT)));
+}
+
+BOOST_AUTO_TEST_CASE(kmeans_settings_are_stored_only_when_set) {
+  QDomDocument doc;
+  BlackWhiteOptions::ColorSegmenterOptions options;
+  QDomElement el = options.toXml(doc, "segmenter");
+  BOOST_CHECK(!el.hasAttribute("kmeans") && !el.hasAttribute("kmeansColors") && !el.hasAttribute("kmeansBlackFixed"));
+
+  options.setKMeansEnabled(true);
+  options.setKMeansColors(8);
+  options.setKMeansBlackFixed(false);
+  el = options.toXml(doc, "segmenter");
+  const BlackWhiteOptions::ColorSegmenterOptions read(el);
+  BOOST_CHECK(read == options);
+  BOOST_CHECK(read.isKMeansEnabled());
+  BOOST_CHECK_EQUAL(read.getKMeansColors(), 8);
+  BOOST_CHECK(!read.isKMeansBlackFixed());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

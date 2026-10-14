@@ -3585,7 +3585,80 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                         </item>
                        </layout>
                       </item>
-                      <item row="0" column="4" rowspan="3">
+                      <item row="3" column="1" colspan="3">
+                       <layout class="QHBoxLayout" name="colorReductionLayout">
+                        <item>
+                         <widget class="QLabel" name="colorReductionLabel">
+                          <property name="toolTip">
+                           <string>How the colors of the letters are reduced to a few: not at all (each letter keeps its own average color), by posterizing (the settings below) or with K-means (the colors that fit the page best).</string>
+                          </property>
+                          <property name="text">
+                           <string>Reduce colors:</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QComboBox" name="colorReductionCB">
+                          <property name="toolTip">
+                           <string>How the colors of the letters are reduced to a few: not at all (each letter keeps its own average color), by posterizing (the settings below) or with K-means (the colors that fit the page best).</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="kmeansColorsLabel">
+                          <property name="toolTip">
+                           <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
+                          </property>
+                          <property name="text">
+                           <string>Colors:</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QSpinBox" name="kmeansColorsSB">
+                          <property name="toolTip">
+                           <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
+                          </property>
+                          <property name="minimum">
+                           <number>2</number>
+                          </property>
+                          <property name="maximum">
+                           <number>16</number>
+                          </property>
+                          <property name="value">
+                           <number>6</number>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QCheckBox" name="kmeansFixBlackCB">
+                          <property name="toolTip">
+                           <string>One of the colors is pure black, so black text stays black instead of getting a tint.</string>
+                          </property>
+                          <property name="text">
+                           <string>Fixed black</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="colorReductionSpacer">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>1</width>
+                            <height>1</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </item>
+                      <item row="0" column="4" rowspan="4">
                        <spacer name="horizontalSpacer_62">
                         <property name="orientation">
                          <enum>Qt::Horizontal</enum>

@@ -11,6 +11,7 @@ namespace binarization_compare {
  * Writes index.html and data.js into outDir, listing every page folder that contains an
  * info.json, so pages from earlier runs stay in the comparison.
  */
-bool writeViewer(const QDir& outDir);
+/** With colors set, the page compares the color reduction of colored text instead of binarization. */
+bool writeViewer(const QDir& outDir, bool colors = false);
 }  // namespace binarization_compare
 #endif  // SCANTAILOR_TOOLS_VIEWER_H_

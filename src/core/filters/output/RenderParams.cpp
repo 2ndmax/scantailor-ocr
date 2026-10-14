@@ -38,7 +38,8 @@ RenderParams::RenderParams(const ColorParams& colorParams, const SplittingOption
     }
     if (blackWhiteOptions.getColorSegmenterOptions().isEnabled()) {
       m_mask |= COLOR_SEGMENTATION;
-      if (colorCommonOptions.getPosterizationOptions().isEnabled()) {
+      if (colorCommonOptions.getPosterizationOptions().isEnabled()
+          && !blackWhiteOptions.getColorSegmenterOptions().isKMeansEnabled()) {
         m_mask |= POSTERIZE;
       }
     }

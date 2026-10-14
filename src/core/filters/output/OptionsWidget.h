@@ -150,6 +150,12 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void blueAdjustmentChanged(int value);
 
+  void colorReductionChanged(int index);
+
+  void kmeansColorsChanged(int value);
+
+  void kmeansFixBlackToggled(bool checked);
+
   void posterizeToggled(bool checked);
 
   void posterizeLevelChanged(int value);
@@ -223,6 +229,11 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   void applyPhotoAdjustmentsConfirmed(const std::set<PageId>& pages);
 
  private:
+  /// The chosen "Reduce colors" of the color segmentation: 0 none, 1 posterize, 2 K-means.
+  int colorReduction() const;
+
+  void updateColorReductionControls();
+
   // The sliders of the group "Photo Adjustments", in the order of the panel.
   enum PhotoAdjustment { TEMPERATURE, TINT, EXPOSURE, CONTRAST, HIGHLIGHTS, SHADOWS, WHITES, BLACKS };
   static constexpr int PHOTO_ADJUSTMENT_COUNT = BLACKS + 1;

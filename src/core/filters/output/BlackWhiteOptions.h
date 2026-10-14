@@ -65,12 +65,32 @@ class BlackWhiteOptions {
 
     void setBlueThresholdAdjustment(int blueThresholdAdjustment);
 
+    /// K-means: the letter colors are reduced to this many colors (idea from ScanTailor
+    /// Experimental), instead of posterizing them.  With a fixed black, one color is pure black.
+    bool isKMeansEnabled() const { return m_kmeansEnabled; }
+
+    void setKMeansEnabled(bool enabled) { m_kmeansEnabled = enabled; }
+
+    int getKMeansColors() const { return m_kmeansColors; }
+
+    void setKMeansColors(int colors) { m_kmeansColors = colors; }
+
+    bool isKMeansBlackFixed() const { return m_kmeansBlackFixed; }
+
+    void setKMeansBlackFixed(bool fixed) { m_kmeansBlackFixed = fixed; }
+
+    static constexpr int MIN_KMEANS_COLORS = 2;
+    static constexpr int MAX_KMEANS_COLORS = 16;
+
    private:
     bool m_isEnabled;
     int m_noiseReduction;
     int m_redThresholdAdjustment;
     int m_greenThresholdAdjustment;
     int m_blueThresholdAdjustment;
+    bool m_kmeansEnabled;
+    int m_kmeansColors;
+    bool m_kmeansBlackFixed;
   };
 
  public:

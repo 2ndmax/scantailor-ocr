@@ -4,7 +4,9 @@
 // Developer tool: binarizes sample pages with our methods and with those of ScanTailor
 // Experimental, and writes a web page to compare the results side by side.
 //
-// Usage: binarization_compare <output folder> <image file or folder>...
+// Usage: binarization_compare [--colors] <output folder> <image file or folder>...
+// With --colors, colored text is compared instead: our color segmentation and posterization
+// against K-means color reduction (an idea from ScanTailor Experimental).
 // Pages already in the output folder are only computed again when the image file changed,
 // so more sample pages can be added later.
 
@@ -22,6 +24,7 @@
 #include <cmath>
 #include <iostream>
 
+#include "ColorMethods.h"
 #include "GrayImage.h"
 #include "ImageLoader.h"
 #include "Methods.h"
@@ -31,12 +34,21 @@ using namespace binarization_compare;
 
 namespace {
 const QStringList kImageSuffixes = {"tif", "tiff", "png", "jpg", "jpeg", "jp2", "bmp"};
+// Set by --colors.
+bool gColors = false;
 
 // Changes whenever the compared methods change, so that all pages are computed again.
 QString methodsStamp() {
   QStringList parts;
-  for (const Method& method : methods()) {
-    parts << method.id << method.parameters;
+  if (gColors) {
+    parts << "colors";
+    for (const ColorMethod& method : colorMethods()) {
+      parts << method.id << method.parameters;
+    }
+  } else {
+    for (const Method& method : methods()) {
+      parts << method.id << method.parameters;
+    }
   }
   return QString::fromLatin1(QCryptographicHash::hash(parts.join('|').toUtf8(), QCryptographicHash::Md5).toHex());
 }
@@ -87,11 +99,30 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
   }
   outDir.mkpath(id);
   const imageproc::GrayImage gray(image);
-  gray.toQImage().save(pageDir.filePath("original.jpg"), "JPG", 90);
-  gray.toQImage().scaledToWidth(600, Qt::SmoothTransformation).save(pageDir.filePath("overview.jpg"), "JPG", 85);
+  const QImage shown = gColors ? image.convertToFormat(QImage::Format_RGB32) : gray.toQImage();
+  shown.save(pageDir.filePath("original.jpg"), "JPG", 90);
+  shown.scaledToWidth(600, Qt::SmoothTransformation).save(pageDir.filePath("overview.jpg"), "JPG", 85);
 
   QJsonArray results;
-  for (const Method& method : methods()) {
+  if (gColors) {
+    const QImage text = textOf(image);
+    for (const ColorMethod& method : colorMethods()) {
+      QElapsedTimer timer;
+      timer.start();
+      const QImage result = method.run(image, text);
+      const qint64 ms = timer.elapsed();
+      const QString fileName = method.id + ".png";
+      result.save(pageDir.filePath(fileName), "PNG");
+      std::cout << "  " << qPrintable(method.label) << ": " << ms << " ms" << std::endl;
+      results.append(QJsonObject{{"id", method.id},
+                                 {"label", method.label},
+                                 {"group", method.group},
+                                 {"parameters", method.parameters},
+                                 {"ms", ms},
+                                 {"file", fileName}});
+    }
+  }
+  for (const Method& method : gColors ? std::vector<Method>() : methods()) {
     QElapsedTimer timer;
     timer.start();
     const QImage result = method.run(gray);
@@ -122,9 +153,13 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
 
 int main(int argc, char** argv) {
   QCoreApplication app(argc, argv);
-  const QStringList args = app.arguments();
+  QStringList args = app.arguments();
+  if ((args.size() > 1) && (args[1] == QLatin1String("--colors"))) {
+    gColors = true;
+    args.removeAt(1);
+  }
   if (args.size() < 3) {
-    std::cerr << "Usage: binarization_compare <output folder> <image file or folder>..." << std::endl;
+    std::cerr << "Usage: binarization_compare [--colors] <output folder> <image file or folder>..." << std::endl;
     return 2;
   }
   const QDir outDir(args[1]);
@@ -143,7 +178,7 @@ int main(int argc, char** argv) {
       ++failed;
     }
   }
-  if (!writeViewer(outDir)) {
+  if (!writeViewer(outDir, gColors)) {
     std::cerr << "Cannot write the viewer" << std::endl;
     return 1;
   }

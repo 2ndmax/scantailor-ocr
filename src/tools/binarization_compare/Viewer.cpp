@@ -177,7 +177,7 @@ selectPage(store.get("page", null));
 )HTML";
 }  // namespace
 
-bool writeViewer(const QDir& outDir) {
+bool writeViewer(const QDir& outDir, const bool colors) {
   QJsonArray pages;
   for (const QString& name : outDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
     QFile infoFile(outDir.filePath(name + "/info.json"));
@@ -194,7 +194,14 @@ bool writeViewer(const QDir& outDir) {
   data.write("const DATA = ");
   data.write(QJsonDocument(QJsonObject{{"pages", pages}}).toJson(QJsonDocument::Compact));
   data.write(";\n");
-  index.write(kIndexHtml);
+  QString html = QString::fromUtf8(kIndexHtml);
+  if (colors) {
+    html.replace(QStringLiteral("Binarisierung im Vergleich"), QStringLiteral("Farbiger Text im Vergleich"));
+    html.replace(QStringLiteral("Original (Graustufen)"), QStringLiteral("Original (Farbe)"));
+    html.replace(QStringLiteral("\"ScanTailor Experimental\""),
+                 QStringLiteral("\"K-Means (Idee aus ScanTailor Experimental)\""));
+  }
+  index.write(html.toUtf8());
   return true;
 }
 }  // namespace binarization_compare

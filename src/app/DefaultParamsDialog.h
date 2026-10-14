@@ -79,6 +79,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void colorSegmentationToggled(bool checked);
 
+  void updateColorReductionControls();
+
   void posterizeToggled(bool checked);
 
   void dpiSelectionChanged();

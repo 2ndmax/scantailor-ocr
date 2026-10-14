@@ -30,6 +30,7 @@ set(sources
     BrightnessFilter.cpp BrightnessFilter.h
     ChromaDenoiser.cpp ChromaDenoiser.h
     ColoredDimming.cpp ColoredDimming.h
+    ColorKMeans.cpp ColorKMeans.h
     KnnDenoiser.cpp KnnDenoiser.h
     ParallelFor.h
     Sharpen.cpp Sharpen.h

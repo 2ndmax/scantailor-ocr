@@ -669,6 +669,16 @@ reimplemented rather than copied.
   * With this, **Otsu shows a "Delta" field** like the other methods instead of its slider (the
     same value, -100 to 100: positive values make the letters thicker, negative ones thinner),
     and the labels and fields of all methods line up with "Colored" and "Bounds" below them.
+* **K-means for colored text** under *Output* → "Color Operations" → "Color segmentation" (also in
+  the default parameters dialog). Color segmentation gives each letter of black and white or mixed
+  pages its average color; the new list "Reduce colors" then chooses between None, Posterize (the
+  grid of fixed color steps, as before) and **K-means**, which finds the colors that fit the page
+  best: "Colors" (2 to 16, default 6) and "Fixed black" (one color is pure black, so black text
+  gets no tint). In a comparison on 100 sample pages it gave the better result than posterizing.
+  The two exclude each other, as both reduce the colors; "Reduce noise" and the red, green and blue
+  settings work with either. The idea is from ScanTailor Experimental; the code is our own, much
+  shorter, and groups the letter colors in CIE Lab space so that distances follow what the eye
+  sees. In color mode, posterizing stays as before.
 * **Double-click shows the whole page again** after zooming in, in the image views of all steps
   except *Select Content* and *Margins*, where a double click already corrects the content box
   or attaches the content to the nearest guide. The status bar hint says so.

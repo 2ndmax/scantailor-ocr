@@ -52,7 +52,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   }
   for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{
            chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, redAdjustmentSB, greenAdjustmentSB,
-           blueAdjustmentSB, reduceNoiseSB, posterizeLevelSB}) {
+           blueAdjustmentSB, reduceNoiseSB, kmeansColorsSB, posterizeLevelSB}) {
     core::Utils::setNumberFieldWidth(spinBox, -100, 0);
   }
   // As wide as the other fields without a unit.
@@ -126,6 +126,11 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
   allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
   updateBinarizationOptionsDisplay(binarizationOptions->currentIndex());
+
+  // The order follows OptionsWidget::colorReduction().
+  colorReductionCB->addItem(tr("None", "color reduction"));
+  colorReductionCB->addItem(tr("Posterize"));
+  colorReductionCB->addItem(tr("K-means"));
 
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
   pictureShapeSelector->addItem(tr("Contour mask"), FREE_SHAPE);
@@ -1189,16 +1194,7 @@ void OptionsWidget::updateColorsDisplay() {
   fillingColorBox->setCurrentIndex((int) colorCommonOptions.getFillingColor());
 
   colorSegmentationCB->setEnabled(thresholdOptionsVisible);
-  segmenterOptionsWidget->setEnabled(thresholdOptionsVisible
-                                     && blackWhiteOptions.getColorSegmenterOptions().isEnabled());
-  if (thresholdOptionsVisible) {
-    posterizeCB->setEnabled(blackWhiteOptions.getColorSegmenterOptions().isEnabled());
-    posterizeOptionsWidget->setEnabled(blackWhiteOptions.getColorSegmenterOptions().isEnabled()
-                                       && colorCommonOptions.getPosterizationOptions().isEnabled());
-  } else {
-    posterizeCB->setEnabled(true);
-    posterizeOptionsWidget->setEnabled(colorCommonOptions.getPosterizationOptions().isEnabled());
-  }
+  updateColorReductionControls();
   // The check box first: the strength shown while it is off is only kept for turning it on.
   chromaCB->setChecked(colorCommonOptions.chromaDenoise());
   chromaOptionsWidget->setEnabled(colorCommonOptions.chromaDenoise());
@@ -1242,7 +1238,14 @@ void OptionsWidget::updateColorsDisplay() {
   redAdjustmentSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getRedThresholdAdjustment());
   greenAdjustmentSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getGreenThresholdAdjustment());
   blueAdjustmentSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getBlueThresholdAdjustment());
-  posterizeCB->setChecked(colorCommonOptions.getPosterizationOptions().isEnabled());
+  {
+    const QSignalBlocker reductionBlocker(colorReductionCB);
+    const QSignalBlocker colorsBlocker(kmeansColorsSB);
+    const BlackWhiteOptions::ColorSegmenterOptions& segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
+    colorReductionCB->setCurrentIndex(colorReduction());
+    kmeansColorsSB->setValue(segmenterOptions.getKMeansColors());
+    kmeansFixBlackCB->setChecked(segmenterOptions.isKMeansBlackFixed());
+  }
   posterizeLevelSB->setValue(colorCommonOptions.getPosterizationOptions().getLevel());
   posterizeNormalizationCB->setChecked(colorCommonOptions.getPosterizationOptions().isNormalizationEnabled());
   posterizeForceBwCB->setChecked(colorCommonOptions.getPosterizationOptions().isForceBlackAndWhite());
@@ -1564,11 +1567,7 @@ void OptionsWidget::colorSegmentationToggled(bool checked) {
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  segmenterOptionsWidget->setEnabled(checked);
-  if ((m_colorParams.colorMode() == BLACK_AND_WHITE) || (m_colorParams.colorMode() == MIXED)) {
-    posterizeCB->setEnabled(checked);
-    posterizeOptionsWidget->setEnabled(checked && posterizeCB->isChecked());
-  }
+  updateColorReductionControls();
 
   emit reloadRequested();
 }
@@ -1615,6 +1614,73 @@ void OptionsWidget::blueAdjustmentChanged(int value) {
   m_settings->setColorParams(m_pageId, m_colorParams);
 
   m_delayedReloadRequest.start(750);
+}
+
+int OptionsWidget::colorReduction() const {
+  // The items of "Reduce colors": none, posterize, K-means.
+  if (m_colorParams.blackWhiteOptions().getColorSegmenterOptions().isKMeansEnabled()) {
+    return 2;
+  }
+  return m_colorParams.colorCommonOptions().getPosterizationOptions().isEnabled() ? 1 : 0;
+}
+
+void OptionsWidget::updateColorReductionControls() {
+  const ColorMode colorMode = m_colorParams.colorMode();
+  const bool textColors = (colorMode == BLACK_AND_WHITE) || (colorMode == MIXED);
+  const bool segmentation = textColors && m_colorParams.blackWhiteOptions().getColorSegmenterOptions().isEnabled();
+  const int reduction = colorReduction();
+  segmenterOptionsWidget->setEnabled(segmentation);
+  for (QWidget* widget : std::initializer_list<QWidget*>{kmeansColorsLabel, kmeansColorsSB, kmeansFixBlackCB}) {
+    widget->setEnabled(segmentation && (reduction == 2));
+  }
+  const bool posterize = m_colorParams.colorCommonOptions().getPosterizationOptions().isEnabled();
+  if (textColors) {
+    // The colors of the text are reduced as chosen in "Reduce colors"; the check box only shows it.
+    posterizeCB->setEnabled(false);
+    posterizeCB->setChecked(reduction == 1);
+    posterizeOptionsWidget->setEnabled(segmentation && (reduction == 1));
+  } else {
+    posterizeCB->setEnabled(true);
+    posterizeCB->setChecked(posterize);
+    posterizeOptionsWidget->setEnabled(posterize);
+  }
+}
+
+void OptionsWidget::colorReductionChanged(const int index) {
+  BlackWhiteOptions blackWhiteOptions = m_colorParams.blackWhiteOptions();
+  BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
+  segmenterOptions.setKMeansEnabled(index == 2);
+  blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
+  m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
+  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+  ColorCommonOptions::PosterizationOptions posterizationOptions = colorCommonOptions.getPosterizationOptions();
+  posterizationOptions.setEnabled(index == 1);
+  colorCommonOptions.setPosterizationOptions(posterizationOptions);
+  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+
+  updateColorReductionControls();
+  emit reloadRequested();
+}
+
+void OptionsWidget::kmeansColorsChanged(const int value) {
+  BlackWhiteOptions blackWhiteOptions = m_colorParams.blackWhiteOptions();
+  BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
+  segmenterOptions.setKMeansColors(value);
+  blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
+  m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+  m_delayedReloadRequest.start(750);
+}
+
+void OptionsWidget::kmeansFixBlackToggled(const bool checked) {
+  BlackWhiteOptions blackWhiteOptions = m_colorParams.blackWhiteOptions();
+  BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
+  segmenterOptions.setKMeansBlackFixed(checked);
+  blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
+  m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
+  m_settings->setColorParams(m_pageId, m_colorParams);
+  emit reloadRequested();
 }
 
 void OptionsWidget::posterizeToggled(bool checked) {
@@ -1728,6 +1794,10 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(wienerWindowSize, &QSpinBox::valueChanged, this, &OptionsWidget::wienerWindowSizeChanged);
   CONNECT(colorSegmentationCB, &QAbstractButton::clicked, this, &OptionsWidget::colorSegmentationToggled);
   CONNECT(reduceNoiseSB, &QSpinBox::valueChanged, this, &OptionsWidget::reduceNoiseChanged);
+  CONNECT(colorReductionCB, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          &OptionsWidget::colorReductionChanged);
+  CONNECT(kmeansColorsSB, &QSpinBox::valueChanged, this, &OptionsWidget::kmeansColorsChanged);
+  CONNECT(kmeansFixBlackCB, &QAbstractButton::clicked, this, &OptionsWidget::kmeansFixBlackToggled);
   CONNECT(redAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::redAdjustmentChanged);
   CONNECT(greenAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::greenAdjustmentChanged);
   CONNECT(blueAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::blueAdjustmentChanged);

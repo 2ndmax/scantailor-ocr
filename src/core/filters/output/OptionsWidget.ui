@@ -1742,9 +1742,9 @@
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_28">
-                <item>
-                 <spacer name="horizontalSpacer_58">
+               <layout class="QGridLayout" name="segmenterReductionLayout">
+                <item row="0" column="0" rowspan="4">
+                 <spacer name="segmenterReductionIndent">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -1759,24 +1759,15 @@
                   </property>
                  </spacer>
                 </item>
-                <item>
+                <item row="0" column="1">
                  <widget class="QLabel" name="reduceNoiseLabel">
                   <property name="text">
                    <string>Reduce noise:</string>
                   </property>
                  </widget>
                 </item>
-                <item>
+                <item row="0" column="2">
                  <widget class="QSpinBox" name="reduceNoiseSB">
-                  <property name="toolTip">
-                   <string/>
-                  </property>
-                  <property name="frame">
-                   <bool>true</bool>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
                   <property name="minimum">
                    <number>0</number>
                   </property>
@@ -1788,8 +1779,64 @@
                   </property>
                  </widget>
                 </item>
-                <item>
-                 <spacer name="horizontalSpacer_59">
+                <item row="1" column="1">
+                 <widget class="QLabel" name="colorReductionLabel">
+                  <property name="toolTip">
+                   <string>How the colors of the letters are reduced to a few: not at all (each letter keeps its own average color), by posterizing (the settings below) or with K-means (the colors that fit the page best).</string>
+                  </property>
+                  <property name="text">
+                   <string>Reduce colors:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QComboBox" name="colorReductionCB">
+                  <property name="toolTip">
+                   <string>How the colors of the letters are reduced to a few: not at all (each letter keeps its own average color), by posterizing (the settings below) or with K-means (the colors that fit the page best).</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QLabel" name="kmeansColorsLabel">
+                  <property name="toolTip">
+                   <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
+                  </property>
+                  <property name="text">
+                   <string>Colors:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QSpinBox" name="kmeansColorsSB">
+                  <property name="toolTip">
+                   <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
+                  </property>
+                  <property name="keyboardTracking">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimum">
+                   <number>2</number>
+                  </property>
+                  <property name="maximum">
+                   <number>16</number>
+                  </property>
+                  <property name="value">
+                   <number>6</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1" colspan="2">
+                 <widget class="QCheckBox" name="kmeansFixBlackCB">
+                  <property name="toolTip">
+                   <string>One of the colors is pure black, so black text stays black instead of getting a tint.</string>
+                  </property>
+                  <property name="text">
+                   <string>Fixed black</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3" rowspan="4">
+                 <spacer name="segmenterReductionSpacer">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>

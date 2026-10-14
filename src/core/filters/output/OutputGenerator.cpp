@@ -35,6 +35,7 @@
 #include <core/ApplicationSettings.h>
 #include <imageproc/BackgroundColorCalculator.h>
 #include <imageproc/ChromaDenoiser.h>
+#include <imageproc/ColorKMeans.h>
 #include <imageproc/ColorSegmenter.h>
 #include <imageproc/ExperimentalBinarization.h>
 #include <imageproc/ImageCombination.h>
@@ -214,6 +215,9 @@ class OutputGenerator::Processor {
   QImage segmentImage(const BinaryImage& image, const QImage& colorImage) const;
 
   QImage posterizeImage(const QImage& image, const QColor& backgroundColor = Qt::white) const;
+
+  /// The letter colors of the color segmentation, reduced with K-means or posterization, as set.
+  QImage reduceSegmentColors(const QImage& segmented) const;
 
   ForegroundType getForegroundType() const;
 
@@ -1391,9 +1395,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
         dst.release();
       }
 
-      if (m_renderParams.posterize()) {
-        segmentedImage = posterizeImage(segmentedImage, m_outsideBackgroundColor);
-      }
+      segmentedImage = reduceSegmentColors(segmentedImage);
 
       if (!m_blackOnWhite) {
         segmentedImage.invertPixels();
@@ -1464,9 +1466,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
         }
       } else {
         QImage segmentedImage = segmentImage(bwContent, maybeNormalized);
-        if (m_renderParams.posterize()) {
-          segmentedImage = posterizeImage(segmentedImage, m_outsideBackgroundColor);
-        }
+        segmentedImage = reduceSegmentColors(segmentedImage);
 
         if (m_renderParams.originalBackground()) {
           combineImages(maybeNormalized, segmentedImage);
@@ -1776,9 +1776,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
       dewarped = QImage();
       dewarpedBwContent.release();
 
-      if (m_renderParams.posterize()) {
-        segmentedImage = posterizeImage(segmentedImage, m_outsideBackgroundColor);
-      }
+      segmentedImage = reduceSegmentColors(segmentedImage);
 
       if (!m_blackOnWhite) {
         segmentedImage.invertPixels();
@@ -1875,9 +1873,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
         }
       } else {
         QImage segmentedImage = segmentImage(dewarpedBwContent, dewarped);
-        if (m_renderParams.posterize()) {
-          segmentedImage = posterizeImage(segmentedImage, m_outsideBackgroundColor);
-        }
+        segmentedImage = reduceSegmentColors(segmentedImage);
 
         if (m_renderParams.originalBackground()) {
           combineImages(dewarped, segmentedImage);
@@ -2585,6 +2581,25 @@ QImage OutputGenerator::Processor::posterizeImage(const QImage& image, const QCo
   }
   m_status.throwIfCancelled();
   return posterized;
+}
+
+QImage OutputGenerator::Processor::reduceSegmentColors(const QImage& segmented) const {
+  const BlackWhiteOptions::ColorSegmenterOptions& options
+      = m_colorParams.blackWhiteOptions().getColorSegmenterOptions();
+  if (options.isKMeansEnabled()) {
+    // An indexed image, as after posterizing, keeps the files small.
+    QImage reduced = Posterizer::convertToIndexed(
+        reduceColorsKMeans(segmented, options.getKMeansColors(), options.isKMeansBlackFixed()));
+    if (m_dbg) {
+      m_dbg->add(reduced, "k-means");
+    }
+    m_status.throwIfCancelled();
+    return reduced;
+  }
+  if (m_renderParams.posterize()) {
+    return posterizeImage(segmented, m_outsideBackgroundColor);
+  }
+  return segmented;
 }
 
 void OutputGenerator::Processor::processPictureZones(BinaryImage& mask, ZoneSet& pictureZones, const GrayImage& image) {

@@ -166,14 +166,20 @@ BlackWhiteOptions::ColorSegmenterOptions::ColorSegmenterOptions()
       m_noiseReduction(7),
       m_redThresholdAdjustment(0),
       m_greenThresholdAdjustment(0),
-      m_blueThresholdAdjustment(0) {}
+      m_blueThresholdAdjustment(0),
+      m_kmeansEnabled(false),
+      m_kmeansColors(6),
+      m_kmeansBlackFixed(true) {}
 
 BlackWhiteOptions::ColorSegmenterOptions::ColorSegmenterOptions(const QDomElement& el)
     : m_isEnabled(el.attribute("enabled") == "1"),
       m_noiseReduction(el.attribute("noiseReduction").toInt()),
       m_redThresholdAdjustment(el.attribute("redThresholdAdjustment").toInt()),
       m_greenThresholdAdjustment(el.attribute("greenThresholdAdjustment").toInt()),
-      m_blueThresholdAdjustment(el.attribute("blueThresholdAdjustment").toInt()) {}
+      m_blueThresholdAdjustment(el.attribute("blueThresholdAdjustment").toInt()),
+      m_kmeansEnabled(el.attribute("kmeans") == "1"),
+      m_kmeansColors(std::clamp(el.attribute("kmeansColors", "6").toInt(), MIN_KMEANS_COLORS, MAX_KMEANS_COLORS)),
+      m_kmeansBlackFixed(el.attribute("kmeansBlackFixed", "1") == "1") {}
 
 QDomElement BlackWhiteOptions::ColorSegmenterOptions::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
@@ -182,6 +188,16 @@ QDomElement BlackWhiteOptions::ColorSegmenterOptions::toXml(QDomDocument& doc, c
   el.setAttribute("redThresholdAdjustment", m_redThresholdAdjustment);
   el.setAttribute("greenThresholdAdjustment", m_greenThresholdAdjustment);
   el.setAttribute("blueThresholdAdjustment", m_blueThresholdAdjustment);
+  // Only when not the default, so that older versions read the same file.
+  if (m_kmeansEnabled) {
+    el.setAttribute("kmeans", "1");
+  }
+  if (m_kmeansColors != 6) {
+    el.setAttribute("kmeansColors", m_kmeansColors);
+  }
+  if (!m_kmeansBlackFixed) {
+    el.setAttribute("kmeansBlackFixed", "0");
+  }
   return el;
 }
 
@@ -189,7 +205,8 @@ bool BlackWhiteOptions::ColorSegmenterOptions::operator==(const BlackWhiteOption
   return (m_isEnabled == other.m_isEnabled) && (m_noiseReduction == other.m_noiseReduction)
          && (m_redThresholdAdjustment == other.m_redThresholdAdjustment)
          && (m_greenThresholdAdjustment == other.m_greenThresholdAdjustment)
-         && (m_blueThresholdAdjustment == other.m_blueThresholdAdjustment);
+         && (m_blueThresholdAdjustment == other.m_blueThresholdAdjustment) && (m_kmeansEnabled == other.m_kmeansEnabled)
+         && (m_kmeansColors == other.m_kmeansColors) && (m_kmeansBlackFixed == other.m_kmeansBlackFixed);
 }
 
 bool BlackWhiteOptions::ColorSegmenterOptions::operator!=(const BlackWhiteOptions::ColorSegmenterOptions& other) const {
