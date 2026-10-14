@@ -785,13 +785,9 @@ bool ThumbnailSequence::Impl::cancelingSelectionAccepted() {
   auto& appSettings = ApplicationSettings::getInstance();
   if (appSettings.isCancelingSelectionQuestionEnabled()) {
     std::set<PageId> selectedPages = selectedItems();
+    // Any two pages are a multi-page selection, also both halves of a split scan.
     if (selectedPages.size() < 2) {
       return true;
-    } else if (selectedPages.size() == 2) {
-      auto it = selectedPages.begin();
-      if ((*it).imageId() == (*(it++)).imageId()) {
-        return true;
-      }
     }
 
     QMessageBox msgBox;

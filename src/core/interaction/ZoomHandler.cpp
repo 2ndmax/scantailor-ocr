@@ -37,7 +37,7 @@ void ZoomHandler::onWheelEvent(QWheelEvent* event, InteractionState& interaction
   if ((zoom == 1.0) && (event->angleDelta().y() < 0)) {
     // Already zoomed out and trying to zoom out more.
     // Scroll amount in terms of typical mouse wheel "clicks".
-    const double deltaClicks = event->angleDelta().y() / 120;
+    const double deltaClicks = event->angleDelta().y() / 120.0;
     const double dist = -deltaClicks * 30;  // 30px per "click"
     m_imageView.moveTowardsIdealPosition(dist);
     return;
