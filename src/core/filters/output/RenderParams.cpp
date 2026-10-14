@@ -38,7 +38,8 @@ RenderParams::RenderParams(const ColorParams& colorParams, const SplittingOption
     }
     if (blackWhiteOptions.getColorSegmenterOptions().isEnabled()) {
       m_mask |= COLOR_SEGMENTATION;
-      if (colorCommonOptions.getPosterizationOptions().isEnabled()
+      // The text colors have their own posterizing, apart from that of whole color pages.
+      if (blackWhiteOptions.getColorSegmenterOptions().isPosterizeEnabled()
           && !blackWhiteOptions.getColorSegmenterOptions().isKMeansEnabled()) {
         m_mask |= POSTERIZE;
       }

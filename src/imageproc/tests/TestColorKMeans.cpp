@@ -1,6 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <BinaryImage.h>
 #include <ColorKMeans.h>
 
 #include <QImage>
@@ -83,6 +84,54 @@ BOOST_AUTO_TEST_CASE(fewer_colors_than_groups_are_kept) {
   const QImage result = reduceColorsKMeans(image, 6, false);
   BOOST_CHECK_EQUAL(result.pixel(0, 0), qRgb(200, 0, 0));
   BOOST_CHECK_EQUAL(result.pixel(1, 0), qRgb(0, 0, 200));
+}
+
+namespace {
+// A small red "letter" with an almost black rim, and a large area that is dark gray on the left and
+// middle gray on the right, as a picture; the text mask covers both.
+struct TextPage {
+  QImage color;
+  BinaryImage text;
+};
+
+TextPage textPage() {
+  TextPage page{QImage(200, 120, QImage::Format_RGB32), BinaryImage(200, 120, WHITE)};
+  page.color.fill(Qt::white);
+  for (int y = 10; y < 20; ++y) {
+    for (int x = 10; x < 20; ++x) {
+      const bool rim = (x == 10) || (x == 19) || (y == 10) || (y == 19);
+      page.color.setPixel(x, y, rim ? qRgb(30, 10, 10) : qRgb(220, 30, 30));
+      page.text.setPixel(x, y, BLACK);
+    }
+  }
+  for (int y = 10; y < 110; ++y) {
+    for (int x = 60; x < 190; ++x) {
+      page.color.setPixel(x, y, (x < 125) ? qRgb(40, 40, 40) : qRgb(130, 130, 130));
+      page.text.setPixel(x, y, BLACK);
+    }
+  }
+  return page;
+}
+}  // namespace
+
+BOOST_AUTO_TEST_CASE(letters_get_one_color_and_large_areas_keep_their_shading) {
+  const TextPage page = textPage();
+  const QImage result = reduceTextColorsKMeans(page.color, page.text, 4, true, 400);
+  // The letter (100 pixels) in one red color, rim included.
+  BOOST_CHECK_EQUAL(result.pixel(10, 10), result.pixel(15, 15));
+  BOOST_CHECK_GT(qRed(result.pixel(15, 15)), 120);
+  // The large area (13000 pixels) keeps its two tones.
+  BOOST_CHECK_NE(result.pixel(70, 50), result.pixel(180, 50));
+  // Outside the text: white.
+  BOOST_CHECK_EQUAL(result.pixel(5, 5), qRgb(255, 255, 255));
+}
+
+BOOST_AUTO_TEST_CASE(pixel_by_pixel_keeps_the_rim_of_letters) {
+  const TextPage page = textPage();
+  // Pixel by pixel, the rim becomes black and only the inside red.
+  const QImage result = reduceTextColorsKMeans(page.color, page.text, 4, true, 0);
+  BOOST_CHECK_EQUAL(result.pixel(10, 10), qRgb(0, 0, 0));
+  BOOST_CHECK_GT(qRed(result.pixel(15, 15)), 120);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

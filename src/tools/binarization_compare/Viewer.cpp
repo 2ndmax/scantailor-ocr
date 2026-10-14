@@ -199,7 +199,9 @@ bool writeViewer(const QDir& outDir, const bool colors) {
     html.replace(QStringLiteral("Binarisierung im Vergleich"), QStringLiteral("Farbiger Text im Vergleich"));
     html.replace(QStringLiteral("Original (Graustufen)"), QStringLiteral("Original (Farbe)"));
     html.replace(QStringLiteral("\"ScanTailor Experimental\""),
-                 QStringLiteral("\"K-Means (Idee aus ScanTailor Experimental)\""));
+                 QStringLiteral("\"K-Means (eigener Code, Idee aus ScanTailor Experimental)\""));
+    html.replace(QStringLiteral("Filter (Graustufen)"),
+                 QStringLiteral("K-Means (Originalcode ScanTailor Experimental)"));
   }
   index.write(html.toUtf8());
   return true;

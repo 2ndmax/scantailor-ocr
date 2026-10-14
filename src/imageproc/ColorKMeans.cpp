@@ -10,6 +10,9 @@
 #include <cmath>
 #include <vector>
 
+#include "BinaryImage.h"
+#include "ConnectivityMap.h"
+
 namespace imageproc {
 namespace {
 using Lab = std::array<double, 3>;
@@ -37,13 +40,6 @@ double distance2(const Lab& a, const Lab& b) {
   return (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2]);
 }
 
-struct Entry {
-  QRgb rgb;
-  int count;
-  Lab lab;
-  int group;
-};
-
 int nearestGroup(const Lab& lab, const std::vector<Lab>& centers) {
   int best = 0;
   for (int g = 1; g < static_cast<int>(centers.size()); ++g) {
@@ -53,26 +49,23 @@ int nearestGroup(const Lab& lab, const std::vector<Lab>& centers) {
   }
   return best;
 }
-}  // namespace
 
-QImage reduceColorsKMeans(const QImage& image, const int colors, const bool fixBlack) {
-  QImage result = image.convertToFormat(QImage::Format_RGB32);
-  if (result.isNull() || (colors < 1)) {
-    return result;
-  }
+// The groups found by k-means: their centers in Lab, and their colors, the average of their
+// members in RGB (the fixed black stays black).
+struct Palette {
+  std::vector<Lab> centers;
+  std::vector<QRgb> colors;
 
-  QHash<QRgb, int> counts;
-  for (int y = 0; y < result.height(); ++y) {
-    const auto* line = reinterpret_cast<const QRgb*>(result.constScanLine(y));
-    for (int x = 0; x < result.width(); ++x) {
-      if (line[x] != kWhite) {
-        ++counts[line[x]];
-      }
-    }
-  }
-  if (counts.isEmpty()) {
-    return result;
-  }
+  int groupOf(const QRgb rgb) const { return nearestGroup(toLab(rgb), centers); }
+};
+
+Palette findPalette(const QHash<QRgb, int>& counts, const int colors, const bool fixBlack) {
+  struct Entry {
+    QRgb rgb;
+    int count;
+    Lab lab;
+    int group;
+  };
   std::vector<Entry> entries;
   entries.reserve(counts.size());
   for (auto it = counts.cbegin(); it != counts.cend(); ++it) {
@@ -84,7 +77,8 @@ QImage reduceColorsKMeans(const QImage& image, const int colors, const bool fixB
 
   // The start: black or the most frequent color, then each time the color farthest from the
   // groups so far, weighted a little by frequency, so that single odd colors don't become a group.
-  std::vector<Lab> centers;
+  Palette palette;
+  std::vector<Lab>& centers = palette.centers;
   centers.push_back(fixBlack ? toLab(qRgb(0, 0, 0)) : entries.front().lab);
   const int wanted = std::min(colors, static_cast<int>(entries.size()) + (fixBlack ? 1 : 0));
   while (static_cast<int>(centers.size()) < wanted) {
@@ -135,7 +129,6 @@ QImage reduceColorsKMeans(const QImage& image, const int colors, const bool fixB
     }
   }
 
-  // The color of a group is the average of its colors in RGB; the fixed black stays black.
   std::vector<std::array<double, 3>> rgbSums(groups, std::array<double, 3>{0.0, 0.0, 0.0});
   std::vector<double> weights(groups, 0.0);
   for (const Entry& e : entries) {
@@ -145,18 +138,42 @@ QImage reduceColorsKMeans(const QImage& image, const int colors, const bool fixB
     rgbSums[e.group][2] += qBlue(e.rgb) * count;
     weights[e.group] += count;
   }
-  std::vector<QRgb> groupColors(groups, qRgb(0, 0, 0));
+  palette.colors.assign(groups, qRgb(0, 0, 0));
   for (int g = (fixBlack ? 1 : 0); g < groups; ++g) {
     if (weights[g] > 0.0) {
-      groupColors[g] = qRgb(static_cast<int>(std::lround(rgbSums[g][0] / weights[g])),
-                            static_cast<int>(std::lround(rgbSums[g][1] / weights[g])),
-                            static_cast<int>(std::lround(rgbSums[g][2] / weights[g])));
+      palette.colors[g] = qRgb(static_cast<int>(std::lround(rgbSums[g][0] / weights[g])),
+                               static_cast<int>(std::lround(rgbSums[g][1] / weights[g])),
+                               static_cast<int>(std::lround(rgbSums[g][2] / weights[g])));
     }
   }
+  return palette;
+}
+}  // namespace
+
+QImage reduceColorsKMeans(const QImage& image, const int colors, const bool fixBlack) {
+  QImage result = image.convertToFormat(QImage::Format_RGB32);
+  if (result.isNull() || (colors < 1)) {
+    return result;
+  }
+
+  QHash<QRgb, int> counts;
+  for (int y = 0; y < result.height(); ++y) {
+    const auto* line = reinterpret_cast<const QRgb*>(result.constScanLine(y));
+    for (int x = 0; x < result.width(); ++x) {
+      if (line[x] != kWhite) {
+        ++counts[line[x]];
+      }
+    }
+  }
+  if (counts.isEmpty()) {
+    return result;
+  }
+  const Palette palette = findPalette(counts, colors, fixBlack);
+
   QHash<QRgb, QRgb> mapping;
-  mapping.reserve(static_cast<qsizetype>(entries.size()));
-  for (const Entry& e : entries) {
-    mapping.insert(e.rgb, groupColors[e.group]);
+  mapping.reserve(counts.size());
+  for (auto it = counts.cbegin(); it != counts.cend(); ++it) {
+    mapping.insert(it.key(), palette.colors[palette.groupOf(it.key())]);
   }
   for (int y = 0; y < result.height(); ++y) {
     auto* line = reinterpret_cast<QRgb*>(result.scanLine(y));
@@ -166,6 +183,87 @@ QImage reduceColorsKMeans(const QImage& image, const int colors, const bool fixB
         line[x] = it.value();
       }
     }
+  }
+  return result;
+}
+
+QImage reduceTextColorsKMeans(const QImage& color,
+                              const BinaryImage& text,
+                              const int colors,
+                              const bool fixBlack,
+                              const int maxLetterPixels) {
+  const QImage source = color.convertToFormat(QImage::Format_RGB32);
+  QImage result(source.size(), QImage::Format_RGB32);
+  result.fill(Qt::white);
+  if (source.isNull() || (text.size() != source.size()) || (colors < 1)) {
+    return result;
+  }
+  const int width = source.width();
+  const int height = source.height();
+
+  // The groups are found from the colors of all text pixels.
+  QHash<QRgb, int> counts;
+  for (int y = 0; y < height; ++y) {
+    const auto* line = reinterpret_cast<const QRgb*>(source.constScanLine(y));
+    for (int x = 0; x < width; ++x) {
+      if (text.getPixel(x, y) == BLACK) {
+        ++counts[line[x]];
+      }
+    }
+  }
+  if (counts.isEmpty()) {
+    return result;
+  }
+  const Palette palette = findPalette(counts, colors, fixBlack);
+  QHash<QRgb, int> groupOfColor;
+  groupOfColor.reserve(counts.size());
+  for (auto it = counts.cbegin(); it != counts.cend(); ++it) {
+    groupOfColor.insert(it.key(), palette.groupOf(it.key()));
+  }
+
+  // Each letter, a small connected area, gets the group of its average color; larger areas, such
+  // as pictures and the lines of drawings, keep a group for each pixel and so their shading.
+  const ConnectivityMap components(text, CONN8);
+  const uint32_t maxLabel = components.maxLabel();
+  std::vector<int> sizes(maxLabel + 1, 0);
+  std::vector<std::array<double, 3>> sums(maxLabel + 1, std::array<double, 3>{0.0, 0.0, 0.0});
+  const uint32_t* labelLine = components.data();
+  for (int y = 0; y < height; ++y) {
+    const auto* line = reinterpret_cast<const QRgb*>(source.constScanLine(y));
+    for (int x = 0; x < width; ++x) {
+      const uint32_t label = labelLine[x];
+      if (label != 0) {
+        ++sizes[label];
+        sums[label][0] += qRed(line[x]);
+        sums[label][1] += qGreen(line[x]);
+        sums[label][2] += qBlue(line[x]);
+      }
+    }
+    labelLine += components.stride();
+  }
+  std::vector<int> letterGroup(maxLabel + 1, -1);
+  for (uint32_t label = 1; label <= maxLabel; ++label) {
+    if ((sizes[label] > 0) && (sizes[label] <= maxLetterPixels)) {
+      const double n = sizes[label];
+      const QRgb average
+          = qRgb(static_cast<int>(std::lround(sums[label][0] / n)), static_cast<int>(std::lround(sums[label][1] / n)),
+                 static_cast<int>(std::lround(sums[label][2] / n)));
+      letterGroup[label] = palette.groupOf(average);
+    }
+  }
+
+  labelLine = components.data();
+  for (int y = 0; y < height; ++y) {
+    const auto* line = reinterpret_cast<const QRgb*>(source.constScanLine(y));
+    auto* resultLine = reinterpret_cast<QRgb*>(result.scanLine(y));
+    for (int x = 0; x < width; ++x) {
+      const uint32_t label = labelLine[x];
+      if (label != 0) {
+        const int group = (letterGroup[label] >= 0) ? letterGroup[label] : groupOfColor.value(line[x]);
+        resultLine[x] = palette.colors[group];
+      }
+    }
+    labelLine += components.stride();
   }
   return result;
 }

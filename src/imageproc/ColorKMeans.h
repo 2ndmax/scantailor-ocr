@@ -7,6 +7,8 @@
 class QImage;
 
 namespace imageproc {
+class BinaryImage;
+
 /**
  * @brief Reduces the colors of an image to a few, found with k-means.
  *
@@ -23,6 +25,25 @@ namespace imageproc {
  * @return An RGB32 image.
  */
 QImage reduceColorsKMeans(const QImage& image, int colors, bool fixBlack);
+
+/**
+ * @brief Colors black and white text with a few colors of the color image, found with k-means.
+ *
+ * The groups are found from the colors of all text pixels.  Each letter, a connected area of at
+ * most maxLetterPixels pixels, gets one color, the group of its average color, so colored text
+ * comes out even; larger areas, such as pictures and the lines of drawings, get a group for each
+ * pixel and so keep their shading.  0 gives each pixel its own group, a very large value each area
+ * one color.
+ *
+ * @param color The color image.
+ * @param text The text: black pixels are colored, white ones become white.
+ * @return An RGB32 image.
+ */
+QImage reduceTextColorsKMeans(const QImage& color,
+                              const BinaryImage& text,
+                              int colors,
+                              bool fixBlack,
+                              int maxLetterPixels);
 }  // namespace imageproc
 
 #endif  // SCANTAILOR_IMAGEPROC_COLORKMEANS_H_

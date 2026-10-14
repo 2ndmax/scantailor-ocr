@@ -167,6 +167,7 @@ BlackWhiteOptions::ColorSegmenterOptions::ColorSegmenterOptions()
       m_redThresholdAdjustment(0),
       m_greenThresholdAdjustment(0),
       m_blueThresholdAdjustment(0),
+      m_posterizeEnabled(false),
       m_kmeansEnabled(false),
       m_kmeansColors(6),
       m_kmeansBlackFixed(true) {}
@@ -177,6 +178,7 @@ BlackWhiteOptions::ColorSegmenterOptions::ColorSegmenterOptions(const QDomElemen
       m_redThresholdAdjustment(el.attribute("redThresholdAdjustment").toInt()),
       m_greenThresholdAdjustment(el.attribute("greenThresholdAdjustment").toInt()),
       m_blueThresholdAdjustment(el.attribute("blueThresholdAdjustment").toInt()),
+      m_posterizeEnabled(el.attribute("posterize") == "1"),
       m_kmeansEnabled(el.attribute("kmeans") == "1"),
       m_kmeansColors(std::clamp(el.attribute("kmeansColors", "6").toInt(), MIN_KMEANS_COLORS, MAX_KMEANS_COLORS)),
       m_kmeansBlackFixed(el.attribute("kmeansBlackFixed", "1") == "1") {}
@@ -188,6 +190,8 @@ QDomElement BlackWhiteOptions::ColorSegmenterOptions::toXml(QDomDocument& doc, c
   el.setAttribute("redThresholdAdjustment", m_redThresholdAdjustment);
   el.setAttribute("greenThresholdAdjustment", m_greenThresholdAdjustment);
   el.setAttribute("blueThresholdAdjustment", m_blueThresholdAdjustment);
+  // Always written: without it, a project is from before it was kept apart (see ColorParams).
+  el.setAttribute("posterize", m_posterizeEnabled ? "1" : "0");
   // Only when not the default, so that older versions read the same file.
   if (m_kmeansEnabled) {
     el.setAttribute("kmeans", "1");
@@ -205,7 +209,8 @@ bool BlackWhiteOptions::ColorSegmenterOptions::operator==(const BlackWhiteOption
   return (m_isEnabled == other.m_isEnabled) && (m_noiseReduction == other.m_noiseReduction)
          && (m_redThresholdAdjustment == other.m_redThresholdAdjustment)
          && (m_greenThresholdAdjustment == other.m_greenThresholdAdjustment)
-         && (m_blueThresholdAdjustment == other.m_blueThresholdAdjustment) && (m_kmeansEnabled == other.m_kmeansEnabled)
+         && (m_blueThresholdAdjustment == other.m_blueThresholdAdjustment)
+         && (m_posterizeEnabled == other.m_posterizeEnabled) && (m_kmeansEnabled == other.m_kmeansEnabled)
          && (m_kmeansColors == other.m_kmeansColors) && (m_kmeansBlackFixed == other.m_kmeansBlackFixed);
 }
 

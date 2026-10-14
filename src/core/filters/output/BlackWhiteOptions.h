@@ -65,6 +65,12 @@ class BlackWhiteOptions {
 
     void setBlueThresholdAdjustment(int blueThresholdAdjustment);
 
+    /// Posterizing of the text colors, for black and white and mixed pages.  Kept apart from the
+    /// posterizing of whole color pages; older projects had one setting for both.
+    bool isPosterizeEnabled() const { return m_posterizeEnabled; }
+
+    void setPosterizeEnabled(bool enabled) { m_posterizeEnabled = enabled; }
+
     /// K-means: the letter colors are reduced to this many colors (idea from ScanTailor
     /// Experimental), instead of posterizing them.  With a fixed black, one color is pure black.
     bool isKMeansEnabled() const { return m_kmeansEnabled; }
@@ -88,6 +94,7 @@ class BlackWhiteOptions {
     int m_redThresholdAdjustment;
     int m_greenThresholdAdjustment;
     int m_blueThresholdAdjustment;
+    bool m_posterizeEnabled;
     bool m_kmeansEnabled;
     int m_kmeansColors;
     bool m_kmeansBlackFixed;

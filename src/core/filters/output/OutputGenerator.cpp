@@ -216,8 +216,9 @@ class OutputGenerator::Processor {
 
   QImage posterizeImage(const QImage& image, const QColor& backgroundColor = Qt::white) const;
 
-  /// The letter colors of the color segmentation, reduced with K-means or posterization, as set.
-  QImage reduceSegmentColors(const QImage& segmented) const;
+  /// The text in color, as set: K-means on the colors of the text, or color segmentation, posterized
+  /// if set.
+  QImage colorText(const BinaryImage& text, const QImage& colorImage) const;
 
   ForegroundType getForegroundType() const;
 
@@ -1391,11 +1392,10 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
         drawOver(colorImage, m_croppedContentRect, maybeNormalized, m_contentRectInWorkingCs);
         maybeNormalized = QImage();
 
-        segmentedImage = segmentImage(dst, colorImage);
+        segmentedImage = colorText(dst, colorImage);
         dst.release();
       }
 
-      segmentedImage = reduceSegmentColors(segmentedImage);
 
       if (!m_blackOnWhite) {
         segmentedImage.invertPixels();
@@ -1465,8 +1465,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
           combineImages(maybeNormalized, bwContent, bwMask);
         }
       } else {
-        QImage segmentedImage = segmentImage(bwContent, maybeNormalized);
-        segmentedImage = reduceSegmentColors(segmentedImage);
+        QImage segmentedImage = colorText(bwContent, maybeNormalized);
 
         if (m_renderParams.originalBackground()) {
           combineImages(maybeNormalized, segmentedImage);
@@ -1772,11 +1771,10 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
 
       imageBuilder.setImage(dewarpedBwContent.toQImage());
     } else {
-      QImage segmentedImage = segmentImage(dewarpedBwContent, dewarped);
+      QImage segmentedImage = colorText(dewarpedBwContent, dewarped);
       dewarped = QImage();
       dewarpedBwContent.release();
 
-      segmentedImage = reduceSegmentColors(segmentedImage);
 
       if (!m_blackOnWhite) {
         segmentedImage.invertPixels();
@@ -1872,8 +1870,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
           combineImages(dewarped, dewarpedBwContent, dewarpedBwMask);
         }
       } else {
-        QImage segmentedImage = segmentImage(dewarpedBwContent, dewarped);
-        segmentedImage = reduceSegmentColors(segmentedImage);
+        QImage segmentedImage = colorText(dewarpedBwContent, dewarped);
 
         if (m_renderParams.originalBackground()) {
           combineImages(dewarped, segmentedImage);
@@ -2583,21 +2580,24 @@ QImage OutputGenerator::Processor::posterizeImage(const QImage& image, const QCo
   return posterized;
 }
 
-QImage OutputGenerator::Processor::reduceSegmentColors(const QImage& segmented) const {
+QImage OutputGenerator::Processor::colorText(const BinaryImage& text, const QImage& colorImage) const {
   const BlackWhiteOptions::ColorSegmenterOptions& options
       = m_colorParams.blackWhiteOptions().getColorSegmenterOptions();
   if (options.isKMeansEnabled()) {
-    // An indexed image, as after posterizing, keeps the files small.
-    QImage reduced = Posterizer::convertToIndexed(
-        reduceColorsKMeans(segmented, options.getKMeansColors(), options.isKMeansBlackFixed()));
+    // Letters up to a filled square of a quarter inch get one color, larger areas keep their
+    // shading.  An indexed image, as after posterizing, keeps the files small.
+    const int quarterInch = (m_dpi.horizontal() + m_dpi.vertical()) / 8;
+    QImage colored = Posterizer::convertToIndexed(reduceTextColorsKMeans(
+        colorImage, text, options.getKMeansColors(), options.isKMeansBlackFixed(), quarterInch * quarterInch));
     if (m_dbg) {
-      m_dbg->add(reduced, "k-means");
+      m_dbg->add(colored, "k-means");
     }
     m_status.throwIfCancelled();
-    return reduced;
+    return colored;
   }
+  QImage segmented = segmentImage(text, colorImage);
   if (m_renderParams.posterize()) {
-    return posterizeImage(segmented, m_outsideBackgroundColor);
+    segmented = posterizeImage(segmented, m_outsideBackgroundColor);
   }
   return segmented;
 }

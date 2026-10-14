@@ -14,7 +14,8 @@ namespace binarization_compare {
 struct ColorMethod {
   QString id;
   QString label;
-  // "ours" (color segmentation of ScanTailor OCR) or "experimental" (K-means).
+  // "ours" (color segmentation of ScanTailor OCR), "experimental" (our K-means) or "filter" (the
+  // K-means code of ScanTailor Experimental itself).
   QString group;
   QString parameters;
   // Takes the color page and its black and white text.

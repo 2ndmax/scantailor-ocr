@@ -81,7 +81,7 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void updateColorReductionControls();
 
-  void posterizeToggled(bool checked);
+  void colorReductionChanged(int index);
 
   void dpiSelectionChanged();
 
@@ -192,6 +192,10 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   bool m_colorNormalizeIllumination = false;
   // The binarization method shown, to know which one the selector switches from.
   int m_binarizationMethod = 0;
+  // "Reduce colors" of the text (0 none, 1 posterize, 2 K-means) and of whole color pages, kept
+  // apart, as the list shows the one of the chosen color mode.
+  int m_textColorReduction = 0;
+  bool m_pagePosterize = false;
   int m_customProfileItemIdx;
   Units m_currentUnits;
   std::set<QString> m_reservedProfileNames;

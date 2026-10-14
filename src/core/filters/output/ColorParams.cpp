@@ -10,7 +10,16 @@ ColorParams::ColorParams(const QDomElement& el)
     : m_colorMode(parseColorMode(el.attribute("colorMode"))),
       m_colorCommonOptions(el.namedItem("color-or-grayscale").toElement()),
       m_bwOptions(el.namedItem("bw").toElement()),
-      m_photoAdjustments(el.namedItem("photo-adjustments").toElement()) {}
+      m_photoAdjustments(el.namedItem("photo-adjustments").toElement()) {
+  // Projects from before the posterizing of text colors was kept apart had one setting for both:
+  // their text was posterized whenever posterizing was on.
+  const QDomElement segmenterEl = el.namedItem("bw").toElement().namedItem("color-segmenter-options").toElement();
+  if (!segmenterEl.hasAttribute("posterize")) {
+    BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = m_bwOptions.getColorSegmenterOptions();
+    segmenterOptions.setPosterizeEnabled(m_colorCommonOptions.getPosterizationOptions().isEnabled());
+    m_bwOptions.setColorSegmenterOptions(segmenterOptions);
+  }
+}
 
 QDomElement ColorParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));

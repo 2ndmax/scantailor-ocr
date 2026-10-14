@@ -400,5 +400,24 @@ BOOST_AUTO_TEST_CASE(kmeans_settings_are_stored_only_when_set) {
   BOOST_CHECK(!read.isKMeansBlackFixed());
 }
 
+BOOST_AUTO_TEST_CASE(older_projects_posterize_text_when_posterizing_was_on) {
+  // Before, one setting posterized both whole color pages and the text colors.
+  ColorParams params;
+  ColorCommonOptions common = params.colorCommonOptions();
+  ColorCommonOptions::PosterizationOptions posterization = common.getPosterizationOptions();
+  posterization.setEnabled(true);
+  common.setPosterizationOptions(posterization);
+  params.setColorCommonOptions(common);
+  QDomDocument doc;
+  QDomElement el = params.toXml(doc, "color-params");
+  el.namedItem("bw").toElement().namedItem("color-segmenter-options").toElement().removeAttribute("posterize");
+  BOOST_CHECK(ColorParams(el).blackWhiteOptions().getColorSegmenterOptions().isPosterizeEnabled());
+
+  // Projects since then keep the two apart.
+  el = params.toXml(doc, "color-params");
+  BOOST_CHECK(!ColorParams(el).blackWhiteOptions().getColorSegmenterOptions().isPosterizeEnabled());
+  BOOST_CHECK(ColorParams(el).colorCommonOptions().getPosterizationOptions().isEnabled());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

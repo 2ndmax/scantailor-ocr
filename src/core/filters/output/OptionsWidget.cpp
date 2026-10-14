@@ -18,6 +18,7 @@
 #include <QSignalBlocker>
 #include <QSlider>
 #include <QSpinBox>
+#include <QStandardItemModel>
 #include <QToolTip>
 #include <algorithm>
 #include <utility>
@@ -125,6 +126,8 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
   binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
   allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
+  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further.
+  colorReductionLayout->setHorizontalSpacing(segmenterReductionLayout->horizontalSpacing());
   updateBinarizationOptionsDisplay(binarizationOptions->currentIndex());
 
   // The order follows OptionsWidget::colorReduction().
@@ -1616,47 +1619,75 @@ void OptionsWidget::blueAdjustmentChanged(int value) {
   m_delayedReloadRequest.start(750);
 }
 
+bool OptionsWidget::reducesTextColors() const {
+  const ColorMode colorMode = m_colorParams.colorMode();
+  return (colorMode == BLACK_AND_WHITE) || (colorMode == MIXED);
+}
+
 int OptionsWidget::colorReduction() const {
-  // The items of "Reduce colors": none, posterize, K-means.
-  if (m_colorParams.blackWhiteOptions().getColorSegmenterOptions().isKMeansEnabled()) {
-    return 2;
+  // The items of "Reduce colors": none, posterize, K-means.  Black and white and mixed pages reduce
+  // the colors of the text, color pages those of the whole page.
+  if (reducesTextColors()) {
+    const BlackWhiteOptions::ColorSegmenterOptions& segmenterOptions
+        = m_colorParams.blackWhiteOptions().getColorSegmenterOptions();
+    if (segmenterOptions.isKMeansEnabled()) {
+      return 2;
+    }
+    return segmenterOptions.isPosterizeEnabled() ? 1 : 0;
   }
   return m_colorParams.colorCommonOptions().getPosterizationOptions().isEnabled() ? 1 : 0;
 }
 
 void OptionsWidget::updateColorReductionControls() {
-  const ColorMode colorMode = m_colorParams.colorMode();
-  const bool textColors = (colorMode == BLACK_AND_WHITE) || (colorMode == MIXED);
+  const bool textColors = reducesTextColors();
   const bool segmentation = textColors && m_colorParams.blackWhiteOptions().getColorSegmenterOptions().isEnabled();
   const int reduction = colorReduction();
   segmenterOptionsWidget->setEnabled(segmentation);
-  for (QWidget* widget : std::initializer_list<QWidget*>{kmeansColorsLabel, kmeansColorsSB, kmeansFixBlackCB}) {
-    widget->setEnabled(segmentation && (reduction == 2));
+  // K-means works on the text itself, so the settings of the segmentation don't apply to it.
+  for (QWidget* widget :
+       std::initializer_list<QWidget*>{redLabel, greenLabel, blueLabel, redAdjustmentSB, greenAdjustmentSB,
+                                       blueAdjustmentSB, reduceNoiseLabel, reduceNoiseSB}) {
+    widget->setEnabled(segmentation && (reduction != 2));
   }
-  const bool posterize = m_colorParams.colorCommonOptions().getPosterizationOptions().isEnabled();
-  if (textColors) {
-    // The colors of the text are reduced as chosen in "Reduce colors"; the check box only shows it.
-    posterizeCB->setEnabled(false);
-    posterizeCB->setChecked(reduction == 1);
-    posterizeOptionsWidget->setEnabled(segmentation && (reduction == 1));
-  } else {
-    posterizeCB->setEnabled(true);
-    posterizeCB->setChecked(posterize);
-    posterizeOptionsWidget->setEnabled(posterize);
+
+  // The text colors can only be reduced with color segmentation; K-means only reduces text colors.
+  const bool listUsable = !textColors || segmentation;
+  colorReductionLabel->setEnabled(listUsable);
+  colorReductionCB->setEnabled(listUsable);
+  if (auto* model = qobject_cast<QStandardItemModel*>(colorReductionCB->model())) {
+    model->item(2)->setEnabled(textColors);
+  }
+  {
+    const QSignalBlocker blocker(colorReductionCB);
+    colorReductionCB->setCurrentIndex(reduction);
+  }
+  // Only the settings of the chosen method are shown, in the same place: one number and its check boxes.
+  for (QWidget* widget : std::initializer_list<QWidget*>{kmeansColorsLabel, kmeansColorsSB, kmeansFixBlackCB}) {
+    widget->setVisible(reduction == 2);
+    widget->setEnabled(listUsable);
+  }
+  for (QWidget* widget : std::initializer_list<QWidget*>{posterizeLevelLabel, posterizeLevelSB,
+                                                         posterizeNormalizationCB, posterizeForceBwCB}) {
+    widget->setVisible(reduction == 1);
+    widget->setEnabled(listUsable);
   }
 }
 
 void OptionsWidget::colorReductionChanged(const int index) {
-  BlackWhiteOptions blackWhiteOptions = m_colorParams.blackWhiteOptions();
-  BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
-  segmenterOptions.setKMeansEnabled(index == 2);
-  blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
-  m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  ColorCommonOptions::PosterizationOptions posterizationOptions = colorCommonOptions.getPosterizationOptions();
-  posterizationOptions.setEnabled(index == 1);
-  colorCommonOptions.setPosterizationOptions(posterizationOptions);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
+  if (reducesTextColors()) {
+    BlackWhiteOptions blackWhiteOptions = m_colorParams.blackWhiteOptions();
+    BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
+    segmenterOptions.setPosterizeEnabled(index == 1);
+    segmenterOptions.setKMeansEnabled(index == 2);
+    blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
+    m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
+  } else {
+    ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+    ColorCommonOptions::PosterizationOptions posterizationOptions = colorCommonOptions.getPosterizationOptions();
+    posterizationOptions.setEnabled(index == 1);
+    colorCommonOptions.setPosterizationOptions(posterizationOptions);
+    m_colorParams.setColorCommonOptions(colorCommonOptions);
+  }
   m_settings->setColorParams(m_pageId, m_colorParams);
 
   updateColorReductionControls();
@@ -1680,19 +1711,6 @@ void OptionsWidget::kmeansFixBlackToggled(const bool checked) {
   blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
-}
-
-void OptionsWidget::posterizeToggled(bool checked) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  ColorCommonOptions::PosterizationOptions posterizationOptions = colorCommonOptions.getPosterizationOptions();
-  posterizationOptions.setEnabled(checked);
-  colorCommonOptions.setPosterizationOptions(posterizationOptions);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  posterizeOptionsWidget->setEnabled(checked);
-
   emit reloadRequested();
 }
 
@@ -1801,7 +1819,6 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(redAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::redAdjustmentChanged);
   CONNECT(greenAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::greenAdjustmentChanged);
   CONNECT(blueAdjustmentSB, &QSpinBox::valueChanged, this, &OptionsWidget::blueAdjustmentChanged);
-  CONNECT(posterizeCB, &QAbstractButton::clicked, this, &OptionsWidget::posterizeToggled);
   CONNECT(posterizeLevelSB, &QSpinBox::valueChanged, this, &OptionsWidget::posterizeLevelChanged);
   CONNECT(posterizeNormalizationCB, &QAbstractButton::clicked, this, &OptionsWidget::posterizeNormalizationToggled);
   CONNECT(posterizeForceBwCB, &QAbstractButton::clicked, this, &OptionsWidget::posterizeForceBwToggled);

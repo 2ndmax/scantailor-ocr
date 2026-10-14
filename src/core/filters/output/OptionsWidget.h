@@ -156,8 +156,6 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void kmeansFixBlackToggled(bool checked);
 
-  void posterizeToggled(bool checked);
-
   void posterizeLevelChanged(int value);
 
   void posterizeNormalizationToggled(bool checked);
@@ -230,6 +228,10 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
  private:
   /// The chosen "Reduce colors" of the color segmentation: 0 none, 1 posterize, 2 K-means.
+  /// Whether the color mode reduces the colors of the text (black and white, mixed) rather than
+  /// those of the whole page (color).
+  bool reducesTextColors() const;
+
   int colorReduction() const;
 
   void updateColorReductionControls();

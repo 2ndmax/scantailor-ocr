@@ -1743,7 +1743,7 @@
               </item>
               <item>
                <layout class="QGridLayout" name="segmenterReductionLayout">
-                <item row="0" column="0" rowspan="4">
+                <item row="0" column="0">
                  <spacer name="segmenterReductionIndent">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1779,63 +1779,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QLabel" name="colorReductionLabel">
-                  <property name="toolTip">
-                   <string>How the colors of the letters are reduced to a few: not at all (each letter keeps its own average color), by posterizing (the settings below) or with K-means (the colors that fit the page best).</string>
-                  </property>
-                  <property name="text">
-                   <string>Reduce colors:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QComboBox" name="colorReductionCB">
-                  <property name="toolTip">
-                   <string>How the colors of the letters are reduced to a few: not at all (each letter keeps its own average color), by posterizing (the settings below) or with K-means (the colors that fit the page best).</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QLabel" name="kmeansColorsLabel">
-                  <property name="toolTip">
-                   <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
-                  </property>
-                  <property name="text">
-                   <string>Colors:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QSpinBox" name="kmeansColorsSB">
-                  <property name="toolTip">
-                   <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
-                  </property>
-                  <property name="keyboardTracking">
-                   <bool>false</bool>
-                  </property>
-                  <property name="minimum">
-                   <number>2</number>
-                  </property>
-                  <property name="maximum">
-                   <number>16</number>
-                  </property>
-                  <property name="value">
-                   <number>6</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1" colspan="2">
-                 <widget class="QCheckBox" name="kmeansFixBlackCB">
-                  <property name="toolTip">
-                   <string>One of the colors is pure black, so black text stays black instead of getting a tint.</string>
-                  </property>
-                  <property name="text">
-                   <string>Fixed black</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3" rowspan="4">
+                <item row="0" column="3">
                  <spacer name="segmenterReductionSpacer">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1854,195 +1798,162 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="posterizeCB">
-             <property name="toolTip">
-              <string>Reduce the number of colors of the output image by grouping similar colors.</string>
-             </property>
-             <property name="statusTip">
-              <string/>
-             </property>
-             <property name="text">
-              <string>Posterize</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QWidget" name="posterizeOptionsWidget" native="true">
-             <layout class="QVBoxLayout" name="verticalLayout_15">
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_17">
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <spacer name="horizontalSpacer_32">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Minimum</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>15</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QLabel" name="posterizeLevelLabel">
-                  <property name="text">
-                   <string>Level:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="posterizeLevelSB">
-                  <property name="toolTip">
-                   <string>Lower value means lower count of colors in the output image, values between 2 and 6 inclusive guarantee an indexed image.</string>
-                  </property>
-                  <property name="frame">
-                   <bool>true</bool>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="minimum">
-                   <number>2</number>
-                  </property>
-                  <property name="maximum">
-                   <number>255</number>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_33">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_19">
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <spacer name="horizontalSpacer_36">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Minimum</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>15</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="posterizeNormalizationCB">
-                  <property name="toolTip">
-                   <string/>
-                  </property>
-                  <property name="statusTip">
-                   <string/>
-                  </property>
-                  <property name="text">
-                   <string>Normalize</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_37">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_18">
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <spacer name="horizontalSpacer_34">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Minimum</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>15</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="posterizeForceBwCB">
-                  <property name="toolTip">
-                   <string>Make dark and light gray gradients black and white respectively.</string>
-                  </property>
-                  <property name="statusTip">
-                   <string/>
-                  </property>
-                  <property name="text">
-                   <string>Force b&amp;&amp;w</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_35">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>1</width>
-                    <height>1</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
+            <layout class="QGridLayout" name="colorReductionLayout">
+             <item row="0" column="0" rowspan="4">
+              <spacer name="colorReductionIndent">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Minimum</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>15</width>
+                 <height>1</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="1" colspan="3">
+              <layout class="QHBoxLayout" name="colorReductionChoiceLayout">
+               <item>
+                <widget class="QLabel" name="colorReductionLabel">
+                 <property name="toolTip">
+                  <string>How the colors are reduced to a few.  Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best).  Color pages: the whole page, by posterizing.</string>
+                 </property>
+                 <property name="text">
+                  <string>Reduce colors:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="colorReductionCB">
+                 <property name="toolTip">
+                  <string>How the colors are reduced to a few.  Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best).  Color pages: the whole page, by posterizing.</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="1" column="1" rowspan="3">
+              <spacer name="colorReductionSubIndent">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>15</width>
+                 <height>1</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="kmeansColorsLabel">
+               <property name="toolTip">
+                <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
+               </property>
+               <property name="text">
+                <string>Colors:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QSpinBox" name="kmeansColorsSB">
+               <property name="toolTip">
+                <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
+               </property>
+               <property name="keyboardTracking">
+                <bool>false</bool>
+               </property>
+               <property name="minimum">
+                <number>2</number>
+               </property>
+               <property name="maximum">
+                <number>16</number>
+               </property>
+               <property name="value">
+                <number>6</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2" colspan="2">
+              <widget class="QCheckBox" name="kmeansFixBlackCB">
+               <property name="toolTip">
+                <string>One of the colors is pure black, so black text stays black instead of getting a tint.</string>
+               </property>
+               <property name="text">
+                <string>Fixed black</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="posterizeLevelLabel">
+               <property name="toolTip">
+                <string>Posterizing: how finely each color channel is divided.  4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</string>
+               </property>
+               <property name="text">
+                <string>Level:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QSpinBox" name="posterizeLevelSB">
+               <property name="toolTip">
+                <string>Posterizing: how finely each color channel is divided.  4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</string>
+               </property>
+               <property name="keyboardTracking">
+                <bool>false</bool>
+               </property>
+               <property name="minimum">
+                <number>2</number>
+               </property>
+               <property name="maximum">
+                <number>255</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2" colspan="2">
+              <widget class="QCheckBox" name="posterizeNormalizationCB">
+               <property name="toolTip">
+                <string>Spreads the colors between black and the paper before posterizing, for pale scans.</string>
+               </property>
+               <property name="text">
+                <string>Normalize</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2" colspan="2">
+              <widget class="QCheckBox" name="posterizeForceBwCB">
+               <property name="toolTip">
+                <string>Make dark and light gray gradients black and white respectively.</string>
+               </property>
+               <property name="text">
+                <string>Force b&amp;&amp;w</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4" rowspan="4">
+              <spacer name="colorReductionSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>1</width>
+                 <height>1</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>

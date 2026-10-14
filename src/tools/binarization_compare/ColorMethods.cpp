@@ -10,6 +10,7 @@
 #include "ColorKMeans.h"
 #include "ColorSegmenter.h"
 #include "Dpi.h"
+#include "ExpColorFilter.h"
 #include "GrayImage.h"
 #include "Posterizer.h"
 
@@ -43,6 +44,26 @@ QImage posterized(const QImage& color, const QImage& text, const int level) {
 QImage kmeans(const QImage& color, const QImage& text, const int k, const bool fixBlack) {
   return imageproc::reduceColorsKMeans(segmented(color, text), k, fixBlack);
 }
+
+// Our K-means on the pixels of the text: each pixel on its own, or letters as one color and only
+// larger areas pixel by pixel.  A letter is at most as large as a filled square of a quarter inch.
+QImage textKMeans(const QImage& color, const QImage& text, const int k, const bool combined) {
+  const Dpi dpi = dpiOf(color);
+  const int quarterInch = (dpi.horizontal() + dpi.vertical()) / 8;
+  return imageproc::reduceTextColorsKMeans(color, BinaryImage(text), k, true, combined ? quarterInch * quarterInch : 0);
+}
+
+// The code of ScanTailor Experimental, called as its Output step does in black and white mode: the
+// black and white text as the image to color, the whole page as the area, its defaults (HSV, start
+// value 128, no saturation, normalization or background colors), with or without "find black".
+QImage experimentalKMeans(const QImage& color, const QImage& text, const int k, const bool findBlack) {
+  QImage dst = text.convertToFormat(QImage::Format_RGB32);
+  const BinaryImage content(text);
+  const BinaryImage wholePage(text.size(), imageproc::BLACK);
+  imageproc::stexp::hsvKMeansInPlace(dst, color.convertToFormat(QImage::Format_RGB32), content, wholePage, k, 128, 0,
+                                     0.0f, 0.0f, 0.0f, findBlack, false);
+  return dst;
+}
 }  // namespace
 
 QImage textOf(const QImage& color) {
@@ -64,6 +85,16 @@ const std::vector<ColorMethod>& colorMethods() {
        [](const QImage& c, const QImage& t) { return kmeans(c, t, 4, true); }},
       {"kmeans6black", "K-Means, 6 Farben, Schwarz fest", "experimental", "eine Gruppe ist reines Schwarz",
        [](const QImage& c, const QImage& t) { return kmeans(c, t, 6, true); }},
+      {"kmeans6pixel", "K-Means pixelweise, 6 Farben, Schwarz fest", "experimental", "jedes Pixel einzeln",
+       [](const QImage& c, const QImage& t) { return textKMeans(c, t, 6, false); }},
+      {"kmeans6combined", "K-Means kombiniert, 6 Farben, Schwarz fest", "experimental",
+       "Buchstaben einfarbig, große Flächen pixelweise",
+       [](const QImage& c, const QImage& t) { return textKMeans(c, t, 6, true); }},
+      {"expkmeans6", "Experimental, 6 Farben", "filter", "Originalcode, Voreinstellungen",
+       [](const QImage& c, const QImage& t) { return experimentalKMeans(c, t, 6, false); }},
+      {"expkmeans6black", "Experimental, 6 Farben, Schwarz finden", "filter",
+       "Originalcode, Voreinstellungen, \"find black\"",
+       [](const QImage& c, const QImage& t) { return experimentalKMeans(c, t, 6, true); }},
   };
   return list;
 }
