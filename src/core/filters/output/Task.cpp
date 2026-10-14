@@ -12,6 +12,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <functional>
+#include <stdexcept>
 #include <utility>
 
 #include "DebugImagesImpl.h"
@@ -278,7 +279,11 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
           imageBuilder.setOriginalBackgroundImage(ImageLoader::load(originalBackgroundFile, 0));
         }
       }
-      outImg = *imageBuilder.build();
+      try {
+        outImg = *imageBuilder.build();
+      } catch (const std::invalid_argument&) {
+        // A layer file couldn't be read: outImg stays null, so the page is processed anew.
+      }
     }
     needReprocess = outImg.isNull();
 
@@ -565,8 +570,10 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   if ((m_params.dewarpingOptions().dewarpingMode() != OFF) && m_params.distortionModel().isValid()) {
     const QTransform rotateXform
         = Utils::rotate(m_params.dewarpingOptions().getPostDeskewAngle(), m_xform.resultingRect().toRect());
-    auto mapper = std::make_shared<DewarpingPointMapper>(m_params.distortionModel(), m_params.depthPerception().value(),
-                                                         m_xform.transform(), m_virtContentRect, rotateXform);
+    // The same model domain as OutputGenerator::dewarp() uses.
+    auto mapper
+        = std::make_shared<DewarpingPointMapper>(m_params.distortionModel(), m_params.depthPerception().value(),
+                                                 m_xform.transform(), m_xform.resultingRect().toRect(), rotateXform);
     origToOutput = std::bind(&DewarpingPointMapper::mapToDewarpedSpace, mapper, std::placeholders::_1);
     outputToOrig = std::bind(&DewarpingPointMapper::mapToWarpedSpace, mapper, std::placeholders::_1);
   } else {

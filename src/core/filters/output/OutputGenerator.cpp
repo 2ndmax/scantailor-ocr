@@ -1085,14 +1085,18 @@ QSize calcLocalWindowSize(const Dpi& dpi) {
 
 void movePointToTopMargin(BinaryImage& bwImage, XSpline& spline, int idx) {
   QPointF pos = spline.controlPointPosition(idx);
+  const int x = static_cast<int>(pos.x());
+  if ((x < 0) || (x >= bwImage.width())) {
+    return;
+  }
+  const int checkNum = 16;
 
-  for (int j = 0; j < pos.y(); j++) {
-    if (bwImage.getPixel(static_cast<int>(pos.x()), j) == WHITE) {
+  for (int j = 0; (j < pos.y()) && (j + checkNum <= bwImage.height()); j++) {
+    if (bwImage.getPixel(x, j) == WHITE) {
       int count = 0;
-      int checkNum = 16;
 
       for (int jj = j; jj < (j + checkNum); jj++) {
-        if (bwImage.getPixel(static_cast<int>(pos.x()), jj) == WHITE) {
+        if (bwImage.getPixel(x, jj) == WHITE) {
           count++;
         }
       }
@@ -1108,14 +1112,18 @@ void movePointToTopMargin(BinaryImage& bwImage, XSpline& spline, int idx) {
 
 void movePointToBottomMargin(BinaryImage& bwImage, XSpline& spline, int idx) {
   QPointF pos = spline.controlPointPosition(idx);
+  const int x = static_cast<int>(pos.x());
+  if ((x < 0) || (x >= bwImage.width())) {
+    return;
+  }
+  const int checkNum = 16;
 
-  for (int j = bwImage.height() - 1; j > pos.y(); j--) {
-    if (bwImage.getPixel(static_cast<int>(pos.x()), j) == WHITE) {
+  for (int j = bwImage.height() - 1; (j > pos.y()) && (j - checkNum + 1 >= 0); j--) {
+    if (bwImage.getPixel(x, j) == WHITE) {
       int count = 0;
-      int checkNum = 16;
 
       for (int jj = j; jj > (j - checkNum); jj--) {
-        if (bwImage.getPixel(static_cast<int>(pos.x()), jj) == WHITE) {
+        if (bwImage.getPixel(x, jj) == WHITE) {
           count++;
         }
       }
@@ -1456,6 +1464,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
         m_outsideBackgroundColor = BackgroundColorCalculator::calcDominantBackgroundColor(
             m_colorOriginal ? m_inputOrigImage : m_inputGrayImage, m_outCropAreaInOriginalCs);
         maybeNormalized = transformToWorkingCs(false);
+        applyEnhancementFilters(maybeNormalized);
       }
 
       if (!m_renderParams.needColorSegmentation()) {
@@ -1515,9 +1524,13 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
   }
 
   if (m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
+    // The image is inverted back below for light content on dark background.
     switch (m_colorParams.colorCommonOptions().getFillingColor()) {
+      case FILL_WHITE:
+        m_outsideBackgroundColor = m_blackOnWhite ? Qt::white : Qt::black;
+        break;
       case FILL_BLACK:
-        m_outsideBackgroundColor = Qt::black;
+        m_outsideBackgroundColor = m_blackOnWhite ? Qt::black : Qt::white;
         break;
       default:
         m_outsideBackgroundColor = Qt::white;
@@ -1697,6 +1710,8 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   } catch (const std::runtime_error&) {
     // Probably an impossible distortion model.  Let's fall back to a trivial one.
     setupTrivialDistortionModel(distortionModel);
+    // evenOutLetterWidths() may already have stored a correction measured with the failed model.
+    distortionModel.setWidthCorrection(WidthCorrection());
     m_dewarpingOptions.setPostDeskewAngle(.0);
 
     dewarped = dewarp(QTransform(), normalizedOriginal, m_xform.transform(), distortionModel, depthPerception,
@@ -1712,8 +1727,9 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   }
   m_status.throwIfCancelled();
 
+  // The same model domain as in dewarp(), or the zones land off their place on the dewarped page.
   auto mapper = std::make_shared<DewarpingPointMapper>(distortionModel, depthPerception.value(), m_xform.transform(),
-                                                       m_croppedContentRect, rotateXform);
+                                                       m_outRect, rotateXform);
   const std::function<QPointF(const QPointF&)> origToOutput(
       std::bind(&DewarpingPointMapper::mapToDewarpedSpace, mapper, std::placeholders::_1));
 
@@ -1860,6 +1876,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
                             depthPerception, m_outsideBackgroundColor);
         }
         applyAffineTransform(dewarped, rotateXform, m_outsideBackgroundColor);
+        applyEnhancementFilters(dewarped);
         m_status.throwIfCancelled();
       }
 
@@ -1896,9 +1913,13 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
 
   // The same filling colors as without dewarping; "Black" was missing here.
   if (m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
+    // The image is inverted back below for light content on dark background.
     switch (m_colorParams.colorCommonOptions().getFillingColor()) {
+      case FILL_WHITE:
+        m_outsideBackgroundColor = m_blackOnWhite ? Qt::white : Qt::black;
+        break;
       case FILL_BLACK:
-        m_outsideBackgroundColor = Qt::black;
+        m_outsideBackgroundColor = m_blackOnWhite ? Qt::black : Qt::white;
         break;
       default:
         m_outsideBackgroundColor = Qt::white;
@@ -2759,9 +2780,9 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
       if (topX < bottomX) {
         std::vector<QPointF> newBottomPolyline;
 
-        QPointF pt(topX, bottomPolyline.front().y());
+        const QPointF pt(topX, bottomPolyline.front().y());
 
-        newBottomPolyline.push_back(pt);
+        newBottomPolyline.push_back(invTransform.map(pt));
 
         for (auto i : bottomPolyline) {
           newBottomPolyline.push_back(invTransform.map(i));
@@ -2771,15 +2792,15 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
       } else {
         std::vector<QPointF> newTopPolyline;
 
-        QPointF pt(bottomX, topPolyline.front().y());
+        const QPointF pt(bottomX, topPolyline.front().y());
 
-        newTopPolyline.push_back(pt);
+        newTopPolyline.push_back(invTransform.map(pt));
 
         for (auto i : topPolyline) {
           newTopPolyline.push_back(invTransform.map(i));
         }
 
-        distortionModel.setBottomCurve(Curve(newTopPolyline));
+        distortionModel.setTopCurve(Curve(newTopPolyline));
       }
     }
   } else {
@@ -2795,27 +2816,27 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
       if (topX > bottomX) {
         std::vector<QPointF> newBottomPolyline;
 
-        QPointF pt(topX, bottomPolyline.back().y());
+        const QPointF pt(topX, bottomPolyline.back().y());
 
         for (auto i : bottomPolyline) {
           newBottomPolyline.push_back(invTransform.map(i));
         }
 
-        newBottomPolyline.push_back(pt);
+        newBottomPolyline.push_back(invTransform.map(pt));
 
         distortionModel.setBottomCurve(Curve(newBottomPolyline));
       } else {
         std::vector<QPointF> newTopPolyline;
 
-        QPointF pt(bottomX, topPolyline.back().y());
+        const QPointF pt(bottomX, topPolyline.back().y());
 
         for (auto i : topPolyline) {
           newTopPolyline.push_back(invTransform.map(i));
         }
 
-        newTopPolyline.push_back(pt);
+        newTopPolyline.push_back(invTransform.map(pt));
 
-        distortionModel.setBottomCurve(Curve(newTopPolyline));
+        distortionModel.setTopCurve(Curve(newTopPolyline));
       }
     }
   }
@@ -2876,11 +2897,11 @@ DistortionModel OutputGenerator::Processor::buildMarginalDistortionModel() const
 
   if ((m_pageId.subPage() == PageId::SINGLE_PAGE) || (m_pageId.subPage() == PageId::LEFT_PAGE)) {
     for (int i = 29 - maxRedPoints; i < 29; i++) {
-      bottomSpline.appendControlPoint(topLine.pointAt((float) i / 29.0), 1);
+      bottomSpline.appendControlPoint(bottomLine.pointAt((float) i / 29.0), 1);
     }
   } else {
     for (int i = 1; i <= maxRedPoints; i++) {
-      bottomSpline.appendControlPoint(topLine.pointAt((float) i / 29.0), 1);
+      bottomSpline.appendControlPoint(bottomLine.pointAt((float) i / 29.0), 1);
     }
   }
 

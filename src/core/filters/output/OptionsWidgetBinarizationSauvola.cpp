@@ -37,28 +37,34 @@ void OptionsWidgetBinarizationSauvola::updateUi(const PageId& pageId) {
 }
 
 void OptionsWidgetBinarizationSauvola::sauvolaDeltaChanged(double value) {
+  m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setThresholdAdjustment(value);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }
 
 void OptionsWidgetBinarizationSauvola::windowSizeChanged(int value) {
+  m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setWindowSize(value);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }
 
 void OptionsWidgetBinarizationSauvola::sauvolaCoefChanged(double value) {
+  m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setSauvolaCoef(value);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }

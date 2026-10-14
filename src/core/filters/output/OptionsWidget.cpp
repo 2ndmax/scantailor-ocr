@@ -528,6 +528,12 @@ void OptionsWidget::binarizationSettingsChanged() {
   emit invalidateThumbnail(m_pageId);
 }
 
+void OptionsWidget::binarizationColorParamsChanged() {
+  // The binarization widgets write the settings themselves. Keep our copy current,
+  // or the next change made here would write their old values back.
+  m_colorParams = m_settings->getParams(m_pageId).colorParams();
+}
+
 void OptionsWidget::dpiSelectionChanged() {
   // The message box takes the focus, which finishes the editing a second time.
   if (m_checkingDpi) {
@@ -1765,6 +1771,7 @@ void OptionsWidget::updateBinarizationOptionsDisplay(int idx) {
 void OptionsWidget::addOptionsWidgetBinarization(OptionsWidgetBinarization* widget) {
   widget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
   binarizationOptions->addWidget(widget);
+  connect(widget, &OptionsWidgetBinarization::colorParamsChanged, this, &OptionsWidget::binarizationColorParamsChanged);
 }
 
 void OptionsWidget::sendReloadRequested() {

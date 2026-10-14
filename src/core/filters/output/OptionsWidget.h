@@ -192,6 +192,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void binarizationSettingsChanged();
 
+  void binarizationColorParamsChanged();
+
   void despeckleToggled(bool checked);
 
   void despeckleSliderReleased();

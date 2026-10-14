@@ -58,7 +58,7 @@ OutputImageParams::OutputImageParams(const QDomElement& el)
       m_dewarpingOptions(el.namedItem("dewarping-options").toElement()),
       m_despeckleLevel(el.attribute("despeckleLevel").toDouble()),
       m_outputProcessingParams(el.namedItem("processing-params").toElement()),
-      m_blackOnWhite(el.attribute("blackOnWhite") == "1") {}
+      m_blackOnWhite(el.attribute("blackOnWhite", "1") != "0") {}
 
 QDomElement OutputImageParams::toXml(QDomDocument& doc, const QString& name) const {
   XmlMarshaller marshaller(doc);

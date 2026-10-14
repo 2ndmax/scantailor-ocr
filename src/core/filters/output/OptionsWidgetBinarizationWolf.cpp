@@ -36,28 +36,34 @@ void OptionsWidgetBinarizationWolf::updateUi(const PageId& pageId) {
 }
 
 void OptionsWidgetBinarizationWolf::wolfDeltaChanged(double value) {
+  m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setThresholdAdjustment(value);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }
 
 void OptionsWidgetBinarizationWolf::windowSizeChanged(int value) {
+  m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setWindowSize(value);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }
 
 void OptionsWidgetBinarizationWolf::wolfCoefChanged(double value) {
+  m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setWolfCoef(value);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }

@@ -32,10 +32,12 @@ void OptionsWidgetBinarizationOtsu::updateUi(const PageId& pageId) {
 }
 
 void OptionsWidgetBinarizationOtsu::otsuDeltaChanged(double value) {
+  m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setThresholdAdjustment(static_cast<int>(value));
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }

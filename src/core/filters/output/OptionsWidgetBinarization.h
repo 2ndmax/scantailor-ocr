@@ -20,6 +20,11 @@ class OptionsWidgetBinarization : public QWidget {
    * \brief To be emitted by subclasses when their state has changed.
    */
   void stateChanged();
+
+  /**
+   * \brief Emitted right after the color params were written to the settings.
+   */
+  void colorParamsChanged();
 };
 }  // namespace output
 
