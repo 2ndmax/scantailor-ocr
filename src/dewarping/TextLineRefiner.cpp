@@ -8,6 +8,7 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <algorithm>
 #include <cmath>
 
 #include "DebugImages.h"
@@ -176,7 +177,8 @@ TextLineRefiner::Snake TextLineRefiner::makeSnake(const std::vector<QPointF>& po
     totalLength += std::sqrt(Vec2f(polyline[i] - polyline[i - 1]).squaredNorm());
   }
 
-  const auto pointsInSnake = static_cast<int>(totalLength / 20);
+  // At least the two end points; fewer would divide by zero or by -1 below.
+  const int pointsInSnake = std::max(2, static_cast<int>(totalLength / 20));
   Snake snake;
   snake.iterationsRemaining = iterations;
 
@@ -187,6 +189,9 @@ TextLineRefiner::Snake TextLineRefiner::makeSnake(const std::vector<QPointF>& po
     const Vec2f base(polyline[i - 1]);
     const Vec2f vec((polyline[i] - base));
     const auto nextT = static_cast<float>(baseT + std::sqrt(vec.squaredNorm()));
+    if (nextT == baseT) {
+      continue;  // A repeated point; it would give fraction = 0 / 0.
+    }
 
     while (nextT >= nextInsertT) {
       const float fraction = (nextInsertT - baseT) / (nextT - baseT);
@@ -262,6 +267,10 @@ void TextLineRefiner::calcFrenetFrames(std::vector<FrenetFrame>& frenetFrames,
 }  // TextLineRefiner::calcFrenetFrames
 
 void TextLineRefiner::evolveSnake(Snake& snake, const Grid<float>& gradient, const OnConvergence onConvergence) const {
+  if (snake.nodes.size() < 2) {
+    return;  // thicknessAdjustment() needs the head and the tail.
+  }
+
   float factor = 1.0f;
 
   while (snake.iterationsRemaining > 0) {
