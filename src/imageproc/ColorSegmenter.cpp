@@ -404,4 +404,18 @@ GrayImage ColorSegmenter::segment(const BinaryImage& image, const GrayImage& gra
   ConnectivityMap segmentsMap = buildMapFromGrayscale(image);
   return buildGrayImage(segmentsMap, grayImage);
 }
+
+ConnectivityMap ColorSegmenter::segmentMap(const BinaryImage& image, const QImage& colorImage) const {
+  if (image.size() != colorImage.size()) {
+    throw std::invalid_argument("ColorSegmenter: images size doesn't match.");
+  }
+  if ((colorImage.format() == QImage::Format_Indexed8) && colorImage.isGrayscale()) {
+    return buildMapFromGrayscale(image);
+  }
+  if ((colorImage.format() != QImage::Format_RGB32) && (colorImage.format() != QImage::Format_ARGB32)) {
+    throw std::invalid_argument("ColorSegmenter: wrong image format.");
+  }
+  return buildMapFromRgb(image, colorImage, m_dpi, m_noiseThreshold, m_redThresholdAdjustment,
+                         m_greenThresholdAdjustment, m_blueThresholdAdjustment);
+}
 }  // namespace imageproc

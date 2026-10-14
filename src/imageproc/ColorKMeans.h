@@ -8,6 +8,7 @@ class QImage;
 
 namespace imageproc {
 class BinaryImage;
+class ConnectivityMap;
 
 /**
  * @brief Reduces the colors of an image to a few, found with k-means.
@@ -41,6 +42,24 @@ QImage reduceColorsKMeans(const QImage& image, int colors, bool fixBlack);
  */
 QImage reduceTextColorsKMeans(const QImage& color,
                               const BinaryImage& text,
+                              int colors,
+                              bool fixBlack,
+                              int maxLetterPixels);
+
+/**
+ * @brief As above, but a letter gets one color for each of its segments, for example from color
+ *        segmentation, instead of one for the whole letter.
+ *
+ * Whether an area is a letter is still decided by the connected areas of the text, so larger areas
+ * keep their shading whatever the segments are.  Text pixels outside every segment are colored
+ * one by one.  With the connected areas of the text as segments, the result is that of the
+ * function above.
+ *
+ * @param segments The segments: each pixel has the label of its segment, 0 outside.
+ */
+QImage reduceTextColorsKMeans(const QImage& color,
+                              const BinaryImage& text,
+                              const ConnectivityMap& segments,
                               int colors,
                               bool fixBlack,
                               int maxLetterPixels);

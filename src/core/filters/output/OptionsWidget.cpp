@@ -126,7 +126,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
   binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
   allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
-  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further.
+  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further.  The list
+  // has its own row, so that its width doesn't move the fields of the settings.
+  colorReductionChoiceLayout->setSpacing(segmenterReductionLayout->horizontalSpacing());
   colorReductionLayout->setHorizontalSpacing(segmenterReductionLayout->horizontalSpacing());
   updateBinarizationOptionsDisplay(binarizationOptions->currentIndex());
 
@@ -1643,12 +1645,6 @@ void OptionsWidget::updateColorReductionControls() {
   const bool segmentation = textColors && m_colorParams.blackWhiteOptions().getColorSegmenterOptions().isEnabled();
   const int reduction = colorReduction();
   segmenterOptionsWidget->setEnabled(segmentation);
-  // K-means works on the text itself, so the settings of the segmentation don't apply to it.
-  for (QWidget* widget :
-       std::initializer_list<QWidget*>{redLabel, greenLabel, blueLabel, redAdjustmentSB, greenAdjustmentSB,
-                                       blueAdjustmentSB, reduceNoiseLabel, reduceNoiseSB}) {
-    widget->setEnabled(segmentation && (reduction != 2));
-  }
 
   // The text colors can only be reduced with color segmentation; K-means only reduces text colors.
   const bool listUsable = !textColors || segmentation;

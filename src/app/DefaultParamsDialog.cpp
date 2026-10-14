@@ -98,7 +98,9 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
   binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
   allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
-  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further.
+  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further.  The list
+  // has its own row, so that its width doesn't move the fields of the settings.
+  colorReductionChoiceLayout->setSpacing(segmenterChannelsLayout->horizontalSpacing());
   colorReductionLayout->setHorizontalSpacing(segmenterChannelsLayout->horizontalSpacing());
   // Percent fields are as wide as "1000 %".
   for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox, fillFactorSpinBox, borderToleranceSpinBox,
@@ -1384,12 +1386,6 @@ void DefaultParamsDialog::updateColorReductionControls() {
   const bool segmentation = textColors && colorSegmentationCB->isChecked();
   const int reduction = textColors ? m_textColorReduction : (m_pagePosterize ? 1 : 0);
   segmenterOptionsWidget->setEnabled(segmentation);
-  // K-means works on the text itself, so the settings of the segmentation don't apply to it.
-  for (QWidget* widget :
-       std::initializer_list<QWidget*>{redLabel, greenLabel, blueLabel, redAdjustmentSB, greenAdjustmentSB,
-                                       blueAdjustmentSB, reduceNoiseLabel, reduceNoiseSB}) {
-    widget->setEnabled(segmentation && (reduction != 2));
-  }
   const bool listUsable = !textColors || segmentation;
   colorReductionLabel->setEnabled(listUsable);
   colorReductionCB->setEnabled(listUsable);

@@ -192,10 +192,19 @@ QImage reduceTextColorsKMeans(const QImage& color,
                               const int colors,
                               const bool fixBlack,
                               const int maxLetterPixels) {
+  return reduceTextColorsKMeans(color, text, ConnectivityMap(text, CONN8), colors, fixBlack, maxLetterPixels);
+}
+
+QImage reduceTextColorsKMeans(const QImage& color,
+                              const BinaryImage& text,
+                              const ConnectivityMap& segments,
+                              const int colors,
+                              const bool fixBlack,
+                              const int maxLetterPixels) {
   const QImage source = color.convertToFormat(QImage::Format_RGB32);
   QImage result(source.size(), QImage::Format_RGB32);
   result.fill(Qt::white);
-  if (source.isNull() || (text.size() != source.size()) || (colors < 1)) {
+  if (source.isNull() || (text.size() != source.size()) || (segments.size() != source.size()) || (colors < 1)) {
     return result;
   }
   const int width = source.width();
@@ -221,49 +230,64 @@ QImage reduceTextColorsKMeans(const QImage& color,
     groupOfColor.insert(it.key(), palette.groupOf(it.key()));
   }
 
-  // Each letter, a small connected area, gets the group of its average color; larger areas, such
-  // as pictures and the lines of drawings, keep a group for each pixel and so their shading.
+  // Letters are the small connected areas of the text.  Each of their segments gets the group of its
+  // average color; larger areas, such as pictures and the lines of drawings, keep a group for each
+  // pixel and so their shading.
   const ConnectivityMap components(text, CONN8);
-  const uint32_t maxLabel = components.maxLabel();
-  std::vector<int> sizes(maxLabel + 1, 0);
-  std::vector<std::array<double, 3>> sums(maxLabel + 1, std::array<double, 3>{0.0, 0.0, 0.0});
+  std::vector<int> componentSizes(components.maxLabel() + 1, 0);
   const uint32_t* labelLine = components.data();
   for (int y = 0; y < height; ++y) {
-    const auto* line = reinterpret_cast<const QRgb*>(source.constScanLine(y));
     for (int x = 0; x < width; ++x) {
-      const uint32_t label = labelLine[x];
-      if (label != 0) {
-        ++sizes[label];
-        sums[label][0] += qRed(line[x]);
-        sums[label][1] += qGreen(line[x]);
-        sums[label][2] += qBlue(line[x]);
-      }
+      ++componentSizes[labelLine[x]];
     }
     labelLine += components.stride();
   }
-  std::vector<int> letterGroup(maxLabel + 1, -1);
-  for (uint32_t label = 1; label <= maxLabel; ++label) {
-    if ((sizes[label] > 0) && (sizes[label] <= maxLetterPixels)) {
-      const double n = sizes[label];
-      const QRgb average
-          = qRgb(static_cast<int>(std::lround(sums[label][0] / n)), static_cast<int>(std::lround(sums[label][1] / n)),
-                 static_cast<int>(std::lround(sums[label][2] / n)));
-      letterGroup[label] = palette.groupOf(average);
+
+  const uint32_t maxSegment = segments.maxLabel();
+  std::vector<int> segmentSizes(maxSegment + 1, 0);
+  std::vector<std::array<double, 3>> sums(maxSegment + 1, std::array<double, 3>{0.0, 0.0, 0.0});
+  const uint32_t* segmentLine = segments.data();
+  for (int y = 0; y < height; ++y) {
+    const auto* line = reinterpret_cast<const QRgb*>(source.constScanLine(y));
+    for (int x = 0; x < width; ++x) {
+      const uint32_t segment = segmentLine[x];
+      if (segment != 0) {
+        ++segmentSizes[segment];
+        sums[segment][0] += qRed(line[x]);
+        sums[segment][1] += qGreen(line[x]);
+        sums[segment][2] += qBlue(line[x]);
+      }
+    }
+    segmentLine += segments.stride();
+  }
+  std::vector<int> segmentGroup(maxSegment + 1, -1);
+  for (uint32_t segment = 1; segment <= maxSegment; ++segment) {
+    if (segmentSizes[segment] > 0) {
+      const double n = segmentSizes[segment];
+      const QRgb average = qRgb(static_cast<int>(std::lround(sums[segment][0] / n)),
+                                static_cast<int>(std::lround(sums[segment][1] / n)),
+                                static_cast<int>(std::lround(sums[segment][2] / n)));
+      segmentGroup[segment] = palette.groupOf(average);
     }
   }
 
   labelLine = components.data();
+  segmentLine = segments.data();
   for (int y = 0; y < height; ++y) {
     const auto* line = reinterpret_cast<const QRgb*>(source.constScanLine(y));
     auto* resultLine = reinterpret_cast<QRgb*>(result.scanLine(y));
     for (int x = 0; x < width; ++x) {
       const uint32_t label = labelLine[x];
       if (label != 0) {
-        const int group = (letterGroup[label] >= 0) ? letterGroup[label] : groupOfColor.value(line[x]);
+        const uint32_t segment = segmentLine[x];
+        // A text pixel outside every segment is colored on its own.
+        const bool letter = (componentSizes[label] <= maxLetterPixels) && (segment != 0);
+        const int group = letter ? segmentGroup[segment] : groupOfColor.value(line[x]);
         resultLine[x] = palette.colors[group];
       }
     }
     labelLine += components.stride();
+    segmentLine += segments.stride();
   }
   return result;
 }

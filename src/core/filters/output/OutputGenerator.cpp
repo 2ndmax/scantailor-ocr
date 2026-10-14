@@ -216,8 +216,8 @@ class OutputGenerator::Processor {
 
   QImage posterizeImage(const QImage& image, const QColor& backgroundColor = Qt::white) const;
 
-  /// The text in color, as set: K-means on the colors of the text, or color segmentation, posterized
-  /// if set.
+  /// The text in color, as set: K-means on the colors of the text and the segments of its letters,
+  /// or color segmentation, posterized if set.
   QImage colorText(const BinaryImage& text, const QImage& colorImage) const;
 
   ForegroundType getForegroundType() const;
@@ -2584,11 +2584,19 @@ QImage OutputGenerator::Processor::colorText(const BinaryImage& text, const QIma
   const BlackWhiteOptions::ColorSegmenterOptions& options
       = m_colorParams.blackWhiteOptions().getColorSegmenterOptions();
   if (options.isKMeansEnabled()) {
-    // Letters up to a filled square of a quarter inch get one color, larger areas keep their
-    // shading.  An indexed image, as after posterizing, keeps the files small.
+    // Letters up to a filled square of a quarter inch get one color for each of their segments, so
+    // the red, green and blue thresholds and the noise reduction apply to them; larger areas keep
+    // their shading.  An indexed image, as after posterizing, keeps the files small.
+    const ConnectivityMap segments
+        = m_colorOriginal ? ColorSegmenter(m_dpi, options.getNoiseReduction(), options.getRedThresholdAdjustment(),
+                                           options.getGreenThresholdAdjustment(), options.getBlueThresholdAdjustment())
+                                .segmentMap(text, colorImage)
+                          : ConnectivityMap(text, CONN8);
+    m_status.throwIfCancelled();
     const int quarterInch = (m_dpi.horizontal() + m_dpi.vertical()) / 8;
-    QImage colored = Posterizer::convertToIndexed(reduceTextColorsKMeans(
-        colorImage, text, options.getKMeansColors(), options.isKMeansBlackFixed(), quarterInch * quarterInch));
+    QImage colored
+        = Posterizer::convertToIndexed(reduceTextColorsKMeans(colorImage, text, segments, options.getKMeansColors(),
+                                                              options.isKMeansBlackFixed(), quarterInch * quarterInch));
     if (m_dbg) {
       m_dbg->add(colored, "k-means");
     }

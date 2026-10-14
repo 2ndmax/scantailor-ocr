@@ -676,9 +676,10 @@ reimplemented rather than copied.
   average color), Posterize (the same, then the grid of fixed color steps, as before) or **K-means**, which finds
   the colors that fit the page best: "Colors" (2 to 16, default 6) and "Fixed black" (one color is
   pure black, so black text gets no tint). Each letter, a connected area up to a filled square of a
-  quarter inch, gets one color; larger areas, such as pictures and the lines of drawings, are
-  colored pixel by pixel and keep their shading. K-means works on the text itself, so "Reduce
-  noise" and the red, green and blue settings of the segmentation are grayed out with it. The idea
+  quarter inch, gets one color for each of its segments from the color segmentation, so touching
+  letters of different colors stay apart, and "Reduce noise" and the red, green and blue settings
+  apply as without K-means; larger areas, such as pictures and the lines of drawings, are colored
+  pixel by pixel and keep their shading, whatever the segmentation settings. The idea
   is from ScanTailor Experimental; the code is our own, much shorter and about five times faster,
   and groups the colors in CIE Lab space so that distances follow what the eye sees. In a
   comparison on 100 sample pages with posterizing and with the code of ScanTailor Experimental, it

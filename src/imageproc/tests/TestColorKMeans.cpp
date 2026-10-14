@@ -3,6 +3,7 @@
 
 #include <BinaryImage.h>
 #include <ColorKMeans.h>
+#include <ConnectivityMap.h>
 
 #include <QImage>
 #include <boost/test/unit_test.hpp>
@@ -132,6 +133,45 @@ BOOST_AUTO_TEST_CASE(pixel_by_pixel_keeps_the_rim_of_letters) {
   const QImage result = reduceTextColorsKMeans(page.color, page.text, 4, true, 0);
   BOOST_CHECK_EQUAL(result.pixel(10, 10), qRgb(0, 0, 0));
   BOOST_CHECK_GT(qRed(result.pixel(15, 15)), 120);
+}
+
+BOOST_AUTO_TEST_CASE(the_connected_areas_as_segments_give_the_same_result) {
+  const TextPage page = textPage();
+  BOOST_CHECK(reduceTextColorsKMeans(page.color, page.text, ConnectivityMap(page.text, CONN8), 4, true, 400)
+              == reduceTextColorsKMeans(page.color, page.text, 4, true, 400));
+}
+
+BOOST_AUTO_TEST_CASE(touching_letters_of_two_segments_get_two_colors) {
+  // Two touching "letters", red on the left, black on the right: one connected area, two segments.
+  QImage color(40, 20, QImage::Format_RGB32);
+  color.fill(Qt::white);
+  BinaryImage text(40, 20, WHITE);
+  BinaryImage left(40, 20, WHITE);
+  BinaryImage right(40, 20, WHITE);
+  for (int y = 5; y < 15; ++y) {
+    for (int x = 5; x < 25; ++x) {
+      color.setPixel(x, y, (x < 15) ? qRgb(220, 30, 30) : qRgb(15, 15, 15));
+      text.setPixel(x, y, BLACK);
+      ((x < 15) ? left : right).setPixel(x, y, BLACK);
+    }
+  }
+  ConnectivityMap segments(left, CONN8);
+  segments.addComponents(right, CONN8);
+
+  // Two colors: the fixed black and a red.
+  const QImage result = reduceTextColorsKMeans(color, text, segments, 2, true, 400);
+  BOOST_CHECK_GT(qRed(result.pixel(8, 10)), 120);
+  BOOST_CHECK_EQUAL(result.pixel(20, 10), qRgb(0, 0, 0));
+  // Without the segments, both get the one color of their average.
+  const QImage whole = reduceTextColorsKMeans(color, text, 2, true, 400);
+  BOOST_CHECK_EQUAL(whole.pixel(8, 10), whole.pixel(20, 10));
+}
+
+BOOST_AUTO_TEST_CASE(large_areas_keep_their_shading_whatever_the_segments) {
+  const TextPage page = textPage();
+  // The large area is one segment here, and still keeps its two tones.
+  const QImage result = reduceTextColorsKMeans(page.color, page.text, ConnectivityMap(page.text, CONN8), 4, true, 400);
+  BOOST_CHECK_NE(result.pixel(70, 50), result.pixel(180, 50));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
