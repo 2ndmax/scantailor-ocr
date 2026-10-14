@@ -389,6 +389,9 @@ BinaryImage binarizeWindow(const QImage& src,
   const uint8_t* grayLine = gray.bits();
   const int grayBpl = gray.bytesPerLine();
 
+  // The sum of the whole image doesn't fit the 32 bits of the integral image above about 16.8
+  // million pixels; window sums do, as unsigned arithmetic wraps around.
+  uint64_t sumFull = 0;
   for (int y = 0; y < h; ++y) {
     integralImage.beginRow();
     integralSqimage.beginRow();
@@ -396,6 +399,7 @@ BinaryImage binarizeWindow(const QImage& src,
       const uint32_t pixel = grayLine[x];
       integralImage.push(pixel);
       integralSqimage.push(pixel * pixel);
+      sumFull += pixel;
     }
     grayLine += grayBpl;
   }
@@ -407,7 +411,7 @@ BinaryImage binarizeWindow(const QImage& src,
 
   const int areaFull = w * h;
   assert(areaFull > 0);
-  const uint64_t meanFull = integralImage.sum(QRect(0, 0, w, h)) / areaFull;
+  const uint64_t meanFull = sumFull / areaFull;
   double deviationMax = 0.0;
   double deviationMin = 256.0;
   const double coefw = k * 3.0;  // translate from Wolf to Window coef.

@@ -18,6 +18,7 @@ set(sources
     TestRastLineFinder.cpp
     TestSubtractBackground.cpp
     TestColorKMeans.cpp
+    TestPosterizer.cpp
     TestColoredDimming.cpp
     TestEnhanceFilters.cpp
     TestExperimentalBinarization.cpp

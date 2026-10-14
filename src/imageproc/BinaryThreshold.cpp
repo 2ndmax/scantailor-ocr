@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <cassert>
+#include <cstdint>
 #include <iostream>
 #include <stdexcept>
 
@@ -153,14 +154,15 @@ BinaryThreshold BinaryThreshold::mokjiThreshold(const QImage& image,
     dilatedLine += dilatedStride;
   }
 
-  unsigned nominator = 0;
-  unsigned denominator = 0;
+  // 64 bits: on large images, the sum of (m + n) over all edge pixels may exceed 32 bits.
+  uint64_t nominator = 0;
+  uint64_t denominator = 0;
   for (unsigned m = 0; m < 256 - minEdgeMagnitude; ++m) {
     for (unsigned n = m + minEdgeMagnitude; n < 256; ++n) {
       assert(n >= m);
 
       const unsigned val = matrix[m][n];
-      nominator += (m + n) * val;
+      nominator += static_cast<uint64_t>(m + n) * val;
       denominator += val;
     }
   }

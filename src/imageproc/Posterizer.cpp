@@ -45,9 +45,7 @@ QVector<QRgb> paletteFromRgb(const QImage& image) {
     imgLine += imgStride;
   }
 
-  QVector<QRgb> palette((int) (colorSet.size()));
-  std::copy(colorSet.begin(), colorSet.end(), std::back_inserter(palette));
-  return palette;
+  return QVector<QRgb>(colorSet.begin(), colorSet.end());
 }
 }  // namespace
 
@@ -209,9 +207,7 @@ QVector<QRgb> paletteFromColorMap(const std::unordered_map<uint32_t, uint32_t>& 
     colorSet.insert(srcAndDstColors.second);
   }
 
-  QVector<QRgb> palette(static_cast<int>(colorSet.size()));
-  std::copy(colorSet.begin(), colorSet.end(), std::back_inserter(palette));
-  return palette;
+  return QVector<QRgb>(colorSet.begin(), colorSet.end());
 }
 
 std::unordered_map<uint32_t, uint32_t> normalizePalette(const QImage& image,
@@ -268,6 +264,13 @@ std::unordered_map<uint32_t, uint32_t> normalizePalette(const QImage& image,
   }
 
   std::unordered_map<uint32_t, uint32_t> colorToNormalizedMap;
+  if (maxLevel <= minLevel) {
+    // A single level, as on an almost blank page: there is no range to spread.
+    for (const auto& colorAndStat : palette) {
+      colorToNormalizedMap[colorAndStat.first] = colorAndStat.first;
+    }
+    return colorToNormalizedMap;
+  }
   for (const auto& colorAndStat : palette) {
     const uint32_t color = colorAndStat.first;
     if (color == 0xff000000u) {

@@ -80,7 +80,7 @@ static GrayImage scaleUpIntGrayToGray(const GrayImage& src, const QSize& dstSize
 
   int sy = 0;
   int dy = 0;
-  for (; dy < dh; ++sy, dy += xscale) {
+  for (; dy < dh; ++sy, dy += yscale) {
     int sx = 0;
     int dx = 0;
 

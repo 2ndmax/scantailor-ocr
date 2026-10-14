@@ -109,6 +109,25 @@ BOOST_AUTO_TEST_CASE(test_random_image) {
   BOOST_CHECK(checkScale(img, QSize(80, 50)));
 }
 
+BOOST_AUTO_TEST_CASE(test_integer_upscale_with_different_factors) {
+  // Three times as wide and twice as high: each source pixel becomes a 3 x 2 block, down to the
+  // last rows.
+  GrayImage img(QSize(5, 4));
+  for (int y = 0; y < img.height(); ++y) {
+    for (int x = 0; x < img.width(); ++x) {
+      img.data()[y * img.stride() + x] = static_cast<uint8_t>(10 * y + x + 1);
+    }
+  }
+  const GrayImage scaled(scaleToGray(img, QSize(15, 8)));
+  bool same = true;
+  for (int y = 0; y < scaled.height(); ++y) {
+    for (int x = 0; x < scaled.width(); ++x) {
+      same = same && (scaled.data()[y * scaled.stride() + x] == img.data()[(y / 2) * img.stride() + x / 3]);
+    }
+  }
+  BOOST_CHECK(same);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

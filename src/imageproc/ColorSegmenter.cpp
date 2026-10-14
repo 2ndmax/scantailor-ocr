@@ -335,7 +335,7 @@ GrayImage buildGrayImage(const ConnectivityMap& segmentsMap, const GrayImage& gr
     const int imgStride = grayImage.stride();
 
     std::vector<Component> components(segmentsMap.maxLabel() + 1);
-    std::vector<uint32_t> graySumMap(segmentsMap.maxLabel() + 1, 0);
+    std::vector<uint64_t> graySumMap(segmentsMap.maxLabel() + 1, 0);
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
         const uint32_t label = mapLine[x];
