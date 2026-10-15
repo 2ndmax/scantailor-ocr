@@ -18,6 +18,7 @@
 #include <QStyleOptionGraphicsItem>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QMessageBox>
+#include <algorithm>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
@@ -1066,17 +1067,14 @@ void ThumbnailSequence::Impl::insert(const PageInfo& newPage, BeforeOrAfter befo
   if ((beforeOrAfter == BEFORE) && image.isNull()) {
     ordIt = m_itemsInOrder.end();
   } else {
-    // Note that we have to use lower_bound() rather than find() because
-    // we are not searching for PageId(image) exactly, which implies
-    // PageId::SINGLE_PAGE configuration, but rather we search for
-    // a page with any configuration, as long as it references the same image.
-    ItemsById::iterator idIt(m_itemsById.find(PageId(image)));
-    if ((idIt == m_itemsById.end()) || (idIt->pageInfo.imageId() != image)) {
+    // We search for the first page of the image in any configuration (single, left or right half),
+    // so the lookup by PageId, which includes the half, doesn't do.
+    ordIt = std::find_if(m_itemsInOrder.begin(), m_itemsInOrder.end(),
+                         [&image](const Item& item) { return item.pageInfo.imageId() == image; });
+    if (ordIt == m_itemsInOrder.end()) {
       // Reference page not found.
       return;
     }
-
-    ordIt = m_items.project<ItemsInOrderTag>(idIt);
 
     if (beforeOrAfter == AFTER) {
       ++ordIt;

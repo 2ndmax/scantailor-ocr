@@ -33,7 +33,9 @@ class WorkerThreadPool : public QObject {
   void submitTask(const BackgroundTaskPtr& task);
 
  signals:
-
+  /**
+   * \brief Emitted when a task produced a result, or was cancelled (then the result may be null).
+   */
   void taskResult(const BackgroundTaskPtr& task, const FilterResultPtr& result);
 
  private:

@@ -11,6 +11,7 @@
 #include <QString>
 #include <QTimer>
 #include <functional>
+#include <map>
 #include <memory>
 #include <set>
 #include <vector>
@@ -22,6 +23,7 @@
 #include "FilterResult.h"
 #include "FilterUiInterface.h"
 #include "ImageFileInfo.h"
+#include "ImageId.h"
 #include "NonCopyable.h"
 #include "OutputFileNameGenerator.h"
 #include "PageId.h"
@@ -173,9 +175,10 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void pdfExportRunningChanged(bool running);
 
-  void saveProjectTriggered();
+  // Both return true if the project was saved.
+  bool saveProjectTriggered();
 
-  void saveProjectAsTriggered();
+  bool saveProjectAsTriggered();
 
   void newProject();
 
@@ -391,6 +394,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void eraseOutputFiles(const std::set<PageId>& pages);
 
+  void invalidateThumbnailsOfImage(const ImageId& imageId);
+
   BackgroundTaskPtr createCompositeTask(const PageInfo& page, int lastFilterIdx, bool batch, bool debug);
 
   std::shared_ptr<CompositeCacheDrivenTask> createCompositeCacheDrivenTask(int lastFilterIdx);
@@ -430,6 +435,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::unique_ptr<WorkerThreadPool> m_workerThreadPool;
   std::unique_ptr<ProcessingTaskQueue> m_batchQueue;
   std::unique_ptr<ProcessingTaskQueue> m_interactiveQueue;
+  // Interactive tasks until their result arrives, with the image they process.
+  std::map<BackgroundTaskPtr, ImageId> m_interactiveTasks;
   QStackedLayout* m_imageFrameLayout;
   QStackedLayout* m_optionsFrameLayout;
   QPointer<FilterOptionsWidget> m_optionsWidget;

@@ -48,22 +48,24 @@ void WorkerThreadPool::submitTask(const BackgroundTaskPtr& task) {
     }
 
     void run() override {
-      if (m_task->isCancelled()) {
-        return;
+      FilterResultPtr result;
+      if (!m_task->isCancelled()) {
+        try {
+          result = (*m_task)();
+        } catch (const std::bad_alloc&) {
+          OutOfMemoryHandler::instance().handleOutOfMemorySituation();
+        } catch (const std::exception& e) {
+          // Page tasks catch their own errors (see LoadFileTask), so this is a last resort,
+          // which keeps the program alive instead of terminating it.
+          ImageLoadErrorReporter::instance().reportProcessingFailure(QString(), 0,
+                                                                     QStringList(QString::fromUtf8(e.what())));
+        }
       }
 
-      try {
-        const FilterResultPtr result((*m_task)());
-        if (result) {
-          QCoreApplication::postEvent(&m_owner, new TaskResultEvent(m_task, result));
-        }
-      } catch (const std::bad_alloc&) {
-        OutOfMemoryHandler::instance().handleOutOfMemorySituation();
-      } catch (const std::exception& e) {
-        // Page tasks catch their own errors (see LoadFileTask), so this is a last resort,
-        // which keeps the program alive instead of terminating it.
-        ImageLoadErrorReporter::instance().reportProcessingFailure(QString(), 0,
-                                                                   QStringList(QString::fromUtf8(e.what())));
+      // A cancelled task reports back, too, without a result: it may have changed page parameters
+      // before it noticed the cancellation.
+      if (result || m_task->isCancelled()) {
+        QCoreApplication::postEvent(&m_owner, new TaskResultEvent(m_task, result));
       }
     }
 

@@ -674,9 +674,9 @@ bool MainWindow::compareFiles(const QString& fpath1, const QString& fpath2) {
   while (true) {
     const QByteArray chunk1(file1.read(chunkSize));
     const QByteArray chunk2(file2.read(chunkSize));
-    if (chunk1.size() != chunk2.size()) {
+    if (chunk1 != chunk2) {
       return false;
-    } else if (chunk1.size() == 0) {
+    } else if (chunk1.isEmpty()) {
       return true;
     }
   }
@@ -925,6 +925,15 @@ void MainWindow::invalidateThumbnail(const PageId& pageId) {
 
 void MainWindow::invalidateThumbnail(const PageInfo& pageInfo) {
   m_thumbSequence->invalidateThumbnail(pageInfo);
+}
+
+void MainWindow::invalidateThumbnailsOfImage(const ImageId& imageId) {
+  // Both halves of a split scan; the view may also have changed since the image was processed.
+  for (const PageInfo& page : m_thumbSequence->toPageSequence()) {
+    if (page.imageId() == imageId) {
+      m_thumbSequence->invalidateThumbnail(page.id());
+    }
+  }
 }
 
 void MainWindow::invalidateAllThumbnails() {
@@ -1424,11 +1433,20 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
     m_batchQueue->processingFinished(task);
   }
 
-  if (task->isCancelled()) {
-    return;
+  ImageId interactiveImage;
+  const auto interactiveIt = m_interactiveTasks.find(task);
+  if (interactiveIt != m_interactiveTasks.end()) {
+    interactiveImage = interactiveIt->second;
+    m_interactiveTasks.erase(interactiveIt);
   }
-  if (m_pdfStage) {
-    // A page loaded before switching to the PDF; it isn't shown anymore.
+
+  if (task->isCancelled() || m_pdfStage) {
+    // The result isn't shown: the user went to another page, or to the PDF.  A task stops only
+    // at its next check for cancellation, so it may have changed the page parameters already,
+    // and the thumbnails of the page have to show them.
+    if (!interactiveImage.isNull()) {
+      invalidateThumbnailsOfImage(interactiveImage);
+    }
     return;
   }
 
@@ -1714,26 +1732,29 @@ void MainWindow::pdfExportRunningChanged(const bool running) {
   }
 }
 
-void MainWindow::saveProjectTriggered() {
+bool MainWindow::saveProjectTriggered() {
   if (m_projectFile.isEmpty()) {
-    saveProjectAsTriggered();
-    return;
+    return saveProjectAsTriggered();
   }
 
-  if (saveProjectWithFeedback(m_projectFile)) {
-    updateWindowTitle();
+  if (!saveProjectWithFeedback(m_projectFile)) {
+    return false;
   }
+  updateWindowTitle();
+  return true;
 }
 
-void MainWindow::saveProjectAsTriggered() {
+bool MainWindow::saveProjectAsTriggered() {
   const QString projectFile = project_file_dialogs::askForFileToSave(this, m_projectFile);
   if (projectFile.isEmpty()) {
-    return;
+    return false;
   }
 
-  if (saveProjectWithFeedback(projectFile)) {
-    setSavedProjectFile(projectFile);
+  if (!saveProjectWithFeedback(projectFile)) {
+    return false;
   }
+  setSavedProjectFile(projectFile);
+  return true;
 }
 
 void MainWindow::setSavedProjectFile(const QString& projectFile) {
@@ -2049,7 +2070,9 @@ void MainWindow::loadPageInteractive(const PageInfo& page) {
 
   m_interactiveQueue->cancelAndClear();
   m_interactiveQueue->addProcessingTask(page, createCompositeTask(page, m_curFilter, false, m_debug));
-  m_workerThreadPool->submitTask(m_interactiveQueue->takeForProcessing());
+  const BackgroundTaskPtr task(m_interactiveQueue->takeForProcessing());
+  m_interactiveTasks.emplace(task, page.imageId());
+  m_workerThreadPool->submitTask(task);
 }  // MainWindow::loadPageInteractive
 
 void MainWindow::updateWindowTitle() {
@@ -2087,8 +2110,11 @@ bool MainWindow::closeProjectInteractive() {
   if (m_projectFile.isEmpty()) {
     switch (promptProjectSave()) {
       case SAVE:
-        saveProjectTriggered();
-        // fall through
+        if (!saveProjectTriggered()) {
+          // Not saved, so the project stays open.
+          return false;
+        }
+        break;
       case DONT_SAVE:
         break;
       case CANCEL:
@@ -2109,8 +2135,11 @@ bool MainWindow::closeProjectInteractive() {
     QFile::remove(backupFilePath);
     switch (promptProjectSave()) {
       case SAVE:
-        saveProjectTriggered();
-        // fall through
+        if (!saveProjectTriggered()) {
+          // Not saved, so the project stays open.
+          return false;
+        }
+        break;
       case DONT_SAVE:
         break;
       case CANCEL:
@@ -2237,8 +2266,7 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
   std::vector<ImageFileInfo> newFiles;
   std::vector<QString> loadedFiles;
   std::vector<QString> failedFiles;  // Those we failed to read metadata from.
-  // dialog->selectedFiles() returns file list in reverse order.
-  for (int i = files.size() - 1; i >= 0; --i) {
+  for (int i = 0; i < files.size(); ++i) {
     const QFileInfo fileInfo(files[i]);
     ImageFileInfo imageFileInfo(fileInfo, std::vector<ImageMetadata>());
 
@@ -2281,9 +2309,13 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
     newFiles = dpiDialog->files();
   }
 
-  // Actually insert the new pages.
+  // Actually insert the new pages, in the order of the file names.
+  ImageId insertionPoint(existing);
   for (const ImageFileInfo& file : newFiles) {
-    insertImageFile(file, beforeOrAfter, existing);
+    const std::vector<PageInfo> inserted = insertImageFile(file, beforeOrAfter, insertionPoint);
+    if ((beforeOrAfter == AFTER) && !inserted.empty()) {
+      insertionPoint = inserted.back().imageId();
+    }
   }
 }  // MainWindow::showInsertFileDialog
 
@@ -2297,8 +2329,11 @@ std::vector<PageInfo> MainWindow::insertImageFile(const ImageFileInfo& file,
 
     const int numSubPages = ProjectPages::adviseNumberOfLogicalPages(metadata, OrthogonalRotation());
     const ImageInfo imageInfo(ImageId(file.fileInfo(), imageNum), metadata, numSubPages, false, false);
-    for (const PageInfo& page : insertImage(imageInfo, beforeOrAfter, existing)) {
-      inserted.push_back(page);
+    const std::vector<PageInfo> pages = insertImage(imageInfo, beforeOrAfter, existing);
+    inserted.insert(inserted.end(), pages.begin(), pages.end());
+    // The next image of a multi-page TIFF follows this one.
+    if ((beforeOrAfter == AFTER) && !pages.empty()) {
+      existing = pages.back().imageId();
     }
   }
   return inserted;
@@ -2942,6 +2977,9 @@ void MainWindow::execGotoPageDialog() {
 
   bool ok;
   const PageSequence pageSequence = m_thumbSequence->toPageSequence();
+  if (pageSequence.numPages() == 0) {
+    return;
+  }
   const PageId selectionLeader = m_thumbSequence->selectionLeader().id();
   int pageNumber
       = QInputDialog::getInt(this, tr("Go to Page"), tr("Enter the page number:"),
