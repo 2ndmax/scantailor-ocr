@@ -3,6 +3,7 @@
 
 #include "InteractiveXSpline.h"
 
+#include <Constants.h>
 #include <core/ImageViewBase.h>
 
 #include <QDebug>
@@ -159,14 +160,16 @@ QPointF InteractiveXSpline::controlPointPosition(int idx) const {
   return m_fromStorage(m_spline.controlPointPosition(idx));
 }
 
+namespace {
 double findAngle(QPointF p1, QPointF p2) {  // return angle between vector (0,0)(1,0) and this
   // move p1 to 0,0
   p2 -= p1;
 
   // get angle with (1,0)
   double a = p2.x() / std::sqrt(p2.x() * p2.x() + p2.y() * p2.y());
-  return std::acos(a) * 180.0 / 3.14159265;
+  return std::acos(a) * constants::RAD2DEG;
 }
+}  // namespace
 
 void InteractiveXSpline::controlPointMoveRequest(int idx, const QPointF& pos, Qt::KeyboardModifiers mask) {
   const QPointF storagePt(m_toStorage(pos));
@@ -197,11 +200,10 @@ void InteractiveXSpline::controlPointMoveRequest(int idx, const QPointF& pos, Qt
       // rotationAndScale() would throw an exception if oldPos == origin.
       const Vec4d mat(rotationAndScale(oldPos - origin, storagePt - origin));
       for (int i = 0; i < numControlPoints; ++i) {
-        Vec2d pt(m_spline.controlPointPosition(i) - origin);
-        MatrixCalc<double> mc;
-        (mc(mat, 2, 2) * mc(pt, 2, 1)).write(pt);
-
         if (!modified) {  // default behavior
+          Vec2d pt(m_spline.controlPointPosition(i) - origin);
+          MatrixCalc<double> mc;
+          (mc(mat, 2, 2) * mc(pt, 2, 1)).write(pt);
           m_spline.moveControlPoint(i, pt + origin);
         } else {  // Ctrl or Shift is pressed
           Vec2d shift = storagePt - oldPos;
