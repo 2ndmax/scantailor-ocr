@@ -27,6 +27,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
  protected:
   void showEvent(QShowEvent* event) override;
 
+  bool eventFilter(QObject* watched, QEvent* event) override;
+
  private slots:
 
   void rotateLeft();

@@ -36,17 +36,14 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   ui.colorSchemeBox->addItem(tr("Light"), "light");
   ui.colorSchemeBox->addItem(tr("Native"), "native");
   ui.colorSchemeBox->setCurrentIndex(ui.colorSchemeBox->findData(settings.getColorScheme()));
-  connect(ui.colorSchemeBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int) {
-    updateAccentColorDisplay();
-    showRestartNotice();
-  });
+  connect(ui.colorSchemeBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          [this](int) { updateAccentColorDisplay(); });
 
   m_accentColor = settings.getAccentColor();
   connect(ui.accentColorButton, &QPushButton::clicked, this, &SettingsDialog::chooseAccentColor);
   connect(ui.accentColorDefaultButton, &QPushButton::clicked, this, [this]() {
     m_accentColor = QColor();
     updateAccentColorDisplay();
-    showRestartNotice();
   });
   updateAccentColorDisplay();
 
@@ -97,7 +94,9 @@ void SettingsDialog::commitChanges() {
   settings.setOpenGlEnabled(ui.enableOpenglCb->isChecked());
   settings.setAutoSaveProjectEnabled(ui.autoSaveProjectCB->isChecked());
   settings.setHighlightDeviationEnabled(ui.highlightDeviationCB->isChecked());
-  settings.setColorScheme(ui.colorSchemeBox->currentData().toString());
+  const QString colorScheme = ui.colorSchemeBox->currentData().toString();
+  const bool colorsChanged = (colorScheme != settings.getColorScheme()) || (m_accentColor != settings.getAccentColor());
+  settings.setColorScheme(colorScheme);
   settings.setAccentColor(m_accentColor);
 
   settings.setLanguage(ui.languageBox->currentData().toString());
@@ -126,6 +125,9 @@ void SettingsDialog::commitChanges() {
   settings.setCancelingSelectionQuestionEnabled(ui.cancelingSelectionQuestionCB->isChecked());
   settings.setDeskewHandleDistance(ui.deskewHandleDistanceSB->value());
 
+  if (colorsChanged) {
+    showRestartNotice();
+  }
   emit settingsChanged();
 }
 
@@ -141,7 +143,6 @@ void SettingsDialog::chooseAccentColor() {
   }
   m_accentColor = color;
   updateAccentColorDisplay();
-  showRestartNotice();
 }
 
 QColor SettingsDialog::displayedAccentColor() const {

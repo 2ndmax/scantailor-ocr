@@ -721,7 +721,7 @@ void FixDpiDialog::TreeModel::emitAllPagesChanged(const QModelIndex& idx) {
 
 void FixDpiDialog::TreeModel::emitSizeGroupChanged(const QModelIndex& idx) {
   // Every item in this size group.
-  emit dataChanged(index(0, 0, idx), index(rowCount(idx), 0, idx));
+  emit dataChanged(index(0, 0, idx), index(rowCount(idx) - 1, 0, idx));
 
   // The size group itself.
   emit dataChanged(idx, idx);

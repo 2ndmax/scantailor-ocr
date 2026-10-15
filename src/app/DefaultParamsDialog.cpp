@@ -12,8 +12,10 @@
 #include <filters/page_split/LayoutType.h>
 
 #include <QCoreApplication>
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QLocale>
+#include <QRegularExpression>
 #include <QScreen>
 #include <QScrollArea>
 #include <QSignalBlocker>
@@ -139,6 +141,8 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   }
   m_customProfileItemIdx = profileCB->count();
   profileCB->addItem(tr("Custom"), "Custom");
+  // The name typed for Custom is saved with the Save button or Enter, never added as an item by the box.
+  profileCB->setInsertPolicy(QComboBox::NoInsert);
 
   m_reservedProfileNames.insert(profileCB->itemText(profileCB->findData("Default")));
   m_reservedProfileNames.insert(profileCB->itemText(profileCB->findData("Source")));
@@ -209,6 +213,19 @@ void DefaultParamsDialog::showEvent(QShowEvent* event) {
     m_fittedToContents = true;
     fitToContents();
   }
+}
+
+bool DefaultParamsDialog::eventFilter(QObject* watched, QEvent* event) {
+  // Enter in the name field of Custom saves the profile instead of closing the dialog.  Caught
+  // before the field itself sees it, which would select an item of the same name.
+  if ((event->type() == QEvent::KeyPress) && profileCB->isEditable() && (watched == profileCB->lineEdit())) {
+    const int key = static_cast<QKeyEvent*>(event)->key();
+    if ((key == Qt::Key_Return) || (key == Qt::Key_Enter)) {
+      profileSavePressed();
+      return true;
+    }
+  }
+  return QDialog::eventFilter(watched, event);
 }
 
 void DefaultParamsDialog::fitToContents() {
@@ -1243,6 +1260,8 @@ void DefaultParamsDialog::profileChanged(const int index) {
   profileCB->setEditable(index == m_customProfileItemIdx);
   if (index == m_customProfileItemIdx) {
     profileCB->setEditText(profileCB->currentText());
+    // The field is created anew each time the box becomes editable.
+    profileCB->lineEdit()->installEventFilter(this);
     profileCB->lineEdit()->selectAll();
     profileCB->setFocus();
     profileSaveButton->setEnabled(true);
@@ -1313,8 +1332,42 @@ void DefaultParamsDialog::profileSavePressed() {
     return;
   }
 
-  if (m_profileManager.writeProfile(*buildParams(), profileCB->currentText())) {
-    if (profileCB->currentIndex() == m_customProfileItemIdx) {
+  int existingIdx = -1;
+  if (profileCB->currentIndex() == m_customProfileItemIdx) {
+    const QString name = profileCB->currentText();
+    // The name becomes a file name in the profile folder.
+    static const QRegularExpression invalidChars(R"([\\/:*?"<>|])");
+    if (name.trimmed().isEmpty() || name.startsWith('.') || name.contains(invalidChars)) {
+      QMessageBox::information(this, tr("Error"),
+                               tr("Please enter a name without the characters \\ / : * ? \" < > | "
+                                  "that doesn't start with a dot."));
+      return;
+    }
+    // File names don't depend on case on Windows and macOS.
+    for (int i = 0; i < m_customProfileItemIdx; ++i) {
+      const QString data = profileCB->itemData(i).toString();
+      if ((data != "Default") && (data != "Source") && (data.compare(name, Qt::CaseInsensitive) == 0)) {
+        existingIdx = i;
+        break;
+      }
+    }
+    if ((existingIdx != -1)
+        && (QMessageBox::question(this, tr("Save Profile"),
+                                  tr("A profile named \"%1\" already exists. Replace it?").arg(name),
+                                  QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+            != QMessageBox::Yes)) {
+      return;
+    }
+  }
+
+  const QString fileName = (existingIdx != -1) ? profileCB->itemData(existingIdx).toString() : profileCB->currentText();
+  if (m_profileManager.writeProfile(*buildParams(), fileName)) {
+    if (existingIdx != -1) {
+      // The existing entry shows the profile now, Custom keeps its name.
+      profileCB->setCurrentIndex(existingIdx);
+      profileCB->setEditable(false);
+      profileDeleteButton->setEnabled(true);
+    } else if (profileCB->currentIndex() == m_customProfileItemIdx) {
       const QString profileName = profileCB->currentText();
       profileCB->setItemData(profileCB->currentIndex(), profileName);
       profileCB->setItemText(profileCB->currentIndex(), profileName);

@@ -375,7 +375,13 @@ void selectRowAfterMove(QListView* list, const int row) {
 }  // namespace
 
 void ProjectFilesDialog::setInputDir(const QString& dir, const bool autoAddFiles) {
-  inpDirLine->setText(QDir::toNativeSeparators(dir));
+  // Called on every key press, too: the cursor must stay where the user is typing.
+  const QString shownDir = QDir::toNativeSeparators(dir);
+  if (inpDirLine->text() != shownDir) {
+    const int cursorPos = inpDirLine->cursorPosition();
+    inpDirLine->setText(shownDir);
+    inpDirLine->setCursorPosition(std::min(cursorPos, static_cast<int>(shownDir.length())));
+  }
   if (m_autoOutDir) {
     setOutputDir(QDir::cleanPath(QDir(dir).filePath("out")));
   }
