@@ -1386,7 +1386,9 @@ void MainWindow::startBatchProcessing() {
       }
     } while ((task = m_batchQueue->takeForProcessing()));
   } else {
+    // Nothing to process.  This also resets m_batchQueue.
     stopBatchProcessing();
+    return;
   }
 
   PageInfo selectedPage(m_batchQueue->selectedPage());
@@ -2057,17 +2059,16 @@ void MainWindow::loadPageInteractive(const PageInfo& page) {
     m_stages->filterAt(i)->loadDefaultSettings(page);
   }
 
-  if (!isBatchProcessingInProgress()) {
-    if (m_imageFrameLayout->indexOf(m_processingIndicationWidget.get()) != -1) {
-      m_processingIndicationWidget->processingRestartedEffect();
-    }
-    bool currentWidgetIsImage = (Utils::castOrFindChild<ImageViewBase*>(m_imageFrameLayout->widget(0)) != nullptr);
-    setImageWidget(m_processingIndicationWidget.get(), KEEP_OWNERSHIP, nullptr, currentWidgetIsImage);
-    m_stages->filterAt(m_curFilter)->preUpdateUI(this, page);
+  if (m_imageFrameLayout->indexOf(m_processingIndicationWidget.get()) != -1) {
+    m_processingIndicationWidget->processingRestartedEffect();
   }
+  bool currentWidgetIsImage = (Utils::castOrFindChild<ImageViewBase*>(m_imageFrameLayout->widget(0)) != nullptr);
+  setImageWidget(m_processingIndicationWidget.get(), KEEP_OWNERSHIP, nullptr, currentWidgetIsImage);
+  m_stages->filterAt(m_curFilter)->preUpdateUI(this, page);
 
   assert(m_thumbnailCache);
 
+  // Again, as the options panel updated by preUpdateUI() may have requested a reload meanwhile.
   m_interactiveQueue->cancelAndClear();
   m_interactiveQueue->addProcessingTask(page, createCompositeTask(page, m_curFilter, false, m_debug));
   const BackgroundTaskPtr task(m_interactiveQueue->takeForProcessing());
@@ -2084,7 +2085,7 @@ void MainWindow::updateWindowTitle() {
     projectName = QFileInfo(m_projectFile).completeBaseName();
   }
   const QString version(QString::fromUtf8(VERSION));
-  setWindowTitle(tr("%2 - ScanTailor OCR [%1bit]").arg(sizeof(void*) * 8).arg(projectName));
+  setWindowTitle(tr("%2 - ScanTailor OCR %3 [%1bit]").arg(sizeof(void*) * 8).arg(projectName).arg(version));
 }
 
 /**

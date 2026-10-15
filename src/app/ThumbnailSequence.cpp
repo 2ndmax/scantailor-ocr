@@ -584,7 +584,7 @@ void ThumbnailSequence::Impl::reset(const PageSequence& pages,
   }
   if (m_selectionLeader) {
     m_selectionLeader->setSelectionLeader(true);
-    m_owner.emitNewSelectionLeader(selectionLeader, m_selectionLeader->composite, DEFAULT_SELECTION_FLAGS);
+    m_owner.emitNewSelectionLeader(m_selectionLeader->pageInfo, m_selectionLeader->composite, DEFAULT_SELECTION_FLAGS);
   }
 }  // ThumbnailSequence::Impl::reset
 
@@ -1448,7 +1448,7 @@ void ThumbnailSequence::Impl::extendSelectionBySceneRect(const QRectF& sceneRect
     if (m_selectionLeader) {
       m_selectionLeader->setSelectionLeader(false);
     }
-    const_cast<Item*>(firstHit)->setSelectionLeader(true);
+    firstHit->setSelectionLeader(true);
     m_selectionLeader = firstHit;
   }
 

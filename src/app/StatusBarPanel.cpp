@@ -158,17 +158,11 @@ void StatusBarPanel::physSizeChanged() {
     const Units units = UnitsProvider::getInstance().getUnits();
     switch (units) {
       case PIXELS:
-        width = std::round(width);
-        height = std::round(height);
-        break;
       case MILLIMETRES:
         width = std::round(width);
         height = std::round(height);
         break;
       case CENTIMETRES:
-        width = std::round(width * 10) / 10;
-        height = std::round(height * 10) / 10;
-        break;
       case INCHES:
         width = std::round(width * 10) / 10;
         height = std::round(height * 10) / 10;
