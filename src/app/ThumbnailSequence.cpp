@@ -558,6 +558,10 @@ void ThumbnailSequence::Impl::reset(const PageSequence& pages,
           break;
       }
     }
+    // A single selected scan stays a single selection: only its first half is selected after splitting.
+    if (itemFound && (selected.size() == 1) && someSelectedItem) {
+      itemFound = false;
+    }
     if (itemFound) {
       item->setSelected(true);
       moveToSelected(item);
