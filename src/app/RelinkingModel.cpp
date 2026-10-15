@@ -216,10 +216,14 @@ void RelinkingModel::commitChanges() {
   for (Item& item : m_items) {
     ++row;
 
+    // Changes committed earlier have to stay in the relinker, too.
+    if (item.origPath != item.uncommittedPath) {
+      newRelinker.addMapping(item.origPath, item.uncommittedPath);
+    }
+
     if (item.committedPath != item.uncommittedPath) {
       item.committedPath = item.uncommittedPath;
       item.committedStatus = item.uncommittedStatus;
-      newRelinker.addMapping(item.origPath, item.committedPath);
       if (modifiedRowspanBegin == -1) {
         modifiedRowspanBegin = row;
       }
