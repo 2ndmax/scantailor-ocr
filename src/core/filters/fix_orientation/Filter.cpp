@@ -118,17 +118,18 @@ std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(std::shared_ptr<p
 }
 
 void Filter::writeParams(QDomDocument& doc, QDomElement& filterEl, const ImageId& imageId, int numericId) const {
-  const OrthogonalRotation rotation(m_settings->getRotationFor(imageId));
+  // A rotation of 0 is saved too: an image without one gets the default rotation when loaded.
+  const bool hasRotation = !m_settings->isRotationNull(imageId);
   const ImageTrim trim(m_settings->getTrim(imageId));
 
-  if ((rotation.toDegrees() == 0) && !trim.enabled) {
+  if (!hasRotation && !trim.enabled) {
     return;
   }
 
   QDomElement imageEl(doc.createElement("image"));
   imageEl.setAttribute("id", numericId);
-  if (rotation.toDegrees() != 0) {
-    imageEl.appendChild(rotation.toXml(doc, "rotation"));
+  if (hasRotation) {
+    imageEl.appendChild(m_settings->getRotationFor(imageId).toXml(doc, "rotation"));
   }
   if (trim.enabled) {
     QDomElement trimEl(doc.createElement("trim"));

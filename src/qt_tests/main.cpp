@@ -3,6 +3,7 @@
 
 #include "tst_core_qt.h"
 #include "tst_deskew_qt.h"
+#include "tst_fix_orientation_qt.h"
 #include "tst_ux_qt.h"
 
 #include <QApplication>
@@ -20,6 +21,8 @@ int main(int argc, char* argv[]) {
 
   TestDeskewQt tc3;
   status |= QTest::qExec(&tc3, argc, argv);
+  TestFixOrientationQt tc4;
+  status |= QTest::qExec(&tc4, argc, argv);
 
   return status;
 }

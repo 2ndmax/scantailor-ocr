@@ -33,8 +33,6 @@ class Settings {
 
   void applyRotation(const std::set<PageId>& pages, OrthogonalRotation rotation);
 
-  void applyTrim(const std::set<PageId>& pages, const ImageTrim& trim);
-
   OrthogonalRotation getRotationFor(const ImageId& imageId) const;
 
   bool isRotationNull(const ImageId& imageId) const;
@@ -42,8 +40,6 @@ class Settings {
   void setTrim(const ImageId& imageId, const ImageTrim& trim);
 
   ImageTrim getTrim(const ImageId& imageId) const;
-
-  void clearTrim(const ImageId& imageId);
 
  private:
   using PerImageRotation = std::unordered_map<ImageId, OrthogonalRotation>;

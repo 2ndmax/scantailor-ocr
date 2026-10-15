@@ -2,6 +2,7 @@ set(sources
     main.cpp
     tst_core_qt.cpp
     tst_deskew_qt.cpp
+    tst_fix_orientation_qt.cpp
     tst_ux_qt.cpp)
 
 add_executable(qt_tests ${sources})
@@ -15,5 +16,8 @@ set_source_files_properties(tst_core_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
                                                        "$<TARGET_PROPERTY:output,BINARY_DIR>/output_autogen/include")
 set_source_files_properties(tst_deskew_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
                                                          "$<TARGET_PROPERTY:deskew,BINARY_DIR>/deskew_autogen/include")
+set_source_files_properties(
+  tst_fix_orientation_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
+                             "$<TARGET_PROPERTY:fix_orientation,BINARY_DIR>/fix_orientation_autogen/include")
 
 add_test(NAME qt_tests COMMAND qt_tests)

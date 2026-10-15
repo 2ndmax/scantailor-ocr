@@ -6,6 +6,8 @@
 
 #include <QRect>
 
+#include "OrthogonalRotation.h"
+
 namespace fix_orientation {
 
 inline constexpr int kMinTrimInnerSide = 32;
@@ -22,6 +24,12 @@ struct ImageTrim {
   int bottom = 0;
 
   QRect toInnerRect(const QSize& imageSize) const;
+
+  /** The edges as seen after rotating the image by \p rotation. */
+  ImageTrim rotated(const OrthogonalRotation& rotation) const;
+
+  /** The inverse of rotated(): the edges of the source image. */
+  ImageTrim unrotated(const OrthogonalRotation& rotation) const;
 };
 
 }  // namespace fix_orientation

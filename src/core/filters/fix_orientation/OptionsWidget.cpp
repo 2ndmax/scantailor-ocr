@@ -42,14 +42,15 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const OrthogonalRotati
   m_imagePixelSize = pageInfo.metadata().size();
   m_rotation = rotation;
   setRotationPixmap();
-  updateTrimMaximums();
   pullTrimToControls();
 }
 
-void OptionsWidget::postUpdateUI(const OrthogonalRotation rotation) {
-  auto block = m_connectionManager.getScopedBlock();
+OrthogonalRotation OptionsWidget::rotation() const {
+  return m_rotation;
+}
 
-  setRotation(rotation);
+ImageTrim OptionsWidget::trim() const {
+  return m_settings->getTrim(m_pageId.imageId());
 }
 
 void OptionsWidget::rotateLeft() {
@@ -77,7 +78,11 @@ void OptionsWidget::applyParts(const std::set<PageId>& pages, const bool applyRo
     m_settings->applyRotation(pages, m_rotation);
   }
   if (applyTrim) {
-    m_settings->applyTrim(pages, currentTrimFromControls());
+    // The fields refer to the view, so each page gets them turned back by its own rotation.
+    const ImageTrim viewTrim(currentTrimFromControls());
+    for (const PageId& page : pages) {
+      m_settings->setTrim(page.imageId(), viewTrim.unrotated(m_settings->getRotationFor(page.imageId())));
+    }
   }
 }
 
@@ -111,18 +116,18 @@ void OptionsWidget::setRotation(const OrthogonalRotation& rotation) {
   setRotationPixmap();
 
   m_settings->applyRotation(m_pageId.imageId(), rotation);
+  {
+    // The trim fields follow the view.
+    auto block = m_connectionManager.getScopedBlock();
+    pullTrimToControls();
+  }
 
-  emit rotated(rotation);
+  emit rotationOrTrimChanged(rotation, trim());
   emit invalidateThumbnail(m_pageId);
 }
 
 void OptionsWidget::trimEnableToggled(const bool checked) {
   trimFieldsWidget->setEnabled(checked);
-  if (!checked) {
-    m_settings->clearTrim(m_pageId.imageId());
-    emit invalidateThumbnail(m_pageId);
-    return;
-  }
   pushTrimFromControls();
 }
 
@@ -136,10 +141,9 @@ void OptionsWidget::trimMarginsChanged(const int) {
 
 
 void OptionsWidget::updateTrimMaximums() {
-  const int w = m_imagePixelSize.width();
-  const int h = m_imagePixelSize.height();
-  const int maxHorizontal = std::max(0, w - kMinTrimInnerSide);
-  const int maxVertical = std::max(0, h - kMinTrimInnerSide);
+  const QSize viewSize(m_rotation.rotate(m_imagePixelSize));
+  const int maxHorizontal = std::max(0, viewSize.width() - kMinTrimInnerSide);
+  const int maxVertical = std::max(0, viewSize.height() - kMinTrimInnerSide);
 
   trimLeftSpin->setMaximum(std::max(0, maxHorizontal - trimRightSpin->value()));
   trimRightSpin->setMaximum(std::max(0, maxHorizontal - trimLeftSpin->value()));
@@ -148,21 +152,25 @@ void OptionsWidget::updateTrimMaximums() {
 }
 
 void OptionsWidget::pullTrimToControls() {
-  const ImageTrim trim(m_settings->getTrim(m_pageId.imageId()));
+  const ImageTrim trim(m_settings->getTrim(m_pageId.imageId()).rotated(m_rotation));
   trimEnabledCheck->setChecked(trim.enabled);
+  // Each maximum depends on the opposite field, so the values are set against the full ranges.
+  for (QSpinBox* spinBox : {trimLeftSpin, trimRightSpin, trimTopSpin, trimBottomSpin}) {
+    spinBox->setValue(0);
+  }
+  updateTrimMaximums();
   trimLeftSpin->setValue(trim.left);
   trimRightSpin->setValue(trim.right);
   trimTopSpin->setValue(trim.top);
   trimBottomSpin->setValue(trim.bottom);
+  updateTrimMaximums();
   trimFieldsWidget->setEnabled(trim.enabled);
 }
 
 void OptionsWidget::pushTrimFromControls() {
-  const ImageTrim trim(currentTrimFromControls());
-  if (!trim.enabled) {
-    return;
-  }
+  const ImageTrim trim(currentTrimFromControls().unrotated(m_rotation));
   m_settings->setTrim(m_pageId.imageId(), trim);
+  emit rotationOrTrimChanged(m_rotation, trim);
   emit invalidateThumbnail(m_pageId);
 }
 

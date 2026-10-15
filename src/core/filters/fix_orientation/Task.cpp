@@ -10,11 +10,11 @@
 #include "Dpm.h"
 #include "Filter.h"
 #include "FilterUiInterface.h"
-#include "ImageTrim.h"
 #include "ImageView.h"
 #include "OptionsWidget.h"
 #include "Settings.h"
 #include "TaskStatus.h"
+#include "Utils.h"
 #include "filters/page_split/Task.h"
 
 namespace fix_orientation {
@@ -65,13 +65,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
   updateFilterData(data);
 
   ImageTransformation xform(data.xform());
-  xform.setPreRotation(m_settings->getRotationFor(m_imageId));
-
-  const ImageTrim trim(m_settings->getTrim(m_imageId));
-  if (trim.enabled) {
-    const QRect inner(trim.toInnerRect(data.origImage().size()));
-    xform.setPreCropArea(xform.origRectToPreCropSpace(QRectF(inner)));
-  }
+  Utils::applyRotationAndTrim(xform, m_settings->getRotationFor(m_imageId), m_settings->getTrim(m_imageId));
 
   if (m_nextTask) {
     return m_nextTask->process(status, FilterData(data, xform));
@@ -114,11 +108,12 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   }
 
   OptionsWidget* const optWidget = m_filter->optionsWidget();
-  optWidget->postUpdateUI(m_xform.preRotation());
   ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
 
   auto* view = new ImageView(m_image, m_downscaledImage, m_xform);
+  // The rotation or the trim may have changed while the page was being processed.
+  view->setRotationAndTrim(optWidget->rotation(), optWidget->trim());
   ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
-  QObject::connect(optWidget, &OptionsWidget::rotated, view, &ImageView::setPreRotation);
+  QObject::connect(optWidget, &OptionsWidget::rotationOrTrimChanged, view, &ImageView::setRotationAndTrim);
 }
 }  // namespace fix_orientation

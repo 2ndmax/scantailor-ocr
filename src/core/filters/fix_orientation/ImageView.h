@@ -6,6 +6,7 @@
 
 #include "DragHandler.h"
 #include "ImageTransformation.h"
+#include "ImageTrim.h"
 #include "ImageViewBase.h"
 #include "OrthogonalRotation.h"
 #include "ZoomHandler.h"
@@ -20,7 +21,8 @@ class ImageView : public ImageViewBase {
 
  public slots:
 
-  void setPreRotation(OrthogonalRotation rotation);
+  /** \p trim is in source image pixels. */
+  void setRotationAndTrim(OrthogonalRotation rotation, const ImageTrim& trim);
 
  private:
   DragHandler m_dragHandler;

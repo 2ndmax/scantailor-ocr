@@ -28,11 +28,15 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void preUpdateUI(const PageInfo& pageInfo, OrthogonalRotation rotation);
 
-  void postUpdateUI(OrthogonalRotation rotation);
+  OrthogonalRotation rotation() const;
+
+  /** The trim of the current page, in source image pixels. */
+  ImageTrim trim() const;
 
  signals:
 
-  void rotated(OrthogonalRotation rotation);
+  /** \p trim is in source image pixels. */
+  void rotationOrTrimChanged(OrthogonalRotation rotation, const ImageTrim& trim);
 
  private slots:
 
@@ -67,6 +71,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void pushTrimFromControls();
 
+  // The edges refer to the view, not to the source image.
   ImageTrim currentTrimFromControls() const;
 
   std::shared_ptr<Settings> m_settings;

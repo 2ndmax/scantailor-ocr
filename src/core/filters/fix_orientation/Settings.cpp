@@ -56,19 +56,6 @@ void Settings::applyRotation(const std::set<PageId>& pages, const OrthogonalRota
   }
 }
 
-void Settings::applyTrim(const std::set<PageId>& pages, const ImageTrim& trim) {
-  QMutexLocker locker(&m_mutex);
-
-  for (const PageId& page : pages) {
-    const ImageId imageId(page.imageId());
-    if (!trim.enabled) {
-      m_perImageTrim.erase(imageId);
-    } else {
-      Utils::mapSetValue(m_perImageTrim, imageId, trim);
-    }
-  }
-}
-
 OrthogonalRotation Settings::getRotationFor(const ImageId& imageId) const {
   QMutexLocker locker(&m_mutex);
 
@@ -105,10 +92,5 @@ ImageTrim Settings::getTrim(const ImageId& imageId) const {
     return it->second;
   }
   return ImageTrim();
-}
-
-void Settings::clearTrim(const ImageId& imageId) {
-  QMutexLocker locker(&m_mutex);
-  m_perImageTrim.erase(imageId);
 }
 }  // namespace fix_orientation

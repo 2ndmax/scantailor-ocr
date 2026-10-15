@@ -20,7 +20,28 @@ void redistributeExcess(int& leading, int& trailing, const int excess) {
   trailing = std::max(0, trailing);
 }
 
+// A quarter turn clockwise moves the left edge to the top, the top edge to the right and so on.
+ImageTrim rotatedClockwise(const ImageTrim& trim, const int quarterTurns) {
+  ImageTrim result(trim);
+  for (int i = 0; i < quarterTurns; ++i) {
+    const ImageTrim prev(result);
+    result.top = prev.left;
+    result.right = prev.top;
+    result.bottom = prev.right;
+    result.left = prev.bottom;
+  }
+  return result;
+}
+
 }  // namespace
+
+ImageTrim ImageTrim::rotated(const OrthogonalRotation& rotation) const {
+  return rotatedClockwise(*this, rotation.toDegrees() / 90);
+}
+
+ImageTrim ImageTrim::unrotated(const OrthogonalRotation& rotation) const {
+  return rotatedClockwise(*this, (4 - rotation.toDegrees() / 90) % 4);
+}
 
 QRect ImageTrim::toInnerRect(const QSize& imageSize) const {
   if (!enabled || imageSize.width() <= 0 || imageSize.height() <= 0) {
