@@ -127,12 +127,6 @@ class Settings {
   void setLayoutTypeForAllPages(LayoutType layoutType);
 
   /**
-   * Sets layout type for specified pages, removing other page
-   * parameters where they conflict with the new layout type.
-   */
-  void setLayoutTypeFor(LayoutType layoutType, const std::set<PageId>& pages);
-
-  /**
    * \brief Returns all data related to a page as a single object.
    */
   Record getPageRecord(const ImageId& imageId) const;

@@ -194,16 +194,16 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
     m_settings->updatePage(m_pageId.imageId(), update);
     emit reloadRequested();
   } else {
-    PageLayout::Type plt;
+    PageLayout::Type newLayoutType;
     if (lt == SINGLE_PAGE_UNCUT) {
-      plt = PageLayout::SINGLE_PAGE_UNCUT;
+      newLayoutType = PageLayout::SINGLE_PAGE_UNCUT;
     } else {
       assert(lt == TWO_PAGES);
-      plt = PageLayout::TWO_PAGES;
+      newLayoutType = PageLayout::TWO_PAGES;
     }
 
     PageLayout newLayout(m_uiData.pageLayout());
-    newLayout.setType(plt);
+    newLayout.setType(newLayoutType);
     const Params newParams(newLayout, m_uiData.dependencies(), m_uiData.splitLineMode());
 
     update.setParams(newParams);

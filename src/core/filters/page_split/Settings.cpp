@@ -56,16 +56,6 @@ void Settings::setLayoutTypeForAllPages(const LayoutType layoutType) {
   m_defaultLayoutType = layoutType;
 }
 
-void Settings::setLayoutTypeFor(const LayoutType layoutType, const std::set<PageId>& pages) {
-  QMutexLocker locker(&m_mutex);
-
-  UpdateAction action;
-
-  for (const PageId& pageId : pages) {
-    updatePageLocked(pageId.imageId(), action);
-  }
-}
-
 Settings::Record Settings::getPageRecord(const ImageId& imageId) const {
   QMutexLocker locker(&m_mutex);
   return getPageRecordLocked(imageId);

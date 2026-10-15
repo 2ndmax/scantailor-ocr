@@ -61,10 +61,7 @@ struct CenterComparator {
  */
 std::unique_ptr<PageLayout> autoDetectSinglePageLayout(const LayoutType layoutType,
                                                        const std::vector<QLineF>& ltrLines,
-                                                       const QRectF& virtualImageRect,
-                                                       const GrayImage& grayDownscaled,
-                                                       const QTransform& outToDownscaled,
-                                                       DebugImages* dbg) {
+                                                       const QRectF& virtualImageRect) {
   const double imageCenter = virtualImageRect.center().x();
 
   // A loop just to be able to break from it.
@@ -228,13 +225,8 @@ std::unique_ptr<PageLayout> PageLayoutEstimator::tryCutAtFoldingLine(const Layou
                                                                      DebugImages* const dbg) {
   const int numPages = page_split::numPages(layoutType, preXform);
 
-  GrayImage grayDownscaled;
-  QTransform outToDownscaled;
-
   const int maxLines = 8;
-  std::vector<QLineF> lines(VertLineFinder::findLines(input, preXform, maxLines, dbg,
-                                                      numPages == 1 ? &grayDownscaled : nullptr,
-                                                      numPages == 1 ? &outToDownscaled : nullptr));
+  std::vector<QLineF> lines(VertLineFinder::findLines(input, preXform, maxLines, dbg));
 
   std::sort(lines.begin(), lines.end(), CenterComparator());
 
@@ -270,7 +262,7 @@ std::unique_ptr<PageLayout> PageLayoutEstimator::tryCutAtFoldingLine(const Layou
       lines.push_back(leftDist < rightDist ? leftLine : rightLine);
       break;
     }
-    return autoDetectSinglePageLayout(layoutType, lines, virtualImageRect, grayDownscaled, outToDownscaled, dbg);
+    return autoDetectSinglePageLayout(layoutType, lines, virtualImageRect);
   } else {
     assert(numPages == 2);
     // In two page mode we ignore the lines that are too close
@@ -528,25 +520,10 @@ void PageLayoutEstimator::removeInsignificantEdgeSpans(std::deque<Span>& spans) 
   if (spans.empty()) {
     return;
   }
-  // GapInfo.first: the amount of content preceding this gap.
-  // GapInfo.second: the amount of content following this gap.
-  using GapInfo = std::pair<int, int>;
-
-  std::vector<GapInfo> gaps(spans.size() - 1);
-
-  int sum = 0;
-  for (unsigned i = 0; i < gaps.size(); ++i) {
-    sum += spans[i].width();
-    gaps[i].first = sum;
+  int total = 0;
+  for (const Span& span : spans) {
+    total += span.width();
   }
-  sum = 0;
-  // Note: iterating in size_t. Computing gaps.size() - 1 up front would wrap
-  // around when there are no gaps at all (a single span).
-  for (size_t i = gaps.size(); i-- > 0;) {
-    sum += spans[i + 1].width();
-    gaps[i].second = sum;
-  }
-  const int total = sum + spans[0].width();
 
   int mayBeRemoved = total / 15;
 
@@ -652,30 +629,17 @@ PageLayout PageLayoutEstimator::processContentSpansTwoPages(const LayoutType lay
   } else if (spans.size() == 1) {
     return processTwoPagesWithSingleSpan(spans.front(), width, height);
   } else {
-    // GapInfo.first: the amount of content preceding this gap.
-    // GapInfo.second: the amount of content following this gap.
+    // GapInfo.first: the width of the content area preceding this gap.
+    // GapInfo.second: the width of the content area following this gap.
     using GapInfo = std::pair<int, int>;
 
     std::vector<GapInfo> gaps(spans.size() - 1);
-#if 0
-            int sum = 0;
-            for (unsigned i = 0; i < gaps.size(); ++i) {
-                sum += spans[i].width();
-                gaps[i].first = sum;
-            }
-            sum = 0;
-            for (int i = gaps.size() - 1; i >= 0; --i) {
-                sum += spans[i + 1].width();
-                gaps[i].second = sum;
-            }
-#else
     const int contentBegin = spans.front().begin();
     const int contentEnd = spans.back().end();
     for (unsigned i = 0; i < gaps.size(); ++i) {
       gaps[i].first = spans[i].end() - contentBegin;
       gaps[i].second = contentEnd - spans[i + 1].begin();
     }
-#endif
 
     int bestGap = 0;
     double bestRatio = 0;

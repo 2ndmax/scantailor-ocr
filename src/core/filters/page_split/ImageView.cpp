@@ -60,7 +60,6 @@ void ImageView::setupCuttersInteraction() {
   const double hitRadius = std::max<double>(0.5 * m_handlePixmap.width(), 15.0);
   const int numCutters = m_virtLayout.numCutters();
   for (int i = 0; i < numCutters; ++i) {  // Loop over lines.
-    m_lineInteractors[i].setObject(&m_lineSegments[0]);
 
     for (int j = 0; j < 2; ++j) {  // Loop over handles.
       m_handles[i][j].setHitRadius(hitRadius);
