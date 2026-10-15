@@ -265,6 +265,11 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void reloadIfNecessary();
 
+  void invalidateThumbnails(const std::set<PageId>& pages);
+
+  // After settings were applied to the pages: their thumbnails, and the current page if among them.
+  void pagesChanged(const std::set<PageId>& pages);
+
   void updateDpiDisplay();
 
   void updateColorsDisplay();

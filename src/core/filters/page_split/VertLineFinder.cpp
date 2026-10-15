@@ -43,20 +43,13 @@ std::vector<QLineF> VertLineFinder::findLines(const QImage& image,
     dbg->add(gray100, "gray100");
   }
 
-#if 0
-        GrayImage preprocessed(removeDarkVertBorders(gray100));
-        if (dbg) {
-            dbg->add(preprocessed, "preprocessed");
-        }
-#else
-  // It looks like preprocessing causes more problems than it solves.
+  // No preprocessing that removes dark vertical borders: it causes more problems than it solves.
   // It can reduce the visibility of a folding line to a level where
   // it can't be detected, while it can't always fulfill its purpose of
   // removing vertical edges of a book.  Because of that, other methods
   // of dealing with them were developed, which makes preprocessing
   // obsolete.
   GrayImage preprocessed(gray100);
-#endif
 
 #if 0
         GrayImage hGradient(morphGradientDetectDarkSide(preprocessed, QSize(11, 1)));
@@ -185,39 +178,6 @@ std::vector<QLineF> VertLineFinder::findLines(const QImage& image,
   }
   return lines;
 }  // VertLineFinder::findLines
-
-GrayImage VertLineFinder::removeDarkVertBorders(const GrayImage& src) {
-  GrayImage dst(src);
-
-  selectVertBorders(dst);
-  grayRasterOp<GRopInvert<GRopClippedSubtract<GRopDst, GRopSrc>>>(dst, src);
-  return dst;
-}
-
-void VertLineFinder::selectVertBorders(GrayImage& image) {
-  const int w = image.width();
-  const int h = image.height();
-
-  unsigned char* imageLine = image.data();
-  const int imageStride = image.stride();
-
-  std::vector<unsigned char> tmpLine(w, 0x00);
-
-  for (int y = 0; y < h; ++y, imageLine += imageStride) {
-    // Left to right.
-    unsigned char prevPixel = 0x00;  // Black vertical border.
-    for (int x = 0; x < w; ++x) {
-      prevPixel = std::max(imageLine[x], prevPixel);
-      tmpLine[x] = prevPixel;
-    }
-    // Right to left
-    prevPixel = 0x00;  // Black vertical border.
-    for (int x = w - 1; x >= 0; --x) {
-      prevPixel = std::max(imageLine[x], std::min(prevPixel, tmpLine[x]));
-      imageLine[x] = prevPixel;
-    }
-  }
-}
 
 void VertLineFinder::buildWeightTable(unsigned weight_table[]) {
   int grayLevel = 0;

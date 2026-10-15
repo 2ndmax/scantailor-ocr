@@ -596,13 +596,7 @@ void OptionsWidget::dpiChanged(const std::set<PageId>& pages, const Dpi& dpi) {
     m_settings->setDpi(pageId, dpi);
   }
 
-  if (pages.size() > 1) {
-    emit invalidateAllThumbnails();
-  } else {
-    for (const PageId& pageId : pages) {
-      emit invalidateThumbnail(pageId);
-    }
-  }
+  invalidateThumbnails(pages);
 
   if (pages.find(m_pageId) != pages.end()) {
     m_outputDpi = dpi;
@@ -633,17 +627,7 @@ void OptionsWidget::applyColorsConfirmed(const std::set<PageId>& pages,
     }
   }
 
-  if (pages.size() > 1) {
-    emit invalidateAllThumbnails();
-  } else {
-    for (const PageId& pageId : pages) {
-      emit invalidateThumbnail(pageId);
-    }
-  }
-
-  if (pages.find(m_pageId) != pages.end()) {
-    emit reloadRequested();
-  }
+  pagesChanged(pages);
 }
 
 void OptionsWidget::setupPhotoAdjustmentsPanel() {
@@ -833,17 +817,7 @@ void OptionsWidget::applyPhotoAdjustmentsConfirmed(const std::set<PageId>& pages
     m_settings->setColorParams(pageId, colorParams);
   }
 
-  if (pages.size() > 1) {
-    emit invalidateAllThumbnails();
-  } else {
-    for (const PageId& pageId : pages) {
-      emit invalidateThumbnail(pageId);
-    }
-  }
-
-  if (pages.find(m_pageId) != pages.end()) {
-    emit reloadRequested();
-  }
+  pagesChanged(pages);
 }
 
 void OptionsWidget::applySplittingButtonClicked() {
@@ -859,17 +833,7 @@ void OptionsWidget::applySplittingOptionsConfirmed(const std::set<PageId>& pages
     m_settings->setSplittingOptions(pageId, m_splittingOptions);
   }
 
-  if (pages.size() > 1) {
-    emit invalidateAllThumbnails();
-  } else {
-    for (const PageId& pageId : pages) {
-      emit invalidateThumbnail(pageId);
-    }
-  }
-
-  if (pages.find(m_pageId) != pages.end()) {
-    emit reloadRequested();
-  }
+  pagesChanged(pages);
 }
 
 void OptionsWidget::despeckleToggled(bool checked) {
@@ -877,7 +841,7 @@ void OptionsWidget::despeckleToggled(bool checked) {
     handleDespeckleLevelChange(0.1 * despeckleSlider->value());
   } else {
     handleDespeckleLevelChange(0);
-  };
+  }
 
   despeckleSlider->setEnabled(checked);
   despeckleValueLabel->setEnabled(checked);
@@ -942,17 +906,7 @@ void OptionsWidget::applyDespeckleConfirmed(const std::set<PageId>& pages) {
     m_settings->setDespeckleLevel(pageId, m_despeckleLevel);
   }
 
-  if (pages.size() > 1) {
-    emit invalidateAllThumbnails();
-  } else {
-    for (const PageId& pageId : pages) {
-      emit invalidateThumbnail(pageId);
-    }
-  }
-
-  if (pages.find(m_pageId) != pages.end()) {
-    emit reloadRequested();
-  }
+  pagesChanged(pages);
 }
 
 void OptionsWidget::dewarpingModeChanged(const int mode) {
@@ -994,13 +948,7 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
     m_settings->setDewarpingOptions(pageId, opt);
   }
 
-  if (pages.size() > 1) {
-    emit invalidateAllThumbnails();
-  } else {
-    for (const PageId& pageId : pages) {
-      emit invalidateThumbnail(pageId);
-    }
-  }
+  invalidateThumbnails(pages);
 
   if (pages.find(m_pageId) != pages.end()) {
     if (m_dewarpingOptions != opt) {
@@ -1059,6 +1007,23 @@ void OptionsWidget::depthPerceptionSliderReleased() {
   // The Dewarping tab follows the slider by itself; other tabs need the page recalculated.
   if (m_lastTab != TAB_DEWARPING) {
     m_delayedReloadRequest.start(750);
+  }
+}
+
+void OptionsWidget::invalidateThumbnails(const std::set<PageId>& pages) {
+  if (pages.size() > 1) {
+    emit invalidateAllThumbnails();
+  } else {
+    for (const PageId& pageId : pages) {
+      emit invalidateThumbnail(pageId);
+    }
+  }
+}
+
+void OptionsWidget::pagesChanged(const std::set<PageId>& pages) {
+  invalidateThumbnails(pages);
+  if (pages.find(m_pageId) != pages.end()) {
+    emit reloadRequested();
   }
 }
 
@@ -1201,7 +1166,8 @@ void OptionsWidget::updateColorsDisplay() {
   originalBackgroundCB->setEnabled(m_splittingOptions.isSplitOutput()
                                    && (m_splittingOptions.getSplittingMode() == BLACK_AND_WHITE_FOREGROUND));
 
-  thresholdMethodBox->setCurrentIndex((int) blackWhiteOptions.getBinarizationMethod());
+  thresholdMethodBox->setCurrentIndex(thresholdMethodBox->findData(blackWhiteOptions.getBinarizationMethod()));
+  // The option widgets were added in the order of the methods.
   binarizationOptions->setCurrentIndex((int) blackWhiteOptions.getBinarizationMethod());
 
   // The areas to fill are used in every color mode, the color not in black and white.
@@ -1919,17 +1885,7 @@ void OptionsWidget::applyProcessingParamsConfirmed(const std::set<PageId>& pages
     m_settings->setOutputProcessingParams(pageId, processingParams);
   }
 
-  if (pages.size() > 1) {
-    emit invalidateAllThumbnails();
-  } else {
-    for (const PageId& pageId : pages) {
-      emit invalidateThumbnail(pageId);
-    }
-  }
-
-  if (pages.find(m_pageId) != pages.end()) {
-    emit reloadRequested();
-  }
+  pagesChanged(pages);
 }
 
 void OptionsWidget::updateProcessingDisplay() {

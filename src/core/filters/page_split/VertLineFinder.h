@@ -14,10 +14,6 @@ class QImage;
 class ImageTransformation;
 class DebugImages;
 
-namespace imageproc {
-class GrayImage;
-}
-
 namespace page_split {
 class VertLineFinder {
  public:
@@ -64,10 +60,6 @@ class VertLineFinder {
     double m_right;
   };
 
-
-  static imageproc::GrayImage removeDarkVertBorders(const imageproc::GrayImage& src);
-
-  static void selectVertBorders(imageproc::GrayImage& image);
 
   static void buildWeightTable(unsigned weight_table[]);
 };

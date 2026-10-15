@@ -28,8 +28,7 @@ static const QRgb maskColor = 0xff587ff4;
 
 using namespace imageproc;
 
-class PictureZoneEditor::MaskTransformTask : public AbstractCommand<std::shared_ptr<AbstractCommand<void>>>,
-                                             public QObject {
+class PictureZoneEditor::MaskTransformTask : public AbstractCommand<std::shared_ptr<AbstractCommand<void>>> {
   DECLARE_NON_COPYABLE(MaskTransformTask)
 
  public:
@@ -190,7 +189,6 @@ void PictureZoneEditor::initiateBuildingScreenPictureMask() {
 
   backgroundExecutor().enqueueTask(task);
 
-  m_screenPictureMask = QPixmap();
   m_maskTransformTask = task;
   m_screenPictureMaskXform = xform;
 }
@@ -230,18 +228,14 @@ void PictureZoneEditor::paintOverPictureMask(QPainter& painter) {
     }
   }
 
-  // Pass 3: ZONEBG
-  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-
+  // Pass 3: ZONEBG, still painting over.
   for (const EditableZoneSet::Zone& zone : zones()) {
     if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ZONEBG) {
       painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
     }
   }
 
-  // Pass 4: ZONEPAINTER2
-  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-
+  // Pass 4: ZONEPAINTER2, still painting over.
   for (const EditableZoneSet::Zone& zone : zones()) {
     if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ZONEPAINTER2) {
       painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
@@ -259,9 +253,8 @@ void PictureZoneEditor::paintOverPictureMask(QPainter& painter) {
 }  // PictureZoneEditor::paintOverPictureMask
 
 void PictureZoneEditor::showPropertiesDialog(const EditableZoneSet::Zone& zone) {
-  PropertySet savedProperties;
-  zone.properties()->swap(savedProperties);
-  *zone.properties() = savedProperties;
+  // A deep copy, for restoring the properties if the dialog is cancelled.
+  PropertySet savedProperties(*zone.properties());
 
   PictureZonePropDialog dialog(zone.properties(), this);
   // We can't connect to the update() slot directly, as since some time,

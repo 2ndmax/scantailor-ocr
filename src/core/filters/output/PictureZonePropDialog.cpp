@@ -40,6 +40,11 @@ PictureZonePropDialog::PictureZonePropDialog(std::shared_ptr<PropertySet> props,
 }
 
 void PictureZonePropDialog::itemToggled(bool selected) {
+  // The button that was turned off says nothing about the new layer.
+  if (!selected) {
+    return;
+  }
+
   PictureLayerProperty::Layer layer = PictureLayerProperty::ZONENOOP;
 
   QObject* const obj = sender();
