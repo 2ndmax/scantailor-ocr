@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_INTERACTION_DRAGWATCHER_H_
 #define SCANTAILOR_INTERACTION_DRAGWATCHER_H_
 
-#include <QDateTime>
+#include <QElapsedTimer>
 #include <QPoint>
 
 #include "InteractionHandler.h"
@@ -34,7 +34,7 @@ class DragWatcher : public InteractionHandler {
   void updateState(QPoint mousePos);
 
   DragHandler& m_dragHandler;
-  QDateTime m_dragStartTime;
+  QElapsedTimer m_dragTimer;
   QPoint m_dragStartPos;
   int m_dragMaxSqDist;
   bool m_dragInProgress;

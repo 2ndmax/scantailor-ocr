@@ -219,7 +219,7 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
       }
     } else {
       // Adding a new vertex, provided we are not too close to the previous one.
-      const Proximity prox(screenMousePos, m_spline->lastVertex()->point());
+      const Proximity prox(screenMousePos, toScreen.map(m_spline->lastVertex()->point()));
       if (prox > interaction.proximityThreshold()) {
         m_spline->appendVertex(imageMousePos);
         updateStatusTip();

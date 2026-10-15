@@ -16,14 +16,8 @@ bool DragWatcher::haveSignificantDrag() const {
     return false;
   }
 
-  const QDateTime now(QDateTime::currentDateTime());
-  qint64 msecPassed = m_dragStartTime.time().msecsTo(now.time());
-  if (msecPassed < 0) {
-    msecPassed += 60 * 60 * 24;
-  }
-
   const double distScore = std::sqrt((double) m_dragMaxSqDist) / 12.0;
-  const double timeScore = msecPassed / 500.0;
+  const double timeScore = m_dragTimer.elapsed() / 500.0;
   return distScore + timeScore >= 1.0;
 }
 
@@ -38,7 +32,7 @@ void DragWatcher::onMouseMoveEvent(QMouseEvent* event, InteractionState&) {
 void DragWatcher::updateState(const QPoint mousePos) {
   if (m_dragHandler.isActive()) {
     if (!m_dragInProgress) {
-      m_dragStartTime = QDateTime::currentDateTime();
+      m_dragTimer.start();
       m_dragStartPos = mousePos;
       m_dragMaxSqDist = 0;
     } else {

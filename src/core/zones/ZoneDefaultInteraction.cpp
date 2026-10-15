@@ -224,8 +224,8 @@ void ZoneDefaultInteraction::onMouseReleaseEvent(QMouseEvent* event, Interaction
   if (event->modifiers() == (Qt::ControlModifier | Qt::AltModifier)) {
     const QTransform fromScreen(m_context.imageView().widgetToImage());
 
-    EditableZoneSet::const_iterator latestZone = --m_context.zones().end();
-    if (latestZone != m_context.zones().end()) {
+    if (m_context.zones().begin() != m_context.zones().end()) {
+      const EditableZoneSet::const_iterator latestZone = --m_context.zones().end();
       SerializableSpline serializableSpline(*(*latestZone).spline());
 
       const QPointF oldCenter = serializableSpline.toPolygon().boundingRect().center();
