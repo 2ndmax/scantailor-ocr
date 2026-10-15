@@ -51,6 +51,10 @@ Params::Params(const QDomElement& deskewEl, const SkewDetection legacyDetection)
 
 Params::~Params() = default;
 
+bool Params::needsRemeasure(const Dependencies& deps) const {
+  return !deps.matches(m_deps) && ((m_rotation.mode == MODE_AUTO) || (m_oblique.mode == MODE_AUTO));
+}
+
 QDomElement Params::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("mode", m_rotation.mode == MODE_AUTO ? "auto" : "manual");

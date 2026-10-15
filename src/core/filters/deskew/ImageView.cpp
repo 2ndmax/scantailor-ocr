@@ -40,7 +40,7 @@ ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const I
     m_handles[i].setHitRadius(hitRadius);
     m_handles[i].setPositionCallback(std::bind(&ImageView::handlePosition, this, i));
     m_handles[i].setMoveRequestCallback(std::bind(&ImageView::handleMoveRequest, this, i, std::placeholders::_1));
-    m_handles[i].setDragFinishedCallback(std::bind(&ImageView::dragFinished, this));
+    m_handles[i].setDragFinishedCallback(std::bind(&ImageView::dragFinished, this, i));
 
     m_handleInteractors[i].setProximityStatusTip(i < 2 ? rotationTip : obliqueTip);
     m_handleInteractors[i].setObject(&m_handles[i]);
@@ -68,7 +68,14 @@ ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const I
 ImageView::~ImageView() = default;
 
 void ImageView::doRotate(double deg) {
-  manualDeskewAngleSetExternally(m_xform.postRotation() + deg);
+  // Like the wheel: within the range of the handles, keeping the zoom.
+  const double angleDeg = qBound(-m_maxRotationDeg, m_xform.postRotation() + deg, m_maxRotationDeg);
+  if (angleDeg == m_xform.postRotation()) {
+    return;
+  }
+
+  m_xform.setPostRotation(angleDeg);
+  updateTransformPreservingScale(ImagePresentation(m_xform.transform(), m_xform.resultingPreCropArea()));
   emit manualDeskewAngleSet(m_xform.postRotation());
 }
 
@@ -242,9 +249,13 @@ void ImageView::handleMoveRequest(int idx, const QPointF& pos) {
   }
 }
 
-void ImageView::dragFinished() {
-  emit manualDeskewAngleSet(m_xform.postRotation());
-  emit manualObliqueAngleSet(m_xform.postOblique());
+void ImageView::dragFinished(const int idx) {
+  // Only the dragged angle becomes manual; the other one keeps its mode.
+  if (idx < 2) {
+    emit manualDeskewAngleSet(m_xform.postRotation());
+  } else {
+    emit manualObliqueAngleSet(m_xform.postOblique());
+  }
 }
 
 /**

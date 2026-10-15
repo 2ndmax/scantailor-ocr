@@ -72,6 +72,12 @@ class Params {
   /** Legacy (#114): true when oblique runs in automatic mode. */
   bool autoOblique() const;
 
+  /**
+   * Whether the page has to be measured again: the parameters were found on a different image
+   * than \p deps describes, and at least one of the angles is automatic.
+   */
+  bool needsRemeasure(const Dependencies& deps) const;
+
   QDomElement toXml(QDomDocument& doc, const QString& name) const;
 
  private:

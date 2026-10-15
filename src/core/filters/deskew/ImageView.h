@@ -57,7 +57,7 @@ class ImageView : public ImageViewBase, private InteractionHandler {
 
   void handleMoveRequest(int idx, const QPointF& pos);
 
-  virtual void dragFinished();
+  void dragFinished(int idx);
 
   QPointF getImageRotationOrigin() const;
 

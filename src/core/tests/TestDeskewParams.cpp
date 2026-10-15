@@ -187,6 +187,19 @@ BOOST_AUTO_TEST_CASE(default_params_deskew_detection_roundtrip_xml) {
   BOOST_CHECK(restored.getDetection() == DETECT_TOP_EDGE);
 }
 
+BOOST_AUTO_TEST_CASE(params_remeasure_when_any_angle_is_automatic) {
+  QPolygonF outline;
+  outline << QPointF(0, 0) << QPointF(100, 0) << QPointF(100, 100) << QPointF(0, 100);
+  const Dependencies measuredOn(outline, OrthogonalRotation());
+  const Dependencies otherImage;
+
+  // An automatic oblique angle is measured again even when the deskew angle was set by hand.
+  BOOST_CHECK(Params(1.0, 2.0, measuredOn, MODE_MANUAL, MODE_AUTO).needsRemeasure(otherImage));
+  BOOST_CHECK(Params(1.0, 2.0, measuredOn, MODE_AUTO, MODE_MANUAL).needsRemeasure(otherImage));
+  BOOST_CHECK(!Params(1.0, 2.0, measuredOn, MODE_MANUAL, MODE_MANUAL).needsRemeasure(otherImage));
+  BOOST_CHECK(!Params(1.0, 2.0, measuredOn, MODE_AUTO, MODE_AUTO).needsRemeasure(measuredOn));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(ImageTransformationObliqueTestSuite)

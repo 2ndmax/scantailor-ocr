@@ -98,7 +98,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
   uiData.setDependencies(deps);
 
   if (params) {
-    if (!deps.matches(params->dependencies()) && (params->mode() == MODE_AUTO)) {
+    if (params->needsRemeasure(deps)) {
       priorParamsBeforeRecompute = *params;
       params.reset();
     } else {
@@ -164,15 +164,20 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
 
       SkewFinder skewFinder;
       skewFinder.setResolutionRatio((double) rotatedDpm.horizontal() / rotatedDpm.vertical());
-      const Skew skew(uiData.detection() == DETECT_TOP_EDGE ? skewFinder.findSkewFromTopEdge(rotatedImage)
-                                                            : skewFinder.findSkew(rotatedImage));
-
-      if (skew.confidence() >= Skew::GOOD_CONFIDENCE) {
-        uiData.setEffectiveDeskewAngle(-skew.angle());
+      if (priorParamsBeforeRecompute && (priorParamsBeforeRecompute->mode() == MODE_MANUAL)) {
+        // Only the oblique angle is automatic; the deskew angle set by hand stays.
+        uiData.setEffectiveDeskewAngle(priorParamsBeforeRecompute->deskewAngle());
+        uiData.setMode(MODE_MANUAL);
       } else {
-        uiData.setEffectiveDeskewAngle(0);
+        const Skew skew(uiData.detection() == DETECT_TOP_EDGE ? skewFinder.findSkewFromTopEdge(rotatedImage)
+                                                              : skewFinder.findSkew(rotatedImage));
+        if (skew.confidence() >= Skew::GOOD_CONFIDENCE) {
+          uiData.setEffectiveDeskewAngle(-skew.angle());
+        } else {
+          uiData.setEffectiveDeskewAngle(0);
+        }
+        uiData.setMode(MODE_AUTO);
       }
-      uiData.setMode(MODE_AUTO);
       uiData.setObliqueMode(autoObliqueEnabled ? MODE_AUTO : MODE_MANUAL);
 
       if (autoObliqueEnabled) {

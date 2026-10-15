@@ -27,9 +27,7 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
                               const ImageTransformation& xform) {
   const Dependencies deps(xform.preCropArea(), xform.preRotation());
   std::unique_ptr<Params> params(m_settings->getPageParams(pageInfo.id()));
-  if (!params
-      || (!deps.matches(params->dependencies())
-          && ((params->mode() == MODE_AUTO) || (params->obliqueMode() == MODE_AUTO)))) {
+  if (!params || params->needsRemeasure(deps)) {
     if (auto* thumbCol = dynamic_cast<ThumbnailCollector*>(collector)) {
       thumbCol->processThumbnail(std::unique_ptr<QGraphicsItem>(new IncompleteThumbnail(
           thumbCol->thumbnailCache(), thumbCol->maxLogicalThumbSize(), pageInfo.imageId(), xform)));

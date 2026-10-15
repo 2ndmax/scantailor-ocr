@@ -26,9 +26,11 @@ Params mergeParamsForApply(const std::unique_ptr<Params>& existing,
   // Dependencies describe the image a page was computed from, so they are never transferable
   // between pages. Keep the ones the target page already has; a page we know nothing about gets
   // empty dependencies, which makes the task recompute (auto mode) or fill them in (manual mode).
-  // Automatic deskew is measured on each page itself, with the detection method applied, rather
-  // than copying the angle of the current page.
-  const bool remeasure = applyDeskew && cur.mode() == MODE_AUTO && !isCurrentPage;
+  // Automatic angles are measured on each page itself, deskew with the detection method applied,
+  // rather than copying the angles of the current page.
+  const bool remeasure
+      = !isCurrentPage
+        && ((applyDeskew && cur.mode() == MODE_AUTO) || (applyOblique && cur.obliqueMode() == MODE_AUTO));
   const Dependencies deps(existing && !remeasure ? existing->dependencies() : Dependencies());
   if (!existing) {
     return Params(applyDeskew ? cur.effectiveDeskewAngle() : 0.0, applyOblique ? cur.effectiveObliqueAngle() : 0.0,
@@ -111,6 +113,10 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDes
     std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
     const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique, pageId == m_pageId));
     m_settings->setPageParams(pageId, merged);
+    if (applyOblique) {
+      // The applied oblique mode wins over one the page still had pending.
+      m_settings->takePendingAutoOblique(pageId);
+    }
   }
 
   if (pages.size() > 1) {
@@ -131,6 +137,10 @@ void OptionsWidget::appliedToAllPages(const std::set<PageId>& pages, const bool 
     std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
     const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique, pageId == m_pageId));
     m_settings->setPageParams(pageId, merged);
+    if (applyOblique) {
+      // The applied oblique mode wins over one the page still had pending.
+      m_settings->takePendingAutoOblique(pageId);
+    }
   }
   emit invalidateAllThumbnails();
 }
@@ -167,6 +177,8 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
   manualBtn->setEnabled(false);
   obliqueAutoBtn->setEnabled(false);
   obliqueManualBtn->setEnabled(false);
+  // Until postUpdateUI(), the angles are still those of the previous page.
+  applyDeskewBtn->setEnabled(false);
   updateDetectionIndication();
 }
 
@@ -178,6 +190,7 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
   manualBtn->setEnabled(true);
   obliqueAutoBtn->setEnabled(true);
   obliqueManualBtn->setEnabled(true);
+  applyDeskewBtn->setEnabled(true);
   updateModeIndication(uiData.mode());
   updateObliqueModeIndication(uiData.obliqueMode());
   setSpinBoxKnownState(degreesToSpinBox(uiData.effectiveDeskewAngle()));
@@ -230,7 +243,6 @@ void OptionsWidget::obliqueModeChanged(const bool autoMode) {
   // The mode buttons also carry what used to be the "Automatic oblique correction" check box,
   // so the choice becomes the default for pages that get processed later on.
   setDefaultAutoOblique(autoMode);
-  m_settings->setPendingAutoOblique(m_pageId, autoMode);
 
   if (autoMode) {
     // The spin box must not report the reset back to us as a manual edit.
@@ -239,6 +251,10 @@ void OptionsWidget::obliqueModeChanged(const bool autoMode) {
     m_uiData.setObliqueMode(MODE_AUTO);
     m_uiData.setEffectiveObliqueAngle(0.0);
     obliqueSpinBox->setValue(0.0);
+    // Empty dependencies make the task measure the page again, like in modeChanged().
+    m_uiData.setDependencies(Dependencies());
+    // Only taken by that measurement, so it is set only where one follows.
+    m_settings->setPendingAutoOblique(m_pageId, true);
     commitCurrentParams();
     emit reloadRequested();
   } else {
