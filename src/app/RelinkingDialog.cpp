@@ -15,10 +15,21 @@
 
 #include "RelinkingSortingModel.h"
 
+namespace {
+/** Returns the deepest folder of \p path that still exists, or \p fallback if there is none. */
+QString existingAncestor(QString path, const QString& fallback) {
+  while (!path.isEmpty() && !QFileInfo(path).isDir()) {
+    path.truncate(std::max(0, static_cast<int>(path.lastIndexOf(QChar('/')))));
+  }
+  return path.isEmpty() ? fallback : path;
+}
+}  // namespace
+
 RelinkingDialog::RelinkingDialog(const QString& projectFilePath, QWidget* parent)
     : QDialog(parent),
       m_sortingModel(new RelinkingSortingModel(this)),
       m_projectFileDir(QFileInfo(projectFilePath).path()),
+      m_nodeType(RelinkablePath::Dir),
       m_outputDirShown(false),
       m_initialStateApplied(false),
       m_showMissingOnlyTouched(false) {
@@ -31,13 +42,15 @@ RelinkingDialog::RelinkingDialog(const QString& projectFilePath, QWidget* parent
   ui.treeView->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
   ui.errorLabel->setVisible(false);
   ui.undoButton->setVisible(false);
-  ui.pathVisualization->setVisible(false);
   ui.outDirLine->installEventFilter(this);
+  ui.nodePathLine->installEventFilter(this);
+  refreshNodePath();
 
   connect(ui.treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
           &RelinkingDialog::selectionChanged);
 
-  connect(ui.pathVisualization, &RelinkablePathVisualization::clicked, this, &RelinkingDialog::pathButtonClicked);
+  connect(ui.nodePathLine, &QLineEdit::editingFinished, this, &RelinkingDialog::nodePathEdited);
+  connect(ui.locateBtn, &QAbstractButton::clicked, this, &RelinkingDialog::locateClicked);
 
   connect(ui.undoButton, &QAbstractButton::clicked, this, &RelinkingDialog::undoButtonClicked);
 
@@ -59,29 +72,24 @@ RelinkingDialog::RelinkingDialog(const QString& projectFilePath, QWidget* parent
 }
 
 bool RelinkingDialog::eventFilter(QObject* watched, QEvent* event) {
-  if ((watched == ui.outDirLine) && (event->type() == QEvent::KeyPress)) {
+  if (((watched == ui.outDirLine) || (watched == ui.nodePathLine)) && (event->type() == QEvent::KeyPress)) {
     const int key = static_cast<QKeyEvent*>(event)->key();
     if ((key == Qt::Key_Return) || (key == Qt::Key_Enter)) {
       // Apply the path, but don't let Enter close the dialog.
-      outputDirEdited();
+      if (watched == ui.outDirLine) {
+        outputDirEdited();
+      } else {
+        nodePathEdited();
+      }
       return true;
     }
   }
   return QDialog::eventFilter(watched, event);
 }
 
-void RelinkingDialog::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
-  if (selected.isEmpty()) {
-    ui.pathVisualization->clear();
-    ui.pathVisualization->setVisible(false);
-  } else {
+void RelinkingDialog::selectionChanged(const QItemSelection& selected, const QItemSelection&) {
+  if (!selected.isEmpty()) {
     ui.undoButton->setVisible(false);
-
-    const QModelIndex index(selected.front().topLeft());
-    const QString path(index.data(RelinkingModel::UncommittedPathRole).toString());
-    const int type = index.data(RelinkingModel::TypeRole).toInt();
-    ui.pathVisualization->setPath(RelinkablePath(path, (RelinkablePath::Type) type), /*clickable=*/true);
-    ui.pathVisualization->setVisible(true);
 
     if (ui.errorLabel->isVisible()) {
       m_model.rollbackChanges();
@@ -91,60 +99,79 @@ void RelinkingDialog::selectionChanged(const QItemSelection& selected, const QIt
   }
 
   ui.errorLabel->setVisible(false);
+  refreshNodePath();
   refreshOutputDir();
 }
 
-void RelinkingDialog::pathButtonClicked(const QString& prefixPath, const QString& suffixPath, const int type) {
-  assert(!prefixPath.endsWith(QChar('/')) && !prefixPath.endsWith(QChar('\\')));
-  assert(!suffixPath.startsWith(QChar('/')) && !suffixPath.startsWith(QChar('\\')));
+void RelinkingDialog::nodePathEdited() {
+  applyNodePath(ui.nodePathLine->text().trimmed());
+}
 
-  QString replacementPath;
-
-  if (type == RelinkablePath::File) {
-    const QDir dir(QFileInfo(prefixPath).dir());
-    replacementPath = QFileDialog::getOpenFileName(
-        this, tr("Substitution File for %1").arg(QDir::toNativeSeparators(prefixPath)),
-        dir.exists() ? dir.path() : m_projectFileDir, QString(), nullptr, QFileDialog::DontUseNativeDialog);
-  } else {
-    const QDir dir(prefixPath);
-    replacementPath = QFileDialog::getExistingDirectory(
-        this, tr("Substitution Folder for %1").arg(QDir::toNativeSeparators(prefixPath)),
-        dir.exists() ? prefixPath : m_projectFileDir, QFileDialog::DontUseNativeDialog);
-  }
-  // So what's wrong with native dialogs? The one for directory selection won't show files
-  // at all (if you ask it to, the non-native dialog will appear), which is inconvenient
-  // in this situation. So, if one of them has to be non-native, the other was made
-  // non-native as well, for consistency reasons.
-  replacementPath = RelinkablePath::normalize(replacementPath);
-
-  if (replacementPath.isEmpty()) {
+void RelinkingDialog::locateClicked() {
+  if (m_nodePath.isEmpty()) {
     return;
   }
 
-  if (prefixPath == replacementPath) {
+  const bool isFile = (m_nodeType == RelinkablePath::File);
+  const QString startPath(existingAncestor(m_nodePath, m_projectFileDir));
+  const QString title(tr("Locate %1").arg(RelinkingModel::toDisplayPath(m_nodePath)));
+  // Native dialogs, like the one for the output folder.
+  const QString path(isFile ? QFileDialog::getOpenFileName(this, title, startPath)
+                            : QFileDialog::getExistingDirectory(this, title, startPath));
+  if (!path.isEmpty()) {
+    applyNodePath(path);
+  }
+}
+
+void RelinkingDialog::applyNodePath(const QString& path) {
+  if (m_nodePath.isEmpty()) {
     return;
   }
 
-  QString newPath(replacementPath);
-  newPath += QChar('/');
-  newPath += suffixPath;
+  // The new path replaces the selected folder or file as a whole.
+  const QString newPath(RelinkablePath::normalize(path));
+  if (!newPath.isEmpty() && QDir::isAbsolutePath(newPath) && (newPath != m_nodePath)) {
+    m_model.replacePrefix(m_nodePath, newPath, (RelinkablePath::Type) m_nodeType);
 
-  m_model.replacePrefix(prefixPath, replacementPath, (RelinkablePath::Type) type);
-
-  if (m_model.checkForMerges()) {
-    ui.errorLabel->setText(tr("This change would merge several files into one."));
-    ui.errorLabel->setVisible(true);
-    ui.pathVisualization->clear();
-    ui.pathVisualization->setVisible(false);
-  } else {
-    ui.pathVisualization->setPath(RelinkablePath(newPath, (RelinkablePath::Type) type), /*clickable=*/false);
-    ui.pathVisualization->setVisible(true);
+    if (m_model.checkForMerges()) {
+      ui.errorLabel->setText(tr("This change would merge several files into one."));
+      ui.errorLabel->setVisible(true);
+    } else {
+      ui.errorLabel->setVisible(false);
+    }
+    ui.undoButton->setVisible(true);
+    refreshOutputDir();  // The output folder follows a relinked image folder it's in.
   }
 
-  ui.undoButton->setVisible(true);
-  ui.treeView->viewport()->update();
-  refreshOutputDir();  // The output folder follows a relinked image folder it's in.
-}  // RelinkingDialog::pathButtonClicked
+  refreshNodePath();  // Also restores the field if the path was rejected.
+}
+
+void RelinkingDialog::refreshNodePath() {
+  const QModelIndexList rows(ui.treeView->selectionModel()->selectedRows());
+  if (rows.isEmpty()) {
+    m_nodePath.clear();
+    ui.nodePathLine->clear();
+    ui.nodePathLine->setEnabled(false);
+    ui.locateBtn->setEnabled(false);
+    ui.nodeStatusLabel->setPixmap(RelinkingModel::stateIcon(RelinkingModel::StatePending));
+    return;
+  }
+
+  const QModelIndex index(rows.front());
+  m_nodePath = index.data(RelinkingModel::UncommittedPathRole).toString();
+  m_nodeType = index.data(RelinkingModel::TypeRole).toInt();
+  ui.nodePathLine->setText(RelinkingModel::toDisplayPath(m_nodePath));
+  ui.nodePathLine->setEnabled(true);
+  ui.locateBtn->setEnabled(true);
+  refreshNodeStatus();
+}
+
+void RelinkingDialog::refreshNodeStatus() {
+  const QModelIndexList rows(ui.treeView->selectionModel()->selectedRows());
+  if (!rows.isEmpty()) {
+    ui.nodeStatusLabel->setPixmap(rows.front().data(Qt::DecorationRole).value<QPixmap>());
+  }
+}
 
 void RelinkingDialog::undoButtonClicked() {
   m_model.rollbackChanges();  // Has to go before selectionChanged()
@@ -185,15 +212,7 @@ void RelinkingDialog::outputDirEdited() {
 }
 
 void RelinkingDialog::outputDirBrowseClicked() {
-  // Start at the deepest folder of the current path that still exists.
-  QString startPath(m_model.outputDir());
-  while (!startPath.isEmpty() && !QFileInfo(startPath).isDir()) {
-    startPath.truncate(std::max(0, static_cast<int>(startPath.lastIndexOf(QChar('/')))));
-  }
-  if (startPath.isEmpty()) {
-    startPath = m_projectFileDir;
-  }
-
+  const QString startPath(existingAncestor(m_model.outputDir(), m_projectFileDir));
   const QString path(
       RelinkablePath::normalize(QFileDialog::getExistingDirectory(this, tr("Output Folder"), startPath)));
   if (!path.isEmpty() && (path != m_model.outputDir())) {
@@ -216,6 +235,8 @@ void RelinkingDialog::updateStatus() {
     ui.outputGroup->setVisible(m_model.hasOutputDir());
     refreshOutputDir();
   }
+
+  refreshNodeStatus();
 
   if (m_model.isStatusUpdatePending()) {
     ui.imagesSummaryLabel->setText(tr("Checking files ..."));

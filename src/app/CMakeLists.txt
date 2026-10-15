@@ -10,7 +10,6 @@ set(resource_files
 list_items_prepend(resource_files "${SCANTAILOR_RESOURCES_DIR}/")
 
 set(gui_only_sources
-    RelinkablePathVisualization.cpp RelinkablePathVisualization.h
     RelinkingModel.cpp RelinkingModel.h
     RelinkingSortingModel.cpp RelinkingSortingModel.h
     RelinkingDialog.cpp RelinkingDialog.h

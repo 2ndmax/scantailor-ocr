@@ -45,8 +45,9 @@ class RelinkingDialog : public QDialog {
 
   void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
-  /** \p type is either RelinkablePath::File or RelinkablePath::Dir */
-  void pathButtonClicked(const QString& prefixPath, const QString& suffixPath, int type);
+  void nodePathEdited();
+
+  void locateClicked();
 
   void undoButtonClicked();
 
@@ -61,6 +62,13 @@ class RelinkingDialog : public QDialog {
   void updateStatus();
 
  private:
+  /** Relinks the selected folder or file as a whole to \p path. */
+  void applyNodePath(const QString& path);
+
+  void refreshNodePath();
+
+  void refreshNodeStatus();
+
   void refreshOutputDir();
 
   void applyInitialState();
@@ -69,6 +77,10 @@ class RelinkingDialog : public QDialog {
   RelinkingModel m_model;
   RelinkingSortingModel* m_sortingModel;
   QString m_projectFileDir;
+  QString m_nodePath;
+
+  /**< The uncommitted path of the selected folder or file, empty if nothing is selected. */
+  int m_nodeType;
   QTimer m_statusUpdateTimer;
   bool m_outputDirShown;
   bool m_initialStateApplied;
