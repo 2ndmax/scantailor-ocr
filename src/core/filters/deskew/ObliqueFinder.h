@@ -37,6 +37,14 @@ std::optional<double> findObliqueDegrees(const imageproc::BinaryImage& mask,
                                          imageproc::SkewFinder& skewFinder,
                                          double maxObliqueDeg = 5.0);
 
+/**
+ * \brief The mask rotated by \p deskewAngleDeg, like ImageTransformation rotates the page.
+ *
+ * With the deskew angle found for the mask, its lines become horizontal, as findObliqueDegrees()
+ * expects.
+ */
+imageproc::BinaryImage deskewedMask(const imageproc::BinaryImage& mask, double deskewAngleDeg);
+
 }  // namespace deskew
 
 #endif
