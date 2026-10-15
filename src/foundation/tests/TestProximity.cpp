@@ -59,9 +59,9 @@ BOOST_AUTO_TEST_CASE(test_point_and_line_segment_perpendicular) {
   const QLineF segment(0, 0, 10, 0);
   QPointF pointOnSegment;
   const Proximity p = Proximity::pointAndLineSegment(pt, segment, &pointOnSegment);
-  BOOST_CHECK_CLOSE(p.dist(), 0.0, 0.01);
+  BOOST_CHECK_SMALL(p.dist(), 1e-9);
   BOOST_CHECK_CLOSE(pointOnSegment.x(), 5.0, 0.01);
-  BOOST_CHECK_CLOSE(pointOnSegment.y(), 0.0, 0.01);
+  BOOST_CHECK_SMALL(pointOnSegment.y(), 1e-9);
 }
 
 BOOST_AUTO_TEST_CASE(test_point_and_line_segment_endpoint_closest) {
@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE(test_point_and_line_segment_endpoint_closest) {
   QPointF pointOnSegment;
   const Proximity prx = Proximity::pointAndLineSegment(pt, segment, &pointOnSegment);
   BOOST_CHECK_CLOSE(prx.dist(), 1.0, 0.01);
-  BOOST_CHECK_CLOSE(pointOnSegment.x(), 0.0, 0.01);
-  BOOST_CHECK_CLOSE(pointOnSegment.y(), 0.0, 0.01);
+  BOOST_CHECK_SMALL(pointOnSegment.x(), 1e-9);
+  BOOST_CHECK_SMALL(pointOnSegment.y(), 1e-9);
 }
 
 BOOST_AUTO_TEST_CASE(test_point_and_zero_length_segment) {

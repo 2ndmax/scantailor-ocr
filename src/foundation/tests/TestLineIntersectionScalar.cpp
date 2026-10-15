@@ -20,9 +20,9 @@ BOOST_AUTO_TEST_CASE(test_intersecting_lines) {
   const QPointF pt1 = line1.pointAt(s1);
   const QPointF pt2 = line2.pointAt(s2);
   BOOST_CHECK_CLOSE(pt1.x(), 5.0, 0.01);
-  BOOST_CHECK_CLOSE(pt1.y(), 0.0, 0.01);
+  BOOST_CHECK_SMALL(pt1.y(), 1e-9);
   BOOST_CHECK_CLOSE(pt2.x(), 5.0, 0.01);
-  BOOST_CHECK_CLOSE(pt2.y(), 0.0, 0.01);
+  BOOST_CHECK_SMALL(pt2.y(), 1e-9);
 }
 
 BOOST_AUTO_TEST_CASE(test_parallel_lines) {
