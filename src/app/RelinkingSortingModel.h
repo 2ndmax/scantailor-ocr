@@ -10,8 +10,16 @@ class RelinkingSortingModel : public QSortFilterProxyModel {
  public:
   explicit RelinkingSortingModel(QObject* parent = nullptr);
 
+  /** If set, only folders with missing files and only the missing files themselves are shown. */
+  void setShowMissingOnly(bool missingOnly);
+
  protected:
   bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
+
+  bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+
+ private:
+  bool m_showMissingOnly;
 };
 
 

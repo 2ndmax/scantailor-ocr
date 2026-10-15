@@ -5,6 +5,7 @@
 #define SCANTAILOR_APP_RELINKINGDIALOG_H_
 
 #include <QDialog>
+#include <QTimer>
 #include <memory>
 
 #include "AbstractRelinker.h"
@@ -37,6 +38,9 @@ class RelinkingDialog : public QDialog {
    */
   std::shared_ptr<AbstractRelinker> relinker() const { return m_model.relinker(); }
 
+ protected:
+  bool eventFilter(QObject* watched, QEvent* event) override;
+
  private slots:
 
   void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
@@ -48,11 +52,27 @@ class RelinkingDialog : public QDialog {
 
   void commitChanges();
 
+  void outputDirEdited();
+
+  void outputDirBrowseClicked();
+
+  void showMissingOnlyToggled(bool checked);
+
+  void updateStatus();
+
  private:
+  void refreshOutputDir();
+
+  void applyInitialState();
+
   Ui::RelinkingDialog ui;
   RelinkingModel m_model;
   RelinkingSortingModel* m_sortingModel;
   QString m_projectFileDir;
+  QTimer m_statusUpdateTimer;
+  bool m_outputDirShown;
+  bool m_initialStateApplied;
+  bool m_showMissingOnlyTouched;
 };
 
 

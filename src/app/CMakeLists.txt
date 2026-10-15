@@ -13,7 +13,6 @@ set(gui_only_sources
     RelinkablePathVisualization.cpp RelinkablePathVisualization.h
     RelinkingModel.cpp RelinkingModel.h
     RelinkingSortingModel.cpp RelinkingSortingModel.h
-    RelinkingListView.cpp RelinkingListView.h
     RelinkingDialog.cpp RelinkingDialog.h
     SettingsDialog.cpp SettingsDialog.h
     FixDpiDialog.cpp FixDpiDialog.h
