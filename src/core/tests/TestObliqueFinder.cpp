@@ -118,16 +118,14 @@ BOOST_AUTO_TEST_CASE(oblique_angle_is_removed_from_the_page) {
   BOOST_CHECK_CLOSE(std::abs(*found), obliqueDeg, 15.0);
 
   // As in Task: the oblique angle of the page is the negated measurement. It must straighten the
-  // left edge of the block, not tilt it further or the other way. ImageTransformation shears by
-  // only half the angle at the moment, so how far it gets is not checked.
+  // left edge of the block completely, not only partly, too far or the other way.
   const double shiftBefore = 400 * std::tan(obliqueDeg * DEG2RAD);
   ImageTransformation xform(pageTransformation());
   xform.setPostOblique(-*found);
   const QPointF top(xform.transform().map(QPointF(100, 100)));
   const QPointF bottom(xform.transform().map(QPointF(100 + shiftBefore, 500)));
   BOOST_TEST_MESSAGE("left edge from x " << top.x() << " to x " << bottom.x());
-  BOOST_CHECK_GT(bottom.x() - top.x(), -3.0);
-  BOOST_CHECK_LT(bottom.x() - top.x(), 0.75 * shiftBefore);
+  BOOST_CHECK_SMALL(bottom.x() - top.x(), 3.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

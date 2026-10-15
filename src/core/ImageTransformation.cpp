@@ -139,10 +139,11 @@ QTransform ImageTransformation::calcPostRotateXform(const double rotationDegrees
     xform *= QTransform().translate(origin.x(), origin.y());
   }
   if (obliqueDegrees != 0.0) {
-    // Save proportions: shear formula per maintainer feedback (PR #108).
-    const double shear = std::tan(obliqueDegrees * 0.5 * M_PI / 180.0);
+    // Shear by the whole angle, so that a measured oblique angle is removed completely and the
+    // image matches the value and the handles. A shear keeps the area unchanged.
+    const double shear = std::tan(obliqueDegrees * M_PI / 180.0);
     xform.translate(-origin.x(), -origin.y());
-    xform *= QTransform(1.0, 0.0, -shear, 1.0, 0.0, shear);  // Vertical shear: x' = x + shear*y
+    xform *= QTransform(1.0, 0.0, -shear, 1.0, 0.0, 0.0);  // Vertical shear: x' = x - shear*y
     xform *= QTransform().translate(origin.x(), origin.y());
   }
   if ((rotationDegrees != 0.0) || (obliqueDegrees != 0.0)) {
