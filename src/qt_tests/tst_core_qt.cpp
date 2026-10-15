@@ -13,14 +13,22 @@
 #include <SelectedPage.h>
 #include <SmartFilenameOrdering.h>
 #include <Units.h>
+#include <dewarping/Curve.h>
+#include <dewarping/DistortionModel.h>
+#include <filters/output/OptionsWidget.h>
+#include <filters/output/Settings.h>
 #include <filters/page_split/Filter.h>
 #include <foundation/Utils.h>
 
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDir>
 #include <QDomDocument>
 #include <QFile>
 #include <QFileInfo>
+#include <QLineEdit>
 #include <QSignalSpy>
+#include <QSpinBox>
 #include <QString>
 #include <QTemporaryDir>
 #include <QtTest/QtTest>
@@ -141,4 +149,101 @@ void TestCoreQt::testPageSplitKeepsLayoutTypeWithoutParams() {
                                   .firstChildElement("image");
   QVERIFY(!savedEl.isNull());
   QCOMPARE(savedEl.attribute("layoutType"), QString("single-uncut"));
+}
+
+void TestCoreQt::testOutputDisplayKeepsColorEqualization() {
+  // Showing a page in mixed mode must not change its color setting; it only doesn't apply while
+  // the black and white equalization is off.
+  auto settings = std::make_shared<output::Settings>();
+  const PageId page(ImageId("page.png"));
+  output::ColorParams colorParams;
+  colorParams.setColorMode(output::MIXED);
+  output::BlackWhiteOptions blackWhiteOptions(colorParams.blackWhiteOptions());
+  blackWhiteOptions.setNormalizeIllumination(false);
+  colorParams.setBlackWhiteOptions(blackWhiteOptions);
+  output::ColorCommonOptions colorCommonOptions(colorParams.colorCommonOptions());
+  colorCommonOptions.setNormalizeIllumination(true);
+  colorParams.setColorCommonOptions(colorCommonOptions);
+  settings->setColorParams(page, colorParams);
+
+  output::OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(page);
+
+  QVERIFY(settings->getParams(page).colorParams().colorCommonOptions().normalizeIllumination());
+  auto* colorCB = widget.findChild<QCheckBox*>("equalizeIlluminationColorCB");
+  QVERIFY(colorCB != nullptr);
+  QVERIFY(!colorCB->isChecked());
+  QVERIFY(!colorCB->isEnabled());
+}
+
+void TestCoreQt::testOutputDpiChangeUpdatesDewarpingMode() {
+  // A new resolution turns automatic dewarping with curves into manual; a later dewarping change
+  // on the same page must keep that.
+  auto settings = std::make_shared<output::Settings>();
+  const PageId page(ImageId("page.png"));
+  dewarping::DistortionModel model;
+  model.setTopCurve(dewarping::Curve(std::vector<QPointF>{QPointF(0, 0), QPointF(100, 0)}));
+  model.setBottomCurve(dewarping::Curve(std::vector<QPointF>{QPointF(0, 100), QPointF(100, 100)}));
+  QVERIFY(model.isValid());
+  settings->setDistortionModel(page, model);
+  settings->setDewarpingOptions(page, output::DewarpingOptions(output::AUTO));
+
+  output::OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(page);
+
+  auto* dpiSelector = widget.findChild<QComboBox*>("dpiSelector");
+  QVERIFY(dpiSelector != nullptr);
+  dpiSelector->setEditText("300");
+  emit dpiSelector->lineEdit()->editingFinished();
+  QCOMPARE(settings->getParams(page).outputDpi(), Dpi(300, 300));
+  QCOMPARE(settings->getParams(page).dewarpingOptions().dewarpingMode(), output::MANUAL);
+
+  auto* evenOutCB = widget.findChild<QCheckBox*>("evenOutLetterWidthsCB");
+  QVERIFY(evenOutCB != nullptr);
+  evenOutCB->click();
+  QCOMPARE(settings->getParams(page).dewarpingOptions().dewarpingMode(), output::MANUAL);
+}
+
+void TestCoreQt::testOutputPageSwitchDropsDelayedReload() {
+  // A delayed reload of the previous page must not reload the next one; the previous page's
+  // thumbnail is redone instead.
+  auto settings = std::make_shared<output::Settings>();
+  const PageId first(ImageId("first.png"));
+  const PageId second(ImageId("second.png"));
+
+  output::OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(first);
+
+  QSignalSpy reloadSpy(&widget, &FilterOptionsWidget::reloadRequested);
+  QSignalSpy thumbnailSpy(&widget, qOverload<const PageId&>(&FilterOptionsWidget::invalidateThumbnail));
+
+  auto* sensitivitySB = widget.findChild<QSpinBox*>("pictureShapeSensitivitySB");
+  QVERIFY(sensitivitySB != nullptr);
+  sensitivitySB->setValue((sensitivitySB->value() > sensitivitySB->minimum()) ? sensitivitySB->value() - 1
+                                                                              : sensitivitySB->value() + 1);
+  widget.preUpdateUI(second);
+
+  QCOMPARE(thumbnailSpy.count(), 1);
+  QCOMPARE(thumbnailSpy.at(0).at(0).value<PageId>(), first);
+  QTest::qWait(1000);
+  QCOMPARE(reloadSpy.count(), 0);
+}
+
+void TestCoreQt::testOutputPageSwitchRedoesPreviousThumbnail() {
+  // The processing of the previous page may have been cancelled by the switch, so its thumbnail
+  // is redone. Loading the same page again doesn't do that.
+  auto settings = std::make_shared<output::Settings>();
+  const PageId first(ImageId("first.png"));
+  const PageId second(ImageId("second.png"));
+
+  output::OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  QSignalSpy thumbnailSpy(&widget, qOverload<const PageId&>(&FilterOptionsWidget::invalidateThumbnail));
+
+  widget.preUpdateUI(first);
+  widget.preUpdateUI(first);
+  QCOMPARE(thumbnailSpy.count(), 0);
+
+  widget.preUpdateUI(second);
+  QCOMPARE(thumbnailSpy.count(), 1);
+  QCOMPARE(thumbnailSpy.at(0).at(0).value<PageId>(), first);
 }

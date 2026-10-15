@@ -316,6 +316,16 @@ void OptionsWidget::tiffCompressionChanged(const bool delayReload) {
 void OptionsWidget::preUpdateUI(const PageId& pageId) {
   auto block = m_connectionManager.getScopedBlock();
 
+  if (pageId != m_pageId) {
+    // A pending reload of the previous page is dropped, and so is its processing if it hasn't
+    // finished, which would have updated its thumbnail. The thumbnail shows then whether the
+    // page needs processing.
+    m_delayedReloadRequest.stop();
+    if (!m_pageId.isNull()) {
+      emit invalidateThumbnail(m_pageId);
+    }
+  }
+
   const Params params = m_settings->getParams(pageId);
   m_pageId = pageId;
   m_outputDpi = params.outputDpi();
@@ -491,12 +501,8 @@ void OptionsWidget::equalizeIlluminationToggled(const bool checked) {
     m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
 
     if (m_colorParams.colorMode() == MIXED) {
-      if (!checked) {
-        ColorCommonOptions colorCommonOptions(m_colorParams.colorCommonOptions());
-        colorCommonOptions.setNormalizeIllumination(false);
-        equalizeIlluminationColorCB->setChecked(false);
-        m_colorParams.setColorCommonOptions(colorCommonOptions);
-      }
+      // The color setting is kept; it only applies together with this one (see RenderParams).
+      equalizeIlluminationColorCB->setChecked(checked && m_colorParams.colorCommonOptions().normalizeIllumination());
       equalizeIlluminationColorCB->setEnabled(checked);
     }
   }
@@ -601,6 +607,9 @@ void OptionsWidget::dpiChanged(const std::set<PageId>& pages, const Dpi& dpi) {
   if (pages.find(m_pageId) != pages.end()) {
     m_outputDpi = dpi;
     updateDpiDisplay();
+    // The dewarping mode may have changed above.
+    m_dewarpingOptions = m_settings->getParams(m_pageId).dewarpingOptions();
+    updateDewarpingDisplay();
     emit reloadRequested();
   }
 }
@@ -1146,14 +1155,8 @@ void OptionsWidget::updateColorsDisplay() {
   }
 
   // All settings stay visible; those that the color mode doesn't use are grayed out.
-  ColorCommonOptions colorCommonOptions(m_colorParams.colorCommonOptions());
-  BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
-
-  if (!blackWhiteOptions.normalizeIllumination() && colorMode == MIXED) {
-    colorCommonOptions.setNormalizeIllumination(false);
-  }
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
+  const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
+  const BlackWhiteOptions& blackWhiteOptions = m_colorParams.blackWhiteOptions();
 
   fillMarginsCB->setChecked(colorCommonOptions.fillMargins());
   fillOffcutCB->setChecked(colorCommonOptions.fillOffcut());
@@ -1162,7 +1165,9 @@ void OptionsWidget::updateColorsDisplay() {
   // color setting, used in mixed mode on top of the black and white one.
   equalizeIlluminationCB->setChecked((colorMode == COLOR_GRAYSCALE) ? colorCommonOptions.normalizeIllumination()
                                                                     : blackWhiteOptions.normalizeIllumination());
-  equalizeIlluminationColorCB->setChecked(colorCommonOptions.normalizeIllumination());
+  // In mixed mode it only applies together with the black and white one (see RenderParams).
+  const bool colorEqualizationUsable = (colorMode != MIXED) || blackWhiteOptions.normalizeIllumination();
+  equalizeIlluminationColorCB->setChecked(colorCommonOptions.normalizeIllumination() && colorEqualizationUsable);
   equalizeIlluminationColorCB->setEnabled(colorMode == MIXED && blackWhiteOptions.normalizeIllumination());
   grayscaleOutputCB->setChecked(colorCommonOptions.isGrayscaleOutput());
   grayscaleOutputCB->setEnabled(colorMode != BLACK_AND_WHITE);

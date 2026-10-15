@@ -17,6 +17,10 @@ class TestCoreQt : public QObject {
   void testSmartFilenameOrdering();
   void testSignalSpy();
   void testPageSplitKeepsLayoutTypeWithoutParams();
+  void testOutputDisplayKeepsColorEqualization();
+  void testOutputDpiChangeUpdatesDewarpingMode();
+  void testOutputPageSwitchDropsDelayedReload();
+  void testOutputPageSwitchRedoesPreviousThumbnail();
 };
 
 class Emitter : public QObject {

@@ -10,6 +10,10 @@ RenderParams::RenderParams(const ColorParams& colorParams, const SplittingOption
   const BlackWhiteOptions& blackWhiteOptions = colorParams.blackWhiteOptions();
   const ColorCommonOptions& colorCommonOptions = colorParams.colorCommonOptions();
   const ColorMode colorMode = colorParams.colorMode();
+  // In mixed mode the pictures are only equalized together with the text. The color setting is
+  // kept as it is, for the color mode and for turning the black and white one on again.
+  const bool normalizeIlluminationColor = colorCommonOptions.normalizeIllumination()
+                                          && ((colorMode != MIXED) || blackWhiteOptions.normalizeIllumination());
 
   if ((colorMode == BLACK_AND_WHITE) || (colorMode == MIXED)) {
     m_mask |= NEED_BINARIZATION;
@@ -45,7 +49,7 @@ RenderParams::RenderParams(const ColorParams& colorParams, const SplittingOption
       }
     }
   } else {
-    if (colorCommonOptions.normalizeIllumination()) {
+    if (normalizeIlluminationColor) {
       m_mask |= NORMALIZE_ILLUMINATION;
     }
     if (colorCommonOptions.getPosterizationOptions().isEnabled()) {
@@ -60,7 +64,7 @@ RenderParams::RenderParams(const ColorParams& colorParams, const SplittingOption
   } else if (colorCommonOptions.fillOffcut()) {
     m_mask |= FILL_OFFCUT;
   }
-  if (colorCommonOptions.normalizeIllumination()) {
+  if (normalizeIlluminationColor) {
     m_mask |= NORMALIZE_ILLUMINATION_COLOR;
   }
 }
