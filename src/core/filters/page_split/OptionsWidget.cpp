@@ -46,6 +46,7 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
   auto block = m_connectionManager.getScopedBlock();
 
   m_pageId = pageId;
+  m_uiDataValid = false;
   const Settings::Record record(m_settings->getPageRecord(pageId.imageId()));
   const LayoutType layoutType(record.combinedLayoutType());
 
@@ -91,6 +92,7 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
   auto block = m_connectionManager.getScopedBlock();
 
   m_uiData = uiData;
+  m_uiDataValid = true;
 
   applyToBtn->setEnabled(true);
   layoutAutoBtn->setEnabled(true);
@@ -135,14 +137,14 @@ void OptionsWidget::setLayoutModeButtons(const bool autoMode) {
 
 void OptionsWidget::layoutAutoToggled(const bool checked) {
   if (checked) {
-    layoutTypeSet({m_pageId}, AUTO_LAYOUT_TYPE, false);
+    layoutTypeSet(m_pageId, {m_pageId}, AUTO_LAYOUT_TYPE, false);
   }
 }
 
 void OptionsWidget::layoutManualToggled(const bool checked) {
   if (checked) {
     // Keeps the page type shown, which was detected automatically.
-    layoutTypeSet({m_pageId}, m_uiData.pageLayout().toLayoutType(), false);
+    layoutTypeSet(m_pageId, {m_pageId}, m_uiData.pageLayout().toLayoutType(), false);
   }
 }
 
@@ -185,7 +187,10 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
 
   m_pages->setLayoutTypeFor(m_pageId.imageId(), plt);
 
-  if ((lt == PAGE_PLUS_OFFCUT) || ((lt != SINGLE_PAGE_UNCUT) && (m_uiData.splitLineMode() == MODE_AUTO))) {
+  // While the page is still being processed, its split line isn't known yet,
+  // so only the page type is stored and the page is processed again.
+  if (!m_uiDataValid || (lt == PAGE_PLUS_OFFCUT)
+      || ((lt != SINGLE_PAGE_UNCUT) && (m_uiData.splitLineMode() == MODE_AUTO))) {
     m_settings->updatePage(m_pageId.imageId(), update);
     emit reloadRequested();
   } else {
@@ -219,27 +224,40 @@ void OptionsWidget::showApplyDialog() {
 
   auto* dialog = new SplitModeDialog(this, m_pageId, m_pageSelectionAccessor, record.combinedLayoutType());
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  connect(dialog, &SplitModeDialog::accepted, this, &OptionsWidget::layoutTypeSet);
+  const PageId sourcePage = m_pageId;
+  connect(dialog, &SplitModeDialog::accepted, this,
+          [this, sourcePage](const std::set<PageId>& pages, const LayoutType layoutType, const bool applyCut) {
+            layoutTypeSet(sourcePage, pages, layoutType, applyCut);
+          });
   dialog->show();
 }
 
-void OptionsWidget::layoutTypeSet(const std::set<PageId>& pages, const LayoutType layoutType, bool applyCut) {
+void OptionsWidget::layoutTypeSet(const PageId& sourcePage,
+                                  const std::set<PageId>& pages,
+                                  const LayoutType layoutType,
+                                  bool applyCut) {
   if (pages.empty()) {
     return;
   }
 
-  const Params params = *(m_settings->getPageRecord(m_pageId.imageId()).params());
+  const Settings::Record sourceRecord(m_settings->getPageRecord(sourcePage.imageId()));
+  const Params* const params = sourceRecord.params();
+  if (applyCut && (layoutType != AUTO_LAYOUT_TYPE) && (layoutType != SINGLE_PAGE_UNCUT) && !params) {
+    // There is no split line to apply.
+    return;
+  }
 
   if (layoutType != AUTO_LAYOUT_TYPE) {
     for (const PageId& pageId : pages) {
       Settings::UpdateAction updateAction;
       updateAction.setLayoutType(layoutType);
       if (applyCut && (layoutType != SINGLE_PAGE_UNCUT)) {
-        Params newPageParams(params);
-        const Params* oldPageParams = m_settings->getPageRecord(pageId.imageId()).params();
+        Params newPageParams(*params);
+        const Settings::Record oldPageRecord(m_settings->getPageRecord(pageId.imageId()));
+        const Params* oldPageParams = oldPageRecord.params();
         if (oldPageParams) {
           PageLayout newPageLayout = PageLayoutAdapter::adaptPageLayout(
-              params.pageLayout(), oldPageParams->pageLayout().uncutOutline().boundingRect());
+              params->pageLayout(), oldPageParams->pageLayout().uncutOutline().boundingRect());
 
           updateAction.setLayoutType(newPageLayout.toLayoutType());
           newPageParams.setPageLayout(newPageLayout);

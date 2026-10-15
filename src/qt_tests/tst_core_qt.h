@@ -16,6 +16,7 @@ class TestCoreQt : public QObject {
   void testUtilsDoubleToString();
   void testSmartFilenameOrdering();
   void testSignalSpy();
+  void testPageSplitKeepsLayoutTypeWithoutParams();
 };
 
 class Emitter : public QObject {

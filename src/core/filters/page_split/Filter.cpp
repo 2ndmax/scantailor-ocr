@@ -130,16 +130,21 @@ void Filter::writeImageSettings(QDomDocument& doc,
                                 const int numericId) const {
   const Settings::Record record(m_settings->getPageRecord(imageId));
 
-  QDomElement imageEl(doc.createElement("image"));
-  imageEl.setAttribute("id", numericId);
-  if (const LayoutType* layoutType = record.layoutType()) {
-    imageEl.setAttribute("layoutType", layoutTypeToString(*layoutType));
+  const LayoutType* layoutType = record.layoutType();
+  const Params* params = record.params();
+  if (!layoutType && !params) {
+    return;
   }
 
-  if (const Params* params = record.params()) {
-    imageEl.appendChild(params->toXml(doc, "params"));
-    filterEl.appendChild(imageEl);
+  QDomElement imageEl(doc.createElement("image"));
+  imageEl.setAttribute("id", numericId);
+  if (layoutType) {
+    imageEl.setAttribute("layoutType", layoutTypeToString(*layoutType));
   }
+  if (params) {
+    imageEl.appendChild(params->toXml(doc, "params"));
+  }
+  filterEl.appendChild(imageEl);
 }
 
 std::shared_ptr<Task> Filter::createTask(const PageInfo& pageInfo,

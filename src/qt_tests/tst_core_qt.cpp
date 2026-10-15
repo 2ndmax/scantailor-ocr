@@ -3,14 +3,29 @@
 
 #include "tst_core_qt.h"
 
+#include <FileNameDisambiguator.h>
+#include <ImageInfo.h>
+#include <OutputFileNameGenerator.h>
+#include <PageSelectionAccessor.h>
+#include <ProjectPages.h>
+#include <ProjectReader.h>
+#include <ProjectWriter.h>
+#include <SelectedPage.h>
 #include <SmartFilenameOrdering.h>
 #include <Units.h>
+#include <filters/page_split/Filter.h>
 #include <foundation/Utils.h>
 
+#include <QDir>
+#include <QDomDocument>
+#include <QFile>
 #include <QFileInfo>
 #include <QSignalSpy>
 #include <QString>
+#include <QTemporaryDir>
 #include <QtTest/QtTest>
+#include <memory>
+#include <vector>
 
 void TestCoreQt::testUnitsToString() {
   QCOMPARE(unitsToString(PIXELS), QString("px"));
@@ -66,4 +81,64 @@ void TestCoreQt::testSignalSpy() {
   obj.doEmit(QString("world"));
   QCOMPARE(spy.count(), 2);
   QCOMPARE(spy.at(1).at(0).toString(), QString("world"));
+}
+
+namespace {
+QDomDocument readDocument(const QString& filePath) {
+  QDomDocument doc;
+  QFile file(filePath);
+  if (file.open(QIODevice::ReadOnly)) {
+    doc.setContent(&file);
+  }
+  return doc;
+}
+}  // namespace
+
+void TestCoreQt::testPageSplitKeepsLayoutTypeWithoutParams() {
+  // A page type chosen for a page that wasn't processed yet has no split line (params).
+  // It must still be saved.
+  QTemporaryDir tempDir;
+  QVERIFY(tempDir.isValid());
+  const QDir dir(tempDir.path());
+  const QString firstFile = dir.absoluteFilePath("first.ScanTailor");
+  const QString secondFile = dir.absoluteFilePath("second.ScanTailor");
+  const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(), dir.absoluteFilePath("out"),
+                                       Qt::LeftToRight);
+
+  const ImageMetadata metadata(QSize(2000, 3000), Dpi(300, 300));
+  auto pages = std::make_shared<ProjectPages>(
+      std::vector<ImageInfo>{ImageInfo(ImageId(dir.absoluteFilePath("scan.png"), 0), metadata, 1, false, false)},
+      Qt::LeftToRight);
+  QVERIFY(ProjectWriter(pages, SelectedPage(), outGen).write(firstFile, {}));
+
+  QDomDocument doc = readDocument(firstFile);
+  QDomElement projectEl = doc.documentElement();
+  const QString imageId = projectEl.namedItem("images").firstChildElement("image").attribute("id");
+  QVERIFY(!imageId.isEmpty());
+  QDomElement filtersEl = projectEl.namedItem("filters").toElement();
+  if (filtersEl.isNull()) {
+    filtersEl = doc.createElement("filters");
+    projectEl.appendChild(filtersEl);
+  }
+  QDomElement pageSplitEl = doc.createElement("page-split");
+  pageSplitEl.setAttribute("defaultLayoutType", "auto-detect");
+  QDomElement imageEl = doc.createElement("image");
+  imageEl.setAttribute("id", imageId);
+  imageEl.setAttribute("layoutType", "single-uncut");
+  pageSplitEl.appendChild(imageEl);
+  filtersEl.appendChild(pageSplitEl);
+
+  const ProjectReader reader(doc, firstFile);
+  QVERIFY(reader.success());
+  auto filter = std::make_shared<page_split::Filter>(reader.pages(), PageSelectionAccessor(nullptr));
+  reader.readFilterSettings({filter});
+  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), outGen).write(secondFile, {filter}));
+
+  const QDomElement savedEl = readDocument(secondFile)
+                                  .documentElement()
+                                  .namedItem("filters")
+                                  .namedItem("page-split")
+                                  .firstChildElement("image");
+  QVERIFY(!savedEl.isNull());
+  QCOMPARE(savedEl.attribute("layoutType"), QString("single-uncut"));
 }

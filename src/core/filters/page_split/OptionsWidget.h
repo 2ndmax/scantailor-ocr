@@ -87,11 +87,15 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void showApplyDialog();
 
-  void layoutTypeSet(const std::set<PageId>& pages, LayoutType layoutType, bool applyCut);
-
   void splitLineModeChanged(bool autoMode);
 
  private:
+  /**
+   * \param sourcePage The page whose split line is copied when \p applyCut is set.
+   *        Nothing is changed if that page has no split line.
+   */
+  void layoutTypeSet(const PageId& sourcePage, const std::set<PageId>& pages, LayoutType layoutType, bool applyCut);
+
   /** Shows whether the page type is detected automatically or set by hand. */
   void setLayoutModeButtons(bool autoMode);
 
@@ -106,6 +110,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   PageSelectionAccessor m_pageSelectionAccessor;
   PageId m_pageId;
   UiData m_uiData;
+  // False between preUpdateUI() and postUpdateUI(): m_uiData still belongs to the previous page.
+  bool m_uiDataValid = false;
 
   ConnectionManager m_connectionManager;
 };
