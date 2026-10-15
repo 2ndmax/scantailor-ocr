@@ -31,13 +31,7 @@ ApplyDialog::~ApplyDialog() = default;
 void ApplyDialog::onSubmit() {
   const bool applyDeskew = applyDeskewCheckBox->isChecked();
   const bool applyOblique = applyObliqueCheckBox->isChecked();
-
-  const std::set<PageId> pages = scopeGroupBox->pages();
-  if (scopeGroupBox->isAllPages()) {
-    emit appliedToAllPages(pages, applyDeskew, applyOblique);
-  } else {
-    emit appliedTo(pages, applyDeskew, applyOblique);
-  }
+  emit appliedTo(scopeGroupBox->pages(), applyDeskew, applyOblique);
   accept();
 }  // ApplyDialog::onSubmit
 }  // namespace deskew

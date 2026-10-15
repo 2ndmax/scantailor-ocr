@@ -39,6 +39,32 @@
 namespace deskew {
 using namespace imageproc;
 
+namespace {
+/** The mask rotated by the deskew angle, so that its lines are horizontal. */
+BinaryImage deskewedMask(const BinaryImage& mask, const double deskewAngleDeg) {
+  if (std::abs(deskewAngleDeg) < 1e-6) {
+    return mask;
+  }
+
+  const int w = mask.width();
+  const int h = mask.height();
+  QTransform rotXform;
+  const QPointF center(0.5 * w, 0.5 * h);
+  rotXform.translate(-center.x(), -center.y());
+  rotXform.rotate(deskewAngleDeg);
+  rotXform.translate(center.x(), center.y());
+  const QRectF srcRectF(0, 0, w, h);
+  QPolygonF dstCorners;
+  dstCorners << rotXform.map(srcRectF.topLeft()) << rotXform.map(srcRectF.topRight())
+             << rotXform.map(srcRectF.bottomRight()) << rotXform.map(srcRectF.bottomLeft());
+  const QRect dstRect = dstCorners.boundingRect().toAlignedRect();
+  if (!dstRect.isValid()) {
+    return mask;
+  }
+  return BinaryImage(transform(mask.toQImage(), rotXform, dstRect, OutsidePixels::assumeWeakColor(Qt::white)));
+}
+}  // namespace
+
 class Task::UiUpdater : public FilterResult {
  public:
   UiUpdater(std::shared_ptr<Filter> filter,
@@ -182,31 +208,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
 
       if (autoObliqueEnabled) {
         // Find oblique on the deskewed (horizontal) mask for better accuracy (PR #110 feedback).
-        BinaryImage horizontalMask;
-        const double deskewAngleDeg = uiData.effectiveDeskewAngle();
-        if (std::abs(deskewAngleDeg) < 1e-6) {
-          horizontalMask = rotatedImage;
-        } else {
-          const int w = rotatedImage.width();
-          const int h = rotatedImage.height();
-          QTransform rotXform;
-          const QPointF center(0.5 * w, 0.5 * h);
-          rotXform.translate(-center.x(), -center.y());
-          rotXform.rotate(deskewAngleDeg);
-          rotXform.translate(center.x(), center.y());
-          const QRectF srcRectF(0, 0, w, h);
-          QPolygonF dstCorners;
-          dstCorners << rotXform.map(srcRectF.topLeft()) << rotXform.map(srcRectF.topRight())
-                     << rotXform.map(srcRectF.bottomRight()) << rotXform.map(srcRectF.bottomLeft());
-          const QRect dstRect = dstCorners.boundingRect().toAlignedRect();
-          if (dstRect.isValid()) {
-            const QImage srcQ = rotatedImage.toQImage();
-            const QImage dstQ = transform(srcQ, rotXform, dstRect, OutsidePixels::assumeWeakColor(Qt::white));
-            horizontalMask = BinaryImage(dstQ);
-          } else {
-            horizontalMask = rotatedImage;
-          }
-        }
+        const BinaryImage horizontalMask(deskewedMask(rotatedImage, uiData.effectiveDeskewAngle()));
         const std::optional<double> obliqueDeg = findObliqueDegrees(horizontalMask, skewFinder, 5.0);
         if (obliqueDeg) {
           uiData.setEffectiveObliqueAngle(-*obliqueDeg);

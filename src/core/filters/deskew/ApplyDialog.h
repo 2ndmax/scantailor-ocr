@@ -25,8 +25,6 @@ class ApplyDialog : public QDialog, private Ui::ApplyDialog {
 
   void appliedTo(const std::set<PageId>& pages, bool applyDeskew, bool applyOblique);
 
-  void appliedToAllPages(const std::set<PageId>& pages, bool applyDeskew, bool applyOblique);
-
  private slots:
 
   void onSubmit();

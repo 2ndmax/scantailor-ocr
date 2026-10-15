@@ -64,12 +64,6 @@ void Settings::setPageParams(const PageId& pageId, const Params& params) {
   m_deviationProvider.addOrUpdate(pageId);
 }
 
-void Settings::clearPageParams(const PageId& pageId) {
-  QMutexLocker locker(&m_mutex);
-  m_perPageParams.erase(pageId);
-  m_deviationProvider.remove(pageId);
-}
-
 std::unique_ptr<Params> Settings::getPageParams(const PageId& pageId) const {
   QMutexLocker locker(&m_mutex);
 
@@ -78,14 +72,6 @@ std::unique_ptr<Params> Settings::getPageParams(const PageId& pageId) const {
     return std::make_unique<Params>(it->second);
   } else {
     return nullptr;
-  }
-}
-
-void Settings::setDegrees(const std::set<PageId>& pages, const Params& params) {
-  const QMutexLocker locker(&m_mutex);
-  for (const PageId& page : pages) {
-    Utils::mapSetValue(m_perPageParams, page, params);
-    m_deviationProvider.addOrUpdate(page);
   }
 }
 

@@ -100,7 +100,6 @@ void OptionsWidget::showDeskewDialog() {
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowTitle(tr("Apply Deskew and Oblique"));
   connect(dialog, &ApplyDialog::appliedTo, this, &OptionsWidget::appliedTo);
-  connect(dialog, &ApplyDialog::appliedToAllPages, this, &OptionsWidget::appliedToAllPages);
   dialog->show();
 }
 
@@ -126,23 +125,6 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDes
       emit invalidateThumbnail(pageId);
     }
   }
-}
-
-void OptionsWidget::appliedToAllPages(const std::set<PageId>& pages, const bool applyDeskew, const bool applyOblique) {
-  if (pages.empty() || (!applyDeskew && !applyOblique)) {
-    return;
-  }
-
-  for (const PageId& pageId : pages) {
-    std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
-    const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique, pageId == m_pageId));
-    m_settings->setPageParams(pageId, merged);
-    if (applyOblique) {
-      // The applied oblique mode wins over one the page still had pending.
-      m_settings->takePendingAutoOblique(pageId);
-    }
-  }
-  emit invalidateAllThumbnails();
 }
 
 void OptionsWidget::manualDeskewAngleSetExternally(const double degrees) {
@@ -244,29 +226,25 @@ void OptionsWidget::obliqueModeChanged(const bool autoMode) {
   // so the choice becomes the default for pages that get processed later on.
   setDefaultAutoOblique(autoMode);
 
-  if (autoMode) {
-    // The spin box must not report the reset back to us as a manual edit.
-    auto block = m_connectionManager.getScopedBlock();
+  // The spin box must not report the reset back to us as a manual edit.
+  auto block = m_connectionManager.getScopedBlock();
 
-    m_uiData.setObliqueMode(MODE_AUTO);
-    m_uiData.setEffectiveObliqueAngle(0.0);
-    obliqueSpinBox->setValue(0.0);
+  // Either way the angle starts from zero: Auto measures it again, and Manual must drop an
+  // automatically found angle - otherwise the shear would silently stay in place.
+  m_uiData.setObliqueMode(autoMode ? MODE_AUTO : MODE_MANUAL);
+  m_uiData.setEffectiveObliqueAngle(0.0);
+  obliqueSpinBox->setValue(0.0);
+  if (autoMode) {
     // Empty dependencies make the task measure the page again, like in modeChanged().
     m_uiData.setDependencies(Dependencies());
     // Only taken by that measurement, so it is set only where one follows.
     m_settings->setPendingAutoOblique(m_pageId, true);
-    commitCurrentParams();
+  }
+  commitCurrentParams();
+
+  if (autoMode) {
     emit reloadRequested();
   } else {
-    // Switching to Manual must drop an automatically found angle - otherwise the shear would
-    // silently stay in place although automatic correction is off now.
-    auto block = m_connectionManager.getScopedBlock();
-
-    m_uiData.setObliqueMode(MODE_MANUAL);
-    m_uiData.setEffectiveObliqueAngle(0.0);
-    obliqueSpinBox->setValue(0.0);
-    commitCurrentParams();
-
     emit manualObliqueAngleSet(0.0);
     emit invalidateThumbnail(m_pageId);
   }

@@ -33,13 +33,9 @@ class Settings {
 
   void setPageParams(const PageId& pageId, const Params& params);
 
-  void clearPageParams(const PageId& pageId);
-
   std::unique_ptr<Params> getPageParams(const PageId& pageId) const;
 
   bool isParamsNull(const PageId& pageId) const;
-
-  void setDegrees(const std::set<PageId>& pages, const Params& params);
 
   const DeviationProvider<PageId>& deviationProvider() const;
 
