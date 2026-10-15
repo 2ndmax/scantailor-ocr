@@ -10,6 +10,20 @@
 using namespace core;
 
 namespace fix_orientation {
+namespace {
+// The same values under the image ids that the relinker substitutes.
+template <typename PerImage>
+PerImage relinked(const PerImage& perImage, const AbstractRelinker& relinker) {
+  PerImage result;
+  for (const auto& [imageId, value] : perImage) {
+    ImageId newImageId(imageId);
+    newImageId.setFilePath(relinker.substitutionPathFor(RelinkablePath(imageId.filePath(), RelinkablePath::File)));
+    result.emplace(newImageId, value);
+  }
+  return result;
+}
+}  // namespace
+
 Settings::Settings() = default;
 
 Settings::~Settings() = default;
@@ -22,37 +36,20 @@ void Settings::clear() {
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {
   QMutexLocker locker(&m_mutex);
-  PerImageRotation newRotations;
-
-  for (const PerImageRotation::value_type& kv : m_perImageRotation) {
-    const RelinkablePath oldPath(kv.first.filePath(), RelinkablePath::File);
-    ImageId newImageId(kv.first);
-    newImageId.setFilePath(relinker.substitutionPathFor(oldPath));
-    newRotations.insert(PerImageRotation::value_type(newImageId, kv.second));
-  }
-
-  m_perImageRotation.swap(newRotations);
-
-  PerImageTrim newTrims;
-  for (const PerImageTrim::value_type& kv : m_perImageTrim) {
-    const RelinkablePath oldPath(kv.first.filePath(), RelinkablePath::File);
-    ImageId newImageId(kv.first);
-    newImageId.setFilePath(relinker.substitutionPathFor(oldPath));
-    newTrims.insert(PerImageTrim::value_type(newImageId, kv.second));
-  }
-  m_perImageTrim.swap(newTrims);
+  m_perImageRotation = relinked(m_perImageRotation, relinker);
+  m_perImageTrim = relinked(m_perImageTrim, relinker);
 }
 
 void Settings::applyRotation(const ImageId& imageId, const OrthogonalRotation rotation) {
   QMutexLocker locker(&m_mutex);
-  setImageRotationLocked(imageId, rotation);
+  Utils::mapSetValue(m_perImageRotation, imageId, rotation);
 }
 
 void Settings::applyRotation(const std::set<PageId>& pages, const OrthogonalRotation rotation) {
   QMutexLocker locker(&m_mutex);
 
   for (const PageId& page : pages) {
-    setImageRotationLocked(page.imageId(), rotation);
+    Utils::mapSetValue(m_perImageRotation, page.imageId(), rotation);
   }
 }
 
@@ -65,10 +62,6 @@ OrthogonalRotation Settings::getRotationFor(const ImageId& imageId) const {
   } else {
     return OrthogonalRotation();
   }
-}
-
-void Settings::setImageRotationLocked(const ImageId& imageId, const OrthogonalRotation& rotation) {
-  Utils::mapSetValue(m_perImageRotation, imageId, rotation);
 }
 
 bool Settings::isRotationNull(const ImageId& imageId) const {

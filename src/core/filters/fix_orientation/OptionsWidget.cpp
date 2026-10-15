@@ -69,11 +69,14 @@ void OptionsWidget::showApplyToDialog() {
   auto* dialog = new ApplyDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   connect(dialog, &ApplyDialog::appliedTo, this, &OptionsWidget::appliedTo);
-  connect(dialog, &ApplyDialog::appliedToAllPages, this, &OptionsWidget::appliedToAllPages);
   dialog->show();
 }
 
-void OptionsWidget::applyParts(const std::set<PageId>& pages, const bool applyRotation, const bool applyTrim) {
+void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyRotation, const bool applyTrim) {
+  if (pages.empty()) {
+    return;
+  }
+
   if (applyRotation) {
     m_settings->applyRotation(pages, m_rotation);
   }
@@ -84,14 +87,6 @@ void OptionsWidget::applyParts(const std::set<PageId>& pages, const bool applyRo
       m_settings->setTrim(page.imageId(), viewTrim.unrotated(m_settings->getRotationFor(page.imageId())));
     }
   }
-}
-
-void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyRotation, const bool applyTrim) {
-  if (pages.empty()) {
-    return;
-  }
-
-  applyParts(pages, applyRotation, applyTrim);
 
   if (pages.size() > 1) {
     emit invalidateAllThumbnails();
@@ -100,11 +95,6 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyRot
       emit invalidateThumbnail(pageId);
     }
   }
-}
-
-void OptionsWidget::appliedToAllPages(const std::set<PageId>& pages, const bool applyRotation, const bool applyTrim) {
-  applyParts(pages, applyRotation, applyTrim);
-  emit invalidateAllThumbnails();
 }
 
 void OptionsWidget::setRotation(const OrthogonalRotation& rotation) {

@@ -45,8 +45,6 @@ class Settings {
   using PerImageRotation = std::unordered_map<ImageId, OrthogonalRotation>;
   using PerImageTrim = std::unordered_map<ImageId, ImageTrim>;
 
-  void setImageRotationLocked(const ImageId& imageId, const OrthogonalRotation& rotation);
-
   mutable QMutex m_mutex;
   PerImageRotation m_perImageRotation;
   PerImageTrim m_perImageTrim;

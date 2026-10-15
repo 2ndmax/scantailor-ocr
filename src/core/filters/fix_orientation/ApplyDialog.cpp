@@ -33,9 +33,7 @@ void ApplyDialog::onSubmit() {
   const bool applyTrim = applyTrimCheckBox->isChecked();
 
   // "This page only" is not handled: the options panel has already applied it.
-  if (scopeGroupBox->isAllPages()) {
-    emit appliedToAllPages(scopeGroupBox->pages(), applyRotation, applyTrim);
-  } else if (!scopeGroupBox->isThisPageOnly()) {
+  if (!scopeGroupBox->isThisPageOnly()) {
     emit appliedTo(scopeGroupBox->pages(), applyRotation, applyTrim);
   }
 
