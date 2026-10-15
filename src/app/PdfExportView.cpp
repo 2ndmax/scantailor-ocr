@@ -326,8 +326,8 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   connect(m_pageList->model(), &QAbstractItemModel::rowsMoved, this, &PdfExportView::updatePositions);
   connect(m_pageList->model(), &QAbstractItemModel::rowsInserted, this, &PdfExportView::updatePositions);
   connect(m_pageList->model(), &QAbstractItemModel::rowsRemoved, this, &PdfExportView::updatePositions);
-  connect(m_allButton, &QPushButton::clicked, this, &PdfExportView::selectAll);
-  connect(m_noneButton, &QPushButton::clicked, this, &PdfExportView::selectNone);
+  connect(m_allButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Checked); });
+  connect(m_noneButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Unchecked); });
   connect(m_forwardButton, &QPushButton::clicked, this, &PdfExportView::moveForward);
   connect(m_backButton, &QPushButton::clicked, this, &PdfExportView::moveBack);
   connect(m_fileEdit, &QLineEdit::textEdited, this, [this]() { m_fileChosen = true; });
@@ -658,28 +658,14 @@ void PdfExportView::cancelAndWait() {
   exportFinished();
 }
 
-void PdfExportView::selectAll() {
+void PdfExportView::setAllChecked(const Qt::CheckState state) {
   {
     // Numbered once at the end rather than for every page.
     const QSignalBlocker blocker(m_pageList);
     for (int row = 0; row < m_pageList->count(); ++row) {
       QListWidgetItem* item = m_pageList->item(row);
       if (item->flags().testFlag(Qt::ItemIsUserCheckable)) {
-        item->setCheckState(Qt::Checked);
-      }
-    }
-  }
-  updatePositions();
-  updateControls();
-}
-
-void PdfExportView::selectNone() {
-  {
-    const QSignalBlocker blocker(m_pageList);
-    for (int row = 0; row < m_pageList->count(); ++row) {
-      QListWidgetItem* item = m_pageList->item(row);
-      if (item->flags().testFlag(Qt::ItemIsUserCheckable)) {
-        item->setCheckState(Qt::Unchecked);
+        item->setCheckState(state);
       }
     }
   }
@@ -807,7 +793,7 @@ void PdfExportView::startExport() {
   for (int row = 0; row < m_pageList->count(); ++row) {
     const QListWidgetItem* item = m_pageList->item(row);
     if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
-      pages.push_back(m_entries[item->data(Qt::UserRole).toInt()].page);
+      pages.push_back(m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page);
     }
   }
   if (pages.empty()) {
@@ -1003,7 +989,7 @@ void PdfExportView::thumbnailLoaded(const int generation, const int entryIndex, 
 QListWidgetItem* PdfExportView::itemForEntry(const int entryIndex) const {
   for (int row = 0; row < m_pageList->count(); ++row) {
     QListWidgetItem* item = m_pageList->item(row);
-    if (item->data(Qt::UserRole).toInt() == entryIndex) {
+    if (item->data(ENTRY_INDEX_ROLE).toInt() == entryIndex) {
       return item;
     }
   }

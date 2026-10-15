@@ -61,7 +61,11 @@ void OptionsWidget::postUpdateUI(const UiData& uiData) {
 void OptionsWidget::manualContentRectSet(const QRectF& contentRect) {
   m_uiData.setContentRect(contentRect);
   m_uiData.setContentDetectionMode(MODE_MANUAL);
-  updateContentModeIndication(MODE_MANUAL);
+  {
+    // The mode is set here already; checking the button mustn't set it again.
+    auto block = m_connectionManager.getScopedBlock();
+    updateContentModeIndication(MODE_MANUAL);
+  }
   updateContentDetectOptionsDisplay();
 
   commitCurrentParams();
@@ -72,7 +76,10 @@ void OptionsWidget::manualContentRectSet(const QRectF& contentRect) {
 void OptionsWidget::manualPageRectSet(const QRectF& pageRect) {
   m_uiData.setPageRect(pageRect);
   m_uiData.setPageDetectionMode(MODE_MANUAL);
-  updatePageModeIndication(MODE_MANUAL);
+  {
+    auto block = m_connectionManager.getScopedBlock();
+    updatePageModeIndication(MODE_MANUAL);
+  }
   updatePageDetectOptionsDisplay();
   updatePageRectSize(pageRect.size());
 
@@ -338,18 +345,21 @@ void OptionsWidget::onUnitsChanged(Units units) {
 void OptionsWidget::setupUiConnections() {
   CONNECT(widthSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::dimensionsChangedLocally);
   CONNECT(heightSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::dimensionsChangedLocally);
-  CONNECT(contentDetectAutoBtn, &QPushButton::pressed, this,
-          std::bind(&OptionsWidget::contentDetectToggled, this, MODE_AUTO));
-  CONNECT(contentDetectManualBtn, &QPushButton::pressed, this,
-          std::bind(&OptionsWidget::contentDetectToggled, this, MODE_MANUAL));
-  CONNECT(contentDetectDisableBtn, &QPushButton::pressed, this,
-          std::bind(&OptionsWidget::contentDetectToggled, this, MODE_DISABLED));
-  CONNECT(pageDetectAutoBtn, &QPushButton::pressed, this,
-          std::bind(&OptionsWidget::pageDetectToggled, this, MODE_AUTO));
-  CONNECT(pageDetectManualBtn, &QPushButton::pressed, this,
-          std::bind(&OptionsWidget::pageDetectToggled, this, MODE_MANUAL));
-  CONNECT(pageDetectDisableBtn, &QPushButton::pressed, this,
-          std::bind(&OptionsWidget::pageDetectToggled, this, MODE_DISABLED));
+  // Only the button that gets checked acts.  Not on "pressed": the user may still move off the button.
+  const auto connectMode
+      = [this](QAbstractButton* button, void (OptionsWidget::*handler)(AutoManualMode), const AutoManualMode mode) {
+          CONNECT(button, &QAbstractButton::toggled, this, [this, handler, mode](const bool checked) {
+            if (checked) {
+              (this->*handler)(mode);
+            }
+          });
+        };
+  connectMode(contentDetectAutoBtn, &OptionsWidget::contentDetectToggled, MODE_AUTO);
+  connectMode(contentDetectManualBtn, &OptionsWidget::contentDetectToggled, MODE_MANUAL);
+  connectMode(contentDetectDisableBtn, &OptionsWidget::contentDetectToggled, MODE_DISABLED);
+  connectMode(pageDetectAutoBtn, &OptionsWidget::pageDetectToggled, MODE_AUTO);
+  connectMode(pageDetectManualBtn, &OptionsWidget::pageDetectToggled, MODE_MANUAL);
+  connectMode(pageDetectDisableBtn, &OptionsWidget::pageDetectToggled, MODE_DISABLED);
   CONNECT(fineTuneBtn, &QAbstractButton::toggled, this, &OptionsWidget::fineTuningChanged);
   CONNECT(fillFactorSpinBox, &QSpinBox::valueChanged, this, &OptionsWidget::detectionOptionsChanged);
   CONNECT(borderToleranceSpinBox, &QSpinBox::valueChanged, this, &OptionsWidget::detectionOptionsChanged);

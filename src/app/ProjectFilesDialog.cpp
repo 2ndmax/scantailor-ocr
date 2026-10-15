@@ -309,7 +309,7 @@ void ProjectFilesDialog::inpDirEdited(const QString& text) {
   setInputDir(sanitizePath(text), /* autoAddFiles= */ false);
 }
 
-void ProjectFilesDialog::outDirEdited(const QString& text) {
+void ProjectFilesDialog::outDirEdited() {
   m_autoOutDir = false;
 }
 
@@ -333,7 +333,7 @@ void ProjectFilesDialog::projectFileBrowse() {
   setProjectFile(file);
 }
 
-void ProjectFilesDialog::projectFileEdited(const QString& text) {
+void ProjectFilesDialog::projectFileEdited() {
   m_autoProjectFile = false;
 }
 

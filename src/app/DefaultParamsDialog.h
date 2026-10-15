@@ -39,11 +39,11 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void deskewModeChanged(bool autoMode);
 
-  void pageDetectAutoToggled();
+  void pageDetectAutoToggled(bool checked);
 
-  void pageDetectManualToggled();
+  void pageDetectManualToggled(bool checked);
 
-  void pageDetectDisableToggled();
+  void pageDetectDisableToggled(bool checked);
 
   void autoMarginsToggled(bool checked);
 

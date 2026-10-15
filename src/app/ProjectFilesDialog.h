@@ -51,11 +51,11 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   void inpDirEdited(const QString& text);
 
-  void outDirEdited(const QString& text);
+  void outDirEdited();
 
   void projectFileBrowse();
 
-  void projectFileEdited(const QString& text);
+  void projectFileEdited();
 
   void addToProject();
 

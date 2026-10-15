@@ -24,14 +24,10 @@ static const int AGGREGATE_NOT_OK_METADATA_ROLE = Qt::UserRole + 1;
 
 
 /**
- * This class computes an aggregate ImageMetadata object from a group of other
- * ImageMetadata objects.  If all ImageMetadata objects in a group are equal,
- * that will make it an aggregate metadata.  Otherwise, a null (default
- * constructed) ImageMetadata() object will be considered
- * the DPIs within the group are not consistent,
- * the aggregate Image metadata object will have zeros both for size and for
- * DPI values.  If the DPIs are consistent but sizes are not, the aggregate
- * ImageMetadata will have the consistent DPI and zero size.
+ * Counts the images of a group by their metadata (size and DPI), so the DPI
+ * shown for the whole group can be computed: if all images have the same
+ * metadata, that is the aggregate; otherwise it is a null (default-constructed)
+ * ImageMetadata, which shows that the DPIs within the group differ.
  */
 class FixDpiDialog::DpiCounts {
  public:

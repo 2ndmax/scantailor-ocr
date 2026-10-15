@@ -600,10 +600,10 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(rotateRightBtn, &QAbstractButton::clicked, this, &DefaultParamsDialog::rotateRight);
   CONNECT(layoutManualBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::layoutModeToggled);
   CONNECT(deskewAutoBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::deskewModeChanged);
-  CONNECT(pageDetectAutoBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectAutoToggled);
+  CONNECT(pageDetectAutoBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::pageDetectAutoToggled);
   CONNECT(contentDetectAutoBtn, &QAbstractButton::toggled, contentDetectOptions, &QWidget::setEnabled);
-  CONNECT(pageDetectManualBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectManualToggled);
-  CONNECT(pageDetectDisableBtn, &QAbstractButton::pressed, this, &DefaultParamsDialog::pageDetectDisableToggled);
+  CONNECT(pageDetectManualBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::pageDetectManualToggled);
+  CONNECT(pageDetectDisableBtn, &QAbstractButton::toggled, this, &DefaultParamsDialog::pageDetectDisableToggled);
   CONNECT(autoMargins, &QAbstractButton::toggled, this, &DefaultParamsDialog::autoMarginsToggled);
   CONNECT(hAlignmentModeCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::alignmentModeChanged);
   CONNECT(vAlignmentModeCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::alignmentModeChanged);
@@ -644,8 +644,8 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this,
           &DefaultParamsDialog::depthPerceptionChangedSlot);
   CONNECT(profileCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::profileChanged);
-  CONNECT(profileSaveButton, &QAbstractButton::pressed, this, &DefaultParamsDialog::profileSavePressed);
-  CONNECT(profileDeleteButton, &QAbstractButton::pressed, this, &DefaultParamsDialog::profileDeletePressed);
+  CONNECT(profileSaveButton, &QAbstractButton::clicked, this, &DefaultParamsDialog::profileSavePressed);
+  CONNECT(profileDeleteButton, &QAbstractButton::clicked, this, &DefaultParamsDialog::profileDeletePressed);
   CONNECT(colorSegmentationCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::colorSegmentationToggled);
   CONNECT(colorReductionCB, qOverload<int>(&QComboBox::currentIndexChanged), this,
           &DefaultParamsDialog::colorReductionChanged);
@@ -718,19 +718,28 @@ void DefaultParamsDialog::deskewModeChanged(const bool autoMode) {
   deskewDetectionCB->setEnabled(autoMode);
 }
 
-void DefaultParamsDialog::pageDetectAutoToggled() {
+void DefaultParamsDialog::pageDetectAutoToggled(const bool checked) {
+  if (!checked) {
+    return;  // The button checked instead does the work.
+  }
   pageDetectOptions->setEnabled(true);
   fineTuneBtn->setEnabled(true);
   dimensionsWidget->setEnabled(false);
 }
 
-void DefaultParamsDialog::pageDetectManualToggled() {
+void DefaultParamsDialog::pageDetectManualToggled(const bool checked) {
+  if (!checked) {
+    return;
+  }
   pageDetectOptions->setEnabled(true);
   fineTuneBtn->setEnabled(false);
   dimensionsWidget->setEnabled(true);
 }
 
-void DefaultParamsDialog::pageDetectDisableToggled() {
+void DefaultParamsDialog::pageDetectDisableToggled(const bool checked) {
+  if (!checked) {
+    return;
+  }
   pageDetectOptions->setEnabled(false);
 }
 
@@ -1067,65 +1076,17 @@ void DefaultParamsDialog::updateUnits(const Units units) {
   m_currentUnits = units;
   unitsLabel->setText(unitsToLocalizedString(units));
 
-  {
-    int decimals;
-    double step;
-    switch (units) {
-      case PIXELS:
-      case MILLIMETRES:
-        decimals = 1;
-        step = 1.0;
-        break;
-      default:
-        decimals = 2;
-        step = 0.01;
-        break;
-    }
-
-    widthSpinBox->setDecimals(decimals);
-    widthSpinBox->setSingleStep(step);
-    heightSpinBox->setDecimals(decimals);
-    heightSpinBox->setSingleStep(step);
-  }
-
-  {
-    int decimals;
-    double step;
-    switch (units) {
-      case PIXELS:
-      case MILLIMETRES:
-        decimals = 1;
-        step = 1.0;
-        break;
-      default:
-        decimals = 2;
-        step = 0.01;
-        break;
-    }
-
-    topMarginSpinBox->setDecimals(decimals);
-    topMarginSpinBox->setSingleStep(step);
-    bottomMarginSpinBox->setDecimals(decimals);
-    bottomMarginSpinBox->setSingleStep(step);
-    leftMarginSpinBox->setDecimals(decimals);
-    leftMarginSpinBox->setSingleStep(step);
-    rightMarginSpinBox->setDecimals(decimals);
-    rightMarginSpinBox->setSingleStep(step);
-  }
-
-  // The unit is shown in the fields.
+  // Sizes, margins and target sizes alike; the unit is shown in the fields.
+  const bool coarse = (units == PIXELS) || (units == MILLIMETRES);
   const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
   for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox, topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox,
                                   rightMarginSpinBox, targetWidthSpinBox, targetHeightSpinBox}) {
+    spinBox->setDecimals(coarse ? 1 : 2);
+    spinBox->setSingleStep(coarse ? 1.0 : 0.01);
     spinBox->setSuffix(unitSuffix);
   }
-  // Like the width and height of the content box.
-  for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
-    spinBox->setDecimals(widthSpinBox->decimals());
-    spinBox->setSingleStep(widthSpinBox->singleStep());
-  }
   // As in the side bars: three digits before the decimal point, sizes in pixels four.
-  const double widestMargin = (units == PIXELS || units == MILLIMETRES) ? 999.9 : 99.99;
+  const double widestMargin = coarse ? 999.9 : 99.99;
   const double widestSize = (units == PIXELS) ? 9999.9 : widestMargin;
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
     Utils::setNumberFieldWidth(spinBox, widestMargin);

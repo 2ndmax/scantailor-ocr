@@ -76,10 +76,6 @@ class PdfExportView : public QWidget {
   void runningChanged(bool running);
 
  private slots:
-  void selectAll();
-
-  void selectNone();
-
   void moveForward();
 
   void moveBack();
@@ -110,6 +106,9 @@ class PdfExportView : public QWidget {
   class PageTileDelegate;
 
   QWidget* createOptionsWidget();
+
+  /** Ticks or unticks all pages that are output. */
+  void setAllChecked(Qt::CheckState state);
 
   void requestThumbnail(int generation, int entryIndex);
 
