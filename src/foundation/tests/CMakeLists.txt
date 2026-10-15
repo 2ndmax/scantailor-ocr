@@ -1,9 +1,11 @@
 set(sources
     main.cpp
+    TestAutoRemovingFile.cpp
     TestConstants.cpp
     TestLineIntersectionScalar.cpp
     TestProximity.cpp
     TestUtils.cpp
+    TestVecNT.cpp
     TestXmlMarshalling.cpp)
 
 add_executable(foundation_tests ${sources})

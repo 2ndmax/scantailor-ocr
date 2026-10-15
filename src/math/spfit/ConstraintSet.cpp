@@ -82,7 +82,7 @@ void ConstraintSet::constrainControlPoint(int cpIdx, const QLineF& line) {
   // Make it a function of control point displacements, not control points themselves.
   const QPointF cp(m_spline->controlPointPosition(cpIdx));
   f.b += cp.x() * dy;
-  f.b += cp.y() * dx;
+  f.b -= cp.y() * dx;
 
   m_constraints.push_back(f);
 }  // ConstraintSet::constrainControlPoint

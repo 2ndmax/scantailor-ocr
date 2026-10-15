@@ -48,14 +48,6 @@ class MatMNT {
   template <typename OT>
   explicit MatMNT(const MatMNT<M, N, OT>& other);
 
-  /**
-   * \brief Assignment from a matrix of same dimensions but another type.
-   *
-   * Conversion is done by static casts.
-   */
-  template <typename OT>
-  MatMNT& operator=(const MatMNT<M, N, OT>& other);
-
   const T* data() const { return m_data; }
 
   T* data() { return m_data; }

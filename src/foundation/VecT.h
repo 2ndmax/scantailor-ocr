@@ -136,10 +136,10 @@ VecT<T>::VecT(const VecT& other) : m_data(new T[other.m_size]), m_size(other.m_s
 
 template <typename T>
 template <typename OT>
-VecT<T>::VecT(const VecT<OT>& other) : m_data(new T[other.m_size]), m_size(other.m_size) {
-  const T* otherData = other.data();
+VecT<T>::VecT(const VecT<OT>& other) : m_data(new T[other.size()]), m_size(other.size()) {
+  const OT* otherData = other.data();
   for (size_t i = 0; i < m_size; ++i) {
-    m_data[i] = otherData[i];
+    m_data[i] = static_cast<T>(otherData[i]);
   }
 }
 

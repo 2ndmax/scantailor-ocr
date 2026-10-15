@@ -20,12 +20,12 @@ AutoRemovingFile::~AutoRemovingFile() {
 }
 
 AutoRemovingFile& AutoRemovingFile::operator=(AutoRemovingFile& other) {
-  m_file = other.release();
+  reset(other.release());
   return *this;
 }
 
 AutoRemovingFile& AutoRemovingFile::operator=(CopyHelper other) {
-  m_file = other.obj->release();
+  reset(other.obj->release());
   return *this;
 }
 

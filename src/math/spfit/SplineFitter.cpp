@@ -24,8 +24,7 @@ void SplineFitter::setSamplingParams(const FittableSpline::SamplingParams& param
   m_samplingParams = params;
 }
 
-void SplineFitter::addAttractionForce(const Vec2d& splinePoint,
-                                      const std::vector<FittableSpline::LinearCoefficient>& coeffs,
+void SplineFitter::addAttractionForce(const std::vector<FittableSpline::LinearCoefficient>& coeffs,
                                       const SqDistApproximant& sqdistApprox) {
   const auto numCoeffs = static_cast<int>(coeffs.size());
   const int numVars = numCoeffs * 2;
@@ -99,7 +98,7 @@ void SplineFitter::addAttractionForces(const ModelShape& modelShape, double from
   auto sampleProcessor = [this, &modelShape](const QPointF& pt, double t, FittableSpline::SampleFlags flags) {
     m_spline->linearCombinationAt(t, m_tempCoeffs);
     const SqDistApproximant approx(modelShape.localSqDistApproximant(pt, flags));
-    addAttractionForce(pt, m_tempCoeffs, approx);
+    addAttractionForce(m_tempCoeffs, approx);
   };
 
   m_spline->sample(ProxyFunction<decltype(sampleProcessor), void, const QPointF&, double, FittableSpline::SampleFlags>(

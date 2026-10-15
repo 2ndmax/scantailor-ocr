@@ -363,8 +363,10 @@ VecNT<N, T> operator/(VecNT<N, T> const& vec, T scalar) {
 
 template <size_t N, typename T>
 VecNT<N, T> operator/(T scalar, VecNT<N, T> const& vec) {
-  VecNT<N, T> res(vec);
-  res /= scalar;
+  VecNT<N, T> res;
+  for (size_t i = 0; i < N; ++i) {
+    res[i] = scalar / vec[i];
+  }
   return res;
 }
 

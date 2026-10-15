@@ -118,6 +118,7 @@ Function<2>& Function<2>::operator*=(double scalar) {
 
   for (size_t u = 0; u < p; ++u) {
     firstDerivs[u] *= scalar;
+    secondDerivs[u] *= scalar;
   }
   return *this;
 }

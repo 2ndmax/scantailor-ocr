@@ -88,11 +88,11 @@ int XSpline::numControlPoints() const {
 }
 
 int XSpline::numSegments() const {
-  return std::max<int>(static_cast<const int&>(m_controlPoints.size() - 1), 0);
+  return std::max<int>(numControlPoints() - 1, 0);
 }
 
 double XSpline::controlPointIndexToT(int idx) const {
-  assert(idx >= 0 || idx <= (int) m_controlPoints.size());
+  assert(m_controlPoints.size() > 1 && idx >= 0 && idx < (int) m_controlPoints.size());
   return double(idx) / (m_controlPoints.size() - 1);
 }
 
@@ -101,12 +101,12 @@ void XSpline::appendControlPoint(const QPointF& pos, double tension) {
 }
 
 void XSpline::insertControlPoint(int idx, const QPointF& pos, double tension) {
-  assert(idx >= 0 || idx <= (int) m_controlPoints.size());
+  assert(idx >= 0 && idx <= (int) m_controlPoints.size());
   m_controlPoints.insert(m_controlPoints.begin() + idx, ControlPoint(pos, tension));
 }
 
 void XSpline::eraseControlPoint(int idx) {
-  assert(idx >= 0 || idx < (int) m_controlPoints.size());
+  assert(idx >= 0 && idx < (int) m_controlPoints.size());
   m_controlPoints.erase(m_controlPoints.begin() + idx);
 }
 
@@ -115,7 +115,7 @@ QPointF XSpline::controlPointPosition(int idx) const {
 }
 
 void XSpline::moveControlPoint(int idx, const QPointF& pos) {
-  assert(idx >= 0 || idx < (int) m_controlPoints.size());
+  assert(idx >= 0 && idx < (int) m_controlPoints.size());
   m_controlPoints[idx].pos = pos;
 }
 
@@ -175,14 +175,17 @@ void XSpline::sample(const VirtualFunction<void, const QPointF&, double, SampleF
     maxSqdistBetweenSamples *= params.maxDistBetweenSamples;
   }
 
+  const int numSegments = this->numSegments();
+  if (numSegments == 0) {
+    // A single control point; pointAt() needs at least one segment.
+    sink(m_controlPoints.front().pos, fromT, HEAD_SAMPLE);
+    return;
+  }
+
   const QPointF fromPt(pointAt(fromT));
   const QPointF toPt(pointAt(toT));
   sink(fromPt, fromT, HEAD_SAMPLE);
 
-  const int numSegments = this->numSegments();
-  if (numSegments == 0) {
-    return;
-  }
   const double rNumSegments = 1.0 / numSegments;
 
   maybeAddMoreSamples(sink, maxSqdistToSpline, maxSqdistBetweenSamples, numSegments, rNumSegments, fromT, fromPt, toT,
@@ -271,7 +274,7 @@ int XSpline::linearCombinationFor(LinearCoefficient* coeffs, int segment, double
   idxs[0] = std::max<int>(0, segment - 1);
   idxs[1] = segment;
   idxs[2] = segment + 1;
-  idxs[3] = std::min<int>(segment + 2, static_cast<const int&>(m_controlPoints.size() - 1));
+  idxs[3] = std::min<int>(segment + 2, numControlPoints() - 1);
 
   ControlPoint pts[4];
   for (int i = 0; i < 4; ++i) {
@@ -358,7 +361,7 @@ XSpline::DecomposedDerivs XSpline::decomposedDerivsImpl(const int segment, const
   derivs.controlPoints[0] = std::max<int>(0, segment - 1);
   derivs.controlPoints[1] = segment;
   derivs.controlPoints[2] = segment + 1;
-  derivs.controlPoints[3] = std::min<int>(segment + 2, static_cast<const int&>(m_controlPoints.size() - 1));
+  derivs.controlPoints[3] = std::min<int>(segment + 2, numControlPoints() - 1);
 
   ControlPoint pts[4];
   for (int i = 0; i < 4; ++i) {
@@ -561,7 +564,6 @@ QuadraticFunction XSpline::junctionPointsAttractionForce(int segBegin, int segEn
   Function<2> force(sparseMap);
 
   if (segBegin != segEnd) {
-    QPointF pt(pointAt(controlPointIndexToT(segBegin)));
     std::vector<LinearCoefficient> coeffs;
     Function<2> prevX(0);
     Function<2> prevY(0);

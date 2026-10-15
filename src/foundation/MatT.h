@@ -142,9 +142,9 @@ template <typename T>
 template <typename OT>
 MatT<T>::MatT(const MatT<OT>& other) : m_rows(other.rows()), m_cols(other.cols()), m_data(new T[m_rows * m_cols]) {
   const size_t len = m_rows * m_cols;
-  const T* otherData = other.data();
+  const OT* otherData = other.data();
   for (size_t i = 0; i < len; ++i) {
-    m_data[i] = otherData[i];
+    m_data[i] = static_cast<T>(otherData[i]);
   }
 }
 
@@ -214,7 +214,7 @@ void MatT<T>::swap(MatT& other) {
 }
 
 template <typename T>
-void swap(const MatT<T>& o1, const MatT<T>& o2) {
+void swap(MatT<T>& o1, MatT<T>& o2) {
   o1.swap(o2);
 }
 

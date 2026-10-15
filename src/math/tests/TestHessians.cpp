@@ -92,6 +92,34 @@ BOOST_AUTO_TEST_CASE(test3) {
   BOOST_REQUIRE_CLOSE(hessian(1, 1), 16, 1e-06);
 }
 
+BOOST_AUTO_TEST_CASE(test_scaling) {
+  // F(x, y) = 3 * x * y  | x = 2, y = 5
+  // G(x) = x^2 * 4  | x = 2
+
+  SparseMap<2> sparseMap(2);
+  sparseMap.markAllNonZero();
+
+  const Function<2> x(0, 2, sparseMap);
+  const Function<2> y(1, 5, sparseMap);
+  Function<2> f(x * y);
+  f *= 3;
+  const Function<2> g(x * x * 4);
+
+  const MatT<double> fHessian(f.hessian(sparseMap));
+  const MatT<double> gHessian(g.hessian(sparseMap));
+
+  // F = 30, Fxy = 3, Fxx = Fyy = 0
+  // G = 16, Gxx = 8
+
+  BOOST_REQUIRE_CLOSE(f.value, 30, 1e-06);
+  BOOST_REQUIRE_SMALL(fHessian(0, 0), 1e-06);
+  BOOST_REQUIRE_CLOSE(fHessian(0, 1), 3, 1e-06);
+  BOOST_REQUIRE_CLOSE(fHessian(1, 0), 3, 1e-06);
+  BOOST_REQUIRE_SMALL(fHessian(1, 1), 1e-06);
+  BOOST_REQUIRE_CLOSE(g.value, 16, 1e-06);
+  BOOST_REQUIRE_CLOSE(gHessian(0, 0), 8, 1e-06);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace adiff

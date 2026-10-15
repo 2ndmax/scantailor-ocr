@@ -24,9 +24,8 @@ PolylineModelShape::PolylineModelShape(const std::vector<QPointF>& polyline) {
   }
 
   const int numControlPoints = spline.numControlPoints();
-  const double scale = 1.0 / (numControlPoints - 1);
   for (int i = 0; i < numControlPoints; ++i) {
-    m_vertices.push_back(spline.pointAndDtsAt(i * scale));
+    m_vertices.push_back(spline.pointAndDtsAt(double(i) / (numControlPoints - 1)));
   }
 }
 

@@ -1,5 +1,6 @@
 set(sources
     main.cpp
+    TestConstraintSet.cpp
     TestHessians.cpp
     TestLineBoundedByRect.cpp
     TestLinearFunction.cpp
