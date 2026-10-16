@@ -56,6 +56,19 @@ BOOST_AUTO_TEST_CASE(test_mask_size_is_checked) {
   BOOST_CHECK_THROW(combineImages(mixed, foreground, mask), std::invalid_argument);
 }
 
+BOOST_AUTO_TEST_CASE(test_apply_mask_black_is_opaque) {
+  // Black filling must be opaque black in an image with alpha, not transparent black.
+  QImage image(2, 1, QImage::Format_ARGB32);
+  image.fill(0xffffffff);
+  BinaryImage mask(2, 1, WHITE);
+  mask.setPixel(0, 0, BLACK);  // Kept; the white pixel is filled.
+
+  applyMask(image, mask, BLACK);
+
+  BOOST_CHECK_EQUAL(image.pixel(0, 0), 0xffffffffu);
+  BOOST_CHECK_EQUAL(image.pixel(1, 0), 0xff000000u);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

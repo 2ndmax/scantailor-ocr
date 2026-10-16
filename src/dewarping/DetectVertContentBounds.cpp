@@ -114,8 +114,8 @@ RansacAlgo::RansacAlgo(const std::vector<Segment>& segments)
     : m_segments(segments), m_cosThreshold(std::cos(4.0 * constants::DEG2RAD)) {}
 
 void RansacAlgo::buildAndAssessModel(const Segment& seedSegment) {
+  // The seed is one of m_segments, so the loop adds it as well.
   RansacModel curModel;
-  curModel.add(seedSegment);
 
   for (const Segment& seg : m_segments) {
     const double cos = seg.unitVec.dot(seedSegment.unitVec);

@@ -290,7 +290,8 @@ void applyMask(QImage& image, const BinaryImage& bwMask, const BWColor fillingCo
   const int width = image.width();
   const int height = image.height();
   const uint32_t msb = uint32_t(1) << 31;
-  const auto fillingPixel = static_cast<MixedPixel>((fillingColor == WHITE) ? 0xffffffff : 0x00000000);
+  // Opaque black in 32 bits; in a gray palette image, both cast to the index of black or white.
+  const auto fillingPixel = static_cast<MixedPixel>((fillingColor == WHITE) ? 0xffffffff : 0xff000000);
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {

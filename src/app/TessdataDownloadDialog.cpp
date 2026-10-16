@@ -16,6 +16,7 @@
 #include <QVBoxLayout>
 #include <algorithm>
 #include <map>
+#include <set>
 #include <tuple>
 
 #include "OcrLanguages.h"
@@ -127,6 +128,15 @@ void TessdataDownloadDialog::fillList() {
     return QString::localeAwareCompare(std::get<1>(a), std::get<1>(b)) < 0;
   });
 
+  // Languages that are still ticked stay ticked, so a failed download can simply be started again.
+  std::set<QString> ticked;
+  for (int row = 0; row < m_list->count(); ++row) {
+    const QListWidgetItem* item = m_list->item(row);
+    if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
+      ticked.insert(m_files[item->data(Qt::UserRole).toInt()].code);
+    }
+  }
+
   const QSignalBlocker blocker(m_list);
   m_list->clear();
   bool headerAdded = false;
@@ -153,7 +163,7 @@ void TessdataDownloadDialog::fillList() {
       item->setCheckState(Qt::Checked);
     } else {
       item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
-      item->setCheckState(Qt::Unchecked);
+      item->setCheckState((ticked.count(file.code) > 0) ? Qt::Checked : Qt::Unchecked);
     }
     item->setText(text);
   }

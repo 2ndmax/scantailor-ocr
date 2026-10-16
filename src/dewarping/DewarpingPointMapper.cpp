@@ -22,15 +22,14 @@ DewarpingPointMapper::DewarpingPointMapper(const DistortionModel& distortionMode
   // will be mapped to our curved quadrilateral.
   const QRect modelDomain(distortionModel.modelDomain(m_dewarper, distortionModelToOutput, outputContentRect).toRect());
 
-  // Note: QRect::right() - QRect::left() will give you size() - 1 not size()!
-  // That's intended.
-
+  // The full width and height, as in RasterDewarper, which gets the model domain as a QRectF
+  // (QRect::right() - QRect::left() would be one less), so points and pixels are mapped alike.
   m_modelDomainLeft = modelDomain.left();
-  m_modelXScaleFromNormalized = modelDomain.right() - modelDomain.left();
+  m_modelXScaleFromNormalized = modelDomain.width();
   m_modelXScaleToNormalized = 1.0 / m_modelXScaleFromNormalized;
 
   m_modelDomainTop = modelDomain.top();
-  m_modelYScaleFromNormalized = modelDomain.bottom() - modelDomain.top();
+  m_modelYScaleFromNormalized = modelDomain.height();
   m_modelYScaleToNormalized = 1.0 / m_modelYScaleFromNormalized;
 }
 

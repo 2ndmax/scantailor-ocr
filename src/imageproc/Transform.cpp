@@ -313,7 +313,8 @@ QImage transform(const QImage& src,
     case QImage::Format_Indexed8:
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
-      if (src.allGray() && isOpaqueGray(outsidePixels.rgba())) {
+      // allGray() ignores the alpha of the palette, so a transparent gray palette takes the 32-bit path.
+      if (src.allGray() && !src.hasAlphaChannel() && isOpaqueGray(outsidePixels.rgba())) {
         // The palette of src may be non-standard, so we create a GrayImage,
         // which is guaranteed to have a standard palette.
         GrayImage graySrc(src);

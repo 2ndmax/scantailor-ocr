@@ -45,6 +45,22 @@ BOOST_AUTO_TEST_CASE(test_random_image) {
   BOOST_CHECK(transformToGray(img, nullXform, img.rect(), outsidePixels) == img);
 }
 
+BOOST_AUTO_TEST_CASE(test_transparent_gray_palette_keeps_alpha) {
+  // A gray palette with a transparent entry: allGray() is true, but the alpha must not get lost.
+  QImage img(2, 1, QImage::Format_Indexed8);
+  img.setColorTable({qRgba(0, 0, 0, 0), qRgb(255, 255, 255)});
+  img.setPixel(0, 0, 0);
+  img.setPixel(1, 0, 1);
+
+  const OutsidePixels outsidePixels(OutsidePixels::assumeColor(QColor(0xff, 0xff, 0xff)));
+  const QImage dst(transform(img, QTransform(), img.rect(), outsidePixels));
+
+  BOOST_REQUIRE(dst.hasAlphaChannel());
+  BOOST_CHECK_EQUAL(qAlpha(dst.pixel(0, 0)), 0);
+  BOOST_CHECK_EQUAL(qAlpha(dst.pixel(1, 0)), 0xff);
+  BOOST_CHECK_EQUAL(qGray(dst.pixel(1, 0)), 0xff);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc
