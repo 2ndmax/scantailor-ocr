@@ -266,7 +266,8 @@ void Task::updateFilterData(const TaskStatus& status, FilterData& data, bool nee
   } else {
     const GrayImage& img = data.grayImage();
     BinaryImage mask(img.size(), BLACK);
-    PolygonRasterizer::fillExcept(mask, WHITE, data.xform().resultingPreCropArea(), Qt::WindingFill);
+    // The gray image isn't transformed yet.
+    PolygonRasterizer::fillExcept(mask, WHITE, data.xform().origPreCropArea(), Qt::WindingFill);
     bool isBlackOnWhite = true;
     if (ApplicationSettings::getInstance().isBlackOnWhiteDetectionEnabled()) {
       isBlackOnWhite = BlackOnWhiteEstimator::isBlackOnWhite(data.grayImage(), data.xform(), status, m_dbg.get());

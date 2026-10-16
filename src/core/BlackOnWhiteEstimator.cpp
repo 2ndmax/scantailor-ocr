@@ -71,7 +71,8 @@ bool BlackOnWhiteEstimator::isBlackOnWhite(const imageproc::GrayImage& grayImage
                                            const ImageTransformation& xform,
                                            const TaskStatus& status,
                                            DebugImages* dbg) {
-  if (isBlackOnWhite(grayImage, xform.resultingPreCropArea())) {
+  // The gray image isn't transformed yet.
+  if (isBlackOnWhite(grayImage, xform.origPreCropArea())) {
     return true;
   } else {
     // The black borders of the page can make the method above giving the wrong result.

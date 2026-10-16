@@ -222,5 +222,25 @@ BOOST_AUTO_TEST_CASE(post_oblique_applied_and_stored) {
   BOOST_CHECK(transformZeroOblique != xform.transform());
 }
 
+// The masks of the deskew step are drawn on the untransformed image.
+BOOST_AUTO_TEST_CASE(orig_pre_crop_area_is_in_image_coordinates) {
+  const QRectF imageRect(0, 0, 200, 100);
+  // The right page of a split spread.
+  ImageTransformation split(imageRect, Dpi(300, 300));
+  split.setPreCropArea(QPolygonF(QRectF(100, 0, 100, 100)));
+  const QRectF splitArea = split.origPreCropArea().boundingRect();
+  BOOST_CHECK_CLOSE(splitArea.left(), 100.0, 1e-6);
+  BOOST_CHECK_CLOSE(splitArea.width(), 100.0, 1e-6);
+
+  // A page turned by 90 degrees.
+  ImageTransformation rotated(imageRect, Dpi(300, 300));
+  OrthogonalRotation rotation;
+  rotation.nextClockwiseDirection();
+  rotated.setPreRotation(rotation);
+  const QRectF rotatedArea = rotated.origPreCropArea().boundingRect();
+  BOOST_CHECK_CLOSE(rotatedArea.width(), 200.0, 1e-6);
+  BOOST_CHECK_CLOSE(rotatedArea.height(), 100.0, 1e-6);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

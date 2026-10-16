@@ -126,6 +126,12 @@ class ImageTransformation {
   const QPolygonF& resultingPreCropArea() const { return m_resultingPreCropArea; }
 
   /**
+   * \brief Returns the pre-crop area in the coordinates of the original image,
+   *        for masks on the untransformed image.
+   */
+  QPolygonF origPreCropArea() const { return m_invTransform.map(m_resultingPreCropArea); }
+
+  /**
    * \brief Set the 4th step transformation, resetting  the following ones.
    *
    * \see \ref transformations Transformations.

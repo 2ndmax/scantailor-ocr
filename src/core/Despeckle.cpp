@@ -127,6 +127,8 @@ struct Component {
 
   Component() : numPixels(0) {}
 
+  uint32_t pixelCount() const { return numPixels & ~TAG_MASK; }
+
   uint32_t anchoredToBig() const { return numPixels & ANCHORED_TO_BIG; }
 
   void setAnchoredToBig() { numPixels |= ANCHORED_TO_BIG; }
@@ -299,12 +301,14 @@ void tagSourceComponent(Component& source, const Component& target, uint32_t sqd
     return;
   }
 
-  if (sqdist > source.numPixels * settings.pixelsToSqDist) {
+  // Without the tags: either component may have been tagged by an earlier connection.
+  const uint32_t sourcePixels = source.pixelCount();
+  if (sqdist > uint64_t(sourcePixels) * settings.pixelsToSqDist) {
     // Too far.
     return;
   }
 
-  if (target.numPixels >= settings.minRelativeParentWeight * source.numPixels) {
+  if (target.pixelCount() >= settings.minRelativeParentWeight * sourcePixels) {
     source.setAnchoredToBig();
   } else {
     source.setAnchoredToSmall();
@@ -317,8 +321,8 @@ void tagSourceComponent(Component& source, const Component& target, uint32_t sqd
  * being attached, provided that the one it's attached to is also preserved.
  */
 bool canBeAttachedTo(const Component& comp, const Component& target, uint32_t sqdist, const Settings& settings) {
-  if (sqdist <= comp.numPixels * settings.pixelsToSqDist) {
-    if (target.numPixels >= comp.numPixels * settings.minRelativeParentWeight) {
+  if (sqdist <= uint64_t(comp.pixelCount()) * settings.pixelsToSqDist) {
+    if (target.pixelCount() >= comp.pixelCount() * settings.minRelativeParentWeight) {
       return true;
     }
   }
