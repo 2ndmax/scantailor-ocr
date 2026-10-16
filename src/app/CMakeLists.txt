@@ -15,6 +15,7 @@ set(gui_only_sources
     RelinkingDialog.cpp RelinkingDialog.h
     SettingsDialog.cpp SettingsDialog.h
     FixDpiDialog.cpp FixDpiDialog.h
+    StateIcon.cpp StateIcon.h
     LoadFilesStatusDialog.cpp LoadFilesStatusDialog.h
     ImageLoadErrorNotifier.cpp ImageLoadErrorNotifier.h
     ProjectCreationContext.cpp ProjectCreationContext.h

@@ -10,19 +10,50 @@
 #include <algorithm>
 
 #include "ColorSchemeManager.h"
+#include "StateIcon.h"
 #include "Utils.h"
 
 // Requests the resolution all images of an item have in common, as a QSize;
 // a null QSize if it is undefined or they have different ones.
 static const int DPI_ROLE = Qt::UserRole;
-// Same as the one above, but only images with .isDpiOK() == false will be considered.
+// Same as the one above, but only images that need fixing will be considered.
 static const int NOT_OK_DPI_ROLE = Qt::UserRole + 1;
+
+/**
+ * The worse status of the two axes.  An undefined resolution counts as worse than a doubtful one
+ * (too small or too large), which still lets the pages be processed.
+ */
+static ImageMetadata::DpiStatus worseDpiStatus(const ImageMetadata& metadata) {
+  const ImageMetadata::DpiStatus horizontal = metadata.horizontalDpiStatus();
+  const ImageMetadata::DpiStatus vertical = metadata.verticalDpiStatus();
+  if ((horizontal == ImageMetadata::DPI_UNDEFINED) || (vertical == ImageMetadata::DPI_UNDEFINED)) {
+    return ImageMetadata::DPI_UNDEFINED;
+  }
+  return (horizontal != ImageMetadata::DPI_OK) ? horizontal : vertical;
+}
+
+/** An image needs fixing if its resolution is undefined (red) or doubtful (yellow). */
+static bool needsFixing(const ImageMetadata& metadata) {
+  return worseDpiStatus(metadata) != ImageMetadata::DPI_OK;
+}
+
+static StateIcon::Color stateColor(const ImageMetadata& metadata) {
+  switch (worseDpiStatus(metadata)) {
+    case ImageMetadata::DPI_OK:
+      return StateIcon::Green;
+    case ImageMetadata::DPI_UNDEFINED:
+      return StateIcon::Red;
+    default:
+      return StateIcon::Yellow;
+  }
+}
 
 
 /**
  * Presents the images as a two-level tree, as the Relinking dialog does: folders (in the order
  * of their first image) with their images below.  Each page of a multi-page file is an image.
  * The second column shows the resolution of an image, or how many images of a folder need fixing.
+ * A traffic light icon marks the state of an image, and of a folder that of its worst image.
  */
 class FixDpiDialog::TreeModel : private QAbstractItemModel {
  public:
@@ -32,7 +63,8 @@ class FixDpiDialog::TreeModel : private QAbstractItemModel {
 
   QAbstractItemModel* model() { return this; }
 
-  bool allDpisOK() const { return notOkImageCount() == 0; }
+  /** Whether no image has an undefined resolution; doubtful ones don't count here. */
+  bool allDpisDefined() const;
 
   int imageCount() const;
 
@@ -77,6 +109,8 @@ class FixDpiDialog::TreeModel : private QAbstractItemModel {
   std::vector<Image> imagesOf(const QModelIndex& index, Scope scope) const;
 
   int notOkImageCount(const Folder& folder) const;
+
+  StateIcon::Color stateColor(const Folder& folder) const;
 
   QSize commonDpi(const QModelIndex& index, Scope scope) const;
 
@@ -130,7 +164,7 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
   m_errorPalette.setColor(QPalette::Text, errorTextColor);
 
   // Opens with the pages that need fixing, if there are any.
-  m_filter->setNeedFixingOnly(!m_pages->allDpisOK());
+  m_filter->setNeedFixingOnly(m_pages->notOkImageCount() > 0);
   needFixingOnlyCB->setChecked(m_filter->needFixingOnly());
   treeView->setModel(m_filter->model());
   treeView->header()->setStretchLastSection(false);
@@ -237,7 +271,7 @@ void FixDpiDialog::updateSummary() {
 }
 
 void FixDpiDialog::enableDisableOkButton() {
-  const bool enable = m_pages->allDpisOK();
+  const bool enable = m_pages->allDpisDefined();
   buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
 
@@ -348,6 +382,13 @@ FixDpiDialog::TreeModel::TreeModel(const std::vector<ImageFileInfo>& files) : m_
   }
 }
 
+bool FixDpiDialog::TreeModel::allDpisDefined() const {
+  return std::all_of(m_folders.begin(), m_folders.end(), [this](const Folder& folder) {
+    return std::all_of(folder.images.begin(), folder.images.end(),
+                       [this](const Image& image) { return metadataOf(image).isDpiOK(); });
+  });
+}
+
 int FixDpiDialog::TreeModel::imageCount() const {
   int count = 0;
   for (const Folder& folder : m_folders) {
@@ -366,7 +407,23 @@ int FixDpiDialog::TreeModel::notOkImageCount() const {
 
 int FixDpiDialog::TreeModel::notOkImageCount(const Folder& folder) const {
   return static_cast<int>(std::count_if(folder.images.begin(), folder.images.end(),
-                                        [this](const Image& image) { return !metadataOf(image).isDpiOK(); }));
+                                        [this](const Image& image) { return needsFixing(metadataOf(image)); }));
+}
+
+StateIcon::Color FixDpiDialog::TreeModel::stateColor(const Folder& folder) const {
+  StateIcon::Color color = StateIcon::Green;
+  for (const Image& image : folder.images) {
+    switch (::stateColor(metadataOf(image))) {
+      case StateIcon::Red:
+        return StateIcon::Red;
+      case StateIcon::Yellow:
+        color = StateIcon::Yellow;
+        break;
+      default:
+        break;
+    }
+  }
+  return color;
 }
 
 bool FixDpiDialog::TreeModel::isVisibleForFilter(const QModelIndex& parent, const int row) const {
@@ -375,7 +432,7 @@ bool FixDpiDialog::TreeModel::isVisibleForFilter(const QModelIndex& parent, cons
     return notOkImageCount(m_folders[row]) > 0;
   }
   // An image.
-  return !metadataOf(m_folders[parent.row()].images[row]).isDpiOK();
+  return needsFixing(metadataOf(m_folders[parent.row()].images[row]));
 }
 
 void FixDpiDialog::TreeModel::applyDpiToSelection(const Scope scope, const Dpi& dpi, const QItemSelection& selection) {
@@ -429,7 +486,7 @@ std::vector<FixDpiDialog::TreeModel::Image> FixDpiDialog::TreeModel::imagesOf(co
 
   std::vector<Image> images;
   for (const Image& image : m_folders[index.row()].images) {
-    if ((scope == ALL) || !metadataOf(image).isDpiOK()) {
+    if ((scope == ALL) || needsFixing(metadataOf(image))) {
       images.push_back(image);
     }
   }
@@ -452,14 +509,9 @@ QSize FixDpiDialog::TreeModel::commonDpi(const QModelIndex& index, const Scope s
 }
 
 QString FixDpiDialog::TreeModel::dpiText(const ImageMetadata& metadata) {
-  ImageMetadata::DpiStatus status = metadata.horizontalDpiStatus();
-  if (status == ImageMetadata::DPI_OK) {
-    status = metadata.verticalDpiStatus();
-  }
-
   const Dpi& dpi = metadata.dpi();
   const QString text(QString("%1 %2 %3 dpi").arg(dpi.horizontal()).arg(QChar(0x00D7)).arg(dpi.vertical()));
-  switch (status) {
+  switch (worseDpiStatus(metadata)) {
     case ImageMetadata::DPI_OK:
       return text;
     case ImageMetadata::DPI_UNDEFINED:
@@ -523,6 +575,10 @@ QVariant FixDpiDialog::TreeModel::data(const QModelIndex& index, const int role)
     return commonDpi(index, ALL);
   } else if (role == NOT_OK_DPI_ROLE) {
     return commonDpi(index, NOT_OK);
+  } else if (role == Qt::DecorationRole) {
+    if (index.column() != 0) {
+      return QVariant();
+    }
   } else if ((role != Qt::DisplayRole) && (role != Qt::ToolTipRole)) {
     return QVariant();
   }
@@ -530,6 +586,9 @@ QVariant FixDpiDialog::TreeModel::data(const QModelIndex& index, const int role)
   if (index.internalPointer() == &m_folderNodeId) {
     // Folder.
     const Folder& folder = m_folders[index.row()];
+    if (role == Qt::DecorationRole) {
+      return StateIcon::pixmap(stateColor(folder));
+    }
     if (index.column() == 0) {
       return QDir::toNativeSeparators(folder.path);
     }
@@ -541,6 +600,9 @@ QVariant FixDpiDialog::TreeModel::data(const QModelIndex& index, const int role)
   // Image.
   const auto* folder = static_cast<const Folder*>(index.internalPointer());
   const Image& image = folder->images[index.row()];
+  if (role == Qt::DecorationRole) {
+    return StateIcon::pixmap(::stateColor(metadataOf(image)));
+  }
   if (index.column() == 1) {
     return dpiText(metadataOf(image));
   }

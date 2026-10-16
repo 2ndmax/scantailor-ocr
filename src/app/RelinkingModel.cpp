@@ -8,8 +8,6 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
-#include <QGuiApplication>
-#include <QPainter>
 #include <QWaitCondition>
 #include <algorithm>
 #include <array>
@@ -21,6 +19,7 @@
 
 #include "OutOfMemoryHandler.h"
 #include "PayloadEvent.h"
+#include "StateIcon.h"
 
 /**
  * A status request targets either a file (target >= 0, the index into m_items)
@@ -470,46 +469,9 @@ bool RelinkingModel::isPartiallyMissingFolder(const QModelIndex& index) const {
 }
 
 QPixmap RelinkingModel::stateIcon(const State state) {
-  static const std::array<QPixmap, 4> icons{createStateIcon(AllPresent), createStateIcon(SomeMissing),
-                                            createStateIcon(FolderMissing), createStateIcon(StatePending)};
-  return icons[state];
-}
-
-QPixmap RelinkingModel::createStateIcon(const State state) {
-  const qreal dpr = qApp ? qApp->devicePixelRatio() : 1.0;
-  const int size = 12;
-  QPixmap pixmap(qRound(size * dpr), qRound(size * dpr));
-  pixmap.setDevicePixelRatio(dpr);
-  pixmap.fill(Qt::transparent);
-  if (state == StatePending) {
-    return pixmap;
-  }
-
-  QColor penColor;
-  QColor brushColor;
-  switch (state) {
-    case AllPresent:
-      penColor = QColor(0x3a5827);
-      brushColor = QColor(0x89e74a);
-      break;
-    case SomeMissing:
-      penColor = QColor(0x7a5418);
-      brushColor = QColor(0xffc04b);
-      break;
-    default:
-      penColor = QColor(0x6f2719);
-      brushColor = QColor(0xff674b);
-      break;
-  }
-
-  QPainter painter(&pixmap);
-  painter.setRenderHint(QPainter::Antialiasing);
-  QPen pen(penColor);
-  pen.setWidthF(1.5);
-  painter.setPen(pen);
-  painter.setBrush(brushColor);
-  painter.drawEllipse(QRectF(1, 1, size - 2, size - 2));
-  return pixmap;
+  static const std::array<StateIcon::Color, 4> colors{StateIcon::Green, StateIcon::Yellow, StateIcon::Red,
+                                                      StateIcon::None};
+  return StateIcon::pixmap(colors[state]);
 }
 
 QString RelinkingModel::toDisplayPath(const QString& path) {

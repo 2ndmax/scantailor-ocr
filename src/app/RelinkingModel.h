@@ -164,8 +164,6 @@ class RelinkingModel : public QAbstractItemModel {
 
   static QString parentDir(const QString& path);
 
-  static QPixmap createStateIcon(State state);
-
   void replacePrefixUncommitted(const QString& prefix, const QString& replacement, RelinkablePath::Type type);
 
   /** Returns true if different original paths are remapped to the same uncommitted one. */
