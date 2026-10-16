@@ -851,17 +851,17 @@ ScanTailor Advanced.
   for the tests, and on Linux additionally rendered by Poppler's `pdftoppm` and compared pixel
   by pixel), cropping of split backgrounds, page order, text layer,
   finding and gathering language files, download checksums.
-* CI installs Tesseract on Linux and Windows; the Flatpak is built without text recognition for
-  now, as its runtime doesn't include Tesseract.
+* CI installs Tesseract on Linux and Windows.
 * Qt 5 is no longer supported; the program needs Qt 6.4 or later (the version of Ubuntu 24.04).
   The code paths for older Qt versions are removed. CI builds Linux with Qt 6; the Linux
-  packages (DEB, RPM, AppImage) are built with Qt 6, like the Windows version. The Windows job keeps vcpkg's intermediate files off the
+  packages (DEB, AppImage) are built with Qt 6, like the Windows version. The Windows job keeps vcpkg's intermediate files off the
   runner's small system drive and only saves a new package cache when something was rebuilt.
 * The Lint workflow uses clang-format 22.1.3, the version that comes with Visual Studio 2026, so
   that a local check gives the same result (other versions format some lines differently).
-* The Flatpak manifest (now `flatpak/io.github._2ndmax.ScanTailorOCR.json`) builds this fork's own code
-  instead of upstream's version 1.1.1, with the KDE 6.10 runtime (Qt 6), Boost as an extra
-  module and the correct program name. The Flatpak workflow can be started by hand.
+* No Flatpak: upstream's manifest is removed, as the Flatpak runtime has no Tesseract and the
+  package was not published anywhere. The Linux packages are the .deb and the AppImage. Also
+  removed: the MXE cross-build script for Windows (Qt 5, no OCR) and upstream's second Linux
+  workflow (`cmake.yml`), which built the packages once more without tests.
 * Fixed compiler warnings: a possibly dangling reference in "Go to Page", the member
   initialization order in the margins options, and an obsolete combo box setting that Qt 6
   ignored anyway.

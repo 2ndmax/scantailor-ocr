@@ -51,7 +51,7 @@ endif()
 
 # Off by default: -march=native produces a binary that only runs on CPUs
 # compatible with the build machine. Anything meant to be distributed
-# (distro packages, Flatpak, CI artifacts) would abort with SIGILL elsewhere.
+# (distro packages, AppImage, CI artifacts) would abort with SIGILL elsewhere.
 # Kept outside the block above, as add_compile_options() sets a directory
 # property that has to be applied on every configure run, not just the first.
 if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
@@ -90,7 +90,7 @@ endif()
 
 st_set_default_build_type(Release)
 
-# Must be set before Boost (Flatpak and other chroot builds use -DBUILD_TESTS=OFF; issue #61).
+# Must be set before Boost (distribution packages and other chroot builds use -DBUILD_TESTS=OFF; issue #61).
 option(BUILD_TESTS "Build unit tests (math_tests, imageproc_tests, core_tests, foundation_tests, qt_tests)" ON)
 option(BUILD_DEV_TOOLS "Build developer tools (binarization_compare: binarization methods; color_detect: color mode detection on sample pages)" OFF)
 
