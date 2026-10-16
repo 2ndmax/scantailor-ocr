@@ -3,6 +3,8 @@
 
 #include "FixDpiDialog.h"
 
+#include <QDir>
+#include <QHeaderView>
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <algorithm>
@@ -10,108 +12,18 @@
 #include "ColorSchemeManager.h"
 #include "Utils.h"
 
-// To be able to use it in QVariant
-Q_DECLARE_METATYPE(ImageMetadata)
-
-static const int NEED_FIXING_TAB = 0;
-static const int ALL_PAGES_TAB = 1;
-
-// Requests a group of ImageMetadata objects folded into one.
-static const int AGGREGATE_METADATA_ROLE = Qt::UserRole;
-// Same as the one above, but only objects with .isDpiOK() == false
-// will be considered.
-static const int AGGREGATE_NOT_OK_METADATA_ROLE = Qt::UserRole + 1;
+// Requests the resolution all images of an item have in common, as a QSize;
+// a null QSize if it is undefined or they have different ones.
+static const int DPI_ROLE = Qt::UserRole;
+// Same as the one above, but only images with .isDpiOK() == false will be considered.
+static const int NOT_OK_DPI_ROLE = Qt::UserRole + 1;
 
 
 /**
- * Counts the images of a group by their metadata (size and DPI), so the DPI
- * shown for the whole group can be computed: if all images have the same
- * metadata, that is the aggregate; otherwise it is a null (default-constructed)
- * ImageMetadata, which shows that the DPIs within the group differ.
+ * Presents the images as a two-level tree, as the Relinking dialog does: folders (in the order
+ * of their first image) with their images below.  Each page of a multi-page file is an image.
+ * The second column shows the resolution of an image, or how many images of a folder need fixing.
  */
-class FixDpiDialog::DpiCounts {
- public:
-  void add(const ImageMetadata& metadata);
-
-  void remove(const ImageMetadata& metadata);
-
-  /**
-   * Checks if all ImageMetadata objects return true for ImageMetadata::isDpiOK().
-   */
-  bool allDpisOK() const;
-
-  /**
-   * If all ImageMetadata objects are equal, one of them will be returned.
-   * Otherwise, a default-constructed ImageMetadata() object will be returned.
-   */
-  ImageMetadata aggregate(Scope scope) const;
-
- private:
-  struct MetadataComparator {
-    bool operator()(const ImageMetadata& lhs, const ImageMetadata& rhs) const;
-  };
-
-  using Map = std::map<ImageMetadata, int, MetadataComparator>;
-
-  Map m_counts;
-};
-
-
-/**
- * This comparator puts objects that are not OK to the front.
- */
-bool FixDpiDialog::DpiCounts::MetadataComparator::operator()(const ImageMetadata& lhs, const ImageMetadata& rhs) const {
-  const bool lhsOk = lhs.isDpiOK();
-  const bool rhsOk = rhs.isDpiOK();
-  if (lhsOk != rhsOk) {
-    return rhsOk;
-  }
-
-  if (lhs.size().width() < rhs.size().width()) {
-    return true;
-  } else if (lhs.size().width() > rhs.size().width()) {
-    return false;
-  } else if (lhs.size().height() < rhs.size().height()) {
-    return true;
-  } else if (lhs.size().height() > rhs.size().height()) {
-    return false;
-  } else if (lhs.dpi().horizontal() < rhs.dpi().horizontal()) {
-    return true;
-  } else if (lhs.dpi().horizontal() > rhs.dpi().horizontal()) {
-    return false;
-  } else {
-    return lhs.dpi().vertical() < rhs.dpi().vertical();
-  }
-}
-
-class FixDpiDialog::SizeGroup {
- public:
-  struct Item {
-    int fileIdx;
-    int imageIdx;
-
-    Item(int fileIdx, int imageIdx) : fileIdx(fileIdx), imageIdx(imageIdx) {}
-  };
-
-  explicit SizeGroup(const QSize& size) : m_size(size) {}
-
-  void append(const Item& item, const ImageMetadata& metadata);
-
-  const QSize& size() const { return m_size; }
-
-  const std::vector<Item>& items() const { return m_items; }
-
-  DpiCounts& dpiCounts() { return m_dpiCounts; }
-
-  const DpiCounts& dpiCounts() const { return m_dpiCounts; }
-
- private:
-  QSize m_size;
-  std::vector<Item> m_items;
-  DpiCounts m_dpiCounts;
-};
-
-
 class FixDpiDialog::TreeModel : private QAbstractItemModel {
  public:
   explicit TreeModel(const std::vector<ImageFileInfo>& files);
@@ -120,17 +32,29 @@ class FixDpiDialog::TreeModel : private QAbstractItemModel {
 
   QAbstractItemModel* model() { return this; }
 
-  bool allDpisOK() const { return m_dpiCounts.allDpisOK(); }
+  bool allDpisOK() const { return notOkImageCount() == 0; }
+
+  int imageCount() const;
+
+  int notOkImageCount() const;
 
   bool isVisibleForFilter(const QModelIndex& parent, int row) const;
 
   void applyDpiToSelection(Scope scope, const Dpi& dpi, const QItemSelection& selection);
 
-  /** The pixel sizes of the images an item stands for: all pages, one size group or one image. */
-  std::vector<QSize> pixelSizesOf(const QModelIndex& index) const;
+  /** The pixel sizes of the images an item stands for, each once: of a folder or of one image. */
+  std::vector<QSize> pixelSizesOf(const QModelIndex& index, Scope scope) const;
 
  private:
-  void applyDpiToIndex(Scope scope, const Dpi& dpi, const QModelIndex& selected);
+  struct Image {
+    int fileIdx;
+    int imageIdx;
+  };
+
+  struct Folder {
+    QString path;
+    std::vector<Image> images;
+  };
 
   struct Tag {};
 
@@ -144,32 +68,24 @@ class FixDpiDialog::TreeModel : private QAbstractItemModel {
 
   QVariant data(const QModelIndex& index, int role) const override;
 
-  void applyDpiToAllGroups(Scope scope, const Dpi& dpi);
+  const ImageMetadata& metadataOf(const Image& image) const;
 
-  void applyDpiToGroup(Scope scope, const Dpi& dpi, SizeGroup& group, DpiCounts& totalDpiCounts);
+  /**
+   * The images of a folder or the single image an item stands for.
+   * With NOT_OK, those of a folder are limited to the ones that need fixing.
+   */
+  std::vector<Image> imagesOf(const QModelIndex& index, Scope scope) const;
 
-  void applyDpiToItem(Scope scope,
-                      const ImageMetadata& newMetadata,
-                      SizeGroup::Item item,
-                      DpiCounts& totalDpiCounts,
-                      DpiCounts& groupDpiCounts);
+  int notOkImageCount(const Folder& folder) const;
 
-  void emitAllPagesChanged(const QModelIndex& idx);
+  QSize commonDpi(const QModelIndex& index, Scope scope) const;
 
-  void emitSizeGroupChanged(const QModelIndex& idx);
+  static QString dpiText(const ImageMetadata& metadata);
 
-  void emitItemChanged(const QModelIndex& idx);
-
-  SizeGroup& sizeGroupFor(QSize size);
-
-  static QString sizeToString(QSize size);
-
-  static Tag m_allPagesNodeId;
-  static Tag m_sizeGroupNodeId;
+  static Tag m_folderNodeId;
 
   std::vector<ImageFileInfo> m_files;
-  std::vector<SizeGroup> m_sizes;
-  DpiCounts m_dpiCounts;
+  std::vector<Folder> m_folders;
 };
 
 
@@ -179,19 +95,23 @@ class FixDpiDialog::FilterModel : private QSortFilterProxyModel {
 
   QAbstractProxyModel* model() { return this; }
 
+  bool needFixingOnly() const { return m_needFixingOnly; }
+
+  /** Shows only the folders and images that need fixing, or all of them. */
+  void setNeedFixingOnly(bool needFixingOnly);
+
  private:
   bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
 
   QVariant data(const QModelIndex& index, int role) const override;
 
   TreeModel& m_delegate;
+  bool m_needFixingOnly;
 };
 
 
 FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* parent)
-    : QDialog(parent),
-      m_pages(std::make_unique<TreeModel>(files)),
-      m_undefinedDpiPages(std::make_unique<FilterModel>(*m_pages)) {
+    : QDialog(parent), m_pages(std::make_unique<TreeModel>(files)), m_filter(std::make_unique<FilterModel>(*m_pages)) {
   setupUi(this);
 
   // Lists of the usual values that also take any other value typed in, as in the Margins step.
@@ -209,22 +129,18 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
   const QColor errorTextColor = ColorSchemeManager::instance().getColorParam("FixDpiDialogErrorText", QColor(Qt::red));
   m_errorPalette.setColor(QPalette::Text, errorTextColor);
 
-  tabWidget->setTabText(NEED_FIXING_TAB, tr("Need Fixing"));
-  tabWidget->setTabText(ALL_PAGES_TAB, tr("All Pages"));
-  undefinedDpiView->setModel(m_undefinedDpiPages->model()), undefinedDpiView->header()->hide();
-  allPagesView->setModel(m_pages->model());
-  allPagesView->header()->hide();
-  // Several pages or size groups can be selected with Ctrl and Shift.
-  for (QTreeView* view : {undefinedDpiView, allPagesView}) {
-    view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  }
+  // Opens with the pages that need fixing, if there are any.
+  m_filter->setNeedFixingOnly(!m_pages->allDpisOK());
+  needFixingOnlyCB->setChecked(m_filter->needFixingOnly());
+  treeView->setModel(m_filter->model());
+  treeView->header()->setStretchLastSection(false);
+  treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+  treeView->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  treeView->expandAll();
+  updateSummary();
 
-  connect(tabWidget, &QTabWidget::currentChanged, this, &FixDpiDialog::tabChanged);
-
-  connect(undefinedDpiView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
-          &FixDpiDialog::selectionChanged);
-  connect(allPagesView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
-          &FixDpiDialog::selectionChanged);
+  connect(needFixingOnlyCB, &QCheckBox::toggled, this, &FixDpiDialog::needFixingOnlyToggled);
+  connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FixDpiDialog::selectionChanged);
 
   connect(xDpi, &QComboBox::activated, this, &FixDpiDialog::dpiChosenFromList);
   connect(yDpi, &QComboBox::activated, this, &FixDpiDialog::dpiChosenFromList);
@@ -242,17 +158,17 @@ const std::vector<ImageFileInfo>& FixDpiDialog::files() const {
   return m_pages->files();
 }
 
-QTreeView* FixDpiDialog::currentView() const {
-  return (tabWidget->currentIndex() == ALL_PAGES_TAB) ? allPagesView : undefinedDpiView;
-}
-
-void FixDpiDialog::tabChanged(const int tab) {
-  updateDpiFromSelection(currentView()->selectionModel()->selection());
+void FixDpiDialog::needFixingOnlyToggled(const bool checked) {
+  // Selected items that are hidden now are deselected; the others stay selected.
+  // Those show and get only the resolution of their pages that need fixing while the box is on.
+  m_filter->setNeedFixingOnly(checked);
+  treeView->expandAll();
+  updateDpiFromSelection();
 }
 
 void FixDpiDialog::selectionChanged(const QItemSelection& selection) {
   // The argument holds only the newly selected items, not the whole selection.
-  updateDpiFromSelection(currentView()->selectionModel()->selection());
+  updateDpiFromSelection();
 }
 
 void FixDpiDialog::dpiChosenFromList() {
@@ -303,20 +219,21 @@ void FixDpiDialog::dpiValueChanged() {
 
 void FixDpiDialog::applyClicked() {
   const Dpi dpi(enteredDpi());
-  QItemSelectionModel* selectionModel = nullptr;
+  const QItemSelection selection(m_filter->model()->mapSelectionToSource(treeView->selectionModel()->selection()));
+  m_pages->applyDpiToSelection(scope(), dpi, selection);
 
-  if (tabWidget->currentIndex() == ALL_PAGES_TAB) {
-    selectionModel = allPagesView->selectionModel();
-    const QItemSelection selection(selectionModel->selection());
-    m_pages->applyDpiToSelection(ALL, dpi, selection);
-  } else {
-    selectionModel = undefinedDpiView->selectionModel();
-    const QItemSelection selection(m_undefinedDpiPages->model()->mapSelectionToSource(selectionModel->selection()));
-    m_pages->applyDpiToSelection(NOT_OK, dpi, selection);
-  }
-
-  updateDpiFromSelection(selectionModel->selection());
+  updateDpiFromSelection();
+  updateSummary();
   enableDisableOkButton();
+}
+
+FixDpiDialog::Scope FixDpiDialog::scope() const {
+  // While only the pages that need fixing are shown, a folder passes the resolution only to those.
+  return m_filter->needFixingOnly() ? NOT_OK : ALL;
+}
+
+void FixDpiDialog::updateSummary() {
+  imagesSummaryLabel->setText(tr("%1 of %2 need fixing").arg(m_pages->notOkImageCount()).arg(m_pages->imageCount()));
 }
 
 void FixDpiDialog::enableDisableOkButton() {
@@ -325,11 +242,10 @@ void FixDpiDialog::enableDisableOkButton() {
 }
 
 /**
- * This function works with both TreeModel and FilterModel selections.
  * The fields show the resolution if all selected items have the same one, else they are empty.
  */
-void FixDpiDialog::updateDpiFromSelection(const QItemSelection& selection) {
-  const QModelIndexList indexes(selection.indexes());
+void FixDpiDialog::updateDpiFromSelection() {
+  const QModelIndexList indexes(treeView->selectionModel()->selectedRows());
   const bool enabled = !indexes.isEmpty();
   // applyBtn is managed elsewhere.
   for (QWidget* widget : {static_cast<QWidget*>(dpiLabel), static_cast<QWidget*>(xDpi),
@@ -338,31 +254,28 @@ void FixDpiDialog::updateDpiFromSelection(const QItemSelection& selection) {
   }
 
   m_selectedPixelSizes.clear();
-  Dpi commonDpi;
+  QSize commonDpi;
   bool sameDpi = true;
   for (const QModelIndex& index : indexes) {
-    const QAbstractProxyModel* const filter = m_undefinedDpiPages->model();
-    const QModelIndex sourceIndex = (index.model() == filter) ? filter->mapToSource(index) : index;
-    for (const QSize& pixelSize : m_pages->pixelSizesOf(sourceIndex)) {
+    for (const QSize& pixelSize : m_pages->pixelSizesOf(m_filter->model()->mapToSource(index), scope())) {
       if (std::find(m_selectedPixelSizes.begin(), m_selectedPixelSizes.end(), pixelSize)
           == m_selectedPixelSizes.end()) {
         m_selectedPixelSizes.push_back(pixelSize);
       }
     }
 
-    // FilterModel may replace AGGREGATE_METADATA_ROLE with AGGREGATE_NOT_OK_METADATA_ROLE.
+    // FilterModel may replace DPI_ROLE with NOT_OK_DPI_ROLE.
     // A null resolution means "undefined" or "different ones".
-    const QVariant data(index.data(AGGREGATE_METADATA_ROLE));
-    const Dpi dpi = data.isValid() ? data.value<ImageMetadata>().dpi() : Dpi();
+    const QSize dpi(index.data(DPI_ROLE).toSize());
     if (index == indexes.front()) {
       commonDpi = dpi;
-    } else if (dpi.toSize() != commonDpi.toSize()) {
+    } else if (dpi != commonDpi) {
       sameDpi = false;
     }
   }
 
   if (enabled && sameDpi) {
-    setDpiForm(commonDpi);
+    setDpiForm(Dpi(commonDpi));
   } else {
     resetDpiForm();
   }
@@ -414,166 +327,163 @@ void FixDpiDialog::decorateDpiInputField(QComboBox* field, ImageMetadata::DpiSta
   }
 }
 
-/*====================== FixDpiDialog::DpiCounts ======================*/
-
-void FixDpiDialog::DpiCounts::add(const ImageMetadata& metadata) {
-  ++m_counts[metadata];
-}
-
-void FixDpiDialog::DpiCounts::remove(const ImageMetadata& metadata) {
-  if (--m_counts[metadata] == 0) {
-    m_counts.erase(metadata);
-  }
-}
-
-bool FixDpiDialog::DpiCounts::allDpisOK() const {
-  // We put wrong DPIs to the front, so if the first one is OK,
-  // the others are OK as well.
-  const auto it(m_counts.begin());
-  return it == m_counts.end() || it->first.isDpiOK();
-}
-
-ImageMetadata FixDpiDialog::DpiCounts::aggregate(const Scope scope) const {
-  const auto it(m_counts.begin());
-
-  if (it == m_counts.end()) {
-    return ImageMetadata();
-  }
-
-  if ((scope == NOT_OK) && it->first.isDpiOK()) {
-    // If this one is OK, the following ones are OK as well.
-    return ImageMetadata();
-  }
-
-  Map::const_iterator next(it);
-  ++next;
-
-  if (next == m_counts.end()) {
-    return it->first;
-  }
-
-  if ((scope == NOT_OK) && next->first.isDpiOK()) {
-    // If this one is OK, the following ones are OK as well.
-    return it->first;
-  }
-  return ImageMetadata();
-}
-
-/*====================== FixDpiDialog::SizeGroup ======================*/
-
-void FixDpiDialog::SizeGroup::append(const Item& item, const ImageMetadata& metadata) {
-  m_items.push_back(item);
-  m_dpiCounts.add(metadata);
-}
-
 /*====================== FixDpiDialog::TreeModel ======================*/
 
-FixDpiDialog::TreeModel::Tag FixDpiDialog::TreeModel::m_allPagesNodeId;
-FixDpiDialog::TreeModel::Tag FixDpiDialog::TreeModel::m_sizeGroupNodeId;
+FixDpiDialog::TreeModel::Tag FixDpiDialog::TreeModel::m_folderNodeId;
 
 FixDpiDialog::TreeModel::TreeModel(const std::vector<ImageFileInfo>& files) : m_files(files) {
   const auto numFiles = static_cast<int>(m_files.size());
   for (int i = 0; i < numFiles; ++i) {
-    const ImageFileInfo& file = m_files[i];
-    const auto numImages = static_cast<int>(file.imageInfo().size());
+    const QString path(m_files[i].fileInfo().absolutePath());
+    auto folder = std::find_if(m_folders.begin(), m_folders.end(),
+                               [&path](const Folder& folder) { return folder.path == path; });
+    if (folder == m_folders.end()) {
+      m_folders.push_back(Folder{path, {}});
+      folder = m_folders.end() - 1;
+    }
+    const auto numImages = static_cast<int>(m_files[i].imageInfo().size());
     for (int j = 0; j < numImages; ++j) {
-      const ImageMetadata& metadata = file.imageInfo()[j];
-      SizeGroup& group = sizeGroupFor(metadata.size());
-      group.append(SizeGroup::Item(i, j), metadata);
-      m_dpiCounts.add(metadata);
+      folder->images.push_back(Image{i, j});
     }
   }
 }
 
-bool FixDpiDialog::TreeModel::isVisibleForFilter(const QModelIndex& parent, int row) const {
-  const void* const ptr = parent.internalPointer();
-
-  if (!parent.isValid()) {
-    // 'All Pages'.
-    return !m_dpiCounts.allDpisOK();
-  } else if (ptr == &m_allPagesNodeId) {
-    // A size group.
-    return !m_sizes[row].dpiCounts().allDpisOK();
-  } else if (ptr == &m_sizeGroupNodeId) {
-    // An image.
-    const SizeGroup& group = m_sizes[parent.row()];
-    const SizeGroup::Item& item = group.items()[row];
-    const ImageFileInfo& file = m_files[item.fileIdx];
-    return !file.imageInfo()[item.imageIdx].isDpiOK();
-  } else {
-    // Should not happen.
-    return false;
+int FixDpiDialog::TreeModel::imageCount() const {
+  int count = 0;
+  for (const Folder& folder : m_folders) {
+    count += static_cast<int>(folder.images.size());
   }
+  return count;
+}
+
+int FixDpiDialog::TreeModel::notOkImageCount() const {
+  int count = 0;
+  for (const Folder& folder : m_folders) {
+    count += notOkImageCount(folder);
+  }
+  return count;
+}
+
+int FixDpiDialog::TreeModel::notOkImageCount(const Folder& folder) const {
+  return static_cast<int>(std::count_if(folder.images.begin(), folder.images.end(),
+                                        [this](const Image& image) { return !metadataOf(image).isDpiOK(); }));
+}
+
+bool FixDpiDialog::TreeModel::isVisibleForFilter(const QModelIndex& parent, const int row) const {
+  if (!parent.isValid()) {
+    // A folder.
+    return notOkImageCount(m_folders[row]) > 0;
+  }
+  // An image.
+  return !metadataOf(m_folders[parent.row()].images[row]).isDpiOK();
 }
 
 void FixDpiDialog::TreeModel::applyDpiToSelection(const Scope scope, const Dpi& dpi, const QItemSelection& selection) {
   // The tree doesn't change its rows here, so the indexes stay valid.
   for (const QModelIndex& index : selection.indexes()) {
-    applyDpiToIndex(scope, dpi, index);
+    if (index.column() != 0) {
+      continue;
+    }
+    for (const Image& image : imagesOf(index, scope)) {
+      ImageMetadata& metadata = m_files[image.fileIdx].imageInfo()[image.imageIdx];
+      metadata = ImageMetadata(metadata.size(), dpi);
+    }
+  }
+
+  // Images, their folders and the counts of other folders may have changed.
+  const int numFolders = rowCount(QModelIndex());
+  for (int i = 0; i < numFolders; ++i) {
+    const QModelIndex folderIndex(index(i, 0, QModelIndex()));
+    const int numImages = rowCount(folderIndex);
+    if (numImages > 0) {
+      emit dataChanged(index(0, 0, folderIndex), index(numImages - 1, 1, folderIndex));
+    }
+  }
+  if (numFolders > 0) {
+    emit dataChanged(index(0, 0, QModelIndex()), index(numFolders - 1, 1, QModelIndex()));
   }
 }
 
-std::vector<QSize> FixDpiDialog::TreeModel::pixelSizesOf(const QModelIndex& index) const {
-  const QModelIndex parent(index.parent());
-  const void* const ptr = parent.internalPointer();
-
+std::vector<QSize> FixDpiDialog::TreeModel::pixelSizesOf(const QModelIndex& index, const Scope scope) const {
   std::vector<QSize> sizes;
-  if (!parent.isValid()) {
-    // All pages.
-    for (const SizeGroup& group : m_sizes) {
-      sizes.push_back(group.size());
+  for (const Image& image : imagesOf(index, scope)) {
+    const QSize& size = metadataOf(image).size();
+    if (std::find(sizes.begin(), sizes.end(), size) == sizes.end()) {
+      sizes.push_back(size);
     }
-  } else if (ptr == &m_allPagesNodeId) {
-    // A size group.
-    sizes.push_back(m_sizes[index.row()].size());
-  } else if (ptr == &m_sizeGroupNodeId) {
-    // An image within a size group.
-    sizes.push_back(m_sizes[parent.row()].size());
   }
   return sizes;
 }
 
-void FixDpiDialog::TreeModel::applyDpiToIndex(const Scope scope, const Dpi& dpi, const QModelIndex& selected) {
-  const QModelIndex parent(selected.parent());
-  const int row = selected.row();
-  const void* const ptr = parent.internalPointer();
-  const QModelIndex idx(index(row, 0, parent));
+const ImageMetadata& FixDpiDialog::TreeModel::metadataOf(const Image& image) const {
+  return m_files[image.fileIdx].imageInfo()[image.imageIdx];
+}
 
-  if (!parent.isValid()) {
-    // Apply to all pages.
-    applyDpiToAllGroups(scope, dpi);
-    emitAllPagesChanged(idx);
-  } else if (ptr == &m_allPagesNodeId) {
-    // Apply to a size group.
-    SizeGroup& group = m_sizes[row];
-    applyDpiToGroup(scope, dpi, group, m_dpiCounts);
-    emitSizeGroupChanged(index(row, 0, parent));
-  } else if (ptr == &m_sizeGroupNodeId) {
-    // Images within a size group.
-    SizeGroup& group = m_sizes[parent.row()];
-    const SizeGroup::Item& item = group.items()[row];
-    const ImageMetadata metadata(group.size(), dpi);
-    applyDpiToItem(scope, metadata, item, m_dpiCounts, group.dpiCounts());
-    emitItemChanged(idx);
+std::vector<FixDpiDialog::TreeModel::Image> FixDpiDialog::TreeModel::imagesOf(const QModelIndex& index,
+                                                                              const Scope scope) const {
+  const QModelIndex parent(index.parent());
+  if (parent.isValid()) {
+    // An image on its own.
+    return {m_folders[parent.row()].images[index.row()]};
   }
+
+  std::vector<Image> images;
+  for (const Image& image : m_folders[index.row()].images) {
+    if ((scope == ALL) || !metadataOf(image).isDpiOK()) {
+      images.push_back(image);
+    }
+  }
+  return images;
+}
+
+QSize FixDpiDialog::TreeModel::commonDpi(const QModelIndex& index, const Scope scope) const {
+  const std::vector<Image> images(imagesOf(index, scope));
+  if (images.empty()) {
+    return QSize();
+  }
+
+  const QSize dpi(metadataOf(images.front()).dpi().toSize());
+  for (const Image& image : images) {
+    if (metadataOf(image).dpi().toSize() != dpi) {
+      return QSize();
+    }
+  }
+  return dpi;
+}
+
+QString FixDpiDialog::TreeModel::dpiText(const ImageMetadata& metadata) {
+  ImageMetadata::DpiStatus status = metadata.horizontalDpiStatus();
+  if (status == ImageMetadata::DPI_OK) {
+    status = metadata.verticalDpiStatus();
+  }
+
+  const Dpi& dpi = metadata.dpi();
+  const QString text(QString("%1 %2 %3 dpi").arg(dpi.horizontal()).arg(QChar(0x00D7)).arg(dpi.vertical()));
+  switch (status) {
+    case ImageMetadata::DPI_OK:
+      return text;
+    case ImageMetadata::DPI_UNDEFINED:
+      return FixDpiDialog::tr("undefined");
+    case ImageMetadata::DPI_TOO_LARGE:
+      return FixDpiDialog::tr("%1, too large").arg(text);
+    case ImageMetadata::DPI_TOO_SMALL:
+    case ImageMetadata::DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE:
+      return FixDpiDialog::tr("%1, too small").arg(text);
+  }
+  return text;
 }
 
 int FixDpiDialog::TreeModel::columnCount(const QModelIndex& parent) const {
-  return 1;
+  return 2;
 }
 
 int FixDpiDialog::TreeModel::rowCount(const QModelIndex& parent) const {
-  const void* const ptr = parent.internalPointer();
-
   if (!parent.isValid()) {
-    // The single 'All Pages' item.
-    return 1;
-  } else if (ptr == &m_allPagesNodeId) {
-    // Size groups.
-    return static_cast<int>(m_sizes.size());
-  } else if (ptr == &m_sizeGroupNodeId) {
-    // Images within a size group.
-    return static_cast<int>(m_sizes[parent.row()].items().size());
+    // Folders.
+    return static_cast<int>(m_folders.size());
+  } else if ((parent.internalPointer() == &m_folderNodeId) && (parent.column() == 0)) {
+    // Images within a folder.
+    return static_cast<int>(m_folders[parent.row()].images.size());
   } else {
     // Children of an image.
     return 0;
@@ -581,17 +491,12 @@ int FixDpiDialog::TreeModel::rowCount(const QModelIndex& parent) const {
 }
 
 QModelIndex FixDpiDialog::TreeModel::index(const int row, const int column, const QModelIndex& parent) const {
-  const void* const ptr = parent.internalPointer();
-
   if (!parent.isValid()) {
-    // The 'All Pages' item.
-    return createIndex(row, column, &m_allPagesNodeId);
-  } else if (ptr == &m_allPagesNodeId) {
-    // A size group.
-    return createIndex(row, column, &m_sizeGroupNodeId);
-  } else if (ptr == &m_sizeGroupNodeId) {
-    // An image within some size group.
-    return createIndex(row, column, (void*) &m_sizes[parent.row()]);
+    // A folder.
+    return createIndex(row, column, &m_folderNodeId);
+  } else if (parent.internalPointer() == &m_folderNodeId) {
+    // An image within a folder.
+    return createIndex(row, column, (void*) &m_folders[parent.row()]);
   }
   return QModelIndex();
 }
@@ -599,175 +504,78 @@ QModelIndex FixDpiDialog::TreeModel::index(const int row, const int column, cons
 QModelIndex FixDpiDialog::TreeModel::parent(const QModelIndex& index) const {
   const void* const ptr = index.internalPointer();
 
-  if (!index.isValid()) {
-    // Should not happen.
+  if (!index.isValid() || (ptr == &m_folderNodeId)) {
+    // Folder -> tree root.
     return QModelIndex();
-  } else if (ptr == &m_allPagesNodeId) {
-    // 'All Pages' -> tree root.
-    return QModelIndex();
-  } else if (ptr == &m_sizeGroupNodeId) {
-    // Size group -> 'All Pages'.
-    return createIndex(0, index.column(), &m_allPagesNodeId);
-  } else {
-    // Image -> size group.
-    const auto* group = static_cast<const SizeGroup*>(ptr);
-    return createIndex(static_cast<int>(group - &m_sizes[0]), index.column(), &m_sizeGroupNodeId);
   }
+  // Image -> folder.
+  const auto* folder = static_cast<const Folder*>(ptr);
+  return createIndex(static_cast<int>(folder - &m_folders[0]), 0, &m_folderNodeId);
 }
 
 QVariant FixDpiDialog::TreeModel::data(const QModelIndex& index, const int role) const {
-  const void* const ptr = index.internalPointer();
-
   if (!index.isValid()) {
     // Should not happen.
     return QVariant();
-  } else if (ptr == &m_allPagesNodeId) {
-    // 'All Pages'.
-    if (role == Qt::DisplayRole) {
-      return FixDpiDialog::tr("All Pages");
-    } else if (role == AGGREGATE_METADATA_ROLE) {
-      return QVariant::fromValue(m_dpiCounts.aggregate(ALL));
-    } else if (role == AGGREGATE_NOT_OK_METADATA_ROLE) {
-      return QVariant::fromValue(m_dpiCounts.aggregate(NOT_OK));
-    }
-  } else if (ptr == &m_sizeGroupNodeId) {
-    // Size group.
-    const SizeGroup& group = m_sizes[index.row()];
-    if (role == Qt::DisplayRole) {
-      return sizeToString(group.size());
-    } else if (role == AGGREGATE_METADATA_ROLE) {
-      return QVariant::fromValue(group.dpiCounts().aggregate(ALL));
-    } else if (role == AGGREGATE_NOT_OK_METADATA_ROLE) {
-      return QVariant::fromValue(group.dpiCounts().aggregate(NOT_OK));
-    }
-  } else {
-    // Image.
-    const auto* group = static_cast<const SizeGroup*>(ptr);
-    const SizeGroup::Item& item = group->items()[index.row()];
-    const ImageFileInfo& file = m_files[item.fileIdx];
-    if (role == Qt::DisplayRole) {
-      const QString& fname = file.fileInfo().fileName();
-      if (file.imageInfo().size() == 1) {
-        return fname;
-      } else {
-        return FixDpiDialog::tr("%1 (page %2)").arg(fname).arg(item.imageIdx + 1);
-      }
-    } else if ((role == AGGREGATE_METADATA_ROLE) || (role == AGGREGATE_NOT_OK_METADATA_ROLE)) {
-      return QVariant::fromValue(file.imageInfo()[item.imageIdx]);
-    }
   }
-  return QVariant();
+
+  if (role == DPI_ROLE) {
+    return commonDpi(index, ALL);
+  } else if (role == NOT_OK_DPI_ROLE) {
+    return commonDpi(index, NOT_OK);
+  } else if ((role != Qt::DisplayRole) && (role != Qt::ToolTipRole)) {
+    return QVariant();
+  }
+
+  if (index.internalPointer() == &m_folderNodeId) {
+    // Folder.
+    const Folder& folder = m_folders[index.row()];
+    if (index.column() == 0) {
+      return QDir::toNativeSeparators(folder.path);
+    }
+    return FixDpiDialog::tr("%1 of %2 need fixing")
+        .arg(notOkImageCount(folder))
+        .arg(static_cast<int>(folder.images.size()));
+  }
+
+  // Image.
+  const auto* folder = static_cast<const Folder*>(index.internalPointer());
+  const Image& image = folder->images[index.row()];
+  if (index.column() == 1) {
+    return dpiText(metadataOf(image));
+  }
+  const ImageFileInfo& file = m_files[image.fileIdx];
+  if (role == Qt::ToolTipRole) {
+    return QDir::toNativeSeparators(file.fileInfo().absoluteFilePath());
+  }
+  const QString fname(file.fileInfo().fileName());
+  if (file.imageInfo().size() == 1) {
+    return fname;
+  }
+  return FixDpiDialog::tr("%1 (page %2)").arg(fname).arg(image.imageIdx + 1);
 }  // FixDpiDialog::TreeModel::data
-
-void FixDpiDialog::TreeModel::applyDpiToAllGroups(const Scope scope, const Dpi& dpi) {
-  const auto numGroups = static_cast<int>(m_sizes.size());
-  for (int i = 0; i < numGroups; ++i) {
-    applyDpiToGroup(scope, dpi, m_sizes[i], m_dpiCounts);
-  }
-}
-
-void FixDpiDialog::TreeModel::applyDpiToGroup(const Scope scope,
-                                              const Dpi& dpi,
-                                              SizeGroup& group,
-                                              DpiCounts& totalDpiCounts) {
-  DpiCounts& groupDpiCounts = group.dpiCounts();
-  const ImageMetadata metadata(group.size(), dpi);
-  const std::vector<SizeGroup::Item>& items = group.items();
-  const auto numItems = static_cast<int>(items.size());
-  for (int i = 0; i < numItems; ++i) {
-    applyDpiToItem(scope, metadata, items[i], totalDpiCounts, groupDpiCounts);
-  }
-}
-
-void FixDpiDialog::TreeModel::applyDpiToItem(const Scope scope,
-                                             const ImageMetadata& newMetadata,
-                                             const SizeGroup::Item item,
-                                             DpiCounts& totalDpiCounts,
-                                             DpiCounts& groupDpiCounts) {
-  ImageFileInfo& file = m_files[item.fileIdx];
-  ImageMetadata& oldMetadata = file.imageInfo()[item.imageIdx];
-
-  if ((scope == NOT_OK) && oldMetadata.isDpiOK()) {
-    return;
-  }
-
-  totalDpiCounts.add(newMetadata);
-  groupDpiCounts.add(newMetadata);
-  totalDpiCounts.remove(oldMetadata);
-  groupDpiCounts.remove(oldMetadata);
-
-  oldMetadata = newMetadata;
-}
-
-void FixDpiDialog::TreeModel::emitAllPagesChanged(const QModelIndex& idx) {
-  const auto numGroups = static_cast<int>(m_sizes.size());
-  for (int i = 0; i < numGroups; ++i) {
-    const QModelIndex groupNode(index(i, 0, idx));
-    const int numItems = rowCount(groupNode);
-    for (int j = 0; j < numItems; ++j) {
-      const QModelIndex imageNode(index(j, 0, groupNode));
-      emit dataChanged(imageNode, imageNode);
-    }
-    emit dataChanged(groupNode, groupNode);
-  }
-
-  // The 'All Pages' node.
-  emit dataChanged(idx, idx);
-}
-
-void FixDpiDialog::TreeModel::emitSizeGroupChanged(const QModelIndex& idx) {
-  // Every item in this size group.
-  emit dataChanged(index(0, 0, idx), index(rowCount(idx) - 1, 0, idx));
-
-  // The size group itself.
-  emit dataChanged(idx, idx);
-
-  // The 'All Pages' node.
-  const QModelIndex allPagesNode(idx.parent());
-  emit dataChanged(allPagesNode, allPagesNode);
-}
-
-void FixDpiDialog::TreeModel::emitItemChanged(const QModelIndex& idx) {
-  // The item itself.
-  emit dataChanged(idx, idx);
-
-  // The size group node.
-  const QModelIndex groupNode(idx.parent());
-  emit dataChanged(groupNode, groupNode);
-  // The 'All Pages' node.
-  const QModelIndex allPagesNode(groupNode.parent());
-  emit dataChanged(allPagesNode, allPagesNode);
-}
-
-FixDpiDialog::SizeGroup& FixDpiDialog::TreeModel::sizeGroupFor(const QSize size) {
-  const auto it(
-      std::find_if(m_sizes.begin(), m_sizes.end(), [size](const SizeGroup& group) { return group.size() == size; }));
-  if (it != m_sizes.end()) {
-    return *it;
-  } else {
-    m_sizes.emplace_back(size);
-    return m_sizes.back();
-  }
-}
-
-QString FixDpiDialog::TreeModel::sizeToString(const QSize size) {
-  return QString("%1 x %2 px").arg(size.width()).arg(size.height());
-}
 
 /*====================== FixDpiDialog::FilterModel ======================*/
 
-FixDpiDialog::FilterModel::FilterModel(TreeModel& delegate) : m_delegate(delegate) {
+FixDpiDialog::FilterModel::FilterModel(TreeModel& delegate) : m_delegate(delegate), m_needFixingOnly(false) {
   setDynamicSortFilter(true);
   setSourceModel(delegate.model());
 }
 
+void FixDpiDialog::FilterModel::setNeedFixingOnly(const bool needFixingOnly) {
+  if (m_needFixingOnly != needFixingOnly) {
+    m_needFixingOnly = needFixingOnly;
+    invalidateFilter();
+  }
+}
+
 bool FixDpiDialog::FilterModel::filterAcceptsRow(const int sourceRow, const QModelIndex& sourceParent) const {
-  return m_delegate.isVisibleForFilter(sourceParent, sourceRow);
+  return !m_needFixingOnly || m_delegate.isVisibleForFilter(sourceParent, sourceRow);
 }
 
 QVariant FixDpiDialog::FilterModel::data(const QModelIndex& index, int role) const {
-  if (role == AGGREGATE_METADATA_ROLE) {
-    role = AGGREGATE_NOT_OK_METADATA_ROLE;
+  if (m_needFixingOnly && (role == DPI_ROLE)) {
+    role = NOT_OK_DPI_ROLE;
   }
   return QSortFilterProxyModel::data(index, role);
 }

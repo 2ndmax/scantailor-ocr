@@ -30,7 +30,7 @@ class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
 
  private slots:
 
-  void tabChanged(int tab);
+  void needFixingOnlyToggled(bool checked);
 
   void selectionChanged(const QItemSelection& selection);
 
@@ -41,19 +41,20 @@ class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
   void applyClicked();
 
  private:
-  class DpiCounts;
-  class SizeGroup;
   class TreeModel;
   class FilterModel;
 
   enum Scope { ALL, NOT_OK };
 
+  /** The images of a selected folder that a resolution goes to: all, or those that need fixing. */
+  Scope scope() const;
+
   void enableDisableOkButton();
 
-  /** The tree view of the current tab. */
-  QTreeView* currentView() const;
+  void updateSummary();
 
-  void updateDpiFromSelection(const QItemSelection& selection);
+  /** Updates the resolution fields from the items selected in the tree. */
+  void updateDpiFromSelection();
 
   void resetDpiForm();
 
@@ -65,7 +66,7 @@ class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
   void decorateDpiInputField(QComboBox* field, ImageMetadata::DpiStatus dpiStatus) const;
 
   std::unique_ptr<TreeModel> m_pages;
-  std::unique_ptr<FilterModel> m_undefinedDpiPages;
+  std::unique_ptr<FilterModel> m_filter;
   /** The resolution of the selected images when they were selected; (0, 0) if none. */
   QSize m_initialDpi;
   /** The pixel sizes of all selected images; the entered resolution is checked against each. */
