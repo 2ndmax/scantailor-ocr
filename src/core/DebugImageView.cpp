@@ -71,7 +71,8 @@ void DebugImageView::setLive(const bool live) {
 }
 
 void DebugImageView::imageLoaded(const QImage& image) {
-  if (!m_isLive) {
+  // A debug image whose file is gone can't be shown; the image views need a non-empty image.
+  if (!m_isLive || image.isNull()) {
     return;
   }
 

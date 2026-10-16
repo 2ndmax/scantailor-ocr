@@ -3,6 +3,7 @@
 
 #include "ColorSchemeFactory.h"
 
+#include "ApplicationSettings.h"
 #include "ColorScheme.h"
 #include "DarkColorScheme.h"
 #include "LightColorScheme.h"
@@ -19,5 +20,10 @@ void ColorSchemeFactory::registerColorScheme(const QString& scheme, const ColorS
 }
 
 std::unique_ptr<ColorScheme> ColorSchemeFactory::create(const QString& scheme) const {
-  return m_registry.at(scheme)();
+  // An unknown name, e.g. from an edited settings file, falls back to the default scheme.
+  const auto it = m_registry.find(scheme);
+  if (it == m_registry.end()) {
+    return m_registry.at(ApplicationSettings::DEFAULT_COLOR_SCHEME)();
+  }
+  return it->second();
 }

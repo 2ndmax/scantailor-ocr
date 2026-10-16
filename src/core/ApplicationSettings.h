@@ -21,6 +21,9 @@ class ApplicationSettings {
   ApplicationSettings();
 
  public:
+  // Also the fallback of ColorSchemeFactory for unknown names.
+  static const QString DEFAULT_COLOR_SCHEME;
+
   static ApplicationSettings& getInstance();
 
   bool isOpenGlEnabled() const;
@@ -222,7 +225,6 @@ class ApplicationSettings {
   static inline QString getKey(const QString& keyName);
 
   static const bool DEFAULT_OPENGL_STATE;
-  static const QString DEFAULT_COLOR_SCHEME;
   static const bool DEFAULT_AUTO_SAVE_PROJECT;
   static const int DEFAULT_TIFF_BW_COMPRESSION;
   static const int DEFAULT_TIFF_COLOR_COMPRESSION;

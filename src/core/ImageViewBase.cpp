@@ -389,7 +389,7 @@ void ImageViewBase::updateTransformPreservingScale(const ImagePresentation& pres
 }
 
 void ImageViewBase::ensureStatusTip(const QString& statusTip) {
-  const QString curStatusTip(this->statusTip());
+  const QString curStatusTip(viewport()->statusTip());
   if (curStatusTip.constData() == statusTip.constData()) {
     return;
   }

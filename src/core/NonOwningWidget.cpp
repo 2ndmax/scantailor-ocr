@@ -6,7 +6,9 @@
 NonOwningWidget::NonOwningWidget(QWidget* parent) : QWidget(parent) {}
 
 NonOwningWidget::~NonOwningWidget() {
-  for (QObject* child : children()) {
+  // setParent() removes the child from children(), so go through a copy.
+  const QObjectList kids = children();
+  for (QObject* child : kids) {
     if (auto* widget = dynamic_cast<QWidget*>(child)) {
       widget->setParent(nullptr);
     }
