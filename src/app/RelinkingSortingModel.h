@@ -13,6 +13,13 @@ class RelinkingSortingModel : public QSortFilterProxyModel {
   /** If set, only folders with missing files and only the missing files themselves are shown. */
   void setShowMissingOnly(bool missingOnly);
 
+  /**
+   * Keeps p sourceIndex (and its folder) visible even if nothing is missing there,
+   * so a node doesn't vanish
+   * right after being relinked.
+   */
+  void setPinned(const QModelIndex& sourceIndex);
+
  protected:
   bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
 
@@ -20,6 +27,7 @@ class RelinkingSortingModel : public QSortFilterProxyModel {
 
  private:
   bool m_showMissingOnly;
+  QPersistentModelIndex m_pinned;
 };
 
 

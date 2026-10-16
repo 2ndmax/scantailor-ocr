@@ -266,7 +266,22 @@ void RelinkingModel::addPath(const RelinkablePath& path) {
   requestItemStatusUpdate(itemIdx);
 }
 
-void RelinkingModel::replacePrefix(const QString& prefix, const QString& replacement, RelinkablePath::Type type) {
+bool RelinkingModel::replacePrefix(const QString prefix,
+                                   const QString replacement,
+                                   const RelinkablePath::Type type,
+                                   Merge* merge) {
+  replacePrefixUncommitted(prefix, replacement, type);
+  if (findMerge(merge)) {
+    rollbackChanges();
+    return false;
+  }
+  commitChanges();
+  return true;
+}
+
+void RelinkingModel::replacePrefixUncommitted(const QString& prefix,
+                                              const QString& replacement,
+                                              const RelinkablePath::Type type) {
   std::set<int> changedGroups;
 
   for (int i = 0; i < static_cast<int>(m_items.size()); ++i) {
@@ -310,18 +325,34 @@ void RelinkingModel::replacePrefix(const QString& prefix, const QString& replace
   for (const int g : changedGroups) {
     emitGroupChanged(g);
   }
-}  // RelinkingModel::replacePrefix
+}  // RelinkingModel::replacePrefixUncommitted
 
-bool RelinkingModel::checkForMerges() const {
-  std::vector<QString> newPaths;
-  newPaths.reserve(m_items.size());
-
+bool RelinkingModel::findMerge(Merge* merge) const {
+  // Pairs of (new path, original path), sorted by the new path.
+  std::vector<std::pair<QString, QString>> paths;
+  paths.reserve(m_items.size());
   for (const Item& item : m_items) {
-    newPaths.push_back(item.uncommittedPath);
+    paths.emplace_back(item.uncommittedPath, item.origPath);
+  }
+  std::sort(paths.begin(), paths.end());
+
+  Merge found;
+  for (size_t i = 1; i < paths.size(); ++i) {
+    if ((paths[i].first != paths[i - 1].first) || ((i >= 2) && (paths[i].first == paths[i - 2].first))) {
+      continue;  // Each new path shared by several files counts once.
+    }
+    if (found.count == 0) {
+      found.origPath1 = paths[i - 1].second;
+      found.origPath2 = paths[i].second;
+      found.newPath = paths[i].first;
+    }
+    ++found.count;
   }
 
-  std::sort(newPaths.begin(), newPaths.end());
-  return std::adjacent_find(newPaths.begin(), newPaths.end()) != newPaths.end();
+  if (merge) {
+    *merge = found;
+  }
+  return found.count > 0;
 }
 
 void RelinkingModel::commitChanges() {

@@ -18,6 +18,16 @@ void RelinkingSortingModel::setShowMissingOnly(const bool missingOnly) {
   }
 }
 
+void RelinkingSortingModel::setPinned(const QModelIndex& sourceIndex) {
+  if (m_pinned == sourceIndex) {
+    return;
+  }
+  m_pinned = sourceIndex;
+  if (m_showMissingOnly) {
+    invalidateFilter();
+  }
+}
+
 bool RelinkingSortingModel::lessThan(const QModelIndex& left, const QModelIndex& right) const {
   const QString leftPath(left.data(RelinkingModel::UncommittedPathRole).toString());
   const QString rightPath(right.data(RelinkingModel::UncommittedPathRole).toString());
@@ -32,5 +42,9 @@ bool RelinkingSortingModel::filterAcceptsRow(const int sourceRow, const QModelIn
   if (!m_showMissingOnly) {
     return true;
   }
-  return sourceModel()->index(sourceRow, 0, sourceParent).data(RelinkingModel::HasMissingRole).toBool();
+  const QModelIndex index(sourceModel()->index(sourceRow, 0, sourceParent));
+  if (m_pinned.isValid() && ((index == m_pinned) || (index == m_pinned.parent()))) {
+    return true;
+  }
+  return index.data(RelinkingModel::HasMissingRole).toBool();
 }

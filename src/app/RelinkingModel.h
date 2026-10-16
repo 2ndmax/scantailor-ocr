@@ -66,27 +66,27 @@ class RelinkingModel : public QAbstractItemModel {
   /** Files go into the tree, the first folder becomes the output folder. */
   void addPath(const RelinkablePath& path);
 
-  void replacePrefix(const QString& prefix, const QString& replacement, RelinkablePath::Type type);
+  /** Describes a change that would remap different original paths to the same one. */
+  struct Merge {
+    QString origPath1;
+    QString origPath2;
+    QString newPath;
+    int count = 0;
+  };
 
   /**
-   * Returns true if we have different original paths remapped to the same one.
-   * Checking is done on uncommitted paths.
+   * Replaces \p prefix with \p replacement in all paths, taking effect at once.
+   * A change that would merge different files into one is not applied:
+   * false is returned and \p merge describes it.
+   * The paths are taken by value, as views may change the caller's strings while the model emits its signals.
    */
-  bool checkForMerges() const;
-
-  void commitChanges();
-
-  void rollbackChanges();
+  bool replacePrefix(QString prefix, QString replacement, RelinkablePath::Type type, Merge* merge);
 
   bool hasOutputDir() const { return m_outputItem >= 0; }
 
-  /** The uncommitted path of the output folder. */
   QString outputDir() const;
 
-  /**
-   * Relinks the output folder alone. The change takes effect at once,
-   * so it's not subject to rollbackChanges().
-   */
+  /** Relinks the output folder alone. */
   void setOutputDir(const QString& path);
 
   int fileCount() const;
@@ -165,6 +165,15 @@ class RelinkingModel : public QAbstractItemModel {
   static QString parentDir(const QString& path);
 
   static QPixmap createStateIcon(State state);
+
+  void replacePrefixUncommitted(const QString& prefix, const QString& replacement, RelinkablePath::Type type);
+
+  /** Returns true if different original paths are remapped to the same uncommitted one. */
+  bool findMerge(Merge* merge) const;
+
+  void commitChanges();
+
+  void rollbackChanges();
 
   QModelIndex groupIndex(int group, int column = 0) const;
 

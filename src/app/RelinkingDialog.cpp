@@ -3,8 +3,6 @@
 
 #include "RelinkingDialog.h"
 
-#include <core/IconProvider.h>
-
 #include <QDir>
 #include <QFileDialog>
 #include <QHeaderView>
@@ -34,14 +32,11 @@ RelinkingDialog::RelinkingDialog(const QString& projectFilePath, QWidget* parent
       m_initialStateApplied(false),
       m_showMissingOnlyTouched(false) {
   ui.setupUi(this);
-  ui.undoButton->setIcon(IconProvider::getInstance().getIcon("undo"));
   m_sortingModel->setSourceModel(&m_model);
   ui.treeView->setModel(m_sortingModel);
   ui.treeView->header()->setStretchLastSection(false);
   ui.treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
   ui.treeView->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-  ui.errorLabel->setVisible(false);
-  ui.undoButton->setVisible(false);
   ui.outDirLine->installEventFilter(this);
   ui.nodePathLine->installEventFilter(this);
   refreshNodePath();
@@ -51,8 +46,6 @@ RelinkingDialog::RelinkingDialog(const QString& projectFilePath, QWidget* parent
 
   connect(ui.nodePathLine, &QLineEdit::editingFinished, this, &RelinkingDialog::nodePathEdited);
   connect(ui.locateBtn, &QAbstractButton::clicked, this, &RelinkingDialog::locateClicked);
-
-  connect(ui.undoButton, &QAbstractButton::clicked, this, &RelinkingDialog::undoButtonClicked);
 
   connect(ui.outDirLine, &QLineEdit::editingFinished, this, &RelinkingDialog::outputDirEdited);
   connect(ui.outDirBrowseBtn, &QAbstractButton::clicked, this, &RelinkingDialog::outputDirBrowseClicked);
@@ -68,7 +61,7 @@ RelinkingDialog::RelinkingDialog(const QString& projectFilePath, QWidget* parent
   QTimer::singleShot(0, this, &RelinkingDialog::updateStatus);
 
   disconnect(ui.buttonBox, &QDialogButtonBox::accepted, nullptr, nullptr);
-  connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &RelinkingDialog::commitChanges);
+  connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &RelinkingDialog::okClicked);
 }
 
 bool RelinkingDialog::eventFilter(QObject* watched, QEvent* event) {
@@ -87,20 +80,11 @@ bool RelinkingDialog::eventFilter(QObject* watched, QEvent* event) {
   return QDialog::eventFilter(watched, event);
 }
 
-void RelinkingDialog::selectionChanged(const QItemSelection& selected, const QItemSelection&) {
-  if (!selected.isEmpty()) {
-    ui.undoButton->setVisible(false);
-
-    if (ui.errorLabel->isVisible()) {
-      m_model.rollbackChanges();
-    } else {
-      m_model.commitChanges();
-    }
-  }
-
-  ui.errorLabel->setVisible(false);
+void RelinkingDialog::selectionChanged() {
+  // The selected node stays visible with "Show missing only" until something else is selected.
+  const QModelIndexList rows(ui.treeView->selectionModel()->selectedRows());
+  m_sortingModel->setPinned(rows.isEmpty() ? QModelIndex() : m_sortingModel->mapToSource(rows.front()));
   refreshNodePath();
-  refreshOutputDir();
 }
 
 void RelinkingDialog::nodePathEdited() {
@@ -131,16 +115,23 @@ void RelinkingDialog::applyNodePath(const QString& path) {
   // The new path replaces the selected folder or file as a whole.
   const QString newPath(RelinkablePath::normalize(path));
   if (!newPath.isEmpty() && QDir::isAbsolutePath(newPath) && (newPath != m_nodePath)) {
-    m_model.replacePrefix(m_nodePath, newPath, (RelinkablePath::Type) m_nodeType);
-
-    if (m_model.checkForMerges()) {
-      ui.errorLabel->setText(tr("This change would merge several files into one."));
-      ui.errorLabel->setVisible(true);
+    RelinkingModel::Merge merge;
+    // m_nodePath changes if the selection moves while the model updates, so it's copied.
+    const QString oldPath(m_nodePath);
+    const auto type = (RelinkablePath::Type) m_nodeType;
+    if (m_model.replacePrefix(oldPath, newPath, type, &merge)) {
+      refreshOutputDir();  // The output folder follows a relinked image folder it's in.
     } else {
-      ui.errorLabel->setVisible(false);
+      QString text(tr("This change was not applied, because several images would then use the same file:\n\n"
+                      "%1\nand\n%2\nwould both become\n%3")
+                       .arg(RelinkingModel::toDisplayPath(merge.origPath1),
+                            RelinkingModel::toDisplayPath(merge.origPath2),
+                            RelinkingModel::toDisplayPath(merge.newPath)));
+      if (merge.count > 1) {
+        text += QLatin1String("\n\n") + tr("%n file(s) would be shared in total.", nullptr, merge.count);
+      }
+      QMessageBox::warning(this, tr("Relinking"), text);
     }
-    ui.undoButton->setVisible(true);
-    refreshOutputDir();  // The output folder follows a relinked image folder it's in.
   }
 
   refreshNodePath();  // Also restores the field if the path was rejected.
@@ -173,12 +164,7 @@ void RelinkingDialog::refreshNodeStatus() {
   }
 }
 
-void RelinkingDialog::undoButtonClicked() {
-  m_model.rollbackChanges();  // Has to go before selectionChanged()
-  selectionChanged(ui.treeView->selectionModel()->selection(), QItemSelection());
-}
-
-void RelinkingDialog::commitChanges() {
+void RelinkingDialog::okClicked() {
   if (m_model.hasOutputDir()) {
     // Same questions as when creating a project, so their translations are shared.
     const QString outDir(m_model.outputDir());
@@ -199,7 +185,6 @@ void RelinkingDialog::commitChanges() {
     }
   }
 
-  m_model.commitChanges();
   accept();
 }
 

@@ -15,7 +15,6 @@
 
 class RelinkingSortingModel;
 class QAbstractButton;
-class QItemSelection;
 class QString;
 
 class RelinkingDialog : public QDialog {
@@ -43,15 +42,13 @@ class RelinkingDialog : public QDialog {
 
  private slots:
 
-  void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+  void selectionChanged();
 
   void nodePathEdited();
 
   void locateClicked();
 
-  void undoButtonClicked();
-
-  void commitChanges();
+  void okClicked();
 
   void outputDirEdited();
 
