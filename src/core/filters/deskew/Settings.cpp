@@ -19,6 +19,8 @@ Settings::Settings() {
     }
     return NAN;
   });
+  // The angles are around zero, so the threshold is in degrees.
+  m_deviationProvider.setAbsoluteThreshold(true);
 }
 
 Settings::~Settings() = default;

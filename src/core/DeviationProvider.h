@@ -26,6 +26,11 @@ class DeviationProvider {
 
   explicit DeviationProvider(std::function<double(const K&)> computeValueByKey);
 
+  /**
+   * A value is deviant if it is farther off the mean than \p coefficient standard deviations and
+   * than \p threshold.  The threshold is a percentage of the mean, or with setAbsoluteThreshold()
+   * in the unit of the values.
+   */
   bool isDeviant(const K& key, double coefficient = 1.0, double threshold = 0.0, bool defaultVal = false) const;
 
   double getDeviationValue(const K& key) const;
@@ -39,6 +44,11 @@ class DeviationProvider {
   void clear();
 
   void setComputeValueByKey(std::function<double(const K&)> computeValueByKey);
+
+  /**
+   * For values around zero, like angles, a percentage of the mean would be no threshold at all.
+   */
+  void setAbsoluteThreshold(bool absolute);
 
  protected:
   /** Recomputes the cached statistics. Must be called with m_mutex held. */
@@ -54,6 +64,7 @@ class DeviationProvider {
   mutable std::mutex m_mutex;
   std::function<double(const K&)> m_computeValueByKey;
   std::unordered_map<K, double, Hash> m_keyValueMap;
+  bool m_absoluteThreshold = false;
 
   // Cached values.
   mutable bool m_needUpdate = false;
@@ -86,8 +97,8 @@ bool DeviationProvider<K, Hash>::isDeviant(const K& key, double coefficient, dou
     // Too few pages have been processed to tell a deviant one from the rest.
     return false;
   }
-  return (std::abs(value - m_meanValue)
-          > std::max((coefficient * m_standardDeviation), (threshold / 100) * m_meanValue));
+  const double minDeviation = m_absoluteThreshold ? threshold : (threshold / 100) * m_meanValue;
+  return (std::abs(value - m_meanValue) > std::max((coefficient * m_standardDeviation), minDeviation));
 }
 
 template <typename K, typename Hash>
@@ -181,6 +192,13 @@ void DeviationProvider<K, Hash>::setComputeValueByKey(std::function<double(const
   const std::lock_guard<std::mutex> locker(m_mutex);
 
   m_computeValueByKey = std::move(computeValueByKey);
+}
+
+template <typename K, typename Hash>
+void DeviationProvider<K, Hash>::setAbsoluteThreshold(const bool absolute) {
+  const std::lock_guard<std::mutex> locker(m_mutex);
+
+  m_absoluteThreshold = absolute;
 }
 
 template <typename K, typename Hash>

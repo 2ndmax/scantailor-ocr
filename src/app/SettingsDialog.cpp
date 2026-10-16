@@ -65,6 +65,8 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   ui.highlightDeviationCB->setChecked(settings.isHighlightDeviationEnabled());
 
   ui.deskewDeviationCoefSB->setValue(settings.getDeskewDeviationCoef());
+  // In degrees, unlike the others, which are a percentage of the mean.
+  ui.deskewDeviationThresholdSB->setSuffix(QString(QChar(0x00B0)));
   ui.deskewDeviationThresholdSB->setValue(settings.getDeskewDeviationThreshold());
   ui.selectContentDeviationCoefSB->setValue(settings.getSelectContentDeviationCoef());
   ui.selectContentDeviationThresholdSB->setValue(settings.getSelectContentDeviationThreshold());
