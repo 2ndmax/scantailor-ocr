@@ -18,6 +18,8 @@ Changes made for ScanTailor OCR (2026):
   and the corresponding context arrays in `jbig2enc_ctx`.
 * The state table `ctbl` is `static const`.
 * Renamed `jbig2arith.cc` to `jbig2arith.cpp`.
+* Comments that described the removed parts or the data layout unclearly were
+  corrected, and the macro `JBIG2_OUTPUTBUFFER_SIZE` got parentheses.
 
 The code is kept in its original formatting so that it can be compared with
 upstream; the Lint workflow skips this folder.

@@ -335,7 +335,8 @@ jbig2enc_tobuffer(const struct jbig2enc_ctx *restrict ctx, u8 *restrict buffer) 
 
 // -----------------------------------------------------------------------------
 // This is designed for Leptonica's 1bpp packed format images. Each row is some
-// number of 32-bit words. Pixels are in native-byte-order in each word.
+// number of 32-bit words, stored in native byte order; the leftmost pixel is
+// the most significant bit of the word's value.
 // -----------------------------------------------------------------------------
 void
 jbig2enc_bitimage(struct jbig2enc_ctx *restrict ctx, const u8 *restrict idata,

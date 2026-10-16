@@ -5,7 +5,6 @@
 #include "LeptonicaDetector.h"
 
 #include <QImage>
-#include <QImageReader>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -31,10 +30,10 @@ using PixPtr = std::unique_ptr<PIX, PixDeleter>;
 using NumaPtr = std::unique_ptr<NUMA, NumaDeleter>;
 
 /**
- * Convert QImage to Leptonica PIX format.
- * Caller must call pixDestroy() on the returned PIX.
+ * Convert QImage to Leptonica PIX format.  Alpha is left out: the detection looks
+ * at colors only, and the pages have no transparency.
  */
-PIX* qImageToPix(const QImage& qimg) {
+PixPtr qImageToPix(const QImage& qimg) {
   QImage img = qimg;
 
   // Convert to 32-bit ARGB if needed
@@ -45,12 +44,12 @@ PIX* qImageToPix(const QImage& qimg) {
   const int w = img.width();
   const int h = img.height();
 
-  PIX* pix = pixCreate(w, h, 32);
+  PixPtr pix(pixCreate(w, h, 32));
   if (!pix)
     return nullptr;
 
-  l_uint32* pixData = pixGetData(pix);
-  const int wpl = pixGetWpl(pix);
+  l_uint32* pixData = pixGetData(pix.get());
+  const int wpl = pixGetWpl(pix.get());
 
   for (int y = 0; y < h; y++) {
     const QRgb* scanline = reinterpret_cast<const QRgb*>(img.constScanLine(y));
@@ -167,10 +166,11 @@ int collectInteriorCellEvidence(PIX* gray, int midtoneThreshold, LeptonicaDetect
   int cellIndex = 0;
   for (int gy = 1; gy < gridSize - 1; gy++) {
     for (int gx = 1; gx < gridSize - 1; gx++) {
-      int startX = gx * cellW;
-      int startY = gy * cellH;
-      int endX = (gx == gridSize - 1) ? w : startX + cellW;
-      int endY = (gy == gridSize - 1) ? h : startY + cellH;
+      // Interior cells only, so none of them reaches the right or bottom edge.
+      const int startX = gx * cellW;
+      const int startY = gy * cellH;
+      const int endX = startX + cellW;
+      const int endY = startY + cellH;
 
       int cellMidtones = 0;
       int cellTotal = 0;
@@ -501,6 +501,28 @@ bool isGrayscale(PIX* pix, float* analyzedFraction, float* colorFraction) {
   return colorfract < 0.03f;
 }
 
+// The three tests of the classification, shared by the measurement, classify()
+// and classificationReason(), so that verdict and reason can't drift apart.
+
+// Mostly dark text on light paper, or mostly light paper.
+bool hasDocumentPrior(const LeptonicaDetector::DetectionEvidence& evidence) {
+  const bool bimodalDocument = evidence.darkRatio > 0.10f && evidence.lightRatio > 0.30f;
+  const bool lightDocument = evidence.lightRatio > 0.70f;
+  return evidence.midtoneRatio < 0.45f && (bimodalDocument || lightDocument);
+}
+
+// Continuous tone all over the page, as on a photo page.
+bool hasWidespreadTone(const LeptonicaDetector::DetectionEvidence& evidence) {
+  return evidence.midtoneRatio >= 0.10f || evidence.continuousToneCoverage >= 0.70f
+         || evidence.largestRegionCoverage >= 0.70f || evidence.continuousToneTileCount >= 45;
+}
+
+// A picture region on a document page.
+bool hasLocalizedTone(const LeptonicaDetector::DetectionEvidence& evidence) {
+  return evidence.largestRegionTileCount >= 2 && (evidence.darkRatio >= 0.08f || evidence.largestRegionTileCount >= 3)
+         && evidence.largestRegionCoverage >= 0.06f;
+}
+
 LeptonicaDetector::ColorType detectPrepared(const QImage& image,
                                             int midtoneThreshold,
                                             LeptonicaDetector::DetectionEvidence* evidence,
@@ -533,12 +555,10 @@ LeptonicaDetector::ColorType detectPrepared(const QImage& image,
   // Evidence is now the primary artifact. The compatibility verdict is
   // derived only after every measurement has been recorded.
   collectGrayscaleToneEvidence(pix.get(), midtoneThreshold, measured, status);
-  const bool bimodalDocument = measured->darkRatio > 0.10f && measured->lightRatio > 0.30f;
-  measured->documentPrior = measured->midtoneRatio < 0.45f && (bimodalDocument || measured->lightRatio > 0.70f);
+  measured->documentPrior = hasDocumentPrior(*measured);
   measured->documentPriorScore
       = std::clamp((measured->darkRatio - 0.06f) * 2.5f + (measured->lightRatio - 0.30f), 0.0f, 1.0f);
-  measured->widespreadTone = measured->midtoneRatio >= 0.10f || measured->continuousToneCoverage >= 0.70f
-                             || measured->largestRegionCoverage >= 0.70f || measured->continuousToneTileCount >= 45;
+  measured->widespreadTone = hasWidespreadTone(*measured);
   const ColorType result = LeptonicaDetector::classify(*measured);
   measured->reason = LeptonicaDetector::classificationReason(*measured);
 
@@ -585,36 +605,25 @@ LeptonicaDetector::ColorType LeptonicaDetector::classify(const DetectionEvidence
   if (!evidence.grayscale)
     return ColorType::Color;
 
-  const bool bimodalDocument = evidence.darkRatio > 0.10f && evidence.lightRatio > 0.30f;
-  const bool lightDocument = evidence.lightRatio > 0.70f;
-  const bool documentPrior = evidence.midtoneRatio < 0.45f && (bimodalDocument || lightDocument);
-  const bool widespreadTone = evidence.midtoneRatio >= 0.10f || evidence.continuousToneCoverage >= 0.70f
-                              || evidence.largestRegionCoverage >= 0.70f || evidence.continuousToneTileCount >= 45;
-  if (!documentPrior)
+  // Computed from the measurements, not taken from the stored flags, so that evidence put
+  // together by hand is classified the same way.
+  if (!hasDocumentPrior(evidence))
     return ColorType::Grayscale;
-  if (widespreadTone)
+  if (hasWidespreadTone(evidence))
     return ColorType::Grayscale;
-  if (evidence.largestRegionTileCount >= 2 && (evidence.darkRatio >= 0.08f || evidence.largestRegionTileCount >= 3)
-      && evidence.largestRegionCoverage >= 0.06f) {
+  if (hasLocalizedTone(evidence))
     return ColorType::Mixed;
-  }
   return ColorType::BlackWhite;
 }
 
 QString LeptonicaDetector::classificationReason(const DetectionEvidence& evidence) {
   if (!evidence.grayscale)
     return QStringLiteral("global_chroma");
-  const bool documentPrior
-      = evidence.midtoneRatio < 0.45f
-        && ((evidence.darkRatio > 0.10f && evidence.lightRatio > 0.30f) || evidence.lightRatio > 0.70f);
-  const bool widespreadTone = evidence.midtoneRatio >= 0.10f || evidence.continuousToneCoverage >= 0.70f
-                              || evidence.largestRegionCoverage >= 0.70f || evidence.continuousToneTileCount >= 45;
-  if (!documentPrior)
+  if (!hasDocumentPrior(evidence))
     return QStringLiteral("document_prior_absent");
-  if (widespreadTone)
+  if (hasWidespreadTone(evidence))
     return QStringLiteral("widespread_continuous_tone");
-  if (evidence.largestRegionTileCount >= 2 && (evidence.darkRatio >= 0.08f || evidence.largestRegionTileCount >= 3)
-      && evidence.largestRegionCoverage >= 0.06f) {
+  if (hasLocalizedTone(evidence)) {
     return QStringLiteral("localized_continuous_tone_with_document");
   }
   if (evidence.continuousToneTileCount > 0) {
@@ -711,27 +720,6 @@ LeptonicaDetector::ColorType LeptonicaDetector::detectWithCastCompensation(const
     return recheck;
   }
   return result;
-}
-
-LeptonicaDetector::ColorType LeptonicaDetector::detectFromFile(const QString& imagePath) {
-  QImageReader reader(imagePath);
-  if (!reader.canRead()) {
-    return ColorType::Grayscale;
-  }
-
-  // Downsample for speed
-  const QSize originalSize = reader.size();
-  const int maxDim = 1200;
-  if (originalSize.width() > maxDim || originalSize.height() > maxDim) {
-    const qreal scale
-        = qMin(static_cast<qreal>(maxDim) / originalSize.width(), static_cast<qreal>(maxDim) / originalSize.height());
-    reader.setScaledSize(QSize(qRound(originalSize.width() * scale), qRound(originalSize.height() * scale)));
-  }
-
-  const QImage image = reader.read();
-  AnalysisScalePolicy policy;
-  policy.targetLongEdge = 1200;
-  return detect(image, 10, nullptr, policy);
 }
 
 const char* LeptonicaDetector::colorTypeToString(ColorType type) {

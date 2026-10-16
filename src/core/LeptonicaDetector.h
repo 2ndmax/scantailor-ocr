@@ -146,11 +146,6 @@ class LeptonicaDetector {
                                               const TaskStatus* status = nullptr);
 
   /**
-   * Detect from file path (loads downsampled for efficiency).
-   */
-  static ColorType detectFromFile(const QString& imagePath);
-
-  /**
    * Get string representation of color type for logging.
    */
   static const char* colorTypeToString(ColorType type);

@@ -32,7 +32,7 @@
 #include <vector>
 
 #define JBIG2_MAX_CTX 65536
-#define JBIG2_OUTPUTBUFFER_SIZE 20 * 1024
+#define JBIG2_OUTPUTBUFFER_SIZE (20 * 1024)
 
 #ifdef _MSC_VER
 #define __restrict__ __restrict
@@ -40,11 +40,11 @@
 
 // -----------------------------------------------------------------------------
 // This is the context for the arithmetic encoder used in JBIG2. The coder is a
-// state machine and there are many different states used - one for coding
-// images, many more for coding numbers etc.
+// state machine; only the states for coding generic region images are kept
+// here (see README.md).
 //
 // When outputting data, the bytes are collected into chunks of size
-// JBIG2_OUTPUTBUFFER_SIZE. These are chained in a linked list.
+// JBIG2_OUTPUTBUFFER_SIZE. The full ones are kept in a vector.
 // -----------------------------------------------------------------------------
 struct jbig2enc_ctx {
   // these are the current state of the arithmetic coder

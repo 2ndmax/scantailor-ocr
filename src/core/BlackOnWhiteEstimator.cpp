@@ -48,10 +48,10 @@ bool BlackOnWhiteEstimator::isBlackOnWhiteRefining(const imageproc::GrayImage& g
 
   BinaryImage contentMask;
   {
-    BinaryImage whiteTopHat = whiteTopHatTransform(bw150, QSize(13, 13));
-    BinaryImage blackTopHat = blackTopHatTransform(bw150, QSize(13, 13));
+    // Written into directly: a copy would share its data and be copied on the first write.
+    contentMask = whiteTopHatTransform(bw150, QSize(13, 13));
+    const BinaryImage blackTopHat = blackTopHatTransform(bw150, QSize(13, 13));
 
-    contentMask = whiteTopHat;
     rasterOp<RopOr<RopSrc, RopDst>>(contentMask, blackTopHat);
 
     contentMask = closeBrick(contentMask, QSize(200, 200));

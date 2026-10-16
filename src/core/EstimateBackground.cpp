@@ -186,7 +186,7 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
   // Smooth every horizontal line with a polynomial,
   // then mask pixels that became significantly lighter.
   for (int x = 0; x < width; ++x) {
-    const uint32_t mask = ~(msb >> (x & 31));
+    const uint32_t clearBit = ~(msb >> (x & 31));
 
     const int degree = 2;
     PolynomialLine pl(degree, bgData + x, height, bgStride);
@@ -196,7 +196,7 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
     uint32_t* pMask = maskData + (x >> 5);
     for (int y = 0; y < height; ++y) {
       if (*pBg + 30 < line[y]) {
-        *pMask &= mask;
+        *pMask &= clearBit;
       }
       pBg += bgStride;
       pMask += maskStride;
@@ -266,11 +266,11 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
   // Check each vertical line.  If it's mostly
   // white (ignored), then make it completely white.
   for (int x = 0; x < width; ++x) {
-    const uint32_t mask = msb >> (x & 31);
+    const uint32_t bit = msb >> (x & 31);
     uint32_t* pMask = maskData + (x >> 5);
     int blackCount = 0;
     for (int y = 0; y < height; ++y) {
-      if (*pMask & mask) {
+      if (*pMask & bit) {
         ++blackCount;
       }
       pMask += maskStride;
@@ -278,7 +278,7 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
     if (blackCount < height / 4) {
       for (int y = height - 1; y >= 0; --y) {
         pMask -= maskStride;
-        *pMask &= ~mask;
+        *pMask &= ~bit;
       }
     }
   }

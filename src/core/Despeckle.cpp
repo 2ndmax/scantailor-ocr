@@ -656,11 +656,7 @@ void voronoiDistances(const ConnectivityMap& cmap,
   }
 }  // voronoiDistances
 
-void despeckleImpl(BinaryImage& image,
-                   const Dpi& dpi,
-                   const Settings& settings,
-                   const TaskStatus& status,
-                   DebugImages* const dbg) {
+void despeckleImpl(BinaryImage& image, const Settings& settings, const TaskStatus& status, DebugImages* const dbg) {
   ConnectivityMap cmap(image, CONN8);
   if (cmap.maxLabel() == 0) {
     // Completely white image?
@@ -928,7 +924,7 @@ void Despeckle::despeckleInPlace(BinaryImage& image,
                                  const TaskStatus& status,
                                  DebugImages* const dbg) {
   const Settings settings = Settings::get(level, dpi);
-  despeckleImpl(image, dpi, settings, status, dbg);
+  despeckleImpl(image, settings, status, dbg);
 }
 
 imageproc::BinaryImage Despeckle::despeckle(const imageproc::BinaryImage& src,
@@ -947,6 +943,6 @@ void Despeckle::despeckleInPlace(imageproc::BinaryImage& image,
                                  const TaskStatus& status,
                                  DebugImages* dbg) {
   const Settings settings = Settings::get(level, dpi);
-  despeckleImpl(image, dpi, settings, status, dbg);
+  despeckleImpl(image, settings, status, dbg);
 }
 // Despeckle::despeckleInPlace

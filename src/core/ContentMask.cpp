@@ -9,7 +9,9 @@
 #include <imageproc/PolygonRasterizer.h>
 #include <imageproc/Transform.h>
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
 
 #include "Despeckle.h"
 #include "ImageTransformation.h"
