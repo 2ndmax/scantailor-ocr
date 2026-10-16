@@ -431,20 +431,19 @@ ThumbnailPixmapCache::Status ThumbnailPixmapCache::Impl::request(
 }  // ThumbnailPixmapCache::Impl::request
 
 void ThumbnailPixmapCache::Impl::ensureThumbnailExists(const ImageId& imageId, const QImage& image) {
-  if (m_shuttingDown) {
-    return;
-  }
-
   if (image.isNull()) {
     return;
   }
 
   QMutexLocker locker(&m_mutex);
+  if (m_shuttingDown) {
+    return;
+  }
   const QString thumbDir(m_thumbDir);
   const QSize maxThumbSize(m_maxThumbSize);
   locker.unlock();
 
-  const QString thumbFilePath(getThumbFilePath(imageId, thumbDir, m_maxThumbSize));
+  const QString thumbFilePath(getThumbFilePath(imageId, thumbDir, maxThumbSize));
   if (QFile::exists(thumbFilePath)) {
     return;
   }
@@ -459,20 +458,19 @@ void ThumbnailPixmapCache::Impl::ensureThumbnailExists(const ImageId& imageId, c
 }
 
 void ThumbnailPixmapCache::Impl::recreateThumbnail(const ImageId& imageId, const QImage& image) {
-  if (m_shuttingDown) {
-    return;
-  }
-
   if (image.isNull()) {
     return;
   }
 
   QMutexLocker locker(&m_mutex);
+  if (m_shuttingDown) {
+    return;
+  }
   const QString thumbDir(m_thumbDir);
   const QSize maxThumbSize(m_maxThumbSize);
   locker.unlock();
 
-  const QString thumbFilePath(getThumbFilePath(imageId, thumbDir, m_maxThumbSize));
+  const QString thumbFilePath(getThumbFilePath(imageId, thumbDir, maxThumbSize));
   const QImage thumbnail(makeThumbnail(image, maxThumbSize));
   bool thumbWritten = false;
 
@@ -528,9 +526,10 @@ void ThumbnailPixmapCache::Impl::backgroundProcessing() {
   assert(QCoreApplication::instance()->thread() != QThread::currentThread());
 
   while (true) {
+    LoadQueue::iterator lqIt;
+    bool resultPending = false;
     try {
       // We are going to initialize these while holding the mutex.
-      LoadQueue::iterator lqIt;
       ImageId imageId;
       QString thumbDir;
       QSize maxThumbSize;
@@ -557,6 +556,7 @@ void ThumbnailPixmapCache::Impl::backgroundProcessing() {
         // from being processed again before the GUI thread
         // receives our LoadResultEvent.
         queuedToInProgress(lqIt);
+        resultPending = true;
 
         if (m_totalLoadAttempts - lqIt->precedingLoadAttempts > m_expirationThreshold) {
           // Expire this request.  The reasoning behind
@@ -582,6 +582,10 @@ void ThumbnailPixmapCache::Impl::backgroundProcessing() {
       postLoadResult(lqIt, image, status);
     } catch (const std::bad_alloc&) {
       OutOfMemoryHandler::instance().handleOutOfMemorySituation();
+      if (resultPending) {
+        // Otherwise the item would stay IN_PROGRESS for good.
+        postLoadResult(lqIt, QImage(), ThumbnailLoadResult::LOAD_FAILED);
+      }
     }
   }
 }  // ThumbnailPixmapCache::Impl::backgroundProcessing
@@ -602,7 +606,11 @@ QImage ThumbnailPixmapCache::Impl::loadSaveThumbnail(const ImageId& imageId,
   }
 
   const QImage thumbnail(makeThumbnail(image, maxThumbSize));
-  thumbnail.save(thumbFilePath, "PNG");
+  AtomicFileOverwriter overwriter;
+  QIODevice* iodev = overwriter.startWriting(thumbFilePath);
+  if (iodev && thumbnail.save(iodev, "PNG")) {
+    overwriter.commit();
+  }
   return thumbnail;
 }
 
@@ -780,7 +788,8 @@ void ThumbnailPixmapCache::Impl::removeLoadedItemsLocked() {
   }
 
   m_numLoadedItems = 0;
-  m_endOfLoadedItems = m_removeQueue.end();
+  // The items left are all not LOADED, so the LOADED range is empty and starts at the front.
+  m_endOfLoadedItems = m_removeQueue.begin();
 }
 
 void ThumbnailPixmapCache::Impl::cachePixmapUnlocked(const ImageId& imageId, const QPixmap& pixmap) {
@@ -810,6 +819,8 @@ void ThumbnailPixmapCache::Impl::cachePixmapLocked(const ImageId& imageId, const
     // remove queue and at the end of the load queue.
     if (newStatus == Item::LOAD_FAILED) {
       --m_endOfLoadedItems;
+    } else {
+      ++m_numLoadedItems;
     }
 
     rqIt->pixmap = pixmap;

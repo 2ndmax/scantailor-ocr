@@ -334,9 +334,10 @@ BOOST_AUTO_TEST_CASE(test_text_layer) {
   const QByteArray content = qUncompress(zlib);
   BOOST_REQUIRE(!content.isEmpty());
   BOOST_CHECK(content.contains("BT\n3 Tr\n/F0 10 Tf\n"));
-  // "Grüße " is 6 characters, half an em each: 30 points stretched to 60 points.
-  BOOST_CHECK(content.contains("200 Tz\n1 0 0 1 20 200 Tm\n<0047007200FC00DF00650020> Tj\n"));
-  BOOST_CHECK(content.contains("<00410062> Tj\nET\n"));
+  // "Grüße" is 5 characters, half an em each: 25 points stretched to 60 points. The trailing space comes after.
+  BOOST_CHECK(content.contains("240 Tz\n1 0 0 1 20 200 Tm\n<0047007200FC00DF00650020> Tj\n"));
+  // "Ab" without a space: 10 points stretched to 60 points.
+  BOOST_CHECK(content.contains("600 Tz\n1 0 0 1 90 200 Tm\n<00410062> Tj\nET\n"));
 }
 
 BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
@@ -391,6 +392,14 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   BOOST_REQUIRE_EQUAL(g4Result.images.size(), 2u);
   BOOST_CHECK(g4Result.images[1].encoding == PdfWriter::Image::Encoding::CCITT_G4);
   BOOST_CHECK(g4Result.images[1].isMask);
+
+  // The background written again in another size after the check: an error instead of a misplaced picture.
+  BOOST_REQUIRE(TiffWriter::writeImage(bgFile, background.scaled(200, 300)));
+  PdfWriter::Page staleResult;
+  errors.clear();
+  BOOST_CHECK(!PdfExportJob::preparePage(page, options, &staleResult, &errors));
+  BOOST_CHECK_EQUAL(errors.size(), 1);
+  BOOST_REQUIRE(TiffWriter::writeImage(bgFile, background));
 
   // Without the split files, the mixed page is stored as one JPEG and gets a warning.
   QFile::remove(fgFile);

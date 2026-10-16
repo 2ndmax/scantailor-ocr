@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QIODevice>
 #include <QUuid>
+#include <algorithm>
 #include <cmath>
 
 #include "GlyphLessFont.h"
@@ -247,8 +248,9 @@ QByteArray PdfWriter::textContent(const Page& page) const {
       text += "/F0 " + formatNumber(word.fontSize) + " Tf\n";
       currentFontSize = word.fontSize;
     }
-    // Stretch the glyphs, half an em each, to the width of the word.
-    const double naturalWidth = static_cast<double>(word.text.size()) * word.fontSize * 0.5;
+    // Stretch the glyphs, half an em each, to the width of the word. A trailing space comes after the word.
+    const qsizetype glyphs = std::max<qsizetype>(1, word.text.size() - (word.text.endsWith(' ') ? 1 : 0));
+    const double naturalWidth = static_cast<double>(glyphs) * word.fontSize * 0.5;
     text += formatNumber(100.0 * word.width / naturalWidth) + " Tz\n";
     text += "1 0 0 1 " + formatNumber(word.origin.x()) + ' ' + formatNumber(pageHeight - word.origin.y()) + " Tm\n<"
             + hex + "> Tj\n";

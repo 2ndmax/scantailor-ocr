@@ -301,6 +301,12 @@ bool PdfExportJob::preparePage(const PdfExportPage& page,
         if (background.isNull()) {
           return false;
         }
+        // The page was checked when the dialog opened, but the files may have been written again since.
+        if (background.size() != foreground.size()) {
+          errors->push_back(describeFailure(tr("The split output files of %1 differ in size.  Process the page again."),
+                                            page.mainFile(), QStringList()));
+          return false;
+        }
         // Only the part with pictures is stored, the rest of the background is white.
         const QRect content = PdfImageEncoder::contentRect(background);
         if (!content.isEmpty()) {
