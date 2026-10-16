@@ -1019,7 +1019,10 @@ void PdfExportView::showThumbnail(const int entryIndex, const QPixmap& thumbnail
 QIcon PdfExportView::makeIcon(const QPixmap& thumbnail) const {
   // All icons have the same size, so that the texts line up.
   const QSize size = m_pageList->iconSize();
-  QPixmap canvas(size);
+  // Painted in screen pixels, so that the icons stay sharp on scaled screens.
+  const qreal dpr = m_pageList->devicePixelRatioF();
+  QPixmap canvas(size * dpr);
+  canvas.setDevicePixelRatio(dpr);
   canvas.fill(Qt::transparent);
   QPainter painter(&canvas);
   if (thumbnail.isNull()) {
@@ -1035,11 +1038,13 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail) const {
     painter.setPen(QColor(160, 160, 160));
     painter.drawRect(rect);
   } else {
-    const QPixmap scaled = thumbnail.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    const QPoint topLeft((size.width() - scaled.width()) / 2, (size.height() - scaled.height()) / 2);
+    QPixmap scaled = thumbnail.scaled(size * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    scaled.setDevicePixelRatio(dpr);
+    const QSize scaledSize = scaled.deviceIndependentSize().toSize();
+    const QPoint topLeft((size.width() - scaledSize.width()) / 2, (size.height() - scaledSize.height()) / 2);
     painter.drawPixmap(topLeft, scaled);
     painter.setPen(QColor(160, 160, 160));
-    painter.drawRect(QRect(topLeft, scaled.size()).adjusted(0, 0, -1, -1));
+    painter.drawRect(QRect(topLeft, scaledSize).adjusted(0, 0, -1, -1));
   }
   painter.end();
   return QIcon(canvas);

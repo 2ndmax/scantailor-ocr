@@ -191,6 +191,11 @@ void StageListView::setBatchProcessingInProgress(const bool inProgress) {
     m_firstColDelegate->flagsForceDisabled(QStyle::State_Selected | QStyle::State_MouseOver);
     m_secondColDelegate->flagsForceDisabled(QStyle::State_Selected | QStyle::State_MouseOver);
 
+    // The window may have moved to a screen with another scaling since the frames were made.
+    if (!m_batchAnimationPixmaps.empty()
+        && (m_batchAnimationPixmaps.front().devicePixelRatio() != devicePixelRatioF())) {
+      createBatchAnimationSequence(qRound(m_batchAnimationPixmaps.front().deviceIndependentSize().width()));
+    }
     initiateBatchAnimationFrameRendering();
     m_timerId = startTimer(180);
   } else {
@@ -290,14 +295,18 @@ void StageListView::createBatchAnimationSequence(const int squareSide) {
   const QColor tailColor
       = ColorSchemeManager::instance().getColorParam("StageListTail", palette().color(QPalette::Window).darker(130));
 
+  // Rendered in screen pixels, so that the animation stays sharp on scaled screens.
+  const qreal dpr = devicePixelRatioF();
+  const int deviceSide = std::max(1, qRound(squareSide * dpr));
   BubbleAnimation animation(numFrames);
   for (int i = 0; i < numFrames; ++i) {
     QPixmap& pixmap = m_batchAnimationPixmaps[i];
-    if ((pixmap.width() != squareSide) || (pixmap.height() != squareSide)) {
-      pixmap = QPixmap(squareSide, squareSide);
+    if ((pixmap.width() != deviceSide) || (pixmap.height() != deviceSide)) {
+      pixmap = QPixmap(deviceSide, deviceSide);
     }
+    pixmap.setDevicePixelRatio(dpr);
     pixmap.fill(Qt::transparent);
-    animation.nextFrame(headColor, tailColor, &pixmap);
+    animation.nextFrame(headColor, tailColor, &pixmap, QRectF(0.0, 0.0, squareSide, squareSide));
   }
 }
 
@@ -413,7 +422,8 @@ void StageListView::RightColDelegate::paint(QPainter* painter,
   if (!var.isNull()) {
     const QPixmap pixmap(var.value<QPixmap>());
     if (!pixmap.isNull()) {
-      QRect r(pixmap.rect());
+      // In logical pixels; the pixmap may have more for a scaled screen.
+      QRect r(QPoint(0, 0), pixmap.deviceIndependentSize().toSize());
       r.moveCenter(option.rect.center());
       painter->drawPixmap(r, pixmap);
     }

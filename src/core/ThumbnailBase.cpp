@@ -98,17 +98,21 @@ void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
 
   QRectF displayRect(imageToDisplay.map(PolygonUtils::round(m_displayArea)).boundingRect().toAlignedRect());
 
+  // The temporary pixmap has screen pixels, so that thumbnails stay sharp on scaled screens.
+  const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
   QPixmap tempPixmap;
   const QString cacheKey(QString::fromLatin1("ThumbnailBase::tempPixmap"));
-  if (!QPixmapCache::find(cacheKey, &tempPixmap) || (tempPixmap.width() < displayRect.width())
-      || (tempPixmap.height() < displayRect.height())) {
+  if (!QPixmapCache::find(cacheKey, &tempPixmap) || (tempPixmap.devicePixelRatio() != dpr)
+      || (tempPixmap.deviceIndependentSize().width() < displayRect.width())
+      || (tempPixmap.deviceIndependentSize().height() < displayRect.height())) {
     auto w = (int) displayRect.width();
     auto h = (int) displayRect.height();
     // Add some extra, to avoid rectreating the pixmap too often.
     w += w / 10;
     h += h / 10;
 
-    tempPixmap = QPixmap(w, h);
+    tempPixmap = QPixmap(static_cast<int>(std::ceil(w * dpr)), static_cast<int>(std::ceil(h * dpr)));
+    tempPixmap.setDevicePixelRatio(dpr);
 
     if (!tempPixmap.hasAlphaChannel()) {
       // This actually forces the alpha channel to be created.
