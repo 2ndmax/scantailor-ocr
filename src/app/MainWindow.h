@@ -253,6 +253,9 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
    */
   static bool isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir);
 
+  /** Whether all image files of the project exist.  Each file is checked once. */
+  static bool allImagesExist(const ProjectPages& pages);
+
   /**
    * Makes \p projectFile, just saved, the file of the open project and the most recent project.
    */

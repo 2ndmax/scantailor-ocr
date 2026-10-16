@@ -388,6 +388,16 @@ bool MainWindow::isProjectInPlace(const ProjectPages& pages, const QString& outD
   }
   // ... and so must the images of the project.  Otherwise the project has probably been
   // moved or copied to another computer, and the user should relink it.
+  if (!allImagesExist(pages)) {
+    return false;
+  }
+  if (pages.toPageSequence(IMAGE_VIEW).numPages() == 0) {
+    return !inputDir.isEmpty() && QDir(inputDir).exists();
+  }
+  return true;
+}
+
+bool MainWindow::allImagesExist(const ProjectPages& pages) {
   QSet<QString> checked;
   for (const PageInfo& page : pages.toPageSequence(IMAGE_VIEW)) {
     const QString path = page.imageId().filePath();
@@ -398,9 +408,6 @@ bool MainWindow::isProjectInPlace(const ProjectPages& pages, const QString& outD
     if (!QFileInfo::exists(path)) {
       return false;
     }
-  }
-  if (checked.isEmpty()) {
-    return !inputDir.isEmpty() && QDir(inputDir).exists();
   }
   return true;
 }
@@ -514,7 +521,8 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   updateWindowTitle();
   updateMainArea();
 
-  if (!QDir(outDir).exists()) {
+  // Offer relinking right away, like fixing the DPI when adding images without it.
+  if (!QDir(outDir).exists() || !allImagesExist(*m_pages)) {
     showRelinkingDialog();
   }
 }  // MainWindow::switchToNewProject
