@@ -8,7 +8,11 @@
 UnitsConverter::UnitsConverter(const Dpi& dpi) : m_dpi(dpi) {}
 
 void UnitsConverter::convert(double& horizontalValue, double& verticalValue, Units fromUnits, Units toUnits) const {
-  if (m_dpi.isNull() || (fromUnits == toUnits)) {
+  if (fromUnits == toUnits) {
+    return;
+  }
+  // Only pixels need the resolution; millimetres, centimetres and inches convert without it.
+  if (m_dpi.isNull() && ((fromUnits == PIXELS) || (toUnits == PIXELS))) {
     return;
   }
 
@@ -43,8 +47,8 @@ void UnitsConverter::convert(double& horizontalValue, double& verticalValue, Uni
           verticalValue = verticalValue / 10.;
           break;
         case INCHES:
-          horizontalValue = horizontalValue / 1000. * dpm.horizontal() / m_dpi.horizontal();
-          verticalValue = verticalValue / 1000. * dpm.vertical() / m_dpi.vertical();
+          horizontalValue = horizontalValue / 25.4;
+          verticalValue = verticalValue / 25.4;
           break;
         default:
           break;
@@ -61,8 +65,8 @@ void UnitsConverter::convert(double& horizontalValue, double& verticalValue, Uni
           verticalValue = verticalValue * 10.;
           break;
         case INCHES:
-          horizontalValue = horizontalValue / 100. * dpm.horizontal() / m_dpi.horizontal();
-          verticalValue = verticalValue / 100. * dpm.vertical() / m_dpi.vertical();
+          horizontalValue = horizontalValue / 2.54;
+          verticalValue = verticalValue / 2.54;
           break;
         default:
           break;
@@ -75,12 +79,12 @@ void UnitsConverter::convert(double& horizontalValue, double& verticalValue, Uni
           verticalValue *= m_dpi.vertical();
           break;
         case MILLIMETRES:
-          horizontalValue = horizontalValue * m_dpi.horizontal() / dpm.horizontal() * 1000.;
-          verticalValue = verticalValue * m_dpi.vertical() / dpm.vertical() * 1000.;
+          horizontalValue = horizontalValue * 25.4;
+          verticalValue = verticalValue * 25.4;
           break;
         case CENTIMETRES:
-          horizontalValue = horizontalValue * m_dpi.horizontal() / dpm.horizontal() * 100.;
-          verticalValue = verticalValue * m_dpi.vertical() / dpm.vertical() * 100.;
+          horizontalValue = horizontalValue * 2.54;
+          verticalValue = verticalValue * 2.54;
           break;
         default:
           break;

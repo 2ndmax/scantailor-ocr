@@ -25,25 +25,32 @@ bool SmartFilenameOrdering::operator()(const QFileInfo& lhs, const QFileInfo& rh
     }
 
     if (lhsIsDigit && rhsIsDigit) {
-      unsigned long lhsNumber = 0;
-      do {
-        lhsNumber = lhsNumber * 10 + lhsPtr->digitValue();
+      // The numbers are compared digit by digit, as long ones such as time stamps don't fit
+      // an integer type.  Note: isDigit() implies !isNull().
+      const QChar* lhsDigits = lhsPtr;
+      while (lhsPtr->isDigit()) {
         ++lhsPtr;
-        // Note: isDigit() implies !isNull()
-      } while (lhsPtr->isDigit());
-
-      unsigned long rhsNumber = 0;
-      do {
-        rhsNumber = rhsNumber * 10 + rhsPtr->digitValue();
-        ++rhsPtr;
-        // Note: isDigit() implies !isNull()
-      } while (rhsPtr->isDigit());
-
-      if (lhsNumber != rhsNumber) {
-        return lhsNumber < rhsNumber;
-      } else {
-        continue;
       }
+      const QChar* rhsDigits = rhsPtr;
+      while (rhsPtr->isDigit()) {
+        ++rhsPtr;
+      }
+      // Leading zeros don't count, so without them the longer number is the larger one.
+      while ((lhsDigits + 1 < lhsPtr) && (lhsDigits->digitValue() == 0)) {
+        ++lhsDigits;
+      }
+      while ((rhsDigits + 1 < rhsPtr) && (rhsDigits->digitValue() == 0)) {
+        ++rhsDigits;
+      }
+      if ((lhsPtr - lhsDigits) != (rhsPtr - rhsDigits)) {
+        return (lhsPtr - lhsDigits) < (rhsPtr - rhsDigits);
+      }
+      for (; lhsDigits != lhsPtr; ++lhsDigits, ++rhsDigits) {
+        if (lhsDigits->digitValue() != rhsDigits->digitValue()) {
+          return lhsDigits->digitValue() < rhsDigits->digitValue();
+        }
+      }
+      continue;
     }
 
     // Both characters are non-digits at this point.  Note that testing

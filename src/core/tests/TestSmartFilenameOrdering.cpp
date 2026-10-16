@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QString>
 #include <boost/test/unit_test.hpp>
+#include <utility>
 
 namespace Tests {
 BOOST_AUTO_TEST_SUITE(SmartFilenameOrderingTestSuite)
@@ -54,6 +55,23 @@ BOOST_AUTO_TEST_CASE(test_almost_equal) {
   const QFileInfo rhs("/etc/010.png");
   BOOST_CHECK(!less(lhs, rhs));
   BOOST_CHECK(less(rhs, lhs));
+}
+
+// Numbers too long for 32 or 64 bits, as in file names with time stamps.
+BOOST_AUTO_TEST_CASE(test_long_numbers) {
+  const SmartFilenameOrdering less;
+  const std::pair<QString, QString> ordered[] = {
+      {"/etc/4294967295.png", "/etc/4294967296.png"},
+      {"/etc/scan_20260929092518.png", "/etc/scan_20260929092519.png"},
+      {"/etc/99999999999999999999.png", "/etc/100000000000000000000.png"},
+      {"/etc/123456789012345678901_2.png", "/etc/123456789012345678901_10.png"},
+  };
+  for (const auto& [lhs, rhs] : ordered) {
+    BOOST_TEST_CONTEXT(lhs.toStdString() << " < " << rhs.toStdString()) {
+      BOOST_CHECK(less(QFileInfo(lhs), QFileInfo(rhs)));
+      BOOST_CHECK(!less(QFileInfo(rhs), QFileInfo(lhs)));
+    }
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

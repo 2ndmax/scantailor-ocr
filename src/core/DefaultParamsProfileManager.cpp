@@ -5,6 +5,7 @@
 
 #include <config.h>
 
+#include <QSaveFile>
 #include <QtGui/QtGui>
 #include <QtXml/QDomDocument>
 
@@ -97,17 +98,19 @@ bool DefaultParamsProfileManager::writeProfile(const DefaultParams& params, cons
   rootElement.appendChild(params.toXml(doc, "default-params"));
 
   QDir dir(m_path);
-  if (!dir.exists()) {
-    dir.mkpath(".");
+  if (!dir.exists() && !dir.mkpath(".")) {
+    return false;
   }
 
-  QFile file(dir.absoluteFilePath(name + ".stp"));
-  if (file.open(QIODevice::WriteOnly)) {
-    QTextStream textStream(&file);
-    doc.save(textStream, 2);
-    return true;
+  // Replaces an existing profile only once the new one has been written completely.
+  QSaveFile file(dir.absoluteFilePath(name + ".stp"));
+  if (!file.open(QIODevice::WriteOnly)) {
+    return false;
   }
-  return false;
+  QTextStream textStream(&file);
+  doc.save(textStream, 2);
+  textStream.flush();
+  return file.commit();
 }
 
 std::unique_ptr<DefaultParams> DefaultParamsProfileManager::createDefaultProfile() const {

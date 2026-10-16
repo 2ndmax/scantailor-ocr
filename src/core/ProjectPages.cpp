@@ -63,6 +63,7 @@ ProjectPages::ProjectPages(const std::vector<ImageFileInfo>& files,
 ProjectPages::~ProjectPages() = default;
 
 Qt::LayoutDirection ProjectPages::layoutDirection() const {
+  QMutexLocker locker(&m_mutex);
   if (m_subPagesInOrder[0] == PageId::LEFT_PAGE) {
     return Qt::LeftToRight;
   } else {
@@ -455,6 +456,7 @@ std::vector<PageInfo> ProjectPages::insertImageImpl(const ImageInfo& newImage,
   }
 
   m_images.insert(it, imageDesc);
+  modified = true;
 
   PageInfo pageInfoTempl(PageId(newImage.id(), PageId::SINGLE_PAGE), imageDesc.metadata, imageDesc.numLogicalPages,
                          imageDesc.leftHalfRemoved, imageDesc.rightHalfRemoved);
@@ -480,7 +482,6 @@ void ProjectPages::removePagesImpl(const std::set<PageId>& toRemove, bool& modif
 
   std::vector<ImageDesc> newImages;
   newImages.reserve(m_images.size());
-  int newTotalLogicalPages = 0;
 
   const auto numOldImages = static_cast<int>(m_images.size());
   for (int i = 0; i < numOldImages; ++i) {
@@ -504,7 +505,6 @@ void ProjectPages::removePagesImpl(const std::set<PageId>& toRemove, bool& modif
 
     if (image.numLogicalPages > 0) {
       newImages.push_back(image);
-      newTotalLogicalPages += newImages.back().numLogicalPages;
     }
   }
 
@@ -542,6 +542,7 @@ PageInfo ProjectPages::unremovePageImpl(const PageId& pageId, bool& modified) {
   }
 
   image.numLogicalPages = 2;
+  modified = true;
   return PageInfo(pageId, image.metadata, image.numLogicalPages, image.leftHalfRemoved, image.rightHalfRemoved);
 }  // ProjectPages::unremovePageImpl
 

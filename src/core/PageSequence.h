@@ -17,8 +17,6 @@ class PageSequence {
 
   size_t numPages() const;
 
-  const PageInfo& pageAt(PageId page) const;
-
   const PageInfo& pageAt(size_t idx) const;
 
   int pageNo(const PageId& page) const;

@@ -37,6 +37,8 @@ PngHandle::PngHandle() {
   }
   m_info = png_create_info_struct(m_png);
   if (!m_info) {
+    // The destructor doesn't run for a constructor that throws.
+    png_destroy_read_struct(&m_png, nullptr, nullptr);
     throw std::bad_alloc();
   }
 }

@@ -17,14 +17,6 @@ const PageInfo& PageSequence::pageAt(const size_t idx) const {
   return m_pages.at(idx);  // may throw
 }
 
-const PageInfo& PageSequence::pageAt(const PageId page) const {
-  auto it(m_pages.begin());
-  const auto end(m_pages.end());
-  for (; it != end && it->id() != page; ++it) {
-  }
-  return *it;
-}
-
 int PageSequence::pageNo(const PageId& page) const {
   auto it(m_pages.begin());
   const auto end(m_pages.end());

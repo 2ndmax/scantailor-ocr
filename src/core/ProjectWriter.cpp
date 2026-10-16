@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QSaveFile>
 #include <QTextStream>
 #include <QtXml>
 
@@ -109,13 +110,16 @@ bool ProjectWriter::write(const QString& filePath, const std::vector<FilterPtr>&
     filtersEl.appendChild((*it)->saveSettings(*this, doc));
   }
 
-  QFile file(filePath);
-  if (file.open(QIODevice::WriteOnly)) {
-    QTextStream strm(&file);
-    doc.save(strm, 2);
-    return true;
+  // QSaveFile writes to a temporary file and replaces the project file only once everything has
+  // been written, so a full disk or a crash while saving can't leave a broken project behind.
+  QSaveFile file(filePath);
+  if (!file.open(QIODevice::WriteOnly)) {
+    return false;
   }
-  return false;
+  QTextStream strm(&file);
+  doc.save(strm, 2);
+  strm.flush();
+  return file.commit();
 }  // ProjectWriter::write
 
 QDomElement ProjectWriter::processDirectories(QDomDocument& doc, const QString& projectDirPath) const {
@@ -183,6 +187,8 @@ void ProjectWriter::writeImageMetadata(QDomDocument& doc, QDomElement& imageEl, 
 QDomElement ProjectWriter::processPages(QDomDocument& doc) const {
   QDomElement pagesEl(doc.createElement("pages"));
 
+  // The selected pages of both views are marked, so up to two pages may be; the reader takes the
+  // last one marked.
   const PageId selOpt1(m_selectedPage.get(IMAGE_VIEW));
   const PageId selOpt2(m_selectedPage.get(PAGE_VIEW));
 
@@ -193,7 +199,6 @@ QDomElement ProjectWriter::processPages(QDomDocument& doc) const {
     pageLeft = PageId(selOpt2.imageId(), PageId::LEFT_PAGE);
     pageRight = PageId(selOpt2.imageId(), PageId::RIGHT_PAGE);
   }
-
 
   for (const PageInfo& page : m_pageSequence) {
     const PageId& pageId = page.id();
