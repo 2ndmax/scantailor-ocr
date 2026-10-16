@@ -151,3 +151,6 @@ local.cmake
 *.bak
 *.cache
 .cache/
+
+# Raw output of compiler and analysis runs
+ANALYSE/
