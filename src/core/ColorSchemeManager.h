@@ -27,6 +27,9 @@ class ColorSchemeManager {
   QColor getColorParam(const QString& colorParam, const QColor& defaultColor) const;
 
  private:
+  /** The colour set for \p colorParam by the colour scheme, or null. */
+  const QColor* findColorParam(const QString& colorParam) const;
+
   std::unique_ptr<ColorScheme::ColorParams> m_colorParams;
 };
 

@@ -7,8 +7,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QDirIterator>
-#include <QFontDatabase>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMessageBox>
@@ -22,7 +20,6 @@
 Application::Application(int& argc, char** argv) : QApplication(argc, argv), m_currentLocale("en") {
   initTranslations();
   initPortableVersion();
-  loadFonts();
 }
 
 bool Application::notify(QObject* receiver, QEvent* e) {
@@ -150,13 +147,6 @@ void Application::initPortableVersion() {
   if ((portableConfigPath.exists() && QTemporaryDir(portableConfigPath.absolutePath()).isValid())
       || (!portableConfigPath.exists() && portableConfigPath.mkpath("."))) {
     m_portableConfigPath = portableConfigPath.absolutePath();
-  }
-}
-
-void Application::loadFonts() {
-  QDirIterator it(":/fonts");
-  while (it.hasNext()) {
-    QFontDatabase::addApplicationFont(it.next());
   }
 }
 

@@ -4,7 +4,6 @@
 #include "StyledIconPack.h"
 
 #include <QIconEngine>
-#include <QPalette>
 #include <QtCore/QFile>
 #include <QtGui/QPainter>
 #include <QtSvg/QSvgRenderer>
@@ -127,17 +126,6 @@ void fillSvgElement(QDomElement& el, const QColor& color) {
   }
 }
 
-QColor getIconColor(QIcon::Mode iconMode) {
-  switch (iconMode) {
-    case QIcon::Disabled:
-      return QPalette().color(QPalette::Disabled, QPalette::WindowText);
-    case QIcon::Selected:
-      return QPalette().color(QPalette::Normal, QPalette::HighlightedText);
-    default:
-      return QPalette().color(QPalette::Normal, QPalette::WindowText);
-  }
-}
-
 QByteArray SvgStyledIconEngine::generateIcon(const QString& fileName, QIcon::Mode mode) {
   QFile svgFile(fileName);
   if (!svgFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -152,7 +140,7 @@ QByteArray SvgStyledIconEngine::generateIcon(const QString& fileName, QIcon::Mod
   forEachElement(
       doc.documentElement(),
       {"altGlyph", "circle", "ellipse", "path", "polygon", "polyline", "rect", "text", "textPath", "tref", "tspan"},
-      std::bind(&fillSvgElement, std::placeholders::_1, getIconColor(mode)));
+      std::bind(&fillSvgElement, std::placeholders::_1, AbstractIconPack::iconColor(mode)));
   return doc.toByteArray();
 }
 }  // namespace

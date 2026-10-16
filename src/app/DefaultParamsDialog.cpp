@@ -1521,8 +1521,6 @@ void DefaultParamsDialog::setupIcons() {
   auto& iconProvider = IconProvider::getInstance();
   rotateLeftBtn->setIcon(iconProvider.getIcon("object-rotate-left"));
   rotateRightBtn->setIcon(iconProvider.getIcon("object-rotate-right"));
-  topBottomLink->setIcon(iconProvider.getIcon("ver_chain"));
-  leftRightLink->setIcon(iconProvider.getIcon("ver_chain"));
   singlePageUncutBtn->setIcon(iconProvider.getIcon("single_page_uncut"));
   pagePlusOffcutBtn->setIcon(iconProvider.getIcon("right_page_plus_offcut"));
   twoPagesBtn->setIcon(iconProvider.getIcon("two_pages"));

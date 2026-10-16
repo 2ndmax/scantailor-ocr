@@ -26,27 +26,19 @@ void ColorSchemeManager::setColorScheme(const ColorScheme& colorScheme) {
 }
 
 QBrush ColorSchemeManager::getColorParam(const QString& colorParam, const QBrush& defaultBrush) const {
-  if (!m_colorParams) {
-    return defaultBrush;
-  }
-
-  const auto it = m_colorParams->find(colorParam);
-  if (it != m_colorParams->end()) {
-    return QBrush(it->second, defaultBrush.style());
-  } else {
-    return defaultBrush;
-  }
+  const QColor* color = findColorParam(colorParam);
+  return color ? QBrush(*color, defaultBrush.style()) : defaultBrush;
 }
 
 QColor ColorSchemeManager::getColorParam(const QString& colorParam, const QColor& defaultColor) const {
-  if (!m_colorParams) {
-    return defaultColor;
-  }
+  const QColor* color = findColorParam(colorParam);
+  return color ? *color : defaultColor;
+}
 
-  const auto it = m_colorParams->find(colorParam);
-  if (it != m_colorParams->end()) {
-    return it->second;
-  } else {
-    return defaultColor;
+const QColor* ColorSchemeManager::findColorParam(const QString& colorParam) const {
+  if (!m_colorParams) {
+    return nullptr;
   }
+  const auto it = m_colorParams->find(colorParam);
+  return (it != m_colorParams->end()) ? &it->second : nullptr;
 }

@@ -724,8 +724,6 @@ void OptionsWidget::updateAlignmentModeEnabled() {
 
 void OptionsWidget::setupIcons() {
   auto& iconProvider = IconProvider::getInstance();
-  topBottomLink->setIcon(iconProvider.getIcon("ver_chain"));
-  leftRightLink->setIcon(iconProvider.getIcon("ver_chain"));
   alignTopLeftBtn->setIcon(iconProvider.getIcon("stock-gravity-north-west"));
   alignTopBtn->setIcon(iconProvider.getIcon("stock-gravity-north"));
   alignTopRightBtn->setIcon(iconProvider.getIcon("stock-gravity-north-east"));

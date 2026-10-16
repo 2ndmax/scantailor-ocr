@@ -4,6 +4,8 @@
 #ifndef SCANTAILOR_CORE_ABSTRACTICONPACK_H_
 #define SCANTAILOR_CORE_ABSTRACTICONPACK_H_
 
+#include <QColor>
+
 #include "IconPack.h"
 
 class AbstractIconPack : public IconPack {
@@ -11,6 +13,9 @@ class AbstractIconPack : public IconPack {
   QIcon getIcon(const QString& iconKey) const override;
 
   void mergeWith(std::unique_ptr<IconPack> pack) override;
+
+  /** The colour of a styled or font icon in \p mode, taken from the application palette. */
+  static QColor iconColor(QIcon::Mode mode);
 
  protected:
   static QIcon::Mode iconModeFromString(const QString& mode);

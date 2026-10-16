@@ -4,7 +4,6 @@
 #include "FontIconPack.h"
 
 #include <QIconEngine>
-#include <QPalette>
 #include <QtCore/QFile>
 #include <QtGui/QPainter>
 #include <QtXml/QDomDocument>
@@ -57,17 +56,6 @@ class FontIconEngine : public QIconEngine {
   std::map<QIcon::State, SymbolData> m_iconSymbolDataMap;
 };
 
-QColor getIconColor(QIcon::Mode iconMode) {
-  switch (iconMode) {
-    case QIcon::Disabled:
-      return QPalette().color(QPalette::Disabled, QPalette::WindowText);
-    case QIcon::Selected:
-      return QPalette().color(QPalette::Normal, QPalette::HighlightedText);
-    default:
-      return QPalette().color(QPalette::Normal, QPalette::WindowText);
-  }
-}
-
 QFont getFont(const QString& fontName, const QSize& size, float scale) {
   QFont font(fontName);
   font.setPixelSize(qRound((double) size.height() * scale));
@@ -79,7 +67,7 @@ void FontIconEngine::paint(QPainter* painter, const QRect& rect, QIcon::Mode mod
 
   painter->save();
   painter->setFont(getFont(data.fontName, rect.size(), data.scale));
-  painter->setPen(getIconColor(mode));
+  painter->setPen(AbstractIconPack::iconColor(mode));
   painter->drawText(rect, QChar(data.codepoint), QTextOption(Qt::AlignCenter | Qt::AlignVCenter));
   painter->restore();
 }

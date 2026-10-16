@@ -3,6 +3,19 @@
 
 #include "AbstractIconPack.h"
 
+#include <QPalette>
+
+QColor AbstractIconPack::iconColor(const QIcon::Mode mode) {
+  switch (mode) {
+    case QIcon::Disabled:
+      return QPalette().color(QPalette::Disabled, QPalette::WindowText);
+    case QIcon::Selected:
+      return QPalette().color(QPalette::Normal, QPalette::HighlightedText);
+    default:
+      return QPalette().color(QPalette::Normal, QPalette::WindowText);
+  }
+}
+
 void AbstractIconPack::mergeWith(std::unique_ptr<IconPack> pack) {
   m_parentIconPack = std::move(pack);
 }

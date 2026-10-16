@@ -168,36 +168,36 @@
     <file>:/icons/expand.svg</file>
   </icon>
   <icon name="checkbox-styled" styled="on">
-    <file>:icons/checkbox-styled.svg</file>
+    <file>:/icons/checkbox-styled.svg</file>
   </icon>
   <icon name="right-pointing" styled="on">
-    <file>:icons/right-pointing.svg</file>
+    <file>:/icons/right-pointing.svg</file>
   </icon>
   <icon name="column-view" styled="on">
     <file state="off">:/icons/multi-column-view.svg</file>
     <file state="on">:/icons/single-column-view.svg</file>
   </icon>
   <icon name="sorting-order" styled="on">
-    <file state="off">:icons/ascending_sorting_order.svg</file>
-    <file state="on">:icons/descending_sorting_order.svg</file>
+    <file state="off">:/icons/ascending_sorting_order.svg</file>
+    <file state="on">:/icons/descending_sorting_order.svg</file>
   </icon>
   <icon name="lasso-zone-mode" styled="on">
-    <file>:icons/lasso-zone-mode.svg</file>
+    <file>:/icons/lasso-zone-mode.svg</file>
   </icon>
   <icon name="polygonal-zone-mode" styled="on">
-    <file>:icons/polygonal-zone-mode.svg</file>
+    <file>:/icons/polygonal-zone-mode.svg</file>
   </icon>
   <icon name="rectangular-zone-mode" styled="on">
-    <file>:icons/rectangular-zone-mode.svg</file>
+    <file>:/icons/rectangular-zone-mode.svg</file>
   </icon>
   <icon name="six-spoked-asterisk" styled="on">
-    <file state="off">:icons/six-spoked-asterisk-disabled.svg</file>
-    <file state="on">:icons/six-spoked-asterisk.svg</file>
+    <file state="off">:/icons/six-spoked-asterisk-disabled.svg</file>
+    <file state="on">:/icons/six-spoked-asterisk.svg</file>
   </icon>
   <icon name="diminishing-glass" styled="on">
-    <file>:icons/diminishing-glass.svg</file>
+    <file>:/icons/diminishing-glass.svg</file>
   </icon>
   <icon name="magnifying-glass" styled="on">
-    <file>:icons/magnifying-glass.svg</file>
+    <file>:/icons/magnifying-glass.svg</file>
   </icon>
 </icons>

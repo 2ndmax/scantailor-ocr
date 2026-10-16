@@ -101,8 +101,8 @@ StageListView::StageListView(QWidget* parent)
   const auto& iconProvider = IconProvider::getInstance();
   m_launchBtn = new SkinnedButton(iconProvider.getIcon("play"), iconProvider.getIcon("play-hovered"),
                                   iconProvider.getIcon("play-pressed"), viewport());
-  static_cast<QToolButton*>(m_launchBtn)->setMinimumSize({18, 18});
-  static_cast<QToolButton*>(m_launchBtn)->setIconSize({18, 18});
+  m_launchBtn->setMinimumSize({18, 18});
+  m_launchBtn->setIconSize({18, 18});
   m_launchBtn->setStatusTip(tr("Launch batch processing"));
   m_launchBtn->hide();
 

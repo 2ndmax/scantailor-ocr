@@ -124,13 +124,8 @@ void CollapsibleGroupBox::checkClicked(bool checked) {
 }
 
 void CollapsibleGroupBox::toggleCollapsed() {
-  // verify if sender is this group box's collapse button
-  auto* sender = dynamic_cast<QToolButton*>(QObject::sender());
-  const bool isSenderCollapseButton = (sender && (sender == m_collapseButton));
-
-  if (isSenderCollapseButton) {
-    setCollapsed(!isCollapsed());
-  }
+  // Only connected to m_collapseButton.
+  setCollapsed(!isCollapsed());
 }
 
 void CollapsibleGroupBox::updateWidgets() {
