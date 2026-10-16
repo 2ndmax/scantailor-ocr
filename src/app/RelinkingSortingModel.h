@@ -14,9 +14,8 @@ class RelinkingSortingModel : public QSortFilterProxyModel {
   void setShowMissingOnly(bool missingOnly);
 
   /**
-   * Keeps p sourceIndex (and its folder) visible even if nothing is missing there,
-   * so a node doesn't vanish
-   * right after being relinked.
+   * Keeps \p sourceIndex (and its folder) visible even if nothing is missing there,
+   * so a node doesn't vanish right after being relinked.
    */
   void setPinned(const QModelIndex& sourceIndex);
 

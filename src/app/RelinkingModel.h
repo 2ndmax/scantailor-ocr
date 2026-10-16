@@ -13,6 +13,7 @@
 #include <memory>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "AbstractRelinker.h"
@@ -51,11 +52,7 @@ class RelinkingModel : public QAbstractItemModel {
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
   /**
-   * This method guarantees that
-   * \code
-   * model.relinker().release() == model.relinker().release()
-   * \endcode
-   * will hold true for the lifetime of RelinkingModel object.
+   * Always returns the same relinker, which follows all changes made later.
    * This allows you to take the relinker right after construction
    * and then use it when accepted() signal is emitted.
    */
@@ -134,7 +131,6 @@ class RelinkingModel : public QAbstractItemModel {
 
   /** A folder node. Its path follows folder relinkings the same way the paths of its files do. */
   struct Group {
-    QString origDir;
     QString committedDir;
     QString uncommittedDir;
     Status committedStatus;
@@ -148,13 +144,18 @@ class RelinkingModel : public QAbstractItemModel {
    public:
     void addMapping(const QString& from, const QString& to);
 
-    /** Returns path.normalizedPath() if there is no mapping for it. */
+    /**
+     * Returns path.normalizedPath() if there is no mapping for it, unless an image is relinked
+     * to that path, see the implementation.
+     */
     QString substitutionPathFor(const RelinkablePath& path) const override;
 
     void swap(Relinker& other);
 
    private:
     std::unordered_map<QString, QString, hashes::hash<QString>> m_mappings;
+    /** The paths mapped to. */
+    std::unordered_set<QString, hashes::hash<QString>> m_targets;
   };
 
 

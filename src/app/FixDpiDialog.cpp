@@ -13,10 +13,11 @@
 #include "StateIcon.h"
 #include "Utils.h"
 
-// Requests the resolution all images of an item have in common, as a QSize;
-// a null QSize if it is undefined or they have different ones.
+// Requests the resolution all images of an item have in common, as a QSize, undefined values
+// included; an invalid QSize if they have different ones.
 static const int DPI_ROLE = Qt::UserRole;
 // Same as the one above, but only images that need fixing will be considered.
+// FilterModel answers DPI_ROLE with this one while it shows only those images.
 static const int NOT_OK_DPI_ROLE = Qt::UserRole + 1;
 
 /**
@@ -200,7 +201,7 @@ void FixDpiDialog::needFixingOnlyToggled(const bool checked) {
   updateDpiFromSelection();
 }
 
-void FixDpiDialog::selectionChanged(const QItemSelection& selection) {
+void FixDpiDialog::selectionChanged(const QItemSelection&) {
   // The argument holds only the newly selected items, not the whole selection.
   updateDpiFromSelection();
 }
@@ -299,7 +300,7 @@ void FixDpiDialog::updateDpiFromSelection() {
     }
 
     // FilterModel may replace DPI_ROLE with NOT_OK_DPI_ROLE.
-    // A null resolution means "undefined" or "different ones".
+    // An invalid size means "different ones" and leaves the fields empty.
     const QSize dpi(index.data(DPI_ROLE).toSize());
     if (index == indexes.front()) {
       commonDpi = dpi;
@@ -323,14 +324,10 @@ void FixDpiDialog::resetDpiForm() {
 }
 
 void FixDpiDialog::setDpiForm(const Dpi& dpi) {
-  if (dpi.isNull()) {
-    resetDpiForm();
-    return;
-  }
-
-  m_initialDpi = dpi.toSize();
-  xDpi->setEditText(core::Utils::dpiText(dpi.horizontal()));
-  yDpi->setEditText(core::Utils::dpiText(dpi.vertical()));
+  // An undefined value (1 or less) leaves its field empty, the other one still shows its value.
+  m_initialDpi = dpi.isNull() ? QSize(0, 0) : dpi.toSize();
+  xDpi->setEditText((dpi.horizontal() > 1) ? core::Utils::dpiText(dpi.horizontal()) : QString());
+  yDpi->setEditText((dpi.vertical() > 1) ? core::Utils::dpiText(dpi.vertical()) : QString());
   dpiValueChanged();
 }
 
@@ -499,9 +496,14 @@ QSize FixDpiDialog::TreeModel::commonDpi(const QModelIndex& index, const Scope s
     return QSize();
   }
 
-  const QSize dpi(metadataOf(images.front()).dpi().toSize());
+  // Not Dpi::toSize(), which drops a resolution with only one axis defined.
+  const auto sizeOf = [this](const Image& image) {
+    const Dpi& dpi = metadataOf(image).dpi();
+    return QSize(dpi.horizontal(), dpi.vertical());
+  };
+  const QSize dpi(sizeOf(images.front()));
   for (const Image& image : images) {
-    if (metadataOf(image).dpi().toSize() != dpi) {
+    if (sizeOf(image) != dpi) {
       return QSize();
     }
   }

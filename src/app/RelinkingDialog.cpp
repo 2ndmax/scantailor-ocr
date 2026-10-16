@@ -9,17 +9,28 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <algorithm>
-#include <cassert>
 
 #include "RelinkingSortingModel.h"
 
 namespace {
+/**
+ * RelinkablePath::normalize() turns a drive root into "E:", which Qt takes for a path relative
+ * to the current folder of that drive.  This adds the slash back for checks with QDir and QFileInfo.
+ */
+QString withRootSlash(const QString& path) {
+  return path.endsWith(QChar(':')) ? path + QChar('/') : path;
+}
+
+bool isExistingDir(const QString& path) {
+  return QFileInfo(withRootSlash(path)).isDir();
+}
+
 /** Returns the deepest folder of \p path that still exists, or \p fallback if there is none. */
 QString existingAncestor(QString path, const QString& fallback) {
-  while (!path.isEmpty() && !QFileInfo(path).isDir()) {
+  while (!path.isEmpty() && !isExistingDir(path)) {
     path.truncate(std::max(0, static_cast<int>(path.lastIndexOf(QChar('/')))));
   }
-  return path.isEmpty() ? fallback : path;
+  return path.isEmpty() ? fallback : withRootSlash(path);
 }
 }  // namespace
 
@@ -114,12 +125,20 @@ void RelinkingDialog::applyNodePath(const QString& path) {
 
   // The new path replaces the selected folder or file as a whole.
   const QString newPath(RelinkablePath::normalize(path));
-  if (!newPath.isEmpty() && QDir::isAbsolutePath(newPath) && (newPath != m_nodePath)) {
+  if (!newPath.isEmpty() && QDir::isAbsolutePath(withRootSlash(newPath)) && (newPath != m_nodePath)) {
     RelinkingModel::Merge merge;
     // m_nodePath changes if the selection moves while the model updates, so it's copied.
     const QString oldPath(m_nodePath);
     const auto type = (RelinkablePath::Type) m_nodeType;
-    if (m_model.replacePrefix(oldPath, newPath, type, &merge)) {
+    const QFileInfo target(withRootSlash(newPath));
+    if (target.exists() && (target.isDir() != (type == RelinkablePath::Dir))) {
+      QMessageBox::warning(this, tr("Relinking"),
+                           (type == RelinkablePath::Dir)
+                               ? tr("This change was not applied, because %1 is a file, not a folder.")
+                                     .arg(RelinkingModel::toDisplayPath(newPath))
+                               : tr("This change was not applied, because %1 is a folder, not a file.")
+                                     .arg(RelinkingModel::toDisplayPath(newPath)));
+    } else if (m_model.replacePrefix(oldPath, newPath, type, &merge)) {
       refreshOutputDir();  // The output folder follows a relinked image folder it's in.
     } else {
       QString text(tr("This change was not applied, because several images would then use the same file:\n\n"
@@ -168,7 +187,7 @@ void RelinkingDialog::okClicked() {
   if (m_model.hasOutputDir()) {
     // Same questions as when creating a project, so their translations are shared.
     const QString outDir(m_model.outputDir());
-    if (!QFileInfo(outDir).isDir()) {
+    if (!isExistingDir(outDir)) {
       if (QMessageBox::question(
               this, QCoreApplication::translate("ProjectFilesDialog", "Create Folder?"),
               QCoreApplication::translate("ProjectFilesDialog", "Output folder doesn't exist.  Create it?"),
@@ -176,7 +195,7 @@ void RelinkingDialog::okClicked() {
           != QMessageBox::Yes) {
         return;
       }
-      if (!QDir().mkpath(outDir)) {
+      if (!QDir().mkpath(withRootSlash(outDir))) {
         QMessageBox::warning(this, QCoreApplication::translate("ProjectFilesDialog", "Error"),
                              QCoreApplication::translate("ProjectFilesDialog", "Unable to create output folder."));
         return;
@@ -190,7 +209,7 @@ void RelinkingDialog::okClicked() {
 
 void RelinkingDialog::outputDirEdited() {
   const QString path(RelinkablePath::normalize(ui.outDirLine->text().trimmed()));
-  if (!path.isEmpty() && QDir::isAbsolutePath(path) && (path != m_model.outputDir())) {
+  if (!path.isEmpty() && QDir::isAbsolutePath(withRootSlash(path)) && (path != m_model.outputDir())) {
     m_model.setOutputDir(path);
   }
   refreshOutputDir();  // Also restores the field if the path was rejected.
@@ -243,7 +262,7 @@ void RelinkingDialog::refreshOutputDir() {
   const QString path(m_model.outputDir());
   ui.outDirLine->setText(RelinkingModel::toDisplayPath(path));
 
-  const bool exists = QFileInfo(path).isDir();
+  const bool exists = isExistingDir(path);
   ui.outDirStatusLabel->setPixmap(
       RelinkingModel::stateIcon(exists ? RelinkingModel::AllPresent : RelinkingModel::FolderMissing));
   ui.outDirStatusLabel->setToolTip(exists ? tr("The folder exists.") : tr("The folder is missing."));

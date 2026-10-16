@@ -1000,6 +1000,8 @@ void MainWindow::performRelinking(const std::shared_ptr<AbstractRelinker>& relin
   m_selectedPage.set(m_thumbSequence->selectionLeader().id(), getCurrentView());
 
   reloadRequested();
+  // ProjectPages doesn't report relinking as a modification.
+  updateAutoSaveTimer();
 }
 
 void MainWindow::goFirstPage() {

@@ -17,8 +17,6 @@
 #include "ImageMetadata.h"
 #include "ui_FixDpiDialog.h"
 
-class QItemSelection;
-
 class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
   Q_OBJECT
  public:

@@ -327,23 +327,35 @@ void RelinkingModel::replacePrefixUncommitted(const QString& prefix,
 }  // RelinkingModel::replacePrefixUncommitted
 
 bool RelinkingModel::findMerge(Merge* merge) const {
-  // Pairs of (new path, original path), sorted by the new path.
-  std::vector<std::pair<QString, QString>> paths;
+  struct Path {
+    QString key;  // The new path, as the file system compares it.
+    QString newPath;
+    QString origPath;
+
+    bool operator<(const Path& other) const { return key < other.key; }
+  };
+
+  std::vector<Path> paths;
   paths.reserve(m_items.size());
   for (const Item& item : m_items) {
-    paths.emplace_back(item.uncommittedPath, item.origPath);
+#ifdef _WIN32
+    // Windows doesn't tell upper and lower case apart in paths.
+    paths.push_back({item.uncommittedPath.toLower(), item.uncommittedPath, item.origPath});
+#else
+    paths.push_back({item.uncommittedPath, item.uncommittedPath, item.origPath});
+#endif
   }
   std::sort(paths.begin(), paths.end());
 
   Merge found;
   for (size_t i = 1; i < paths.size(); ++i) {
-    if ((paths[i].first != paths[i - 1].first) || ((i >= 2) && (paths[i].first == paths[i - 2].first))) {
+    if ((paths[i].key != paths[i - 1].key) || ((i >= 2) && (paths[i].key == paths[i - 2].key))) {
       continue;  // Each new path shared by several files counts once.
     }
     if (found.count == 0) {
-      found.origPath1 = paths[i - 1].second;
-      found.origPath2 = paths[i].second;
-      found.newPath = paths[i].first;
+      found.origPath1 = paths[i - 1].origPath;
+      found.origPath2 = paths[i].origPath;
+      found.newPath = paths[i].newPath;
     }
     ++found.count;
   }
@@ -719,8 +731,7 @@ RelinkingModel::Item::Item(const RelinkablePath& path)
 /*================================ Group ================================*/
 
 RelinkingModel::Group::Group(const QString& dir)
-    : origDir(dir),
-      committedDir(dir),
+    : committedDir(dir),
       uncommittedDir(dir),
       committedStatus(StatusUpdatePending),
       uncommittedStatus(StatusUpdatePending) {}
@@ -728,18 +739,32 @@ RelinkingModel::Group::Group(const QString& dir)
 /*============================== Relinker ================================*/
 
 void RelinkingModel::Relinker::addMapping(const QString& from, const QString& to) {
+  const auto it(m_mappings.find(from));
+  if (it != m_mappings.end()) {
+    m_targets.erase(it->second);
+  }
   m_mappings[from] = to;
+  m_targets.insert(to);
 }
 
 QString RelinkingModel::Relinker::substitutionPathFor(const RelinkablePath& path) const {
-  const auto it(m_mappings.find(path.normalizedPath()));
+  const QString& normalizedPath = path.normalizedPath();
+  const auto it(m_mappings.find(normalizedPath));
   if (it != m_mappings.end()) {
     return it->second;
-  } else {
-    return path.normalizedPath();
   }
+  if (m_targets.count(normalizedPath) != 0) {
+    // An image is relinked to this path, but it isn't mapped itself.  Then it isn't a path of the
+    // project any more, as relinking onto one would have been rejected as a merge, but still
+    // kept in some settings, e.g. those of a removed page.  Such an entry is moved out of the
+    // way, so it doesn't take the place of the relinked image's own one.  The '|' can't be
+    // part of a Windows file name, and such paths aren't saved with the project.
+    return normalizedPath + QLatin1String("|removed");
+  }
+  return normalizedPath;
 }
 
 void RelinkingModel::Relinker::swap(Relinker& other) {
   m_mappings.swap(other.m_mappings);
+  m_targets.swap(other.m_targets);
 }

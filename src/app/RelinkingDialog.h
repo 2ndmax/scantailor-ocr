@@ -27,11 +27,7 @@ class RelinkingDialog : public QDialog {
   }
 
   /**
-   * This method guarantees that
-   * \code
-   * dialog->relinker().release() == dialog->relinker().release()
-   * \endcode
-   * will hold true for the lifetime of the dialog.
+   * Always returns the same relinker, which follows all changes made later.
    * This allows you to take the relinker right after construction
    * and then use it when accepted() signal is emitted.
    */
