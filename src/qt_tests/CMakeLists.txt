@@ -8,7 +8,7 @@ set(sources
 add_executable(qt_tests ${sources})
 target_link_libraries(
     qt_tests
-    PRIVATE core dewarping foundation ${Qt_Test_lib} ${Qt_Core_lib} ${Qt_Gui_lib} ${Qt_Widgets_lib} ${EXTRA_LIBS})
+    PRIVATE core dewarping foundation Qt::Test Qt::Core Qt::Gui Qt::Widgets ${EXTRA_LIBS})
 target_include_directories(qt_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/src")
 # The tests of the options widgets need the headers that uic generates for them. These have the same
 # names in each filter, so each test file only gets the directory of its filter.

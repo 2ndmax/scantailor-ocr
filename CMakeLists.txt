@@ -29,27 +29,10 @@ project("ScanTailor OCR")
 set(CMAKE_CXX_STANDARD 17)
 
 if (NOT DEFAULT_COMPILER_FLAGS_IS_SET)
-  if (MSVC)
-    option(WIN_XP "Whether to build for Windows XP." OFF)
-    if (WIN_XP)
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_USING_V110_SDK71_")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_USING_V110_SDK71_")
-      set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:CONSOLE,5.01 /SUBSYSTEM:WINDOWS,5.01 ${CMAKE_EXE_LINKER_FLAGS}")
-    endif()
-
-    # Note: _SECURE_SCL / _ITERATOR_DEBUG_LEVEL must NOT be overridden here.
-    # It changes the ABI of the standard containers, so a mismatch with the
-    # prebuilt Qt and Boost binaries is an ODR violation that leads to crashes
-    # at library boundaries. (_SECURE_SCL is also deprecated since VS2012.)
-
-    if (DEBUG_CLI)
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DDEBUG_CLI")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DDEBUG_CLI")
-    endif()
-  elseif (WIN_XP)
-    unset(WIN_XP CACHE)
-    message(WARNING "Only MSVC toolchain is supported to build for Windows XP.")
-  endif()
+  # Note for MSVC: _SECURE_SCL / _ITERATOR_DEBUG_LEVEL must NOT be overridden here.
+  # It changes the ABI of the standard containers, so a mismatch with the
+  # prebuilt Qt and Boost binaries is an ODR violation that leads to crashes
+  # at library boundaries. (_SECURE_SCL is also deprecated since VS2012.)
 
   if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Werror=return-type -Wno-unused")
@@ -120,52 +103,6 @@ if (NOT CMAKE_INSTALL_BINDIR)
   else()
     set(CMAKE_INSTALL_BINDIR "bin")
   endif()
-endif()
-
-#=================================== Dependencies ===================================#
-
-if (WIN32)
-  macro(real_path_find_glob Var Glob)
-    file(GLOB ${Var} "${Glob}")
-    if (${Var})
-      list(GET ${Var} -1 ${Var})
-      get_filename_component("${Var}" "${${Var}}" REALPATH)
-    endif()
-  endmacro()
-
-  get_filename_component(lib_dir "${PROJECT_SOURCE_DIR}/../libs" REALPATH)
-  set(DEPENDENCIES_ROOT "${lib_dir}" CACHE PATH
-      "The assumed directory where all the required libraries are installed.")
-  if (EXISTS "${DEPENDENCIES_ROOT}")
-    real_path_find_glob(jpeg_dir_assumed "${DEPENDENCIES_ROOT}/jpeg-[0-9]*")
-    real_path_find_glob(zlib_dir_assumed "${DEPENDENCIES_ROOT}/zlib-[0-9]*.[0-9]*.[0-9]*")
-    real_path_find_glob(png_dir_assumed "${DEPENDENCIES_ROOT}/libpng-[0-9]*.[0-9]*.[0-9]*")
-    real_path_find_glob(tiff_dir_assumed "${DEPENDENCIES_ROOT}/tiff-[0-9]*.[0-9]*.[0-9]*")
-    get_filename_component(qt_dir_assumed "${DEPENDENCIES_ROOT}/Qt" REALPATH)
-    get_filename_component(boost_dir_assumed "${DEPENDENCIES_ROOT}/Boost" REALPATH)
-  endif()
-  set(JPEG_INSTALL_PREFIX "${jpeg_dir_assumed}" CACHE PATH "Prefix where jpeg is installed")
-  set(ZLIB_INSTALL_PREFIX "${zlib_dir_assumed}" CACHE PATH "Prefix where zlib is installed")
-  set(PNG_INSTALL_PREFIX "${png_dir_assumed}" CACHE PATH "Prefix where png is installed")
-  set(TIFF_INSTALL_PREFIX "${tiff_dir_assumed}" CACHE PATH "Prefix where tiff is installed")
-  set(QT_INSTALL_PREFIX "${qt_dir_assumed}" CACHE PATH "Prefix where Qt is installed")
-  set(BOOST_ROOT "${boost_dir_assumed}" CACHE PATH "Prefix where Boost is installed")
-
-  macro(list_append_existing_path Var Path)
-    get_filename_component(_real_path "${Path}" REALPATH)
-    if (EXISTS "${_real_path}")
-      list(APPEND "${Var}" "${_real_path}")
-    endif()
-  endmacro()
-
-  foreach(_prefix
-      "${JPEG_INSTALL_PREFIX}" "${ZLIB_INSTALL_PREFIX}" "${PNG_INSTALL_PREFIX}"
-      "${TIFF_INSTALL_PREFIX}" "${QT_INSTALL_PREFIX}" "${BOOST_ROOT}")
-    list_append_existing_path(CMAKE_PREFIX_PATH "${_prefix}")
-    list_append_existing_path(CMAKE_INCLUDE_PATH "${_prefix}")
-    list_append_existing_path(CMAKE_LIBRARY_PATH "${_prefix}/stage/lib")
-  endforeach()
-  list_append_existing_path(CMAKE_INCLUDE_PATH "${TIFF_INSTALL_PREFIX}/libtiff")
 endif()
 
 #=================================== JPEG ===================================#
@@ -273,33 +210,6 @@ endif()
 
 #================================= Boost ================================#
 
-#set(Boost_NO_WARN_NEW_VERSIONS ON)
-
-if (WIN32)
-  if (MINGW)
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(_boost_architecture "-x64")
-    else()
-      set(_boost_architecture "-x32")
-    endif()
-    set(Boost_ARCHITECTURE ${_boost_architecture} CACHE STRING "")
-
-    #set(Boost_DEBUG ON)
-    string(REGEX MATCHALL "[0-9]+" _boost_compiler_version ${CMAKE_CXX_COMPILER_VERSION})
-    list(GET _boost_compiler_version 0 _boost_compiler_version_major)
-    list(GET _boost_compiler_version 1 _boost_compiler_version_minor)
-    set(Boost_COMPILER "-mgw${_boost_compiler_version_major}" CACHE STRING "")
-  endif()
-
-  real_path_find_glob(boost_include_dir_hints "${BOOST_ROOT}/include/boost-[_0-9]*/boost")
-  list(APPEND boost_include_dir_hints "${BOOST_ROOT}/include/boost" "${BOOST_ROOT}/boost")
-  find_path(
-      BOOST_INCLUDEDIR config.hpp
-      HINTS ${boost_include_dir_hints}
-      DOC "Boost include directory.")
-
-  set(Boost_USE_STATIC_LIBS ON)
-endif()
 set(Boost_USE_MULTITHREADED ON)
 
 if (BUILD_TESTS)
@@ -326,22 +236,12 @@ set(qt_min_version 6.4)
 # Functions deprecated up to that version are not available, so new code can't use them.
 add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x060400)
 
-find_package(
-    Qt6 ${qt_min_version}
-    COMPONENTS Core Gui Widgets Xml Network LinguistTools OpenGL Svg OpenGLWidgets Test
-    CONFIG REQUIRED)
+set(qt_components Core Gui Widgets Xml Network LinguistTools OpenGL Svg OpenGLWidgets)
+if (BUILD_TESTS)
+  list(APPEND qt_components Test)
+endif()
+find_package(Qt6 ${qt_min_version} COMPONENTS ${qt_components} CONFIG REQUIRED)
 set(QT_BINDIR "${QT6_INSTALL_PREFIX}/bin")
-
-set(Qt_Core_lib Qt::Core)
-set(Qt_Gui_lib Qt::Gui)
-set(Qt_Network_lib Qt::Network)
-set(Qt_OpenGL_lib Qt::OpenGL)
-set(Qt_Svg_lib Qt::Svg)
-set(Qt_Widgets_lib Qt::Widgets)
-set(Qt_Xml_lib Qt::Xml)
-set(Qt_OpenGLWidgets_lib Qt::OpenGLWidgets)
-set(Qt_Test_lib Qt::Test)
-set(Qt_lupdate_target Qt6::lupdate)
 
 
 #=================================== Threads ===================================#
@@ -479,7 +379,7 @@ if (WIN32)
   set(dep_libs
       JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF ${OPENJPEG_TARGET}
       Qt::Core Qt::Gui Qt::Widgets Qt::Xml
-      Qt::Network Qt::OpenGL Qt::Svg Qt6::OpenGLWidgets)
+      Qt::Network Qt::OpenGL Qt::Svg Qt::OpenGLWidgets)
 
   foreach (_target ${dep_libs})
     get_target_property(target_type ${_target} TYPE)

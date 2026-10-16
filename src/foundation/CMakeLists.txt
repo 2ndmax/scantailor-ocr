@@ -31,7 +31,7 @@ set(sources
     Utils.cpp Utils.h)
 
 add_library(foundation STATIC ${sources})
-target_link_libraries(foundation PUBLIC ${Qt_Core_lib} ${Qt_Xml_lib} ${Qt_Gui_lib})
+target_link_libraries(foundation PUBLIC Qt::Core Qt::Xml Qt::Gui)
 target_include_directories(foundation PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if (BUILD_TESTS)
