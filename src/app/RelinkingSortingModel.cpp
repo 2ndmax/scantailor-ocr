@@ -29,8 +29,8 @@ void RelinkingSortingModel::setPinned(const QModelIndex& sourceIndex) {
 }
 
 bool RelinkingSortingModel::lessThan(const QModelIndex& left, const QModelIndex& right) const {
-  const QString leftPath(left.data(RelinkingModel::UncommittedPathRole).toString());
-  const QString rightPath(right.data(RelinkingModel::UncommittedPathRole).toString());
+  const QString leftPath(left.data(RelinkingModel::PathRole).toString());
+  const QString rightPath(right.data(RelinkingModel::PathRole).toString());
   const int res = leftPath.compare(rightPath, Qt::CaseInsensitive);
   if (res != 0) {
     return res < 0;

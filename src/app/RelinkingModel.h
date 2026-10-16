@@ -35,7 +35,7 @@ class RelinkingModel : public QAbstractItemModel {
   /** The state of a folder node, see stateIcon(). */
   enum State { AllPresent, SomeMissing, FolderMissing, StatePending };
 
-  enum { TypeRole = Qt::UserRole, UncommittedPathRole, HasMissingRole };
+  enum { TypeRole = Qt::UserRole, PathRole, HasMissingRole };
 
   RelinkingModel();
 
@@ -109,35 +109,26 @@ class RelinkingModel : public QAbstractItemModel {
 
   /** Stands for File System Object (file or directory). */
   struct Item {
+    /** The path passed through addPath(). It never changes. */
     QString origPath;
-
-    /**< That's the path passed through addPath(). It never changes. */
-    QString committedPath;
-    QString uncommittedPath;
-
-    /**< Same as committedPath when m_haveUncommittedChanges == false. */
+    /** The path after all relinkings so far. */
+    QString path;
     RelinkablePath::Type type;
-    Status committedStatus;
-    Status uncommittedStatus;
-
-    /**< Same as committedStatus when m_haveUncommittedChanges == false. */
+    Status status;
+    /** The folder node the file belongs to, or -1 for the output folder. */
     int group;
-
-    /**< The folder node the file belongs to, or -1 for the output folder. */
     int posInGroup;
 
-    explicit Item(const RelinkablePath& path);
+    explicit Item(const RelinkablePath& relinkablePath);
   };
 
   /** A folder node. Its path follows folder relinkings the same way the paths of its files do. */
   struct Group {
-    QString committedDir;
-    QString uncommittedDir;
-    Status committedStatus;
-    Status uncommittedStatus;
+    QString dir;
+    Status status;
     std::vector<int> items;
 
-    explicit Group(const QString& dir);
+    explicit Group(const QString& folder);
   };
 
   class Relinker : public AbstractRelinker {
@@ -165,14 +156,11 @@ class RelinkingModel : public QAbstractItemModel {
 
   static QString parentDir(const QString& path);
 
-  void replacePrefixUncommitted(const QString& prefix, const QString& replacement, RelinkablePath::Type type);
+  /** Returns true if \p newPaths (one per item) would remap different original paths to the same one. */
+  bool findMerge(const std::vector<QString>& newPaths, Merge* merge) const;
 
-  /** Returns true if different original paths are remapped to the same uncommitted one. */
-  bool findMerge(Merge* merge) const;
-
-  void commitChanges();
-
-  void rollbackChanges();
+  /** Gives the relinker the mappings of all items that have been relinked. */
+  void updateRelinker();
 
   QModelIndex groupIndex(int group, int column = 0) const;
 
@@ -197,7 +185,6 @@ class RelinkingModel : public QAbstractItemModel {
   int m_outputItem;
   const std::shared_ptr<Relinker> m_relinker;
   std::unique_ptr<StatusUpdateThread> m_statusUpdateThread;
-  bool m_haveUncommittedChanges;
 };
 
 

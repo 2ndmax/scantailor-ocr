@@ -106,8 +106,7 @@ int groupTarget(const int group) {
 RelinkingModel::RelinkingModel()
     : m_outputItem(-1),
       m_relinker(std::make_shared<Relinker>()),
-      m_statusUpdateThread(std::make_unique<StatusUpdateThread>(this)),
-      m_haveUncommittedChanges(true) {}
+      m_statusUpdateThread(std::make_unique<StatusUpdateThread>(this)) {}
 
 RelinkingModel::~RelinkingModel() = default;
 
@@ -153,19 +152,19 @@ QVariant RelinkingModel::data(const QModelIndex& index, const int role) const {
     switch (role) {
       case TypeRole:
         return RelinkablePath::Dir;
-      case UncommittedPathRole:
-        return group.uncommittedDir;
+      case PathRole:
+        return group.dir;
       case HasMissingRole:
-        return (group.uncommittedStatus == Missing) || (missingCountInGroup(group) > 0);
+        return (group.status == Missing) || (missingCountInGroup(group) > 0);
       case Qt::DisplayRole:
         if (index.column() == 0) {
-          return toDisplayPath(group.uncommittedDir);
+          return toDisplayPath(group.dir);
         }
         return QCoreApplication::translate("RelinkingModel", "%1 of %2 missing")
             .arg(missingCountInGroup(group))
             .arg(static_cast<int>(group.items.size()));
       case Qt::ToolTipRole:
-        return toDisplayPath(group.uncommittedDir);
+        return toDisplayPath(group.dir);
       case Qt::DecorationRole:
         if (index.column() == 0) {
           return stateIcon(groupState(group));
@@ -187,24 +186,24 @@ QVariant RelinkingModel::data(const QModelIndex& index, const int role) const {
   switch (role) {
     case TypeRole:
       return item.type;
-    case UncommittedPathRole:
-      return item.uncommittedPath;
+    case PathRole:
+      return item.path;
     case HasMissingRole:
-      return item.uncommittedStatus == Missing;
+      return item.status == Missing;
     case Qt::DisplayRole:
       if (index.column() == 0) {
         // A file relinked on its own may have left the folder of its node.
-        if (parentDir(item.uncommittedPath) == group.uncommittedDir) {
-          return item.uncommittedPath.mid(group.uncommittedDir.length() + 1);
+        if (parentDir(item.path) == group.dir) {
+          return item.path.mid(group.dir.length() + 1);
         }
-        return toDisplayPath(item.uncommittedPath);
+        return toDisplayPath(item.path);
       }
       break;
     case Qt::ToolTipRole:
-      return toDisplayPath(item.uncommittedPath);
+      return toDisplayPath(item.path);
     case Qt::DecorationRole:
       if (index.column() == 0) {
-        switch (item.uncommittedStatus) {
+        switch (item.status) {
           case Exists:
             return stateIcon(AllPresent);
           case Missing:
@@ -269,37 +268,32 @@ bool RelinkingModel::replacePrefix(const QString prefix,
                                    const QString replacement,
                                    const RelinkablePath::Type type,
                                    Merge* merge) {
-  replacePrefixUncommitted(prefix, replacement, type);
-  if (findMerge(merge)) {
-    rollbackChanges();
+  // The new paths are worked out first, so a rejected change leaves the model untouched.
+  std::vector<QString> newPaths;
+  newPaths.reserve(m_items.size());
+  for (const Item& item : m_items) {
+    QString path(item.path);
+    if (type == RelinkablePath::File) {
+      if ((item.type == RelinkablePath::File) && (path == prefix)) {
+        path = replacement;
+      }
+    } else {
+      assert(type == RelinkablePath::Dir);
+      replacePathPrefix(path, prefix, replacement);
+    }
+    newPaths.push_back(path);
+  }
+  if (findMerge(newPaths, merge)) {
     return false;
   }
-  commitChanges();
-  return true;
-}
 
-void RelinkingModel::replacePrefixUncommitted(const QString& prefix,
-                                              const QString& replacement,
-                                              const RelinkablePath::Type type) {
   std::set<int> changedGroups;
 
   for (int i = 0; i < static_cast<int>(m_items.size()); ++i) {
     Item& item = m_items[i];
-    bool modified = false;
-
-    if (type == RelinkablePath::File) {
-      if ((item.type == RelinkablePath::File) && (item.uncommittedPath == prefix)) {
-        item.uncommittedPath = replacement;
-        modified = true;
-      }
-    } else {
-      assert(type == RelinkablePath::Dir);
-      modified = replacePathPrefix(item.uncommittedPath, prefix, replacement);
-    }
-
-    if (modified) {
-      m_haveUncommittedChanges = true;
-      requestItemStatusUpdate(i);  // This sets item.uncommittedStatus to StatusUpdatePending.
+    if (newPaths[i] != item.path) {
+      item.path = newPaths[i];
+      requestItemStatusUpdate(i);  // This sets item.status to StatusUpdatePending.
       emitItemChanged(i);
       if (item.group >= 0) {
         changedGroups.insert(item.group);
@@ -309,8 +303,7 @@ void RelinkingModel::replacePrefixUncommitted(const QString& prefix,
 
   if (type == RelinkablePath::Dir) {
     for (int g = 0; g < static_cast<int>(m_groups.size()); ++g) {
-      if (replacePathPrefix(m_groups[g].uncommittedDir, prefix, replacement)) {
-        m_haveUncommittedChanges = true;
+      if (replacePathPrefix(m_groups[g].dir, prefix, replacement)) {
         requestGroupStatusUpdate(g);
         changedGroups.insert(g);
         // The display of files depends on the folder path.
@@ -324,9 +317,12 @@ void RelinkingModel::replacePrefixUncommitted(const QString& prefix,
   for (const int g : changedGroups) {
     emitGroupChanged(g);
   }
-}  // RelinkingModel::replacePrefixUncommitted
 
-bool RelinkingModel::findMerge(Merge* merge) const {
+  updateRelinker();
+  return true;
+}  // RelinkingModel::replacePrefix
+
+bool RelinkingModel::findMerge(const std::vector<QString>& newPaths, Merge* merge) const {
   struct Path {
     QString key;  // The new path, as the file system compares it.
     QString newPath;
@@ -337,12 +333,13 @@ bool RelinkingModel::findMerge(Merge* merge) const {
 
   std::vector<Path> paths;
   paths.reserve(m_items.size());
-  for (const Item& item : m_items) {
+  for (size_t i = 0; i < m_items.size(); ++i) {
+    const QString& newPath = newPaths[i];
 #ifdef _WIN32
     // Windows doesn't tell upper and lower case apart in paths.
-    paths.push_back({item.uncommittedPath.toLower(), item.uncommittedPath, item.origPath});
+    paths.push_back({newPath.toLower(), newPath, m_items[i].origPath});
 #else
-    paths.push_back({item.uncommittedPath, item.uncommittedPath, item.origPath});
+    paths.push_back({newPath, newPath, m_items[i].origPath});
 #endif
   }
   std::sort(paths.begin(), paths.end());
@@ -366,72 +363,19 @@ bool RelinkingModel::findMerge(Merge* merge) const {
   return found.count > 0;
 }
 
-void RelinkingModel::commitChanges() {
-  if (!m_haveUncommittedChanges) {
-    return;
-  }
-
+void RelinkingModel::updateRelinker() {
+  // The relinker handed out by relinker() stays the same object; only its mappings are replaced.
   Relinker newRelinker;
-
-  for (Item& item : m_items) {
-    // Changes committed earlier have to stay in the relinker, too.
-    if (item.origPath != item.uncommittedPath) {
-      newRelinker.addMapping(item.origPath, item.uncommittedPath);
+  for (const Item& item : m_items) {
+    if (item.origPath != item.path) {
+      newRelinker.addMapping(item.origPath, item.path);
     }
-
-    item.committedPath = item.uncommittedPath;
-    item.committedStatus = item.uncommittedStatus;
   }
-
-  for (Group& group : m_groups) {
-    group.committedDir = group.uncommittedDir;
-    group.committedStatus = group.uncommittedStatus;
-  }
-
   m_relinker->swap(newRelinker);
-  m_haveUncommittedChanges = false;
-}  // RelinkingModel::commitChanges
-
-void RelinkingModel::rollbackChanges() {
-  if (!m_haveUncommittedChanges) {
-    return;
-  }
-
-  std::set<int> changedGroups;
-
-  for (int i = 0; i < static_cast<int>(m_items.size()); ++i) {
-    Item& item = m_items[i];
-    if (item.uncommittedPath != item.committedPath) {
-      item.uncommittedPath = item.committedPath;
-      item.uncommittedStatus = item.committedStatus;
-      emitItemChanged(i);
-      if (item.group >= 0) {
-        changedGroups.insert(item.group);
-      }
-    }
-  }
-
-  for (int g = 0; g < static_cast<int>(m_groups.size()); ++g) {
-    Group& group = m_groups[g];
-    if (group.uncommittedDir != group.committedDir) {
-      group.uncommittedDir = group.committedDir;
-      group.uncommittedStatus = group.committedStatus;
-      changedGroups.insert(g);
-      for (const int i : group.items) {
-        emitItemChanged(i);
-      }
-    }
-  }
-
-  for (const int g : changedGroups) {
-    emitGroupChanged(g);
-  }
-
-  m_haveUncommittedChanges = false;
-}  // RelinkingModel::rollbackChanges
+}
 
 QString RelinkingModel::outputDir() const {
-  return (m_outputItem >= 0) ? m_items[m_outputItem].uncommittedPath : QString();
+  return (m_outputItem >= 0) ? m_items[m_outputItem].path : QString();
 }
 
 void RelinkingModel::setOutputDir(const QString& path) {
@@ -439,12 +383,9 @@ void RelinkingModel::setOutputDir(const QString& path) {
     return;
   }
 
-  Item& item = m_items[m_outputItem];
-  item.committedPath = path;
-  item.uncommittedPath = path;
+  m_items[m_outputItem].path = path;
   requestItemStatusUpdate(m_outputItem);
-  item.committedStatus = item.uncommittedStatus;
-  m_relinker->addMapping(item.origPath, path);
+  updateRelinker();
 }
 
 int RelinkingModel::fileCount() const {
@@ -461,12 +402,12 @@ int RelinkingModel::missingFileCount() const {
 
 bool RelinkingModel::isStatusUpdatePending() const {
   for (const Group& group : m_groups) {
-    if (group.uncommittedStatus == StatusUpdatePending) {
+    if (group.status == StatusUpdatePending) {
       return true;
     }
   }
   for (const Item& item : m_items) {
-    if ((item.group >= 0) && (item.uncommittedStatus == StatusUpdatePending)) {
+    if ((item.group >= 0) && (item.status == StatusUpdatePending)) {
       return true;
     }
   }
@@ -545,7 +486,7 @@ void RelinkingModel::emitItemChanged(const int item) {
 int RelinkingModel::missingCountInGroup(const Group& group) const {
   int count = 0;
   for (const int i : group.items) {
-    if (m_items[i].uncommittedStatus == Missing) {
+    if (m_items[i].status == Missing) {
       ++count;
     }
   }
@@ -553,18 +494,18 @@ int RelinkingModel::missingCountInGroup(const Group& group) const {
 }
 
 RelinkingModel::State RelinkingModel::groupState(const Group& group) const {
-  if (group.uncommittedStatus == Missing) {
+  if (group.status == Missing) {
     return FolderMissing;
   }
-  if (group.uncommittedStatus == StatusUpdatePending) {
+  if (group.status == StatusUpdatePending) {
     return StatePending;
   }
   bool pending = false;
   for (const int i : group.items) {
-    if (m_items[i].uncommittedStatus == Missing) {
+    if (m_items[i].status == Missing) {
       return SomeMissing;
     }
-    if (m_items[i].uncommittedStatus == StatusUpdatePending) {
+    if (m_items[i].status == StatusUpdatePending) {
       pending = true;
     }
   }
@@ -573,14 +514,14 @@ RelinkingModel::State RelinkingModel::groupState(const Group& group) const {
 
 void RelinkingModel::requestItemStatusUpdate(const int item) {
   Item& it = m_items[item];
-  it.uncommittedStatus = StatusUpdatePending;
-  m_statusUpdateThread->requestStatusUpdate(it.uncommittedPath, item);
+  it.status = StatusUpdatePending;
+  m_statusUpdateThread->requestStatusUpdate(it.path, item);
 }
 
 void RelinkingModel::requestGroupStatusUpdate(const int group) {
   Group& gr = m_groups[group];
-  gr.uncommittedStatus = StatusUpdatePending;
-  m_statusUpdateThread->requestStatusUpdate(gr.uncommittedDir, groupTarget(group));
+  gr.status = StatusUpdatePending;
+  m_statusUpdateThread->requestStatusUpdate(gr.dir, groupTarget(group));
 }
 
 void RelinkingModel::customEvent(QEvent* event) {
@@ -591,34 +532,23 @@ void RelinkingModel::customEvent(QEvent* event) {
   const StatusUpdateResponse& response = evt->payload();
   const int target = response.target();
 
+  // A response for a path that has been relinked in the meantime is out of date.
   if (target < 0) {
     const int g = groupTarget(target);
-    if (g >= int(m_groups.size())) {
+    if ((g >= int(m_groups.size())) || (m_groups[g].dir != response.path())) {
       return;
     }
-    Group& group = m_groups[g];
-    if (group.uncommittedDir == response.path()) {
-      group.uncommittedStatus = response.status();
-    }
-    if (group.committedDir == response.path()) {
-      group.committedStatus = response.status();
-    }
+    m_groups[g].status = response.status();
     emitGroupChanged(g);
     return;
   }
 
-  if (target >= int(m_items.size())) {
+  if ((target >= int(m_items.size())) || (m_items[target].path != response.path())) {
     return;
   }
 
   Item& item = m_items[target];
-  if (item.uncommittedPath == response.path()) {
-    item.uncommittedStatus = response.status();
-  }
-  if (item.committedPath == response.path()) {
-    item.committedStatus = response.status();
-  }
-
+  item.status = response.status();
   emitItemChanged(target);
   if (item.group >= 0) {
     emitGroupChanged(item.group);
@@ -718,31 +648,22 @@ catch (const std::bad_alloc&) {
 
 /*================================ Item =================================*/
 
-RelinkingModel::Item::Item(const RelinkablePath& path)
-    : origPath(path.normalizedPath()),
-      committedPath(path.normalizedPath()),
-      uncommittedPath(path.normalizedPath()),
-      type(path.type()),
-      committedStatus(StatusUpdatePending),
-      uncommittedStatus(StatusUpdatePending),
+RelinkingModel::Item::Item(const RelinkablePath& relinkablePath)
+    : origPath(relinkablePath.normalizedPath()),
+      path(relinkablePath.normalizedPath()),
+      type(relinkablePath.type()),
+      status(StatusUpdatePending),
       group(-1),
       posInGroup(-1) {}
 
 /*================================ Group ================================*/
 
-RelinkingModel::Group::Group(const QString& dir)
-    : committedDir(dir),
-      uncommittedDir(dir),
-      committedStatus(StatusUpdatePending),
-      uncommittedStatus(StatusUpdatePending) {}
+RelinkingModel::Group::Group(const QString& folder) : dir(folder), status(StatusUpdatePending) {}
 
 /*============================== Relinker ================================*/
 
 void RelinkingModel::Relinker::addMapping(const QString& from, const QString& to) {
-  const auto it(m_mappings.find(from));
-  if (it != m_mappings.end()) {
-    m_targets.erase(it->second);
-  }
+  // Each path is added once, see updateRelinker().
   m_mappings[from] = to;
   m_targets.insert(to);
 }

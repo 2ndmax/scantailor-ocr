@@ -168,7 +168,7 @@ void RelinkingDialog::refreshNodePath() {
   }
 
   const QModelIndex index(rows.front());
-  m_nodePath = index.data(RelinkingModel::UncommittedPathRole).toString();
+  m_nodePath = index.data(RelinkingModel::PathRole).toString();
   m_nodeType = index.data(RelinkingModel::TypeRole).toInt();
   ui.nodePathLine->setText(RelinkingModel::toDisplayPath(m_nodePath));
   ui.nodePathLine->setEnabled(true);

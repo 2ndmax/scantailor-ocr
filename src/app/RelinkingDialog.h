@@ -70,9 +70,8 @@ class RelinkingDialog : public QDialog {
   RelinkingModel m_model;
   RelinkingSortingModel* m_sortingModel;
   QString m_projectFileDir;
+  /** The current path of the selected folder or file, empty if nothing is selected. */
   QString m_nodePath;
-
-  /**< The uncommitted path of the selected folder or file, empty if nothing is selected. */
   int m_nodeType;
   QTimer m_statusUpdateTimer;
   bool m_outputDirShown;
