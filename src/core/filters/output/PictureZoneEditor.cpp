@@ -220,48 +220,23 @@ void PictureZoneEditor::paintOverPictureMask(QPainter& painter) {
   painter.setBrush(QColor(maskColor));
 
   using PLP = PictureLayerProperty;
-
-  // Pass 1: ZONEERASER1
-  painter.setCompositionMode(QPainter::CompositionMode_Clear);
-
-  for (const EditableZoneSet::Zone& zone : zones()) {
-    if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ZONEERASER1) {
-      painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+  const auto drawZones = [&](const PLP::Layer layer, const QPainter::CompositionMode mode) {
+    painter.setCompositionMode(mode);
+    for (const EditableZoneSet::Zone& zone : zones()) {
+      if (zone.properties()->locateOrDefault<PLP>()->layer() == layer) {
+        painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+      }
     }
-  }
+  };
 
-  // Pass 2: ZONEFG
-  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-
-  for (const EditableZoneSet::Zone& zone : zones()) {
-    if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ZONEFG) {
-      painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
-    }
-  }
-
-  // Pass 3: ZONEBG, still painting over.
-  for (const EditableZoneSet::Zone& zone : zones()) {
-    if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ZONEBG) {
-      painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
-    }
-  }
-
-  // Pass 4: ZONEPAINTER2, still painting over.
-  for (const EditableZoneSet::Zone& zone : zones()) {
-    if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ZONEPAINTER2) {
-      painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
-    }
-  }
-
-  // Pass 5: ZONEERASER3
-  painter.setCompositionMode(QPainter::CompositionMode_Clear);
-
-  for (const EditableZoneSet::Zone& zone : zones()) {
-    if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ZONEERASER3) {
-      painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
-    }
-  }
-}  // PictureZoneEditor::paintOverPictureMask
+  // In the order of OutputGenerator.  The foreground and background zones look the same here,
+  // as the preview has no content mask to tell them apart.
+  drawZones(PLP::ZONEERASER1, QPainter::CompositionMode_Clear);
+  drawZones(PLP::ZONEFG, QPainter::CompositionMode_SourceOver);
+  drawZones(PLP::ZONEBG, QPainter::CompositionMode_SourceOver);
+  drawZones(PLP::ZONEPAINTER2, QPainter::CompositionMode_SourceOver);
+  drawZones(PLP::ZONEERASER3, QPainter::CompositionMode_Clear);
+}
 
 void PictureZoneEditor::showPropertiesDialog(const EditableZoneSet::Zone& zone) {
   // A deep copy, for restoring the properties if the dialog is cancelled.

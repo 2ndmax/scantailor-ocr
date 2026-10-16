@@ -4,8 +4,6 @@
 #ifndef SCANTAILOR_CORE_JPEGMETADATALOADER_H_
 #define SCANTAILOR_CORE_JPEGMETADATALOADER_H_
 
-#include <vector>
-
 #include "ImageMetadataLoader.h"
 #include "VirtualFunction.h"
 

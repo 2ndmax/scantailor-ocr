@@ -5,6 +5,9 @@
 #include <filters/output/TabbedImageView.h>
 
 #include <QShortcut>
+#include <algorithm>
+#include <cmath>
+#include <functional>
 
 #include "../../Utils.h"
 #include "DespeckleView.h"
@@ -32,7 +35,7 @@ void TabbedImageView::addTab(QWidget* widget, const QString& label, ImageViewTab
   m_registry[widget] = tab;
 
   if (auto* despeckleView = dynamic_cast<DespeckleView*>(widget)) {
-    connect(despeckleView, &DespeckleView::imageViewCreated,
+    connect(despeckleView, &DespeckleView::imageViewCreated, this,
             [this](ImageViewBase*) { copyViewZoomAndPos(m_prevImageViewTabIndex, currentIndex()); });
   }
 }
@@ -74,18 +77,19 @@ void TabbedImageView::copyViewZoomAndPos(const int oldIdx, const int newIdx) con
     return;
   }
 
-  if ((m_registry.find(widget(oldIdx)) == m_registry.end()) || (m_registry.find(widget(newIdx)) == m_registry.end())) {
+  const auto oldTabIt = m_registry.find(widget(oldIdx));
+  const auto newTabIt = m_registry.find(widget(newIdx));
+  if ((oldTabIt == m_registry.end()) || (newTabIt == m_registry.end())) {
     return;
   }
-  const ImageViewTab oldViewTab = m_registry.at(widget(oldIdx));
-  const ImageViewTab newViewTab = m_registry.at(widget(newIdx));
 
-  if ((m_tabImageRectMap->find(oldViewTab) == m_tabImageRectMap->end())
-      || (m_tabImageRectMap->find(newViewTab) == m_tabImageRectMap->end())) {
+  const auto oldRectIt = m_tabImageRectMap->find(oldTabIt->second);
+  const auto newRectIt = m_tabImageRectMap->find(newTabIt->second);
+  if ((oldRectIt == m_tabImageRectMap->end()) || (newRectIt == m_tabImageRectMap->end())) {
     return;
   }
-  const QRectF& oldViewRect = m_tabImageRectMap->at(oldViewTab);
-  const QRectF& newViewRect = m_tabImageRectMap->at(newViewTab);
+  const QRectF& oldViewRect = oldRectIt->second;
+  const QRectF& newViewRect = newRectIt->second;
 
   auto* oldImageView = Utils::castOrFindChild<ImageViewBase*>(widget(oldIdx));
   auto* newImageView = Utils::castOrFindChild<ImageViewBase*>(widget(newIdx));

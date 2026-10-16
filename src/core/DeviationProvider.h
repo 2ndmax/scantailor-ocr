@@ -6,6 +6,7 @@
 
 #include <foundation/NonCopyable.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -33,6 +34,10 @@ class DeviationProvider {
    */
   bool isDeviant(const K& key, double coefficient = 1.0, double threshold = 0.0, bool defaultVal = false) const;
 
+  /**
+   * How far the value of \p key is off the mean; 0 while there are too few values for the
+   * statistics, and -1 for an unknown key or a key without a value.
+   */
   double getDeviationValue(const K& key) const;
 
   void addOrUpdate(const K& key);

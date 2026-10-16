@@ -45,7 +45,7 @@ class OutputImageParams {
 
   explicit OutputImageParams(const QDomElement& el);
 
-  const DewarpingOptions& dewarpingMode() const;
+  const DewarpingOptions& dewarpingOptions() const;
 
   const dewarping::DistortionModel& distortionModel() const;
 
@@ -160,7 +160,7 @@ inline const QPolygonF& OutputImageParams::getCropArea() const {
   return m_cropArea;
 }
 
-inline const DewarpingOptions& OutputImageParams::dewarpingMode() const {
+inline const DewarpingOptions& OutputImageParams::dewarpingOptions() const {
   return m_dewarpingOptions;
 }
 

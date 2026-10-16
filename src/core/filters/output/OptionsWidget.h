@@ -280,6 +280,12 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void addOptionsWidgetBinarization(OptionsWidgetBinarization* widget);
 
+  /** Shows the stored values in the option widgets of all binarization methods. */
+  void updateBinarizationWidgets();
+
+  /** The original background is only kept behind a black and white foreground. */
+  void updateOriginalBackgroundEnabled();
+
   void setupUiConnections();
 
   void setupTiffCompressionPanel();

@@ -36,6 +36,20 @@
 using namespace core;
 
 namespace output {
+namespace {
+// Shows the value of a slider in its label and, right away, as a tooltip at the handle.
+void showSliderValue(QSlider* slider, QLabel* valueLabel, const double value) {
+  const QString text(QLocale().toString(value, 'f', 1));
+  slider->setToolTip(text);
+  valueLabel->setText(text);
+
+  QPoint tooltipPos(slider->mapFromGlobal(QCursor::pos()));
+  tooltipPos.setY(slider->rect().center().y());
+  tooltipPos.setX(qBound(0, tooltipPos.x(), slider->width()));
+  QToolTip::showText(slider->mapToGlobal(tooltipPos), text, slider);
+}
+}  // namespace
+
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
       m_pageSelectionAccessor(pageSelectionAccessor),
@@ -408,9 +422,7 @@ void OptionsWidget::thresholdMethodChanged(int idx) {
   m_settings->setColorParams(m_pageId, m_colorParams);
   if (ownDefaults) {
     // Show the new window size and strength.
-    for (int i = 0; i < binarizationOptions->count(); i++) {
-      static_cast<OptionsWidgetBinarization*>(binarizationOptions->widget(i))->updateUi(m_pageId);
-    }
+    updateBinarizationWidgets();
   }
 
   emit reloadRequested();
@@ -464,9 +476,8 @@ void OptionsWidget::fillOffcutToggled(const bool checked) {
   colorCommonOptions.setFillOffcut(checked);
   if (checked) {
     colorCommonOptions.setFillOutsidePageBox(false);
-    fillOutsidePageBoxCB->blockSignals(true);
+    // Only clicks are connected, so this doesn't call fillOutsidePageBoxToggled().
     fillOutsidePageBoxCB->setChecked(false);
-    fillOutsidePageBoxCB->blockSignals(false);
   }
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
@@ -478,9 +489,8 @@ void OptionsWidget::fillOutsidePageBoxToggled(const bool checked) {
   colorCommonOptions.setFillOutsidePageBox(checked);
   if (checked) {
     colorCommonOptions.setFillOffcut(false);
-    fillOffcutCB->blockSignals(true);
+    // Only clicks are connected, so this doesn't call fillOffcutToggled().
     fillOffcutCB->setChecked(false);
-    fillOffcutCB->blockSignals(false);
   }
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
@@ -612,15 +622,12 @@ void OptionsWidget::applyColorsConfirmed(const std::set<PageId>& pages,
                                          const bool applyColorMode,
                                          const bool applyOtherSettings) {
   for (const PageId& pageId : pages) {
+    const ColorParams pageColorParams = m_settings->getParams(pageId).colorParams();
     // The color mode and the other settings of the Mode group can be applied separately.
-    ColorParams colorParams = applyOtherSettings ? m_colorParams : m_settings->getParams(pageId).colorParams();
+    ColorParams colorParams = applyOtherSettings ? m_colorParams : pageColorParams;
     // The photo adjustments have their own "Apply to ...".
-    colorParams.setPhotoAdjustments(m_settings->getParams(pageId).colorParams().photoAdjustments());
-    if (applyColorMode) {
-      colorParams.setColorMode(m_colorParams.colorMode());
-    } else {
-      colorParams.setColorMode(m_settings->getParams(pageId).colorParams().colorMode());
-    }
+    colorParams.setPhotoAdjustments(pageColorParams.photoAdjustments());
+    colorParams.setColorMode(applyColorMode ? m_colorParams.colorMode() : pageColorParams.colorMode());
     m_settings->setColorParams(pageId, colorParams);
     if (applyOtherSettings) {
       m_settings->setPictureShapeOptions(pageId, m_pictureShapeOptions);
@@ -855,17 +862,7 @@ void OptionsWidget::despeckleSliderReleased() {
 void OptionsWidget::despeckleSliderValueChanged(int value) {
   const double newValue = 0.1 * value;
 
-  const QString tooltipText(QLocale().toString(newValue, 'f', 1));
-  despeckleSlider->setToolTip(tooltipText);
-  despeckleValueLabel->setText(tooltipText);
-
-  // Show the tooltip immediately.
-  const QPoint center(despeckleSlider->rect().center());
-  QPoint tooltipPos(despeckleSlider->mapFromGlobal(QCursor::pos()));
-  tooltipPos.setY(center.y());
-  tooltipPos.setX(qBound(0, tooltipPos.x(), despeckleSlider->width()));
-  tooltipPos = despeckleSlider->mapToGlobal(tooltipPos);
-  QToolTip::showText(tooltipPos, tooltipText, despeckleSlider);
+  showSliderValue(despeckleSlider, despeckleValueLabel, newValue);
 
   if (despeckleSlider->isSliderDown()) {
     return;
@@ -958,14 +955,15 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
     if (m_dewarpingOptions != opt) {
       m_dewarpingOptions = opt;
 
-
       // We also have to reload if we are currently on the "Fill Zones" tab,
       // as it makes use of original <-> dewarped coordinate mapping,
       // which is too hard to update without reloading.  For consistency,
       // we reload not just on TAB_FILL_ZONES but on all tabs except TAB_DEWARPING.
       // PS: the static original <-> dewarped mappings are constructed
       // in Task::UiUpdater::updateUI().  Look for "new DewarpingPointMapper" there.
-      if ((opt.dewarpingMode() == AUTO) || (m_lastTab != TAB_DEWARPING) || (opt.dewarpingMode() == MARGINAL)) {
+      // The automatic modes have to find the curves anew, so they reload on the Dewarping tab, too.
+      const bool automaticMode = (opt.dewarpingMode() == AUTO) || (opt.dewarpingMode() == MARGINAL);
+      if (automaticMode || (m_lastTab != TAB_DEWARPING)) {
         // Switch to the Output tab after reloading.
         m_lastTab = TAB_OUTPUT;
         // These depend on the value of m_lastTab.
@@ -975,27 +973,16 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
 
         emit reloadRequested();
       } else {
-        // This one we have to call anyway, as it depends on m_dewarpingMode.
+        // The Dewarping tab follows the change by itself, only the options panel is updated.
         updateDewarpingDisplay();
       }
     }
   }
 }  // OptionsWidget::dewarpingChanged
 
-
 void OptionsWidget::depthPerceptionChangedSlot(int val) {
   m_depthPerception.setValue(0.1 * val);
-  const QString tooltipText(QLocale().toString(m_depthPerception.value(), 'f', 1));
-  depthPerceptionSlider->setToolTip(tooltipText);
-  depthPerceptionValueLabel->setText(tooltipText);
-
-  // Show the tooltip immediately.
-  const QPoint center(depthPerceptionSlider->rect().center());
-  QPoint tooltipPos(depthPerceptionSlider->mapFromGlobal(QCursor::pos()));
-  tooltipPos.setY(center.y());
-  tooltipPos.setX(qBound(0, tooltipPos.x(), depthPerceptionSlider->width()));
-  tooltipPos = depthPerceptionSlider->mapToGlobal(tooltipPos);
-  QToolTip::showText(tooltipPos, tooltipText, depthPerceptionSlider);
+  showSliderValue(depthPerceptionSlider, depthPerceptionValueLabel, m_depthPerception.value());
 
   m_settings->setDepthPerception(m_pageId, m_depthPerception);
   // Propagate the signal.
@@ -1043,47 +1030,40 @@ void OptionsWidget::reloadIfNecessary() {
   if (outputParams) {
     savedPictureZones = outputParams->pictureZones();
     savedFillZones = outputParams->fillZones();
-    savedDewarpingOptions = outputParams->outputImageParams().dewarpingMode();
+    savedDewarpingOptions = outputParams->outputImageParams().dewarpingOptions();
     savedDistortionModel = outputParams->outputImageParams().distortionModel();
     savedDepthPerception = outputParams->outputImageParams().depthPerception();
     savedDespeckleLevel = outputParams->outputImageParams().despeckleLevel();
   }
 
-  if (!PictureZoneComparator::equal(savedPictureZones, m_settings->pictureZonesForPage(m_pageId))) {
-    emit reloadRequested();
-    return;
-  } else if (!FillZoneComparator::equal(savedFillZones, m_settings->fillZonesForPage(m_pageId))) {
-    emit reloadRequested();
-    return;
-  }
-
   const Params params(m_settings->getParams(m_pageId));
 
-  if (savedDespeckleLevel != params.despeckleLevel()) {
+  if (!PictureZoneComparator::equal(savedPictureZones, m_settings->pictureZonesForPage(m_pageId))
+      || !FillZoneComparator::equal(savedFillZones, m_settings->fillZonesForPage(m_pageId))
+      || (savedDespeckleLevel != params.despeckleLevel())) {
     emit reloadRequested();
     return;
   }
 
-  if ((savedDewarpingOptions.dewarpingMode() == OFF) && (params.dewarpingOptions().dewarpingMode() == OFF)) {
-  } else if (savedDepthPerception.value() != params.depthPerception().value()) {
-    emit reloadRequested();
+  const DewarpingOptions& dewarpingOptions = params.dewarpingOptions();
+  const DewarpingMode savedMode = savedDewarpingOptions.dewarpingMode();
+  const DewarpingMode mode = dewarpingOptions.dewarpingMode();
+  if ((savedMode == OFF) && (mode == OFF)) {
+    // Without dewarping, its options don't matter.
     return;
-  } else if (savedDewarpingOptions.evenOutLetterWidths() != params.dewarpingOptions().evenOutLetterWidths()) {
+  }
+
+  bool reload = (savedDepthPerception.value() != params.depthPerception().value())
+                || (savedDewarpingOptions.evenOutLetterWidths() != dewarpingOptions.evenOutLetterWidths())
+                // Not reloaded on the Dewarping tab in the manual mode, see dewarpingChanged().
+                || (savedDewarpingOptions.needPostDeskew() != dewarpingOptions.needPostDeskew());
+  // The automatic modes find the curves anew, so a changed model doesn't count there.
+  const bool sameAutomaticMode = (savedMode == mode) && ((mode == AUTO) || (mode == MARGINAL));
+  if (!reload && !sameAutomaticMode) {
+    reload = !savedDistortionModel.matches(params.distortionModel()) || ((savedMode == OFF) != (mode == OFF));
+  }
+  if (reload) {
     emit reloadRequested();
-    return;
-  } else if (savedDewarpingOptions.needPostDeskew() != params.dewarpingOptions().needPostDeskew()) {
-    // Not reloaded on the Dewarping tab in the manual mode, see dewarpingChanged().
-    emit reloadRequested();
-    return;
-  } else if ((savedDewarpingOptions.dewarpingMode() == AUTO) && (params.dewarpingOptions().dewarpingMode() == AUTO)) {
-  } else if ((savedDewarpingOptions.dewarpingMode() == MARGINAL)
-             && (params.dewarpingOptions().dewarpingMode() == MARGINAL)) {
-  } else if (!savedDistortionModel.matches(params.distortionModel())) {
-    emit reloadRequested();
-    return;
-  } else if ((savedDewarpingOptions.dewarpingMode() == OFF) != (params.dewarpingOptions().dewarpingMode() == OFF)) {
-    emit reloadRequested();
-    return;
   }
 }  // OptionsWidget::reloadIfNecessary
 
@@ -1171,8 +1151,7 @@ void OptionsWidget::updateColorsDisplay() {
   originalBackgroundCB->setChecked(m_splittingOptions.isOriginalBackgroundEnabled());
   colorForegroundRB->setEnabled(m_splittingOptions.isSplitOutput());
   bwForegroundRB->setEnabled(m_splittingOptions.isSplitOutput());
-  originalBackgroundCB->setEnabled(m_splittingOptions.isSplitOutput()
-                                   && (m_splittingOptions.getSplittingMode() == BLACK_AND_WHITE_FOREGROUND));
+  updateOriginalBackgroundEnabled();
 
   thresholdMethodBox->setCurrentIndex(thresholdMethodBox->findData(blackWhiteOptions.getBinarizationMethod()));
   // The option widgets were added in the order of the methods.
@@ -1181,7 +1160,7 @@ void OptionsWidget::updateColorsDisplay() {
   // The areas to fill are used in every color mode, the color not in black and white.
   fillingColorLabel->setEnabled(colorMode != BLACK_AND_WHITE);
   fillingColorBox->setEnabled(colorMode != BLACK_AND_WHITE);
-  fillingColorBox->setCurrentIndex((int) colorCommonOptions.getFillingColor());
+  fillingColorBox->setCurrentIndex(fillingColorBox->findData(colorCommonOptions.getFillingColor()));
 
   colorSegmentationCB->setEnabled(thresholdOptionsVisible);
   updateColorReductionControls();
@@ -1268,11 +1247,7 @@ void OptionsWidget::updateColorsDisplay() {
     despeckleValueLabel->setText(despeckleSlider->toolTip());
   }
 
-  for (int i = 0; i < binarizationOptions->count(); i++) {
-    auto* widget = dynamic_cast<OptionsWidgetBinarization*>(binarizationOptions->widget(i));
-    widget->updateUi(m_pageId);
-  }
-
+  updateBinarizationWidgets();
 }  // OptionsWidget::updateColorsDisplay
 
 void OptionsWidget::updateDewarpingDisplay() {
@@ -1307,9 +1282,10 @@ void OptionsWidget::updateDewarpingDisplay() {
   dewarpingPostDeskewCB->setEnabled((m_dewarpingOptions.dewarpingMode() == MANUAL)
                                     || (m_dewarpingOptions.dewarpingMode() == MARGINAL));
 
-  depthPerceptionSlider->blockSignals(true);
-  depthPerceptionSlider->setValue(qRound(m_depthPerception.value() * 10));
-  depthPerceptionSlider->blockSignals(false);
+  {
+    const QSignalBlocker sliderBlocker(depthPerceptionSlider);
+    depthPerceptionSlider->setValue(qRound(m_depthPerception.value() * 10));
+  }
   depthPerceptionValueLabel->setText(QLocale().toString(m_depthPerception.value(), 'f', 1));
 }
 
@@ -1346,28 +1322,25 @@ void OptionsWidget::binarizationBoundChanged() {
   m_delayedReloadRequest.start(750);
 }
 
-void OptionsWidget::bwForegroundToggled(bool checked) {
-  if (!checked) {
-    return;
-  }
-
-  originalBackgroundCB->setEnabled(checked);
-
+void OptionsWidget::bwForegroundToggled(bool) {
+  // Connected to clicked(), so the button is always checked here.
   m_splittingOptions.setSplittingMode(BLACK_AND_WHITE_FOREGROUND);
+  updateOriginalBackgroundEnabled();
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
   emit reloadRequested();
 }
 
-void OptionsWidget::colorForegroundToggled(bool checked) {
-  if (!checked) {
-    return;
-  }
-
-  originalBackgroundCB->setEnabled(!checked);
-
+void OptionsWidget::colorForegroundToggled(bool) {
+  // Connected to clicked(), so the button is always checked here.
   m_splittingOptions.setSplittingMode(COLOR_FOREGROUND);
+  updateOriginalBackgroundEnabled();
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
   emit reloadRequested();
+}
+
+void OptionsWidget::updateOriginalBackgroundEnabled() {
+  originalBackgroundCB->setEnabled(m_splittingOptions.isSplitOutput()
+                                   && (m_splittingOptions.getSplittingMode() == BLACK_AND_WHITE_FOREGROUND));
 }
 
 void OptionsWidget::splittingToggled(bool checked) {
@@ -1375,7 +1348,7 @@ void OptionsWidget::splittingToggled(bool checked) {
 
   bwForegroundRB->setEnabled(checked);
   colorForegroundRB->setEnabled(checked);
-  originalBackgroundCB->setEnabled(checked && bwForegroundRB->isChecked());
+  updateOriginalBackgroundEnabled();
 
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
   emit reloadRequested();
@@ -1755,6 +1728,13 @@ void OptionsWidget::addOptionsWidgetBinarization(OptionsWidgetBinarization* widg
   widget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
   binarizationOptions->addWidget(widget);
   connect(widget, &OptionsWidgetBinarization::colorParamsChanged, this, &OptionsWidget::binarizationColorParamsChanged);
+}
+
+void OptionsWidget::updateBinarizationWidgets() {
+  // Only OptionsWidgetBinarization objects are added, see addOptionsWidgetBinarization().
+  for (int i = 0; i < binarizationOptions->count(); i++) {
+    static_cast<OptionsWidgetBinarization*>(binarizationOptions->widget(i))->updateUi(m_pageId);
+  }
 }
 
 void OptionsWidget::sendReloadRequested() {

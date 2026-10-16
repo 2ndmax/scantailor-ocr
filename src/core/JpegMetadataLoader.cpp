@@ -7,6 +7,7 @@
 #include <QIODevice>
 #include <cassert>
 #include <csetjmp>
+#include <cstring>
 
 #include "Dpm.h"
 #include "ImageLoadErrors.h"

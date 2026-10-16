@@ -31,7 +31,7 @@ class ChangedStateItemDelegate : public T {
 
   void removeAllChanges() { m_changedMask = QStyle::State(); }
 
-  virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+  void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
     const QStyle::State origState = option.state;
 
     const QStyle::State newState = (origState & ~m_changedMask) | (m_changedFlags & m_changedMask);

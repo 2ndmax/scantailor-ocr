@@ -33,8 +33,6 @@ class ImagePresentation {
 
   const QPolygonF& cropArea() const { return m_cropArea; }
 
-  void setCropArea(const QPolygonF& cropArea) { m_cropArea = cropArea; }
-
   const QRectF& displayArea() const { return m_displayArea; }
 
   void setDisplayArea(const QRectF& displayArea) { m_displayArea = displayArea; }

@@ -6,6 +6,7 @@
 
 #include <QString>
 #include <memory>
+#include <utility>
 
 #include "PageOrderProvider.h"
 
