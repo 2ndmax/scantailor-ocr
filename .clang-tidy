@@ -1,11 +1,18 @@
 # Checks for finding real defects, not style.  The excluded checks only gave false alarms in this
 # code: pixel arithmetic mixes int, float and size_t on purpose, offsets stay far below 2^31,
 # values are clamped before rounding, and static QString constants are the Qt way.
-# The tools under src/tools and the tests are not shipped; leave them out when running clang-tidy.
+# The path-sensitive clang-analyzer checks run as well, without the padding hints and the checks for
+# other platforms' APIs.  The tests are not shipped; leave them out when running clang-tidy.
 Checks: >
   -*,
   bugprone-*,
   performance-*,
+  clang-analyzer-*,
+  -clang-analyzer-optin.performance.Padding,
+  -clang-analyzer-osx.*,
+  -clang-analyzer-optin.osx.*,
+  -clang-analyzer-webkit.*,
+  -clang-analyzer-fuchsia.*,
   -bugprone-easily-swappable-parameters,
   -bugprone-narrowing-conversions,
   -bugprone-implicit-widening-of-multiplication-result,
