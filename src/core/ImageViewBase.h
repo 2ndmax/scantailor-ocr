@@ -338,13 +338,19 @@ class ImageViewBase : public QAbstractScrollArea {
   /**
    * The position, in widget coordinates, where m_hqPixmap is to be drawn.
    */
-  QPoint m_hqPixmapPos;
+  QPointF m_hqPixmapPos;
 
   /**
    * The transformation used to build m_hqPixmap.
    * It's used to detect if m_hqPixmap needs to be rebuild.
    */
   QTransform m_hqXform;
+
+  /**
+   * The device pixel ratio m_hqPixmap is built for.  It has screen pixels,
+   * so that it maps one to one to them on scaled screens too.
+   */
+  qreal m_hqDevicePixelRatio = 1.0;
 
   /**
    * Used to check if we need to extend the delay before building m_hqPixmap.

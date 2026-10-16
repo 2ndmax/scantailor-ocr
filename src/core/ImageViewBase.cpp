@@ -921,6 +921,10 @@ bool ImageViewBase::validateHqPixmap() const {
   if (m_hqXform != m_imageToVirtual * m_virtualToWidget) {
     return false;
   }
+
+  if (m_hqDevicePixelRatio != viewport()->devicePixelRatioF()) {
+    return false;
+  }
   return true;
 }
 
@@ -950,12 +954,17 @@ void ImageViewBase::initiateBuildingHqVersion() {
   }
 
   const QTransform xform(m_imageToVirtual * m_virtualToWidget);
-  const auto task = std::make_shared<HqTransformTask>(this, m_image, xform, viewport()->size());
+  // Built in screen pixels, see m_hqDevicePixelRatio.
+  const qreal dpr = viewport()->devicePixelRatioF();
+  const QSize targetSize(qRound(viewport()->width() * dpr), qRound(viewport()->height() * dpr));
+  const auto task
+      = std::make_shared<HqTransformTask>(this, m_image, xform * QTransform::fromScale(dpr, dpr), targetSize);
 
   backgroundExecutor().enqueueTask(task);
 
   m_hqTransformTask = task;
   m_hqXform = xform;
+  m_hqDevicePixelRatio = dpr;
   m_hqSourceId = m_image.cacheKey();
 }
 
@@ -967,8 +976,10 @@ void ImageViewBase::hqVersionBuilt(const QPoint& origin, const QImage& image) {
     return;
   }
 
+  // The image and origin are in screen pixels.
   m_hqPixmap = QPixmap::fromImage(image);
-  m_hqPixmapPos = origin;
+  m_hqPixmap.setDevicePixelRatio(m_hqDevicePixelRatio);
+  m_hqPixmapPos = QPointF(origin) / m_hqDevicePixelRatio;
   m_hqTransformTask.reset();
   update();
 }
