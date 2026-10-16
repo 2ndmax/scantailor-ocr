@@ -58,6 +58,23 @@ QRectF toPoints(const QRectF& pixelRect, const QSizeF& perPoint) {
                 pixelRect.width() / perPoint.width(), pixelRect.height() / perPoint.height());
 }
 
+/** Sets the size and place of the compressed image.  Reports an error if the compression produced no data. */
+bool finishImage(const QImage& image,
+                 const QString& filePath,
+                 const QRectF& rect,
+                 const ImageLoadErrorCapture& capture,
+                 PdfWriter::Image* result,
+                 QStringList* errors) {
+  result->width = image.width();
+  result->height = image.height();
+  result->rect = rect;
+  if (result->data.isEmpty()) {
+    errors->push_back(describeFailure(PdfExportJob::tr("Could not compress %1."), filePath, capture.messages()));
+    return false;
+  }
+  return true;
+}
+
 /** Stores \p image uncompressed or with Deflate, keeping a palette.  1 bit images become masks if \p isMask. */
 bool makeLosslessImage(const QImage& image,
                        const QString& filePath,
@@ -82,15 +99,8 @@ bool makeLosslessImage(const QImage& image,
     result->encoding = PdfWriter::Image::Encoding::RAW;
     result->data = std::move(samples);
   }
-  result->width = image.width();
-  result->height = image.height();
   result->isMask = isMask && (result->bitsPerComponent == 1) && result->palette.isEmpty();
-  result->rect = rect;
-  if (result->data.isEmpty()) {
-    errors->push_back(describeFailure(PdfExportJob::tr("Could not compress %1."), filePath, capture.messages()));
-    return false;
-  }
-  return true;
+  return finishImage(image, filePath, rect, capture, result, errors);
 }
 
 bool makeBitonalImage(const QImage& image,
@@ -116,15 +126,8 @@ bool makeBitonalImage(const QImage& image,
     result->encoding = PdfWriter::Image::Encoding::JBIG2;
     result->data = PdfImageEncoder::encodeJbig2(image);
   }
-  result->width = image.width();
-  result->height = image.height();
   result->isMask = isMask;
-  result->rect = rect;
-  if (result->data.isEmpty()) {
-    errors->push_back(describeFailure(PdfExportJob::tr("Could not compress %1."), filePath, capture.messages()));
-    return false;
-  }
-  return true;
+  return finishImage(image, filePath, rect, capture, result, errors);
 }
 
 bool makeJpegImage(const QImage& image,
@@ -136,14 +139,19 @@ bool makeJpegImage(const QImage& image,
   ImageLoadErrorCapture capture;
   result->encoding = PdfWriter::Image::Encoding::JPEG;
   result->data = PdfImageEncoder::encodeJpeg(image, quality, &result->components);
-  result->width = image.width();
-  result->height = image.height();
-  result->rect = rect;
-  if (result->data.isEmpty()) {
-    errors->push_back(describeFailure(PdfExportJob::tr("Could not compress %1."), filePath, capture.messages()));
-    return false;
-  }
-  return true;
+  return finishImage(image, filePath, rect, capture, result, errors);
+}
+
+bool makeJpeg2000Image(const QImage& image,
+                       const QString& filePath,
+                       const int quality,
+                       const QRectF& rect,
+                       PdfWriter::Image* result,
+                       QStringList* errors) {
+  ImageLoadErrorCapture capture;
+  result->encoding = PdfWriter::Image::Encoding::JPX;
+  result->data = PdfImageEncoder::encodeJpeg2000(image, quality, &result->components);
+  return finishImage(image, filePath, rect, capture, result, errors);
 }
 
 /** Grayscale, colour and palette images. */
@@ -159,17 +167,7 @@ bool makeColorImage(const QImage& image,
   }
   // A palette image is converted to full colour for JPEG and JPEG 2000.
   if (compression == PdfCompression::JPEG2000) {
-    ImageLoadErrorCapture capture;
-    result->encoding = PdfWriter::Image::Encoding::JPX;
-    result->data = PdfImageEncoder::encodeJpeg2000(image, quality, &result->components);
-    result->width = image.width();
-    result->height = image.height();
-    result->rect = rect;
-    if (result->data.isEmpty()) {
-      errors->push_back(describeFailure(PdfExportJob::tr("Could not compress %1."), filePath, capture.messages()));
-      return false;
-    }
-    return true;
+    return makeJpeg2000Image(image, filePath, quality, rect, result, errors);
   }
   return makeJpegImage(image, filePath, quality, rect, result, errors);
 }

@@ -6,12 +6,7 @@
 OutOfMemoryHandler::OutOfMemoryHandler() : m_hadOOM(false) {}
 
 OutOfMemoryHandler& OutOfMemoryHandler::instance() {
-  // Depending on the compiler, this may not be thread-safe.
-  // However, because we insist an instance of this object to be created early on,
-  // the only case that might get us into trouble is an out-of-memory situation
-  // after main() has returned and this instance got destroyed.  This scenario
-  // sounds rather fantastic, and is not a big deal, as the project would have
-  // already been saved.
+  // C++11 initializes local statics thread-safely.
   static OutOfMemoryHandler object;
   return object;
 }

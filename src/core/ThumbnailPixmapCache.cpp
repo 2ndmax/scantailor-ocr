@@ -186,6 +186,9 @@ class ThumbnailPixmapCache::Impl : public QThread {
 
   /**
    * An iterator of m_removeQueue that marks the end of LOADED items.
+   * All items before it must be LOADED, as removeExcessLocked() takes the
+   * front item.  New LOADED items are inserted right before it.  Once all
+   * LOADED items are gone, it has to go back to the front.
    */
   RemoveQueue::iterator m_endOfLoadedItems;
 
