@@ -76,6 +76,56 @@ BOOST_AUTO_TEST_CASE(test_strokes_black_paper_white) {
   }
 }
 
+// The mean window of Singh is centred on the pixel, so a symmetric image gives a symmetric result.
+// The smallest window (radius 1) shows a window that is one column short on the right: the gray
+// neighbour left of a bright column then has a mean without the column and stays white, while the
+// one on the right turns black.
+BOOST_AUTO_TEST_CASE(test_singh_window_is_centred) {
+  GrayImage image(QSize(21, 5));
+  for (int y = 0; y < image.height(); ++y) {
+    uint8_t* line = image.data() + y * image.stride();
+    for (int x = 0; x < image.width(); ++x) {
+      line[x] = (x == 10) ? 250 : 100;
+    }
+  }
+
+  const BinaryImage result = binarizeSingh(image, 3);
+  for (int y = 0; y < image.height(); ++y) {
+    for (int d = 1; d <= 10; ++d) {
+      BOOST_TEST_CONTEXT("y = " << y << ", distance = " << d) {
+        BOOST_CHECK(result.getPixel(10 - d, y) == result.getPixel(10 + d, y));
+      }
+    }
+  }
+  // The gray neighbours of the bright column are darker than their mean.
+  BOOST_CHECK(result.getPixel(9, 2) == BLACK);
+}
+
+// Robust used to turn pixels lighter than twice their local mean black, such as light strokes on a
+// dark ground.  Above: paper with dark strokes, below: a dark ground with light strokes.
+BOOST_AUTO_TEST_CASE(test_robust_keeps_light_strokes_on_dark_ground_white) {
+  GrayImage image(QSize(100, 100));
+  for (int y = 0; y < image.height(); ++y) {
+    uint8_t* line = image.data() + y * image.stride();
+    for (int x = 0; x < image.width(); ++x) {
+      const bool stroke = (x % 10) == 5;
+      if (y < 50) {
+        line[x] = static_cast<uint8_t>(stroke ? 40 : 220);
+      } else {
+        line[x] = static_cast<uint8_t>(stroke ? 250 : 20);
+      }
+    }
+  }
+
+  const BinaryImage result = binarizeRobust(image, 40, 1.0);
+  for (int x = 15; x < 85; x += 10) {
+    BOOST_TEST_CONTEXT("x = " << x) {
+      BOOST_CHECK(result.getPixel(x, 25) == BLACK);
+      BOOST_CHECK(result.getPixel(x, 75) == WHITE);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

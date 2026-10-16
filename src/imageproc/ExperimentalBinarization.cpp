@@ -5,8 +5,11 @@
 // The binarization methods Gatos, Nick, Singh, Robust and MultiScale, taken over from ScanTailor
 // Experimental (https://github.com/ImageProcessing-ElectronicPublications/scantailor-experimental,
 // imageproc/Binarize.cpp and imageproc/GrayImage.cpp, commit 80e1c57).  The functions in
-// namespace experimental are kept as they are there, so that the results stay the same; only the
-// functions at the end are new.
+// namespace experimental compute the same as there, apart from the fixes noted below; they have
+// been reformatted and limited to what these methods need.  Only the functions at the end are new.
+// Fixes: the mean window of Singh (grayMapMean) was one column too narrow, Robust turned pixels
+// lighter than twice their mean black (grayRobustInPlace), and the iteration of
+// grayBiModalTiledValue has a cap.
 
 #include "ExperimentalBinarization.h"
 
@@ -62,7 +65,7 @@ GrayImage grayMapMean(GrayImage const& src, int const radius) {
 
       for (int x = 0; x < w; x++) {
         int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius) < w) ? (x + radius) : w;
+        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
         int const area = (bottom - top) * (right - left);
         assert(area > 0);  // because windowSize > 0 and w > 0 and h > 0
 
@@ -208,7 +211,8 @@ unsigned int grayBiModalTiledValue(GrayImage const& src,
     threshold = part * Tmax + (512 - part) * Tmin;
     threshold >>= 8;
     Tn = threshold + 1;
-    while (threshold != Tn) {
+    // Integer rounding might let the threshold alternate between two values; the cap ends that.
+    for (int iteration = 0; (threshold != Tn) && (iteration < 256); ++iteration) {
       Tn = threshold;
       Tb = Tw = 0;
       ib = iw = 0;
@@ -346,10 +350,6 @@ void grayBGtoMap(GrayImage const& src, GrayImage& background, float const q, flo
   float const d = ((float) sum_diff) / sum_contour;
   float const b = ((float) sum_bg) / (src_size - sum_contour);
 
-  /*
-      double const q = 0.6;
-      double const p = 0.2;
-  */
   float const qd = q * d;
   float const threshold_scale = qd * p;
   float const threshold_bias = qd * (1.0f - p);
@@ -674,7 +674,7 @@ void grayWienerInPlace(GrayImage& src, int const radius, float const noise_sigma
       gdeviation_line += gdeviation_stride;
     }
   }
-}  // grayWiener
+}  // grayWienerInPlace
 
 GrayImage grayRobust(GrayImage const& src, int const radius, float const coef) {
   GrayImage dst(src);
@@ -706,6 +706,13 @@ void grayRobustInPlace(GrayImage& src, int const radius, float const coef) {
         float const mean = gmean_line[x];
         float retval = origin;
         float const sc = mean - origin;
+        if (mean + sc <= 0.0f) {
+          // At twice the mean the formula below has a pole, beyond it it turns light pixels black,
+          // and a black area (origin = mean = 0) gives 0/0.  Such pixels are white, the value
+          // the formula approaches just below the pole.
+          src_line[x] = 255;
+          continue;
+        }
         float const robust = 255.0f - (mean + 255.0f) * sc / (mean + sc);
         retval = coef * robust + (1.0f - coef) * origin + 0.5f;
         retval = (retval < 0.0f) ? 0.0f : (retval < 255.0f) ? retval : 255.0f;
@@ -715,7 +722,7 @@ void grayRobustInPlace(GrayImage& src, int const radius, float const coef) {
       gmean_line += gmean_stride;
     }
   }
-}  // grayRobust
+}  // grayRobustInPlace
 
 static inline bool binaryGetBW(uint32_t const* bw_line, unsigned int x) {
   static uint32_t const msb = uint32_t(1) << 31;
