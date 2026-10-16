@@ -384,8 +384,8 @@ else()
   set(TRANSLATION_DIRS ".:translations:../share/${APPLICATION_NAME}/translations")
   set(PLUGIN_DIRS ".:../lib/${APPLICATION_NAME}")
 endif()
-configure_file(config.h.in "${CMAKE_BINARY_DIR}/config.h" @ONLY)
-file(READ "${CMAKE_BINARY_DIR}/config.h" config_h_contents)
+configure_file(config.h.in "${CMAKE_BINARY_DIR}/config.h.tmp" @ONLY)
+file(READ "${CMAKE_BINARY_DIR}/config.h.tmp" config_h_contents)
 set(enable_developer_version_default OFF)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(enable_developer_version_default ON)
@@ -394,7 +394,10 @@ option(DEVELOPER_VERSION "Whether to enable the internal debug features." ${enab
 if (NOT DEVELOPER_VERSION)
   string(REGEX REPLACE "(#define[ \\t]+ENABLE_DEBUG_FEATURES[^\n]*)" "//\\1" config_h_contents ${config_h_contents})
 endif()
-file(WRITE "${CMAKE_BINARY_DIR}/config.h" ${config_h_contents})
+file(WRITE "${CMAKE_BINARY_DIR}/config.h.tmp" ${config_h_contents})
+# Unlike file(WRITE), configure_file() leaves config.h alone if nothing changed, so
+# configuring again doesn't rebuild everything that includes it.
+configure_file("${CMAKE_BINARY_DIR}/config.h.tmp" "${CMAKE_BINARY_DIR}/config.h" COPYONLY)
 include_directories(BEFORE "${CMAKE_BINARY_DIR}")
 
 # Extract VERSION and VERSION_QUAD from version.h
@@ -415,9 +418,13 @@ if ("${VERSION_QUAD}" STREQUAL "${version_h_contents}")
   message(FATAL_ERROR "Failed to extract VERSION_QUAD from version.h")
 endif()
 configure_file(version.h.in "${CMAKE_BINARY_DIR}/version.h" COPYONLY)
-string(REGEX REPLACE "([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" APPLICATION_VERSION_MAJOR "${VERSION}")
-string(REGEX REPLACE "[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" APPLICATION_VERSION_MINOR "${VERSION}")
-string(REGEX REPLACE "[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" APPLICATION_VERSION_PATCH "${VERSION}")
+# Only the numbers: a suffix like "-rc1" would make the Windows FILEVERSION invalid.
+if (NOT VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+  message(FATAL_ERROR "VERSION in version.h has to start with X.Y.Z: ${VERSION}")
+endif()
+set(APPLICATION_VERSION_MAJOR "${CMAKE_MATCH_1}")
+set(APPLICATION_VERSION_MINOR "${CMAKE_MATCH_2}")
+set(APPLICATION_VERSION_PATCH "${CMAKE_MATCH_3}")
 
 set(SCANTAILOR_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/src/resources")
 set(SCANTAILOR_TRANSLATIONS_DIR "${CMAKE_SOURCE_DIR}/src/translations")
@@ -466,7 +473,9 @@ if (WIN32)
     endif()
   endmacro()
 
-  # Install the DLLs of the dependencies.
+  # Install the DLLs of the dependencies. The list is not complete (Tesseract and
+  # Leptonica, the TIFF codecs and the Qt plugins are missing); the Windows ZIP is made
+  # with scripts/package-windows.ps1, which collects everything.
   set(dep_libs
       JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF ${OPENJPEG_TARGET}
       Qt::Core Qt::Gui Qt::Widgets Qt::Xml

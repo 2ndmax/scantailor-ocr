@@ -29,6 +29,9 @@ cd "$BUILD_DIR"
 cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release ..
 make -j"$(nproc)"
 
+# Run the unit tests; a failing test stops the script (and the release workflow).
+ctest --output-on-failure
+
 # Install into staging directory for the .deb
 rm -rf "$PKG_DIR"
 make install DESTDIR="${PKG_DIR}"
@@ -40,21 +43,25 @@ ARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
 # Generate Depends via dpkg-shlibdeps when available (more accurate)
 DEPS=""
 if command -v dpkg-shlibdeps >/dev/null 2>&1; then
-  SHLIBS_OUT=$(cd "${PKG_DIR}" && dpkg-shlibdeps -e usr/bin/scantailor-ocr -O 2>/dev/null || true)
+  # dpkg-shlibdeps insists on a debian/control in the current directory, even if it
+  # doesn't need anything from it, so it runs in a directory with an empty one.
+  SHLIBS_DIR=$(mktemp -d)
+  mkdir "${SHLIBS_DIR}/debian"
+  touch "${SHLIBS_DIR}/debian/control"
+  SHLIBS_OUT=$(cd "${SHLIBS_DIR}" && dpkg-shlibdeps -O -e "${PKG_DIR}/usr/bin/scantailor-ocr") || SHLIBS_OUT=""
+  rm -rf "${SHLIBS_DIR}"
+  SHLIBS_OUT=$(echo "$SHLIBS_OUT" | sed -n 's/^shlibs:Depends=//p')
   if [[ -n "$SHLIBS_OUT" ]]; then
-    DEPS="${SHLIBS_OUT#shlibs:Depends=}"
+    DEPS="$SHLIBS_OUT"
+  else
+    echo "Warning: dpkg-shlibdeps failed, using the fixed list of dependencies" >&2
   fi
 fi
 if [[ -z "$DEPS" ]]; then
   # Fallback when dpkg-shlibdeps is unavailable (e.g. cross-build). Include common
   # libjpeg variants across Debian/Ubuntu (see issue #64 / Ubuntu 22.04 vs bookworm).
-  # CMake prefers Qt 6 when it is installed.
-  if grep -q '^Qt6_DIR:PATH=/' "${BUILD_DIR}/CMakeCache.txt" 2>/dev/null; then
-    QT_DEPS="libqt6core6t64 | libqt6core6, libqt6gui6t64 | libqt6gui6, libqt6widgets6t64 | libqt6widgets6, libqt6svg6t64 | libqt6svg6, libqt6xml6t64 | libqt6xml6, libqt6network6t64 | libqt6network6, libqt6opengl6t64 | libqt6opengl6, libqt6openglwidgets6t64 | libqt6openglwidgets6"
-  else
-    QT_DEPS="libqt5core5t64 | libqt5core5a, libqt5gui5t64 | libqt5gui5, libqt5widgets5t64 | libqt5widgets5, libqt5svg5t64 | libqt5svg5, libqt5xml5t64 | libqt5xml5, libqt5network5t64 | libqt5network5"
-  fi
-  DEPS="libc6, libstdc++6, libgcc-s1, ${QT_DEPS}, libboost-filesystem1.83.0 | libboost-filesystem1.74.0, libjpeg62-turbo | libjpeg-turbo8 | libjpeg8, libpng16-16, libtiff6, libopenjp2-7, zlib1g, libtesseract5, liblept5 | libleptonica6"
+  QT_DEPS="libqt6core6t64 | libqt6core6, libqt6gui6t64 | libqt6gui6, libqt6widgets6t64 | libqt6widgets6, libqt6svg6t64 | libqt6svg6, libqt6xml6t64 | libqt6xml6, libqt6network6t64 | libqt6network6, libqt6opengl6t64 | libqt6opengl6, libqt6openglwidgets6t64 | libqt6openglwidgets6"
+  DEPS="libc6, libstdc++6, libgcc-s1, ${QT_DEPS}, libjpeg62-turbo | libjpeg-turbo8 | libjpeg8, libpng16-16t64 | libpng16-16, libtiff6, libopenjp2-7, zlib1g, libtesseract5, liblept5 | libleptonica6"
 fi
 
 cat > "${DEBIAN_DIR}/control" << EOF
