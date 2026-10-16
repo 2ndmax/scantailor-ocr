@@ -15,8 +15,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-// Taken unchanged from ScanTailor Experimental (commit 80e1c57), only put into the
-// namespace imageproc::stexp, for comparing binarization methods.  GPLv3, as the original.
+// Taken from ScanTailor Experimental (commit 80e1c57), only put into the namespace
+// imageproc::stexp, for comparing binarization methods.  GPLv3, as the original.
+// Fixes: the windows of grayMapMean (as in imageproc/ExperimentalBinarization.cpp) and
+// grayEMDenoiserInPlace were one row or column too small, and grayBiModalTiledMap
+// extrapolated at the top and left edges.
 
 #include <algorithm>
 #include <cmath>
@@ -77,7 +80,7 @@ GrayImage grayMapMean(
             for (int x = 0; x < w; x++)
             {
                 int const left = ((x - radius) < 0) ? 0 : (x - radius);
-                int const right = ((x + radius) < w) ? (x + radius) : w;
+                int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
                 int const area = (bottom - top) * (right - left);
                 assert(area > 0);  // because windowSize > 0 and w > 0 and h > 0
 
@@ -521,7 +524,7 @@ GrayImage grayBiModalTiledMap(
         for (int y = 0; y < h; y++)
         {
             float const yd = (0.5f + y) / wsize - 0.5f;
-            int y1 = yd;
+            int y1 = (int) floorf(yd);  // floor, not towards 0: at the top yd < 0
             int y2 = y1 + 1;
             float const dy1 = yd - y1;
             float const dy2 = 1.0f - dy1;
@@ -530,7 +533,7 @@ GrayImage grayBiModalTiledMap(
             for (int x = 0; x < w; x++)
             {
                 float const xd = (0.5f + x) / wsize - 0.5f;
-                int x1 = xd;
+                int x1 = (int) floorf(xd);  // floor, not towards 0: at the left xd < 0
                 int x2 = x1 + 1;
                 float const dx1 = xd - x1;
                 float const dx2 = 1.0f - dx1;
@@ -2533,9 +2536,9 @@ void grayKnnDenoiserInPlace(
                 for (int r = 1; r <= radius; r++)
                 {
                     int const top = ((y - r) < 0) ? 0 : (y - r);
-                    int const bottom = ((y + r) < h) ? (y + r) : h;
+                    int const bottom = ((y + r + 1) < h) ? (y + r + 1) : h;
                     int const left = ((x - r) < 0) ? 0 : (x - r);
-                    int const right = ((x + r) < w) ? (x + r) : w;
+                    int const right = ((x + r + 1) < w) ? (x + r + 1) : w;
                     int const area = (bottom - top) * (right - left);
                     QRect const rect(left, top, right - left, bottom - top);
                     float const window_sum = integral_image.sum(rect);

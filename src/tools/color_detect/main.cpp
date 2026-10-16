@@ -89,34 +89,34 @@ struct Result {
   Mode type;
 };
 
-void writeSheets(const std::vector<Result>& results, const QString& outDir) {
-  const int cols = 6;
-  const int rows = 5;
-  const int cellW = 300;
-  const int cellH = 330;
-  const int perSheet = cols * rows;
-  for (size_t start = 0; start < results.size(); start += perSheet) {
-    QImage sheet(cols * cellW, rows * cellH, QImage::Format_RGB32);
-    sheet.fill(Qt::white);
-    QPainter p(&sheet);
-    QFont font = p.font();
-    font.setPixelSize(16);
-    font.setBold(true);
-    p.setFont(font);
-    for (size_t i = start; i < std::min(results.size(), start + perSheet); ++i) {
-      const int idx = static_cast<int>(i - start);
-      const QRect cell((idx % cols) * cellW, (idx / cols) * cellH, cellW, cellH);
-      const Result& r = results[i];
-      p.fillRect(QRect(cell.left(), cell.top(), cellW, 26), verdictColor(r.type));
-      p.setPen(Qt::white);
-      p.drawText(QRect(cell.left() + 4, cell.top(), cellW - 8, 26), Qt::AlignVCenter | Qt::AlignLeft,
-                 r.label + "  " + ColorModeDetector::modeToString(r.type));
-      const QImage t = r.thumb.scaled(cellW - 8, cellH - 34, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-      p.drawImage(cell.left() + (cellW - t.width()) / 2, cell.top() + 30, t);
-    }
-    p.end();
-    sheet.save(QStringLiteral("%1/sheet_%2.png").arg(outDir).arg(start / perSheet + 1, 2, 10, QChar('0')));
+const int SHEET_COLS = 6;
+const int SHEET_ROWS = 5;
+const int CELL_WIDTH = 300;
+const int CELL_HEIGHT = 330;
+const size_t PER_SHEET = SHEET_COLS * SHEET_ROWS;
+
+// One sheet of at most PER_SHEET results.  Written as soon as it is full, so that the
+// thumbnails of a long run aren't all kept in memory.
+void writeSheet(const std::vector<Result>& results, const int sheetNo, const QString& outDir) {
+  QImage sheet(SHEET_COLS * CELL_WIDTH, SHEET_ROWS * CELL_HEIGHT, QImage::Format_RGB32);
+  sheet.fill(Qt::white);
+  QPainter p(&sheet);
+  QFont font = p.font();
+  font.setPixelSize(16);
+  font.setBold(true);
+  p.setFont(font);
+  for (size_t i = 0; i < results.size(); ++i) {
+    const int idx = static_cast<int>(i);
+    const QRect cell((idx % SHEET_COLS) * CELL_WIDTH, (idx / SHEET_COLS) * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
+    const Result& r = results[i];
+    p.fillRect(QRect(cell.left(), cell.top(), CELL_WIDTH, 26), verdictColor(r.type));
+    p.setPen(Qt::white);
+    p.drawText(QRect(cell.left() + 4, cell.top(), CELL_WIDTH - 8, 26), Qt::AlignVCenter | Qt::AlignLeft,
+               r.label + "  " + ColorModeDetector::modeToString(r.type));
+    p.drawImage(cell.left() + (CELL_WIDTH - r.thumb.width()) / 2, cell.top() + 30, r.thumb);
   }
+  p.end();
+  sheet.save(QStringLiteral("%1/sheet_%2.png").arg(outDir).arg(sheetNo, 2, 10, QChar('0')));
 }
 }  // namespace
 
@@ -168,6 +168,7 @@ int main(int argc, char** argv) {
     files = files.filter(only);
   }
   int fileNo = 0;
+  int sheetNo = 0;
   for (const QString& name : files) {
     ++fileNo;
     const QImage image = ImageLoader::load(inDir.filePath(name));
@@ -206,11 +207,19 @@ int main(int argc, char** argv) {
                              .arg(fileNo)
                              .arg(partName)
                              .arg(QString::fromLatin1(LeptonicaDetector::colorTypeToString(ev.spectreVerdict))),
-                         part.scaled(600, 600, Qt::KeepAspectRatio, Qt::SmoothTransformation), mode});
+                         // Already the size of a cell of the sheet.
+                         part.scaled(CELL_WIDTH - 8, CELL_HEIGHT - 34, Qt::KeepAspectRatio, Qt::SmoothTransformation),
+                         mode});
+      if (results.size() == PER_SHEET) {
+        writeSheet(results, ++sheetNo, outDir);
+        results.clear();
+      }
     }
     std::cout << fileNo << "/" << files.size() << " " << name.toStdString() << "\n" << std::flush;
   }
   csv.flush();
-  writeSheets(results, outDir);
+  if (!results.empty()) {
+    writeSheet(results, ++sheetNo, outDir);
+  }
   return 0;
 }

@@ -15,8 +15,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-// Taken unchanged from ScanTailor Experimental (commit 80e1c57), only put into the
-// namespace imageproc::stexp, for comparing binarization methods.  GPLv3, as the original.
+// Taken from ScanTailor Experimental (commit 80e1c57), only put into the namespace
+// imageproc::stexp, for comparing binarization methods.  GPLv3, as the original.
+// Fix: binarizeLAAB divided by zero, or turned the lightest pixels black, with a negative delta.
 
 
 #include <vector>
@@ -864,6 +865,13 @@ BinaryImage binarizeLAAB(
             float const origin = src_line[x];
             float const mean = gmean_line[x];
             float const d = (origin - mean - delta) * (256.0f - mean) / 256.0f;
+            if (d >= 256.0f)
+            {
+                // Only with a negative delta: at 256 the formula below has a pole, beyond it
+                // it turns the lightest pixels black.  White is the value it approaches.
+                binarySetBW(bw_line, x, false);
+                continue;
+            }
             float const v = coef * (256.0f + d) / (256.0f - d);
             float const c = 1.0f - 2.0f * v;
             float const ca = (c < 0.0f) ? -c : c;

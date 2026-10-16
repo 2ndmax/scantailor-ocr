@@ -17,9 +17,11 @@
 */
 
 
-// Taken unchanged from ScanTailor Experimental (commit 80e1c57, imageproc/ColorFilter.cpp: the
+// Taken from ScanTailor Experimental (commit 80e1c57, imageproc/ColorFilter.cpp: the
 // color space conversions, the palette functions and hsvKMeansInPlace), only put into the
 // namespace imageproc::stexp, for comparing K-means color reduction.  GPLv3, as the original.
+// Fixes in hsvKMeansInPlace: sorting the clusters read the first row of the mask for every row,
+// and the background clusters also took foreground pixels.
 
 #define _USE_MATH_DEFINES
 
@@ -592,6 +594,7 @@ double hsvKMeansInPlace(
         /* find and sort clusters */
         for (int i = 1; i <= ncount; i++)
         {
+            mask_line = mask.data();
             mask_zones_line = mask_zones.data();
             float dist_min = -1.0f;
             for (unsigned int y = 0; y < h; y++)
@@ -616,6 +619,7 @@ double hsvKMeansInPlace(
                         }
                     }
                 }
+                mask_line += mask_stride;
                 mask_zones_line += mask_zones_stride;
             }
             dist_c_max = (dist_c_max < dist_c[i]) ? dist_c[i] : dist_c_max;
@@ -672,7 +676,8 @@ double hsvKMeansInPlace(
                 {
                     if (mask_zones_line[x >> 5] & (msb >> (x & 31)))
                     {
-                        if ((i > fgcount) ^ (mask_line[x >> 5] & (msb >> (x & 31))))
+                        // != on bools: the masked bit is not 0 or 1.
+                        if ((i > fgcount) != ((mask_line[x >> 5] & (msb >> (x & 31))) != 0))
                         {
                             float const hsv_h = qRed(rowh[x]);
                             float const hsv_s = qGreen(rowh[x]);
