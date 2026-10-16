@@ -252,6 +252,7 @@ QGroupBox#recentProjectsGroup {
   border-radius: 0px;
   margin-top: 0.75em;  /* half the title height: the line runs through the middle of the title */
   padding-top: 0.5em;
+  color: palette(window-text);
 }
 
 QGroupBox#recentProjectsGroup::title {
@@ -339,6 +340,8 @@ QDockWidget > QWidget {
 QDockWidget::close-button, QDockWidget::float-button {
   margin: 0px;
   padding: 0px;
+  min-width: 12px;
+  min-height: 12px;
 }
 
 QDockWidget::close-button:hover, QDockWidget::float-button:hover, QDockWidget::close-button:active:focus, QDockWidget::float-button:active:focus {
