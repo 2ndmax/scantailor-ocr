@@ -162,6 +162,10 @@ bool PictureZoneEditor::validateScreenPictureMask() const {
 }
 
 void PictureZoneEditor::schedulePictureMaskRebuild() {
+  if (m_maskTransformTask && (m_screenPictureMaskXform == virtualToWidget())) {
+    // Already being built for the current view.
+    return;
+  }
   if (!m_pictureMaskRebuildTimer.isActive() || (m_potentialPictureMaskXform != virtualToWidget())) {
     if (m_maskTransformTask) {
       m_maskTransformTask->cancel();
@@ -194,7 +198,14 @@ void PictureZoneEditor::initiateBuildingScreenPictureMask() {
 }
 
 void PictureZoneEditor::screenPictureMaskBuilt(const QPoint& origin, const QImage& mask) {
-  m_screenPictureMask = QPixmap::fromImage(mask);
+  if (mask.isNull()) {
+    // The image is out of view.  A transparent pixel keeps it from being built again and again.
+    QPixmap empty(1, 1);
+    empty.fill(Qt::transparent);
+    m_screenPictureMask = empty;
+  } else {
+    m_screenPictureMask = QPixmap::fromImage(mask);
+  }
   m_screenPictureMaskOrigin = origin;
   m_pictureMaskAnimationPhase = 270;
 

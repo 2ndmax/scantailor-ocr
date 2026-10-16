@@ -485,6 +485,24 @@ BOOST_AUTO_TEST_CASE(test_progressive_jpeg_metadata) {
   BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 300);
 }
 
+BOOST_AUTO_TEST_CASE(test_damaged_jpeg_metadata_reports_errors) {
+  QTemporaryDir dir;
+  const QString path = dir.filePath("damaged.jpg");
+  {
+    // The start of image, then an APP0 marker with an impossible length.
+    const char data[] = {'\xff', '\xd8', '\xff', '\xe0', '\x00', '\x01', '\x00', '\x00'};
+    QFile file(path);
+    BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
+    file.write(data, sizeof(data));
+  }
+
+  ImageLoadErrorCapture capture;
+  const auto status = ImageMetadataLoader::load(path, [](const ImageMetadata&) {});
+  BOOST_CHECK(status != ImageMetadataLoader::LOADED);
+  // libjpeg's reason reaches the user, not just "damaged".
+  BOOST_CHECK(!capture.messages().isEmpty());
+}
+
 BOOST_AUTO_TEST_CASE(test_damaged_tiff_reports_errors) {
   QTemporaryDir dir;
   const QString path = dir.filePath("damaged.tif");

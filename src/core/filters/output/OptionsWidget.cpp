@@ -945,7 +945,11 @@ void OptionsWidget::applyDewarpingConfirmed(const std::set<PageId>& pages) {
 
 void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const DewarpingOptions& opt) {
   for (const PageId& pageId : pages) {
-    m_settings->setDewarpingOptions(pageId, opt);
+    // The angle of the post deskew was found for each page.  It is left out when comparing the
+    // options, so a page that isn't processed again would keep the angle of another one.
+    DewarpingOptions pageOpt(opt);
+    pageOpt.setPostDeskewAngle(m_settings->getParams(pageId).dewarpingOptions().getPostDeskewAngle());
+    m_settings->setDewarpingOptions(pageId, pageOpt);
   }
 
   invalidateThumbnails(pages);
@@ -1065,6 +1069,10 @@ void OptionsWidget::reloadIfNecessary() {
     emit reloadRequested();
     return;
   } else if (savedDewarpingOptions.evenOutLetterWidths() != params.dewarpingOptions().evenOutLetterWidths()) {
+    emit reloadRequested();
+    return;
+  } else if (savedDewarpingOptions.needPostDeskew() != params.dewarpingOptions().needPostDeskew()) {
+    // Not reloaded on the Dewarping tab in the manual mode, see dewarpingChanged().
     emit reloadRequested();
     return;
   } else if ((savedDewarpingOptions.dewarpingMode() == AUTO) && (params.dewarpingOptions().dewarpingMode() == AUTO)) {
@@ -1287,7 +1295,11 @@ void OptionsWidget::updateDewarpingDisplay() {
   QString postDeskewText = tr("Post deskew");
   if (m_dewarpingOptions.needPostDeskew()
       && ((m_dewarpingOptions.dewarpingMode() == MANUAL) || (m_dewarpingOptions.dewarpingMode() == MARGINAL))) {
-    const double deskewAngle = -std::round(m_dewarpingOptions.getPostDeskewAngle() * 100) / 100;
+    double deskewAngle = -std::round(m_dewarpingOptions.getPostDeskewAngle() * 100) / 100;
+    if (deskewAngle == 0.0) {
+      // Not "-0" for a small positive angle.
+      deskewAngle = 0.0;
+    }
     postDeskewText += " (" + QString::number(deskewAngle) + QChar(0x00B0) + ")";
   }
   dewarpingPostDeskewCB->setText(postDeskewText);

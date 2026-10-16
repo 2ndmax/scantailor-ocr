@@ -9,6 +9,7 @@
 #include <csetjmp>
 
 #include "Dpm.h"
+#include "ImageLoadErrors.h"
 #include "ImageMetadata.h"
 #include "NonCopyable.h"
 
@@ -161,6 +162,10 @@ class JpegErrorManager : public jpeg_error_mgr {
  private:
   static void errorExit(j_common_ptr cinfo);
 
+  static void outputMessage(j_common_ptr cinfo);
+
+  static QString formatMessage(j_common_ptr cinfo);
+
   static JpegErrorManager* object(j_common_ptr cinfo);
 
   jmp_buf m_jmpBuf{};
@@ -170,10 +175,24 @@ class JpegErrorManager : public jpeg_error_mgr {
 JpegErrorManager::JpegErrorManager() : jpeg_error_mgr() {
   jpeg_std_error(this);
   error_exit = &JpegErrorManager::errorExit;
+  // libjpeg prints its warnings to stderr, which is invisible in a GUI.
+  output_message = &JpegErrorManager::outputMessage;
 }
 
 void JpegErrorManager::errorExit(j_common_ptr cinfo) {
+  // Shown with the file that couldn't be loaded, as the messages of libtiff and OpenJPEG.
+  ImageLoadErrorCapture::addError(formatMessage(cinfo));
   longjmp(object(cinfo)->jmpBuf(), 1);
+}
+
+void JpegErrorManager::outputMessage(j_common_ptr cinfo) {
+  ImageLoadErrorCapture::addWarning(formatMessage(cinfo));
+}
+
+QString JpegErrorManager::formatMessage(j_common_ptr cinfo) {
+  char buffer[JMSG_LENGTH_MAX];
+  cinfo->err->format_message(cinfo, buffer);
+  return QString::fromLocal8Bit(buffer);
 }
 
 JpegErrorManager* JpegErrorManager::object(j_common_ptr cinfo) {
@@ -222,13 +241,8 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
   // The other possible value is JPEG_SUSPENDED, but we never suspend it.
   assert(headerStatus == JPEG_HEADER_OK);
 
-  // Without the buffered-image mode, jpeg_start_decompress() decodes all scans of a
-  // progressive file first, just to tell us the size.
-  cinfo->buffered_image = jpeg_has_multiple_scans(cinfo.ptr());
-  if (!jpeg_start_decompress(cinfo.ptr())) {
-    // libjpeg doesn't support all compression types.
-    return GENERIC_ERROR;
-  }
+  // The size and the resolution are known from the header.  jpeg_start_decompress() isn't
+  // needed for them, and would take memory for the whole image with progressive files.
 
   const QSize size(cinfo->image_width, cinfo->image_height);
   Dpi dpi;
