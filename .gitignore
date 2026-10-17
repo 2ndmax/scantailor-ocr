@@ -15,6 +15,7 @@ Makefile
 *.cmake
 !CMakeLists.txt
 !cmake/**/*.cmake
+!scripts/**/*.cmake
 *.cbp
 CTestTestfile.cmake
 _deps/
