@@ -289,11 +289,11 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
     if (!m_guides.empty()) {
       painter.setWorldTransform(QTransform());
 
-      QPen pen(QColor(0x00, 0x9d, 0x9f));
-      pen.setStyle(Qt::DashLine);
-      pen.setCosmetic(true);
-      pen.setWidthF(2.0);
-      painter.setPen(pen);
+      QPen guidePen(QColor(0x00, 0x9d, 0x9f));
+      guidePen.setStyle(Qt::DashLine);
+      guidePen.setCosmetic(true);
+      guidePen.setWidthF(2.0);
+      painter.setPen(guidePen);
       painter.setBrush(Qt::NoBrush);
 
       for (const auto& idxAndGuide : m_guides) {

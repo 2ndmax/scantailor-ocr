@@ -386,15 +386,15 @@ void GrayscaleHistogram::fromMonoMSBImage(const QImage& img, const BinaryImage& 
   for (int y = 0; y < h; ++y, line += wpl, maskLine += maskWpl) {
     int i = 0;
     for (; i < lastWordIdx; ++i) {
-      const uint32_t mask = maskLine[i];
-      numBits1 += countNonZeroBits(line[i] & mask);
-      numBits0 += countNonZeroBits(~line[i] & mask);
+      const uint32_t maskWord = maskLine[i];
+      numBits1 += countNonZeroBits(line[i] & maskWord);
+      numBits0 += countNonZeroBits(~line[i] & maskWord);
     }
 
     // The last (possibly incomplete) word.
-    const uint32_t mask = maskLine[i] & lastWordMask;
-    numBits1 += countNonZeroBits(line[i] & mask);
-    numBits0 += countNonZeroBits(~line[i] & mask);
+    const uint32_t maskWord = maskLine[i] & lastWordMask;
+    numBits1 += countNonZeroBits(line[i] & maskWord);
+    numBits0 += countNonZeroBits(~line[i] & maskWord);
   }
 
   QRgb color0 = 0xffffffff;

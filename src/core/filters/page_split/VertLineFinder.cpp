@@ -99,11 +99,11 @@ std::vector<QLineF> VertLineFinder::findLines(const QImage& image,
 
   const int xLimit = rasterLines.width() - margin;
   const int height = rasterLines.height();
-  const uint8_t* line = rasterLines.data();
+  const uint8_t* rasterLine = rasterLines.data();
   const int stride = rasterLines.stride();
-  for (int y = 0; y < height; ++y, line += stride) {
+  for (int y = 0; y < height; ++y, rasterLine += stride) {
     for (int x = margin; x < xLimit; ++x) {
-      const unsigned val = line[x];
+      const unsigned val = rasterLine[x];
       if (val > 1) {
         lineDetector.process(x, y, weight_table[val]);
       }

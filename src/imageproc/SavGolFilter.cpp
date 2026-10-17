@@ -161,9 +161,9 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
     for (int i = shift; i < width; ++i) {
       float sum = 0.0f;
 
-      const uint8_t* src = srcLine + i;
+      const uint8_t* srcPixels = srcLine + i;
       for (int j = 0; j < kw; ++j) {
-        sum += src[j] * horKernel[j];
+        sum += srcPixels[j] * horKernel[j];
       }
       tempLine[i] = sum;
     }

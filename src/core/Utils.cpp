@@ -155,13 +155,13 @@ void Utils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValu
   QString prefix;
   QString suffix;
   int fieldDecimals = 0;
-  if (const auto* box = qobject_cast<QDoubleSpinBox*>(field)) {
-    prefix = box->prefix();
-    suffix = box->suffix();
-    fieldDecimals = box->decimals();
-  } else if (const auto* box = qobject_cast<QSpinBox*>(field)) {
-    prefix = box->prefix();
-    suffix = box->suffix();
+  if (const auto* doubleBox = qobject_cast<QDoubleSpinBox*>(field)) {
+    prefix = doubleBox->prefix();
+    suffix = doubleBox->suffix();
+    fieldDecimals = doubleBox->decimals();
+  } else if (const auto* intBox = qobject_cast<QSpinBox*>(field)) {
+    prefix = intBox->prefix();
+    suffix = intBox->suffix();
   }
   QLocale locale = field->locale();
   locale.setNumberOptions(locale.numberOptions() | QLocale::OmitGroupSeparator);

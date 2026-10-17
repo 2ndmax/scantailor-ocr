@@ -2688,7 +2688,6 @@ void grayMedianInPlace(
     if ((radius > 0) && (coef != 0.0f))
     {
         unsigned int const histsize = 256;
-        unsigned int median = histsize / 2;
         int const w = src.width();
         int const h = src.height();
         unsigned char* src_line = src.data();

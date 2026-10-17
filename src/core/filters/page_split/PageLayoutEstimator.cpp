@@ -669,9 +669,9 @@ PageLayout PageLayoutEstimator::processContentSpansTwoPages(const LayoutType lay
       if (ratio < acceptableRatio) {
         break;
       }
-      const int width = Span(spans[i], spans[i + 1]).width();
-      if (width > maxWidth) {
-        maxWidth = width;
+      const int gapWidth = Span(spans[i], spans[i + 1]).width();
+      if (gapWidth > maxWidth) {
+        maxWidth = gapWidth;
         widestGap = i;
       }
     }
@@ -682,9 +682,9 @@ PageLayout PageLayoutEstimator::processContentSpansTwoPages(const LayoutType lay
       if (ratio < acceptableRatio) {
         break;
       }
-      const int width = Span(spans[i], spans[i + 1]).width();
-      if (width > maxWidth) {
-        maxWidth = width;
+      const int gapWidth = Span(spans[i], spans[i + 1]).width();
+      if (gapWidth > maxWidth) {
+        maxWidth = gapWidth;
         widestGap = i;
       }
     }

@@ -43,11 +43,11 @@ void seedFill4Iteration(BinaryImage& seed, const BinaryImage& mask) {
     seedLine[lastWordIdx] &= lastWordMask;
     // Left to right (except the last word).
     for (int i = 0; i <= lastWordIdx; ++i) {
-      const uint32_t mask = maskLine[i];
+      const uint32_t maskWord = maskLine[i];
       uint32_t word = prevWord << 31;
       word |= seedLine[i] | prevLine[i];
-      word &= mask;
-      word = fillWordHorizontally(word, mask);
+      word &= maskWord;
+      word = fillWordHorizontally(word, maskWord);
       seedLine[i] = word;
       prevWord = word;
     }
@@ -74,11 +74,11 @@ void seedFill4Iteration(BinaryImage& seed, const BinaryImage& mask) {
     seedLine[lastWordIdx] &= lastWordMask;
     // Right to left.
     for (int i = lastWordIdx; i >= 0; --i) {
-      const uint32_t mask = maskLine[i];
+      const uint32_t maskWord = maskLine[i];
       uint32_t word = prevWord >> 31;
       word |= seedLine[i] | prevLine[i];
-      word &= mask;
-      word = fillWordHorizontally(word, mask);
+      word &= maskWord;
+      word = fillWordHorizontally(word, maskWord);
       seedLine[i] = word;
       prevWord = word;
     }
@@ -126,25 +126,25 @@ void seedFill8Iteration(BinaryImage& seed, const BinaryImage& mask) {
     // Left to right (except the last word).
     int i = 0;
     for (; i < lastWordIdx; ++i) {
-      const uint32_t mask = maskLine[i];
+      const uint32_t maskWord = maskLine[i];
       uint32_t word = prevLine[i];
       word |= (word << 1) | (word >> 1);
       word |= seedLine[i];
       word |= prevLine[i + 1] >> 31;
       word |= prevWord << 31;
-      word &= mask;
-      word = fillWordHorizontally(word, mask);
+      word &= maskWord;
+      word = fillWordHorizontally(word, maskWord);
       seedLine[i] = word;
       prevWord = word;
     }
     // Last word.
-    const uint32_t mask = maskLine[i] & lastWordMask;
+    const uint32_t maskWord = maskLine[i] & lastWordMask;
     uint32_t word = prevLine[i];
     word |= (word << 1) | (word >> 1);
     word |= seedLine[i];
     word |= prevWord << 31;
-    word &= mask;
-    word = fillWordHorizontally(word, mask);
+    word &= maskWord;
+    word = fillWordHorizontally(word, maskWord);
     seedLine[i] = word;
 
     prevLine = seedLine;
@@ -165,26 +165,26 @@ void seedFill8Iteration(BinaryImage& seed, const BinaryImage& mask) {
     // Right to left (except the last word).
     int i = lastWordIdx;
     for (; i > 0; --i) {
-      const uint32_t mask = maskLine[i];
+      const uint32_t maskWord = maskLine[i];
       uint32_t word = prevLine[i];
       word |= (word << 1) | (word >> 1);
       word |= seedLine[i];
       word |= prevLine[i - 1] << 31;
       word |= prevWord >> 31;
-      word &= mask;
-      word = fillWordHorizontally(word, mask);
+      word &= maskWord;
+      word = fillWordHorizontally(word, maskWord);
       seedLine[i] = word;
       prevWord = word;
     }
 
     // Last word.
-    const uint32_t mask = maskLine[i];
+    const uint32_t maskWord = maskLine[i];
     uint32_t word = prevLine[i];
     word |= (word << 1) | (word >> 1);
     word |= seedLine[i];
     word |= prevWord >> 31;
-    word &= mask;
-    word = fillWordHorizontally(word, mask);
+    word &= maskWord;
+    word = fillWordHorizontally(word, maskWord);
     seedLine[i] = word;
     // If we don't do this, prevLine[lastWordIdx] on the next
     // iteration may contain garbage in the off-screen area.

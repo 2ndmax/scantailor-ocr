@@ -49,8 +49,8 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
       m_connectionManager(std::bind(&DefaultParamsDialog::setupUiConnections, this)) {
   setupUi(this);
   // Bold group titles, as in the options panels.
-  for (QGroupBox* groupBox : findChildren<QGroupBox*>()) {
-    CollapsibleGroupBox::makeTitleBold(groupBox);
+  for (QGroupBox* box : findChildren<QGroupBox*>()) {
+    CollapsibleGroupBox::makeTitleBold(box);
   }
   setupIcons();
 
@@ -199,9 +199,9 @@ void DefaultParamsDialog::updateBinarizationPageSizes() {
   // right below its settings.  The widest page still counts for the width, so the window keeps
   // its width when the method changes.
   for (int i = 0; i < binarizationOptions->count(); ++i) {
-    QWidget* page = binarizationOptions->widget(i);
+    QWidget* methodPage = binarizationOptions->widget(i);
     const bool current = (i == binarizationOptions->currentIndex());
-    page->setSizePolicy(QSizePolicy::Preferred, current ? QSizePolicy::Preferred : QSizePolicy::Ignored);
+    methodPage->setSizePolicy(QSizePolicy::Preferred, current ? QSizePolicy::Preferred : QSizePolicy::Ignored);
   }
   binarizationOptions->updateGeometry();
 }
@@ -251,25 +251,25 @@ void DefaultParamsDialog::fitToContents() {
     // measured earlier, the Output tab came out too narrow and got a horizontal scroll bar.
     tabWidget->widget(i)->ensurePolished();
     QCoreApplication::sendPostedEvents(nullptr, QEvent::LayoutRequest);
-    for (QScrollArea* scrollArea : tabWidget->widget(i)->findChildren<QScrollArea*>()) {
-      QWidget* contents = scrollArea->widget();
+    for (QScrollArea* area : tabWidget->widget(i)->findChildren<QScrollArea*>()) {
+      QWidget* contents = area->widget();
       if (!contents) {
         continue;
       }
-      const int frame = 2 * scrollArea->frameWidth();
-      const int scrollBar = style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr, scrollArea);
+      const int frame = 2 * area->frameWidth();
+      const int scrollBar = style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr, area);
       const QSize hint = contents->sizeHint();
-      scrollArea->setMinimumSize(std::min(hint.width() + frame + scrollBar, available.width()), hint.height() + frame);
-      scrollAreas.push_back(scrollArea);
+      area->setMinimumSize(std::min(hint.width() + frame + scrollBar, available.width()), hint.height() + frame);
+      scrollAreas.push_back(area);
       if (i == outputTab) {
-        outputScrollAreas.push_back(scrollArea);
+        outputScrollAreas.push_back(area);
       } else {
         otherTabsHeight = std::max(otherTabsHeight, hint.height() + frame);
       }
     }
   }
-  for (QScrollArea* scrollArea : outputScrollAreas) {
-    scrollArea->setMinimumHeight(std::min(scrollArea->minimumHeight(), otherTabsHeight * 3 / 2));
+  for (QScrollArea* area : outputScrollAreas) {
+    area->setMinimumHeight(std::min(area->minimumHeight(), otherTabsHeight * 3 / 2));
   }
   tabWidget->setCurrentIndex(currentTab);
 
@@ -297,8 +297,8 @@ void DefaultParamsDialog::fitToContents() {
   move(topLeft);
 
   // Afterwards the window may be made lower again, but not narrower.
-  for (QScrollArea* scrollArea : scrollAreas) {
-    scrollArea->setMinimumHeight(0);
+  for (QScrollArea* area : scrollAreas) {
+    area->setMinimumHeight(0);
   }
 }
 
@@ -540,17 +540,17 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   coloredDimmingSB->setValue(blackWhiteOptions.getColoredDimming());
   wolfCoef->setValue(blackWhiteOptions.getWolfCoef());
 
-  const PictureShapeOptions& pictureShapeOptions = params.getPictureShapeOptions();
-  pictureShapeSelector->setCurrentIndex(pictureShapeSelector->findData(pictureShapeOptions.getPictureShape()));
-  pictureShapeSensitivitySB->setValue(pictureShapeOptions.getSensitivity());
-  higherSearchSensitivityCB->setChecked(pictureShapeOptions.isHigherSearchSensitivity());
+  const PictureShapeOptions& shapeOptions = params.getPictureShapeOptions();
+  pictureShapeSelector->setCurrentIndex(pictureShapeSelector->findData(shapeOptions.getPictureShape()));
+  pictureShapeSensitivitySB->setValue(shapeOptions.getSensitivity());
+  higherSearchSensitivityCB->setChecked(shapeOptions.isHigherSearchSensitivity());
 
   m_outputDpi = params.getDpi().vertical();
   dpiSelector->setEditText(Utils::dpiText(m_outputDpi));
 
-  const SplittingOptions& splittingOptions = params.getSplittingOptions();
-  splittingCB->setChecked(splittingOptions.isSplitOutput());
-  switch (splittingOptions.getSplittingMode()) {
+  const SplittingOptions& splitOptions = params.getSplittingOptions();
+  splittingCB->setChecked(splitOptions.isSplitOutput());
+  switch (splitOptions.getSplittingMode()) {
     case BLACK_AND_WHITE_FOREGROUND:
       bwForegroundRB->setChecked(true);
       break;
@@ -558,7 +558,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
       colorForegroundRB->setChecked(true);
       break;
   }
-  originalBackgroundCB->setChecked(splittingOptions.isOriginalBackgroundEnabled());
+  originalBackgroundCB->setChecked(splitOptions.isOriginalBackgroundEnabled());
 
   const double despeckleLevel = params.getDespeckleLevel();
   if (despeckleLevel != 0) {
@@ -1040,15 +1040,15 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
   colorParams.setBlackWhiteOptions(blackWhiteOptions);
 
-  SplittingOptions splittingOptions;
-  splittingOptions.setSplitOutput(splittingCB->isChecked());
-  splittingOptions.setSplittingMode(bwForegroundRB->isChecked() ? BLACK_AND_WHITE_FOREGROUND : COLOR_FOREGROUND);
-  splittingOptions.setOriginalBackgroundEnabled(originalBackgroundCB->isChecked());
+  SplittingOptions splitOptions;
+  splitOptions.setSplitOutput(splittingCB->isChecked());
+  splitOptions.setSplittingMode(bwForegroundRB->isChecked() ? BLACK_AND_WHITE_FOREGROUND : COLOR_FOREGROUND);
+  splitOptions.setOriginalBackgroundEnabled(originalBackgroundCB->isChecked());
 
-  PictureShapeOptions pictureShapeOptions;
-  pictureShapeOptions.setPictureShape(static_cast<PictureShape>(pictureShapeSelector->currentData().toInt()));
-  pictureShapeOptions.setSensitivity(pictureShapeSensitivitySB->value());
-  pictureShapeOptions.setHigherSearchSensitivity(higherSearchSensitivityCB->isChecked());
+  PictureShapeOptions shapeOptions;
+  shapeOptions.setPictureShape(static_cast<PictureShape>(pictureShapeSelector->currentData().toInt()));
+  shapeOptions.setSensitivity(pictureShapeSensitivitySB->value());
+  shapeOptions.setHigherSearchSensitivity(higherSearchSensitivityCB->isChecked());
 
   DewarpingOptions dewarpingOptions;
   dewarpingOptions.setDewarpingMode(static_cast<DewarpingMode>(m_dewarpingModeGroup->checkedId()));
@@ -1062,7 +1062,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
     despeckleLevel = 0;
   }
 
-  DefaultParams::OutputParams outputParams(Dpi(dpi, dpi), colorParams, splittingOptions, pictureShapeOptions,
+  DefaultParams::OutputParams outputParams(Dpi(dpi, dpi), colorParams, splitOptions, shapeOptions,
                                            DepthPerception(0.1 * depthPerceptionSlider->value()), dewarpingOptions,
                                            despeckleLevel);
 
@@ -1306,8 +1306,8 @@ void DefaultParamsDialog::profileSavePressed() {
     }
     // File names don't depend on case on Windows and macOS.
     for (int i = 0; i < m_customProfileItemIdx; ++i) {
-      const QString data = profileCB->itemData(i).toString();
-      if ((data != "Default") && (data != "Source") && (data.compare(name, Qt::CaseInsensitive) == 0)) {
+      const QString entry = profileCB->itemData(i).toString();
+      if ((entry != "Default") && (entry != "Source") && (entry.compare(name, Qt::CaseInsensitive) == 0)) {
         existingIdx = i;
         break;
       }

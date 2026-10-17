@@ -273,11 +273,11 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
       } else if (sxleft == sxright) {
         // dst pixel maps to a vertical line of src pixels
         const unsigned horFraction = sx32right - sx32left;
-        const unsigned topArea = horFraction * topFraction;
+        const unsigned lineTopArea = horFraction * topFraction;
         const unsigned middleArea = horFraction << 5;
-        const unsigned bottomArea = horFraction * bottomFraction;
+        const unsigned lineBottomArea = horFraction * bottomFraction;
 
-        grayLevel += srcLine[sxleft] * topArea;
+        grayLevel += srcLine[sxleft] * lineTopArea;
 
         srcLine += srcStride;
 
@@ -286,7 +286,7 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
           srcLine += srcStride;
         }
 
-        grayLevel += srcLine[sxleft] * bottomArea;
+        grayLevel += srcLine[sxleft] * lineBottomArea;
       } else {
         // dst pixel maps to a block of src pixels
         const unsigned leftArea = leftFraction << 5;

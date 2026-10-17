@@ -502,7 +502,7 @@ void spreadGrayVertical(GrayImage& dst, const GrayImage& src, const int dx, cons
       fillExtremumArrayRightHalf<MinOrMax>(arrayCenter, srcData + x + srcSegmentCenter * srcStride, srcStride,
                                            srcSegmentCenter, srcSegmentLast);
 
-      uint8_t* dst = dstData + x + dstSegmentFirst * dstStride;
+      uint8_t* dstPixel = dstData + x + dstSegmentFirst * dstStride;
       for (int y = dstSegmentFirst; y <= dstSegmentLast; ++y) {
         const int srcFirst = y + dy1;
         const int srcLast = y + dy2;  // inclusive
@@ -510,8 +510,8 @@ void spreadGrayVertical(GrayImage& dst, const GrayImage& src, const int dx, cons
         assert(srcSegmentCenter <= srcLast);
         uint8_t v1 = arrayCenter[srcFirst - srcSegmentCenter];
         uint8_t v2 = arrayCenter[srcLast - srcSegmentCenter];
-        *dst = MinOrMax::select(v1, v2);
-        dst += dstStride;
+        *dstPixel = MinOrMax::select(v1, v2);
+        dstPixel += dstStride;
       }
     }
   }

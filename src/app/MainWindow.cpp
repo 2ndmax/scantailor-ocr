@@ -1518,11 +1518,11 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
     }
 
     do {
-      const BackgroundTaskPtr task(m_batchQueue->takeForProcessing());
-      if (!task) {
+      const BackgroundTaskPtr nextTask(m_batchQueue->takeForProcessing());
+      if (!nextTask) {
         break;
       }
-      m_workerThreadPool->submitTask(task);
+      m_workerThreadPool->submitTask(nextTask);
     } while (m_workerThreadPool->hasSpareCapacity());
 
     const PageInfo page(m_batchQueue->selectedPage());

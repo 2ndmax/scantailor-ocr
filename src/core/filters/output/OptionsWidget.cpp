@@ -732,10 +732,10 @@ void OptionsWidget::photoAdjustmentSliderChanged(const int row, const int value)
   PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
   {
     const QSignalBlocker blocker(r.field);
-    if (auto* field = qobject_cast<QDoubleSpinBox*>(r.field)) {
-      field->setValue(value / 100.0);
-    } else if (auto* field = qobject_cast<QSpinBox*>(r.field)) {
-      field->setValue(value);
+    if (auto* doubleField = qobject_cast<QDoubleSpinBox*>(r.field)) {
+      doubleField->setValue(value / 100.0);
+    } else if (auto* intField = qobject_cast<QSpinBox*>(r.field)) {
+      intField->setValue(value);
     }
   }
   // While dragging, the page is recalculated only once the slider is released.
@@ -748,10 +748,10 @@ void OptionsWidget::photoAdjustmentFieldChanged(const int row) {
   PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
   {
     const QSignalBlocker blocker(r.slider);
-    if (auto* field = qobject_cast<QDoubleSpinBox*>(r.field)) {
-      r.slider->setValue(qRound(field->value() * 100));
-    } else if (auto* field = qobject_cast<QSpinBox*>(r.field)) {
-      r.slider->setValue(field->value());
+    if (auto* doubleField = qobject_cast<QDoubleSpinBox*>(r.field)) {
+      r.slider->setValue(qRound(doubleField->value() * 100));
+    } else if (auto* intField = qobject_cast<QSpinBox*>(r.field)) {
+      r.slider->setValue(intField->value());
     }
   }
   commitPhotoAdjustments();
@@ -786,10 +786,10 @@ void OptionsWidget::updatePhotoAdjustmentsDisplay() {
     const QSignalBlocker fieldBlocker(r.field);
     const int value = photoAdjustmentSliderValue(row);
     r.slider->setValue(value);
-    if (auto* field = qobject_cast<QDoubleSpinBox*>(r.field)) {
-      field->setValue(value / 100.0);
-    } else if (auto* field = qobject_cast<QSpinBox*>(r.field)) {
-      field->setValue(value);
+    if (auto* doubleField = qobject_cast<QDoubleSpinBox*>(r.field)) {
+      doubleField->setValue(value / 100.0);
+    } else if (auto* intField = qobject_cast<QSpinBox*>(r.field)) {
+      intField->setValue(value);
     }
   }
   const QSignalBlocker keepWhiteBlocker(keepWhiteCB);
@@ -1828,10 +1828,10 @@ void OptionsWidget::setupUiConnections() {
     CONNECT(r.slider, &QAbstractSlider::valueChanged, this,
             [this, row](const int value) { photoAdjustmentSliderChanged(row, value); });
     CONNECT(r.slider, &QAbstractSlider::sliderReleased, this, &OptionsWidget::commitPhotoAdjustments);
-    if (auto* field = qobject_cast<QDoubleSpinBox*>(r.field)) {
-      CONNECT(field, &QDoubleSpinBox::valueChanged, this, [this, row] { photoAdjustmentFieldChanged(row); });
-    } else if (auto* field = qobject_cast<QSpinBox*>(r.field)) {
-      CONNECT(field, &QSpinBox::valueChanged, this, [this, row] { photoAdjustmentFieldChanged(row); });
+    if (auto* doubleField = qobject_cast<QDoubleSpinBox*>(r.field)) {
+      CONNECT(doubleField, &QDoubleSpinBox::valueChanged, this, [this, row] { photoAdjustmentFieldChanged(row); });
+    } else if (auto* intField = qobject_cast<QSpinBox*>(r.field)) {
+      CONNECT(intField, &QSpinBox::valueChanged, this, [this, row] { photoAdjustmentFieldChanged(row); });
     }
   }
   CONNECT(keepWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::commitPhotoAdjustments);
