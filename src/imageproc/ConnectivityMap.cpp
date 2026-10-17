@@ -259,7 +259,7 @@ QImage ConnectivityMap::visualized(QColor bgColor) const {
   const int srcStride = m_stride;
 
   auto* dstLine = reinterpret_cast<uint32_t*>(dst.bits());
-  const int dstStride = dst.bytesPerLine() / sizeof(uint32_t);
+  const int dstStride = dst.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {

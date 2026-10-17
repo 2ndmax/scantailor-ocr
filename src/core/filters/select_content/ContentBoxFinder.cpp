@@ -1187,7 +1187,6 @@ QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
   const uint32_t* dmOthersLine = dmToOthers.data();
   const int dmStride = dmToOthers.stride();
 
-  int count = 0;
   cbLine += cbStride * removedArea.top();
   dmGarbageLine += dmStride * removedArea.top();
   dmOthersLine += dmStride * removedArea.top();
@@ -1196,7 +1195,6 @@ QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
       if (cbLine[x >> 5] & (msb >> (x & 31))) {
         sumDistToGarbage += std::sqrt((double) dmGarbageLine[x]);
         sumDistToOthers += std::sqrt((double) dmOthersLine[x]);
-        ++count;
       }
     }
     cbLine += cbStride;
@@ -1207,7 +1205,6 @@ QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
   // qDebug() << "proximityBias = " << proximityBias;
   // qDebug() << "sumDistToGarbage = " << sumDistToGarbage;
   // qDebug() << "sumDistToOthers = " << sumDistToOthers;
-  // qDebug() << "count = " << count;
 
   sumDistToGarbage *= proximityBias;
   sumDistToOthers *= 1.0 - proximityBias;

@@ -16,7 +16,7 @@ namespace impl {
 template <typename MixedPixel>
 void combineImagesMono(QImage& mixedImage, const BinaryImage& foreground) {
   auto* mixedLine = reinterpret_cast<MixedPixel*>(mixedImage.bits());
-  const int mixedStride = mixedImage.bytesPerLine() / sizeof(MixedPixel);
+  const int mixedStride = mixedImage.bytesPerLine() / static_cast<int>(sizeof(MixedPixel));
   const uint32_t* foregroundLine = foreground.data();
   const int foregroundStride = foreground.wordsPerLine();
   const int width = mixedImage.width();
@@ -43,7 +43,7 @@ void combineImagesMono(QImage& mixedImage, const BinaryImage& foreground) {
 template <typename MixedPixel>
 void combineImagesMono(QImage& mixedImage, const BinaryImage& foreground, const BinaryImage& mask) {
   auto* mixedLine = reinterpret_cast<MixedPixel*>(mixedImage.bits());
-  const int mixedStride = mixedImage.bytesPerLine() / sizeof(MixedPixel);
+  const int mixedStride = mixedImage.bytesPerLine() / static_cast<int>(sizeof(MixedPixel));
   const uint32_t* foregroundLine = foreground.data();
   const int foregroundStride = foreground.wordsPerLine();
   const uint32_t* maskLine = mask.data();
@@ -73,9 +73,9 @@ void combineImagesMono(QImage& mixedImage, const BinaryImage& foreground, const 
 template <typename MixedPixel>
 void combineImagesColor(QImage& mixedImage, const QImage& foreground) {
   auto* mixedLine = reinterpret_cast<MixedPixel*>(mixedImage.bits());
-  const int mixedStride = mixedImage.bytesPerLine() / sizeof(MixedPixel);
+  const int mixedStride = mixedImage.bytesPerLine() / static_cast<int>(sizeof(MixedPixel));
   const auto* foregroundLine = reinterpret_cast<const MixedPixel*>(foreground.bits());
-  const int foregroundStride = foreground.bytesPerLine() / sizeof(MixedPixel);
+  const int foregroundStride = foreground.bytesPerLine() / static_cast<int>(sizeof(MixedPixel));
   const int width = mixedImage.width();
   const int height = mixedImage.height();
   const auto msb = uint32_t(0x00ffffff);
@@ -119,7 +119,7 @@ void combineImagesColor(QImage& mixedImage, const QImage& foreground);
 template <>
 void combineImagesColor<uint32_t, uint8_t>(QImage& mixedImage, const QImage& foreground) {
   auto* mixedLine = reinterpret_cast<uint32_t*>(mixedImage.bits());
-  const int mixedStride = mixedImage.bytesPerLine() / sizeof(uint32_t);
+  const int mixedStride = mixedImage.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
   const auto* foregroundLine = foreground.bits();
   const int foregroundStride = foreground.bytesPerLine();
   const int width = mixedImage.width();
@@ -190,9 +190,9 @@ void combineImagesColor<uint8_t, uint8_t>(QImage& mixedImage, const QImage& fore
 template <typename MixedPixel>
 void combineImagesColor(QImage& mixedImage, const QImage& foreground, const BinaryImage& mask) {
   auto* mixedLine = reinterpret_cast<MixedPixel*>(mixedImage.bits());
-  const int mixedStride = mixedImage.bytesPerLine() / sizeof(MixedPixel);
+  const int mixedStride = mixedImage.bytesPerLine() / static_cast<int>(sizeof(MixedPixel));
   const auto* foregroundLine = reinterpret_cast<const MixedPixel*>(foreground.bits());
-  const int foregroundStride = foreground.bytesPerLine() / sizeof(MixedPixel);
+  const int foregroundStride = foreground.bytesPerLine() / static_cast<int>(sizeof(MixedPixel));
   const uint32_t* maskLine = mask.data();
   const int maskStride = mask.wordsPerLine();
   const int width = mixedImage.width();
@@ -217,7 +217,7 @@ void combineImagesColor(QImage& mixedImage, const QImage& foreground, const Bina
 template <>
 void combineImagesColor<uint32_t, uint8_t>(QImage& mixedImage, const QImage& foreground, const BinaryImage& mask) {
   auto* mixedLine = reinterpret_cast<uint32_t*>(mixedImage.bits());
-  const int mixedStride = mixedImage.bytesPerLine() / sizeof(uint32_t);
+  const int mixedStride = mixedImage.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
   const auto* foregroundLine = foreground.bits();
   const int foregroundStride = foreground.bytesPerLine();
   const uint32_t* maskLine = mask.data();
@@ -284,7 +284,7 @@ void combineImagesColor<uint8_t, uint8_t>(QImage& mixedImage, const QImage& fore
 template <typename MixedPixel>
 void applyMask(QImage& image, const BinaryImage& bwMask, const BWColor fillingColor = WHITE) {
   auto* imageLine = reinterpret_cast<MixedPixel*>(image.bits());
-  const int imageStride = image.bytesPerLine() / sizeof(MixedPixel);
+  const int imageStride = image.bytesPerLine() / static_cast<int>(sizeof(MixedPixel));
   const uint32_t* bwMaskLine = bwMask.data();
   const int bwMaskStride = bwMask.wordsPerLine();
   const int width = image.width();

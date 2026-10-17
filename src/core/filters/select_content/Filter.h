@@ -47,7 +47,7 @@ class Filter : public AbstractFilter {
 
   void selectPageOrder(int option) override;
 
-  virtual std::vector<PageOrderOption> pageOrderOptions() const;
+  std::vector<PageOrderOption> pageOrderOptions() const override;
 
   void performRelinking(const AbstractRelinker& relinker) override;
 

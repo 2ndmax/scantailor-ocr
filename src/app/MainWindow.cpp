@@ -192,25 +192,25 @@ MainWindow::MainWindow()
       actionInches->setChecked(true);
       break;
   }
-  connect(actionPixels, &QAction::toggled, [this, &settings](bool checked) {
+  connect(actionPixels, &QAction::toggled, [&settings](bool checked) {
     if (checked) {
       UnitsProvider::getInstance().setUnits(PIXELS);
       settings.setUnits(unitsToString(PIXELS));
     }
   });
-  connect(actionMilimeters, &QAction::toggled, [this, &settings](bool checked) {
+  connect(actionMilimeters, &QAction::toggled, [&settings](bool checked) {
     if (checked) {
       UnitsProvider::getInstance().setUnits(MILLIMETRES);
       settings.setUnits(unitsToString(MILLIMETRES));
     }
   });
-  connect(actionCentimetres, &QAction::toggled, [this, &settings](bool checked) {
+  connect(actionCentimetres, &QAction::toggled, [&settings](bool checked) {
     if (checked) {
       UnitsProvider::getInstance().setUnits(CENTIMETRES);
       settings.setUnits(unitsToString(CENTIMETRES));
     }
   });
-  connect(actionInches, &QAction::toggled, [this, &settings](bool checked) {
+  connect(actionInches, &QAction::toggled, [&settings](bool checked) {
     if (checked) {
       UnitsProvider::getInstance().setUnits(INCHES);
       settings.setUnits(unitsToString(INCHES));

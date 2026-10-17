@@ -108,7 +108,7 @@ GrayImage extractRgbChannel(const QImage& image, const RgbChannel channel) {
 
   GrayImage dst(image.size());
   const auto* imgLine = reinterpret_cast<const uint32_t*>(image.bits());
-  const int imgStride = image.bytesPerLine() / sizeof(uint32_t);
+  const int imgStride = image.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
   uint8_t* dstLine = dst.data();
   const int dstStride = dst.stride();
   const int width = image.width();
@@ -282,7 +282,7 @@ QImage buildRgbImage(const ConnectivityMap& segmentsMap, const QImage& colorImag
     const int mapStride = segmentsMap.stride();
 
     const auto* imgLine = reinterpret_cast<const uint32_t*>(colorImage.bits());
-    const int imgStride = colorImage.bytesPerLine() / sizeof(uint32_t);
+    const int imgStride = colorImage.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
 
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
@@ -301,7 +301,7 @@ QImage buildRgbImage(const ConnectivityMap& segmentsMap, const QImage& colorImag
   dst.fill(Qt::white);
 
   auto* dstLine = reinterpret_cast<uint32_t*>(dst.bits());
-  const int dstStride = dst.bytesPerLine() / sizeof(uint32_t);
+  const int dstStride = dst.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
 
   const uint32_t* mapLine = segmentsMap.data();
   const int mapStride = segmentsMap.stride();

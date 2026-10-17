@@ -35,7 +35,7 @@ QVector<QRgb> paletteFromRgb(const QImage& image) {
   const int height = image.height();
 
   const auto* imgLine = reinterpret_cast<const uint32_t*>(image.bits());
-  const int imgStride = image.bytesPerLine() / sizeof(uint32_t);
+  const int imgStride = image.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -83,7 +83,7 @@ QImage Posterizer::convertToIndexed(const QImage& image, const QVector<QRgb>& pa
   const int height = image.height();
 
   const auto* imgLine = reinterpret_cast<const uint32_t*>(image.bits());
-  const int imgStride = image.bytesPerLine() / sizeof(uint32_t);
+  const int imgStride = image.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
 
   uint8_t* dstLine = dst.bits();
   const int dstStride = dst.bytesPerLine();
@@ -136,7 +136,7 @@ std::unordered_map<uint32_t, int> paletteFromRgbWithStatistics(const QImage& ima
   const int height = image.height();
 
   const auto* imgLine = reinterpret_cast<const uint32_t*>(image.bits());
-  const int imgStride = image.bytesPerLine() / sizeof(uint32_t);
+  const int imgStride = image.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -189,7 +189,7 @@ void remapColorsInRgbImage(QImage& image, const std::unordered_map<uint32_t, uin
   const int height = image.height();
 
   auto* imgLine = reinterpret_cast<uint32_t*>(image.bits());
-  const int imgStride = image.bytesPerLine() / sizeof(uint32_t);
+  const int imgStride = image.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {

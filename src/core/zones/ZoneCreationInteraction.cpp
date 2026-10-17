@@ -49,7 +49,6 @@ void ZoneCreationInteraction::onPaint(QPainter& painter, const InteractionState&
   painter.setRenderHint(QPainter::Antialiasing);
 
   const QTransform toScreen(m_context.imageView().imageToWidget());
-  const QTransform fromScreen(m_context.imageView().widgetToImage());
 
   m_visualizer.drawSplines(painter, toScreen, m_context.zones());
 

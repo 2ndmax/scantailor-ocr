@@ -207,10 +207,6 @@ inline uint8_t darkest(uint8_t lhs, uint8_t rhs) {
   return lhs < rhs ? lhs : rhs;
 }
 
-inline bool darkerThan(uint8_t lhs, uint8_t rhs) {
-  return lhs < rhs;
-}
-
 void seedFillGrayHorLine(uint8_t* seed, const uint8_t* mask, const int lineLen) {
   assert(lineLen > 0);
 

@@ -1052,7 +1052,7 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail) const {
 
 QString PdfExportView::kindText(const PdfExportPage& page) const {
   // The name of the method chosen in a box, as shown there.
-  auto method = [this](const QComboBox* box) {
+  auto method = [](const QComboBox* box) {
     return (box->currentData().toInt() == static_cast<int>(PdfCompression::NONE)) ? tr("uncompressed")
                                                                                   : box->currentText();
   };

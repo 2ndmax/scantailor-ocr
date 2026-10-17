@@ -25,7 +25,7 @@ class BackgroundExecutor::Dispatcher : public QObject {
 
 class BackgroundExecutor::Impl : public QThread {
  public:
-  explicit Impl(BackgroundExecutor& owner);
+  Impl();
 
   ~Impl() override;
 
@@ -37,7 +37,6 @@ class BackgroundExecutor::Impl : public QThread {
   void customEvent(QEvent* event) override;
 
  private:
-  BackgroundExecutor& m_owner;
   Dispatcher m_dispatcher;
   bool m_threadStarted;
 };
@@ -45,7 +44,7 @@ class BackgroundExecutor::Impl : public QThread {
 
 /*============================ BackgroundExecutor ==========================*/
 
-BackgroundExecutor::BackgroundExecutor() : m_impl(std::make_unique<Impl>(*this)) {}
+BackgroundExecutor::BackgroundExecutor() : m_impl(std::make_unique<Impl>()) {}
 
 BackgroundExecutor::~BackgroundExecutor() = default;
 
@@ -85,8 +84,7 @@ void BackgroundExecutor::Dispatcher::customEvent(QEvent* event) {
 
 /*======================= BackgroundExecutor::Impl =========================*/
 
-BackgroundExecutor::Impl::Impl(BackgroundExecutor& owner)
-    : m_owner(owner), m_dispatcher(*this), m_threadStarted(false) {
+BackgroundExecutor::Impl::Impl() : m_dispatcher(*this), m_threadStarted(false) {
   m_dispatcher.moveToThread(this);
 }
 

@@ -432,42 +432,12 @@ uint8_t reserveBlackAndWhite(uint8_t color) {
 }
 
 template <typename PixelType>
-void reserveBlackAndWhite(QImage& img) {
-  const int width = img.width();
-  const int height = img.height();
-
-  auto* imageLine = reinterpret_cast<PixelType*>(img.bits());
-  const int imageStride = img.bytesPerLine() / sizeof(PixelType);
-
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      imageLine[x] = reserveBlackAndWhite<PixelType>(imageLine[x]);
-    }
-    imageLine += imageStride;
-  }
-}
-
-void reserveBlackAndWhite(QImage& img) {
-  switch (img.format()) {
-    case QImage::Format_Indexed8:
-      reserveBlackAndWhite<uint8_t>(img);
-      break;
-    case QImage::Format_RGB32:
-    case QImage::Format_ARGB32:
-      reserveBlackAndWhite<uint32_t>(img);
-      break;
-    default:
-      throw std::invalid_argument("reserveBlackAndWhite: wrong image format.");
-  }
-}
-
-template <typename PixelType>
 void reserveBlackAndWhite(QImage& img, const BinaryImage& mask) {
   const int width = img.width();
   const int height = img.height();
 
   auto* imageLine = reinterpret_cast<PixelType*>(img.bits());
-  const int imageStride = img.bytesPerLine() / sizeof(PixelType);
+  const int imageStride = img.bytesPerLine() / static_cast<int>(sizeof(PixelType));
   const uint32_t* maskLine = mask.data();
   const int maskStride = mask.wordsPerLine();
   const uint32_t msb = uint32_t(1) << 31;
@@ -500,7 +470,7 @@ void reserveBlackAndWhite(QImage& img, const BinaryImage& mask) {
 template <typename MixedPixel>
 void fillExcept(QImage& image, const BinaryImage& bwMask, const QColor& color) {
   auto* imageLine = reinterpret_cast<MixedPixel*>(image.bits());
-  const int imageStride = image.bytesPerLine() / sizeof(MixedPixel);
+  const int imageStride = image.bytesPerLine() / static_cast<int>(sizeof(MixedPixel));
   const uint32_t* bwMaskLine = bwMask.data();
   const int bwMaskStride = bwMask.wordsPerLine();
   const int width = image.width();
@@ -1066,21 +1036,6 @@ void hitMissReplaceAllDirections(BinaryImage& img,
   hitMissReplaceInPlace(img, WHITE, newPattern, newWidth, newHeight);
 }
 
-QSize calcLocalWindowSize(const Dpi& dpi) {
-  const QSizeF sizeMm(3, 30);
-  const QSizeF sizeInch(sizeMm * constants::MM2INCH);
-  const QSizeF sizePixelsF(dpi.horizontal() * sizeInch.width(), dpi.vertical() * sizeInch.height());
-  QSize sizePixels(sizePixelsF.toSize());
-
-  if (sizePixels.width() < 3) {
-    sizePixels.setWidth(3);
-  }
-  if (sizePixels.height() < 3) {
-    sizePixels.setHeight(3);
-  }
-  return sizePixels;
-}
-
 void movePointToTopMargin(BinaryImage& bwImage, XSpline& spline, int idx) {
   QPointF pos = spline.controlPointPosition(idx);
   const int x = static_cast<int>(pos.x());
@@ -1172,14 +1127,6 @@ QImage smoothToGrayscale(const QImage& src, const Dpi& dpi) {
     degree = 2;
   }
   return savGolFilter(src, QSize(window, window), degree, degree);
-}
-
-QSize from300dpi(const QSize& size, const Dpi& targetDpi) {
-  const double hscale = targetDpi.horizontal() / 300.0;
-  const double vscale = targetDpi.vertical() / 300.0;
-  const int width = qRound(size.width() * hscale);
-  const int height = qRound(size.height() * vscale);
-  return QSize(std::max(1, width), std::max(1, height));
 }
 
 QSize to300dpi(const QSize& size, const Dpi& sourceDpi) {

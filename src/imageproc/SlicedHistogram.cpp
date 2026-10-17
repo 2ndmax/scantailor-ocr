@@ -3,6 +3,7 @@
 
 #include "SlicedHistogram.h"
 
+#include <algorithm>
 #include <stdexcept>
 
 #include "BinaryImage.h"
@@ -38,6 +39,12 @@ SlicedHistogram::SlicedHistogram(const BinaryImage& image, const QRect& area, co
 }
 
 void SlicedHistogram::processHorizontalLines(const BinaryImage& image, const QRect& area) {
+  if (area.width() <= 0) {
+    // The word arithmetic below needs at least one column.  Without columns every row counts zero.
+    m_data.resize(std::max(area.height(), 0));
+    return;
+  }
+
   m_data.reserve(area.height());
 
   const int top = area.top();

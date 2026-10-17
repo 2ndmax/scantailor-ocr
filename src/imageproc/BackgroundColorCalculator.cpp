@@ -65,7 +65,7 @@ RgbHistogram::RgbHistogram(const QImage& img, const BinaryImage& mask) {
 
 void RgbHistogram::fromRgbImage(const QImage& img) {
   const auto* imgLine = reinterpret_cast<const uint32_t*>(img.bits());
-  const int imgStride = img.bytesPerLine() / sizeof(uint32_t);
+  const int imgStride = img.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
 
   const int width = img.width();
   const int height = img.height();
@@ -82,7 +82,7 @@ void RgbHistogram::fromRgbImage(const QImage& img) {
 
 void RgbHistogram::fromRgbImage(const QImage& img, const BinaryImage& mask) {
   const auto* imgLine = reinterpret_cast<const uint32_t*>(img.bits());
-  const int imgStride = img.bytesPerLine() / sizeof(uint32_t);
+  const int imgStride = img.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
   const uint32_t* maskLine = mask.data();
   const int maskStride = mask.wordsPerLine();
 

@@ -11,7 +11,7 @@ namespace {
 QString createFile(const QTemporaryDir& dir, const QString& name) {
   const QString path(dir.filePath(name));
   QFile file(path);
-  file.open(QIODevice::WriteOnly);
+  BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
   file.write("x");
   return path;
 }

@@ -44,7 +44,6 @@ const QPoint* TowardsLineTracer::trace(const float maxDist) {
   const int maxSqdist = qRound(maxDist * maxDist);
 
   QPoint curPos(m_lastOutputPos);
-  QPoint lastContentPos(-1, -1);
 
   const uint32_t* pDm = m_dmData + curPos.y() * m_dmStride + curPos.x();
   const float* pPm = m_pmData + curPos.y() * m_pmStride + curPos.x();
