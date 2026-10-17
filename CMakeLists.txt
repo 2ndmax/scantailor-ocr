@@ -23,6 +23,9 @@ if (POLICY CMP0177)
   cmake_policy(SET CMP0177 NEW)
 endif()
 
+# Take jom from the vcpkg downloads (only for the "NMake Makefiles JOM" generator).
+include(cmake/VcpkgJom.cmake)
+
 project("ScanTailor OCR")
 
 # Set compiler flags.
