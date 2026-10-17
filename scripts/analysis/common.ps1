@@ -39,8 +39,9 @@ function Get-ConfigureArgs([string]$BuildDir, [string]$VcpkgRoot, [string]$Build
 }
 
 # Runs a command line in the Visual Studio x64 developer environment, appending all output to $Log.
+# Code page 65001 makes the compilers write their (localized) messages as UTF-8, like the log header.
 function Invoke-VsLogged([string]$CommandLine, [string]$Log) {
-    cmd /c "`"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine >> `"$Log`" 2>&1"
+    cmd /c "chcp 65001 >nul && `"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine >> `"$Log`" 2>&1"
     return $LASTEXITCODE
 }
 
