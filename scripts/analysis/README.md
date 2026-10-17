@@ -37,6 +37,17 @@ C1083, C1258).
 
 Order: 02 and 03 need the build directory of 01.  All others are independent.
 
+## Merging the results
+
+`merge-findings.ps1` reads the output of the runs (all that exist) and writes the distinct
+findings to `findings.csv` (all of them) and `findings.md` (a summary per tool and check, then
+the findings by file and line) in the same folder.  A finding is one combination of tool, check,
+file and line; repeats are merged and the runs that reported them are listed.  Frequent, mostly
+harmless checks (unreferenced parameters, `size_t` conversions, hidden names; see `-BulkChecks`)
+are only counted in `findings.md`.  The script needs neither Visual Studio nor any of the tools.
+
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\merge-findings.ps1
+
 ## Notes
 
 - 04 and 05 build without `/analyze`, so their warnings can be compared with the C4xxx
