@@ -10,6 +10,7 @@
 
 #include "ImageLoadErrors.h"
 #include "OutOfMemoryHandler.h"
+#include "ThreadBudget.h"
 
 class WorkerThreadPool::TaskResultEvent : public QEvent {
  public:
@@ -48,6 +49,8 @@ void WorkerThreadPool::submitTask(const BackgroundTaskPtr& task) {
     }
 
     void run() override {
+      // The pages processed side by side share the threads of the image filters and decoders.
+      const ThreadBudget::TaskScope taskScope;
       FilterResultPtr result;
       if (!m_task->isCancelled()) {
         try {
@@ -86,14 +89,6 @@ void WorkerThreadPool::customEvent(QEvent* event) {
 }
 
 void WorkerThreadPool::updateNumberOfThreads() {
-  int maxThreads = QThread::idealThreadCount();
-  // Restricting num of processors for 32-bit due to
-  // address space constraints.
-  if (sizeof(void*) <= 4) {
-    maxThreads = std::min(maxThreads, 2);
-  }
-
-  int numThreads = m_settings.value("settings/batch_processing_threads", maxThreads).toInt();
-  numThreads = std::min(numThreads, maxThreads);
-  m_pool->setMaxThreadCount(numThreads);
+  // Read before every task, so that a change in the settings takes effect right away.
+  m_pool->setMaxThreadCount(ThreadBudget::maxThreads());
 }

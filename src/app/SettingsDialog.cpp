@@ -15,6 +15,7 @@
 
 #include "Application.h"
 #include "OpenGLSupport.h"
+#include "ThreadBudget.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   ui.setupUi(this);
@@ -85,6 +86,10 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
                                       ApplicationSettings::MAX_DESKEW_HANDLE_DISTANCE);
   ui.deskewHandleDistanceSB->setValue(settings.getDeskewHandleDistance());
 
+  ui.processingThreadsSB->setRange(1, ThreadBudget::availableThreads());
+  ui.processingThreadsSB->setValue(settings.getProcessingThreads());
+  ui.processingThreadsMaxLabel->setText(tr("of %1").arg(ThreadBudget::availableThreads()));
+
   connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::commitChanges);
 }
 
@@ -126,6 +131,7 @@ void SettingsDialog::commitChanges() {
   settings.setSingleColumnThumbnailDisplayEnabled(ui.singleColumnThumbnailsCB->isChecked());
   settings.setCancelingSelectionQuestionEnabled(ui.cancelingSelectionQuestionCB->isChecked());
   settings.setDeskewHandleDistance(ui.deskewHandleDistanceSB->value());
+  settings.setProcessingThreads(ui.processingThreadsSB->value());
 
   if (colorsChanged) {
     showRestartNotice();

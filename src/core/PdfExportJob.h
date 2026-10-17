@@ -68,7 +68,7 @@ class PdfExportJob : public QObject {
 
   QStringList errors() const { return m_errors; }
 
-  /** Processor cores minus 2, at least 1 and at most 16. */
+  /** The thread limit from the settings (see ThreadBudget). */
   static int defaultThreadCount();
 
   /**

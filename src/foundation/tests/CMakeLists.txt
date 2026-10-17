@@ -4,6 +4,7 @@ set(sources
     TestConstants.cpp
     TestLineIntersectionScalar.cpp
     TestProximity.cpp
+    TestThreadBudget.cpp
     TestUtils.cpp
     TestVecNT.cpp
     TestXmlMarshalling.cpp)

@@ -5,7 +5,6 @@
 #define SCANTAILOR_CORE_WORKERTHREADPOOL_H_
 
 #include <QObject>
-#include <QSettings>
 #include <memory>
 
 #include "BackgroundTask.h"
@@ -46,7 +45,6 @@ class WorkerThreadPool : public QObject {
   void updateNumberOfThreads();
 
   QThreadPool* m_pool;
-  QSettings m_settings;
 };
 
 

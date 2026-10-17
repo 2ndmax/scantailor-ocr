@@ -8,9 +8,12 @@
 #include <thread>
 #include <vector>
 
+#include "ThreadBudget.h"
+
 namespace imageproc {
 /**
- * Calls body(begin, end) for consecutive slices of [0, count), one slice per processor core.
+ * Calls body(begin, end) for consecutive slices of [0, count), one slice per thread the current task may use
+ * (see ThreadBudget: all of them for a single page, one each in a full batch).
  * Each index is handled exactly once, so filters that compute every row on its own give
  * the same result as a single loop.  The body must not throw.
  *
@@ -18,8 +21,8 @@ namespace imageproc {
  */
 template <typename Body>
 void parallelFor(const int count, const Body& body, const int minPerSlice = 32) {
-  const int cores = static_cast<int>(std::thread::hardware_concurrency());
-  const int slices = std::clamp(std::min(cores, count / std::max(minPerSlice, 1)), 1, 64);
+  const int threads = ThreadBudget::threadsForCurrentTask();
+  const int slices = std::clamp(std::min(threads, count / std::max(minPerSlice, 1)), 1, 64);
   if (slices <= 1) {
     body(0, count);
     return;

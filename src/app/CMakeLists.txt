@@ -27,7 +27,6 @@ set(gui_only_sources
     AutoImportPanel.cpp AutoImportPanel.h
     ScanFolderWatcher.cpp ScanFolderWatcher.h
     NewOpenProjectPanel.cpp NewOpenProjectPanel.h
-    SystemLoadWidget.cpp SystemLoadWidget.h
     MainWindow.cpp MainWindow.h
     main.cpp
     StatusBarPanel.cpp StatusBarPanel.h
@@ -48,8 +47,7 @@ set(gui_only_ui_files
     RelinkingDialog.ui
     RemovePagesDialog.ui
     SettingsDialog.ui
-    StatusBarPanel.ui
-    SystemLoadWidget.ui)
+    StatusBarPanel.ui)
 
 set(win32_resource_file "")
 if (WIN32)

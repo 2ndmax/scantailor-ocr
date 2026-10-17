@@ -9,6 +9,7 @@
 #include <QtCore/QSettings>
 
 #include "PdfCompression.h"
+#include "ThreadBudget.h"
 
 const bool ApplicationSettings::DEFAULT_OPENGL_STATE = false;
 const QString ApplicationSettings::DEFAULT_COLOR_SCHEME = "dark";
@@ -77,6 +78,8 @@ const QString ApplicationSettings::DESKEW_HANDLE_DISTANCE_KEY = "deskew_handle_d
 const int ApplicationSettings::DEFAULT_DESKEW_HANDLE_DISTANCE = 90;
 const int ApplicationSettings::MIN_DESKEW_HANDLE_DISTANCE = 30;
 const int ApplicationSettings::MAX_DESKEW_HANDLE_DISTANCE = 100;
+// The key of the former slider in the batch processing panel, so that its value is kept.
+const QString ApplicationSettings::PROCESSING_THREADS_KEY = "batch_processing_threads";
 const QString ApplicationSettings::PDF_JPEG_QUALITY_KEY = "pdf_jpeg_quality";
 const QString ApplicationSettings::PDF_BACKGROUND_SCALE_KEY = "pdf_background_scale";
 const QString ApplicationSettings::PDF_OPEN_AFTER_CREATION_KEY = "pdf_open_after_creation";
@@ -381,6 +384,21 @@ int ApplicationSettings::getDeskewHandleDistance() const {
 void ApplicationSettings::setDeskewHandleDistance(const int percent) {
   writeValue(getKey(DESKEW_HANDLE_DISTANCE_KEY),
              qBound(MIN_DESKEW_HANDLE_DISTANCE, percent, MAX_DESKEW_HANDLE_DISTANCE));
+}
+
+int ApplicationSettings::getProcessingThreads() const {
+  bool ok = false;
+  const int v = readValue(getKey(PROCESSING_THREADS_KEY), ThreadBudget::defaultThreads()).toInt(&ok);
+  if (!ok) {
+    return ThreadBudget::defaultThreads();
+  }
+  return qBound(1, v, ThreadBudget::availableThreads());
+}
+
+void ApplicationSettings::setProcessingThreads(const int threads) {
+  const int value = qBound(1, threads, ThreadBudget::availableThreads());
+  writeValue(getKey(PROCESSING_THREADS_KEY), value);
+  ThreadBudget::setMaxThreads(value);
 }
 
 int ApplicationSettings::getPdfColorCompression() const {

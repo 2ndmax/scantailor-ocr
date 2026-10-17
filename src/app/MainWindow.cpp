@@ -67,7 +67,6 @@
 #include "SkinnedButton.h"
 #include "SmartFilenameOrdering.h"
 #include "StageSequence.h"
-#include "SystemLoadWidget.h"
 #include "TabbedDebugImages.h"
 #include "ThumbnailFactory.h"
 #include "UnitsProvider.h"

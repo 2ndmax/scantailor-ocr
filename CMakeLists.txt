@@ -334,6 +334,11 @@ configure_file(
     "${CMAKE_BINARY_DIR}/${target_name}.desktop"
     @ONLY)
 
+# translation_sources() appends to these cache lists; start empty on every configure run,
+# or deleted source files stay in the lupdate list and make update_translations fail.
+unset(scantailor_TRANSLATION_SOURCES CACHE)
+unset(scantailor_TRANSLATION_INCLUDE_DIRS CACHE)
+
 add_subdirectory(src)
 
 # Translations

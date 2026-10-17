@@ -21,6 +21,7 @@
 #include <QStringList>
 
 #include "MainWindow.h"
+#include "ThreadBudget.h"
 
 namespace {
 // Before ScanTailor OCR 1.0.0 the program was called "scantailor-advanced".  Its settings,
@@ -88,6 +89,7 @@ int main(int argc, char* argv[]) {
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, app.getPortableConfigPath());
   }
   takeOverOldSettings();
+  ThreadBudget::setMaxThreads(ApplicationSettings::getInstance().getProcessingThreads());
   QSettings settings;
 
   app.installLanguage(ApplicationSettings::getInstance().getLanguage());

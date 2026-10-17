@@ -4,6 +4,7 @@ set(sources
     TestSlicedHistogram.cpp
     TestConnCompEraser.cpp TestConnCompEraserExt.cpp
     TestDpi.cpp
+    TestParallelFor.cpp
     TestGrayscale.cpp
     TestRasterOp.cpp TestShear.cpp
     TestOrthogonalRotation.cpp

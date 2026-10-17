@@ -8,7 +8,6 @@
 #include <QCoreApplication>
 #include <QIODevice>
 #include <QImage>
-#include <QThread>
 #include <algorithm>
 #include <atomic>
 #include <climits>
@@ -22,6 +21,7 @@
 #include "Dpm.h"
 #include "ImageLoadErrors.h"
 #include "ImageMetadata.h"
+#include "ThreadBudget.h"
 
 namespace {
 enum class Jp2Format { NONE, JP2, J2K };
@@ -573,8 +573,9 @@ QImage decode(QIODevice& device,
     return QImage();
   }
   // Decoding is by far the most expensive part, and OpenJPEG parallelizes it well.
+  // Its share of the threads (see ThreadBudget), so that pages decoded side by side don't overbook.
   // Failure just means OpenJPEG was built without thread support.
-  opj_codec_set_threads(codec.get(), std::max(1, QThread::idealThreadCount()));
+  opj_codec_set_threads(codec.get(), ThreadBudget::threadsForCurrentTask());
 
   opj_image_t* rawImage = nullptr;
   if (!opj_read_header(stream.get(), codec.get(), &rawImage)) {

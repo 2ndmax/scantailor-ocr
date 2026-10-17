@@ -6,7 +6,6 @@
 #include <QDir>
 #include <QImage>
 #include <QSaveFile>
-#include <QThread>
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -22,6 +21,7 @@
 #include "ImageLoader.h"
 #include "OcrEngine.h"
 #include "PdfImageEncoder.h"
+#include "ThreadBudget.h"
 
 namespace {
 QString describeFailure(const QString& format, const QString& filePath, const QStringList& messages) {
@@ -240,7 +240,7 @@ PdfExportJob::PdfExportJob(std::vector<PdfExportPage> pages, const QString& outp
     : m_pages(std::move(pages)), m_outputFile(outputFile), m_options(options) {}
 
 int PdfExportJob::defaultThreadCount() {
-  return std::clamp(QThread::idealThreadCount() - 2, 1, 16);
+  return ThreadBudget::maxThreads();
 }
 
 bool PdfExportJob::preparePage(const PdfExportPage& page,
@@ -396,7 +396,9 @@ void PdfExportJob::run() {
   const int maxAhead = threadCount * 2;
 
   auto worker = [&]() {
-  // Each thread has its own recognizer, created when it prepares its first page.
+    // The pages prepared side by side share the threads of the image filters and decoders.
+    const ThreadBudget::TaskScope taskScope;
+    // Each thread has its own recognizer, created when it prepares its first page.
 #ifdef ENABLE_OCR
     std::unique_ptr<OcrEngine> ocrEngine;
 #endif

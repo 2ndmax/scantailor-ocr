@@ -171,6 +171,14 @@ class ApplicationSettings {
   static const int MIN_DESKEW_HANDLE_DISTANCE;
   static const int MAX_DESKEW_HANDLE_DISTANCE;
 
+  /**
+   * The processor threads for all parallel work (see ThreadBudget), 1 to ThreadBudget::availableThreads().
+   * Without an entry ThreadBudget::defaultThreads().  Setting it also sets the ThreadBudget.
+   */
+  int getProcessingThreads() const;
+
+  void setProcessingThreads(int threads);
+
   /** PDF export: compression of grayscale / colour pages and backgrounds, a PdfCompression value. */
   int getPdfColorCompression() const;
 
@@ -285,6 +293,7 @@ class ApplicationSettings {
   static const QString DEFAULT_ZONE_CREATION_MODE_KEY;
   static const QString OUTPUT_SHOW_GUIDES_KEY;
   static const QString DESKEW_HANDLE_DISTANCE_KEY;
+  static const QString PROCESSING_THREADS_KEY;
 
   static const int DEFAULT_ZONE_CREATION_MODE;  // 0 = polygonal
   static const bool DEFAULT_OUTPUT_SHOW_GUIDES;

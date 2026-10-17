@@ -11,8 +11,8 @@
 #include <QFile>
 #include <QImage>
 #include <QSemaphore>
-#include <QThread>
 #include <algorithm>
+#include <atomic>
 #include <csetjmp>
 #include <cstdint>
 #include <cstdio>
@@ -23,6 +23,7 @@
 
 #include "ImageLoadErrors.h"
 #include "NonCopyable.h"
+#include "ThreadBudget.h"
 #include "TiffReader.h"
 #include "jbig2enc/jbig2arith.h"
 
@@ -641,9 +642,13 @@ float jp2Psnr(const int quality) {
 
 /**
  * An encoder holds the whole image several times over, a large colour page takes some
- * hundred MB.  So only a few encode at the same time, each with a share of the cores.
+ * hundred MB.  So only a few encode at the same time.  They share the thread limit (see
+ * ThreadBudget): each gets the limit divided by the encodes running when it starts, so a
+ * single encode uses all threads and four use a quarter each.
  */
 const int kMaxParallelJp2Encodes = 4;
+
+std::atomic<int> g_runningJp2Encodes{0};
 
 QSemaphore& jp2EncodeSlots() {
   static QSemaphore semaphore(kMaxParallelJp2Encodes);
@@ -662,7 +667,11 @@ QByteArray PdfImageEncoder::encodeJpeg2000(const QImage& image, const int qualit
   const int height = image.height();
 
   jp2EncodeSlots().acquire();
-  const std::unique_ptr<QSemaphore, void (*)(QSemaphore*)> slot(&jp2EncodeSlots(), [](QSemaphore* s) { s->release(); });
+  const std::unique_ptr<QSemaphore, void (*)(QSemaphore*)> slot(&jp2EncodeSlots(), [](QSemaphore* s) {
+    --g_runningJp2Encodes;
+    s->release();
+  });
+  const int runningEncodes = ++g_runningJp2Encodes;
 
   opj_cparameters_t parameters;
   opj_set_default_encoder_parameters(&parameters);
@@ -725,7 +734,8 @@ QByteArray PdfImageEncoder::encodeJpeg2000(const QImage& image, const int qualit
   opj_set_warning_handler(codec.get(), &jp2SilentHandler, nullptr);
   opj_set_info_handler(codec.get(), &jp2SilentHandler, nullptr);
   // Without thread support in OpenJPEG, this fails and it encodes with one thread.
-  opj_codec_set_threads(codec.get(), std::max(1, QThread::idealThreadCount() / kMaxParallelJp2Encodes));
+  // Its share of the thread limit, see kMaxParallelJp2Encodes.
+  opj_codec_set_threads(codec.get(), std::max(1, ThreadBudget::maxThreads() / runningEncodes));
   if (!opj_setup_encoder(codec.get(), &parameters, jp2Image.get())) {
     return QByteArray();
   }
