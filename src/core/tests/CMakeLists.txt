@@ -39,3 +39,4 @@ target_link_libraries(
     PRIVATE core dewarping TIFF::TIFF JPEG::JPEG ${OPENJPEG_TARGET} Boost::unit_test_framework ${EXTRA_LIBS})
 
 add_test(NAME core_tests COMMAND core_tests --log_level=message)
+set_unit_test_environment(core_tests)

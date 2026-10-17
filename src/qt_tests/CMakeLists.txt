@@ -21,8 +21,4 @@ set_source_files_properties(
                              "$<TARGET_PROPERTY:fix_orientation,BINARY_DIR>/fix_orientation_autogen/include")
 
 add_test(NAME qt_tests COMMAND qt_tests)
-# No windows are shown, so on Linux the tests also run without a display (build-deb.sh).
-# Not on Windows: there is always a display, and the build directory has no offscreen plugin.
-if (UNIX)
-  set_tests_properties(qt_tests PROPERTIES ENVIRONMENT QT_QPA_PLATFORM=offscreen)
-endif()
+set_unit_test_environment(qt_tests)

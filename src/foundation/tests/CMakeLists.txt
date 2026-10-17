@@ -14,3 +14,4 @@ target_link_libraries(
     PRIVATE foundation Boost::unit_test_framework ${EXTRA_LIBS})
 
 add_test(NAME foundation_tests COMMAND foundation_tests --log_level=message)
+set_unit_test_environment(foundation_tests)

@@ -35,3 +35,4 @@ target_link_libraries(
     Boost::unit_test_framework ${EXTRA_LIBS})
 
 add_test(NAME imageproc_tests COMMAND imageproc_tests --log_level=message)
+set_unit_test_environment(imageproc_tests)

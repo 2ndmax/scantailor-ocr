@@ -1,5 +1,15 @@
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 
+# Every test directory calls this right after add_test(), so that every ctest run
+# (CI, build-deb.sh, local) gets the same environment.
+# The tests show no windows, so on Linux they also run without a display.
+# Not on Windows: there is always a display, and the build directory has no offscreen plugin.
+function(set_unit_test_environment test_name)
+  if (UNIX)
+    set_tests_properties(${test_name} PROPERTIES ENVIRONMENT QT_QPA_PLATFORM=offscreen)
+  endif()
+endfunction()
+
 add_subdirectory(foundation)
 add_subdirectory(math)
 add_subdirectory(imageproc)

@@ -38,9 +38,7 @@ jobs:
       # Failing tests fail the build.
       - name: Run tests
         working-directory: build
-        env:
-          # The tests don't need a display.
-          QT_QPA_PLATFORM: offscreen
+        # No display needed: CMake runs every test with QT_QPA_PLATFORM=offscreen on Linux.
         run: ctest -C Release --output-on-failure
 
   build-windows:

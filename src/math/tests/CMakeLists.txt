@@ -15,3 +15,4 @@ target_link_libraries(
     PRIVATE math Boost::unit_test_framework ${EXTRA_LIBS})
 
 add_test(NAME math_tests COMMAND math_tests --log_level=message)
+set_unit_test_environment(math_tests)
