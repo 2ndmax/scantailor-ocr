@@ -18,8 +18,9 @@ using namespace output;
 using namespace page_layout;
 
 DefaultParamsProfileManager::DefaultParamsProfileManager() {
-  auto* app = static_cast<Application*>(qApp);
-  if (app->isPortableVersion()) {
+  // qApp is a plain QApplication in the tests, not an Application.
+  auto* app = qobject_cast<Application*>(qApp);
+  if (app != nullptr && app->isPortableVersion()) {
     m_path = app->getPortableConfigPath() + "/profiles";
   } else {
     m_path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/profiles";

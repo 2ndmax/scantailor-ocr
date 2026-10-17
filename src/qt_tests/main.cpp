@@ -7,10 +7,21 @@
 #include "tst_ux_qt.h"
 
 #include <QApplication>
+#include <QSettings>
+#include <QStandardPaths>
+#include <QTemporaryDir>
 #include <QtTest/QtTest>
 
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
+
+  // Keep the tests away from persistent state: the settings (ApplicationSettings) go to an INI
+  // file in a temporary folder, the standard paths (e.g. the profile folder) to Qt's test folders.
+  QStandardPaths::setTestModeEnabled(true);
+  QTemporaryDir settingsDir;
+  QSettings::setDefaultFormat(QSettings::IniFormat);
+  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDir.path());
+
   int status = 0;
 
   TestCoreQt tc1;
