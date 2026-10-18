@@ -32,7 +32,7 @@ TessdataDownloadDialog::TessdataDownloadDialog(QWidget* parent) : QDialog(parent
   auto* layout = new QVBoxLayout(this);
   auto* intro = new QLabel(
       tr("Language files of the \"tessdata_best\" collection of the Tesseract project, which give the best "
-         "recognition.  Tick the languages you need and click \"Download\"."));
+         "recognition. Tick the languages you need and click \"Download\"."));
   intro->setWordWrap(true);
   layout->addWidget(intro);
 
@@ -103,7 +103,7 @@ void TessdataDownloadDialog::listReady(const std::vector<TessdataFile>& files, c
   if (!error.isEmpty()) {
     m_statusLabel->setText(
         tr("The list of languages could not be loaded from GitHub: %1\n\nWithout an internet connection, the "
-           "installed languages can still be used.  Language files can also be copied by hand into %2.")
+           "installed languages can still be used. Language files can also be copied by hand into %2.")
             .arg(error, QDir::toNativeSeparators(OcrLanguages::programDir())));
     return;
   }

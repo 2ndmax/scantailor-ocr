@@ -149,7 +149,7 @@
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>Sets this resolution for the images selected in the list.  OK takes over the resolutions of all images.</string>
+         <string>Sets this resolution for the images selected in the list. OK takes over the resolutions of all images.</string>
         </property>
         <property name="text">
          <string>Apply to selection</string>

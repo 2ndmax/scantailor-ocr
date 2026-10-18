@@ -48,7 +48,7 @@ AutoImportPanel::AutoImportPanel(QWidget* parent) : QWidget(parent) {
   m_insertAfterMode = new QRadioButton(tr("Insert after selected page"));
   m_insertAfterMode->setToolTip(
       tr("New scans follow the page selected now, one after the other, and are named after it, so they are "
-         "also sorted after it in the folder.  Selecting another page continues there."));
+         "also sorted after it in the folder. Selecting another page continues there."));
   m_replaceMode = new QRadioButton;
   setReplaceSelection(1, true);
   m_modes = new QButtonGroup(this);
@@ -107,8 +107,8 @@ void AutoImportPanel::setReplaceSelection(const int count, const bool contiguous
                                      : tr("Replace selected page with next scan"));
   m_replaceMode->setToolTip(
       contiguous ? tr("The next scan takes the place of the selected pages and is named after the first of them; "
-                      "for a two-page scan, both pages are replaced.  The old images are moved to the folder "
-                      "\"replaced\" next to them, and their output files are deleted.  Further scans are then "
+                      "for a two-page scan, both pages are replaced. The old images are moved to the folder "
+                      "\"replaced\" next to them, and their output files are deleted. Further scans are then "
                       "inserted after the new one.")
                  : tr("Only pages next to each other can be replaced together."));
   m_replaceContiguous = contiguous;
@@ -132,7 +132,7 @@ bool AutoImportPanel::isImporting() const {
 void AutoImportPanel::setImportPossible(const bool possible) {
   m_importCheck->setEnabled(possible);
   m_importCheck->setToolTip(possible ? tr("New images saved to the folder below are added to the project "
-                                          "automatically.  Images that are already there when this is switched "
+                                          "automatically. Images that are already there when this is switched "
                                           "on can be chosen once.")
                                      : tr("Save the project first."));
   if (!possible) {

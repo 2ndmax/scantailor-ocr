@@ -190,9 +190,9 @@ void OptionsWidget::setupTiffCompressionPanel() {
   auto* group = new CollapsibleGroupBox(tr("TIFF Compression"));
   group->setObjectName("tiffCompressionPanel");
   group->setToolTip(
-      tr("Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed "
-         "separately, so this doesn't change it.  After a change, the output of this project is created again: the "
-         "current page right away, the other pages during the next batch processing.  Other projects keep their "
+      tr("Compression of the TIFF files in the output folder. Applies to all projects. The PDF is compressed "
+         "separately, so this doesn't change it. After a change, the output of this project is created again: the "
+         "current page right away, the other pages during the next batch processing. Other projects keep their "
          "files until their pages are processed again."));
   auto* layout = new QFormLayout(group);
   // The lists keep their width instead of filling a widened panel, as in the PDF step.
@@ -243,12 +243,12 @@ void OptionsWidget::setupTiffCompressionPanel() {
   core::Utils::setNumberFieldWidth(m_tiffJpegQuality, -100, 0);
   m_tiffJpegQuality->setValue(settings.getTiffJpegQuality());
   m_tiffJpegQuality->setToolTip(
-      tr("Higher values give better pictures and larger files.  Only used with JPEG compression."));
+      tr("Higher values give better pictures and larger files. Only used with JPEG compression."));
   layout->addRow(tr("Quality:"), m_tiffJpegQuality);
 
   // Posterized pages.
   addHeading(tr("Posterized Pages"),
-             tr("Color pages that were posterized, and posterized pictures of pages with split output.  Posterized "
+             tr("Color pages that were posterized, and posterized pictures of pages with split output. Posterized "
                 "grayscale pages can't be told apart from other grayscale pages; they follow \"Color and "
                 "Grayscale\"."),
              false);

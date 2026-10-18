@@ -2109,7 +2109,7 @@ bool MainWindow::closeProjectInteractive() {
 
   if (m_pdfView && m_pdfView->isRunning()) {
     const QMessageBox::StandardButton answer
-        = QMessageBox::question(this, tr("Create PDF"), tr("A PDF is being created.  Do you want to cancel it?"),
+        = QMessageBox::question(this, tr("Create PDF"), tr("A PDF is being created. Do you want to cancel it?"),
                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (answer != QMessageBox::Yes) {
       return false;
@@ -2675,7 +2675,7 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
     bool contiguous = false;
     const std::vector<ImageId> selected = imagesToReplace(&contiguous);
     if (!contiguous) {
-      showImportWarning(tr("Only pages next to each other can be replaced together.  The new scan %1 is added at "
+      showImportWarning(tr("Only pages next to each other can be replaced together. The new scan %1 is added at "
                            "the end.")
                             .arg(scan.fileInfo().fileName()));
     } else if (!selected.empty()) {

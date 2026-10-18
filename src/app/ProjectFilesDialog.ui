@@ -85,7 +85,7 @@
    <item>
     <widget class="QCheckBox" name="importNewScansCB">
      <property name="toolTip">
-      <string>New images saved to the input folder are added to the project automatically.  The project may then start empty.</string>
+      <string>New images saved to the input folder are added to the project automatically. The project may then start empty.</string>
      </property>
      <property name="text">
       <string>Import new scans automatically from input folder</string>

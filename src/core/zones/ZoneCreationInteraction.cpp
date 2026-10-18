@@ -301,28 +301,28 @@ void ZoneCreationInteraction::updateStatusTip() {
   const bool atFirstVertex = (m_nextVertexImagePos == m_spline->firstVertex()->point());
   switch (currentZoneCreationMode()) {
     case ZoneCreationMode::RECTANGULAR:
-      tip = tr("Rectangle selection: move to the opposite corner and click to finish.  ESC to cancel.");
+      tip = tr("Rectangle selection: move to the opposite corner and click to finish. ESC to cancel.");
       break;
     case ZoneCreationMode::LASSO:
       if (m_spline->hasAtLeastSegments(2) && atFirstVertex) {
-        tip = tr("Lasso selection: click here to close the zone.  ESC to cancel.");
+        tip = tr("Lasso selection: click here to close the zone. ESC to cancel.");
       } else {
         tip = tr(
             "Lasso selection: hold the left mouse button and draw around the area. "
-            "The zone closes when you reach the starting point.  ESC to cancel.");
+            "The zone closes when you reach the starting point. ESC to cancel.");
       }
       break;
     case ZoneCreationMode::POLYGONAL:
       if (m_spline->hasAtLeastSegments(2) && atFirstVertex) {
-        tip = tr("Polygon selection: click here to close the zone.  ESC to cancel.");
+        tip = tr("Polygon selection: click here to close the zone. ESC to cancel.");
       } else if (m_spline->hasAtLeastSegments(2)) {
         tip = tr(
-            "Polygon selection: click to add a corner, click the first corner to close the zone.  "
+            "Polygon selection: click to add a corner, click the first corner to close the zone. "
             "ESC to cancel.");
       } else {
         tip = tr(
-            "Polygon selection: click to add corners. Clicking the last corner again removes it.  "
-            "X switches to lasso.  ESC to cancel.");
+            "Polygon selection: click to add corners. Clicking the last corner again removes it. "
+            "X switches to lasso. ESC to cancel.");
       }
       break;
   }

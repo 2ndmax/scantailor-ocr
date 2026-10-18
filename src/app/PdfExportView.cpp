@@ -269,10 +269,10 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   m_allButton->setToolTip(tr("Include all output pages in the PDF."));
   m_noneButton->setToolTip(tr("Exclude all pages from the PDF."));
   m_forwardButton->setToolTip(
-      tr("Move the selected pages one place towards the start of the PDF.  Pages can also be moved with drag "
+      tr("Move the selected pages one place towards the start of the PDF. Pages can also be moved with drag "
          "and drop."));
   m_backButton->setToolTip(
-      tr("Move the selected pages one place towards the end of the PDF.  Pages can also be moved with drag and "
+      tr("Move the selected pages one place towards the end of the PDF. Pages can also be moved with drag and "
          "drop."));
   listButtons->addWidget(m_allButton);
   listButtons->addWidget(m_noneButton);
@@ -378,7 +378,7 @@ QWidget* PdfExportView::createOptionsWidget() {
     box->setCurrentIndex(index);
   };
   const QString qualityToolTip = tr(
-      "Higher values give better pictures and larger files.  Only used with JPEG and JPEG 2000.  With "
+      "Higher values give better pictures and larger files. Only used with JPEG and JPEG 2000. With "
       "JPEG 2000, 100 is lossless; with JPEG, it's only nearly lossless.");
 
   // Color and grayscale.
@@ -393,9 +393,9 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_colorCompression->addItem(QStringLiteral("JPEG 2000"), static_cast<int>(PdfCompression::JPEG2000));
   selectData(m_colorCompression, settings.getPdfColorCompression(), PdfCompression::JPEG);
   m_colorCompression->setToolTip(
-      tr("JPEG makes small files and loses a little quality, mostly at the edges of text.  JPEG 2000 looks "
+      tr("JPEG makes small files and loses a little quality, mostly at the edges of text. JPEG 2000 looks "
          "better at the same size, or makes smaller files at the same quality, but takes much longer to create, "
-         "and some simple or old PDF programs can't show it.  Deflate is lossless, but makes the PDF very large: "
+         "and some simple or old PDF programs can't show it. Deflate is lossless, but makes the PDF very large: "
          "a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB."));
   optionsLayout->addRow(tr("Method:"), m_colorCompression);
 
@@ -412,7 +412,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_backgroundScale->setCurrentIndex(std::max(0, m_backgroundScale->findData(settings.getPdfBackgroundScale())));
   m_backgroundScale->setToolTip(
       tr("Resolution of the background layer of pages with split output, that is of the pictures, relative to "
-         "the output resolution.  The text is always stored at full resolution."));
+         "the output resolution. The text is always stored at full resolution."));
   auto* backgroundScaleLabel = new QLabel(tr("Background layer:"));
   backgroundScaleLabel->setToolTip(m_backgroundScale->toolTip());
   optionsLayout->addRow(backgroundScaleLabel, m_backgroundScale);
@@ -420,7 +420,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   // Posterized pages.
   addHeading(tr("Posterized Pages"),
              tr("Color pages that were posterized in the Output stage, and posterized pictures of pages with split "
-                "output.  Posterized grayscale pages can't be told apart from other grayscale pages; they follow "
+                "output. Posterized grayscale pages can't be told apart from other grayscale pages; they follow "
                 "\"Color and Grayscale\"."),
              false);
   m_paletteCompression = new QComboBox;
@@ -430,9 +430,9 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_paletteCompression->addItem(QStringLiteral("JPEG 2000"), static_cast<int>(PdfCompression::JPEG2000));
   selectData(m_paletteCompression, settings.getPdfPaletteCompression(), PdfCompression::DEFLATE);
   m_paletteCompression->setToolTip(
-      tr("Deflate is lossless and keeps the few colors exactly, which makes small and sharp files.  JPEG and "
+      tr("Deflate is lossless and keeps the few colors exactly, which makes small and sharp files. JPEG and "
          "JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file "
-         "larger.  None is lossless, but large."));
+         "larger. None is lossless, but large."));
   optionsLayout->addRow(tr("Method:"), m_paletteCompression);
 
   m_paletteQuality = new QSpinBox;
@@ -450,8 +450,8 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_bitonalCompression->addItem(QStringLiteral("JBIG2"), static_cast<int>(PdfCompression::JBIG2));
   selectData(m_bitonalCompression, settings.getPdfBitonalCompression(), PdfCompression::JBIG2);
   m_bitonalCompression->setToolTip(
-      tr("All methods are lossless.  JBIG2 makes the smallest files.  CCITT G4 files are about a third larger, but "
-         "can be shown by very old PDF programs, too.  Deflate and None make much larger files."));
+      tr("All methods are lossless. JBIG2 makes the smallest files. CCITT G4 files are about a third larger, but "
+         "can be shown by very old PDF programs, too. Deflate and None make much larger files."));
   optionsLayout->addRow(tr("Method:"), m_bitonalCompression);
 
   // The lists of the group line up.
@@ -484,7 +484,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_ocrEnabled = new QCheckBox(tr("Recognize text"));
   m_ocrEnabled->setChecked(settings.isPdfOcrEnabled());
   m_ocrEnabled->setToolTip(
-      tr("Adds an invisible text layer, so the text of the PDF can be searched, selected and copied.  Text "
+      tr("Adds an invisible text layer, so the text of the PDF can be searched, selected and copied. Text "
          "recognition takes a few seconds per page."));
   // The button shares the line of the check box, as in the Automatic Import panel.  It stays
   // usable while text recognition is off, so languages can be added first.
@@ -506,14 +506,14 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_languageList = new QListWidget;
   m_languageList->setSelectionMode(QAbstractItemView::NoSelection);
   m_languageList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  m_languageList->setToolTip(tr("Tick the languages of the text.  Several languages can be ticked."));
+  m_languageList->setToolTip(tr("Tick the languages of the text. Several languages can be ticked."));
   ocrLayout->addWidget(m_languageList);
 
   QStringList dirs;
   for (const QString& dir : OcrLanguages::searchDirs()) {
     dirs.push_back(QDir::toNativeSeparators(dir));
   }
-  m_noLanguagesLabel = new QLabel(tr("No language files were found.  Download them with \"More languages\", or "
+  m_noLanguagesLabel = new QLabel(tr("No language files were found. Download them with \"More languages\", or "
                                      "put *.traineddata files (from tessdata_best) into one of these folders:")
                                   + QStringLiteral("\n") + dirs.join('\n'));
   m_noLanguagesLabel->setWordWrap(true);
@@ -531,10 +531,10 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_pageLayout->addItem(tr("Single block of text"), static_cast<int>(OcrEngine::SINGLE_BLOCK));
   m_pageLayout->setCurrentIndex(std::max(0, m_pageLayout->findData(settings.getPdfOcrPageLayout())));
   const QString textLayoutTip = tr(
-      "How the text is arranged on the pages.  This decides the order in which the text is recognized, "
-      "e.g. for searching and copying; the look of the PDF doesn't change.  \"Automatic\" detects columns, "
-      "pictures and captions and is usually right.  \"Single column\" helps if copied text comes out in the "
-      "wrong order, e.g. with indented lines or tables.  \"Single block of text\" suits pages with only one "
+      "How the text is arranged on the pages. This decides the order in which the text is recognized, "
+      "e.g. for searching and copying; the look of the PDF doesn't change. \"Automatic\" detects columns, "
+      "pictures and captions and is usually right. \"Single column\" helps if copied text comes out in the "
+      "wrong order, e.g. with indented lines or tables. \"Single block of text\" suits pages with only one "
       "short text, such as a label or a note.");
   m_pageLayout->setToolTip(textLayoutTip);
   auto* textLayoutLabel = new QLabel(tr("Text layout:"));
@@ -895,7 +895,7 @@ void PdfExportView::exportFinished() {
     }
   } else if (job->wasCancelled()) {
     m_progressBar->setValue(0);
-    m_statusLabel->setText(tr("Cancelled.  No PDF was written."));
+    m_statusLabel->setText(tr("Cancelled. No PDF was written."));
   } else {
     m_progressBar->setValue(0);
     m_statusLabel->setText(tr("The PDF could not be created."));

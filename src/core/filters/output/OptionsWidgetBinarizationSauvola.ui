@@ -47,7 +47,7 @@
      <item row="0" column="1">
       <widget class="QDoubleSpinBox" name="sauvolaDelta">
        <property name="toolTip">
-        <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</string>
+        <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</string>
        </property>
        <property name="decimals">
         <number>0</number>

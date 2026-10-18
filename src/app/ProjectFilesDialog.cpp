@@ -204,7 +204,7 @@ void ProjectFilesDialog::chooseExistingImages(const QString& dir, const std::vec
   m_existingImagesMode = true;
   setWindowTitle(tr("Images Already in the Folder"));
   introLabel->setText(
-      tr("These images are already in the folder %1, but not in the project.  Move those that are to be added to "
+      tr("These images are already in the folder %1, but not in the project. Move those that are to be added to "
          "the project to the right.")
           .arg(QDir::toNativeSeparators(dir)));
   introLabel->show();
@@ -452,7 +452,7 @@ bool ProjectFilesDialog::checkProjectFile() {
 
   if (fileInfo.exists()) {
     return QMessageBox::question(this, tr("Overwrite File?"),
-                                 tr("The project file %1 already exists.  Overwrite it?")
+                                 tr("The project file %1 already exists. Overwrite it?")
                                      .arg(QDir::toNativeSeparators(fileInfo.fileName())),
                                  QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
            == QMessageBox::Yes;
@@ -534,7 +534,7 @@ void ProjectFilesDialog::onOK() {
     // Maybe create it.
     bool create = m_autoOutDir;
     if (!m_autoOutDir) {
-      create = QMessageBox::question(this, tr("Create Folder?"), tr("Output folder doesn't exist.  Create it?"),
+      create = QMessageBox::question(this, tr("Create Folder?"), tr("Output folder doesn't exist. Create it?"),
                                      QMessageBox::Yes | QMessageBox::No)
                == QMessageBox::Yes;
       if (!create) {

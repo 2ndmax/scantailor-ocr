@@ -44,7 +44,7 @@
         <item>
          <widget class="QComboBox" name="dpiSelector">
           <property name="toolTip">
-           <string>Resolution of the output files of this page, from 72 to 1200 DPI.  Choose a value or type one in.  With dewarping &quot;Auto&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</string>
+           <string>Resolution of the output files of this page, from 72 to 1200 DPI. Choose a value or type one in. With dewarping &quot;Auto&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</string>
           </property>
           <property name="editable">
            <bool>true</bool>
@@ -137,7 +137,7 @@
           <item>
            <widget class="QCheckBox" name="blackOnWhiteCB">
             <property name="toolTip">
-             <string>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing.  Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection in the Output step&quot; are turned on in the settings.  A change made here by hand takes precedence over the detection.</string>
+             <string>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing. Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection in the Output step&quot; are turned on in the settings. A change made here by hand takes precedence over the detection.</string>
             </property>
             <property name="text">
              <string>Dark content on a light background</string>
@@ -188,7 +188,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Applies &quot;Dark content on a light background&quot; of this page to other pages.  There it counts as set by hand, so the automatic detection no longer changes it.</string>
+           <string>Applies &quot;Dark content on a light background&quot; of this page to other pages. There it counts as set by hand, so the automatic detection no longer changes it.</string>
           </property>
           <property name="text">
            <string>Apply to ...</string>
@@ -595,7 +595,7 @@
            <item>
             <widget class="QCheckBox" name="equalizeIlluminationCB">
              <property name="toolTip">
-              <string>Evens out uneven lighting, such as a shadow near the spine.  In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</string>
+              <string>Evens out uneven lighting, such as a shadow near the spine. In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</string>
              </property>
              <property name="text">
               <string>Equalize illumination</string>
@@ -610,7 +610,7 @@
              <item>
               <widget class="QCheckBox" name="equalizeIlluminationColorCB">
                <property name="toolTip">
-                <string>Mixed mode only: also evens out the lighting in the picture zones.  Needs &quot;Equalize illumination&quot;.</string>
+                <string>Mixed mode only: also evens out the lighting in the picture zones. Needs &quot;Equalize illumination&quot;.</string>
                </property>
                <property name="text">
                 <string>Also in picture zones</string>
@@ -693,7 +693,7 @@
              <item>
               <widget class="QCheckBox" name="chromaCB">
                <property name="toolTip">
-                <string>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters.  The brightness is not changed.</string>
+                <string>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters. The brightness is not changed.</string>
                </property>
                <property name="text">
                 <string>Remove color noise</string>
@@ -762,7 +762,7 @@
                 <item row="1" column="2">
                  <widget class="QSpinBox" name="chromaGrayLimit">
                   <property name="toolTip">
-                   <string>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay.  0 only smooths.</string>
+                   <string>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay. 0 only smooths.</string>
                   </property>
                   <property name="minimum">
                    <number>0</number>
@@ -878,7 +878,7 @@
                 <item row="2" column="1" colspan="2">
                  <widget class="QCheckBox" name="subtractBgWhiteCB">
                   <property name="toolTip">
-                   <string>Also takes the paper to white and removes a color cast such as yellowing.  Each color channel is evened out on its own, so the colors of pictures shift as well.</string>
+                   <string>Also takes the paper to white and removes a color cast such as yellowing. Each color channel is evened out on its own, so the colors of pictures shift as well.</string>
                   </property>
                   <property name="text">
                    <string>Make paper white</string>
@@ -1266,7 +1266,7 @@
            <item>
             <widget class="QCheckBox" name="fillOffcutCB">
              <property name="toolTip">
-              <string>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</string>
+              <string>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color. Otherwise it stays visible where the page reaches into it.</string>
              </property>
              <property name="text">
               <string>Fill offcut</string>
@@ -1300,7 +1300,7 @@
            <item>
             <widget class="QLabel" name="fillingColorLabel">
              <property name="toolTip">
-              <string>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</string>
+              <string>The color of the filled areas: the background color found on the page, white or black. In mixed mode, &quot;Background&quot; gives white.</string>
              </property>
              <property name="text">
               <string>Color:</string>
@@ -1310,7 +1310,7 @@
            <item>
             <widget class="QComboBox" name="fillingColorBox">
              <property name="toolTip">
-              <string>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</string>
+              <string>The color of the filled areas: the background color found on the page, white or black. In mixed mode, &quot;Background&quot; gives white.</string>
              </property>
             </widget>
            </item>
@@ -1359,7 +1359,7 @@
            <item>
             <widget class="QLabel" name="thresholMethodLabel">
              <property name="toolTip">
-              <string>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</string>
+              <string>How the page is converted to black and white. Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</string>
              </property>
              <property name="text">
               <string>Method:</string>
@@ -1369,7 +1369,7 @@
            <item>
             <widget class="QComboBox" name="thresholdMethodBox">
              <property name="toolTip">
-              <string>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</string>
+              <string>How the page is converted to black and white. Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</string>
              </property>
             </widget>
            </item>
@@ -1402,7 +1402,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="coloredDimmingLabel">
              <property name="toolTip">
-              <string>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear.  The more saturated a color, the stronger the effect.  0 changes nothing.</string>
+              <string>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear. The more saturated a color, the stronger the effect. 0 changes nothing.</string>
              </property>
              <property name="text">
               <string>Colored:</string>
@@ -1412,7 +1412,7 @@
            <item row="0" column="1" colspan="3">
             <widget class="QDoubleSpinBox" name="coloredDimmingSB">
              <property name="toolTip">
-              <string>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear.  The more saturated a color, the stronger the effect.  0 changes nothing.</string>
+              <string>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear. The more saturated a color, the stronger the effect. 0 changes nothing.</string>
              </property>
              <property name="keyboardTracking">
               <bool>false</bool>
@@ -1434,7 +1434,7 @@
            <item row="1" column="0">
             <widget class="QLabel" name="boundsLabel">
              <property name="toolTip">
-              <string>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes.  1 and 254 leave the method alone.</string>
+              <string>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes. 1 and 254 leave the method alone.</string>
              </property>
              <property name="text">
               <string>Bounds:</string>
@@ -1818,7 +1818,7 @@
              <item>
               <widget class="QLabel" name="colorReductionLabel">
                <property name="toolTip">
-                <string>How the colors are reduced to a few.  Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best).  Color pages: the whole page, by posterizing.</string>
+                <string>How the colors are reduced to a few. Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best). Color pages: the whole page, by posterizing.</string>
                </property>
                <property name="text">
                 <string>Reduce colors:</string>
@@ -1828,7 +1828,7 @@
              <item>
               <widget class="QComboBox" name="colorReductionCB">
                <property name="toolTip">
-                <string>How the colors are reduced to a few.  Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best).  Color pages: the whole page, by posterizing.</string>
+                <string>How the colors are reduced to a few. Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best). Color pages: the whole page, by posterizing.</string>
                </property>
               </widget>
              </item>
@@ -1923,7 +1923,7 @@
              <item row="0" column="2">
               <widget class="QLabel" name="posterizeLevelLabel">
                <property name="toolTip">
-                <string>Posterizing: how finely each color channel is divided.  4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</string>
+                <string>Posterizing: how finely each color channel is divided. 4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</string>
                </property>
                <property name="text">
                 <string>Level:</string>
@@ -1933,7 +1933,7 @@
              <item row="0" column="3">
               <widget class="QSpinBox" name="posterizeLevelSB">
                <property name="toolTip">
-                <string>Posterizing: how finely each color channel is divided.  4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</string>
+                <string>Posterizing: how finely each color channel is divided. 4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</string>
                </property>
                <property name="keyboardTracking">
                 <bool>false</bool>
@@ -2031,7 +2031,7 @@
            <item>
             <widget class="QComboBox" name="pictureShapeSelector">
              <property name="toolTip">
-              <string>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</string>
+              <string>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles. Pictures stay in color or grayscale, the rest becomes black and white.</string>
              </property>
             </widget>
            </item>
@@ -2231,7 +2231,7 @@
             <item>
              <widget class="QCheckBox" name="despeckleCB">
               <property name="toolTip">
-               <string>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</string>
+               <string>Removes small specks, such as dust and dirt, from the black and white result. The slider sets how strongly.</string>
               </property>
               <property name="text">
                <string>Despeckle</string>
@@ -2408,7 +2408,7 @@
         <item row="0" column="1">
          <widget class="QPushButton" name="dewarpingAutoBtn">
           <property name="toolTip">
-           <string>Finds the curvature of the lines of text automatically.  Experimental.</string>
+           <string>Finds the curvature of the lines of text automatically. Experimental.</string>
           </property>
           <property name="text">
            <string>Auto</string>
@@ -2424,7 +2424,7 @@
         <item row="1" column="0">
          <widget class="QPushButton" name="dewarpingMarginalBtn">
           <property name="toolTip">
-           <string>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</string>
+           <string>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</string>
           </property>
           <property name="text">
            <string>Marginal</string>
@@ -2458,7 +2458,7 @@
       <item>
        <widget class="QCheckBox" name="dewarpingPostDeskewCB">
         <property name="toolTip">
-         <string>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</string>
+         <string>Straightens the page once more after dewarping. Only used with Manual and Marginal.</string>
         </property>
         <property name="text">
          <string>Post deskew</string>
@@ -2468,7 +2468,7 @@
       <item>
        <widget class="QWidget" name="depthPerceptionPanel" native="true">
         <property name="toolTip">
-         <string>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</string>
+         <string>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_8">
          <property name="leftMargin">
@@ -2552,7 +2552,7 @@
       <item>
        <widget class="QCheckBox" name="evenOutLetterWidthsCB">
         <property name="toolTip">
-         <string>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</string>
+         <string>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</string>
         </property>
         <property name="text">
          <string>Even out letter widths</string>
@@ -2614,7 +2614,7 @@
    <item>
     <widget class="CollapsibleGroupBox" name="photoAdjustmentsPanel">
      <property name="toolTip">
-      <string>Adjusts the pictures after processing, like a photo editor.  In mixed mode only the picture zones are changed, the text stays black and white.  Not used in black and white mode.</string>
+      <string>Adjusts the pictures after processing, like a photo editor. In mixed mode only the picture zones are changed, the text stays black and white. Not used in black and white mode.</string>
      </property>
      <property name="title">
       <string>Photo Adjustments</string>
@@ -2669,7 +2669,7 @@
       <item>
        <widget class="QCheckBox" name="keepWhiteCB">
         <property name="toolTip">
-         <string>Color / grayscale mode only: pure white stays white, such as a background made white.  The margins are never changed.</string>
+         <string>Color / grayscale mode only: pure white stays white, such as a background made white. The margins are never changed.</string>
         </property>
         <property name="text">
          <string>Keep white</string>

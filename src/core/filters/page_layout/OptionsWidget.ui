@@ -28,7 +28,7 @@
         <item>
          <widget class="QLabel" name="sourceDpiLabel">
           <property name="toolTip">
-           <string>Resolution of the scanned image (horizontal × vertical).  It applies right away to the whole image, so to both pages of a split scan.  Sizes and margins in millimetres or inches depend on it.</string>
+           <string>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimetres or inches depend on it.</string>
           </property>
           <property name="text">
            <string>Resolution:</string>
@@ -110,7 +110,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Opens a window with the DPI of all images of the project, where you can check and correct them.  The same as Tools &gt; Fix DPI of All Images ...</string>
+           <string>Opens a window with the DPI of all images of the project, where you can check and correct them. The same as Tools &gt; Fix DPI of All Images ...</string>
           </property>
           <property name="text">
            <string>Fix DPI of all images ...</string>
@@ -448,8 +448,8 @@ QToolButton:pressed {
          <widget class="QLabel" name="matchSizeLabel">
           <property name="toolTip">
            <string>Off: the page keeps its own size and is not part of the common size.
-Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;.  The content keeps its size; only pages larger than an own target size are reduced.
-Scale: the content is enlarged or reduced to fit the output size, within the limits below.  The margins keep their size; the rest is filled with margins.</string>
+Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
+Scale: the content is enlarged or reduced to fit the output size, within the limits below. The margins keep their size; the rest is filled with margins.</string>
           </property>
           <property name="text">
            <string>Match size:</string>
@@ -460,8 +460,8 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
          <widget class="QComboBox" name="matchSizeModeCB">
           <property name="toolTip">
            <string>Off: the page keeps its own size and is not part of the common size.
-Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;.  The content keeps its size; only pages larger than an own target size are reduced.
-Scale: the content is enlarged or reduced to fit the output size, within the limits below.  The margins keep their size; the rest is filled with margins.</string>
+Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
+Scale: the content is enlarged or reduced to fit the output size, within the limits below. The margins keep their size; the rest is filled with margins.</string>
           </property>
           <item>
            <property name="text">
@@ -547,7 +547,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <item>
          <widget class="QLabel" name="commonSizeLabel">
           <property name="toolTip">
-           <string>The largest width and the largest height of all pages whose size is matched, margins included.  Without an own target size, it is the output size.</string>
+           <string>The largest width and the largest height of all pages whose size is matched, margins included. Without an own target size, it is the output size.</string>
           </property>
           <property name="text">
            <string>Common size:</string>
@@ -557,7 +557,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <item>
          <widget class="QLabel" name="commonSizeValue">
           <property name="toolTip">
-           <string>The largest width and the largest height of all pages whose size is matched, margins included.  Without an own target size, it is the output size.</string>
+           <string>The largest width and the largest height of all pages whose size is matched, margins included. Without an own target size, it is the output size.</string>
           </property>
           <property name="text">
            <string notr="true"/>
@@ -582,7 +582,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
       <item>
        <widget class="QCheckBox" name="ownTargetSizeCB">
         <property name="toolTip">
-         <string>Sets the output size by hand instead of using the common size.  Turned on, the fields start with the common size.  Pages larger than this size are reduced.</string>
+         <string>Sets the output size by hand instead of using the common size. Turned on, the fields start with the common size. Pages larger than this size are reduced.</string>
         </property>
         <property name="text">
          <string>Own target size</string>
@@ -760,7 +760,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
            </size>
           </property>
           <property name="toolTip">
-           <string>Applies &quot;Match size&quot; of this page to other pages.  The settings under &quot;All Pages&quot; apply to all pages anyway.</string>
+           <string>Applies &quot;Match size&quot; of this page to other pages. The settings under &quot;All Pages&quot; apply to all pages anyway.</string>
           </property>
           <property name="text">
            <string>Apply to ...</string>
@@ -1153,7 +1153,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
            </size>
           </property>
           <property name="toolTip">
-           <string>Applies the alignment of this page to other pages: the modes and the position.  Whether the size is matched is applied under &quot;Output Size&quot;.</string>
+           <string>Applies the alignment of this page to other pages: the modes and the position. Whether the size is matched is applied under &quot;Output Size&quot;.</string>
           </property>
           <property name="text">
            <string>Apply to ...</string>

@@ -422,7 +422,7 @@ QToolButton:pressed {
           </size>
          </property>
          <property name="toolTip">
-          <string>Magnify thumbnails.  (Ctrl++)</string>
+          <string>Magnify thumbnails. (Ctrl++)</string>
          </property>
          <property name="styleSheet">
           <string notr="true">QToolButton:!hover {
@@ -479,7 +479,7 @@ QToolButton:pressed {
           </size>
          </property>
          <property name="toolTip">
-          <string>Diminish thumbnails.  (Ctrl+-)</string>
+          <string>Diminish thumbnails. (Ctrl+-)</string>
          </property>
          <property name="styleSheet">
           <string notr="true">QToolButton:!hover {
@@ -546,7 +546,7 @@ QToolButton:pressed {
           </size>
          </property>
          <property name="toolTip">
-          <string>Go to page ...  (Ctrl+G)</string>
+          <string>Go to page ... (Ctrl+G)</string>
          </property>
          <property name="styleSheet">
           <string notr="true">QToolButton:!hover {

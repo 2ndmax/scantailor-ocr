@@ -42,7 +42,7 @@
       <item>
        <widget class="QCheckBox" name="applyCutOption">
         <property name="toolTip">
-         <string>The position of the split line, adapted to the size of each page.  Without it, each page keeps its own split line or detects one.  Only for a page type set by hand that has a split line.</string>
+         <string>The position of the split line, adapted to the size of each page. Without it, each page keeps its own split line or detects one. Only for a page type set by hand that has a split line.</string>
         </property>
         <property name="text">
          <string>Split line</string>

@@ -301,7 +301,7 @@ bool PdfExportJob::preparePage(const PdfExportPage& page,
         }
         // The page was checked when the dialog opened, but the files may have been written again since.
         if (background.size() != foreground.size()) {
-          errors->push_back(describeFailure(tr("The split output files of %1 differ in size.  Process the page again."),
+          errors->push_back(describeFailure(tr("The split output files of %1 differ in size. Process the page again."),
                                             page.mainFile(), QStringList()));
           return false;
         }

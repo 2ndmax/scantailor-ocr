@@ -190,7 +190,7 @@ void RelinkingDialog::okClicked() {
     if (!isExistingDir(outDir)) {
       if (QMessageBox::question(
               this, QCoreApplication::translate("ProjectFilesDialog", "Create Folder?"),
-              QCoreApplication::translate("ProjectFilesDialog", "Output folder doesn't exist.  Create it?"),
+              QCoreApplication::translate("ProjectFilesDialog", "Output folder doesn't exist. Create it?"),
               QMessageBox::Yes | QMessageBox::No)
           != QMessageBox::Yes) {
         return;

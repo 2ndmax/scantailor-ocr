@@ -29,7 +29,7 @@ Filter::Filter(std::shared_ptr<ProjectPages> pageSequence, const PageSelectionAc
   m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
   m_pageOrderOptions.emplace_back(
       tr("Order by split type"), orderBySplitType,
-      tr("One page first, then one page and a strip to cut off, then two pages, each in natural order.  "
+      tr("One page first, then one page and a strip to cut off, then two pages, each in natural order. "
          "Pages not processed yet come last."));
 }
 

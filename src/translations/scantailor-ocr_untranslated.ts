@@ -144,7 +144,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="50"/>
-        <source>New scans follow the page selected now, one after the other, and are named after it, so they are also sorted after it in the folder.  Selecting another page continues there.</source>
+        <source>New scans follow the page selected now, one after the other, and are named after it, so they are also sorted after it in the folder. Selecting another page continues there.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -171,7 +171,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="109"/>
-        <source>The next scan takes the place of the selected pages and is named after the first of them; for a two-page scan, both pages are replaced.  The old images are moved to the folder &quot;replaced&quot; next to them, and their output files are deleted.  Further scans are then inserted after the new one.</source>
+        <source>The next scan takes the place of the selected pages and is named after the first of them; for a two-page scan, both pages are replaced. The old images are moved to the folder &quot;replaced&quot; next to them, and their output files are deleted. Further scans are then inserted after the new one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -181,7 +181,7 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="134"/>
-        <source>New images saved to the folder below are added to the project automatically.  Images that are already there when this is switched on can be chosen once.</source>
+        <source>New images saved to the folder below are added to the project automatically. Images that are already there when this is switched on can be chosen once.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -555,8 +555,8 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <location filename="../app/DefaultParamsDialog.ui" line="1525"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1537"/>
         <source>Off: the page keeps its own size and is not part of the common size.
-Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;.  The content keeps its size; only pages larger than an own target size are reduced.
-Scale: the content is enlarged or reduced to fit the output size, within the limits set in the step &quot;Margins&quot; under &quot;Output Size&quot;.  The margins keep their size; the rest is filled with margins.</source>
+Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
+Scale: the content is enlarged or reduced to fit the output size, within the limits set in the step &quot;Margins&quot; under &quot;Output Size&quot;. The margins keep their size; the rest is filled with margins.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -582,7 +582,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1579"/>
-        <source>New projects start with this output size instead of the common size.  Pages larger than this size are reduced.  It applies to the whole project and can be changed in the step &quot;Margins&quot;.</source>
+        <source>New projects start with this output size instead of the common size. Pages larger than this size are reduced. It applies to the whole project and can be changed in the step &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -594,7 +594,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <location filename="../app/DefaultParamsDialog.ui" line="1594"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1604"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1621"/>
-        <source>Width × height of the output pages, margins included.  Pixels refer to the output resolution.</source>
+        <source>Width × height of the output pages, margins included. Pixels refer to the output resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -670,13 +670,13 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <location filename="../app/DefaultParamsDialog.ui" line="3010"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3056"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3163"/>
-        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</source>
+        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3261"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3271"/>
-        <source>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear.  The more saturated a color, the stronger the effect.  0 changes nothing.</source>
+        <source>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear. The more saturated a color, the stronger the effect. 0 changes nothing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -686,7 +686,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3293"/>
-        <source>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes.  1 and 254 leave the method alone.</source>
+        <source>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes. 1 and 254 leave the method alone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -738,7 +738,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3730"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3740"/>
-        <source>Posterizing: how finely each color channel is divided.  4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</source>
+        <source>Posterizing: how finely each color channel is divided. 4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -800,7 +800,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2324"/>
-        <source>Evens out uneven lighting, such as a shadow near the spine.  In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</source>
+        <source>Evens out uneven lighting, such as a shadow near the spine. In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -810,7 +810,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2339"/>
-        <source>Mixed mode only: also evens out the lighting in the picture zones.  Needs &quot;Equalize illumination&quot;.</source>
+        <source>Mixed mode only: also evens out the lighting in the picture zones. Needs &quot;Equalize illumination&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -825,7 +825,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2406"/>
-        <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters.  The brightness is not changed.</source>
+        <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters. The brightness is not changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -845,7 +845,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2475"/>
-        <source>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay.  0 only smooths.</source>
+        <source>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay. 0 only smooths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -878,7 +878,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2591"/>
-        <source>Also takes the paper to white and removes a color cast such as yellowing.  Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
+        <source>Also takes the paper to white and removes a color cast such as yellowing. Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -923,7 +923,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3954"/>
-        <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</source>
+        <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color. Otherwise it stays visible where the page reaches into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -953,7 +953,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4580"/>
-        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
+        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1105,7 +1105,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4496"/>
-        <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
+        <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1200,13 +1200,13 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3988"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3998"/>
-        <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
+        <source>The color of the filled areas: the background color found on the page, white or black. In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2953"/>
         <location filename="../app/DefaultParamsDialog.ui" line="2963"/>
-        <source>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
+        <source>How the page is converted to black and white. Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1232,7 +1232,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3625"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3635"/>
-        <source>How the colors are reduced to a few.  Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best).  Color pages: the whole page, by posterizing.</source>
+        <source>How the colors are reduced to a few. Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best). Color pages: the whole page, by posterizing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1242,7 +1242,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3821"/>
-        <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
+        <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles. Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1333,7 +1333,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4324"/>
-        <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
+        <source>Removes small specks, such as dust and dirt, from the black and white result. The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1353,12 +1353,12 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4445"/>
-        <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
+        <source>Finds the curvature of the lines of text automatically. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4458"/>
-        <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
+        <source>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1368,7 +1368,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4486"/>
-        <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
+        <source>Straightens the page once more after dewarping. Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1562,7 +1562,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="152"/>
-        <source>Sets this resolution for the images selected in the list.  OK takes over the resolutions of all images.</source>
+        <source>Sets this resolution for the images selected in the list. OK takes over the resolutions of all images.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1685,8 +1685,8 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>ImageViewBase</name>
     <message>
-        <location filename="../core/ImageViewBase.cpp" line="193"/>
-        <source>Use the mouse wheel or +/- to zoom.  When zoomed, dragging is possible.  Double-click to see the whole page.</source>
+        <location filename="../core/ImageViewBase.cpp" line="194"/>
+        <source>Use the mouse wheel or +/- to zoom. When zoomed, dragging is possible. Double-click to see the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1829,17 +1829,17 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="425"/>
-        <source>Magnify thumbnails.  (Ctrl++)</source>
+        <source>Magnify thumbnails. (Ctrl++)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="482"/>
-        <source>Diminish thumbnails.  (Ctrl+-)</source>
+        <source>Diminish thumbnails. (Ctrl+-)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="549"/>
-        <source>Go to page ...  (Ctrl+G)</source>
+        <source>Go to page ... (Ctrl+G)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2240,7 +2240,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/MainWindow.cpp" line="2112"/>
-        <source>A PDF is being created.  Do you want to cancel it?</source>
+        <source>A PDF is being created. Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2297,7 +2297,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/MainWindow.cpp" line="2678"/>
-        <source>Only pages next to each other can be replaced together.  The new scan %1 is added at the end.</source>
+        <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2617,7 +2617,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../core/PdfExportJob.cpp" line="304"/>
-        <source>The split output files of %1 differ in size.  Process the page again.</source>
+        <source>The split output files of %1 differ in size. Process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2656,12 +2656,12 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     <name>PdfExportPage</name>
     <message>
         <location filename="../core/PdfExportPage.cpp" line="66"/>
-        <source>The split output files of this page don&apos;t match its output file (they are older, have a different size or a colored foreground).  The page is stored as a single image.  Process the page again to fix this.</source>
+        <source>The split output files of this page don&apos;t match its output file (they are older, have a different size or a colored foreground). The page is stored as a single image. Process the page again to fix this.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/PdfExportPage.cpp" line="71"/>
-        <source>Mixed page without split output.  It is stored as a single image, which makes the PDF larger and, with JPEG, the text less sharp.  For a smaller file, enable &quot;Split output&quot; in the Output stage and process the page again.</source>
+        <source>Mixed page without split output. It is stored as a single image, which makes the PDF larger and, with JPEG, the text less sharp. For a smaller file, enable &quot;Split output&quot; in the Output stage and process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2762,7 +2762,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="422"/>
-        <source>Color pages that were posterized in the Output stage, and posterized pictures of pages with split output.  Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
+        <source>Color pages that were posterized in the Output stage, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2777,7 +2777,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="453"/>
-        <source>All methods are lossless.  JBIG2 makes the smallest files.  CCITT G4 files are about a third larger, but can be shown by very old PDF programs, too.  Deflate and None make much larger files.</source>
+        <source>All methods are lossless. JBIG2 makes the smallest files. CCITT G4 files are about a third larger, but can be shown by very old PDF programs, too. Deflate and None make much larger files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2787,12 +2787,12 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="509"/>
-        <source>Tick the languages of the text.  Several languages can be ticked.</source>
+        <source>Tick the languages of the text. Several languages can be ticked.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="516"/>
-        <source>No language files were found.  Download them with &quot;More languages&quot;, or put *.traineddata files (from tessdata_best) into one of these folders:</source>
+        <source>No language files were found. Download them with &quot;More languages&quot;, or put *.traineddata files (from tessdata_best) into one of these folders:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2852,27 +2852,27 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="272"/>
-        <source>Move the selected pages one place towards the start of the PDF.  Pages can also be moved with drag and drop.</source>
+        <source>Move the selected pages one place towards the start of the PDF. Pages can also be moved with drag and drop.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="275"/>
-        <source>Move the selected pages one place towards the end of the PDF.  Pages can also be moved with drag and drop.</source>
+        <source>Move the selected pages one place towards the end of the PDF. Pages can also be moved with drag and drop.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="380"/>
-        <source>Higher values give better pictures and larger files.  Only used with JPEG and JPEG 2000.  With JPEG 2000, 100 is lossless; with JPEG, it&apos;s only nearly lossless.</source>
+        <source>Higher values give better pictures and larger files. Only used with JPEG and JPEG 2000. With JPEG 2000, 100 is lossless; with JPEG, it&apos;s only nearly lossless.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="396"/>
-        <source>JPEG makes small files and loses a little quality, mostly at the edges of text.  JPEG 2000 looks better at the same size, or makes smaller files at the same quality, but takes much longer to create, and some simple or old PDF programs can&apos;t show it.  Deflate is lossless, but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB.</source>
+        <source>JPEG makes small files and loses a little quality, mostly at the edges of text. JPEG 2000 looks better at the same size, or makes smaller files at the same quality, but takes much longer to create, and some simple or old PDF programs can&apos;t show it. Deflate is lossless, but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="414"/>
-        <source>Resolution of the background layer of pages with split output, that is of the pictures, relative to the output resolution.  The text is always stored at full resolution.</source>
+        <source>Resolution of the background layer of pages with split output, that is of the pictures, relative to the output resolution. The text is always stored at full resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2882,7 +2882,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="433"/>
-        <source>Deflate is lossless and keeps the few colors exactly, which makes small and sharp files.  JPEG and JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file larger.  None is lossless, but large.</source>
+        <source>Deflate is lossless and keeps the few colors exactly, which makes small and sharp files. JPEG and JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file larger. None is lossless, but large.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2892,12 +2892,12 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="487"/>
-        <source>Adds an invisible text layer, so the text of the PDF can be searched, selected and copied.  Text recognition takes a few seconds per page.</source>
+        <source>Adds an invisible text layer, so the text of the PDF can be searched, selected and copied. Text recognition takes a few seconds per page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="533"/>
-        <source>How the text is arranged on the pages.  This decides the order in which the text is recognized, e.g. for searching and copying; the look of the PDF doesn&apos;t change.  &quot;Automatic&quot; detects columns, pictures and captions and is usually right.  &quot;Single column&quot; helps if copied text comes out in the wrong order, e.g. with indented lines or tables.  &quot;Single block of text&quot; suits pages with only one short text, such as a label or a note.</source>
+        <source>How the text is arranged on the pages. This decides the order in which the text is recognized, e.g. for searching and copying; the look of the PDF doesn&apos;t change. &quot;Automatic&quot; detects columns, pictures and captions and is usually right. &quot;Single column&quot; helps if copied text comes out in the wrong order, e.g. with indented lines or tables. &quot;Single block of text&quot; suits pages with only one short text, such as a label or a note.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2973,7 +2973,7 @@ Do you want to replace it?</source>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="898"/>
-        <source>Cancelled.  No PDF was written.</source>
+        <source>Cancelled. No PDF was written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3036,7 +3036,7 @@ Do you want to replace it?</source>
 <context>
     <name>PdfImageEncoder</name>
     <message>
-        <location filename="../core/PdfImageEncoder.cpp" line="435"/>
+        <location filename="../core/PdfImageEncoder.cpp" line="436"/>
         <source>Unexpected G4 strip layout.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3075,7 +3075,7 @@ Do you want to replace it?</source>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="88"/>
-        <source>New images saved to the input folder are added to the project automatically.  The project may then start empty.</source>
+        <source>New images saved to the input folder are added to the project automatically. The project may then start empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3132,7 +3132,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.cpp" line="207"/>
-        <source>These images are already in the folder %1, but not in the project.  Move those that are to be added to the project to the right.</source>
+        <source>These images are already in the folder %1, but not in the project. Move those that are to be added to the project to the right.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3169,7 +3169,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.cpp" line="455"/>
-        <source>The project file %1 already exists.  Overwrite it?</source>
+        <source>The project file %1 already exists. Overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3196,7 +3196,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../app/ProjectFilesDialog.cpp" line="537"/>
         <location filename="../app/RelinkingDialog.cpp" line="193"/>
-        <source>Output folder doesn&apos;t exist.  Create it?</source>
+        <source>Output folder doesn&apos;t exist. Create it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3457,7 +3457,7 @@ would both become
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="96"/>
-        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar.  Takes effect after a restart.  Not used by the native color scheme, which takes the colors of the system.</source>
+        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the native color scheme, which takes the colors of the system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3557,7 +3557,7 @@ would both become
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="405"/>
-        <source>Also sets &quot;Dark content on a light background&quot; in the Output step according to the detection.  Turned off, the detection only helps deskewing and content detection, and the Output step treats all pages as dark content on a light background.  A change made by hand in the Output step always takes precedence.</source>
+        <source>Also sets &quot;Dark content on a light background&quot; in the Output step according to the detection. Turned off, the detection only helps deskewing and content detection, and the Output step treats all pages as dark content on a light background. A change made by hand in the Output step always takes precedence.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3780,7 +3780,7 @@ would both become
     </message>
     <message>
         <location filename="../app/TessdataDownloadDialog.cpp" line="34"/>
-        <source>Language files of the &quot;tessdata_best&quot; collection of the Tesseract project, which give the best recognition.  Tick the languages you need and click &quot;Download&quot;.</source>
+        <source>Language files of the &quot;tessdata_best&quot; collection of the Tesseract project, which give the best recognition. Tick the languages you need and click &quot;Download&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3813,7 +3813,7 @@ would both become
         <location filename="../app/TessdataDownloadDialog.cpp" line="105"/>
         <source>The list of languages could not be loaded from GitHub: %1
 
-Without an internet connection, the installed languages can still be used.  Language files can also be copied by hand into %2.</source>
+Without an internet connection, the installed languages can still be used. Language files can also be copied by hand into %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3858,7 +3858,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <name>TessdataDownloader</name>
     <message>
         <location filename="../core/TessdataDownloader.cpp" line="83"/>
-        <source>GitHub allows only a limited number of requests per hour without signing in.  Please try again later.</source>
+        <source>GitHub allows only a limited number of requests per hour without signing in. Please try again later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3889,7 +3889,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/TessdataDownloader.cpp" line="251"/>
-        <source>The downloaded file of &quot;%1&quot; is incomplete or damaged.  Please try again.</source>
+        <source>The downloaded file of &quot;%1&quot; is incomplete or damaged. Please try again.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3969,32 +3969,32 @@ Without an internet connection, the installed languages can still be used.  Lang
     <name>ZoneCreationInteraction</name>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="304"/>
-        <source>Rectangle selection: move to the opposite corner and click to finish.  ESC to cancel.</source>
+        <source>Rectangle selection: move to the opposite corner and click to finish. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="308"/>
-        <source>Lasso selection: click here to close the zone.  ESC to cancel.</source>
+        <source>Lasso selection: click here to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="310"/>
-        <source>Lasso selection: hold the left mouse button and draw around the area. The zone closes when you reach the starting point.  ESC to cancel.</source>
+        <source>Lasso selection: hold the left mouse button and draw around the area. The zone closes when you reach the starting point. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="317"/>
-        <source>Polygon selection: click here to close the zone.  ESC to cancel.</source>
+        <source>Polygon selection: click here to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="319"/>
-        <source>Polygon selection: click to add a corner, click the first corner to close the zone.  ESC to cancel.</source>
+        <source>Polygon selection: click to add a corner, click the first corner to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="323"/>
-        <source>Polygon selection: click to add corners. Clicking the last corner again removes it.  X switches to lasso.  ESC to cancel.</source>
+        <source>Polygon selection: click to add corners. Clicking the last corner again removes it. X switches to lasso. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4061,7 +4061,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/deskew/ApplyDialog.ui" line="29"/>
-        <source>The rotation angle, or automatic detection with its detection method if it is set to Auto.  Each page is then measured on its own.</source>
+        <source>The rotation angle, or automatic detection with its detection method if it is set to Auto. Each page is then measured on its own.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4514,7 +4514,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="191"/>
-        <source>Applies &quot;Dark content on a light background&quot; of this page to other pages.  There it counts as set by hand, so the automatic detection no longer changes it.</source>
+        <source>Applies &quot;Dark content on a light background&quot; of this page to other pages. There it counts as set by hand, so the automatic detection no longer changes it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4550,7 +4550,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="598"/>
-        <source>Evens out uneven lighting, such as a shadow near the spine.  In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</source>
+        <source>Evens out uneven lighting, such as a shadow near the spine. In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4560,7 +4560,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="613"/>
-        <source>Mixed mode only: also evens out the lighting in the picture zones.  Needs &quot;Equalize illumination&quot;.</source>
+        <source>Mixed mode only: also evens out the lighting in the picture zones. Needs &quot;Equalize illumination&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4570,7 +4570,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="696"/>
-        <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters.  The brightness is not changed.</source>
+        <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters. The brightness is not changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4590,12 +4590,12 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="765"/>
-        <source>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay.  0 only smooths.</source>
+        <source>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay. 0 only smooths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="881"/>
-        <source>Also takes the paper to white and removes a color cast such as yellowing.  Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
+        <source>Also takes the paper to white and removes a color cast such as yellowing. Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4650,7 +4650,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1269"/>
-        <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color.  Otherwise it stays visible where the page reaches into it.</source>
+        <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color. Otherwise it stays visible where the page reaches into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4661,19 +4661,19 @@ Without an internet connection, the installed languages can still be used.  Lang
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1303"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1313"/>
-        <source>The color of the filled areas: the background color found on the page, white or black.  In mixed mode, &quot;Background&quot; gives white.</source>
+        <source>The color of the filled areas: the background color found on the page, white or black. In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1362"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1372"/>
-        <source>How the page is converted to black and white.  Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
+        <source>How the page is converted to black and white. Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1405"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1415"/>
-        <source>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear.  The more saturated a color, the stronger the effect.  0 changes nothing.</source>
+        <source>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear. The more saturated a color, the stronger the effect. 0 changes nothing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4683,7 +4683,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1437"/>
-        <source>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes.  1 and 254 leave the method alone.</source>
+        <source>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes. 1 and 254 leave the method alone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4804,7 +4804,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2034"/>
-        <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles.  Pictures stay in color or grayscale, the rest becomes black and white.</source>
+        <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles. Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4862,13 +4862,13 @@ Without an internet connection, the installed languages can still be used.  Lang
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1821"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1831"/>
-        <source>How the colors are reduced to a few.  Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best).  Color pages: the whole page, by posterizing.</source>
+        <source>How the colors are reduced to a few. Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best). Color pages: the whole page, by posterizing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1926"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1936"/>
-        <source>Posterizing: how finely each color channel is divided.  4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</source>
+        <source>Posterizing: how finely each color channel is divided. 4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4883,7 +4883,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2617"/>
-        <source>Adjusts the pictures after processing, like a photo editor.  In mixed mode only the picture zones are changed, the text stays black and white.  Not used in black and white mode.</source>
+        <source>Adjusts the pictures after processing, like a photo editor. In mixed mode only the picture zones are changed, the text stays black and white. Not used in black and white mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4928,7 +4928,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2234"/>
-        <source>Removes small specks, such as dust and dirt, from the black and white result.  The slider sets how strongly.</source>
+        <source>Removes small specks, such as dust and dirt, from the black and white result. The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4938,7 +4938,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2411"/>
-        <source>Finds the curvature of the lines of text automatically.  Experimental.</source>
+        <source>Finds the curvature of the lines of text automatically. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4948,7 +4948,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2427"/>
-        <source>Finds the curvature from the top and bottom edges of the page against a dark background.  Experimental.</source>
+        <source>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4963,7 +4963,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2461"/>
-        <source>Straightens the page once more after dewarping.  Only used with Manual and Marginal.</source>
+        <source>Straightens the page once more after dewarping. Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4974,7 +4974,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2471"/>
-        <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched.  Only used with dewarping.</source>
+        <source>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4984,7 +4984,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2555"/>
-        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine.  Slows down the processing.  Only used with dewarping.</source>
+        <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5015,7 +5015,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="47"/>
-        <source>Resolution of the output files of this page, from 72 to 1200 DPI.  Choose a value or type one in.  With dewarping &quot;Auto&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</source>
+        <source>Resolution of the output files of this page, from 72 to 1200 DPI. Choose a value or type one in. With dewarping &quot;Auto&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5025,7 +5025,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="140"/>
-        <source>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing.  Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection in the Output step&quot; are turned on in the settings.  A change made here by hand takes precedence over the detection.</source>
+        <source>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing. Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection in the Output step&quot; are turned on in the settings. A change made here by hand takes precedence over the detection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5107,7 +5107,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2672"/>
-        <source>Color / grayscale mode only: pure white stays white, such as a background made white.  The margins are never changed.</source>
+        <source>Color / grayscale mode only: pure white stays white, such as a background made white. The margins are never changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5229,7 +5229,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="251"/>
-        <source>Color pages that were posterized, and posterized pictures of pages with split output.  Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
+        <source>Color pages that were posterized, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color and Grayscale&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5275,7 +5275,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="193"/>
-        <source>Compression of the TIFF files in the output folder.  Applies to all projects.  The PDF is compressed separately, so this doesn&apos;t change it.  After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing.  Other projects keep their files until their pages are processed again.</source>
+        <source>Compression of the TIFF files in the output folder. Applies to all projects. The PDF is compressed separately, so this doesn&apos;t change it. After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing. Other projects keep their files until their pages are processed again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5302,7 +5302,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="246"/>
-        <source>Higher values give better pictures and larger files.  Only used with JPEG compression.</source>
+        <source>Higher values give better pictures and larger files. Only used with JPEG compression.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5436,7 +5436,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="43"/>
         <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="53"/>
-        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</source>
+        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5459,7 +5459,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="50"/>
-        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</source>
+        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5497,7 +5497,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="50"/>
-        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter.  0 keeps the threshold the method computes.</source>
+        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5798,7 +5798,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="550"/>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="560"/>
-        <source>The largest width and the largest height of all pages whose size is matched, margins included.  Without an own target size, it is the output size.</source>
+        <source>The largest width and the largest height of all pages whose size is matched, margins included. Without an own target size, it is the output size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5808,7 +5808,7 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="585"/>
-        <source>Sets the output size by hand instead of using the common size.  Turned on, the fields start with the common size.  Pages larger than this size are reduced.</source>
+        <source>Sets the output size by hand instead of using the common size. Turned on, the fields start with the common size. Pages larger than this size are reduced.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5869,12 +5869,12 @@ Without an internet connection, the installed languages can still be used.  Lang
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="31"/>
-        <source>Resolution of the scanned image (horizontal × vertical).  It applies right away to the whole image, so to both pages of a split scan.  Sizes and margins in millimetres or inches depend on it.</source>
+        <source>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimetres or inches depend on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="113"/>
-        <source>Opens a window with the DPI of all images of the project, where you can check and correct them.  The same as Tools &gt; Fix DPI of All Images ...</source>
+        <source>Opens a window with the DPI of all images of the project, where you can check and correct them. The same as Tools &gt; Fix DPI of All Images ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5891,8 +5891,8 @@ Without an internet connection, the installed languages can still be used.  Lang
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="450"/>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="462"/>
         <source>Off: the page keeps its own size and is not part of the common size.
-Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;.  The content keeps its size; only pages larger than an own target size are reduced.
-Scale: the content is enlarged or reduced to fit the output size, within the limits below.  The margins keep their size; the rest is filled with margins.</source>
+Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
+Scale: the content is enlarged or reduced to fit the output size, within the limits below. The margins keep their size; the rest is filled with margins.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5912,7 +5912,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="763"/>
-        <source>Applies &quot;Match size&quot; of this page to other pages.  The settings under &quot;All Pages&quot; apply to all pages anyway.</source>
+        <source>Applies &quot;Match size&quot; of this page to other pages. The settings under &quot;All Pages&quot; apply to all pages anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5958,7 +5958,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1156"/>
-        <source>Applies the alignment of this page to other pages: the modes and the position.  Whether the size is matched is applied under &quot;Output Size&quot;.</source>
+        <source>Applies the alignment of this page to other pages: the modes and the position. Whether the size is matched is applied under &quot;Output Size&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6030,7 +6030,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/page_split/Filter.cpp" line="32"/>
-        <source>One page first, then one page and a strip to cut off, then two pages, each in natural order.  Pages not processed yet come last.</source>
+        <source>One page first, then one page and a strip to cut off, then two pages, each in natural order. Pages not processed yet come last.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6151,7 +6151,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/page_split/SplitModeDialog.ui" line="45"/>
-        <source>The position of the split line, adapted to the size of each page.  Without it, each page keeps its own split line or detects one.  Only for a page type set by hand that has a split line.</source>
+        <source>The position of the split line, adapted to the size of each page. Without it, each page keeps its own split line or detects one. Only for a page type set by hand that has a split line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

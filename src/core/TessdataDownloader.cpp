@@ -81,7 +81,7 @@ QString TessdataDownloader::replyError(QNetworkReply* reply) {
   const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
   if (((status == 403) || (status == 429)) && (reply->rawHeader("X-RateLimit-Remaining") == "0")) {
     return tr(
-        "GitHub allows only a limited number of requests per hour without signing in.  Please try again "
+        "GitHub allows only a limited number of requests per hour without signing in. Please try again "
         "later.");
   }
   return reply->errorString();
@@ -248,7 +248,7 @@ void TessdataDownloader::downloadFinished() {
   }
   if ((m_bytesReceived != file.size) || (m_hash->result().toHex() != file.sha)) {
     m_file->cancelWriting();
-    finishDownloads(tr("The downloaded file of \"%1\" is incomplete or damaged.  Please try again.").arg(file.code));
+    finishDownloads(tr("The downloaded file of \"%1\" is incomplete or damaged. Please try again.").arg(file.code));
     return;
   }
   if (!m_file->commit()) {

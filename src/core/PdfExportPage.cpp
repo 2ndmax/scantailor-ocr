@@ -66,12 +66,12 @@ void PdfExportPage::analyze() {
     m_warning = QCoreApplication::translate(
         "PdfExportPage",
         "The split output files of this page don't match its output file (they are older, have a different size "
-        "or a colored foreground).  The page is stored as a single image.  Process the page again to fix this.");
+        "or a colored foreground). The page is stored as a single image. Process the page again to fix this.");
   } else if (m_mixedMode) {
     m_warning = QCoreApplication::translate(
         "PdfExportPage",
-        "Mixed page without split output.  It is stored as a single image, which makes the PDF larger and, with "
-        "JPEG, the text less sharp.  For a smaller file, enable \"Split output\" in the Output stage and process "
+        "Mixed page without split output. It is stored as a single image, which makes the PDF larger and, with "
+        "JPEG, the text less sharp. For a smaller file, enable \"Split output\" in the Output stage and process "
         "the page again.");
   }
 }  // PdfExportPage::analyze
