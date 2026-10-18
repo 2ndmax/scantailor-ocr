@@ -77,7 +77,7 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(const QS
 
   const QDomElement profileElement(doc.documentElement());
   const QString version = profileElement.attribute("version");
-  if (version.isNull() || (version.toInt() != PROJECT_VERSION)) {
+  if (version.isNull() || ((version.toInt() != PROJECT_VERSION) && (version.toInt() != PROJECT_VERSION_UPSTREAM))) {
     if (status) {
       *status = INCOMPATIBLE_VERSION_ERROR;
     }

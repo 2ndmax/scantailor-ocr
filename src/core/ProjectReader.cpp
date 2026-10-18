@@ -23,7 +23,8 @@ ProjectReader::ProjectReader(const QDomDocument& doc, const QString& projectFile
   QDomElement projectEl(m_doc.documentElement());
 
   m_version = projectEl.attribute("version");
-  if (m_version.isNull() || (m_version.toInt() != PROJECT_VERSION)) {
+  if (m_version.isNull()
+      || ((m_version.toInt() != PROJECT_VERSION) && (m_version.toInt() != PROJECT_VERSION_UPSTREAM))) {
     return;
   }
 
