@@ -50,7 +50,7 @@
           <item>
            <widget class="QCheckBox" name="autoSaveProjectCB">
             <property name="text">
-             <string>Auto-save the existing project</string>
+             <string>Auto-save the open project</string>
             </property>
            </widget>
           </item>
@@ -93,7 +93,7 @@
             <item>
              <widget class="QPushButton" name="accentColorButton">
               <property name="toolTip">
-               <string>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the native color scheme, which takes the colors of the system.</string>
+               <string>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</string>
               </property>
              </widget>
             </item>
@@ -223,7 +223,7 @@
           <item>
            <widget class="QSpinBox" name="processingThreadsSB">
             <property name="toolTip">
-             <string>The most processor threads that ScanTailor uses at the same time: for the batch processing, the PDF export, the image filters and JPEG 2000. Fewer threads leave room for other programs, more threads finish sooner. A change applies from the next page and the next export.</string>
+             <string>The maximum number of processor threads that ScanTailor OCR uses at the same time: for the batch processing, the PDF export, the image filters and JPEG 2000. Fewer threads leave room for other programs, more threads finish sooner. A change applies from the next page and the next export.</string>
             </property>
             <property name="minimum">
              <number>1</number>
@@ -356,7 +356,7 @@
           <item>
            <widget class="QCheckBox" name="cancelingSelectionQuestionCB">
             <property name="text">
-             <string>Show question on canceling multi page selection</string>
+             <string>Ask before canceling a multi-page selection</string>
             </property>
            </widget>
           </item>
@@ -392,7 +392,7 @@
           <item>
            <widget class="QCheckBox" name="blackOnWhiteDetectionCB">
             <property name="toolTip">
-             <string>Detects pages with light content on a dark background, such as white text on black. Such pages are inverted internally, so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing and is kept, so changing this setting doesn't affect pages that are deskewed already.</string>
+             <string>Detects pages with light content on a dark background, such as white text on black, and inverts them internally so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing, so changing this setting doesn't affect pages that are deskewed already.</string>
             </property>
             <property name="text">
              <string>Auto detect light content on dark background</string>

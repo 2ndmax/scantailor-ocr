@@ -3404,19 +3404,9 @@ würden beide zu
         <translation>Gerät: %1</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="53"/>
-        <source>Auto-save the existing project</source>
-        <translation>Automatisches Speichern des geöffneten Projekts</translation>
-    </message>
-    <message>
         <location filename="../app/SettingsDialog.ui" line="89"/>
         <source>Accent color:</source>
         <translation>Akzentfarbe:</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="96"/>
-        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the native color scheme, which takes the colors of the system.</source>
-        <translation>Die Farbe der Rahmen von Bedienelementen unter der Maus oder mit Fokus, der markierten Miniaturen und des Fortschrittsbalkens. Wirkt nach einem Neustart. Das native Farbschema nutzt sie nicht, es übernimmt die Farben des Systems.</translation>
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="103"/>
@@ -3444,24 +3434,9 @@ würden beide zu
         <translation>Prozessor-Threads:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="226"/>
-        <source>The most processor threads that ScanTailor uses at the same time: for the batch processing, the PDF export, the image filters and JPEG 2000. Fewer threads leave room for other programs, more threads finish sooner. A change applies from the next page and the next export.</source>
-        <translation>Die höchste Zahl an Prozessor-Threads, die ScanTailor gleichzeitig nutzt: für die Stapelverarbeitung, den PDF-Export, die Bildfilter und JPEG 2000. Weniger Threads lassen Platz für andere Programme, mehr Threads werden schneller fertig. Eine Änderung gilt ab der nächsten Seite und dem nächsten Export.</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="359"/>
-        <source>Show question on canceling multi page selection</source>
-        <translation>Bei Aufhebung der Mehrseitenauswahl warnen</translation>
-    </message>
-    <message>
         <location filename="../app/SettingsDialog.ui" line="383"/>
         <source>Processing</source>
         <translation>Verarbeitung</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="395"/>
-        <source>Detects pages with light content on a dark background, such as white text on black. Such pages are inverted internally, so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing and is kept, so changing this setting doesn&apos;t affect pages that are deskewed already.</source>
-        <translation>Erkennt Seiten mit hellem Inhalt auf dunklem Hintergrund, etwa weiße Schrift auf Schwarz. Solche Seiten werden intern umgekehrt, damit Geraderichten, Inhaltserkennung und Ausgabe richtig arbeiten. Ausgeschaltet gelten alle Seiten als dunkler Inhalt auf hellem Hintergrund. Die Erkennung läuft beim Geraderichten einmal je Seite und wird gespeichert; eine Änderung dieser Einstellung wirkt deshalb nicht auf Seiten, die schon geradegerichtet sind.</translation>
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="418"/>
@@ -3471,7 +3446,7 @@ würden beide zu
     <message>
         <location filename="../app/SettingsDialog.ui" line="424"/>
         <source>Highlight the thumbnails of pages with high deviation</source>
-        <translation>Markieren von Miniaturansichten von Seiten mit hoher Abweichung</translation>
+        <translation>Miniaturansichten von Seiten mit hoher Abweichung hervorheben</translation>
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="431"/>
@@ -3528,6 +3503,11 @@ würden beide zu
         <translation>Hell</translation>
     </message>
     <message>
+        <location filename="../app/SettingsDialog.cpp" line="38"/>
+        <source>System</source>
+        <translation>System</translation>
+    </message>
+    <message>
         <location filename="../app/SettingsDialog.cpp" line="91"/>
         <source>of %1</source>
         <translation>von %1</translation>
@@ -3551,6 +3531,21 @@ würden beide zu
         <location filename="../app/SettingsDialog.ui" line="33"/>
         <source>User Interface</source>
         <translation>Benutzeroberfläche</translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="53"/>
+        <source>Auto-save the open project</source>
+        <translation>Automatisches Speichern des geöffneten Projekts</translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="96"/>
+        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</source>
+        <translation>Die Farbe der Rahmen von Bedienelementen unter der Maus oder mit Fokus, der ausgewählten Miniaturansichten und des Fortschrittsbalkens. Wirkt nach einem Neustart. Das Farbschema „System“ nutzt sie nicht, es übernimmt die Farben des Systems.</translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="226"/>
+        <source>The maximum number of processor threads that ScanTailor OCR uses at the same time: for the batch processing, the PDF export, the image filters and JPEG 2000. Fewer threads leave room for other programs, more threads finish sooner. A change applies from the next page and the next export.</source>
+        <translation>Die höchste Zahl an Prozessor-Threads, die ScanTailor OCR gleichzeitig nutzt: für die Stapelverarbeitung, den PDF-Export, die Bildfilter und JPEG 2000. Weniger Threads lassen Platz für andere Programme, mehr Threads werden schneller fertig. Eine Änderung gilt ab der nächsten Seite und dem nächsten Export.</translation>
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="259"/>
@@ -3578,19 +3573,24 @@ würden beide zu
         <translation>Größe der Miniaturansichten. Der Standardwert ist 250.</translation>
     </message>
     <message>
+        <location filename="../app/SettingsDialog.ui" line="359"/>
+        <source>Ask before canceling a multi-page selection</source>
+        <translation>Vor dem Aufheben einer Mehrseitenauswahl nachfragen</translation>
+    </message>
+    <message>
         <location filename="../app/SettingsDialog.ui" line="389"/>
         <source>White on Black Detection</source>
         <translation>Erkennung von Weiß auf Schwarz</translation>
     </message>
     <message>
+        <location filename="../app/SettingsDialog.ui" line="395"/>
+        <source>Detects pages with light content on a dark background, such as white text on black, and inverts them internally so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing, so changing this setting doesn&apos;t affect pages that are deskewed already.</source>
+        <translation>Erkennt Seiten mit hellem Inhalt auf dunklem Hintergrund, etwa weiße Schrift auf Schwarz, und kehrt sie intern um, damit Geraderichten, Inhaltserkennung und Ausgabe richtig arbeiten. Ausgeschaltet gelten alle Seiten als dunkler Inhalt auf hellem Hintergrund. Die Erkennung läuft einmal je Seite beim Geraderichten; eine Änderung dieser Einstellung wirkt deshalb nicht auf Seiten, die schon geradegerichtet sind.</translation>
+    </message>
+    <message>
         <location filename="../app/SettingsDialog.ui" line="398"/>
         <source>Auto detect light content on dark background</source>
         <translation>Helle Inhalte auf dunklem Hintergrund automatisch erkennen</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="38"/>
-        <source>Native</source>
-        <translation>Nativ</translation>
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="352"/>
@@ -3926,32 +3926,32 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="304"/>
         <source>Rectangle selection: move to the opposite corner and click to finish. ESC to cancel.</source>
-        <translation>Rechteck-Auswahl: zur gegenüberliegenden Ecke fahren und klicken, um abzuschließen. ESC für Abbruch.</translation>
+        <translation>Rechteck-Auswahl: Fahren Sie zur gegenüberliegenden Ecke und klicken Sie, um abzuschließen. ESC bricht ab.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="308"/>
         <source>Lasso selection: click here to close the zone. ESC to cancel.</source>
-        <translation>Lasso-Auswahl: hier klicken, um die Zone zu schließen. ESC für Abbruch.</translation>
+        <translation>Lasso-Auswahl: Klicken Sie hier, um die Zone zu schließen. ESC bricht ab.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="310"/>
         <source>Lasso selection: hold the left mouse button and draw around the area. The zone closes when you reach the starting point. ESC to cancel.</source>
-        <translation>Lasso-Auswahl: mit gedrückter linker Maustaste um den Bereich zeichnen. Die Zone schließt sich, sobald Sie den Startpunkt erreichen. ESC für Abbruch.</translation>
+        <translation>Lasso-Auswahl: Zeichnen Sie mit gedrückter linker Maustaste um den Bereich. Die Zone schließt sich, sobald Sie den Startpunkt erreichen. ESC bricht ab.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="317"/>
         <source>Polygon selection: click here to close the zone. ESC to cancel.</source>
-        <translation>Polygon-Auswahl: hier klicken, um die Zone zu schließen. ESC für Abbruch.</translation>
+        <translation>Polygon-Auswahl: Klicken Sie hier, um die Zone zu schließen. ESC bricht ab.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="319"/>
         <source>Polygon selection: click to add a corner, click the first corner to close the zone. ESC to cancel.</source>
-        <translation>Polygon-Auswahl: klicken, um eine Ecke hinzuzufügen; auf die erste Ecke klicken, um die Zone zu schließen. ESC für Abbruch.</translation>
+        <translation>Polygon-Auswahl: Klicken Sie, um eine Ecke hinzuzufügen; klicken Sie auf die erste Ecke, um die Zone zu schließen. ESC bricht ab.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneCreationInteraction.cpp" line="323"/>
         <source>Polygon selection: click to add corners. Clicking the last corner again removes it. X switches to lasso. ESC to cancel.</source>
-        <translation>Polygon-Auswahl: klicken, um Ecken hinzuzufügen. Ein erneuter Klick auf die letzte Ecke entfernt sie. X wechselt zum Lasso. ESC für Abbruch.</translation>
+        <translation>Polygon-Auswahl: Klicken Sie, um Ecken hinzuzufügen. Ein erneuter Klick auf die letzte Ecke entfernt sie. X wechselt zum Lasso. ESC bricht ab.</translation>
     </message>
 </context>
 <context>
@@ -3963,8 +3963,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="22"/>
-        <source>Click to create a new vertex here.</source>
-        <translation>Klicken Sie hier, um einen neuen Scheitelpunkt zu erstellen.</translation>
+        <source>Click to create a new corner here.</source>
+        <translation>Klicken Sie hier, um eine neue Ecke zu erstellen.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="24"/>
@@ -3974,17 +3974,17 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="26"/>
         <source>Hold left mouse button to drag the zone.</source>
-        <translation>Halten Sie die linke Maustaste gedrückt, um den Bereich zu ziehen.</translation>
+        <translation>Halten Sie die linke Maustaste gedrückt, um die Zone zu ziehen.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="28"/>
         <source>Hold left mouse button to copy and drag the zone.</source>
-        <translation>Halten Sie die linke Maustaste zum Kopieren gedrückt und ziehen Sie den Bereich.</translation>
+        <translation>Halten Sie die linke Maustaste zum Kopieren gedrückt und ziehen Sie die Zone.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="31"/>
         <source>Click to start a new zone (lasso selection: hold the left mouse button and draw). Ctrl+Alt+Click copies the latest created zone. Z, X, C or the button at the bottom right switch the selection mode.</source>
-        <translation>Klicken, um eine neue Zone zu beginnen (Lasso-Auswahl: mit gedrückter linker Maustaste zeichnen). Strg+Alt+Klick kopiert die zuletzt erstellte Zone. Z, X, C oder der Knopf unten rechts wechseln den Auswahlmodus.</translation>
+        <translation>Klicken Sie, um eine neue Zone zu beginnen (Lasso-Auswahl: zeichnen Sie mit gedrückter linker Maustaste). Strg+Alt+Klick kopiert die zuletzt erstellte Zone. Z, X, C oder die Schaltfläche unten rechts wechseln den Auswahlmodus.</translation>
     </message>
 </context>
 <context>
@@ -3999,8 +3999,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <name>ZoneVertexDragInteraction</name>
     <message>
         <location filename="../core/zones/ZoneVertexDragInteraction.cpp" line="156"/>
-        <source>Merge these two vertices.</source>
-        <translation>Diese zwei Scheitelpunkte verschmelzen.</translation>
+        <source>Release to merge the two corners.</source>
+        <translation>Lassen Sie los, um die beiden Ecken zu verschmelzen.</translation>
     </message>
     <message>
         <location filename="../core/zones/ZoneVertexDragInteraction.cpp" line="158"/>
@@ -4064,12 +4064,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/deskew/ImageView.cpp" line="36"/>
         <source>Drag this handle to rotate the image.</source>
-        <translation>Ziehen Sie diesen Griff, um das Bild zu drehen.</translation>
+        <translation>Ziehen Sie am Ziehpunkt, um das Bild zu drehen.</translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/ImageView.cpp" line="37"/>
         <source>Drag this handle to adjust oblique (shear).</source>
-        <translation>Ziehen Sie diesen Griff, um die Scherung anzupassen.</translation>
+        <translation>Ziehen Sie am Ziehpunkt, um die Scherung anzupassen.</translation>
     </message>
 </context>
 <context>

@@ -3362,11 +3362,6 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="53"/>
-        <source>Auto-save the existing project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/SettingsDialog.ui" line="62"/>
         <source>Color scheme:</source>
         <translation type="unfinished"></translation>
@@ -3374,11 +3369,6 @@ would both become
     <message>
         <location filename="../app/SettingsDialog.ui" line="89"/>
         <source>Accent color:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="96"/>
-        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the native color scheme, which takes the colors of the system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3422,11 +3412,6 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="226"/>
-        <source>The most processor threads that ScanTailor uses at the same time: for the batch processing, the PDF export, the image filters and JPEG 2000. Fewer threads leave room for other programs, more threads finish sooner. A change applies from the next page and the next export.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/SettingsDialog.ui" line="259"/>
         <source>Thumbnails</source>
         <translation type="unfinished"></translation>
@@ -3457,11 +3442,6 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="359"/>
-        <source>Show question on canceling multi page selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/SettingsDialog.ui" line="383"/>
         <source>Processing</source>
         <translation type="unfinished"></translation>
@@ -3469,11 +3449,6 @@ would both become
     <message>
         <location filename="../app/SettingsDialog.ui" line="389"/>
         <source>White on Black Detection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="395"/>
-        <source>Detects pages with light content on a dark background, such as white text on black. Such pages are inverted internally, so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing and is kept, so changing this setting doesn&apos;t affect pages that are deskewed already.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3489,6 +3464,31 @@ would both become
     <message>
         <location filename="../app/SettingsDialog.ui" line="398"/>
         <source>Auto detect light content on dark background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="53"/>
+        <source>Auto-save the open project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="96"/>
+        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="226"/>
+        <source>The maximum number of processor threads that ScanTailor OCR uses at the same time: for the batch processing, the PDF export, the image filters and JPEG 2000. Fewer threads leave room for other programs, more threads finish sooner. A change applies from the next page and the next export.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="359"/>
+        <source>Ask before canceling a multi-page selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="395"/>
+        <source>Detects pages with light content on a dark background, such as white text on black, and inverts them internally so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing, so changing this setting doesn&apos;t affect pages that are deskewed already.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3552,7 +3552,7 @@ would both become
     </message>
     <message>
         <location filename="../app/SettingsDialog.cpp" line="38"/>
-        <source>Native</source>
+        <source>System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3923,7 +3923,7 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="22"/>
-        <source>Click to create a new vertex here.</source>
+        <source>Click to create a new corner here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3959,7 +3959,7 @@ Without an internet connection, the installed languages can still be used. Langu
     <name>ZoneVertexDragInteraction</name>
     <message>
         <location filename="../core/zones/ZoneVertexDragInteraction.cpp" line="156"/>
-        <source>Merge these two vertices.</source>
+        <source>Release to merge the two corners.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

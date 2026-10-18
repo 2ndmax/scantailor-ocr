@@ -35,7 +35,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
 
   ui.colorSchemeBox->addItem(tr("Dark"), "dark");
   ui.colorSchemeBox->addItem(tr("Light"), "light");
-  ui.colorSchemeBox->addItem(tr("Native"), "native");
+  ui.colorSchemeBox->addItem(tr("System"), "native");
   ui.colorSchemeBox->setCurrentIndex(ui.colorSchemeBox->findData(settings.getColorScheme()));
   connect(ui.colorSchemeBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
           [this](int) { updateAccentColorDisplay(); });

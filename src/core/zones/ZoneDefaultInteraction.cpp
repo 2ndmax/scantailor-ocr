@@ -19,7 +19,7 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
 
   m_vertexProximity.setProximityStatusTip(
       tr("Drag the corner. Hold Ctrl to make the angle at the corner a right angle. Press D to delete the corner."));
-  m_segmentProximity.setProximityStatusTip(tr("Click to create a new vertex here."));
+  m_segmentProximity.setProximityStatusTip(tr("Click to create a new corner here."));
   m_zoneAreaProximity.setProximityStatusTip(
       tr("Right click to edit zone properties. Hold Shift to drag the zone or "
          "Shift+Ctrl to copy. Press Del to delete this zone."));
