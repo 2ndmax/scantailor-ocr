@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(test_pdf_structure_and_page_size) {
 
   const QByteArray pdf = buffer.data();
   checkStructure(pdf, 2);
-  // The same page size as in the PDF made by Acrobat from the same files.
+  // 2384 x 4064 pixels at 600 dpi are 286.08 x 487.68 points.
   BOOST_CHECK(pdf.contains("/MediaBox [0 0 286.08 487.68]"));
   BOOST_CHECK(pdf.contains("/Filter /CCITTFaxDecode /DecodeParms << /K -1 /Columns 2384 /Rows 4064 >>"));
   BOOST_CHECK(pdf.contains("/ImageMask true"));

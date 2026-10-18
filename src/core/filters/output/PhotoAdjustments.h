@@ -17,7 +17,7 @@ class BinaryImage;
 
 namespace output {
 /**
- * Manual photo adjustments of the color and grayscale output, like the basic panel of Lightroom.
+ * Manual photo adjustments of the color and grayscale output.
  * Adopted from ScanTailor Spectre (weasel::PhotoAdjustments / TonalCurve), but applied to the
  * finished output instead of the source image, so that binarization, picture detection and OCR
  * are not affected.

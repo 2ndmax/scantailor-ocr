@@ -113,7 +113,7 @@ void PhotoAdjustments::setBlacks(const int value) {
 }
 
 void PhotoAdjustments::buildToneTable(uint8_t table[256]) const {
-  // The formulas of ScanTailor Spectre, in the order of Lightroom's basic panel:
+  // The formulas of ScanTailor Spectre, applied in the order of the sliders:
   // exposure sets the overall brightness, contrast shapes the midtones, highlights and shadows
   // the bright and dark parts, whites and blacks the ends of the range.
   for (int i = 0; i < 256; ++i) {

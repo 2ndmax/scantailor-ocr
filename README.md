@@ -53,7 +53,7 @@ The details, including what was deliberately not adopted, are in [CHANGES.md](CH
 
 ## Download
 
-Ready-to-run versions for Windows (portable ZIP) and Linux (`.deb`) are on the
+Ready-to-run versions for Windows (portable ZIP) and Linux (`.deb` and AppImage) are on the
 [releases page](https://github.com/2ndmax/scantailor-ocr/releases).
 
 ## Building
