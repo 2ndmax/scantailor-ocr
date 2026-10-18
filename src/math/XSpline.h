@@ -33,7 +33,7 @@ class XSpline : public spfit::FittableSpline {
     /**
      * \brief Curvature at a given point on the spline.
      *
-     * The sign indicates curving direction.  Positive signs normally
+     * The sign indicates curving direction. Positive signs normally
      * indicate anti-clockwise direction, though in 2D computer graphics
      * it's usually the other way around, as the Y axis points down.
      * In other words, if you rotate your coordinate system so that

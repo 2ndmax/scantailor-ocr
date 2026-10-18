@@ -24,7 +24,7 @@
 #include "ThreadBudget.h"
 
 namespace {
-// Before ScanTailor OCR 1.0.0 the program was called "scantailor-advanced".  Its settings,
+// Before ScanTailor OCR 1.0.0 the program was called "scantailor-advanced". Its settings,
 // profiles and OCR languages are taken over once, so they aren't lost with the new name.
 // The old files are copied, not moved; they stay usable for ScanTailor Advanced.
 const QString oldApplicationName = QStringLiteral("scantailor-advanced");

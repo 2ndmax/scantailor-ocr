@@ -19,7 +19,7 @@ class Despeckle {
   /**
    * \brief Removes small speckles from a binary image.
    *
-   * \param src The image to despeckle.  Must not be null.
+   * \param src The image to despeckle. Must not be null.
    * \param dpi DPI of \p src.
    * \param level Despeckling aggressiveness.
    * \param dbg An optional sink for debugging images.

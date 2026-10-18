@@ -110,7 +110,7 @@ void seedFill8Iteration(BinaryImage& seed, const BinaryImage& mask) {
 
   // Note: we start with prevLine == seedLine, but in this case
   // prevLine[i + 1] won't be clipped by its mask when we use it to
-  // update seedLine[i].  The wrong value may propagate further from
+  // update seedLine[i]. The wrong value may propagate further from
   // there, so clipping we do on the anti-raster pass won't help.
   // That's why we clip the first line here.
   for (int i = 0; i <= lastWordIdx; ++i) {
@@ -327,8 +327,8 @@ uint8_t seedFillGray8SlowIteration(GrayImage& seed, const GrayImage& mask) {
   }
 
   // The prevLine[x + 1] below actually refers to seedLine[x + 1]
-  // for the first line in raster order.  When working with seedLine[x],
-  // seedLine[x + 1] would not yet be clipped by its mask.  So, we
+  // for the first line in raster order. When working with seedLine[x],
+  // seedLine[x + 1] would not yet be clipped by its mask. So, we
   // have to do it now.
   for (int x = 0; x < w; ++x) {
     seedLine[x] = lightest(seedLine[x], maskLine[x]);

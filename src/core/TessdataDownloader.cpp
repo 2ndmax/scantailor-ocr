@@ -35,7 +35,7 @@ TessdataDownloader::TessdataDownloader(QObject* parent) : QObject(parent), m_net
 #if QT_CONFIG(ssl) && defined(Q_OS_WIN)
   // Qt prefers its OpenSSL backend, but OpenSSL isn't shipped with the program.
   // Windows' own TLS implementation (Schannel) needs no extra files and uses the
-  // certificates of the system.  This only works before the first TLS connection.
+  // certificates of the system. This only works before the first TLS connection.
   static std::once_flag once;
   std::call_once(once, [] {
     const QString schannel = QStringLiteral("schannel");

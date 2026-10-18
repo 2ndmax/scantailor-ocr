@@ -12,8 +12,8 @@
    Naming conventions:
    img: Coordinates in the warped image.
    pln: Coordinates on a plane where the 4 corner points of the curved
-     quadrilateral are supposed to lie.  In our model we assume that
-     all 4 lie on the same plane.  The corner points are mapped to
+     quadrilateral are supposed to lie. In our model we assume that
+     all 4 lie on the same plane. The corner points are mapped to
      the following points on the plane:
  * Start point of curve1 [top curve]: (0, 0)
  * End point of curve1 [top curve]: (1, 0)
@@ -21,7 +21,7 @@
  * End point of curve2 [bottom curve]: (1, 1)
      pln and img coordinates are linked by a 2D homography,
      namely m_pln2img and m_img2pln.
-   crv: Dewarped normalized coordinates.  crv X coordinates are linked
+   crv: Dewarped normalized coordinates. crv X coordinates are linked
      to pln X ccoordinates through m_arcLengthMapper while the Y
      coordinates are linked by a one dimensional homography that's
      different for each generatrix.

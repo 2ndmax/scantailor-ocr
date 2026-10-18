@@ -80,14 +80,14 @@ class SEDM {
    *
    * For every black pixel in the image, the distance
    * map will store the squared straight-line distance
-   * to the nearest white pixel.  The distance between
+   * to the nearest white pixel. The distance between
    * two pixels is the distance between their center points.
    *
    * \param image The image to compute the distance map from.
    * \param distType Determines whether to compute distance
    *        to white or black pixels in the image.
    * \param borders Determines whether to compute
-   *        distance to particular borders.  The borders
+   *        distance to particular borders. The borders
    *        are assumed to lie one pixel off the image area.
    */
   explicit SEDM(const BinaryImage& image, DistType distType = DIST_TO_WHITE, Borders borders = DIST_TO_ALL_BORDERS);
@@ -100,7 +100,7 @@ class SEDM {
    * nearest non-zero label.
    * \note Besides building a distance map, it will modify
    *       the connectivity map by overwriting zero labels
-   *       with the nearest non-zero label.  This applies to
+   *       with the nearest non-zero label. This applies to
    *       the padding areas of the connectivity map as well.
    */
   explicit SEDM(ConnectivityMap& cmap);
@@ -144,7 +144,7 @@ class SEDM {
    * eroded points.
    *
    * The Borders flags used to build this SEDM also affect the peaks
-   * on it.  If the distance to a particular object was considered,
+   * on it. If the distance to a particular object was considered,
    * that border was considered an object, so a peak may be found
    * between this border and another object.
    *

@@ -8,19 +8,19 @@
     a) runs all test programs                                    -> 07-ubsan-tests.log
     b) lets the two command-line dev tools process real scans    -> 07-ubsan-tools.log
   The sanitizer reports are in the stderr sections of the logs: UBSan as "runtime error: ..."
-  with file:line, ASan as "ERROR: AddressSanitizer: ...", both with stack traces.  The programs
+  with file:line, ASan as "ERROR: AddressSanitizer: ...", both with stack traces. The programs
   keep running after a report, so all findings of a program are collected.
 
   Needs the Visual Studio component "C++ Clang Compiler for Windows".
 
   Why it is set up this way (each point cost a failed attempt):
   - The static UBSan runtime of clang on Windows is built for /MT and can't be linked with the
-    /MD project and vcpkg libraries.  The dynamic ASan runtime is /MD-compatible and contains
+    /MD project and vcpkg libraries. The dynamic ASan runtime is /MD-compatible and contains
     UBSan, so ASan runs along; -fsanitize-recover=address keeps going after an ASan report.
   - CMake's compiler check builds with Debug (/MDd /RTC1), which ASan rejects, hence
     CMAKE_TRY_COMPILE_CONFIGURATION=RelWithDebInfo.
   - CMake links with lld-link directly, not through clang-cl, so the sanitizer runtime isn't
-    added automatically.  LDFLAGS holds what clang-cl itself would pass to the linker, with
+    added automatically. LDFLAGS holds what clang-cl itself would pass to the linker, with
     forward slashes, as CMake drops the backslashes.
   - Only the "windows" Qt platform plugin is deployed to the build directory; the programs run
     headless with "offscreen", so that plugin is copied from vcpkg.
@@ -33,20 +33,20 @@
     powershell -ExecutionPolicy Bypass -File scripts\analysis\sanitizers.ps1 -Images D:\scans
 
 .PARAMETER Images
-  A folder with scans (.tif, .tiff, .jp2, top level only) for the dev tools.  Without it,
+  A folder with scans (.tif, .tiff, .jp2, top level only) for the dev tools. Without it,
   part b) is skipped.
 
 .PARAMETER SkipBuild
   Reuse an existing build directory and only run a) and b).
 
 .PARAMETER OutDir
-  Where the logs go.  Default: ANALYSE in the repository.
+  Where the logs go. Default: ANALYSE in the repository.
 
 .PARAMETER BuildDir
-  The build directory.  Default: build-ubsan in the repository.
+  The build directory. Default: build-ubsan in the repository.
 
 .PARAMETER VcpkgRoot
-  The vcpkg folder.  Default: the VCPKG_ROOT environment variable.
+  The vcpkg folder. Default: the VCPKG_ROOT environment variable.
 #>
 param(
     [string]$Images = '',

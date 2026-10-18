@@ -10,9 +10,9 @@ namespace imageproc {
 /**
  * @brief Darkens or lightens colored pixels, before binarization.
  *
- * Idea from ScanTailor Experimental ("dimming colored"), extended to lightening.  The amount
+ * Idea from ScanTailor Experimental ("dimming colored"), extended to lightening. The amount
  * depends on the saturation of a pixel (max - min of red, green and blue): gray pixels stay as
- * they are.  With a positive coef a pixel moves towards black by coef * saturation / 255, at most
+ * they are. With a positive coef a pixel moves towards black by coef * saturation / 255, at most
  * all the way; with a negative coef it moves towards white in the same way.
  *
  * @param image A color or grayscale image.

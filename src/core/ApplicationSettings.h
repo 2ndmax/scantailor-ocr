@@ -161,7 +161,7 @@ class ApplicationSettings {
 
   /**
    * Distance of the deskew and oblique drag handles from the image center, in percent of the
-   * largest possible distance (handles at the edge of the view).  Smaller values move the
+   * largest possible distance (handles at the edge of the view). Smaller values move the
    * handles away from the edge, at the cost of a coarser angle per pixel of mouse movement.
    */
   int getDeskewHandleDistance() const;
@@ -173,7 +173,7 @@ class ApplicationSettings {
 
   /**
    * The processor threads for all parallel work (see ThreadBudget), 1 to ThreadBudget::availableThreads().
-   * Without an entry ThreadBudget::defaultThreads().  Setting it also sets the ThreadBudget.
+   * Without an entry ThreadBudget::defaultThreads(). Setting it also sets the ThreadBudget.
    */
   int getProcessingThreads() const;
 
@@ -319,7 +319,7 @@ class ApplicationSettings {
 
   void writeValue(const QString& key, const QVariant& value);
 
-  // QSettings is only reentrant, not thread-safe.  But the settings are read
+  // QSettings is only reentrant, not thread-safe. But the settings are read
   // from worker threads as well (e.g. by TiffWriter while batch processing),
   // so all access to m_settings is serialized.
   mutable QMutex m_mutex;

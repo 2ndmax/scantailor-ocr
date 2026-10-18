@@ -15,7 +15,7 @@ namespace imageproc {
  * Calls body(begin, end) for consecutive slices of [0, count), one slice per thread the current task may use
  * (see ThreadBudget: all of them for a single page, one each in a full batch).
  * Each index is handled exactly once, so filters that compute every row on its own give
- * the same result as a single loop.  The body must not throw.
+ * the same result as a single loop. The body must not throw.
  *
  * @param minPerSlice Slices are not made smaller than this, to keep the thread overhead low.
  */

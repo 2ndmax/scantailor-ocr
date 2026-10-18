@@ -93,7 +93,7 @@ class SkewFinder {
    * \brief Downscale the image before doing a coarse search.
    *
    * Downscaling the image before doing a coarse search will speed
-   * things up, but may reduce accuracy.  Specifying a value
+   * things up, but may reduce accuracy. Specifying a value
    * that is too high will cause totally wrong results.
    * \param reduction The number of times to apply a 2x downscaling
    *                  to the image before doing a coarse search.
@@ -106,7 +106,7 @@ class SkewFinder {
    * \brief Downscale the image before doing a fine search.
    *
    * Downscaling the image before doing a fine search will speed
-   * things up, but may reduce accuracy.  Comared to a reduction
+   * things up, but may reduce accuracy. Comared to a reduction
    * before a coarse search, it won't give as much of a speed-up,
    * but it won't cause completely wrong results.
    * \param reduction The number of times to apply a 2x downscaling

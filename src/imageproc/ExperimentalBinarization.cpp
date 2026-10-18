@@ -4,9 +4,9 @@
 
 // The binarization methods Gatos, Nick, Singh, Robust and MultiScale, taken over from ScanTailor
 // Experimental (https://github.com/ImageProcessing-ElectronicPublications/scantailor-experimental,
-// imageproc/Binarize.cpp and imageproc/GrayImage.cpp, commit 80e1c57).  The functions in
+// imageproc/Binarize.cpp and imageproc/GrayImage.cpp, commit 80e1c57). The functions in
 // namespace experimental compute the same as there, apart from the fixes noted below; they have
-// been reformatted and limited to what these methods need.  Only the functions at the end are new.
+// been reformatted and limited to what these methods need. Only the functions at the end are new.
 // Fixes: the mean window of Singh (grayMapMean) was one column too narrow, Robust turned pixels
 // lighter than twice their mean black (grayRobustInPlace), and the iteration of
 // grayBiModalTiledValue has a cap.
@@ -708,7 +708,7 @@ void grayRobustInPlace(GrayImage& src, int const radius, float const coef) {
         float const sc = mean - origin;
         if (mean + sc <= 0.0f) {
           // At twice the mean the formula below has a pole, beyond it it turns light pixels black,
-          // and a black area (origin = mean = 0) gives 0/0.  Such pixels are white, the value
+          // and a black area (origin = mean = 0) gives 0/0. Such pixels are white, the value
           // the formula approaches just below the pole.
           src_line[x] = 255;
           continue;

@@ -27,7 +27,7 @@ class BubbleAnimation {
    * \param rect The rectangle in device coordinates to render to.
    *        A null rectangle indicates the whole device area
    *        is to be used.
-   * \return Whether more frames follow.  After returning false,
+   * \return Whether more frames follow. After returning false,
    *         the next call will render the first frame again.
    */
   bool nextFrame(const QColor& headColor, const QColor& tailColor, QPaintDevice* pd, QRectF rect = QRectF());
@@ -41,7 +41,7 @@ class BubbleAnimation {
    *        Saving and restoring its state is the responsibility
    *        of the caller.
    * \param rect The rectangle in painter coordinates to render to.
-   * \return Whether more frames follow.  After returning false,
+   * \return Whether more frames follow. After returning false,
    *         the next call will render the first frame again.
    */
   bool nextFrame(const QColor& headColor, const QColor& tailColor, QPainter* painter, QRectF rect);

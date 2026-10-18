@@ -224,13 +224,13 @@ void verticalPass(MinMaxSelector selector,
  *        two arguments of type T and return the bigger or the smaller of the two.
  * \param neighborhood The rectangular neighborhood to search for maximum or minimum values.
  *        The (0, 0) point would usually be located at the center of the neighborhood
- *        rectangle, although it's not strictly required.  The neighborhood rectangle
+ *        rectangle, although it's not strictly required. The neighborhood rectangle
  *        can't be empty.
  * \param outsideValues Values that are assumed to be outside of the grid bounds.
  * \param input Pointer to the input buffer.
  * \param inputStride The size of a row in input buffer, in terms of the number of T objects.
  * \param inputSize Dimensions of the input grid.
- * \param output Pointer to the output data.  Note that the input and output buffers
+ * \param output Pointer to the output data. Note that the input and output buffers
  *        may be the same.
  * \param outputStride The size of a row in the output buffer, in terms of the number of T objects.
  *        The output grid is presumed to have the same dimensions as the input grid.

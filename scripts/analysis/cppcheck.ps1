@@ -3,10 +3,10 @@
   Run 03: cppcheck over all sources in src/ except the tests.
 
 .DESCRIPTION
-  Uses the compile database of run 01 (msvc-analyze.ps1), filtered like run 02.  The include
+  Uses the compile database of run 01 (msvc-analyze.ps1), filtered like run 02. The include
   paths of the vcpkg dependencies are removed: cppcheck would otherwise analyse all of Boost and
-  Qt.  Their APIs are described to cppcheck by --library=qt,boost instead.
-  Severities: error (always on), warning, performance, portability.  No style, no
+  Qt. Their APIs are described to cppcheck by --library=qt,boost instead.
+  Severities: error (always on), warning, performance, portability. No style, no
   unusedFunction (many false alarms with Qt slots), no --inconclusive.
 
   The results are in <OutDir>\03-cppcheck.xml; the log only holds the progress output.
@@ -14,13 +14,13 @@
     powershell -ExecutionPolicy Bypass -File scripts\analysis\cppcheck.ps1
 
 .PARAMETER OutDir
-  Where the log and the XML go.  Default: ANALYSE in the repository.
+  Where the log and the XML go. Default: ANALYSE in the repository.
 
 .PARAMETER BuildDir
-  The build directory of run 01.  Default: build-analysis in the repository.
+  The build directory of run 01. Default: build-analysis in the repository.
 
 .PARAMETER Cppcheck
-  The cppcheck executable.  Default: cppcheck on PATH, else C:\Program Files\Cppcheck.
+  The cppcheck executable. Default: cppcheck on PATH, else C:\Program Files\Cppcheck.
 
 .PARAMETER Only
   Check just this one source file (a trial run, no log).

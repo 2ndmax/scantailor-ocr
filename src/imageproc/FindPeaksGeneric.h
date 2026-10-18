@@ -62,7 +62,7 @@ void raiseAllButPeaks(MostSignificantSelector mostSignificant,
  * \brief Finds positive or negative peaks on a 2D grid.
  *
  * A peak is defined as a cell or an 8-connected group of cells that is more
- * significant than any of its neighbor cells.  More significant means either
+ * significant than any of its neighbor cells. More significant means either
  * greater or less, depending on the kind of peaks we want to locate.
  * In addition, we provide functionality to suppress peaks that are
  * in a specified neighborhood of a more significant peak.
@@ -73,14 +73,14 @@ void raiseAllButPeaks(MostSignificantSelector mostSignificant,
  * \param leastSignificant Same as mostSignificant, but the oposite operation.
  * \param increaseSignificance A functor or a pointer to a free function that
  *        takes one argument and returns the next most significant value next
- *        to it.  Hint: for floating point data, use the std::nextafter() family of
- *        functions.  Their generic versions are available in Boost.
+ *        to it. Hint: for floating point data, use the std::nextafter() family of
+ *        functions. Their generic versions are available in Boost.
  * \param peakMutator A functor or a pointer to a free function that will
- *        transform a peak value.  Two typical cases would be returning
+ *        transform a peak value. Two typical cases would be returning
  *        the value as is and returning a fixed value.
  * \param nonPeakMutator Same as peakMutator, but for non-peak values.
  * \param neighborhood The area around a peak (centered at width/2, height/2)
- *        in which less significant peaks will be suppressed.  Passing an empty
+ *        in which less significant peaks will be suppressed. Passing an empty
  *        neighborhood is equivalent of passing a 1x1 neighborhood.
  * \param outsideValues Values that are assumed to be outside of the grid bounds.
  *        This will affect peak detection at the edges of grid.

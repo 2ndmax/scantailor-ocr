@@ -14,11 +14,11 @@ class GrayImage;
  *
  * The background is estimated with a median filter of the given radius and
  * subtracted, so that the whole background takes the brightness of its
- * brightest part.  Based on the "subtract background" filter of
+ * brightest part. Based on the "subtract background" filter of
  * ScanTailor Experimental.
  *
  * @param image The image to process. A null image is allowed.
- * @param radius The radius of the median window, in pixels.  It should be
+ * @param radius The radius of the median window, in pixels. It should be
  *        clearly larger than the stroke width of the text.
  * @param coef The strength, from 0 (off) to 1 (full).
  */

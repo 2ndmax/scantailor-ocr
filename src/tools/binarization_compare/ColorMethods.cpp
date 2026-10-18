@@ -46,7 +46,7 @@ QImage kmeans(const QImage& color, const QImage& text, const int k, const bool f
 }
 
 // Our K-means on the pixels of the text: each pixel on its own, or letters as one color and only
-// larger areas pixel by pixel.  A letter is at most as large as a filled square of a quarter inch.
+// larger areas pixel by pixel. A letter is at most as large as a filled square of a quarter inch.
 QImage textKMeans(const QImage& color, const QImage& text, const int k, const bool combined) {
   const Dpi dpi = dpiOf(color);
   const int quarterInch = (dpi.horizontal() + dpi.vertical()) / 8;

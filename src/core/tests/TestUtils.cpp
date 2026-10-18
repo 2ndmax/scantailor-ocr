@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_overwriting_rename) {
 
 BOOST_AUTO_TEST_CASE(test_overwriting_rename_long_path) {
   // Paths longer than MAX_PATH (260 characters), such as thumbnails of pages whose
-  // names grew with each scan inserted after them.  Windows refused to replace them.
+  // names grew with each scan inserted after them. Windows refused to replace them.
   QTemporaryDir dir;
   const QString longDir = dir.filePath(QString(200, QChar('d')));
   BOOST_REQUIRE(QDir().mkpath(longDir));

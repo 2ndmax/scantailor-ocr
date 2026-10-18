@@ -18,7 +18,7 @@ class GrayImage;
  * The DarkSide in the name suggests that given a dark-to-light transition,
  * the gradient will be detected on the dark side.
  * \par
- * There is no requirement for the source image to be grayscale.  A grayscale
+ * There is no requirement for the source image to be grayscale. A grayscale
  * version will be created transparently, if necessary.
  * \par
  * Smoothing the image before calling this function is often a good idea,
@@ -35,7 +35,7 @@ GrayImage morphGradientDetectDarkSide(const GrayImage& image, const QSize& area)
  * The LightSide in the name suggests that given a dark-to-light transition,
  * the gradient will be detected on the light side.
  * \par
- * There is no requirement for the source image to be grayscale.  A grayscale
+ * There is no requirement for the source image to be grayscale. A grayscale
  * version will be created transparently, if necessary.
  * \par
  * Smoothing the image before calling this function is often a good idea,

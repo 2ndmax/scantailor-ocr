@@ -69,9 +69,9 @@ class HoughLineDetector {
    *        of a line will be considered a part of it.
    *        Normally this parameter greater than 1, but theoretically
    *        it maybe any positive value.
-   * \param startAngle The first angle to check for.  This angle
+   * \param startAngle The first angle to check for. This angle
    *        is between the normal vector of a line we are looking for
-   *        and the X axis.  The angle is in degrees.
+   *        and the X axis. The angle is in degrees.
    * \param angleDelta The difference (in degrees) between an
    *        angle and the next one.
    * \param numAngles The number of angles to check.

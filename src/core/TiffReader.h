@@ -28,7 +28,7 @@ class TiffReader {
   /**
    * \brief Reads the image from io device to QImage.
    *
-   * \param device The device to read from.  This device must be
+   * \param device The device to read from. This device must be
    *        opened for reading and must be seekable.
    * \param pageNum A zero-based page number within a multi-page
    *        TIFF file.
@@ -44,8 +44,8 @@ class TiffReader {
   /**
    * \brief Routes libtiff's error and warning messages to ImageLoadErrorCapture.
    *
-   * Called automatically when reading.  Code writing TIFF files calls it as well,
-   * so write errors can be reported too.  Safe to call any number of times.
+   * Called automatically when reading. Code writing TIFF files calls it as well,
+   * so write errors can be reported too. Safe to call any number of times.
    */
   static void installMessageHandlers();
 
@@ -71,7 +71,7 @@ class TiffReader {
 
   /**
    * Handles floating point, signed integer and 32-bit unsigned integer samples,
-   * which libtiff's RGBA interface refuses.  The values are scaled into 8 bits.
+   * which libtiff's RGBA interface refuses. The values are scaled into 8 bits.
    */
   static QImage extractNumericImage(const TiffHandle& tif, const TiffInfo& info);
 

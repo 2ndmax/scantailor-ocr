@@ -14,7 +14,7 @@
 #include "ImageLoadErrors.h"
 
 namespace {
-// How many failures are named in the message itself.  The rest is in the details.
+// How many failures are named in the message itself. The rest is in the details.
 const int NUM_ENTRIES_SHOWN = 3;
 // Failures arriving within this time are shown together.
 const int COLLECT_DELAY_MS = 750;

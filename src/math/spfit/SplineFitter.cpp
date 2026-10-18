@@ -33,10 +33,10 @@ void SplineFitter::addAttractionForce(const std::vector<FittableSpline::LinearCo
   // Right now we basically have F(x) = Q(L(x)),
   // where Q is a quadratic function represented by sqdistApprox,
   // and L is a vector of linear combinations of control points,
-  // represented by coeffs.  L[0] = is a linear combination of x coordinats
+  // represented by coeffs. L[0] = is a linear combination of x coordinats
   // of control points and L[1] is a linear combination of y coordinates of
-  // control points.  What we are after is F(x) = Q(x), that is a quadratic
-  // function of control points.  We consider control points to be a flat
+  // control points. What we are after is F(x) = Q(x), that is a quadratic
+  // function of control points. We consider control points to be a flat
   // vector of variables, with the following layout: [x0 y0 x1 y1 x2 y2 ...]
 
   // First deal with the quadratic portion of our function.

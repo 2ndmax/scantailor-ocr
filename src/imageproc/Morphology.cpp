@@ -339,7 +339,7 @@ void dilateOrErodeBrick(BinaryImage& dst,
   const QRect tmpImageRect(QPoint(0, 0), tmpArea.size());
 
   // Because all temporary images share the same size, it's easy
-  // to reuse them.  Reusing an image not only saves us the
+  // to reuse them. Reusing an image not only saves us the
   // cost of memory allocation, but also improves chances that
   // image data is already in CPU cache.
   ReusableImages tmpImages;
@@ -595,7 +595,7 @@ GrayImage dilateOrErodeGray(const GrayImage& src,
   const CoordinateSystem dstCs(dstArea.topLeft());
 
   // Each pixel will be a minumum or maximum of a group of pixels
-  // in its neighborhood.  The neighborhood is defined by collectArea.
+  // in its neighborhood. The neighborhood is defined by collectArea.
   const Brick collectArea(brick.flipped());
 
   if ((collectArea.minY() != collectArea.maxY()) && (collectArea.minX() != collectArea.maxX())) {
@@ -609,7 +609,7 @@ GrayImage dilateOrErodeGray(const GrayImage& src,
     CoordinateSystem tmpCs(tmpRect.topLeft());
 
     GrayImage tmp(tmpRect.size());
-    // First operation.  The scope is there to destroy the
+    // First operation. The scope is there to destroy the
     // effectiveSrc image when it's no longer necessary.
     {
       const QRect effectiveSrcRect(extendByBrick(tmpRect, collectArea1));

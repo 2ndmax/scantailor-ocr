@@ -10,7 +10,7 @@
  *
  * Tasks that run side by side (the pages of the batch processing, the pages of the PDF export)
  * share the threads: inside a TaskScope, a task may use maxThreads() / (number of running tasks)
- * threads of its own, at least one.  So a single page in the preview uses all of them, while a
+ * threads of its own, at least one. So a single page in the preview uses all of them, while a
  * full batch runs every page on one thread, and in total about maxThreads() threads are busy.
  */
 class ThreadBudget {

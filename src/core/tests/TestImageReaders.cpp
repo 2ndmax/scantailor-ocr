@@ -706,7 +706,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_falls_back_to_lzw) {
   QTemporaryDir dir;
   const TiffWriter::Compression jpeg{COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 85, COMPRESSION_JPEG};
 
-  // A palette image, as posterizing produces.  JPEG can't store it.
+  // A palette image, as posterizing produces. JPEG can't store it.
   QImage palette(40, 30, QImage::Format_Indexed8);
   palette.setColorCount(3);
   palette.setColor(0, qRgb(255, 255, 255));
@@ -779,7 +779,7 @@ QImage makePaletteImage(const int numColors) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_palette_compression_and_depth) {
   QTemporaryDir dir;
-  // The palette setting applies, not the one for color.  An odd width tests the last half byte.
+  // The palette setting applies, not the one for color. An odd width tests the last half byte.
   for (const int method : {COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_LZMA, COMPRESSION_NONE}) {
     if (!TIFFIsCODECConfigured(uint16_t(method))) {
       continue;

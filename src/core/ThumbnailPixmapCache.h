@@ -25,9 +25,9 @@ class ThumbnailPixmapCache {
   using CompletionHandler = AbstractCommand<void, const ThumbnailLoadResult&>;
 
   /**
-   * \brief Constructor.  To be called from the GUI thread only.
+   * \brief Constructor. To be called from the GUI thread only.
    *
-   * \param thumbDir The directory to store thumbnails in.  If the
+   * \param thumbDir The directory to store thumbnails in. If the
    *        provided directory doesn't exist, it will be created.
    * \param maxSize The maximum width and height for thumbnails.
    *        The actual thumbnail size is going to depend on its aspect
@@ -37,7 +37,7 @@ class ThumbnailPixmapCache {
    * \param expirationThreshold Requests are served from newest to
    *        oldest ones. If a request is still not served after a certain
    *        number of newer requests have been served, that request is
-   *        expired.  \p expirationThreshold specifies the exact number
+   *        expired. \p expirationThreshold specifies the exact number
    *        of requests that cause older requests to expire.
    *
    * \see ThumbnailLoadResult::REQUEST_EXPIRED
@@ -45,7 +45,7 @@ class ThumbnailPixmapCache {
   ThumbnailPixmapCache(const QString& thumbDir, const QSize& maxSize, int maxCachedPixmaps, int expirationThreshold);
 
   /**
-   * \brief Destructor.  To be called from the GUI thread only.
+   * \brief Destructor. To be called from the GUI thread only.
    */
   virtual ~ThumbnailPixmapCache();
 
@@ -74,8 +74,8 @@ class ThumbnailPixmapCache {
   /**
    * \brief Take the pixmap from cache or schedule a load request.
    *
-   * If the pixmap is in cache, return it immediately.  Otherwise,
-   * schedule its loading in background.  Once the load request
+   * If the pixmap is in cache, return it immediately. Otherwise,
+   * schedule its loading in background. Once the load request
    * has been processed, the provided \p call_handler will be called.
    *
    * \note This function is to be called from the GUI thread only.
@@ -83,8 +83,8 @@ class ThumbnailPixmapCache {
    * \param imageId The identifier of the full size image and its thumbnail.
    * \param[out] pixmap If the pixmap is cached, store it here.
    * \param completionHandler A handler that will be called on request
-   * completion.  As only a weak pointer is kept, the handler may be
-   * destroyed before that; it is then simply not called.  Destroy it
+   * completion. As only a weak pointer is kept, the handler may be
+   * destroyed before that; it is then simply not called. Destroy it
    * from the GUI thread only.
    */
   Status loadRequest(const ImageId& imageId,
@@ -94,8 +94,8 @@ class ThumbnailPixmapCache {
   /**
    * \brief If no thumbnail exists for this image, create it.
    *
-   * Using this function is optional.  It just presents an optimization
-   * opportunity.  Suppose you have the full size image already loaded,
+   * Using this function is optional. It just presents an optimization
+   * opportunity. Suppose you have the full size image already loaded,
    * and want to avoid a second load when its thumbnail is requested.
    *
    * \param imageId The identifier of the full size image and its thumbnail.

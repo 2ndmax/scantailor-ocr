@@ -128,7 +128,7 @@ class OutputImageParams {
   /** Shape of the pictures in image */
   PictureShapeOptions m_pictureShapeOptions;
 
-  /** Two curves and two lines connecting their endpoints.  Used for dewarping. */
+  /** Two curves and two lines connecting their endpoints. Used for dewarping. */
   dewarping::DistortionModel m_distortionModel;
 
   /** \see imageproc::CylindricalSurfaceDewarper */

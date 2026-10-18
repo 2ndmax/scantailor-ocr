@@ -11,14 +11,14 @@ class QComboBox;
 namespace output {
 /**
  * Fills a method selector with all binarization methods, in the order of BinarizationMethod,
- * each with a tooltip saying what it is suited for.  Used by the Output step and the default
+ * each with a tooltip saying what it is suited for. Used by the Output step and the default
  * parameters dialog.
  */
 void fillBinarizationMethodBox(QComboBox* box);
 
 /**
  * The methods taken from ScanTailor Experimental need a different window size and strength
- * than the others, which share theirs.  When switching to or from one of them, the window size
+ * than the others, which share theirs. When switching to or from one of them, the window size
  * and strength are set to the defaults of the new method.
  */
 bool needsOwnBinarizationDefaults(BinarizationMethod from, BinarizationMethod to);

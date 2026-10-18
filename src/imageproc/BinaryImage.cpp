@@ -251,7 +251,7 @@ void BinaryImage::fill(const BWColor color) {
 
 void BinaryImage::fill(const QRect& rect, const BWColor color) {
   // Note: the other fill*() overloads all reject null images, and so does
-  // this one.  Without the check, data() below would return null.
+  // this one. Without the check, data() below would return null.
   if (isNull()) {
     throw std::logic_error("Attempt to fill a null BinaryImage!");
   }
@@ -673,7 +673,7 @@ BinaryImage BinaryImage::fromMono(const QImage& image, const QRect& rect) {
   }
 
   if (word1UnusedBits == 0) {
-    // It's not just an optimization.  The code in the other branch
+    // It's not just an optimization. The code in the other branch
     // is not going to work for this case because uint32_t << 32
     // does not actually clear the word.
     for (int i = height; i > 0; --i) {

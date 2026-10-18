@@ -225,7 +225,7 @@ QImage reduceTextColors(const QImage& color,
     groupOfColor.insert(it.key(), palette.groupOf(it.key()));
   }
 
-  // Letters are the small connected areas of the text.  Each of their segments gets the group of its
+  // Letters are the small connected areas of the text. Each of their segments gets the group of its
   // average color; larger areas, such as pictures and the lines of drawings, keep a group for each
   // pixel and so their shading.
   std::vector<int> componentSizes(components.maxLabel() + 1, 0);

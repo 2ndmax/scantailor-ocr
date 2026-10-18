@@ -14,7 +14,7 @@ class GrayImage;
 /**
  * @brief Applies a filter working on gray levels to a colour or grayscale image.
  *
- * The filter gets the brightness of the image.  In 8-bit images the result
+ * The filter gets the brightness of the image. In 8-bit images the result
  * replaces the gray levels; in 32-bit images the change of brightness is
  * carried over to the colour channels, so that colours keep their hue.
  * Other formats are left alone.

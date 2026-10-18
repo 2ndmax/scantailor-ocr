@@ -17,26 +17,26 @@
     powershell -ExecutionPolicy Bypass -File scripts\package-windows.ps1 -Version 1.0.0
 
 .PARAMETER Version
-  The release version, e.g. "1.0.0".  Becomes part of the folder and ZIP name.
+  The release version, e.g. "1.0.0". Becomes part of the folder and ZIP name.
 
 .PARAMETER BuildDir
-  The build folder.  Default: "build" in the repository.
+  The build folder. Default: "build" in the repository.
 
 .PARAMETER VcpkgRoot
-  The vcpkg folder.  Default: the VCPKG_ROOT environment variable.
+  The vcpkg folder. Default: the VCPKG_ROOT environment variable.
 
 .PARAMETER Triplet
-  The vcpkg triplet.  Default: x64-windows.
+  The vcpkg triplet. Default: x64-windows.
 
 .PARAMETER CrtDir
   The folder with the Microsoft C++ runtime DLLs to ship (…\VC\Redist\MSVC\<version>\x64\
-  Microsoft.VC<nnn>.CRT).  Default: found through vswhere.
+  Microsoft.VC<nnn>.CRT). Default: found through vswhere.
 
 .PARAMETER Languages
-  The OCR languages to ship from <BuildDir>\tessdata.  Default: deu, eng.
+  The OCR languages to ship from <BuildDir>\tessdata. Default: deu, eng.
 
 .PARAMETER OutputDir
-  Where the folder and the ZIP are created.  Default: <BuildDir>\package.
+  Where the folder and the ZIP are created. Default: <BuildDir>\package.
 
 .PARAMETER SkipStartTest
   Don't test-start the program (it opens its main window for a few seconds).
@@ -172,8 +172,8 @@ if (-not $CrtDir) {
   $CrtDir = $crtCandidates[0].FullName
 }
 if (-not (Test-Path $CrtDir)) { Fail "$CrtDir doesn't exist." }
-Write-Host "Build:   $BuildDir"
-Write-Host "vcpkg:   $VcpkgRoot ($Triplet)"
+Write-Host "Build: $BuildDir"
+Write-Host "vcpkg: $VcpkgRoot ($Triplet)"
 Write-Host "Runtime: $CrtDir"
 
 $tessdataDir = Join-Path $BuildDir "tessdata"
@@ -203,7 +203,7 @@ foreach ($group in @("platforms", "styles", "imageformats", "iconengines")) {
     $pluginFiles.Add((Join-Path (Join-Path $packageDir $group) $dll.Name))
   }
 }
-# TLS: Windows' own implementation only.  The OpenSSL plugin can't load without OpenSSL,
+# TLS: Windows' own implementation only. The OpenSSL plugin can't load without OpenSSL,
 # and Qt then stops loading the other TLS plugins.
 New-Item -ItemType Directory -Force (Join-Path $packageDir "tls") | Out-Null
 foreach ($name in @("qschannelbackend.dll", "qcertonlybackend.dll")) {
@@ -311,7 +311,7 @@ if (-not (Test-Path $jbig2License)) {
 $jbig2Note = @"
 The program contains the JBIG2 arithmetic coder of jbig2enc, https://github.com/agl/jbig2enc,
 Copyright 2006 Google Inc., Author: Adam Langley, licensed under the Apache License,
-Version 2.0 (below).  It was shortened to the parts for lossless generic region coding.
+Version 2.0 (below). It was shortened to the parts for lossless generic region coding.
 
 "@
 Set-Content -Path (Join-Path $licensesDir "jbig2enc.txt") -Value ($jbig2Note + (Get-Content $jbig2License -Raw)) -Encoding UTF8
@@ -385,7 +385,7 @@ Step "Packing the ZIP"
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 # ZipFile.CreateFromDirectory() of Windows PowerShell 5.1 writes "\" into the entry names,
-# which other tools don't understand.  So the entries are written one by one, with "/".
+# which other tools don't understand. So the entries are written one by one, with "/".
 $zipStream = [System.IO.File]::Open($zipPath, [System.IO.FileMode]::CreateNew)
 try {
   $archive = New-Object System.IO.Compression.ZipArchive($zipStream, [System.IO.Compression.ZipArchiveMode]::Create)
@@ -406,5 +406,5 @@ $zipInfo = Get-Item $zipPath
 $hash = (Get-FileHash -Algorithm SHA256 $zipPath).Hash
 Write-Host ""
 Write-Host "Done: $zipPath" -ForegroundColor Green
-Write-Host ("Size:   {0:N1} MB" -f ($zipInfo.Length / 1MB))
+Write-Host ("Size: {0:N1} MB" -f ($zipInfo.Length / 1MB))
 Write-Host "SHA256: $hash"

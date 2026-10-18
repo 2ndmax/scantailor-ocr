@@ -136,7 +136,7 @@ BinaryImage SEDM::findPeaksDestructive() {
   BinaryImage peakCandidates(findPeakCandidatesNonPadded());
   // To check if a peak candidate is really a peak, we have to check
   // that every cell in its neighborhood has a lower value than that
-  // candidate.  We are working with 3x3 neighborhoods.
+  // candidate. We are working with 3x3 neighborhoods.
   BinaryImage neighborhoodMask(dilateBrick(peakCandidates, QSize(3, 3), peakCandidates.rect().adjusted(-1, -1, 1, 1)));
   rasterOp<RopXor<RopSrc, RopDst>>(neighborhoodMask, neighborhoodMask.rect().adjusted(1, 1, -1, -1), peakCandidates,
                                    QPoint(0, 0));

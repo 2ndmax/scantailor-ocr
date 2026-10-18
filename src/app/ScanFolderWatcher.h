@@ -22,9 +22,9 @@ class QFileInfo;
 /**
  * \brief Watches a directory for new images, e.g. saved there by a scanning program.
  *
- * Images that are there when watching starts are left alone.  A new image is reported
+ * Images that are there when watching starts are left alone. A new image is reported
  * once it is completely written: its size stayed the same for a moment and it can be
- * loaded.  The loading is done in a background thread.  Subdirectories are not watched.
+ * loaded. The loading is done in a background thread. Subdirectories are not watched.
  */
 class ScanFolderWatcher : public QObject {
   Q_OBJECT
@@ -39,7 +39,7 @@ class ScanFolderWatcher : public QObject {
   /** The importable images in \p dir, as absolute paths. */
   static QSet<QString> imagesIn(const QString& dir);
 
-  /** Starts watching \p dir.  The images in it now are not reported. */
+  /** Starts watching \p dir. The images in it now are not reported. */
   void start(const QString& dir);
 
   void stop();

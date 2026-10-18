@@ -79,7 +79,7 @@ class ProjectPages : public QObject {
    * \brief Insert an image before or after the existing one.
    *
    * The caller has to make sure he is not inserting an image that already
-   * exists in this ProjectPages.  Requesting to insert a new image
+   * exists in this ProjectPages. Requesting to insert a new image
    * BEFORE the null one is legal and means inserting it at the end.
    *
    * \param newImage The image to insert.
@@ -87,7 +87,7 @@ class ProjectPages : public QObject {
    * \param existing The image we are inserting before or after.
    * \param view This one only affects what is returned.
    * \return One or two (or zero, if existing image wasn't found) logical
-   *         page descriptors.  If two are returned, they will be returned
+   *         page descriptors. If two are returned, they will be returned
    *         in the order dependent on the layout direction specified
    *         at construction time.
    */

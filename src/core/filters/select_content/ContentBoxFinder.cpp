@@ -97,7 +97,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
   QImage gray150(transformToGray(dataGrayImage, xform150dpi.transform(), xform150dpi.resultingRect().toRect(),
                                  OutsidePixels::assumeColor(outsideColor)));
   // Note that we fill new areas that appear as a result of
-  // rotation with black, not white.  Filling them with white
+  // rotation with black, not white. Filling them with white
   // may be bad for detecting the shadow around the page.
   if (dbg) {
     dbg->add(gray150, "gray150");
@@ -244,7 +244,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
     dbg->add(contentBlocks, "initial_trimming");
   }
 
-  // Do some more whitespace finding.  This should help us separate
+  // Do some more whitespace finding. This should help us separate
   // blocks that don't belong together.
   {
     BinaryImage tmp(content);
@@ -492,7 +492,7 @@ void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage&
                                                          const int borderTolerance,
                                                          DebugImages* dbg) {
   // We could just do a seed fill from borders, but that
-  // has the potential to remove too much.  Instead, we
+  // has the potential to remove too much. Instead, we
   // do something similar to a seed fill, but with a limited
   // spread distance.
 
@@ -1117,7 +1117,7 @@ QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
     // It's a loop just to be able to break from it.
 
     // There is a special case when there is nothing but
-    // garbage on the page.  Let's try to handle it here.
+    // garbage on the page. Let's try to handle it here.
     if ((removedArea.width() < 6) || (removedArea.height() < 6)) {
       break;
     }
@@ -1138,8 +1138,8 @@ QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
 
   const bool verticalCut = (newArea.top() == area.top() && newArea.bottom() == area.bottom());
   // qDebug() << "vertical cut: " << verticalCut;
-  // Ranged from 0.0 to 1.0.  When it's less than 0.5, objects
-  // are more likely to be considered as garbage.  When it's
+  // Ranged from 0.0 to 1.0. When it's less than 0.5, objects
+  // are more likely to be considered as garbage. When it's
   // more than 0.5, objects are less likely to be considered
   // as garbage.
   double proximityBias = verticalCut ? 0.5 : 0.65;
@@ -1242,7 +1242,7 @@ void ContentBoxFinder::filterShadows(const TaskStatus& status,
                                      DebugImages* const dbg) {
   // The input image should only contain shadows from the edges
   // of a page, but in practice it may also contain things like
-  // a black table header which white letters on it.  Here we
+  // a black table header which white letters on it. Here we
   // try to filter them out.
 
 #if 1

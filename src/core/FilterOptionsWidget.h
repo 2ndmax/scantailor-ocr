@@ -31,7 +31,7 @@ class FilterOptionsWidget : public QWidget {
 
   /**
    * After we've got rid of "Widest Page" / "Tallest Page" links,
-   * there is no one using this signal.  It's a candidate for removal.
+   * there is no one using this signal. It's a candidate for removal.
    */
   void goToPage(const PageId& pageId);
 
@@ -42,7 +42,7 @@ class FilterOptionsWidget : public QWidget {
   void colorModeDetectionRequested(const std::set<PageId>& pages);
 
   /**
-   * Emitted after the DPI of the current image was changed in the panel.  The page list keeps
+   * Emitted after the DPI of the current image was changed in the panel. The page list keeps
    * its own copy of the DPI, which the processing uses, so it has to be updated before reloading.
    */
   void sourceDpiChanged();

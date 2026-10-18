@@ -171,7 +171,7 @@ WidthCorrection WidthProfile::toCorrection(const std::vector<Sample>& samples,
   }
 
   // Where the letters are too narrow (scale < 1) the page has to be stretched: the corrected
-  // position grows with the density 1 / scale.  Beyond the first and last window the nearest
+  // position grows with the density 1 / scale. Beyond the first and last window the nearest
   // measurement is used.
   std::vector<double> u(n);
   for (size_t i = 0; i < n; ++i) {

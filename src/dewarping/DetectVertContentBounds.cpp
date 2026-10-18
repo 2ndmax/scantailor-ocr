@@ -167,7 +167,7 @@ void SequentialColumnProcessor::process(int x, const VertRange& range) {
       }
     }
 
-    // We avoid trimming the path too much.  This helps cases like a heading
+    // We avoid trimming the path too much. This helps cases like a heading
     // wider than the rest of the text.
     if (!segmentIsTooLong(top, m_path[midIdx])) {
       m_path.erase(m_path.begin(), m_path.begin() + midIdx);
@@ -190,7 +190,7 @@ void SequentialColumnProcessor::process(int x, const VertRange& range) {
         break;
       }
     }
-    // We avoid trimming the path too much.  This helps cases like a heading
+    // We avoid trimming the path too much. This helps cases like a heading
     // wider than the rest of the text.
     if (!segmentIsTooLong(bottom, m_path[midIdx])) {
       m_path.erase(m_path.begin() + (midIdx + 1), m_path.end());

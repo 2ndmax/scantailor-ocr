@@ -40,7 +40,7 @@ SlicedHistogram::SlicedHistogram(const BinaryImage& image, const QRect& area, co
 
 void SlicedHistogram::processHorizontalLines(const BinaryImage& image, const QRect& area) {
   if (area.width() <= 0) {
-    // The word arithmetic below needs at least one column.  Without columns every row counts zero.
+    // The word arithmetic below needs at least one column. Without columns every row counts zero.
     m_data.resize(std::max(area.height(), 0));
     return;
   }

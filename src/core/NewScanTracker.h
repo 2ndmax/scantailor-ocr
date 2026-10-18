@@ -13,13 +13,13 @@
 /**
  * \brief Decides when a new file in a watched directory is ready to be imported.
  *
- * Files that were there when watching started are never imported.  A new file is a
+ * Files that were there when watching started are never imported. A new file is a
  * candidate once its size and modification time stayed the same over a few checks.
  * The caller then tries to load it and reports back: a file that can't be loaded yet
  * (because the scanning program is still writing it) is tried again, until it is
  * given up after some time.
  *
- * Contains no timers and no file access, so it can be tested.  Times are in milliseconds.
+ * Contains no timers and no file access, so it can be tested. Times are in milliseconds.
  */
 class NewScanTracker {
  public:
@@ -35,12 +35,12 @@ class NewScanTracker {
   /** A file that still can't be loaded this long after it appeared is given up. */
   static constexpr qint64 GIVE_UP_MS = 60000;
 
-  /** Starts over.  The files in \p existing are never imported. */
+  /** Starts over. The files in \p existing are never imported. */
   void reset(const QSet<QString>& existing);
 
   /**
    * Takes the current listing of the directory and returns the files that should be
-   * loaded now.  They are not returned again until reported with loadFailed().
+   * loaded now. They are not returned again until reported with loadFailed().
    */
   std::vector<QString> update(const std::vector<FileState>& listing, qint64 nowMs);
 
@@ -48,7 +48,7 @@ class NewScanTracker {
   void done(const QString& path);
 
   /**
-   * The file couldn't be loaded.  Returns true if it is given up (and ignored from now on),
+   * The file couldn't be loaded. Returns true if it is given up (and ignored from now on),
    * false if it will be tried again once it is unchanged for a while.
    */
   bool loadFailed(const QString& path, qint64 nowMs);

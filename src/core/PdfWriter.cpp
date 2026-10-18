@@ -124,7 +124,7 @@ bool PdfWriter::finish() {
   write("<< /Type /Pages /Kids [ " + kids + "] /Count " + QByteArray::number(pageCount()) + " >>\nendobj\n");
 
   beginObject(m_catalogId);
-  // The header was written before the pages were known.  JPEG 2000 needs PDF 1.5;
+  // The header was written before the pages were known. JPEG 2000 needs PDF 1.5;
   // the catalog's version takes precedence over the header's.
   const QByteArray version = m_usesPdf15 ? QByteArray(" /Version /1.5") : QByteArray();
   write("<< /Type /Catalog /Pages " + QByteArray::number(m_pagesId) + " 0 R" + version + " >>\nendobj\n");

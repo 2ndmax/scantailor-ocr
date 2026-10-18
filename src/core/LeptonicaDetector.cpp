@@ -30,7 +30,7 @@ using PixPtr = std::unique_ptr<PIX, PixDeleter>;
 using NumaPtr = std::unique_ptr<NUMA, NumaDeleter>;
 
 /**
- * Convert QImage to Leptonica PIX format.  Alpha is left out: the detection looks
+ * Convert QImage to Leptonica PIX format. Alpha is left out: the detection looks
  * at colors only, and the pages have no transparency.
  */
 PixPtr qImageToPix(const QImage& qimg) {
@@ -228,9 +228,9 @@ float normalizedEntropy(const std::array<int, 16>& histogram, const int total) {
 }
 
 /**
- * Measure overlapping 20%-page tiles on a 10%-page stride.  The 4% inset
+ * Measure overlapping 20%-page tiles on a 10%-page stride. The 4% inset
  * suppresses scanner margins and binding gutters explicitly, while tiles
- * still reach every content edge.  Candidate tiles are joined in the 9x9
+ * still reach every content edge. Candidate tiles are joined in the 9x9
  * overlap graph so classification can use coverage and topology rather than
  * one position-sensitive cell.
  */
@@ -326,7 +326,7 @@ void collectConnectedToneEvidence(PIX* gray, LeptonicaDetector::DetectionEvidenc
 
       // Photos retain a broad distribution after an 8px box integration.
       // Line art instead has few blurred bins or concentrates its intermediate
-      // samples in high-contrast edge halos.  Very flat fills also fail.
+      // samples in high-contrast edge halos. Very flat fills also fail.
       tile.lineArtRejected = tile.occupiedBins < 7 || tile.blurredEntropy < 0.55f || tile.lowFrequencyVariance < 0.012f
                              || tile.broadMidtoneRatio > 0.76f
                              || (tile.edgeDensity > 0.18f && tile.edgeHaloMidtoneRatio > 0.30f);
@@ -400,7 +400,7 @@ void collectConnectedToneEvidence(PIX* gray, LeptonicaDetector::DetectionEvidenc
 }
 
 /**
- * Collect normalized grayscale and spatial tone measurements.  This function
+ * Collect normalized grayscale and spatial tone measurements. This function
  * deliberately makes no verdict.
  */
 void collectGrayscaleToneEvidence(PIX* pix,

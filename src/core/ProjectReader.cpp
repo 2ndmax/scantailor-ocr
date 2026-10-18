@@ -57,7 +57,7 @@ ProjectReader::ProjectReader(const QDomDocument& doc, const QString& projectFile
     return;
   }
   processPages(pagesEl);
-  // Load naming disambiguator.  This needs to be done after processing pages.
+  // Load naming disambiguator. This needs to be done after processing pages.
   const QDomElement disambigEl(projectEl.namedItem("file-name-disambiguation").toElement());
   m_disambiguator = std::make_shared<FileNameDisambiguator>(
       disambigEl, std::bind(&ProjectReader::expandFilePath, this, std::placeholders::_1));
@@ -72,7 +72,7 @@ QString ProjectReader::resolvePath(const QString& path) const {
   if (m_projectDirPath.isEmpty() || QDir::isAbsolutePath(path)) {
     return path;
   }
-  // cleanPath() turns "<project folder>/." into "<project folder>".  Otherwise the image paths
+  // cleanPath() turns "<project folder>/." into "<project folder>". Otherwise the image paths
   // contain "/./" and don't match the same paths from elsewhere, e.g. the Fix DPI dialog.
   return QDir::cleanPath(QDir(m_projectDirPath).absoluteFilePath(path));
 }
@@ -210,7 +210,7 @@ void ProjectReader::processImages(const QDomElement& imagesEl, const Qt::LayoutD
     m_imageMap.insert(ImageMap::value_type(id, imageInfo));
   }
 
-  // A project without any images is a valid empty project.  If there are images,
+  // A project without any images is a valid empty project. If there are images,
   // but none of them could be read, the project file is broken.
   if (!images.empty() || numImageElements == 0) {
     m_pages = std::make_shared<ProjectPages>(images, layoutDirection);

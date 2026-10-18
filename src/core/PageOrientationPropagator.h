@@ -20,7 +20,7 @@ class Filter;
  *
  * This is necessary because the decision of whether to treat a scan
  * as two pages or one needs to be made collectively by the "Fix Orientation"
- * and "Split Pages" stages.  "Split Pages" might or might not know the definite
+ * and "Split Pages" stages. "Split Pages" might or might not know the definite
  * answer, while "Fix Orientation" provides a hint.
  */
 class PageOrientationPropagator {

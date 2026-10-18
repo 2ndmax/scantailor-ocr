@@ -8,13 +8,13 @@ namespace imageproc {
 class BinaryImage;
 class GrayImage;
 
-// Binarization methods taken over from ScanTailor Experimental.  The window size is the one of
+// Binarization methods taken over from ScanTailor Experimental. The window size is the one of
 // the options panel (about twice the radius used in Experimental), k the strength and delta the
 // threshold adjustment, where a positive value makes the result darker.
 
 /**
  * Gatos, Pratikakis and Perantonis (2006): estimates the paper background from a Niblack
- * binarization and thresholds by the distance to it.  Suited to yellowed, stained or unevenly
+ * binarization and thresholds by the distance to it. Suited to yellowed, stained or unevenly
  * lit pages.
  */
 BinaryImage binarizeGatos(const GrayImage& src, int windowSize = 200, double k = 0.2, int delta = 0);

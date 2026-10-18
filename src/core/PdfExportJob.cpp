@@ -41,7 +41,7 @@ QImage loadImage(const QString& filePath, QStringList* errors) {
   return image;
 }
 
-/** Resolution in pixels per point (1/72 inch).  Falls back to 300 dpi if the image has none. */
+/** Resolution in pixels per point (1/72 inch). Falls back to 300 dpi if the image has none. */
 QSizeF pixelsPerPoint(const QImage& image) {
   auto perPoint = [](const int dotsPerMeter) {
     double dpi = dotsPerMeter * 0.0254;
@@ -58,7 +58,7 @@ QRectF toPoints(const QRectF& pixelRect, const QSizeF& perPoint) {
                 pixelRect.width() / perPoint.width(), pixelRect.height() / perPoint.height());
 }
 
-/** Sets the size and place of the compressed image.  Reports an error if the compression produced no data. */
+/** Sets the size and place of the compressed image. Reports an error if the compression produced no data. */
 bool finishImage(const QImage& image,
                  const QString& filePath,
                  const QRectF& rect,
@@ -75,7 +75,7 @@ bool finishImage(const QImage& image,
   return true;
 }
 
-/** Stores \p image uncompressed or with Deflate, keeping a palette.  1 bit images become masks if \p isMask. */
+/** Stores \p image uncompressed or with Deflate, keeping a palette. 1 bit images become masks if \p isMask. */
 bool makeLosslessImage(const QImage& image,
                        const QString& filePath,
                        const PdfCompression compression,

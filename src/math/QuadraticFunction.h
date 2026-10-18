@@ -65,7 +65,7 @@ class QuadraticFunction {
   Gradient gradient() const;
 
   /**
-   * f(x) is our function.  This method will replace f(x) with g(x) so that
+   * f(x) is our function. This method will replace f(x) with g(x) so that
    * g(x) = f(x + translation)
    */
   void recalcForTranslatedArguments(const double* translation);

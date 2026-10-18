@@ -26,7 +26,7 @@ class Utils {
    * \brief Replace an empty content rectangle with a tiny centered one.
    *
    * If the content rectangle is empty (no content on the page), it
-   * creates various problems for us.  So, we replace it with a tiny
+   * creates various problems for us. So, we replace it with a tiny
    * non-empty rectangle centered in the page's crop area, which
    * is retrieved from the ImageTransformation.
    */
@@ -41,8 +41,8 @@ class Utils {
    * \brief Extend a rectangle transformed into a polygon with margins.
    *
    * The first edge of the polygon is considered to be the top edge, the
-   * next one is right, and so on.  The polygon must have 4 or 5 vertices
-   * (unclosed vs closed polygon).  It must have 90 degree angles and
+   * next one is right, and so on. The polygon must have 4 or 5 vertices
+   * (unclosed vs closed polygon). It must have 90 degree angles and
    * must not be empty.
    */
   static void extendPolyRectWithMargins(QPolygonF& polyRect, const Margins& margins);

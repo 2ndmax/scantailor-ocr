@@ -169,7 +169,7 @@ class JpegDestination : public jpeg_destination_mgr {
 };
 
 /**
- * Converts the image to 1 bit if necessary.  \a oneIsBlack tells whether bit
+ * Converts the image to 1 bit if necessary. \a oneIsBlack tells whether bit
  * value 1 is the darker of the two colours, which depends on the colour table.
  */
 QImage toMono(const QImage& image, bool* oneIsBlack) {
@@ -581,7 +581,7 @@ struct Jp2ImageDeleter {
   void operator()(opj_image_t* image) const { opj_image_destroy(image); }
 };
 
-/** Where OpenJPEG writes the file.  Writing a JP2 file seeks back to fill in box lengths. */
+/** Where OpenJPEG writes the file. Writing a JP2 file seeks back to fill in box lengths. */
 struct Jp2Output {
   QByteArray data;
   qint64 pos = 0;
@@ -633,7 +633,7 @@ void jp2ErrorHandler(const char* msg, void*) {
 void jp2SilentHandler(const char*, void*) {}
 
 /**
- * The image quality (PSNR in dB) for a quality value like JPEG's.  The values are chosen
+ * The image quality (PSNR in dB) for a quality value like JPEG's. The values are chosen
  * so that JPEG 2000 looks about as good as JPEG with the same value: 85 gives about 42 dB.
  */
 float jp2Psnr(const int quality) {
@@ -642,7 +642,7 @@ float jp2Psnr(const int quality) {
 
 /**
  * An encoder holds the whole image several times over, a large colour page takes some
- * hundred MB.  So only a few encode at the same time.  They share the thread limit (see
+ * hundred MB. So only a few encode at the same time. They share the thread limit (see
  * ThreadBudget): each gets the limit divided by the encodes running when it starts, so a
  * single encode uses all threads and four use a quarter each.
  */

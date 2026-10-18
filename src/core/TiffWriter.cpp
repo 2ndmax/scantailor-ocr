@@ -260,7 +260,7 @@ void TiffWriter::setCompression(const TiffHandle& tif, const int compression, co
 
 void TiffWriter::setPredictor(const TiffHandle& tif, const int compression) {
   // Storing the difference to the left neighbour makes smooth pictures compress much better.
-  // Every reader of these methods knows it.  Like the compression, it has to be set first.
+  // Every reader of these methods knows it. Like the compression, it has to be set first.
   switch (compression) {
     case COMPRESSION_LZW:
     case COMPRESSION_DEFLATE:
@@ -368,7 +368,7 @@ bool TiffWriter::writeRGB32Image(const TiffHandle& tif, const QImage& image, con
   TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, uint16_t(8));
   if (compression.color == COMPRESSION_JPEG) {
     // The usual form of JPEG in TIFF: brightness and color separately, the color
-    // at half resolution.  This makes the files much smaller than JPEG in RGB.
+    // at half resolution. This makes the files much smaller than JPEG in RGB.
     // libtiff converts the RGB lines we pass.
     TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR);
     TIFFSetField(tif.handle(), TIFFTAG_JPEGCOLORMODE, JPEGCOLORMODE_RGB);
@@ -406,7 +406,7 @@ bool TiffWriter::writeARGB32Image(const TiffHandle& tif, const QImage& image, co
 
   TIFFSetField(tif.handle(), TIFFTAG_SAMPLESPERPIXEL, uint16_t(4));
   // Without this, readers take the fourth sample for something unspecified (libtiff:
-  // premultiplied alpha).  QImage::Format_ARGB32 is not premultiplied.
+  // premultiplied alpha). QImage::Format_ARGB32 is not premultiplied.
   const uint16_t extraSample = EXTRASAMPLE_UNASSALPHA;
   TIFFSetField(tif.handle(), TIFFTAG_EXTRASAMPLES, uint16_t(1), &extraSample);
   // JPEG can't store the alpha channel.

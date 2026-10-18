@@ -16,7 +16,7 @@ class Dpm;
 
 class TiffWriter {
  public:
-  /** How images are compressed.  The values are libtiff's COMPRESSION_* constants. */
+  /** How images are compressed. The values are libtiff's COMPRESSION_* constants. */
   struct Compression {
     // The defaults are those of ApplicationSettings.
     /** For black and white images. */
@@ -39,7 +39,7 @@ class TiffWriter {
    * No partially written file is left behind.
    *
    * \param filePath The full path to the file.
-   * \param image The image to write.  Writing a null image will fail.
+   * \param image The image to write. Writing a null image will fail.
    * \return True on success, false on failure.
    */
   static bool writeImage(const QString& filePath, const QImage& image);
@@ -47,9 +47,9 @@ class TiffWriter {
   /**
    * \brief Writes a QImage in TIFF format to an IO device.
    *
-   * \param device The device to write to.  This device must be
+   * \param device The device to write to. This device must be
    *        opened for writing and seekable.
-   * \param image The image to write.  Writing a null image will fail.
+   * \param image The image to write. Writing a null image will fail.
    * \return True on success, false on failure.
    */
   static bool writeImage(QIODevice& device, const QImage& image);
@@ -59,10 +59,10 @@ class TiffWriter {
    *        instead of the one set by the user.
    *
    * Palette images and images with an alpha channel can't be stored as JPEG; they are
-   * stored with LZW instead.  Color images are stored as JPEG in YCbCr.
+   * stored with LZW instead. Color images are stored as JPEG in YCbCr.
    *
    * Grayscale and color images compressed with LZW, Deflate or LZMA use the horizontal
-   * predictor, which makes them smaller.  Palette images with up to 16 colors are stored
+   * predictor, which makes them smaller. Palette images with up to 16 colors are stored
    * with 4 bits per pixel.
    */
   static bool writeImage(QIODevice& device, const QImage& image, const Compression& compression);

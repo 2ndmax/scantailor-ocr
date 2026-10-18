@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Shared helpers for the analysis runs in this folder.  Dot-sourced by the run scripts.
+  Shared helpers for the analysis runs in this folder. Dot-sourced by the run scripts.
 
 .DESCRIPTION
   Finds Visual Studio (through vswhere), its bundled CMake, Ninja and LLVM tools, and vcpkg
@@ -93,7 +93,7 @@ function Invoke-Build([string]$Log, [string]$BuildDir, [string]$Configure) {
 }
 
 # The compile database of a build, reduced to the sources under src/ without the tests and
-# without generated files.  Switches matching any of $DropPatterns are removed from the commands.
+# without generated files. Switches matching any of $DropPatterns are removed from the commands.
 function Get-FilteredCompileDb([string]$BuildDir, [string[]]$DropPatterns = @()) {
     $db = Get-Content "$BuildDir\compile_commands.json" -Raw | ConvertFrom-Json
     $src = ($Root -replace '\\', '/') + '/src/'

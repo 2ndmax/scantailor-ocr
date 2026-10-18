@@ -15,7 +15,7 @@ class QMouseEvent;
 
 /**
  * Objects of this class are intended to be used as a descendants followers
- * of DragHandler objects.  The idea is to collect some statistics about
+ * of DragHandler objects. The idea is to collect some statistics about
  * an ongoing drag and decide if the drag was significant or not, in which
  * case we could perform some other operation on mouse release.
  */

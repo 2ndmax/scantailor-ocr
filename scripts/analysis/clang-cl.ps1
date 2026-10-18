@@ -3,8 +3,8 @@
   Run 06: full build with clang-cl instead of MSVC cl.exe, as a second compiler.
 
 .DESCRIPTION
-  Needs the Visual Studio component "C++ Clang Compiler for Windows".  C++17, /W4 (= -Wall
-  -Wextra in clang-cl) with the dependency headers external like in the MSVC runs.  clang-cl
+  Needs the Visual Studio component "C++ Clang Compiler for Windows". C++17, /W4 (= -Wall
+  -Wextra in clang-cl) with the dependency headers external like in the MSVC runs. clang-cl
   uses the MSVC ABI, so the MSVC-built vcpkg libraries (x64-windows) are used unchanged.
   clang-cl doesn't know /external:anglebrackets and says so once per file
   ("argument unused during compilation"); that is harmless.
@@ -12,13 +12,13 @@
     powershell -ExecutionPolicy Bypass -File scripts\analysis\clang-cl.ps1
 
 .PARAMETER OutDir
-  Where the log goes.  Default: ANALYSE in the repository.
+  Where the log goes. Default: ANALYSE in the repository.
 
 .PARAMETER BuildDir
-  The build directory, must not exist yet.  Default: build-clang-cl in the repository.
+  The build directory, must not exist yet. Default: build-clang-cl in the repository.
 
 .PARAMETER VcpkgRoot
-  The vcpkg folder.  Default: the VCPKG_ROOT environment variable.
+  The vcpkg folder. Default: the VCPKG_ROOT environment variable.
 #>
 param(
     [string]$OutDir = '',

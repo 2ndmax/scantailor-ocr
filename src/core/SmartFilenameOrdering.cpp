@@ -26,7 +26,7 @@ bool SmartFilenameOrdering::operator()(const QFileInfo& lhs, const QFileInfo& rh
 
     if (lhsIsDigit && rhsIsDigit) {
       // The numbers are compared digit by digit, as long ones such as time stamps don't fit
-      // an integer type.  Note: isDigit() implies !isNull().
+      // an integer type. Note: isDigit() implies !isNull().
       const QChar* lhsDigits = lhsPtr;
       while (lhsPtr->isDigit()) {
         ++lhsPtr;
@@ -53,7 +53,7 @@ bool SmartFilenameOrdering::operator()(const QFileInfo& lhs, const QFileInfo& rh
       continue;
     }
 
-    // Both characters are non-digits at this point.  Note that testing
+    // Both characters are non-digits at this point. Note that testing
     // isNull() here instead would be dead code, as the loop condition
     // already guarantees neither pointer is at the end of its string.
     if (*lhsPtr != *rhsPtr) {

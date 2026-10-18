@@ -246,7 +246,7 @@ class ImageView : public ImageViewBase, private InteractionHandler {
   /**
    * \brief Aggregate (max width + max height) hard page size.
    *
-   * This one is for displaying purposes only.  It changes during
+   * This one is for displaying purposes only. It changes during
    * dragging, and it may differ from what
    * m_settings->getAggregateHardSizeMM() would return.
    *

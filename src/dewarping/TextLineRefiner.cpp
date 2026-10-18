@@ -283,7 +283,7 @@ void TextLineRefiner::evolveSnake(Snake& snake, const Grid<float>& gradient, con
     changed |= optimizer.normalMovement(snake, gradient);
 
     if (!changed) {
-      // qDebug() << "Converged.  Iterations remaining = " << snake.iterationsRemaining;
+      // qDebug() << "Converged. Iterations remaining = " << snake.iterationsRemaining;
       if (onConvergence == ON_CONVERGENCE_STOP) {
         break;
       } else {
@@ -589,12 +589,12 @@ bool TextLineRefiner::Optimizer::normalMovement(Snake& snake, const Grid<float>&
   std::vector<uint32_t> paths;
   std::vector<uint32_t> newPaths;
   std::vector<Step> stepStorage;
-  // The first two nodes pose a problem for us.  These nodes don't have two predecessors,
-  // and therefore we can't take bending into the account.  We could take the followers
+  // The first two nodes pose a problem for us. These nodes don't have two predecessors,
+  // and therefore we can't take bending into the account. We could take the followers
   // instead of the ancestors, but then this follower is going to move itself, making
-  // our calculations less accurate.  The proper solution is to provide not N but N*N
+  // our calculations less accurate. The proper solution is to provide not N but N*N
   // paths to the 3rd node, each path corresponding to a combination of movement of
-  // the first and the second node.  That's the approach we are taking here.
+  // the first and the second node. That's the approach we are taking here.
   for (float normalMovement : normal_movements) {
     const auto prevStepIdx = static_cast<uint32_t>(stepStorage.size());
     {
@@ -696,7 +696,7 @@ float TextLineRefiner::Optimizer::calcExternalEnergy(const Grid<float>& gradient
   const float bottomGrad = externalEnergyAt(gradient, bottom, 0.0f);
 
   // Surprisingly, it turns out it's a bad idea to penalize for the opposite
-  // sign in the gradient.  Sometimes a snake's edge has to move over the
+  // sign in the gradient. Sometimes a snake's edge has to move over the
   // "wrong" gradient ridge before it gets into a good position.
   // Those std::min and std::max prevent such penalties.
   const float topEnergy = m_topExternalWeight * std::min<float>(topGrad, 0.0f);

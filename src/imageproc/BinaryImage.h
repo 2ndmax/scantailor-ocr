@@ -20,7 +20,7 @@ namespace imageproc {
  * \brief An image consisting of black and white pixels.
  *
  * The reason for having a separate image class instead of just using
- * QImage is convenience and efficiency concerns.  BinaryImage is a
+ * QImage is convenience and efficiency concerns. BinaryImage is a
  * sequence of 32bit words with bytes and bits arranged in such a way
  * that
  * \code
@@ -40,14 +40,14 @@ class BinaryImage {
   BinaryImage();
 
   /**
-   * \brief Creates a new image.  Image data will be uninitialized.
+   * \brief Creates a new image. Image data will be uninitialized.
    *
    * To initialize image data, use fill().
    */
   BinaryImage(int width, int height);
 
   /**
-   * \brief Creates a new image.  Image data will be uninitialized.
+   * \brief Creates a new image. Image data will be uninitialized.
    *
    * To initialize image data, use fill().
    */
@@ -64,7 +64,7 @@ class BinaryImage {
   BinaryImage(QSize size, BWColor color);
 
   /**
-   * \brief Create a copy of another image.  Copy-on-write is used.
+   * \brief Create a copy of another image. Copy-on-write is used.
    */
   BinaryImage(const BinaryImage& other);
 
@@ -79,7 +79,7 @@ class BinaryImage {
   /**
    * \brief Create a new image by copying a part of a QImage.
    *
-   * \p rect Must be within image.rect().  If \p rect is empty,
+   * \p rect Must be within image.rect(). If \p rect is empty,
    * a null BinaryImage is constructed.
    *
    * Colors in a QImage are converted to gray first, and then
@@ -92,7 +92,7 @@ class BinaryImage {
   /**
    * \brief Replaces the current image with a copy of another one.
    *
-   * Copy-on-write is used.  This means that several images will share
+   * Copy-on-write is used. This means that several images will share
    * their data, until one of them accesses it in a non-const way,
    * which is when a private copy of data is created for that image.
    */
@@ -201,8 +201,8 @@ class BinaryImage {
    * \brief Returns a pointer to non-const image data.
    * \return Image data, or 0 in case of a null image.
    *
-   * This may trigger copy-on-write.  The pointer returned is only
-   * valid until you create a copy of this image.  After that, both
+   * This may trigger copy-on-write. The pointer returned is only
+   * valid until you create a copy of this image. After that, both
    * images will share the same data, and you will need to call
    * data() again if you want to continue writing to this image.
    */
@@ -225,7 +225,7 @@ class BinaryImage {
   /**
    * \brief Convert to an ARGB32_Premultiplied image, where white pixels become transparent.
    *
-   * Opaque (black) pixels take the specified color.  Colors with alpha channel are supported.
+   * Opaque (black) pixels take the specified color. Colors with alpha channel are supported.
    */
   QImage toAlphaMask(const QColor& color) const;
 

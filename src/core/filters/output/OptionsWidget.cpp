@@ -140,7 +140,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
   binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
   allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
-  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further.  The list
+  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further. The list
   // has its own row, so that its width doesn't move the fields of the settings.
   colorReductionChoiceLayout->setSpacing(segmenterReductionLayout->horizontalSpacing());
   colorReductionLayout->setHorizontalSpacing(segmenterReductionLayout->horizontalSpacing());
@@ -185,7 +185,7 @@ OptionsWidget::~OptionsWidget() = default;
 void OptionsWidget::setupTiffCompressionPanel() {
   const ApplicationSettings& settings = ApplicationSettings::getInstance();
 
-  // Built like the compression panel of the PDF step.  Unlike the other panels of this
+  // Built like the compression panel of the PDF step. Unlike the other panels of this
   // step, it applies to all pages and projects, so there is no "Apply to ..." button.
   auto* group = new CollapsibleGroupBox(tr("TIFF Compression"));
   group->setObjectName("tiffCompressionPanel");
@@ -942,7 +942,7 @@ void OptionsWidget::applyDewarpingConfirmed(const std::set<PageId>& pages) {
 
 void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const DewarpingOptions& opt) {
   for (const PageId& pageId : pages) {
-    // The angle of the post deskew was found for each page.  It is left out when comparing the
+    // The angle of the post deskew was found for each page. It is left out when comparing the
     // options, so a page that isn't processed again would keep the angle of another one.
     DewarpingOptions pageOpt(opt);
     pageOpt.setPostDeskewAngle(m_settings->getParams(pageId).dewarpingOptions().getPostDeskewAngle());
@@ -957,10 +957,10 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
 
       // We also have to reload if we are currently on the "Fill Zones" tab,
       // as it makes use of original <-> dewarped coordinate mapping,
-      // which is too hard to update without reloading.  For consistency,
+      // which is too hard to update without reloading. For consistency,
       // we reload not just on TAB_FILL_ZONES but on all tabs except TAB_DEWARPING.
       // PS: the static original <-> dewarped mappings are constructed
-      // in Task::UiUpdater::updateUI().  Look for "new DewarpingPointMapper" there.
+      // in Task::UiUpdater::updateUI(). Look for "new DewarpingPointMapper" there.
       // The automatic modes have to find the curves anew, so they reload on the Dewarping tab, too.
       const bool automaticMode = (opt.dewarpingMode() == AUTO) || (opt.dewarpingMode() == MARGINAL);
       if (automaticMode || (m_lastTab != TAB_DEWARPING)) {
@@ -1589,7 +1589,7 @@ bool OptionsWidget::reducesTextColors() const {
 }
 
 int OptionsWidget::colorReduction() const {
-  // The items of "Reduce colors": none, posterize, K-means.  Black and white and mixed pages reduce
+  // The items of "Reduce colors": none, posterize, K-means. Black and white and mixed pages reduce
   // the colors of the text, color pages those of the whole page.
   if (reducesTextColors()) {
     const BlackWhiteOptions::ColorSegmenterOptions& segmenterOptions

@@ -13,13 +13,13 @@ class BinaryImage;
 /**
  * \brief Rotation by 0, 90, 180 or 270 degrees.
  *
- * \param src The source image.  May be null, in which case
+ * \param src The source image. May be null, in which case
  *        a null rotated image will be returned.
  * \param srcRect The area that is to be rotated.
- * \param degrees The rotation angle in degrees.  The angle
- *        must be a multiple of 90.  Positive values indicate
+ * \param degrees The rotation angle in degrees. The angle
+ *        must be a multiple of 90. Positive values indicate
  *        clockwise rotation.
- * \return The rotated area of the source image.  The dimensions
+ * \return The rotated area of the source image. The dimensions
  *         of the returned image will correspond to \p srcRect,
  *         possibly with width and height swapped.
  */

@@ -198,7 +198,7 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
     delete this;
   } else {
     if (m_spline->hasAtLeastSegments(2) && (m_nextVertexImagePos == m_spline->firstVertex()->point())) {
-      // Finishing the spline.  Bridging the first and the last points
+      // Finishing the spline. Bridging the first and the last points
       // will create another segment.
       m_spline->setBridged(true);
       m_context.zones().addZone(m_spline);
@@ -276,7 +276,7 @@ void ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionSt
     if ((Proximity(last, screenMousePos) > minDistance) && (Proximity(first, screenMousePos) > minDistance)) {
       m_spline->appendVertex(m_nextVertexImagePos);
     } else if (m_spline->hasAtLeastSegments(2) && (m_nextVertexImagePos == m_spline->firstVertex()->point())) {
-      // Finishing the spline.  Bridging the first and the last points
+      // Finishing the spline. Bridging the first and the last points
       // will create another segment.
       m_spline->setBridged(true);
       m_context.zones().addZone(m_spline);

@@ -51,7 +51,7 @@ QVector<QRgb> createGrayscalePalette();
  * \brief Convert an image from any format to grayscale.
  *
  * \param src The source image in any format.
- * \return A grayscale image with proper palette.  Null will be returned
+ * \return A grayscale image with proper palette. Null will be returned
  *         if \p src was null.
  */
 QImage toGrayscale(const QImage& src);
@@ -59,11 +59,11 @@ QImage toGrayscale(const QImage& src);
 /**
  * \brief Stretch the distribution of gray levels to cover the whole range.
  *
- * \param src The source image.  It doesn't have to be grayscale.
+ * \param src The source image. It doesn't have to be grayscale.
  * \param blackClipFraction The fraction of pixels (fractions of 1) that are
- *        allowed to go negative.  Such pixels will be clipped to 0 (black).
+ *        allowed to go negative. Such pixels will be clipped to 0 (black).
  * \param whiteClipFraction The fraction of pixels (fractions of 1) that are
- *        allowed to exceed the maximum brightness level.  Such pixels will be
+ *        allowed to exceed the maximum brightness level. Such pixels will be
  *        clipped to 255 (white).
  * \return A grayscale image, or a null image, if \p src was null.
  */
@@ -73,8 +73,8 @@ GrayImage stretchGrayRange(const GrayImage& src, double blackClipFraction = 0.0,
  * \brief Create a grayscale image consisting of a 1 pixel frame and an inner area.
  *
  * \param size The size of the image including the frame.
- * \param innerColor The gray level of the inner area.  Defaults to white.
- * \param frameColor The gray level of the frame area.  Defaults to black.
+ * \param innerColor The gray level of the inner area. Defaults to white.
+ * \param frameColor The gray level of the frame area. Defaults to black.
  * \return The resulting image.
  */
 GrayImage createFramedImage(const QSize& size, unsigned char innerColor = 0xff, unsigned char frameColor = 0x00);
@@ -82,8 +82,8 @@ GrayImage createFramedImage(const QSize& size, unsigned char innerColor = 0xff, 
 /**
  * \brief Find the darkest gray level of an image.
  *
- * \param image The image to process.  If it's null, 0xff will
- *        be returned as the darkest image.  If it's not grayscale,
+ * \param image The image to process. If it's null, 0xff will
+ *        be returned as the darkest image. If it's not grayscale,
  *        a grayscale copy will be created.
  */
 unsigned char darkestGrayLevel(const QImage& image);

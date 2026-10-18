@@ -2,7 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 // The rules of the Output step, checked on a small synthetic page: a "text" half with black
-// strokes and a "picture" half with a gradient.  The tests check properties of the result, not
+// strokes and a "picture" half with a gradient. The tests check properties of the result, not
 // bytes, so they hold on every platform.
 
 #include <DistortionModel.h>

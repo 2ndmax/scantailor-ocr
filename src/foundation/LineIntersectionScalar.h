@@ -8,7 +8,7 @@
 
 /**
  * Finds such scalars s1 and s2, so that "line1.pointAt(s1)" and "line2.pointAt(s2)"
- * would be the intersection point between line1 and line2.  Returns false if the
+ * would be the intersection point between line1 and line2. Returns false if the
  * lines are parallel or if any of the lines have zero length and therefore no direction.
  */
 bool lineIntersectionScalar(const QLineF& line1, const QLineF& line2, double& s1, double& s2);

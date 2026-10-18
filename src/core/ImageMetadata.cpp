@@ -47,7 +47,7 @@ ImageMetadata::DpiStatus ImageMetadata::dpiStatus(int pixelSize, int dpi) {
     // This may indicate we are working with very large printed materials,
     // but most likely it indicates the DPI is wrong (too low).
     // DPIs that are too low may easily cause crashes due to out of memory
-    // conditions.  The memory consumption is proportional to:
+    // conditions. The memory consumption is proportional to:
     // (real_hor_dpi / provided_hor_dpi) * (real_vert_dpi / provided_vert_dpi).
     // For example, if the real DPI is 600x600 but 200x200 is specified,
     // memory consumption is increased 9 times.

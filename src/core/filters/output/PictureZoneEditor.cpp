@@ -199,7 +199,7 @@ void PictureZoneEditor::initiateBuildingScreenPictureMask() {
 
 void PictureZoneEditor::screenPictureMaskBuilt(const QPoint& origin, const QImage& mask) {
   if (mask.isNull()) {
-    // The image is out of view.  A transparent pixel keeps it from being built again and again.
+    // The image is out of view. A transparent pixel keeps it from being built again and again.
     QPixmap empty(1, 1);
     empty.fill(Qt::transparent);
     m_screenPictureMask = empty;
@@ -229,7 +229,7 @@ void PictureZoneEditor::paintOverPictureMask(QPainter& painter) {
     }
   };
 
-  // In the order of OutputGenerator.  The foreground and background zones look the same here,
+  // In the order of OutputGenerator. The foreground and background zones look the same here,
   // as the preview has no content mask to tell them apart.
   drawZones(PLP::ZONEERASER1, QPainter::CompositionMode_Clear);
   drawZones(PLP::ZONEFG, QPainter::CompositionMode_SourceOver);
@@ -244,7 +244,7 @@ void PictureZoneEditor::showPropertiesDialog(const EditableZoneSet::Zone& zone) 
 
   PictureZonePropDialog dialog(zone.properties(), this);
   // We can't connect to the update() slot directly, as since some time,
-  // Qt ignores such update requests on inactive windows.  Updating
+  // Qt ignores such update requests on inactive windows. Updating
   // it through a proxy slot does work though.
   connect(&dialog, &PictureZonePropDialog::updated, this, &PictureZoneEditor::updateRequested);
 

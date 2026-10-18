@@ -28,7 +28,7 @@ class BackgroundExecutor {
    * \brief Waits for pending jobs to finish and stop the background thread.
    *
    * The destructor also performs these tasks, so this method is only
-   * useful to prematuraly stop task processing.  After shutdown, any
+   * useful to prematuraly stop task processing. After shutdown, any
    * attempts to enqueue a task will be silently ignored.
    */
   void shutdown();

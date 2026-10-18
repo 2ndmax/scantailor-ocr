@@ -18,7 +18,7 @@ namespace dewarping {
  * \brief Detect the left and right content boundaries.
  *
  * \param image The image to work on.
- * \return A pair of left, right boundaries.  These lines will span
+ * \return A pair of left, right boundaries. These lines will span
  *         from top to bottom of the image, and may be partially or even
  *         completely outside of its bounds.
  *

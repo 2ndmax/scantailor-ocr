@@ -29,7 +29,7 @@ void Optimizer::setConstraints(const std::list<LinearFunction>& constraints) {
   // |C C C 0 0|      |-J|
   // N: non-constant part of the gradient of the function we are minimizing.
   // C: non-constant part of constraint functions (one per line).
-  // L: coefficients of Lagrange multipliers.  These happen to be equal
+  // L: coefficients of Lagrange multipliers. These happen to be equal
   // to the symmetric C values.
   // D: constant part of the gradient of the function we are optimizing.
   // J: constant part of constraint functions.

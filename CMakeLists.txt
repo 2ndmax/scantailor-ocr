@@ -62,7 +62,7 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 # Extra diagnostics for finding bugs: high warning level plus the static
-# code analysis of the compiler.  Slows the build down considerably, so it's
+# code analysis of the compiler. Slows the build down considerably, so it's
 # best used in a separate build directory.
 option(ENABLE_CODE_ANALYSIS "Enable extra warnings and the compiler's static code analysis (MSVC: /W4 /analyze)." OFF)
 if (ENABLE_CODE_ANALYSIS)
@@ -141,7 +141,7 @@ if (WIN32)
 endif()
 
 # The compression schemes libtiff supports are decided when libtiff itself is
-# built.  A libtiff lacking a codec silently fails to open files using it.
+# built. A libtiff lacking a codec silently fails to open files using it.
 set(TIFF_REQUIRED_CODECS "LZW;PACKBITS;CCITT;JPEG;OJPEG;DEFLATE;LZMA" CACHE STRING
     "TIFF compression schemes libtiff has to support (see cmake/CheckTiffCodecs.cmake).")
 set(TIFF_RECOMMENDED_CODECS "ZSTD;WEBP;LERC" CACHE STRING

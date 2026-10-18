@@ -675,10 +675,10 @@ QString RelinkingModel::Relinker::substitutionPathFor(const RelinkablePath& path
     return it->second;
   }
   if (m_targets.count(normalizedPath) != 0) {
-    // An image is relinked to this path, but it isn't mapped itself.  Then it isn't a path of the
+    // An image is relinked to this path, but it isn't mapped itself. Then it isn't a path of the
     // project any more, as relinking onto one would have been rejected as a merge, but still
-    // kept in some settings, e.g. those of a removed page.  Such an entry is moved out of the
-    // way, so it doesn't take the place of the relinked image's own one.  The '|' can't be
+    // kept in some settings, e.g. those of a removed page. Such an entry is moved out of the
+    // way, so it doesn't take the place of the relinked image's own one. The '|' can't be
     // part of a Windows file name, and such paths aren't saved with the project.
     return normalizedPath + QLatin1String("|removed");
   }

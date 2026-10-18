@@ -51,7 +51,7 @@ class ConnCompEraserExt {
    *        returned by nextConnComp().
    *
    * The image may have some white padding on the left, to make
-   * its left coordinate word-aligned.  This is useful if you
+   * its left coordinate word-aligned. This is useful if you
    * are going to draw the component back to its position.
    * Word-aligned connected components are faster to both
    * extract and draw than non-aligned ones.

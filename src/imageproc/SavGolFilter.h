@@ -13,12 +13,12 @@ namespace imageproc {
  *
  * The Savitzky-Golay method is equivalent to fitting a small neighborhood
  * around each pixel to a polynomial, and then recalculating the pixel
- * value from it.  In practice, it achieves the same results without fitting
+ * value from it. In practice, it achieves the same results without fitting
  * a polynomial for every pixel, so it performs quite well.
  *
- * \param src The source image.  It doesn't have to be grayscale, but
+ * \param src The source image. It doesn't have to be grayscale, but
  *        the resulting image will be grayscale anyway.
- * \param windowSize The apperture size.  If it doesn't completely
+ * \param windowSize The apperture size. If it doesn't completely
  *        fit the image area, no filtering will take place.
  * \param horDegree The degree of a polynomial in horizontal direction.
  * \param vertDegree The degree of a polynomial in vertical direction.

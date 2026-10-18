@@ -9,7 +9,7 @@
 /**
  * \brief The TrueType file of Tesseract's "GlyphLessFont".
  *
- * Its only glyph is invisible and 500 units (half an em) wide.  PdfWriter maps every
+ * Its only glyph is invisible and 500 units (half an em) wide. PdfWriter maps every
  * character to it, which gives an invisible but searchable and selectable text layer.
  */
 QByteArray glyphLessFontData();

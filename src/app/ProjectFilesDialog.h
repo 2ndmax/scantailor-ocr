@@ -22,7 +22,7 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   /**
    * Turns the dialog into a choice among \p images, which are in \p dir but not in the
-   * project.  None of them is chosen at first.  The chosen ones are inProjectFiles().
+   * project. None of them is chosen at first. The chosen ones are inProjectFiles().
    */
   void chooseExistingImages(const QString& dir, const std::vector<QFileInfo>& images);
 
@@ -75,7 +75,7 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   void setProjectFile(const QString& file);
 
-  /** Asks before overwriting.  Returns false if the dialog should stay open. */
+  /** Asks before overwriting. Returns false if the dialog should stay open. */
   bool checkProjectFile();
 
   void setInputsEnabled(bool enabled);

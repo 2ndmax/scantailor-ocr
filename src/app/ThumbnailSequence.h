@@ -47,7 +47,7 @@ class ThumbnailSequence : public QObject {
 
     /**
      * This flag is set when Ctrl-clicking the current selection leader while other
-     * selected items exist.  In this case, the leader will become unselected, and
+     * selected items exist. In this case, the leader will become unselected, and
      * one of the other selected items will be promoted to a selection leader.
      * In these circumstances, scrolling to make the new selection leader visible
      * is undesireable.
@@ -74,10 +74,10 @@ class ThumbnailSequence : public QObject {
    * \param pages Pages to put in the sequence.
    * \param selectionAction Whether to keep the selection, provided
    *        selected item(s) are still present in the new list of pages.
-   * \param orderProvider The source of ordering information.  It will
+   * \param orderProvider The source of ordering information. It will
    *        be preserved until the next reset() call and will be taken
    *        into account by other methods, like invalidateThumbnail()
-   *        and insert().  A null order provider indicates to keep the
+   *        and insert(). A null order provider indicates to keep the
    *        order of ProjectPages.
    */
   void reset(const PageSequence& pages,
@@ -106,7 +106,7 @@ class ThumbnailSequence : public QObject {
    * otherwise drag the user away from the part of the sequence they are working on.
    *
    * \note This function assumes the thumbnail specified by pageId
-   *       is the only thumbnail at incorrect position.  If you do
+   *       is the only thumbnail at incorrect position. If you do
    *       something that changes the logical position of more than
    *       one thumbnail at once, use invalidateAllThumbnails()
    *       instead of sequentially calling invalidateThumbnail().
@@ -145,7 +145,7 @@ class ThumbnailSequence : public QObject {
    * \brief Selects exactly the given pages.
    *
    * The current selection leader stays if it is among the pages, otherwise
-   * \p leader becomes the selection leader.  Pages not in the list are ignored.
+   * \p leader becomes the selection leader. Pages not in the list are ignored.
    * The newSelectionLeader() signal is emitted as for a selection by the user.
    */
   void selectPages(const std::set<PageId>& pages, const PageId& leader);
@@ -208,9 +208,9 @@ class ThumbnailSequence : public QObject {
    *
    * If no order provider was specified by the previous reset() call,
    * we won't allow inserting a page between two halves of another page,
-   * to be compatible with what reset() does.  Otherwise, the new
+   * to be compatible with what reset() does. Otherwise, the new
    * page will be inserted at a correct position according to the current
-   * order provider.  In this case \p beforeOrAfter doesn't really matter.
+   * order provider. In this case \p beforeOrAfter doesn't really matter.
    *
    * If there are no pages with matching ImageId, the new page won't
    * be inserted, unless the request is to insert BEFORE a null ImageId(),

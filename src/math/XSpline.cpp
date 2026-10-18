@@ -374,7 +374,7 @@ XSpline::DecomposedDerivs XSpline::decomposedDerivsImpl(const int segment, const
   // passed to us (ranging from 0 to 1 within a segment).
   // Rather we want it with respect to the t that's passed to
   // decomposedDerivs(), ranging from 0 to 1 across all segments.
-  // Let's call the latter capital T.  Their relationship is:
+  // Let's call the latter capital T. Their relationship is:
   // t = T*numSegments - C
   // dt/dT = numSegments
   const double dtdT = this->numSegments();

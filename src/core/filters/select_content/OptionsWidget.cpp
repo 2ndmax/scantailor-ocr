@@ -345,7 +345,7 @@ void OptionsWidget::onUnitsChanged(Units units) {
 void OptionsWidget::setupUiConnections() {
   CONNECT(widthSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::dimensionsChangedLocally);
   CONNECT(heightSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::dimensionsChangedLocally);
-  // Only the button that gets checked acts.  Not on "pressed": the user may still move off the button.
+  // Only the button that gets checked acts. Not on "pressed": the user may still move off the button.
   const auto connectMode
       = [this](QAbstractButton* button, void (OptionsWidget::*handler)(AutoManualMode), const AutoManualMode mode) {
           CONNECT(button, &QAbstractButton::toggled, this, [this, handler, mode](const bool checked) {

@@ -19,26 +19,26 @@
  * to a particular image (in this order):
  * -#  Scale it, to achieve the desired optical resolution.
  *     It's generally done only in case input had different
- *     horizontal and vertical DPI.  We refer to this operation
+ *     horizontal and vertical DPI. We refer to this operation
  *     as pre-scale.
  * -#  Rotate it by a multiple of 90 degrees,
  *     swapping its width and height if necessary.
- *     That's done on the "Fix Orientation" stage.  We refer to
+ *     That's done on the "Fix Orientation" stage. We refer to
  *     this operation as pre-rotate.
  * -#  Crop it, reducing its width and height.
  *     That's done on the "Split Pages" stage, where we crop
  *     to the bounding box of a polygon formed by cutters and
- *     remaining image edges.  We refer to this operation as
+ *     remaining image edges. We refer to this operation as
  *     pre-crop.
  * -#  Apply a rotation around the image center,
  *     increasing its width and height as necessary.
- *     That's done on the "Deskew" stage.  We refer to this
+ *     That's done on the "Deskew" stage. We refer to this
  *     operation as post-rotate.
  * -#  Apply another crop, or maybe extend the image boundaries,
  *     in order to place the required margins around content.
- *     That's done on the "Margins" stage.  We refer to this operation
+ *     That's done on the "Margins" stage. We refer to this operation
  *     as post-crop.
- * -#  Scale the image to desired DPI.  That's done on the "Output" stage.
+ * -#  Scale the image to desired DPI. That's done on the "Output" stage.
  *     We refer to this operation as post-scale.
  *
  * Instead of actually modifying the image, we provide
@@ -63,7 +63,7 @@ class ImageTransformation {
   /**
    * \brief Set the 1st step transformation, recalculating the following ones.
    *
-   * Suppose the original image DPI is 300x600.  This will scale it to
+   * Suppose the original image DPI is 300x600. This will scale it to
    * 300x300, the minimum of two.
    *
    * \note This transformation is applied automatically on construction.
@@ -101,7 +101,7 @@ class ImageTransformation {
    * \brief Set the 3rd step transformation, resetting the following ones.
    *
    * Providing a null polygon has the same effect as providing a polygon
-   * that covers the entire image.  A crop area that exceedes the image
+   * that covers the entire image. A crop area that exceedes the image
    * is allowed.
    *
    * \see \ref transformations Transformations.
@@ -112,7 +112,7 @@ class ImageTransformation {
    * \brief Get the effective pre-crop area in pre-rotated coordinates.
    *
    * If pre-crop area was explicitly set with setPreCropArea(), then
-   * this function returns it as is.  Otherwise, the whole available
+   * this function returns it as is. Otherwise, the whole available
    * area is returned.
    */
   const QPolygonF& preCropArea() const { return m_preCropArea; }

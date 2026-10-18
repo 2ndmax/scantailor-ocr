@@ -120,7 +120,7 @@ class ZoneInteractionContext {
   InteractionHandler* createStdZoneDragInteraction(InteractionState& interaction, const EditableSpline::Ptr& spline);
 
   /**
-   * Creates an instance of ZoneContextMenuInteraction.  May return null.
+   * Creates an instance of ZoneContextMenuInteraction. May return null.
    */
   InteractionHandler* createStdContextMenuInteraction(InteractionState& interaction);
 

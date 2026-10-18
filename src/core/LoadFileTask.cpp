@@ -103,8 +103,8 @@ void LoadFileTask::updateImageSizeIfChanged(const QImage& image) {
   // The user might just replace a file with another one.
   // In that case, we update its size that we store.
   // A changed size is the only sign of a replaced file, so only then the resolution of the new
-  // file is taken as well, and only if it's plausible.  Otherwise the stored resolution stays,
-  // as it may have been corrected by hand.  An image without a resolution gets Qt's default
+  // file is taken as well, and only if it's plausible. Otherwise the stored resolution stays,
+  // as it may have been corrected by hand. An image without a resolution gets Qt's default
   // of 96 dpi, which is not plausible either.
   if (image.size() != m_imageMetadata.size()) {
     m_imageMetadata.setSize(image.size());

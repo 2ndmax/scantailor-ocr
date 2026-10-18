@@ -13,10 +13,10 @@ class ConnectivityMap;
 /**
  * @brief Reduces the colors of an image to a few, found with k-means.
  *
- * Idea from ScanTailor Experimental ("K-means").  Meant for colored text after color
+ * Idea from ScanTailor Experimental ("K-means"). Meant for colored text after color
  * segmentation, where each letter has one color: the colors are grouped in CIE Lab space, so that
  * distances follow what the eye sees, weighted by their number of pixels, and each pixel gets the
- * average color of its group.  Pure white is the background and stays as it is.  The start is
+ * average color of its group. Pure white is the background and stays as it is. The start is
  * deterministic (the most frequent color, or black, then each time the color farthest from the
  * groups so far), so the same image always gives the same result.
  *
@@ -30,10 +30,10 @@ QImage reduceColorsKMeans(const QImage& image, int colors, bool fixBlack);
 /**
  * @brief Colors black and white text with a few colors of the color image, found with k-means.
  *
- * The groups are found from the colors of all text pixels.  Each letter, a connected area of at
+ * The groups are found from the colors of all text pixels. Each letter, a connected area of at
  * most maxLetterPixels pixels, gets one color, the group of its average color, so colored text
  * comes out even; larger areas, such as pictures and the lines of drawings, get a group for each
- * pixel and so keep their shading.  0 gives each pixel its own group, a very large value each area
+ * pixel and so keep their shading. 0 gives each pixel its own group, a very large value each area
  * one color.
  *
  * @param color The color image.
@@ -51,8 +51,8 @@ QImage reduceTextColorsKMeans(const QImage& color,
  *        segmentation, instead of one for the whole letter.
  *
  * Whether an area is a letter is still decided by the connected areas of the text, so larger areas
- * keep their shading whatever the segments are.  Text pixels outside every segment are colored
- * one by one.  With the connected areas of the text as segments, the result is that of the
+ * keep their shading whatever the segments are. Text pixels outside every segment are colored
+ * one by one. With the connected areas of the text as segments, the result is that of the
  * function above.
  *
  * @param segments The segments: each pixel has the label of its segment, 0 outside.

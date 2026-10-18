@@ -15,7 +15,7 @@ class SmartFilenameOrdering {
    * \brief Compare filenames using a set of heuristic rules.
    *
    * This function tries to mimic the way humans would order filenames.
-   * For example, "2.png" will go before "12.png".  While doing so,
+   * For example, "2.png" will go before "12.png". While doing so,
    * it still provides the usual guarantees of a comparison predicate,
    * such as two different file paths will never be ruled equivalent.
    *

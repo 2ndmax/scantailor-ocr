@@ -8,7 +8,7 @@
  * \file
  *
  * The Sobel operator treats a 2D grid of data points as a function f(x, y)
- * and approximates its gradient.  It computes not the gradient itself,
+ * and approximates its gradient. It computes not the gradient itself,
  * but the gradient multiplied by 8.
  */
 
@@ -17,10 +17,10 @@ namespace imageproc {
  * Computes approximation of the horizontal gradient component, that is
  * the partial derivative with respect to x (multiplied by 8).
  *
- * \tparam T The type used for intermediate calculations.  Must be signed.
- * \param width Horizontal size of a grid.  Zero or negative value
+ * \tparam T The type used for intermediate calculations. Must be signed.
+ * \param width Horizontal size of a grid. Zero or negative value
  *        will cause this function to return without doing anything.
- * \param height Vertical size of a grid.  Zero or negative value
+ * \param height Vertical size of a grid. Zero or negative value
  *        will cause this function to return without doing anything.
  * \param src Pointer or a random access iterator to the top-left corner
  *        of the source grid.
@@ -36,7 +36,7 @@ namespace imageproc {
  *        Consider using a lambda for constructing such a functor,
  *        possibly combined with one of the functors from ValueConf.h
  * \param tmp Pointer or a random access iterator to the top-left corner
- *        of the temporary grid.  The temporary grid will have the same
+ *        of the temporary grid. The temporary grid will have the same
  *        width and height as the source and destination grids.
  *        Having the destination grid also serve as a temporary grid
  *        is supported, provided it's able to store signed values.

@@ -10,7 +10,7 @@
 namespace scan_insertion {
 /**
  * The name a new scan gets when it is inserted after \p anchorFile or replaces it:
- * "<name of anchorFile without extension>_<file name of scanFile>".  So "A.tif" and
+ * "<name of anchorFile without extension>_<file name of scanFile>". So "A.tif" and
  * "B.tif" give "A_B.tif", which is sorted right after "A.tif", and further scans
  * inserted after "A.tif" are sorted by their own (time stamp) names.
  */
@@ -29,11 +29,11 @@ QString replacedFilePath(const QString& replacedFile, const std::function<bool(c
 /**
  * \brief Where the next scan goes in the mode "Insert after selected page".
  *
- * The page selected when the mode is chosen is the anchor.  Each scan is inserted after
- * the one inserted before it and named after the anchor.  Selecting a page other than
+ * The page selected when the mode is chosen is the anchor. Each scan is inserted after
+ * the one inserted before it and named after the anchor. Selecting a page other than
  * the anchor and the last inserted one makes it the new anchor; the program itself
  * selects the last inserted page, and re-selects the current one e.g. when switching
- * steps, so these don't count.  Pages are identified by the paths of their image files.
+ * steps, so these don't count. Pages are identified by the paths of their image files.
  */
 class ScanInsertionAnchor {
  public:
@@ -52,7 +52,7 @@ class ScanInsertionAnchor {
 
   void inserted(const QString& file);
 
-  /** A page was selected.  Returns true if it became the new anchor. */
+  /** A page was selected. Returns true if it became the new anchor. */
   bool pageSelected(const QString& file);
 
  private:

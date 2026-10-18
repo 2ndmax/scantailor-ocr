@@ -17,8 +17,8 @@ class PolygonUtils {
    * \brief Adjust vertices to more round coordinates.
    *
    * This method exists to workaround bugs in QPainterPath and QPolygonF
-   * composition operations.  It turns out rounding vertex coordinates
-   * solves many of those bugs.  We don't round to integer values, we
+   * composition operations. It turns out rounding vertex coordinates
+   * solves many of those bugs. We don't round to integer values, we
    * only make very minor adjustments.
    */
   static QPolygonF round(const QPolygonF& poly);

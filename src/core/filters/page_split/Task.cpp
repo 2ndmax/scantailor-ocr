@@ -162,7 +162,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
       // If there was a conflict, it means
       // the record was updated by another
       // thread somewhere between getPageRecord()
-      // and conditionalUpdate().  If that
+      // and conditionalUpdate(). If that
       // external update didn't leave page
       // parameters clear, we are just going
       // to use it's data, otherwise we need

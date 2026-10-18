@@ -31,9 +31,9 @@ class PdfImageEncoder {
    * \brief The uncompressed samples of an image, the way PdfWriter's RAW and FLATE
    *        encodings expect them.
    *
-   * 1 bit images become 1 bit gray with black as 0.  Palette images (see isPalette())
-   * keep their palette, with 1, 2, 4 or 8 bits per index.  Other gray images become
-   * 8 bit gray, all others 8 bit RGB.  Each row starts at a whole byte.
+   * 1 bit images become 1 bit gray with black as 0. Palette images (see isPalette())
+   * keep their palette, with 1, 2, 4 or 8 bits per index. Other gray images become
+   * 8 bit gray, all others 8 bit RGB. Each row starts at a whole byte.
    *
    * \param[out] components 1 or 3.
    * \param[out] bitsPerComponent 1, 2, 4 or 8.
@@ -46,7 +46,7 @@ class PdfImageEncoder {
    * \brief Compresses samples (see rawSamples()) to a zlib stream for PDF's FlateDecode.
    *
    * \param pngPredictors Filter each row with the best fitting PNG predictor first
-   *        (PDF's /Predictor 15).  This makes photos much smaller, but doesn't help
+   *        (PDF's /Predictor 15). This makes photos much smaller, but doesn't help
    *        with few colours, so it's only meant for 8 bit gray and RGB.
    * \return The stream, or an empty array on failure.
    */
@@ -60,8 +60,8 @@ class PdfImageEncoder {
   /**
    * \brief Encodes an image as CCITT G4 (as used by PDF's CCITTFaxDecode with K = -1).
    *
-   * The image is converted to 1 bit if necessary.  In the encoded data, dark pixels
-   * are black.  Returns an empty array on failure.
+   * The image is converted to 1 bit if necessary. In the encoded data, dark pixels
+   * are black. Returns an empty array on failure.
    */
   static QByteArray encodeG4(const QImage& image);
 
@@ -70,8 +70,8 @@ class PdfImageEncoder {
    *
    * The result is a page information segment and an immediate generic region
    * segment (template 0, arithmetic coding, typical prediction), the embedded
-   * stream organisation PDF expects; no global segments are needed.  The image
-   * is converted to 1 bit if necessary, dark pixels are black.  Returns an empty
+   * stream organisation PDF expects; no global segments are needed. The image
+   * is converted to 1 bit if necessary, dark pixels are black. Returns an empty
    * array on failure.
    */
   static QByteArray encodeJbig2(const QImage& image);
@@ -90,7 +90,7 @@ class PdfImageEncoder {
   /**
    * \brief Encodes an image as JPEG 2000 (a JP2 file, as used by PDF's JPXDecode).
    *
-   * Gray images are stored with one component, all others as RGB.  To limit the
+   * Gray images are stored with one component, all others as RGB. To limit the
    * memory used, only a few images are encoded at the same time; further calls wait.
    *
    * \param quality 10 to 100, meant to look about like JPEG with the same value.

@@ -21,7 +21,7 @@ class PolynomialLine {
    *
    * \param degree The degree of a polynomial to be constructed.
    *        If there are too few data points, the degree may
-   *        be silently reduced.  The minimum degree is 0.
+   *        be silently reduced. The minimum degree is 0.
    * \param values The data points to be approximated.
    * \param numValues The number of data points to be approximated.
    *        There has to be at least one data point.
@@ -35,15 +35,15 @@ class PolynomialLine {
   /**
    * \brief Output the polynomial as a sequence of values.
    *
-   * \param values The data points to be written.  If T is
+   * \param values The data points to be written. If T is
    *        an integer, the values will be rounded and clipped
    *        to the minimum and maximum values for type T,
    *        which are taken from std::numeric_limits<T>.
    *        Otherwise, a static cast will be used to covert
-   *        values from double to type T.  If you need
+   *        values from double to type T. If you need
    *        some other behaviour, use the overloaded version
    *        of this method and supply your own post-processor.
-   * \param numValues The number of data points to write.  If this
+   * \param numValues The number of data points to write. If this
    *        number is different from the one that was used to
    *        construct a polynomial, the output will be scaled
    *        to fit the new size.
@@ -58,7 +58,7 @@ class PolynomialLine {
    * \brief Output the polynomial as a sequence of values.
    *
    * \param values The data points to be written.
-   * \param numValues The number of data points to write.  If this
+   * \param numValues The number of data points to write. If this
    *        number is different from the one that was used to
    *        construct a polynomial, the output will be scaled
    *        to fit the new size.

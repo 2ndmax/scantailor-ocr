@@ -15,7 +15,7 @@ SqDistApproximant::SqDistApproximant(const Vec2d& origin, const Vec2d& u, const 
   // Consider the following equation:
   // w = R*x + t
   // w: vector in the local coordinate system.
-  // R: rotation matrix.  Actually the inverse of [u v].
+  // R: rotation matrix. Actually the inverse of [u v].
   // x: vector in the global coordinate system.
   // t: translation component.
 

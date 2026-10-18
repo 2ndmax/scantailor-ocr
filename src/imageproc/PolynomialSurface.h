@@ -24,16 +24,16 @@ class PolynomialSurface {
    * \brief Calculate a polynomial that approximates the given image.
    *
    * \param horDegree The degree of the polynomial in horizontal direction.
-   *        Must not be negative.  A value of 3 or 4 should be enough
+   *        Must not be negative. A value of 3 or 4 should be enough
    *        to approximate page background.
    * \param vertDegree The degree of the polynomial in vertical direction.
-   *        Must not be negative.  A value of 3 or 4 should be enough
+   *        Must not be negative. A value of 3 or 4 should be enough
    *        to approximate page background.
-   * \param src The image to approximate.  Must be grayscale and not null.
+   * \param src The image to approximate. Must be grayscale and not null.
    *
    * \note Building a polynomial surface for full size 300 DPI scans
    *       takes forever, so pass a downscaled version here. 300x300
-   *       pixels will be fine.  Once built, the polynomial surface
+   *       pixels will be fine. Once built, the polynomial surface
    *       may then be rendered in the original size, if necessary.
    */
   PolynomialSurface(int horDegree, int vertDegree, const GrayImage& src);
@@ -42,19 +42,19 @@ class PolynomialSurface {
    * \brief Calculate a polynomial that approximates portions of the given image.
    *
    * \param horDegree The degree of the polynomial in horizontal direction.
-   *        Must not be negative.  A value of 5 should be enough
+   *        Must not be negative. A value of 5 should be enough
    *        to approximate page background.
    * \param vertDegree The degree of the polynomial in vertical direction.
-   *        Must not be negative.  A value of 5 should be enough
+   *        Must not be negative. A value of 5 should be enough
    *        to approximate page background.
-   * \param src The image to approximate.  Must be grayscale and not null.
+   * \param src The image to approximate. Must be grayscale and not null.
    * \param mask Specifies which areas of \p src to consider.
    *        A pixel in \p src is considered if the corresponding pixel
    *        in \p mask is black.
    *
    * \note Building a polynomial surface for full size 300 DPI scans
    *       takes forever, so pass a downscaled version here. 300x300
-   *       pixels will be fine.  Once built, the polynomial surface
+   *       pixels will be fine. Once built, the polynomial surface
    *       may then rendered in the original size, if necessary.
    */
   PolynomialSurface(int horDegree, int vertDegree, const GrayImage& src, const BinaryImage& mask);

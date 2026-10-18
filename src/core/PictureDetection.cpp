@@ -29,9 +29,9 @@ GrayImage detectPictures(const GrayImage& input300dpi,
                          const TaskStatus& status,
                          DebugImages* dbg) {
   // We stretch the range of gray levels to cover the whole
-  // range of [0, 255].  We do it because we want text
+  // range of [0, 255]. We do it because we want text
   // and background to be equally far from the center
-  // of the whole range.  Otherwise text printed with a big
+  // of the whole range. Otherwise text printed with a big
   // font will be considered a picture.
   GrayImage stretched(stretchGrayRange(input300dpi, 0.01, 0.01));
   if (dbg) {

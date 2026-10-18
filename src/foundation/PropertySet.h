@@ -63,7 +63,7 @@ class PropertySet {
 
   /**
    * Returns a property stored in this set, if one having a suitable
-   * type is found.  Otherwise, a default constructed object is put
+   * type is found. Otherwise, a default constructed object is put
    * to the set and then returned.
    */
   template <typename T, typename = is_property<T>>

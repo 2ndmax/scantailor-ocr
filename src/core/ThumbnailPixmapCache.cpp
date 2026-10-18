@@ -167,8 +167,8 @@ class ThumbnailPixmapCache::Impl : public QThread {
 
   /**
    * An "std::list"-like view of QUEUED items in the order they are
-   * going to be loaded.  Actually the list contains all kinds of items,
-   * but all QUEUED ones precede any others.  New QUEUED items are added
+   * going to be loaded. Actually the list contains all kinds of items,
+   * but all QUEUED ones precede any others. New QUEUED items are added
    * to the front of this list for purposes of request expiration.
    * \see ThumbnailLoadResult::REQUEST_EXPIRED
    */
@@ -177,9 +177,9 @@ class ThumbnailPixmapCache::Impl : public QThread {
   /**
    * An "std::list"-like view of LOADED items in the order they are
    * going to be removed. Actually the list contains all kinds of items,
-   * but all LOADED ones precede any others.  Note that we don't bother
+   * but all LOADED ones precede any others. Note that we don't bother
    * removing items without a pixmap, which would be all except LOADED
-   * items.  New LOADED items are added after the last LOADED item
+   * items. New LOADED items are added after the last LOADED item
    * already present in the list.
    */
   RemoveQueue& m_removeQueue;
@@ -187,7 +187,7 @@ class ThumbnailPixmapCache::Impl : public QThread {
   /**
    * An iterator of m_removeQueue that marks the end of LOADED items.
    * All items before it must be LOADED, as removeExcessLocked() takes the
-   * front item.  New LOADED items are inserted right before it.  Once all
+   * front item. New LOADED items are inserted right before it. Once all
    * LOADED items are gone, it has to go back to the front.
    */
   RemoveQueue::iterator m_endOfLoadedItems;
@@ -205,7 +205,7 @@ class ThumbnailPixmapCache::Impl : public QThread {
   int m_numLoadedItems;
 
   /**
-   * Total image loading attempts so far.  Used for request expiration.
+   * Total image loading attempts so far. Used for request expiration.
    * \see ThumbnailLoadResult::REQUEST_EXPIRED
    */
   int m_totalLoadAttempts;
@@ -507,7 +507,7 @@ void ThumbnailPixmapCache::Impl::recreateThumbnail(const ImageId& imageId, const
     case Item::IN_PROGRESS:
       // We have a small race condition in this case.
       // We don't know if the other thread has already loaded
-      // the thumbnail or not.  In case it did, again we
+      // the thumbnail or not. In case it did, again we
       // don't know if it loaded the old or new version.
       // Well, let's just pretend the thumnail was loaded
       // (or failed to load) before we wrote the new version.
@@ -562,7 +562,7 @@ void ThumbnailPixmapCache::Impl::backgroundProcessing() {
         resultPending = true;
 
         if (m_totalLoadAttempts - lqIt->precedingLoadAttempts > m_expirationThreshold) {
-          // Expire this request.  The reasoning behind
+          // Expire this request. The reasoning behind
           // request expiration is described in
           // ThumbnailLoadResult::REQUEST_EXPIRED
           // documentation.
@@ -843,9 +843,9 @@ void ThumbnailPixmapCache::Impl::cachePixmapLocked(const ImageId& imageId, const
   }
 
   if ((newStatus == Item::LOADED) && (kIt->status == Item::QUEUED)) {
-    // Not so fast.  We can't go from QUEUED to LOADED directly.
+    // Not so fast. We can't go from QUEUED to LOADED directly.
     // Well, maybe we can, but we'd have to invoke the completion
-    // handlers right now.  We'd rather do it asynchronously,
+    // handlers right now. We'd rather do it asynchronously,
     // so let's transition it to IN_PROGRESS and send
     // a LoadResultEvent asynchronously.
 

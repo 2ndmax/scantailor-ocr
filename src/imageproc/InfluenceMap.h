@@ -95,8 +95,8 @@ class InfluenceMap {
   /**
    * \brief Returns a pointer to the top-left corner of padding of the map.
    *
-   * The actually has a fake line from each side.  Those lines are
-   * labelled as background (label 0).  Sometimes it might be desirable
+   * The actually has a fake line from each side. Those lines are
+   * labelled as background (label 0). Sometimes it might be desirable
    * to access that data.
    */
   const Cell* paddedData() const { return m_plainData ? &m_data[0] : nullptr; }
@@ -104,8 +104,8 @@ class InfluenceMap {
   /**
    * \brief Returns a pointer to the top-left corner of padding of the map.
    *
-   * The actually has a fake line from each side.  Those lines are
-   * labelled as background (label 0).  Sometimes it might be desirable
+   * The actually has a fake line from each side. Those lines are
+   * labelled as background (label 0). Sometimes it might be desirable
    * to access that data.
    */
   Cell* paddedData() { return m_plainData ? &m_data[0] : nullptr; }

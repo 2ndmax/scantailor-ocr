@@ -28,7 +28,7 @@ class SplineFitter {
   /**
    * To be called after adding / moving / removing any of spline's control points.
    * This will reset the optimizer, which means the current set of constraints
-   * is lost.  Any forces accumulated since the last optimize() call are lost as well.
+   * is lost. Any forces accumulated since the last optimize() call are lost as well.
    */
   void splineModified();
 

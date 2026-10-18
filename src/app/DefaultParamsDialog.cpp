@@ -100,7 +100,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
   binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
   allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
-  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further.  The list
+  // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further. The list
   // has its own row, so that its width doesn't move the fields of the settings.
   colorReductionChoiceLayout->setSpacing(segmenterChannelsLayout->horizontalSpacing());
   colorReductionLayout->setHorizontalSpacing(segmenterChannelsLayout->horizontalSpacing());
@@ -196,7 +196,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
 
 void DefaultParamsDialog::updateBinarizationPageSizes() {
   // Only the page of the chosen method counts for the height, so the smoothing options follow
-  // right below its settings.  The widest page still counts for the width, so the window keeps
+  // right below its settings. The widest page still counts for the width, so the window keeps
   // its width when the method changes.
   for (int i = 0; i < binarizationOptions->count(); ++i) {
     QWidget* methodPage = binarizationOptions->widget(i);
@@ -216,7 +216,7 @@ void DefaultParamsDialog::showEvent(QShowEvent* event) {
 }
 
 bool DefaultParamsDialog::eventFilter(QObject* watched, QEvent* event) {
-  // Enter in the name field of Custom saves the profile instead of closing the dialog.  Caught
+  // Enter in the name field of Custom saves the profile instead of closing the dialog. Caught
   // before the field itself sees it, which would select an item of the same name.
   if ((event->type() == QEvent::KeyPress) && profileCB->isEditable() && (watched == profileCB->lineEdit())) {
     const int key = static_cast<QKeyEvent*>(event)->key();
@@ -235,10 +235,10 @@ void DefaultParamsDialog::fitToContents() {
   }
 
   // A scroll area asks for little space on its own, so the window would open smaller than its
-  // contents.  For the first layout, each one asks for the full size of its contents.  The width
+  // contents. For the first layout, each one asks for the full size of its contents. The width
   // stays the minimum, with room for a vertical scroll bar, so only the height ever scrolls.
   // A tab that was never shown reports too small a size, so each one is shown once.
-  // The Output tab, with its many filters, is much taller than the others.  It gets one and a half
+  // The Output tab, with its many filters, is much taller than the others. It gets one and a half
   // times the height of the tallest other tab and scrolls beyond that; the others never scroll.
   const int currentTab = tabWidget->currentIndex();
   const int outputTab = tabWidget->indexOf(tab_6);
@@ -280,7 +280,7 @@ void DefaultParamsDialog::fitToContents() {
   layout()->activate();
   // Not adjustSize(): it limits a window to two thirds of the screen.
   resize(sizeHint().expandedTo(minimumSizeHint()).boundedTo(available));
-  // The dialog was centered for its earlier size.  Center it again, with its title bar and frame,
+  // The dialog was centered for its earlier size. Center it again, with its title bar and frame,
   // and keep it on the screen.
   QMargins frame;
   if (const QWindow* window = windowHandle()) {
@@ -319,7 +319,7 @@ void DefaultParamsDialog::updatePageSplitDisplay(const DefaultParams::PageSplitP
 
   switch (layoutType) {
     case AUTO_LAYOUT_TYPE:
-      // Uncheck all buttons.  Can only be done
+      // Uncheck all buttons. Can only be done
       // by playing with exclusiveness.
       twoPagesBtn->setChecked(true);
       twoPagesBtn->setAutoExclusive(false);
@@ -700,7 +700,7 @@ void DefaultParamsDialog::setRotationPixmap() {
 
 void DefaultParamsDialog::layoutModeToggled(const bool manual) {
   if (!manual) {
-    // Uncheck all buttons.  Can only be done
+    // Uncheck all buttons. Can only be done
     // by playing with exclusiveness.
     twoPagesBtn->setChecked(true);
     twoPagesBtn->setAutoExclusive(false);

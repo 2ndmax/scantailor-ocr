@@ -13,7 +13,7 @@ namespace imageproc {
  * \brief Generates a color corresponding to a particular numeric ID.
  *
  * Colors for IDs that are numerically close will tend to be significantly
- * different.  Positive IDs are handled better.
+ * different. Positive IDs are handled better.
  */
 template <typename T>
 QColor colorForId(T id) {

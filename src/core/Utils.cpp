@@ -136,8 +136,8 @@ int Utils::dpiFromText(const QString& text, bool* ok) {
 
 void Utils::setDpiFieldWidth(QComboBox* field) {
   // The size hint of an editable list leaves out the padding the style sheets give its text field,
-  // so the longest entry would be cut off by a few pixels.  A fixed width doesn't help, as the
-  // style sheet's min-width replaces the minimum width again.  Instead the size hint is enlarged:
+  // so the longest entry would be cut off by a few pixels. A fixed width doesn't help, as the
+  // style sheet's min-width replaces the minimum width again. Instead the size hint is enlarged:
   // a minimum contents length (counted in widths of "X") covering the longest entry plus about
   // two thirds of a digit.
   const QFontMetrics metrics(field->fontMetrics());
@@ -174,7 +174,7 @@ void Utils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValu
     option.subControls |= QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
   }
   option.frame = field->hasFrame();
-  // The style's size hint is far wider than needed.  Instead the space taken by the frame, the
+  // The style's size hint is far wider than needed. Instead the space taken by the frame, the
   // padding and the arrows is measured, and the text is added with the text field's margins of
   // 2 pixels on each side and 2 pixels for the cursor.
   const QRect editField

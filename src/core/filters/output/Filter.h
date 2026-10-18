@@ -64,7 +64,7 @@ class Filter : public AbstractFilter {
 
   OptionsWidget* optionsWidget();
 
-  /** Whether the page is set to the "Mixed" colour mode.  Used by the PDF export. */
+  /** Whether the page is set to the "Mixed" colour mode. Used by the PDF export. */
   bool isMixedMode(const PageId& pageId) const;
 
   /**

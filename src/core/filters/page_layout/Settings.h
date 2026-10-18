@@ -52,7 +52,7 @@ class Settings {
    *
    * This check is used to allow of forbid going to the output stage.
    * \param pages The list of pages to check.
-   * \param ignore The page to be ignored by the check.  Optional.
+   * \param ignore The page to be ignored by the check. Optional.
    */
   bool checkEverythingDefined(const PageSequence& pages, const PageId* ignore = nullptr) const;
 

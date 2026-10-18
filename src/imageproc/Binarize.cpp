@@ -201,7 +201,7 @@ BinaryImage binarizeWolf(const QImage& src,
     }
   }
   // A perfectly uniform image (a blank page, for example) has no deviation
-  // at all.  Without this guard, deviation / maxDeviation below would be
+  // at all. Without this guard, deviation / maxDeviation below would be
   // 0.0 / 0.0 == NaN, making every threshold comparison false.
   maxDeviation = (maxDeviation > 0.0) ? maxDeviation : 1.0;
 

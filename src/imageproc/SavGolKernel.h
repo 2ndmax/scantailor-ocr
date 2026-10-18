@@ -49,7 +49,7 @@ class SavGolKernel {
   std::vector<double> m_dataPoints;
 
   /**
-   * The polynomial coefficients of size m_numVars.  Only exists to save
+   * The polynomial coefficients of size m_numVars. Only exists to save
    * one allocation when recalculating the kernel for different data points.
    */
   std::vector<double> m_coeffs;
@@ -94,7 +94,7 @@ class SavGolKernel {
   int m_numTerms;
 
   /**
-   * The number of data points.  This corresponds to the number of items
+   * The number of data points. This corresponds to the number of items
    * in the convolution kernel.
    */
   int m_numDataPoints;

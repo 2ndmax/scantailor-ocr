@@ -45,7 +45,7 @@ class ProjectReader {
   const std::shared_ptr<FileNameDisambiguator>& namingDisambiguator() const { return m_disambiguator; }
 
   /**
-   * The directories in the project file, in the order of their ids.  An empty
+   * The directories in the project file, in the order of their ids. An empty
    * project has its input directory there.
    */
   std::vector<QString> directories() const;

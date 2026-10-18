@@ -68,15 +68,15 @@ class OutsidePixels {
  * \param background_color Used to fill areas not represented in the source image.
  * \param weak_background If set to true, \p background_color is only taken
  *        into account if a target pixel maps to an area completely outside of
- *        the source image.  That is, if at least one source image pixel
+ *        the source image. That is, if at least one source image pixel
  *        influences a particular target pixel, then any background pixels
  *        that may also influence that target pixel are ignored.\n
  *        If set to false, source image pixels and background pixels are
  *        treated equally.
  * \param minMappingArea Defines the minimum rectangle in the source image
- *        that maps to a destination pixel.  This can be used to control
+ *        that maps to a destination pixel. This can be used to control
  *        smoothing.
- * \return The transformed image.  It's format may differ from the
+ * \return The transformed image. It's format may differ from the
  *         source image format, for example Format_Indexed8 may
  *         be transformed to Format_RGB32, if the source image
  *         contains colors other than shades of gray.

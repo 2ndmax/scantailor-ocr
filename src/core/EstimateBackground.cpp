@@ -60,17 +60,17 @@ static void seedFillTopBottomInPlace(GrayImage& image) {
 }
 
 static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg) {
-  // We do morphological preprocessing with one of two methods.  The first
+  // We do morphological preprocessing with one of two methods. The first
   // one is good for cases when the dark area is in the middle of the image,
   // touching at least one of the vertical edges and not touching the horizontal one.
   // The second method is good for pages that have pictures (partly) in the
-  // shadow of the spine.  Most of the other cases can be handled by any of these
+  // shadow of the spine. Most of the other cases can be handled by any of these
   // two methods.
 
   GrayImage method1(createFramedImage(image.size()));
   seedFillGrayInPlace(method1, image, CONN8);
 
-  // This will get rid of the remnants of letters.  Note that since we know we
+  // This will get rid of the remnants of letters. Note that since we know we
   // are working with at most 300x300 px images, we can just hardcode the size.
   method1 = openGray(method1, QSize(1, 20), 0x00);
   if (dbg) {
@@ -239,7 +239,7 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
   // Update those because mask was overwritten.
   maskData = mask.data();
   maskStride = mask.wordsPerLine();
-  // Check each horizontal line.  If it's mostly
+  // Check each horizontal line. If it's mostly
   // white (ignored), then make it completely white.
   const int lastWordIdx = (width - 1) >> 5;
   // The last word holds width - 32 * lastWordIdx pixels, in its upper bits.
@@ -263,7 +263,7 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
   }
 
   status.throwIfCancelled();
-  // Check each vertical line.  If it's mostly
+  // Check each vertical line. If it's mostly
   // white (ignored), then make it completely white.
   for (int x = 0; x < width; ++x) {
     const uint32_t bit = msb >> (x & 31);

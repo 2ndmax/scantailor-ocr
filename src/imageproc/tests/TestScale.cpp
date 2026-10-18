@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(test_random_image) {
   }
 
   // Only downscaling is checked: upscaling interpolates, and there's
-  // no single "right" result to compare against.  The ratios are chosen to
+  // no single "right" result to compare against. The ratios are chosen to
   // be exactly representable in the 1/32 fixed point arithmetic scaleToGray()
   // uses; others may legitimately be off by a bit more than one gray level.
 

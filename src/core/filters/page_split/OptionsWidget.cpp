@@ -52,7 +52,7 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
 
   switch (layoutType) {
     case AUTO_LAYOUT_TYPE:
-      // Uncheck all buttons.  Can only be done
+      // Uncheck all buttons. Can only be done
       // by playing with exclusiveness.
       twoPagesBtn->setChecked(true);
       twoPagesBtn->setAutoExclusive(false);

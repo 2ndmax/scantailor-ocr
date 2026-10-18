@@ -33,8 +33,8 @@ struct OcrWord {
 /**
  * \brief Text recognition with Tesseract.
  *
- * An instance must only be used by one thread at a time.  For parallel recognition,
- * each thread uses its own instance.  Only available if built with ENABLE_OCR.
+ * An instance must only be used by one thread at a time. For parallel recognition,
+ * each thread uses its own instance. Only available if built with ENABLE_OCR.
  */
 class OcrEngine {
   DECLARE_NON_COPYABLE(OcrEngine)
@@ -48,7 +48,7 @@ class OcrEngine {
   ~OcrEngine();
 
   /**
-   * \brief Loads the language files.  Takes a moment with the "best" models.
+   * \brief Loads the language files. Takes a moment with the "best" models.
    *
    * \param tessdataDir The folder holding the *.traineddata files.
    * \param languages Language codes joined with '+', e.g. "deu+eng".

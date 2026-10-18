@@ -21,7 +21,7 @@ namespace {
 /*
  * A decoder for what PdfImageEncoder::encodeJbig2() writes, written from the
  * JBIG2 standard (ITU-T T.88) for these tests only: the MQ decoder of annex E
- * and generic region decoding with template 0 (6.2.5).  It shares no code with
+ * and generic region decoding with template 0 (6.2.5). It shares no code with
  * the encoder, so that a misunderstanding on one side shows up as a mismatch.
  */
 
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE(test_jbig2_rendered_by_poppler) {
   pdfFile.close();
 
   // At 1:1, Poppler smooths images (not masks) when drawing them, which shifts edges by a
-  // pixel.  From four times the size on it doesn't, so render at 4 x 72 dpi and compare
+  // pixel. From four times the size on it doesn't, so render at 4 x 72 dpi and compare
   // the centre of each 4 x 4 block with the original pixel.
   const int scale = 4;
   QProcess process;

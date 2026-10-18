@@ -16,14 +16,14 @@ namespace imageproc {
 /**
  * \brief Perform pixel-wise logical operations on portions of images.
  *
- * \param dst The destination image.  Changes will be written there.
+ * \param dst The destination image. Changes will be written there.
  * \param dr The rectangle within the destination image to process.
- * \param src The source image.  May be the same as the destination image.
+ * \param src The source image. May be the same as the destination image.
  * \param sp The top-left corner of the rectangle within the source image
- *           to process.  The rectangle itself is assumed to be the same
+ *           to process. The rectangle itself is assumed to be the same
  *           as the destination rectangle.
  *
- * The template argument is the operation to perform.  This is generally
+ * The template argument is the operation to perform. This is generally
  * a combination of several Rop* class templates, such as RopXor\<RopSrc, RopDst\>.
  */
 template <typename Rop>
@@ -32,11 +32,11 @@ void rasterOp(BinaryImage& dst, const QRect& dr, const BinaryImage& src, const Q
 /**
  * \brief Perform pixel-wise logical operations on whole images.
  *
- * \param dst The destination image.  Changes will be written there.
- * \param src The source image.  May be the same as the destination image,
+ * \param dst The destination image. Changes will be written there.
+ * \param src The source image. May be the same as the destination image,
  *        otherwise it must have the same dimensions.
  *
- * The template argument is the operation to perform.  This is generally
+ * The template argument is the operation to perform. This is generally
  * a combination of several Rop* class templates, such as RopXor\<RopSrc, RopDst\>.
  */
 template <typename Rop>
@@ -146,7 +146,7 @@ class RopSubtractWhite {
  * \brief Polymorphic interface for raster operations.
  *
  * If you want to parametrize some of your code with a raster operation,
- * one way to do it is to have Rop as a template argument.  The other,
+ * one way to do it is to have Rop as a template argument. The other,
  * and usually better way is to have this class as a non-template argument.
  */
 class AbstractRasterOp {
@@ -368,7 +368,7 @@ void rasterOp(BinaryImage& dst, const QRect& dr, const BinaryImage& src, const Q
   }
 
   // We need to avoid a situation where we write some output
-  // and then read it as input.  This can happen if src and dst
+  // and then read it as input. This can happen if src and dst
   // are the same images.
 
   if (&dst == &src) {

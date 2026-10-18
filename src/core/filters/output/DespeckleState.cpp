@@ -83,7 +83,7 @@ QImage DespeckleState::overlaySpeckles(const QImage& mixed, const imageproc::Bin
 
 /**
  * Here we assume that B/W content have all their color components
- * set to either 0x00 or 0xff.  We enforce this convention when
+ * set to either 0x00 or 0xff. We enforce this convention when
  * generating output files.
  */
 BinaryImage DespeckleState::extractBW(const QImage& mixed) {

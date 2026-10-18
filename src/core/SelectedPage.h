@@ -16,7 +16,7 @@
  * page.set(PageId(image_id, PageId::SINGLE_PAGE), IMAGE_VIEW);
  * page.get(PAGE_VIEW);  * \endcode
  * As seen above, this class remembers the sub-page as long as image id
- * stays the same.  Note that set(..., PAGE_VIEW) will always overwrite
+ * stays the same. Note that set(..., PAGE_VIEW) will always overwrite
  * the sub-page, while get(IMAGE_VIEW) will always return SINGLE_PAGE sub-pages.
  */
 class SelectedPage {

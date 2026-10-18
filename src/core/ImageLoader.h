@@ -31,7 +31,7 @@ class ImageLoader {
    *        resolution, as long as it's still at least \p minSize large.
    *
    * Only formats that can decode reduced resolutions cheaply (JPEG 2000 and JPEG) make
-   * use of that, the others are loaded at full resolution.  Meant for thumbnails.
+   * use of that, the others are loaded at full resolution. Meant for thumbnails.
    */
   static QImage loadForThumbnail(const ImageId& imageId, const QSize& minSize);
 

@@ -15,7 +15,7 @@ class GrayscaleHistogram;
  * \brief Defines the gray level threshold that separates black from white.
  *
  * Gray levels in range of [0, threshold) are considered black, while
- * levels in range of [threshold, 255] are considered white.  The threshold
+ * levels in range of [threshold, 255] are considered white. The threshold
  * itself is considered to be white.
  */
 class BinaryThreshold {
@@ -43,7 +43,7 @@ class BinaryThreshold {
    * Modelling and Simulation 2007: 444-450
    * http://www.academypublisher.com/jcp/vol02/no08/jcp02084452.pdf
    *
-   * \param image The source image.  May be in any format.
+   * \param image The source image. May be in any format.
    * \param maxEdgeWidth The maximum gradient length to consider.
    * \param minEdgeMagnitude The minimum color difference in a gradient.
    * \return A black and white image.

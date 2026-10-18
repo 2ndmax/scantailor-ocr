@@ -190,7 +190,7 @@ void InteractiveXSpline::controlPointMoveRequest(int idx, const QPointF& pos, Qt
     // A midpoint - just move it.
     m_spline.moveControlPoint(idx, storagePt);
   } else {
-    // An endpoint was moved.  Instead of moving it on its own,
+    // An endpoint was moved. Instead of moving it on its own,
     // we are going to rotate and / or scale all of the points
     // relative to the opposite endpoint.
     const int originIdx = idx == 0 ? numControlPoints - 1 : 0;

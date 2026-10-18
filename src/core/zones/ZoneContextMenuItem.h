@@ -17,7 +17,7 @@ class ZoneContextMenuItem {
    * in place of ZoneContextMenuInteraction, or null, indicating not
    * to connect anything when ZoneContextMenuInteraction is disconnected.
    * The ownership of the returned InteractionHandler will be transferred
-   * to ZoneInteractionContext.  It's still possible for the returned
+   * to ZoneInteractionContext. It's still possible for the returned
    * InteractionHandler to be a member of another object, but in this case
    * you will need to make sure it's disconnected from ZoneInteractionContext
    * before ZoneInteractionContext destroys.

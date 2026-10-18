@@ -17,7 +17,7 @@
  * \li Zero, if one or both of the points are on the line.
  *
  * \note Line's endpoints don't matter - consider the whole line,
- *       not a line segment.  If the line is really a point, zero will
+ *       not a line segment. If the line is really a point, zero will
  *       always be returned.
  */
 qreal sidesOfLine(const QLineF& line, const QPointF& p1, const QPointF& p2);

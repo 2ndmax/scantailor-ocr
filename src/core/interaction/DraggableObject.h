@@ -59,7 +59,7 @@ class DraggableObject {
 
   /**
    * Sometimes a more distant object should be selected for dragging in favor of
-   * a closer one.  Consider for example a line segment with handles at its endpoints.
+   * a closer one. Consider for example a line segment with handles at its endpoints.
    * In this example, you would assign higher priority to those handles.
    */
   virtual int proximityPriority() const { return m_proximityPriorityCallback(); }

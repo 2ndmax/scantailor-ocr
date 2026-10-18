@@ -164,7 +164,7 @@ class OutputGenerator::Processor {
                 const QColor& bgColor) const;
 
   /**
-   * Measures the letter widths on the dewarped page.  If they differ enough,
+   * Measures the letter widths on the dewarped page. If they differ enough,
    * stores a width correction in the distortion model and dewarps src again.
    */
   void evenOutLetterWidths(DistortionModel& distortionModel,
@@ -365,10 +365,10 @@ void OutputGenerator::Processor::calcAreas() {
   m_outCropArea = m_preCropArea.intersected(QRectF(m_outRect));
 
   // For various reasons, we need some whitespace around the content
-  // area.  This is the number of pixels of such whitespace.
+  // area. This is the number of pixels of such whitespace.
   const int contentMargin = m_dpi.vertical() * 20 / 300;
   // The content area (in output image coordinates) extended
-  // with contentMargin.  Note that we prevent that extension
+  // with contentMargin. Note that we prevent that extension
   // from reaching the neighboring page.
   // This is the area we are going to pass to estimateBackground().
   // estimateBackground() needs some margins around content, and
@@ -1532,7 +1532,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   m_status.throwIfCancelled();
 
   // Picture mask (white indicate a picture) in the same coordinates as
-  // warpedGrayOutput.  Only built for Mixed mode.
+  // warpedGrayOutput. Only built for Mixed mode.
   BinaryImage warpedBwMask;
   if (m_renderParams.mixedOutput()) {
     warpedBwMask = BinaryImage(m_workingBoundingRect.size(), BLACK);
@@ -1607,7 +1607,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
     rotateXform = Utils::rotate(deskewAngle, m_outRect);
     m_dewarpingOptions.setPostDeskewAngle(deskewAngle);
   } catch (const std::runtime_error&) {
-    // Probably an impossible distortion model.  Let's fall back to a trivial one.
+    // Probably an impossible distortion model. Let's fall back to a trivial one.
     setupTrivialDistortionModel(distortionModel);
     // evenOutLetterWidths() may already have stored a correction measured with the failed model.
     distortionModel.setWidthCorrection(WidthCorrection());
@@ -2322,7 +2322,7 @@ BinaryImage OutputGenerator::Processor::binarize(const QImage& image) const {
   }
 
   // The bounds apply to all methods: darker pixels are always black, lighter ones always white.
-  // Wolf, Fox, Window and Grad apply them themselves.  For the others the default bounds are left
+  // Wolf, Fox, Window and Grad apply them themselves. For the others the default bounds are left
   // out, so their results stay as they were.
   const int lowerBound = blackWhiteOptions.getWolfLowerBound();
   const int upperBound = blackWhiteOptions.getWolfUpperBound();
@@ -2370,17 +2370,17 @@ BinaryImage OutputGenerator::Processor::binarize(const QImage& image,
  * \param[in,out] image The image to despeckle.
  * \param imageRect The rectangle corresponding to \p image in the same
  *        coordinate system where m_contentRect and m_cropRect are defined.
- * \param maskRect The area within the image to consider.  Defined not
+ * \param maskRect The area within the image to consider. Defined not
  *        relative to \p image, but in the same coordinate system where
- *        m_contentRect and m_cropRect are defined.  This only affects
+ *        m_contentRect and m_cropRect are defined. This only affects
  *        \p specklesImg, if provided.
  * \param level Despeckling aggressiveness.
  * \param specklesImg If provided, the removed black speckles will be written
- *        there.  The speckles image is always considered to correspond
+ *        there. The speckles image is always considered to correspond
  *        to m_cropRect, so it will have the size of m_cropRect.size().
  *        Only the area within \p maskRect will be copied to \p specklesImg.
  *        The rest will be filled with white.
- * \param dpi The DPI of the input image.  See the note below.
+ * \param dpi The DPI of the input image. See the note below.
  * \param status Task status.
  * \param dbg An optional sink for debugging images.
  *
@@ -2476,7 +2476,7 @@ QImage OutputGenerator::Processor::colorText(const BinaryImage& text, const QIma
   if (options.isKMeansEnabled()) {
     // Letters up to a filled square of a quarter inch get one color for each of their segments, so
     // the red, green and blue thresholds and the noise reduction apply to them; larger areas keep
-    // their shading.  An indexed image, as after posterizing, keeps the files small.
+    // their shading. An indexed image, as after posterizing, keeps the files small.
     const ConnectivityMap segments
         = m_colorOriginal ? ColorSegmenter(m_dpi, options.getNoiseReduction(), options.getRedThresholdAdjustment(),
                                            options.getGreenThresholdAdjustment(), options.getBlueThresholdAdjustment())

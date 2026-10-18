@@ -33,10 +33,10 @@ class PageLayoutEstimator {
   /**
    * \brief Estimates the page layout according to the provided layout type.
    *
-   * \param layoutType The type of a layout to detect.  If set to
+   * \param layoutType The type of a layout to detect. If set to
    *        something other than Rule::AUTO_DETECT, the returned
    *        layout will have the same type.
-   * \param input The input image.  Will be converted to grayscale unless
+   * \param input The input image. Will be converted to grayscale unless
    *        it's already grayscale.
    * \param preXform The logical transformation applied to the input image.
    *        The resulting page layout will be in transformed coordinates.

@@ -23,7 +23,7 @@ std::vector<PdfPageOrder::Item> PdfPageOrder::merge(const std::vector<Item>& pre
     }
   }
 
-  // New pages go right after their predecessor in project order.  That one is already in
+  // New pages go right after their predecessor in project order. That one is already in
   // the result, as earlier new pages have been inserted before.
   for (size_t i = 0; i < projectOrder.size(); ++i) {
     const QString& key = projectOrder[i];

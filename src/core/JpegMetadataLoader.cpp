@@ -33,7 +33,7 @@ class JpegDecompressHandle {
    * \brief Creates the underlying libjpeg object and installs \p srcMgr.
    *
    * This is deliberately not done by the constructor: jpeg_create_decompress()
-   * may invoke the error handler, which longjmp()s.  It therefore must only be
+   * may invoke the error handler, which longjmp()s. It therefore must only be
    * called once setjmp() has been set up, while the object itself has to be
    * constructed before that, so that its destructor still runs.
    */
@@ -222,7 +222,7 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
 
   // All three objects have to be constructed before setjmp(), or longjmp()
   // would skip their destructors - most importantly the one calling
-  // jpeg_destroy_decompress().  None of these constructors can longjmp().
+  // jpeg_destroy_decompress(). None of these constructors can longjmp().
   JpegErrorManager errMgr;
   JpegSourceManager srcMgr(ioDevice);
   JpegDecompressHandle cinfo(&errMgr);
@@ -242,7 +242,7 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
   // The other possible value is JPEG_SUSPENDED, but we never suspend it.
   assert(headerStatus == JPEG_HEADER_OK);
 
-  // The size and the resolution are known from the header.  jpeg_start_decompress() isn't
+  // The size and the resolution are known from the header. jpeg_start_decompress() isn't
   // needed for them, and would take memory for the whole image with progressive files.
 
   const QSize size(cinfo->image_width, cinfo->image_height);

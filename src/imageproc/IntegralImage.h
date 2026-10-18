@@ -15,7 +15,7 @@ namespace imageproc {
 /**
  * \brief Provides the sum of values in a sub-rectangle of a 2D array in constant time.
  *
- * Suppose you have a MxN array of some values.  Now if we are not going to
+ * Suppose you have a MxN array of some values. Now if we are not going to
  * alter it, but are going to calculate the sum of values in various
  * rectangular sub-regions, it's best to use an integral image for this purpose.
  * We construct it once, with complexity of O(M*N), and then obtain the sum

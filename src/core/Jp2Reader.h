@@ -36,10 +36,10 @@ class Jp2Reader {
   /**
    * \brief Decodes the image.
    *
-   * \param device The device to read from.  Must be opened for reading and seekable.
+   * \param device The device to read from. Must be opened for reading and seekable.
    * \param minSize If valid, the image may be decoded at a lower resolution level
    *        (a power of two smaller), as long as the result still is at least
-   *        this large in both dimensions.  JPEG 2000 can do that without decoding
+   *        this large in both dimensions. JPEG 2000 can do that without decoding
    *        the full resolution, which makes generating thumbnails very fast.
    * \return The resulting image (Format_Indexed8 for grayscale, Format_RGB32 or
    *         Format_ARGB32 for color), or a null image in case of failure.

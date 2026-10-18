@@ -196,7 +196,7 @@ class ThumbnailSequence::Impl {
    * \param end End of the interval to consider.
    * \param pageId The item to find insertion position for.
    * \param pageIncomplete Whether the page is represented by IncompleteThumbnail.
-   * \param hint The place to start the search.  Must be within [begin, end].
+   * \param hint The place to start the search. Must be within [begin, end].
    * \param distFromHint If provided, the distance from \p hint
    *        to the calculated insertion position will be written there.
    *        For example, \p distFromHint == -2 would indicate that the
@@ -346,7 +346,7 @@ class ThumbnailSequence::CompositeItem : public QGraphicsItemGroup {
  private:
   // We no longer use QGraphicsView's selection mechanism, so we
   // shadow isSelected() and setSelected() with unimplemented private
-  // functions.  Just to be safe.
+  // functions. Just to be safe.
   bool isSelected() const;
 
   void setSelected(bool selected);

@@ -10,7 +10,7 @@
 /**
  * If \p line (not line segment!) intersects with \p rect,
  * writes intersection points as the new \p line endpoints
- * and returns true.  Otherwise returns false and leaves
+ * and returns true. Otherwise returns false and leaves
  * \p line unmodified.
  */
 bool lineBoundedByRect(QLineF& line, const QRectF& rect);

@@ -26,7 +26,7 @@ class Optimizer {
   /**
    * Sets linear constraints in the form of b^T * x + c = 0
    * Note that x in the above formula is not a vector of coordinates
-   * but a vector of their displacements.  That is, the constraints
+   * but a vector of their displacements. That is, the constraints
    * to be passed here depend on the current positions of control points.
    * That doesn't mean you have to provide updated constraints
    * on very iteration though, as optimize() will update them for you.

@@ -49,7 +49,7 @@ class ZoneCreationInteraction : public InteractionHandler {
 
   /**
    * We have our own drag handler even though there is already a global one
-   * for the purpose of being able to monitor it with DragWatcher.  Because
+   * for the purpose of being able to monitor it with DragWatcher. Because
    * we capture a state in the constructor, it's guaranteed the global
    * drag handler will not be functioning until we release the state.
    */

@@ -16,7 +16,7 @@ PolylineModelShape::PolylineModelShape(const std::vector<QPointF>& polyline) {
   }
 
   // We build an interpolating X-spline with control points at the vertices
-  // of our polyline.  We'll use it to calculate curvature at polyline vertices.
+  // of our polyline. We'll use it to calculate curvature at polyline vertices.
   XSpline spline;
 
   for (const QPointF& pt : polyline) {

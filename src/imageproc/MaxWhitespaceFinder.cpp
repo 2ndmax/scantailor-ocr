@@ -316,7 +316,7 @@ MaxWhitespaceFinder::Region::Region(unsigned knownNewObstacles, const QRect& bou
 
 MaxWhitespaceFinder::Region::Region(const Region& other)
     : m_knownNewObstacles(other.m_knownNewObstacles), m_bounds(other.m_bounds) {
-  // Note that we don't copy m_obstacles.  This is a shallow copy.
+  // Note that we don't copy m_obstacles. This is a shallow copy.
 }
 
 /**

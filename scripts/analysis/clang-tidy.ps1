@@ -4,21 +4,21 @@
 
 .DESCRIPTION
   Needs the build directory of run 01 (msvc-analyze.ps1) for its compile_commands.json and the
-  generated headers.  The compile database is filtered (tests and generated files removed,
+  generated headers. The compile database is filtered (tests and generated files removed,
   MSVC /analyze switches stripped, as clang-tidy doesn't know them), and the files are run in
   parallel through a generated ninja file, so the output stays grouped per file.
 
   Besides the log, clang-tidy's diagnostics are exported as YAML per translation unit into
-  <OutDir>\02-clang-tidy-fixes.  clang-tidy only writes such a file for units with at least
-  one diagnostic.  Diagnostics in headers appear once per including source file.
+  <OutDir>\02-clang-tidy-fixes. clang-tidy only writes such a file for units with at least
+  one diagnostic. Diagnostics in headers appear once per including source file.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\clang-tidy.ps1
 
 .PARAMETER OutDir
-  Where the log and the YAML files go.  Default: ANALYSE in the repository.
+  Where the log and the YAML files go. Default: ANALYSE in the repository.
 
 .PARAMETER BuildDir
-  The build directory of run 01.  Default: build-analysis in the repository.
+  The build directory of run 01. Default: build-analysis in the repository.
 #>
 param(
     [string]$OutDir = '',

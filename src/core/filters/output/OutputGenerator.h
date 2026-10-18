@@ -46,12 +46,12 @@ class OutputGenerator {
    * \param fillZones A set of manual fill zones.
    * \param distortionModel A curved rectangle.
    * \param autoPictureMask If provided, the auto-detected picture mask
-   *        will be written there.  It would only happen if automatic picture
-   *        detection actually took place.  Otherwise, nothing will be
-   *        written into the provided image.  Black areas on the mask
-   *        indicate pictures.  The manual zones aren't represented in it.
+   *        will be written there. It would only happen if automatic picture
+   *        detection actually took place. Otherwise, nothing will be
+   *        written into the provided image. Black areas on the mask
+   *        indicate pictures. The manual zones aren't represented in it.
    * \param specklesImage If provided, the speckles removed from the
-   *        binarized image will be written there.  It would only happen
+   *        binarized image will be written there. It would only happen
    *        if despeckling was required and actually took place.
    *        Otherwise, nothing will be written into the provided image.
    *        Because despeckling is intentionally the last operation on

@@ -35,7 +35,7 @@ macro (finalize_translations _target) #, _ts_files
 
   foreach (_dir ${${_target}_TRANSLATION_INCLUDE_DIRS})
     # We are going to accept include directories within our
-    # source and binary trees and reject all others.  Allowing lupdate
+    # source and binary trees and reject all others. Allowing lupdate
     # to parse things like boost headers leads to spurious warnings.
     file(RELATIVE_PATH _dir_rel_to_source "${CMAKE_SOURCE_DIR}" "${_dir}")
     file(RELATIVE_PATH _dir_rel_to_binary "${CMAKE_BINARY_DIR}" "${_dir}")

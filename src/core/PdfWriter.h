@@ -19,13 +19,13 @@ class QIODevice;
  * \brief A minimal PDF writer for image-only pages.
  *
  * Pages are written to the device as soon as they are added, so memory usage
- * doesn't grow with the number of pages.  The image data has to be encoded
+ * doesn't grow with the number of pages. The image data has to be encoded
  * already, the writer only wraps it into PDF objects.
  *
  * The structure follows the approach of Tesseract's pdfrenderer.cpp: plain
- * objects, a classic cross-reference table and a trailer.  Recognized text is
+ * objects, a classic cross-reference table and a trailer. Recognized text is
  * written as invisible text (rendering mode 3) in Tesseract's embedded
- * "GlyphLessFont", stretched to the width of each word.  PDF/A additions (XMP
+ * "GlyphLessFont", stretched to the width of each word. PDF/A additions (XMP
  * metadata, output intent) are meant to be added to the catalog later.
  */
 class PdfWriter {
@@ -46,9 +46,9 @@ class PdfWriter {
     QByteArray data;
     int width = 0;
     int height = 0;
-    /** JPEG, JPX, RAW and FLATE: 1 for grayscale, 3 for RGB.  Not used for palette images. */
+    /** JPEG, JPX, RAW and FLATE: 1 for grayscale, 3 for RGB. Not used for palette images. */
     int components = 1;
-    /** RAW and FLATE: 1, 2, 4 or 8.  G4 and JBIG2 images are always 1 bit gray, JPEG images 8 bit. */
+    /** RAW and FLATE: 1, 2, 4 or 8. G4 and JBIG2 images are always 1 bit gray, JPEG images 8 bit. */
     int bitsPerComponent = 8;
     /** RAW and FLATE: if not empty, the samples are indexes into these RGB triples. */
     QByteArray palette;
@@ -71,7 +71,7 @@ class PdfWriter {
     QPointF origin;
     /** The text is stretched to this width, in points. */
     double width = 0;
-    /** In points.  The selection covers this height above the baseline. */
+    /** In points. The selection covers this height above the baseline. */
     double fontSize = 0;
   };
 
@@ -85,11 +85,11 @@ class PdfWriter {
   };
 
   /**
-   * \param device Must be open for writing.  Only sequential writing is used.
+   * \param device Must be open for writing. Only sequential writing is used.
    */
   explicit PdfWriter(QIODevice& device);
 
-  /** Writes the file header.  Must be called first. */
+  /** Writes the file header. Must be called first. */
   bool begin();
 
   /** Writes one page with its images. */

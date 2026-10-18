@@ -12,7 +12,7 @@ class QWidget;
 namespace project_file_dialogs {
 /**
  * Asks where to save the project, starting in the folder of \p currentProjectFile
- * or else in the last used project folder.  Adds ".ScanTailor" if missing.
+ * or else in the last used project folder. Adds ".ScanTailor" if missing.
  *
  * \return The chosen file, or an empty string if the user cancelled.
  */

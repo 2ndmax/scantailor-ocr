@@ -14,7 +14,7 @@ class GrayImage;
  *
  * Each pixel is averaged with the means of growing square windows around it,
  * weighted by the window size and by how close the mean is to the pixel, so
- * that windows reaching across an edge count little.  Based on the KNN
+ * that windows reaching across an edge count little. Based on the KNN
  * denoiser of ScanTailor Experimental, with symmetric windows.
  *
  * @param image The image to process. A null image is allowed.

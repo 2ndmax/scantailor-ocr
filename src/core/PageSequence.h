@@ -32,7 +32,7 @@ class PageSequence {
 
   /**
    * Among pages in \p subset, in document order, every second page before and after \p base,
-   * \p base included.  Gaps between the pages of the subset don't count.  Returns an empty set
+   * \p base included. Gaps between the pages of the subset don't count. Returns an empty set
    * if \p base isn't in the subset.
    */
   std::set<PageId> selectEveryOtherInSubset(const PageId& base, const std::set<PageId>& subset) const;

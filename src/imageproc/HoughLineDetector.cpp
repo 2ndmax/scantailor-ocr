@@ -162,12 +162,12 @@ BinaryImage HoughLineDetector::findHistogramPeaks(const std::vector<unsigned>& h
                                                   const int height,
                                                   const unsigned lowerBound) {
   // Peak candidates are connected components of bins having the same
-  // value.  Such a connected component may or may not be a peak.
+  // value. Such a connected component may or may not be a peak.
   BinaryImage peakCandidates(findPeakCandidates(hist, width, height, lowerBound));
 
   // To check if a peak candidate is really a peak, we have to check
   // that every bin in its neighborhood has a lower value than that
-  // candidate.  The are working with 5x5 neighborhoods.
+  // candidate. The are working with 5x5 neighborhoods.
   BinaryImage neighborhoodMask(dilateBrick(peakCandidates, QSize(5, 5)));
   rasterOp<RopXor<RopSrc, RopDst>>(neighborhoodMask, peakCandidates);
 

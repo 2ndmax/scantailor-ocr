@@ -95,7 +95,7 @@ const int CELL_WIDTH = 300;
 const int CELL_HEIGHT = 330;
 const size_t PER_SHEET = SHEET_COLS * SHEET_ROWS;
 
-// One sheet of at most PER_SHEET results.  Written as soon as it is full, so that the
+// One sheet of at most PER_SHEET results. Written as soon as it is full, so that the
 // thumbnails of a long run aren't all kept in memory.
 void writeSheet(const std::vector<Result>& results, const int sheetNo, const QString& outDir) {
   QImage sheet(SHEET_COLS * CELL_WIDTH, SHEET_ROWS * CELL_HEIGHT, QImage::Format_RGB32);

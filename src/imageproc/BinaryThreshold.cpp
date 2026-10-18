@@ -132,7 +132,7 @@ BinaryThreshold BinaryThreshold::mokjiThreshold(const QImage& image,
   const int dilateSize = (maxEdgeWidth + 1) * 2 - 1;
   GrayImage dilated(dilateGray(gray, QSize(dilateSize, dilateSize)));
 
-  // 256 KiB: kept off the stack of the worker thread.  The elements start at zero.
+  // 256 KiB: kept off the stack of the worker thread. The elements start at zero.
   std::vector<std::array<unsigned, 256>> matrix(256);
 
   const int w = image.width();

@@ -10,7 +10,7 @@
  * \brief Maps from x to arclen(f(x)) and back.
  *
  * Suppose we have a discrete function where we only know its
- * values for a given set of arguments.  This class provides a way
+ * values for a given set of arguments. This class provides a way
  * to calculate the both arc length corresponding to an arbitrary x,
  * and x corresponding to an arbitrary arc length.
  * We consider the arc length between two adjacent samples
@@ -64,7 +64,7 @@ class ArcLengthMapper {
    *
    * This works even for arc length beyond the first or last samples.
    * When interpolation is impossible, the closest sample is returned.
-   * If no samples are present, zero is returned.  Providing the same
+   * If no samples are present, zero is returned. Providing the same
    * hint on consecutive calls to this function improves performance.
    */
   double arcLenToX(double arcLen, Hint& hint) const;

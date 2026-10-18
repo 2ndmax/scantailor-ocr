@@ -249,11 +249,11 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   /**
    * Whether a project with a missing output folder is still where it was: the parent of the
-   * output folder and all images exist.  For a project without images, \p inputDir must exist.
+   * output folder and all images exist. For a project without images, \p inputDir must exist.
    */
   static bool isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir);
 
-  /** Whether all image files of the project exist.  Each file is checked once. */
+  /** Whether all image files of the project exist. Each file is checked once. */
   static bool allImagesExist(const ProjectPages& pages);
 
   /**
@@ -336,7 +336,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   /** Returns the pages inserted, in order. */
   std::vector<PageInfo> insertImage(const ImageInfo& newImage, BeforeOrAfter beforeOrAfter, ImageId existing);
 
-  /** Inserts all images of \p file (more than one for a multi-page TIFF).  Returns the pages inserted. */
+  /** Inserts all images of \p file (more than one for a multi-page TIFF). Returns the pages inserted. */
   std::vector<PageInfo> insertImageFile(const ImageFileInfo& file, BeforeOrAfter beforeOrAfter, ImageId existing);
 
   void setupAutoImport();
@@ -348,8 +348,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   QString suggestedImportDirectory() const;
 
   /**
-   * Starts importing new scans from \p dir.  If there are images in it that are not in the
-   * project, the user chooses which of them to add.  Returns false if cancelled or impossible.
+   * Starts importing new scans from \p dir. If there are images in it that are not in the
+   * project, the user chooses which of them to add. Returns false if cancelled or impossible.
    */
   bool startAutoImport(const QString& dir, bool chooseExistingImages);
 
@@ -377,7 +377,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   /**
    * Renames the new scan \p file to \p newName in its folder, retrying a few times in case the
-   * scanning program still has it open.  Returns the renamed file, or \p file if that fails.
+   * scanning program still has it open. Returns the renamed file, or \p file if that fails.
    */
   ImageFileInfo renameScan(const ImageFileInfo& file, const QString& newName);
 
@@ -451,7 +451,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::unique_ptr<ProcessingIndicationWidget> m_processingIndicationWidget;
   /** The "Create PDF" step; created when it's first shown, kept while the project is open. */
   std::unique_ptr<PdfExportView> m_pdfView;
-  /** Whether the "Create PDF" step is shown.  m_curFilter then still refers to the last filter. */
+  /** Whether the "Create PDF" step is shown. m_curFilter then still refers to the last filter. */
   bool m_pdfStage = false;
   /** The "Automatic import" panel above the options of the first step; owned by the options area. */
   AutoImportPanel* m_autoImportPanel = nullptr;

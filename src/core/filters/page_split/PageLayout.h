@@ -29,11 +29,11 @@ namespace page_split {
  * \li Zero, 1 or 2 cutters.
  *
  * Cutters are lines with *arbitrary endpoints* that have different meaning
- * depending on layout type.  The SINGLE_PAGE_UNCUT layout doesn't have any
- * cutters.  The TWO_PAGES layout has one cutter that splits the outline into
- * two pages.  The SINGLE_PAGE_CUT layout has two cutters that cut the outline
- * from two sides.  They don't have a special identity like being a left or
- * a right cutter.  Swapping them won't change the area they bound, and that
+ * depending on layout type. The SINGLE_PAGE_UNCUT layout doesn't have any
+ * cutters. The TWO_PAGES layout has one cutter that splits the outline into
+ * two pages. The SINGLE_PAGE_CUT layout has two cutters that cut the outline
+ * from two sides. They don't have a special identity like being a left or
+ * a right cutter. Swapping them won't change the area they bound, and that
  * area is the only thing we care about.
  */
 class PageLayout {
@@ -82,7 +82,7 @@ class PageLayout {
   /**
    * We don't provide a method to set a polygon, but only a rectangle
    * because we want to make sure the polygon stored internally corresponds
-   * to a rectangle.  For example, we want to be sure vertices 0 and 3
+   * to a rectangle. For example, we want to be sure vertices 0 and 3
    * comprise the line corresponding to a left edge of a rectangle.
    */
   void setUncutOutline(const QRectF& outline);

@@ -15,7 +15,7 @@
 #include "IconProvider.h"
 
 namespace {
-// Paints a group box like QGroupBox::paintEvent(), but the title with a bold font.  Setting a
+// Paints a group box like QGroupBox::paintEvent(), but the title with a bold font. Setting a
 // bold font on the group box itself would make all of its content bold as well.
 class BoldTitlePainter : public QObject {
  public:

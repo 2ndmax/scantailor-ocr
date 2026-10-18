@@ -395,7 +395,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
     } else {
       deleteMutuallyExclusiveOutputFiles();
       // Show the stored file rather than the computed image, the same as when the page is
-      // shown later without processing.  With lossy compression such as JPEG they differ.
+      // shown later without processing. With lossy compression such as JPEG they differ.
       QFile outFile(outFilePath);
       if (outFile.open(QIODevice::ReadOnly)) {
         const QImage storedImg = ImageLoader::load(outFile, 0);
@@ -407,7 +407,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
 
     if (writeSpecklesFile && specklesImg.isNull()) {
       // Even if despeckling didn't actually take place, we still need
-      // to write an empty speckles file.  Making it a special case
+      // to write an empty speckles file. Making it a special case
       // is simply not worth it.
       BinaryImage(outImg.size(), WHITE).swap(specklesImg);
     }

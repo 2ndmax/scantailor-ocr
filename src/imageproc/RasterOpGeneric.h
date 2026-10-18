@@ -17,7 +17,7 @@ namespace imageproc {
  * \param data The pointer to image data.
  * \param stride The number of elements of type T per image line.
  * \param size Image size.
- * \param operation An operation to perform.  It will be called like this:
+ * \param operation An operation to perform. It will be called like this:
  * \code
  * operation(data[offset]);
  * \endcode
@@ -35,7 +35,7 @@ void rasterOpGeneric(T* data, int stride, QSize size, Op operation);
  * \param size Dimensions of both images.
  * \param data2 The pointer to image data of the second image.
  * \param stride2 The number of elements of type T2 per line of the second image.
- * \param operation An operation to perform.  It will be called like this:
+ * \param operation An operation to perform. It will be called like this:
  * \code
  * operation(data1[offset1], data2[offset2]);
  * \endcode

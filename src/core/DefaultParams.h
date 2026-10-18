@@ -153,7 +153,7 @@ class DefaultParams {
     void setAutoMargins(bool autoMargins);
 
     /**
-     * The output size for new projects.  Unlike in a project, the target size is in the
+     * The output size for new projects. Unlike in a project, the target size is in the
      * units of the profile, like the margins.
      */
     const page_layout::OutputSizeOptions& getOutputSizeOptions() const { return m_outputSizeOptions; }

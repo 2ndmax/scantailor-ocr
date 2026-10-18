@@ -77,7 +77,7 @@ class ImageLoadErrorReporter : public QObject {
   /**
    * \brief Reports an output file that couldn't be written.
    *
-   * May be called from any thread.  Unlike load failures, these aren't
+   * May be called from any thread. Unlike load failures, these aren't
    * deduplicated, as writing the same file may fail again after a retry.
    */
   void reportWriteFailure(const QString& filePath, const QStringList& messages);
@@ -85,14 +85,14 @@ class ImageLoadErrorReporter : public QObject {
   /**
    * \brief Reports a page whose processing failed with an unexpected error.
    *
-   * May be called from any thread.  Not deduplicated, like write failures.
+   * May be called from any thread. Not deduplicated, like write failures.
    * \p filePath may be empty if the page is unknown.
    */
   void reportProcessingFailure(const QString& filePath, int page, const QStringList& messages);
 
  signals:
   /**
-   * Emitted from the thread calling report().  Receivers living in another
+   * Emitted from the thread calling report(). Receivers living in another
    * thread (like the GUI) get it through a queued connection.
    */
   void imageLoadFailed(const QString& filePath, int page, const QStringList& messages);

@@ -296,7 +296,7 @@ QString PageLayout::typeToString(const Type type) {
 /**
  * Extends or shrinks a line segment in such a way that if you draw perpendicular
  * lines through its endpoints, the given polygon would be squeezed between these
- * two perpendiculars.  This ensures that the resulting line segment intersects
+ * two perpendiculars. This ensures that the resulting line segment intersects
  * all the polygon edges it can possibly intersect.
  */
 QLineF PageLayout::extendToCover(const QLineF& line, const QPolygonF& poly) {
@@ -339,7 +339,7 @@ void PageLayout::ensureSameDirection(const QLineF& line1, QLineF& line2) {
 /**
  * Add the intersection point between \p line1 and \p line2
  * to \p poly, provided they intersect at all and the intersection
- * point is "between" line1.p1() and line2.p1().  We consider a point
+ * point is "between" line1.p1() and line2.p1(). We consider a point
  * to be between two other points by projecting it to the line between
  * those two points and checking if the projected point is between them.
  * When finding the intersection point, we treat \p line1 and \p line2

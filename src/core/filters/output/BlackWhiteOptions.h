@@ -65,14 +65,14 @@ class BlackWhiteOptions {
 
     void setBlueThresholdAdjustment(int blueThresholdAdjustment);
 
-    /// Posterizing of the text colors, for black and white and mixed pages.  Kept apart from the
+    /// Posterizing of the text colors, for black and white and mixed pages. Kept apart from the
     /// posterizing of whole color pages; older projects had one setting for both.
     bool isPosterizeEnabled() const { return m_posterizeEnabled; }
 
     void setPosterizeEnabled(bool enabled) { m_posterizeEnabled = enabled; }
 
     /// K-means: the letter colors are reduced to this many colors (idea from ScanTailor
-    /// Experimental), instead of posterizing them.  With a fixed black, one color is pure black.
+    /// Experimental), instead of posterizing them. With a fixed black, one color is pure black.
     bool isKMeansEnabled() const { return m_kmeansEnabled; }
 
     void setKMeansEnabled(bool enabled) { m_kmeansEnabled = enabled; }
@@ -138,7 +138,7 @@ class BlackWhiteOptions {
   int getWolfLowerBound() const;
 
   /// The bounds apply to all binarization methods: darker pixels are always black, lighter ones always
-  /// white.  They keep their old names, as they were first used by the Wolf method.
+  /// white. They keep their old names, as they were first used by the Wolf method.
   void setWolfLowerBound(int wolfLowerBound);
 
   int getWolfUpperBound() const;
@@ -150,7 +150,7 @@ class BlackWhiteOptions {
   void setWolfCoef(double wolfCoef);
 
   /// Colored pixels are darkened (positive, up to 2) or lightened towards white (negative, down to -1)
-  /// before binarization, the more the more saturated they are.  0 changes nothing.
+  /// before binarization, the more the more saturated they are. 0 changes nothing.
   double getColoredDimming() const { return m_coloredDimming; }
 
   void setColoredDimming(double coloredDimming) { m_coloredDimming = coloredDimming; }

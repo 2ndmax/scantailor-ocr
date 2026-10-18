@@ -38,7 +38,7 @@ class Brick {
   /**
    * \brief Constructs a brick by specifying its bounds.
    *
-   * Note that all bounds are inclusive.  The order of the arguments
+   * Note that all bounds are inclusive. The order of the arguments
    * is the same as for QRect::adjust().
    */
   Brick(int minX, int minY, int maxX, int maxY);
@@ -180,7 +180,7 @@ GrayImage erodeGray(const GrayImage& src, const Brick& brick, unsigned char srcS
  *        will be returned as a destination image. It doesn't have
  *        to fit into the source image area.
  * \param srcSurroundings The color of pixels that are assumed to
- *        surround the source image.  If set to BLACK, a brick will be able
+ *        surround the source image. If set to BLACK, a brick will be able
  *        to fit by going partially off-screen (off the source
  *        image area actually).
  */
@@ -221,7 +221,7 @@ GrayImage openGray(const GrayImage& src, const QSize& brick, unsigned char srcSu
  *        will be returned as a destination image. It doesn't have
  *        to fit into the source image area.
  * \param srcSurroundings The color of pixels that are assumed to
- *        surround the source image.  If set to WHITE, a brick will be able
+ *        surround the source image. If set to WHITE, a brick will be able
  *        to fit by going partially off-screen (off the source
  *        image area actually).
  */
@@ -320,7 +320,7 @@ BinaryImage hitMissMatch(const BinaryImage& src,
  * \param src The input image.
  * \param srcSurroundings The color that is assumed to be outside of the
  *        input image.
- * \param pattern A string representing a pattern.  Example:
+ * \param pattern A string representing a pattern. Example:
  * \code
  * const char* pattern =
  *  "?X?"
@@ -328,7 +328,7 @@ BinaryImage hitMissMatch(const BinaryImage& src,
  *  "?X?";
  * \endcode
  * Here X stads for a hit (black pixel) and [space] stands for a miss
- * (white pixel).  Question marks indicate pixels that we are not interested in.
+ * (white pixel). Question marks indicate pixels that we are not interested in.
  * \param patternWidth The width of the pattern.
  * \param patternHeight The height of the pattern.
  * \param patternOrigin A point usually within the pattern indicating where
@@ -348,7 +348,7 @@ BinaryImage hitMissMatch(const BinaryImage& src,
  * \param src The input image.
  * \param srcSurroundings The color that is assumed to be outside of the
  *        input image.
- * \param pattern A string representing a pattern.  Example:
+ * \param pattern A string representing a pattern. Example:
  * \code
  * const char* pattern =
  *  " - "
@@ -377,7 +377,7 @@ BinaryImage hitMissReplace(const BinaryImage& src,
  * \param[in,out] img The image to make replacements in.
  * \param srcSurroundings The color that is assumed to be outside of the
  *        input image.
- * \param pattern A string representing a pattern.  Example:
+ * \param pattern A string representing a pattern. Example:
  * \code
  * const char* pattern =
  *  " - "

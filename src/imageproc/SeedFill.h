@@ -16,7 +16,7 @@ class GrayImage;
  * \brief Spread black pixels from seed as long as mask allows it.
  *
  * This operation retains black connected componets from \p mask that are
- * tagged by at least one black pixel in \p seed.  The rest do not appear
+ * tagged by at least one black pixel in \p seed. The rest do not appear
  * in the result.
  * \par
  * \p seed is allowed to contain black pixels that are not in \p mask.
@@ -35,7 +35,7 @@ BinaryImage seedFill(const BinaryImage& seed, const BinaryImage& mask, Connectiv
  * areas in \p seed.
  * \par
  * \p seed is allowed to contain pixels darker than the corresponding pixels
- * in \p mask.  Such pixels will be made equal to their mask values.
+ * in \p mask. Such pixels will be made equal to their mask values.
  * \par
  * The underlying code implements Luc Vincent's hybrid seed-fill algorithm:
  * http://www.vincent-net.com/luc/papers/93ieeeip_recons.pdf

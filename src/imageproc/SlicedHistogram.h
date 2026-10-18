@@ -33,7 +33,7 @@ class SlicedHistogram {
   /**
    * \brief Calculates the histogram of the whole image.
    *
-   * \param image The image to process.  A null image will produce
+   * \param image The image to process. A null image will produce
    *        an empty histogram.
    * \param type Specifies whether to process columns or rows.
    */
@@ -42,9 +42,9 @@ class SlicedHistogram {
   /**
    * \brief Calculates the histogram of a portion of the image.
    *
-   * \param image The image to process.  A null image will produce
+   * \param image The image to process. A null image will produce
    *        an empty histogram, provided that \p area is also null.
-   * \param area The area of the image to process.  The first value
+   * \param area The area of the image to process. The first value
    *        in the histogram will correspond to the first line in this area.
    * \param type Specifies whether to process columns or rows.
    *

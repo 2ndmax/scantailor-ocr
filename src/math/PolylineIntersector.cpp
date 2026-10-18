@@ -90,7 +90,7 @@ QPointF PolylineIntersector::intersectWithSegment(const QLineF& line, int segmen
   auto intersect = line.intersects(segLine, &intersection);
   if (intersect == QLineF::NoIntersection) {
     // Considering we were called for a reason, the segment must
-    // be on the same line as our subject line.  Just return segment
+    // be on the same line as our subject line. Just return segment
     // midpoint in this case.
     return segLine.pointAt(0.5);
   }

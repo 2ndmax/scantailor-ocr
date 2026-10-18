@@ -78,7 +78,7 @@ void StatusBarPanel::updatePage(int pageNumber, size_t pageCount, const PageId& 
   ui.pageNoLabel->setVisible(true);
 
   // At most this many characters; a longer name is shortened at the front, as its end usually
-  // holds the number.  The full name is in the tooltip.
+  // holds the number. The full name is in the tooltip.
   const int maxChars = 50;
   const QFileInfo fileInfo(pageId.imageId().filePath());
   QString pageFileInfo = fileInfo.completeBaseName();

@@ -65,7 +65,7 @@ class OutputSizeOptions {
   /**
    * \brief Calculates how much the content of a page is scaled to fit the output size.
    *
-   * The hard margins keep their size.  Pages not matched to others are never scaled.
+   * The hard margins keep their size. Pages not matched to others are never scaled.
    * Pages filled with margins are reduced only to an own target size, never enlarged;
    * pages scaled to fit are enlarged or reduced, both within the limits.
    *

@@ -14,7 +14,7 @@ namespace {
 /**
  * The Windows 11 style puts the two arrows of a spin box next to each other, which makes each
  * spin box about 40 pixels wider than in the other color schemes, so rows of spin boxes don't
- * fit into the options panels.  This puts the arrows above each other, as the other styles do.
+ * fit into the options panels. This puts the arrows above each other, as the other styles do.
  */
 class CompactSpinBoxStyle : public QProxyStyle {
  public:
@@ -58,7 +58,7 @@ class CompactSpinBoxStyle : public QProxyStyle {
     if ((type != CT_SpinBox) || !spinBox || (spinBox->buttonSymbols == QAbstractSpinBox::NoButtons)) {
       return QProxyStyle::sizeFromContents(type, option, size, widget);
     }
-    // The height as without buttons.  The width is the text, the margins of the text field (4 on
+    // The height as without buttons. The width is the text, the margins of the text field (4 on
     // each side in this style), the frame and one column for both buttons, without the wide
     // extra margins of the style.
     QStyleOptionSpinBox withoutButtons(*spinBox);

@@ -31,7 +31,7 @@ struct PdfExportOptions {
   PdfCompression bitonalCompression = PdfCompression::JBIG2;
   /** The number of pages prepared in parallel. */
   int threadCount = 1;
-  /** Add an invisible text layer.  Requires a build with ENABLE_OCR. */
+  /** Add an invisible text layer. Requires a build with ENABLE_OCR. */
   bool ocr = false;
   /** The folder with the language files (see OcrLanguages::commonDir()). */
   QString ocrDataDir;
@@ -47,7 +47,7 @@ class OcrEngine;
 /**
  * \brief Builds a PDF from already existing output files.
  *
- * run() blocks and is meant to be called from a worker thread.  Several pages are
+ * run() blocks and is meant to be called from a worker thread. Several pages are
  * prepared (loaded and encoded) in parallel, while the PDF is written in page order.
  * The file is written to a temporary file first, so a failed or cancelled export
  * doesn't leave a partial PDF behind or damage an existing one.
@@ -74,7 +74,7 @@ class PdfExportJob : public QObject {
   /**
    * \brief Loads and encodes the files of one page and recognizes its text.
    *
-   * \param ocrEngine Used for the text layer if options.ocr is set.  Must be initialized.
+   * \param ocrEngine Used for the text layer if options.ocr is set. Must be initialized.
    * \param cancel If not null, text recognition stops as soon as it becomes true.
    * \return false on failure, in which case \p errors receives the reasons.
    */

@@ -139,7 +139,7 @@ void ZoneContextMenuInteraction::menuAboutToHide() {
 
 #ifdef Q_OS_MAC
   // On OSX, QAction::triggered() is emitted significantly (like 150ms)
-  // later than QMenu::aboutToHide().  This makes it generally not possible
+  // later than QMenu::aboutToHide(). This makes it generally not possible
   // to tell whether the menu was just dismissed or a menu item was clicked.
   // The only way to tell is to check back later, which we do here.
   if (m_extraDelaysDone++ < 1) {

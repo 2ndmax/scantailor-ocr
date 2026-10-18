@@ -10,11 +10,11 @@ namespace imageproc {
 /**
  * \brief Recalculates every pixel to make its brightness match the provided level.
  *
- * \param rgbImage The image to adjust brightness in.  Must be
+ * \param rgbImage The image to adjust brightness in. Must be
  *        QImage::Format_RGB32 or QImage::Format_ARGB32.
  *        The alpha channel won't be modified.
  * \param brightness A grayscale image representing the desired brightness
- *        of each pixel.  Must be QImage::Format_Indexed8, have a grayscale
+ *        of each pixel. Must be QImage::Format_Indexed8, have a grayscale
  *        palette and have the same size as \p rgbImage.
  * \param wr The weighting factor for red color component in the brightness
  *        image.
@@ -22,7 +22,7 @@ namespace imageproc {
  *        image.
  *
  * The brightness values are normally a weighted sum of red, green and blue
- * color components.  The formula is:
+ * color components. The formula is:
  * \code
  * brightness = R * wr + G * wg + B * wb;
  * \endcode

@@ -84,7 +84,7 @@ class VecNT {
   /**
    * \brief Construction from a QPointF.
    *
-   * Will not compile for N != 2.  Will compile for any T's that
+   * Will not compile for N != 2. Will compile for any T's that
    * are convertable from qreal by a static cast.
    */
   VecNT(const QPointF& pt);
@@ -92,7 +92,7 @@ class VecNT {
   /**
    * \brief Implicit conversion to QPointF.
    *
-   * Will not compile for N != 2.  Will compile for any T's that
+   * Will not compile for N != 2. Will compile for any T's that
    * are convertable to qreal by a static cast.
    */
   operator QPointF() const;

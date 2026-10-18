@@ -50,7 +50,7 @@ struct CenterComparator {
 /**
  * \brief Try to auto-detect a page layout for a single-page configuration.
  *
- * \param layoutType The requested layout type.  The layout type of
+ * \param layoutType The requested layout type. The layout type of
  *        SINGLE_PAGE_UNCUT is not handled here.
  * \param ltrLines Folding line candidates sorted from left to right.
  * \param imageSize The dimentions of the page image.
@@ -207,11 +207,11 @@ class BadTwoPageSplitter {
 /**
  * \brief Attempts to find the folding line and cut the image there.
  *
- * \param layoutType The type of a layout to detect.  If set to
+ * \param layoutType The type of a layout to detect. If set to
  *        something other than AUTO_LAYOUT_TYPE, the returned
- *        layout will have the same type.  The layout type of
+ *        layout will have the same type. The layout type of
  *        SINGLE_PAGE_UNCUT is not handled here.
- * \param input The input image.  Will be converted to grayscale unless
+ * \param input The input image. Will be converted to grayscale unless
  *        it's already grayscale.
  * \param preXform The logical transformation applied to the input image.
  *        The resulting page layout will be in transformed coordinates.
@@ -275,10 +275,10 @@ std::unique_ptr<PageLayout> PageLayoutEstimator::tryCutAtFoldingLine(const Layou
 /**
  * \brief Attempts to find a suitable whitespace to draw a splitting line through.
  *
- * \param layoutType The type of a layout to detect.  If set to
+ * \param layoutType The type of a layout to detect. If set to
  *        something other than AUTO_LAYOUT_TYPE, the returned
  *        layout will have the same type.
- * \param input The input image.  Will be converted to grayscale unless
+ * \param input The input image. Will be converted to grayscale unless
  *        it's already grayscale.
  * \param preXform The logical transformation applied to the input image.
  *        The resulting page layout will be in transformed coordinates.
@@ -359,7 +359,7 @@ PageLayout PageLayoutEstimator::cutAtWhitespace(const LayoutType layoutType,
 /**
  * \brief Attempts to find a suitable whitespace to draw a splitting line through.
  *
- * \param layoutType The type of a layout to detect.  If set to
+ * \param layoutType The type of a layout to detect. If set to
  *        something other than AUTO_LAYOUT_TYPE, the returned
  *        layout will have the same type.
  * \param numPages The number of pages (1 or 2) in the layout.

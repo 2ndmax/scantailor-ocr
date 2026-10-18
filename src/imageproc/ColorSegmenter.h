@@ -29,7 +29,7 @@ class ColorSegmenter {
 
   /**
    * @brief The segments themselves, as segment() finds them: each black pixel of the image gets
-   *        the label of its segment.  A grayscale color image has no color classes, so its
+   *        the label of its segment. A grayscale color image has no color classes, so its
    *        segments are the connected areas of the image.
    */
   ConnectivityMap segmentMap(const BinaryImage& image, const QImage& colorImage) const;

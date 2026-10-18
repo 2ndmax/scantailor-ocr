@@ -242,7 +242,7 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   // Page list.
   auto* pagesGroup = new QGroupBox(tr("Pages"));
   auto* pagesLayout = new QVBoxLayout(pagesGroup);
-  // Tiles from left to right, then on the next row, like reading.  The list mode (rather than
+  // Tiles from left to right, then on the next row, like reading. The list mode (rather than
   // the icon mode) keeps drag and drop a change of the order.
   m_pageList = new QListWidget;
   m_pageList->setViewMode(QListView::ListMode);
@@ -359,7 +359,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   compressionGroup->setObjectName("pdfCompressionPanel");
   auto* optionsLayout = new QFormLayout(compressionGroup);
   // All lists start after the longest label and keep their width instead of filling a widened
-  // panel.  The rows don't wrap: the panel is at least as wide as the longest row anyway.
+  // panel. The rows don't wrap: the panel is at least as wide as the longest row anyway.
   optionsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
   optionsLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 
@@ -476,7 +476,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   }
 
 #ifdef ENABLE_OCR
-  // Text recognition.  Like the panels of the other steps, the check box that turns it on
+  // Text recognition. Like the panels of the other steps, the check box that turns it on
   // is the first entry, not part of the title.
   auto* ocrGroup = new CollapsibleGroupBox(tr("Text Recognition (OCR)"));
   ocrGroup->setObjectName("pdfOcrPanel");
@@ -486,7 +486,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_ocrEnabled->setToolTip(
       tr("Adds an invisible text layer, so the text of the PDF can be searched, selected and copied. Text "
          "recognition takes a few seconds per page."));
-  // The button shares the line of the check box, as in the Automatic Import panel.  It stays
+  // The button shares the line of the check box, as in the Automatic Import panel. It stays
   // usable while text recognition is off, so languages can be added first.
   auto* moreLanguagesButton = new QPushButton(tr("More languages ..."));
   moreLanguagesButton->setToolTip(tr("Download more languages from the internet."));
@@ -579,7 +579,7 @@ void PdfExportView::setPages(std::vector<Entry> entries) {
   QApplication::restoreOverrideCursor();
 
   // The order and the ticks shown so far, and the thumbnails, which are shown again until
-  // they have been reloaded.  The output file identifies a page.
+  // they have been reloaded. The output file identifies a page.
   std::vector<PdfPageOrder::Item> previous;
   QHash<QString, QIcon> previousIcons;
   for (int row = 0; row < m_pageList->count(); ++row) {
@@ -821,7 +821,7 @@ void PdfExportView::startExport() {
     QString dataDir = OcrLanguages::commonDir(languages);
     if (dataDir.isEmpty()) {
       // Tesseract needs all languages in one folder, so the missing ones are copied
-      // into the user's folder.  That's only needed once.
+      // into the user's folder. That's only needed once.
       m_statusLabel->setText(tr("Copying language files ..."));
       QApplication::setOverrideCursor(Qt::WaitCursor);
       QString error;
@@ -979,7 +979,7 @@ void PdfExportView::thumbnailLoaded(const int generation, const int entryIndex, 
     showThumbnail(entryIndex, result.pixmap());
     m_thumbnailHandlers[entryIndex].reset();
   } else if (result.status() == ThumbnailLoadResult::REQUEST_EXPIRED) {
-    // The cache serves the newest requests first and drops old ones.  Ask again.
+    // The cache serves the newest requests first and drops old ones. Ask again.
     QTimer::singleShot(0, this, [this, generation, entryIndex]() { requestThumbnail(generation, entryIndex); });
   } else {
     m_thumbnailHandlers[entryIndex].reset();

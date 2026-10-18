@@ -10,7 +10,7 @@ namespace Tests {
 BOOST_AUTO_TEST_SUITE(DeviationProviderTestSuite)
 
 namespace {
-// Angles around zero, as the deskew step has them.  The last one is off by 0.16 degrees.
+// Angles around zero, as the deskew step has them. The last one is off by 0.16 degrees.
 void addAngles(DeviationProvider<int>& provider) {
   const double angles[] = {0.1, 0.1, 0.1, 0.1, 0.3};
   for (int i = 0; i < 5; ++i) {

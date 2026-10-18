@@ -431,8 +431,8 @@ int maxReduceFactor(opj_codec_t* codec, const int numComps) {
   return (minResolutions == INT_MAX) ? 0 : std::max(0, minResolutions - 1);
 }
 
-// OpenJPEG keeps every decoded sample as a 32-bit integer.  Images needing more
-// than this for a full decode are decoded in horizontal strips instead.  Strips
+// OpenJPEG keeps every decoded sample as a 32-bit integer. Images needing more
+// than this for a full decode are decoded in horizontal strips instead. Strips
 // cost some speed (code-blocks at strip boundaries are decoded twice), so only
 // really huge images (e.g. large maps or 1200 DPI scans of big originals) take
 // that path, while ordinary scans are decoded in one go.
@@ -666,7 +666,7 @@ QImage Jp2Reader::readImage(QIODevice& device, const QSize& minSize) {
     bool stripsFailed = false;
     QImage decoded = decode(device, format, min, true, reduce, stripsFailed);
     if (decoded.isNull() && stripsFailed) {
-      // Strip decoding isn't possible for this file.  Try in one go.
+      // Strip decoding isn't possible for this file. Try in one go.
       decoded = decode(device, format, min, false, reduce, stripsFailed);
     }
     return decoded;
@@ -675,7 +675,7 @@ QImage Jp2Reader::readImage(QIODevice& device, const QSize& minSize) {
   QImage image = decodeWithFallback(minSize);
   if (image.isNull() && (reduce > 0)) {
     // Some files have tiles with fewer resolution levels than announced
-    // in the main header.  Try again at full resolution.
+    // in the main header. Try again at full resolution.
     image = decodeWithFallback(QSize());
   }
   if (image.isNull()) {

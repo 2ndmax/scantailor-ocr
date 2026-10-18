@@ -258,7 +258,7 @@ struct TargetSourceConn {
   TargetSourceConn(uint32_t tgt, uint32_t src) : target(tgt), source(src) {}
 
   /**
-   * The ordering is by target then source.  It's designed to be able
+   * The ordering is by target then source. It's designed to be able
    * to quickly locate all associations involving a specific target.
    */
   bool operator<(const TargetSourceConn& rhs) const {
@@ -773,7 +773,7 @@ void despeckleImpl(BinaryImage& image, const Settings& settings, const TaskStatu
   if (haveAnchoredToSmallButNotBig) {
     status.throwIfCancelled();
 
-    // Give such components a second chance.  Maybe they do have
+    // Give such components a second chance. Maybe they do have
     // big neighbors, but Voronoi regions from a smaller ones
     // block the path to the bigger ones.
 
@@ -814,7 +814,7 @@ void despeckleImpl(BinaryImage& image, const Settings& settings, const TaskStatu
 
     status.throwIfCancelled();
 
-    // We've got new connections.  Add them to the map.
+    // We've got new connections. Add them to the map.
     voronoiDistances(cmap, distanceMatrix, conns);
   }
 

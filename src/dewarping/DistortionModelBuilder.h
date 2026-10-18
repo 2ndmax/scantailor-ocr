@@ -35,7 +35,7 @@ class DistortionModelBuilder {
    * \brief Set the vertical content boundaries.
    *
    * Note that we are setting lines, not line segments, so endpoint
-   * positions along the line don't really matter.  It also doesn't
+   * positions along the line don't really matter. It also doesn't
    * matter which one is the left bound and which one is the right one.
    */
   void setVerticalBounds(const QLineF& bound1, const QLineF& bound2);
@@ -51,7 +51,7 @@ class DistortionModelBuilder {
    * \brief Add a curve that's meant to become straight and horizontal after dewarping.
    *
    * The curve doesn't have to touch or intersect the vertical bounds, although
-   * long curves are preferable.  The minimum number of curves to build a distortion
+   * long curves are preferable. The minimum number of curves to build a distortion
    * model is 2, although that doesn't guarantee successful model construction.
    * The more apart the curves are, the better.
    */

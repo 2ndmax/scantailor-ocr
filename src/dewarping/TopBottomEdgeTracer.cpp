@@ -56,7 +56,7 @@ struct TopBottomEdgeTracer::GridNode {
   };
 
   // Note: xGrad and yGrad are used to calculate the directional
-  // derivative, which then gets stored in dirDeriv.  Obviously,
+  // derivative, which then gets stored in dirDeriv. Obviously,
   // pathCost gets overwritten, which is not a problem in our case.
   uint32_t packedData;
 

@@ -18,7 +18,7 @@ class GrayImage {
   /**
    * \brief Creates a 8-bit grayscale image with specified dimensions.
    *
-   * The image contents won't be initialized.  You can use fill() to initialize them.
+   * The image contents won't be initialized. You can use fill() to initialize them.
    * If size.isEmpty() is true, creates a null image.
    *
    * \throw std::bad_alloc Unlike the underlying QImage, GrayImage reacts to

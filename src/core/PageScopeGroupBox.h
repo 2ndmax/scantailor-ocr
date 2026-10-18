@@ -19,8 +19,8 @@ class QRadioButton;
 /**
  * \brief The "Apply to" part of the "Apply to ..." windows: which pages to apply to.
  *
- * All windows offer the same seven choices.  Each shows how many pages it applies to, and
- * "Every other page" names the odd or even pages.  When several pages are selected in the
+ * All windows offer the same seven choices. Each shows how many pages it applies to, and
+ * "Every other page" names the odd or even pages. When several pages are selected in the
  * thumbnail list, "Selected pages" is preselected.
  */
 class PageScopeGroupBox : public QGroupBox {

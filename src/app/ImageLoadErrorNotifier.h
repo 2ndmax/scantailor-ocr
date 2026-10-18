@@ -20,9 +20,9 @@ class QWidget;
  *
  * Failures typically come in bursts (a folder full of files in an unsupported
  * format), so they are collected for a moment and shown together in a single,
- * non-modal message box.  It names the first few files with the reason and
- * keeps the full list in its details section.  Failures that occur while the
- * box is open are added to it rather than opening another one.  The user can
+ * non-modal message box. It names the first few files with the reason and
+ * keeps the full list in its details section. Failures that occur while the
+ * box is open are added to it rather than opening another one. The user can
  * mute the notifications for the rest of the session.
  */
 class ImageLoadErrorNotifier : public QObject {

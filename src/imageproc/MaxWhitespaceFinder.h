@@ -46,7 +46,7 @@ class MaxWhitespaceFinder {
    * \brief Constructor with customized rectangle ordering.
    *
    * \param comp A functor used to compare the "quality" of
-   *        rectangles.  It will be called like this:\n
+   *        rectangles. It will be called like this:\n
    * \code
    * QRect lhs, rhs;
    * if (comp(lhs, rhs)) {
@@ -75,7 +75,7 @@ class MaxWhitespaceFinder {
    *
    * This will prevent further rectangles from covering this region.
    *
-   * \param rect The rectangle to mark as black.  It may exceed
+   * \param rect The rectangle to mark as black. It may exceed
    *        the image area.
    */
   void addObstacle(const QRect& obstacle);
@@ -85,17 +85,17 @@ class MaxWhitespaceFinder {
    *
    * \param obstacleMode If set to AUTO_OBSTACLES, addObstacle()
    *        will be called automatically to prevent further rectangles
-   *        from covering this region.  If set to MANUAL_OBSTACLES,
+   *        from covering this region. If set to MANUAL_OBSTACLES,
    *        the caller is expected to call addObstacle() himself,
    *        not necessarily with the same rectangle returned by next().
    *        This mode allows finding partially overlapping rectangles
-   *        (by adding reduced obstacles).  There is no strict
+   *        (by adding reduced obstacles). There is no strict
    *        requirement to manually add an obstacle after calling
    *        this function with MANUAL_OBSTACLES.
    * \param maxIterations The maximum number of iterations to spend
    *        searching for the next maximal white rectangle.
    *        Reaching this limit without finding one will cause
-   *        a null rectangle to be returned.  You generally don't
+   *        a null rectangle to be returned. You generally don't
    *        want to set this limit MAX_INT or similar, because
    *        some patterns (a pixel by pixel checkboard pattern for example)
    *        will take prohibitively long time to process.
@@ -110,7 +110,7 @@ class MaxWhitespaceFinder {
     Region(unsigned knownNewObstacles, const QRect& bounds);
 
     /**
-     * A shallow copy.  Copies everything except the obstacle list.
+     * A shallow copy. Copies everything except the obstacle list.
      */
     Region(const Region& other);
 
@@ -229,7 +229,7 @@ void PriorityStorageImpl<QualityCompare>::pop() {
 
 /**
  * Same as std::push_heap(), except this one never copies objects, but swap()'s
- * them instead.  We need this to avoid copying the obstacle list over and over.
+ * them instead. We need this to avoid copying the obstacle list over and over.
  */
 template <typename QualityCompare>
 void PriorityStorageImpl<QualityCompare>::pushHeap(const std::deque<Region>::iterator begin,
@@ -249,7 +249,7 @@ void PriorityStorageImpl<QualityCompare>::pushHeap(const std::deque<Region>::ite
 
 /**
  * Same as std::pop_heap(), except this one never copies objects, but swap()'s
- * them instead.  We need this to avoid copying the obstacle list over and over.
+ * them instead. We need this to avoid copying the obstacle list over and over.
  */
 template <typename QualityCompare>
 void PriorityStorageImpl<QualityCompare>::popHeap(const std::deque<Region>::iterator begin,
@@ -284,7 +284,7 @@ void PriorityStorageImpl<QualityCompare>::popHeap(const std::deque<Region>::iter
     nodeIdx = firstChildIdx;
   }
 
-  // Now raise the node until it's at correct position.  Very little
+  // Now raise the node until it's at correct position. Very little
   // raising should be necessary, that's why it's faster than adding
   // an additional comparision to the loop where we lower the node.
   pushHeap(begin, begin + nodeIdx + 1);

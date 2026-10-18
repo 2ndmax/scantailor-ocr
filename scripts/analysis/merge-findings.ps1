@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   Reads the logs written by the run scripts in this folder (01-07) and collects every warning
-  or runtime report with its location.  A finding is one combination of tool, check, file and
+  or runtime report with its location. A finding is one combination of tool, check, file and
   line; repeats (a header reported once per including file, the same warning in the runs 01, 04
   and 05) are merged, and the runs that reported it are listed.
 
@@ -38,7 +38,7 @@ $Utf8 = New-Object Text.UTF8Encoding $false
 $findings = @{}  # key -> finding
 $order = New-Object System.Collections.Generic.List[string]
 
-# Makes a path relative to the repository, with forward slashes.  Paths outside it
+# Makes a path relative to the repository, with forward slashes. Paths outside it
 # (vcpkg, Windows SDK) are kept and marked as external.
 function Get-RelPath([string] $path) {
   $p = $path.Trim() -replace '/', '\'

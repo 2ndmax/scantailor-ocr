@@ -155,8 +155,8 @@ class ConnectivityMap {
   /**
    * \brief Returns a pointer to the top-left corner of padding of the map.
    *
-   * The actually has a fake line from each side.  Those lines are
-   * labelled as background (label 0).  Sometimes it might be desirable
+   * The actually has a fake line from each side. Those lines are
+   * labelled as background (label 0). Sometimes it might be desirable
    * to access that data.
    */
   const uint32_t* paddedData() const { return m_plainData ? &m_data[0] : nullptr; }
@@ -164,8 +164,8 @@ class ConnectivityMap {
   /**
    * \brief Returns a pointer to the top-left corner of padding of the map.
    *
-   * The actually has a fake line from each side.  Those lines are
-   * labelled as background (label 0).  Sometimes it might be desirable
+   * The actually has a fake line from each side. Those lines are
+   * labelled as background (label 0). Sometimes it might be desirable
    * to access that data.
    */
   uint32_t* paddedData() { return m_plainData ? &m_data[0] : nullptr; }
@@ -197,7 +197,7 @@ class ConnectivityMap {
   /**
    * \brief Visualizes each label with a different color.
    *
-   * \param bgColor Background color.  Transparency is supported.
+   * \param bgColor Background color. Transparency is supported.
    */
   QImage visualized(QColor bgColor = Qt::black) const;
 

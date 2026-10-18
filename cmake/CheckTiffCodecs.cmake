@@ -1,8 +1,8 @@
 # check_tiff_codecs(REQUIRED <codec>... [RECOMMENDED <codec>...])
 #
 # Verifies that the libtiff found by find_package(TIFF) supports the given
-# compression schemes.  Which codecs libtiff supports is decided when libtiff
-# itself is built, and it can only be queried at run time.  So a small program
+# compression schemes. Which codecs libtiff supports is decided when libtiff
+# itself is built, and it can only be queried at run time. So a small program
 # is built against TIFF::TIFF, which asks TIFFIsCODECConfigured() about each codec.
 #
 # Known codec names: LZW PACKBITS CCITT JPEG OJPEG DEFLATE LZMA ZSTD WEBP LERC JBIG
@@ -127,14 +127,14 @@ int main(void) {
     string(REPLACE ";" " " _str "${missing_recommended}")
     message(WARNING
         "libtiff lacks support for these recommended codecs: ${_str}\n"
-        "TIFF files using them can't be opened.  With vcpkg, add the corresponding features, e.g.:\n"
+        "TIFF files using them can't be opened. With vcpkg, add the corresponding features, e.g.:\n"
         "  vcpkg install tiff[core,jpeg,zip,lzma,zstd,webp,lerc]")
   endif()
   if (missing_required)
     string(REPLACE ";" " " _str "${missing_required}")
     message(FATAL_ERROR
         "libtiff lacks support for these required codecs: ${_str}\n"
-        "Please use a libtiff built with them.  With vcpkg, e.g.:\n"
+        "Please use a libtiff built with them. With vcpkg, e.g.:\n"
         "  vcpkg install tiff[core,jpeg,zip,lzma,zstd,webp,lerc]\n"
         "On Debian / Ubuntu, the libtiff-dev package has everything that's needed.\n"
         "To build anyway, pass -DSKIP_TIFF_CODEC_CHECK=ON (not recommended).")

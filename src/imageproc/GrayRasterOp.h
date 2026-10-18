@@ -18,10 +18,10 @@ namespace imageproc {
 /**
  * \brief Perform pixel-wise operations on two images.
  *
- * \param dst The destination image.  Changes will be written there.
- * \param src The source image.  May be the same as the destination image.
+ * \param dst The destination image. Changes will be written there.
+ * \param src The source image. May be the same as the destination image.
  *
- * The template argument is the operation to perform.  This is generally a
+ * The template argument is the operation to perform. This is generally a
  * combination of several GRop* class templates, such as
  * GRopSubtract\<GRopSrc, GRopDst\>.
  */

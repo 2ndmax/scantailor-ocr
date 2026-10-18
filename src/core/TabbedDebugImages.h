@@ -26,8 +26,8 @@ class TabbedDebugImages : public QTabWidget {
   void removeExcessLiveViews();
 
   /**
-   * We don't want to keep all the debug images in memory.  We normally keep
-   * only a few of them.  This list holds references to them in the order
+   * We don't want to keep all the debug images in memory. We normally keep
+   * only a few of them. This list holds references to them in the order
    * they become live.
    */
   DebugViewList m_liveViews;

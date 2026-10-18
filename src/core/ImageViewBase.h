@@ -35,9 +35,9 @@ class ImagePresentation;
  * \li Image coordinates, where m_image.rect() is defined.
  * \li Pixmap coordinates, where m_pixmap.rect() is defined.
  *     m_pixmap is constructed from a downscaled version of m_image.
- * \li Virtual image coordinates.  We need them because we are not
- *     displaying m_image as is.  Instead, we display a pre-transformed
- *     version of it.  So, the virtual image coordinates reference the
+ * \li Virtual image coordinates. We need them because we are not
+ *     displaying m_image as is. Instead, we display a pre-transformed
+ *     version of it. So, the virtual image coordinates reference the
  *     pixels of an imaginary image that we would get if we actually
  *     pre-transformed m_image the way we want.
  * \li Widget coordinates, where this->rect() is defined.
@@ -58,13 +58,13 @@ class ImageViewBase : public QAbstractScrollArea {
    *        The exact scale doesn't matter.
    *        The whole idea of having a downscaled version is
    *        to speed up real-time rendering of high-resolution
-   *        images.  Note that the delayed high quality transform
+   *        images. Note that the delayed high quality transform
    *        operates on the original image, not the downscaled one.
    * \param presentation Specifies transformation from image
    *        pixel coordinates to virtual image coordinates, along
    *        with some other properties.
    * \param margins Reserve extra space near the widget borders.
-   *        The units are widget pixels.  This reserved area may
+   *        The units are widget pixels. This reserved area may
    *        be used for custom drawing or custom controls.
    */
   ImageViewBase(const QImage& image,
@@ -202,7 +202,7 @@ class ImageViewBase : public QAbstractScrollArea {
    *
    * Zoom level 1.0 means such a zoom that makes the image fit the widget.
    * Zooming will take into account the current widget and pixmap focal
-   * points.  To zoom to a specific point, for example the mouse position,
+   * points. To zoom to a specific point, for example the mouse position,
    * call setWidgetFocalPointWithoutMoving() first.
    */
   void setZoomLevel(double zoom);
@@ -313,7 +313,7 @@ class ImageViewBase : public QAbstractScrollArea {
   InteractionState m_interactionState;
 
   /**
-   * The client-side image.  Used to build a high-quality version
+   * The client-side image. Used to build a high-quality version
    * for delayed rendering.
    */
   QImage m_image;
@@ -325,7 +325,7 @@ class ImageViewBase : public QAbstractScrollArea {
   QTimer m_timer;
 
   /**
-   * The image handle.  Note that the actual data of a QPixmap lives
+   * The image handle. Note that the actual data of a QPixmap lives
    * in another process on most platforms.
    */
   QPixmap m_pixmap;
@@ -347,7 +347,7 @@ class ImageViewBase : public QAbstractScrollArea {
   QTransform m_hqXform;
 
   /**
-   * The device pixel ratio m_hqPixmap is built for.  It has screen pixels,
+   * The device pixel ratio m_hqPixmap is built for. It has screen pixels,
    * so that it maps one to one to them on scaled screens too.
    */
   qreal m_hqDevicePixelRatio = 1.0;
@@ -359,7 +359,7 @@ class ImageViewBase : public QAbstractScrollArea {
 
   /**
    * The ID (QImage::cacheKey()) of the image that was used
-   * to build m_hqPixmap.  It's used to detect if m_hqPixmap
+   * to build m_hqPixmap. It's used to detect if m_hqPixmap
    * needs to be rebuilt.
    */
   qint64 m_hqSourceId;
@@ -425,7 +425,7 @@ class ImageViewBase : public QAbstractScrollArea {
    * An arbitrary point in m_pixmap coordinates that corresponds
    * to m_widgetFocalPoint in widget coordinates.
    * Unlike m_widgetFocalPoint, this one is not supposed to be
-   * moved independently.  It's supposed to moved together with
+   * moved independently. It's supposed to moved together with
    * m_widgetFocalPoint for zooming into a specific position.
    */
   QPointF m_pixmapFocalPoint;
@@ -442,7 +442,7 @@ class ImageViewBase : public QAbstractScrollArea {
   Margins m_margins;
 
   /**
-   * The zoom factor.  A value of 1.0 corresponds to fit-to-widget zoom.
+   * The zoom factor. A value of 1.0 corresponds to fit-to-widget zoom.
    */
   double m_zoom;
 

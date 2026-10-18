@@ -385,7 +385,7 @@ bool MainWindow::isProjectInPlace(const ProjectPages& pages, const QString& outD
   if (!QFileInfo(outDir).absoluteDir().exists()) {
     return false;
   }
-  // ... and so must the images of the project.  Otherwise the project has probably been
+  // ... and so must the images of the project. Otherwise the project has probably been
   // moved or copied to another computer, and the user should relink it.
   if (!allImagesExist(pages)) {
     return false;
@@ -448,7 +448,7 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   }
 
   if (!outDir.isEmpty() && !QDir(outDir).exists() && isProjectInPlace(*pages, outDir, m_emptyProjectInputDir)) {
-    // The output folder was deleted, e.g. to output everything again.  The project is
+    // The output folder was deleted, e.g. to output everything again. The project is
     // where it was, so the folder is created again rather than asking for relinking.
     QDir().mkdir(outDir);
   }
@@ -458,7 +458,7 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   m_pages = pages;
   m_projectFile = projectFilePath;
   // Changes to the page list (inserting, removing, splitting pages) should
-  // trigger the auto-save just like switching pages does.  The signal may
+  // trigger the auto-save just like switching pages does. The signal may
   // come from a worker thread, the connection is queued then.
   connect(m_pages.get(), &ProjectPages::modified, this, &MainWindow::updateAutoSaveTimer);
 
@@ -797,7 +797,7 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
 
   // We use an asynchronous connection here, because the slot
   // will probably delete the options panel, which could be
-  // responsible for the emission of this signal.  Qt doesn't
+  // responsible for the emission of this signal. Qt doesn't
   // like when we delete an object while it's emitting a signal.
   connect(widget, &FilterOptionsWidget::reloadRequested, this, &MainWindow::reloadRequested, Qt::QueuedConnection);
   connect(widget, qOverload<const PageId&>(&FilterOptionsWidget::invalidateThumbnail), this,
@@ -1084,7 +1084,7 @@ void MainWindow::currentPageChanged(const PageInfo& pageInfo,
                                     const QRectF& thumbRect,
                                     const ThumbnailSequence::SelectionFlags flags) {
   m_selectedPage.set(pageInfo.id(), getCurrentView());
-  // Selecting another page moves the anchor of "Insert after selected page".  Batch processing
+  // Selecting another page moves the anchor of "Insert after selected page". Batch processing
   // and removing pages select pages, too, without the user choosing them.
   if (!m_ignoreAnchorSelection && !isBatchProcessingInProgress()) {
     m_insertAnchor.pageSelected(pageInfo.imageId().filePath());
@@ -1148,7 +1148,7 @@ void MainWindow::pageContextMenuRequested(const PageInfo& pageInfo_, const QPoin
 
   QAction* remove = menu.addAction(iconProvider.getIcon("user-trash"), tr("Remove from Project ..."));
 
-  // Selecting by pattern, relative to the page clicked.  The pages can then be adjusted with
+  // Selecting by pattern, relative to the page clicked. The pages can then be adjusted with
   // Ctrl and Shift, and "Apply to ..." offers them as the selected pages.
   const PageId pageId = pageInfo.id();
   const PageSequence pages = allPages();
@@ -1395,7 +1395,7 @@ void MainWindow::startBatchProcessing() {
       }
     } while ((task = m_batchQueue->takeForProcessing()));
   } else {
-    // Nothing to process.  This also resets m_batchQueue.
+    // Nothing to process. This also resets m_batchQueue.
     stopBatchProcessing();
     return;
   }
@@ -1452,7 +1452,7 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
   }
 
   if (task->isCancelled() || m_pdfStage) {
-    // The result isn't shown: the user went to another page, or to the PDF.  A task stops only
+    // The result isn't shown: the user went to another page, or to the PDF. A task stops only
     // at its next check for cancellation, so it may have changed the page parameters already,
     // and the thumbnails of the page have to show them.
     if (!interactiveImage.isNull()) {
@@ -1463,7 +1463,7 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
 
   if (!isBatchProcessingInProgress()) {
     if (!result->filter()) {
-      // Error loading file.  No special action is necessary.
+      // Error loading file. No special action is necessary.
     } else if (result->filter() != m_stages->filterAt(m_curFilter)) {
       // Error from one of the previous filters.
       const int idx = m_stages->findFilter(result->filter());
@@ -1708,7 +1708,7 @@ std::vector<PdfExportView::Entry> MainWindow::pdfExportEntries() const {
 }
 
 QString MainWindow::defaultPdfFile() const {
-  // Next to the project file and named like it.  For an unsaved project,
+  // Next to the project file and named like it. For an unsaved project,
   // next to the output folder and named like the folder containing it.
   if (!m_projectFile.isEmpty()) {
     const QFileInfo projectInfo(m_projectFile);
@@ -2723,7 +2723,7 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
     ++m_scansWithoutDpi;
     m_autoImportPanel->setScansWithoutDpi(m_scansWithoutDpi);
   }
-  // Only the first step shows the new scan.  Elsewhere it would be processed right away,
+  // Only the first step shows the new scan. Elsewhere it would be processed right away,
   // with automatic settings.
   if (!pages.empty() && !m_pdfStage && (m_curFilter == m_stages->fixOrientationFilterIdx())) {
     goToPage(pages.front().id());

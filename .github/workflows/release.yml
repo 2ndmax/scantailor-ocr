@@ -1,5 +1,5 @@
 # Release: build the Windows ZIP, .deb and AppImage and attach them to a GitHub Release
-# on a version tag (issues #64, #37).  Started by hand ("Run workflow"), it only builds
+# on a version tag (issues #64, #37). Started by hand ("Run workflow"), it only builds
 # the packages and keeps them as artifacts of the run, without a release.
 name: Release
 
@@ -47,7 +47,7 @@ jobs:
           "version=$version" >> $env:GITHUB_OUTPUT
 
       # The package cache is created by the CI workflow (ci.yml) on master; this workflow
-      # only reads it.  Without it, building the dependencies takes about two hours.
+      # only reads it. Without it, building the dependencies takes about two hours.
       - name: Restore vcpkg binary cache
         uses: actions/cache/restore@v6
         with:

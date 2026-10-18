@@ -29,7 +29,7 @@ class DeviationProvider {
 
   /**
    * A value is deviant if it is farther off the mean than \p coefficient standard deviations and
-   * than \p threshold.  The threshold is a percentage of the mean, or with setAbsoluteThreshold()
+   * than \p threshold. The threshold is a percentage of the mean, or with setAbsoluteThreshold()
    * in the unit of the values.
    */
   bool isDeviant(const K& key, double coefficient = 1.0, double threshold = 0.0, bool defaultVal = false) const;

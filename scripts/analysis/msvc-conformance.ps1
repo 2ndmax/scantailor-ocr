@@ -16,13 +16,13 @@
   04 or 05 to run just one of them.
 
 .PARAMETER OutDir
-  Where the logs go.  Default: ANALYSE in the repository.
+  Where the logs go. Default: ANALYSE in the repository.
 
 .PARAMETER BuildRoot
-  The folder in which the two build directories are created.  Default: the repository.
+  The folder in which the two build directories are created. Default: the repository.
 
 .PARAMETER VcpkgRoot
-  The vcpkg folder.  Default: the VCPKG_ROOT environment variable.
+  The vcpkg folder. Default: the VCPKG_ROOT environment variable.
 #>
 param(
     [string]$Only = '',

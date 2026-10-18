@@ -35,7 +35,7 @@ void collectLanguages(const QString& dirPath,
   }
 }
 
-/** Whether files can be created in the folder.  Creates it if necessary. */
+/** Whether files can be created in the folder. Creates it if necessary. */
 bool isWritableDir(const QString& dirPath) {
   if (!QDir().mkpath(dirPath)) {
     return false;
@@ -195,7 +195,7 @@ QString OcrLanguages::displayName(const QString& code) {
       {"grc", QT_TRANSLATE_NOOP("OcrLanguages", "Ancient Greek")},
       {"kmr", QT_TRANSLATE_NOOP("OcrLanguages", "Kurmanji")},
       {"frk", QT_TRANSLATE_NOOP("OcrLanguages", "German Fraktur (old model)")},
-      // Qt only knows Bokmål ("nob") and Nynorsk ("nno").  Like the other living
+      // Qt only knows Bokmål ("nob") and Nynorsk ("nno"). Like the other living
       // languages, it's shown by its own name, so it isn't marked for translation.
       {"nor", "Norsk"},
   };

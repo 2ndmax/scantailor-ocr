@@ -55,7 +55,7 @@ class Utils {
    *        for a clickable link.
    *
    * \param label The text to show as a link.
-   * \param target A URL or something else.  If the link will
+   * \param target A URL or something else. If the link will
    *        be used in a QLable, this string will be passed
    *        to QLabel::linkActivated(const QString&).
    * \return The resulting reach text.
@@ -84,8 +84,8 @@ class Utils {
   static void setDpiFieldWidth(QComboBox* field);
 
   /// Makes a number field as wide as the given value with the field's decimals, prefix and suffix,
-  /// e.g. -999.9 for "-999.9 mm", instead of as wide as its range.  Fields of the same kind get the
-  /// same value and so the same width.  With decimals given, the value is written with them instead,
+  /// e.g. -999.9 for "-999.9 mm", instead of as wide as its range. Fields of the same kind get the
+  /// same value and so the same width. With decimals given, the value is written with them instead,
   /// so fields with different decimals can get the same width.
   static void setNumberFieldWidth(QAbstractSpinBox* field, double widestValue, int decimals = -1);
 

@@ -26,8 +26,8 @@ class PdfPageOrder {
   /**
    * Brings an earlier order up to date with the pages of the project.
    *
-   * Pages that are still there keep their place and their tick.  Pages that are gone are
-   * dropped.  New pages are ticked and put right after the page that precedes them in
+   * Pages that are still there keep their place and their tick. Pages that are gone are
+   * dropped. New pages are ticked and put right after the page that precedes them in
    * \p projectOrder (at the start if there is none), so without any changes by the user
    * the result is the project order.
    *

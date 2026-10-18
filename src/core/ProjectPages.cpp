@@ -306,7 +306,7 @@ std::vector<ImageFileInfo> ProjectPages::toImageFileInfo() const {
 
 void ProjectPages::updateMetadataFrom(const std::vector<ImageFileInfo>& files) {
   // toImageFileInfo() lists the images of each file in the order of m_images, so the
-  // metadata goes back in the same order.  Page numbers can't be used for this: images of
+  // metadata goes back in the same order. Page numbers can't be used for this: images of
   // multi-page files count from 1, those of single-page files are 0.
   struct Source {
     const std::vector<ImageMetadata>* metadata;

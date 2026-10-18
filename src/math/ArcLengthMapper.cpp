@@ -10,7 +10,7 @@ ArcLengthMapper::Hint::Hint() : m_lastSegment(0), m_direction(1) {}
 
 void ArcLengthMapper::Hint::update(int newSegment) {
   // Note: staying in the same segment tells us nothing about the direction
-  // we are scanning in, so the previous one has to be preserved.  Resetting
+  // we are scanning in, so the previous one has to be preserved. Resetting
   // it to +1 here would make the "adjacent segment" probes of a backwards
   // scan look the wrong way and fall back to a binary search.
   if (newSegment != m_lastSegment) {

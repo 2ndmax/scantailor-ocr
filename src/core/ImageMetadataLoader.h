@@ -45,11 +45,11 @@ class ImageMetadataLoader {
    * This function must be reentrant, as it may be called from multiple
    * threads at the same time.
    *
-   * \param ioDevice The I/O device to read from.  Usually a QFile.
+   * \param ioDevice The I/O device to read from. Usually a QFile.
    *        In case FORMAT_NO_RECOGNIZED is returned, the implementation
    *        must leave \p ioDevice in its original state.
    * \param out A callback functional object that will be called to handle
-   *        the image metadata.  If there are multiple images (pages) in
+   *        the image metadata. If there are multiple images (pages) in
    *        the file, this object will be called multiple times.
    */
   virtual Status loadMetadata(QIODevice& ioDevice, const VirtualFunction<void, const ImageMetadata&>& out) = 0;

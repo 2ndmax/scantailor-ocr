@@ -37,8 +37,8 @@ class FileNameDisambiguator {
    * \brief Load disambiguation information from XML with file path unpacking.
    *
    * Supplying a file path unpacker allows storing shorthands rather than
-   * full paths in XML.  Unpacker is a functor taking a shorthand and
-   * returning the full path.  If unpacker returns an empty string,
+   * full paths in XML. Unpacker is a functor taking a shorthand and
+   * returning the full path. If unpacker returns an empty string,
    * the record will be skipped.
    */
   FileNameDisambiguator(const QDomElement& disambiguatorEl,
@@ -55,8 +55,8 @@ class FileNameDisambiguator {
    * \brief Serialize disambiguation information to XML with file path packing.
    *
    * Supplying a file path packer allows storing shorthands rather than
-   * full paths in XML.  Packer is a functor taking a full file path and
-   * returning the corresponding shorthand.  If packer returns an empty string,
+   * full paths in XML. Packer is a functor taking a full file path and
+   * returning the corresponding shorthand. If packer returns an empty string,
    * the record will be skipped.
    */
   QDomElement toXml(QDomDocument& doc,

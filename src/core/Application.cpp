@@ -38,7 +38,7 @@ bool Application::notify(QObject* receiver, QEvent* e) {
 
 void Application::showUnexpectedError(const QString& reason) {
   // Shown with a delay, not from within the failing event handler, and only once
-  // for a burst of errors.  notify() also runs in worker threads that have an event
+  // for a burst of errors. notify() also runs in worker threads that have an event
   // loop, hence the atomic flag and the timer, which runs the lambda in the GUI thread.
   static std::atomic<bool> messagePending(false);
   if (messagePending.exchange(true)) {

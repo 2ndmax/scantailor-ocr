@@ -56,7 +56,7 @@ class CylindricalSurfaceDewarper {
 
   /**
    * Transforms a point from warped image coordinates
-   * to dewarped normalized coordinates.  See comments
+   * to dewarped normalized coordinates. See comments
    * in the beginning of the *.cpp file for more information
    * about coordinate systems we work with.
    */
@@ -64,7 +64,7 @@ class CylindricalSurfaceDewarper {
 
   /**
    * Transforms a point from dewarped normalized coordinates
-   * to warped image coordinates.  See comments in the beginning
+   * to warped image coordinates. See comments in the beginning
    * of the *.cpp file for more information about coordinate
    * systems we owork with.
    */

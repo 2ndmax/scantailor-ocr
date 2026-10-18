@@ -18,7 +18,7 @@ class BinaryImage;
  * \param shear The shift of each next line relative to the previous one.
  * \param yOrigin The y value where a line would have a zero shift.
  *        Note that a value of 1.0 doesn't mean that line 1
- *        is to have zero shift.  The value of 1.5 would mean that.
+ *        is to have zero shift. The value of 1.5 would mean that.
  * \param backgroundColor The color used to fill areas not represented
  *        in the source image.
  * \note The source and destination images must have the same size.
@@ -33,7 +33,7 @@ void hShearFromTo(const BinaryImage& src, BinaryImage& dst, double shear, double
  * \param shear The shift of each next line relative to the previous one.
  * \param xOrigin The x value where a line would have a zero shift.
  *        Note that a value of 1.0 doesn't mean that line 1
- *        is to have zero shift.  The value of 1.5 would mean that.
+ *        is to have zero shift. The value of 1.5 would mean that.
  * \param backgroundColor The color used to fill areas not represented
  *        in the source image.
  * \note The source and destination images must have the same size.

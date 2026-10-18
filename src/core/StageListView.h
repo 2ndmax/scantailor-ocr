@@ -22,7 +22,7 @@ class StageListView : public QTableView {
   void setStages(const std::shared_ptr<StageSequence>& stages);
 
   /**
-   * The row after the filters ("Create PDF").  It isn't a filter: it combines the output
+   * The row after the filters ("Create PDF"). It isn't a filter: it combines the output
    * files into a PDF and has no batch processing.
    */
   int pdfRow() const;

@@ -46,7 +46,7 @@ jobs:
     runs-on: windows-latest
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
-      # Built packages are cached between runs.  The first run builds Qt and
+      # Built packages are cached between runs. The first run builds Qt and
       # takes about two hours, later runs only a few minutes.
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-binary-cache
     steps:
@@ -70,7 +70,7 @@ jobs:
       # The release workflow (release.yml) uses the cache saved here, so keep its package
       # list the same as this one.
       # Drive C: of the runner is too small for vcpkg's intermediate files
-      # (the first run failed with "No space left on device").  They go to
+      # (the first run failed with "No space left on device"). They go to
       # the temp folder on D: and are deleted after each package.
       - name: Install dependencies (vcpkg)
         shell: pwsh

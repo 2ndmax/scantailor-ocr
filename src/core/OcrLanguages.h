@@ -13,7 +13,7 @@
  *
  * They are looked up in "tessdata" next to the program, in "tessdata" in the
  * user's application data folder, in the folder TESSDATA_PREFIX points to and,
- * except on Windows, in the usual system folders.  Script models are expected
+ * except on Windows, in the usual system folders. Script models are expected
  * in a "script" subfolder and have codes like "script/Latin", which is also how
  * Tesseract refers to them.
  */
@@ -49,7 +49,7 @@ class OcrLanguages {
   /**
    * \brief Copies the files of the given languages that are missing there into userDir().
    *
-   * For languages spread over several folders.  Returns userDir(), or an empty
+   * For languages spread over several folders. Returns userDir(), or an empty
    * string on failure, with the reason in \p error.
    */
   static QString gatherInUserDir(const QStringList& codes, QString* error);

@@ -14,7 +14,7 @@
 
 /**
  * Thread-safe: the parameters are read by worker threads, while the GUI
- * may replace them at any time.  That's why copies are returned rather
+ * may replace them at any time. That's why copies are returned rather
  * than references to the internal objects.
  */
 class DefaultParamsProvider {

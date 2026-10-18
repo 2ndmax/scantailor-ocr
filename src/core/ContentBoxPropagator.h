@@ -19,7 +19,7 @@ class Filter;
  *
  * This is necessary in the following case:\n
  * You go back from "Margins" to one of the previous stages and make
- * adjustments there to several pages.  Now you return to "Margins" and
+ * adjustments there to several pages. Now you return to "Margins" and
  * expect to see the results of all your adjustments (not just the current page)
  * there.
  */

@@ -123,7 +123,7 @@ TiffReader::TiffInfo::TiffInfo(const TiffHandle& tif)
 }
 
 bool TiffReader::TiffInfo::mapsToBinaryOrIndexed8() const {
-  // Note: bitsPerSample == 0 has to be rejected as well.  Not only is it
+  // Note: bitsPerSample == 0 has to be rejected as well. Not only is it
   // meaningless, it would also lead to a division by zero when building the
   // color table in extractBinaryOrIndexed8Image().
   if ((samplesPerPixel != 1) || (sampleFormat != SAMPLEFORMAT_UINT) || (bitsPerSample < 1) || (bitsPerSample > 8)) {
@@ -193,7 +193,7 @@ void tiffWarningHandler(const char* module, const char* fmt, va_list ap) {
 
 /**
  * libtiff's default handlers print to stderr, which is invisible in a GUI
- * application.  Ours forward the messages to ImageLoadErrorCapture, so they
+ * application. Ours forward the messages to ImageLoadErrorCapture, so they
  * can be shown to the user.
  */
 void ensureTiffHandlersInstalled() {
@@ -220,7 +220,7 @@ QString unsupportedCompressionMessage(const uint16_t compression) {
  * degrade to quadratic complexity with separate sample planes, because
  * whole strips / tiles are decoded at once.
  *
- * \param numPlanes The number of sample planes to deliver.  Must be 1 for
+ * \param numPlanes The number of sample planes to deliver. Must be 1 for
  *        PLANARCONFIG_CONTIG, and at most SamplesPerPixel otherwise.
  * \param bitsPerPixel The number of bits per pixel within one plane.
  * \param rowFunc Called as rowFunc(y, planeRows) for each row, top to bottom.
@@ -321,7 +321,7 @@ bool readRasterRows(TIFF* tif,
           return false;
         }
         if (numRead < expected) {
-          // A short strip.  Don't expose whatever was left in the buffer.
+          // A short strip. Don't expose whatever was left in the buffer.
           std::memset(planes[p].data() + numRead, 0, static_cast<size_t>(expected - numRead));
         }
       }
@@ -441,7 +441,7 @@ static toff_t deviceSeek(thandle_t context, toff_t offset, int whence) {
 }
 
 static int deviceClose(thandle_t) {
-  // Deliberately a no-op.  libtiff calls this from TIFFClose(), but the
+  // Deliberately a no-op. libtiff calls this from TIFFClose(), but the
   // device is owned by our caller, who merely lends it to us - closing it
   // here would be a surprising side effect of reading an image.
   return 0;
@@ -717,7 +717,7 @@ QImage TiffReader::extractBinaryOrIndexed8Image(const TiffHandle& tif, const Tif
     // Note: libtiff delivers the colormap already converted to the host
     // byte order, so no byte swapping must be done here.
 
-    // Some writers store 8-bit instead of 16-bit palette entries.  Detect
+    // Some writers store 8-bit instead of 16-bit palette entries. Detect
     // that the same way libtiff's RGBA interface does.
     bool eightBitPalette = true;
     for (int i = 0; i < numColors; ++i) {
@@ -783,7 +783,7 @@ QImage TiffReader::extractBinaryOrIndexed8Image(const TiffHandle& tif, const Tif
 
   if (!ok) {
     // QImage doesn't zero its buffer, so a partially read image would
-    // expose uninitialized memory.  Report the failure instead.
+    // expose uninitialized memory. Report the failure instead.
     return QImage();
   }
   return image;

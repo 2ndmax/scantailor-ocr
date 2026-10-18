@@ -184,7 +184,7 @@ void OptionsWidget::onUnitsChanged(Units units) {
   int decimals;
   double step;
   // The values the fields show well: three digits before the decimal point and one after, pixels
-  // of the size one more, as an A4 page at 300 dpi has 3508 pixels.  Larger values still fit.
+  // of the size one more, as an A4 page at 300 dpi has 3508 pixels. Larger values still fit.
   double widestMargin;
   double widestSize;
   switch (units) {
@@ -843,7 +843,7 @@ void OptionsWidget::sourceDpiActivated() {
     return;
   }
   // Both values are almost always the same, so a value chosen from the list sets both while
-  // they are.  Different values stay different; typing changes only the one field.
+  // they are. Different values stay different; typing changes only the one field.
   QComboBox* other = (chosen == sourceXDpi) ? sourceYDpi : sourceXDpi;
   if (m_dpi.isNull() || (m_dpi.horizontal() == m_dpi.vertical())) {
     other->setEditText(chosen->currentText());

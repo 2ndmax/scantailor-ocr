@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(test_singh_window_is_centred) {
 }
 
 // Robust used to turn pixels lighter than twice their local mean black, such as light strokes on a
-// dark ground.  Above: paper with dark strokes, below: a dark ground with light strokes.
+// dark ground. Above: paper with dark strokes, below: a dark ground with light strokes.
 BOOST_AUTO_TEST_CASE(test_robust_keeps_light_strokes_on_dark_ground_white) {
   GrayImage image(QSize(100, 100));
   for (int y = 0; y < image.height(); ++y) {

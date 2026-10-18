@@ -21,7 +21,7 @@ class QRadioButton;
 class AutoImportPanel : public QWidget {
   Q_OBJECT
  public:
-  /** Where new scans go.  The values are the ids in the button group. */
+  /** Where new scans go. The values are the ids in the button group. */
   enum Mode { APPEND = 0, INSERT_AFTER = 1, REPLACE = 2 };
 
   explicit AutoImportPanel(QWidget* parent = nullptr);
@@ -50,7 +50,7 @@ class AutoImportPanel : public QWidget {
   void setInsertingPossible(bool possible);
 
   /**
-   * \p count pages are selected for being replaced.  Only pages next to each other
+   * \p count pages are selected for being replaced. Only pages next to each other
    * (\p contiguous) can be replaced together; otherwise that mode is disabled.
    */
   void setReplaceSelection(int count, bool contiguous);

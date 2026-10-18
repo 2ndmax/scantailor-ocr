@@ -34,7 +34,7 @@ class AtomicFileOverwriter {
    * \brief Start writing to a temporary file.
    *
    * \returns A temporary file as QIODevice, or null of temporary file
-   *          could not be opened.  In latter case, calling abort()
+   *          could not be opened. In latter case, calling abort()
    *          is not necessary.
    *
    * If a file is already being written, it calles abort() and then

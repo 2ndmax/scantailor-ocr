@@ -29,7 +29,7 @@ class LinearForceBalancer {
 
   /**
    * Sets the number of iterations after which the internal / external force
-   * ratio reaches its target value.  This method doesn't change the
+   * ratio reaches its target value. This method doesn't change the
    * current ratio.
    */
   void setIterationsToTarget(int iterations);
@@ -38,7 +38,7 @@ class LinearForceBalancer {
 
   /**
    * Returns the current internal / external force ratio, then moves
-   * it towards its target value.  After it reaches its target value,
+   * it towards its target value. After it reaches its target value,
    * further nextIteration() calls will keep returning the same value.
    */
   void nextIteration();

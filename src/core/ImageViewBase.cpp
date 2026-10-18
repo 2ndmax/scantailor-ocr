@@ -613,7 +613,7 @@ void ImageViewBase::updateScrollBars() {
 
   // Introduction of one scrollbar will decrease the available size in
   // another direction, which may cause a scrollbar in that direction
-  // to become necessary.  For this reason, we have a loop here.
+  // to become necessary. For this reason, we have a loop here.
   for (int i = 0; i < 2; ++i) {
     const double xval = pictureCenter.x();
     double xmin, xmax;  // Minimum and maximum positions for picture center.
@@ -759,7 +759,7 @@ void ImageViewBase::updateWidgetTransformAndFixFocalPoint(const FocalPointMode m
 
 /**
  * Returns a proposed value for m_widgetFocalPoint to minimize the
- * unused widget space.  Unused widget space indicates one or both
+ * unused widget space. Unused widget space indicates one or both
  * of the following:
  * \li The image is smaller than the display area.
  * \li Parts of the image are outside of the display area.
@@ -772,7 +772,7 @@ void ImageViewBase::updateWidgetTransformAndFixFocalPoint(const FocalPointMode m
  *        move to force the whole image to be visible.
  *
  * In case there is no unused widget space, the returned focal point
- * is equal to the current focal point (m_widgetFocalPoint).  This works
+ * is equal to the current focal point (m_widgetFocalPoint). This works
  * in horizontal and vertical dimensions independently.
  */
 QPointF ImageViewBase::getIdealWidgetFocalPoint(const FocalPointMode mode) const {
@@ -836,10 +836,10 @@ void ImageViewBase::setNewWidgetFP(const QPointF widgetFp, const bool update) {
 }
 
 /**
- * Used when dragging the image.  It adjusts the movement to disallow
+ * Used when dragging the image. It adjusts the movement to disallow
  * dragging it away from the ideal position (determined by
- * getIdealWidgetFocalPoint()).  Movement towards the ideal position
- * is permitted.  This works independently in horizontal and vertical
+ * getIdealWidgetFocalPoint()). Movement towards the ideal position
+ * is permitted. This works independently in horizontal and vertical
  * direction.
  *
  * \param proposedWidgetFp The proposed value for m_widgetFocalPoint.
@@ -848,7 +848,7 @@ void ImageViewBase::setNewWidgetFP(const QPointF widgetFp, const bool update) {
  */
 void ImageViewBase::adjustAndSetNewWidgetFP(const QPointF proposedWidgetFp, const bool update) {
   // We first apply the proposed focal point, and only then
-  // calculate the ideal one.  That's done because
+  // calculate the ideal one. That's done because
   // the ideal focal point is the current focal point when
   // no widget space is wasted (image covers the whole widget).
   // We don't want the ideal focal point to be equal to the current

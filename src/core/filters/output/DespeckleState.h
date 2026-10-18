@@ -40,7 +40,7 @@ class DespeckleState {
 
   /**
    * This image is the output image produced by OutputGenerator
-   * with speckles added as black regions.  This image is always in RGB32,
+   * with speckles added as black regions. This image is always in RGB32,
    * because it only exists for display purposes, namely for being fed to
    * DespeckleVisualization.
    */

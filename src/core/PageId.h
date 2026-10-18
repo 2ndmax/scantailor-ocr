@@ -21,8 +21,8 @@ class PageId {
   PageId();
 
   /**
-   * \note The default parameter for subpage is not arbitrary.  It has to
-   *       preceed other values in terms of operator<().  That's necessary
+   * \note The default parameter for subpage is not arbitrary. It has to
+   *       preceed other values in terms of operator<(). That's necessary
    *       to be able to use lower_bound() to find the first page with
    *       a matching image id.
    */

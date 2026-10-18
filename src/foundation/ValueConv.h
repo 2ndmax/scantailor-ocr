@@ -27,7 +27,7 @@ class RoundAndClipValueConv {
   template <typename FromType>
   ToType operator()(FromType val) const {
     // To avoid possible "comparing signed to unsigned" warnings,
-    // we do the comparison with FromType.  It should be fine, as
+    // we do the comparison with FromType. It should be fine, as
     // "Round" in the name of the class assumes it's a floating point type,
     // and therefore should be "wider" than ToType.
     if (val < FromType(m_min)) {

@@ -53,8 +53,8 @@ class ThumbnailBase : public QGraphicsItem {
    *        Valid thumbnail coordinates lie within this->boundingRect().
    *
    * The painter is configured for drawing in thumbnail coordinates by
-   * default.  No clipping is configured, but drawing should be
-   * restricted to this->boundingRect().  Note that it's not necessary
+   * default. No clipping is configured, but drawing should be
+   * restricted to this->boundingRect(). Note that it's not necessary
    * for subclasses to restore the painter state.
    */
   virtual void paintOverImage(QPainter& painter, const QTransform& imageToDisplay, const QTransform& thumbToDisplay) {}

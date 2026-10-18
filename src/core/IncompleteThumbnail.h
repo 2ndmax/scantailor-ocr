@@ -17,11 +17,11 @@ class QRectF;
  * \brief A thumbnail represeting a page not completely processed.
  *
  * Suppose you have switched to the Deskew filter without running all images
- * through the previous filters.  The thumbnail view of the Deskew filter
- * is supposed to show already split and deskewed pages.  However, because
+ * through the previous filters. The thumbnail view of the Deskew filter
+ * is supposed to show already split and deskewed pages. However, because
  * the previous filters were not applied to all pages, we can't show them
- * split and deskewed.  In that case, we show an image the best we can
- * (maybe split but not deskewed, maybe unsplit).  Also we draw a translucent
+ * split and deskewed. In that case, we show an image the best we can
+ * (maybe split but not deskewed, maybe unsplit). Also we draw a translucent
  * question mark over that image to indicate it's not shown the way it should.
  * This class implements drawing of such thumbnails with question marks.
  */

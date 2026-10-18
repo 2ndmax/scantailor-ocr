@@ -38,7 +38,7 @@ class CollapsibleGroupBox : public QGroupBox {
   void setCollapsed(bool collapse);
 
   /**
-   * Draws the title of a group box in bold, without making its content bold.  Every
+   * Draws the title of a group box in bold, without making its content bold. Every
    * CollapsibleGroupBox does it; the plain group boxes of a dialog can use it, too.
    */
   static void makeTitleBold(QGroupBox* groupBox);

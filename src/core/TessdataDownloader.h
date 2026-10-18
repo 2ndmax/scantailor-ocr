@@ -32,8 +32,8 @@ struct TessdataFile {
 /**
  * \brief Lists and downloads language files from the tessdata_best repository on GitHub.
  *
- * Works asynchronously and has to be used from the GUI thread.  Downloaded files are
- * checked against the checksum GitHub lists for them.  A file only appears under its
+ * Works asynchronously and has to be used from the GUI thread. Downloaded files are
+ * checked against the checksum GitHub lists for them. A file only appears under its
  * final name once it has been downloaded completely and correctly.
  */
 class TessdataDownloader : public QObject {
@@ -43,13 +43,13 @@ class TessdataDownloader : public QObject {
 
   ~TessdataDownloader() override;
 
-  /** Requests the list of files.  Emits listReady() when done. */
+  /** Requests the list of files. Emits listReady() when done. */
   void fetchList();
 
   /**
    * \brief Downloads the files one after another into \p targetDir.
    *
-   * Script models go into the "script" subfolder.  Emits progress() and, at the end, finished().
+   * Script models go into the "script" subfolder. Emits progress() and, at the end, finished().
    */
   void download(const std::vector<TessdataFile>& files, const QString& targetDir);
 

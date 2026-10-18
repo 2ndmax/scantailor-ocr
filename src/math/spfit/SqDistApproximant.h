@@ -22,7 +22,7 @@ class FrenetFrame;
  * \li c: some constant.
  *
  * The function is meant to approximate the squared distance
- * to the target model.  It's only accurate in a neighbourhood
+ * to the target model. It's only accurate in a neighbourhood
  * of some unspecified point.
  * The iso-curves of the function are rotated ellipses in a general case.
  *
@@ -43,7 +43,7 @@ struct SqDistApproximant {
    * \brief The general case constructor.
    *
    * We have a coordinate system at \p origin with orthonormal basis formed
-   * by vectors \p u and \p v.  Given a point p in the global coordinate system,
+   * by vectors \p u and \p v. Given a point p in the global coordinate system,
    * the appoximant will evaluate to:
    * \code
    * sqdist = m * i^2 + n * j^2;

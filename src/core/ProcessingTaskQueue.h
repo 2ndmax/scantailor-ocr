@@ -22,7 +22,7 @@ class ProcessingTaskQueue {
 
   /**
    * The first task among those that haven't been already taken for processing
-   * is marked as taken and returned.  A null task will be returned if there
+   * is marked as taken and returned. A null task will be returned if there
    * are no such tasks.
    */
   BackgroundTaskPtr takeForProcessing();

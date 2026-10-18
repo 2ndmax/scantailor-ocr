@@ -10,7 +10,7 @@
  * \brief Provides unique_ptr semantics for files.
  *
  * Just like std::unique_ptr deleting its object when it goes out of scope,
- * this class deletes a file.  unique_ptr's copying semantics is also preserved.
+ * this class deletes a file. unique_ptr's copying semantics is also preserved.
  */
 class AutoRemovingFile {
  private:

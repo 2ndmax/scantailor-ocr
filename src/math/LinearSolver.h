@@ -19,7 +19,7 @@
 /**
  * \brief Solves Ax = b using LU decomposition.
  *
- * Overdetermined systems are supported.  Solving them will succeed
+ * Overdetermined systems are supported. Solving them will succeed
  * provided the system is consistent.
  *
  * \note All matrices are assumed to be in column-major order.
@@ -38,8 +38,8 @@ class LinearSolver {
    * \brief Solves Ax = b
    *
    * \param A Matrix A.
-   * \param X Matrix (or vector) X.  Results will be written here.
-   * \param B Matrix (or vector) B.  It's allowed to pass the same pointer for X and B.
+   * \param X Matrix (or vector) X. Results will be written here.
+   * \param B Matrix (or vector) B. It's allowed to pass the same pointer for X and B.
    * \param tbuffer Temporary buffer of at least "cols(A) * (rows(B) + cols(B))" T elements.
    * \param pbuffer Temporary buffer of at least "rows(B)" size_t elements.
    *

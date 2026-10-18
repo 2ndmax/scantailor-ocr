@@ -31,7 +31,7 @@ void fillRect(GrayImage& image, int x0, int y0, int w, int h) {
   }
 }
 
-// Rows of "H" shaped letters: stems 8 px wide, a bar 6 px thick.  With compress, letters and
+// Rows of "H" shaped letters: stems 8 px wide, a bar 6 px thick. With compress, letters and
 // stems get narrower towards the right edge, as near the spine of a book.
 GrayImage makePage(const bool compress) {
   GrayImage image(QSize(kWidth, kHeight));

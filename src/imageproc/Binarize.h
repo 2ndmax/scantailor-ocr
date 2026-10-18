@@ -27,7 +27,7 @@ BinaryImage binarizeOtsu(const QImage& src);
  * Modelling and Simulation 2007: 444-450
  * http://www.academypublisher.com/jcp/vol02/no08/jcp02084452.pdf
  *
- * \param src The source image.  May be in any format.
+ * \param src The source image. May be in any format.
  * \param maxEdgeWidth The maximum gradient length to consider.
  * \param minEdgeMagnitude The minimum color difference in a gradient.
  * \return A black and white image.

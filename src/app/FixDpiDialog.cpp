@@ -21,7 +21,7 @@ static const int DPI_ROLE = Qt::UserRole;
 static const int NOT_OK_DPI_ROLE = Qt::UserRole + 1;
 
 /**
- * The worse status of the two axes.  An undefined resolution counts as worse than a doubtful one
+ * The worse status of the two axes. An undefined resolution counts as worse than a doubtful one
  * (too small or too large), which still lets the pages be processed.
  */
 static ImageMetadata::DpiStatus worseDpiStatus(const ImageMetadata& metadata) {
@@ -52,7 +52,7 @@ static StateIcon::Color stateColor(const ImageMetadata& metadata) {
 
 /**
  * Presents the images as a two-level tree, as the Relinking dialog does: folders (in the order
- * of their first image) with their images below.  Each page of a multi-page file is an image.
+ * of their first image) with their images below. Each page of a multi-page file is an image.
  * The second column shows the resolution of an image, or how many images of a folder need fixing.
  * A traffic light icon marks the state of an image, and of a folder that of its worst image.
  */
@@ -212,7 +212,7 @@ void FixDpiDialog::dpiChosenFromList() {
     return;
   }
   // Both values are almost always the same, so a value chosen from the list sets both while
-  // they are.  Different values stay different; typing changes only the one field.
+  // they are. Different values stay different; typing changes only the one field.
   QComboBox* other = (chosen == xDpi) ? yDpi : xDpi;
   if (m_initialDpi.isEmpty() || (m_initialDpi.width() == m_initialDpi.height())) {
     other->setEditText(chosen->currentText());

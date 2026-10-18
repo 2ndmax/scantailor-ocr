@@ -35,7 +35,7 @@ namespace imageproc {
 class ReduceThreshold {
  public:
   /**
-   * \brief Constructor.  Doesn't do any work by itself.
+   * \brief Constructor. Doesn't do any work by itself.
    */
   explicit ReduceThreshold(const BinaryImage& image);
 

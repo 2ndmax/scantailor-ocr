@@ -15,7 +15,7 @@
 namespace {
 /**
  * RelinkablePath::normalize() turns a drive root into "E:", which Qt takes for a path relative
- * to the current folder of that drive.  This adds the slash back for checks with QDir and QFileInfo.
+ * to the current folder of that drive. This adds the slash back for checks with QDir and QFileInfo.
  */
 QString withRootSlash(const QString& path) {
   return path.endsWith(QChar(':')) ? path + QChar('/') : path;

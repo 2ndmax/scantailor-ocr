@@ -36,7 +36,7 @@ class MatT {
   /**
    * \brief Construction from an array of elements of possibly different type.
    *
-   * Conversion is done by static casts.  Data elements must be in column-major order.
+   * Conversion is done by static casts. Data elements must be in column-major order.
    */
   template <typename OT>
   explicit MatT(size_t rows, size_t cols, const OT* data);

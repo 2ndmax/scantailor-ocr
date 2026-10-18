@@ -37,14 +37,14 @@ GrayImage gaussBlur(const GrayImage& src, float hSigma, float vSigma);
  * \param inputStride The distance (in terms of iterator difference)
  *        from an input grid cell to the one directly below it.
  * \param floatReader A functor to convert whatever value corresponds to *input
- *        into a float.  Consider using one of the functors from ValueConv.h
+ *        into a float. Consider using one of the functors from ValueConv.h
  *        The functor will be called like this:
  * \code
  * const FloatReader reader = ...;
  * const float val = reader(input[x]);
  * \endcode
  * \param output A random access iterator (usually a pointer)
- *        to the beginning of output data.  Output may point to the same
+ *        to the beginning of output data. Output may point to the same
  *        memory as input.
  * \param outputStride The distance (in terms of iterator difference)
  *        from an output grid cell to the one directly below it.
@@ -116,7 +116,7 @@ void gaussBlurGeneric(const QSize size,
   const int intermediateStride = width;
 
   // Columns in the vertical pass and rows in the horizontal pass are independent, so they are
-  // computed in parallel, each slice with its own buffers.  The horizontal pass only starts once
+  // computed in parallel, each slice with its own buffers. The horizontal pass only starts once
   // the vertical one is complete, so input and output may be the same image.
 
   // IIR parameters.
