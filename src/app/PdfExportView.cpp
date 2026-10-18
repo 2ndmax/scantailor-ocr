@@ -20,6 +20,7 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QLocale>
+#include <QMargins>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QPainter>
@@ -506,6 +507,8 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_languageList = new QListWidget;
   m_languageList->setSelectionMode(QAbstractItemView::NoSelection);
   m_languageList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  // Some room above the first and below the last language; the rest of the look comes from the color scheme.
+  m_languageList->setStyleSheet(QStringLiteral("QListView { padding-top: 7px; padding-bottom: 7px; }"));
   m_languageList->setToolTip(tr("Tick the languages of the text. Several languages can be ticked."));
   ocrLayout->addWidget(m_languageList);
 
@@ -1133,7 +1136,11 @@ void PdfExportView::updateLanguageListHeight() {
     rowHeight = m_languageList->fontMetrics().height() + 4;
   }
   const int rows = std::min(count, MAX_VISIBLE_LANGUAGES);
-  m_languageList->setFixedHeight(rows * rowHeight + 2 * m_languageList->frameWidth());
+  // The contents margins hold the border and the padding of the style sheet as drawn;
+  // frameWidth() can be larger, which left extra space below the last row.
+  m_languageList->ensurePolished();
+  const QMargins margins = m_languageList->contentsMargins();
+  m_languageList->setFixedHeight(rows * rowHeight + margins.top() + margins.bottom());
 }
 
 void PdfExportView::downloadLanguages() {
