@@ -24,10 +24,32 @@ Besides the PDF export and text recognition, among other things:
 * more output options: split output with the original background, grayscale output, TIFF
   compression, removal of color noise
 * one consistent layout and wording for the options panels of all steps
-* features adopted from ScanTailor Experimental and ScanTailor Spectre
 * the program in English and German
 
 All changes are listed in [CHANGES.md](CHANGES.md).
+
+### Adopted from ScanTailor Experimental
+
+[ScanTailor Experimental](https://github.com/ImageProcessing-ElectronicPublications/scantailor-experimental)
+is a separate fork of the original ScanTailor. Its code is structured differently, so these
+features were reimplemented:
+
+* scaling pages to a common output size in *Margins*
+* the filters "Even out background", "KNN denoiser" and "Sharpen" in *Output*
+* five more binarization methods, and settings for every method
+* K-means for colored text
+* double-click to show the whole page again after zooming in
+
+### Adopted from ScanTailor Spectre
+
+[ScanTailor Spectre](https://github.com/abandoned-industries/scantailor-spectre) is a macOS fork
+of ScanTailor Advanced. Taken over from it:
+
+* settings for the automatic content detection in *Select Content*, for art books and photo pages
+* automatic detection of the color mode in *Output*
+* photo adjustments in *Output* (exposure, contrast, highlights, shadows, whites and blacks)
+
+The details, including what was deliberately not adopted, are in [CHANGES.md](CHANGES.md).
 
 ## Download
 
