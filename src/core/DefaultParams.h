@@ -90,8 +90,14 @@ class DefaultParams {
 
     void setLayoutType(page_split::LayoutType layoutType);
 
+    // The page order of new projects: which half of a split page comes first.
+    Qt::LayoutDirection getPageOrder() const;
+
+    void setPageOrder(Qt::LayoutDirection pageOrder);
+
    private:
     page_split::LayoutType m_layoutType;
+    Qt::LayoutDirection m_pageOrder;
   };
 
   class SelectContentParams {
@@ -376,6 +382,14 @@ inline page_split::LayoutType DefaultParams::PageSplitParams::getLayoutType() co
 
 inline void DefaultParams::PageSplitParams::setLayoutType(page_split::LayoutType layoutType) {
   PageSplitParams::m_layoutType = layoutType;
+}
+
+inline Qt::LayoutDirection DefaultParams::PageSplitParams::getPageOrder() const {
+  return m_pageOrder;
+}
+
+inline void DefaultParams::PageSplitParams::setPageOrder(const Qt::LayoutDirection pageOrder) {
+  m_pageOrder = pageOrder;
 }
 
 inline const QSizeF& DefaultParams::SelectContentParams::getPageRectSize() const {

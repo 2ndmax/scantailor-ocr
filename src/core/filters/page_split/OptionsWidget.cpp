@@ -349,6 +349,8 @@ void OptionsWidget::setupIcons() {
   singlePageUncutBtn->setIcon(iconProvider.getIcon("single_page_uncut"));
   pagePlusOffcutBtn->setIcon(iconProvider.getIcon("right_page_plus_offcut"));
   twoPagesBtn->setIcon(iconProvider.getIcon("two_pages"));
+  leftFirstBtn->setIcon(iconProvider.getIcon("page_order_left_first"));
+  rightFirstBtn->setIcon(iconProvider.getIcon("page_order_right_first"));
 }
 
 /*============================= Widget::UiData ==========================*/

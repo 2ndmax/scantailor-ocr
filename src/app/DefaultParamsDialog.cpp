@@ -336,6 +336,12 @@ void DefaultParamsDialog::updatePageSplitDisplay(const DefaultParams::PageSplitP
       twoPagesBtn->setChecked(true);
       break;
   }
+
+  if (params.getPageOrder() == Qt::RightToLeft) {
+    rightFirstBtn->setChecked(true);
+  } else {
+    leftFirstBtn->setChecked(true);
+  }
 }
 
 void DefaultParamsDialog::updateDeskewDisplay(const DefaultParams::DeskewParams& params) {
@@ -924,6 +930,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
     layoutType = TWO_PAGES;
   }
   DefaultParams::PageSplitParams pageSplitParams(layoutType);
+  pageSplitParams.setPageOrder(rightFirstBtn->isChecked() ? Qt::RightToLeft : Qt::LeftToRight);
 
   DefaultParams::DeskewParams deskewParams(angleSpinBox->value(), deskewAutoBtn->isChecked() ? MODE_AUTO : MODE_MANUAL,
                                            deskewObliqueAutoBtn->isChecked());
@@ -1535,6 +1542,8 @@ void DefaultParamsDialog::setupIcons() {
   singlePageUncutBtn->setIcon(iconProvider.getIcon("single_page_uncut"));
   pagePlusOffcutBtn->setIcon(iconProvider.getIcon("right_page_plus_offcut"));
   twoPagesBtn->setIcon(iconProvider.getIcon("two_pages"));
+  leftFirstBtn->setIcon(iconProvider.getIcon("page_order_left_first"));
+  rightFirstBtn->setIcon(iconProvider.getIcon("page_order_right_first"));
   alignTopLeftBtn->setIcon(iconProvider.getIcon("stock-gravity-north-west"));
   alignTopBtn->setIcon(iconProvider.getIcon("stock-gravity-north"));
   alignTopRightBtn->setIcon(iconProvider.getIcon("stock-gravity-north-east"));

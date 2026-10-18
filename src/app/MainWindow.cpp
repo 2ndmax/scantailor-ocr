@@ -33,6 +33,7 @@
 #include "DebugImageView.h"
 #include "DebugImages.h"
 #include "DefaultParamsDialog.h"
+#include "DefaultParamsProvider.h"
 #include "ErrorWidget.h"
 #include "FilterOptionsWidget.h"
 #include "FixDpiDialog.h"
@@ -1798,7 +1799,9 @@ void MainWindow::newProject() {
 }
 
 void MainWindow::newProjectCreated(ProjectCreationContext* context) {
-  auto pages = std::make_shared<ProjectPages>(context->files(), ProjectPages::AUTO_PAGES, Qt::LeftToRight);
+  auto pages = std::make_shared<ProjectPages>(
+      context->files(), ProjectPages::AUTO_PAGES,
+      DefaultParamsProvider::getInstance().getParams().getPageSplitParams().getPageOrder());
   switchToNewProject(pages, context->outDir(), QString(), nullptr, context->inputDir());
   // A new project is saved right away, so it can be opened again even while it is empty.
   if (saveProjectWithFeedback(context->projectFile())) {

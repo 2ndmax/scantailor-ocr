@@ -1,6 +1,7 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <DefaultParams.h>
 #include <Dpi.h>
 #include <FileNameDisambiguator.h>
 #include <ImageId.h>
@@ -14,6 +15,7 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QDomDocument>
 #include <QFile>
 #include <QFileInfo>
 #include <QTemporaryDir>
@@ -145,6 +147,30 @@ BOOST_AUTO_TEST_CASE(removing_deletes_the_files_in_all_folders) {
   BOOST_CHECK(!QFile::exists(foregroundDir.filePath("scan_1L.tif")));
   BOOST_CHECK(QFile::exists(outDir.filePath("scan_2R.tif")));
   BOOST_CHECK(QFile::exists(foregroundDir.filePath("scan_2R.tif")));
+}
+
+BOOST_AUTO_TEST_CASE(default_page_order_roundtrip_xml) {
+  DefaultParams::PageSplitParams original;
+  BOOST_CHECK(original.getPageOrder() == Qt::LeftToRight);
+  original.setPageOrder(Qt::RightToLeft);
+
+  QDomDocument doc;
+  const QDomElement el = original.toXml(doc, "page-split-params");
+  doc.appendChild(el);
+  BOOST_CHECK(el.attribute("pageOrder") == "RTL");
+
+  const DefaultParams::PageSplitParams restored(doc.documentElement());
+  BOOST_CHECK(restored.getPageOrder() == Qt::RightToLeft);
+}
+
+BOOST_AUTO_TEST_CASE(default_page_order_missing_in_old_profiles) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("page-split-params");
+  el.setAttribute("layoutType", "two-pages");
+  doc.appendChild(el);
+
+  const DefaultParams::PageSplitParams restored(doc.documentElement());
+  BOOST_CHECK(restored.getPageOrder() == Qt::LeftToRight);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

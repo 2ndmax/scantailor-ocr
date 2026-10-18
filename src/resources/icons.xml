@@ -120,6 +120,12 @@
   <icon name="two_pages">
     <file>:/icons/two_pages.svg</file>
   </icon>
+  <icon name="page_order_left_first">
+    <file>:/icons/page_order_left_first.svg</file>
+  </icon>
+  <icon name="page_order_right_first">
+    <file>:/icons/page_order_right_first.svg</file>
+  </icon>
   <icon name="layout_type_auto" styled="on">
     <file>:/icons/layout_type_auto.svg</file>
   </icon>

@@ -554,6 +554,105 @@
             </spacer>
            </item>
            <item row="1" column="1">
+            <widget class="QGroupBox" name="pageOrderGroup">
+             <property name="title">
+              <string>Page Order</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <layout class="QHBoxLayout" name="pageOrderLayout">
+              <item>
+               <spacer>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>1</width>
+                  <height>1</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QToolButton" name="leftFirstBtn">
+                <property name="minimumSize">
+                 <size>
+                  <width>42</width>
+                  <height>42</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>The left half of a split page comes first, as in most books. Applies to new projects.</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/resources.qrc">
+                  <normaloff>:/icons/page_order_left_first.svg</normaloff>:/icons/page_order_left_first.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>36</width>
+                  <height>36</height>
+                 </size>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+                <property name="autoExclusive">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="rightFirstBtn">
+                <property name="minimumSize">
+                 <size>
+                  <width>42</width>
+                  <height>42</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>The right half of a split page comes first, as in Hebrew, Arabic or Japanese books. Applies to new projects.</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/resources.qrc">
+                  <normaloff>:/icons/page_order_right_first.svg</normaloff>:/icons/page_order_right_first.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>36</width>
+                  <height>36</height>
+                 </size>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="autoExclusive">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>1</width>
+                  <height>1</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="1">
             <spacer name="verticalSpacer_4">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
