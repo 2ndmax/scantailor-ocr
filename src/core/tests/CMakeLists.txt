@@ -9,6 +9,7 @@ set(sources
     TestMargins.cpp
     TestPageId.cpp
     TestPageRange.cpp
+    TestPageOrder.cpp
     TestPageSequence.cpp
     TestPdfWriter.cpp
     TestNewScanTracker.cpp

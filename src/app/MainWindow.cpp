@@ -325,7 +325,6 @@ MainWindow::MainWindow()
   });
 
   connect(actionFixDpi, &QAction::triggered, this, &MainWindow::fixDpiDialogRequested);
-  connect(actionReverseTwoPageOrder, &QAction::triggered, this, &MainWindow::toggleTwoPageSpreadReadingOrder);
   connect(actionRelinking, &QAction::triggered, this, &MainWindow::showRelinkingDialog);
 #ifdef ENABLE_DEBUG_FEATURES
   connect(actionDebug, &QAction::toggled, this, &MainWindow::debugToggled);
@@ -461,6 +460,7 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   // trigger the auto-save just like switching pages does. The signal may
   // come from a worker thread, the connection is queued then.
   connect(m_pages.get(), &ProjectPages::modified, this, &MainWindow::updateAutoSaveTimer);
+  connect(m_pages.get(), &ProjectPages::layoutDirectionChanged, this, &MainWindow::pageOrderChanged);
 
   if (projectReader) {
     m_selectedPage = projectReader->selectedPage();
@@ -1192,14 +1192,13 @@ void MainWindow::pageContextMenuRequested(const PageInfo& pageInfo_, const QPoin
   }
 }  // MainWindow::pageContextMenuRequested
 
-void MainWindow::toggleTwoPageSpreadReadingOrder() {
-  if (!isProjectLoaded() || !m_pages) {
-    return;
+void MainWindow::pageOrderChanged(const Qt::LayoutDirection dir) {
+  std::vector<ImageId> images;
+  for (const PageInfo& pageInfo : m_pages->toPageSequence(IMAGE_VIEW)) {
+    images.push_back(pageInfo.imageId());
   }
-  const Qt::LayoutDirection nextDir
-      = (m_pages->layoutDirection() == Qt::LeftToRight) ? Qt::RightToLeft : Qt::LeftToRight;
-  m_pages->setLayoutDirection(nextDir);
-  m_outFileNameGen.setLayoutDirection(nextDir);
+  m_outFileNameGen.setLayoutDirectionRenamingFiles(dir, images,
+                                                   output::Utils::outputFileDirs(m_outFileNameGen.outDir()));
   resetThumbSequence(currentPageOrderProvider(), ThumbnailSequence::KEEP_SELECTION);
   invalidateAllThumbnails();
 }
@@ -1733,7 +1732,7 @@ void MainWindow::pdfExportRunningChanged(const bool running) {
   filterList->setEnabled(!running);
   for (QAction* action : {actionNewProject, actionOpenProject, actionCloseProject, actionSwitchFilter1,
                           actionSwitchFilter2, actionSwitchFilter3, actionSwitchFilter4, actionSwitchFilter5,
-                          actionSwitchFilter6, actionFixDpi, actionRelinking, actionReverseTwoPageOrder}) {
+                          actionSwitchFilter6, actionFixDpi, actionRelinking}) {
     action->setEnabled(!running);
   }
   if (!running) {
@@ -1788,7 +1787,7 @@ void MainWindow::newProject() {
 }
 
 void MainWindow::newProjectCreated(ProjectCreationContext* context) {
-  auto pages = std::make_shared<ProjectPages>(context->files(), ProjectPages::AUTO_PAGES, context->layoutDirection());
+  auto pages = std::make_shared<ProjectPages>(context->files(), ProjectPages::AUTO_PAGES, Qt::LeftToRight);
   switchToNewProject(pages, context->outDir(), QString(), nullptr, context->inputDir());
   // A new project is saved right away, so it can be opened again even while it is empty.
   if (saveProjectWithFeedback(context->projectFile())) {
@@ -1962,7 +1961,6 @@ void MainWindow::updateProjectActions() {
   actionSaveProjectAs->setEnabled(loaded);
   actionFixDpi->setEnabled(loaded);
   actionRelinking->setEnabled(loaded);
-  actionReverseTwoPageOrder->setEnabled(loaded);
   filterList->setPdfRowEnabled(loaded);
 }
 

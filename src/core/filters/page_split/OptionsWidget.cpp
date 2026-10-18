@@ -86,6 +86,10 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
   // And disable both of them.
   autoBtn->setEnabled(false);
   manualBtn->setEnabled(false);
+
+  const bool rightFirst = (m_pages->layoutDirection() == Qt::RightToLeft);
+  rightFirstRB->setChecked(rightFirst);
+  leftFirstRB->setChecked(!rightFirst);
 }  // OptionsWidget::preUpdateUI
 
 void OptionsWidget::postUpdateUI(const UiData& uiData) {
@@ -310,6 +314,10 @@ void OptionsWidget::splitLineModeChanged(const bool autoMode) {
   }
 }
 
+void OptionsWidget::pageOrderToggled(const bool rightFirst) {
+  m_pages->setLayoutDirection(rightFirst ? Qt::RightToLeft : Qt::LeftToRight);
+}
+
 void OptionsWidget::commitCurrentParams() {
   const Params params(m_uiData.pageLayout(), m_uiData.dependencies(), m_uiData.splitLineMode());
   Settings::UpdateAction update;
@@ -328,6 +336,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(layoutManualBtn, &QAbstractButton::toggled, this, &OptionsWidget::layoutManualToggled);
   CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyDialog);
   CONNECT(autoBtn, &QAbstractButton::toggled, this, &OptionsWidget::splitLineModeChanged);
+  CONNECT(rightFirstRB, &QAbstractButton::toggled, this, &OptionsWidget::pageOrderToggled);
 }
 
 #undef CONNECT

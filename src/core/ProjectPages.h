@@ -49,7 +49,9 @@ class ProjectPages : public QObject {
   Qt::LayoutDirection layoutDirection() const;
 
   /**
-   * \brief Swap logical order of left/right sub-pages for two-page layouts (issue #62).
+   * \brief Sets which half of a two-page layout comes first (issue #62).
+   *
+   * Emits layoutDirectionChanged() and modified() if the direction changes.
    */
   void setLayoutDirection(Qt::LayoutDirection dir);
 
@@ -121,6 +123,8 @@ class ProjectPages : public QObject {
  signals:
 
   void modified();
+
+  void layoutDirectionChanged(Qt::LayoutDirection dir);
 
  private:
   struct ImageDesc {

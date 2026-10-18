@@ -36,8 +36,6 @@ class ProjectCreationContext : public QObject {
 
   bool isImportingNewScans() const { return m_importNewScans; }
 
-  Qt::LayoutDirection layoutDirection() const { return m_layoutDirection; }
-
  signals:
 
   void done(ProjectCreationContext* context);
@@ -64,7 +62,6 @@ class ProjectCreationContext : public QObject {
   QString m_projectFile;
   bool m_importNewScans = false;
   std::vector<ImageFileInfo> m_files;
-  Qt::LayoutDirection m_layoutDirection;
   QWidget* m_parent;
 };
 

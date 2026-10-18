@@ -4,6 +4,7 @@
 #include "OutputFileNameGenerator.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <utility>
 
@@ -50,4 +51,33 @@ QString OutputFileNameGenerator::fileNameFor(const PageId& page) const {
 QString OutputFileNameGenerator::filePathFor(const PageId& page) const {
   const QString fileName(fileNameFor(page));
   return QDir(m_outDir).absoluteFilePath(fileName);
+}
+
+void OutputFileNameGenerator::setLayoutDirectionRenamingFiles(const Qt::LayoutDirection dir,
+                                                              const std::vector<ImageId>& images,
+                                                              const QStringList& dirs) {
+  if (dir == m_layoutDirection) {
+    return;
+  }
+  const OutputFileNameGenerator oldGenerator(*this);
+  m_layoutDirection = dir;
+
+  // Old and new names never collide, as the letter of each half stays the same.
+  for (const ImageId& imageId : images) {
+    for (const PageId::SubPage subPage : {PageId::LEFT_PAGE, PageId::RIGHT_PAGE}) {
+      const PageId pageId(imageId, subPage);
+      const QString oldName(oldGenerator.fileNameFor(pageId));
+      const QString newName(fileNameFor(pageId));
+      for (const QString& dirPath : dirs) {
+        const QDir fileDir(dirPath);
+        const QString oldPath(fileDir.absoluteFilePath(oldName));
+        if (!QFile::exists(oldPath)) {
+          continue;
+        }
+        const QString newPath(fileDir.absoluteFilePath(newName));
+        QFile::remove(newPath);
+        QFile::rename(oldPath, newPath);
+      }
+    }
+  }
 }

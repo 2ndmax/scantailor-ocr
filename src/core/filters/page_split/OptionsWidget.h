@@ -89,6 +89,9 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void splitLineModeChanged(bool autoMode);
 
+  /** Sets which half of a split page comes first, for the whole project. */
+  void pageOrderToggled(bool rightFirst);
+
  private:
   /**
    * \param sourcePage The page whose split line is copied when \p applyCut is set.

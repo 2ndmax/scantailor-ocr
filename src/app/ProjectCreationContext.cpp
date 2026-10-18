@@ -8,7 +8,7 @@
 #include "FixDpiDialog.h"
 #include "ProjectFilesDialog.h"
 
-ProjectCreationContext::ProjectCreationContext(QWidget* parent) : m_layoutDirection(Qt::LeftToRight), m_parent(parent) {
+ProjectCreationContext::ProjectCreationContext(QWidget* parent) : m_parent(parent) {
   showProjectFilesDialog();
 }
 
@@ -32,10 +32,6 @@ void ProjectCreationContext::projectFilesSubmitted() {
   m_inputDir = m_projectFilesDialog->inputDirectory();
   m_projectFile = m_projectFilesDialog->projectFile();
   m_importNewScans = m_projectFilesDialog->isImportingNewScans();
-  m_layoutDirection = Qt::LeftToRight;
-  if (m_projectFilesDialog->isRtlLayout()) {
-    m_layoutDirection = Qt::RightToLeft;
-  }
 
   if (m_files.empty() || allDpisOK(m_files)) {
     emit done(this);

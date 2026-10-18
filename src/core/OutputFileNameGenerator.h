@@ -5,11 +5,14 @@
 #define SCANTAILOR_CORE_OUTPUTFILENAMEGENERATOR_H_
 
 #include <QString>
+#include <QStringList>
 #include <Qt>
 #include <memory>
+#include <vector>
 
 #include "FileNameDisambiguator.h"
 
+class ImageId;
 class PageId;
 class AbstractRelinker;
 
@@ -25,6 +28,19 @@ class OutputFileNameGenerator {
   void performRelinking(const AbstractRelinker& relinker);
 
   void setLayoutDirection(Qt::LayoutDirection dir) { m_layoutDirection = dir; }
+
+  /**
+   * \brief Sets the layout direction and renames the existing output files of the halves of \p images to match.
+   *
+   * The direction decides the number in the name of each half: _1L and _2R become _2L and _1R, or the other
+   * way round. The files keep their size and modification time, so they aren't generated again. A file
+   * already present under a new name is replaced.
+   *
+   * \param dirs The directories holding files named after the page.
+   */
+  void setLayoutDirectionRenamingFiles(Qt::LayoutDirection dir,
+                                       const std::vector<ImageId>& images,
+                                       const QStringList& dirs);
 
   Qt::LayoutDirection layoutDirection() const { return m_layoutDirection; }
 

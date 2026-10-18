@@ -1674,7 +1674,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     <name>ImageLoader</name>
     <message>
         <location filename="../core/ImageLoader.cpp" line="47"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="758"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="754"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation>Das Dateiformat wird nicht unterstützt oder die Datei ist beschädigt.</translation>
     </message>
@@ -1787,190 +1787,180 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Einheiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="89"/>
+        <location filename="../app/MainWindow.ui" line="88"/>
         <source>File</source>
         <translation>Datei</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="103"/>
+        <location filename="../app/MainWindow.ui" line="102"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="120"/>
+        <location filename="../app/MainWindow.ui" line="119"/>
         <source>Thumbnails</source>
         <translation>Miniaturansichten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="165"/>
+        <location filename="../app/MainWindow.ui" line="164"/>
         <source>Keep current page in view.</source>
         <translation>Aktuelle Seite in Ansicht behalten.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="355"/>
+        <location filename="../app/MainWindow.ui" line="354"/>
         <source>Navigate through selected pages only.</source>
         <translation>Durch ausgewählte Seiten navigieren.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="425"/>
+        <location filename="../app/MainWindow.ui" line="424"/>
         <source>Magnify thumbnails. (Ctrl++)</source>
         <translation>Miniaturansichten vergrößern. (Strg++)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="482"/>
+        <location filename="../app/MainWindow.ui" line="481"/>
         <source>Diminish thumbnails. (Ctrl+-)</source>
         <translation>Miniaturansichten verkleinern. (Strg+-)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="549"/>
+        <location filename="../app/MainWindow.ui" line="548"/>
         <source>Go to page ... (Ctrl+G)</source>
         <translation>Zu Seite wechseln ... (Strg+G)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="606"/>
+        <location filename="../app/MainWindow.ui" line="605"/>
         <source>Enable multi-page selection mode.</source>
         <translation>Mehrfachauswahl für Seiten aktivieren.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="678"/>
+        <location filename="../app/MainWindow.ui" line="677"/>
         <source>Single/multi-column display.</source>
         <translation>Einspaltige / mehrspaltige Ansicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="738"/>
+        <location filename="../app/MainWindow.ui" line="737"/>
         <source>Pause automatic thumbnail reordering while thumbnails refresh.</source>
         <translation>Automatisches Umsortieren der Miniaturansichten anhalten, während sie aktualisiert werden.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="794"/>
+        <location filename="../app/MainWindow.ui" line="793"/>
         <source>Sorting order.</source>
         <translation>Sortierreihenfolge.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="854"/>
+        <location filename="../app/MainWindow.ui" line="853"/>
         <source>Highlight deviation.</source>
         <translation>Abweichungen hervorheben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1085"/>
+        <location filename="../app/MainWindow.ui" line="1084"/>
         <source>Debug Mode</source>
         <translation>Debug-Modus</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1096"/>
+        <location filename="../app/MainWindow.ui" line="1095"/>
         <location filename="../app/MainWindow.cpp" line="649"/>
         <source>Save Project</source>
         <translation>Projekt speichern</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1107"/>
+        <location filename="../app/MainWindow.ui" line="1106"/>
         <source>Save Project As ...</source>
         <translation>Projekt speichern unter ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1118"/>
-        <location filename="../app/MainWindow.ui" line="1173"/>
+        <location filename="../app/MainWindow.ui" line="1117"/>
+        <location filename="../app/MainWindow.ui" line="1172"/>
         <source>Next Page</source>
         <translation>Nächste Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1129"/>
-        <location filename="../app/MainWindow.ui" line="1162"/>
+        <location filename="../app/MainWindow.ui" line="1128"/>
+        <location filename="../app/MainWindow.ui" line="1161"/>
         <source>Previous Page</source>
         <translation>Vorherige Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1140"/>
+        <location filename="../app/MainWindow.ui" line="1139"/>
         <source>New Project ...</source>
         <translation>Neues Projekt ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1151"/>
+        <location filename="../app/MainWindow.ui" line="1150"/>
         <source>Open Project ...</source>
         <translation>Projekt öffnen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1184"/>
+        <location filename="../app/MainWindow.ui" line="1183"/>
         <source>Close Project</source>
         <translation>Projekt schließen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1195"/>
+        <location filename="../app/MainWindow.ui" line="1194"/>
         <source>Quit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1206"/>
+        <location filename="../app/MainWindow.ui" line="1205"/>
         <source>Settings ...</source>
         <translation>Einstellungen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1217"/>
+        <location filename="../app/MainWindow.ui" line="1216"/>
         <source>First Page</source>
         <translation>Erste Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1228"/>
+        <location filename="../app/MainWindow.ui" line="1227"/>
         <source>Last Page</source>
         <translation>Letzte Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1250"/>
+        <location filename="../app/MainWindow.ui" line="1249"/>
         <source>Fix DPI of All Images ...</source>
         <translation>DPI aller Bilder korrigieren ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1272"/>
-        <source>Reverse Two-Page Spread Order</source>
-        <translation>Reihenfolge von Doppelseiten umkehren</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1275"/>
-        <source>Swap left/right page order for two-page scans (e.g. Japanese book reading order).</source>
-        <translation>Linke und rechte Seite bei Doppelseiten-Scans vertauschen (z. B. für die Leserichtung japanischer Bücher).</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1370"/>
+        <location filename="../app/MainWindow.ui" line="1355"/>
         <source>Pixels</source>
         <translation>Pixel</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1401"/>
+        <location filename="../app/MainWindow.ui" line="1386"/>
         <source>Inches</source>
         <translation>Zoll</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1426"/>
+        <location filename="../app/MainWindow.ui" line="1411"/>
         <source>Default Parameters ...</source>
         <translation>Standardparameter ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1493"/>
+        <location filename="../app/MainWindow.ui" line="1478"/>
         <source>Go to Page ...</source>
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2995"/>
+        <location filename="../app/MainWindow.cpp" line="2993"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1504"/>
+        <location filename="../app/MainWindow.ui" line="1489"/>
         <source>Magnify Thumbnails</source>
         <translation>Miniaturansichten vergrößern</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1512"/>
+        <location filename="../app/MainWindow.ui" line="1497"/>
         <source>Diminish Thumbnails</source>
         <translation>Miniaturansichten verkleinern</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1520"/>
+        <location filename="../app/MainWindow.ui" line="1505"/>
         <source>Reload Current Page</source>
         <translation>Aktuelle Seite neu laden</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1523"/>
+        <location filename="../app/MainWindow.ui" line="1508"/>
         <source>Reload current page</source>
         <translation>Aktuelle Seite neu laden</translation>
     </message>
@@ -2000,39 +1990,39 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Aus Projekt entfernen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1213"/>
+        <location filename="../app/MainWindow.cpp" line="1212"/>
         <source>Insert Here ...</source>
         <translation>Hier einfügen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1611"/>
+        <location filename="../app/MainWindow.cpp" line="1610"/>
         <source>The detection was canceled.</source>
         <translation>Die Erkennung wurde abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1830"/>
+        <location filename="../app/MainWindow.cpp" line="1829"/>
         <source>The project file is damaged.</source>
         <translation>Die Projektdatei ist beschädigt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2057"/>
+        <location filename="../app/MainWindow.cpp" line="2055"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
 Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt auswählen“ oder „Ränder“ aus.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2097"/>
+        <location filename="../app/MainWindow.cpp" line="2095"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation>%2 - ScanTailor OCR %3 [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2112"/>
+        <location filename="../app/MainWindow.cpp" line="2110"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1812"/>
+        <location filename="../app/MainWindow.cpp" line="1811"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="26"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor-OCR-Projekte</translation>
@@ -2078,23 +2068,23 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Nur diese Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1554"/>
+        <location filename="../app/MainWindow.cpp" line="1553"/>
         <source>Detecting the color mode ...</source>
         <translation>Der Farbmodus wird erkannt ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1554"/>
+        <location filename="../app/MainWindow.cpp" line="1553"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1555"/>
-        <location filename="../app/MainWindow.cpp" line="1613"/>
+        <location filename="../app/MainWindow.cpp" line="1554"/>
+        <location filename="../app/MainWindow.cpp" line="1612"/>
         <source>Detect Color Mode</source>
         <translation>Farbmodus erkennen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1598"/>
+        <location filename="../app/MainWindow.cpp" line="1597"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation>
             <numerusform>Farbmodus für %n Seite erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
@@ -2102,7 +2092,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1605"/>
+        <location filename="../app/MainWindow.cpp" line="1604"/>
         <source>%n page(s) skipped because the steps before Output have not been done yet.</source>
         <translation>
             <numerusform>%n Seite übersprungen, weil die Schritte vor der Ausgabe noch nicht ausgeführt wurden.</numerusform>
@@ -2110,7 +2100,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1608"/>
+        <location filename="../app/MainWindow.cpp" line="1607"/>
         <source>%n page(s) could not be loaded.</source>
         <translation>
             <numerusform>%n Seite konnte nicht geladen werden.</numerusform>
@@ -2118,158 +2108,158 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1811"/>
+        <location filename="../app/MainWindow.cpp" line="1810"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1824"/>
-        <location filename="../app/MainWindow.cpp" line="1830"/>
-        <location filename="../app/MainWindow.cpp" line="2172"/>
-        <location filename="../app/MainWindow.cpp" line="2196"/>
+        <location filename="../app/MainWindow.cpp" line="1823"/>
+        <location filename="../app/MainWindow.cpp" line="1829"/>
+        <location filename="../app/MainWindow.cpp" line="2170"/>
+        <location filename="../app/MainWindow.cpp" line="2194"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1824"/>
+        <location filename="../app/MainWindow.cpp" line="1823"/>
         <source>Unable to open the project file.</source>
         <translation>Die Projektdatei kann nicht geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1912"/>
+        <location filename="../app/MainWindow.cpp" line="1911"/>
         <source>version </source>
         <translation>Version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2092"/>
+        <location filename="../app/MainWindow.cpp" line="2090"/>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2112"/>
+        <location filename="../app/MainWindow.cpp" line="2110"/>
         <source>A PDF is being created. Do you want to cancel it?</source>
         <translation>Ein PDF wird gerade erstellt. Möchten Sie den Vorgang abbrechen?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2172"/>
-        <location filename="../app/MainWindow.cpp" line="2196"/>
+        <location filename="../app/MainWindow.cpp" line="2170"/>
+        <location filename="../app/MainWindow.cpp" line="2194"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2251"/>
+        <location filename="../app/MainWindow.cpp" line="2249"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2254"/>
+        <location filename="../app/MainWindow.cpp" line="2252"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2304"/>
+        <location filename="../app/MainWindow.cpp" line="2302"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2361"/>
+        <location filename="../app/MainWindow.cpp" line="2359"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2521"/>
-        <location filename="../app/MainWindow.cpp" line="2563"/>
+        <location filename="../app/MainWindow.cpp" line="2519"/>
+        <location filename="../app/MainWindow.cpp" line="2561"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2515"/>
+        <location filename="../app/MainWindow.cpp" line="2513"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2540"/>
+        <location filename="../app/MainWindow.cpp" line="2538"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2564"/>
+        <location filename="../app/MainWindow.cpp" line="2562"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2620"/>
+        <location filename="../app/MainWindow.cpp" line="2618"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2678"/>
+        <location filename="../app/MainWindow.cpp" line="2676"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen. Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2750"/>
+        <location filename="../app/MainWindow.cpp" line="2748"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2995"/>
+        <location filename="../app/MainWindow.cpp" line="2993"/>
         <source>Enter the page number:</source>
         <translation>Seitennummer:</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="934"/>
+        <location filename="../app/MainWindow.ui" line="933"/>
         <source>Use Home, End, PgUp/Q, PgDown/W to navigate between pages or Shift+PgUp/Q and Shift+PgDown/W to navigate between selected ones. Alt+Wheel - scale thumbnails.</source>
         <translation>Verwenden Sie Pos1, Ende, BildAuf/Q, BildAb/W, um zwischen den Seiten zu navigieren, oder Umschalt+BildAuf/Q und Umschalt+BildAb/W, um zwischen den ausgewählten Seiten zu navigieren. Alt+Mausrad – Miniaturansichten skalieren.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="969"/>
+        <location filename="../app/MainWindow.ui" line="968"/>
         <source>Steps</source>
         <translation>Arbeitsschritte</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1239"/>
+        <location filename="../app/MainWindow.ui" line="1238"/>
         <source>About ScanTailor OCR</source>
         <translation>Über ScanTailor OCR</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1261"/>
+        <location filename="../app/MainWindow.ui" line="1260"/>
         <source>Relink ...</source>
         <translation>Neu verknüpfen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1387"/>
+        <location filename="../app/MainWindow.ui" line="1372"/>
         <source>Millimeters</source>
         <translation>Millimeter</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1415"/>
+        <location filename="../app/MainWindow.ui" line="1400"/>
         <source>Centimeters</source>
         <translation>Zentimeter</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1437"/>
-        <location filename="../app/MainWindow.ui" line="1440"/>
-        <location filename="../app/MainWindow.ui" line="1479"/>
-        <location filename="../app/MainWindow.ui" line="1482"/>
+        <location filename="../app/MainWindow.ui" line="1422"/>
+        <location filename="../app/MainWindow.ui" line="1425"/>
+        <location filename="../app/MainWindow.ui" line="1464"/>
+        <location filename="../app/MainWindow.ui" line="1467"/>
         <source>Previous Selected Page</source>
         <translation>Vorherige ausgewählte Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1451"/>
-        <location filename="../app/MainWindow.ui" line="1454"/>
-        <location filename="../app/MainWindow.ui" line="1465"/>
-        <location filename="../app/MainWindow.ui" line="1468"/>
+        <location filename="../app/MainWindow.ui" line="1436"/>
+        <location filename="../app/MainWindow.ui" line="1439"/>
+        <location filename="../app/MainWindow.ui" line="1450"/>
+        <location filename="../app/MainWindow.ui" line="1453"/>
         <source>Next Selected Page</source>
         <translation>Nächste ausgewählte Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="241"/>
+        <location filename="../app/MainWindow.ui" line="240"/>
         <source>Previous page.</source>
         <translation>Vorherige Seite.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="298"/>
+        <location filename="../app/MainWindow.ui" line="297"/>
         <source>Next page.</source>
         <translation>Nächste Seite.</translation>
     </message>
@@ -2991,7 +2981,7 @@ Möchten Sie sie ersetzen?</translation>
 <context>
     <name>ProjectFilesDialog</name>
     <message numerus="yes">
-        <location filename="../app/ProjectFilesDialog.cpp" line="623"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="619"/>
         <source>... and %n more.</source>
         <translation>
             <numerusform>... und %n weitere.</numerusform>
@@ -3005,7 +2995,7 @@ Möchten Sie sie ersetzen?</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="27"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="283"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="279"/>
         <source>Input Folder</source>
         <translation>Eingabeordner</translation>
     </message>
@@ -3018,13 +3008,13 @@ Möchten Sie sie ersetzen?</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="50"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="297"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="293"/>
         <source>Output Folder</source>
         <translation>Ausgabeordner</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="69"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="319"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="315"/>
         <source>Project File</source>
         <translation>Projektdatei</translation>
     </message>
@@ -3077,11 +3067,6 @@ p, li { white-space: pre-wrap; }
         <translation>Dateien im Projekt</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="239"/>
-        <source>Right to left layout (for Hebrew and Arabic)</source>
-        <translation>Layout von rechts nach links (für Hebräisch und Arabisch)</translation>
-    </message>
-    <message>
         <location filename="../app/ProjectFilesDialog.cpp" line="205"/>
         <source>Images Already in the Folder</source>
         <translation>Bilder, die schon im Ordner liegen</translation>
@@ -3097,77 +3082,77 @@ p, li { white-space: pre-wrap; }
         <translation>Hinzuzufügende Dateien</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="320"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="316"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor-OCR-Projekte</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="445"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="509"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="515"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="521"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="542"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="548"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="626"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="441"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="505"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="511"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="517"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="538"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="544"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="622"/>
         <location filename="../app/RelinkingDialog.cpp" line="199"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="445"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="441"/>
         <source>Project file is not set or its folder doesn&apos;t exist.</source>
         <translation>Die Projektdatei ist nicht festgelegt, oder ihr Ordner existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="446"/>
         <source>Overwrite File?</source>
         <translation>Datei überschreiben?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="451"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="447"/>
         <source>The project file %1 already exists. Overwrite it?</source>
         <translation>Die Projektdatei %1 existiert bereits. Soll sie überschrieben werden?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="509"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="505"/>
         <source>No files in project!</source>
         <translation>Keine Dateien im Projekt!</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="515"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="511"/>
         <source>Input folder is not set or doesn&apos;t exist.</source>
         <translation>Der Eingabeordner ist nicht festgelegt oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="521"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="517"/>
         <source>Input and output folders can&apos;t be the same.</source>
         <translation>Eingabe- und Ausgabeordner können nicht identisch sein.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="533"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="529"/>
         <location filename="../app/RelinkingDialog.cpp" line="192"/>
         <source>Create Folder?</source>
         <translation>Ordner erstellen?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="533"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="529"/>
         <location filename="../app/RelinkingDialog.cpp" line="193"/>
         <source>Output folder doesn&apos;t exist. Create it?</source>
         <translation>Der Ausgabeordner existiert nicht. Soll er erstellt werden?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="542"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="538"/>
         <location filename="../app/RelinkingDialog.cpp" line="200"/>
         <source>Unable to create output folder.</source>
         <translation>Der Ausgabeordner kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="548"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="544"/>
         <source>Output folder is not set or doesn&apos;t exist.</source>
         <translation>Der Ausgabeordner ist nicht festgelegt oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="627"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="623"/>
         <source>Some of the files failed to load.
 Either their format is not supported, or they are damaged.
 You should remove them from the project.</source>
@@ -6044,6 +6029,31 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <location filename="../core/filters/page_split/OptionsWidget.ui" line="298"/>
         <source>Apply to ...</source>
         <translation>Anwenden auf ...</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="323"/>
+        <source>Page Order</source>
+        <translation>Seitenfolge</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="345"/>
+        <source>The left half of a split page comes first, as in most books. Applies to the whole project. Switching renames the existing output files, whose names contain the order.</source>
+        <translation>Die linke Hälfte einer geteilten Seite kommt zuerst, wie bei den meisten Büchern. Gilt für das ganze Projekt. Beim Umschalten werden die vorhandenen Ausgabedateien umbenannt, deren Namen die Reihenfolge enthalten.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="348"/>
+        <source>Left first</source>
+        <translation>Links zuerst</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="358"/>
+        <source>The right half of a split page comes first, as in Hebrew, Arabic or Japanese books. Applies to the whole project. Switching renames the existing output files, whose names contain the order.</source>
+        <translation>Die rechte Hälfte einer geteilten Seite kommt zuerst, wie bei hebräischen, arabischen oder japanischen Büchern. Gilt für das ganze Projekt. Beim Umschalten werden die vorhandenen Ausgabedateien umbenannt, deren Namen die Reihenfolge enthalten.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_split/OptionsWidget.ui" line="361"/>
+        <source>Right first</source>
+        <translation>Rechts zuerst</translation>
     </message>
 </context>
 <context>

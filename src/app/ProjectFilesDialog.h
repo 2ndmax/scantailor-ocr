@@ -37,8 +37,6 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   std::vector<ImageFileInfo> inProjectFiles() const;
 
-  bool isRtlLayout() const;
-
  private slots:
 
   static QString sanitizePath(const QString& path);

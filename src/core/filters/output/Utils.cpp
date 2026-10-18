@@ -40,6 +40,15 @@ QString Utils::originalBackgroundDir(const QString& outDir) {
   return QDir(outDir).absoluteFilePath("original_background");
 }
 
+QStringList Utils::outputFileDirs(const QString& outDir) {
+  return {outDir,
+          foregroundDir(outDir),
+          backgroundDir(outDir),
+          originalBackgroundDir(outDir),
+          automaskDir(outDir),
+          specklesDir(outDir)};
+}
+
 QTransform Utils::rotate(double degrees, const QRect& imageRect) {
   if (degrees == 0.0) {
     return QTransform();

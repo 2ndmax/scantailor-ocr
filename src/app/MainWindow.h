@@ -125,7 +125,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void pastLastPageContextMenuRequested(const QPoint& screenPos);
 
-  void toggleTwoPageSpreadReadingOrder();
+  /** Renames the output files to the new order of the halves and rebuilds the thumbnails. */
+  void pageOrderChanged(Qt::LayoutDirection dir);
 
   void thumbViewFocusToggled(bool checked);
 

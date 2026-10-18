@@ -234,13 +234,6 @@ p, li { white-space: pre-wrap; }
     </layout>
    </item>
    <item>
-    <widget class="QCheckBox" name="rtlLayoutCB">
-     <property name="text">
-      <string>Right to left layout (for Hebrew and Arabic)</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>

@@ -4,6 +4,8 @@
 #ifndef SCANTAILOR_OUTPUT_UTILS_H_
 #define SCANTAILOR_OUTPUT_UTILS_H_
 
+#include <QStringList>
+
 class Dpi;
 class QString;
 class QTransform;
@@ -25,6 +27,11 @@ class Utils {
   static QString backgroundDir(const QString& outDir);
 
   static QString originalBackgroundDir(const QString& outDir);
+
+  /**
+   * \brief The output directory and its subdirectories, all holding files named after the page.
+   */
+  static QStringList outputFileDirs(const QString& outDir);
 
   static QTransform scaleFromToDpi(const Dpi& from, const Dpi& to);
 

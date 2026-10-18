@@ -208,8 +208,7 @@ void ProjectFilesDialog::chooseExistingImages(const QString& dir, const std::vec
          "the project to the right.")
           .arg(QDir::toNativeSeparators(dir)));
   introLabel->show();
-  for (QWidget* widget :
-       std::initializer_list<QWidget*>{groupBox_2, groupBox, projectFileGroup, importNewScansCB, rtlLayoutCB}) {
+  for (QWidget* widget : std::initializer_list<QWidget*>{groupBox_2, groupBox, projectFileGroup, importNewScansCB}) {
     widget->hide();
   }
   groupBox_4->setTitle(tr("Files to Add"));
@@ -250,10 +249,6 @@ std::vector<ImageFileInfo> ProjectFilesDialog::inProjectFiles() const {
     return SmartFilenameOrdering()(lhs.fileInfo(), rhs.fileInfo());
   });
   return files;
-}
-
-bool ProjectFilesDialog::isRtlLayout() const {
-  return rtlLayoutCB->isChecked();
 }
 
 QString ProjectFilesDialog::sanitizePath(const QString& path) {
@@ -560,7 +555,7 @@ void ProjectFilesDialog::setInputsEnabled(const bool enabled) {
   for (QWidget* widget : std::initializer_list<QWidget*>{
            inpDirLine, inpDirBrowseBtn, outDirLine, outDirBrowseBtn, projectFileLine, projectFileBrowseBtn,
            importNewScansCB, addToProjectBtn, removeFromProjectBtn, offProjectSelectAllBtn, inProjectSelectAllBtn,
-           rtlLayoutCB, buttonBox->button(QDialogButtonBox::Ok)}) {
+           buttonBox->button(QDialogButtonBox::Ok)}) {
     widget->setEnabled(enabled);
   }
 }
