@@ -26,7 +26,7 @@ class FittableSpline {
 
   /**
    * For a spline to be fittable, any point on a spline must be representable
-   * as a linear combination of spline's control points.  The linear coefficients
+   * as a linear combination of spline's control points. The linear coefficients
    * will of course depend on parameter t, and this dependency doesn't have to be
    * linear.
    *
@@ -70,9 +70,9 @@ class FittableSpline {
    * \brief For a given t, calculates a linear combination of control points that result
    *        in a point on the spline corresponding to the given t.
    *
-   * \param t Position on the spline.  The range of t is [0, 1].
-   * \param coeffs The vector to write linear coefficients into.  Existing contents
-   *        (if any) will be discarded.  Implementations must make sure that at most
+   * \param t Position on the spline. The range of t is [0, 1].
+   * \param coeffs The vector to write linear coefficients into. Existing contents
+   *        (if any) will be discarded. Implementations must make sure that at most
    *        one coefficient is being produced for each control point.
    */
   virtual void linearCombinationAt(double t, std::vector<LinearCoefficient>& coeffs) const = 0;
@@ -92,8 +92,7 @@ class FittableSpline {
   virtual void sample(const VirtualFunction<void, const QPointF&, double, SampleFlags>& sink,
                       const SamplingParams& params,
                       double fromT = 0.0,
-                      double toT = 1.0) const
-      = 0;
+                      double toT = 1.0) const = 0;
 };
 
 

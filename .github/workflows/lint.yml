@@ -48,7 +48,6 @@ jobs:
             | grep -E '\.(cpp|h)$' \
             | grep -v '/translations/' \
             | grep -v '/jbig2enc/' \
-            | grep -v '/binarization_compare/experimental/' \
             || true)
           if [ -z "$SRC_FILES" ]; then
             COUNT=0

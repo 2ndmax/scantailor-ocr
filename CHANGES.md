@@ -824,8 +824,9 @@ ScanTailor Advanced.
   the same part of the page for every method side by side, with zoom and computing times.
   Call it as `binarization_compare <output folder> <image file or folder>...`; pages already
   computed are only computed again when the image changed, so sample pages can be added later.
-  The code of ScanTailor Experimental it uses is kept unchanged in
-  `src/tools/binarization_compare/experimental` (left out of the formatting check).
+  The code of ScanTailor Experimental it uses is in
+  `src/tools/binarization_compare/experimental`, unchanged apart from a few fixes and the
+  formatting of the project.
 * New tests for the image readers and the TIFF writer; CI now fails on failing tests and also
   builds on Windows.
 * New tests for the PDF export: file structure and cross-reference offsets, page size from the
