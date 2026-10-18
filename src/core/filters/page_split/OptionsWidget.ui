@@ -340,25 +340,37 @@
        </spacer>
       </item>
       <item>
-       <widget class="QRadioButton" name="leftFirstRB">
+       <widget class="QPushButton" name="leftFirstBtn">
         <property name="toolTip">
          <string>The left half of a split page comes first, as in most books. Applies to the whole project. Switching renames the existing output files, whose names contain the order.</string>
         </property>
         <property name="text">
          <string>Left first</string>
         </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
         <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
          <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="rightFirstRB">
+       <widget class="QPushButton" name="rightFirstBtn">
         <property name="toolTip">
          <string>The right half of a split page comes first, as in Hebrew, Arabic or Japanese books. Applies to the whole project. Switching renames the existing output files, whose names contain the order.</string>
         </property>
         <property name="text">
          <string>Right first</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

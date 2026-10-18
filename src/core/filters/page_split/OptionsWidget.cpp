@@ -36,6 +36,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   auto* layoutModeGroup = new QButtonGroup(this);
   layoutModeGroup->addButton(layoutAutoBtn);
   layoutModeGroup->addButton(layoutManualBtn);
+  auto* pageOrderGroup = new QButtonGroup(this);
+  pageOrderGroup->addButton(leftFirstBtn);
+  pageOrderGroup->addButton(rightFirstBtn);
 
   setupUiConnections();
 }
@@ -88,8 +91,8 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
   manualBtn->setEnabled(false);
 
   const bool rightFirst = (m_pages->layoutDirection() == Qt::RightToLeft);
-  rightFirstRB->setChecked(rightFirst);
-  leftFirstRB->setChecked(!rightFirst);
+  rightFirstBtn->setChecked(rightFirst);
+  leftFirstBtn->setChecked(!rightFirst);
 }  // OptionsWidget::preUpdateUI
 
 void OptionsWidget::postUpdateUI(const UiData& uiData) {
@@ -336,7 +339,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(layoutManualBtn, &QAbstractButton::toggled, this, &OptionsWidget::layoutManualToggled);
   CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyDialog);
   CONNECT(autoBtn, &QAbstractButton::toggled, this, &OptionsWidget::splitLineModeChanged);
-  CONNECT(rightFirstRB, &QAbstractButton::toggled, this, &OptionsWidget::pageOrderToggled);
+  CONNECT(rightFirstBtn, &QAbstractButton::toggled, this, &OptionsWidget::pageOrderToggled);
 }
 
 #undef CONNECT
