@@ -128,11 +128,11 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   m_dewarpingModeGroup->addButton(dewarpingManualBtn, MANUAL);
 
   m_reservedProfileNames.insert("Default");
-  m_reservedProfileNames.insert("Source");
+  m_reservedProfileNames.insert("Minimal");
   m_reservedProfileNames.insert("Custom");
 
   profileCB->addItem(tr("Default"), "Default");
-  profileCB->addItem(tr("Source"), "Source");
+  profileCB->addItem(tr("Minimal"), "Minimal");
   const std::list<QString> profileList = m_profileManager.getProfileList();
   for (const QString& profileName : profileList) {
     if (!isProfileNameReserved(profileName)) {
@@ -145,7 +145,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   profileCB->setInsertPolicy(QComboBox::NoInsert);
 
   m_reservedProfileNames.insert(profileCB->itemText(profileCB->findData("Default")));
-  m_reservedProfileNames.insert(profileCB->itemText(profileCB->findData("Source")));
+  m_reservedProfileNames.insert(profileCB->itemText(profileCB->findData("Minimal")));
   m_reservedProfileNames.insert(profileCB->itemText(profileCB->findData("Custom")));
 
   setLinkButtonLinked(topBottomLink, m_topBottomLinkEnabled);
@@ -1241,13 +1241,13 @@ void DefaultParamsDialog::profileChanged(const int index) {
 
     std::unique_ptr<DefaultParams> defaultProfile = m_profileManager.createDefaultProfile();
     loadParams(*defaultProfile);
-  } else if (profileCB->currentData().toString() == "Source") {
+  } else if (profileCB->currentData().toString() == "Minimal") {
     profileSaveButton->setEnabled(false);
     profileDeleteButton->setEnabled(false);
     setTabWidgetsEnabled(false);
 
-    std::unique_ptr<DefaultParams> sourceProfile = m_profileManager.createSourceProfile();
-    loadParams(*sourceProfile);
+    std::unique_ptr<DefaultParams> minimalProfile = m_profileManager.createMinimalProfile();
+    loadParams(*minimalProfile);
   } else {
     const QString profileName = profileCB->currentData().toString();
     DefaultParamsProfileManager::LoadStatus loadStatus;
@@ -1307,7 +1307,7 @@ void DefaultParamsDialog::profileSavePressed() {
     // File names don't depend on case on Windows and macOS.
     for (int i = 0; i < m_customProfileItemIdx; ++i) {
       const QString entry = profileCB->itemData(i).toString();
-      if ((entry != "Default") && (entry != "Source") && (entry.compare(name, Qt::CaseInsensitive) == 0)) {
+      if ((entry != "Default") && (entry != "Minimal") && (entry.compare(name, Qt::CaseInsensitive) == 0)) {
         existingIdx = i;
         break;
       }
@@ -1367,8 +1367,8 @@ void DefaultParamsDialog::commitChanges() {
   std::unique_ptr<DefaultParams> params;
   if (profile == "Default") {
     params = m_profileManager.createDefaultProfile();
-  } else if (profile == "Source") {
-    params = m_profileManager.createSourceProfile();
+  } else if (profile == "Minimal") {
+    params = m_profileManager.createMinimalProfile();
   } else {
     params = buildParams();
   }

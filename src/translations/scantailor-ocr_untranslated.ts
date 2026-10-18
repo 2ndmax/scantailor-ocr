@@ -593,20 +593,8 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1648"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1658"/>
-        <source>Pages set to &quot;Scale&quot; are enlarged to at most this size.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1651"/>
         <source>Enlarge to at most:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1677"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1687"/>
-        <source>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1210,6 +1198,18 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="1648"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1658"/>
+        <source>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="1677"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1687"/>
+        <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3374"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation type="unfinished"></translation>
@@ -1426,6 +1426,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.cpp" line="135"/>
+        <source>Minimal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1336"/>
         <source>Custom</source>
@@ -1439,11 +1444,6 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="134"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="135"/>
-        <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5708,20 +5708,8 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="660"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="670"/>
-        <source>Pages set to &quot;Scale&quot; are enlarged to at most this size.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="663"/>
         <source>Enlarge to at most:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="692"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="702"/>
-        <source>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5790,6 +5778,18 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="660"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="670"/>
+        <source>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="692"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="702"/>
+        <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="763"/>
         <source>Applies &quot;Match size&quot; of this page to other pages. The settings under &quot;All Pages&quot; apply to all pages anyway.</source>
         <translation type="unfinished"></translation>
@@ -5831,6 +5831,21 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1184"/>
+        <source>‣ Right-click to open the context menu for creating and removing guides.
+‣ Right-click on a guide to open the context menu for deleting it.
+‣ Ctrl+Alt+left mouse button – drag the guide under the cursor.
+‣ Shift/Ctrl+left mouse button on the content rectangle – drag the page content. Hold Shift pressed to restrict moving along the horizontal axis only or Ctrl for the vertical one. Hold Shift+Ctrl for usual dragging.
+‣ Double-click on content – automatically attach that content to the nearest guide. Hold Shift pressed to select vertical guides only or Ctrl for horizontal ones. Hold Shift+Ctrl to attach that to both the nearest vertical and horizontal guides.
+‣ Use the context menu to enable/disable showing the hard margins rectangle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1192"/>
+        <source>Guides and mouse ⓘ</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="603"/>
         <source>Size:</source>
         <translation type="unfinished"></translation>
@@ -5838,25 +5853,6 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1156"/>
         <source>Applies the alignment of this page to other pages: the modes and the position. Whether the size is matched is applied under &quot;Output Size&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1190"/>
-        <source>Guides Help</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1259"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Right-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to create/remove guides from the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; called.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Right-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on a guide to delete that guide from the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; called.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Ctrl+Alt+LMB&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; - drag the guide under the cursor.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Shift/Ctrl+LMB&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on the content rectangle - drag the page content. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; pressed to restrict moving along the horizontal axis only or &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for the vertical one. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift+Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for usual dragging.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Double-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on content - automatically attach that content to the nearest guide. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; pressed to select vertical guides only or &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for horizontal ones. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift+Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to attach that to both the nearest vertical and horizontal guides.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; Use the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to enable/disable showing the hard margins rectangle.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5904,7 +5900,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/page_split/Filter.cpp" line="31"/>
-        <source>Order by split type</source>
+        <source>Order by page type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6096,11 +6092,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>select_content::ImageView</name>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="45"/>
-        <source>Use the context menu to enable / disable the content box. Hold Shift to drag a box. Use double-click on content to automatically adjust the content area.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/select_content/ImageView.cpp" line="48"/>
         <source>Drag lines or corners to resize the content box.</source>
         <translation type="unfinished"></translation>
@@ -6124,6 +6115,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../core/filters/select_content/ImageView.cpp" line="122"/>
         <location filename="../core/filters/select_content/ImageView.cpp" line="128"/>
         <source>Release left mouse button to finish dragging.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/select_content/ImageView.cpp" line="45"/>
+        <source>Use the context menu to enable / disable the content box. Hold Shift to drag a box. Double-click on content to automatically adjust the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

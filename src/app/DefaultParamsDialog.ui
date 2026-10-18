@@ -1645,7 +1645,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                  <item row="0" column="0">
                   <widget class="QLabel" name="maxEnlargeLabel">
                    <property name="toolTip">
-                    <string>Pages set to &quot;Scale&quot; are enlarged to at most this size.</string>
+                    <string>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</string>
                    </property>
                    <property name="text">
                     <string>Enlarge to at most:</string>
@@ -1655,7 +1655,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                  <item row="0" column="1">
                   <widget class="QSpinBox" name="maxEnlargeSpinBox">
                    <property name="toolTip">
-                    <string>Pages set to &quot;Scale&quot; are enlarged to at most this size.</string>
+                    <string>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</string>
                    </property>
                    <property name="suffix">
                     <string notr="true"> %</string>
@@ -1674,7 +1674,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                  <item row="1" column="0">
                   <widget class="QLabel" name="minReduceLabel">
                    <property name="toolTip">
-                    <string>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</string>
+                    <string>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</string>
                    </property>
                    <property name="text">
                     <string>Reduce to at most:</string>
@@ -1684,7 +1684,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                  <item row="1" column="1">
                   <widget class="QSpinBox" name="minReduceSpinBox">
                    <property name="toolTip">
-                    <string>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</string>
+                    <string>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</string>
                    </property>
                    <property name="suffix">
                     <string notr="true"> %</string>

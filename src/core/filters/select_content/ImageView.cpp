@@ -42,8 +42,8 @@ ImageView::ImageView(const QImage& image,
   setMouseTracking(true);
 
   interactionState().setDefaultStatusTip(
-      tr("Use the context menu to enable / disable the content box. Hold Shift to drag a box. Use double-click "
-         "on content to automatically adjust the content area."));
+      tr("Use the context menu to enable / disable the content box. Hold Shift to drag a box. Double-click "
+         "on content to automatically adjust the content box."));
 
   const QString contentRectDragTip(tr("Drag lines or corners to resize the content box."));
   const QString pageRectDragTip(tr("Drag lines or corners to resize the page box."));

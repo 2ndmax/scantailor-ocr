@@ -657,7 +657,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <item row="0" column="0">
          <widget class="QLabel" name="maxEnlargeLabel">
           <property name="toolTip">
-           <string>Pages set to &quot;Scale&quot; are enlarged to at most this size.</string>
+           <string>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</string>
           </property>
           <property name="text">
            <string>Enlarge to at most:</string>
@@ -667,7 +667,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <item row="0" column="1">
          <widget class="QSpinBox" name="maxEnlargeSpinBox">
           <property name="toolTip">
-           <string>Pages set to &quot;Scale&quot; are enlarged to at most this size.</string>
+           <string>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</string>
           </property>
           <property name="keyboardTracking">
            <bool>false</bool>
@@ -689,7 +689,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <item row="1" column="0">
          <widget class="QLabel" name="minReduceLabel">
           <property name="toolTip">
-           <string>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</string>
+           <string>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</string>
           </property>
           <property name="text">
            <string>Reduce to at most:</string>
@@ -699,7 +699,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <item row="1" column="1">
          <widget class="QSpinBox" name="minReduceSpinBox">
           <property name="toolTip">
-           <string>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</string>
+           <string>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</string>
           </property>
           <property name="keyboardTracking">
            <bool>false</bool>
@@ -1179,100 +1179,18 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </widget>
    </item>
    <item>
-    <widget class="CollapsibleGroupBox" name="groupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QLabel" name="guidesHelpLabel">
+     <property name="toolTip">
+      <string>‣ Right-click to open the context menu for creating and removing guides.
+‣ Right-click on a guide to open the context menu for deleting it.
+‣ Ctrl+Alt+left mouse button – drag the guide under the cursor.
+‣ Shift/Ctrl+left mouse button on the content rectangle – drag the page content. Hold Shift pressed to restrict moving along the horizontal axis only or Ctrl for the vertical one. Hold Shift+Ctrl for usual dragging.
+‣ Double-click on content – automatically attach that content to the nearest guide. Hold Shift pressed to select vertical guides only or Ctrl for horizontal ones. Hold Shift+Ctrl to attach that to both the nearest vertical and horizontal guides.
+‣ Use the context menu to enable/disable showing the hard margins rectangle.</string>
      </property>
-     <property name="title">
-      <string>Guides Help</string>
+     <property name="text">
+      <string>Guides and mouse ⓘ</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_6">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
-      </property>
-      <item>
-       <widget class="QTextBrowser" name="textBrowser">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>220</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="acceptDrops">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="toolTipDuration">
-         <number>-1</number>
-        </property>
-        <property name="statusTip">
-         <string/>
-        </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="sizeAdjustPolicy">
-         <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-        </property>
-        <property name="autoFormatting">
-         <set>QTextEdit::AutoNone</set>
-        </property>
-        <property name="lineWrapMode">
-         <enum>QTextEdit::WidgetWidth</enum>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Right-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to create/remove guides from the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; called.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Right-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on a guide to delete that guide from the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; called.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Ctrl+Alt+LMB&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; - drag the guide under the cursor.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Shift/Ctrl+LMB&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on the content rectangle - drag the page content. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; pressed to restrict moving along the horizontal axis only or &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for the vertical one. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift+Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for usual dragging.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Double-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on content - automatically attach that content to the nearest guide. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; pressed to select vertical guides only or &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for horizontal ones. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift+Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to attach that to both the nearest vertical and horizontal guides.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; Use the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to enable/disable showing the hard margins rectangle.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>

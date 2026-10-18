@@ -414,7 +414,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1293"/>
         <source>Auto margins</source>
-        <translation>Automatische Seitenränder</translation>
+        <translation>Automatische Ränder</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1371"/>
@@ -505,7 +505,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="391"/>
         <source>Use the page type chosen below.</source>
-        <translation>Die unten gewählte Seitenart verwenden.</translation>
+        <translation>Verwendet die unten gewählte Seitenart.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="443"/>
@@ -535,12 +535,12 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="744"/>
         <source>Run automatic oblique (shear) correction on new pages.</source>
-        <translation>Bei neuen Seiten die Scherung automatisch korrigieren.</translation>
+        <translation>Korrigiert die Scherung neuer Seiten automatisch.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="757"/>
         <source>Leave the oblique (shear) angle alone on new pages.</source>
-        <translation>Bei neuen Seiten den Scherungswinkel nicht verändern.</translation>
+        <translation>Lässt den Scherungswinkel neuer Seiten unverändert.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="847"/>
@@ -852,6 +852,18 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <translation>Radius:</translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="1648"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1658"/>
+        <source>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</source>
+        <translation>Seiten auf „Skalieren“ werden höchstens auf diesen Prozentwert vergrößert.</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="1677"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1687"/>
+        <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
+        <translation>Seiten, die größer als die Ausgabegröße sind, werden höchstens bis auf diesen Prozentwert verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2406"/>
         <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters. The brightness is not changed.</source>
         <translation>Entfernt Farbrauschen, etwa einzelne rote, grüne und blaue Pixel auf grauem Papier, vor den übrigen Filtern. Die Helligkeit bleibt unverändert.</translation>
@@ -1033,8 +1045,8 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
 Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
 Scale: the content is enlarged or reduced to fit the output size, within the limits set in the step &quot;Margins&quot; under &quot;Output Size&quot;. The margins keep their size; the rest is filled with margins.</source>
         <translation>Aus: Die Seite behält ihre eigene Größe und zählt nicht zur gemeinsamen Größe.
-Mit Rand auffüllen: Die Seite wird mit Rändern auf die Ausgabegröße gebracht, ausgerichtet wie unter „Ausrichtung“ eingestellt. Der Inhalt behält seine Größe; nur Seiten, die größer als eine eigene Zielgröße sind, werden verkleinert.
-Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verkleinert, innerhalb der Grenzen, die im Schritt „Ränder“ unter „Ausgabegröße“ eingestellt sind. Die Ränder behalten ihre Größe; der Rest wird mit Rand aufgefüllt.</translation>
+Mit Rändern auffüllen: Die Seite wird mit Rändern auf die Ausgabegröße gebracht, ausgerichtet wie unter „Ausrichtung“ eingestellt. Der Inhalt behält seine Größe; nur Seiten, die größer als eine eigene Zielgröße sind, werden verkleinert.
+Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verkleinert, innerhalb der Grenzen, die im Schritt „Ränder“ unter „Ausgabegröße“ eingestellt sind. Die Ränder behalten ihre Größe; der Rest wird mit Rändern aufgefüllt.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1530"/>
@@ -1050,7 +1062,7 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1551"/>
         <source>Fill with margins</source>
-        <translation>Mit Rand auffüllen</translation>
+        <translation>Mit Rändern auffüllen</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1556"/>
@@ -1080,21 +1092,9 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Größe:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1648"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1658"/>
-        <source>Pages set to &quot;Scale&quot; are enlarged to at most this size.</source>
-        <translation>Seiten auf „Skalieren“ werden höchstens auf diese Größe vergrößert.</translation>
-    </message>
-    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1651"/>
         <source>Enlarge to at most:</source>
         <translation>Vergrößern bis höchstens:</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1677"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1687"/>
-        <source>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</source>
-        <translation>Seiten, die größer als die Ausgabegröße sind, werden höchstens auf diese Größe verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1680"/>
@@ -1394,7 +1394,7 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <location filename="../app/DefaultParamsDialog.ui" line="4432"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
         <source>Off</source>
-        <translation>Deaktiviert</translation>
+        <translation>Aus</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
@@ -1418,6 +1418,11 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>K-Means</translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.cpp" line="135"/>
+        <source>Minimal</source>
+        <translation>Minimal</translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1336"/>
         <source>Custom</source>
@@ -1432,11 +1437,6 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <location filename="../app/DefaultParamsDialog.cpp" line="134"/>
         <source>Default</source>
         <translation>Standard</translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="135"/>
-        <source>Source</source>
-        <translation>Quelle</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="1158"/>
@@ -1461,7 +1461,7 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="1292"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
-        <translation>Der Name steht im Widerspruch zu einem Standardprofilnamen. Bitte geben Sie einen anderen Namen ein.</translation>
+        <translation>Dieser Name wird bereits für ein Standardprofil verwendet. Bitte geben Sie einen anderen Namen ein.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="1303"/>
@@ -4042,7 +4042,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/deskew/Filter.cpp" line="31"/>
         <source>Order by decreasing deviation</source>
-        <translation>Nach absteigender Abweichung sortieren</translation>
+        <translation>Sortierung nach absteigender Abweichung</translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/Filter.cpp" line="37"/>
@@ -4598,7 +4598,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <location filename="../core/filters/output/OptionsWidget.ui" line="2398"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="154"/>
         <source>Off</source>
-        <translation>Deaktiviert</translation>
+        <translation>Aus</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="896"/>
@@ -5578,7 +5578,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/page_layout/Filter.cpp" line="38"/>
         <source>Order by decreasing deviation</source>
-        <translation>Nach absteigender Abweichung sortieren</translation>
+        <translation>Sortierung nach absteigender Abweichung</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/Filter.cpp" line="44"/>
@@ -5626,12 +5626,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/page_layout/ImageView.cpp" line="700"/>
         <source>Show Hard Margins Rectangle</source>
-        <translation>Rechteck mit harten Rändern anzeigen</translation>
+        <translation>Rechteck der eingestellten Ränder anzeigen</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/ImageView.cpp" line="847"/>
         <source>Drag the guide.</source>
-        <translation>Hilfslinie ziehen</translation>
+        <translation>Ziehen Sie die Hilfslinie.</translation>
     </message>
 </context>
 <context>
@@ -5649,7 +5649,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="523"/>
         <source>Apply Match Size</source>
-        <translation>Größe angleichen anwenden</translation>
+        <translation>Angleichen der Größe anwenden</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="554"/>
@@ -5679,7 +5679,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="152"/>
         <source>Auto margins</source>
-        <translation>Automatische Seitenränder</translation>
+        <translation>Automatische Ränder</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="212"/>
@@ -5746,7 +5746,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="113"/>
         <source>Opens a window with the DPI of all images of the project, where you can check and correct them. The same as Tools &gt; Fix DPI of All Images ...</source>
-        <translation>Öffnet ein Fenster mit der DPI aller Bilder des Projekts, in dem Sie sie prüfen und korrigieren können. Dasselbe wie Werkzeuge &gt; DPI aller Bilder korrigieren ...</translation>
+        <translation>Öffnet ein Fenster mit den DPI-Werten aller Bilder des Projekts, in dem Sie sie prüfen und korrigieren können. Dasselbe wie Werkzeuge &gt; DPI aller Bilder korrigieren ...</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="791"/>
@@ -5785,8 +5785,8 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
 Scale: the content is enlarged or reduced to fit the output size, within the limits below. The margins keep their size; the rest is filled with margins.</source>
         <translation>Aus: Die Seite behält ihre eigene Größe und zählt nicht zur gemeinsamen Größe.
-Mit Rand auffüllen: Die Seite wird mit Rändern auf die Ausgabegröße gebracht, ausgerichtet wie unter „Ausrichtung“ eingestellt. Der Inhalt behält seine Größe; nur Seiten, die größer als eine eigene Zielgröße sind, werden verkleinert.
-Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verkleinert, innerhalb der Grenzen unten. Die Ränder behalten ihre Größe; der Rest wird mit Rand aufgefüllt.</translation>
+Mit Rändern auffüllen: Die Seite wird mit Rändern auf die Ausgabegröße gebracht, ausgerichtet wie unter „Ausrichtung“ eingestellt. Der Inhalt behält seine Größe; nur Seiten, die größer als eine eigene Zielgröße sind, werden verkleinert.
+Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verkleinert, innerhalb der Grenzen unten. Die Ränder behalten ihre Größe; der Rest wird mit Rändern aufgefüllt.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="455"/>
@@ -5832,21 +5832,9 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Breite × Höhe der Ausgabeseiten, Ränder eingeschlossen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="660"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="670"/>
-        <source>Pages set to &quot;Scale&quot; are enlarged to at most this size.</source>
-        <translation>Seiten auf „Skalieren“ werden höchstens auf diese Größe vergrößert.</translation>
-    </message>
-    <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="663"/>
         <source>Enlarge to at most:</source>
         <translation>Vergrößern bis höchstens:</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="692"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="702"/>
-        <source>Pages larger than the output size are reduced to no less than this size; a page that would need more stays larger.</source>
-        <translation>Seiten, die größer als die Ausgabegröße sind, werden höchstens auf diese Größe verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="695"/>
@@ -5864,27 +5852,24 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Überträgt die Ausrichtung dieser Seite auf andere Seiten: die Modi und die Position. Ob die Größe angeglichen wird, überträgt „Anwenden auf ...“ unter „Ausgabegröße“.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1259"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Right-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to create/remove guides from the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; called.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Right-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on a guide to delete that guide from the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; called.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Ctrl+Alt+LMB&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; - drag the guide under the cursor.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Shift/Ctrl+LMB&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on the content rectangle - drag the page content. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; pressed to restrict moving along the horizontal axis only or &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for the vertical one. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift+Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for usual dragging.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Double-click&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; on content - automatically attach that content to the nearest guide. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; pressed to select vertical guides only or &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; for horizontal ones. Hold &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Shift+Ctrl&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to attach that to both the nearest vertical and horizontal guides.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; Use the &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;context menu&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; to enable/disable showing the hard margins rectangle.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Rechtsklick&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; öffnet das &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Kontextmenü&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; zum Anlegen und Entfernen von Hilfslinien.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Rechtsklick&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; auf eine Hilfslinie öffnet das &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Kontextmenü&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; zum Löschen dieser Hilfslinie.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Strg+Alt+LMT&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; – die Hilfslinie unter dem Mauszeiger verschieben.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Umschalt/Strg+LMT&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; auf das Inhaltsrechteck – den Seiteninhalt verschieben. Mit gedrückter &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Umschalt&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;-Taste nur waagerecht, mit &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Strg&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; nur senkrecht. Mit &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Umschalt+Strg&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; frei verschieben.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣ Doppelklick&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; auf den Inhalt – den Inhalt automatisch an der nächsten Hilfslinie ausrichten. Mit gedrückter &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Umschalt&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;-Taste nur an senkrechten, mit &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Strg&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; nur an waagerechten Hilfslinien. Mit &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Umschalt+Strg&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; an der nächsten senkrechten und der nächsten waagerechten Hilfslinie.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;‣&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; Über das &lt;/span&gt;&lt;span style=&quot; font-size:7pt; font-weight:600;&quot;&gt;Kontextmenü&lt;/span&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt; lässt sich das Rechteck der festen Ränder ein- und ausblenden.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1184"/>
+        <source>‣ Right-click to open the context menu for creating and removing guides.
+‣ Right-click on a guide to open the context menu for deleting it.
+‣ Ctrl+Alt+left mouse button – drag the guide under the cursor.
+‣ Shift/Ctrl+left mouse button on the content rectangle – drag the page content. Hold Shift pressed to restrict moving along the horizontal axis only or Ctrl for the vertical one. Hold Shift+Ctrl for usual dragging.
+‣ Double-click on content – automatically attach that content to the nearest guide. Hold Shift pressed to select vertical guides only or Ctrl for horizontal ones. Hold Shift+Ctrl to attach that to both the nearest vertical and horizontal guides.
+‣ Use the context menu to enable/disable showing the hard margins rectangle.</source>
+        <translation>‣ Rechtsklick öffnet das Kontextmenü zum Anlegen und Entfernen von Hilfslinien.
+‣ Rechtsklick auf eine Hilfslinie öffnet das Kontextmenü zum Löschen dieser Hilfslinie.
+‣ Strg+Alt+linke Maustaste – die Hilfslinie unter dem Mauszeiger verschieben.
+‣ Umschalt/Strg+linke Maustaste auf das Inhaltsrechteck – den Seiteninhalt verschieben. Mit gedrückter Umschalttaste nur waagerecht, mit Strg nur senkrecht. Mit Umschalt+Strg frei verschieben.
+‣ Doppelklick auf den Inhalt – den Inhalt automatisch an der nächsten Hilfslinie ausrichten. Mit gedrückter Umschalttaste nur an senkrechten, mit Strg nur an waagerechten Hilfslinien. Mit Umschalt+Strg an der nächsten senkrechten und der nächsten waagerechten Hilfslinie.
+‣ Über das Kontextmenü lässt sich das Rechteck der eingestellten Ränder ein- und ausblenden.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1192"/>
+        <source>Guides and mouse ⓘ</source>
+        <translation>Hilfslinien und Maus ⓘ</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="828"/>
@@ -5901,7 +5886,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="473"/>
         <source>Fill with margins</source>
-        <translation>Mit Rand auffüllen</translation>
+        <translation>Mit Rändern auffüllen</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="478"/>
@@ -5918,6 +5903,18 @@ p, li { white-space: pre-wrap; }
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="506"/>
         <source>Factor:</source>
         <translation>Faktor:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="660"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="670"/>
+        <source>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</source>
+        <translation>Seiten auf „Skalieren“ werden höchstens auf diesen Prozentwert vergrößert.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="692"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="702"/>
+        <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
+        <translation>Seiten, die größer als die Ausgabegröße sind, werden höchstens bis auf diesen Prozentwert verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="833"/>
@@ -5938,11 +5935,6 @@ p, li { white-space: pre-wrap; }
         <source>Size:</source>
         <translation>Größe:</translation>
     </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1190"/>
-        <source>Guides Help</source>
-        <translation>Hilfe für Hilfslinien</translation>
-    </message>
 </context>
 <context>
     <name>page_split::Filter</name>
@@ -5953,8 +5945,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/page_split/Filter.cpp" line="31"/>
-        <source>Order by split type</source>
-        <translation>Sortierung nach Teilungsart</translation>
+        <source>Order by page type</source>
+        <translation>Sortierung nach Seitenart</translation>
     </message>
     <message>
         <location filename="../core/filters/page_split/Filter.cpp" line="32"/>
@@ -5972,7 +5964,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../core/filters/page_split/ImageView.cpp" line="59"/>
         <source>Drag the line or the handles.</source>
-        <translation>Ziehen Sie die Linie oder die Griffe.</translation>
+        <translation>Ziehen Sie die Linie oder die Ziehpunkte.</translation>
     </message>
 </context>
 <context>
@@ -6065,7 +6057,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../core/filters/page_split/SplitModeDialog.ui" line="32"/>
         <source>The page type, or automatic detection if it is set to Auto.</source>
-        <translation>Die Seitenart, oder die automatische Erkennung, wenn „Auto“ gewählt ist.</translation>
+        <translation>Die Seitenart, oder die automatische Erkennung, wenn „Automatisch“ gewählt ist.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_split/SplitModeDialog.ui" line="35"/>
@@ -6134,7 +6126,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../core/filters/select_content/Filter.cpp" line="39"/>
         <source>Order by decreasing deviation</source>
-        <translation>Nach absteigender Abweichung sortieren</translation>
+        <translation>Sortierung nach absteigender Abweichung</translation>
     </message>
     <message>
         <location filename="../core/filters/select_content/Filter.cpp" line="45"/>
@@ -6144,11 +6136,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>select_content::ImageView</name>
-    <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="45"/>
-        <source>Use the context menu to enable / disable the content box. Hold Shift to drag a box. Use double-click on content to automatically adjust the content area.</source>
-        <translation>Verwenden Sie das Kontextmenü, um den Inhaltsbereich zu aktivieren/deaktivieren. Halten Sie die Umschalttaste gedrückt, um einen Rahmen zu ziehen. Verwenden Sie einen Doppelklick auf den Inhalt, um den Inhaltsbereich automatisch anzupassen.</translation>
-    </message>
     <message>
         <location filename="../core/filters/select_content/ImageView.cpp" line="48"/>
         <source>Drag lines or corners to resize the content box.</source>
@@ -6174,6 +6161,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../core/filters/select_content/ImageView.cpp" line="128"/>
         <source>Release left mouse button to finish dragging.</source>
         <translation>Lassen Sie die linke Maustaste los, um das Ziehen zu beenden.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/select_content/ImageView.cpp" line="45"/>
+        <source>Use the context menu to enable / disable the content box. Hold Shift to drag a box. Double-click on content to automatically adjust the content box.</source>
+        <translation>Verwenden Sie das Kontextmenü, um den Inhaltsbereich zu aktivieren/deaktivieren. Halten Sie die Umschalttaste gedrückt, um einen Rahmen zu ziehen. Verwenden Sie einen Doppelklick auf den Inhalt, um den Inhaltsbereich automatisch anzupassen.</translation>
     </message>
     <message>
         <location filename="../core/filters/select_content/ImageView.cpp" line="152"/>
@@ -6224,7 +6216,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="60"/>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="245"/>
         <source>Off</source>
-        <translation>Deaktiviert</translation>
+        <translation>Aus</translation>
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="76"/>

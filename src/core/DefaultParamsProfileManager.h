@@ -32,7 +32,7 @@ class DefaultParamsProfileManager {
 
   std::unique_ptr<DefaultParams> createDefaultProfile() const;
 
-  std::unique_ptr<DefaultParams> createSourceProfile() const;
+  std::unique_ptr<DefaultParams> createMinimalProfile() const;
 
  private:
   QString m_path;

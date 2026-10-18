@@ -118,7 +118,7 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::createDefaultProfile
   return std::make_unique<DefaultParams>();
 }
 
-std::unique_ptr<DefaultParams> DefaultParamsProfileManager::createSourceProfile() const {
+std::unique_ptr<DefaultParams> DefaultParamsProfileManager::createMinimalProfile() const {
   DefaultParams::DeskewParams deskewParams;
   deskewParams.setMode(MODE_MANUAL);
 

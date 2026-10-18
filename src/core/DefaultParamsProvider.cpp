@@ -17,9 +17,13 @@ DefaultParamsProvider::DefaultParamsProvider() {
   if (profile == "Default") {
     m_params = defaultParamsProfileManager.createDefaultProfile();
     m_profileName = profile;
-  } else if (profile == "Source") {
-    m_params = defaultParamsProfileManager.createSourceProfile();
-    m_profileName = profile;
+  } else if ((profile == "Minimal") || (profile == "Source")) {
+    // "Source" is the former name of the minimal profile.
+    m_params = defaultParamsProfileManager.createMinimalProfile();
+    m_profileName = "Minimal";
+    if (profile != m_profileName) {
+      settings.setCurrentProfile(m_profileName);
+    }
   } else {
     std::unique_ptr<DefaultParams> params = defaultParamsProfileManager.readProfile(profile);
     if (params != nullptr) {
