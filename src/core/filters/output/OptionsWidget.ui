@@ -622,7 +622,7 @@
            <item>
             <widget class="QCheckBox" name="grayscaleOutputCB">
              <property name="toolTip">
-              <string>Output color scans in grayscale: the whole page in color mode, pictures and colored text in mixed mode. Grayscale files are much smaller.</string>
+              <string>Output color scans in grayscale: the whole page in color / grayscale mode, pictures and colored text in mixed mode. Grayscale files are much smaller.</string>
              </property>
              <property name="text">
               <string>Grayscale output</string>
@@ -1818,7 +1818,9 @@
              <item>
               <widget class="QLabel" name="colorReductionLabel">
                <property name="toolTip">
-                <string>How the colors are reduced to a few. Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best). Color pages: the whole page, by posterizing.</string>
+                <string>Reduces the colors to a few.
+Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
+None: each letter keeps its own average color. Posterize: fixed color levels. K-means: the colors that fit the page best.</string>
                </property>
                <property name="text">
                 <string>Reduce colors:</string>
@@ -1828,7 +1830,9 @@
              <item>
               <widget class="QComboBox" name="colorReductionCB">
                <property name="toolTip">
-                <string>How the colors are reduced to a few. Black and white and mixed pages: the colors of the text, so color segmentation has to be on; not at all (each letter keeps its own average color), by posterizing or with K-means (the colors that fit the page best). Color pages: the whole page, by posterizing.</string>
+                <string>Reduces the colors to a few.
+Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
+None: each letter keeps its own average color. Posterize: fixed color levels. K-means: the colors that fit the page best.</string>
                </property>
               </widget>
              </item>
@@ -1962,7 +1966,7 @@
                 <string>Make dark and light gray gradients black and white respectively.</string>
                </property>
                <property name="text">
-                <string>Force b&amp;&amp;w</string>
+                <string>Force black and white</string>
                </property>
               </widget>
              </item>
@@ -2468,7 +2472,7 @@
       <item>
        <widget class="QWidget" name="depthPerceptionPanel" native="true">
         <property name="toolTip">
-         <string>How strongly the page is taken to curve away from the viewer when it is flattened; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</string>
+         <string>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_8">
          <property name="leftMargin">
@@ -2765,7 +2769,7 @@
              <string>The text is saved in black and white.</string>
             </property>
             <property name="text">
-             <string>B&amp;&amp;W foreground</string>
+             <string>Black and white foreground</string>
             </property>
             <property name="checked">
              <bool>true</bool>

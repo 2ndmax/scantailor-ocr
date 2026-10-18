@@ -382,7 +382,7 @@ QWidget* PdfExportView::createOptionsWidget() {
       "JPEG 2000, 100 is lossless; with JPEG, it's only nearly lossless.");
 
   // Color and grayscale.
-  addHeading(tr("Color and Grayscale"),
+  addHeading(tr("Color / Grayscale"),
              tr("Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split "
                 "output."),
              true);
@@ -419,9 +419,9 @@ QWidget* PdfExportView::createOptionsWidget() {
 
   // Posterized pages.
   addHeading(tr("Posterized Pages"),
-             tr("Color pages that were posterized in the Output stage, and posterized pictures of pages with split "
+             tr("Color pages that were posterized in the Output step, and posterized pictures of pages with split "
                 "output. Posterized grayscale pages can't be told apart from other grayscale pages; they follow "
-                "\"Color and Grayscale\"."),
+                "\"Color / Grayscale\"."),
              false);
   m_paletteCompression = new QComboBox;
   m_paletteCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
@@ -1066,7 +1066,7 @@ QString PdfExportView::kindText(const PdfExportPage& page) const {
           .arg(method(page.hasPalettePicture() ? m_paletteCompression : m_colorCompression),
                method(m_bitonalCompression));
     case PdfExportPage::IMAGE:
-      return tr("Color or grayscale (%1)").arg(method(m_colorCompression));
+      return tr("Color / grayscale (%1)").arg(method(m_colorCompression));
     case PdfExportPage::PALETTE:
       return tr("Posterized (%1)").arg(method(m_paletteCompression));
   }

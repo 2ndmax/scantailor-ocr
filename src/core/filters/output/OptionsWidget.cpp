@@ -219,7 +219,7 @@ void OptionsWidget::setupTiffCompressionPanel() {
       "and its PDF export can.");
 
   // Color and grayscale.
-  addHeading(tr("Color and Grayscale"),
+  addHeading(tr("Color / Grayscale"),
              tr("Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split "
                 "output."),
              true);
@@ -249,7 +249,7 @@ void OptionsWidget::setupTiffCompressionPanel() {
   // Posterized pages.
   addHeading(tr("Posterized Pages"),
              tr("Color pages that were posterized, and posterized pictures of pages with split output. Posterized "
-                "grayscale pages can't be told apart from other grayscale pages; they follow \"Color and "
+                "grayscale pages can't be told apart from other grayscale pages; they follow \"Color / "
                 "Grayscale\"."),
              false);
   m_tiffPaletteCompression = new QComboBox;

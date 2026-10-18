@@ -71,7 +71,7 @@ void PdfExportPage::analyze() {
     m_warning = QCoreApplication::translate(
         "PdfExportPage",
         "Mixed page without split output. It is stored as a single image, which makes the PDF larger and, with "
-        "JPEG, the text less sharp. For a smaller file, enable \"Split output\" in the Output stage and process "
+        "JPEG, the text less sharp. For a smaller file, enable \"Split output\" in the Output step and process "
         "the page again.");
   }
 }  // PdfExportPage::analyze

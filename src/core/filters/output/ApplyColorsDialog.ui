@@ -39,7 +39,7 @@
       <item>
        <widget class="QCheckBox" name="applyOtherSettingsOption">
         <property name="toolTip">
-         <string>All other settings of the Mode group, such as the threshold, the filters and the shape of the picture zones.</string>
+         <string>All other settings of the Mode panel, such as the threshold, the filters and the shape of the picture zones.</string>
         </property>
         <property name="text">
          <string>Other settings</string>
