@@ -138,6 +138,7 @@ void OptionsWidget::detectionOptionsChanged() {
   ApplicationSettings& settings = ApplicationSettings::getInstance();
   settings.setContentFillFactor(fillFactorSpinBox->value());
   settings.setContentBorderTolerance(borderToleranceSpinBox->value());
+  settings.setContentIgnoringPageBox(ignorePageBoxCB->isChecked());
   if (m_uiData.contentDetectionMode() == MODE_AUTO) {
     Dependencies deps = m_uiData.dependencies();
     deps.setContentDetectionMode(MODE_DISABLED);  // Makes the task detect the content box again.
@@ -188,6 +189,7 @@ void OptionsWidget::updateContentDetectOptionsDisplay() {
   const DetectionOptions options = DetectionOptions::fromSettings();
   fillFactorSpinBox->setValue(options.fillFactor());
   borderToleranceSpinBox->setValue(options.borderTolerance());
+  ignorePageBoxCB->setChecked(options.ignorePageBox());
   // Always shown, grayed out where the content box mode doesn't use them.
   contentDetectOptions->setEnabled(m_uiData.contentDetectionMode() == MODE_AUTO);
 }
@@ -363,6 +365,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(fineTuneBtn, &QAbstractButton::toggled, this, &OptionsWidget::fineTuningChanged);
   CONNECT(fillFactorSpinBox, &QSpinBox::valueChanged, this, &OptionsWidget::detectionOptionsChanged);
   CONNECT(borderToleranceSpinBox, &QSpinBox::valueChanged, this, &OptionsWidget::detectionOptionsChanged);
+  CONNECT(ignorePageBoxCB, &QAbstractButton::toggled, this, &OptionsWidget::detectionOptionsChanged);
   CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyToDialog);
 }
 

@@ -74,6 +74,11 @@ class ApplicationSettings {
 
   void setContentBorderTolerance(int percent);
 
+  // Search for content in the whole image instead of only inside the page box.
+  bool isContentIgnoringPageBox() const;
+
+  void setContentIgnoringPageBox(bool enabled);
+
   // Color mode detection (Output): share of color outside pictures (percent) for a color page, and
   // whether the picture zones give a second opinion.
   int getColorDetectionMinColor() const;
@@ -241,6 +246,7 @@ class ApplicationSettings {
   static const bool DEFAULT_BLACK_ON_WHITE_DETECTION;
   static const int DEFAULT_CONTENT_FILL_FACTOR;
   static const int DEFAULT_CONTENT_BORDER_TOLERANCE;
+  static const bool DEFAULT_CONTENT_IGNORE_PAGE_BOX;
   static const int DEFAULT_COLOR_DETECTION_MIN_COLOR;
   static const bool DEFAULT_COLOR_DETECTION_ZONES;
   static const int DEFAULT_COLOR_DETECTION_MIN_PICTURE;
@@ -272,6 +278,7 @@ class ApplicationSettings {
   static const QString BLACK_ON_WHITE_DETECTION_KEY;
   static const QString CONTENT_FILL_FACTOR_KEY;
   static const QString CONTENT_BORDER_TOLERANCE_KEY;
+  static const QString CONTENT_IGNORE_PAGE_BOX_KEY;
   static const QString COLOR_DETECTION_MIN_COLOR_KEY;
   static const QString COLOR_DETECTION_ZONES_KEY;
   static const QString COLOR_DETECTION_MIN_PICTURE_KEY;

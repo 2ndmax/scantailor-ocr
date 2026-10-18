@@ -22,13 +22,14 @@ class DetectionOptions {
 
   DetectionOptions() = default;
 
-  DetectionOptions(int fillFactor, int borderTolerance)
-      : m_fillFactor(fillFactor), m_borderTolerance(borderTolerance) {}
+  DetectionOptions(int fillFactor, int borderTolerance, bool ignorePageBox)
+      : m_fillFactor(fillFactor), m_borderTolerance(borderTolerance), m_ignorePageBox(ignorePageBox) {}
 
   // The current program settings.
   static DetectionOptions fromSettings() {
     const ApplicationSettings& settings = ApplicationSettings::getInstance();
-    return DetectionOptions(settings.getContentFillFactor(), settings.getContentBorderTolerance());
+    return DetectionOptions(settings.getContentFillFactor(), settings.getContentBorderTolerance(),
+                            settings.isContentIgnoringPageBox());
   }
 
   /**
@@ -48,8 +49,18 @@ class DetectionOptions {
 
   void setBorderTolerance(int borderTolerance) { m_borderTolerance = borderTolerance; }
 
+  /**
+   * Search for content in the whole image. Otherwise everything outside the page box is masked
+   * first, which removes text touching the page box together with the border. The content box
+   * is kept inside the page box either way.
+   */
+  bool ignorePageBox() const { return m_ignorePageBox; }
+
+  void setIgnorePageBox(bool ignorePageBox) { m_ignorePageBox = ignorePageBox; }
+
   bool operator==(const DetectionOptions& other) const {
-    return (m_fillFactor == other.m_fillFactor) && (m_borderTolerance == other.m_borderTolerance);
+    return (m_fillFactor == other.m_fillFactor) && (m_borderTolerance == other.m_borderTolerance)
+           && (m_ignorePageBox == other.m_ignorePageBox);
   }
 
   bool operator!=(const DetectionOptions& other) const { return !(*this == other); }
@@ -57,6 +68,7 @@ class DetectionOptions {
  private:
   int m_fillFactor = DEFAULT_FILL_FACTOR;
   int m_borderTolerance = DEFAULT_BORDER_TOLERANCE;
+  bool m_ignorePageBox = false;
 };
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_DETECTIONOPTIONS_H_

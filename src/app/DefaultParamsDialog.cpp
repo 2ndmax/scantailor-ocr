@@ -388,6 +388,7 @@ void DefaultParamsDialog::updateSelectContentDisplay(const DefaultParams::Select
   // Program settings, not part of the profile.
   fillFactorSpinBox->setValue(ApplicationSettings::getInstance().getContentFillFactor());
   borderToleranceSpinBox->setValue(ApplicationSettings::getInstance().getContentBorderTolerance());
+  ignorePageBoxCB->setChecked(ApplicationSettings::getInstance().isContentIgnoringPageBox());
   contentDetectOptions->setEnabled(params.isContentDetectEnabled());
 
   QSizeF pageRectSize = params.getPageRectSize();
@@ -1386,6 +1387,7 @@ void DefaultParamsDialog::commitChanges() {
   ApplicationSettings::getInstance().setColorDetectionMinPicture(colorDetectionMinPictureSB->value());
   ApplicationSettings::getInstance().setContentFillFactor(fillFactorSpinBox->value());
   ApplicationSettings::getInstance().setContentBorderTolerance(borderToleranceSpinBox->value());
+  ApplicationSettings::getInstance().setContentIgnoringPageBox(ignorePageBoxCB->isChecked());
 }
 
 void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {

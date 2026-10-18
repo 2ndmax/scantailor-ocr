@@ -21,6 +21,7 @@ const int ApplicationSettings::DEFAULT_TIFF_JPEG_QUALITY = 85;
 const bool ApplicationSettings::DEFAULT_BLACK_ON_WHITE_DETECTION = true;
 const int ApplicationSettings::DEFAULT_CONTENT_FILL_FACTOR = 65;
 const int ApplicationSettings::DEFAULT_CONTENT_BORDER_TOLERANCE = 0;
+const bool ApplicationSettings::DEFAULT_CONTENT_IGNORE_PAGE_BOX = false;
 const int ApplicationSettings::DEFAULT_COLOR_DETECTION_MIN_COLOR = 3;
 const bool ApplicationSettings::DEFAULT_COLOR_DETECTION_ZONES = false;
 const int ApplicationSettings::DEFAULT_COLOR_DETECTION_MIN_PICTURE = 5;
@@ -52,6 +53,7 @@ const QString ApplicationSettings::TIFF_JPEG_QUALITY_KEY = "tiff_jpeg_quality";
 const QString ApplicationSettings::BLACK_ON_WHITE_DETECTION_KEY = "black_on_white_detection";
 const QString ApplicationSettings::CONTENT_FILL_FACTOR_KEY = "content_detection/fill_factor";
 const QString ApplicationSettings::CONTENT_BORDER_TOLERANCE_KEY = "content_detection/border_tolerance";
+const QString ApplicationSettings::CONTENT_IGNORE_PAGE_BOX_KEY = "content_detection/ignore_page_box";
 const QString ApplicationSettings::COLOR_DETECTION_MIN_COLOR_KEY = "color_mode_detection/min_color";
 const QString ApplicationSettings::COLOR_DETECTION_ZONES_KEY = "color_mode_detection/picture_zones";
 const QString ApplicationSettings::COLOR_DETECTION_MIN_PICTURE_KEY = "color_mode_detection/min_picture";
@@ -206,6 +208,14 @@ int ApplicationSettings::getContentBorderTolerance() const {
 
 void ApplicationSettings::setContentBorderTolerance(const int percent) {
   writeValue(getKey(CONTENT_BORDER_TOLERANCE_KEY), qBound(0, percent, 100));
+}
+
+bool ApplicationSettings::isContentIgnoringPageBox() const {
+  return readValue(getKey(CONTENT_IGNORE_PAGE_BOX_KEY), DEFAULT_CONTENT_IGNORE_PAGE_BOX).toBool();
+}
+
+void ApplicationSettings::setContentIgnoringPageBox(const bool enabled) {
+  writeValue(getKey(CONTENT_IGNORE_PAGE_BOX_KEY), enabled);
 }
 
 int ApplicationSettings::getColorDetectionMinColor() const {
