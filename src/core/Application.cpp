@@ -71,7 +71,7 @@ void Application::showUnexpectedError(const QString& reason) {
   QTimer::singleShot(0, this, [reason]() {
     QMessageBox::critical(activeWindow(), tr("Unexpected Error"),
                           tr("An unexpected error occurred:\n%1\n\n"
-                             "ScanTailor continues to run, but to be safe, save your project under "
+                             "ScanTailor OCR continues to run, but to be safe, save your project under "
                              "a new name and restart the program.")
                               .arg(reason));
     messagePending = false;

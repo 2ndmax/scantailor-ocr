@@ -132,7 +132,7 @@ void RelinkingDialog::applyNodePath(const QString& path) {
     const auto type = (RelinkablePath::Type) m_nodeType;
     const QFileInfo target(withRootSlash(newPath));
     if (target.exists() && (target.isDir() != (type == RelinkablePath::Dir))) {
-      QMessageBox::warning(this, tr("Relinking"),
+      QMessageBox::warning(this, tr("Relink"),
                            (type == RelinkablePath::Dir)
                                ? tr("This change was not applied, because %1 is a file, not a folder.")
                                      .arg(RelinkingModel::toDisplayPath(newPath))
@@ -149,7 +149,7 @@ void RelinkingDialog::applyNodePath(const QString& path) {
       if (merge.count > 1) {
         text += QLatin1String("\n\n") + tr("%n file(s) would be shared in total.", nullptr, merge.count);
       }
-      QMessageBox::warning(this, tr("Relinking"), text);
+      QMessageBox::warning(this, tr("Relink"), text);
     }
   }
 

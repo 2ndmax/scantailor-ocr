@@ -625,7 +625,7 @@ void ProjectFilesDialog::finishLoadingMetadata() {
 
     QMessageBox::warning(this, tr("Error"),
                          tr("Some of the files failed to load.\n"
-                            "Either we don't support their format, or they are broken.\n"
+                            "Either their format is not supported, or they are damaged.\n"
                             "You should remove them from the project.")
                              + QLatin1String("\n\n") + failures.join(QLatin1Char('\n')));
     return;

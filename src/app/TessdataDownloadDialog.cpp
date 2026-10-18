@@ -225,7 +225,7 @@ void TessdataDownloadDialog::downloadFinished(const QStringList& downloaded,
 
   QString status = tr("%n language(s) downloaded.", "", static_cast<int>(downloaded.size()));
   if (cancelled) {
-    status = tr("Cancelled.") + ' ' + status;
+    status = tr("Canceled.") + ' ' + status;
   } else if (!error.isEmpty()) {
     status = error + ' ' + status;
     QMessageBox::warning(this, windowTitle(), error);

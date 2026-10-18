@@ -864,7 +864,7 @@ void PdfExportView::cancelExport() {
     return;
   }
   m_job->cancel();
-  m_statusLabel->setText(tr("Cancelling ..."));
+  m_statusLabel->setText(tr("Canceling ..."));
   m_cancelButton->setEnabled(false);
 }
 
@@ -895,7 +895,7 @@ void PdfExportView::exportFinished() {
     }
   } else if (job->wasCancelled()) {
     m_progressBar->setValue(0);
-    m_statusLabel->setText(tr("Cancelled. No PDF was written."));
+    m_statusLabel->setText(tr("Canceled. No PDF was written."));
   } else {
     m_progressBar->setValue(0);
     m_statusLabel->setText(tr("The PDF could not be created."));

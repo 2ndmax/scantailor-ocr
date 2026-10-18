@@ -5,7 +5,7 @@
     <name>AboutDialog</name>
     <message>
         <location filename="../app/AboutDialog.ui" line="27"/>
-        <source>About</source>
+        <source>About ScanTailor OCR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -92,16 +92,16 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="65"/>
+        <location filename="../core/Application.cpp" line="72"/>
         <source>Unexpected Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="66"/>
+        <location filename="../core/Application.cpp" line="73"/>
         <source>An unexpected error occurred:
 %1
 
-ScanTailor continues to run, but to be safe, save your project under a new name and restart the program.</source>
+ScanTailor OCR continues to run, but to be safe, save your project under a new name and restart the program.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -155,6 +155,11 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/AutoImportPanel.cpp" line="134"/>
+        <source>New images saved to the input folder are added to the project automatically. Images that are already there when this is switched on can be chosen once.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/AutoImportPanel.cpp" line="69"/>
         <source>Set the DPI with Tools &gt; Fix DPI of All Images ...</source>
         <translation type="unfinished"></translation>
@@ -175,11 +180,6 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AutoImportPanel.cpp" line="134"/>
-        <source>New images saved to the folder below are added to the project automatically. Images that are already there when this is switched on can be chosen once.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/AutoImportPanel.cpp" line="137"/>
         <source>Save the project first.</source>
         <translation type="unfinished"></translation>
@@ -194,11 +194,6 @@ ScanTailor continues to run, but to be safe, save your project under a new name 
 </context>
 <context>
     <name>BatchProcessingLowerPanel</name>
-    <message>
-        <location filename="../app/BatchProcessingLowerPanel.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../app/BatchProcessingLowerPanel.ui" line="33"/>
         <source>Beep when finished</source>
@@ -1516,14 +1511,6 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
 </context>
 <context>
-    <name>ErrorWidget</name>
-    <message>
-        <location filename="../core/ErrorWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>FixDpiDialog</name>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="14"/>
@@ -1748,7 +1735,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../core/LoadFileTask.cpp" line="179"/>
-        <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use the &lt;a href=&quot;#relink&quot;&gt;Relinking Tool&lt;/a&gt; to locate it.</source>
+        <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use &lt;a href=&quot;#relink&quot;&gt;Relink&lt;/a&gt; to locate it.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1772,11 +1759,6 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 </context>
 <context>
     <name>MainWindow</name>
-    <message>
-        <location filename="../app/MainWindow.ui" line="20"/>
-        <source>MainWindow</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../app/MainWindow.ui" line="65"/>
         <source>Tools</source>
@@ -1869,7 +1851,27 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="969"/>
-        <source>Filters</source>
+        <source>Steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="1239"/>
+        <source>About ScanTailor OCR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="1261"/>
+        <source>Relink ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="1387"/>
+        <source>Millimeters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="1415"/>
+        <source>Centimeters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1936,18 +1938,8 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1239"/>
-        <source>About</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.ui" line="1250"/>
         <source>Fix DPI of All Images ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1261"/>
-        <source>Relinking ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1961,58 +1953,13 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1286"/>
-        <location filename="../app/MainWindow.ui" line="1297"/>
-        <location filename="../app/MainWindow.ui" line="1311"/>
-        <location filename="../app/MainWindow.ui" line="1325"/>
-        <location filename="../app/MainWindow.ui" line="1339"/>
-        <location filename="../app/MainWindow.ui" line="1353"/>
-        <source>Switch filter to orientation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1300"/>
-        <source>Switch filter to split pages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1314"/>
-        <source>Switch filter to deskew</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1328"/>
-        <source>Switch filter to select content</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1342"/>
-        <source>Switch filter to margins</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1356"/>
-        <source>Switch filter to output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.ui" line="1370"/>
         <source>Pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1387"/>
-        <source>Millimetres</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.ui" line="1401"/>
         <source>Inches</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1415"/>
-        <source>Centimetres</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2094,6 +2041,16 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <message>
         <location filename="../app/MainWindow.cpp" line="1213"/>
         <source>Insert Here ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1611"/>
+        <source>The detection was canceled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1830"/>
+        <source>The project file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2196,11 +2153,6 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1611"/>
-        <source>The detection was cancelled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.cpp" line="1811"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
@@ -2216,11 +2168,6 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     <message>
         <location filename="../app/MainWindow.cpp" line="1824"/>
         <source>Unable to open the project file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.cpp" line="1830"/>
-        <source>The project file is broken.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2309,11 +2256,6 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>NewOpenProjectPanel</name>
     <message>
-        <location filename="../app/NewOpenProjectPanel.ui" line="20"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="68"/>
         <source>New Project</source>
         <translation type="unfinished"></translation>
@@ -2343,7 +2285,7 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     </message>
     <message>
         <location filename="../core/OcrEngine.cpp" line="99"/>
-        <source>Cancelled.</source>
+        <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2811,11 +2753,6 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="867"/>
-        <source>Cancelling ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/PdfExportView.cpp" line="734"/>
         <source>Save PDF As</source>
         <translation type="unfinished"></translation>
@@ -2947,13 +2884,18 @@ Do you want to replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/PdfExportView.cpp" line="867"/>
+        <source>Canceling ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/PdfExportView.cpp" line="892"/>
         <source>The PDF was created: %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="898"/>
-        <source>Cancelled. No PDF was written.</source>
+        <source>Canceled. No PDF was written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3197,7 +3139,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../app/ProjectFilesDialog.cpp" line="627"/>
         <source>Some of the files failed to load.
-Either we don&apos;t support their format, or they are broken.
+Either their format is not supported, or they are damaged.
 You should remove them from the project.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3265,7 +3207,7 @@ You should remove them from the project.</source>
         <location filename="../app/RelinkingDialog.ui" line="14"/>
         <location filename="../app/RelinkingDialog.cpp" line="135"/>
         <location filename="../app/RelinkingDialog.cpp" line="152"/>
-        <source>Relinking</source>
+        <source>Relink</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3648,18 +3590,8 @@ would both become
 <context>
     <name>StatusBarPanel</name>
     <message>
-        <location filename="../app/StatusBarPanel.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/StatusBarPanel.ui" line="38"/>
         <source>Selection mode for drawing new zones. Click to change it, or press Z (polygon), X (lasso) or C (rectangle) in the zone editor.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/StatusBarPanel.ui" line="41"/>
-        <source>The type of a new zone created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3690,6 +3622,11 @@ would both become
     <message>
         <location filename="../app/StatusBarPanel.ui" line="149"/>
         <source>Page number.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/StatusBarPanel.ui" line="41"/>
+        <source>The type of new zones.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3822,7 +3759,7 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../app/TessdataDownloadDialog.cpp" line="228"/>
-        <source>Cancelled.</source>
+        <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4096,11 +4033,6 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>deskew::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/deskew/OptionsWidget.ui" line="20"/>
         <source>Deskew and Oblique</source>
         <translation type="unfinished"></translation>
@@ -4234,11 +4166,6 @@ Without an internet connection, the installed languages can still be used. Langu
 </context>
 <context>
     <name>fix_orientation::OptionsWidget</name>
-    <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="20"/>
         <source>Rotate and Trim</source>
@@ -4385,11 +4312,6 @@ Without an internet connection, the installed languages can still be used. Langu
 </context>
 <context>
     <name>output::OptionsWidget</name>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
         <location filename="../core/filters/output/OptionsWidget.cpp" line="562"/>
@@ -5406,11 +5328,6 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>output::OptionsWidgetBinarizationOtsu</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="20"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="43"/>
         <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="53"/>
         <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
@@ -5424,11 +5341,6 @@ Without an internet connection, the installed languages can still be used. Langu
 </context>
 <context>
     <name>output::OptionsWidgetBinarizationSauvola</name>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="20"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="43"/>
         <source>Delta:</source>
@@ -5462,11 +5374,6 @@ Without an internet connection, the installed languages can still be used. Langu
 </context>
 <context>
     <name>output::OptionsWidgetBinarizationWolf</name>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="20"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="43"/>
         <source>Delta:</source>
@@ -5692,11 +5599,6 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="141"/>
         <source>Margins</source>
         <translation type="unfinished"></translation>
@@ -5773,6 +5675,11 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="31"/>
+        <source>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimeters or inches depend on it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="550"/>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="560"/>
         <source>The largest width and the largest height of all pages whose size is matched, margins included. Without an own target size, it is the output size.</source>
@@ -5842,11 +5749,6 @@ Without an internet connection, the installed languages can still be used. Langu
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="20"/>
         <source>Source Resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="31"/>
-        <source>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimetres or inches depend on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6026,11 +5928,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>page_split::OptionsWidget</name>
-    <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="20"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../core/filters/page_split/OptionsWidget.ui" line="26"/>
         <source>Page Layout</source>
@@ -6242,11 +6139,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>select_content::OptionsWidget</name>
-    <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="47"/>
         <source>Page Box</source>

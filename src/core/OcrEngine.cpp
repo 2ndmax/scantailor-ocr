@@ -96,7 +96,7 @@ bool OcrEngine::recognize(const QImage& image,
   if (m_api->Recognize(&monitor) != 0) {
     m_api->Clear();
     if (error) {
-      *error = (cancel && cancel->load()) ? QCoreApplication::translate("OcrEngine", "Cancelled.")
+      *error = (cancel && cancel->load()) ? QCoreApplication::translate("OcrEngine", "Canceled.")
                                           : QCoreApplication::translate("OcrEngine", "Text recognition failed.");
     }
     return false;

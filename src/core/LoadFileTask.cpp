@@ -178,7 +178,7 @@ void LoadFileTask::ErrorResult::updateUI(FilterUiInterface* ui) {
   } else {
     errMsg = tr("The following file doesn't exist:<br>%1<br>"
                 "<br>"
-                "Use the <a href=\"#relink\">Relinking Tool</a> to locate it.")
+                "Use <a href=\"#relink\">Relink</a> to locate it.")
                  .arg(m_filePath.toHtmlEscaped());
     fmt = Qt::RichText;
   }

@@ -4,11 +4,6 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../app/AboutDialog.ui" line="27"/>
-        <source>About</source>
-        <translation>Über</translation>
-    </message>
-    <message>
         <location filename="../app/AboutDialog.ui" line="110"/>
         <source>Authors</source>
         <translation>Autoren</translation>
@@ -74,6 +69,11 @@
         <translation>Hauptentwickler der ursprünglichen Version</translation>
     </message>
     <message>
+        <location filename="../app/AboutDialog.ui" line="27"/>
+        <source>About ScanTailor OCR</source>
+        <translation>Über ScanTailor OCR</translation>
+    </message>
+    <message>
         <location filename="../app/AboutDialog.ui" line="33"/>
         <source>ScanTailor OCR is an interactive post-processing tool for scanned pages. It performs operations such as page splitting, skew correction, adding/removing margins, and others. You give it raw scans, and you get pages ready to be printed, or a searchable PDF with text recognition (OCR) made from them. ScanTailor OCR is based on ScanTailor Advanced 1.2.1.</source>
         <translation>ScanTailor OCR ist ein interaktives Werkzeug zur Nachbearbeitung gescannter Seiten. Es teilt Seiten, richtet sie gerade aus, fügt Ränder hinzu oder entfernt sie und vieles mehr. Aus rohen Scans werden druckfertige Seiten oder daraus ein durchsuchbares PDF mit Texterkennung (OCR). ScanTailor OCR basiert auf ScanTailor Advanced 1.2.1.</translation>
@@ -92,20 +92,20 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="65"/>
+        <location filename="../core/Application.cpp" line="72"/>
         <source>Unexpected Error</source>
         <translation>Unerwarteter Fehler</translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="66"/>
+        <location filename="../core/Application.cpp" line="73"/>
         <source>An unexpected error occurred:
 %1
 
-ScanTailor continues to run, but to be safe, save your project under a new name and restart the program.</source>
+ScanTailor OCR continues to run, but to be safe, save your project under a new name and restart the program.</source>
         <translation>Ein unerwarteter Fehler ist aufgetreten:
 %1
 
-ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem neuen Namen und starten Sie das Programm neu.</translation>
+ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem neuen Namen und starten Sie das Programm neu.</translation>
     </message>
 </context>
 <context>
@@ -138,30 +138,35 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="48"/>
         <source>Insert after selected page</source>
-        <translation>Nach markierter Seite einfügen</translation>
+        <translation>Nach ausgewählter Seite einfügen</translation>
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="50"/>
         <source>New scans follow the page selected now, one after the other, and are named after it, so they are also sorted after it in the folder. Selecting another page continues there.</source>
-        <translation>Neue Scans folgen der jetzt markierten Seite, einer nach dem anderen, und werden nach ihr benannt, sodass sie auch im Ordner nach ihr einsortiert sind. Markieren Sie eine andere Seite, geht es dort weiter.</translation>
+        <translation>Neue Scans folgen der jetzt ausgewählten Seite, einer nach dem anderen, und werden nach ihr benannt, sodass sie auch im Ordner nach ihr einsortiert sind. Wählen Sie eine andere Seite aus, geht es dort weiter.</translation>
     </message>
     <message numerus="yes">
         <location filename="../app/AutoImportPanel.cpp" line="106"/>
         <source>Replace selected pages (%n) with next scan</source>
         <translation>
-            <numerusform>Markierte Seiten (%n) durch nächsten Scan ersetzen</numerusform>
-            <numerusform>Markierte Seiten (%n) durch nächsten Scan ersetzen</numerusform>
+            <numerusform>Ausgewählte Seiten (%n) durch nächsten Scan ersetzen</numerusform>
+            <numerusform>Ausgewählte Seiten (%n) durch nächsten Scan ersetzen</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="107"/>
         <source>Replace selected page with next scan</source>
-        <translation>Markierte Seite durch nächsten Scan ersetzen</translation>
+        <translation>Ausgewählte Seite durch nächsten Scan ersetzen</translation>
+    </message>
+    <message>
+        <location filename="../app/AutoImportPanel.cpp" line="134"/>
+        <source>New images saved to the input folder are added to the project automatically. Images that are already there when this is switched on can be chosen once.</source>
+        <translation>Neue Bilder, die im Eingabeordner gespeichert werden, werden automatisch ins Projekt aufgenommen. Beim Einschalten wählen Sie in einem Fenster aus, welche der schon vorhandenen Bilder hinzukommen.</translation>
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="69"/>
         <source>Set the DPI with Tools &gt; Fix DPI of All Images ...</source>
-        <translation>Die DPI mit Werkzeuge &gt; DPI aller Bilder korrigieren ... festlegen.</translation>
+        <translation>Die DPI-Werte mit Werkzeuge &gt; DPI aller Bilder korrigieren ... festlegen.</translation>
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="32"/>
@@ -171,17 +176,12 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="109"/>
         <source>The next scan takes the place of the selected pages and is named after the first of them; for a two-page scan, both pages are replaced. The old images are moved to the folder &quot;replaced&quot; next to them, and their output files are deleted. Further scans are then inserted after the new one.</source>
-        <translation>Der nächste Scan tritt an die Stelle der markierten Seiten und wird nach der ersten von ihnen benannt; bei einem Doppelseiten-Scan werden beide Seiten ersetzt. Die alten Bilder werden in den Ordner &quot;replaced&quot; daneben verschoben, und ihre Ausgabedateien werden gelöscht. Weitere Scans werden danach hinter dem neuen eingefügt.</translation>
+        <translation>Der nächste Scan tritt an die Stelle der ausgewählten Seiten und wird nach der ersten von ihnen benannt; bei einem Doppelseiten-Scan werden beide Seiten ersetzt. Die alten Bilder werden in den Ordner „replaced“ daneben verschoben, und ihre Ausgabedateien werden gelöscht. Weitere Scans werden danach hinter dem neuen eingefügt.</translation>
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="113"/>
         <source>Only pages next to each other can be replaced together.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen.</translation>
-    </message>
-    <message>
-        <location filename="../app/AutoImportPanel.cpp" line="134"/>
-        <source>New images saved to the folder below are added to the project automatically. Images that are already there when this is switched on can be chosen once.</source>
-        <translation>Neue Bilder, die in den Ordner darunter gespeichert werden, werden automatisch ins Projekt aufgenommen. Bilder, die beim Einschalten schon dort liegen, können einmal ausgewählt werden.</translation>
     </message>
     <message>
         <location filename="../app/AutoImportPanel.cpp" line="137"/>
@@ -199,11 +199,6 @@ ScanTailor läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter einem n
 </context>
 <context>
     <name>BatchProcessingLowerPanel</name>
-    <message>
-        <location filename="../app/BatchProcessingLowerPanel.ui" line="14"/>
-        <source>Form</source>
-        <translation>Formular</translation>
-    </message>
     <message>
         <location filename="../app/BatchProcessingLowerPanel.ui" line="33"/>
         <source>Beep when finished</source>
@@ -1523,14 +1518,6 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     </message>
 </context>
 <context>
-    <name>ErrorWidget</name>
-    <message>
-        <location filename="../core/ErrorWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-</context>
-<context>
     <name>FixDpiDialog</name>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="14"/>
@@ -1555,7 +1542,7 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     <message>
         <location filename="../app/FixDpiDialog.ui" line="97"/>
         <source>Resolution of the images selected in the list (horizontal × vertical).</source>
-        <translation>Auflösung der in der Liste markierten Bilder (waagerecht × senkrecht).</translation>
+        <translation>Auflösung der in der Liste ausgewählten Bilder (waagerecht × senkrecht).</translation>
     </message>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="100"/>
@@ -1565,7 +1552,7 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     <message>
         <location filename="../app/FixDpiDialog.ui" line="152"/>
         <source>Sets this resolution for the images selected in the list. OK takes over the resolutions of all images.</source>
-        <translation>Setzt diese Auflösung für die in der Liste markierten Bilder. „OK“ übernimmt die Auflösungen aller Bilder.</translation>
+        <translation>Setzt diese Auflösung für die in der Liste ausgewählten Bilder. „OK“ übernimmt die Auflösungen aller Bilder.</translation>
     </message>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="155"/>
@@ -1586,7 +1573,7 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     <message>
         <location filename="../app/FixDpiDialog.cpp" line="351"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
-        <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie keine akzeptablen Resultate erhalten.</translation>
+        <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie damit keine brauchbaren Ergebnisse erhalten.</translation>
     </message>
     <message>
         <location filename="../app/FixDpiDialog.cpp" line="355"/>
@@ -1748,6 +1735,11 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Möglicherweise hilft es, die Einstellungen dieser Seite oder eines vorherigen Schritts zu ändern. Bitte melden Sie diesen Fehler zusammen mit den Schritten, die dazu geführt haben.</translation>
     </message>
     <message>
+        <location filename="../core/LoadFileTask.cpp" line="179"/>
+        <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use &lt;a href=&quot;#relink&quot;&gt;Relink&lt;/a&gt; to locate it.</source>
+        <translation>Die folgende Datei existiert nicht:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Verwenden Sie &lt;a href=&quot;#relink&quot;&gt;Neu verknüpfen&lt;/a&gt;, um sie zu finden.</translation>
+    </message>
+    <message>
         <location filename="../core/LoadFileTask.cpp" line="92"/>
         <source>Unknown error.</source>
         <translation>Unbekannter Fehler.</translation>
@@ -1758,11 +1750,6 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
 %1</source>
         <translation>Die folgende Datei konnte nicht geladen werden:
 %1</translation>
-    </message>
-    <message>
-        <location filename="../core/LoadFileTask.cpp" line="179"/>
-        <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use the &lt;a href=&quot;#relink&quot;&gt;Relinking Tool&lt;/a&gt; to locate it.</source>
-        <translation>Die folgende Datei existiert nicht:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Benutzen Sie das &lt;a href=&quot;#relink&quot;&gt;Tool zum erneuten Verknüpfen&lt;/a&gt; zur Lokalisierung.</translation>
     </message>
 </context>
 <context>
@@ -1785,11 +1772,6 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
 </context>
 <context>
     <name>MainWindow</name>
-    <message>
-        <location filename="../app/MainWindow.ui" line="20"/>
-        <source>MainWindow</source>
-        <translation>Hauptfenster</translation>
-    </message>
     <message>
         <location filename="../app/MainWindow.ui" line="65"/>
         <source>Tools</source>
@@ -1866,11 +1848,6 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Abweichungen hervorheben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="969"/>
-        <source>Filters</source>
-        <translation>Arbeitsschritte</translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.ui" line="1085"/>
         <source>Debug Mode</source>
         <translation>Debug-Modus</translation>
@@ -1934,19 +1911,9 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Letzte Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1239"/>
-        <source>About</source>
-        <translation>Über</translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.ui" line="1250"/>
         <source>Fix DPI of All Images ...</source>
         <translation>DPI aller Bilder korrigieren ...</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1261"/>
-        <source>Relinking ...</source>
-        <translation>Verknüpfen ...</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1272"/>
@@ -1959,59 +1926,14 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Linke und rechte Seite bei Doppelseiten-Scans vertauschen (z. B. für die Leserichtung japanischer Bücher).</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1286"/>
-        <location filename="../app/MainWindow.ui" line="1297"/>
-        <location filename="../app/MainWindow.ui" line="1311"/>
-        <location filename="../app/MainWindow.ui" line="1325"/>
-        <location filename="../app/MainWindow.ui" line="1339"/>
-        <location filename="../app/MainWindow.ui" line="1353"/>
-        <source>Switch filter to orientation</source>
-        <translation>Filter umschalten zur Orientierung</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1300"/>
-        <source>Switch filter to split pages</source>
-        <translation>Filter umschalten für Seitenaufteilung</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1314"/>
-        <source>Switch filter to deskew</source>
-        <translation>Filter umschalten für Geraderichten</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1328"/>
-        <source>Switch filter to select content</source>
-        <translation>Filter umschalten für Inhaltsauswahl</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1342"/>
-        <source>Switch filter to margins</source>
-        <translation>Filter umschalten für Ränder</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1356"/>
-        <source>Switch filter to output</source>
-        <translation>Filter umschalten für Ausgabe</translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.ui" line="1370"/>
         <source>Pixels</source>
         <translation>Pixel</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.ui" line="1387"/>
-        <source>Millimetres</source>
-        <translation>Millimeter</translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.ui" line="1401"/>
         <source>Inches</source>
         <translation>Zoll</translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.ui" line="1415"/>
-        <source>Centimetres</source>
-        <translation>Zentimeter</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1426"/>
@@ -2077,6 +1999,16 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <location filename="../app/MainWindow.cpp" line="1213"/>
         <source>Insert Here ...</source>
         <translation>Hier einfügen ...</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1611"/>
+        <source>The detection was canceled.</source>
+        <translation>Die Erkennung wurde abgebrochen.</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1830"/>
+        <source>The project file is damaged.</source>
+        <translation>Die Projektdatei ist beschädigt.</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.cpp" line="2057"/>
@@ -2182,11 +2114,6 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1611"/>
-        <source>The detection was cancelled.</source>
-        <translation>Die Erkennung wurde abgebrochen.</translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.cpp" line="1811"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
@@ -2205,11 +2132,6 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Die Projektdatei kann nicht geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1830"/>
-        <source>The project file is broken.</source>
-        <translation>Die Projektdatei ist beschädigt.</translation>
-    </message>
-    <message>
         <location filename="../app/MainWindow.cpp" line="1912"/>
         <source>version </source>
         <translation>Version </translation>
@@ -2222,7 +2144,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
     <message>
         <location filename="../app/MainWindow.cpp" line="2112"/>
         <source>A PDF is being created. Do you want to cancel it?</source>
-        <translation>Ein PDF wird gerade erstellt. Möchten Sie das abbrechen?</translation>
+        <translation>Ein PDF wird gerade erstellt. Möchten Sie den Vorgang abbrechen?</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.cpp" line="2172"/>
@@ -2289,12 +2211,37 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
     <message>
         <location filename="../app/MainWindow.cpp" line="2995"/>
         <source>Enter the page number:</source>
-        <translation>Zielseite:</translation>
+        <translation>Seitennummer:</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="934"/>
         <source>Use Home, End, PgUp/Q, PgDown/W to navigate between pages or Shift+PgUp/Q and Shift+PgDown/W to navigate between selected ones. Alt+Wheel - scale thumbnails.</source>
-        <translation>Verwenden Sie POS 1, Ende, BildAuf/Q, BildAb/W, um zwischen den Seiten zu navigieren oder Shift+BildAuf/Q und Shift+BildAb/W, um zwischen den ausgewählten Seiten zu navigieren. Alt+Mausrad - Skalieren der Miniaturbilder.</translation>
+        <translation>Verwenden Sie Pos1, Ende, BildAuf/Q, BildAb/W, um zwischen den Seiten zu navigieren, oder Umschalt+BildAuf/Q und Umschalt+BildAb/W, um zwischen den ausgewählten Seiten zu navigieren. Alt+Mausrad – Miniaturansichten skalieren.</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="969"/>
+        <source>Steps</source>
+        <translation>Arbeitsschritte</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="1239"/>
+        <source>About ScanTailor OCR</source>
+        <translation>Über ScanTailor OCR</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="1261"/>
+        <source>Relink ...</source>
+        <translation>Neu verknüpfen ...</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="1387"/>
+        <source>Millimeters</source>
+        <translation>Millimeter</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.ui" line="1415"/>
+        <source>Centimeters</source>
+        <translation>Zentimeter</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1437"/>
@@ -2326,11 +2273,6 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
 <context>
     <name>NewOpenProjectPanel</name>
     <message>
-        <location filename="../app/NewOpenProjectPanel.ui" line="20"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
         <location filename="../app/NewOpenProjectPanel.ui" line="68"/>
         <source>New Project</source>
         <translation>Neues Projekt</translation>
@@ -2360,7 +2302,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
     </message>
     <message>
         <location filename="../core/OcrEngine.cpp" line="99"/>
-        <source>Cancelled.</source>
+        <source>Canceled.</source>
         <translation>Abgebrochen.</translation>
     </message>
     <message>
@@ -2447,7 +2389,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="161"/>
         <source>Is your output DPI set too high? Usually you don&apos;t need it higher than 600.</source>
-        <translation>Ist Ihre DPI-Einstellung für die Ausgabe zu hoch eingestellt? Normalerweise brauchen Sie nicht mehr als 600.</translation>
+        <translation>Ist die Ausgabeauflösung zu hoch eingestellt? Normalerweise brauchen Sie nicht mehr als 600 DPI.</translation>
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="192"/>
@@ -2516,7 +2458,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
     <message>
         <location filename="../core/PageScopeGroupBox.cpp" line="32"/>
         <source>Apply to</source>
-        <translation>Übernehmen auf</translation>
+        <translation>Anwenden auf</translation>
     </message>
     <message>
         <location filename="../core/PageScopeGroupBox.cpp" line="33"/>
@@ -2557,7 +2499,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
     <message>
         <location filename="../core/PageScopeGroupBox.cpp" line="43"/>
         <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation>Verwenden Sie Strg+LMT / Umschalt+LMT, um mehrere Seiten auszuwählen.</translation>
+        <translation>Verwenden Sie Strg+Klick / Umschalt+Klick, um mehrere Seiten auszuwählen.</translation>
     </message>
     <message>
         <location filename="../core/PageScopeGroupBox.cpp" line="44"/>
@@ -2828,11 +2770,6 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Durchsuchen ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="867"/>
-        <source>Cancelling ...</source>
-        <translation>Wird abgebrochen ...</translation>
-    </message>
-    <message>
         <location filename="../app/PdfExportView.cpp" line="734"/>
         <source>Save PDF As</source>
         <translation>PDF-Datei speichern unter</translation>
@@ -2965,13 +2902,18 @@ Möchten Sie sie ersetzen?</translation>
         <translation>PDF-Datei wird erstellt ...</translation>
     </message>
     <message>
+        <location filename="../app/PdfExportView.cpp" line="867"/>
+        <source>Canceling ...</source>
+        <translation>Wird abgebrochen ...</translation>
+    </message>
+    <message>
         <location filename="../app/PdfExportView.cpp" line="892"/>
         <source>The PDF was created: %1 (%2)</source>
         <translation>Die PDF-Datei wurde erstellt: %1 (%2)</translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="898"/>
-        <source>Cancelled. No PDF was written.</source>
+        <source>Canceled. No PDF was written.</source>
         <translation>Abgebrochen. Es wurde keine PDF-Datei geschrieben.</translation>
     </message>
     <message>
@@ -3223,7 +3165,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../app/ProjectFilesDialog.cpp" line="627"/>
         <source>Some of the files failed to load.
-Either we don&apos;t support their format, or they are broken.
+Either their format is not supported, or they are damaged.
 You should remove them from the project.</source>
         <translation>Einige der Dateien konnten nicht geladen werden.
 Entweder werden sie nicht unterstützt, oder sie sind beschädigt.
@@ -3293,8 +3235,8 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <location filename="../app/RelinkingDialog.ui" line="14"/>
         <location filename="../app/RelinkingDialog.cpp" line="135"/>
         <location filename="../app/RelinkingDialog.cpp" line="152"/>
-        <source>Relinking</source>
-        <translation>Verknüpfen</translation>
+        <source>Relink</source>
+        <translation>Neu verknüpfen</translation>
     </message>
     <message>
         <location filename="../app/RelinkingDialog.ui" line="23"/>
@@ -3683,11 +3625,6 @@ würden beide zu
 <context>
     <name>StatusBarPanel</name>
     <message>
-        <location filename="../app/StatusBarPanel.ui" line="14"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
         <location filename="../app/StatusBarPanel.ui" line="38"/>
         <source>Selection mode for drawing new zones. Click to change it, or press Z (polygon), X (lasso) or C (rectangle) in the zone editor.</source>
         <translation>Auswahlmodus zum Zeichnen neuer Zonen. Zum Ändern klicken oder im Zonen-Editor Z (Polygon), X (Lasso) oder C (Rechteck) drücken.</translation>
@@ -3723,11 +3660,6 @@ würden beide zu
         <translation>Rechteck-Auswahl</translation>
     </message>
     <message>
-        <location filename="../app/StatusBarPanel.ui" line="41"/>
-        <source>The type of a new zone created.</source>
-        <translation>Typ der neu erstellten Zone</translation>
-    </message>
-    <message>
         <location filename="../app/StatusBarPanel.ui" line="82"/>
         <source>Mouse position.</source>
         <translation>Mausposition.</translation>
@@ -3755,7 +3687,12 @@ würden beide zu
     <message>
         <location filename="../app/StatusBarPanel.ui" line="149"/>
         <source>Page number.</source>
-        <translation>Seite.</translation>
+        <translation>Seitennummer.</translation>
+    </message>
+    <message>
+        <location filename="../app/StatusBarPanel.ui" line="41"/>
+        <source>The type of new zones.</source>
+        <translation>Typ neuer Zonen.</translation>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="187"/>
@@ -3860,7 +3797,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../app/TessdataDownloadDialog.cpp" line="228"/>
-        <source>Cancelled.</source>
+        <source>Canceled.</source>
         <translation>Abgebrochen.</translation>
     </message>
     <message>
@@ -4145,11 +4082,6 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Geraderichten und Scherung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
         <location filename="../core/filters/deskew/OptionsWidget.ui" line="20"/>
         <source>Deskew and Oblique</source>
         <translation>Geraderichten und Scherung</translation>
@@ -4272,11 +4204,6 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 </context>
 <context>
     <name>fix_orientation::OptionsWidget</name>
-    <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
     <message>
         <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="20"/>
         <source>Rotate and Trim</source>
@@ -4682,11 +4609,6 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <location filename="../core/filters/output/OptionsWidget.ui" line="2446"/>
         <source>Manual</source>
         <translation>Manuell</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation>Form</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
@@ -5444,11 +5366,6 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>output::OptionsWidgetBinarizationOtsu</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="20"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="43"/>
         <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="53"/>
         <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
@@ -5462,11 +5379,6 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 </context>
 <context>
     <name>output::OptionsWidgetBinarizationSauvola</name>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="20"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
     <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="43"/>
         <source>Delta:</source>
@@ -5500,11 +5412,6 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 </context>
 <context>
     <name>output::OptionsWidgetBinarizationWolf</name>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="20"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
     <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="43"/>
         <source>Delta:</source>
@@ -5757,17 +5664,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="821"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
-        <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie keine akzeptablen Resultate erhalten.</translation>
+        <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie damit keine brauchbaren Ergebnisse erhalten.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="825"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation>Ein extrem niedriger DPI-Wert. Er entspräche bei dieser Pixelgröße einem sehr großen Papierformat.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation>Form</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="141"/>
@@ -5842,11 +5744,6 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Quellauflösung</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="31"/>
-        <source>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimetres or inches depend on it.</source>
-        <translation>Auflösung des gescannten Bildes (waagerecht × senkrecht). Sie gilt sofort für das ganze Bild, bei einem geteilten Scan also für beide Seiten. Größen und Ränder in Millimetern oder Zoll hängen von ihr ab.</translation>
-    </message>
-    <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="113"/>
         <source>Opens a window with the DPI of all images of the project, where you can check and correct them. The same as Tools &gt; Fix DPI of All Images ...</source>
         <translation>Öffnet ein Fenster mit der DPI aller Bilder des Projekts, in dem Sie sie prüfen und korrigieren können. Dasselbe wie Werkzeuge &gt; DPI aller Bilder korrigieren ...</translation>
@@ -5870,6 +5767,11 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="429"/>
         <source>Output Size</source>
         <translation>Ausgabegröße</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="31"/>
+        <source>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimeters or inches depend on it.</source>
+        <translation>Auflösung des gescannten Bildes (waagerecht × senkrecht). Sie gilt sofort für das ganze Bild, bei einem geteilten Scan also für beide Seiten. Größen und Ränder in Millimetern oder Zoll hängen von ihr ab.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="438"/>
@@ -6075,11 +5977,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>page_split::OptionsWidget</name>
-    <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="20"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
     <message>
         <location filename="../core/filters/page_split/OptionsWidget.ui" line="26"/>
         <source>Page Layout</source>
@@ -6291,11 +6188,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>select_content::OptionsWidget</name>
-    <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="47"/>
         <source>Page Box</source>

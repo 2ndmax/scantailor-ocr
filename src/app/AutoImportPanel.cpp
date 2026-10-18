@@ -131,7 +131,7 @@ bool AutoImportPanel::isImporting() const {
 
 void AutoImportPanel::setImportPossible(const bool possible) {
   m_importCheck->setEnabled(possible);
-  m_importCheck->setToolTip(possible ? tr("New images saved to the folder below are added to the project "
+  m_importCheck->setToolTip(possible ? tr("New images saved to the input folder are added to the project "
                                           "automatically. Images that are already there when this is switched "
                                           "on can be chosen once.")
                                      : tr("Save the project first."));

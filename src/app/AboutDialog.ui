@@ -24,7 +24,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>About</string>
+       <string>About ScanTailor OCR</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="3" column="0" colspan="2">

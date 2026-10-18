@@ -1608,7 +1608,7 @@ void MainWindow::colorModeDetectionRequested(const std::set<PageId>& pages) {
     summary += "\n\n" + tr("%n page(s) could not be loaded.", nullptr, failed);
   }
   if (cancelled) {
-    summary += "\n\n" + tr("The detection was cancelled.");
+    summary += "\n\n" + tr("The detection was canceled.");
   }
   QMessageBox::information(this, tr("Detect Color Mode"), summary);
 }
@@ -1827,7 +1827,7 @@ void MainWindow::openProject(const QString& projectFile) {
 
   QDomDocument doc;
   if (!doc.setContent(&file)) {
-    QMessageBox::warning(this, tr("Error"), tr("The project file is broken."));
+    QMessageBox::warning(this, tr("Error"), tr("The project file is damaged."));
     return;
   }
 

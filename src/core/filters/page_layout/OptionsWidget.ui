@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
@@ -28,7 +28,7 @@
         <item>
          <widget class="QLabel" name="sourceDpiLabel">
           <property name="toolTip">
-           <string>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimetres or inches depend on it.</string>
+           <string>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimeters or inches depend on it.</string>
           </property>
           <property name="text">
            <string>Resolution:</string>
