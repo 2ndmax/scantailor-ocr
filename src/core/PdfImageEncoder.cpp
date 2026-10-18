@@ -243,10 +243,10 @@ QByteArray PdfImageEncoder::rawSamples(const QImage& image,
     bool oneIsBlack = true;
     const QImage mono = toMono(image, &oneIsBlack);
     const int bytesPerRow = (width + 7) / 8;
-    QByteArray out(bytesPerRow * height, Qt::Uninitialized);
+    QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, Qt::Uninitialized);
     for (int y = 0; y < height; ++y) {
       const uchar* src = mono.constScanLine(y);
-      auto* dst = reinterpret_cast<uchar*>(out.data()) + y * bytesPerRow;
+      auto* dst = reinterpret_cast<uchar*>(out.data()) + static_cast<qsizetype>(y) * bytesPerRow;
       for (int i = 0; i < bytesPerRow; ++i) {
         // PDF's gray has black as 0.
         dst[i] = oneIsBlack ? static_cast<uchar>(~src[i]) : src[i];
@@ -273,10 +273,10 @@ QByteArray PdfImageEncoder::rawSamples(const QImage& image,
       palette->append(static_cast<char>(qBlue(rgb)));
     }
     const int bytesPerRow = (width * bits + 7) / 8;
-    QByteArray out(bytesPerRow * height, 0);
+    QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, 0);
     for (int y = 0; y < height; ++y) {
       const uchar* src = image.constScanLine(y);
-      auto* dst = reinterpret_cast<uchar*>(out.data()) + y * bytesPerRow;
+      auto* dst = reinterpret_cast<uchar*>(out.data()) + static_cast<qsizetype>(y) * bytesPerRow;
       for (int x = 0; x < width; ++x) {
         const int index = std::min<int>(src[x], colorCount - 1);
         const int bitPos = x * bits;
@@ -290,9 +290,9 @@ QByteArray PdfImageEncoder::rawSamples(const QImage& image,
   const bool gray = image.isGrayscale();
   const QImage src = image.convertToFormat(gray ? QImage::Format_Grayscale8 : QImage::Format_RGB888);
   const int bytesPerRow = width * (gray ? 1 : 3);
-  QByteArray out(bytesPerRow * height, Qt::Uninitialized);
+  QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, Qt::Uninitialized);
   for (int y = 0; y < height; ++y) {
-    std::memcpy(out.data() + y * bytesPerRow, src.constScanLine(y), bytesPerRow);
+    std::memcpy(out.data() + static_cast<qsizetype>(y) * bytesPerRow, src.constScanLine(y), bytesPerRow);
   }
   *components = gray ? 1 : 3;
   return out;
