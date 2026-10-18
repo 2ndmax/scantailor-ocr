@@ -2056,7 +2056,7 @@ void MainWindow::loadPageInteractive(const PageInfo& page) {
     const QString errText(
         tr("Output is not yet possible, as the final size"
            " of pages is not yet known.\nTo determine it,"
-           " run batch processing at \"Select Content\" or"
+           " run batch processing in the step \"Select Content\" or"
            " \"Margins\"."));
 
     removeFilterOptionsWidget();

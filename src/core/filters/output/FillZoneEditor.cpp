@@ -159,7 +159,7 @@ std::vector<ZoneContextMenuItem> FillZoneEditor::MenuCustomizer::operator()(cons
                                                                             const StdMenuItems& stdItems) {
   std::vector<ZoneContextMenuItem> items;
   items.reserve(2);
-  items.emplace_back(tr("Pick color"),
+  items.emplace_back(tr("Pick Color"),
                      std::bind(&FillZoneEditor::createColorPickupInteraction, m_editor, zone, std::placeholders::_1));
   items.push_back(stdItems.deleteItem);
   return items;

@@ -924,7 +924,7 @@ void PdfExportView::updateControls() {
   const int missing = m_pageList->count() - available;
   if (missing > 0) {
     m_selectionLabel->setText(m_selectionLabel->text() + QStringLiteral("  ")
-                              + tr("(%1 pages not output yet)").arg(missing));
+                              + tr("(%n page(s) not output yet)", nullptr, missing));
   }
 
   const bool hasSelection = !m_pageList->selectedItems().isEmpty();

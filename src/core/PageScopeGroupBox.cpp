@@ -35,7 +35,7 @@ PageScopeGroupBox::PageScopeGroupBox(QWidget* parent)
   m_buttons[THIS_AND_FOLLOWING] = new QRadioButton(tr("This page and the following ones"), this);
   m_buttons[THIS_AND_EVERY_OTHER_FOLLOWING]
       //: The current page and every second page after it.
-      = new QRadioButton(tr("This page and the following every other page"), this);
+      = new QRadioButton(tr("This page and every other following page"), this);
   //: All odd pages; the text for even pages is used when the current page is even.
   m_buttons[EVERY_OTHER] = new QRadioButton(tr("Every other page (odd pages)"), this);
   m_buttons[SELECTED] = new QRadioButton(tr("Selected pages"), this);

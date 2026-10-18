@@ -1300,8 +1300,8 @@ void DefaultParamsDialog::profileSavePressed() {
     static const QRegularExpression invalidChars(R"([\\/:*?"<>|])");
     if (name.trimmed().isEmpty() || name.startsWith('.') || name.contains(invalidChars)) {
       QMessageBox::information(this, tr("Error"),
-                               tr("Please enter a name without the characters \\ / : * ? \" < > | "
-                                  "that doesn't start with a dot."));
+                               tr("Please enter a name that doesn't contain any of the characters \\ / : * ? \" < > | "
+                                  "and doesn't start with a dot."));
       return;
     }
     // File names don't depend on case on Windows and macOS.
@@ -1384,7 +1384,18 @@ void DefaultParamsDialog::commitChanges() {
 void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {
   for (int i = 0; i < tabWidget->count(); i++) {
     QWidget* widget = tabWidget->widget(i);
-    widget->setEnabled(enabled);
+    // Only the contents of the scroll areas are disabled, so the settings of a fixed profile
+    // can still be scrolled through.
+    const QList<QScrollArea*> areas = widget->findChildren<QScrollArea*>();
+    if (areas.isEmpty()) {
+      widget->setEnabled(enabled);
+      continue;
+    }
+    for (QScrollArea* area : areas) {
+      if (area->widget()) {
+        area->widget()->setEnabled(enabled);
+      }
+    }
   }
 }
 

@@ -138,7 +138,7 @@ font-weight: bold;</string>
                <item>
                 <widget class="QLabel" name="label_6">
                  <property name="text">
-                  <string>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it's not always easy to tell. You may need to check &quot;Fix DPIs, even if they look OK&quot; when creating a project and look into &quot;All Pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</string>
+                  <string>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it's not always easy to tell. You may need to check the images in the &quot;Fix DPI of All Images&quot; dialog in the Tools menu.</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
@@ -246,26 +246,6 @@ font-weight: bold;</string>
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="only_32bit_1">
-                 <property name="text">
-                  <string>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of ScanTailor OCR.</string>
-                 </property>
-                 <property name="wordWrap">
-                  <bool>true</bool>
-                 </property>
-                 <property name="openExternalLinks">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="Line" name="only_32bit_2">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QLabel" name="label_12">
                  <property name="text">
                   <string>When working with grayscale images, make sure they are really grayscale. If they are actually color images that just happen to look grayscale, convert them to grayscale using some kind of batch image converter. This will both save memory and increase performance.</string>
@@ -307,76 +287,6 @@ font-weight: bold;</string>
                   <size>
                    <width>20</width>
                    <height>9</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="tab_3">
-          <attribute name="title">
-           <string>What Won't Help</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_8">
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QScrollArea" name="scrollArea_3">
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Plain</enum>
-             </property>
-             <property name="widgetResizable">
-              <bool>true</bool>
-             </property>
-             <widget class="QWidget" name="scrollAreaWidgetContents_3">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>98</width>
-                <height>414</height>
-               </rect>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_7">
-               <item>
-                <widget class="QLabel" name="label_5">
-                 <property name="text">
-                  <string>Surprisingly, upgrading your RAM won't help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit ScanTailor OCR.</string>
-                 </property>
-                 <property name="wordWrap">
-                  <bool>true</bool>
-                 </property>
-                 <property name="openExternalLinks">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
                   </size>
                  </property>
                 </spacer>

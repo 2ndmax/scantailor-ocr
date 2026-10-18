@@ -352,7 +352,7 @@ void FixDpiDialog::decorateDpiInputField(QComboBox* field, ImageMetadata::DpiSta
       break;
     case ImageMetadata::DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE:
       field->setToolTip(
-          tr("DPI is too small for this pixel size. Such combination would probably lead to out of "
+          tr("DPI is too small for this pixel size. Such a combination would probably lead to out-of-"
              "memory errors."));
       break;
   }

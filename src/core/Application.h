@@ -15,6 +15,9 @@ class Application : public QApplication {
 
   bool notify(QObject* receiver, QEvent* e) override;
 
+  /** Turns long plain text tooltips into rich text, which Qt wraps instead of showing one long line. */
+  bool eventFilter(QObject* watched, QEvent* event) override;
+
   const QString& getCurrentLocale() const;
 
   void installLanguage(const QString& locale);

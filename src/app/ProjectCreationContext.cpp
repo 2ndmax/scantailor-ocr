@@ -37,7 +37,7 @@ void ProjectCreationContext::projectFilesSubmitted() {
     m_layoutDirection = Qt::RightToLeft;
   }
 
-  if (m_files.empty() || (!m_projectFilesDialog->isDpiFixingForced() && allDpisOK(m_files))) {
+  if (m_files.empty() || allDpisOK(m_files)) {
     emit done(this);
   } else {
     showFixDpiDialog();

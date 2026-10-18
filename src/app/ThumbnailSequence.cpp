@@ -797,7 +797,7 @@ bool ThumbnailSequence::Impl::cancelingSelectionAccepted() {
 
     QMessageBox msgBox;
     msgBox.setWindowTitle(QObject::tr("Canceling Multi-Page Selection"));
-    msgBox.setText(QObject::tr("%1 pages selection are going to be canceled. Continue?").arg(selectedPages.size()));
+    msgBox.setText(QObject::tr("The selection of %1 pages will be canceled. Continue?").arg(selectedPages.size()));
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Ok);

@@ -114,7 +114,7 @@
       <string>Image size and resolution.</string>
      </property>
      <property name="statusTip">
-      <string>Image size in current units and resolution of the image shown.</string>
+      <string>Image size in the current units and the resolution of the image shown.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -149,7 +149,7 @@
       <string>Page number.</string>
      </property>
      <property name="statusTip">
-      <string>Position of the selected page in current order.</string>
+      <string>Position of the selected page in the current order.</string>
      </property>
      <property name="text">
       <string/>

@@ -26,7 +26,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
     ui.enableOpenglCb->setChecked(false);
     ui.enableOpenglCb->setEnabled(false);
     ui.openglDeviceLabel->setEnabled(false);
-    ui.openglDeviceLabel->setText(tr("Your hardware / driver don't provide the necessary features"));
+    ui.openglDeviceLabel->setText(tr("Your hardware or driver doesn't provide the necessary features."));
   } else {
     ui.enableOpenglCb->setChecked(settings.isOpenGlEnabled());
     const QString openglDevicePattern = ui.openglDeviceLabel->text();

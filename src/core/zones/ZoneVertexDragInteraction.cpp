@@ -155,6 +155,6 @@ void ZoneVertexDragInteraction::checkProximity(const InteractionState& interacti
   if (canMerge) {
     m_interaction.setInteractionStatusTip(tr("Merge these two vertices."));
   } else {
-    m_interaction.setInteractionStatusTip(tr("Move the vertex to one of its neighbors to merge them."));
+    m_interaction.setInteractionStatusTip(tr("Move the corner to one of its neighbors to merge them."));
   }
 }

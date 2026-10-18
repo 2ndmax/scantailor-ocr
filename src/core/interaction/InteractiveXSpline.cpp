@@ -58,7 +58,7 @@ void InteractiveXSpline::setSpline(const XSpline& spline) {
       newControlPoints[i].handler.setProximityStatusTip(
           tr("This point can be dragged. Hold Ctrl or Shift to drag along axes."));
     } else {
-      newControlPoints[i].handler.setProximityStatusTip(tr("Drag this point or delete it by pressing D key."));
+      newControlPoints[i].handler.setProximityStatusTip(tr("Drag this point or delete it by pressing the D key."));
     }
     newControlPoints[i].handler.setInteractionCursor(Qt::BlankCursor);
     newControlPoints[i].handler.setObject(&newControlPoints[i].point);

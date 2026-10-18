@@ -113,7 +113,7 @@
         <item>
          <widget class="QPushButton" name="locateBtn">
           <property name="toolTip">
-           <string>Show where the selected folder or file is now.</string>
+           <string>Choose where the selected folder or file is now.</string>
           </property>
           <property name="text">
            <string>Locate ...</string>

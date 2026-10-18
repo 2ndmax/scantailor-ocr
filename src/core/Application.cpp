@@ -7,11 +7,15 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QFontMetrics>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMessageBox>
 #include <QTemporaryDir>
+#include <QTextDocument>
 #include <QTimer>
+#include <QToolTip>
+#include <QWidget>
 #include <atomic>
 #include <exception>
 
@@ -20,6 +24,26 @@
 Application::Application(int& argc, char** argv) : QApplication(argc, argv), m_currentLocale("en") {
   initTranslations();
   initPortableVersion();
+  installEventFilter(this);
+}
+
+bool Application::eventFilter(QObject* watched, QEvent* event) {
+  if (event->type() == QEvent::ToolTipChange && watched->isWidgetType()) {
+    auto* widget = static_cast<QWidget*>(watched);
+    const QString tip = widget->toolTip();
+    // Tips up to this many characters stay on one line, longer ones are wrapped at about this
+    // width. Qt itself wraps rich text at a fixed 80 characters, so the width is given by a
+    // table. Setting the rich text version triggers this event again, but then the text is
+    // rich text already.
+    const int wrapLength = 120;
+    if (tip.size() > wrapLength && !Qt::mightBeRichText(tip)) {
+      const int width = QFontMetrics(QToolTip::font()).averageCharWidth() * wrapLength;
+      widget->setToolTip(QString("<table width=\"%1\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>%2</td></tr></table>")
+                             .arg(width)
+                             .arg(tip.toHtmlEscaped().replace('\n', "<br>")));
+    }
+  }
+  return QApplication::eventFilter(watched, event);
 }
 
 bool Application::notify(QObject* receiver, QEvent* e) {
@@ -45,7 +69,7 @@ void Application::showUnexpectedError(const QString& reason) {
     return;
   }
   QTimer::singleShot(0, this, [reason]() {
-    QMessageBox::critical(activeWindow(), tr("Unexpected error"),
+    QMessageBox::critical(activeWindow(), tr("Unexpected Error"),
                           tr("An unexpected error occurred:\n%1\n\n"
                              "ScanTailor continues to run, but to be safe, save your project under "
                              "a new name and restart the program.")

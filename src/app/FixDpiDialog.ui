@@ -41,7 +41,7 @@
         <item>
          <widget class="QCheckBox" name="needFixingOnlyCB">
           <property name="text">
-           <string>Show only pages that need fixing</string>
+           <string>Show only images that need fixing</string>
           </property>
          </widget>
         </item>

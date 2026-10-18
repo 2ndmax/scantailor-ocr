@@ -24,18 +24,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="141"/>
-        <source>Joseph Artsimovich</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/AboutDialog.ui" line="151"/>
         <source>Lead Developer of Advanced version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/AboutDialog.ui" line="158"/>
-        <source>4lex4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -89,7 +79,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="269"/>
+        <location filename="../app/AboutDialog.ui" line="249"/>
+        <source>abandoned-industries - ver. Spectre</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/AboutDialog.ui" line="276"/>
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>
@@ -97,12 +92,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="48"/>
-        <source>Unexpected error</source>
+        <location filename="../core/Application.cpp" line="65"/>
+        <source>Unexpected Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="49"/>
+        <location filename="../core/Application.cpp" line="66"/>
         <source>An unexpected error occurred:
 %1
 
@@ -710,6 +705,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="3444"/>
+        <source>Splits the image into color segments and colors the black and white mask.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3628"/>
         <source>Reduce colors:</source>
         <translation type="unfinished"></translation>
@@ -1023,11 +1023,6 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <location filename="../app/DefaultParamsDialog.ui" line="2665"/>
         <location filename="../app/DefaultParamsDialog.ui" line="2768"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3444"/>
-        <source>Split the image into color segments and colorize b&amp;w mask.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1488,7 +1483,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="1303"/>
-        <source>Please enter a name without the characters \ / : * ? &quot; &lt; &gt; | that doesn&apos;t start with a dot.</source>
+        <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1542,7 +1537,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/FixDpiDialog.ui" line="44"/>
-        <source>Show only pages that need fixing</source>
+        <source>Show only images that need fixing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1588,7 +1583,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/FixDpiDialog.cpp" line="355"/>
-        <source>DPI is too small for this pixel size. Such combination would probably lead to out of memory errors.</source>
+        <source>DPI is too small for this pixel size. Such a combination would probably lead to out-of-memory errors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1677,7 +1672,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <name>ImageLoader</name>
     <message>
         <location filename="../core/ImageLoader.cpp" line="47"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="762"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="758"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1704,7 +1699,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../core/interaction/InteractiveXSpline.cpp" line="61"/>
-        <source>Drag this point or delete it by pressing D key.</source>
+        <source>Drag this point or delete it by pressing the D key.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1844,12 +1839,12 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="606"/>
-        <source>Enable multi page selection mode.</source>
+        <source>Enable multi-page selection mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="678"/>
-        <source>Single/multi column display.</source>
+        <source>Single/multi-column display.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2102,6 +2097,12 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/MainWindow.cpp" line="2057"/>
+        <source>Output is not yet possible, as the final size of pages is not yet known.
+To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/MainWindow.cpp" line="2097"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation type="unfinished"></translation>
@@ -2225,12 +2226,6 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <message>
         <location filename="../app/MainWindow.cpp" line="1912"/>
         <source>version </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/MainWindow.cpp" line="2057"/>
-        <source>Output is not yet possible, as the final size of pages is not yet known.
-To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2433,11 +2428,6 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="141"/>
-        <source>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPIs, even if they look OK&quot; when creating a project and look into &quot;All Pages&quot; tab in the &quot;Fix DPI of All Images&quot; dialog, which is also accessible from the Tools menu.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="161"/>
         <source>Is your output DPI set too high? Usually you don&apos;t need it higher than 600.</source>
         <translation type="unfinished"></translation>
@@ -2455,61 +2445,51 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../app/OutOfMemoryDialog.ui" line="251"/>
-        <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of ScanTailor OCR.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="271"/>
         <source>When working with grayscale images, make sure they are really grayscale. If they are actually color images that just happen to look grayscale, convert them to grayscale using some kind of batch image converter. This will both save memory and increase performance.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="291"/>
+        <location filename="../app/OutOfMemoryDialog.ui" line="271"/>
         <source>As a last resort, you can save some memory by making sure thumbnails are pre-created rather than created on demand. This can be done by slowly scrolling the thumbnail list all the way from top to bottom before starting any real work.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="322"/>
-        <source>What Won&apos;t Help</source>
+        <location filename="../app/OutOfMemoryDialog.ui" line="141"/>
+        <source>Sometimes your source images may have wrong DPI embedded into them. ScanTailor OCR tries to detect those, but it&apos;s not always easy to tell. You may need to check the images in the &quot;Fix DPI of All Images&quot; dialog in the Tools menu.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="361"/>
-        <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit ScanTailor OCR.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="397"/>
+        <location filename="../app/OutOfMemoryDialog.ui" line="307"/>
         <source>Save project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="420"/>
+        <location filename="../app/OutOfMemoryDialog.ui" line="330"/>
         <source>Save project as ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="440"/>
+        <location filename="../app/OutOfMemoryDialog.ui" line="350"/>
         <source>Don&apos;t save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="457"/>
+        <location filename="../app/OutOfMemoryDialog.ui" line="367"/>
         <source>Project Saved Successfully</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.ui" line="489"/>
+        <location filename="../app/OutOfMemoryDialog.ui" line="399"/>
         <source>Please note that while ScanTailor OCR tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="65"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="61"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="65"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="61"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2538,7 +2518,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Mar
     </message>
     <message>
         <location filename="../core/PageScopeGroupBox.cpp" line="38"/>
-        <source>This page and the following every other page</source>
+        <source>This page and every other following page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2992,10 +2972,12 @@ Do you want to replace it?</source>
         <source>%1 of %2 output pages selected</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../app/PdfExportView.cpp" line="927"/>
-        <source>(%1 pages not output yet)</source>
-        <translation type="unfinished"></translation>
+        <source>(%n page(s) not output yet)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="1056"/>
@@ -3050,7 +3032,7 @@ Do you want to replace it?</source>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="27"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="287"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="283"/>
         <source>Input Folder</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3063,13 +3045,13 @@ Do you want to replace it?</source>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="50"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="301"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="297"/>
         <source>Output Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="69"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="323"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="319"/>
         <source>Project File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3121,11 +3103,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.ui" line="246"/>
-        <source>Fix DPIs, even if they look OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/ProjectFilesDialog.cpp" line="205"/>
         <source>Images Already in the Folder</source>
         <translation type="unfinished"></translation>
@@ -3141,84 +3118,84 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="324"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="320"/>
         <source>ScanTailor OCR Projects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="449"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="513"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="519"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="525"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="546"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="552"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="630"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="445"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="509"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="515"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="521"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="542"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="548"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="626"/>
         <location filename="../app/RelinkingDialog.cpp" line="199"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="449"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="445"/>
         <source>Project file is not set or its folder doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="454"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
         <source>Overwrite File?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="455"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="451"/>
         <source>The project file %1 already exists. Overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="513"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="509"/>
         <source>No files in project!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="519"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="515"/>
         <source>Input folder is not set or doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="525"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="521"/>
         <source>Input and output folders can&apos;t be the same.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="537"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="533"/>
         <location filename="../app/RelinkingDialog.cpp" line="192"/>
         <source>Create Folder?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="537"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="533"/>
         <location filename="../app/RelinkingDialog.cpp" line="193"/>
         <source>Output folder doesn&apos;t exist. Create it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="546"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="542"/>
         <location filename="../app/RelinkingDialog.cpp" line="200"/>
         <source>Unable to create output folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="552"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="548"/>
         <source>Output folder is not set or doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ProjectFilesDialog.cpp" line="627"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="623"/>
         <source>... and %n more.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="631"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="627"/>
         <source>Some of the files failed to load.
 Either we don&apos;t support their format, or they are broken.
 You should remove them from the project.</source>
@@ -3253,7 +3230,7 @@ You should remove them from the project.</source>
     </message>
     <message>
         <location filename="../app/ThumbnailSequence.cpp" line="800"/>
-        <source>%1 pages selection are going to be canceled. Continue?</source>
+        <source>The selection of %1 pages will be canceled. Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3325,7 +3302,7 @@ You should remove them from the project.</source>
     </message>
     <message>
         <location filename="../app/RelinkingDialog.ui" line="116"/>
-        <source>Show where the selected folder or file is now.</source>
+        <source>Choose where the selected folder or file is now.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3616,7 +3593,7 @@ would both become
     </message>
     <message>
         <location filename="../app/SettingsDialog.cpp" line="29"/>
-        <source>Your hardware / driver don&apos;t provide the necessary features</source>
+        <source>Your hardware or driver doesn&apos;t provide the necessary features.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3702,17 +3679,17 @@ would both become
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="117"/>
-        <source>Image size in current units and resolution of the image shown.</source>
+        <source>Image size in the current units and the resolution of the image shown.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/StatusBarPanel.ui" line="152"/>
+        <source>Position of the selected page in the current order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/StatusBarPanel.ui" line="149"/>
         <source>Page number.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/StatusBarPanel.ui" line="152"/>
-        <source>Position of the selected page in current order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4002,7 +3979,7 @@ Without an internet connection, the installed languages can still be used. Langu
     <name>ZoneDefaultInteraction</name>
     <message>
         <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="21"/>
-        <source>Drag the vertex. Hold Ctrl to make the vertex angle right. Press D to delete the vertex.</source>
+        <source>Drag the corner. Hold Ctrl to make the angle at the corner a right angle. Press D to delete the corner.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4048,7 +4025,7 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../core/zones/ZoneVertexDragInteraction.cpp" line="158"/>
-        <source>Move the vertex to one of its neighbors to merge them.</source>
+        <source>Move the corner to one of its neighbors to merge them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4361,7 +4338,7 @@ Without an internet connection, the installed languages can still be used. Langu
     <name>output::FillZoneEditor</name>
     <message>
         <location filename="../core/filters/output/FillZoneEditor.cpp" line="162"/>
-        <source>Pick color</source>
+        <source>Pick Color</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4717,11 +4694,6 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1596"/>
-        <source>Split the image into color segments and colorize b&amp;w mask.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1602"/>
         <source>Color segmentation</source>
         <translation type="unfinished"></translation>
@@ -4857,6 +4829,11 @@ Without an internet connection, the installed languages can still be used. Langu
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="369"/>
         <source>Detect ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="1596"/>
+        <source>Splits the image into color segments and colors the black and white mask.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5558,7 +5535,7 @@ Without an internet connection, the installed languages can still be used. Langu
     <name>output::TabbedImageView</name>
     <message>
         <location filename="../core/filters/output/TabbedImageView.cpp" line="20"/>
-        <source>Use Ctrl+1..5 to switch the tabs.</source>
+        <source>Use Ctrl+1...5 to switch the tabs.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6238,18 +6215,18 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../core/filters/select_content/ImageView.cpp" line="121"/>
-        <source>Hold left mouse button to drag the content box.</source>
+        <source>Hold the left mouse button and drag to move the content box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/select_content/ImageView.cpp" line="127"/>
+        <source>Hold the left mouse button and drag to move the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/select_content/ImageView.cpp" line="122"/>
         <location filename="../core/filters/select_content/ImageView.cpp" line="128"/>
         <source>Release left mouse button to finish dragging.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="127"/>
-        <source>Hold left mouse button to drag the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

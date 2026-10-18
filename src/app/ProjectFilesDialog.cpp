@@ -208,8 +208,8 @@ void ProjectFilesDialog::chooseExistingImages(const QString& dir, const std::vec
          "the project to the right.")
           .arg(QDir::toNativeSeparators(dir)));
   introLabel->show();
-  for (QWidget* widget : std::initializer_list<QWidget*>{groupBox_2, groupBox, projectFileGroup, importNewScansCB,
-                                                         rtlLayoutCB, forceFixDpi}) {
+  for (QWidget* widget :
+       std::initializer_list<QWidget*>{groupBox_2, groupBox, projectFileGroup, importNewScansCB, rtlLayoutCB}) {
     widget->hide();
   }
   groupBox_4->setTitle(tr("Files to Add"));
@@ -254,10 +254,6 @@ std::vector<ImageFileInfo> ProjectFilesDialog::inProjectFiles() const {
 
 bool ProjectFilesDialog::isRtlLayout() const {
   return rtlLayoutCB->isChecked();
-}
-
-bool ProjectFilesDialog::isDpiFixingForced() const {
-  return forceFixDpi->isChecked();
 }
 
 QString ProjectFilesDialog::sanitizePath(const QString& path) {
@@ -564,7 +560,7 @@ void ProjectFilesDialog::setInputsEnabled(const bool enabled) {
   for (QWidget* widget : std::initializer_list<QWidget*>{
            inpDirLine, inpDirBrowseBtn, outDirLine, outDirBrowseBtn, projectFileLine, projectFileBrowseBtn,
            importNewScansCB, addToProjectBtn, removeFromProjectBtn, offProjectSelectAllBtn, inProjectSelectAllBtn,
-           rtlLayoutCB, forceFixDpi, buttonBox->button(QDialogButtonBox::Ok)}) {
+           rtlLayoutCB, buttonBox->button(QDialogButtonBox::Ok)}) {
     widget->setEnabled(enabled);
   }
 }

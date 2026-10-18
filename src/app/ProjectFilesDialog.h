@@ -39,8 +39,6 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   bool isRtlLayout() const;
 
-  bool isDpiFixingForced() const;
-
  private slots:
 
   static QString sanitizePath(const QString& path);

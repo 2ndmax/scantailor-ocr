@@ -1593,7 +1593,7 @@
            <item>
             <widget class="QCheckBox" name="colorSegmentationCB">
              <property name="toolTip">
-              <string>Split the image into color segments and colorize b&amp;w mask.</string>
+              <string>Splits the image into color segments and colors the black and white mask.</string>
              </property>
              <property name="statusTip">
               <string/>

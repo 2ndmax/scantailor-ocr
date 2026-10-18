@@ -603,7 +603,7 @@ QToolButton:pressed {
           </size>
          </property>
          <property name="toolTip">
-          <string>Enable multi page selection mode.</string>
+          <string>Enable multi-page selection mode.</string>
          </property>
          <property name="styleSheet">
           <string notr="true">QToolButton:!hover {
@@ -675,7 +675,7 @@ QToolButton:checked {
           </size>
          </property>
          <property name="toolTip">
-          <string>Single/multi column display.</string>
+          <string>Single/multi-column display.</string>
          </property>
          <property name="styleSheet">
           <string notr="true">QToolButton:!hover {
