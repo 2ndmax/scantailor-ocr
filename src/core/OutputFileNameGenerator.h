@@ -54,6 +54,13 @@ class OutputFileNameGenerator {
 
   QString filePathFor(const PageId& page) const;
 
+  /**
+   * \brief Removes the output files of \p page.
+   *
+   * \param dirs The directories holding files named after the page.
+   */
+  void removeFiles(const PageId& page, const QStringList& dirs) const;
+
  private:
   std::shared_ptr<FileNameDisambiguator> m_disambiguator;
   QString m_outDir;

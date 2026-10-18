@@ -10,7 +10,9 @@
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QStringList>
 #include <QThread>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
@@ -103,6 +105,10 @@ class ThumbnailPixmapCache::Impl : public QThread {
 
   void recreateThumbnail(const ImageId& imageId, const QImage& image);
 
+  void renameThumbnails(const ImageId& from, const ImageId& to);
+
+  void removeThumbnails(const ImageId& imageId);
+
  protected:
   void run() override;
 
@@ -142,6 +148,14 @@ class ThumbnailPixmapCache::Impl : public QThread {
 
   static QString getThumbFilePath(const ImageId& imageId, const QString& thumbDir, const QSize& maxThumbSize);
 
+  static QString getPathHash(const ImageId& imageId);
+
+  /** The thumbnail file name without the size and the extension. */
+  static QString getThumbFileNamePrefix(const ImageId& imageId);
+
+  /** The names of the thumbnail files of \p imageId in \p thumbDir, in all sizes. */
+  static QStringList findThumbFileNames(const ImageId& imageId, const QString& thumbDir);
+
   static QImage makeThumbnail(const QImage& image, const QSize& maxThumbSize);
 
   void queuedToInProgress(const LoadQueue::iterator& lqIt);
@@ -155,6 +169,9 @@ class ThumbnailPixmapCache::Impl : public QThread {
   void removeItemLocked(const RemoveQueue::iterator& it);
 
   void removeLoadedItemsLocked();
+
+  /** Drops the pixmap of \p imageId from memory, unless it's still being loaded. */
+  void forgetItemLocked(const ImageId& imageId);
 
   void cachePixmapUnlocked(const ImageId& imageId, const QPixmap& pixmap);
 
@@ -274,6 +291,14 @@ void ThumbnailPixmapCache::ensureThumbnailExists(const ImageId& imageId, const Q
 
 void ThumbnailPixmapCache::recreateThumbnail(const ImageId& imageId, const QImage& image) {
   m_impl->recreateThumbnail(imageId, image);
+}
+
+void ThumbnailPixmapCache::renameThumbnails(const ImageId& from, const ImageId& to) {
+  m_impl->renameThumbnails(from, to);
+}
+
+void ThumbnailPixmapCache::removeThumbnails(const ImageId& imageId) {
+  m_impl->removeThumbnails(imageId);
 }
 
 void ThumbnailPixmapCache::setMaxThumbSize(const QSize& maxSize) {
@@ -620,26 +645,79 @@ QImage ThumbnailPixmapCache::Impl::loadSaveThumbnail(const ImageId& imageId,
 QString ThumbnailPixmapCache::Impl::getThumbFilePath(const ImageId& imageId,
                                                      const QString& thumbDir,
                                                      const QSize& maxThumbSize) {
+  QString thumbFilePath(thumbDir);
+  thumbFilePath += QChar('/');
+  thumbFilePath += getThumbFileNamePrefix(imageId);
+  thumbFilePath += QString::number(maxThumbSize.width());
+  thumbFilePath += QString::fromLatin1(".png");
+  return thumbFilePath;
+}
+
+QString ThumbnailPixmapCache::Impl::getPathHash(const ImageId& imageId) {
   // Because a project may have several files with the same name (from
   // different directories), we add a hash of the original image path
   // to the thumbnail file name.
   const QByteArray origPathHash = QCryptographicHash::hash(imageId.filePath().toUtf8(), QCryptographicHash::Md5)
                                       .toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
-  const QString origPathHashStr = QString::fromLatin1(origPathHash.data(), origPathHash.size());
-  const QString thumbnailQualityStr = QChar('q') + QString::number(maxThumbSize.width());
+  return QString::fromLatin1(origPathHash.data(), origPathHash.size());
+}
 
+QString ThumbnailPixmapCache::Impl::getThumbFileNamePrefix(const ImageId& imageId) {
   const QFileInfo origImgPath(imageId.filePath());
-  QString thumbFilePath(thumbDir);
-  thumbFilePath += QChar('/');
-  thumbFilePath += origImgPath.completeBaseName();
-  thumbFilePath += QChar('_');
-  thumbFilePath += QString::number(imageId.zeroBasedPage());
-  thumbFilePath += QChar('_');
-  thumbFilePath += origPathHashStr;
-  thumbFilePath += QChar('_');
-  thumbFilePath += thumbnailQualityStr;
-  thumbFilePath += QString::fromLatin1(".png");
-  return thumbFilePath;
+  QString prefix(origImgPath.completeBaseName());
+  prefix += QChar('_');
+  prefix += QString::number(imageId.zeroBasedPage());
+  prefix += QChar('_');
+  prefix += getPathHash(imageId);
+  prefix += QString::fromLatin1("_q");
+  return prefix;
+}
+
+QStringList ThumbnailPixmapCache::Impl::findThumbFileNames(const ImageId& imageId, const QString& thumbDir) {
+  // Only the hash goes into the filter: the image name may contain wildcard characters.
+  const QString filter = QString::fromLatin1("*_") + getPathHash(imageId) + QString::fromLatin1("_q*.png");
+  const QString prefix(getThumbFileNamePrefix(imageId));
+  QStringList names;
+  for (const QString& name : QDir(thumbDir).entryList({filter}, QDir::Files)) {
+    if (name.startsWith(prefix)) {
+      names.push_back(name);
+    }
+  }
+  return names;
+}
+
+void ThumbnailPixmapCache::Impl::renameThumbnails(const ImageId& from, const ImageId& to) {
+  QString thumbDir;
+  {
+    const QMutexLocker locker(&m_mutex);
+    thumbDir = m_thumbDir;
+    forgetItemLocked(from);
+    forgetItemLocked(to);
+  }
+
+  const QDir dir(thumbDir);
+  const QString fromPrefix(getThumbFileNamePrefix(from));
+  const QString toPrefix(getThumbFileNamePrefix(to));
+  for (const QString& oldName : findThumbFileNames(from, thumbDir)) {
+    // The rest of the name is the size and the extension.
+    const QString newPath(dir.absoluteFilePath(toPrefix + oldName.mid(fromPrefix.size())));
+    QFile::remove(newPath);
+    QFile::rename(dir.absoluteFilePath(oldName), newPath);
+  }
+}
+
+void ThumbnailPixmapCache::Impl::removeThumbnails(const ImageId& imageId) {
+  QString thumbDir;
+  {
+    const QMutexLocker locker(&m_mutex);
+    thumbDir = m_thumbDir;
+    forgetItemLocked(imageId);
+  }
+
+  const QDir dir(thumbDir);
+  for (const QString& name : findThumbFileNames(imageId, thumbDir)) {
+    QFile::remove(dir.absoluteFilePath(name));
+  }
 }
 
 QImage ThumbnailPixmapCache::Impl::makeThumbnail(const QImage& image, const QSize& maxThumbSize) {
@@ -793,6 +871,17 @@ void ThumbnailPixmapCache::Impl::removeLoadedItemsLocked() {
   m_numLoadedItems = 0;
   // The items left are all not LOADED, so the LOADED range is empty and starts at the front.
   m_endOfLoadedItems = m_removeQueue.begin();
+}
+
+void ThumbnailPixmapCache::Impl::forgetItemLocked(const ImageId& imageId) {
+  const ItemsByKey::iterator kIt(m_itemsByKey.find(imageId));
+  if (kIt == m_itemsByKey.end()) {
+    return;
+  }
+  // As in recreateThumbnail(): an item being loaded is left alone.
+  if ((kIt->status == Item::LOADED) || (kIt->status == Item::LOAD_FAILED)) {
+    removeItemLocked(m_items.project<RemoveQueueTag>(kIt));
+  }
 }
 
 void ThumbnailPixmapCache::Impl::cachePixmapUnlocked(const ImageId& imageId, const QPixmap& pixmap) {

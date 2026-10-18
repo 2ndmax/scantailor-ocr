@@ -125,5 +125,27 @@ BOOST_AUTO_TEST_CASE(switching_renames_the_output_files) {
   BOOST_CHECK_EQUAL(outDir.entryList(QDir::Files).size(), 2);
 }
 
+BOOST_AUTO_TEST_CASE(removing_deletes_the_files_in_all_folders) {
+  QTemporaryDir tmp;
+  BOOST_REQUIRE(tmp.isValid());
+  const QDir outDir(tmp.path());
+  BOOST_REQUIRE(outDir.mkpath("foreground"));
+  const QDir foregroundDir(outDir.filePath("foreground"));
+
+  writeFile(outDir.filePath("scan_1L.tif"), "left");
+  writeFile(outDir.filePath("scan_2R.tif"), "right");
+  writeFile(foregroundDir.filePath("scan_1L.tif"), "left foreground");
+  writeFile(foregroundDir.filePath("scan_2R.tif"), "right foreground");
+
+  const OutputFileNameGenerator generator(std::make_shared<FileNameDisambiguator>(), outDir.path(), Qt::LeftToRight);
+  const ImageId imageId(outDir.filePath("scan.png"));
+  generator.removeFiles(PageId(imageId, PageId::LEFT_PAGE), {outDir.path(), foregroundDir.path()});
+
+  BOOST_CHECK(!QFile::exists(outDir.filePath("scan_1L.tif")));
+  BOOST_CHECK(!QFile::exists(foregroundDir.filePath("scan_1L.tif")));
+  BOOST_CHECK(QFile::exists(outDir.filePath("scan_2R.tif")));
+  BOOST_CHECK(QFile::exists(foregroundDir.filePath("scan_2R.tif")));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

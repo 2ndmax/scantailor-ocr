@@ -115,6 +115,22 @@ class ThumbnailPixmapCache {
    */
   void recreateThumbnail(const ImageId& imageId, const QImage& image);
 
+  /**
+   * \brief Gives the thumbnails of a renamed image the new name, in all sizes.
+   *
+   * A thumbnail already present under the new name is replaced.
+   *
+   * \note This function may be called from any thread.
+   */
+  void renameThumbnails(const ImageId& from, const ImageId& to);
+
+  /**
+   * \brief Removes the thumbnails of an image that is gone, in all sizes.
+   *
+   * \note This function may be called from any thread.
+   */
+  void removeThumbnails(const ImageId& imageId);
+
  private:
   class Item;
   class Impl;

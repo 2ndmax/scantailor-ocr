@@ -14,6 +14,7 @@
 #include <functional>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 #include "DebugImagesImpl.h"
 #include "DespeckleState.h"
@@ -471,15 +472,22 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
  * Delete output files mutually exclusive to m_pageId.
  */
 void Task::deleteMutuallyExclusiveOutputFiles() {
+  std::vector<PageId> exclusivePages;
   switch (m_pageId.subPage()) {
     case PageId::SINGLE_PAGE:
-      QFile::remove(m_outFileNameGen.filePathFor(PageId(m_pageId.imageId(), PageId::LEFT_PAGE)));
-      QFile::remove(m_outFileNameGen.filePathFor(PageId(m_pageId.imageId(), PageId::RIGHT_PAGE)));
+      exclusivePages.emplace_back(m_pageId.imageId(), PageId::LEFT_PAGE);
+      exclusivePages.emplace_back(m_pageId.imageId(), PageId::RIGHT_PAGE);
       break;
     case PageId::LEFT_PAGE:
     case PageId::RIGHT_PAGE:
-      QFile::remove(m_outFileNameGen.filePathFor(PageId(m_pageId.imageId(), PageId::SINGLE_PAGE)));
+      exclusivePages.emplace_back(m_pageId.imageId(), PageId::SINGLE_PAGE);
       break;
+  }
+
+  const QStringList dirs(Utils::outputFileDirs(m_outFileNameGen.outDir()));
+  for (const PageId& page : exclusivePages) {
+    m_outFileNameGen.removeFiles(page, dirs);
+    m_thumbnailCache->removeThumbnails(ImageId(m_outFileNameGen.filePathFor(page)));
   }
 }
 

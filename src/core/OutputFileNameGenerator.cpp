@@ -53,6 +53,13 @@ QString OutputFileNameGenerator::filePathFor(const PageId& page) const {
   return QDir(m_outDir).absoluteFilePath(fileName);
 }
 
+void OutputFileNameGenerator::removeFiles(const PageId& page, const QStringList& dirs) const {
+  const QString fileName(fileNameFor(page));
+  for (const QString& dirPath : dirs) {
+    QFile::remove(QDir(dirPath).absoluteFilePath(fileName));
+  }
+}
+
 void OutputFileNameGenerator::setLayoutDirectionRenamingFiles(const Qt::LayoutDirection dir,
                                                               const std::vector<ImageId>& images,
                                                               const QStringList& dirs) {

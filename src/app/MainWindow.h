@@ -398,6 +398,9 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void eraseOutputFiles(const std::set<PageId>& pages);
 
+  /** Removes the thumbnails of the images no longer in the project. */
+  void eraseInputThumbnails(const std::set<PageId>& removedPages);
+
   void invalidateThumbnailsOfImage(const ImageId& imageId);
 
   BackgroundTaskPtr createCompositeTask(const PageInfo& page, int lastFilterIdx, bool batch, bool debug);

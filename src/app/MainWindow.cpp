@@ -1197,8 +1197,19 @@ void MainWindow::pageOrderChanged(const Qt::LayoutDirection dir) {
   for (const PageInfo& pageInfo : m_pages->toPageSequence(IMAGE_VIEW)) {
     images.push_back(pageInfo.imageId());
   }
+  const OutputFileNameGenerator oldGenerator(m_outFileNameGen);
   m_outFileNameGen.setLayoutDirectionRenamingFiles(dir, images,
                                                    output::Utils::outputFileDirs(m_outFileNameGen.outDir()));
+  // The thumbnails of the Output step are named after the output files.
+  if (m_thumbnailCache) {
+    for (const ImageId& imageId : images) {
+      for (const PageId::SubPage subPage : {PageId::LEFT_PAGE, PageId::RIGHT_PAGE}) {
+        const PageId pageId(imageId, subPage);
+        m_thumbnailCache->renameThumbnails(ImageId(oldGenerator.filePathFor(pageId)),
+                                           ImageId(m_outFileNameGen.filePathFor(pageId)));
+      }
+    }
+  }
   resetThumbSequence(currentPageOrderProvider(), ThumbnailSequence::KEEP_SELECTION);
   invalidateAllThumbnails();
 }
@@ -2362,6 +2373,7 @@ void MainWindow::showRemovePagesDialog(const std::set<PageId>& pages) {
   if (dialog->exec() == QDialog::Accepted) {
     removeFromProject(pages);
     eraseOutputFiles(pages);
+    eraseInputThumbnails(pages);
   }
 }
 
@@ -2706,6 +2718,7 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
     // Their settings go with them, and so do their output files: the new scan has another name.
     removeFromProject(replacedPages);
     eraseOutputFiles(replacedPages);
+    eraseInputThumbnails(replacedPages);
     for (const QString& replacedFile : replacedFiles) {
       moveReplacedImage(replacedFile);
     }
@@ -2808,6 +2821,7 @@ void MainWindow::removeFromProject(const std::set<PageId>& pages) {
 }  // MainWindow::removeFromProject
 
 void MainWindow::eraseOutputFiles(const std::set<PageId>& pages) {
+  const QStringList dirs(output::Utils::outputFileDirs(m_outFileNameGen.outDir()));
   std::vector<PageId::SubPage> eraseVariations;
   eraseVariations.reserve(3);
 
@@ -2830,7 +2844,27 @@ void MainWindow::eraseOutputFiles(const std::set<PageId>& pages) {
     }
 
     for (PageId::SubPage subpage : eraseVariations) {
-      QFile::remove(m_outFileNameGen.filePathFor(PageId(pageId.imageId(), subpage)));
+      const PageId erasedPage(pageId.imageId(), subpage);
+      m_outFileNameGen.removeFiles(erasedPage, dirs);
+      if (m_thumbnailCache) {
+        m_thumbnailCache->removeThumbnails(ImageId(m_outFileNameGen.filePathFor(erasedPage)));
+      }
+    }
+  }
+}
+
+void MainWindow::eraseInputThumbnails(const std::set<PageId>& removedPages) {
+  if (!m_thumbnailCache) {
+    return;
+  }
+  std::set<ImageId> imagesInProject;
+  for (const PageInfo& pageInfo : m_pages->toPageSequence(IMAGE_VIEW)) {
+    imagesInProject.insert(pageInfo.imageId());
+  }
+  // The thumbnail of an image is still needed while one of its halves is in the project.
+  for (const PageId& pageId : removedPages) {
+    if (imagesInProject.count(pageId.imageId()) == 0) {
+      m_thumbnailCache->removeThumbnails(pageId.imageId());
     }
   }
 }
