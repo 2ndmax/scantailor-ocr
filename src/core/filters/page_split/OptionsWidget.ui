@@ -95,6 +95,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="singlePageUncutBtn">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="minimumSize">
            <size>
             <width>42</width>
@@ -127,6 +130,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="pagePlusOffcutBtn">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="minimumSize">
            <size>
             <width>42</width>
@@ -159,6 +165,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="twoPagesBtn">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="minimumSize">
            <size>
             <width>42</width>
@@ -340,12 +349,28 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="leftFirstBtn">
+       <widget class="QToolButton" name="leftFirstBtn">
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>42</width>
+          <height>42</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>The left half of a split page comes first, as in most books. Applies to the whole project. Switching renames the existing output files, whose names contain the order.</string>
         </property>
-        <property name="text">
-         <string>Left first</string>
+        <property name="icon">
+         <iconset resource="../../../resources/resources.qrc">
+          <normaloff>:/icons/page_order_left_first.svg</normaloff>:/icons/page_order_left_first.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -359,12 +384,28 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="rightFirstBtn">
+       <widget class="QToolButton" name="rightFirstBtn">
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>42</width>
+          <height>42</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>The right half of a split page comes first, as in Hebrew, Arabic or Japanese books. Applies to the whole project. Switching renames the existing output files, whose names contain the order.</string>
         </property>
-        <property name="text">
-         <string>Right first</string>
+        <property name="icon">
+         <iconset resource="../../../resources/resources.qrc">
+          <normaloff>:/icons/page_order_right_first.svg</normaloff>:/icons/page_order_right_first.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
         </property>
         <property name="checkable">
          <bool>true</bool>

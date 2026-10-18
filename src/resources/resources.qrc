@@ -38,6 +38,8 @@
     <file>icons/object-rotate-left.svg</file>
     <file>icons/object-rotate-right.svg</file>
     <file>icons/two_pages.svg</file>
+    <file>icons/page_order_left_first.svg</file>
+    <file>icons/page_order_right_first.svg</file>
     <file>icons/single_page_uncut.svg</file>
     <file>icons/left_page_plus_offcut.svg</file>
     <file>icons/right_page_plus_offcut.svg</file>
