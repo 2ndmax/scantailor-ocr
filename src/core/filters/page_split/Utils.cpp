@@ -17,3 +17,7 @@ Settings::UpdateAction Utils::buildDefaultUpdateAction() {
 
   return update;
 }
+
+SplitDetectionMethod Utils::defaultDetectionMethod() {
+  return DefaultParamsProvider::getInstance().getParams().getPageSplitParams().getDetectionMethod();
+}

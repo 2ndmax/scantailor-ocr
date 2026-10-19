@@ -14,6 +14,7 @@
 #include <filters/page_layout/Alignment.h>
 #include <filters/page_layout/OutputSizeOptions.h>
 #include <filters/page_split/LayoutType.h>
+#include <filters/page_split/SplitDetectionMethod.h>
 
 #include <QtCore/QRectF>
 
@@ -95,9 +96,15 @@ class DefaultParams {
 
     void setPageOrder(Qt::LayoutDirection pageOrder);
 
+    // How the split line is detected on pages not processed yet.
+    page_split::SplitDetectionMethod getDetectionMethod() const;
+
+    void setDetectionMethod(page_split::SplitDetectionMethod method);
+
    private:
     page_split::LayoutType m_layoutType;
     Qt::LayoutDirection m_pageOrder;
+    page_split::SplitDetectionMethod m_detectionMethod;
   };
 
   class SelectContentParams {
@@ -390,6 +397,14 @@ inline Qt::LayoutDirection DefaultParams::PageSplitParams::getPageOrder() const 
 
 inline void DefaultParams::PageSplitParams::setPageOrder(const Qt::LayoutDirection pageOrder) {
   m_pageOrder = pageOrder;
+}
+
+inline page_split::SplitDetectionMethod DefaultParams::PageSplitParams::getDetectionMethod() const {
+  return m_detectionMethod;
+}
+
+inline void DefaultParams::PageSplitParams::setDetectionMethod(const page_split::SplitDetectionMethod method) {
+  m_detectionMethod = method;
 }
 
 inline const QSizeF& DefaultParams::SelectContentParams::getPageRectSize() const {

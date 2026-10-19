@@ -104,6 +104,10 @@ void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filter
     }
 
     m_settings->updatePage(imageId, update);
+    // Projects from before the detection methods have none; their pages keep Edges.
+    if (el.hasAttribute("detectionMethod")) {
+      m_settings->setDetectionMethod(imageId, splitDetectionMethodFromString(el.attribute("detectionMethod")));
+    }
   }
 }  // Filter::loadSettings
 
@@ -132,7 +136,7 @@ void Filter::writeImageSettings(QDomDocument& doc,
 
   const LayoutType* layoutType = record.layoutType();
   const Params* params = record.params();
-  if (!layoutType && !params) {
+  if (!layoutType && !params && !m_settings->isDetectionMethodSet(imageId)) {
     return;
   }
 
@@ -141,6 +145,8 @@ void Filter::writeImageSettings(QDomDocument& doc,
   if (layoutType) {
     imageEl.setAttribute("layoutType", layoutTypeToString(*layoutType));
   }
+  // Always written, so that a missing one marks a project from before the detection methods.
+  imageEl.setAttribute("detectionMethod", splitDetectionMethodToString(m_settings->detectionMethod(imageId)));
   if (params) {
     imageEl.appendChild(params->toXml(doc, "params"));
   }
@@ -173,10 +179,15 @@ void Filter::selectPageOrder(int option) {
 }
 
 void Filter::loadDefaultSettings(const PageInfo& pageInfo) {
-  if (!m_settings->getPageRecord(pageInfo.id().imageId()).isNull())
+  const ImageId& imageId = pageInfo.id().imageId();
+  if (!m_settings->getPageRecord(imageId).isNull())
     return;
 
-  m_settings->updatePage(pageInfo.id().imageId(), Utils::buildDefaultUpdateAction());
+  m_settings->updatePage(imageId, Utils::buildDefaultUpdateAction());
+  // A method may already be set by "Apply to ..." before the page was processed.
+  if (!m_settings->isDetectionMethodSet(imageId)) {
+    m_settings->setDetectionMethod(imageId, Utils::defaultDetectionMethod());
+  }
 }
 
 OptionsWidget* Filter::optionsWidget() {

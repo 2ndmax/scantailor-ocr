@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "LayoutType.h"
+#include "SplitDetectionMethod.h"
 
 class QRect;
 class QPoint;
@@ -36,6 +37,7 @@ class PageLayoutEstimator {
    * \param layoutType The type of a layout to detect. If set to
    *        something other than Rule::AUTO_DETECT, the returned
    *        layout will have the same type.
+   * \param method How the split line between two pages is detected.
    * \param input The input image. Will be converted to grayscale unless
    *        it's already grayscale.
    * \param preXform The logical transformation applied to the input image.
@@ -47,6 +49,7 @@ class PageLayoutEstimator {
    *         requested layout type.
    */
   static PageLayout estimatePageLayout(LayoutType layoutType,
+                                       SplitDetectionMethod method,
                                        const QImage& input,
                                        const ImageTransformation& preXform,
                                        imageproc::BinaryThreshold bwThreshold,
@@ -54,6 +57,7 @@ class PageLayoutEstimator {
 
  private:
   static std::unique_ptr<PageLayout> tryCutAtFoldingLine(LayoutType layoutType,
+                                                         SplitDetectionMethod method,
                                                          const QImage& input,
                                                          const ImageTransformation& preXform,
                                                          DebugImages* dbg);

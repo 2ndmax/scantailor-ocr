@@ -25,7 +25,9 @@ using namespace imageproc;
 std::vector<QLineF> VertLineFinder::findLines(const QImage& image,
                                               const ImageTransformation& xform,
                                               const int maxLines,
-                                              DebugImages* dbg) {
+                                              DebugImages* dbg,
+                                              GrayImage* grayDownscaled,
+                                              QTransform* outToDownscaled) {
   const int dpi = 100;
 
   ImageTransformation xform100dpi(xform);
@@ -41,6 +43,12 @@ std::vector<QLineF> VertLineFinder::findLines(const QImage& image,
                                           OutsidePixels::assumeWeakColor(Qt::black), QSizeF(5.0, 5.0)));
   if (dbg) {
     dbg->add(gray100, "gray100");
+  }
+  if (grayDownscaled) {
+    *grayDownscaled = gray100;
+  }
+  if (outToDownscaled) {
+    *outToDownscaled = xform.transformBack() * xform100dpi.transform();
   }
 
   // No preprocessing that removes dark vertical borders: it causes more problems than it solves.

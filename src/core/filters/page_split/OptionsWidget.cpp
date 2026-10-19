@@ -40,6 +40,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   pageOrderGroup->addButton(leftFirstBtn);
   pageOrderGroup->addButton(rightFirstBtn);
 
+  detectionMethodBox->addItem(tr("Edges"), EDGES_DETECTION);
+  detectionMethodBox->addItem(tr("Spine line"), SPINE_LINE_DETECTION);
+
   setupUiConnections();
 }
 
@@ -89,6 +92,8 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
   // And disable both of them.
   autoBtn->setEnabled(false);
   manualBtn->setEnabled(false);
+
+  detectionMethodBox->setCurrentIndex(detectionMethodBox->findData(m_settings->detectionMethod(pageId.imageId())));
 
   const bool rightFirst = (m_pages->layoutDirection() == Qt::RightToLeft);
   rightFirstBtn->setChecked(rightFirst);
@@ -233,8 +238,14 @@ void OptionsWidget::showApplyDialog() {
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   const PageId sourcePage = m_pageId;
   connect(dialog, &SplitModeDialog::accepted, this,
-          [this, sourcePage](const std::set<PageId>& pages, const LayoutType layoutType, const bool applyCut) {
-            layoutTypeSet(sourcePage, pages, layoutType, applyCut);
+          [this, sourcePage](const std::set<PageId>& pages, const bool applyLayoutType, const LayoutType layoutType,
+                             const bool applyCut, const bool applyDetectionMethod) {
+            if (applyLayoutType) {
+              layoutTypeSet(sourcePage, pages, layoutType, applyCut);
+            }
+            if (applyDetectionMethod) {
+              detectionMethodSet(pages, m_settings->detectionMethod(sourcePage.imageId()));
+            }
           });
   dialog->show();
 }
@@ -317,6 +328,49 @@ void OptionsWidget::splitLineModeChanged(const bool autoMode) {
   }
 }
 
+void OptionsWidget::detectionMethodChanged(const int index) {
+  detectionMethodSet({m_pageId}, (SplitDetectionMethod) detectionMethodBox->itemData(index).toInt());
+}
+
+void OptionsWidget::detectionMethodSet(const std::set<PageId>& pages, const SplitDetectionMethod method) {
+  std::set<PageId> redetectedPages;
+  bool currentPageRedetected = false;
+  for (const PageId& pageId : pages) {
+    const ImageId& imageId = pageId.imageId();
+    if (m_settings->detectionMethod(imageId) == method) {
+      continue;
+    }
+    m_settings->setDetectionMethod(imageId, method);
+
+    const Settings::Record record(m_settings->getPageRecord(imageId));
+    const Params* const params = record.params();
+    if (params && (params->splitLineMode() == MODE_MANUAL)) {
+      continue;
+    }
+    if (params) {
+      Settings::UpdateAction update;
+      update.clearParams();
+      m_settings->updatePage(imageId, update);
+      redetectedPages.insert(pageId);
+    }
+    // A page still being processed may have been detected with the old method.
+    if (imageId == m_pageId.imageId()) {
+      currentPageRedetected = true;
+    }
+  }
+
+  if (redetectedPages.size() > 1) {
+    emit invalidateAllThumbnails();
+  } else {
+    for (const PageId& pageId : redetectedPages) {
+      emit invalidateThumbnail(pageId);
+    }
+  }
+  if (currentPageRedetected) {
+    emit reloadRequested();
+  }
+}
+
 void OptionsWidget::pageOrderToggled(const bool rightFirst) {
   m_pages->setLayoutDirection(rightFirst ? Qt::RightToLeft : Qt::LeftToRight);
 }
@@ -339,6 +393,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(layoutManualBtn, &QAbstractButton::toggled, this, &OptionsWidget::layoutManualToggled);
   CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyDialog);
   CONNECT(autoBtn, &QAbstractButton::toggled, this, &OptionsWidget::splitLineModeChanged);
+  CONNECT(detectionMethodBox, &QComboBox::currentIndexChanged, this, &OptionsWidget::detectionMethodChanged);
   CONNECT(rightFirstBtn, &QAbstractButton::toggled, this, &OptionsWidget::pageOrderToggled);
 }
 

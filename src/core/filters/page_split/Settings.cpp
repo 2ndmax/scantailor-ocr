@@ -17,6 +17,7 @@ void Settings::clear() {
   QMutexLocker locker(&m_mutex);
 
   m_perPageRecords.clear();
+  m_perPageMethods.clear();
   m_defaultLayoutType = AUTO_LAYOUT_TYPE;
 }
 
@@ -32,6 +33,31 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
   }
 
   m_perPageRecords.swap(newRecords);
+
+  PerPageMethods newMethods;
+  for (const PerPageMethods::value_type& kv : m_perPageMethods) {
+    const RelinkablePath oldPath(kv.first.filePath(), RelinkablePath::File);
+    ImageId newImageId(kv.first);
+    newImageId.setFilePath(relinker.substitutionPathFor(oldPath));
+    newMethods.insert(PerPageMethods::value_type(newImageId, kv.second));
+  }
+  m_perPageMethods.swap(newMethods);
+}
+
+SplitDetectionMethod Settings::detectionMethod(const ImageId& imageId) const {
+  QMutexLocker locker(&m_mutex);
+  const auto it(m_perPageMethods.find(imageId));
+  return (it == m_perPageMethods.end()) ? EDGES_DETECTION : it->second;
+}
+
+bool Settings::isDetectionMethodSet(const ImageId& imageId) const {
+  QMutexLocker locker(&m_mutex);
+  return m_perPageMethods.count(imageId) != 0;
+}
+
+void Settings::setDetectionMethod(const ImageId& imageId, const SplitDetectionMethod method) {
+  QMutexLocker locker(&m_mutex);
+  m_perPageMethods[imageId] = method;
 }
 
 LayoutType Settings::defaultLayoutType() const {

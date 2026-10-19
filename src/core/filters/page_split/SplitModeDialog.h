@@ -16,7 +16,8 @@ class PageSelectionAccessor;
 
 namespace page_split {
 /**
- * Applies the page type of the current page to other pages, and optionally its split line.
+ * Applies the page type of the current page to other pages, and optionally its split line
+ * and the method of detecting it.
  * Whether the page type is detected automatically or set by hand is chosen in the options panel.
  */
 class SplitModeDialog : public QDialog, private Ui::SplitModeDialog {
@@ -31,7 +32,11 @@ class SplitModeDialog : public QDialog, private Ui::SplitModeDialog {
 
  signals:
 
-  void accepted(const std::set<PageId>& pages, LayoutType layoutType, bool applyCut);
+  void accepted(const std::set<PageId>& pages,
+                bool applyLayoutType,
+                LayoutType layoutType,
+                bool applyCut,
+                bool applyDetectionMethod);
 
  private slots:
 

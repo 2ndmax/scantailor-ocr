@@ -537,6 +537,47 @@
                 </layout>
                </widget>
               </item>
+              <item>
+               <widget class="SectionHeading" name="splitLineHeading">
+                <property name="text">
+                 <string>Split Line</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="detectionMethodLayout">
+                <item>
+                 <widget class="QLabel" name="detectionMethodLabel">
+                  <property name="toolTip">
+                   <string>How the split line is detected automatically on new pages. Edges takes the vertical line closest to the center, which can be the edge of a photo. Spine line looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, Edges is used.</string>
+                  </property>
+                  <property name="text">
+                   <string>Method:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="detectionMethodBox">
+                  <property name="toolTip">
+                   <string>How the split line is detected automatically on new pages. Edges takes the vertical line closest to the center, which can be the edge of a photo. Spine line looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, Edges is used.</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="detectionMethodSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>1</width>
+                    <height>1</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
              </layout>
             </widget>
            </item>

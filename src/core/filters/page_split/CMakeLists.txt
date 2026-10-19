@@ -6,6 +6,8 @@ set(ui_files
 
 set(sources
     SplitLineObject.h
+    SplitDetectionMethod.cpp SplitDetectionMethod.h
+    SpineLineFinder.cpp SpineLineFinder.h
     ImageView.cpp ImageView.h
     Thumbnail.cpp Thumbnail.h
     Params.cpp Params.h

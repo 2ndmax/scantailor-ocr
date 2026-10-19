@@ -15,6 +15,7 @@
 #include "PageId.h"
 #include "PageLayout.h"
 #include "Params.h"
+#include "SplitDetectionMethod.h"
 
 class AbstractRelinker;
 
@@ -150,8 +151,26 @@ class Settings {
    */
   Record conditionalUpdate(const ImageId& imageId, const UpdateAction& action, bool* conflict = nullptr);
 
+  /**
+   * \brief How the split line of the page is detected.
+   *
+   * EDGES_DETECTION if none is set: pages of projects from before the detection methods
+   * were detected that way. New pages get the method of the default parameters.
+   */
+  SplitDetectionMethod detectionMethod(const ImageId& imageId) const;
+
+  bool isDetectionMethodSet(const ImageId& imageId) const;
+
+  /**
+   * \brief Sets how the split line of the page is detected.
+   *
+   * This doesn't touch the page parameters: a split line already detected stays until it's detected again.
+   */
+  void setDetectionMethod(const ImageId& imageId, SplitDetectionMethod method);
+
  private:
   using PerPageRecords = std::unordered_map<ImageId, BaseRecord>;
+  using PerPageMethods = std::unordered_map<ImageId, SplitDetectionMethod>;
 
   Record getPageRecordLocked(const ImageId& imageId) const;
 
@@ -161,6 +180,7 @@ class Settings {
 
   mutable QMutex m_mutex;
   PerPageRecords m_perPageRecords;
+  PerPageMethods m_perPageMethods;
   LayoutType m_defaultLayoutType;
 };
 }  // namespace page_split

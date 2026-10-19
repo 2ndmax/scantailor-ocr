@@ -33,6 +33,7 @@
 #include "OrthogonalRotation.h"
 #include "PageLayout.h"
 #include "ProjectPages.h"
+#include "SpineLineFinder.h"
 #include "VertLineFinder.h"
 
 namespace page_split {
@@ -168,6 +169,7 @@ int numPages(const LayoutType layoutType, const ImageTransformation& preXform) {
 }  // anonymous namespace
 
 PageLayout PageLayoutEstimator::estimatePageLayout(const LayoutType layoutType,
+                                                   const SplitDetectionMethod method,
                                                    const QImage& input,
                                                    const ImageTransformation& preXform,
                                                    const BinaryThreshold bwThreshold,
@@ -176,7 +178,7 @@ PageLayout PageLayoutEstimator::estimatePageLayout(const LayoutType layoutType,
     return PageLayout(preXform.resultingRect());
   }
 
-  std::unique_ptr<PageLayout> layout(tryCutAtFoldingLine(layoutType, input, preXform, dbg));
+  std::unique_ptr<PageLayout> layout(tryCutAtFoldingLine(layoutType, method, input, preXform, dbg));
   if (layout) {
     return *layout;
   }
@@ -211,6 +213,7 @@ class BadTwoPageSplitter {
  *        something other than AUTO_LAYOUT_TYPE, the returned
  *        layout will have the same type. The layout type of
  *        SINGLE_PAGE_UNCUT is not handled here.
+ * \param method How the split line between two pages is detected.
  * \param input The input image. Will be converted to grayscale unless
  *        it's already grayscale.
  * \param preXform The logical transformation applied to the input image.
@@ -220,13 +223,17 @@ class BadTwoPageSplitter {
  *         could not be detected.
  */
 std::unique_ptr<PageLayout> PageLayoutEstimator::tryCutAtFoldingLine(const LayoutType layoutType,
+                                                                     const SplitDetectionMethod method,
                                                                      const QImage& input,
                                                                      const ImageTransformation& preXform,
                                                                      DebugImages* const dbg) {
   const int numPages = page_split::numPages(layoutType, preXform);
 
   const int maxLines = 8;
-  std::vector<QLineF> lines(VertLineFinder::findLines(input, preXform, maxLines, dbg));
+  GrayImage grayDownscaled;
+  QTransform outToDownscaled;
+  std::vector<QLineF> lines(
+      VertLineFinder::findLines(input, preXform, maxLines, dbg, &grayDownscaled, &outToDownscaled));
 
   std::sort(lines.begin(), lines.end(), CenterComparator());
 
@@ -268,6 +275,15 @@ std::unique_ptr<PageLayout> PageLayoutEstimator::tryCutAtFoldingLine(const Layou
     // In two page mode we ignore the lines that are too close
     // to the edge.
     lines.erase(std::remove_if(lines.begin(), lines.end(), BadTwoPageSplitter(virtualImageRect.width())), lines.end());
+
+    if (method == SPINE_LINE_DETECTION) {
+      // The line closest to the center may well be the edge of a text column
+      // or a photo. If the spine is found, it is the split line.
+      const QLineF spine(SpineLineFinder::findSpine(grayDownscaled, outToDownscaled, virtualImageRect, dbg));
+      if (!spine.isNull()) {
+        return std::make_unique<PageLayout>(virtualImageRect, spine);
+      }
+    }
     return autoDetectTwoPageLayout(lines, virtualImageRect);
   }
 }  // PageLayoutEstimator::tryCutAtFoldingLine

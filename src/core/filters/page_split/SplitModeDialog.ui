@@ -45,7 +45,23 @@
          <string>The position of the split line, adapted to the size of each page. Without it, each page keeps its own split line or detects one. Only for a page type set by hand that has a split line.</string>
         </property>
         <property name="text">
-         <string>Split line</string>
+         <string>Split line position</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="applyDetectionMethodOption">
+        <property name="toolTip">
+         <string>How the split line is detected automatically (Edges or Spine line). A split line set by hand stays.</string>
+        </property>
+        <property name="text">
+         <string>Detection method</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

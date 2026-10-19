@@ -85,19 +85,25 @@ QDomElement DefaultParams::DeskewParams::toXml(QDomDocument& doc, const QString&
 }
 
 DefaultParams::PageSplitParams::PageSplitParams(page_split::LayoutType layoutType)
-    : m_layoutType(layoutType), m_pageOrder(Qt::LeftToRight) {}
+    : m_layoutType(layoutType), m_pageOrder(Qt::LeftToRight), m_detectionMethod(SPINE_LINE_DETECTION) {}
 
-DefaultParams::PageSplitParams::PageSplitParams() : m_layoutType(AUTO_LAYOUT_TYPE), m_pageOrder(Qt::LeftToRight) {}
+DefaultParams::PageSplitParams::PageSplitParams()
+    : m_layoutType(AUTO_LAYOUT_TYPE), m_pageOrder(Qt::LeftToRight), m_detectionMethod(SPINE_LINE_DETECTION) {}
 
 DefaultParams::PageSplitParams::PageSplitParams(const QDomElement& el)
     : m_layoutType(layoutTypeFromString(el.attribute("layoutType"))),
       // Profiles from before the page order have none: left first.
-      m_pageOrder(el.attribute("pageOrder") == "RTL" ? Qt::RightToLeft : Qt::LeftToRight) {}
+      m_pageOrder(el.attribute("pageOrder") == "RTL" ? Qt::RightToLeft : Qt::LeftToRight),
+      // Profiles from before the detection methods have none: the default, Spine line.
+      m_detectionMethod(el.hasAttribute("detectionMethod")
+                            ? splitDetectionMethodFromString(el.attribute("detectionMethod"))
+                            : SPINE_LINE_DETECTION) {}
 
 QDomElement DefaultParams::PageSplitParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("layoutType", layoutTypeToString(m_layoutType));
   el.setAttribute("pageOrder", m_pageOrder == Qt::RightToLeft ? "RTL" : "LTR");
+  el.setAttribute("detectionMethod", splitDetectionMethodToString(m_detectionMethod));
   return el;
 }
 

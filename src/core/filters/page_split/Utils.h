@@ -12,6 +12,8 @@ class Utils {
   Utils() = delete;
 
   static Settings::UpdateAction buildDefaultUpdateAction();
+
+  static SplitDetectionMethod defaultDetectionMethod();
 };
 }  // namespace page_split
 

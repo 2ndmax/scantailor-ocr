@@ -73,6 +73,8 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   fillingColorBox->addItem(tr("Black"), FILL_BLACK);
 
   fillBinarizationMethodBox(thresholdMethodBox);
+  detectionMethodBox->addItem(tr("Edges"), EDGES_DETECTION);
+  detectionMethodBox->addItem(tr("Spine line"), SPINE_LINE_DETECTION);
 
   pictureShapeSelector->addItem(tr("Off"), OFF_SHAPE);
   pictureShapeSelector->addItem(tr("Contour mask"), FREE_SHAPE);
@@ -342,6 +344,7 @@ void DefaultParamsDialog::updatePageSplitDisplay(const DefaultParams::PageSplitP
   } else {
     leftFirstBtn->setChecked(true);
   }
+  detectionMethodBox->setCurrentIndex(detectionMethodBox->findData(params.getDetectionMethod()));
 }
 
 void DefaultParamsDialog::updateDeskewDisplay(const DefaultParams::DeskewParams& params) {
@@ -932,6 +935,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   }
   DefaultParams::PageSplitParams pageSplitParams(layoutType);
   pageSplitParams.setPageOrder(rightFirstBtn->isChecked() ? Qt::RightToLeft : Qt::LeftToRight);
+  pageSplitParams.setDetectionMethod(static_cast<SplitDetectionMethod>(detectionMethodBox->currentData().toInt()));
 
   DefaultParams::DeskewParams deskewParams(angleSpinBox->value(), deskewAutoBtn->isChecked() ? MODE_AUTO : MODE_MANUAL,
                                            deskewObliqueAutoBtn->isChecked());

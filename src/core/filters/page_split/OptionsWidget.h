@@ -18,6 +18,7 @@
 #include "PageId.h"
 #include "PageLayout.h"
 #include "PageSelectionAccessor.h"
+#include "SplitDetectionMethod.h"
 #include "ui_OptionsWidget.h"
 
 class ProjectPages;
@@ -89,6 +90,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void splitLineModeChanged(bool autoMode);
 
+  void detectionMethodChanged(int index);
+
   /** Sets which half of a split page comes first, for the whole project. */
   void pageOrderToggled(bool rightFirst);
 
@@ -98,6 +101,12 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
    *        Nothing is changed if that page has no split line.
    */
   void layoutTypeSet(const PageId& sourcePage, const std::set<PageId>& pages, LayoutType layoutType, bool applyCut);
+
+  /**
+   * Sets the detection method of the pages. A split line that was detected
+   * automatically with another method is detected again; one set by hand stays.
+   */
+  void detectionMethodSet(const std::set<PageId>& pages, SplitDetectionMethod method);
 
   /** Shows whether the page type is detected automatically or set by hand. */
   void setLayoutModeButtons(bool autoMode);

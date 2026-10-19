@@ -118,8 +118,9 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
 
     if (!params || !deps.compatibleWith(*params)) {
       if (!params || (record.combinedLayoutType() == AUTO_LAYOUT_TYPE)) {
-        newLayout = PageLayoutEstimator::estimatePageLayout(record.combinedLayoutType(), data.grayImage(), data.xform(),
-                                                            data.bwThreshold(), m_dbg.get());
+        newLayout = PageLayoutEstimator::estimatePageLayout(
+            record.combinedLayoutType(), m_settings->detectionMethod(m_pageInfo.imageId()), data.grayImage(),
+            data.xform(), data.bwThreshold(), m_dbg.get());
 
         status.throwIfCancelled();
       } else {

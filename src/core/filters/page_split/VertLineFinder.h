@@ -14,13 +14,23 @@ class QImage;
 class ImageTransformation;
 class DebugImages;
 
+namespace imageproc {
+class GrayImage;
+}
+
 namespace page_split {
 class VertLineFinder {
  public:
+  /**
+   * \param grayDownscaled If not null, receives the 100 dpi grayscale image the lines were searched in.
+   * \param outToDownscaled If not null, receives the transform from virtual coordinates to \p grayDownscaled.
+   */
   static std::vector<QLineF> findLines(const QImage& image,
                                        const ImageTransformation& xform,
                                        int maxLines,
-                                       DebugImages* dbg = nullptr);
+                                       DebugImages* dbg = nullptr,
+                                       imageproc::GrayImage* grayDownscaled = nullptr,
+                                       QTransform* outToDownscaled = nullptr);
 
  private:
   class QualityLine {

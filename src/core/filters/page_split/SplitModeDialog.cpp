@@ -18,10 +18,12 @@ SplitModeDialog::SplitModeDialog(QWidget* const parent,
 
   // Only a page type set by hand has a split line to apply; an automatic one is detected anew.
   if ((m_layoutType == AUTO_LAYOUT_TYPE) || (m_layoutType == SINGLE_PAGE_UNCUT)) {
+    applyCutOption->setChecked(false);
     applyCutOption->setEnabled(false);
   }
   connect(applyLayoutTypeOption, &QCheckBox::toggled, this, &SplitModeDialog::updateOptions);
   connect(applyCutOption, &QCheckBox::toggled, this, &SplitModeDialog::updateOptions);
+  connect(applyDetectionMethodOption, &QCheckBox::toggled, this, &SplitModeDialog::updateOptions);
   updateOptions();
 
   connect(buttonBox, &QDialogButtonBox::accepted, this, &SplitModeDialog::onSubmit);
@@ -37,7 +39,7 @@ void SplitModeDialog::updateOptions() {
   applyLayoutTypeOption->setEnabled(!applyCutOption->isChecked());
   // Applying nothing would silently do nothing.
   if (QPushButton* okButton = buttonBox->button(QDialogButtonBox::Ok)) {
-    okButton->setEnabled(applyLayoutTypeOption->isChecked());
+    okButton->setEnabled(applyLayoutTypeOption->isChecked() || applyDetectionMethodOption->isChecked());
   }
 }
 
@@ -47,7 +49,8 @@ void SplitModeDialog::onSubmit() {
   // "This page only" is not handled: the options panel has already applied it.
   const std::set<PageId> pages = scopeGroupBox->isThisPageOnly() ? std::set<PageId>() : scopeGroupBox->pages();
 
-  emit accepted(pages, layoutType, applyCutOption->isChecked());
+  emit accepted(pages, applyLayoutTypeOption->isChecked(), layoutType, applyCutOption->isChecked(),
+                applyDetectionMethodOption->isChecked());
   // We assume the default connection from accepted() to accept()
   // was removed.
   accept();
