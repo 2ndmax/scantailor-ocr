@@ -109,44 +109,70 @@ QLineF SpineLineFinder::findSpine(const GrayImage& grayDownscaled,
   const auto tiltSteps = static_cast<int>(std::lround(kMaxTiltDegrees / kTiltStepDegrees));
   constexpr double sideWidth = kSideOuter - kSideInner + 1;
 
+  // Whether a row counts at a column does not depend on the tilt, so it is tested once
+  // for every page row and every column a tilted line can reach.
+  enum : uint8_t { OUTSIDE, NO_MATCH, MATCH };
+  const auto maxShift = static_cast<int>(std::ceil(std::tan(kMaxTiltDegrees * constants::DEG2RAD) * halfH)) + 1;
+  const int tableLo = std::max(0, xLo - maxShift);
+  const int tableHi = std::min(w - 1, xHi + maxShift);
+  const int tableWidth = tableHi - tableLo + 1;
+  std::vector<uint8_t> matches(pageRows.size() * tableWidth, OUTSIDE);
+  std::vector<int> rowBand(pageRows.size());
+  for (size_t i = 0; i < pageRows.size(); ++i) {
+    rowBand[i] = static_cast<int>(i * kBands / pageRows.size());
+    const uint8_t* row = data + pageRows[i] * stride;
+    uint8_t* rowMatches = matches.data() + i * tableWidth - tableLo;
+    for (int x = std::max(tableLo, kSideOuter); x <= std::min(tableHi, w - 1 - kSideOuter); ++x) {
+      const int column = std::min({row[x - 1], row[x], row[x + 1]});
+      int localMin = 255;
+      for (int k = -kSideOuter; k <= kSideOuter; ++k) {
+        localMin = std::min<int>(localMin, row[x + k]);
+      }
+      int leftSum = 0;
+      int rightSum = 0;
+      for (int k = kSideInner; k <= kSideOuter; ++k) {
+        leftSum += row[x - k];
+        rightSum += row[x + k];
+      }
+      const double left = leftSum / sideWidth;
+      const double right = rightSum / sideWidth;
+      rowMatches[x]
+          = ((column <= localMin + kLocalMinTolerance) && (std::max(left, right) - column >= kMinDropBrightSide)
+             && (std::min(left, right) - column >= kMinDropDarkSide))
+                ? MATCH
+                : NO_MATCH;
+    }
+  }
+
+  std::vector<int> rowShift(pageRows.size());
   double bestScore = -1.0;
   double bestX = 0.0;
   double bestDx = 0.0;
   // Tilts from 0 outwards (0, -1, 1, -2, 2, ...), so that of equal scores at the same position
   // the smaller tilt wins.
-  for (int i = 0; i <= 2 * tiltSteps; ++i) {
-    const int t = (i % 2 == 0) ? i / 2 : -(i + 1) / 2;
+  for (int step = 0; step <= 2 * tiltSteps; ++step) {
+    const int t = (step % 2 == 0) ? step / 2 : -(step + 1) / 2;
     // The line passes through (xc, halfH); dx is its horizontal offset at the bottom row.
     const double dx = std::tan(t * kTiltStepDegrees * constants::DEG2RAD) * halfH;
+    for (size_t i = 0; i < pageRows.size(); ++i) {
+      // Rounded like std::lround of the (positive) column it is added to.
+      rowShift[i] = static_cast<int>(std::floor((pageRows[i] - halfH) / halfH * dx + 0.5));
+    }
     for (int xc = xLo; xc <= xHi; ++xc) {
       int bandMatches[kBands] = {};
       int bandRows[kBands] = {};
       for (size_t i = 0; i < pageRows.size(); ++i) {
-        const int y = pageRows[i];
-        const auto x = static_cast<int>(std::lround(xc + (y - halfH) / halfH * dx));
-        if ((x - kSideOuter < 0) || (x + kSideOuter >= w)) {
+        const int x = xc + rowShift[i];
+        if ((x < tableLo) || (x > tableHi)) {
           continue;
         }
-        const uint8_t* row = data + y * stride;
-        const int column = std::min({row[x - 1], row[x], row[x + 1]});
-        int localMin = 255;
-        for (int k = -kSideOuter; k <= kSideOuter; ++k) {
-          localMin = std::min<int>(localMin, row[x + k]);
+        const uint8_t match = matches[i * tableWidth + (x - tableLo)];
+        if (match == OUTSIDE) {
+          continue;
         }
-        int leftSum = 0;
-        int rightSum = 0;
-        for (int k = kSideInner; k <= kSideOuter; ++k) {
-          leftSum += row[x - k];
-          rightSum += row[x + k];
-        }
-        const double left = leftSum / sideWidth;
-        const double right = rightSum / sideWidth;
-
-        const auto band = static_cast<int>(i * kBands / pageRows.size());
-        ++bandRows[band];
-        if ((column <= localMin + kLocalMinTolerance) && (std::max(left, right) - column >= kMinDropBrightSide)
-            && (std::min(left, right) - column >= kMinDropDarkSide)) {
-          ++bandMatches[band];
+        ++bandRows[rowBand[i]];
+        if (match == MATCH) {
+          ++bandMatches[rowBand[i]];
         }
       }
 
