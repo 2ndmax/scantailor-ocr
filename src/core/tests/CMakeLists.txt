@@ -24,6 +24,7 @@ set(sources
     TestPhotoAdjustments.cpp
     TestSelectContentApply.cpp
     TestSmartFilenameOrdering.cpp
+    TestSplitDetection.cpp
     TestTextLineRefiner.cpp
     TestThumbnailFiles.cpp
     TestUnits.cpp

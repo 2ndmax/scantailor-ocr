@@ -34,6 +34,12 @@ namespace page_split {
  */
 class SpineLineFinder {
  public:
+  // Half-width of the search window around the center, as a fraction of the image width.
+  static constexpr double CENTER_WINDOW_FRACTION = 0.10;
+
+  // The minimum score of a spine. The lowest score of a real spine on our test scans was 0.32.
+  static constexpr double MIN_SCORE = 0.25;
+
   /**
    * \param grayDownscaled The downscaled (100 dpi) grayscale image, as
    *        produced by VertLineFinder::findLines.

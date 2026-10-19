@@ -244,7 +244,9 @@ void OptionsWidget::showApplyDialog() {
               layoutTypeSet(sourcePage, pages, layoutType, applyCut);
             }
             if (applyDetectionMethod) {
-              detectionMethodSet(pages, m_settings->detectionMethod(sourcePage.imageId()));
+              // A split line position just applied stays, even if it was detected automatically.
+              const bool cutApplied = applyLayoutType && applyCut;
+              detectionMethodSet(pages, m_settings->detectionMethod(sourcePage.imageId()), !cutApplied);
             }
           });
   dialog->show();
@@ -332,7 +334,9 @@ void OptionsWidget::detectionMethodChanged(const int index) {
   detectionMethodSet({m_pageId}, (SplitDetectionMethod) detectionMethodBox->itemData(index).toInt());
 }
 
-void OptionsWidget::detectionMethodSet(const std::set<PageId>& pages, const SplitDetectionMethod method) {
+void OptionsWidget::detectionMethodSet(const std::set<PageId>& pages,
+                                       const SplitDetectionMethod method,
+                                       const bool redetect) {
   std::set<PageId> redetectedPages;
   bool currentPageRedetected = false;
   for (const PageId& pageId : pages) {
@@ -341,6 +345,9 @@ void OptionsWidget::detectionMethodSet(const std::set<PageId>& pages, const Spli
       continue;
     }
     m_settings->setDetectionMethod(imageId, method);
+    if (!redetect) {
+      continue;
+    }
 
     const Settings::Record record(m_settings->getPageRecord(imageId));
     const Params* const params = record.params();

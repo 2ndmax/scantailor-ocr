@@ -17,9 +17,6 @@ namespace page_split {
 using namespace imageproc;
 
 namespace {
-// Half-width of the search window around the center, as a fraction of the image width.
-constexpr double kCenterWindowFraction = 0.10;
-
 // Tilt sweep, in degrees.
 constexpr double kMaxTiltDegrees = 2.0;
 constexpr double kTiltStepDegrees = 0.25;
@@ -43,9 +40,6 @@ constexpr int kBands = 5;
 // Rows whose mean brightness in the search window is below this fraction of the
 // paper brightness are scanner background, not page.
 constexpr double kPageRowFraction = 0.6;
-
-// The minimum score of a spine. The lowest score of a real spine on our test scans was 0.32.
-constexpr double kMinScore = 0.25;
 }  // namespace
 
 QLineF SpineLineFinder::findSpine(const GrayImage& grayDownscaled,
@@ -80,7 +74,7 @@ QLineF SpineLineFinder::findSpine(const GrayImage& grayDownscaled,
   const QLineF centerLine = outToDownscaled.map(QLineF(virtualImageRect.center().x(), virtualImageRect.top(),
                                                        virtualImageRect.center().x(), virtualImageRect.bottom()));
   const double centerX = centerLine.center().x();
-  const double halfWindow = kCenterWindowFraction * w;
+  const double halfWindow = CENTER_WINDOW_FRACTION * w;
   const int xLo = std::max(kSideOuter + 1, static_cast<int>(centerX - halfWindow));
   const int xHi = std::min(w - kSideOuter - 2, static_cast<int>(centerX + halfWindow));
   if (xLo >= xHi) {
@@ -118,7 +112,10 @@ QLineF SpineLineFinder::findSpine(const GrayImage& grayDownscaled,
   double bestScore = -1.0;
   double bestX = 0.0;
   double bestDx = 0.0;
-  for (int t = -tiltSteps; t <= tiltSteps; ++t) {
+  // Tilts from 0 outwards (0, -1, 1, -2, 2, ...), so that of equal scores at the same position
+  // the smaller tilt wins.
+  for (int i = 0; i <= 2 * tiltSteps; ++i) {
+    const int t = (i % 2 == 0) ? i / 2 : -(i + 1) / 2;
     // The line passes through (xc, halfH); dx is its horizontal offset at the bottom row.
     const double dx = std::tan(t * kTiltStepDegrees * constants::DEG2RAD) * halfH;
     for (int xc = xLo; xc <= xHi; ++xc) {
@@ -173,7 +170,7 @@ QLineF SpineLineFinder::findSpine(const GrayImage& grayDownscaled,
   if (score) {
     *score = std::max(0.0, bestScore);
   }
-  if (bestScore < kMinScore) {
+  if (bestScore < MIN_SCORE) {
     return QLineF();
   }
 

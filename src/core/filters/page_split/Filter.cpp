@@ -180,14 +180,16 @@ void Filter::selectPageOrder(int option) {
 
 void Filter::loadDefaultSettings(const PageInfo& pageInfo) {
   const ImageId& imageId = pageInfo.id().imageId();
-  if (!m_settings->getPageRecord(imageId).isNull())
+  const Settings::Record record(m_settings->getPageRecord(imageId));
+  // Also for a page that got its page type by "Apply to ..." before it was processed. A method
+  // set that way stays, and pages of older projects with a detected split line keep Edges.
+  if (!record.params() && !m_settings->isDetectionMethodSet(imageId)) {
+    m_settings->setDetectionMethod(imageId, Utils::defaultDetectionMethod());
+  }
+  if (!record.isNull())
     return;
 
   m_settings->updatePage(imageId, Utils::buildDefaultUpdateAction());
-  // A method may already be set by "Apply to ..." before the page was processed.
-  if (!m_settings->isDetectionMethodSet(imageId)) {
-    m_settings->setDetectionMethod(imageId, Utils::defaultDetectionMethod());
-  }
 }
 
 OptionsWidget* Filter::optionsWidget() {

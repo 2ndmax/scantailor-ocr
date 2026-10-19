@@ -17,11 +17,13 @@
 //
 // The summary lists per scan the split line of each method (x at the middle row, in pixels of the
 // rotated scan), the score of the best spine line and the best score more than 25 px (at 100 dpi)
-// away from it, which shows how clear the decision was. A score below 0.25 counts as no spine.
+// away from it, which shows how clear the decision was. A score below SpineLineFinder::MIN_SCORE
+// counts as no spine.
 
 #include <BinaryThreshold.h>
 #include <Dpi.h>
 #include <GrayImage.h>
+#include <Grayscale.h>
 #include <ImageLoader.h>
 #include <ImageTransformation.h>
 #include <OrthogonalRotation.h>
@@ -145,7 +147,8 @@ int main(int argc, char** argv) {
       std::cerr << "Cannot load " << file.toStdString() << "\n";
       continue;
     }
-    const QImage gray = image.convertToFormat(QImage::Format_Grayscale8);
+    // As the program does (FilterData): other gray formats are not handled everywhere.
+    const QImage gray = imageproc::toGrayscale(image);
 
     ImageTransformation xform(QRectF(gray.rect()), dpiOf(image));
     OrthogonalRotation rot;
@@ -199,7 +202,7 @@ int main(int argc, char** argv) {
     const QLineF centerLine(virtualRect.center().x(), virtualRect.top(), virtualRect.center().x(),
                             virtualRect.bottom());
     const double centerDs = toDs(centerLine).center().x();
-    const double halfWindowDs = 0.10 * gray100.width();
+    const double halfWindowDs = SpineLineFinder::CENTER_WINDOW_FRACTION * gray100.width();
 
     painter.setPen(QPen(QColor(255, 200, 0, 140), 1.0));
     painter.drawLine(QLineF(centerDs - halfWindowDs, 0, centerDs - halfWindowDs, base.height()));

@@ -103,10 +103,10 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   void layoutTypeSet(const PageId& sourcePage, const std::set<PageId>& pages, LayoutType layoutType, bool applyCut);
 
   /**
-   * Sets the detection method of the pages. A split line that was detected
-   * automatically with another method is detected again; one set by hand stays.
+   * Sets the detection method of the pages. With \p redetect, a split line that was
+   * detected automatically with another method is detected again; one set by hand stays.
    */
-  void detectionMethodSet(const std::set<PageId>& pages, SplitDetectionMethod method);
+  void detectionMethodSet(const std::set<PageId>& pages, SplitDetectionMethod method, bool redetect = true);
 
   /** Shows whether the page type is detected automatically or set by hand. */
   void setLayoutModeButtons(bool autoMode);

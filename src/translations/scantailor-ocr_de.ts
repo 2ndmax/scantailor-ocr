@@ -1021,8 +1021,8 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="552"/>
         <location filename="../app/DefaultParamsDialog.ui" line="562"/>
-        <source>How the split line is detected automatically on new pages. Edges takes the vertical line closest to the center, which can be the edge of a photo. Spine line looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, Edges is used.</source>
-        <translation>Wie die Trennlinie auf neuen Seiten automatisch erkannt wird. Kanten nimmt die senkrechte Linie, die der Mitte am nächsten liegt; das kann auch der Rand eines Fotos sein. Bundlinie sucht den Bund als schmale Linie, die über die ganze Seitenhöhe dunkler ist als beide Seiten daneben; findet sie keinen, wird Kanten verwendet.</translation>
+        <source>How the split line is detected automatically on new pages. &quot;Edges&quot; takes the vertical line closest to the center, which can be the edge of a photo. &quot;Spine line&quot; looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, &quot;Edges&quot; is used.</source>
+        <translation>Wie die Trennlinie auf neuen Seiten automatisch erkannt wird. „Kanten“ nimmt die senkrechte Linie, die der Mitte am nächsten liegt; das kann auch der Rand eines Fotos sein. „Bundlinie“ sucht den Bund als schmale Linie, die über die ganze Seitenhöhe dunkler ist als beide Seiten daneben; findet sie keinen, wird „Kanten“ verwendet.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="600"/>
@@ -6070,8 +6070,8 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     <message>
         <location filename="../core/filters/page_split/OptionsWidget.ui" line="279"/>
         <location filename="../core/filters/page_split/OptionsWidget.ui" line="289"/>
-        <source>How the split line is detected automatically. Edges takes the vertical line closest to the center, which can be the edge of a photo. Spine line looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, Edges is used.</source>
-        <translation>Wie die Trennlinie automatisch erkannt wird. Kanten nimmt die senkrechte Linie, die der Mitte am nächsten liegt; das kann auch der Rand eines Fotos sein. Bundlinie sucht den Bund als schmale Linie, die über die ganze Seitenhöhe dunkler ist als beide Seiten daneben; findet sie keinen, wird Kanten verwendet.</translation>
+        <source>How the split line is detected automatically. &quot;Edges&quot; takes the vertical line closest to the center, which can be the edge of a photo. &quot;Spine line&quot; looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, &quot;Edges&quot; is used.</source>
+        <translation>Wie die Trennlinie automatisch erkannt wird. „Kanten“ nimmt die senkrechte Linie, die der Mitte am nächsten liegt; das kann auch der Rand eines Fotos sein. „Bundlinie“ sucht den Bund als schmale Linie, die über die ganze Seitenhöhe dunkler ist als beide Seiten daneben; findet sie keinen, wird „Kanten“ verwendet.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_split/OptionsWidget.ui" line="282"/>
@@ -6148,8 +6148,8 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     </message>
     <message>
         <location filename="../core/filters/page_split/SplitModeDialog.ui" line="58"/>
-        <source>How the split line is detected automatically (Edges or Spine line). A split line set by hand stays.</source>
-        <translation>Wie die Trennlinie automatisch erkannt wird (Kanten oder Bundlinie). Eine von Hand gesetzte Trennlinie bleibt.</translation>
+        <source>How the split line is detected automatically (&quot;Edges&quot; or &quot;Spine line&quot;). A split line set by hand stays.</source>
+        <translation>Wie die Trennlinie automatisch erkannt wird („Kanten“ oder „Bundlinie“). Eine von Hand gesetzte Trennlinie bleibt.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_split/SplitModeDialog.ui" line="61"/>

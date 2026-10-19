@@ -55,7 +55,7 @@
       <item>
        <widget class="QCheckBox" name="applyDetectionMethodOption">
         <property name="toolTip">
-         <string>How the split line is detected automatically (Edges or Spine line). A split line set by hand stays.</string>
+         <string>How the split line is detected automatically (&quot;Edges&quot; or &quot;Spine line&quot;). A split line set by hand stays.</string>
         </property>
         <property name="text">
          <string>Detection method</string>
