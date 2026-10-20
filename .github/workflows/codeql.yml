@@ -1,4 +1,4 @@
-# CodeQL: static analysis of the C++ code. Runs only when started by hand.
+# CodeQL: static analysis of the C++ code on Linux and Windows. Runs only when started by hand.
 name: CodeQL
 
 on:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  analyze:
+  analyze-linux:
     name: Analyze (C++, Ubuntu)
     runs-on: ubuntu-24.04
     permissions:
@@ -46,12 +46,95 @@ jobs:
       - name: Analyze
         uses: github/codeql-action/analyze@v4
         with:
-          category: /language:c-cpp
+          category: /language:c-cpp/os:linux
           output: sarif-results
 
       # The results as a file, to download from the run's page.
       - name: Upload SARIF file
         uses: actions/upload-artifact@v7
         with:
-          name: codeql-sarif
+          name: codeql-sarif-linux
+          path: sarif-results
+
+  analyze-windows:
+    name: Analyze (C++, Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      # Needed to upload the results to Security > Code scanning.
+      security-events: write
+    env:
+      VCPKG_DEFAULT_TRIPLET: x64-windows
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-binary-cache
+    steps:
+      - uses: actions/checkout@v7
+
+      # The package cache is created by the CI workflow (ci.yml) on master; this workflow
+      # only reads it. Without it vcpkg builds Qt, which takes about two hours.
+      - name: Restore vcpkg binary cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ github.workspace }}\vcpkg-binary-cache
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: vcpkg-${{ runner.os }}-
+
+      # Keep the package list the same as in ci.yml, so the cached packages are used.
+      - name: Install dependencies (vcpkg)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
+          & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install `
+            --clean-after-build `
+            "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `
+            "--x-packages-root=$env:RUNNER_TEMP\vcpkg-packages" `
+            "--downloads-root=$env:RUNNER_TEMP\vcpkg-downloads" `
+            qtbase qtsvg qttools qttranslations libjpeg-turbo libpng `
+            "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate]" openjpeg zlib tesseract `
+            boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda
+
+      # Same as running vcvars64.bat: finds Visual Studio and passes the variables
+      # it sets on to the following steps.
+      - name: Set up MSVC environment
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * `
+            -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vs) { throw "Visual Studio with the C++ tools was not found." }
+          $script = Join-Path $env:RUNNER_TEMP "vcvars-env.cmd"
+          Set-Content $script "@call `"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul`r`n@set" -Encoding ascii
+          $lines = cmd /c $script
+          if (-not ($lines -match '^VCToolsInstallDir=')) { throw "vcvars64.bat failed." }
+          foreach ($line in $lines) {
+            if ($line -match '^([^=]+)=(.*)$' -and [Environment]::GetEnvironmentVariable($matches[1]) -ne $matches[2]) {
+              $line >> $env:GITHUB_ENV
+            }
+          }
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: c-cpp
+          build-mode: manual
+          queries: security-and-quality
+
+      # CodeQL watches this build to see which files are compiled and how.
+      - name: Configure and build
+        shell: pwsh
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release `
+            "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build --parallel
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:c-cpp/os:windows
+          output: sarif-results
+
+      # The results as a file, to download from the run's page.
+      - name: Upload SARIF file
+        uses: actions/upload-artifact@v7
+        with:
+          name: codeql-sarif-windows
           path: sarif-results
