@@ -36,7 +36,7 @@ topic, not by version.
   project into one PDF and doesn't process pages itself; pages not yet output are grayed out.
   The page list, file and progress replace the page view, the options are on the left, the
   thumbnails are hidden, and there is no batch button.
-* Pages are shown as tiles in project order with thumbnail, file name and kind of page. Each can
+* Pages are shown as tiles in project order with thumbnail and file name. Each can
   be ticked or unticked ("All" / "None"); ticked pages show their position in the PDF. The order
   is changed by drag and drop or with "Move forward" / "Move back". Ticks and order are kept
   while the project is open but not saved; new pages appear ticked after their predecessor.
@@ -49,13 +49,20 @@ topic, not by version.
   * Mixed pages with split output: layers; only the picture area of the background is stored
     (JPEG at full, half or one third resolution), the text is a lossless JBIG2 mask on top.
   * Posterized color pages: lossless Deflate palette images.
-  * All other pages: JPEG. Mixed pages without split output get a warning, as they make the
-    PDF much larger.
+  * All other pages: JPEG. Mixed pages without split output make the PDF much larger; they get a
+    warning with a lossy method (the text gets blurred) and a note with a lossless one.
 * The panel **PDF Compression** has a part for each kind of page: *Color and Grayscale* (JPEG,
   **JPEG 2000**, Deflate or None; quality; resolution of the "Background layer" of split pages),
   *Posterized Pages* (Deflate, JPEG, JPEG 2000 or None) and *Black and White* (JBIG2, CCITT G4,
-  Deflate or None). The page tiles show the method each page will get. The options are program
-  settings, saved when changed.
+  Deflate or None). The options are program settings, saved when changed.
+* **Quality warnings:** the panel **Quality** lists the compression of the ticked pages, in the
+  output files (read from the TIFF files, so old files of other projects count correctly) and in
+  the PDF, and marks lossy methods (JPEG; JPEG 2000 below quality 100). It warns about lossy
+  TIFF files, about pages compressed with loss twice and about posterized pages that JPEG or
+  JPEG 2000 converts to full color. Pages with such a problem, or with a problem of their files,
+  show a warning sign above the thumbnail, pages with only a note an information sign. The tooltip of a tile names the color mode, the
+  compression in the output folder and in the PDF, and the warnings; the file name shows its
+  full text. Pages not yet output say so in their placeholder.
 * **JPEG 2000** is encoded with [OpenJPEG](https://www.openjpeg.org/). The quality value is
   meant to look like the same JPEG value, 100 is lossless. It takes longer than JPEG, and some
   simple PDF programs can't show it.

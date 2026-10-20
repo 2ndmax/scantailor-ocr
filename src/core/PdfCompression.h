@@ -21,4 +21,12 @@ enum class PdfCompression {
   JBIG2 = 5
 };
 
+/**
+ * Whether a method loses image quality. JPEG always does, even at quality 100; JPEG 2000 is
+ * lossless at quality 100.
+ */
+inline bool isLossyPdfCompression(const PdfCompression compression, const int quality) {
+  return (compression == PdfCompression::JPEG) || ((compression == PdfCompression::JPEG2000) && (quality < 100));
+}
+
 #endif  // SCANTAILOR_CORE_PDFCOMPRESSION_H_

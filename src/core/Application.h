@@ -18,6 +18,12 @@ class Application : public QApplication {
   /** Turns long plain text tooltips into rich text, which Qt wraps instead of showing one long line. */
   bool eventFilter(QObject* watched, QEvent* event) override;
 
+  /**
+   * A long plain text tooltip as rich text that is wrapped at about 120 characters; other tooltips
+   * unchanged. For tooltips that aren't set on a widget, such as those of list items.
+   */
+  static QString wrapToolTip(const QString& tip);
+
   const QString& getCurrentLocale() const;
 
   void installLanguage(const QString& locale);

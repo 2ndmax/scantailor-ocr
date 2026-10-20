@@ -15,6 +15,7 @@
 
 class QCheckBox;
 class QComboBox;
+class QFormLayout;
 class QIcon;
 class QLabel;
 class QPixmap;
@@ -119,15 +120,42 @@ class PdfExportView : public QWidget {
   /** Shows a loaded thumbnail; the first one also sets the proportions of the placeholders. */
   void showThumbnail(int entryIndex, const QPixmap& thumbnail);
 
-  /** A thumbnail, or a placeholder in the proportions of the pages if \p thumbnail is null. */
-  QIcon makeIcon(const QPixmap& thumbnail) const;
+  /**
+   * A thumbnail, or a placeholder in the proportions of the pages if \p thumbnail is null.
+   * The placeholder of a page that isn't output yet says so.
+   */
+  QIcon makeIcon(const QPixmap& thumbnail, bool missing = false) const;
 
-  QString kindText(const PdfExportPage& page) const;
+  /** The name of the method chosen in a compression box, as shown there. */
+  QString pdfMethodName(const QComboBox* box) const;
 
-  /** Shows the kind of each page with the compression currently chosen. */
-  void updateKindTexts();
+  /** The compression box and quality field that apply to the picture of a page. */
+  const QComboBox* pictureCompressionBox(const PdfExportPage& page) const;
 
-  /** Greys out the quality fields that the chosen compression doesn't use, and updates the kinds. */
+  const QSpinBox* pictureQualityBox(const PdfExportPage& page) const;
+
+  /** Whether the PDF compresses the picture of a page with loss. */
+  bool isPdfPictureLossy(const PdfExportPage& page) const;
+
+  /** Whether a posterized picture is converted to full color by JPEG or JPEG 2000. */
+  bool isPosterizedAsJpeg(const PdfExportPage& page) const;
+
+  /** What to warn about for a page: problems with its files and losses that may be unintended. */
+  QStringList pageWarnings(const PdfExportPage& page) const;
+
+  /** What is good to know about a page without being a problem. */
+  QStringList pageNotes(const PdfExportPage& page) const;
+
+  /** Color mode, compression in the output folder and in the PDF, \p warnings and \p notes of a page. */
+  QString pageToolTip(const Entry& entry, const QStringList& warnings, const QStringList& notes) const;
+
+  /** Sets the tooltips and the warning signs of the pages for the compression currently chosen. */
+  void updatePageInfos();
+
+  /** Shows the compressions of the ticked pages in the Quality panel. */
+  void updateQualityPanel();
+
+  /** Greys out the quality fields that the chosen compression doesn't use, and updates the pages. */
   void compressionChanged();
 
   int checkedCount() const;
@@ -176,6 +204,15 @@ class PdfExportView : public QWidget {
   QComboBox* m_paletteCompression = nullptr;
   QSpinBox* m_paletteQuality = nullptr;
   QComboBox* m_bitonalCompression = nullptr;
+  /** The Quality panel: a row for each kind of picture (color, posterized, black and white), for the TIFF and the PDF.
+   */
+  QFormLayout* m_qualityLayout = nullptr;
+  QLabel* m_tiffQuality[3] = {};
+  QLabel* m_pdfQuality[3] = {};
+  QLabel* m_tiffNoPages = nullptr;
+  QLabel* m_pdfNoPages = nullptr;
+  QLabel* m_tiffWarning = nullptr;
+  QLabel* m_pdfWarning = nullptr;
   QCheckBox* m_openAfterCreation = nullptr;
   /** The OCR options; these stay null in builds without OCR. */
   QCheckBox* m_ocrEnabled = nullptr;

@@ -31,19 +31,27 @@ bool Application::eventFilter(QObject* watched, QEvent* event) {
   if (event->type() == QEvent::ToolTipChange && watched->isWidgetType()) {
     auto* widget = static_cast<QWidget*>(watched);
     const QString tip = widget->toolTip();
-    // Tips up to this many characters stay on one line, longer ones are wrapped at about this
-    // width. Qt itself wraps rich text at a fixed 80 characters, so the width is given by a
-    // table. Setting the rich text version triggers this event again, but then the text is
-    // rich text already.
-    const int wrapLength = 120;
-    if (tip.size() > wrapLength && !Qt::mightBeRichText(tip)) {
-      const int width = QFontMetrics(QToolTip::font()).averageCharWidth() * wrapLength;
-      widget->setToolTip(QString("<table width=\"%1\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>%2</td></tr></table>")
-                             .arg(width)
-                             .arg(tip.toHtmlEscaped().replace('\n', "<br>")));
+    // Setting the rich text version triggers this event again, but then the text is rich text
+    // already and stays as it is.
+    const QString wrapped = wrapToolTip(tip);
+    if (wrapped != tip) {
+      widget->setToolTip(wrapped);
     }
   }
   return QApplication::eventFilter(watched, event);
+}
+
+QString Application::wrapToolTip(const QString& tip) {
+  // Tips up to this many characters stay on one line, longer ones are wrapped at about this
+  // width. Qt itself wraps rich text at a fixed 80 characters, so the width is given by a table.
+  const int wrapLength = 120;
+  if (tip.size() <= wrapLength || Qt::mightBeRichText(tip)) {
+    return tip;
+  }
+  const int width = QFontMetrics(QToolTip::font()).averageCharWidth() * wrapLength;
+  return QString("<table width=\"%1\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>%2</td></tr></table>")
+      .arg(width)
+      .arg(tip.toHtmlEscaped().replace('\n', "<br>"));
 }
 
 bool Application::notify(QObject* receiver, QEvent* e) {

@@ -808,7 +808,11 @@ QRect PdfImageEncoder::contentRect(const QImage& image) {
   return QRect(QPoint(left, top), QPoint(right, bottom));
 }  // PdfImageEncoder::contentRect
 
-bool PdfImageEncoder::readTiffInfo(const QString& filePath, QSize* size, int* bitsPerPixel, bool* palette) {
+bool PdfImageEncoder::readTiffInfo(const QString& filePath,
+                                   QSize* size,
+                                   int* bitsPerPixel,
+                                   bool* palette,
+                                   int* compression) {
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly)) {
     return false;
@@ -839,6 +843,11 @@ bool PdfImageEncoder::readTiffInfo(const QString& filePath, QSize* size, int* bi
     uint16_t photometric = PHOTOMETRIC_MINISBLACK;
     TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric);
     *palette = (photometric == PHOTOMETRIC_PALETTE);
+  }
+  if (compression) {
+    uint16_t value = COMPRESSION_NONE;
+    TIFFGetFieldDefaulted(tif, TIFFTAG_COMPRESSION, &value);
+    *compression = value;
   }
   return true;
 }

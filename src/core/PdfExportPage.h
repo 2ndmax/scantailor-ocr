@@ -37,7 +37,7 @@ class PdfExportPage {
   /**
    * \brief Inspects the files (only their headers) and decides how the page will be stored.
    *
-   * Sets kind() and warning().
+   * Sets kind(), warning(), isWithoutSplitOutput() and the compressions.
    */
   void analyze();
 
@@ -47,13 +47,34 @@ class PdfExportPage {
 
   const QString& backgroundFile() const { return m_backgroundFile; }
 
+  /** Whether the page is set to the "Mixed" colour mode. */
+  bool isMixedMode() const { return m_mixedMode; }
+
   Kind kind() const { return m_kind; }
 
   /** MRC only: whether the background picture is posterized (a palette image). */
   bool hasPalettePicture() const { return m_palettePicture; }
 
-  /** Empty if there is nothing to warn about. */
+  /** About the files of the page, such as split output files that don't match. Empty if they are fine. */
   const QString& warning() const { return m_warning; }
+
+  /** A mixed page that has no split output files, so it's stored as a single image. */
+  bool isWithoutSplitOutput() const { return m_withoutSplitOutput; }
+
+  /**
+   * The TIFF compression of the picture, a COMPRESSION_* value of libtiff: of the output file, or
+   * of the background layer with split output. 0 for missing pages.
+   */
+  int pictureCompression() const { return m_pictureCompression; }
+
+  /** MRC only: the TIFF compression of the foreground layer, the text. */
+  int textCompression() const { return m_textCompression; }
+
+  /** Whether a TIFF compression loses image quality. Unknown methods count as lossy. */
+  static bool isLossyTiffCompression(int compression);
+
+  /** The name of a TIFF compression, as in the TIFF Compression panel of the Output step. */
+  static QString tiffCompressionName(int compression);
 
  private:
   QString m_mainFile;
@@ -62,6 +83,9 @@ class PdfExportPage {
   bool m_mixedMode = false;
   Kind m_kind = MISSING;
   bool m_palettePicture = false;
+  int m_pictureCompression = 0;
+  int m_textCompression = 0;
+  bool m_withoutSplitOutput = false;
   QString m_warning;
 };
 

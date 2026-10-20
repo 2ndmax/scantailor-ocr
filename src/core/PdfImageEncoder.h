@@ -111,9 +111,14 @@ class PdfImageEncoder {
    * \brief Reads size and bits per pixel of a TIFF file without decoding the image.
    *
    * \param[out] palette Optional: whether the image uses a colour palette.
+   * \param[out] compression Optional: the TIFF compression, a COMPRESSION_* value of libtiff.
    * \return false if the file can't be read as TIFF.
    */
-  static bool readTiffInfo(const QString& filePath, QSize* size, int* bitsPerPixel, bool* palette = nullptr);
+  static bool readTiffInfo(const QString& filePath,
+                           QSize* size,
+                           int* bitsPerPixel,
+                           bool* palette = nullptr,
+                           int* compression = nullptr);
 };
 
 

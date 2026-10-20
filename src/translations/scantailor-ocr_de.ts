@@ -92,12 +92,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="72"/>
+        <location filename="../core/Application.cpp" line="80"/>
         <source>Unexpected Error</source>
         <translation>Unerwarteter Fehler</translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="73"/>
+        <location filename="../core/Application.cpp" line="81"/>
         <source>An unexpected error occurred:
 %1
 
@@ -2355,52 +2355,52 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
 <context>
     <name>OcrLanguages</name>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="122"/>
+        <location filename="../core/OcrLanguages.cpp" line="123"/>
         <source>The folder %1 can&apos;t be written to.</source>
         <translation>In den Ordner %1 kann nicht geschrieben werden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="137"/>
+        <location filename="../core/OcrLanguages.cpp" line="138"/>
         <source>The language file of &quot;%1&quot; wasn&apos;t found.</source>
         <translation>Die Sprachdatei für „%1“ wurde nicht gefunden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="149"/>
+        <location filename="../core/OcrLanguages.cpp" line="150"/>
         <source>Could not copy the language file of &quot;%1&quot; to %2.</source>
         <translation>Die Sprachdatei für „%1“ konnte nicht nach %2 kopiert werden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="165"/>
+        <location filename="../core/OcrLanguages.cpp" line="166"/>
         <source>Neither %1 nor %2 can be written to.</source>
         <translation>Weder in %1 noch in %2 kann geschrieben werden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="183"/>
+        <location filename="../core/OcrLanguages.cpp" line="184"/>
         <source>%1 (script)</source>
         <translation>%1 (Schrift)</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="193"/>
+        <location filename="../core/OcrLanguages.cpp" line="194"/>
         <source>Middle English</source>
         <translation>Mittelenglisch</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="194"/>
+        <location filename="../core/OcrLanguages.cpp" line="195"/>
         <source>Middle French</source>
         <translation>Mittelfranzösisch</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="195"/>
+        <location filename="../core/OcrLanguages.cpp" line="196"/>
         <source>Ancient Greek</source>
         <translation>Altgriechisch</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="196"/>
+        <location filename="../core/OcrLanguages.cpp" line="197"/>
         <source>Kurmanji</source>
         <translation>Kurmandschi</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="197"/>
+        <location filename="../core/OcrLanguages.cpp" line="198"/>
         <source>German Fraktur (old model)</source>
         <translation>Deutsche Fraktur (altes Modell)</translation>
     </message>
@@ -2635,346 +2635,391 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
 <context>
     <name>PdfExportPage</name>
     <message>
-        <location filename="../core/PdfExportPage.cpp" line="66"/>
+        <location filename="../core/PdfExportPage.cpp" line="78"/>
         <source>The split output files of this page don&apos;t match its output file (they are older, have a different size or a colored foreground). The page is stored as a single image. Process the page again to fix this.</source>
         <translation>Die Dateien der geteilten Ausgabe dieser Seite passen nicht zu ihrer Ausgabedatei (sie sind älter, haben eine andere Größe oder einen farbigen Vordergrund). Die Seite wird als ein einziges Bild gespeichert. Verarbeiten Sie die Seite erneut, um das zu beheben.</translation>
     </message>
     <message>
-        <location filename="../core/PdfExportPage.cpp" line="71"/>
-        <source>Mixed page without split output. It is stored as a single image, which makes the PDF larger and, with JPEG, the text less sharp. For a smaller file, enable &quot;Split output&quot; in the Output step and process the page again.</source>
-        <translation>Gemischte Seite ohne geteilte Ausgabe. Sie wird als ein einziges Bild gespeichert; das macht das PDF größer und mit JPEG die Schrift weniger scharf. Für eine kleinere Datei schalten Sie im Schritt „Ausgabe“ die „Geteilte Ausgabe“ ein und verarbeiten die Seite erneut.</translation>
+        <location filename="../core/PdfExportPage.cpp" line="111"/>
+        <source>uncompressed</source>
+        <translation>unkomprimiert</translation>
+    </message>
+    <message>
+        <location filename="../core/PdfExportPage.cpp" line="131"/>
+        <source>method %1</source>
+        <translation>Methode %1</translation>
     </message>
 </context>
 <context>
     <name>PdfExportView</name>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="315"/>
-        <location filename="../app/PdfExportView.cpp" line="755"/>
-        <location filename="../app/PdfExportView.cpp" line="912"/>
+        <location filename="../app/PdfExportView.cpp" line="360"/>
+        <location filename="../app/PdfExportView.cpp" line="837"/>
+        <location filename="../app/PdfExportView.cpp" line="994"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="244"/>
+        <location filename="../app/PdfExportView.cpp" line="289"/>
         <source>Pages</source>
         <translation>Seiten</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="266"/>
+        <location filename="../app/PdfExportView.cpp" line="311"/>
         <source>All</source>
         <translation>Alle</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="267"/>
-        <location filename="../app/PdfExportView.cpp" line="391"/>
-        <location filename="../app/PdfExportView.cpp" line="428"/>
-        <location filename="../app/PdfExportView.cpp" line="448"/>
+        <location filename="../app/PdfExportView.cpp" line="312"/>
+        <location filename="../app/PdfExportView.cpp" line="436"/>
+        <location filename="../app/PdfExportView.cpp" line="473"/>
+        <location filename="../app/PdfExportView.cpp" line="493"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="270"/>
+        <location filename="../app/PdfExportView.cpp" line="315"/>
         <source>Include all output pages in the PDF.</source>
         <translation>Alle ausgegebenen Seiten in die PDF-Datei aufnehmen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="271"/>
+        <location filename="../app/PdfExportView.cpp" line="316"/>
         <source>Exclude all pages from the PDF.</source>
         <translation>Keine Seite in die PDF-Datei aufnehmen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="359"/>
+        <location filename="../app/PdfExportView.cpp" line="404"/>
         <source>PDF Compression</source>
         <translation>PDF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="410"/>
+        <location filename="../app/PdfExportView.cpp" line="455"/>
         <source>Full</source>
         <translation>Voll</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="411"/>
+        <location filename="../app/PdfExportView.cpp" line="456"/>
         <source>Half</source>
         <translation>Halb</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="412"/>
+        <location filename="../app/PdfExportView.cpp" line="457"/>
         <source>One third</source>
         <translation>Ein Drittel</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="309"/>
+        <location filename="../app/PdfExportView.cpp" line="354"/>
         <source>Open the PDF after creating it</source>
         <translation>PDF-Datei nach dem Erstellen öffnen</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="482"/>
+        <location filename="../app/PdfExportView.cpp" line="528"/>
         <source>Text Recognition (OCR)</source>
         <translation>Texterkennung (OCR)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="387"/>
+        <location filename="../app/PdfExportView.cpp" line="432"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation>Farb- und Graustufenseiten, auch Graustufenseiten mit Tontrennung, und die Bilder von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="401"/>
-        <location filename="../app/PdfExportView.cpp" line="437"/>
-        <location filename="../app/PdfExportView.cpp" line="456"/>
+        <location filename="../app/PdfExportView.cpp" line="446"/>
+        <location filename="../app/PdfExportView.cpp" line="482"/>
+        <location filename="../app/PdfExportView.cpp" line="501"/>
         <source>Method:</source>
         <translation>Verfahren:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="407"/>
-        <location filename="../app/PdfExportView.cpp" line="443"/>
+        <location filename="../app/PdfExportView.cpp" line="452"/>
+        <location filename="../app/PdfExportView.cpp" line="488"/>
         <source>Quality:</source>
         <translation>Qualität:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="422"/>
+        <location filename="../app/PdfExportView.cpp" line="467"/>
         <source>Posterized Pages</source>
         <translation>Seiten mit Tontrennung</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="446"/>
+        <location filename="../app/PdfExportView.cpp" line="491"/>
         <source>Black and White</source>
         <translation>Schwarz-Weiß</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="446"/>
+        <location filename="../app/PdfExportView.cpp" line="491"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation>Schwarz-Weiß-Seiten und der Text von Seiten mit geteilter Ausgabe.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="454"/>
+        <location filename="../app/PdfExportView.cpp" line="499"/>
         <source>All methods are lossless. JBIG2 makes the smallest files. CCITT G4 files are about a third larger, but can be shown by very old PDF programs, too. Deflate and None make much larger files.</source>
         <translation>Alle Verfahren sind verlustfrei. JBIG2 ergibt die kleinsten Dateien. Dateien mit CCITT G4 sind etwa ein Drittel größer, können aber auch von sehr alten PDF-Programmen angezeigt werden. Deflate und Keine ergeben viel größere Dateien.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="506"/>
+        <location filename="../app/PdfExportView.cpp" line="552"/>
         <source>Languages:</source>
         <translation>Sprachen:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="512"/>
+        <location filename="../app/PdfExportView.cpp" line="558"/>
         <source>Tick the languages of the text. Several languages can be ticked.</source>
         <translation>Kreuzen Sie die Sprachen des Textes an. Mehrere Sprachen sind möglich.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="519"/>
+        <location filename="../app/PdfExportView.cpp" line="565"/>
         <source>No language files were found. Download them with &quot;More languages&quot;, or put *.traineddata files (from tessdata_best) into one of these folders:</source>
         <translation>Es wurden keine Sprachdateien gefunden. Laden Sie sie über „Weitere Sprachen“ herunter, oder legen Sie *.traineddata-Dateien (aus tessdata_best) in einen dieser Ordner:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="492"/>
+        <location filename="../app/PdfExportView.cpp" line="538"/>
         <source>More languages ...</source>
         <translation>Weitere Sprachen ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="493"/>
+        <location filename="../app/PdfExportView.cpp" line="539"/>
         <source>Download more languages from the internet.</source>
         <translation>Weitere Sprachen aus dem Internet herunterladen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="532"/>
+        <location filename="../app/PdfExportView.cpp" line="578"/>
         <source>Automatic</source>
         <translation>Automatisch</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="533"/>
+        <location filename="../app/PdfExportView.cpp" line="579"/>
         <source>Single column</source>
         <translation>Eine Spalte</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="534"/>
+        <location filename="../app/PdfExportView.cpp" line="580"/>
         <source>Single block of text</source>
         <translation>Ein Textblock</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="288"/>
+        <location filename="../app/PdfExportView.cpp" line="333"/>
         <source>PDF file:</source>
         <translation>PDF-Datei:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="291"/>
+        <location filename="../app/PdfExportView.cpp" line="336"/>
         <source>Browse ...</source>
         <translation>Durchsuchen ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="737"/>
+        <location filename="../app/PdfExportView.cpp" line="631"/>
+        <source>Source Files (TIFF)</source>
+        <translation>Quelldateien (TIFF)</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="632"/>
+        <source>The compression of the TIFF files in the output folder that the selected pages are made from, as set in the TIFF Compression panel of the Output step when the pages were processed. The numbers count the pages; pages with split output count with their picture and with their text.</source>
+        <translation>Die Komprimierung der TIFF-Dateien im Ausgabeordner, aus denen die ausgewählten Seiten entstehen, wie sie beim Verarbeiten der Seiten in der Gruppe „TIFF-Komprimierung“ im Schritt „Ausgabe“ eingestellt war. Die Zahlen zählen die Seiten; Seiten mit geteilter Ausgabe zählen mit ihrem Bild und mit ihrem Text.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="637"/>
+        <source>How the selected pages are compressed in the PDF, as set in the PDF Compression panel. The numbers count the pages; pages with split output count with their picture and with their text.</source>
+        <translation>Wie die ausgewählten Seiten im PDF komprimiert werden, wie in der Gruppe „PDF-Komprimierung“ eingestellt. Die Zahlen zählen die Seiten; Seiten mit geteilter Ausgabe zählen mit ihrem Bild und mit ihrem Text.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="819"/>
         <source>Save PDF As</source>
         <translation>PDF-Datei speichern unter</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="268"/>
+        <location filename="../app/PdfExportView.cpp" line="313"/>
         <source>Move forward</source>
         <translation>Nach vorn</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="269"/>
+        <location filename="../app/PdfExportView.cpp" line="314"/>
         <source>Move back</source>
         <translation>Nach hinten</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="273"/>
+        <location filename="../app/PdfExportView.cpp" line="318"/>
         <source>Move the selected pages one place towards the start of the PDF. Pages can also be moved with drag and drop.</source>
         <translation>Die ausgewählten Seiten um eine Stelle zum Anfang des PDFs verschieben. Seiten lassen sich auch mit der Maus ziehen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="276"/>
+        <location filename="../app/PdfExportView.cpp" line="321"/>
         <source>Move the selected pages one place towards the end of the PDF. Pages can also be moved with drag and drop.</source>
         <translation>Die ausgewählten Seiten um eine Stelle zum Ende des PDFs verschieben. Seiten lassen sich auch mit der Maus ziehen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="381"/>
+        <location filename="../app/PdfExportView.cpp" line="426"/>
         <source>Higher values give better pictures and larger files. Only used with JPEG and JPEG 2000. With JPEG 2000, 100 is lossless; with JPEG, it&apos;s only nearly lossless.</source>
         <translation>Höhere Werte ergeben bessere Bilder und größere Dateien. Wird nur bei JPEG und JPEG 2000 verwendet. Bei JPEG 2000 ist 100 verlustfrei, bei JPEG nur nahezu verlustfrei.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="386"/>
+        <location filename="../app/PdfExportView.cpp" line="431"/>
         <source>Color / Grayscale</source>
         <translation>Farbe / Graustufen</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="397"/>
+        <location filename="../app/PdfExportView.cpp" line="442"/>
         <source>JPEG makes small files and loses a little quality, mostly at the edges of text. JPEG 2000 looks better at the same size, or makes smaller files at the same quality, but takes much longer to create, and some simple or old PDF programs can&apos;t show it. Deflate is lossless, but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB.</source>
         <translation>JPEG ergibt kleine Dateien und verliert etwas Qualität, vor allem an Schriftkanten. JPEG 2000 sieht bei gleicher Größe besser aus oder ergibt bei gleicher Qualität kleinere Dateien, braucht aber deutlich länger zum Erstellen, und manche einfachen oder älteren PDF-Programme können es nicht anzeigen. Deflate ist verlustfrei, macht das PDF aber sehr groß: Eine Farbseite kann 10 bis 25 MB belegen, unkomprimiert (Keine) bis zu 45 MB.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="415"/>
+        <location filename="../app/PdfExportView.cpp" line="460"/>
         <source>Resolution of the background layer of pages with split output, that is of the pictures, relative to the output resolution. The text is always stored at full resolution.</source>
         <translation>Auflösung der Hintergrundebene geteilter Seiten, also der Bilder, im Verhältnis zur Ausgabeauflösung. Der Text wird immer in voller Auflösung gespeichert.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="417"/>
+        <location filename="../app/PdfExportView.cpp" line="462"/>
         <source>Background layer:</source>
         <translation>Hintergrundebene:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="423"/>
+        <location filename="../app/PdfExportView.cpp" line="468"/>
         <source>Color pages that were posterized in the Output step, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color / Grayscale&quot;.</source>
         <translation>Farbseiten, die im Schritt „Ausgabe“ mit Tontrennung bearbeitet wurden, und Bilder mit Tontrennung auf Seiten mit geteilter Ausgabe. Graustufenseiten mit Tontrennung lassen sich nicht von anderen Graustufenseiten unterscheiden; sie folgen „Farbe / Graustufen“.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="434"/>
+        <location filename="../app/PdfExportView.cpp" line="479"/>
         <source>Deflate is lossless and keeps the few colors exactly, which makes small and sharp files. JPEG and JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file larger. None is lossless, but large.</source>
         <translation>Deflate ist verlustfrei und behält die wenigen Farben exakt bei; das ergibt kleine und scharfe Dateien. JPEG und JPEG 2000 wandeln die Seite zuerst in volle Farbe um; das verwischt die Farbflächen und macht die Datei oft größer. Keine ist verlustfrei, aber groß.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="485"/>
+        <location filename="../app/PdfExportView.cpp" line="531"/>
         <source>Recognize text</source>
         <translation>Text erkennen</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="488"/>
+        <location filename="../app/PdfExportView.cpp" line="534"/>
         <source>Adds an invisible text layer, so the text of the PDF can be searched, selected and copied. Text recognition takes a few seconds per page.</source>
         <translation>Fügt eine unsichtbare Textebene hinzu, sodass sich der Text der PDF-Datei durchsuchen, markieren und kopieren lässt. Die Texterkennung dauert einige Sekunden pro Seite.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="536"/>
+        <location filename="../app/PdfExportView.cpp" line="582"/>
         <source>How the text is arranged on the pages. This decides the order in which the text is recognized, e.g. for searching and copying; the look of the PDF doesn&apos;t change. &quot;Automatic&quot; detects columns, pictures and captions and is usually right. &quot;Single column&quot; helps if copied text comes out in the wrong order, e.g. with indented lines or tables. &quot;Single block of text&quot; suits pages with only one short text, such as a label or a note.</source>
         <translation>Wie der Text auf den Seiten angeordnet ist. Davon hängt ab, in welcher Reihenfolge der Text erkannt wird, zum Beispiel beim Suchen oder Kopieren; das Aussehen des PDFs ändert sich nicht. „Automatisch“ erkennt Spalten, Bilder und Bildunterschriften und ist meist richtig. „Eine Spalte“ hilft, wenn kopierter Text in falscher Reihenfolge herauskommt, etwa bei Einrückungen oder Tabellen. „Ein Textblock“ passt für Seiten mit nur einem kurzen Text, zum Beispiel einem Etikett oder einer Notiz.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="543"/>
+        <location filename="../app/PdfExportView.cpp" line="589"/>
         <source>Text layout:</source>
         <translation>Textanordnung:</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="737"/>
+        <location filename="../app/PdfExportView.cpp" line="604"/>
+        <source>Quality</source>
+        <translation>Qualität</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="610"/>
+        <source>Color / grayscale:</source>
+        <translation>Farbe / Graustufen:</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="610"/>
+        <source>Posterized:</source>
+        <translation>Tontrennung:</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="610"/>
+        <source>Black and white:</source>
+        <translation>Schwarz-Weiß:</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="617"/>
+        <source>No pages selected.</source>
+        <translation>Keine Seiten ausgewählt.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="819"/>
         <source>PDF files (*.pdf)</source>
         <translation>PDF-Dateien (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="759"/>
+        <location filename="../app/PdfExportView.cpp" line="841"/>
         <source>Please enter the file name of the PDF.</source>
         <translation>Bitte geben Sie den Dateinamen der PDF-Datei ein.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="767"/>
+        <location filename="../app/PdfExportView.cpp" line="849"/>
         <source>Please enter the complete path of the PDF, including the folder.</source>
         <translation>Bitte geben Sie den vollständigen Pfad der PDF-Datei einschließlich des Ordners ein.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="774"/>
+        <location filename="../app/PdfExportView.cpp" line="856"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="778"/>
+        <location filename="../app/PdfExportView.cpp" line="860"/>
         <source>%1 is a folder.</source>
         <translation>%1 ist ein Ordner.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="788"/>
+        <location filename="../app/PdfExportView.cpp" line="870"/>
         <source>The file %1 already exists.
 Do you want to replace it?</source>
         <translation>Die Datei %1 existiert bereits.
 Möchten Sie sie ersetzen?</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="803"/>
+        <location filename="../app/PdfExportView.cpp" line="885"/>
         <source>Please tick the pages to include in the PDF.</source>
         <translation>Bitte kreuzen Sie die Seiten an, die in die PDF-Datei aufgenommen werden sollen.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="821"/>
+        <location filename="../app/PdfExportView.cpp" line="903"/>
         <source>Please tick at least one language for the text recognition, or turn it off.</source>
         <translation>Bitte kreuzen Sie mindestens eine Sprache für die Texterkennung an, oder schalten Sie sie aus.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="828"/>
+        <location filename="../app/PdfExportView.cpp" line="910"/>
         <source>Copying language files ...</source>
         <translation>Sprachdateien werden kopiert ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="836"/>
+        <location filename="../app/PdfExportView.cpp" line="918"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation>Die Dateien der gewählten Sprachen liegen in verschiedenen Ordnern und konnten nicht in einen gemeinsamen Ordner kopiert werden, den die Texterkennung braucht.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="859"/>
+        <location filename="../app/PdfExportView.cpp" line="941"/>
         <source>Recognizing the text and creating the PDF ...</source>
         <translation>Text wird erkannt und PDF-Datei wird erstellt ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="860"/>
+        <location filename="../app/PdfExportView.cpp" line="942"/>
         <source>Creating the PDF ...</source>
         <translation>PDF-Datei wird erstellt ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="870"/>
+        <location filename="../app/PdfExportView.cpp" line="952"/>
         <source>Canceling ...</source>
         <translation>Wird abgebrochen ...</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="895"/>
+        <location filename="../app/PdfExportView.cpp" line="977"/>
         <source>The PDF was created: %1 (%2)</source>
         <translation>Die PDF-Datei wurde erstellt: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="901"/>
+        <location filename="../app/PdfExportView.cpp" line="983"/>
         <source>Canceled. No PDF was written.</source>
         <translation>Abgebrochen. Es wurde keine PDF-Datei geschrieben.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="904"/>
-        <location filename="../app/PdfExportView.cpp" line="913"/>
+        <location filename="../app/PdfExportView.cpp" line="986"/>
+        <location filename="../app/PdfExportView.cpp" line="995"/>
         <source>The PDF could not be created.</source>
         <translation>Die PDF-Datei konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="910"/>
+        <location filename="../app/PdfExportView.cpp" line="992"/>
         <source>... and %1 more.</source>
         <translation>... und %1 weitere.</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="926"/>
+        <location filename="../app/PdfExportView.cpp" line="1008"/>
         <source>%1 of %2 output pages selected</source>
         <translation>%1 von %2 ausgegebenen Seiten ausgewählt</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/PdfExportView.cpp" line="930"/>
+        <location filename="../app/PdfExportView.cpp" line="1012"/>
         <source>(%n page(s) not output yet)</source>
         <translation>
             <numerusform>(%n Seite noch nicht ausgegeben)</numerusform>
@@ -2982,37 +3027,143 @@ Möchten Sie sie ersetzen?</translation>
         </translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1059"/>
+        <location filename="../app/PdfExportView.cpp" line="1146"/>
         <source>uncompressed</source>
         <translation>unkomprimiert</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1064"/>
+        <location filename="../app/PdfExportView.cpp" line="1195"/>
+        <source>In the output folder, the picture of this page is stored with lossy compression (%1).</source>
+        <translation>Im Ausgabeordner ist das Bild dieser Seite verlustbehaftet komprimiert gespeichert (%1).</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1197"/>
+        <source>In the output folder, this page is stored with lossy compression (%1).</source>
+        <translation>Im Ausgabeordner ist diese Seite verlustbehaftet komprimiert gespeichert (%1).</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1200"/>
+        <source>The PDF compresses it with loss a second time (%1), so the losses add up.</source>
+        <translation>Das PDF komprimiert sie ein zweites Mal verlustbehaftet (%1), sodass sich die Verluste addieren.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1201"/>
+        <source>The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than necessary.</source>
+        <translation>Das PDF speichert sie verlustfrei (%1). Das erhält die Verluste und macht die Datei größer als nötig.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1207"/>
+        <source>%1 converts the posterized picture of this page to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
+        <translation>%1 wandelt das Bild mit Tontrennung dieser Seite in Vollfarbe um. Dadurch verschwimmen die Farbflächen, und die Datei wird oft größer. Deflate erhält die Farben exakt.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1212"/>
+        <source>Mixed page without split output. It is stored as a single image, so with %1 the text is less sharp and the PDF is larger. Enable &quot;Split output&quot; in the Output step and process the page again.</source>
+        <translation>Gemischte Seite ohne geteilte Ausgabe. Sie wird als ein Bild gespeichert, dadurch wird die Schrift mit %1 unschärfer und das PDF größer. Aktivieren Sie im Schritt „Ausgabe“ „Geteilte Ausgabe“ und verarbeiten Sie die Seite erneut.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1225"/>
+        <source>Mixed page without split output. It is stored losslessly as a single image. With split output, the PDF is usually much smaller.</source>
+        <translation>Gemischte Seite ohne geteilte Ausgabe. Sie wird verlustfrei als ein Bild gespeichert. Mit geteilter Ausgabe wird das PDF meist deutlich kleiner.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1239"/>
+        <location filename="../app/PdfExportView.cpp" line="1244"/>
+        <source>%1 (lossy)</source>
+        <comment>tooltip</comment>
+        <translation>%1 (verlustbehaftet)</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1254"/>
+        <source>Black and white</source>
+        <translation>Schwarz-Weiß</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1259"/>
+        <source>Mixed, split output</source>
+        <translation>Gemischt, geteilte Ausgabe</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1260"/>
+        <location filename="../app/PdfExportView.cpp" line="1262"/>
+        <source>%1 (picture), %2 (text)</source>
+        <translation>%1 (Bild), %2 (Text)</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1266"/>
+        <source>Mixed</source>
+        <translation>Gemischt</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1268"/>
+        <source>Color / grayscale, posterized</source>
+        <translation>Farbe / Graustufen, Tontrennung</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1276"/>
+        <source>Color mode: %1</source>
+        <translation>Farbmodus: %1</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1276"/>
+        <source>Compression TIFF: %1</source>
+        <translation>Komprimierung TIFF: %1</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1277"/>
+        <source>Compression PDF: %1</source>
+        <translation>Komprimierung PDF: %1</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1350"/>
+        <location filename="../app/PdfExportView.cpp" line="1359"/>
+        <source>%1 (lossy)</source>
+        <comment>short</comment>
+        <translation>%1 (mit Verlust)</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1370"/>
+        <source>Stored with lossy compression: %1</source>
+        <translation>Verlustbehaftet gespeichert: %1</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1380"/>
+        <source>Compressed with loss twice: %1</source>
+        <translation>Zweifach verlustbehaftet: %1</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1387"/>
+        <source>Posterized, converted to full color: %1</source>
+        <translation>Tontrennung, in Vollfarbe umgewandelt: %1</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1270"/>
+        <source>Color / grayscale</source>
+        <translation>Farbe / Graustufen</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1372"/>
+        <source>The PDF can&apos;t undo these losses. A lossless method in the PDF keeps them and makes the file larger than necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output step and process the pages again.</source>
+        <translation>Das PDF kann diese Verluste nicht rückgängig machen. Eine verlustfreie Methode im PDF erhält sie und macht die Datei größer als nötig. Um die Verluste zu vermeiden, wählen Sie in der Gruppe „TIFF-Komprimierung“ im Schritt „Ausgabe“ eine verlustfreie Methode und verarbeiten die Seiten erneut.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1382"/>
+        <source>The output files of these pages are stored with lossy compression, and the PDF compresses them with loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second loss.</source>
+        <translation>Die Ausgabedateien dieser Seiten sind verlustbehaftet komprimiert gespeichert, und das PDF komprimiert sie ein zweites Mal verlustbehaftet, sodass sich die Verluste addieren. Deflate oder JPEG 2000 mit Qualität 100 vermeidet den zweiten Verlust.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1389"/>
+        <source>JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
+        <translation>JPEG und JPEG 2000 wandeln Bilder mit Tontrennung in Vollfarbe um. Dadurch verschwimmen die Farbflächen, und die Datei wird oft größer. Deflate erhält die Farben exakt.</translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="1130"/>
+        <location filename="../app/PdfExportView.cpp" line="1234"/>
         <source>Not output yet</source>
         <translation>Noch nicht ausgegeben</translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1066"/>
-        <source>Black and white (%1)</source>
-        <translation>Schwarz-Weiß (%1)</translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="1068"/>
-        <source>Split output (picture %1, text %2)</source>
-        <translation>Geteilte Ausgabe (Bild %1, Text %2)</translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="1072"/>
-        <source>Color / grayscale (%1)</source>
-        <translation>Farbe / Graustufen (%1)</translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="1074"/>
-        <source>Posterized (%1)</source>
-        <translation>Tontrennung (%1)</translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="313"/>
+        <location filename="../app/PdfExportView.cpp" line="358"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>

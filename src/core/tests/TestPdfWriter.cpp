@@ -401,11 +401,14 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   BOOST_CHECK_EQUAL(errors.size(), 1);
   BOOST_REQUIRE(TiffWriter::writeImage(bgFile, background));
 
-  // Without the split files, the mixed page is stored as one JPEG and gets a warning.
+  BOOST_CHECK(!page.isWithoutSplitOutput());
+
+  // Without the split files, the mixed page is stored as one image. The PDF step tells about it.
   QFile::remove(fgFile);
   page.analyze();
   BOOST_CHECK_EQUAL(page.kind(), PdfExportPage::IMAGE);
-  BOOST_CHECK(!page.warning().isEmpty());
+  BOOST_CHECK(page.warning().isEmpty());
+  BOOST_CHECK(page.isWithoutSplitOutput());
 
   // A missing output file.
   PdfExportPage missing(dir.filePath("none.tif"), fgFile, bgFile, false);
@@ -732,6 +735,57 @@ BOOST_AUTO_TEST_CASE(test_export_job) {
   BOOST_CHECK(!failing.succeeded());
   BOOST_CHECK(!failing.errors().isEmpty());
   BOOST_CHECK(!QFile::exists(failedFile));
+}
+
+BOOST_AUTO_TEST_CASE(test_lossy_compressions) {
+  QTemporaryDir dir;
+  auto write = [](const QString& path, const QImage& image, const int colorCompression) {
+    QFile file(path);
+    return file.open(QIODevice::WriteOnly)
+           && TiffWriter::writeImage(file, image, {COMPRESSION_CCITTFAX4, colorCompression, 85});
+  };
+
+  // The compression of the output file is read from the file.
+  const QString lzwFile = dir.filePath("lzw.tif");
+  BOOST_REQUIRE(write(lzwFile, makeGray(40, 30, 300), COMPRESSION_LZW));
+  PdfExportPage lzwPage(lzwFile, QString(), QString(), false);
+  lzwPage.analyze();
+  BOOST_CHECK_EQUAL(lzwPage.pictureCompression(), COMPRESSION_LZW);
+  BOOST_CHECK(!PdfExportPage::isLossyTiffCompression(lzwPage.pictureCompression()));
+
+  const QString jpegFile = dir.filePath("jpeg.tif");
+  BOOST_REQUIRE(write(jpegFile, makeGray(40, 30, 300), COMPRESSION_JPEG));
+  PdfExportPage jpegPage(jpegFile, QString(), QString(), false);
+  jpegPage.analyze();
+  BOOST_REQUIRE_EQUAL(jpegPage.kind(), PdfExportPage::IMAGE);
+  BOOST_CHECK_EQUAL(jpegPage.pictureCompression(), COMPRESSION_JPEG);
+  BOOST_CHECK(PdfExportPage::isLossyTiffCompression(jpegPage.pictureCompression()));
+
+  // With split output, the picture is the background layer and the text the foreground layer.
+  const QString mainFile = dir.filePath("page.tif");
+  const QString fgFile = dir.filePath("fg.tif");
+  const QString bgFile = dir.filePath("bg.tif");
+  BOOST_REQUIRE(write(fgFile, makeBitonal(40, 30, 300), COMPRESSION_LZW));
+  BOOST_REQUIRE(write(bgFile, makeGray(40, 30, 300), COMPRESSION_JPEG));
+  BOOST_REQUIRE(write(mainFile, makeGray(40, 30, 300), COMPRESSION_LZW));
+  PdfExportPage splitPage(mainFile, fgFile, bgFile, true);
+  splitPage.analyze();
+  BOOST_REQUIRE_EQUAL(splitPage.kind(), PdfExportPage::MRC);
+  BOOST_CHECK_EQUAL(splitPage.pictureCompression(), COMPRESSION_JPEG);
+  BOOST_CHECK_EQUAL(splitPage.textCompression(), COMPRESSION_CCITTFAX4);
+
+  // Unknown methods count as lossy.
+  BOOST_CHECK(PdfExportPage::isLossyTiffCompression(COMPRESSION_OJPEG));
+  BOOST_CHECK(PdfExportPage::isLossyTiffCompression(12345));
+  BOOST_CHECK(!PdfExportPage::isLossyTiffCompression(COMPRESSION_ADOBE_DEFLATE));
+
+  // In the PDF, JPEG is lossy even at quality 100; JPEG 2000 is lossless there.
+  BOOST_CHECK(isLossyPdfCompression(PdfCompression::JPEG, 100));
+  BOOST_CHECK(!isLossyPdfCompression(PdfCompression::JPEG2000, 100));
+  BOOST_CHECK(isLossyPdfCompression(PdfCompression::JPEG2000, 99));
+  BOOST_CHECK(!isLossyPdfCompression(PdfCompression::DEFLATE, 50));
+  BOOST_CHECK(!isLossyPdfCompression(PdfCompression::JBIG2, 50));
+  BOOST_CHECK(!isLossyPdfCompression(PdfCompression::CCITT_G4, 50));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -3,6 +3,8 @@
 
 #include "PdfExportPage.h"
 
+#include <tiff.h>
+
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QFileInfo>
@@ -22,15 +24,21 @@ PdfExportPage::PdfExportPage(const QString& mainFile,
 void PdfExportPage::analyze() {
   m_kind = MISSING;
   m_palettePicture = false;
+  m_pictureCompression = 0;
+  m_textCompression = 0;
+  m_withoutSplitOutput = false;
   m_warning.clear();
 
   const QFileInfo mainInfo(m_mainFile);
   QSize mainSize;
   int mainBits = 0;
   bool mainPalette = false;
-  if (!mainInfo.isFile() || !PdfImageEncoder::readTiffInfo(m_mainFile, &mainSize, &mainBits, &mainPalette)) {
+  int mainCompression = 0;
+  if (!mainInfo.isFile()
+      || !PdfImageEncoder::readTiffInfo(m_mainFile, &mainSize, &mainBits, &mainPalette, &mainCompression)) {
     return;
   }
+  m_pictureCompression = mainCompression;
   if (mainBits == 1) {
     m_kind = BITONAL;
     return;
@@ -50,13 +58,17 @@ void PdfExportPage::analyze() {
     int fgBits = 0;
     int bgBits = 0;
     bool bgPalette = false;
+    int fgCompression = 0;
+    int bgCompression = 0;
     const bool usable = (fgInfo.lastModified() >= oldestAllowed) && (bgInfo.lastModified() >= oldestAllowed)
-                        && PdfImageEncoder::readTiffInfo(m_foregroundFile, &fgSize, &fgBits)
-                        && PdfImageEncoder::readTiffInfo(m_backgroundFile, &bgSize, &bgBits, &bgPalette)
+                        && PdfImageEncoder::readTiffInfo(m_foregroundFile, &fgSize, &fgBits, nullptr, &fgCompression)
+                        && PdfImageEncoder::readTiffInfo(m_backgroundFile, &bgSize, &bgBits, &bgPalette, &bgCompression)
                         && (fgBits == 1) && (fgSize == mainSize) && (bgSize == mainSize);
     if (usable) {
       m_kind = MRC;
       m_palettePicture = bgPalette;
+      m_pictureCompression = bgCompression;
+      m_textCompression = fgCompression;
       return;
     }
   }
@@ -67,11 +79,55 @@ void PdfExportPage::analyze() {
         "PdfExportPage",
         "The split output files of this page don't match its output file (they are older, have a different size "
         "or a colored foreground). The page is stored as a single image. Process the page again to fix this.");
-  } else if (m_mixedMode) {
-    m_warning = QCoreApplication::translate(
-        "PdfExportPage",
-        "Mixed page without split output. It is stored as a single image, which makes the PDF larger and, with "
-        "JPEG, the text less sharp. For a smaller file, enable \"Split output\" in the Output step and process "
-        "the page again.");
+  } else {
+    // How much this matters depends on the PDF compression, so the PDF step tells it.
+    m_withoutSplitOutput = m_mixedMode;
   }
 }  // PdfExportPage::analyze
+
+bool PdfExportPage::isLossyTiffCompression(const int compression) {
+  switch (compression) {
+    case COMPRESSION_NONE:
+    case COMPRESSION_CCITTRLE:
+    case COMPRESSION_CCITTFAX3:
+    case COMPRESSION_CCITTFAX4:
+    case COMPRESSION_LZW:
+    case COMPRESSION_ADOBE_DEFLATE:
+    case COMPRESSION_CCITTRLEW:
+    case COMPRESSION_PACKBITS:
+    case COMPRESSION_DEFLATE:
+    case COMPRESSION_LZMA:
+    case COMPRESSION_ZSTD:
+      return false;
+    default:
+      // JPEG, and methods this program doesn't write.
+      return true;
+  }
+}
+
+QString PdfExportPage::tiffCompressionName(const int compression) {
+  switch (compression) {
+    case COMPRESSION_NONE:
+      return QCoreApplication::translate("PdfExportPage", "uncompressed");
+    case COMPRESSION_LZW:
+      return QStringLiteral("LZW");
+    case COMPRESSION_ADOBE_DEFLATE:
+    case COMPRESSION_DEFLATE:
+      return QStringLiteral("Deflate");
+    case COMPRESSION_LZMA:
+      return QStringLiteral("LZMA");
+    case COMPRESSION_OJPEG:
+    case COMPRESSION_JPEG:
+      return QStringLiteral("JPEG");
+    case COMPRESSION_CCITTFAX4:
+      return QStringLiteral("CCITT G4");
+    case COMPRESSION_CCITTFAX3:
+      return QStringLiteral("CCITT G3");
+    case COMPRESSION_PACKBITS:
+      return QStringLiteral("PackBits");
+    case COMPRESSION_ZSTD:
+      return QStringLiteral("ZSTD");
+    default:
+      return QCoreApplication::translate("PdfExportPage", "method %1").arg(compression);
+  }
+}
