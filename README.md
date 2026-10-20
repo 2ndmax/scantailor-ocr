@@ -15,6 +15,18 @@ selection, margins, dewarping and more).
 [documentation of ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced#readme).**
 Everything described there applies to ScanTailor OCR as well.
 
+## How this project came about
+
+All changes in ScanTailor OCR, compared to ScanTailor Advanced, were made with the help of
+[Claude Code](https://claude.com/claude-code), an AI coding assistant. The new features,
+adoptions and fixes were planned, built and tested in this way.
+
+This would not have been possible without the work of others. Sincere thanks go to everyone
+who contributed to ScanTailor and its forks, from the original ScanTailor to ScanTailor
+Advanced, ScanTailor Experimental and ScanTailor Spectre. They came up with new features,
+developed them and built them into their projects with a lot of effort and dedication, and
+ScanTailor OCR builds on all of it.
+
 ## What's different from ScanTailor Advanced
 
 Besides the PDF export and text recognition, among other things:
@@ -45,6 +57,7 @@ features were reimplemented:
 [ScanTailor Spectre](https://github.com/abandoned-industries/scantailor-spectre) is a macOS fork
 of ScanTailor Advanced. Taken over from it:
 
+* split line along the spine in *Split Pages*
 * settings for the automatic content detection in *Select Content*, for art books and photo pages
 * automatic detection of the color mode in *Output*
 * photo adjustments in *Output* (exposure, contrast, highlights, shadows, whites and blacks)
