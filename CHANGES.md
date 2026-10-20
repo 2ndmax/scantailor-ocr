@@ -109,8 +109,9 @@ topic, not by version.
 ## Split Pages and page order
 
 * The page type is switched with **Auto / Manual** buttons, as the split line is. The dialog
-  behind "Change ..." is now an **Apply to ...** dialog with *Page type* and *Split line*. The
-  four page layout buttons are redrawn (42 x 42 pixels, no text, tooltip names the layout).
+  behind "Change ..." is now an **Apply to ...** dialog with *Page type*, *Split line position*
+  and *Detection method*, all checked by default. The four page layout buttons are redrawn
+  (42 x 42 pixels, no text, tooltip names the layout).
 * **Page order** (left half first or right half first) is set for the whole project in the new
   group "Page Order" of the *Split Pages* step, with icon buttons. It replaces the menu item
   "Reverse Two-Page Spread Order" and the check box "Right to left layout" of the new project.
@@ -330,6 +331,15 @@ ScanTailor Advanced.
   whole page, Mixed only the picture zones, Black and White is not affected. The values are
   saved per page and have their own "Apply to ...". Positive *Highlights* make bright parts
   brighter (ScanTailor Spectre does the opposite). The automatic suggestion was not adopted.
+* **Split line along the spine** in *Split Pages* (also in the default parameters): the group
+  "Split Line" has a "Method". "Edges" takes the vertical line closest to the center, as before,
+  which can be the edge of a photo or a text column. "Spine line" looks for the spine as a thin
+  line that is darker than both sides of it over the whole height of the page, also slightly
+  tilted; if it finds none, "Edges" is used. "Spine line" is the default for new pages, and
+  pages of older projects keep "Edges". The method is saved per page and is carried over by
+  "Apply to ...". The approach follows the spine darkness search of ScanTailor Spectre, but
+  the line has to show over the whole page height; the detection based on a macOS-only image
+  analysis library was not adopted.
 * **Seed fill propagates completely** (picture detection, background estimation, despeckling),
   and a wrong row stride in the 8-connected fill is fixed.
 * **Faster grayscale conversion and histograms** of 32-bit color images with identical output.
