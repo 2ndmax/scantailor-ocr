@@ -8,6 +8,8 @@ topic, not by version.
 * The program is called **ScanTailor OCR**, starting with version **1.0.0**. The program file
   and the Linux package are `scantailor-ocr`, so it can be installed next to ScanTailor Advanced.
   The window title shows the version.
+* New application logo: an open book inside scan corners on a dark blue tile, readable down to
+  16 px (the Windows icon uses heavier strokes for the small sizes).
 * On the first start, the settings, saved default profiles and OCR languages of ScanTailor
   Advanced are copied over once. The old files are kept.
 * **Project files are saved as version 10** (`.ScanTailor`). Version 4, as written by ScanTailor

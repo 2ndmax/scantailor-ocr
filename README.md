@@ -7,6 +7,8 @@ ScanTailor OCR cleans up scanned pages and turns them into a **compact, searchab
 * **Text recognition (OCR)** with Tesseract adds an invisible text layer, so the PDF can be
   searched and its text copied. More languages can be downloaded in the program.
 
+Website: [www.scantailorocr.eu](https://www.scantailorocr.eu)
+
 ScanTailor OCR is based on [ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced)
 1.2.1, an interactive post-processing tool for scanned pages (page splitting, deskewing, content
 selection, margins, dewarping and more).
@@ -17,9 +19,9 @@ Everything described there applies to ScanTailor OCR as well.
 
 ## How this project came about
 
-All changes in ScanTailor OCR, compared to ScanTailor Advanced, were made with the help of
-[Claude Code](https://claude.com/claude-code), an AI coding assistant. The new features,
-adoptions and fixes were planned, built and tested in this way.
+ScanTailor OCR was developed entirely with the help of [Claude Code](https://claude.com/claude-code),
+an AI coding assistant: the new features, adoptions and fixes, the translations, the
+documentation and the website were planned, built and tested in this way.
 
 This would not have been possible without the work of others. Sincere thanks go to everyone
 who contributed to ScanTailor and its forks, from the original ScanTailor to ScanTailor
