@@ -134,23 +134,48 @@ class PdfExportView : public QWidget {
 
   const QSpinBox* pictureQualityBox(const PdfExportPage& page) const;
 
-  /** Whether the PDF compresses the picture of a page with loss. */
-  bool isPdfPictureLossy(const PdfExportPage& page) const;
+  /** How a page loses quality with the compression currently chosen. */
+  struct PageQuality {
+    /** The compression that applies to the picture: 0 color / grayscale, 1 posterized, 2 black and white. */
+    int part = 0;
+    /** Its files have a problem, see PdfExportPage::warning(). */
+    bool fileProblem = false;
+    /** The output folder stores the picture with lossy compression. */
+    bool tiffPictureLossy = false;
+    /** Split output: the output folder stores the text with lossy compression. */
+    bool tiffTextLossy = false;
+    /** The PDF compresses the picture with loss. */
+    bool pdfLossy = false;
+    /** JPEG or JPEG 2000 converts a posterized picture to full color. */
+    bool posterizedAsJpeg = false;
+    /** A mixed page without split output files. */
+    bool withoutSplitOutput = false;
 
-  /** Whether a posterized picture is converted to full color by JPEG or JPEG 2000. */
-  bool isPosterizedAsJpeg(const PdfExportPage& page) const;
+    /** Whether pageWarnings() has something to say. */
+    bool hasWarnings() const {
+      return fileProblem || tiffPictureLossy || tiffTextLossy || posterizedAsJpeg || (withoutSplitOutput && pdfLossy);
+    }
+
+    /** Whether pageNotes() has something to say. */
+    bool hasNotes() const { return withoutSplitOutput && !pdfLossy; }
+  };
+
+  PageQuality pageQuality(const PdfExportPage& page) const;
 
   /** What to warn about for a page: problems with its files and losses that may be unintended. */
-  QStringList pageWarnings(const PdfExportPage& page) const;
+  QStringList pageWarnings(const PdfExportPage& page, const PageQuality& quality) const;
 
   /** What is good to know about a page without being a problem. */
-  QStringList pageNotes(const PdfExportPage& page) const;
+  QStringList pageNotes(const PageQuality& quality) const;
 
-  /** Color mode, compression in the output folder and in the PDF, \p warnings and \p notes of a page. */
-  QString pageToolTip(const Entry& entry, const QStringList& warnings, const QStringList& notes) const;
+  /**
+   * The tooltip of a tile outside the file name: color mode, compression in the output folder and
+   * in the PDF, warnings and notes. Built when it's shown, for the compression chosen then.
+   */
+  QString pageToolTip(int entryIndex) const;
 
-  /** Sets the tooltips and the warning signs of the pages for the compression currently chosen. */
-  void updatePageInfos();
+  /** Sets the warning signs of the pages for the compression currently chosen. */
+  void updatePageSigns();
 
   /** Shows the compressions of the ticked pages in the Quality panel. */
   void updateQualityPanel();

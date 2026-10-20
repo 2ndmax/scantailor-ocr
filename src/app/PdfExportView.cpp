@@ -71,8 +71,6 @@ enum PageRole {
   KEY_ROLE,
   /** The sign above the thumbnail, a PageSign. */
   SIGN_ROLE,
-  /** The tooltip of the tile outside the file name: kind of page, compression and warnings. */
-  INFO_ROLE,
   /** The position of the page in the PDF, starting at 1; 0 if it's not in the PDF. */
   POSITION_ROLE
 };
@@ -103,7 +101,8 @@ bool usesQuality(const QComboBox* box) {
  */
 class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
  public:
-  explicit PageTileDelegate(QObject* parent) : QStyledItemDelegate(parent) {}
+  /** param view Builds the tooltips when they are shown. */
+  PageTileDelegate(const PdfExportView* view, QObject* parent) : QStyledItemDelegate(parent), m_view(view) {}
 
   QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex&) const override {
     const int lineHeight = option.fontMetrics.height();
@@ -234,12 +233,14 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
     if (event->type() != QEvent::ToolTip) {
       return QStyledItemDelegate::helpEvent(event, view, option, index);
     }
-    const QString tip = nameRect(option).contains(event->pos()) ? index.data(Qt::DisplayRole).toString()
-                                                                : index.data(INFO_ROLE).toString();
+    const QString tip = nameRect(option).contains(event->pos())
+                            ? index.data(Qt::DisplayRole).toString()
+                            : m_view->pageToolTip(index.data(ENTRY_INDEX_ROLE).toInt());
     if (tip.isEmpty()) {
       QToolTip::hideText();
     } else {
-      QToolTip::showText(event->globalPos(), Application::wrapToolTip(tip), view);
+      // Bound to the tile, so that the same text over another tile moves along.
+      QToolTip::showText(event->globalPos(), Application::wrapToolTip(tip), view->viewport(), option.rect);
     }
     return true;
   }
@@ -263,6 +264,8 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
     const int top = option.rect.top() + TILE_MARGIN + (headerHeight(option) - size.height()) / 2;
     return QRect(QPoint(option.rect.left() + TILE_MARGIN, top), size);
   }
+
+  const PdfExportView* m_view;
 };
 
 class PdfExportView::ThumbnailHandler : public ThumbnailPixmapCache::CompletionHandler {
@@ -298,7 +301,7 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   m_pageList->setUniformItemSizes(true);
   m_pageList->setSpacing(4);
   m_pageList->setIconSize(THUMBNAIL_SIZE);
-  m_pageList->setItemDelegate(new PageTileDelegate(m_pageList));
+  m_pageList->setItemDelegate(new PageTileDelegate(this, m_pageList));
   m_pageList->setSelectionMode(QAbstractItemView::ExtendedSelection);
   m_pageList->setDragDropMode(QAbstractItemView::InternalMove);
   m_pageList->setDefaultDropAction(Qt::MoveAction);
@@ -712,7 +715,7 @@ void PdfExportView::setPages(std::vector<Entry> entries) {
     }
   }
   m_filling = false;
-  updatePageInfos();
+  updatePageSigns();
   updatePositions();
   QTimer::singleShot(0, this, [this, scrollPos]() { m_pageList->verticalScrollBar()->setValue(scrollPos); });
 
@@ -1164,30 +1167,34 @@ const QSpinBox* PdfExportView::pictureQualityBox(const PdfExportPage& page) cons
   return (pictureCompressionBox(page) == m_paletteCompression) ? m_paletteQuality : m_colorQuality;
 }
 
-bool PdfExportView::isPdfPictureLossy(const PdfExportPage& page) const {
-  if ((page.kind() == PdfExportPage::MISSING) || (page.kind() == PdfExportPage::BITONAL)) {
-    return false;
-  }
-  const auto compression = static_cast<PdfCompression>(pictureCompressionBox(page)->currentData().toInt());
-  return isLossyPdfCompression(compression, pictureQualityBox(page)->value());
-}
-
-bool PdfExportView::isPosterizedAsJpeg(const PdfExportPage& page) const {
-  const bool posterized
-      = (page.kind() == PdfExportPage::PALETTE) || ((page.kind() == PdfExportPage::MRC) && page.hasPalettePicture());
-  return posterized && usesQuality(m_paletteCompression);
-}
-
-QStringList PdfExportView::pageWarnings(const PdfExportPage& page) const {
-  QStringList warnings;
+PdfExportView::PageQuality PdfExportView::pageQuality(const PdfExportPage& page) const {
+  PageQuality quality;
   if (page.kind() == PdfExportPage::MISSING) {
-    return warnings;
+    return quality;
   }
-  if (!page.warning().isEmpty()) {
+  const QComboBox* box = pictureCompressionBox(page);
+  quality.part = (box == m_colorCompression) ? 0 : (box == m_paletteCompression) ? 1 : 2;
+  quality.fileProblem = !page.warning().isEmpty();
+  quality.tiffPictureLossy = PdfExportPage::isLossyTiffCompression(page.pictureCompression());
+  quality.tiffTextLossy
+      = (page.kind() == PdfExportPage::MRC) && PdfExportPage::isLossyTiffCompression(page.textCompression());
+  // The black and white methods of the PDF are all lossless.
+  if (page.kind() != PdfExportPage::BITONAL) {
+    const auto compression = static_cast<PdfCompression>(box->currentData().toInt());
+    quality.pdfLossy = isLossyPdfCompression(compression, pictureQualityBox(page)->value());
+  }
+  quality.posterizedAsJpeg = (box == m_paletteCompression) && usesQuality(m_paletteCompression);
+  quality.withoutSplitOutput = page.isWithoutSplitOutput();
+  return quality;
+}
+
+QStringList PdfExportView::pageWarnings(const PdfExportPage& page, const PageQuality& quality) const {
+  QStringList warnings;
+  if (quality.fileProblem) {
     warnings.push_back(page.warning());
   }
   // Losses in the PDF alone are chosen in the PDF Compression panel and aren't warned about.
-  if (PdfExportPage::isLossyTiffCompression(page.pictureCompression())) {
+  if (quality.tiffPictureLossy) {
     const QString tiffMethod = PdfExportPage::tiffCompressionName(page.pictureCompression());
     const QString pdfMethod = pdfMethodName(pictureCompressionBox(page));
     const QString stored
@@ -1196,19 +1203,24 @@ QStringList PdfExportView::pageWarnings(const PdfExportPage& page) const {
                     .arg(tiffMethod)
               : tr("In the output folder, this page is stored with lossy compression (%1).").arg(tiffMethod);
     const QString inPdf
-        = isPdfPictureLossy(page)
+        = quality.pdfLossy
               ? tr("The PDF compresses it with loss a second time (%1), so the losses add up.").arg(pdfMethod)
               : tr("The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than "
                    "necessary.")
                     .arg(pdfMethod);
     warnings.push_back(stored + ' ' + inPdf);
   }
-  if (isPosterizedAsJpeg(page)) {
+  if (quality.tiffTextLossy) {
+    warnings.push_back(tr("In the output folder, the text of this page is stored with lossy compression (%1). The "
+                          "PDF can't undo these losses.")
+                           .arg(PdfExportPage::tiffCompressionName(page.textCompression())));
+  }
+  if (quality.posterizedAsJpeg) {
     warnings.push_back(tr("%1 converts the posterized picture of this page to full color, which blurs the color "
                           "areas and often makes the file larger. Deflate keeps the colors exactly.")
                            .arg(pdfMethodName(m_paletteCompression)));
   }
-  if (page.isWithoutSplitOutput() && isPdfPictureLossy(page)) {
+  if (quality.withoutSplitOutput && quality.pdfLossy) {
     warnings.push_back(tr("Mixed page without split output. It is stored as a single image, so with %1 the text is "
                           "less sharp and the PDF is larger. Enable \"Split output\" in the Output step and process "
                           "the page again.")
@@ -1217,10 +1229,10 @@ QStringList PdfExportView::pageWarnings(const PdfExportPage& page) const {
   return warnings;
 }  // PdfExportView::pageWarnings
 
-QStringList PdfExportView::pageNotes(const PdfExportPage& page) const {
+QStringList PdfExportView::pageNotes(const PageQuality& quality) const {
   QStringList notes;
   // Without losses, only the size of the PDF is at stake.
-  if (page.isWithoutSplitOutput() && !isPdfPictureLossy(page)) {
+  if (quality.withoutSplitOutput && !quality.pdfLossy) {
     notes.push_back(
         tr("Mixed page without split output. It is stored losslessly as a single image. With split output, the "
            "PDF is usually much smaller."));
@@ -1228,38 +1240,42 @@ QStringList PdfExportView::pageNotes(const PdfExportPage& page) const {
   return notes;
 }
 
-QString PdfExportView::pageToolTip(const Entry& entry, const QStringList& warnings, const QStringList& notes) const {
-  const PdfExportPage& page = entry.page;
+QString PdfExportView::pageToolTip(const int entryIndex) const {
+  if ((entryIndex < 0) || (entryIndex >= static_cast<int>(m_entries.size()))) {
+    return QString();
+  }
+  const PdfExportPage& page = m_entries[entryIndex].page;
   if (page.kind() == PdfExportPage::MISSING) {
     return tr("Not output yet");
   }
+  const PageQuality quality = pageQuality(page);
+  const QStringList warnings = pageWarnings(page, quality);
+  const QStringList notes = pageNotes(quality);
   // A method, marked if it loses quality.
   auto tiffMethod = [](const int compression) {
     const QString name = PdfExportPage::tiffCompressionName(compression);
     return PdfExportPage::isLossyTiffCompression(compression) ? tr("%1 (lossy)", "tooltip").arg(name) : name;
   };
-  auto pdfMethod = [this](const QComboBox* box, const QSpinBox* quality) {
+  auto pdfMethod = [this](const QComboBox* box, const bool lossy) {
     const QString name = pdfMethodName(box);
-    const auto compression = static_cast<PdfCompression>(box->currentData().toInt());
-    return (quality && isLossyPdfCompression(compression, quality->value())) ? tr("%1 (lossy)", "tooltip").arg(name)
-                                                                             : name;
+    return lossy ? tr("%1 (lossy)", "tooltip").arg(name) : name;
   };
 
   QString mode;
   QString tiff;
   QString pdf;
-  const QString picturePdf = pdfMethod(pictureCompressionBox(page), pictureQualityBox(page));
+  const QString picturePdf = pdfMethod(pictureCompressionBox(page), quality.pdfLossy);
   switch (page.kind()) {
     case PdfExportPage::BITONAL:
       mode = tr("Black and white");
       tiff = tiffMethod(page.pictureCompression());
-      pdf = pdfMethod(m_bitonalCompression, nullptr);
+      pdf = pdfMethod(m_bitonalCompression, false);
       break;
     case PdfExportPage::MRC:
       mode = tr("Mixed, split output");
       tiff = tr("%1 (picture), %2 (text)")
                  .arg(tiffMethod(page.pictureCompression()), tiffMethod(page.textCompression()));
-      pdf = tr("%1 (picture), %2 (text)").arg(picturePdf, pdfMethod(m_bitonalCompression, nullptr));
+      pdf = tr("%1 (picture), %2 (text)").arg(picturePdf, pdfMethod(m_bitonalCompression, false));
       break;
     default:
       if (page.isMixedMode()) {
@@ -1287,16 +1303,13 @@ QString PdfExportView::pageToolTip(const Entry& entry, const QStringList& warnin
   return lines.join('\n');
 }  // PdfExportView::pageToolTip
 
-void PdfExportView::updatePageInfos() {
+void PdfExportView::updatePageSigns() {
   // Not a change by the user.
   const QSignalBlocker blocker(m_pageList);
   for (int row = 0; row < m_pageList->count(); ++row) {
     QListWidgetItem* item = m_pageList->item(row);
-    const Entry& entry = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()];
-    const QStringList warnings = pageWarnings(entry.page);
-    const QStringList notes = pageNotes(entry.page);
-    item->setData(SIGN_ROLE, !warnings.isEmpty() ? WARNING_SIGN : !notes.isEmpty() ? INFORMATION_SIGN : NO_SIGN);
-    item->setData(INFO_ROLE, pageToolTip(entry, warnings, notes));
+    const PageQuality quality = pageQuality(m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page);
+    item->setData(SIGN_ROLE, quality.hasWarnings() ? WARNING_SIGN : quality.hasNotes() ? INFORMATION_SIGN : NO_SIGN);
   }
   m_pageList->viewport()->update();
 }
@@ -1318,24 +1331,21 @@ void PdfExportView::updateQualityPanel() {
       continue;
     }
     const PdfExportPage& page = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page;
-    const QComboBox* box = pictureCompressionBox(page);
-    const int part = (box == m_colorCompression) ? 0 : (box == m_paletteCompression) ? 1 : 2;
-    ++tiffCounts[part][page.pictureCompression()];
-    ++pdfCounts[part];
-    bool tiffLossy = PdfExportPage::isLossyTiffCompression(page.pictureCompression());
+    const PageQuality quality = pageQuality(page);
+    ++tiffCounts[quality.part][page.pictureCompression()];
+    ++pdfCounts[quality.part];
     if (page.kind() == PdfExportPage::MRC) {
       ++tiffCounts[2][page.textCompression()];
       ++pdfCounts[2];
-      tiffLossy = tiffLossy || PdfExportPage::isLossyTiffCompression(page.textCompression());
     }
     ++pages;
-    if (tiffLossy) {
+    if (quality.tiffPictureLossy || quality.tiffTextLossy) {
       ++tiffLossyPages;
-      if (isPdfPictureLossy(page)) {
-        ++twiceLossyPages;
-      }
     }
-    if (isPosterizedAsJpeg(page)) {
+    if (quality.tiffPictureLossy && quality.pdfLossy) {
+      ++twiceLossyPages;
+    }
+    if (quality.posterizedAsJpeg) {
       ++posterizedAsJpegPages;
     }
   }
@@ -1398,7 +1408,7 @@ void PdfExportView::compressionChanged() {
   m_colorQuality->setEnabled(usesQuality(m_colorCompression));
   m_paletteQuality->setEnabled(usesQuality(m_paletteCompression));
   saveSettings();
-  updatePageInfos();
+  updatePageSigns();
   updateQualityPanel();
 }
 

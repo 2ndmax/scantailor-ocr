@@ -773,6 +773,56 @@ BOOST_AUTO_TEST_CASE(test_lossy_compressions) {
   BOOST_REQUIRE_EQUAL(splitPage.kind(), PdfExportPage::MRC);
   BOOST_CHECK_EQUAL(splitPage.pictureCompression(), COMPRESSION_JPEG);
   BOOST_CHECK_EQUAL(splitPage.textCompression(), COMPRESSION_CCITTFAX4);
+  BOOST_CHECK(!splitPage.isWithoutSplitOutput());
+
+  // Split output files that don't match: the page is a single image with the compression of its output file.
+  const QString smallFgFile = dir.filePath("small_fg.tif");
+  BOOST_REQUIRE(write(smallFgFile, makeBitonal(20, 15, 300), COMPRESSION_LZW));
+  PdfExportPage staleSplitPage(mainFile, smallFgFile, bgFile, true);
+  staleSplitPage.analyze();
+  BOOST_REQUIRE_EQUAL(staleSplitPage.kind(), PdfExportPage::IMAGE);
+  BOOST_CHECK_EQUAL(staleSplitPage.pictureCompression(), COMPRESSION_LZW);
+  BOOST_CHECK(!staleSplitPage.warning().isEmpty());
+  BOOST_CHECK(!staleSplitPage.isWithoutSplitOutput());
+
+  // Only a mixed page without split output files is told so.
+  PdfExportPage mixedPage(mainFile, dir.filePath("none_fg.tif"), dir.filePath("none_bg.tif"), true);
+  mixedPage.analyze();
+  BOOST_CHECK(mixedPage.isWithoutSplitOutput());
+  BOOST_CHECK(mixedPage.warning().isEmpty());
+  PdfExportPage colorPage(mainFile, dir.filePath("none_fg.tif"), dir.filePath("none_bg.tif"), false);
+  colorPage.analyze();
+  BOOST_CHECK(!colorPage.isWithoutSplitOutput());
+
+  // A black and white output file has no split output, whatever the color mode.
+  const QString bitonalFile = dir.filePath("bitonal.tif");
+  BOOST_REQUIRE(write(bitonalFile, makeBitonal(40, 30, 300), COMPRESSION_LZW));
+  PdfExportPage bitonalPage(bitonalFile, QString(), QString(), true);
+  bitonalPage.analyze();
+  BOOST_REQUIRE_EQUAL(bitonalPage.kind(), PdfExportPage::BITONAL);
+  BOOST_CHECK_EQUAL(bitonalPage.pictureCompression(), COMPRESSION_CCITTFAX4);
+  BOOST_CHECK(!bitonalPage.isWithoutSplitOutput());
+
+  // A page that isn't output yet has no compression.
+  PdfExportPage missingPage(dir.filePath("missing.tif"), QString(), QString(), true);
+  missingPage.analyze();
+  BOOST_CHECK_EQUAL(missingPage.kind(), PdfExportPage::MISSING);
+  BOOST_CHECK_EQUAL(missingPage.pictureCompression(), 0);
+  BOOST_CHECK_EQUAL(missingPage.textCompression(), 0);
+  BOOST_CHECK(!missingPage.isWithoutSplitOutput());
+
+  // The names as in the TIFF Compression panel of the Output step.
+  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(COMPRESSION_OJPEG).toStdString(), "JPEG");
+  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(COMPRESSION_ADOBE_DEFLATE).toStdString(), "Deflate");
+  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(COMPRESSION_DEFLATE).toStdString(), "Deflate");
+  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(COMPRESSION_CCITTRLEW).toStdString(), "CCITT RLE");
+  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(12345).toStdString(), "method 12345");
+
+  // The lossless methods.
+  for (const int compression : {COMPRESSION_NONE, COMPRESSION_CCITTRLE, COMPRESSION_CCITTFAX3, COMPRESSION_PACKBITS,
+                                COMPRESSION_LZMA, COMPRESSION_ZSTD}) {
+    BOOST_CHECK(!PdfExportPage::isLossyTiffCompression(compression));
+  }
 
   // Unknown methods count as lossy.
   BOOST_CHECK(PdfExportPage::isLossyTiffCompression(COMPRESSION_OJPEG));

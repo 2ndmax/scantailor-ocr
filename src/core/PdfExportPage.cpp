@@ -123,6 +123,9 @@ QString PdfExportPage::tiffCompressionName(const int compression) {
       return QStringLiteral("CCITT G4");
     case COMPRESSION_CCITTFAX3:
       return QStringLiteral("CCITT G3");
+    case COMPRESSION_CCITTRLE:
+    case COMPRESSION_CCITTRLEW:
+      return QStringLiteral("CCITT RLE");
     case COMPRESSION_PACKBITS:
       return QStringLiteral("PackBits");
     case COMPRESSION_ZSTD:
