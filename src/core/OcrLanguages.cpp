@@ -63,6 +63,7 @@ QStringList OcrLanguages::searchDirs() {
   // Since Tesseract 4, TESSDATA_PREFIX is the folder with the language files itself.
   add(QString::fromLocal8Bit(qgetenv("TESSDATA_PREFIX")));
 #ifndef Q_OS_WIN
+  add("/usr/share/tesseract/tessdata");
   add("/usr/share/tesseract-ocr/5/tessdata");
   add("/usr/share/tesseract-ocr/4.00/tessdata");
   add("/usr/share/tessdata");
