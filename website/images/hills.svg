@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 220" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="hill-back" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9be15d"/>
+      <stop offset="1" stop-color="#3fa52a"/>
+    </linearGradient>
+    <linearGradient id="hill-front" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c6f28a"/>
+      <stop offset="1" stop-color="#5cbc35"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d4efff"/>
+      <stop offset="1" stop-color="#e9f7ff"/>
+    </linearGradient>
+  </defs>
+  <path d="M0 120C220 40 420 60 640 110S1080 150 1440 70V220H0Z" fill="url(#hill-back)"/>
+  <path d="M0 160C260 110 520 120 760 150S1200 170 1440 130V220H0Z" fill="url(#hill-front)"/>
+  <path d="M0 190C320 175 640 172 960 182S1300 196 1440 188V220H0Z" fill="url(#water)"/>
+  <path d="M0 190C320 175 640 172 960 182S1300 196 1440 188" fill="none" stroke="#fff" stroke-opacity="0.9" stroke-width="3"/>
+</svg>
