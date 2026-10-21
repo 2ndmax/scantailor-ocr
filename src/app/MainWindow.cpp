@@ -1567,6 +1567,7 @@ void MainWindow::colorModeDetectionRequested(const std::set<PageId>& pages) {
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(0);
 
+  m_stages->setProcessingOptions(ApplicationSettings::getInstance().getProcessingOptions());
   const NullTaskStatus status;
   int bw = 0, color = 0, mixed = 0, skipped = 0, failed = 0;
   bool cancelled = false;
@@ -2886,6 +2887,9 @@ BackgroundTaskPtr MainWindow::createCompositeTask(const PageInfo& page,
   if (batch) {
     debug = false;
   }
+
+  // The tasks take a copy, so a running batch keeps the values it was started with.
+  m_stages->setProcessingOptions(ApplicationSettings::getInstance().getProcessingOptions());
 
   if (lastFilterIdx >= m_stages->outputFilterIdx()) {
     outputTask = m_stages->outputFilter()->createTask(page.id(), m_thumbnailCache, m_outFileNameGen, batch, debug);

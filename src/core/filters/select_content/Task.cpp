@@ -55,12 +55,14 @@ Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<page_layout::Task> nextTask,
            std::shared_ptr<Settings> settings,
            const PageId& pageId,
+           const DetectionOptions& detectionOptions,
            const bool batch,
            const bool debug)
     : m_filter(std::move(filter)),
       m_nextTask(std::move(nextTask)),
       m_settings(std::move(settings)),
       m_pageId(pageId),
+      m_detectionOptions(detectionOptions),
       m_batchProcessing(batch) {
   if (debug) {
     m_dbg = std::make_unique<DebugImagesImpl>();
@@ -135,8 +137,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
 
     if (needUpdateContentBox) {
       if (newParams.contentDetectionMode() == MODE_AUTO) {
-        contentRect
-            = ContentBoxFinder::findContentBox(status, data, pageRect, DetectionOptions::fromSettings(), m_dbg.get());
+        contentRect = ContentBoxFinder::findContentBox(status, data, pageRect, m_detectionOptions, m_dbg.get());
       } else if (newParams.contentDetectionMode() == MODE_DISABLED) {
         contentRect = pageRect;
       } else if (newParams.contentDetectionMode() == MODE_MANUAL) {

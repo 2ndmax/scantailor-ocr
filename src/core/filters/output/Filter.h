@@ -15,6 +15,7 @@
 #include "NonCopyable.h"
 #include "PageView.h"
 #include "PictureZonePropFactory.h"
+#include "ProcessingOptions.h"
 #include "SafeDeletingQObjectPtr.h"
 
 class PageSelectionAccessor;
@@ -83,6 +84,9 @@ class Filter : public AbstractFilter {
 
   void selectPageOrder(int option) override;
 
+  /** For the tasks created and the color modes detected from now on. */
+  void setProcessingOptions(const ProcessingOptions& options) { m_processingOptions = options; }
+
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
@@ -92,6 +96,7 @@ class Filter : public AbstractFilter {
   FillZonePropFactory m_fillZonePropFactory;
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
+  ProcessingOptions m_processingOptions;
 };
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_FILTER_H_

@@ -4,13 +4,11 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_DETECTIONOPTIONS_H_
 #define SCANTAILOR_SELECT_CONTENT_DETECTIONOPTIONS_H_
 
-#include <ApplicationSettings.h>
-
 namespace select_content {
 /**
  * Settings of the automatic content box detection (adopted from ScanTailor Spectre).
  * The defaults reproduce the detection as it was before these settings existed. They are
- * program settings and are not stored in the project.
+ * program settings and are not stored in the project; the tasks get them via ProcessingOptions.
  */
 class DetectionOptions {
  public:
@@ -24,13 +22,6 @@ class DetectionOptions {
 
   DetectionOptions(int fillFactor, int borderTolerance, bool ignorePageBox)
       : m_fillFactor(fillFactor), m_borderTolerance(borderTolerance), m_ignorePageBox(ignorePageBox) {}
-
-  // The current program settings.
-  static DetectionOptions fromSettings() {
-    const ApplicationSettings& settings = ApplicationSettings::getInstance();
-    return DetectionOptions(settings.getContentFillFactor(), settings.getContentBorderTolerance(),
-                            settings.isContentIgnoringPageBox());
-  }
 
   /**
    * In percent. The highest share of black pixels a text line may have. Higher values keep

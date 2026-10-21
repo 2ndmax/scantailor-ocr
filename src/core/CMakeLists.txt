@@ -49,6 +49,7 @@ set(common_sources
     Jp2Reader.cpp Jp2Reader.h
     Jp2MetadataLoader.cpp Jp2MetadataLoader.h
     TiffWriter.cpp TiffWriter.h
+    ProcessingOptions.h
     PngMetadataLoader.cpp PngMetadataLoader.h
     TiffMetadataLoader.cpp TiffMetadataLoader.h
     JpegMetadataLoader.cpp JpegMetadataLoader.h

@@ -60,6 +60,8 @@ class OutputGenerator {
    *        to be performed again with different settings, without going
    *        through the whole output generation process again.
    * \param dbg An optional sink for debugging images.
+   * \param takeOverBlackOnWhite Whether the black on white detected in the deskew step is taken
+   *        over into the page's parameters, unless it was set manually.
    */
   std::unique_ptr<OutputImage> process(const TaskStatus& status,
                                        const FilterData& input,
@@ -71,7 +73,8 @@ class OutputGenerator {
                                        imageproc::BinaryImage* specklesImage,
                                        DebugImages* dbg,
                                        const PageId& pageId,
-                                       const std::shared_ptr<Settings>& settings) const;
+                                       const std::shared_ptr<Settings>& settings,
+                                       bool takeOverBlackOnWhite) const;
 
   QSize outputImageSize() const;
 

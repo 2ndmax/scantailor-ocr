@@ -11,6 +11,7 @@
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageView.h"
+#include "ProcessingOptions.h"
 #include "SafeDeletingQObjectPtr.h"
 #include "Settings.h"
 
@@ -67,6 +68,9 @@ class Filter : public AbstractFilter {
 
   void selectPageOrder(int option) override;
 
+  /** For the tasks created from now on. */
+  void setProcessingOptions(const ProcessingOptions& options) { m_processingOptions = options; }
+
  private:
   void writeParams(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
@@ -81,6 +85,7 @@ class Filter : public AbstractFilter {
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
+  ProcessingOptions m_processingOptions;
 };
 }  // namespace deskew
 #endif  // ifndef SCANTAILOR_DESKEW_FILTER_H_

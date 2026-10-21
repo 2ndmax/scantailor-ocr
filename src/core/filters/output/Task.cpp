@@ -96,6 +96,7 @@ Task::Task(std::shared_ptr<Filter> filter,
            const PageId& pageId,
            const OutputFileNameGenerator& outFileNameGen,
            const ImageViewTab lastTab,
+           const ProcessingOptions& processingOptions,
            const bool batch,
            const bool debug)
     : m_filter(std::move(filter)),
@@ -104,6 +105,7 @@ Task::Task(std::shared_ptr<Filter> filter,
       m_pageId(pageId),
       m_outFileNameGen(outFileNameGen),
       m_lastTab(lastTab),
+      m_processingOptions(processingOptions),
       m_batchProcessing(batch),
       m_debug(debug) {
   if (debug) {
@@ -329,7 +331,9 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
       std::unique_ptr<OutputImage> outputImage
           = generator.process(status, data, newPictureZones, newFillZones, distortionModel, params.depthPerception(),
                               writeAutomask ? &automaskImg : nullptr, writeSpecklesFile ? &specklesImg : nullptr,
-                              m_dbg.get(), m_pageId, m_settings);
+                              m_dbg.get(), m_pageId, m_settings,
+                              /*takeOverBlackOnWhite=*/m_processingOptions.blackOnWhiteDetection
+                                  && m_processingOptions.blackOnWhiteAtOutput);
 
       params = m_settings->getParams(m_pageId);
 
@@ -362,8 +366,10 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
               foregroundFilePath, QStringList(QCoreApplication::translate(
                                       "output::Task", "The split output layers could not be created.")));
           invalidateParams = true;
-        } else if (!TiffWriter::writeImage(foregroundFilePath, outputImageWithForeground->getForegroundImage())
-                   || !TiffWriter::writeImage(backgroundFilePath, outputImageWithForeground->getBackgroundImage())) {
+        } else if (!TiffWriter::writeImage(foregroundFilePath, outputImageWithForeground->getForegroundImage(),
+                                           m_processingOptions.tiffCompression)
+                   || !TiffWriter::writeImage(backgroundFilePath, outputImageWithForeground->getBackgroundImage(),
+                                              m_processingOptions.tiffCompression)) {
           invalidateParams = true;
         }
 
@@ -374,7 +380,8 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
           if (!outputImageWithOrigBg) {
             invalidateParams = true;
           } else if (!TiffWriter::writeImage(originalBackgroundFilePath,
-                                             outputImageWithOrigBg->getOriginalBackgroundImage())) {
+                                             outputImageWithOrigBg->getOriginalBackgroundImage(),
+                                             m_processingOptions.tiffCompression)) {
             invalidateParams = true;
           }
         }
@@ -391,7 +398,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
       QFile::remove(backgroundFilePath);
     }
 
-    if (!TiffWriter::writeImage(outFilePath, outImg)) {
+    if (!TiffWriter::writeImage(outFilePath, outImg, m_processingOptions.tiffCompression)) {
       invalidateParams = true;
     } else {
       deleteMutuallyExclusiveOutputFiles();
@@ -421,14 +428,15 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
       QDir().mkdir(automaskDir);
       // Also note that QDir::mkdir() will fail if the directory already exists,
       // so we ignore its return value here.
-      if (!TiffWriter::writeImage(automaskFilePath, automaskImg.toQImage())) {
+      if (!TiffWriter::writeImage(automaskFilePath, automaskImg.toQImage(), m_processingOptions.tiffCompression)) {
         invalidateParams = true;
       }
     }
     if (writeSpecklesFile) {
       if (!QDir().mkpath(specklesDir)) {
         invalidateParams = true;
-      } else if (!TiffWriter::writeImage(specklesFilePath, specklesImg.toQImage())) {
+      } else if (!TiffWriter::writeImage(specklesFilePath, specklesImg.toQImage(),
+                                         m_processingOptions.tiffCompression)) {
         invalidateParams = true;
       }
     }

@@ -9,6 +9,7 @@
 #include <QtCore/QSettings>
 
 #include "PdfCompression.h"
+#include "ProcessingOptions.h"
 #include "ThreadBudget.h"
 
 const bool ApplicationSettings::DEFAULT_OPENGL_STATE = false;
@@ -248,6 +249,20 @@ bool ApplicationSettings::isBlackOnWhiteDetectionOutputEnabled() const {
 
 void ApplicationSettings::setBlackOnWhiteDetectionOutputEnabled(bool enabled) {
   writeValue(getKey(BLACK_ON_WHITE_DETECTION_OUTPUT_KEY), enabled);
+}
+
+ProcessingOptions ApplicationSettings::getProcessingOptions() const {
+  ProcessingOptions options;
+  options.tiffCompression
+      = {getTiffBwCompression(), getTiffColorCompression(), getTiffJpegQuality(), getTiffPaletteCompression()};
+  options.contentDetection = select_content::DetectionOptions(getContentFillFactor(), getContentBorderTolerance(),
+                                                              isContentIgnoringPageBox());
+  options.colorDetection.minColorShare = getColorDetectionMinColor() / 100.0;
+  options.colorDetection.usePictureZones = isColorDetectionZones();
+  options.colorDetection.minPictureShare = getColorDetectionMinPicture() / 100.0;
+  options.blackOnWhiteDetection = isBlackOnWhiteDetectionEnabled();
+  options.blackOnWhiteAtOutput = isBlackOnWhiteDetectionOutputEnabled();
+  return options;
 }
 
 bool ApplicationSettings::isHighlightDeviationEnabled() const {

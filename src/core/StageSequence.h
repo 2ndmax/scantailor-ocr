@@ -33,6 +33,9 @@ class StageSequence {
 
   void performRelinking(const AbstractRelinker& relinker);
 
+  /** Hands the settings outside the project to the stages that use them, for the tasks created from now on. */
+  void setProcessingOptions(const ProcessingOptions& options);
+
   const std::vector<FilterPtr>& filters() const { return m_filters; }
 
   int count() const { return static_cast<int>(m_filters.size()); }

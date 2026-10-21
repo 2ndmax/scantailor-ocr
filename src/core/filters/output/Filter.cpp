@@ -3,7 +3,6 @@
 
 #include "Filter.h"
 
-#include <ApplicationSettings.h>
 #include <Dpm.h>
 #include <ImageLoader.h>
 #include <OrderByCompletenessProvider.h>
@@ -158,7 +157,8 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
     lastTab = m_optionsWidget->lastTab();
   }
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), m_settings,
-                                std::move(thumbnailCache), pageId, outFileNameGen, lastTab, batch, debug);
+                                std::move(thumbnailCache), pageId, outFileNameGen, lastTab, m_processingOptions, batch,
+                                debug);
 }
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(const OutputFileNameGenerator& outFileNameGen) {
@@ -204,12 +204,7 @@ bool Filter::detectColorMode(const PageInfo& pageInfo,
     content.setDotsPerMeterX(dpm.horizontal());
     content.setDotsPerMeterY(dpm.vertical());
 
-    const ApplicationSettings& appSettings = ApplicationSettings::getInstance();
-    ColorModeDetector::Options options;
-    options.minColorShare = appSettings.getColorDetectionMinColor() / 100.0;
-    options.usePictureZones = appSettings.isColorDetectionZones();
-    options.minPictureShare = appSettings.getColorDetectionMinPicture() / 100.0;
-    switch (ColorModeDetector::detect(content, options, status)) {
+    switch (ColorModeDetector::detect(content, m_processingOptions.colorDetection, status)) {
       case ColorModeDetector::Mode::BlackWhite:
         mode = BLACK_AND_WHITE;
         break;

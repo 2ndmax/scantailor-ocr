@@ -15,6 +15,8 @@
 #include <QString>
 #include <QStringList>
 
+struct ProcessingOptions;
+
 class ApplicationSettings {
   DECLARE_NON_COPYABLE(ApplicationSettings)
  private:
@@ -97,6 +99,9 @@ class ApplicationSettings {
   bool isBlackOnWhiteDetectionOutputEnabled() const;
 
   void setBlackOnWhiteDetectionOutputEnabled(bool enabled);
+
+  /** The settings above that change the processing result, for StageSequence::setProcessingOptions(). */
+  ProcessingOptions getProcessingOptions() const;
 
   bool isHighlightDeviationEnabled() const;
 

@@ -39,6 +39,7 @@ class Task {
        std::shared_ptr<ImageSettings> imageSettings,
        std::shared_ptr<select_content::Task> nextTask,
        const PageId& pageId,
+       bool blackOnWhiteDetection,
        bool batchProcessing,
        bool debug);
 
@@ -63,6 +64,7 @@ class Task {
   std::shared_ptr<select_content::Task> m_nextTask;
   std::unique_ptr<DebugImages> m_dbg;
   PageId m_pageId;
+  bool m_blackOnWhiteDetection;
   bool m_batchProcessing;
 };
 }  // namespace deskew

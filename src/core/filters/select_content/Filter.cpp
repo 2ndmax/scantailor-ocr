@@ -141,7 +141,7 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          bool batch,
                                          bool debug) {
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), std::move(nextTask), m_settings,
-                                pageId, batch, debug);
+                                pageId, m_processingOptions.contentDetection, batch, debug);
 }
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(std::shared_ptr<page_layout::CacheDrivenTask> nextTask) {

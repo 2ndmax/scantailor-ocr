@@ -32,7 +32,6 @@
 #include <TopBottomEdgeTracer.h>
 #include <Transform.h>
 #include <WidthProfile.h>
-#include <core/ApplicationSettings.h>
 #include <imageproc/BackgroundColorCalculator.h>
 #include <imageproc/ChromaDenoiser.h>
 #include <imageproc/ColorKMeans.h>
@@ -107,6 +106,7 @@ class OutputGenerator::Processor {
   Processor(const OutputGenerator& generator,
             const PageId& pageId,
             const std::shared_ptr<Settings>& settings,
+            bool takeOverBlackOnWhite,
             const FilterData& input,
             const TaskStatus& status,
             DebugImages* dbg);
@@ -241,6 +241,7 @@ class OutputGenerator::Processor {
 
   const PageId m_pageId;
   const std::shared_ptr<Settings> m_settings;
+  const bool m_takeOverBlackOnWhite;
 
   Dpi m_dpi;
   ColorParams m_colorParams;
@@ -287,14 +288,16 @@ std::unique_ptr<OutputImage> OutputGenerator::process(const TaskStatus& status,
                                                       BinaryImage* specklesImage,
                                                       DebugImages* dbg,
                                                       const PageId& pageId,
-                                                      const std::shared_ptr<Settings>& settings) const {
-  return Processor(*this, pageId, settings, input, status, dbg)
+                                                      const std::shared_ptr<Settings>& settings,
+                                                      const bool takeOverBlackOnWhite) const {
+  return Processor(*this, pageId, settings, takeOverBlackOnWhite, input, status, dbg)
       .process(pictureZones, fillZones, distortionModel, depthPerception, autoPictureMask, specklesImage);
 }
 
 OutputGenerator::Processor::Processor(const OutputGenerator& generator,
                                       const PageId& pageId,
                                       const std::shared_ptr<Settings>& settings,
+                                      const bool takeOverBlackOnWhite,
                                       const FilterData& input,
                                       const TaskStatus& status,
                                       DebugImages* dbg)
@@ -303,6 +306,7 @@ OutputGenerator::Processor::Processor(const OutputGenerator& generator,
       m_contentRect(generator.m_contentRect),
       m_pageId(pageId),
       m_settings(settings),
+      m_takeOverBlackOnWhite(takeOverBlackOnWhite),
       m_despeckleLevel(0),
       m_blank(false),
       m_blackOnWhite(true),
@@ -1161,10 +1165,8 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::buildEmptyImage() const
 }
 
 void OutputGenerator::Processor::updateBlackOnWhite(const FilterData& input) {
-  ApplicationSettings& appSettings = ApplicationSettings::getInstance();
   Params params = m_settings->getParams(m_pageId);
-  if ((appSettings.isBlackOnWhiteDetectionEnabled() && appSettings.isBlackOnWhiteDetectionOutputEnabled())
-      && !m_settings->getOutputProcessingParams(m_pageId).isBlackOnWhiteSetManually()) {
+  if (m_takeOverBlackOnWhite && !m_settings->getOutputProcessingParams(m_pageId).isBlackOnWhiteSetManually()) {
     if (params.isBlackOnWhite() != input.isBlackOnWhite()) {
       params.setBlackOnWhite(input.isBlackOnWhite());
       m_settings->setParams(m_pageId, params);

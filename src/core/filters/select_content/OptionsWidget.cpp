@@ -4,6 +4,7 @@
 #include "OptionsWidget.h"
 
 #include <ApplicationSettings.h>
+#include <ProcessingOptions.h>
 #include <UnitsProvider.h>
 
 #include <functional>
@@ -186,7 +187,7 @@ void OptionsWidget::updatePageDetectOptionsDisplay() {
 void OptionsWidget::updateContentDetectOptionsDisplay() {
   auto block = m_connectionManager.getScopedBlock();
 
-  const DetectionOptions options = DetectionOptions::fromSettings();
+  const DetectionOptions options = ApplicationSettings::getInstance().getProcessingOptions().contentDetection;
   fillFactorSpinBox->setValue(options.fillFactor());
   borderToleranceSpinBox->setValue(options.borderTolerance());
   ignorePageBoxCB->setChecked(options.ignorePageBox());

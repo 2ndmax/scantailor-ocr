@@ -144,7 +144,7 @@ QImage process(const Run& run) {
   dewarping::DistortionModel distortionModel;
   const std::unique_ptr<OutputImage> output
       = generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(), nullptr,
-                          nullptr, nullptr, pageId, settings);
+                          nullptr, nullptr, pageId, settings, /*takeOverBlackOnWhite=*/true);
   BOOST_REQUIRE(output && !output->isNull());
   return output->toImage().convertToFormat(QImage::Format_RGB32);
 }

@@ -27,9 +27,6 @@ class TiffWriter {
     int jpegQuality = 85;
     /** For palette images, such as posterized pages. */
     int palette = COMPRESSION_LZW;
-
-    /** The compression set by the user. */
-    static Compression fromSettings();
   };
 
   /**
@@ -40,9 +37,11 @@ class TiffWriter {
    *
    * \param filePath The full path to the file.
    * \param image The image to write. Writing a null image will fail.
+   * \param compression The compression; the output step passes the one set by the user
+   *        (ProcessingOptions::tiffCompression).
    * \return True on success, false on failure.
    */
-  static bool writeImage(const QString& filePath, const QImage& image);
+  static bool writeImage(const QString& filePath, const QImage& image, const Compression& compression = Compression());
 
   /**
    * \brief Writes a QImage in TIFF format to an IO device.
@@ -50,13 +49,8 @@ class TiffWriter {
    * \param device The device to write to. This device must be
    *        opened for writing and seekable.
    * \param image The image to write. Writing a null image will fail.
+   * \param compression The compression, see writeImage(const QString&, ...).
    * \return True on success, false on failure.
-   */
-  static bool writeImage(QIODevice& device, const QImage& image);
-
-  /**
-   * \brief Like writeImage(QIODevice&, const QImage&), but with the given compression
-   *        instead of the one set by the user.
    *
    * Palette images and images with an alpha channel can't be stored as JPEG; they are
    * stored with LZW instead. Color images are stored as JPEG in YCbCr.
@@ -65,12 +59,12 @@ class TiffWriter {
    * predictor, which makes them smaller. Palette images with up to 16 colors are stored
    * with 4 bits per pixel.
    */
-  static bool writeImage(QIODevice& device, const QImage& image, const Compression& compression);
+  static bool writeImage(QIODevice& device, const QImage& image, const Compression& compression = Compression());
 
  private:
   class TiffHandle;
 
-  static bool writeImageToFile(const QString& filePath, const QImage& image);
+  static bool writeImageToFile(const QString& filePath, const QImage& image, const Compression& compression);
 
   static void setDpm(const TiffHandle& tif, const Dpm& dpm);
 

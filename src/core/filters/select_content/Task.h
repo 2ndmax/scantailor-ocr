@@ -8,6 +8,7 @@
 #include <QSizeF>
 #include <memory>
 
+#include "DetectionOptions.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageId.h"
@@ -34,6 +35,7 @@ class Task {
        std::shared_ptr<page_layout::Task> nextTask,
        std::shared_ptr<Settings> settings,
        const PageId& pageId,
+       const DetectionOptions& detectionOptions,
        bool batch,
        bool debug);
 
@@ -49,6 +51,7 @@ class Task {
   std::shared_ptr<Settings> m_settings;
   std::unique_ptr<DebugImages> m_dbg;
   PageId m_pageId;
+  DetectionOptions m_detectionOptions;
   bool m_batchProcessing;
 };
 }  // namespace select_content

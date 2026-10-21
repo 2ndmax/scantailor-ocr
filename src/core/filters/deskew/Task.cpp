@@ -13,7 +13,6 @@
 #include <SkewFinder.h>
 #include <UnitsProvider.h>
 #include <UpscaleIntegerTimes.h>
-#include <core/ApplicationSettings.h>
 #include <core/DefaultParams.h>
 #include <core/DefaultParamsProvider.h>
 #include <imageproc/Grayscale.h>
@@ -67,6 +66,7 @@ Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<ImageSettings> imageSettings,
            std::shared_ptr<select_content::Task> nextTask,
            const PageId& pageId,
+           const bool blackOnWhiteDetection,
            const bool batchProcessing,
            const bool debug)
     : m_filter(std::move(filter)),
@@ -74,6 +74,7 @@ Task::Task(std::shared_ptr<Filter> filter,
       m_imageSettings(std::move(imageSettings)),
       m_nextTask(std::move(nextTask)),
       m_pageId(pageId),
+      m_blackOnWhiteDetection(blackOnWhiteDetection),
       m_batchProcessing(batchProcessing) {
   if (debug) {
     m_dbg = std::make_unique<DebugImagesImpl>();
@@ -269,7 +270,7 @@ void Task::updateFilterData(const TaskStatus& status, FilterData& data, bool nee
     // The gray image isn't transformed yet.
     PolygonRasterizer::fillExcept(mask, WHITE, data.xform().origPreCropArea(), Qt::WindingFill);
     bool isBlackOnWhite = true;
-    if (ApplicationSettings::getInstance().isBlackOnWhiteDetectionEnabled()) {
+    if (m_blackOnWhiteDetection) {
       isBlackOnWhite = BlackOnWhiteEstimator::isBlackOnWhite(data.grayImage(), data.xform(), status, m_dbg.get());
     }
     ImageSettings::PageParams newParams(BinaryThreshold::otsuThreshold(GrayscaleHistogram(img, mask)), isBlackOnWhite);

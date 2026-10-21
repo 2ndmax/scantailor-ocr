@@ -38,6 +38,12 @@ void StageSequence::performRelinking(const AbstractRelinker& relinker) {
   }
 }
 
+void StageSequence::setProcessingOptions(const ProcessingOptions& options) {
+  m_deskewFilter->setProcessingOptions(options);
+  m_selectContentFilter->setProcessingOptions(options);
+  m_outputFilter->setProcessingOptions(options);
+}
+
 int StageSequence::findFilter(const FilterPtr& filter) const {
   int idx = 0;
   for (const FilterPtr& f : m_filters) {

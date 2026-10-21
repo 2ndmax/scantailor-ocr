@@ -15,7 +15,6 @@
 #include <cassert>
 #include <cmath>
 
-#include "ApplicationSettings.h"
 #include "Dpm.h"
 #include "ImageLoadErrors.h"
 #include "TiffReader.h"
@@ -116,11 +115,11 @@ static int maxColorIndex(const QImage& image) {
   return maxIndex;
 }
 
-bool TiffWriter::writeImage(const QString& filePath, const QImage& image) {
+bool TiffWriter::writeImage(const QString& filePath, const QImage& image, const Compression& compression) {
   TiffReader::installMessageHandlers();
 
   ImageLoadErrorCapture capture;
-  const bool ok = writeImageToFile(filePath, image);
+  const bool ok = writeImageToFile(filePath, image, compression);
   if (!ok) {
     QStringList messages = capture.messages();
     if (messages.isEmpty()) {
@@ -131,7 +130,7 @@ bool TiffWriter::writeImage(const QString& filePath, const QImage& image) {
   return ok;
 }
 
-bool TiffWriter::writeImageToFile(const QString& filePath, const QImage& image) {
+bool TiffWriter::writeImageToFile(const QString& filePath, const QImage& image, const Compression& compression) {
   if (image.isNull()) {
     ImageLoadErrorCapture::addError(QCoreApplication::translate("TiffWriter", "There is no image to write."));
     return false;
@@ -143,7 +142,7 @@ bool TiffWriter::writeImageToFile(const QString& filePath, const QImage& image) 
     return false;
   }
 
-  bool ok = writeImage(file, image);
+  bool ok = writeImage(file, image, compression);
   // libtiff closes the file when done, which flushes Qt's write buffer.
   // A failure there (e.g. a full disk) only shows up in the file's error state.
   if (ok && (file.error() != QFileDevice::NoError)) {
@@ -156,16 +155,6 @@ bool TiffWriter::writeImageToFile(const QString& filePath, const QImage& image) 
     file.remove();
   }
   return ok;
-}
-
-TiffWriter::Compression TiffWriter::Compression::fromSettings() {
-  const ApplicationSettings& settings = ApplicationSettings::getInstance();
-  return {settings.getTiffBwCompression(), settings.getTiffColorCompression(), settings.getTiffJpegQuality(),
-          settings.getTiffPaletteCompression()};
-}
-
-bool TiffWriter::writeImage(QIODevice& device, const QImage& image) {
-  return writeImage(device, image, Compression::fromSettings());
 }
 
 bool TiffWriter::writeImage(QIODevice& device, const QImage& image, const Compression& compression) {

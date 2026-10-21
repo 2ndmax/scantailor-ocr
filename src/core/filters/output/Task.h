@@ -13,6 +13,7 @@
 #include "NonCopyable.h"
 #include "OutputFileNameGenerator.h"
 #include "PageId.h"
+#include "ProcessingOptions.h"
 
 class DebugImages;
 class TaskStatus;
@@ -42,6 +43,7 @@ class Task {
        const PageId& pageId,
        const OutputFileNameGenerator& outFileNameGen,
        ImageViewTab lastTab,
+       const ProcessingOptions& processingOptions,
        bool batch,
        bool debug);
 
@@ -61,6 +63,7 @@ class Task {
   PageId m_pageId;
   OutputFileNameGenerator m_outFileNameGen;
   ImageViewTab m_lastTab;
+  ProcessingOptions m_processingOptions;
   bool m_batchProcessing;
   bool m_debug;
 };
