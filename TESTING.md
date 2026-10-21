@@ -1,8 +1,8 @@
-# Guía de pruebas (ScanTailor OCR)
+# Testing guide (ScanTailor OCR)
 
-## Ejecutar tests unitarios
+## Running unit tests
 
-Con el proyecto configurado con `BUILD_TESTS=ON` (por defecto):
+With the project configured with `BUILD_TESTS=ON` (the default):
 
 ```bash
 mkdir build && cd build
@@ -11,7 +11,7 @@ cmake --build .
 ctest --output-on-failure
 ```
 
-O ejecutar cada suite por separado:
+Or run each suite separately:
 
 ```bash
 ./core_tests --log_level=message
@@ -21,62 +21,62 @@ O ejecutar cada suite por separado:
 ./qt_tests
 ```
 
-## Cobertura por módulo
+## Coverage by module
 
 ### core_tests
-- **ContentSpanFinder**: detección de intervalos de contenido.
-- **DeskewParams**: parámetros del filtro de enderezado.
-- **ImageId** / **PageId**: identificación de imágenes y páginas, orden, subpáginas.
-- **Margins**: márgenes y serialización XML.
-- **PageRange**: rangos de páginas y selección alternada.
-- **SelectContentApply**: aplicación del filtro de contenido.
-- **SmartFilenameOrdering**: ordenación natural de nombres de archivo.
-- **Units**: conversión y representación de unidades (px, mm, cm, in).
+- **ContentSpanFinder**: detection of content spans.
+- **DeskewParams**: parameters of the deskew filter.
+- **ImageId** / **PageId**: identification of images and pages, ordering, sub-pages.
+- **Margins**: margins and XML serialization.
+- **PageRange**: page ranges and alternating selection.
+- **SelectContentApply**: applying the content selection filter.
+- **SmartFilenameOrdering**: natural ordering of file names.
+- **Units**: conversion and representation of units (px, mm, cm, in).
 
 ### foundation_tests
-- **Constants**: constantes matemáticas (PI, conversiones DPI/DPM, grados/radianes).
-- **LineIntersectionScalar**: intersección de líneas (escalares).
-- **Proximity**: distancia entre puntos y punto-segmento.
-- **Utils**: conversión numérica a cadena (locale independiente).
+- **Constants**: mathematical constants (PI, DPI/DPM conversions, degrees/radians).
+- **LineIntersectionScalar**: line intersection (scalars).
+- **Proximity**: point-to-point and point-to-segment distance.
+- **Utils**: locale-independent number-to-string conversion.
 
 ### math_tests
-- **Hessians** (adiff): diferenciación automática.
-- **LineBoundedByRect**: recorte de recta por rectángulo.
-- **LinearFunction** / **QuadraticFunction**: funciones lineales y cuadráticas.
-- **MatrixCalc**: operaciones matriciales.
-- **SidesOfLine**: lado de una recta (puntos).
-- **SqDistApproximant**: aproximación de distancia al cuadrado.
+- **Hessians** (adiff): automatic differentiation.
+- **LineBoundedByRect**: clipping a line to a rectangle.
+- **LinearFunction** / **QuadraticFunction**: linear and quadratic functions.
+- **MatrixCalc**: matrix operations.
+- **SidesOfLine**: which side of a line points lie on.
+- **SqDistApproximant**: squared distance approximation.
 
 ### imageproc_tests
 - **BinaryImage**, **Binarize**, **Morphology**, **RasterOp**, **Scale**, **Shear**, **Transform**, etc.
-- **Dpi**: resolución (DPI) y serialización XML.
+- **Dpi**: resolution (DPI) and XML serialization.
 
 ### qt_tests (Qt Test)
-- **Tests de lógica (TestCoreQt)**: Units, foundation::Utils, SmartFilenameOrdering, QSignalSpy (señales y argumentos).
-- **Tests de UX (TestUxQt)**:
-  - **testButtonClickEmitsSignal**: clic en `QPushButton` emite `clicked()` (simulación con `QTest::mouseClick`).
-  - **testCheckBoxToggleChangesState**: cambio de estado con `setChecked` y señal `toggled`.
-  - **testLineEditAcceptsInput**: entrada de texto con `QTest::keyClicks` y comprobación del texto.
-  - **testCollapsibleGroupBoxStateAndSignal**: widget del proyecto: estado colapsado/expandido y señal `collapsedStateChanged`.
-  - **testErrorWidgetCreation**: creación de `ErrorWidget` y comprobación de hijos (sin mostrar ventana).
+- **Logic tests (TestCoreQt)**: Units, foundation::Utils, SmartFilenameOrdering, QSignalSpy (signals and arguments).
+- **UX tests (TestUxQt)**:
+  - **testButtonClickEmitsSignal**: a click on a `QPushButton` emits `clicked()` (simulated with `QTest::mouseClick`).
+  - **testCheckBoxToggleChangesState**: state change via `setChecked` and the `toggled` signal.
+  - **testLineEditAcceptsInput**: text input with `QTest::keyClicks` and a check of the resulting text.
+  - **testCollapsibleGroupBoxStateAndSignal**: project widget: collapsed/expanded state and the `collapsedStateChanged` signal.
+  - **testErrorWidgetCreation**: creating an `ErrorWidget` and checking its children (without showing a window).
 
-Los tests de UX usan `QApplication` y pueden simular interacción (clic, teclado) sin abrir ventanas; sirven de base para ampliar con más widgets o diálogos.
+The UX tests use `QApplication` and can simulate interaction (clicks, keyboard) without opening windows; they serve as a basis for extending coverage to more widgets or dialogs.
 
-## Tests de UI/UX y caminos de uso
+## UI/UX tests and usage paths
 
-Actualmente no hay tests automatizados de interfaz ni de flujos completos de uso. Para mejorar la cobertura de UX y caminos de uso se puede:
+Apart from the widget-level UX tests in `qt_tests` (see above), there are currently no automated tests of the main window, the dialogs or complete usage flows. To improve coverage of UX and usage paths, you can:
 
-1. **Qt Test**: Añadir un ejecutable de tests que use `QTest` para:
-   - Crear widgets/diálogos sin mostrar ventana.
-   - Simular eventos (clic, teclado) y comprobar estado.
+1. **Qt Test**: Extend `qt_tests` (TestUxQt) to:
+   - Create more widgets and dialogs without showing a window.
+   - Simulate events (clicks, keyboard) and check the state.
 
-2. **Tests de integración**: Scripts o tests que:
-   - Abran proyectos de ejemplo.
-   - Ejecuten filtros y comprueben resultados en disco o en memoria.
+2. **Integration tests**: Scripts or tests that:
+   - Open sample projects.
+   - Run filters and check the results on disk or in memory.
 
-3. **Tests E2E**: Herramientas como Squish o scripts que controlen la aplicación gráfica (más costosos de mantener).
+3. **E2E tests**: Tools such as Squish or scripts that drive the graphical application (more costly to maintain).
 
-Para medir cobertura de código con gcov/lcov (solo compiladores que lo soporten):
+To measure code coverage with gcov/lcov (only with compilers that support it):
 
 ```bash
 cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCMAKE_CXX_FLAGS="--coverage"
@@ -87,9 +87,9 @@ lcov --remove coverage.info '/usr/*' --output-file coverage.info
 genhtml coverage.info --output-directory coverage_html
 ```
 
-## Desactivar tests
+## Disabling tests
 
-En entornos sin Boost o sin dependencias de test:
+In environments without Boost or without the test dependencies:
 
 ```bash
 cmake .. -DBUILD_TESTS=OFF
