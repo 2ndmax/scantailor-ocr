@@ -1496,7 +1496,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="150"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1430"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1444"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1546,52 +1546,56 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1359"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1365"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1385"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1396"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1436"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1362"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1368"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1399"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1484"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1359"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1362"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1365"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1368"/>
         <source>Error loading the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1386"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1400"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1397"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1424"/>
         <source>Save Profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1425"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1436"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1484"/>
         <source>Error saving the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
         <source>Error deleting the profile.</source>
         <translation type="unfinished"></translation>
     </message>

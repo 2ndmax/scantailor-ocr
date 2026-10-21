@@ -1323,8 +1323,11 @@ void DefaultParamsDialog::profileChanged(const int index) {
     profileDeleteButton->setEnabled(false);
     setTabWidgetsEnabled(true);
 
+    // Custom is kept in a profile file of its own; otherwise it starts from the values shown.
     if (DefaultParamsProvider::getInstance().getProfileName() == "Custom") {
       loadParams(DefaultParamsProvider::getInstance().getParams());
+    } else if (std::unique_ptr<DefaultParams> custom = m_profileManager.readProfile("Custom")) {
+      loadParams(*custom);
     } else {
       updateUnits(UnitsProvider::getInstance().getUnits());
     }
@@ -1380,6 +1383,17 @@ void DefaultParamsDialog::profileChanged(const int index) {
 
 void DefaultParamsDialog::profileSavePressed() {
   auto block = m_connectionManager.getScopedBlock();
+
+  // Custom under its own name is a profile of its own, which is kept for the next start.
+  const bool customUnderItsName = (profileCB->currentIndex() == m_customProfileItemIdx)
+                                  && ((profileCB->currentText() == profileCB->itemText(m_customProfileItemIdx))
+                                      || (profileCB->currentText() == "Custom"));
+  if (customUnderItsName) {
+    if (!m_profileManager.writeProfile(*buildParams(), "Custom")) {
+      QMessageBox::critical(this, tr("Error"), tr("Error saving the profile."));
+    }
+    return;
+  }
 
   if (isProfileNameReserved(profileCB->currentText())) {
     QMessageBox::information(this, tr("Error"),
@@ -1465,6 +1479,10 @@ void DefaultParamsDialog::commitChanges() {
     params = m_profileManager.createMinimalProfile();
   } else {
     params = buildParams();
+    // OK saves Custom as well, so that it's there at the next start.
+    if ((profile == "Custom") && !m_profileManager.writeProfile(*params, "Custom")) {
+      QMessageBox::critical(this, tr("Error"), tr("Error saving the profile."));
+    }
   }
   DefaultParamsProvider::getInstance().setParams(std::move(params), profile);
   ApplicationSettings::getInstance().setCurrentProfile(profile);

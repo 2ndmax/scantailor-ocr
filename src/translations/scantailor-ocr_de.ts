@@ -1485,7 +1485,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="150"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1430"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1444"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
@@ -1535,47 +1535,51 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1359"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1365"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1385"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1396"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1436"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1362"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1368"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1399"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1484"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1365"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1368"/>
         <source>Error loading the profile.</source>
         <translation>Fehler beim Laden des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1386"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1400"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Dieser Name wird bereits für ein Standardprofil verwendet. Bitte geben Sie einen anderen Namen ein.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1397"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation>Bitte geben Sie einen Namen ein, der keines der Zeichen \ / : * ? &quot; &lt; &gt; | enthält und nicht mit einem Punkt beginnt.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1424"/>
         <source>Save Profile</source>
         <translation>Profil speichern</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1425"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation>Ein Profil mit dem Namen „%1“ existiert bereits. Ersetzen?</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1436"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1484"/>
         <source>Error saving the profile.</source>
         <translation>Fehler beim Speichern des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
         <source>Error deleting the profile.</source>
         <translation>Fehler beim Löschen des Profils.</translation>
     </message>
@@ -1600,7 +1604,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1359"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1362"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Die Profildatei ist nicht mit der aktuellen Anwendungsversion kompatibel. Entfernen?</translation>
     </message>
