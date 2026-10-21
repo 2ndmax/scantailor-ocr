@@ -18,6 +18,15 @@ topic, not by version.
   a warning and dropped the additional settings when saving).
 * Project files and profiles are written safely: the old file is replaced only when everything
   has been written, so a full disk or a crash no longer leaves a broken project.
+* **Settings for the whole project are stored in the project:** TIFF and PDF compression, text
+  recognition (languages, text layout), color mode detection and white on black detection. A
+  project can be reproduced on another computer, and each book can have its own settings. New
+  projects take them from the default parameters, older projects (also those of ScanTailor
+  Advanced) when they are first opened. Only "Open the PDF after creating it" stays a program
+  setting.
+* **Each project keeps its start values,** a copy of the default parameters that pages added
+  later start with. Changing the profile no longer changes an open project; after OK in the
+  Default Parameters, a question offers to use the new values for the open project, too.
 * Only English and German are available. The Spanish, French, Korean, Polish, Portuguese and
   Russian translations were removed, as 60-73 % of their texts were untranslated; they can be
   restored from the commit history. Qt's own texts (standard buttons, file dialogs) are
@@ -83,6 +92,10 @@ topic, not by version.
   * **More languages can be downloaded in the program** ("More languages ..."), with search and
     file sizes, several at once. Files are checked against a checksum and only appear once
     complete. The system's proxy settings are used.
+  * **OCR languages of the project that are missing on the computer** are listed ticked with a
+    warning sign; unticking one removes it from the project. "More languages ..." ticks them
+    for download, with the installed languages grayed out, and creating the PDF asks whether to
+    download them first.
   * The invisible text uses Tesseract's "GlyphLessFont" (Apache License 2.0), embedded once.
 
 ## New project and automatic import
@@ -170,8 +183,8 @@ topic, not by version.
 * **TIFF compression** moved from the settings to the panel **TIFF Compression** with a part for
   each kind of page: *Color and Grayscale* (None, LZW, Deflate, LZMA, JPEG and its quality),
   *Posterized Pages* (None, LZW, Deflate, LZMA) and *Black and White* (None, LZW, Deflate, LZMA,
-  CCITT G4). The options apply to all projects. After a change, the output of the open project is
-  created again. LZMA gives the smallest lossless files but is slow. Smaller files without a
+  CCITT G4). The options apply to the whole project. After a change, its output is created
+  again. LZMA gives the smallest lossless files but is slow. Smaller files without a
   setting: horizontal predictor for LZW, Deflate and LZMA, 4 bits per pixel for posterized
   pages with up to 16 colors, YCbCr for color JPEG. The *Output* step shows the stored file, so
   JPEG losses are visible at once. Fixed: posterized pages couldn't be written with JPEG.
@@ -224,7 +237,10 @@ topic, not by version.
   and Delta for Sauvola and Wolf. The window opens large enough to show every tab without
   scrolling, except *Output*. Fixed: wrong settings shown for Bradley, Grad, EdgePlus, BlurDiv
   and EdgeDiv; the Wolf upper bound not saved; the deskew angle limited to 0 to 99.99; profile
-  names are checked before saving.
+  names are checked before saving. The tab *Create PDF* holds the PDF compression and the text
+  recognition, *Output* the TIFF compression, *Deskew* the white on black detection (moved from
+  the settings). The profile "Custom" is kept like a saved profile; OK with unsaved changes to a
+  profile asks whether to save them in the profile.
 * **Fix DPI of All Images** and **relinking** (opened when images of the project are missing)
   use folder trees:
   * *Fix DPI*: one tree of folders and images with their resolution and traffic light icons
@@ -324,9 +340,11 @@ Ideas and fixes taken over from
 ScanTailor Advanced.
 
 * **Settings for the automatic content box detection** in *Select Content* (for art books and
-  photo pages, also in the default parameters): "Fill factor" and "Border tolerance". They are
-  program settings, and the defaults give the detection as before. The additional detection of
-  photo plates relies on a macOS-only image analysis library and was not adopted.
+  photo pages, also in the default parameters): "Fill factor" and "Border tolerance". Each page
+  keeps its own; pages start with those of the default parameters, and **Apply to ...** with the
+  content box takes them to other pages. The defaults give the detection as before. The
+  additional detection of photo plates relies on a macOS-only image analysis library and was
+  not adopted.
 * **Color mode detection** in *Output*: the color mode is chosen with three picture buttons
   instead of a list. The new group "Color Mode Detection" detects the color mode of chosen
   pages without creating output files. It was extended with "Color from" (a page counts as
