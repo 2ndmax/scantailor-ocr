@@ -4005,7 +4005,7 @@ würden beide zu
     </message>
     <message>
         <location filename="../app/TessdataDownloadDialog.cpp" line="71"/>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="248"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="249"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
@@ -4034,17 +4034,17 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>installiert</translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="204"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="205"/>
         <source>Downloading ...</source>
         <translation>Wird heruntergeladen ...</translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="216"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="217"/>
         <source>Downloading ... %1 of %2</source>
         <translation>Wird heruntergeladen ... %1 von %2</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/TessdataDownloadDialog.cpp" line="228"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="229"/>
         <source>%n language(s) downloaded.</source>
         <translation>
             <numerusform>%n Sprache heruntergeladen.</numerusform>
@@ -4052,12 +4052,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         </translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="230"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="231"/>
         <source>Canceled.</source>
         <translation>Abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="248"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="249"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>

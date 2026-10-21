@@ -3966,7 +3966,7 @@ would both become
     </message>
     <message>
         <location filename="../app/TessdataDownloadDialog.cpp" line="71"/>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="248"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="249"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3993,29 +3993,29 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="204"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="205"/>
         <source>Downloading ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="216"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="217"/>
         <source>Downloading ... %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/TessdataDownloadDialog.cpp" line="228"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="229"/>
         <source>%n language(s) downloaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="230"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="231"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/TessdataDownloadDialog.cpp" line="248"/>
+        <location filename="../app/TessdataDownloadDialog.cpp" line="249"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>

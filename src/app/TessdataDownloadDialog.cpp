@@ -160,8 +160,9 @@ void TessdataDownloadDialog::fillList() {
     item->setData(Qt::UserRole, std::get<2>(entry));
     if (installed.count(file.code) > 0) {
       text += dash + tr("installed");
-      // A ticked box that can't be unticked: keeps the names aligned and shows the state.
-      item->setFlags(Qt::ItemIsEnabled);
+      // A ticked box that can't be unticked: keeps the names aligned and shows the state. Greyed
+      // out, so the languages ticked for download stand out.
+      item->setFlags(Qt::NoItemFlags);
       item->setCheckState(Qt::Checked);
     } else {
       item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
