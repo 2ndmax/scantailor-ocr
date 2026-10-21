@@ -28,6 +28,7 @@
 #include <QtWidgets/QToolTip>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <memory>
 #include <vector>
 
@@ -418,8 +419,8 @@ void DefaultParamsDialog::updatePageLayoutDisplay(const DefaultParams::PageLayou
   bottomMarginSpinBox->setValue(margins.bottom());
   leftMarginSpinBox->setValue(margins.left());
 
-  m_topBottomLinkEnabled = (margins.top() == margins.bottom());
-  m_leftRightLinkEnabled = (margins.left() == margins.right());
+  m_topBottomLinkEnabled = (std::abs(margins.top() - margins.bottom()) < 1e-6);
+  m_leftRightLinkEnabled = (std::abs(margins.left() - margins.right()) < 1e-6);
   setLinkButtonLinked(topBottomLink, m_topBottomLinkEnabled);
   setLinkButtonLinked(leftRightLink, m_leftRightLinkEnabled);
 

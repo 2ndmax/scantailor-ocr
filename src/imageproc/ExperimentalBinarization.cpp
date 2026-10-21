@@ -181,7 +181,7 @@ unsigned int grayBiModalTiledValue(GrayImage const& src,
   unsigned int const y1w = (y1 < h) ? y1 : h;
   unsigned int const x2w = (x2 < w) ? x2 : w;
   unsigned int const y2w = (y2 < h) ? y2 : h;
-  uint64_t const wsize = (y2w - y1w) * (x2w - x1w);
+  uint64_t const wsize = uint64_t(y2w - y1w) * (x2w - x1w);
 
   if (wsize > 0) {
     src_line += y1w * src_stride;

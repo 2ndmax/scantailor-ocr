@@ -132,10 +132,10 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const Margins& margins
   // Each page starts with the saved choice; only unequal margins of this page unlink them.
   {
     QSettings appSettings;
-    m_leftRightLinked
-        = appSettings.value("margins/leftRightLinked", true).toBool() && (marginsMm.left() == marginsMm.right());
-    m_topBottomLinked
-        = appSettings.value("margins/topBottomLinked", true).toBool() && (marginsMm.top() == marginsMm.bottom());
+    m_leftRightLinked = appSettings.value("margins/leftRightLinked", true).toBool()
+                        && (std::abs(marginsMm.left() - marginsMm.right()) < 1e-6);
+    m_topBottomLinked = appSettings.value("margins/topBottomLinked", true).toBool()
+                        && (std::abs(marginsMm.top() - marginsMm.bottom()) < 1e-6);
   }
   updateLinkDisplay(topBottomLink, m_topBottomLinked);
   updateLinkDisplay(leftRightLink, m_leftRightLinked);
