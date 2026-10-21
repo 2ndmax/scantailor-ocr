@@ -1118,7 +1118,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="89"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="90"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1446,17 +1446,17 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
         <source>White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1464,38 +1464,38 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <location filename="../app/DefaultParamsDialog.ui" line="1056"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1238"/>
         <location filename="../app/DefaultParamsDialog.ui" line="4618"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="84"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="85"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="85"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="86"/>
         <source>Contour mask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="86"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="87"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="88"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="89"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="90"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="91"/>
         <source>K-means</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
         <source>Minimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="150"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="151"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1444"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
@@ -1506,17 +1506,17 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
         <source>Edges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
         <source>Spine line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1553,7 +1553,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1484"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1579,6 +1579,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="1424"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1492"/>
         <source>Save Profile</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1588,9 +1589,14 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1493"/>
+        <source>The changes to the profile &quot;%1&quot; haven&apos;t been saved. Without saving, they only apply until the program is closed. Save them in the profile?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1484"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
         <source>Error saving the profile.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4403,13 +4409,13 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="75"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="180"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="181"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="76"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="181"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="182"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>

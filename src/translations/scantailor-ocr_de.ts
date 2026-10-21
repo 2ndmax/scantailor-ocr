@@ -647,7 +647,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <translation>Rauschreduzierung:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="89"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="90"/>
         <source>Posterize</source>
         <translation>Tontrennung</translation>
     </message>
@@ -1435,17 +1435,17 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Gemischt</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
         <source>Background</source>
         <translation>Hintergrund</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
         <source>White</source>
         <translation>Weiß</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
         <source>Black</source>
         <translation>Schwarz</translation>
     </message>
@@ -1453,38 +1453,38 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <location filename="../app/DefaultParamsDialog.ui" line="1056"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1238"/>
         <location filename="../app/DefaultParamsDialog.ui" line="4618"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="84"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="85"/>
         <source>Off</source>
         <translation>Aus</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="85"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="86"/>
         <source>Contour mask</source>
         <translation>Konturmaske</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="86"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="87"/>
         <source>Rectangle</source>
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="88"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="89"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="90"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="91"/>
         <source>K-means</source>
         <translation>K-Means</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
         <source>Minimal</source>
         <translation>Minimal</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="150"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="151"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1444"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
@@ -1495,17 +1495,17 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Randbereich</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
         <source>Edges</source>
         <translation>Kanten</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
         <source>Spine line</source>
         <translation>Bundlinie</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
@@ -1542,7 +1542,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1484"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
@@ -1563,6 +1563,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="1424"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1492"/>
         <source>Save Profile</source>
         <translation>Profil speichern</translation>
     </message>
@@ -1572,9 +1573,14 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Ein Profil mit dem Namen „%1“ existiert bereits. Ersetzen?</translation>
     </message>
     <message>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1493"/>
+        <source>The changes to the profile &quot;%1&quot; haven&apos;t been saved. Without saving, they only apply until the program is closed. Save them in the profile?</source>
+        <translation>Die Änderungen am Profil „%1“ sind nicht gespeichert. Ohne Speichern gelten sie nur bis zum Beenden des Programms. Möchten Sie sie im Profil speichern?</translation>
+    </message>
+    <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1484"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
         <source>Error saving the profile.</source>
         <translation>Fehler beim Speichern des Profils.</translation>
     </message>
@@ -4380,7 +4386,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <name>deskew::OptionsWidget</name>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="75"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="180"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="181"/>
         <source>Content</source>
         <translation>Inhalt</translation>
     </message>
@@ -4454,7 +4460,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="76"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="181"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="182"/>
         <source>Top page edge</source>
         <translation>Obere Seitenkante</translation>
     </message>

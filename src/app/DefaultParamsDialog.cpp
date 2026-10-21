@@ -12,6 +12,7 @@
 #include <filters/page_split/LayoutType.h>
 
 #include <QCoreApplication>
+#include <QDomDocument>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QLocale>
@@ -193,7 +194,6 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   }
   profileChanged(profileCB->currentIndex());
 
-  connect(buttonBox, &QDialogButtonBox::accepted, this, &DefaultParamsDialog::commitChanges);
   connect(binarizationOptions, &QStackedWidget::currentChanged, this,
           &DefaultParamsDialog::updateBinarizationPageSizes);
   updateBinarizationPageSizes();
@@ -1470,7 +1470,13 @@ bool DefaultParamsDialog::isProfileNameReserved(const QString& name) {
   return m_reservedProfileNames.find(name) != m_reservedProfileNames.end();
 }
 
-void DefaultParamsDialog::commitChanges() {
+void DefaultParamsDialog::accept() {
+  if (commitChanges()) {
+    QDialog::accept();
+  }
+}
+
+bool DefaultParamsDialog::commitChanges() {
   const QString profile = profileCB->currentData().toString();
   std::unique_ptr<DefaultParams> params;
   if (profile == "Default") {
@@ -1479,13 +1485,40 @@ void DefaultParamsDialog::commitChanges() {
     params = m_profileManager.createMinimalProfile();
   } else {
     params = buildParams();
-    // OK saves Custom as well, so that it's there at the next start.
-    if ((profile == "Custom") && !m_profileManager.writeProfile(*params, "Custom")) {
-      QMessageBox::critical(this, tr("Error"), tr("Error saving the profile."));
+    // OK alone applies the values only until the program is closed, for all editable profiles alike.
+    if (!isSavedInProfile(*params, profile)) {
+      const QString name = (profile == "Custom") ? profileCB->itemText(m_customProfileItemIdx) : profile;
+      const QMessageBox::StandardButton answer = QMessageBox::question(
+          this, tr("Save Profile"),
+          tr("The changes to the profile \"%1\" haven't been saved. Without saving, they only apply until the "
+             "program is closed. Save them in the profile?")
+              .arg(name),
+          QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+      if (answer == QMessageBox::Cancel) {
+        return false;
+      }
+      if ((answer == QMessageBox::Yes) && !m_profileManager.writeProfile(*params, profile)) {
+        QMessageBox::critical(this, tr("Error"), tr("Error saving the profile."));
+        return false;
+      }
     }
   }
   DefaultParamsProvider::getInstance().setParams(std::move(params), profile);
   ApplicationSettings::getInstance().setCurrentProfile(profile);
+  return true;
+}
+
+bool DefaultParamsDialog::isSavedInProfile(const DefaultParams& params, const QString& profile) const {
+  const std::unique_ptr<DefaultParams> saved = m_profileManager.readProfile(profile);
+  if (!saved) {
+    return false;
+  }
+  // Compared as they would be written.
+  QDomDocument shown;
+  shown.appendChild(params.toXml(shown, "profile"));
+  QDomDocument stored;
+  stored.appendChild(saved->toXml(stored, "profile"));
+  return shown.toString() == stored.toString();
 }
 
 void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {

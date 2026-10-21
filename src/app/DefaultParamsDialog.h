@@ -28,6 +28,9 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   ~DefaultParamsDialog() override = default;
 
+  /** Commits the changes, unless the question about saving the profile is canceled. */
+  void accept() override;
+
  protected:
   void showEvent(QShowEvent* event) override;
 
@@ -119,9 +122,13 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void profileDeletePressed();
 
-  void commitChanges();
-
  private:
+  /** Applies the chosen profile; false if the user canceled. */
+  bool commitChanges();
+
+  /** Whether \p params are what the profile file of \p profile holds. */
+  bool isSavedInProfile(const DefaultParams& params, const QString& profile) const;
+
   // The color mode of the pressed mode button.
   output::ColorMode currentColorMode() const;
 
