@@ -9,19 +9,20 @@ ScanTailor OCR cleans up scanned pages and turns them into a **compact, searchab
 
 Website: [www.ScanTailorOCR.eu](https://www.ScanTailorOCR.eu)
 
+**For the page processing features and how to use them, please see the
+[documentation of ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced#readme).**
+A lot of what is described there applies to ScanTailor OCR as well.
+
+## How this project came about
+
 ScanTailor OCR is based on [ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced)
 1.2.1, an interactive post-processing tool for scanned pages (page splitting, deskewing, content
 selection, margins, dewarping and more).
 
-**For the page processing features and how to use them, please see the
-[documentation of ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced#readme).**
-Everything described there applies to ScanTailor OCR as well.
-
-## How this project came about
-
-ScanTailor OCR was developed entirely with the help of [Claude Code](https://claude.com/claude-code),
-an AI coding assistant: the new features, adoptions and fixes, the translations, the
-documentation and the website were planned, built and tested in this way.
+All changes made on top of it were developed entirely with the help of
+[Claude Code](https://claude.com/claude-code), an AI coding assistant: the new features,
+adoptions and fixes, the translations, the documentation and the website were planned, built
+and tested in this way.
 
 This would not have been possible without the work of others. Sincere thanks go to everyone
 who contributed to ScanTailor and its forks, from the original ScanTailor to ScanTailor
