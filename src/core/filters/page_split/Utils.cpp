@@ -4,12 +4,10 @@
 #include "Utils.h"
 
 #include <core/DefaultParams.h>
-#include <core/DefaultParamsProvider.h>
 
 using namespace page_split;
 
-Settings::UpdateAction Utils::buildDefaultUpdateAction() {
-  const DefaultParams& defaultParams = DefaultParamsProvider::getInstance().getParams();
+Settings::UpdateAction Utils::buildDefaultUpdateAction(const DefaultParams& defaultParams) {
   const DefaultParams::PageSplitParams& pageSplitParams = defaultParams.getPageSplitParams();
 
   Settings::UpdateAction update;
@@ -18,6 +16,6 @@ Settings::UpdateAction Utils::buildDefaultUpdateAction() {
   return update;
 }
 
-SplitDetectionMethod Utils::defaultDetectionMethod() {
-  return DefaultParamsProvider::getInstance().getParams().getPageSplitParams().getDetectionMethod();
+SplitDetectionMethod Utils::defaultDetectionMethod(const DefaultParams& defaultParams) {
+  return defaultParams.getPageSplitParams().getDetectionMethod();
 }

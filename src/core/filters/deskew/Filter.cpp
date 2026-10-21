@@ -19,12 +19,15 @@
 #include "Utils.h"
 
 namespace deskew {
-Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions)
+Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor,
+               std::shared_ptr<ProcessingOptions> processingOptions,
+               std::shared_ptr<DefaultParams> defaultParams)
     : m_settings(std::make_shared<Settings>()),
       m_imageSettings(std::make_shared<ImageSettings>()),
       m_selectedPageOrder(0),
-      m_processingOptions(std::move(processingOptions)) {
-  m_optionsWidget.reset(new OptionsWidget(m_settings, pageSelectionAccessor));
+      m_processingOptions(std::move(processingOptions)),
+      m_defaultParams(std::move(defaultParams)) {
+  m_optionsWidget.reset(new OptionsWidget(m_settings, m_defaultParams, pageSelectionAccessor));
 
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByDeviation = std::make_shared<OrderByDeviationProvider>(m_settings->deviationProvider());
@@ -138,7 +141,8 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          const bool debug) {
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), m_settings, m_imageSettings,
                                 std::move(nextTask), pageId, m_processingOptions->blackOnWhiteDetection,
-                                batchProcessing, debug);
+                                m_defaultParams->getDeskewParams().isAutoOblique(),
+                                m_defaultParams->getDeskewParams().getDetection(), batchProcessing, debug);
 }
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(
@@ -159,11 +163,11 @@ void Filter::selectPageOrder(int option) {
   m_selectedPageOrder = option;
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
   if (!m_settings->isParamsNull(pageInfo.id()))
     return;
 
-  m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams());
+  m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams(defaults));
 }
 
 OptionsWidget* Filter::optionsWidget() {

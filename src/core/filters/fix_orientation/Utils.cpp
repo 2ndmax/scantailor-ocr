@@ -4,15 +4,13 @@
 #include "Utils.h"
 
 #include <core/DefaultParams.h>
-#include <core/DefaultParamsProvider.h>
 
 #include "ImageTransformation.h"
 #include "ImageTrim.h"
 
 using namespace fix_orientation;
 
-OrthogonalRotation Utils::getDefaultOrthogonalRotation() {
-  const DefaultParams& defaultParams = DefaultParamsProvider::getInstance().getParams();
+OrthogonalRotation Utils::getDefaultOrthogonalRotation(const DefaultParams& defaultParams) {
   const DefaultParams::FixOrientationParams& fixOrientationParams = defaultParams.getFixOrientationParams();
 
   return fixOrientationParams.getImageRotation();

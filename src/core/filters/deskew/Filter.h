@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "AbstractFilter.h"
+#include "DefaultParams.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageView.h"
@@ -35,7 +36,9 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(deskew::Filter)
  public:
-  Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions);
+  Filter(const PageSelectionAccessor& pageSelectionAccessor,
+         std::shared_ptr<ProcessingOptions> processingOptions,
+         std::shared_ptr<DefaultParams> defaultParams);
 
   ~Filter() override;
 
@@ -51,7 +54,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo) override;
+  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
 
   std::shared_ptr<Task> createTask(const PageId& pageId,
                                    std::shared_ptr<select_content::Task> nextTask,
@@ -83,6 +86,8 @@ class Filter : public AbstractFilter {
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
   std::shared_ptr<ProcessingOptions> m_processingOptions;
+  // The start values of the project.
+  std::shared_ptr<DefaultParams> m_defaultParams;
 };
 }  // namespace deskew
 #endif  // ifndef SCANTAILOR_DESKEW_FILTER_H_

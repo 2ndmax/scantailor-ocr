@@ -53,7 +53,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo) override;
+  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
 
   std::shared_ptr<Task> createTask(const PageId& pageId,
                                    std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,

@@ -1,6 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <DefaultParams.h>
 #include <FileNameDisambiguator.h>
 #include <ImageFileInfo.h>
 #include <ImageInfo.h>
@@ -48,7 +49,7 @@ BOOST_AUTO_TEST_CASE(test_empty_project_keeps_input_dir) {
   const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(),
                                        QDir(inputDir).absoluteFilePath("out"), Qt::LeftToRight);
   const ProjectWriter writer(pages, SelectedPage(), outGen, inputDir);
-  BOOST_REQUIRE(writer.write(projectFile, {}, ProcessingOptions()));
+  BOOST_REQUIRE(writer.write(projectFile, {}, ProcessingOptions(), DefaultParams()));
 
   const ProjectReader reader(readDocument(projectFile), projectFile);
   BOOST_REQUIRE(reader.success());
@@ -86,7 +87,8 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
 
   auto pages = std::make_shared<ProjectPages>();
   const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(), tempDir.path(), Qt::LeftToRight);
-  BOOST_REQUIRE(ProjectWriter(pages, SelectedPage(), outGen, tempDir.path()).write(projectFile, {}, options));
+  BOOST_REQUIRE(
+      ProjectWriter(pages, SelectedPage(), outGen, tempDir.path()).write(projectFile, {}, options, DefaultParams()));
 
   const ProjectReader reader(readDocument(projectFile), projectFile);
   BOOST_REQUIRE(reader.success());
@@ -109,6 +111,37 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   BOOST_CHECK(!read.pdf.ocr);
   BOOST_CHECK(read.pdf.ocrLanguages == (QStringList{"fra", "lat"}));
   BOOST_CHECK_EQUAL(read.pdf.ocrPageLayout, 2);
+}
+
+BOOST_AUTO_TEST_CASE(test_start_values_are_stored_in_the_project) {
+  QTemporaryDir tempDir;
+  BOOST_REQUIRE(tempDir.isValid());
+  const QString projectFile = QDir(tempDir.path()).absoluteFilePath("Buch.ScanTailor");
+
+  DefaultParams startValues;
+  DefaultParams::DeskewParams deskewParams;
+  deskewParams.setAutoOblique(true);
+  startValues.setDeskewParams(deskewParams);
+  DefaultParams::PageSplitParams pageSplitParams;
+  pageSplitParams.setPageOrder(Qt::RightToLeft);
+  startValues.setPageSplitParams(pageSplitParams);
+
+  auto pages = std::make_shared<ProjectPages>();
+  const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(), tempDir.path(), Qt::LeftToRight);
+  BOOST_REQUIRE(ProjectWriter(pages, SelectedPage(), outGen, tempDir.path())
+                    .write(projectFile, {}, ProcessingOptions(), startValues));
+
+  const QDomDocument doc = readDocument(projectFile);
+  // The processing options are stored once, for the project.
+  BOOST_CHECK(doc.documentElement().namedItem("default-params").namedItem("processing-options").isNull());
+  const ProjectReader reader(doc, projectFile);
+  const std::unique_ptr<DefaultParams> read = reader.readDefaultParams();
+  BOOST_REQUIRE(read);
+  BOOST_CHECK(read->getDeskewParams().isAutoOblique());
+  BOOST_CHECK(read->getPageSplitParams().getPageOrder() == Qt::RightToLeft);
+
+  // Projects from before have none; they take the active profile.
+  BOOST_CHECK(!ProjectReader(parse(QStringLiteral("<project version=\"10\"/>"))).readDefaultParams());
 }
 
 BOOST_AUTO_TEST_CASE(test_projects_without_processing_options_take_the_fallback) {

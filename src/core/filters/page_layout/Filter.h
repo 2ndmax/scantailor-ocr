@@ -61,7 +61,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo) override;
+  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
 
   void setContentBox(const PageId& pageId, const ImageTransformation& xform, const QRectF& contentRect);
 

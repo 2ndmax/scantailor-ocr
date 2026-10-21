@@ -4,6 +4,7 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_UTILS_H_
 #define SCANTAILOR_SELECT_CONTENT_UTILS_H_
 
+class DefaultParams;
 class Dpi;
 
 namespace select_content {
@@ -13,7 +14,7 @@ class Utils {
  public:
   Utils() = delete;
 
-  static Params buildDefaultParams(const Dpi& dpi);
+  static Params buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams);
 };
 }  // namespace select_content
 

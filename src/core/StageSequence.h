@@ -39,6 +39,13 @@ class StageSequence {
    */
   const std::shared_ptr<ProcessingOptions>& processingOptions() const { return m_processingOptions; }
 
+  /**
+   * The start values of the project: a copy of the default parameters, which pages without
+   * parameters of their own start with. Its processing options aren't used; those of the project
+   * are processingOptions().
+   */
+  const std::shared_ptr<DefaultParams>& defaultParams() const { return m_defaultParams; }
+
   const std::vector<FilterPtr>& filters() const { return m_filters; }
 
   int count() const { return static_cast<int>(m_filters.size()); }
@@ -74,6 +81,7 @@ class StageSequence {
  private:
   // Before the filters, which get it when they are created.
   std::shared_ptr<ProcessingOptions> m_processingOptions;
+  std::shared_ptr<DefaultParams> m_defaultParams;
   std::shared_ptr<fix_orientation::Filter> m_fixOrientationFilter;
   std::shared_ptr<page_split::Filter> m_pageSplitFilter;
   std::shared_ptr<deskew::Filter> m_deskewFilter;

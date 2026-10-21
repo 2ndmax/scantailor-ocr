@@ -9,8 +9,6 @@
 class TestDeskewQt : public QObject {
   Q_OBJECT
  private slots:
-  void init();
-  void cleanup();
   void testObliqueAutoMeasuresAgain();
   void testObliqueManualLeavesNothingPending();
   void testApplyAutoObliqueMeasuresOtherPages();

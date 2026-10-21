@@ -6,6 +6,7 @@
 
 #include "OutputSizeOptions.h"
 
+class DefaultParams;
 class QPolygonF;
 class QPointF;
 class QSizeF;
@@ -83,7 +84,7 @@ class Utils {
 
   static QPolygonF shiftToRoundedOrigin(const QPolygonF& poly);
 
-  static Params buildDefaultParams(const Dpi& dpi);
+  static Params buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams);
 
   /**
    * \brief The output size for a new project, from the default parameters.

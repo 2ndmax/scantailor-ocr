@@ -27,6 +27,7 @@ class AbstractFilter;
 class ProjectPages;
 class PageInfo;
 struct ProcessingOptions;
+class DefaultParams;
 class QDomDocument;
 class QDomElement;
 
@@ -49,7 +50,8 @@ class ProjectWriter {
 
   bool write(const QString& filePath,
              const std::vector<FilterPtr>& filters,
-             const ProcessingOptions& processingOptions) const;
+             const ProcessingOptions& processingOptions,
+             const DefaultParams& defaultParams) const;
 
   /**
    * \p out will be called like this: out(ImageId, numeric_image_id)

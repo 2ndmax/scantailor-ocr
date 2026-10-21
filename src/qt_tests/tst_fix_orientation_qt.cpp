@@ -3,6 +3,7 @@
 
 #include "tst_fix_orientation_qt.h"
 
+#include <DefaultParams.h>
 #include <FileNameDisambiguator.h>
 #include <FilterData.h>
 #include <FilterResult.h>
@@ -107,7 +108,7 @@ void TestFixOrientationQt::testZeroRotationIsSaved() {
   auto pages = std::make_shared<ProjectPages>(
       std::vector<ImageInfo>{ImageInfo(ImageId(dir.absoluteFilePath("scan.png"), 0), metadata, 1, false, false)},
       Qt::LeftToRight);
-  QVERIFY(ProjectWriter(pages, SelectedPage(), outGen).write(firstFile, {}, ProcessingOptions()));
+  QVERIFY(ProjectWriter(pages, SelectedPage(), outGen).write(firstFile, {}, ProcessingOptions(), DefaultParams()));
 
   QDomDocument doc = readDocument(firstFile);
   QDomElement projectEl = doc.documentElement();
@@ -129,7 +130,8 @@ void TestFixOrientationQt::testZeroRotationIsSaved() {
   QVERIFY(reader.success());
   auto filter = std::make_shared<Filter>(PageSelectionAccessor(nullptr));
   reader.readFilterSettings({filter});
-  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), outGen).write(secondFile, {filter}, ProcessingOptions()));
+  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), outGen)
+              .write(secondFile, {filter}, ProcessingOptions(), DefaultParams()));
 
   const QDomElement rotationEl = readDocument(secondFile)
                                      .documentElement()

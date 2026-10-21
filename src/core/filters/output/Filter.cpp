@@ -167,11 +167,11 @@ std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(const OutputFileN
   return std::make_shared<CacheDrivenTask>(m_settings, outFileNameGen);
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
   if (!m_settings->isParamsNull(pageInfo.id()))
     return;
 
-  m_settings->setParams(pageInfo.id(), Utils::buildDefaultParams());
+  m_settings->setParams(pageInfo.id(), Utils::buildDefaultParams(defaults));
 }
 
 OptionsWidget* Filter::optionsWidget() {

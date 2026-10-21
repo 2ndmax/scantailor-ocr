@@ -22,6 +22,7 @@ class QDomElement;
 class ProjectPages;
 class FileNameDisambiguator;
 class AbstractFilter;
+class DefaultParams;
 
 class ProjectReader {
  public:
@@ -38,6 +39,9 @@ class ProjectReader {
    * stored, also those of ScanTailor Advanced, take the missing ones from \p fallback.
    */
   ProcessingOptions readProcessingOptions(const ProcessingOptions& fallback) const;
+
+  /** The start values of the pages; null for projects from before they were stored. */
+  std::unique_ptr<DefaultParams> readDefaultParams() const;
 
   bool success() const { return (m_pages != nullptr); }
 

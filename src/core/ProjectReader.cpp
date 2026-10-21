@@ -9,6 +9,7 @@
 #include <functional>
 
 #include "AbstractFilter.h"
+#include "DefaultParams.h"
 #include "FileNameDisambiguator.h"
 #include "ProjectPages.h"
 #include "XmlUnmarshaller.h"
@@ -91,6 +92,14 @@ void ProjectReader::readFilterSettings(const std::vector<FilterPtr>& filters) co
 
 ProcessingOptions ProjectReader::readProcessingOptions(const ProcessingOptions& fallback) const {
   return ProcessingOptions(m_doc.documentElement().namedItem("processing-options").toElement(), fallback);
+}
+
+std::unique_ptr<DefaultParams> ProjectReader::readDefaultParams() const {
+  const QDomElement el = m_doc.documentElement().namedItem("default-params").toElement();
+  if (el.isNull()) {
+    return nullptr;
+  }
+  return std::make_unique<DefaultParams>(el);
 }
 
 void ProjectReader::processDirectories(const QDomElement& dirsEl) {

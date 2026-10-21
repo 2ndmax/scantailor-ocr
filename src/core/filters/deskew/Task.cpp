@@ -13,8 +13,6 @@
 #include <SkewFinder.h>
 #include <UnitsProvider.h>
 #include <UpscaleIntegerTimes.h>
-#include <core/DefaultParams.h>
-#include <core/DefaultParamsProvider.h>
 #include <imageproc/Grayscale.h>
 #include <imageproc/OrthogonalRotation.h>
 #include <imageproc/PolygonRasterizer.h>
@@ -67,6 +65,8 @@ Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<select_content::Task> nextTask,
            const PageId& pageId,
            const bool blackOnWhiteDetection,
+           const bool autoObliqueByDefault,
+           const SkewDetection defaultDetection,
            const bool batchProcessing,
            const bool debug)
     : m_filter(std::move(filter)),
@@ -75,6 +75,8 @@ Task::Task(std::shared_ptr<Filter> filter,
       m_nextTask(std::move(nextTask)),
       m_pageId(pageId),
       m_blackOnWhiteDetection(blackOnWhiteDetection),
+      m_autoObliqueByDefault(autoObliqueByDefault),
+      m_defaultDetection(defaultDetection),
       m_batchProcessing(batchProcessing) {
   if (debug) {
     m_dbg = std::make_unique<DebugImagesImpl>();
@@ -118,8 +120,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
 
     status.throwIfCancelled();
 
-    const bool autoObliqueByDefault
-        = DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique();
+    const bool autoObliqueByDefault = m_autoObliqueByDefault;
 
     bool autoObliqueEnabled;
     if (const auto pending = m_settings->takePendingAutoOblique(m_pageId)) {
@@ -134,9 +135,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
       autoObliqueEnabled = autoObliqueByDefault;
     }
 
-    uiData.setDetection(priorParamsBeforeRecompute
-                            ? priorParamsBeforeRecompute->detection()
-                            : DefaultParamsProvider::getInstance().getParams().getDeskewParams().getDetection());
+    uiData.setDetection(priorParamsBeforeRecompute ? priorParamsBeforeRecompute->detection() : m_defaultDetection);
 
     double preservedObliqueDeg = 0.;
     if (!autoObliqueEnabled && priorParamsBeforeRecompute && !priorParamsBeforeRecompute->autoOblique()) {

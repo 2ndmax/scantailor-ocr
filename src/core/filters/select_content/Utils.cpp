@@ -4,15 +4,13 @@
 #include "Utils.h"
 
 #include <core/DefaultParams.h>
-#include <core/DefaultParamsProvider.h>
 #include <core/UnitsConverter.h>
 
 #include "Params.h"
 
 using namespace select_content;
 
-Params Utils::buildDefaultParams(const Dpi& dpi) {
-  const DefaultParams& defaultParams = DefaultParamsProvider::getInstance().getParams();
+Params Utils::buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams) {
   const DefaultParams::SelectContentParams& selectContentParams = defaultParams.getSelectContentParams();
 
   const UnitsConverter unitsConverter(dpi);

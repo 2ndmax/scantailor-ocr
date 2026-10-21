@@ -481,9 +481,11 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   // Recreate the stages and load their state.
   m_stages = std::make_shared<StageSequence>(pages, newPageSelectionAccessor());
   // New projects start with the default parameters; older projects take what they lack from them.
-  const ProcessingOptions defaultOptions = DefaultParamsProvider::getInstance().getParams().getProcessingOptions();
-  *m_stages->processingOptions()
-      = projectReader ? projectReader->readProcessingOptions(defaultOptions) : defaultOptions;
+  const DefaultParams profile = DefaultParamsProvider::getInstance().getParams();
+  *m_stages->processingOptions() = projectReader ? projectReader->readProcessingOptions(profile.getProcessingOptions())
+                                                 : profile.getProcessingOptions();
+  std::unique_ptr<DefaultParams> startValues = projectReader ? projectReader->readDefaultParams() : nullptr;
+  *m_stages->defaultParams() = startValues ? *startValues : profile;
   if (projectReader) {
     projectReader->readFilterSettings(m_stages->filters());
   }
@@ -1390,7 +1392,7 @@ void MainWindow::startBatchProcessing() {
   const PageSequence sequence(m_thumbSequence->toPageSequence());
   for (const PageInfo& page : sequence) {
     for (int i = 0; i < m_stages->count(); i++) {
-      m_stages->filterAt(i)->loadDefaultSettings(page);
+      m_stages->filterAt(i)->loadDefaultSettings(page, *m_stages->defaultParams());
     }
     m_batchQueue->addProcessingTask(page, createCompositeTask(page, m_curFilter, /*batch=*/true, m_debug));
   }
@@ -1883,7 +1885,35 @@ void MainWindow::openDefaultParamsDialog() {
   auto* dialog = new DefaultParamsDialog(this);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowModality(Qt::WindowModal);
+  connect(dialog, &QDialog::accepted, this, &MainWindow::defaultParamsChanged);
   dialog->show();
+}
+
+void MainWindow::defaultParamsChanged() {
+  if (!isProjectLoaded()) {
+    return;
+  }
+  const DefaultParams profile = DefaultParamsProvider::getInstance().getParams();
+  // Compared as they are stored in the project, without the processing options, which the
+  // project keeps on its own.
+  auto startValuesXml = [](const DefaultParams& params) {
+    QDomDocument doc;
+    QDomElement el = params.toXml(doc, "default-params");
+    el.removeChild(el.namedItem("processing-options"));
+    doc.appendChild(el);
+    return doc.toString();
+  };
+  if (startValuesXml(profile) == startValuesXml(*m_stages->defaultParams())) {
+    return;
+  }
+  const QMessageBox::StandardButton answer = QMessageBox::question(
+      this, tr("Default Parameters"),
+      tr("Also use these default parameters for the open project? Pages added to it later start with them. "
+         "Otherwise, they only apply to new projects."),
+      QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+  if (answer == QMessageBox::Yes) {
+    *m_stages->defaultParams() = profile;
+  }
 }
 
 void MainWindow::onSettingsChanged() {
@@ -2081,7 +2111,7 @@ void MainWindow::loadPageInteractive(const PageInfo& page) {
   }
 
   for (int i = 0; i < m_stages->count(); i++) {
-    m_stages->filterAt(i)->loadDefaultSettings(page);
+    m_stages->filterAt(i)->loadDefaultSettings(page, *m_stages->defaultParams());
   }
 
   if (m_imageFrameLayout->indexOf(m_processingIndicationWidget.get()) != -1) {
@@ -2156,7 +2186,7 @@ bool MainWindow::closeProjectInteractive() {
 
   ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
 
-  if (!writer.write(backupFilePath, m_stages->filters(), *m_stages->processingOptions())) {
+  if (!writer.write(backupFilePath, m_stages->filters(), *m_stages->processingOptions(), *m_stages->defaultParams())) {
     // Backup file could not be written???
     QFile::remove(backupFilePath);
     switch (promptProjectSave()) {
@@ -2208,7 +2238,7 @@ void MainWindow::closeProjectWithoutSaving() {
 bool MainWindow::saveProjectWithFeedback(const QString& projectFile) {
   ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
 
-  if (!writer.write(projectFile, m_stages->filters(), *m_stages->processingOptions())) {
+  if (!writer.write(projectFile, m_stages->filters(), *m_stages->processingOptions(), *m_stages->defaultParams())) {
     QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
     return false;
   }

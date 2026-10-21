@@ -264,8 +264,7 @@ QPolygonF Utils::shiftToRoundedOrigin(const QPolygonF& poly) {
   return poly.translated(shiftValueX, shiftValueY);
 }
 
-Params Utils::buildDefaultParams(const Dpi& dpi) {
-  const DefaultParams& defaultParams = DefaultParamsProvider::getInstance().getParams();
+Params Utils::buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams) {
   const DefaultParams::PageLayoutParams& pageLayoutParams = defaultParams.getPageLayoutParams();
 
   const UnitsConverter unitsConverter(dpi);

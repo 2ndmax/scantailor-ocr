@@ -6,6 +6,7 @@
 
 #include <QStringList>
 
+class DefaultParams;
 class Dpi;
 class QString;
 class QTransform;
@@ -37,7 +38,7 @@ class Utils {
 
   static QTransform rotate(double degrees, const QRect& imageRect);
 
-  static Params buildDefaultParams();
+  static Params buildDefaultParams(const DefaultParams& defaultParams);
 };
 }  // namespace output
 #endif

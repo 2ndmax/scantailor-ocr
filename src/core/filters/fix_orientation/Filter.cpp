@@ -143,11 +143,11 @@ void Filter::writeParams(QDomDocument& doc, QDomElement& filterEl, const ImageId
   filterEl.appendChild(imageEl);
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
   if (!m_settings->isRotationNull(pageInfo.id().imageId()))
     return;
 
-  m_settings->applyRotation(pageInfo.id().imageId(), Utils::getDefaultOrthogonalRotation());
+  m_settings->applyRotation(pageInfo.id().imageId(), Utils::getDefaultOrthogonalRotation(defaults));
 }
 
 OptionsWidget* Filter::optionsWidget() {

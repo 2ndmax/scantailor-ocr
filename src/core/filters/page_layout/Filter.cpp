@@ -190,11 +190,11 @@ std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(std::shared_ptr<o
   return std::make_shared<CacheDrivenTask>(std::move(nextTask), m_settings);
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
   if (!m_settings->isParamsNull(pageInfo.id()))
     return;
 
-  m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams(pageInfo.metadata().dpi()));
+  m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams(pageInfo.metadata().dpi(), defaults));
 }
 
 OptionsWidget* Filter::optionsWidget() {

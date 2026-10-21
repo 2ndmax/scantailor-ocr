@@ -20,8 +20,6 @@
 using namespace deskew;
 
 namespace {
-std::unique_ptr<DefaultParams> savedDefaults;
-
 Dependencies measuredDeps() {
   QPolygonF outline;
   outline << QPointF(0, 0) << QPointF(100, 0) << QPointF(100, 100) << QPointF(0, 100);
@@ -43,21 +41,13 @@ QAbstractButton* button(const OptionsWidget& widget, const char* name) {
 }
 }  // namespace
 
-// The oblique mode buttons change the application's default parameters.
-void TestDeskewQt::init() {
-  savedDefaults = std::make_unique<DefaultParams>(DefaultParamsProvider::getInstance().getParams());
-}
-
-void TestDeskewQt::cleanup() {
-  DefaultParamsProvider& provider = DefaultParamsProvider::getInstance();
-  provider.setParams(std::move(savedDefaults), provider.getProfileName());
-}
-
 void TestDeskewQt::testObliqueAutoMeasuresAgain() {
   // Switching oblique to Auto must make the task measure the page, also with a manual deskew angle.
   auto settings = std::make_shared<Settings>();
   const PageId page(ImageId("page.png"));
-  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  auto startValues = std::make_shared<DefaultParams>();
+  const bool profileAutoOblique = DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique();
+  OptionsWidget widget(settings, startValues, PageSelectionAccessor(nullptr));
   widget.preUpdateUI(page);
   widget.postUpdateUI(uiData(MODE_MANUAL, MODE_MANUAL));
 
@@ -71,13 +61,16 @@ void TestDeskewQt::testObliqueAutoMeasuresAgain() {
   QCOMPARE(params->mode(), MODE_MANUAL);
   QVERIFY(params->needsRemeasure(measuredDeps()));
   QCOMPARE(settings->takePendingAutoOblique(page), std::optional<bool>(true));
+  // The buttons set the start value of the project, not the one of the profile.
+  QVERIFY(startValues->getDeskewParams().isAutoOblique());
+  QCOMPARE(DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique(), profileAutoOblique);
 }
 
 void TestDeskewQt::testObliqueManualLeavesNothingPending() {
   // Without a measurement following, nothing may stay pending for a later one.
   auto settings = std::make_shared<Settings>();
   const PageId page(ImageId("page.png"));
-  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  OptionsWidget widget(settings, std::make_shared<DefaultParams>(), PageSelectionAccessor(nullptr));
   widget.preUpdateUI(page);
   widget.postUpdateUI(uiData(MODE_AUTO, MODE_AUTO));
 
@@ -96,7 +89,7 @@ void TestDeskewQt::testApplyAutoObliqueMeasuresOtherPages() {
   settings->setPageParams(other, Params(0.3, 0.7, measuredDeps(), MODE_MANUAL, MODE_MANUAL));
   settings->setPendingAutoOblique(other, false);
 
-  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  OptionsWidget widget(settings, std::make_shared<DefaultParams>(), PageSelectionAccessor(nullptr));
   widget.preUpdateUI(current);
   widget.postUpdateUI(uiData(MODE_MANUAL, MODE_AUTO));
 
@@ -116,7 +109,7 @@ void TestDeskewQt::testApplyAutoObliqueMeasuresOtherPages() {
 void TestDeskewQt::testApplyButtonWaitsForPage() {
   // While the next page is loading, the angles shown are still those of the previous one.
   auto settings = std::make_shared<Settings>();
-  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  OptionsWidget widget(settings, std::make_shared<DefaultParams>(), PageSelectionAccessor(nullptr));
   QAbstractButton* applyBtn = button(widget, "applyDeskewBtn");
   QVERIFY(applyBtn != nullptr);
 

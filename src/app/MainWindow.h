@@ -195,6 +195,9 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void openDefaultParamsDialog();
 
+  /** Offers to use the changed default parameters as the start values of the open project. */
+  void defaultParamsChanged();
+
   void onSettingsChanged();
 
   void showAboutDialog();

@@ -57,7 +57,7 @@ void OutOfMemoryDialog::saveProjectAs() {
 bool OutOfMemoryDialog::saveProjectWithFeedback(const QString& projectFile) {
   ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen);
 
-  if (!writer.write(projectFile, m_stages->filters(), *m_stages->processingOptions())) {
+  if (!writer.write(projectFile, m_stages->filters(), *m_stages->processingOptions(), *m_stages->defaultParams())) {
     QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
     return false;
   }

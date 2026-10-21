@@ -11,6 +11,7 @@
 #include <QtXml>
 
 #include "AbstractFilter.h"
+#include "DefaultParams.h"
 #include "FileNameDisambiguator.h"
 #include "ImageId.h"
 #include "ImageMetadata.h"
@@ -88,7 +89,8 @@ static QString toRelativeIfPossible(const QString& projectDirPath, const QString
 
 bool ProjectWriter::write(const QString& filePath,
                           const std::vector<FilterPtr>& filters,
-                          const ProcessingOptions& processingOptions) const {
+                          const ProcessingOptions& processingOptions,
+                          const DefaultParams& defaultParams) const {
   const QString projectDirPath(QFileInfo(filePath).absolutePath());
 
   QDomDocument doc;
@@ -105,6 +107,10 @@ bool ProjectWriter::write(const QString& filePath,
   rootEl.appendChild(m_outFileNameGen.disambiguator()->toXml(
       doc, "file-name-disambiguation", std::bind(&ProjectWriter::packFilePath, this, std::placeholders::_1)));
   rootEl.appendChild(processingOptions.toXml(doc, "processing-options"));
+  // The start values of the pages; the processing options of the project are the ones above.
+  QDomElement defaultParamsEl = defaultParams.toXml(doc, "default-params");
+  defaultParamsEl.removeChild(defaultParamsEl.namedItem("processing-options"));
+  rootEl.appendChild(defaultParamsEl);
 
   QDomElement filtersEl(doc.createElement("filters"));
   rootEl.appendChild(filtersEl);

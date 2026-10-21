@@ -11,6 +11,7 @@
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageId.h"
+#include "SkewDetection.h"
 
 class TaskStatus;
 class QImage;
@@ -40,6 +41,8 @@ class Task {
        std::shared_ptr<select_content::Task> nextTask,
        const PageId& pageId,
        bool blackOnWhiteDetection,
+       bool autoObliqueByDefault,
+       SkewDetection defaultDetection,
        bool batchProcessing,
        bool debug);
 
@@ -65,6 +68,9 @@ class Task {
   std::unique_ptr<DebugImages> m_dbg;
   PageId m_pageId;
   bool m_blackOnWhiteDetection;
+  // Start values of the project for pages without parameters of their own.
+  bool m_autoObliqueByDefault;
+  SkewDetection m_defaultDetection;
   bool m_batchProcessing;
 };
 }  // namespace deskew

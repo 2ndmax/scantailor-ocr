@@ -3,6 +3,7 @@
 
 #include "tst_core_qt.h"
 
+#include <DefaultParams.h>
 #include <FileNameDisambiguator.h>
 #include <ImageInfo.h>
 #include <OutputFileNameGenerator.h>
@@ -117,7 +118,7 @@ void TestCoreQt::testPageSplitKeepsLayoutTypeWithoutParams() {
   auto pages = std::make_shared<ProjectPages>(
       std::vector<ImageInfo>{ImageInfo(ImageId(dir.absoluteFilePath("scan.png"), 0), metadata, 1, false, false)},
       Qt::LeftToRight);
-  QVERIFY(ProjectWriter(pages, SelectedPage(), outGen).write(firstFile, {}, ProcessingOptions()));
+  QVERIFY(ProjectWriter(pages, SelectedPage(), outGen).write(firstFile, {}, ProcessingOptions(), DefaultParams()));
 
   QDomDocument doc = readDocument(firstFile);
   QDomElement projectEl = doc.documentElement();
@@ -140,7 +141,8 @@ void TestCoreQt::testPageSplitKeepsLayoutTypeWithoutParams() {
   QVERIFY(reader.success());
   auto filter = std::make_shared<page_split::Filter>(reader.pages(), PageSelectionAccessor(nullptr));
   reader.readFilterSettings({filter});
-  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), outGen).write(secondFile, {filter}, ProcessingOptions()));
+  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), outGen)
+              .write(secondFile, {filter}, ProcessingOptions(), DefaultParams()));
 
   const QDomElement savedEl = readDocument(secondFile)
                                   .documentElement()

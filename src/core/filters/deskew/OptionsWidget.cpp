@@ -8,7 +8,6 @@
 #include <utility>
 
 #include <core/DefaultParams.h>
-#include <core/DefaultParamsProvider.h>
 
 #include "../../Utils.h"
 #include "ApplyDialog.h"
@@ -22,7 +21,8 @@ Params mergeParamsForApply(const std::unique_ptr<Params>& existing,
                            const OptionsWidget::UiData& cur,
                            const bool applyDeskew,
                            const bool applyOblique,
-                           const bool isCurrentPage) {
+                           const bool isCurrentPage,
+                           const SkewDetection defaultDetection) {
   // Dependencies describe the image a page was computed from, so they are never transferable
   // between pages. Keep the ones the target page already has; a page we know nothing about gets
   // empty dependencies, which makes the task recompute (auto mode) or fill them in (manual mode).
@@ -35,8 +35,7 @@ Params mergeParamsForApply(const std::unique_ptr<Params>& existing,
   if (!existing) {
     return Params(applyDeskew ? cur.effectiveDeskewAngle() : 0.0, applyOblique ? cur.effectiveObliqueAngle() : 0.0,
                   deps, applyDeskew ? cur.mode() : MODE_AUTO, applyOblique ? cur.obliqueMode() : MODE_AUTO,
-                  applyDeskew ? cur.detection()
-                              : DefaultParamsProvider::getInstance().getParams().getDeskewParams().getDetection());
+                  applyDeskew ? cur.detection() : defaultDetection);
   }
   return Params(applyDeskew ? cur.effectiveDeskewAngle() : existing->deskewAngle(),
                 applyOblique ? cur.effectiveObliqueAngle() : existing->obliqueAngle(), deps,
@@ -44,22 +43,15 @@ Params mergeParamsForApply(const std::unique_ptr<Params>& existing,
                 applyDeskew ? cur.detection() : existing->detection());
 }
 
-void setDefaultAutoOblique(const bool enabled) {
-  DefaultParamsProvider& provider = DefaultParamsProvider::getInstance();
-  const DefaultParams& current = provider.getParams();
-  auto updated = std::make_unique<DefaultParams>(current);
-  DefaultParams::DeskewParams deskewParams(current.getDeskewParams());
-  deskewParams.setAutoOblique(enabled);
-  updated->setDeskewParams(deskewParams);
-  provider.setParams(std::move(updated), provider.getProfileName());
-}
-
 }  // namespace
 
 const double OptionsWidget::MAX_ANGLE = 45.0;
 
-OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelectionAccessor& pageSelectionAccessor)
+OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
+                             std::shared_ptr<DefaultParams> defaultParams,
+                             const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
+      m_defaultParams(std::move(defaultParams)),
       m_pageSelectionAccessor(pageSelectionAccessor),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
@@ -84,7 +76,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
   m_obliqueModeGroup->addButton(obliqueAutoBtn);
   m_obliqueModeGroup->addButton(obliqueManualBtn);
 
-  if (DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique()) {
+  if (m_defaultParams->getDeskewParams().isAutoOblique()) {
     obliqueAutoBtn->setChecked(true);
   } else {
     obliqueManualBtn->setChecked(true);
@@ -110,7 +102,8 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDes
 
   for (const PageId& pageId : pages) {
     std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
-    const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique, pageId == m_pageId));
+    const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique, pageId == m_pageId,
+                                            m_defaultParams->getDeskewParams().getDetection()));
     m_settings->setPageParams(pageId, merged);
     if (applyOblique) {
       // The applied oblique mode wins over one the page still had pending.
@@ -223,8 +216,10 @@ void OptionsWidget::detectionChanged(const int index) {
 
 void OptionsWidget::obliqueModeChanged(const bool autoMode) {
   // The mode buttons also carry what used to be the "Automatic oblique correction" check box,
-  // so the choice becomes the default for pages that get processed later on.
-  setDefaultAutoOblique(autoMode);
+  // so the choice becomes the start value of the project for pages that get processed later on.
+  DefaultParams::DeskewParams deskewParams(m_defaultParams->getDeskewParams());
+  deskewParams.setAutoOblique(autoMode);
+  m_defaultParams->setDeskewParams(deskewParams);
 
   // The spin box must not report the reset back to us as a manual edit.
   auto block = m_connectionManager.getScopedBlock();

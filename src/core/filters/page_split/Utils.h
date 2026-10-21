@@ -6,14 +6,16 @@
 
 #include "Settings.h"
 
+class DefaultParams;
+
 namespace page_split {
 class Utils {
  public:
   Utils() = delete;
 
-  static Settings::UpdateAction buildDefaultUpdateAction();
+  static Settings::UpdateAction buildDefaultUpdateAction(const DefaultParams& defaultParams);
 
-  static SplitDetectionMethod defaultDetectionMethod();
+  static SplitDetectionMethod defaultDetectionMethod(const DefaultParams& defaultParams);
 };
 }  // namespace page_split
 

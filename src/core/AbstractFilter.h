@@ -9,6 +9,7 @@
 #include "PageOrderOption.h"
 #include "PageView.h"
 
+class DefaultParams;
 class FilterUiInterface;
 class PageInfo;
 class ProjectReader;
@@ -45,7 +46,7 @@ class AbstractFilter : public std::enable_shared_from_this<AbstractFilter> {
 
   virtual void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) = 0;
 
-  virtual void loadDefaultSettings(const PageInfo& pageInfo) = 0;
+  virtual void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) = 0;
 };
 
 
