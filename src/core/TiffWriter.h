@@ -14,20 +14,27 @@ class QString;
 class QImage;
 class Dpm;
 
+/**
+ * How TIFF images are compressed. The values are libtiff's COMPRESSION_* constants.
+ *
+ * Declared outside TiffWriter, as GCC doesn't accept the member initializers in the default
+ * arguments of the enclosing class; there it's TiffWriter::Compression.
+ */
+struct TiffCompression {
+  // The defaults of new profiles and projects.
+  /** For black and white images. */
+  int bw = COMPRESSION_CCITTFAX4;
+  /** For grayscale and color images. */
+  int color = COMPRESSION_LZW;
+  /** For JPEG compression, 1 to 100. */
+  int jpegQuality = 85;
+  /** For palette images, such as posterized pages. */
+  int palette = COMPRESSION_LZW;
+};
+
 class TiffWriter {
  public:
-  /** How images are compressed. The values are libtiff's COMPRESSION_* constants. */
-  struct Compression {
-    // The defaults are those of ApplicationSettings.
-    /** For black and white images. */
-    int bw = COMPRESSION_CCITTFAX4;
-    /** For grayscale and color images. */
-    int color = COMPRESSION_LZW;
-    /** For JPEG compression, 1 to 100. */
-    int jpegQuality = 85;
-    /** For palette images, such as posterized pages. */
-    int palette = COMPRESSION_LZW;
-  };
+  using Compression = TiffCompression;
 
   /**
    * \brief Writes a QImage in TIFF format to a file.
