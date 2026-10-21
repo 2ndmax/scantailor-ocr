@@ -1384,9 +1384,12 @@ void DefaultParamsDialog::profileSavePressed() {
   auto block = m_connectionManager.getScopedBlock();
 
   // Custom under its own name is a profile of its own, which is kept for the next start.
-  const bool customUnderItsName = (profileCB->currentIndex() == m_customProfileItemIdx)
-                                  && ((profileCB->currentText() == profileCB->itemText(m_customProfileItemIdx))
-                                      || (profileCB->currentText() == "Custom"));
+  // File names don't depend on case on Windows and macOS, so neither does the name.
+  const QString text = profileCB->currentText();
+  const bool customUnderItsName
+      = (profileCB->currentIndex() == m_customProfileItemIdx)
+        && ((text.compare(profileCB->itemText(m_customProfileItemIdx), Qt::CaseInsensitive) == 0)
+            || (text.compare("Custom", Qt::CaseInsensitive) == 0));
   if (customUnderItsName) {
     if (!m_profileManager.writeProfile(*buildParams(), "Custom")) {
       QMessageBox::critical(this, tr("Error"), tr("Error saving the profile."));
@@ -1466,7 +1469,9 @@ void DefaultParamsDialog::profileDeletePressed() {
 }
 
 bool DefaultParamsDialog::isProfileNameReserved(const QString& name) {
-  return m_reservedProfileNames.find(name) != m_reservedProfileNames.end();
+  // File names don't depend on case on Windows and macOS.
+  return std::any_of(m_reservedProfileNames.begin(), m_reservedProfileNames.end(),
+                     [&name](const QString& reserved) { return reserved.compare(name, Qt::CaseInsensitive) == 0; });
 }
 
 void DefaultParamsDialog::accept() {

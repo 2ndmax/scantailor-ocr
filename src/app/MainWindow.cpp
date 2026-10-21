@@ -488,6 +488,8 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   *m_stages->defaultParams() = startValues ? *startValues : profile;
   if (projectReader) {
     projectReader->readFilterSettings(m_stages->filters());
+  } else {
+    m_stages->pageLayoutFilter()->loadNewProjectSettings(*m_stages->defaultParams());
   }
 
   // Connect the filter list model to the view and select
@@ -1881,29 +1883,35 @@ void MainWindow::openSettingsDialog() {
   dialog->show();
 }
 
+namespace {
+// The start values as they are stored in the project, without the processing options, which the
+// project keeps on its own.
+QString startValuesXml(const DefaultParams& params) {
+  QDomDocument doc;
+  QDomElement el = params.toXml(doc, "default-params");
+  el.removeChild(el.namedItem("processing-options"));
+  doc.appendChild(el);
+  return doc.toString();
+}
+}  // namespace
+
 void MainWindow::openDefaultParamsDialog() {
   auto* dialog = new DefaultParamsDialog(this);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   dialog->setWindowModality(Qt::WindowModal);
-  connect(dialog, &QDialog::accepted, this, &MainWindow::defaultParamsChanged);
+  const QString startValuesBefore = startValuesXml(DefaultParamsProvider::getInstance().getParams());
+  connect(dialog, &QDialog::accepted, this, [this, startValuesBefore]() { defaultParamsChanged(startValuesBefore); });
   dialog->show();
 }
 
-void MainWindow::defaultParamsChanged() {
+void MainWindow::defaultParamsChanged(const QString& startValuesBefore) {
   if (!isProjectLoaded()) {
     return;
   }
   const DefaultParams profile = DefaultParamsProvider::getInstance().getParams();
-  // Compared as they are stored in the project, without the processing options, which the
-  // project keeps on its own.
-  auto startValuesXml = [](const DefaultParams& params) {
-    QDomDocument doc;
-    QDomElement el = params.toXml(doc, "default-params");
-    el.removeChild(el.namedItem("processing-options"));
-    doc.appendChild(el);
-    return doc.toString();
-  };
-  if (startValuesXml(profile) == startValuesXml(*m_stages->defaultParams())) {
+  const QString startValues = startValuesXml(profile);
+  // Only asked when the dialog changed them, not each time it's confirmed.
+  if ((startValues == startValuesBefore) || (startValues == startValuesXml(*m_stages->defaultParams()))) {
     return;
   }
   const QMessageBox::StandardButton answer = QMessageBox::question(

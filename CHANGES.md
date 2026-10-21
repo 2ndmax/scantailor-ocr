@@ -23,7 +23,8 @@ topic, not by version.
   project can be reproduced on another computer, and each book can have its own settings. New
   projects take them from the default parameters, older projects (also those of ScanTailor
   Advanced) when they are first opened. Only "Open the PDF after creating it" stays a program
-  setting.
+  setting. Up to version 1.0.10 these were program settings; their values are not taken over,
+  so they start with the standard values and have to be set once in the default parameters.
 * **Each project keeps its start values,** a copy of the default parameters that pages added
   later start with. Changing the profile no longer changes an open project; after OK in the
   Default Parameters, a question offers to use the new values for the open project, too.
@@ -95,7 +96,8 @@ topic, not by version.
   * **OCR languages of the project that are missing on the computer** are listed ticked with a
     warning sign; unticking one removes it from the project. "More languages ..." ticks them
     for download, with the installed languages grayed out, and creating the PDF asks whether to
-    download them first.
+    download them first. If they are still missing after that, it asks whether to go on without
+    them.
   * The invisible text uses Tesseract's "GlyphLessFont" (Apache License 2.0), embedded once.
 
 ## New project and automatic import
@@ -164,7 +166,8 @@ topic, not by version.
 
 * **"Ignore page box during detection"**: the content is detected independently of the page
   box (the content box is still clipped to it), so text touching the page box is not removed
-  with the border. Adopted from ScanTailor Advanced pull request #182.
+  with the border. Adopted from ScanTailor Advanced pull request #182. Each page keeps this
+  setting, like "Fill factor" and "Border tolerance" (see below).
 * "Page Box" and "Content Box" are one panel, **Page and Content Box**. The mode "Off" replaces
   "Disable". The mode buttons act when checked, not when pressed.
 * Fixed several content detection and box editing bugs. Settings for the detection and the
@@ -342,7 +345,9 @@ ScanTailor Advanced.
 * **Settings for the automatic content box detection** in *Select Content* (for art books and
   photo pages, also in the default parameters): "Fill factor" and "Border tolerance". Each page
   keeps its own; pages start with those of the default parameters, and **Apply to ...** with the
-  content box takes them to other pages. The defaults give the detection as before. The
+  content box takes them to other pages. Pages of older projects are not detected again because
+  of this; they take the start values at their next detection. The defaults give the detection
+  as before. The
   additional detection of photo plates relies on a macOS-only image analysis library and was
   not adopted.
 * **Color mode detection** in *Output*: the color mode is chosen with three picture buttons

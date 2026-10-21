@@ -739,6 +739,18 @@ void PdfExportView::startExport() {
       }
       if (answer == QMessageBox::Yes) {
         m_ocrPanel->downloadMissingLanguages();
+        // The download may have been canceled or failed.
+        if (!m_ocrPanel->missingLanguages().isEmpty()) {
+          const QMessageBox::StandardButton goOn = QMessageBox::question(
+              this, title,
+              tr("The languages %1 still aren't installed. Recognize the text with the other ticked languages "
+                 "only?")
+                  .arg(m_ocrPanel->missingLanguageNames()),
+              QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes);
+          if (goOn != QMessageBox::Yes) {
+            return;
+          }
+        }
       }
     }
     const QStringList languages = m_ocrPanel->checkedLanguages();

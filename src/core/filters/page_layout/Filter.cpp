@@ -197,6 +197,10 @@ void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& 
   m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams(pageInfo.metadata().dpi(), defaults));
 }
 
+void Filter::loadNewProjectSettings(const DefaultParams& defaults) {
+  m_settings->setOutputSizeOptions(Utils::buildDefaultOutputSizeOptions(defaults));
+}
+
 OptionsWidget* Filter::optionsWidget() {
   return m_optionsWidget.get();
 }

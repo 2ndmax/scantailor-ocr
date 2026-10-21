@@ -63,6 +63,11 @@ class Filter : public AbstractFilter {
 
   void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
 
+  /**
+   * \brief Sets what a new project takes from its start values for all pages: the output size.
+   */
+  void loadNewProjectSettings(const DefaultParams& defaults);
+
   void setContentBox(const PageId& pageId, const ImageTransformation& xform, const QRectF& contentRect);
 
   void invalidateContentBox(const PageId& pageId);

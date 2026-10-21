@@ -5,7 +5,6 @@
 
 #include <UnitsConverter.h>
 #include <core/DefaultParams.h>
-#include <core/DefaultParamsProvider.h>
 
 #include <algorithm>
 #include <cassert>
@@ -281,8 +280,7 @@ Params Utils::buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultPar
                 pageLayoutParams.getAlignment(), pageLayoutParams.isAutoMargins());
 }
 
-OutputSizeOptions Utils::buildDefaultOutputSizeOptions() {
-  const DefaultParams& defaultParams = DefaultParamsProvider::getInstance().getParams();
+OutputSizeOptions Utils::buildDefaultOutputSizeOptions(const DefaultParams& defaultParams) {
   OutputSizeOptions options(defaultParams.getPageLayoutParams().getOutputSizeOptions());
 
   double width = options.targetSizeMM().width();

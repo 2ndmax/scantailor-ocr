@@ -87,12 +87,12 @@ class Utils {
   static Params buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams);
 
   /**
-   * \brief The output size for a new project, from the default parameters.
+   * \brief The output size for a new project, from its start values.
    *
-   * The target size is converted from the units of the profile to millimeters;
-   * pixels refer to the output resolution of the profile.
+   * The target size is converted from the units of the start values to millimeters;
+   * pixels refer to their output resolution.
    */
-  static OutputSizeOptions buildDefaultOutputSizeOptions();
+  static OutputSizeOptions buildDefaultOutputSizeOptions(const DefaultParams& defaultParams);
 
  private:
   static QPointF getRightUnitVector(const QPolygonF& polyRect);
