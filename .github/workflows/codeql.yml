@@ -1,7 +1,10 @@
-# CodeQL: static analysis of the C++ code on Linux and Windows. Runs only when started by hand.
+# CodeQL: static analysis of the C++ code on Linux and Windows. Runs every Monday and when started by hand.
 name: CodeQL
 
 on:
+  # Every Monday at 03:00 UTC.
+  schedule:
+    - cron: "0 3 * * 1"
   workflow_dispatch:
 
 permissions:
