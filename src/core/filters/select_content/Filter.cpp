@@ -25,11 +25,9 @@
 using namespace foundation;
 
 namespace select_content {
-Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions)
-    : m_settings(std::make_shared<Settings>()),
-      m_selectedPageOrder(0),
-      m_processingOptions(std::move(processingOptions)) {
-  m_optionsWidget.reset(new OptionsWidget(m_settings, m_processingOptions, pageSelectionAccessor));
+Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<DefaultParams> defaultParams)
+    : m_settings(std::make_shared<Settings>()), m_selectedPageOrder(0), m_defaultParams(std::move(defaultParams)) {
+  m_optionsWidget.reset(new OptionsWidget(m_settings, m_defaultParams, pageSelectionAccessor));
 
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByWidth = std::make_shared<OrderByWidthProvider>(m_settings);
@@ -143,7 +141,7 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          bool batch,
                                          bool debug) {
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), std::move(nextTask), m_settings,
-                                pageId, m_processingOptions->contentDetection, batch, debug);
+                                pageId, m_defaultParams->getSelectContentParams().getDetectionOptions(), batch, debug);
 }
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(std::shared_ptr<page_layout::CacheDrivenTask> nextTask) {

@@ -9,8 +9,10 @@
 #include <QRectF>
 #include <QSizeF>
 #include <cmath>
+#include <optional>
 
 #include "Dependencies.h"
+#include "DetectionOptions.h"
 #include "Margins.h"
 
 class QDomDocument;
@@ -66,6 +68,14 @@ class Params {
 
   void setFineTuneCornersEnabled(bool fineTuneCorners);
 
+  /**
+   * The settings of the automatic content detection of the page. Pages of projects from before
+   * have none until they are detected again; the start values of the project apply then.
+   */
+  const std::optional<DetectionOptions>& detectionOptions() const { return m_detectionOptions; }
+
+  void setDetectionOptions(const std::optional<DetectionOptions>& options) { m_detectionOptions = options; }
+
  private:
   QRectF m_contentRect;
   QRectF m_pageRect;
@@ -74,6 +84,7 @@ class Params {
   AutoManualMode m_contentDetectionMode;
   AutoManualMode m_pageDetectionMode;
   bool m_fineTuneCorners;
+  std::optional<DetectionOptions> m_detectionOptions;
 };
 
 

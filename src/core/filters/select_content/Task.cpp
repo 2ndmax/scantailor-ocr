@@ -75,9 +75,10 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
   status.throwIfCancelled();
 
   std::unique_ptr<Params> params(m_settings->getPageParams(m_pageId));
-  const Dependencies deps = (params) ? Dependencies(data.xform().resultingPreCropArea(), params->contentDetectionMode(),
-                                                    params->pageDetectionMode(), params->isFineTuningEnabled())
-                                     : Dependencies(data.xform().resultingPreCropArea());
+  Dependencies deps
+      = (params) ? Dependencies(data.xform().resultingPreCropArea(), params->contentDetectionMode(),
+                                params->pageDetectionMode(), params->isFineTuningEnabled(), params->detectionOptions())
+                 : Dependencies(data.xform().resultingPreCropArea());
 
   Params newParams(deps);
   if (params) {
@@ -137,7 +138,12 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
 
     if (needUpdateContentBox) {
       if (newParams.contentDetectionMode() == MODE_AUTO) {
-        contentRect = ContentBoxFinder::findContentBox(status, data, pageRect, m_detectionOptions, m_dbg.get());
+        // A page without settings of its own takes the start values of the project and keeps them.
+        const DetectionOptions options = newParams.detectionOptions().value_or(m_detectionOptions);
+        contentRect = ContentBoxFinder::findContentBox(status, data, pageRect, options, m_dbg.get());
+        newParams.setDetectionOptions(options);
+        deps.setDetectionOptions(options);
+        newParams.setDependencies(deps);
       } else if (newParams.contentDetectionMode() == MODE_DISABLED) {
         contentRect = pageRect;
       } else if (newParams.contentDetectionMode() == MODE_MANUAL) {
@@ -168,6 +174,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
   uiData.setContentDetectionMode(newParams.contentDetectionMode());
   uiData.setPageDetectionMode(newParams.pageDetectionMode());
   uiData.setFineTuneCornersEnabled(newParams.isFineTuningEnabled());
+  uiData.setDetectionOptions(newParams.detectionOptions());
 
   m_settings->setPageParams(m_pageId, newParams);
 

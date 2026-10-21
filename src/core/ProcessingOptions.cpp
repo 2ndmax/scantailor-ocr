@@ -40,15 +40,6 @@ ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOpti
   tiffCompression.jpegQuality = intAttribute(tiffEl, "jpegQuality", tiff.jpegQuality, 10, 100);
   tiffCompression.palette = intAttribute(tiffEl, "palette", tiff.palette, 0, 65535);
 
-  const QDomElement contentEl = el.namedItem("content-detection").toElement();
-  const select_content::DetectionOptions& content = fallback.contentDetection;
-  contentDetection = select_content::DetectionOptions(
-      intAttribute(contentEl, "fillFactor", content.fillFactor(), select_content::DetectionOptions::MIN_FILL_FACTOR,
-                   select_content::DetectionOptions::MAX_FILL_FACTOR),
-      intAttribute(contentEl, "borderTolerance", content.borderTolerance(), 0,
-                   select_content::DetectionOptions::MAX_BORDER_TOLERANCE),
-      boolAttribute(contentEl, "ignorePageBox", content.ignorePageBox()));
-
   const QDomElement colorEl = el.namedItem("color-detection").toElement();
   const ColorModeDetector::Options& color = fallback.colorDetection;
   colorDetection.minColorShare = intAttribute(colorEl, "minColor", toPercent(color.minColorShare), 0, 100) / 100.0;
@@ -85,12 +76,6 @@ QDomElement ProcessingOptions::toXml(QDomDocument& doc, const QString& name) con
   tiffEl.setAttribute("jpegQuality", tiffCompression.jpegQuality);
   tiffEl.setAttribute("palette", tiffCompression.palette);
   el.appendChild(tiffEl);
-
-  QDomElement contentEl = doc.createElement("content-detection");
-  contentEl.setAttribute("fillFactor", contentDetection.fillFactor());
-  contentEl.setAttribute("borderTolerance", contentDetection.borderTolerance());
-  contentEl.setAttribute("ignorePageBox", contentDetection.ignorePageBox() ? "1" : "0");
-  el.appendChild(contentEl);
 
   QDomElement colorEl = doc.createElement("color-detection");
   colorEl.setAttribute("minColor", toPercent(colorDetection.minColorShare));

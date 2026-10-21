@@ -9,7 +9,6 @@
 #include "ColorModeDetector.h"
 #include "PdfCompression.h"
 #include "TiffWriter.h"
-#include "filters/select_content/DetectionOptions.h"
 
 class QDomDocument;
 class QDomElement;
@@ -17,7 +16,7 @@ class QString;
 
 /**
  * The settings of a project that apply to all its pages: how the output files are compressed,
- * how the PDF is made and the settings of the automatic detections.
+ * how the PDF is made and the settings of the color mode and white on black detections.
  *
  * Each project stores them; new projects, and projects from before they were stored, take them
  * from the default parameters (DefaultParams). The stages get them from StageSequence, and each
@@ -45,8 +44,6 @@ struct ProcessingOptions {
 
   /** For the output files. */
   TiffWriter::Compression tiffCompression;
-  /** For the automatic content box. */
-  select_content::DetectionOptions contentDetection;
   /** For "Detect Color Mode". */
   ColorModeDetector::Options colorDetection;
   /** Whether the deskew step detects light content on a dark background. */

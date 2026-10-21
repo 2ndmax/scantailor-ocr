@@ -4,11 +4,16 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_DETECTIONOPTIONS_H_
 #define SCANTAILOR_SELECT_CONTENT_DETECTIONOPTIONS_H_
 
+class QDomDocument;
+class QDomElement;
+class QString;
+
 namespace select_content {
 /**
  * Settings of the automatic content box detection (adopted from ScanTailor Spectre).
- * The defaults reproduce the detection as it was before these settings existed. They are
- * program settings and are not stored in the project; the tasks get them via ProcessingOptions.
+ * The defaults reproduce the detection as it was before these settings existed. Each page keeps
+ * the ones its content box was detected with (Params); pages without them take the start values
+ * of the project (DefaultParams::SelectContentParams).
  */
 class DetectionOptions {
  public:
@@ -22,6 +27,12 @@ class DetectionOptions {
 
   DetectionOptions(int fillFactor, int borderTolerance, bool ignorePageBox)
       : m_fillFactor(fillFactor), m_borderTolerance(borderTolerance), m_ignorePageBox(ignorePageBox) {}
+
+  /** Missing or invalid attributes take the defaults. */
+  explicit DetectionOptions(const QDomElement& el);
+
+  /** Stores the values as attributes of \p el. */
+  void toXml(QDomElement& el) const;
 
   /**
    * In percent. The highest share of black pixels a text line may have. Higher values keep

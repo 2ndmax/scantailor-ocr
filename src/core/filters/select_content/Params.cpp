@@ -3,6 +3,8 @@
 
 #include "Params.h"
 
+#include <QDomElement>
+
 #include "XmlMarshaller.h"
 #include "XmlUnmarshaller.h"
 
@@ -32,7 +34,12 @@ Params::Params(const QDomElement& filterEl)
       m_deps(filterEl.namedItem("dependencies").toElement()),
       m_contentDetectionMode(stringToAutoManualMode(filterEl.attribute("contentDetectionMode"))),
       m_pageDetectionMode(stringToAutoManualMode(filterEl.attribute("pageDetectionMode"))),
-      m_fineTuneCorners(filterEl.attribute("fineTuneCorners") == "1") {}
+      m_fineTuneCorners(filterEl.attribute("fineTuneCorners") == "1") {
+  const QDomElement detectionEl = filterEl.namedItem("detection").toElement();
+  if (!detectionEl.isNull()) {
+    m_detectionOptions = DetectionOptions(detectionEl);
+  }
+}
 
 Params::~Params() = default;
 
@@ -47,6 +54,11 @@ QDomElement Params::toXml(QDomDocument& doc, const QString& name) const {
   el.appendChild(marshaller.rectF(m_pageRect, "page-rect"));
   el.appendChild(marshaller.sizeF(m_contentSizeMM, "content-size-mm"));
   el.appendChild(m_deps.toXml(doc, "dependencies"));
+  if (m_detectionOptions) {
+    QDomElement detectionEl(doc.createElement("detection"));
+    m_detectionOptions->toXml(detectionEl);
+    el.appendChild(detectionEl);
+  }
   return el;
 }
 }  // namespace select_content

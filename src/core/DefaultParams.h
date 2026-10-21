@@ -15,6 +15,7 @@
 #include <filters/page_layout/OutputSizeOptions.h>
 #include <filters/page_split/LayoutType.h>
 #include <filters/page_split/SplitDetectionMethod.h>
+#include <filters/select_content/DetectionOptions.h>
 
 #include <QtCore/QRectF>
 
@@ -137,11 +138,17 @@ class DefaultParams {
 
     void setPageDetectMode(AutoManualMode pageDetectMode);
 
+    /** The settings of the automatic content box detection that pages start with. */
+    const select_content::DetectionOptions& getDetectionOptions() const { return m_detectionOptions; }
+
+    void setDetectionOptions(const select_content::DetectionOptions& options) { m_detectionOptions = options; }
+
    private:
     QSizeF m_pageRectSize;
     bool m_contentDetectEnabled;
     AutoManualMode m_pageDetectMode;
     bool m_fineTuneCorners;
+    select_content::DetectionOptions m_detectionOptions;
   };
 
   class PageLayoutParams {

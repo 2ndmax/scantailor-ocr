@@ -69,7 +69,6 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
 
   ProcessingOptions options;
   options.tiffCompression = {COMPRESSION_LZW, COMPRESSION_JPEG, 70, COMPRESSION_DEFLATE};
-  options.contentDetection = select_content::DetectionOptions(80, 20, true);
   options.colorDetection.minColorShare = 0.07;
   options.colorDetection.usePictureZones = true;
   options.colorDetection.minPictureShare = 0.12;
@@ -98,7 +97,6 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   BOOST_CHECK_EQUAL(read.tiffCompression.color, COMPRESSION_JPEG);
   BOOST_CHECK_EQUAL(read.tiffCompression.jpegQuality, 70);
   BOOST_CHECK_EQUAL(read.tiffCompression.palette, COMPRESSION_DEFLATE);
-  BOOST_CHECK(read.contentDetection == options.contentDetection);
   BOOST_CHECK(read.colorDetection == options.colorDetection);
   BOOST_CHECK(!read.blackOnWhiteDetection);
   BOOST_CHECK(!read.blackOnWhiteAtOutput);
@@ -125,6 +123,9 @@ BOOST_AUTO_TEST_CASE(test_start_values_are_stored_in_the_project) {
   DefaultParams::PageSplitParams pageSplitParams;
   pageSplitParams.setPageOrder(Qt::RightToLeft);
   startValues.setPageSplitParams(pageSplitParams);
+  DefaultParams::SelectContentParams selectContentParams;
+  selectContentParams.setDetectionOptions(select_content::DetectionOptions(80, 20, true));
+  startValues.setSelectContentParams(selectContentParams);
 
   auto pages = std::make_shared<ProjectPages>();
   const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(), tempDir.path(), Qt::LeftToRight);
@@ -139,6 +140,7 @@ BOOST_AUTO_TEST_CASE(test_start_values_are_stored_in_the_project) {
   BOOST_REQUIRE(read);
   BOOST_CHECK(read->getDeskewParams().isAutoOblique());
   BOOST_CHECK(read->getPageSplitParams().getPageOrder() == Qt::RightToLeft);
+  BOOST_CHECK(read->getSelectContentParams().getDetectionOptions() == select_content::DetectionOptions(80, 20, true));
 
   // Projects from before have none; they take the active profile.
   BOOST_CHECK(!ProjectReader(parse(QStringLiteral("<project version=\"10\"/>"))).readDefaultParams());
@@ -151,12 +153,12 @@ BOOST_AUTO_TEST_CASE(test_projects_without_processing_options_take_the_fallback)
 
   ProcessingOptions fallback;
   fallback.tiffCompression.color = COMPRESSION_JPEG;
-  fallback.contentDetection = select_content::DetectionOptions(90, 50, true);
+  fallback.colorDetection.minColorShare = 0.1;
   fallback.blackOnWhiteAtOutput = false;
   fallback.pdf.ocrLanguages = QStringList{"ita"};
   const ProcessingOptions read = reader.readProcessingOptions(fallback);
   BOOST_CHECK_EQUAL(read.tiffCompression.color, COMPRESSION_JPEG);
-  BOOST_CHECK(read.contentDetection == fallback.contentDetection);
+  BOOST_CHECK(read.colorDetection == fallback.colorDetection);
   BOOST_CHECK(!read.blackOnWhiteAtOutput);
   BOOST_CHECK(read.pdf.ocrLanguages == QStringList{"ita"});
 }

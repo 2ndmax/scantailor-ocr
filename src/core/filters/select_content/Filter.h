@@ -9,11 +9,11 @@
 #include <vector>
 
 #include "AbstractFilter.h"
+#include "DefaultParams.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
 #include "PageView.h"
-#include "ProcessingOptions.h"
 #include "SafeDeletingQObjectPtr.h"
 #include "Settings.h"
 
@@ -36,7 +36,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(select_content::Filter)
  public:
-  Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions);
+  Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<DefaultParams> defaultParams);
 
   ~Filter() override;
 
@@ -77,7 +77,8 @@ class Filter : public AbstractFilter {
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
-  std::shared_ptr<ProcessingOptions> m_processingOptions;
+  // The start values of the project.
+  std::shared_ptr<DefaultParams> m_defaultParams;
 };
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_FILTER_H_

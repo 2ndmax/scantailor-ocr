@@ -3,7 +3,7 @@
 
 #include "OptionsWidget.h"
 
-#include <ProcessingOptions.h>
+#include <DefaultParams.h>
 #include <UnitsProvider.h>
 
 #include <functional>
@@ -16,10 +16,10 @@
 
 namespace select_content {
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
-                             std::shared_ptr<ProcessingOptions> processingOptions,
+                             std::shared_ptr<DefaultParams> defaultParams,
                              const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
-      m_processingOptions(std::move(processingOptions)),
+      m_defaultParams(std::move(defaultParams)),
       m_pageSelectionAccessor(pageSelectionAccessor),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
@@ -136,11 +136,13 @@ void OptionsWidget::fineTuningChanged(bool checked) {
 }
 
 void OptionsWidget::detectionOptionsChanged() {
-  // Settings of the project: only the current page is detected again; other pages keep their
-  // content box until it is detected again or applied to them.
-  m_processingOptions->contentDetection
-      = DetectionOptions(fillFactorSpinBox->value(), borderToleranceSpinBox->value(), ignorePageBoxCB->isChecked());
-  if (m_uiData.contentDetectionMode() == MODE_AUTO) {
+  // Settings of the page: other pages get them with "Apply to ..." (Content box).
+  m_uiData.setDetectionOptions(
+      DetectionOptions(fillFactorSpinBox->value(), borderToleranceSpinBox->value(), ignorePageBoxCB->isChecked()));
+  if (m_uiData.contentDetectionMode() != MODE_AUTO) {
+    // Kept for when the page is switched to Auto.
+    commitCurrentParams();
+  } else {
     Dependencies deps = m_uiData.dependencies();
     deps.setContentDetectionMode(MODE_DISABLED);  // Makes the task detect the content box again.
     m_uiData.setDependencies(deps);
@@ -187,7 +189,8 @@ void OptionsWidget::updatePageDetectOptionsDisplay() {
 void OptionsWidget::updateContentDetectOptionsDisplay() {
   auto block = m_connectionManager.getScopedBlock();
 
-  const DetectionOptions& options = m_processingOptions->contentDetection;
+  const DetectionOptions options
+      = m_uiData.detectionOptions().value_or(m_defaultParams->getSelectContentParams().getDetectionOptions());
   fillFactorSpinBox->setValue(options.fillFactor());
   borderToleranceSpinBox->setValue(options.borderTolerance());
   ignorePageBoxCB->setChecked(options.ignorePageBox());
@@ -211,6 +214,7 @@ void OptionsWidget::commitCurrentParams() {
 
   Params params(m_uiData.contentRect(), m_uiData.contentSizeMM(), m_uiData.pageRect(), m_uiData.dependencies(),
                 m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(), m_uiData.isFineTuningCornersEnabled());
+  params.setDetectionOptions(m_uiData.detectionOptions());
   m_settings->setPageParams(m_pageId, params);
 }
 
@@ -243,9 +247,11 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
     return;
   }
 
-  const Params params(m_uiData.contentRect(), m_uiData.contentSizeMM(), m_uiData.pageRect(), Dependencies(),
-                      m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(),
-                      m_uiData.isFineTuningCornersEnabled());
+  Params params(m_uiData.contentRect(), m_uiData.contentSizeMM(), m_uiData.pageRect(), Dependencies(),
+                m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(), m_uiData.isFineTuningCornersEnabled());
+  // The detection settings go with the content box, as shown, also if the page has none of its own yet.
+  params.setDetectionOptions(
+      m_uiData.detectionOptions().value_or(m_defaultParams->getSelectContentParams().getDetectionOptions()));
 
   for (const PageId& pageId : pages) {
     if (m_pageId == pageId) {
@@ -266,6 +272,7 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
       newParams.setContentDetectionMode(keptParams.contentDetectionMode());
       newParams.setContentRect(keptParams.contentRect());
       newParams.setContentSizeMM(keptParams.contentSizeMM());
+      newParams.setDetectionOptions(keptParams.detectionOptions());
     }
     if (oldParams) {
       if (applyPageBox && (newParams.pageDetectionMode() == MODE_MANUAL)) {

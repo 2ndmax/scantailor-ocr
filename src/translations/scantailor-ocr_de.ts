@@ -1305,7 +1305,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4355"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1252"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -1485,7 +1485,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="151"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1444"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1443"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
@@ -1510,82 +1510,82 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="972"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="969"/>
         <source>TIFF Compression</source>
         <translation>TIFF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="990"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="987"/>
         <source>PDF Compression</source>
         <translation>PDF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="993"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="990"/>
         <source>Text Recognition (OCR)</source>
         <translation>Texterkennung (OCR)</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1001"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="998"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1252"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1362"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1368"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1399"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1361"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1367"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1392"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1398"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1409"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1449"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1464"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1500"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1368"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1367"/>
         <source>Error loading the profile.</source>
         <translation>Fehler beim Laden des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1400"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1399"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Dieser Name wird bereits für ein Standardprofil verwendet. Bitte geben Sie einen anderen Namen ein.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation>Bitte geben Sie einen Namen ein, der keines der Zeichen \ / : * ? &quot; &lt; &gt; | enthält und nicht mit einem Punkt beginnt.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1424"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1492"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1423"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1491"/>
         <source>Save Profile</source>
         <translation>Profil speichern</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1425"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1424"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation>Ein Profil mit dem Namen „%1“ existiert bereits. Ersetzen?</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1493"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1492"/>
         <source>The changes to the profile &quot;%1&quot; haven&apos;t been saved. Without saving, they only apply until the program is closed. Save them in the profile?</source>
         <translation>Die Änderungen am Profil „%1“ sind nicht gespeichert. Ohne Speichern gelten sie nur bis zum Beenden des Programms. Möchten Sie sie im Profil speichern?</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1392"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1449"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1500"/>
         <source>Error saving the profile.</source>
         <translation>Fehler beim Speichern des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1464"/>
         <source>Error deleting the profile.</source>
         <translation>Fehler beim Löschen des Profils.</translation>
     </message>
@@ -1610,7 +1610,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1362"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1361"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Die Profildatei ist nicht mit der aktuellen Anwendungsversion kompatibel. Entfernen?</translation>
     </message>
@@ -2042,7 +2042,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3066"/>
+        <location filename="../app/MainWindow.cpp" line="3064"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
@@ -2217,8 +2217,8 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
     <message>
         <location filename="../app/MainWindow.cpp" line="1843"/>
         <location filename="../app/MainWindow.cpp" line="1849"/>
-        <location filename="../app/MainWindow.cpp" line="2219"/>
-        <location filename="../app/MainWindow.cpp" line="2244"/>
+        <location filename="../app/MainWindow.cpp" line="2218"/>
+        <location filename="../app/MainWindow.cpp" line="2242"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
@@ -2253,69 +2253,69 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Ein PDF wird gerade erstellt. Möchten Sie den Vorgang abbrechen?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2219"/>
-        <location filename="../app/MainWindow.cpp" line="2244"/>
+        <location filename="../app/MainWindow.cpp" line="2218"/>
+        <location filename="../app/MainWindow.cpp" line="2242"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2299"/>
+        <location filename="../app/MainWindow.cpp" line="2297"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2302"/>
+        <location filename="../app/MainWindow.cpp" line="2300"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2352"/>
+        <location filename="../app/MainWindow.cpp" line="2350"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2409"/>
+        <location filename="../app/MainWindow.cpp" line="2407"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2570"/>
-        <location filename="../app/MainWindow.cpp" line="2612"/>
+        <location filename="../app/MainWindow.cpp" line="2568"/>
+        <location filename="../app/MainWindow.cpp" line="2610"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2564"/>
+        <location filename="../app/MainWindow.cpp" line="2562"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2589"/>
+        <location filename="../app/MainWindow.cpp" line="2587"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2613"/>
+        <location filename="../app/MainWindow.cpp" line="2611"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2669"/>
+        <location filename="../app/MainWindow.cpp" line="2667"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2727"/>
+        <location filename="../app/MainWindow.cpp" line="2725"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen. Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2800"/>
+        <location filename="../app/MainWindow.cpp" line="2798"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3066"/>
+        <location filename="../app/MainWindow.cpp" line="3064"/>
         <source>Enter the page number:</source>
         <translation>Seitennummer:</translation>
     </message>
@@ -2612,12 +2612,12 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Bitte beachten Sie, dass ScanTailor OCR zwar versucht, Situationen, in denen der Speicher voll ist, abzufangen und Ihnen die Möglichkeit zu geben, Ihr Projekt zu speichern, aber das ist nicht immer möglich. Dieses Mal hat es geklappt, aber beim nächsten Mal könnte es einfach abstürzen.</translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="61"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="61"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>

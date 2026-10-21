@@ -51,6 +51,7 @@ class Task {
   std::shared_ptr<Settings> m_settings;
   std::unique_ptr<DebugImages> m_dbg;
   PageId m_pageId;
+  // The start values of the project, for pages without detection settings of their own.
   DetectionOptions m_detectionOptions;
   bool m_batchProcessing;
 };

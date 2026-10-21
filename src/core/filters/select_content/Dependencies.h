@@ -7,6 +7,9 @@
 #include <AutoManualMode.h>
 
 #include <QPolygonF>
+#include <optional>
+
+#include "DetectionOptions.h"
 
 class QDomDocument;
 class QDomElement;
@@ -25,10 +28,15 @@ class Dependencies {
 
   explicit Dependencies(const QPolygonF& rotatedPageOutline);
 
+  /**
+   * \p detectionOptions: the settings of the automatic content detection the page has. Pages of
+   * projects from before have none; they count as compatible with any.
+   */
   explicit Dependencies(const QPolygonF& rotatedPageOutline,
                         AutoManualMode contentDetectionMode,
                         AutoManualMode pageDetectionMode,
-                        bool fineTuneCorners);
+                        bool fineTuneCorners,
+                        const std::optional<DetectionOptions>& detectionOptions = std::nullopt);
 
   explicit Dependencies(const QDomElement& depsEl);
 
@@ -46,12 +54,17 @@ class Dependencies {
 
   void setPageDetectionMode(AutoManualMode pageDetectionMode);
 
+  void setDetectionOptions(const std::optional<DetectionOptions>& detectionOptions);
+
  private:
   class Params {
    public:
     Params();
 
-    Params(AutoManualMode contentDetectionMode, AutoManualMode pageDetectionMode, bool fineTuneCorners);
+    Params(AutoManualMode contentDetectionMode,
+           AutoManualMode pageDetectionMode,
+           bool fineTuneCorners,
+           const std::optional<DetectionOptions>& detectionOptions);
 
     explicit Params(const QDomElement& el);
 
@@ -67,10 +80,13 @@ class Dependencies {
 
     void setPageDetectionMode(AutoManualMode pageDetectionMode);
 
+    void setDetectionOptions(const std::optional<DetectionOptions>& detectionOptions);
+
    private:
     AutoManualMode m_contentDetectionMode;
     AutoManualMode m_pageDetectionMode;
     bool m_fineTuneCorners;
+    std::optional<DetectionOptions> m_detectionOptions;
   };
 
   QPolygonF m_rotatedPageOutline;

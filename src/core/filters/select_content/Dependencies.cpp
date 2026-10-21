@@ -5,6 +5,8 @@
 
 #include <PolygonUtils.h>
 
+#include <QDomElement>
+
 #include "XmlMarshaller.h"
 #include "XmlUnmarshaller.h"
 
@@ -16,8 +18,10 @@ Dependencies::Dependencies(const QPolygonF& rotatedPageOutline) : m_rotatedPageO
 Dependencies::Dependencies(const QPolygonF& rotatedPageOutline,
                            const AutoManualMode contentDetectionMode,
                            const AutoManualMode pageDetectionMode,
-                           const bool fineTuneCorners)
-    : m_rotatedPageOutline(rotatedPageOutline), m_params(contentDetectionMode, pageDetectionMode, fineTuneCorners) {}
+                           const bool fineTuneCorners,
+                           const std::optional<DetectionOptions>& detectionOptions)
+    : m_rotatedPageOutline(rotatedPageOutline),
+      m_params(contentDetectionMode, pageDetectionMode, fineTuneCorners, detectionOptions) {}
 
 Dependencies::Dependencies(const QDomElement& depsEl)
     : m_rotatedPageOutline(XmlUnmarshaller::polygonF(depsEl.namedItem("rotated-page-outline").toElement())),
@@ -74,6 +78,10 @@ void Dependencies::setPageDetectionMode(AutoManualMode pageDetectionMode) {
   m_params.setPageDetectionMode(pageDetectionMode);
 }
 
+void Dependencies::setDetectionOptions(const std::optional<DetectionOptions>& detectionOptions) {
+  m_params.setDetectionOptions(detectionOptions);
+}
+
 /* ================================= Dependencies::Params ================================= */
 
 Dependencies::Params::Params()
@@ -81,39 +89,50 @@ Dependencies::Params::Params()
 
 Dependencies::Params::Params(const AutoManualMode contentDetectionMode,
                              const AutoManualMode pageDetectionMode,
-                             const bool fineTuneCorners)
+                             const bool fineTuneCorners,
+                             const std::optional<DetectionOptions>& detectionOptions)
     : m_contentDetectionMode(contentDetectionMode),
       m_pageDetectionMode(pageDetectionMode),
-      m_fineTuneCorners(fineTuneCorners) {}
+      m_fineTuneCorners(fineTuneCorners),
+      m_detectionOptions(detectionOptions) {}
 
 Dependencies::Params::Params(const QDomElement& el)
     : m_contentDetectionMode(stringToAutoManualMode(el.attribute("contentDetectionMode"))),
       m_pageDetectionMode(stringToAutoManualMode(el.attribute("pageDetectionMode"))),
-      m_fineTuneCorners(el.attribute("fineTuneCorners") == "1") {}
+      m_fineTuneCorners(el.attribute("fineTuneCorners") == "1") {
+  const QDomElement detectionEl = el.namedItem("detection").toElement();
+  if (!detectionEl.isNull()) {
+    m_detectionOptions = DetectionOptions(detectionEl);
+  }
+}
 
 QDomElement Dependencies::Params::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("contentDetectionMode", autoManualModeToString(m_contentDetectionMode));
   el.setAttribute("pageDetectionMode", autoManualModeToString(m_pageDetectionMode));
   el.setAttribute("fineTuneCorners", m_fineTuneCorners ? "1" : "0");
+  if (m_detectionOptions) {
+    QDomElement detectionEl(doc.createElement("detection"));
+    m_detectionOptions->toXml(detectionEl);
+    el.appendChild(detectionEl);
+  }
   return el;
 }
 
 bool Dependencies::Params::compatibleWith(const Dependencies::Params& other) const {
-  if ((m_contentDetectionMode != MODE_MANUAL) && (m_contentDetectionMode != other.m_contentDetectionMode)) {
+  if (needUpdateContentBox(other)) {
     return false;
   }
-  if ((m_pageDetectionMode != MODE_MANUAL) && (m_pageDetectionMode != other.m_pageDetectionMode)) {
-    return false;
-  }
-  if ((m_pageDetectionMode == MODE_AUTO) && (m_fineTuneCorners != other.m_fineTuneCorners)) {
-    return false;
-  }
-  return true;
+  return !needUpdatePageBox(other);
 }
 
 bool Dependencies::Params::needUpdateContentBox(const Dependencies::Params& other) const {
-  return (m_contentDetectionMode != MODE_MANUAL) && (m_contentDetectionMode != other.m_contentDetectionMode);
+  if ((m_contentDetectionMode != MODE_MANUAL) && (m_contentDetectionMode != other.m_contentDetectionMode)) {
+    return true;
+  }
+  // Only known settings on both sides count, so the pages of older projects aren't detected again.
+  return (m_contentDetectionMode == MODE_AUTO) && m_detectionOptions && other.m_detectionOptions
+         && (*m_detectionOptions != *other.m_detectionOptions);
 }
 
 bool Dependencies::Params::needUpdatePageBox(const Dependencies::Params& other) const {
@@ -132,5 +151,9 @@ void Dependencies::Params::setContentDetectionMode(AutoManualMode contentDetecti
 
 void Dependencies::Params::setPageDetectionMode(AutoManualMode pageDetectionMode) {
   m_pageDetectionMode = pageDetectionMode;
+}
+
+void Dependencies::Params::setDetectionOptions(const std::optional<DetectionOptions>& detectionOptions) {
+  m_detectionOptions = detectionOptions;
 }
 }  // namespace select_content

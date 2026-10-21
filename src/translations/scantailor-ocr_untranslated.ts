@@ -1326,7 +1326,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4355"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1252"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1496,7 +1496,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="151"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1444"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1443"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1521,87 +1521,87 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="972"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="969"/>
         <source>TIFF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="990"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="987"/>
         <source>PDF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="993"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="990"/>
         <source>Text Recognition (OCR)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1001"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="998"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1252"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1251"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1362"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1368"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1399"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1361"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1367"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1392"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1398"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1409"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1449"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1464"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1500"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1362"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1361"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1368"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1367"/>
         <source>Error loading the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1400"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1399"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1424"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1492"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1423"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1491"/>
         <source>Save Profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1425"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1424"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1493"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1492"/>
         <source>The changes to the profile &quot;%1&quot; haven&apos;t been saved. Without saving, they only apply until the program is closed. Save them in the profile?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1393"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1392"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1449"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1500"/>
         <source>Error saving the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1464"/>
         <source>Error deleting the profile.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2083,7 +2083,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3066"/>
+        <location filename="../app/MainWindow.cpp" line="3064"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2254,8 +2254,8 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     <message>
         <location filename="../app/MainWindow.cpp" line="1843"/>
         <location filename="../app/MainWindow.cpp" line="1849"/>
-        <location filename="../app/MainWindow.cpp" line="2219"/>
-        <location filename="../app/MainWindow.cpp" line="2244"/>
+        <location filename="../app/MainWindow.cpp" line="2218"/>
+        <location filename="../app/MainWindow.cpp" line="2242"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2290,69 +2290,69 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2219"/>
-        <location filename="../app/MainWindow.cpp" line="2244"/>
+        <location filename="../app/MainWindow.cpp" line="2218"/>
+        <location filename="../app/MainWindow.cpp" line="2242"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2299"/>
+        <location filename="../app/MainWindow.cpp" line="2297"/>
         <source>Files to Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2302"/>
+        <location filename="../app/MainWindow.cpp" line="2300"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2352"/>
+        <location filename="../app/MainWindow.cpp" line="2350"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2409"/>
+        <location filename="../app/MainWindow.cpp" line="2407"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2570"/>
-        <location filename="../app/MainWindow.cpp" line="2612"/>
+        <location filename="../app/MainWindow.cpp" line="2568"/>
+        <location filename="../app/MainWindow.cpp" line="2610"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2564"/>
+        <location filename="../app/MainWindow.cpp" line="2562"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2589"/>
+        <location filename="../app/MainWindow.cpp" line="2587"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2613"/>
+        <location filename="../app/MainWindow.cpp" line="2611"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2669"/>
+        <location filename="../app/MainWindow.cpp" line="2667"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2727"/>
+        <location filename="../app/MainWindow.cpp" line="2725"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2800"/>
+        <location filename="../app/MainWindow.cpp" line="2798"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3066"/>
+        <location filename="../app/MainWindow.cpp" line="3064"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2593,12 +2593,12 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="61"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="62"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="61"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>

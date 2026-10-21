@@ -12,7 +12,7 @@ StageSequence::StageSequence(const std::shared_ptr<ProjectPages>& pages,
       m_fixOrientationFilter(std::make_shared<fix_orientation::Filter>(pageSelectionAccessor)),
       m_pageSplitFilter(std::make_shared<page_split::Filter>(pages, pageSelectionAccessor)),
       m_deskewFilter(std::make_shared<deskew::Filter>(pageSelectionAccessor, m_processingOptions, m_defaultParams)),
-      m_selectContentFilter(std::make_shared<select_content::Filter>(pageSelectionAccessor, m_processingOptions)),
+      m_selectContentFilter(std::make_shared<select_content::Filter>(pageSelectionAccessor, m_defaultParams)),
       m_pageLayoutFilter(std::make_shared<page_layout::Filter>(pages, pageSelectionAccessor)),
       m_outputFilter(std::make_shared<output::Filter>(pageSelectionAccessor, m_processingOptions)) {
   m_fixOrientationFilterIdx = static_cast<int>(m_filters.size());

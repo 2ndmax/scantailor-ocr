@@ -21,7 +21,7 @@
 #include "PhysSizeCalc.h"
 #include "ui_OptionsWidget.h"
 
-struct ProcessingOptions;
+class DefaultParams;
 
 namespace select_content {
 class Settings;
@@ -64,6 +64,11 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
     AutoManualMode pageDetectionMode() const;
 
+    /** Those of the page, see Params::detectionOptions(). */
+    const std::optional<DetectionOptions>& detectionOptions() const { return m_detectionOptions; }
+
+    void setDetectionOptions(const std::optional<DetectionOptions>& options) { m_detectionOptions = options; }
+
    private:
     QRectF m_contentRect;  // In virtual image coordinates.
     QRectF m_pageRect;
@@ -72,11 +77,12 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
     AutoManualMode m_contentDetectionMode;
     AutoManualMode m_pageDetectionMode;
     bool m_fineTuneCornersEnabled;
+    std::optional<DetectionOptions> m_detectionOptions;
   };
 
 
   OptionsWidget(std::shared_ptr<Settings> settings,
-                std::shared_ptr<ProcessingOptions> processingOptions,
+                std::shared_ptr<DefaultParams> defaultParams,
                 const PageSelectionAccessor& pageSelectionAccessor);
 
   ~OptionsWidget() override;
@@ -133,8 +139,8 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   void setupUiConnections();
 
   std::shared_ptr<Settings> m_settings;
-  // The detection settings of the project.
-  std::shared_ptr<ProcessingOptions> m_processingOptions;
+  // The start values of the project, for pages without detection settings of their own.
+  std::shared_ptr<DefaultParams> m_defaultParams;
   UiData m_uiData;
   PageSelectionAccessor m_pageSelectionAccessor;
   PageId m_pageId;

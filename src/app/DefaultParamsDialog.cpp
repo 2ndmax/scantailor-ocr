@@ -393,6 +393,10 @@ void DefaultParamsDialog::updateSelectContentDisplay(const DefaultParams::Select
   } else {
     contentDetectDisableBtn->setChecked(true);
   }
+  const select_content::DetectionOptions& detection = params.getDetectionOptions();
+  fillFactorSpinBox->setValue(detection.fillFactor());
+  borderToleranceSpinBox->setValue(detection.borderTolerance());
+  ignorePageBoxCB->setChecked(detection.ignorePageBox());
   contentDetectOptions->setEnabled(params.isContentDetectEnabled());
 
   QSizeF pageRectSize = params.getPageRectSize();
@@ -923,11 +927,6 @@ void DefaultParamsDialog::updateProcessingDisplay(const ProcessingOptions& optio
   blackOnWhiteDetectionAtOutputCB->setChecked(options.blackOnWhiteAtOutput);
   blackOnWhiteDetectionAtOutputCB->setEnabled(options.blackOnWhiteDetection);
 
-  // Select Content tab.
-  fillFactorSpinBox->setValue(options.contentDetection.fillFactor());
-  borderToleranceSpinBox->setValue(options.contentDetection.borderTolerance());
-  ignorePageBoxCB->setChecked(options.contentDetection.ignorePageBox());
-
   // Output tab.
   colorDetectionMinColorSB->setValue(qRound(options.colorDetection.minColorShare * 100));
   colorDetectionZonesCB->setChecked(options.colorDetection.usePictureZones);
@@ -945,8 +944,6 @@ ProcessingOptions DefaultParamsDialog::buildProcessingOptions() const {
   ProcessingOptions options;
   options.blackOnWhiteDetection = blackOnWhiteDetectionCB->isChecked();
   options.blackOnWhiteAtOutput = blackOnWhiteDetectionAtOutputCB->isChecked();
-  options.contentDetection = select_content::DetectionOptions(
-      fillFactorSpinBox->value(), borderToleranceSpinBox->value(), ignorePageBoxCB->isChecked());
   options.colorDetection.minColorShare = colorDetectionMinColorSB->value() / 100.0;
   options.colorDetection.usePictureZones = colorDetectionZonesCB->isChecked();
   options.colorDetection.minPictureShare = colorDetectionMinPictureSB->value() / 100.0;
@@ -1028,6 +1025,8 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   DefaultParams::SelectContentParams selectContentParams(QSizeF(widthSpinBox->value(), heightSpinBox->value()),
                                                          !contentDetectDisableBtn->isChecked(), pageBoxMode,
                                                          fineTuneBtn->isChecked());
+  selectContentParams.setDetectionOptions(select_content::DetectionOptions(
+      fillFactorSpinBox->value(), borderToleranceSpinBox->value(), ignorePageBoxCB->isChecked()));
 
   Alignment alignment;
   switch (hAlignmentModeCB->currentIndex()) {
