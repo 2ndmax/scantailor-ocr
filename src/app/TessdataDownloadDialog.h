@@ -6,6 +6,7 @@
 
 #include <QDialog>
 #include <QStringList>
+#include <set>
 #include <vector>
 
 #include "TessdataDownloader.h"
@@ -33,6 +34,9 @@ class TessdataDownloadDialog : public QDialog {
   /** The codes of the languages downloaded while the dialog was open. */
   const QStringList& downloadedCodes() const { return m_downloaded; }
 
+  /** Ticks these languages once the list has arrived. Call before the dialog is shown. */
+  void preselect(const QStringList& codes) { m_preselected = std::set<QString>(codes.begin(), codes.end()); }
+
  public slots:
   void reject() override;
 
@@ -58,6 +62,7 @@ class TessdataDownloadDialog : public QDialog {
   std::vector<TessdataFile> m_files;
   QString m_targetDir;
   QStringList m_downloaded;
+  std::set<QString> m_preselected;
   bool m_running = false;
 
   QLabel* m_targetLabel = nullptr;

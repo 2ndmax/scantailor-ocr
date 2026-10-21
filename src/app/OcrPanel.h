@@ -13,6 +13,7 @@ class QCheckBox;
 class QComboBox;
 class QLabel;
 class QListWidget;
+class QListWidgetItem;
 
 /**
  * The contents of the Text Recognition (OCR) panel: on or off, the languages and the text
@@ -38,14 +39,35 @@ class OcrPanel : public QWidget {
 
   int pageLayout() const;
 
+  /**
+   * The chosen languages whose files are missing on this computer. They are listed ticked, with a
+   * warning sign, and kept in the project.
+   */
+  QStringList missingLanguages() const;
+
+  /** Their names, separated by commas. */
+  QString missingLanguageNames() const;
+
+  /** Opens the dialog for downloading languages with the missing ones ticked. */
+  void downloadMissingLanguages();
+
  signals:
   void optionsChanged();
 
  private:
-  /** Opens the dialog for downloading languages. */
-  void downloadLanguages();
+  /** Item data: whether the language is missing on this computer. */
+  static constexpr int MISSING_ROLE = Qt::UserRole + 1;
 
-  /** Lists the installed languages and ticks those in \p checked. */
+  /** Opens the dialog for downloading languages, with \p preselected ticked. */
+  void downloadLanguages(const QStringList& preselected);
+
+  /** The codes of the ticked languages, with or without the missing ones. */
+  QStringList tickedLanguages(bool withMissing) const;
+
+  /** A missing language that is unticked leaves the list. */
+  void languageChanged(QListWidgetItem* item);
+
+  /** Lists the installed languages and the missing ones of \p checked, and ticks those in \p checked. */
   void fillLanguageList(const QStringList& checked);
 
   /** Shows up to 8 languages; more can be scrolled. */
@@ -57,8 +79,6 @@ class OcrPanel : public QWidget {
   QListWidget* m_languageList = nullptr;
   QLabel* m_noLanguagesLabel = nullptr;
   QComboBox* m_pageLayout = nullptr;
-  /** Languages that were chosen but aren't installed here; they are kept. */
-  QStringList m_missingLanguages;
 };
 
 #endif  // SCANTAILOR_APP_OCRPANEL_H_

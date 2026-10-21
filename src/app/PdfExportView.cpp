@@ -727,6 +727,20 @@ void PdfExportView::startExport() {
 
 #ifdef ENABLE_OCR
   if (m_ocrPanel->isOcrEnabled()) {
+    if (!m_ocrPanel->missingLanguages().isEmpty()) {
+      const QMessageBox::StandardButton answer = QMessageBox::question(
+          this, title,
+          tr("The languages %1 of the project aren't installed on this computer. Download them now?\n\nWithout "
+             "them, the text is only recognized with the other ticked languages.")
+              .arg(m_ocrPanel->missingLanguageNames()),
+          QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+      if (answer == QMessageBox::Cancel) {
+        return;
+      }
+      if (answer == QMessageBox::Yes) {
+        m_ocrPanel->downloadMissingLanguages();
+      }
+    }
     const QStringList languages = m_ocrPanel->checkedLanguages();
     if (languages.isEmpty()) {
       QMessageBox::warning(this, title,

@@ -129,7 +129,9 @@ void TessdataDownloadDialog::fillList() {
   });
 
   // Languages that are still ticked stay ticked, so a failed download can simply be started again.
+  // The preselected ones are ticked when the list is first filled.
   std::set<QString> ticked;
+  ticked.swap(m_preselected);
   for (int row = 0; row < m_list->count(); ++row) {
     const QListWidgetItem* item = m_list->item(row);
     if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
