@@ -4,12 +4,25 @@ name: Lint
 on:
   push:
     branches: [master, main]
+    # Changes to the website or to Markdown files alone don't need a build.
+    paths-ignore:
+      - "website/**"
+      - "**/*.md"
   pull_request:
     branches: [master, main]
+    # Changes to the website or to Markdown files alone don't need a build.
+    paths-ignore:
+      - "website/**"
+      - "**/*.md"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+# A new push stops the run still going for the same branch or pull request.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   clang-format:
