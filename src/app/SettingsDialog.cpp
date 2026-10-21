@@ -58,11 +58,6 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
     ui.languageBox->setEnabled(ui.languageBox->count() > 1);
   }
 
-  ui.blackOnWhiteDetectionCB->setChecked(settings.isBlackOnWhiteDetectionEnabled());
-  ui.blackOnWhiteDetectionAtOutputCB->setEnabled(ui.blackOnWhiteDetectionCB->isChecked());
-  ui.blackOnWhiteDetectionAtOutputCB->setChecked(settings.isBlackOnWhiteDetectionOutputEnabled());
-  connect(ui.blackOnWhiteDetectionCB, &QAbstractButton::clicked, this, &SettingsDialog::blackOnWhiteDetectionToggled);
-
   ui.highlightDeviationCB->setChecked(settings.isHighlightDeviationEnabled());
 
   ui.deskewDeviationCoefSB->setValue(settings.getDeskewDeviationCoef());
@@ -115,9 +110,6 @@ void SettingsDialog::commitChanges() {
   settings.setMarginsDeviationCoef(ui.marginsDeviationCoefSB->value());
   settings.setMarginsDeviationThreshold(ui.marginsDeviationThresholdSB->value());
 
-  settings.setBlackOnWhiteDetectionEnabled(ui.blackOnWhiteDetectionCB->isChecked());
-  settings.setBlackOnWhiteDetectionOutputEnabled(ui.blackOnWhiteDetectionAtOutputCB->isChecked());
-
   {
     const int quality = ui.thumbnailQualitySB->value();
     settings.setThumbnailQuality(QSize(quality, quality));
@@ -137,10 +129,6 @@ void SettingsDialog::commitChanges() {
     showRestartNotice();
   }
   emit settingsChanged();
-}
-
-void SettingsDialog::blackOnWhiteDetectionToggled(bool checked) {
-  ui.blackOnWhiteDetectionAtOutputCB->setEnabled(checked);
 }
 
 void SettingsDialog::chooseAccentColor() {

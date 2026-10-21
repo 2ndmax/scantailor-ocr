@@ -384,35 +384,6 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="title">
-          <string>White on Black Detection</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0">
-          <item>
-           <widget class="QCheckBox" name="blackOnWhiteDetectionCB">
-            <property name="toolTip">
-             <string>Detects pages with light content on a dark background, such as white text on black, and inverts them internally so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing, so changing this setting doesn't affect pages that are deskewed already.</string>
-            </property>
-            <property name="text">
-             <string>Auto detect light content on dark background</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="blackOnWhiteDetectionAtOutputCB">
-            <property name="toolTip">
-             <string>Also sets &quot;Dark content on a light background&quot; in the Output step according to the detection. Turned off, the detection only helps deskewing and content detection, and the Output step treats all pages as dark content on a light background. A change made by hand in the Output step always takes precedence.</string>
-            </property>
-            <property name="text">
-             <string>Use auto detection in the Output step</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
           <string>Deviation</string>

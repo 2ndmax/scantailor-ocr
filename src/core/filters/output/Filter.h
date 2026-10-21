@@ -37,7 +37,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(output::Filter)
  public:
-  explicit Filter(const PageSelectionAccessor& pageSelectionAccessor);
+  Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions);
 
   ~Filter() override;
 
@@ -84,9 +84,6 @@ class Filter : public AbstractFilter {
 
   void selectPageOrder(int option) override;
 
-  /** For the tasks created and the color modes detected from now on. */
-  void setProcessingOptions(const ProcessingOptions& options) { m_processingOptions = options; }
-
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
@@ -96,7 +93,7 @@ class Filter : public AbstractFilter {
   FillZonePropFactory m_fillZonePropFactory;
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
-  ProcessingOptions m_processingOptions;
+  std::shared_ptr<ProcessingOptions> m_processingOptions;
 };
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_FILTER_H_

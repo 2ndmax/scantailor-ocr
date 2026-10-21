@@ -17,6 +17,10 @@
 #include "OrthogonalRotation.h"
 #include "ui_DefaultParamsDialog.h"
 
+class OcrPanel;
+class PdfCompressionPanel;
+class TiffCompressionPanel;
+
 class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   Q_OBJECT
  public:
@@ -133,6 +137,14 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void updateOutputDisplay(const DefaultParams::OutputParams& params);
 
+  /** The settings for whole projects, spread over several tabs. */
+  void updateProcessingDisplay(const ProcessingOptions& options);
+
+  ProcessingOptions buildProcessingOptions() const;
+
+  /** The TIFF compression in the Output tab and the tab of the PDF step. */
+  void setupOutputPanels();
+
   void updateUnits(Units units);
 
   void setupUiConnections();
@@ -201,6 +213,9 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   int m_customProfileItemIdx;
   Units m_currentUnits;
   std::set<QString> m_reservedProfileNames;
+  TiffCompressionPanel* m_tiffCompressionPanel = nullptr;
+  PdfCompressionPanel* m_pdfCompressionPanel = nullptr;
+  OcrPanel* m_ocrPanel = nullptr;
 
   ConnectionManager m_connectionManager;
 };

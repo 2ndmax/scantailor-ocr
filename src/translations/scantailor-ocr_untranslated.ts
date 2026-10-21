@@ -321,17 +321,17 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="187"/>
         <location filename="../app/DefaultParamsDialog.ui" line="207"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1504"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1573"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2023"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2046"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2069"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2092"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2115"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2141"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2164"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2187"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2210"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1536"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1605"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2055"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2078"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2101"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2124"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2147"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2173"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2196"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2219"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2242"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -341,7 +341,7 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2296"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2328"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -360,9 +360,9 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <location filename="../app/DefaultParamsDialog.ui" line="375"/>
         <location filename="../app/DefaultParamsDialog.ui" line="779"/>
         <location filename="../app/DefaultParamsDialog.ui" line="887"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1043"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1222"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4602"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1075"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1254"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4634"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
@@ -385,8 +385,8 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <location filename="../app/DefaultParamsDialog.ui" line="394"/>
         <location filename="../app/DefaultParamsDialog.ui" line="795"/>
         <location filename="../app/DefaultParamsDialog.ui" line="900"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1059"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4628"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1091"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4660"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
@@ -467,711 +467,736 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="949"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="931"/>
+        <source>White on Black Detection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="940"/>
+        <source>Detects pages with light content on a dark background, such as white text on black, and inverts them internally so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing, so changing this setting doesn&apos;t affect pages that are deskewed already.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="943"/>
+        <source>Auto detect light content on dark background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="950"/>
+        <source>Also sets &quot;Dark content on a light background&quot; in the Output step according to the detection. Turned off, the detection only helps deskewing and content detection, and the Output step treats all pages as dark content on a light background. A change made by hand in the Output step always takes precedence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="953"/>
+        <source>Use auto detection in the Output step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="981"/>
         <source>Select Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="987"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1019"/>
         <source>Page and Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1011"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1043"/>
         <source>Page Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1093"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1125"/>
         <source>Fine-tune page corners</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1117"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1149"/>
         <source>Width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1137"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1169"/>
         <source>Height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1196"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1228"/>
         <source>Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1255"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1265"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1287"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1297"/>
         <source>The highest share of black pixels a line may have to count as text. Raise it for art books and photo pages: above 85 %, shadows are kept and pictures count as content; from 95 % on, the whole page box is the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1258"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1290"/>
         <source>Fill factor:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1271"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1306"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4227"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4289"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1303"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1338"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4259"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4321"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1290"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1300"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1322"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1332"/>
         <source>How much of the content touching the image border is kept. At 0 %, it is removed as before (scanner edges, shadows); raise it for pictures that reach the edge of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1293"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1325"/>
         <source>Border tolerance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1322"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1354"/>
         <source>Search for content in the whole image, not only inside the page box. Helps when text close to the edge of the page box is not detected. The content box still stays inside the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1325"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1357"/>
         <source>Ignore page box during detection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1387"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1432"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1419"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1464"/>
         <source>Margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1443"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1475"/>
         <source>Auto margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1521"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1553"/>
         <source>Top:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1528"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1560"/>
         <source>Right:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1535"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1567"/>
         <source>Left:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1623"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1655"/>
         <source>Bottom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1664"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1696"/>
         <source>Output Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1675"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1687"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1707"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1719"/>
         <source>Off: the page keeps its own size and is not part of the common size.
 Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
 Scale: the content is enlarged or reduced to fit the output size, within the limits set in the step &quot;Margins&quot; under &quot;Output Size&quot;. The margins keep their size; the rest is filled with margins.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1680"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1712"/>
         <source>Match size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1696"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1728"/>
         <source>Off</source>
         <comment>match size</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1701"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1733"/>
         <source>Fill with margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1706"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1738"/>
         <source>Scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1729"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1761"/>
         <source>New projects start with this output size instead of the common size. Pages larger than this size are reduced. It applies to the whole project and can be changed in the step &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1732"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1764"/>
         <source>Own target size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1744"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1754"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1771"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1776"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1786"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1803"/>
         <source>Width × height of the output pages, margins included. Pixels refer to the output resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1747"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1779"/>
         <source>Size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1801"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1833"/>
         <source>Enlarge to at most:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1830"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1862"/>
         <source>Reduce to at most:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1915"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1947"/>
         <source>Alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1928"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1960"/>
         <source>Horizontal mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1935"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1967"/>
         <source>Vertical mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1946"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1968"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1978"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2000"/>
         <source>Auto</source>
         <comment>auto</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1951"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1973"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1983"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2005"/>
         <source>Manual</source>
         <comment>manual</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1956"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1978"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1988"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2010"/>
         <source>Original</source>
         <comment>original</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2258"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2290"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2501"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2533"/>
         <source>Output color scans in grayscale: the whole page in color / grayscale mode, pictures and colored text in mixed mode. Grayscale files are much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3150"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3160"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3206"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3313"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3810"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3820"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3866"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3973"/>
         <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3411"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3421"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4071"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4081"/>
         <source>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear. The more saturated a color, the stronger the effect. 0 changes nothing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3414"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4074"/>
         <source>Colored:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3443"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4103"/>
         <source>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes. 1 and 254 leave the method alone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3446"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4106"/>
         <source>Bounds:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3453"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4113"/>
         <source>Pixels darker than this always become black.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3472"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4132"/>
         <source>to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3479"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4139"/>
         <source>Pixels lighter than this always become white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3594"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3156"/>
         <source>Splits the image into color segments and colors the black and white mask.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3775"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3787"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3337"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3349"/>
         <source>Reduces the colors to a few.
 Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
 None: each letter keeps its own average color. Posterize: fixed color levels. K-means: the colors that fit the page best.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3780"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3342"/>
         <source>Reduce colors:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3845"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3855"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3407"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3417"/>
         <source>The number of colors of the letters, found with K-means, a fixed black included.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3848"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3410"/>
         <source>Colors:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3874"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3436"/>
         <source>One of the colors is pure black, so black text stays black instead of getting a tint.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3877"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3439"/>
         <source>Fixed black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3884"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3894"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3446"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3456"/>
         <source>Posterizing: how finely each color channel is divided. 4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3910"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3472"/>
         <source>Spreads the colors between black and the paper before posterizing, for pale scans.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3923"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3485"/>
         <source>Force black and white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4200"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4232"/>
         <source>Color Mode Detection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4211"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4221"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4243"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4253"/>
         <source>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4214"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4246"/>
         <source>Color from:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4258"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4290"/>
         <source>Also look for picture zones on pages detected as black and white. Finds light or small photos, but takes longer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4273"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4283"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4305"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4315"/>
         <source>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4276"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4308"/>
         <source>Pictures from:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2328"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2360"/>
         <source>Black and white: text and line art.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2360"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2392"/>
         <source>Color / grayscale: the whole page as an image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2392"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2424"/>
         <source>Mixed: pictures in color or grayscale, text in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2448"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2480"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2474"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2506"/>
         <source>Evens out uneven lighting, such as a shadow near the spine. In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2477"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2509"/>
         <source>Equalize illumination</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2489"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2521"/>
         <source>Mixed mode only: also evens out the lighting in the picture zones. Needs &quot;Equalize illumination&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2492"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2524"/>
         <source>Also in picture zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2549"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2581"/>
         <source>Enhancement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2556"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2588"/>
         <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters. The brightness is not changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2559"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2591"/>
         <source>Remove color noise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2605"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2637"/>
         <source>How far the colors are smoothed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2618"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2650"/>
         <source>Gray limit:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2625"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2657"/>
         <source>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay. 0 only smooths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2654"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2686"/>
         <source>Evens out the paper background (stains, yellowing, shadows) before the other processing. Pictures are flattened as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2657"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2689"/>
         <source>Even out background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2702"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2734"/>
         <source>How far the background is evened out, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2597"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2718"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2831"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3037"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2629"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2750"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2863"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3069"/>
         <source>Radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2728"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2760"/>
         <source>The size of the area used to estimate the background. It should be clearly larger than the letters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2741"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2773"/>
         <source>Also takes the paper to white and removes a color cast such as yellowing. Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2744"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2776"/>
         <source>Make paper white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2767"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2799"/>
         <source>Reduces the noise of the image while keeping the edges of letters sharp, before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2770"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2802"/>
         <source>KNN denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2841"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2873"/>
         <source>The size of the neighborhood that is averaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2973"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3005"/>
         <source>Sharpens blurred edges, after the other filters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2976"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3008"/>
         <source>Sharpen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3021"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3053"/>
         <source>How strongly the edges are sharpened, from 0.1 to 3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3047"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3079"/>
         <source>The size of the details that are sharpened; larger values also sharpen coarser details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4108"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3670"/>
         <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color. Otherwise it stays visible where the page reaches into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4111"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3673"/>
         <source>Fill offcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4118"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3680"/>
         <source>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4121"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3683"/>
         <source>Fill outside page box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4128"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3690"/>
         <source>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4131"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3693"/>
         <source>Fill margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4397"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4429"/>
         <source>Black and white foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4650"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4682"/>
         <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4734"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4766"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4737"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4769"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2504"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2536"/>
         <source>Grayscale output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3527"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4187"/>
         <source>Savitzky-Golay smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3537"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4197"/>
         <source>Morphological smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4090"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3652"/>
         <source>Filling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4145"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3707"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3584"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3146"/>
         <source>Color Operations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2870"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2902"/>
         <source>Reduces the noise of the image before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2310"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2342"/>
         <source>Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2873"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2905"/>
         <source>Wiener denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2695"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2808"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2911"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3014"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2727"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2840"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2943"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3046"/>
         <source>Strength:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2815"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="2918"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2847"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2950"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3597"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3159"/>
         <source>Color segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3668"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3230"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3681"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3243"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3694"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3256"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3712"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3274"/>
         <source>Reduce noise:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="84"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="89"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3887"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3449"/>
         <source>Level:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3913"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3475"/>
         <source>Normalize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3920"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3482"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3094"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3754"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="555"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3106"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3766"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3153"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3199"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3306"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3813"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3859"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3966"/>
         <source>Delta:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3245"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3352"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3905"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4012"/>
         <source>Coef:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4668"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4700"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2944"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3232"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3339"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2976"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3892"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3999"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2934"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3222"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3329"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2966"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3882"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3989"/>
         <source>Window size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3638"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3200"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3648"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3210"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3658"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3220"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3252"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3912"/>
         <source>Default value is 0.34.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1196,357 +1221,377 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1021"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1053"/>
         <source>Use the whole image as the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1040"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1072"/>
         <source>Detect the page box automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1056"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1088"/>
         <source>Use a page box of the size set below for new pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1090"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1122"/>
         <source>Shrinks the detected page box from each corner as long as the corner lies on a dark area, such as the scanner background showing in the corners of a page placed askew.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1203"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1235"/>
         <source>Use the whole page box as the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1219"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1251"/>
         <source>Detect the content box automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4142"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4152"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3704"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3714"/>
         <source>The color of the filled areas: the background color found on the page, white or black. In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3103"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="3113"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3763"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3773"/>
         <source>How the page is converted to black and white. Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4197"/>
-        <source>Settings of the color mode detection (Detect ... in the Output step). They apply to all projects.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3359"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4019"/>
         <source>Default value is 0.3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1798"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1808"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1830"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1840"/>
         <source>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1827"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1837"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1859"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1869"/>
         <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3524"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4184"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3534"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4194"/>
         <source>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3966"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3528"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="3975"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3537"/>
         <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles. Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4012"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3574"/>
         <source>Sensitivity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4047"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3609"/>
         <source>Also finds pictures with weak contrast; text may then be taken for a picture, too.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4050"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="3612"/>
         <source>Higher search sensitivity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4261"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4229"/>
+        <source>Settings of the color mode detection (Detect ... in the Output step). New projects start with them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="4293"/>
         <source>Also look for grayscale pictures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4323"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1170"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4355"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1252"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4332"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4364"/>
         <source>Resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4339"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4371"/>
         <source>Common resolutions; others between 72 and 1200 DPI can be typed in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4368"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4400"/>
         <source>Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4379"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4411"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4382"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4414"/>
         <source>Split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4394"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4426"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4425"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4457"/>
         <source>Save the original background of the foreground layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4428"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4460"/>
         <source>Original background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4437"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4469"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4440"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4472"/>
         <source>Color foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4467"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4499"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4478"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4510"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result. The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4481"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4513"/>
         <source>Despeckle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4572"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4604"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4583"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4615"/>
         <source>No dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4599"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4631"/>
         <source>Finds the curvature of the lines of text automatically. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4612"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4644"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4625"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4657"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4640"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4672"/>
         <source>Straightens the page once more after dewarping. Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4643"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4675"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2331"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2363"/>
         <source>Black and White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2363"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2395"/>
         <source>Color / Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="2395"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="2427"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="71"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="72"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
         <source>White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="73"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1024"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="1206"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4586"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1056"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="1238"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4618"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="84"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="85"/>
         <source>Contour mask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="86"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="88"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="85"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="90"/>
         <source>K-means</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="137"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
         <source>Minimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="145"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1348"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="150"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1430"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4615"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4647"/>
         <source>Marginal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="81"/>
         <source>Edges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
         <source>Spine line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="136"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1170"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="972"/>
+        <source>TIFF Compression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.cpp" line="990"/>
+        <source>PDF Compression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.cpp" line="993"/>
+        <source>Text Recognition (OCR)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1001"/>
+        <source>Create PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1252"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1277"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1283"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1303"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1314"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1354"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1369"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1359"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1365"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1385"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1396"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1436"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1277"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1359"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1283"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1365"/>
         <source>Error loading the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1304"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1386"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1315"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1397"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1328"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
         <source>Save Profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1329"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1354"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1436"/>
         <source>Error saving the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1369"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
         <source>Error deleting the profile.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1930,7 +1975,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1095"/>
-        <location filename="../app/MainWindow.cpp" line="650"/>
+        <location filename="../app/MainWindow.cpp" line="654"/>
         <source>Save Project</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2028,7 +2073,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3030"/>
+        <location filename="../app/MainWindow.cpp" line="3034"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2053,241 +2098,241 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="563"/>
+        <location filename="../app/MainWindow.cpp" line="567"/>
         <source>Stop batch processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="650"/>
+        <location filename="../app/MainWindow.cpp" line="654"/>
         <source>Save the project?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1145"/>
+        <location filename="../app/MainWindow.cpp" line="1149"/>
         <source>Insert Before ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1146"/>
+        <location filename="../app/MainWindow.cpp" line="1150"/>
         <source>Insert After ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1150"/>
+        <location filename="../app/MainWindow.cpp" line="1154"/>
         <source>Remove from Project ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1224"/>
+        <location filename="../app/MainWindow.cpp" line="1228"/>
         <source>Insert Here ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1622"/>
+        <location filename="../app/MainWindow.cpp" line="1626"/>
         <source>The detection was canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1843"/>
+        <location filename="../app/MainWindow.cpp" line="1847"/>
         <source>The project file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2069"/>
+        <location filename="../app/MainWindow.cpp" line="2073"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2109"/>
+        <location filename="../app/MainWindow.cpp" line="2113"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2124"/>
+        <location filename="../app/MainWindow.cpp" line="2128"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1825"/>
+        <location filename="../app/MainWindow.cpp" line="1829"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="26"/>
         <source>ScanTailor OCR Projects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1160"/>
+        <location filename="../app/MainWindow.cpp" line="1164"/>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1161"/>
+        <location filename="../app/MainWindow.cpp" line="1165"/>
         <source>All Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1162"/>
+        <location filename="../app/MainWindow.cpp" line="1166"/>
         <source>This Page and the Following Ones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1164"/>
+        <location filename="../app/MainWindow.cpp" line="1168"/>
         <source>Every Other Page (Odd Pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1164"/>
+        <location filename="../app/MainWindow.cpp" line="1168"/>
         <source>Every Other Page (Even Pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1165"/>
+        <location filename="../app/MainWindow.cpp" line="1169"/>
         <source>This Page and Every Other Following Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1166"/>
+        <location filename="../app/MainWindow.cpp" line="1170"/>
         <source>Every Other Selected Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1169"/>
+        <location filename="../app/MainWindow.cpp" line="1173"/>
         <source>This Page Only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1565"/>
+        <location filename="../app/MainWindow.cpp" line="1569"/>
         <source>Detecting the color mode ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1565"/>
+        <location filename="../app/MainWindow.cpp" line="1569"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1566"/>
-        <location filename="../app/MainWindow.cpp" line="1624"/>
+        <location filename="../app/MainWindow.cpp" line="1570"/>
+        <location filename="../app/MainWindow.cpp" line="1628"/>
         <source>Detect Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1609"/>
+        <location filename="../app/MainWindow.cpp" line="1613"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1616"/>
+        <location filename="../app/MainWindow.cpp" line="1620"/>
         <source>%n page(s) skipped because the steps before Output have not been done yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1619"/>
+        <location filename="../app/MainWindow.cpp" line="1623"/>
         <source>%n page(s) could not be loaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1824"/>
+        <location filename="../app/MainWindow.cpp" line="1828"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1837"/>
-        <location filename="../app/MainWindow.cpp" line="1843"/>
-        <location filename="../app/MainWindow.cpp" line="2184"/>
-        <location filename="../app/MainWindow.cpp" line="2208"/>
+        <location filename="../app/MainWindow.cpp" line="1841"/>
+        <location filename="../app/MainWindow.cpp" line="1847"/>
+        <location filename="../app/MainWindow.cpp" line="2188"/>
+        <location filename="../app/MainWindow.cpp" line="2212"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1837"/>
+        <location filename="../app/MainWindow.cpp" line="1841"/>
         <source>Unable to open the project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1925"/>
+        <location filename="../app/MainWindow.cpp" line="1929"/>
         <source>version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2104"/>
+        <location filename="../app/MainWindow.cpp" line="2108"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2124"/>
+        <location filename="../app/MainWindow.cpp" line="2128"/>
         <source>A PDF is being created. Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2184"/>
-        <location filename="../app/MainWindow.cpp" line="2208"/>
+        <location filename="../app/MainWindow.cpp" line="2188"/>
+        <location filename="../app/MainWindow.cpp" line="2212"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2263"/>
+        <location filename="../app/MainWindow.cpp" line="2267"/>
         <source>Files to Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2266"/>
+        <location filename="../app/MainWindow.cpp" line="2270"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2316"/>
+        <location filename="../app/MainWindow.cpp" line="2320"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2373"/>
+        <location filename="../app/MainWindow.cpp" line="2377"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2534"/>
-        <location filename="../app/MainWindow.cpp" line="2576"/>
+        <location filename="../app/MainWindow.cpp" line="2538"/>
+        <location filename="../app/MainWindow.cpp" line="2580"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2528"/>
+        <location filename="../app/MainWindow.cpp" line="2532"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2553"/>
+        <location filename="../app/MainWindow.cpp" line="2557"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2577"/>
+        <location filename="../app/MainWindow.cpp" line="2581"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2633"/>
+        <location filename="../app/MainWindow.cpp" line="2637"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2691"/>
+        <location filename="../app/MainWindow.cpp" line="2695"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2764"/>
+        <location filename="../app/MainWindow.cpp" line="2768"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3030"/>
+        <location filename="../app/MainWindow.cpp" line="3034"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2383,6 +2428,69 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     <message>
         <location filename="../core/OcrLanguages.cpp" line="198"/>
         <source>German Fraktur (old model)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OcrPanel</name>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="32"/>
+        <source>Recognize text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="34"/>
+        <source>Adds an invisible text layer, so the text of the PDF can be searched, selected and copied. Text recognition takes a few seconds per page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="38"/>
+        <source>More languages ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="39"/>
+        <source>Download more languages from the internet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="52"/>
+        <source>Languages:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="58"/>
+        <source>Tick the languages of the text. Several languages can be ticked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="65"/>
+        <source>No language files were found. Download them with &quot;More languages&quot;, or put *.traineddata files (from tessdata_best) into one of these folders:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="76"/>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="77"/>
+        <source>Single column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="78"/>
+        <source>Single block of text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="79"/>
+        <source>How the text is arranged on the pages. This decides the order in which the text is recognized, e.g. for searching and copying; the look of the PDF doesn&apos;t change. &quot;Automatic&quot; detects columns, pictures and captions and is usually right. &quot;Single column&quot; helps if copied text comes out in the wrong order, e.g. with indented lines or tables. &quot;Single block of text&quot; suits pages with only one short text, such as a label or a note.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/OcrPanel.cpp" line="86"/>
+        <source>Text layout:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2545,6 +2653,104 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     </message>
 </context>
 <context>
+    <name>PdfCompressionPanel</name>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="47"/>
+        <source>Higher values give better pictures and larger files. Only used with JPEG and JPEG 2000. With JPEG 2000, 100 is lossless; with JPEG, it&apos;s only nearly lossless.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="52"/>
+        <source>Color / Grayscale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="53"/>
+        <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="57"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="91"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="109"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="62"/>
+        <source>JPEG makes small files and loses a little quality, mostly at the edges of text. JPEG 2000 looks better at the same size, or makes smaller files at the same quality, but takes much longer to create, and some simple or old PDF programs can&apos;t show it. Deflate is lossless, but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="66"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="99"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="116"/>
+        <source>Method:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="71"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="104"/>
+        <source>Quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="74"/>
+        <source>Full</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="75"/>
+        <source>Half</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="76"/>
+        <source>One third</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="78"/>
+        <source>Resolution of the background layer of pages with split output, that is of the pictures, relative to the output resolution. The text is always stored at full resolution.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="80"/>
+        <source>Background layer:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="85"/>
+        <source>Posterized Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="86"/>
+        <source>Color pages that were posterized in the Output step, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color / Grayscale&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="96"/>
+        <source>Deflate is lossless and keeps the few colors exactly, which makes small and sharp files. JPEG and JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file larger. None is lossless, but large.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="107"/>
+        <source>Black and White</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="107"/>
+        <source>Black and white pages and the text of pages with split output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="114"/>
+        <source>All methods are lossless. JBIG2 makes the smallest files. CCITT G4 files are about a third larger, but can be shown by very old PDF programs, too. Deflate and None make much larger files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PdfExportJob</name>
     <message>
         <location filename="../core/PdfExportJob.cpp" line="39"/>
@@ -2635,8 +2841,8 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     <name>PdfExportView</name>
     <message>
         <location filename="../app/PdfExportView.cpp" line="363"/>
-        <location filename="../app/PdfExportView.cpp" line="840"/>
-        <location filename="../app/PdfExportView.cpp" line="997"/>
+        <location filename="../app/PdfExportView.cpp" line="666"/>
+        <location filename="../app/PdfExportView.cpp" line="824"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2652,9 +2858,6 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="315"/>
-        <location filename="../app/PdfExportView.cpp" line="439"/>
-        <location filename="../app/PdfExportView.cpp" line="476"/>
-        <location filename="../app/PdfExportView.cpp" line="496"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2669,23 +2872,8 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="407"/>
+        <location filename="../app/PdfExportView.cpp" line="405"/>
         <source>PDF Compression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="458"/>
-        <source>Full</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="459"/>
-        <source>Half</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="460"/>
-        <source>One third</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2694,86 +2882,8 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="531"/>
+        <location filename="../app/PdfExportView.cpp" line="422"/>
         <source>Text Recognition (OCR)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="435"/>
-        <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="449"/>
-        <location filename="../app/PdfExportView.cpp" line="485"/>
-        <location filename="../app/PdfExportView.cpp" line="504"/>
-        <source>Method:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="455"/>
-        <location filename="../app/PdfExportView.cpp" line="491"/>
-        <source>Quality:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="470"/>
-        <source>Posterized Pages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="494"/>
-        <source>Black and White</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="494"/>
-        <source>Black and white pages and the text of pages with split output.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="502"/>
-        <source>All methods are lossless. JBIG2 makes the smallest files. CCITT G4 files are about a third larger, but can be shown by very old PDF programs, too. Deflate and None make much larger files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="555"/>
-        <source>Languages:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="561"/>
-        <source>Tick the languages of the text. Several languages can be ticked.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="568"/>
-        <source>No language files were found. Download them with &quot;More languages&quot;, or put *.traineddata files (from tessdata_best) into one of these folders:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="541"/>
-        <source>More languages ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="542"/>
-        <source>Download more languages from the internet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="581"/>
-        <source>Automatic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="582"/>
-        <source>Single column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="583"/>
-        <source>Single block of text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2787,22 +2897,22 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="634"/>
+        <location filename="../app/PdfExportView.cpp" line="460"/>
         <source>Source Files (TIFF)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="635"/>
+        <location filename="../app/PdfExportView.cpp" line="461"/>
         <source>The compression of the TIFF files in the output folder that the selected pages are made from, as set in the TIFF Compression panel of the Output step when the pages were processed. The numbers count the pages; pages with split output count with their picture and with their text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="640"/>
+        <location filename="../app/PdfExportView.cpp" line="466"/>
         <source>How the selected pages are compressed in the PDF, as set in the PDF Compression panel. The numbers count the pages; pages with split output count with their picture and with their text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="822"/>
+        <location filename="../app/PdfExportView.cpp" line="648"/>
         <source>Save PDF As</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2827,322 +2937,267 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="429"/>
-        <source>Higher values give better pictures and larger files. Only used with JPEG and JPEG 2000. With JPEG 2000, 100 is lossless; with JPEG, it&apos;s only nearly lossless.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="434"/>
-        <source>Color / Grayscale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="445"/>
-        <source>JPEG makes small files and loses a little quality, mostly at the edges of text. JPEG 2000 looks better at the same size, or makes smaller files at the same quality, but takes much longer to create, and some simple or old PDF programs can&apos;t show it. Deflate is lossless, but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="463"/>
-        <source>Resolution of the background layer of pages with split output, that is of the pictures, relative to the output resolution. The text is always stored at full resolution.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="465"/>
-        <source>Background layer:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="471"/>
-        <source>Color pages that were posterized in the Output step, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color / Grayscale&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="482"/>
-        <source>Deflate is lossless and keeps the few colors exactly, which makes small and sharp files. JPEG and JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file larger. None is lossless, but large.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="534"/>
-        <source>Recognize text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="537"/>
-        <source>Adds an invisible text layer, so the text of the PDF can be searched, selected and copied. Text recognition takes a few seconds per page.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="585"/>
-        <source>How the text is arranged on the pages. This decides the order in which the text is recognized, e.g. for searching and copying; the look of the PDF doesn&apos;t change. &quot;Automatic&quot; detects columns, pictures and captions and is usually right. &quot;Single column&quot; helps if copied text comes out in the wrong order, e.g. with indented lines or tables. &quot;Single block of text&quot; suits pages with only one short text, such as a label or a note.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="592"/>
-        <source>Text layout:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="607"/>
+        <location filename="../app/PdfExportView.cpp" line="433"/>
         <source>Quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="613"/>
+        <location filename="../app/PdfExportView.cpp" line="439"/>
         <source>Color / grayscale:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="613"/>
+        <location filename="../app/PdfExportView.cpp" line="439"/>
         <source>Posterized:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="613"/>
+        <location filename="../app/PdfExportView.cpp" line="439"/>
         <source>Black and white:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="620"/>
+        <location filename="../app/PdfExportView.cpp" line="446"/>
         <source>No pages selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="822"/>
+        <location filename="../app/PdfExportView.cpp" line="648"/>
         <source>PDF files (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="844"/>
+        <location filename="../app/PdfExportView.cpp" line="670"/>
         <source>Please enter the file name of the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="852"/>
+        <location filename="../app/PdfExportView.cpp" line="678"/>
         <source>Please enter the complete path of the PDF, including the folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="859"/>
+        <location filename="../app/PdfExportView.cpp" line="685"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="863"/>
+        <location filename="../app/PdfExportView.cpp" line="689"/>
         <source>%1 is a folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="873"/>
+        <location filename="../app/PdfExportView.cpp" line="699"/>
         <source>The file %1 already exists.
 Do you want to replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="888"/>
+        <location filename="../app/PdfExportView.cpp" line="714"/>
         <source>Please tick the pages to include in the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="906"/>
+        <location filename="../app/PdfExportView.cpp" line="733"/>
         <source>Please tick at least one language for the text recognition, or turn it off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="913"/>
+        <location filename="../app/PdfExportView.cpp" line="740"/>
         <source>Copying language files ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="921"/>
+        <location filename="../app/PdfExportView.cpp" line="748"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="944"/>
+        <location filename="../app/PdfExportView.cpp" line="771"/>
         <source>Recognizing the text and creating the PDF ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="945"/>
+        <location filename="../app/PdfExportView.cpp" line="772"/>
         <source>Creating the PDF ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="955"/>
+        <location filename="../app/PdfExportView.cpp" line="782"/>
         <source>Canceling ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="980"/>
+        <location filename="../app/PdfExportView.cpp" line="807"/>
         <source>The PDF was created: %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="986"/>
+        <location filename="../app/PdfExportView.cpp" line="813"/>
         <source>Canceled. No PDF was written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="989"/>
-        <location filename="../app/PdfExportView.cpp" line="998"/>
+        <location filename="../app/PdfExportView.cpp" line="816"/>
+        <location filename="../app/PdfExportView.cpp" line="825"/>
         <source>The PDF could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="995"/>
+        <location filename="../app/PdfExportView.cpp" line="822"/>
         <source>... and %1 more.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1011"/>
+        <location filename="../app/PdfExportView.cpp" line="838"/>
         <source>%1 of %2 output pages selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/PdfExportView.cpp" line="1015"/>
+        <location filename="../app/PdfExportView.cpp" line="842"/>
         <source>(%n page(s) not output yet)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1149"/>
+        <location filename="../app/PdfExportView.cpp" line="966"/>
         <source>uncompressed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1202"/>
+        <location filename="../app/PdfExportView.cpp" line="1019"/>
         <source>In the output folder, the picture of this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1204"/>
+        <location filename="../app/PdfExportView.cpp" line="1021"/>
         <source>In the output folder, this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1207"/>
+        <location filename="../app/PdfExportView.cpp" line="1024"/>
         <source>The PDF compresses it with loss a second time (%1), so the losses add up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1208"/>
+        <location filename="../app/PdfExportView.cpp" line="1025"/>
         <source>The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than necessary.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1214"/>
+        <location filename="../app/PdfExportView.cpp" line="1031"/>
         <source>In the output folder, the text of this page is stored with lossy compression (%1). The PDF can&apos;t undo these losses.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1219"/>
+        <location filename="../app/PdfExportView.cpp" line="1036"/>
         <source>%1 converts the posterized picture of this page to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1224"/>
+        <location filename="../app/PdfExportView.cpp" line="1041"/>
         <source>Mixed page without split output. It is stored as a single image, so with %1 the text is less sharp and the PDF is larger. Enable &quot;Split output&quot; in the Output step and process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1237"/>
+        <location filename="../app/PdfExportView.cpp" line="1054"/>
         <source>Mixed page without split output. It is stored losslessly as a single image. With split output, the PDF is usually much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1257"/>
-        <location filename="../app/PdfExportView.cpp" line="1261"/>
+        <location filename="../app/PdfExportView.cpp" line="1074"/>
+        <location filename="../app/PdfExportView.cpp" line="1078"/>
         <source>%1 (lossy)</source>
         <comment>tooltip</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1270"/>
+        <location filename="../app/PdfExportView.cpp" line="1087"/>
         <source>Black and white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1275"/>
+        <location filename="../app/PdfExportView.cpp" line="1092"/>
         <source>Mixed, split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1276"/>
-        <location filename="../app/PdfExportView.cpp" line="1278"/>
+        <location filename="../app/PdfExportView.cpp" line="1093"/>
+        <location filename="../app/PdfExportView.cpp" line="1095"/>
         <source>%1 (picture), %2 (text)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1282"/>
+        <location filename="../app/PdfExportView.cpp" line="1099"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1284"/>
+        <location filename="../app/PdfExportView.cpp" line="1101"/>
         <source>Color / grayscale, posterized</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1292"/>
+        <location filename="../app/PdfExportView.cpp" line="1109"/>
         <source>Color mode: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1292"/>
+        <location filename="../app/PdfExportView.cpp" line="1109"/>
         <source>Compression TIFF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1293"/>
+        <location filename="../app/PdfExportView.cpp" line="1110"/>
         <source>Compression PDF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1360"/>
-        <location filename="../app/PdfExportView.cpp" line="1369"/>
+        <location filename="../app/PdfExportView.cpp" line="1177"/>
+        <location filename="../app/PdfExportView.cpp" line="1186"/>
         <source>%1 (lossy)</source>
         <comment>short</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1380"/>
+        <location filename="../app/PdfExportView.cpp" line="1197"/>
         <source>Stored with lossy compression: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1390"/>
+        <location filename="../app/PdfExportView.cpp" line="1207"/>
         <source>Compressed with loss twice: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1397"/>
+        <location filename="../app/PdfExportView.cpp" line="1214"/>
         <source>Posterized, converted to full color: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1286"/>
+        <location filename="../app/PdfExportView.cpp" line="1103"/>
         <source>Color / grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1382"/>
+        <location filename="../app/PdfExportView.cpp" line="1199"/>
         <source>The PDF can&apos;t undo these losses. A lossless method in the PDF keeps them and makes the file larger than necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output step and process the pages again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1392"/>
+        <location filename="../app/PdfExportView.cpp" line="1209"/>
         <source>The output files of these pages are stored with lossy compression, and the PDF compresses them with loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second loss.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1399"/>
+        <location filename="../app/PdfExportView.cpp" line="1216"/>
         <source>JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1133"/>
-        <location filename="../app/PdfExportView.cpp" line="1249"/>
+        <location filename="../app/PdfExportView.cpp" line="950"/>
+        <location filename="../app/PdfExportView.cpp" line="1066"/>
         <source>Not output yet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3635,26 +3690,6 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="389"/>
-        <source>White on Black Detection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="405"/>
-        <source>Also sets &quot;Dark content on a light background&quot; in the Output step according to the detection. Turned off, the detection only helps deskewing and content detection, and the Output step treats all pages as dark content on a light background. A change made by hand in the Output step always takes precedence.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="408"/>
-        <source>Use auto detection in the Output step</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="398"/>
-        <source>Auto detect light content on dark background</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../app/SettingsDialog.ui" line="53"/>
         <source>Auto-save the open project</source>
         <translation type="unfinished"></translation>
@@ -3675,51 +3710,46 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="395"/>
-        <source>Detects pages with light content on a dark background, such as white text on black, and inverts them internally so that deskewing, content detection and the output work correctly. Turned off, all pages count as dark content on a light background. The detection runs once per page during deskewing, so changing this setting doesn&apos;t affect pages that are deskewed already.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="418"/>
+        <location filename="../app/SettingsDialog.ui" line="389"/>
         <source>Deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="424"/>
+        <location filename="../app/SettingsDialog.ui" line="395"/>
         <source>Highlight the thumbnails of pages with high deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="431"/>
+        <location filename="../app/SettingsDialog.ui" line="402"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="439"/>
+        <location filename="../app/SettingsDialog.ui" line="410"/>
         <source>Deskew:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="446"/>
+        <location filename="../app/SettingsDialog.ui" line="417"/>
         <source>Select content:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="453"/>
-        <location filename="../app/SettingsDialog.ui" line="476"/>
-        <location filename="../app/SettingsDialog.ui" line="524"/>
+        <location filename="../app/SettingsDialog.ui" line="424"/>
+        <location filename="../app/SettingsDialog.ui" line="447"/>
+        <location filename="../app/SettingsDialog.ui" line="495"/>
         <source>Deviation multiplier: a higher value means lower sensitivity.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="469"/>
+        <location filename="../app/SettingsDialog.ui" line="440"/>
         <source>Margins:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="492"/>
-        <location filename="../app/SettingsDialog.ui" line="508"/>
-        <location filename="../app/SettingsDialog.ui" line="540"/>
+        <location filename="../app/SettingsDialog.ui" line="463"/>
+        <location filename="../app/SettingsDialog.ui" line="479"/>
+        <location filename="../app/SettingsDialog.ui" line="511"/>
         <source>The minimum deviation to be highlighted.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3744,22 +3774,22 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="91"/>
+        <location filename="../app/SettingsDialog.cpp" line="86"/>
         <source>of %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="148"/>
+        <location filename="../app/SettingsDialog.cpp" line="136"/>
         <source>Accent Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="184"/>
+        <location filename="../app/SettingsDialog.cpp" line="172"/>
         <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="185"/>
+        <location filename="../app/SettingsDialog.cpp" line="173"/>
         <source>ScanTailor OCR needs to be restarted to apply the color scheme changes.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4006,6 +4036,88 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
 </context>
 <context>
+    <name>TiffCompressionPanel</name>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="42"/>
+        <source>LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program and its PDF export can.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="47"/>
+        <source>Color / Grayscale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="48"/>
+        <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="52"/>
+        <location filename="../core/TiffCompressionPanel.cpp" line="79"/>
+        <location filename="../core/TiffCompressionPanel.cpp" line="89"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="58"/>
+        <source>All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="60"/>
+        <source>JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="63"/>
+        <location filename="../core/TiffCompressionPanel.cpp" line="84"/>
+        <location filename="../core/TiffCompressionPanel.cpp" line="96"/>
+        <source>Method:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="69"/>
+        <source>Higher values give better pictures and larger files. Only used with JPEG compression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="70"/>
+        <source>Quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="73"/>
+        <source>Posterized Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="74"/>
+        <source>Color pages that were posterized, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color / Grayscale&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="83"/>
+        <source>All methods are lossless.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="87"/>
+        <source>Black and White</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="87"/>
+        <source>Black and white pages and the text of pages with split output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TiffCompressionPanel.cpp" line="94"/>
+        <source>All methods are lossless; CCITT G4 usually gives the smallest files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TiffReader</name>
     <message>
         <location filename="../core/TiffReader.cpp" line="209"/>
@@ -4046,12 +4158,12 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>TiffWriter</name>
     <message>
-        <location filename="../core/TiffWriter.cpp" line="127"/>
+        <location filename="../core/TiffWriter.cpp" line="126"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffWriter.cpp" line="136"/>
+        <location filename="../core/TiffWriter.cpp" line="135"/>
         <source>There is no image to write.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4187,17 +4299,17 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>deskew::Filter</name>
     <message>
-        <location filename="../core/filters/deskew/Filter.cpp" line="30"/>
+        <location filename="../core/filters/deskew/Filter.cpp" line="31"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/Filter.cpp" line="31"/>
+        <location filename="../core/filters/deskew/Filter.cpp" line="32"/>
         <source>Order by decreasing deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/Filter.cpp" line="37"/>
+        <location filename="../core/filters/deskew/Filter.cpp" line="38"/>
         <source>Deskew</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4287,13 +4399,13 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="75"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="175"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="180"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="76"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="176"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="181"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4462,32 +4574,32 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>output::Filter</name>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="39"/>
+        <location filename="../core/filters/output/Filter.cpp" line="40"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="41"/>
+        <location filename="../core/filters/output/Filter.cpp" line="42"/>
         <source>Order by completeness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="42"/>
+        <location filename="../core/filters/output/Filter.cpp" line="43"/>
         <source>Processed pages first, then the pages not processed yet, each in natural order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="44"/>
+        <location filename="../core/filters/output/Filter.cpp" line="45"/>
         <source>Order by color mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="45"/>
+        <location filename="../core/filters/output/Filter.cpp" line="46"/>
         <source>Black and white first, then color / grayscale, then mixed, each in natural order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="51"/>
+        <location filename="../core/filters/output/Filter.cpp" line="52"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4504,7 +4616,7 @@ Without an internet connection, the installed languages can still be used. Langu
     <name>output::OptionsWidget</name>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="562"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="466"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4570,9 +4682,6 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1365"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="239"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="262"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="275"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4599,6 +4708,11 @@ Without an internet connection, the installed languages can still be used. Langu
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="191"/>
         <source>Applies &quot;Dark content on a light background&quot; of this page to other pages. There it counts as set by hand, so the automatic detection no longer changes it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="219"/>
+        <source>Detects the color mode of pages. The settings apply to the whole project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4865,7 +4979,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="151"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="154"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5069,7 +5183,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2468"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1270"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1175"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5197,11 +5311,6 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="219"/>
-        <source>Detects the color mode of pages. The settings apply to all projects.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2676"/>
         <source>Color / grayscale mode only: pure white stays white, such as a background made white. The margins are never changed.</source>
         <translation type="unfinished"></translation>
@@ -5258,13 +5367,11 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="443"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="265"/>
         <source>Black and White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="475"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="222"/>
         <source>Color / Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5274,236 +5381,174 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="94"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="97"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="98"/>
         <source>White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="96"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="99"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="150"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="153"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="152"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="155"/>
         <source>K-means</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="234"/>
-        <source>All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.</source>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="194"/>
+        <source>Compression of the TIFF files in the output folder. Applies to the whole project. The PDF is compressed separately, so this doesn&apos;t change it. After a change, the output is created again: the current page right away, the other pages during the next batch processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="236"/>
-        <source>JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="247"/>
-        <source>Quality:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="250"/>
-        <source>Posterized Pages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="261"/>
-        <source>All methods are lossless.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="265"/>
-        <source>Black and white pages and the text of pages with split output.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="273"/>
-        <source>All methods are lossless; CCITT G4 usually gives the smallest files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1867"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1772"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2402"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="154"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="157"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="155"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="158"/>
         <source>Contour mask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="156"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="159"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="190"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="191"/>
         <source>TIFF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="193"/>
-        <source>Compression of the TIFF files in the output folder. Applies to all projects. The PDF is compressed separately, so this doesn&apos;t change it. After a change, the output of this project is created again: the current page right away, the other pages during the next batch processing. Other projects keep their files until their pages are processed again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="217"/>
-        <source>LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program and its PDF export can.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="223"/>
-        <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="227"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="256"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="267"/>
-        <source>None</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="246"/>
-        <source>Higher values give better pictures and larger files. Only used with JPEG compression.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="251"/>
-        <source>Color pages that were posterized, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color / Grayscale&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="407"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="311"/>
         <source>Detect Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="562"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="466"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="576"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="480"/>
         <source>Apply Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="646"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="550"/>
         <source>Temperature:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="647"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="551"/>
         <source>Positive values make the pictures warmer (more yellow), negative values cooler (more blue).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="648"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="552"/>
         <source>Tint:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="648"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="552"/>
         <source>Positive values add magenta, negative values green.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="649"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="553"/>
         <source>Exposure:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="649"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="553"/>
         <source>Brightens or darkens the pictures as a whole, in stops (EV).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="650"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="554"/>
         <source>Contrast:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="650"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="554"/>
         <source>Positive values spread the tones apart, negative values bring them closer together, around the middle gray.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="652"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="556"/>
         <source>Highlights:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="652"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="556"/>
         <source>Positive values brighten the bright parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="653"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="557"/>
         <source>Shadows:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="653"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="557"/>
         <source>Positive values brighten the dark parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="654"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="558"/>
         <source>Whites:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="654"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="558"/>
         <source>Positive values make the brightest tones whiter, negative values duller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="655"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="559"/>
         <source>Blacks:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="655"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="559"/>
         <source>Positive values make the darkest tones lighter, negative values deeper.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="815"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="719"/>
         <source>Apply Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="833"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="737"/>
         <source>Apply Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="896"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="800"/>
         <source>Apply Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="930"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="834"/>
         <source>Apply Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5637,7 +5682,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="362"/>
+        <location filename="../core/filters/output/Task.cpp" line="366"/>
         <source>The split output layers could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5645,37 +5690,37 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="560"/>
+        <location filename="../core/filters/output/Task.cpp" line="568"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="601"/>
+        <location filename="../core/filters/output/Task.cpp" line="609"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="612"/>
+        <location filename="../core/filters/output/Task.cpp" line="620"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="613"/>
+        <location filename="../core/filters/output/Task.cpp" line="621"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="614"/>
+        <location filename="../core/filters/output/Task.cpp" line="622"/>
         <source>Fill Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="615"/>
+        <location filename="../core/filters/output/Task.cpp" line="623"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="616"/>
+        <location filename="../core/filters/output/Task.cpp" line="624"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6298,27 +6343,27 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>select_content::Filter</name>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="36"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="38"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="37"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="39"/>
         <source>Order by increasing width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="38"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="40"/>
         <source>Order by increasing height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="39"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="41"/>
         <source>Order by decreasing deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="45"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="47"/>
         <source>Select Content</source>
         <translation type="unfinished"></translation>
     </message>

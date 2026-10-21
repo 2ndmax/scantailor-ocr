@@ -22,8 +22,6 @@ class SettingsDialog : public QDialog {
  private slots:
   void commitChanges();
 
-  void blackOnWhiteDetectionToggled(bool checked);
-
  private:
   void chooseAccentColor();
 

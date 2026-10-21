@@ -34,6 +34,9 @@
 
 #include "CollapsibleGroupBox.h"
 #include "DefaultParamsProvider.h"
+#include "OcrPanel.h"
+#include "PdfCompressionPanel.h"
+#include "TiffCompressionPanel.h"
 #include "UnitsProvider.h"
 #include "Utils.h"
 
@@ -49,6 +52,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
       m_currentUnits(MILLIMETRES),
       m_connectionManager(std::bind(&DefaultParamsDialog::setupUiConnections, this)) {
   setupUi(this);
+  setupOutputPanels();
   // Bold group titles, as in the options panels.
   for (QGroupBox* box : findChildren<QGroupBox*>()) {
     CollapsibleGroupBox::makeTitleBold(box);
@@ -389,10 +393,6 @@ void DefaultParamsDialog::updateSelectContentDisplay(const DefaultParams::Select
   } else {
     contentDetectDisableBtn->setChecked(true);
   }
-  // Program settings, not part of the profile.
-  fillFactorSpinBox->setValue(ApplicationSettings::getInstance().getContentFillFactor());
-  borderToleranceSpinBox->setValue(ApplicationSettings::getInstance().getContentBorderTolerance());
-  ignorePageBoxCB->setChecked(ApplicationSettings::getInstance().isContentIgnoringPageBox());
   contentDetectOptions->setEnabled(params.isContentDetectEnabled());
 
   QSizeF pageRectSize = params.getPageRectSize();
@@ -467,12 +467,6 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   colorModeBWBtn->setChecked(colorParams.colorMode() == BLACK_AND_WHITE);
   colorModeColorBtn->setChecked(colorParams.colorMode() == COLOR_GRAYSCALE);
   colorModeMixedBtn->setChecked(colorParams.colorMode() == MIXED);
-  // Program settings, not part of the profile.
-  colorDetectionMinColorSB->setValue(ApplicationSettings::getInstance().getColorDetectionMinColor());
-  colorDetectionZonesCB->setChecked(ApplicationSettings::getInstance().isColorDetectionZones());
-  colorDetectionMinPictureSB->setValue(ApplicationSettings::getInstance().getColorDetectionMinPicture());
-  colorDetectionMinPictureLabel->setEnabled(colorDetectionZonesCB->isChecked());
-  colorDetectionMinPictureSB->setEnabled(colorDetectionZonesCB->isChecked());
 
   const ColorCommonOptions& colorCommonOptions = colorParams.colorCommonOptions();
   const BlackWhiteOptions& blackWhiteOptions = colorParams.blackWhiteOptions();
@@ -628,6 +622,7 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(rightMarginSpinBox, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::horMarginsChanged);
   CONNECT(colorDetectionZonesCB, &QAbstractButton::toggled, colorDetectionMinPictureLabel, &QWidget::setEnabled);
   CONNECT(colorDetectionZonesCB, &QAbstractButton::toggled, colorDetectionMinPictureSB, &QWidget::setEnabled);
+  CONNECT(blackOnWhiteDetectionCB, &QAbstractButton::toggled, blackOnWhiteDetectionAtOutputCB, &QWidget::setEnabled);
   CONNECT(colorModeBWBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(BLACK_AND_WHITE); });
   CONNECT(colorModeColorBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(COLOR_GRAYSCALE); });
   CONNECT(colorModeMixedBtn, &QAbstractButton::clicked, this, [this] { colorModeChanged(MIXED); });
@@ -919,6 +914,91 @@ void DefaultParamsDialog::loadParams(const DefaultParams& params) {
   updateSelectContentDisplay(params.getSelectContentParams());
   updatePageLayoutDisplay(params.getPageLayoutParams());
   updateOutputDisplay(params.getOutputParams());
+  updateProcessingDisplay(params.getProcessingOptions());
+}
+
+void DefaultParamsDialog::updateProcessingDisplay(const ProcessingOptions& options) {
+  // Deskew tab.
+  blackOnWhiteDetectionCB->setChecked(options.blackOnWhiteDetection);
+  blackOnWhiteDetectionAtOutputCB->setChecked(options.blackOnWhiteAtOutput);
+  blackOnWhiteDetectionAtOutputCB->setEnabled(options.blackOnWhiteDetection);
+
+  // Select Content tab.
+  fillFactorSpinBox->setValue(options.contentDetection.fillFactor());
+  borderToleranceSpinBox->setValue(options.contentDetection.borderTolerance());
+  ignorePageBoxCB->setChecked(options.contentDetection.ignorePageBox());
+
+  // Output tab.
+  colorDetectionMinColorSB->setValue(qRound(options.colorDetection.minColorShare * 100));
+  colorDetectionZonesCB->setChecked(options.colorDetection.usePictureZones);
+  colorDetectionMinPictureSB->setValue(qRound(options.colorDetection.minPictureShare * 100));
+  colorDetectionMinPictureLabel->setEnabled(colorDetectionZonesCB->isChecked());
+  colorDetectionMinPictureSB->setEnabled(colorDetectionZonesCB->isChecked());
+
+  // The TIFF compression (Output tab) and the Create PDF tab.
+  m_tiffCompressionPanel->setCompression(options.tiffCompression);
+  m_pdfCompressionPanel->setOptions(options.pdf);
+  m_ocrPanel->setOptions(options.pdf);
+}
+
+ProcessingOptions DefaultParamsDialog::buildProcessingOptions() const {
+  ProcessingOptions options;
+  options.blackOnWhiteDetection = blackOnWhiteDetectionCB->isChecked();
+  options.blackOnWhiteAtOutput = blackOnWhiteDetectionAtOutputCB->isChecked();
+  options.contentDetection = select_content::DetectionOptions(
+      fillFactorSpinBox->value(), borderToleranceSpinBox->value(), ignorePageBoxCB->isChecked());
+  options.colorDetection.minColorShare = colorDetectionMinColorSB->value() / 100.0;
+  options.colorDetection.usePictureZones = colorDetectionZonesCB->isChecked();
+  options.colorDetection.minPictureShare = colorDetectionMinPictureSB->value() / 100.0;
+  options.tiffCompression = m_tiffCompressionPanel->compression();
+  m_pdfCompressionPanel->storeOptions(options.pdf);
+  m_ocrPanel->storeOptions(options.pdf);
+  return options;
+}
+
+void DefaultParamsDialog::setupOutputPanels() {
+  auto newGroup = [](const QString& title, QWidget* panel) {
+    auto* group = new QGroupBox(title);
+    group->setAlignment(Qt::AlignCenter);
+    auto* layout = new QVBoxLayout(group);
+    layout->addWidget(panel);
+    return group;
+  };
+
+  // The TIFF files are made in the Output step, so their compression follows its last panel, as
+  // in the step.
+  m_tiffCompressionPanel = new TiffCompressionPanel;
+  verticalLayout_17->insertWidget(verticalLayout_17->indexOf(dewarpingPanel) + 1,
+                                  newGroup(tr("TIFF Compression"), m_tiffCompressionPanel));
+
+  // The PDF step gets a tab of its own, built like the other tabs: a scroll area with the panels
+  // centered at the top, side by side.
+  auto* tab = new QWidget;
+  auto* tabLayout = new QVBoxLayout(tab);
+  tabLayout->setContentsMargins(0, 9, 0, 3);
+  auto* scrollArea = new QScrollArea;
+  scrollArea->setWidgetResizable(true);
+  tabLayout->addWidget(scrollArea);
+  auto* contents = new QWidget;
+  scrollArea->setWidget(contents);
+  auto* grid = new QGridLayout(contents);
+  grid->setColumnStretch(0, 1);
+  grid->setColumnStretch(3, 1);
+  grid->setRowStretch(1, 1);
+
+  m_pdfCompressionPanel = new PdfCompressionPanel;
+  grid->addWidget(newGroup(tr("PDF Compression"), m_pdfCompressionPanel), 0, 1, Qt::AlignTop);
+  m_ocrPanel = new OcrPanel;
+#ifdef ENABLE_OCR
+  grid->addWidget(newGroup(tr("Text Recognition (OCR)"), m_ocrPanel), 0, 2, Qt::AlignTop);
+#else
+  // Without OCR, the panel only keeps the values of the profile.
+  m_ocrPanel->setParent(tab);
+  m_ocrPanel->hide();
+#endif
+
+  // After the Output tab, as the steps.
+  tabWidget->insertTab(tabWidget->indexOf(tab_6) + 1, tab, tr("Create PDF"));
 }
 
 std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
@@ -1082,6 +1162,7 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   std::unique_ptr<DefaultParams> defaultParams = std::make_unique<DefaultParams>(
       fixOrientationParams, deskewParams, pageSplitParams, selectContentParams, pageLayoutParams, outputParams);
   defaultParams->setUnits(m_currentUnits);
+  defaultParams->setProcessingOptions(buildProcessingOptions());
   return defaultParams;
 }
 
@@ -1387,12 +1468,6 @@ void DefaultParamsDialog::commitChanges() {
   }
   DefaultParamsProvider::getInstance().setParams(std::move(params), profile);
   ApplicationSettings::getInstance().setCurrentProfile(profile);
-  ApplicationSettings::getInstance().setColorDetectionMinColor(colorDetectionMinColorSB->value());
-  ApplicationSettings::getInstance().setColorDetectionZones(colorDetectionZonesCB->isChecked());
-  ApplicationSettings::getInstance().setColorDetectionMinPicture(colorDetectionMinPictureSB->value());
-  ApplicationSettings::getInstance().setContentFillFactor(fillFactorSpinBox->value());
-  ApplicationSettings::getInstance().setContentBorderTolerance(borderToleranceSpinBox->value());
-  ApplicationSettings::getInstance().setContentIgnoringPageBox(ignorePageBoxCB->isChecked());
 }
 
 void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {

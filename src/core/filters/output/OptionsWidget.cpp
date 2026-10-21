@@ -3,7 +3,6 @@
 
 #include "OptionsWidget.h"
 
-#include <core/ApplicationSettings.h>
 #include <tiff.h>
 
 #include <QButtonGroup>
@@ -23,7 +22,8 @@
 #include <algorithm>
 #include <utility>
 
-#include "../../SectionHeading.h"
+#include "../../ProcessingOptions.h"
+#include "../../TiffCompressionPanel.h"
 #include "../../Utils.h"
 #include "ApplyColorsDialog.h"
 #include "BinarizationMethods.h"
@@ -50,8 +50,11 @@ void showSliderValue(QSlider* slider, QLabel* valueLabel, const double value) {
 }
 }  // namespace
 
-OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelectionAccessor& pageSelectionAccessor)
+OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
+                             std::shared_ptr<ProcessingOptions> processingOptions,
+                             const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
+      m_processingOptions(std::move(processingOptions)),
       m_pageSelectionAccessor(pageSelectionAccessor),
       m_despeckleLevel(1.0),
       m_lastTab(TAB_OUTPUT),
@@ -183,135 +186,34 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
 OptionsWidget::~OptionsWidget() = default;
 
 void OptionsWidget::setupTiffCompressionPanel() {
-  const ApplicationSettings& settings = ApplicationSettings::getInstance();
-
   // Built like the compression panel of the PDF step. Unlike the other panels of this
-  // step, it applies to all pages and projects, so there is no "Apply to ..." button.
+  // step, it applies to all pages, so there is no "Apply to ..." button.
   auto* group = new CollapsibleGroupBox(tr("TIFF Compression"));
   group->setObjectName("tiffCompressionPanel");
   group->setToolTip(
-      tr("Compression of the TIFF files in the output folder. Applies to all projects. The PDF is compressed "
-         "separately, so this doesn't change it. After a change, the output of this project is created again: the "
-         "current page right away, the other pages during the next batch processing. Other projects keep their "
-         "files until their pages are processed again."));
-  auto* layout = new QFormLayout(group);
-  // The lists keep their width instead of filling a widened panel, as in the PDF step.
-  layout->setRowWrapPolicy(QFormLayout::DontWrapRows);
-  layout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-
-  // A part for each kind of page, each with a bold heading.
-  auto addHeading = [layout](const QString& text, const QString& toolTip, const bool first) {
-    auto* heading = new SectionHeading(text);
-    heading->setToolTip(toolTip);
-    heading->setFirst(first);
-    layout->addRow(heading);
-  };
-  // A stored value that isn't offered falls back to the default, as the writer would get it.
-  auto selectData = [](QComboBox* box, const int value, const int defaultValue) {
-    int index = box->findData(value);
-    if (index < 0) {
-      index = box->findData(defaultValue);
-    }
-    box->setCurrentIndex(std::max(0, index));
-  };
-  const QString lzmaNote = tr(
-      "LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program "
-      "and its PDF export can.");
-
-  // Color and grayscale.
-  addHeading(tr("Color / Grayscale"),
-             tr("Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split "
-                "output."),
-             true);
-  m_tiffColorCompression = new QComboBox;
-  m_tiffColorCompression->addItem(tr("None"), COMPRESSION_NONE);
-  m_tiffColorCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
-  m_tiffColorCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
-  m_tiffColorCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
-  m_tiffColorCompression->addItem(QStringLiteral("JPEG"), COMPRESSION_JPEG);
-  selectData(m_tiffColorCompression, settings.getTiffColorCompression(), COMPRESSION_LZW);
-  m_tiffColorCompression->setToolTip(
-      tr("All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.") + QStringLiteral("  ")
-      + lzmaNote + QStringLiteral("  ")
-      + tr("JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and "
-           "on mixed pages without split output the text gets blurred."));
-  // The fields start right after the longest label of the group, the same for all parts.
-  layout->addRow(tr("Method:"), m_tiffColorCompression);
-
-  m_tiffJpegQuality = new QSpinBox;
-  m_tiffJpegQuality->setRange(10, 100);
-  core::Utils::setNumberFieldWidth(m_tiffJpegQuality, -100, 0);
-  m_tiffJpegQuality->setValue(settings.getTiffJpegQuality());
-  m_tiffJpegQuality->setToolTip(
-      tr("Higher values give better pictures and larger files. Only used with JPEG compression."));
-  layout->addRow(tr("Quality:"), m_tiffJpegQuality);
-
-  // Posterized pages.
-  addHeading(tr("Posterized Pages"),
-             tr("Color pages that were posterized, and posterized pictures of pages with split output. Posterized "
-                "grayscale pages can't be told apart from other grayscale pages; they follow \"Color / "
-                "Grayscale\"."),
-             false);
-  m_tiffPaletteCompression = new QComboBox;
-  m_tiffPaletteCompression->addItem(tr("None"), COMPRESSION_NONE);
-  m_tiffPaletteCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
-  m_tiffPaletteCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
-  m_tiffPaletteCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
-  selectData(m_tiffPaletteCompression, settings.getTiffPaletteCompression(), COMPRESSION_LZW);
-  m_tiffPaletteCompression->setToolTip(tr("All methods are lossless.") + QStringLiteral("  ") + lzmaNote);
-  layout->addRow(tr("Method:"), m_tiffPaletteCompression);
-
-  // Black and white.
-  addHeading(tr("Black and White"), tr("Black and white pages and the text of pages with split output."), false);
-  m_tiffBwCompression = new QComboBox;
-  m_tiffBwCompression->addItem(tr("None"), COMPRESSION_NONE);
-  m_tiffBwCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
-  m_tiffBwCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
-  m_tiffBwCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
-  m_tiffBwCompression->addItem(QStringLiteral("CCITT G4"), COMPRESSION_CCITTFAX4);
-  selectData(m_tiffBwCompression, settings.getTiffBwCompression(), COMPRESSION_CCITTFAX4);
-  m_tiffBwCompression->setToolTip(tr("All methods are lossless; CCITT G4 usually gives the smallest files.")
-                                  + QStringLiteral("  ") + lzmaNote);
-  layout->addRow(tr("Method:"), m_tiffBwCompression);
-
-  // The lists of the three parts line up.
-  int listWidth = 0;
-  for (QComboBox* box : {m_tiffColorCompression, m_tiffPaletteCompression, m_tiffBwCompression}) {
-    listWidth = std::max(listWidth, box->sizeHint().width());
-  }
-  for (QComboBox* box : {m_tiffColorCompression, m_tiffPaletteCompression, m_tiffBwCompression}) {
-    box->setFixedWidth(listWidth);
-  }
-
-  m_tiffJpegQuality->setEnabled(m_tiffColorCompression->currentData().toInt() == COMPRESSION_JPEG);
+      tr("Compression of the TIFF files in the output folder. Applies to the whole project. The PDF is compressed "
+         "separately, so this doesn't change it. After a change, the output is created again: the current page "
+         "right away, the other pages during the next batch processing."));
+  auto* layout = new QVBoxLayout(group);
+  m_tiffCompressionPanel = new TiffCompressionPanel;
+  m_tiffCompressionPanel->setCompression(m_processingOptions->tiffCompression);
+  layout->addWidget(m_tiffCompressionPanel);
 
   // At the bottom, above the spacer that pushes the panels up.
   verticalLayout_3->insertWidget(verticalLayout_3->count() - 1, group);
 
-  connect(m_tiffColorCompression, qOverload<int>(&QComboBox::currentIndexChanged), this,
-          [this]() { tiffCompressionChanged(false); });
-  connect(m_tiffJpegQuality, qOverload<int>(&QSpinBox::valueChanged), this, [this]() { tiffCompressionChanged(true); });
-  connect(m_tiffPaletteCompression, qOverload<int>(&QComboBox::currentIndexChanged), this,
-          [this]() { tiffCompressionChanged(false); });
-  connect(m_tiffBwCompression, qOverload<int>(&QComboBox::currentIndexChanged), this,
-          [this]() { tiffCompressionChanged(false); });
+  connect(m_tiffCompressionPanel, &TiffCompressionPanel::compressionChanged, this,
+          &OptionsWidget::tiffCompressionChanged);
 }
 
 void OptionsWidget::tiffCompressionChanged(const bool delayReload) {
-  ApplicationSettings& settings = ApplicationSettings::getInstance();
-  const int color = m_tiffColorCompression->currentData().toInt();
-  const int quality = m_tiffJpegQuality->value();
-  const int palette = m_tiffPaletteCompression->currentData().toInt();
-  const int bw = m_tiffBwCompression->currentData().toInt();
+  const TiffWriter::Compression old = m_processingOptions->tiffCompression;
+  const TiffWriter::Compression compression = m_tiffCompressionPanel->compression();
+  m_processingOptions->tiffCompression = compression;
 
-  const bool changed = (color != settings.getTiffColorCompression())
-                       || (palette != settings.getTiffPaletteCompression()) || (bw != settings.getTiffBwCompression())
-                       || ((color == COMPRESSION_JPEG) && (quality != settings.getTiffJpegQuality()));
-  settings.setTiffColorCompression(color);
-  settings.setTiffJpegQuality(quality);
-  settings.setTiffPaletteCompression(palette);
-  settings.setTiffBwCompression(bw);
-  m_tiffJpegQuality->setEnabled(color == COMPRESSION_JPEG);
+  const bool changed = (compression.color != old.color) || (compression.palette != old.palette)
+                       || (compression.bw != old.bw)
+                       || ((compression.color == COMPRESSION_JPEG) && (compression.jpegQuality != old.jpegQuality));
   if (!changed) {
     return;
   }
@@ -342,6 +244,8 @@ void OptionsWidget::preUpdateUI(const PageId& pageId) {
 
   const Params params = m_settings->getParams(pageId);
   m_pageId = pageId;
+  // The project may have been loaded after this panel was built.
+  m_tiffCompressionPanel->setCompression(m_processingOptions->tiffCompression);
   m_outputDpi = params.outputDpi();
   m_colorParams = params.colorParams();
   m_splittingOptions = params.splittingOptions();
@@ -388,17 +292,17 @@ void OptionsWidget::colorModeChanged(const ColorMode mode) {
 }
 
 void OptionsWidget::colorDetectionMinColorChanged(const int percent) {
-  ApplicationSettings::getInstance().setColorDetectionMinColor(percent);
+  m_processingOptions->colorDetection.minColorShare = percent / 100.0;
 }
 
 void OptionsWidget::colorDetectionZonesToggled(const bool checked) {
-  ApplicationSettings::getInstance().setColorDetectionZones(checked);
+  m_processingOptions->colorDetection.usePictureZones = checked;
   colorDetectionMinPictureLabel->setEnabled(checked);
   colorDetectionMinPictureSB->setEnabled(checked);
 }
 
 void OptionsWidget::colorDetectionMinPictureChanged(const int percent) {
-  ApplicationSettings::getInstance().setColorDetectionMinPicture(percent);
+  m_processingOptions->colorDetection.minPictureShare = percent / 100.0;
 }
 
 void OptionsWidget::colorDetectionButtonClicked() {
@@ -1085,9 +989,10 @@ void OptionsWidget::updateColorsDisplay() {
   colorModeBWBtn->setChecked(colorMode == BLACK_AND_WHITE);
   colorModeColorBtn->setChecked(colorMode == COLOR_GRAYSCALE);
   colorModeMixedBtn->setChecked(colorMode == MIXED);
-  colorDetectionMinColorSB->setValue(ApplicationSettings::getInstance().getColorDetectionMinColor());
-  colorDetectionZonesCB->setChecked(ApplicationSettings::getInstance().isColorDetectionZones());
-  colorDetectionMinPictureSB->setValue(ApplicationSettings::getInstance().getColorDetectionMinPicture());
+  const ColorModeDetector::Options& colorDetection = m_processingOptions->colorDetection;
+  colorDetectionMinColorSB->setValue(qRound(colorDetection.minColorShare * 100));
+  colorDetectionZonesCB->setChecked(colorDetection.usePictureZones);
+  colorDetectionMinPictureSB->setValue(qRound(colorDetection.minPictureShare * 100));
   // Only used with the picture zones.
   colorDetectionMinPictureLabel->setEnabled(colorDetectionZonesCB->isChecked());
   colorDetectionMinPictureSB->setEnabled(colorDetectionZonesCB->isChecked());

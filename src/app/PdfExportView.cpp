@@ -50,16 +50,14 @@
 #include "ImageId.h"
 #include "OcrEngine.h"
 #include "OcrLanguages.h"
+#include "OcrPanel.h"
+#include "PdfCompressionPanel.h"
 #include "PdfExportJob.h"
 #include "PdfPageOrder.h"
 #include "SectionHeading.h"
-#include "TessdataDownloadDialog.h"
 #include "ThumbnailLoadResult.h"
 
 namespace {
-/** The language list grows with the number of languages up to this many rows, then it scrolls. */
-const int MAX_VISIBLE_LANGUAGES = 8;
-
 /** The area of a tile the thumbnail is fitted into. */
 const QSize THUMBNAIL_SIZE(120, 160);
 const int TILE_MARGIN = 6;
@@ -284,8 +282,10 @@ class PdfExportView::ThumbnailHandler : public ThumbnailPixmapCache::CompletionH
 };
 
 
-PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache, QWidget* parent)
-    : QWidget(parent), m_thumbnailCache(std::move(thumbnailCache)) {
+PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
+                             std::shared_ptr<ProcessingOptions> processingOptions,
+                             QWidget* parent)
+    : QWidget(parent), m_thumbnailCache(std::move(thumbnailCache)), m_processingOptions(std::move(processingOptions)) {
   auto* mainLayout = new QVBoxLayout(this);
 
   // Page list.
@@ -397,8 +397,6 @@ PdfExportView::~PdfExportView() {
 }
 
 QWidget* PdfExportView::createOptionsWidget() {
-  const ApplicationSettings& settings = ApplicationSettings::getInstance();
-
   auto* widget = new QWidget;
   // The default margins, as around the options of the other steps.
   auto* layout = new QVBoxLayout(widget);
@@ -406,124 +404,17 @@ QWidget* PdfExportView::createOptionsWidget() {
   // Collapsible like the panels of the other steps; the object name keeps its collapsed state.
   auto* compressionGroup = new CollapsibleGroupBox(tr("PDF Compression"));
   compressionGroup->setObjectName("pdfCompressionPanel");
-  auto* optionsLayout = new QFormLayout(compressionGroup);
-  // All lists start after the longest label and keep their width instead of filling a widened
-  // panel. The rows don't wrap: the panel is at least as wide as the longest row anyway.
-  optionsLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
-  optionsLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-
-  // The group has a part for each kind of page, each with a bold heading.
-  auto addHeading = [optionsLayout](const QString& text, const QString& toolTip, const bool first) {
-    auto* heading = new SectionHeading(text);
-    heading->setToolTip(toolTip);
-    heading->setFirst(first);
-    optionsLayout->addRow(heading);
-  };
-  auto selectData = [](QComboBox* box, const int value, const PdfCompression defaultValue) {
-    int index = box->findData(value);
-    if (index < 0) {
-      index = box->findData(static_cast<int>(defaultValue));
-    }
-    box->setCurrentIndex(index);
-  };
-  const QString qualityToolTip = tr(
-      "Higher values give better pictures and larger files. Only used with JPEG and JPEG 2000. With "
-      "JPEG 2000, 100 is lossless; with JPEG, it's only nearly lossless.");
-
-  // Color and grayscale.
-  addHeading(tr("Color / Grayscale"),
-             tr("Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split "
-                "output."),
-             true);
-  m_colorCompression = new QComboBox;
-  m_colorCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
-  m_colorCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
-  m_colorCompression->addItem(QStringLiteral("JPEG"), static_cast<int>(PdfCompression::JPEG));
-  m_colorCompression->addItem(QStringLiteral("JPEG 2000"), static_cast<int>(PdfCompression::JPEG2000));
-  selectData(m_colorCompression, settings.getPdfColorCompression(), PdfCompression::JPEG);
-  m_colorCompression->setToolTip(
-      tr("JPEG makes small files and loses a little quality, mostly at the edges of text. JPEG 2000 looks "
-         "better at the same size, or makes smaller files at the same quality, but takes much longer to create, "
-         "and some simple or old PDF programs can't show it. Deflate is lossless, but makes the PDF very large: "
-         "a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB."));
-  optionsLayout->addRow(tr("Method:"), m_colorCompression);
-
-  m_colorQuality = new QSpinBox;
-  m_colorQuality->setRange(10, 100);
-  m_colorQuality->setValue(settings.getPdfColorQuality());
-  m_colorQuality->setToolTip(qualityToolTip);
-  optionsLayout->addRow(tr("Quality:"), m_colorQuality);
-
-  m_backgroundScale = new QComboBox;
-  m_backgroundScale->addItem(tr("Full"), 1);
-  m_backgroundScale->addItem(tr("Half"), 2);
-  m_backgroundScale->addItem(tr("One third"), 3);
-  m_backgroundScale->setCurrentIndex(std::max(0, m_backgroundScale->findData(settings.getPdfBackgroundScale())));
-  m_backgroundScale->setToolTip(
-      tr("Resolution of the background layer of pages with split output, that is of the pictures, relative to "
-         "the output resolution. The text is always stored at full resolution."));
-  auto* backgroundScaleLabel = new QLabel(tr("Background layer:"));
-  backgroundScaleLabel->setToolTip(m_backgroundScale->toolTip());
-  optionsLayout->addRow(backgroundScaleLabel, m_backgroundScale);
-
-  // Posterized pages.
-  addHeading(tr("Posterized Pages"),
-             tr("Color pages that were posterized in the Output step, and posterized pictures of pages with split "
-                "output. Posterized grayscale pages can't be told apart from other grayscale pages; they follow "
-                "\"Color / Grayscale\"."),
-             false);
-  m_paletteCompression = new QComboBox;
-  m_paletteCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
-  m_paletteCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
-  m_paletteCompression->addItem(QStringLiteral("JPEG"), static_cast<int>(PdfCompression::JPEG));
-  m_paletteCompression->addItem(QStringLiteral("JPEG 2000"), static_cast<int>(PdfCompression::JPEG2000));
-  selectData(m_paletteCompression, settings.getPdfPaletteCompression(), PdfCompression::DEFLATE);
-  m_paletteCompression->setToolTip(
-      tr("Deflate is lossless and keeps the few colors exactly, which makes small and sharp files. JPEG and "
-         "JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file "
-         "larger. None is lossless, but large."));
-  optionsLayout->addRow(tr("Method:"), m_paletteCompression);
-
-  m_paletteQuality = new QSpinBox;
-  m_paletteQuality->setRange(10, 100);
-  m_paletteQuality->setValue(settings.getPdfPaletteQuality());
-  m_paletteQuality->setToolTip(qualityToolTip);
-  optionsLayout->addRow(tr("Quality:"), m_paletteQuality);
-
-  // Black and white.
-  addHeading(tr("Black and White"), tr("Black and white pages and the text of pages with split output."), false);
-  m_bitonalCompression = new QComboBox;
-  m_bitonalCompression->addItem(tr("None"), static_cast<int>(PdfCompression::NONE));
-  m_bitonalCompression->addItem(QStringLiteral("Deflate"), static_cast<int>(PdfCompression::DEFLATE));
-  m_bitonalCompression->addItem(QStringLiteral("CCITT G4"), static_cast<int>(PdfCompression::CCITT_G4));
-  m_bitonalCompression->addItem(QStringLiteral("JBIG2"), static_cast<int>(PdfCompression::JBIG2));
-  selectData(m_bitonalCompression, settings.getPdfBitonalCompression(), PdfCompression::JBIG2);
-  m_bitonalCompression->setToolTip(
-      tr("All methods are lossless. JBIG2 makes the smallest files. CCITT G4 files are about a third larger, but "
-         "can be shown by very old PDF programs, too. Deflate and None make much larger files."));
-  optionsLayout->addRow(tr("Method:"), m_bitonalCompression);
-
-  // The lists of the group line up.
-  int listWidth = 0;
-  for (QComboBox* box : {m_colorCompression, m_backgroundScale, m_paletteCompression, m_bitonalCompression}) {
-    listWidth = std::max(listWidth, box->sizeHint().width());
-  }
-  for (QComboBox* box : {m_colorCompression, m_backgroundScale, m_paletteCompression, m_bitonalCompression}) {
-    box->setFixedWidth(listWidth);
-  }
-
+  auto* compressionLayout = new QVBoxLayout(compressionGroup);
+  m_compressionPanel = new PdfCompressionPanel;
+  m_compressionPanel->setOptions(m_processingOptions->pdf);
+  compressionLayout->addWidget(m_compressionPanel);
+  m_colorCompression = m_compressionPanel->colorCompressionBox();
+  m_colorQuality = m_compressionPanel->colorQualityBox();
+  m_paletteCompression = m_compressionPanel->paletteCompressionBox();
+  m_paletteQuality = m_compressionPanel->paletteQualityBox();
+  m_bitonalCompression = m_compressionPanel->bitonalCompressionBox();
   layout->addWidget(compressionGroup);
-
-  m_colorQuality->setEnabled(usesQuality(m_colorCompression));
-  m_paletteQuality->setEnabled(usesQuality(m_paletteCompression));
-
-  for (QComboBox* box : {m_colorCompression, m_backgroundScale, m_paletteCompression, m_bitonalCompression}) {
-    connect(box, qOverload<int>(&QComboBox::currentIndexChanged), this, &PdfExportView::compressionChanged);
-  }
-  // JPEG 2000 is lossless at quality 100, so the quality matters for the warnings, too.
-  for (QSpinBox* box : {m_colorQuality, m_paletteQuality}) {
-    connect(box, qOverload<int>(&QSpinBox::valueChanged), this, &PdfExportView::compressionChanged);
-  }
+  connect(m_compressionPanel, &PdfCompressionPanel::compressionChanged, this, &PdfExportView::compressionChanged);
 
 #ifdef ENABLE_OCR
   // Text recognition. Like the panels of the other steps, the check box that turns it on
@@ -531,76 +422,11 @@ QWidget* PdfExportView::createOptionsWidget() {
   auto* ocrGroup = new CollapsibleGroupBox(tr("Text Recognition (OCR)"));
   ocrGroup->setObjectName("pdfOcrPanel");
   auto* ocrGroupLayout = new QVBoxLayout(ocrGroup);
-  m_ocrEnabled = new QCheckBox(tr("Recognize text"));
-  m_ocrEnabled->setChecked(settings.isPdfOcrEnabled());
-  m_ocrEnabled->setToolTip(
-      tr("Adds an invisible text layer, so the text of the PDF can be searched, selected and copied. Text "
-         "recognition takes a few seconds per page."));
-  // The button shares the line of the check box, as in the Automatic Import panel. It stays
-  // usable while text recognition is off, so languages can be added first.
-  auto* moreLanguagesButton = new QPushButton(tr("More languages ..."));
-  moreLanguagesButton->setToolTip(tr("Download more languages from the internet."));
-  moreLanguagesButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  auto* ocrEnabledRow = new QHBoxLayout;
-  ocrEnabledRow->addWidget(m_ocrEnabled, 1);
-  ocrEnabledRow->addWidget(moreLanguagesButton);
-  ocrGroupLayout->addLayout(ocrEnabledRow);
-  connect(moreLanguagesButton, &QPushButton::clicked, this, &PdfExportView::downloadLanguages);
-
-  // Greyed out while text recognition is off, and indented below its check box.
-  m_ocrOptions = new QWidget;
-  auto* ocrLayout = new QVBoxLayout(m_ocrOptions);
-  ocrLayout->setContentsMargins(15, 0, 0, 0);
-  ocrGroupLayout->addWidget(m_ocrOptions);
-  ocrLayout->addWidget(new QLabel(tr("Languages:")));
-  m_languageList = new QListWidget;
-  m_languageList->setSelectionMode(QAbstractItemView::NoSelection);
-  m_languageList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  // Some room above the first and below the last language; the rest of the look comes from the color scheme.
-  m_languageList->setStyleSheet(QStringLiteral("QListView { padding-top: 7px; padding-bottom: 7px; }"));
-  m_languageList->setToolTip(tr("Tick the languages of the text. Several languages can be ticked."));
-  ocrLayout->addWidget(m_languageList);
-
-  QStringList dirs;
-  for (const QString& dir : OcrLanguages::searchDirs()) {
-    dirs.push_back(QDir::toNativeSeparators(dir));
-  }
-  m_noLanguagesLabel = new QLabel(tr("No language files were found. Download them with \"More languages\", or "
-                                     "put *.traineddata files (from tessdata_best) into one of these folders:")
-                                  + QStringLiteral("\n") + dirs.join('\n'));
-  m_noLanguagesLabel->setWordWrap(true);
-  m_noLanguagesLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  ocrLayout->addWidget(m_noLanguagesLabel);
-
-  fillLanguageList(settings.getPdfOcrLanguages());
-
-  auto* layoutRow = new QFormLayout;
-  layoutRow->setRowWrapPolicy(QFormLayout::WrapLongRows);
-  layoutRow->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-  m_pageLayout = new QComboBox;
-  m_pageLayout->addItem(tr("Automatic"), static_cast<int>(OcrEngine::AUTOMATIC_LAYOUT));
-  m_pageLayout->addItem(tr("Single column"), static_cast<int>(OcrEngine::SINGLE_COLUMN));
-  m_pageLayout->addItem(tr("Single block of text"), static_cast<int>(OcrEngine::SINGLE_BLOCK));
-  m_pageLayout->setCurrentIndex(std::max(0, m_pageLayout->findData(settings.getPdfOcrPageLayout())));
-  const QString textLayoutTip = tr(
-      "How the text is arranged on the pages. This decides the order in which the text is recognized, "
-      "e.g. for searching and copying; the look of the PDF doesn't change. \"Automatic\" detects columns, "
-      "pictures and captions and is usually right. \"Single column\" helps if copied text comes out in the "
-      "wrong order, e.g. with indented lines or tables. \"Single block of text\" suits pages with only one "
-      "short text, such as a label or a note.");
-  m_pageLayout->setToolTip(textLayoutTip);
-  auto* textLayoutLabel = new QLabel(tr("Text layout:"));
-  textLayoutLabel->setToolTip(textLayoutTip);
-  layoutRow->addRow(textLayoutLabel, m_pageLayout);
-  ocrLayout->addLayout(layoutRow);
-
-  m_ocrOptions->setEnabled(m_ocrEnabled->isChecked());
+  m_ocrPanel = new OcrPanel;
+  m_ocrPanel->setOptions(m_processingOptions->pdf);
+  ocrGroupLayout->addWidget(m_ocrPanel);
   layout->addWidget(ocrGroup);
-
-  connect(m_ocrEnabled, &QCheckBox::toggled, m_ocrOptions, &QWidget::setEnabled);
-  connect(m_ocrEnabled, &QCheckBox::toggled, this, &PdfExportView::saveSettings);
-  connect(m_languageList, &QListWidget::itemChanged, this, &PdfExportView::saveSettings);
-  connect(m_pageLayout, qOverload<int>(&QComboBox::currentIndexChanged), this, &PdfExportView::saveSettings);
+  connect(m_ocrPanel, &OcrPanel::optionsChanged, this, &PdfExportView::saveSettings);
 #endif
 
   // Quality: the compression of the ticked pages, in the output folder and in the PDF.
@@ -889,18 +715,19 @@ void PdfExportView::startExport() {
     return;
   }
 
+  const ProcessingOptions::Pdf& pdf = m_processingOptions->pdf;
   PdfExportOptions options;
-  options.colorCompression = static_cast<PdfCompression>(m_colorCompression->currentData().toInt());
-  options.colorQuality = m_colorQuality->value();
-  options.backgroundScale = m_backgroundScale->currentData().toInt();
-  options.paletteCompression = static_cast<PdfCompression>(m_paletteCompression->currentData().toInt());
-  options.paletteQuality = m_paletteQuality->value();
-  options.bitonalCompression = static_cast<PdfCompression>(m_bitonalCompression->currentData().toInt());
+  options.colorCompression = pdf.colorCompression;
+  options.colorQuality = pdf.colorQuality;
+  options.backgroundScale = pdf.backgroundScale;
+  options.paletteCompression = pdf.paletteCompression;
+  options.paletteQuality = pdf.paletteQuality;
+  options.bitonalCompression = pdf.bitonalCompression;
   options.threadCount = PdfExportJob::defaultThreadCount();
 
 #ifdef ENABLE_OCR
-  if (m_ocrEnabled->isChecked()) {
-    const QStringList languages = checkedLanguages();
+  if (m_ocrPanel->isOcrEnabled()) {
+    const QStringList languages = m_ocrPanel->checkedLanguages();
     if (languages.isEmpty()) {
       QMessageBox::warning(this, title,
                            tr("Please tick at least one language for the text recognition, or turn it off."));
@@ -927,7 +754,7 @@ void PdfExportView::startExport() {
     options.ocr = true;
     options.ocrDataDir = dataDir;
     options.ocrLanguages = languages.join('+');
-    options.ocrPageLayout = m_pageLayout->currentData().toInt();
+    options.ocrPageLayout = m_ocrPanel->pageLayout();
   }
 #endif
 
@@ -1023,21 +850,11 @@ void PdfExportView::updateControls() {
 }
 
 void PdfExportView::saveSettings() {
-  ApplicationSettings& settings = ApplicationSettings::getInstance();
-  settings.setPdfColorCompression(m_colorCompression->currentData().toInt());
-  settings.setPdfColorQuality(m_colorQuality->value());
-  settings.setPdfBackgroundScale(m_backgroundScale->currentData().toInt());
-  settings.setPdfPaletteCompression(m_paletteCompression->currentData().toInt());
-  settings.setPdfPaletteQuality(m_paletteQuality->value());
-  settings.setPdfBitonalCompression(m_bitonalCompression->currentData().toInt());
-  settings.setPdfOpenAfterCreationEnabled(m_openAfterCreation->isChecked());
+  // Only opening the PDF is a program setting; the rest belongs to the project.
+  ApplicationSettings::getInstance().setPdfOpenAfterCreationEnabled(m_openAfterCreation->isChecked());
+  m_compressionPanel->storeOptions(m_processingOptions->pdf);
 #ifdef ENABLE_OCR
-  settings.setPdfOcrEnabled(m_ocrEnabled->isChecked());
-  if (m_languageList->count() > 0) {
-    // Without any language files, keep the previous choice.
-    settings.setPdfOcrLanguages(checkedLanguages());
-  }
-  settings.setPdfOcrPageLayout(m_pageLayout->currentData().toInt());
+  m_ocrPanel->storeOptions(m_processingOptions->pdf);
 #endif
 }
 
@@ -1405,86 +1222,9 @@ void PdfExportView::updateQualityPanel() {
 }  // PdfExportView::updateQualityPanel
 
 void PdfExportView::compressionChanged() {
-  m_colorQuality->setEnabled(usesQuality(m_colorCompression));
-  m_paletteQuality->setEnabled(usesQuality(m_paletteCompression));
   saveSettings();
   updatePageSigns();
   updateQualityPanel();
-}
-
-void PdfExportView::fillLanguageList(const QStringList& checked) {
-  if (!m_languageList) {
-    return;
-  }
-  // Languages sorted by name, then the script models.
-  std::vector<std::tuple<bool, QString, QString>> languages;  // Is script, display name, code.
-  for (const auto& entry : OcrLanguages::available()) {
-    languages.emplace_back(OcrLanguages::isScript(entry.first), OcrLanguages::displayName(entry.first), entry.first);
-  }
-  std::sort(languages.begin(), languages.end(), [](const auto& a, const auto& b) {
-    if (std::get<0>(a) != std::get<0>(b)) {
-      return !std::get<0>(a);
-    }
-    return QString::localeAwareCompare(std::get<1>(a), std::get<1>(b)) < 0;
-  });
-
-  {
-    // Filling the list isn't a change by the user.
-    const QSignalBlocker blocker(m_languageList);
-    m_languageList->clear();
-    for (const auto& language : languages) {
-      auto* item = new QListWidgetItem(std::get<1>(language), m_languageList);
-      item->setData(Qt::UserRole, std::get<2>(language));
-      item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
-      item->setCheckState(checked.contains(std::get<2>(language)) ? Qt::Checked : Qt::Unchecked);
-    }
-  }
-  m_noLanguagesLabel->setVisible(languages.empty());
-  updateLanguageListHeight();
-}
-
-void PdfExportView::updateLanguageListHeight() {
-  const int count = m_languageList->count();
-  m_languageList->setVisible(count > 0);
-  if (count == 0) {
-    return;
-  }
-  int rowHeight = m_languageList->sizeHintForRow(0);
-  if (rowHeight <= 0) {
-    rowHeight = m_languageList->fontMetrics().height() + 4;
-  }
-  const int rows = std::min(count, MAX_VISIBLE_LANGUAGES);
-  // The contents margins hold the border and the padding of the style sheet as drawn;
-  // frameWidth() can be larger, which left extra space below the last row.
-  m_languageList->ensurePolished();
-  const QMargins margins = m_languageList->contentsMargins();
-  m_languageList->setFixedHeight(rows * rowHeight + margins.top() + margins.bottom());
-}
-
-void PdfExportView::downloadLanguages() {
-  TessdataDownloadDialog dialog(this);
-  dialog.exec();
-  if (!dialog.downloadedCodes().isEmpty()) {
-    // New languages are ticked right away; they were downloaded to be used.
-    QStringList checked = checkedLanguages();
-    checked.append(dialog.downloadedCodes());
-    fillLanguageList(checked);
-    saveSettings();
-  }
-}
-
-QStringList PdfExportView::checkedLanguages() const {
-  QStringList codes;
-  if (!m_languageList) {
-    return codes;
-  }
-  for (int row = 0; row < m_languageList->count(); ++row) {
-    const QListWidgetItem* item = m_languageList->item(row);
-    if (item->checkState() == Qt::Checked) {
-      codes.push_back(item->data(Qt::UserRole).toString());
-    }
-  }
-  return codes;
 }
 
 int PdfExportView::checkedCount() const {

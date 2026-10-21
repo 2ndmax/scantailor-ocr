@@ -26,6 +26,7 @@
 class AbstractFilter;
 class ProjectPages;
 class PageInfo;
+struct ProcessingOptions;
 class QDomDocument;
 class QDomElement;
 
@@ -46,7 +47,9 @@ class ProjectWriter {
 
   ~ProjectWriter();
 
-  bool write(const QString& filePath, const std::vector<FilterPtr>& filters) const;
+  bool write(const QString& filePath,
+             const std::vector<FilterPtr>& filters,
+             const ProcessingOptions& processingOptions) const;
 
   /**
    * \p out will be called like this: out(ImageId, numeric_image_id)

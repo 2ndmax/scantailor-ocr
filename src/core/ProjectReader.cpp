@@ -89,6 +89,10 @@ void ProjectReader::readFilterSettings(const std::vector<FilterPtr>& filters) co
   }
 }
 
+ProcessingOptions ProjectReader::readProcessingOptions(const ProcessingOptions& fallback) const {
+  return ProcessingOptions(m_doc.documentElement().namedItem("processing-options").toElement(), fallback);
+}
+
 void ProjectReader::processDirectories(const QDomElement& dirsEl) {
   const QString dirTagName("directory");
 

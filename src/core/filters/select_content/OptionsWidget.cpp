@@ -3,7 +3,6 @@
 
 #include "OptionsWidget.h"
 
-#include <ApplicationSettings.h>
 #include <ProcessingOptions.h>
 #include <UnitsProvider.h>
 
@@ -16,8 +15,11 @@
 #include "Settings.h"
 
 namespace select_content {
-OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelectionAccessor& pageSelectionAccessor)
+OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
+                             std::shared_ptr<ProcessingOptions> processingOptions,
+                             const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
+      m_processingOptions(std::move(processingOptions)),
       m_pageSelectionAccessor(pageSelectionAccessor),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
@@ -134,12 +136,10 @@ void OptionsWidget::fineTuningChanged(bool checked) {
 }
 
 void OptionsWidget::detectionOptionsChanged() {
-  // Program settings: only the current page is detected again; other pages keep their content box
-  // until it is detected again or applied to them.
-  ApplicationSettings& settings = ApplicationSettings::getInstance();
-  settings.setContentFillFactor(fillFactorSpinBox->value());
-  settings.setContentBorderTolerance(borderToleranceSpinBox->value());
-  settings.setContentIgnoringPageBox(ignorePageBoxCB->isChecked());
+  // Settings of the project: only the current page is detected again; other pages keep their
+  // content box until it is detected again or applied to them.
+  m_processingOptions->contentDetection
+      = DetectionOptions(fillFactorSpinBox->value(), borderToleranceSpinBox->value(), ignorePageBoxCB->isChecked());
   if (m_uiData.contentDetectionMode() == MODE_AUTO) {
     Dependencies deps = m_uiData.dependencies();
     deps.setContentDetectionMode(MODE_DISABLED);  // Makes the task detect the content box again.
@@ -187,7 +187,7 @@ void OptionsWidget::updatePageDetectOptionsDisplay() {
 void OptionsWidget::updateContentDetectOptionsDisplay() {
   auto block = m_connectionManager.getScopedBlock();
 
-  const DetectionOptions options = ApplicationSettings::getInstance().getProcessingOptions().contentDetection;
+  const DetectionOptions& options = m_processingOptions->contentDetection;
   fillFactorSpinBox->setValue(options.fillFactor());
   borderToleranceSpinBox->setValue(options.borderTolerance());
   ignorePageBoxCB->setChecked(options.ignorePageBox());

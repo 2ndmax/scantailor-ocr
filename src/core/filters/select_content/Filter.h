@@ -36,7 +36,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(select_content::Filter)
  public:
-  explicit Filter(const PageSelectionAccessor& pageSelectionAccessor);
+  Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions);
 
   ~Filter() override;
 
@@ -69,9 +69,6 @@ class Filter : public AbstractFilter {
 
   OptionsWidget* optionsWidget();
 
-  /** For the tasks created from now on. */
-  void setProcessingOptions(const ProcessingOptions& options) { m_processingOptions = options; }
-
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
@@ -80,7 +77,7 @@ class Filter : public AbstractFilter {
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
-  ProcessingOptions m_processingOptions;
+  std::shared_ptr<ProcessingOptions> m_processingOptions;
 };
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_FILTER_H_

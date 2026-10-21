@@ -15,8 +15,6 @@
 #include <QString>
 #include <QStringList>
 
-struct ProcessingOptions;
-
 class ApplicationSettings {
   DECLARE_NON_COPYABLE(ApplicationSettings)
  private:
@@ -44,64 +42,6 @@ class ApplicationSettings {
   bool isAutoSaveProjectEnabled() const;
 
   void setAutoSaveProjectEnabled(bool enabled);
-
-  int getTiffBwCompression() const;
-
-  void setTiffBwCompression(int compression);
-
-  int getTiffColorCompression() const;
-
-  void setTiffColorCompression(int compression);
-
-  /** Compression of palette images (posterized pages), a libtiff COMPRESSION_* constant. */
-  int getTiffPaletteCompression() const;
-
-  void setTiffPaletteCompression(int compression);
-
-  /** JPEG quality (10 to 100) for TIFF files with JPEG compression. */
-  int getTiffJpegQuality() const;
-
-  void setTiffJpegQuality(int quality);
-
-  bool isBlackOnWhiteDetectionEnabled() const;
-
-  void setBlackOnWhiteDetectionEnabled(bool enabled);
-
-  // Automatic content box detection (Select Content): fill factor and border tolerance, in percent.
-  int getContentFillFactor() const;
-
-  void setContentFillFactor(int percent);
-
-  int getContentBorderTolerance() const;
-
-  void setContentBorderTolerance(int percent);
-
-  // Search for content in the whole image instead of only inside the page box.
-  bool isContentIgnoringPageBox() const;
-
-  void setContentIgnoringPageBox(bool enabled);
-
-  // Color mode detection (Output): share of color outside pictures (percent) for a color page, and
-  // whether the picture zones give a second opinion.
-  int getColorDetectionMinColor() const;
-
-  void setColorDetectionMinColor(int percent);
-
-  bool isColorDetectionZones() const;
-
-  void setColorDetectionZones(bool zones);
-
-  // Color mode detection: share of the page (percent) the largest picture zone needs.
-  int getColorDetectionMinPicture() const;
-
-  void setColorDetectionMinPicture(int percent);
-
-  bool isBlackOnWhiteDetectionOutputEnabled() const;
-
-  void setBlackOnWhiteDetectionOutputEnabled(bool enabled);
-
-  /** The settings above that change the processing result, for StageSequence::setProcessingOptions(). */
-  ProcessingOptions getProcessingOptions() const;
 
   bool isHighlightDeviationEnabled() const;
 
@@ -189,73 +129,16 @@ class ApplicationSettings {
 
   void setProcessingThreads(int threads);
 
-  /** PDF export: compression of grayscale / colour pages and backgrounds, a PdfCompression value. */
-  int getPdfColorCompression() const;
-
-  void setPdfColorCompression(int compression);
-
-  /** PDF export: quality (10 to 100) of grayscale / colour pages and backgrounds. */
-  int getPdfColorQuality() const;
-
-  void setPdfColorQuality(int quality);
-
-  /** PDF export: the background of split pages is stored at 1 / scale of the output resolution (1 to 3). */
-  int getPdfBackgroundScale() const;
-
-  void setPdfBackgroundScale(int scale);
-
-  /** PDF export: compression of posterized pages and backgrounds, a PdfCompression value. */
-  int getPdfPaletteCompression() const;
-
-  void setPdfPaletteCompression(int compression);
-
-  /** PDF export: quality (10 to 100) of posterized pages and backgrounds. */
-  int getPdfPaletteQuality() const;
-
-  void setPdfPaletteQuality(int quality);
-
-  /** PDF export: compression of black and white images, a PdfCompression value. */
-  int getPdfBitonalCompression() const;
-
-  void setPdfBitonalCompression(int compression);
-
   /** PDF export: open the PDF in the default viewer once it's created. */
   bool isPdfOpenAfterCreationEnabled() const;
 
   void setPdfOpenAfterCreationEnabled(bool enabled);
-
-  /** PDF export: add an invisible text layer by text recognition (OCR). */
-  bool isPdfOcrEnabled() const;
-
-  void setPdfOcrEnabled(bool enabled);
-
-  /** PDF export: the OCR language codes, e.g. {"deu", "eng"}. */
-  QStringList getPdfOcrLanguages() const;
-
-  void setPdfOcrLanguages(const QStringList& languages);
-
-  /** PDF export: the OCR page layout, see OcrEngine::PageLayout (0 to 2). */
-  int getPdfOcrPageLayout() const;
-
-  void setPdfOcrPageLayout(int layout);
 
  private:
   static inline QString getKey(const QString& keyName);
 
   static const bool DEFAULT_OPENGL_STATE;
   static const bool DEFAULT_AUTO_SAVE_PROJECT;
-  static const int DEFAULT_TIFF_BW_COMPRESSION;
-  static const int DEFAULT_TIFF_COLOR_COMPRESSION;
-  static const int DEFAULT_TIFF_PALETTE_COMPRESSION;
-  static const int DEFAULT_TIFF_JPEG_QUALITY;
-  static const bool DEFAULT_BLACK_ON_WHITE_DETECTION;
-  static const int DEFAULT_CONTENT_FILL_FACTOR;
-  static const int DEFAULT_CONTENT_BORDER_TOLERANCE;
-  static const bool DEFAULT_CONTENT_IGNORE_PAGE_BOX;
-  static const int DEFAULT_COLOR_DETECTION_MIN_COLOR;
-  static const bool DEFAULT_COLOR_DETECTION_ZONES;
-  static const int DEFAULT_COLOR_DETECTION_MIN_PICTURE;
-  static const bool DEFAULT_BLACK_ON_WHITE_DETECTION_OUTPUT;
   static const bool DEFAULT_HIGHLIGHT_DEVIATION;
   static const double DEFAULT_DESKEW_DEVIATION_COEF;
   static const double DEFAULT_DESKEW_DEVIATION_THRESHOLD;
@@ -276,18 +159,6 @@ class ApplicationSettings {
   static const QString AUTO_SAVE_PROJECT_KEY;
   static const QString COLOR_SCHEME_KEY;
   static const QString ACCENT_COLOR_KEY;
-  static const QString TIFF_BW_COMPRESSION_KEY;
-  static const QString TIFF_COLOR_COMPRESSION_KEY;
-  static const QString TIFF_PALETTE_COMPRESSION_KEY;
-  static const QString TIFF_JPEG_QUALITY_KEY;
-  static const QString BLACK_ON_WHITE_DETECTION_KEY;
-  static const QString CONTENT_FILL_FACTOR_KEY;
-  static const QString CONTENT_BORDER_TOLERANCE_KEY;
-  static const QString CONTENT_IGNORE_PAGE_BOX_KEY;
-  static const QString COLOR_DETECTION_MIN_COLOR_KEY;
-  static const QString COLOR_DETECTION_ZONES_KEY;
-  static const QString COLOR_DETECTION_MIN_PICTURE_KEY;
-  static const QString BLACK_ON_WHITE_DETECTION_OUTPUT_KEY;
   static const QString HIGHLIGHT_DEVIATION_KEY;
   static const QString DESKEW_DEVIATION_COEF_KEY;
   static const QString DESKEW_DEVIATION_THRESHOLD_KEY;
@@ -311,28 +182,15 @@ class ApplicationSettings {
   static const bool DEFAULT_OUTPUT_SHOW_GUIDES;
   static const int DEFAULT_DESKEW_HANDLE_DISTANCE;
 
-  static const QString PDF_JPEG_QUALITY_KEY;
-  static const QString PDF_BACKGROUND_SCALE_KEY;
   static const QString PDF_OPEN_AFTER_CREATION_KEY;
-  static const QString PDF_JBIG2_KEY;
-  static const QString PDF_COLOR_COMPRESSION_KEY;
-  static const QString PDF_PALETTE_COMPRESSION_KEY;
-  static const QString PDF_PALETTE_QUALITY_KEY;
-  static const QString PDF_BITONAL_COMPRESSION_KEY;
-  static const int DEFAULT_PDF_JPEG_QUALITY;
-  static const int DEFAULT_PDF_BACKGROUND_SCALE;
   static const bool DEFAULT_PDF_OPEN_AFTER_CREATION;
-  static const bool DEFAULT_PDF_JBIG2;
-  static const QString PDF_OCR_ENABLED_KEY;
-  static const QString PDF_OCR_LANGUAGES_KEY;
-  static const QString PDF_OCR_PAGE_LAYOUT_KEY;
 
   QVariant readValue(const QString& key, const QVariant& defaultValue) const;
 
   void writeValue(const QString& key, const QVariant& value);
 
   // QSettings is only reentrant, not thread-safe. But the settings are read
-  // from worker threads as well (e.g. by TiffWriter while batch processing),
+  // from worker threads as well,
   // so all access to m_settings is serialized.
   mutable QMutex m_mutex;
   QSettings m_settings;

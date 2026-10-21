@@ -7,12 +7,13 @@
 
 StageSequence::StageSequence(const std::shared_ptr<ProjectPages>& pages,
                              const PageSelectionAccessor& pageSelectionAccessor)
-    : m_fixOrientationFilter(std::make_shared<fix_orientation::Filter>(pageSelectionAccessor)),
+    : m_processingOptions(std::make_shared<ProcessingOptions>()),
+      m_fixOrientationFilter(std::make_shared<fix_orientation::Filter>(pageSelectionAccessor)),
       m_pageSplitFilter(std::make_shared<page_split::Filter>(pages, pageSelectionAccessor)),
-      m_deskewFilter(std::make_shared<deskew::Filter>(pageSelectionAccessor)),
-      m_selectContentFilter(std::make_shared<select_content::Filter>(pageSelectionAccessor)),
+      m_deskewFilter(std::make_shared<deskew::Filter>(pageSelectionAccessor, m_processingOptions)),
+      m_selectContentFilter(std::make_shared<select_content::Filter>(pageSelectionAccessor, m_processingOptions)),
       m_pageLayoutFilter(std::make_shared<page_layout::Filter>(pages, pageSelectionAccessor)),
-      m_outputFilter(std::make_shared<output::Filter>(pageSelectionAccessor)) {
+      m_outputFilter(std::make_shared<output::Filter>(pageSelectionAccessor, m_processingOptions)) {
   m_fixOrientationFilterIdx = static_cast<int>(m_filters.size());
   m_filters.emplace_back(m_fixOrientationFilter);
 
@@ -36,12 +37,6 @@ void StageSequence::performRelinking(const AbstractRelinker& relinker) {
   for (FilterPtr& filter : m_filters) {
     filter->performRelinking(relinker);
   }
-}
-
-void StageSequence::setProcessingOptions(const ProcessingOptions& options) {
-  m_deskewFilter->setProcessingOptions(options);
-  m_selectContentFilter->setProcessingOptions(options);
-  m_outputFilter->setProcessingOptions(options);
 }
 
 int StageSequence::findFilter(const FilterPtr& filter) const {

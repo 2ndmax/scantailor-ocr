@@ -29,9 +29,11 @@
 #include "Utils.h"
 
 namespace output {
-Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor)
-    : m_settings(std::make_shared<Settings>()), m_selectedPageOrder(0) {
-  m_optionsWidget.reset(new OptionsWidget(m_settings, pageSelectionAccessor));
+Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions)
+    : m_settings(std::make_shared<Settings>()),
+      m_selectedPageOrder(0),
+      m_processingOptions(std::move(processingOptions)) {
+  m_optionsWidget.reset(new OptionsWidget(m_settings, m_processingOptions, pageSelectionAccessor));
 
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByCompleteness = std::make_shared<OrderByCompletenessProvider>();
@@ -157,7 +159,7 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
     lastTab = m_optionsWidget->lastTab();
   }
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), m_settings,
-                                std::move(thumbnailCache), pageId, outFileNameGen, lastTab, m_processingOptions, batch,
+                                std::move(thumbnailCache), pageId, outFileNameGen, lastTab, *m_processingOptions, batch,
                                 debug);
 }
 
@@ -204,7 +206,7 @@ bool Filter::detectColorMode(const PageInfo& pageInfo,
     content.setDotsPerMeterX(dpm.horizontal());
     content.setDotsPerMeterY(dpm.vertical());
 
-    switch (ColorModeDetector::detect(content, m_processingOptions.colorDetection, status)) {
+    switch (ColorModeDetector::detect(content, m_processingOptions->colorDetection, status)) {
       case ColorModeDetector::Mode::BlackWhite:
         mode = BLACK_AND_WHITE;
         break;

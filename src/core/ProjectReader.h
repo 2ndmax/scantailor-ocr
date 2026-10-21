@@ -15,6 +15,7 @@
 #include "ImageInfo.h"
 #include "ImageMetadata.h"
 #include "PageId.h"
+#include "ProcessingOptions.h"
 #include "SelectedPage.h"
 
 class QDomElement;
@@ -31,6 +32,12 @@ class ProjectReader {
   ~ProjectReader();
 
   void readFilterSettings(const std::vector<FilterPtr>& filters) const;
+
+  /**
+   * The settings of the project that apply to all its pages. Projects from before they were
+   * stored, also those of ScanTailor Advanced, take the missing ones from \p fallback.
+   */
+  ProcessingOptions readProcessingOptions(const ProcessingOptions& fallback) const;
 
   bool success() const { return (m_pages != nullptr); }
 

@@ -22,6 +22,7 @@
 #include "Dpi.h"
 #include "Margins.h"
 #include "OrthogonalRotation.h"
+#include "ProcessingOptions.h"
 #include "Units.h"
 
 class DefaultParams {
@@ -276,6 +277,11 @@ class DefaultParams {
 
   void setUnits(Units units);
 
+  /** The settings that apply to a whole project; new projects start with them. */
+  const ProcessingOptions& getProcessingOptions() const { return m_processingOptions; }
+
+  void setProcessingOptions(const ProcessingOptions& options) { m_processingOptions = options; }
+
  private:
   FixOrientationParams m_fixOrientationParams;
   DeskewParams m_deskewParams;
@@ -284,6 +290,7 @@ class DefaultParams {
   PageLayoutParams m_pageLayoutParams;
   OutputParams m_outputParams;
   Units m_units;
+  ProcessingOptions m_processingOptions;
 };
 
 

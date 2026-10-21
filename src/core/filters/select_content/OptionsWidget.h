@@ -21,6 +21,8 @@
 #include "PhysSizeCalc.h"
 #include "ui_OptionsWidget.h"
 
+struct ProcessingOptions;
+
 namespace select_content {
 class Settings;
 
@@ -73,7 +75,9 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   };
 
 
-  OptionsWidget(std::shared_ptr<Settings> settings, const PageSelectionAccessor& pageSelectionAccessor);
+  OptionsWidget(std::shared_ptr<Settings> settings,
+                std::shared_ptr<ProcessingOptions> processingOptions,
+                const PageSelectionAccessor& pageSelectionAccessor);
 
   ~OptionsWidget() override;
 
@@ -129,6 +133,8 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   void setupUiConnections();
 
   std::shared_ptr<Settings> m_settings;
+  // The detection settings of the project.
+  std::shared_ptr<ProcessingOptions> m_processingOptions;
   UiData m_uiData;
   PageSelectionAccessor m_pageSelectionAccessor;
   PageId m_pageId;

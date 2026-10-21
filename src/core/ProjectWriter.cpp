@@ -17,6 +17,7 @@
 #include "PageId.h"
 #include "PageInfo.h"
 #include "PageView.h"
+#include "ProcessingOptions.h"
 #include "ProjectPages.h"
 #include "version.h"
 
@@ -85,7 +86,9 @@ static QString toRelativeIfPossible(const QString& projectDirPath, const QString
   return rel;
 }
 
-bool ProjectWriter::write(const QString& filePath, const std::vector<FilterPtr>& filters) const {
+bool ProjectWriter::write(const QString& filePath,
+                          const std::vector<FilterPtr>& filters,
+                          const ProcessingOptions& processingOptions) const {
   const QString projectDirPath(QFileInfo(filePath).absolutePath());
 
   QDomDocument doc;
@@ -101,6 +104,7 @@ bool ProjectWriter::write(const QString& filePath, const std::vector<FilterPtr>&
   rootEl.appendChild(processPages(doc));
   rootEl.appendChild(m_outFileNameGen.disambiguator()->toXml(
       doc, "file-name-disambiguation", std::bind(&ProjectWriter::packFilePath, this, std::placeholders::_1)));
+  rootEl.appendChild(processingOptions.toXml(doc, "processing-options"));
 
   QDomElement filtersEl(doc.createElement("filters"));
   rootEl.appendChild(filtersEl);

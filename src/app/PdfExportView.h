@@ -26,8 +26,11 @@ class QProgressBar;
 class QPushButton;
 class QSpinBox;
 class QThread;
+class OcrPanel;
+class PdfCompressionPanel;
 class PdfExportJob;
 class ThumbnailLoadResult;
+struct ProcessingOptions;
 
 /**
  * \brief The "Create PDF" step: picks, orders and combines the output files of the project into a PDF.
@@ -49,8 +52,11 @@ class PdfExportView : public QWidget {
 
   /**
    * \param thumbnailCache The cache that holds the thumbnails of the output files.
+   * \param processingOptions The settings of the project, which hold those of the PDF.
    */
-  explicit PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache, QWidget* parent = nullptr);
+  PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
+                std::shared_ptr<ProcessingOptions> processingOptions,
+                QWidget* parent = nullptr);
 
   ~PdfExportView() override;
 
@@ -96,11 +102,8 @@ class PdfExportView : public QWidget {
 
   void updateControls();
 
-  /** Stores the options as application settings. */
+  /** Stores the options in the project, and whether to open the PDF as an application setting. */
   void saveSettings();
-
-  /** Opens the dialog for downloading OCR languages. */
-  void downloadLanguages();
 
  private:
   class ThumbnailHandler;
@@ -185,19 +188,11 @@ class PdfExportView : public QWidget {
 
   int checkedCount() const;
 
-  /** The codes of the ticked OCR languages. */
-  QStringList checkedLanguages() const;
-
-  /** Lists the installed OCR languages and ticks those in \p checked. */
-  void fillLanguageList(const QStringList& checked);
-
-  /** Shows up to 8 languages; more can be scrolled. */
-  void updateLanguageListHeight();
-
   void setRunning(bool running);
 
   std::vector<Entry> m_entries;
   std::shared_ptr<ThumbnailPixmapCache> m_thumbnailCache;
+  std::shared_ptr<ProcessingOptions> m_processingOptions;
   std::vector<std::shared_ptr<ThumbnailPixmapCache::CompletionHandler>> m_thumbnailHandlers;
   /** Incremented by setPages(), so that thumbnails of earlier pages are ignored. */
   int m_generation = 0;
@@ -223,9 +218,10 @@ class PdfExportView : public QWidget {
   QPushButton* m_cancelButton = nullptr;
 
   std::unique_ptr<QWidget> m_optionsWidget;
+  PdfCompressionPanel* m_compressionPanel = nullptr;
+  // The fields of the compression panel, for the Quality panel.
   QComboBox* m_colorCompression = nullptr;
   QSpinBox* m_colorQuality = nullptr;
-  QComboBox* m_backgroundScale = nullptr;
   QComboBox* m_paletteCompression = nullptr;
   QSpinBox* m_paletteQuality = nullptr;
   QComboBox* m_bitonalCompression = nullptr;
@@ -239,13 +235,8 @@ class PdfExportView : public QWidget {
   QLabel* m_tiffWarning = nullptr;
   QLabel* m_pdfWarning = nullptr;
   QCheckBox* m_openAfterCreation = nullptr;
-  /** The OCR options; these stay null in builds without OCR. */
-  QCheckBox* m_ocrEnabled = nullptr;
-  /** Languages and text layout, greyed out while text recognition is off. */
-  QWidget* m_ocrOptions = nullptr;
-  QListWidget* m_languageList = nullptr;
-  QLabel* m_noLanguagesLabel = nullptr;
-  QComboBox* m_pageLayout = nullptr;
+  /** The OCR options; null in builds without OCR. */
+  OcrPanel* m_ocrPanel = nullptr;
 
   /** Set once the user has typed or chosen a file; setDefaultFile() doesn't replace it then. */
   bool m_fileChosen = false;

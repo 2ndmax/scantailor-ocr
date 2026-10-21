@@ -480,6 +480,10 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
 
   // Recreate the stages and load their state.
   m_stages = std::make_shared<StageSequence>(pages, newPageSelectionAccessor());
+  // New projects start with the default parameters; older projects take what they lack from them.
+  const ProcessingOptions defaultOptions = DefaultParamsProvider::getInstance().getParams().getProcessingOptions();
+  *m_stages->processingOptions()
+      = projectReader ? projectReader->readProcessingOptions(defaultOptions) : defaultOptions;
   if (projectReader) {
     projectReader->readFilterSettings(m_stages->filters());
   }
@@ -1567,7 +1571,6 @@ void MainWindow::colorModeDetectionRequested(const std::set<PageId>& pages) {
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(0);
 
-  m_stages->setProcessingOptions(ApplicationSettings::getInstance().getProcessingOptions());
   const NullTaskStatus status;
   int bw = 0, color = 0, mixed = 0, skipped = 0, failed = 0;
   bool cancelled = false;
@@ -1678,7 +1681,7 @@ void MainWindow::enterPdfStage() {
   m_pdfStage = true;
   setPageNavigationEnabled(false);
   if (!m_pdfView) {
-    m_pdfView = std::make_unique<PdfExportView>(m_thumbnailCache);
+    m_pdfView = std::make_unique<PdfExportView>(m_thumbnailCache, m_stages->processingOptions());
     connect(m_pdfView.get(), &PdfExportView::runningChanged, this, &MainWindow::pdfExportRunningChanged);
   }
   // The output files may have changed since the PDF step was last shown.
@@ -2153,7 +2156,7 @@ bool MainWindow::closeProjectInteractive() {
 
   ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
 
-  if (!writer.write(backupFilePath, m_stages->filters())) {
+  if (!writer.write(backupFilePath, m_stages->filters(), *m_stages->processingOptions())) {
     // Backup file could not be written???
     QFile::remove(backupFilePath);
     switch (promptProjectSave()) {
@@ -2205,7 +2208,7 @@ void MainWindow::closeProjectWithoutSaving() {
 bool MainWindow::saveProjectWithFeedback(const QString& projectFile) {
   ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
 
-  if (!writer.write(projectFile, m_stages->filters())) {
+  if (!writer.write(projectFile, m_stages->filters(), *m_stages->processingOptions())) {
     QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
     return false;
   }
@@ -2887,9 +2890,6 @@ BackgroundTaskPtr MainWindow::createCompositeTask(const PageInfo& page,
   if (batch) {
     debug = false;
   }
-
-  // The tasks take a copy, so a running batch keeps the values it was started with.
-  m_stages->setProcessingOptions(ApplicationSettings::getInstance().getProcessingOptions());
 
   if (lastFilterIdx >= m_stages->outputFilterIdx()) {
     outputTask = m_stages->outputFilter()->createTask(page.id(), m_thumbnailCache, m_outFileNameGen, batch, debug);

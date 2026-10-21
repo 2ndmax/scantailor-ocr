@@ -30,6 +30,9 @@
 #include "Params.h"
 #include "ui_OptionsWidget.h"
 
+struct ProcessingOptions;
+class TiffCompressionPanel;
+
 namespace dewarping {
 class DistortionModel;
 }
@@ -40,7 +43,9 @@ class Settings;
 class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   Q_OBJECT
  public:
-  OptionsWidget(std::shared_ptr<Settings> settings, const PageSelectionAccessor& pageSelectionAccessor);
+  OptionsWidget(std::shared_ptr<Settings> settings,
+                std::shared_ptr<ProcessingOptions> processingOptions,
+                const PageSelectionAccessor& pageSelectionAccessor);
 
   ~OptionsWidget() override;
 
@@ -293,6 +298,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   void tiffCompressionChanged(bool delayReload);
 
   std::shared_ptr<Settings> m_settings;
+  // The TIFF compression and the color mode detection of the project.
+  std::shared_ptr<ProcessingOptions> m_processingOptions;
   PageSelectionAccessor m_pageSelectionAccessor;
   PageId m_pageId;
   Dpi m_outputDpi;
@@ -317,10 +324,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   std::array<PhotoAdjustmentRow, PHOTO_ADJUSTMENT_COUNT> m_photoAdjustmentRows;
 
   ConnectionManager m_connectionManager;
-  QComboBox* m_tiffColorCompression = nullptr;
-  QSpinBox* m_tiffJpegQuality = nullptr;
-  QComboBox* m_tiffPaletteCompression = nullptr;
-  QComboBox* m_tiffBwCompression = nullptr;
+  TiffCompressionPanel* m_tiffCompressionPanel = nullptr;
 };
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_OPTIONSWIDGET_H_

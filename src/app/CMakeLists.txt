@@ -32,6 +32,8 @@ set(gui_only_sources
     StatusBarPanel.cpp StatusBarPanel.h
     DefaultParamsDialog.cpp DefaultParamsDialog.h
     PdfExportView.cpp PdfExportView.h
+    PdfCompressionPanel.cpp PdfCompressionPanel.h
+    OcrPanel.cpp OcrPanel.h
     TessdataDownloadDialog.cpp TessdataDownloadDialog.h)
 
 set(gui_only_ui_files

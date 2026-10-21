@@ -216,7 +216,7 @@
    <item>
     <widget class="CollapsibleGroupBox" name="colorDetectionPanel">
      <property name="toolTip">
-      <string>Detects the color mode of pages. The settings apply to all projects.</string>
+      <string>Detects the color mode of pages. The settings apply to the whole project.</string>
      </property>
      <property name="title">
       <string>Color Mode Detection</string>

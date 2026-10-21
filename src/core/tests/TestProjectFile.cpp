@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_empty_project_keeps_input_dir) {
   const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(),
                                        QDir(inputDir).absoluteFilePath("out"), Qt::LeftToRight);
   const ProjectWriter writer(pages, SelectedPage(), outGen, inputDir);
-  BOOST_REQUIRE(writer.write(projectFile, {}));
+  BOOST_REQUIRE(writer.write(projectFile, {}, ProcessingOptions()));
 
   const ProjectReader reader(readDocument(projectFile), projectFile);
   BOOST_REQUIRE(reader.success());
@@ -59,6 +59,73 @@ BOOST_AUTO_TEST_CASE(test_empty_project_keeps_input_dir) {
   // The folder of the project file is stored as "."; the path must not end in "/." then,
   // because image paths are compared as text (e.g. after the Fix DPI dialog).
   BOOST_CHECK(reader.directories().front() == inputDir);
+}
+
+BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
+  QTemporaryDir tempDir;
+  BOOST_REQUIRE(tempDir.isValid());
+  const QString projectFile = QDir(tempDir.path()).absoluteFilePath("Buch.ScanTailor");
+
+  ProcessingOptions options;
+  options.tiffCompression = {COMPRESSION_LZW, COMPRESSION_JPEG, 70, COMPRESSION_DEFLATE};
+  options.contentDetection = select_content::DetectionOptions(80, 20, true);
+  options.colorDetection.minColorShare = 0.07;
+  options.colorDetection.usePictureZones = true;
+  options.colorDetection.minPictureShare = 0.12;
+  options.blackOnWhiteDetection = false;
+  options.blackOnWhiteAtOutput = false;
+  options.pdf.colorCompression = PdfCompression::JPEG2000;
+  options.pdf.colorQuality = 60;
+  options.pdf.backgroundScale = 3;
+  options.pdf.paletteCompression = PdfCompression::NONE;
+  options.pdf.paletteQuality = 50;
+  options.pdf.bitonalCompression = PdfCompression::CCITT_G4;
+  options.pdf.ocr = false;
+  options.pdf.ocrLanguages = QStringList{"fra", "lat"};
+  options.pdf.ocrPageLayout = 2;
+
+  auto pages = std::make_shared<ProjectPages>();
+  const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(), tempDir.path(), Qt::LeftToRight);
+  BOOST_REQUIRE(ProjectWriter(pages, SelectedPage(), outGen, tempDir.path()).write(projectFile, {}, options));
+
+  const ProjectReader reader(readDocument(projectFile), projectFile);
+  BOOST_REQUIRE(reader.success());
+  // The fallback must not show through.
+  const ProcessingOptions read = reader.readProcessingOptions(ProcessingOptions());
+  BOOST_CHECK_EQUAL(read.tiffCompression.bw, COMPRESSION_LZW);
+  BOOST_CHECK_EQUAL(read.tiffCompression.color, COMPRESSION_JPEG);
+  BOOST_CHECK_EQUAL(read.tiffCompression.jpegQuality, 70);
+  BOOST_CHECK_EQUAL(read.tiffCompression.palette, COMPRESSION_DEFLATE);
+  BOOST_CHECK(read.contentDetection == options.contentDetection);
+  BOOST_CHECK(read.colorDetection == options.colorDetection);
+  BOOST_CHECK(!read.blackOnWhiteDetection);
+  BOOST_CHECK(!read.blackOnWhiteAtOutput);
+  BOOST_CHECK(read.pdf.colorCompression == PdfCompression::JPEG2000);
+  BOOST_CHECK_EQUAL(read.pdf.colorQuality, 60);
+  BOOST_CHECK_EQUAL(read.pdf.backgroundScale, 3);
+  BOOST_CHECK(read.pdf.paletteCompression == PdfCompression::NONE);
+  BOOST_CHECK_EQUAL(read.pdf.paletteQuality, 50);
+  BOOST_CHECK(read.pdf.bitonalCompression == PdfCompression::CCITT_G4);
+  BOOST_CHECK(!read.pdf.ocr);
+  BOOST_CHECK(read.pdf.ocrLanguages == (QStringList{"fra", "lat"}));
+  BOOST_CHECK_EQUAL(read.pdf.ocrPageLayout, 2);
+}
+
+BOOST_AUTO_TEST_CASE(test_projects_without_processing_options_take_the_fallback) {
+  // As a project of ScanTailor Advanced or from before these settings were stored.
+  const QDomDocument doc = parse(QStringLiteral("<project version=\"10\"/>"));
+  const ProjectReader reader(doc);
+
+  ProcessingOptions fallback;
+  fallback.tiffCompression.color = COMPRESSION_JPEG;
+  fallback.contentDetection = select_content::DetectionOptions(90, 50, true);
+  fallback.blackOnWhiteAtOutput = false;
+  fallback.pdf.ocrLanguages = QStringList{"ita"};
+  const ProcessingOptions read = reader.readProcessingOptions(fallback);
+  BOOST_CHECK_EQUAL(read.tiffCompression.color, COMPRESSION_JPEG);
+  BOOST_CHECK(read.contentDetection == fallback.contentDetection);
+  BOOST_CHECK(!read.blackOnWhiteAtOutput);
+  BOOST_CHECK(read.pdf.ocrLanguages == QStringList{"ita"});
 }
 
 BOOST_AUTO_TEST_CASE(test_metadata_update_keeps_pages_of_multi_page_files) {

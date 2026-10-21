@@ -33,7 +33,9 @@ DefaultParams::DefaultParams(const QDomElement& el)
       m_selectContentParams(el.namedItem("select-content-params").toElement()),
       m_pageLayoutParams(el.namedItem("page-layout-params").toElement()),
       m_outputParams(el.namedItem("output-params").toElement()),
-      m_units(unitsFromString(el.attribute("units"))) {}
+      m_units(unitsFromString(el.attribute("units"))),
+      // Profiles from before these settings have none: the built-in defaults.
+      m_processingOptions(el.namedItem("processing-options").toElement(), ProcessingOptions()) {}
 
 QDomElement DefaultParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
@@ -43,6 +45,7 @@ QDomElement DefaultParams::toXml(QDomDocument& doc, const QString& name) const {
   el.appendChild(m_selectContentParams.toXml(doc, "select-content-params"));
   el.appendChild(m_pageLayoutParams.toXml(doc, "page-layout-params"));
   el.appendChild(m_outputParams.toXml(doc, "output-params"));
+  el.appendChild(m_processingOptions.toXml(doc, "processing-options"));
   el.setAttribute("units", unitsToString(m_units));
   return el;
 }

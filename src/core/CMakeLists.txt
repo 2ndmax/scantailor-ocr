@@ -49,7 +49,7 @@ set(common_sources
     Jp2Reader.cpp Jp2Reader.h
     Jp2MetadataLoader.cpp Jp2MetadataLoader.h
     TiffWriter.cpp TiffWriter.h
-    ProcessingOptions.h
+    ProcessingOptions.cpp ProcessingOptions.h
     PngMetadataLoader.cpp PngMetadataLoader.h
     TiffMetadataLoader.cpp TiffMetadataLoader.h
     JpegMetadataLoader.cpp JpegMetadataLoader.h
@@ -110,6 +110,7 @@ set(common_sources
     SkinnedButton.cpp SkinnedButton.h
     CollapsibleGroupBox.cpp CollapsibleGroupBox.h
     SectionHeading.cpp SectionHeading.h
+    TiffCompressionPanel.cpp TiffCompressionPanel.h
     PageScopeGroupBox.cpp PageScopeGroupBox.h
     ColorSchemeFactory.cpp ColorSchemeFactory.h
     ApplicationSettings.cpp ApplicationSettings.h

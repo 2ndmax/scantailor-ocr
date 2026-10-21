@@ -35,7 +35,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(deskew::Filter)
  public:
-  explicit Filter(const PageSelectionAccessor& pageSelectionAccessor);
+  Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions);
 
   ~Filter() override;
 
@@ -68,9 +68,6 @@ class Filter : public AbstractFilter {
 
   void selectPageOrder(int option) override;
 
-  /** For the tasks created from now on. */
-  void setProcessingOptions(const ProcessingOptions& options) { m_processingOptions = options; }
-
  private:
   void writeParams(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
@@ -85,7 +82,7 @@ class Filter : public AbstractFilter {
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
-  ProcessingOptions m_processingOptions;
+  std::shared_ptr<ProcessingOptions> m_processingOptions;
 };
 }  // namespace deskew
 #endif  // ifndef SCANTAILOR_DESKEW_FILTER_H_

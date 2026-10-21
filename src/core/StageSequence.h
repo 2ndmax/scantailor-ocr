@@ -33,8 +33,11 @@ class StageSequence {
 
   void performRelinking(const AbstractRelinker& relinker);
 
-  /** Hands the settings outside the project to the stages that use them, for the tasks created from now on. */
-  void setProcessingOptions(const ProcessingOptions& options);
+  /**
+   * The settings of the project that apply to all its pages, shared with the steps that use them.
+   * Changes apply to the tasks created afterwards.
+   */
+  const std::shared_ptr<ProcessingOptions>& processingOptions() const { return m_processingOptions; }
 
   const std::vector<FilterPtr>& filters() const { return m_filters; }
 
@@ -69,6 +72,8 @@ class StageSequence {
   int outputFilterIdx() const { return m_outputFilterIdx; }
 
  private:
+  // Before the filters, which get it when they are created.
+  std::shared_ptr<ProcessingOptions> m_processingOptions;
   std::shared_ptr<fix_orientation::Filter> m_fixOrientationFilter;
   std::shared_ptr<page_split::Filter> m_pageSplitFilter;
   std::shared_ptr<deskew::Filter> m_deskewFilter;

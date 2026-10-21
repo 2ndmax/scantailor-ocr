@@ -117,7 +117,7 @@ void TestCoreQt::testPageSplitKeepsLayoutTypeWithoutParams() {
   auto pages = std::make_shared<ProjectPages>(
       std::vector<ImageInfo>{ImageInfo(ImageId(dir.absoluteFilePath("scan.png"), 0), metadata, 1, false, false)},
       Qt::LeftToRight);
-  QVERIFY(ProjectWriter(pages, SelectedPage(), outGen).write(firstFile, {}));
+  QVERIFY(ProjectWriter(pages, SelectedPage(), outGen).write(firstFile, {}, ProcessingOptions()));
 
   QDomDocument doc = readDocument(firstFile);
   QDomElement projectEl = doc.documentElement();
@@ -140,7 +140,7 @@ void TestCoreQt::testPageSplitKeepsLayoutTypeWithoutParams() {
   QVERIFY(reader.success());
   auto filter = std::make_shared<page_split::Filter>(reader.pages(), PageSelectionAccessor(nullptr));
   reader.readFilterSettings({filter});
-  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), outGen).write(secondFile, {filter}));
+  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), outGen).write(secondFile, {filter}, ProcessingOptions()));
 
   const QDomElement savedEl = readDocument(secondFile)
                                   .documentElement()
@@ -166,7 +166,7 @@ void TestCoreQt::testOutputDisplayKeepsColorEqualization() {
   colorParams.setColorCommonOptions(colorCommonOptions);
   settings->setColorParams(page, colorParams);
 
-  output::OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
   widget.preUpdateUI(page);
 
   QVERIFY(settings->getParams(page).colorParams().colorCommonOptions().normalizeIllumination());
@@ -188,7 +188,7 @@ void TestCoreQt::testOutputDpiChangeUpdatesDewarpingMode() {
   settings->setDistortionModel(page, model);
   settings->setDewarpingOptions(page, output::DewarpingOptions(output::AUTO));
 
-  output::OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
   widget.preUpdateUI(page);
 
   auto* dpiSelector = widget.findChild<QComboBox*>("dpiSelector");
@@ -211,7 +211,7 @@ void TestCoreQt::testOutputPageSwitchDropsDelayedReload() {
   const PageId first(ImageId("first.png"));
   const PageId second(ImageId("second.png"));
 
-  output::OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
   widget.preUpdateUI(first);
 
   QSignalSpy reloadSpy(&widget, &FilterOptionsWidget::reloadRequested);
@@ -236,7 +236,7 @@ void TestCoreQt::testOutputPageSwitchRedoesPreviousThumbnail() {
   const PageId first(ImageId("first.png"));
   const PageId second(ImageId("second.png"));
 
-  output::OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
   QSignalSpy thumbnailSpy(&widget, qOverload<const PageId&>(&FilterOptionsWidget::invalidateThumbnail));
 
   widget.preUpdateUI(first);
