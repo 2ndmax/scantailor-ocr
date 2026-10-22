@@ -112,10 +112,14 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   // has its own row, so that its width doesn't move the fields of the settings.
   colorReductionChoiceLayout->setSpacing(segmenterChannelsLayout->horizontalSpacing());
   colorReductionLayout->setHorizontalSpacing(segmenterChannelsLayout->horizontalSpacing());
-  // Percent fields are as wide as "1000 %".
-  for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox, fillFactorSpinBox, borderToleranceSpinBox,
-                            pictureShapeSensitivitySB, colorDetectionMinColorSB, colorDetectionMinPictureSB}) {
+  // Percent fields are as wide as "100 %", the limits of the output size as "1000 %", the highest
+  // enlargement.
+  for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox}) {
     Utils::setNumberFieldWidth(spinBox, 1000);
+  }
+  for (QSpinBox* spinBox : {fillFactorSpinBox, borderToleranceSpinBox, pictureShapeSensitivitySB,
+                            colorDetectionMinColorSB, colorDetectionMinPictureSB}) {
+    Utils::setNumberFieldWidth(spinBox, 100);
   }
   // Pixel fields of the filters are as wide as "999 px", fields without a unit as "-100".
   for (QSpinBox* spinBox : {chromaRadius, subtractBgRadius, knnRadius, wienerWindowSize, sharpenRadius,
@@ -1178,9 +1182,10 @@ void DefaultParamsDialog::updateUnits(const Units units) {
     spinBox->setSingleStep(coarse ? 1.0 : 0.01);
     spinBox->setSuffix(unitSuffix);
   }
-  // As in the side bars: three digits before the decimal point, sizes in pixels four.
-  const double widestMargin = coarse ? 999.9 : 99.99;
-  const double widestSize = (units == PIXELS) ? 9999.9 : widestMargin;
+  // As in the side bars: sizes with three digits before the decimal point, in pixels four; margins
+  // up to 99.9 mm (9.99 cm or in).
+  const double widestMargin = (units == PIXELS) ? 999.9 : (units == MILLIMETRES) ? 99.9 : 9.99;
+  const double widestSize = (units == PIXELS) ? 9999.9 : coarse ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
     Utils::setNumberFieldWidth(spinBox, widestMargin);
   }

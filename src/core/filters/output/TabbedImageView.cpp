@@ -17,7 +17,7 @@ using namespace core;
 namespace output {
 TabbedImageView::TabbedImageView(QWidget* parent) : QTabWidget(parent), m_prevImageViewTabIndex(0) {
   connect(this, &TabbedImageView::currentChanged, this, &TabbedImageView::tabChangedSlot);
-  setStatusTip(tr("Use Ctrl+1...5 to switch the tabs."));
+  setStatusTip(tr("Use Ctrl+1 to Ctrl+5 to switch the tabs."));
 
   m_tabShortcuts[0] = new QShortcut(Qt::CTRL | Qt::Key_1, this);
   m_tabShortcuts[1] = new QShortcut(Qt::CTRL | Qt::Key_2, this);

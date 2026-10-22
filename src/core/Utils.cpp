@@ -9,10 +9,13 @@
 #include <QFileInfo>
 #include <QFontMetrics>
 #include <QGridLayout>
+#include <QLineEdit>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QSpinBox>
 #include <QStyle>
+#include <QStyleOptionComboBox>
+#include <QStyleOptionFrame>
 #include <QStyleOptionSpinBox>
 #include <QTextDocument>
 #include <QWidget>
@@ -134,21 +137,41 @@ int Utils::dpiFromText(const QString& text, bool* ok) {
   return match.captured().toInt(ok);
 }
 
-void Utils::setDpiFieldWidth(QComboBox* field) {
-  // The size hint of an editable list leaves out the padding the style sheets give its text field,
-  // so the longest entry would be cut off by a few pixels. A fixed width doesn't help, as the
-  // style sheet's min-width replaces the minimum width again. Instead the size hint is enlarged:
-  // a minimum contents length (counted in widths of "X") covering the longest entry plus about
-  // two thirds of a digit.
-  const QFontMetrics metrics(field->fontMetrics());
-  int widest = 0;
-  for (int i = 0; i < field->count(); ++i) {
-    widest = std::max(widest, metrics.horizontalAdvance(field->itemText(i)));
+namespace {
+/// The width of the text field of a number field or an editable list that shows the given text:
+/// the text with the text field's margins of 2 pixels on each side and 2 pixels for the cursor.
+/// Some styles, such as the Windows 11 style, also draw the text with padding inside the text
+/// field; it is measured as QLineEdit::paintEvent() places the text, so the last character isn't
+/// cut off.
+int textFieldWidth(const QWidget* field, QLineEdit* edit, const QString& text) {
+  const int width = field->fontMetrics().horizontalAdvance(text) + 6;
+  if (!edit) {
+    return width;
   }
-  widest += (2 * metrics.horizontalAdvance(QLatin1Char('0')) + 2) / 3;
-  const int charWidth = std::max(1, metrics.horizontalAdvance(QLatin1Char('X')));
-  field->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-  field->setMinimumContentsLength((widest + charWidth - 1) / charWidth);
+  edit->ensurePolished();
+  QStyleOptionFrame frame;
+  frame.initFrom(edit);
+  frame.lineWidth = edit->hasFrame() ? edit->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &frame, edit) : 0;
+  const QRect contents = edit->style()->subElementRect(QStyle::SE_LineEditContents, &frame, edit);
+  const QMargins margins = edit->textMargins();
+  return width + std::max(0, frame.rect.width() - contents.width() + margins.left() + margins.right());
+}
+}  // namespace
+
+void Utils::setDpiFieldWidth(QComboBox* field) {
+  // As wide as three digits, such as "600 dpi"; four digits can still be typed in, and the list
+  // itself is as wide as its entries. The style's size hint is far wider than needed, so the
+  // space taken by the frame, the padding and the arrow is measured, as for number fields. The
+  // style sheets' min-width of lists is smaller, so it doesn't undo the width.
+  field->ensurePolished();
+  QStyleOptionComboBox option;
+  option.initFrom(field);
+  option.editable = field->isEditable();
+  option.frame = field->hasFrame();
+  const QRect editField
+      = field->style()->subControlRect(QStyle::CC_ComboBox, &option, QStyle::SC_ComboBoxEditField, field);
+  const int overhead = option.rect.width() - editField.width();
+  field->setFixedWidth(textFieldWidth(field, field->lineEdit(), dpiText(999)) + overhead);
 }
 
 void Utils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValue, const int decimals) {
@@ -163,6 +186,8 @@ void Utils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValu
     prefix = intBox->prefix();
     suffix = intBox->suffix();
   }
+  // Usually called before the field is shown: the style sets its font and margins on polishing.
+  field->ensurePolished();
   QLocale locale = field->locale();
   locale.setNumberOptions(locale.numberOptions() | QLocale::OmitGroupSeparator);
   const QString text = prefix + locale.toString(widestValue, 'f', (decimals >= 0) ? decimals : fieldDecimals) + suffix;
@@ -175,12 +200,11 @@ void Utils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValu
   }
   option.frame = field->hasFrame();
   // The style's size hint is far wider than needed. Instead the space taken by the frame, the
-  // padding and the arrows is measured, and the text is added with the text field's margins of
-  // 2 pixels on each side and 2 pixels for the cursor.
+  // padding and the arrows is measured, and the text field is added.
   const QRect editField
       = field->style()->subControlRect(QStyle::CC_SpinBox, &option, QStyle::SC_SpinBoxEditField, field);
   const int overhead = option.rect.width() - editField.width();
-  field->setFixedWidth(field->fontMetrics().horizontalAdvance(text) + 6 + overhead);
+  field->setFixedWidth(textFieldWidth(field, field->findChild<QLineEdit*>(), text) + overhead);
 }
 
 void Utils::alignLabelColumns(const QList<QGridLayout*>& grids, const int column) {

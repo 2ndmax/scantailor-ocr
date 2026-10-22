@@ -60,9 +60,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
       m_lastTab(TAB_OUTPUT),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
-  // Percent fields are as wide as "1000 %", as in the step "Margins".
+  // Percent fields are as wide as "100 %", their highest value.
   for (QSpinBox* spinBox : {colorDetectionMinColorSB, colorDetectionMinPictureSB, pictureShapeSensitivitySB}) {
-    core::Utils::setNumberFieldWidth(spinBox, 1000);
+    core::Utils::setNumberFieldWidth(spinBox, 100);
   }
   // Pixel fields of the filters are as wide as "999 px", fields without a unit as "-100".
   for (QSpinBox* spinBox : {chromaRadius, subtractBgRadius, knnRadius, wienerWindowSize, sharpenRadius}) {

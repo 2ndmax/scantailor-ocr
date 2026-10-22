@@ -80,7 +80,7 @@ class Utils {
   /// Accepts up to four digits, optionally followed by "dpi".
   static QValidator* createDpiValidator(QObject* parent);
 
-  /// Makes an editable list of resolutions wide enough for its longest entry, e.g. "1200 dpi".
+  /// Makes an editable list of resolutions as wide as three digits, e.g. "600 dpi"; four can still be typed in.
   static void setDpiFieldWidth(QComboBox* field);
 
   /// Makes a number field as wide as the given value with the field's decimals, prefix and suffix,

@@ -119,7 +119,7 @@ topic, not by version.
   is completely written. The project is saved after each scan. Importing is off when a project
   is opened; images already in the folder can be chosen once when it is switched on.
 * **Insert after selected page:** each new scan is inserted after the previous one and renamed
-  `<anchor name>_<scan name>.tif`. **Replace selected page with next scan:** the next scan takes
+  `<anchor name>_<scan name>.tif`. **Replace selected page:** the next scan takes
   the place of the selected page(s), its settings and output files are dropped, and the old
   image is moved to a folder `replaced`.
 * Scans arriving during batch processing or PDF creation are added afterwards. Scans without DPI

@@ -6,6 +6,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QDir>
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -41,6 +42,8 @@ AutoImportPanel::AutoImportPanel(QWidget* parent) : QWidget(parent) {
   m_dirLabel = new QLabel;
   // Long paths are shortened at the front instead of widening the panel.
   m_dirLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+  // Shortened on its own resize: when the panel is shown, the label gets its width after the panel.
+  m_dirLabel->installEventFilter(this);
   groupLayout->addWidget(m_dirLabel);
 
   m_appendMode = new QRadioButton(tr("Add at the end"));
@@ -103,8 +106,7 @@ void AutoImportPanel::setInsertingPossible(const bool possible) {
 
 void AutoImportPanel::setReplaceSelection(const int count, const bool contiguous) {
   // The number shows when more than one page would be replaced, e.g. selected by mistake.
-  m_replaceMode->setText((count > 1) ? tr("Replace selected pages (%n) with next scan", "", count)
-                                     : tr("Replace selected page with next scan"));
+  m_replaceMode->setText((count > 1) ? tr("Replace selected pages (%n)", "", count) : tr("Replace selected page"));
   m_replaceMode->setToolTip(
       contiguous ? tr("The next scan takes the place of the selected pages and is named after the first of them; "
                       "for a two-page scan, both pages are replaced. The old images are moved to the folder "
@@ -151,9 +153,11 @@ void AutoImportPanel::setScansWithoutDpi(const int count) {
   m_noDpiLabel->setVisible(count > 0);
 }
 
-void AutoImportPanel::resizeEvent(QResizeEvent* event) {
-  QWidget::resizeEvent(event);
-  updateDirectoryLabel();
+bool AutoImportPanel::eventFilter(QObject* watched, QEvent* event) {
+  if ((watched == m_dirLabel) && (event->type() == QEvent::Resize)) {
+    updateDirectoryLabel();
+  }
+  return QWidget::eventFilter(watched, event);
 }
 
 void AutoImportPanel::updateDirectoryLabel() {

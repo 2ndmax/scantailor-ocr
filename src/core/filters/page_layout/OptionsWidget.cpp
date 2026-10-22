@@ -33,7 +33,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
       m_topBottomLinked(true),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
-  // Both limits are as wide as "1000 %".
+  // Both limits are as wide as "1000 %", the highest enlargement; other percent fields as "100 %".
   for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox}) {
     core::Utils::setNumberFieldWidth(spinBox, 1000);
   }
@@ -172,8 +172,9 @@ void OptionsWidget::onUnitsChanged(Units units) {
 
   int decimals;
   double step;
-  // The values the fields show well: three digits before the decimal point and one after, pixels
-  // of the size one more, as an A4 page at 300 dpi has 3508 pixels. Larger values still fit.
+  // The values the fields show well: sizes with three digits before the decimal point and one
+  // after, in pixels one more, as an A4 page at 300 dpi has 3508 pixels; margins up to 99.9 mm
+  // (9.99 cm or in). Larger values still fit.
   double widestMargin;
   double widestSize;
   switch (units) {
@@ -186,13 +187,13 @@ void OptionsWidget::onUnitsChanged(Units units) {
     case MILLIMETRES:
       decimals = 1;
       step = 1.0;
-      widestMargin = 999.9;
+      widestMargin = 99.9;
       widestSize = 999.9;
       break;
     default:
       decimals = 2;
       step = 0.01;
-      widestMargin = 99.99;
+      widestMargin = 9.99;
       widestSize = 99.99;
       break;
   }
