@@ -584,13 +584,13 @@
             <number>0</number>
            </property>
            <property name="topMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <property name="rightMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <property name="bottomMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <item>
             <widget class="QCheckBox" name="equalizeIlluminationCB">
@@ -682,13 +682,13 @@
               <number>0</number>
              </property>
              <property name="topMargin">
-              <number>5</number>
+              <number>4</number>
              </property>
              <property name="rightMargin">
-              <number>5</number>
+              <number>4</number>
              </property>
              <property name="bottomMargin">
-              <number>5</number>
+              <number>4</number>
              </property>
              <item>
               <widget class="QCheckBox" name="chromaCB">
@@ -1258,10 +1258,10 @@
             <number>2</number>
            </property>
            <property name="topMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <property name="bottomMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <item>
             <widget class="QCheckBox" name="fillOffcutCB">
@@ -1507,10 +1507,10 @@
             <number>2</number>
            </property>
            <property name="topMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <property name="bottomMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <item>
             <widget class="QCheckBox" name="savitzkyGolaySmoothingCB">
@@ -1582,13 +1582,13 @@
             <number>0</number>
            </property>
            <property name="topMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <property name="rightMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <property name="bottomMargin">
-            <number>5</number>
+            <number>4</number>
            </property>
            <item>
             <widget class="QCheckBox" name="colorSegmentationCB">
@@ -2209,7 +2209,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
        <number>15</number>
       </property>
       <property name="topMargin">
-       <number>9</number>
+       <number>8</number>
       </property>
       <property name="rightMargin">
        <number>15</number>
@@ -2634,7 +2634,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
        <number>15</number>
       </property>
       <property name="topMargin">
-       <number>9</number>
+       <number>8</number>
       </property>
       <property name="rightMargin">
        <number>15</number>

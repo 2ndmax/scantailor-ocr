@@ -126,13 +126,13 @@
         <number>0</number>
        </property>
        <property name="topMargin">
-        <number>9</number>
+        <number>8</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>4</number>
        </property>
        <item>
         <widget class="QScrollArea" name="scrollArea_2">
@@ -317,13 +317,13 @@
         <number>0</number>
        </property>
        <property name="topMargin">
-        <number>9</number>
+        <number>8</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>4</number>
        </property>
        <item>
         <widget class="QScrollArea" name="scrollArea">
@@ -721,13 +721,13 @@
         <number>0</number>
        </property>
        <property name="topMargin">
-        <number>9</number>
+        <number>8</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>4</number>
        </property>
        <item>
         <widget class="QScrollArea" name="scrollArea_3">
@@ -985,13 +985,13 @@
         <number>0</number>
        </property>
        <property name="topMargin">
-        <number>9</number>
+        <number>8</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>4</number>
        </property>
        <item>
         <widget class="QScrollArea" name="scrollArea_4">
@@ -1426,7 +1426,7 @@
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>4</number>
        </property>
        <item>
         <widget class="QScrollArea" name="scrollArea_5">
@@ -2294,13 +2294,13 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <number>0</number>
        </property>
        <property name="topMargin">
-        <number>9</number>
+        <number>8</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>4</number>
        </property>
        <item>
         <widget class="QScrollArea" name="scrollArea_6">
@@ -2332,7 +2332,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
              </property>
              <layout class="QGridLayout" name="gridLayout_13">
               <property name="horizontalSpacing">
-               <number>18</number>
+               <number>16</number>
               </property>
               <item row="1" column="0">
                <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -2492,13 +2492,13 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                         <number>0</number>
                        </property>
                        <property name="topMargin">
-                        <number>5</number>
+                        <number>4</number>
                        </property>
                        <property name="rightMargin">
-                        <number>5</number>
+                        <number>4</number>
                        </property>
                        <property name="bottomMargin">
-                        <number>5</number>
+                        <number>4</number>
                        </property>
                        <item>
                         <widget class="QCheckBox" name="equalizeIlluminationCB">
@@ -3659,10 +3659,10 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                       <number>2</number>
                      </property>
                      <property name="topMargin">
-                      <number>5</number>
+                      <number>4</number>
                      </property>
                      <property name="bottomMargin">
-                      <number>5</number>
+                      <number>4</number>
                      </property>
                      <item>
                       <widget class="QCheckBox" name="fillOffcutCB">
@@ -4173,10 +4173,10 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                       <number>2</number>
                      </property>
                      <property name="topMargin">
-                      <number>5</number>
+                      <number>4</number>
                      </property>
                      <property name="bottomMargin">
-                      <number>5</number>
+                      <number>4</number>
                      </property>
                      <item>
                       <widget class="QCheckBox" name="savitzkyGolaySmoothingCB">

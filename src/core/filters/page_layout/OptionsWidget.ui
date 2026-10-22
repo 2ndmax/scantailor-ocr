@@ -795,10 +795,10 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="topMargin">
-       <number>9</number>
+       <number>8</number>
       </property>
       <property name="rightMargin">
-       <number>9</number>
+       <number>8</number>
       </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_9">
