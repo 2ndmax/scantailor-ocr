@@ -29,6 +29,7 @@
 #include "AutoImportPanel.h"
 #include "AutoRemovingFile.h"
 #include "BasicImageView.h"
+#include "CompositeCacheDrivenTask.h"
 #include "ContentBoxPropagator.h"
 #include "DebugImageView.h"
 #include "DebugImages.h"
@@ -42,7 +43,6 @@
 #include "ImageLoadErrors.h"
 #include "ImageMetadataLoader.h"
 #include "ImageViewBase.h"
-#include "LoadFileTask.h"
 #include "LoadFilesStatusDialog.h"
 #include "NewOpenProjectPanel.h"
 #include "NullTaskStatus.h"
@@ -74,22 +74,10 @@
 #include "Utils.h"
 #include "WorkerThreadPool.h"
 #include "config.h"
-#include "filters/deskew/CacheDrivenTask.h"
-#include "filters/deskew/Task.h"
-#include "filters/fix_orientation/CacheDrivenTask.h"
-#include "filters/fix_orientation/Task.h"
-#include "filters/output/CacheDrivenTask.h"
 #include "filters/output/Filter.h"
 #include "filters/output/GeometryCollector.h"
 #include "filters/output/TabbedImageView.h"
-#include "filters/output/Task.h"
 #include "filters/output/Utils.h"
-#include "filters/page_layout/CacheDrivenTask.h"
-#include "filters/page_layout/Task.h"
-#include "filters/page_split/CacheDrivenTask.h"
-#include "filters/page_split/Task.h"
-#include "filters/select_content/CacheDrivenTask.h"
-#include "filters/select_content/Task.h"
 #include "ui_AboutDialog.h"
 #include "ui_BatchProcessingLowerPanel.h"
 #include "ui_RemovePagesDialog.h"
@@ -421,6 +409,7 @@ std::vector<PageRange> MainWindow::selectedRanges() const {
 
 void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
                                     const QString& outDir,
+                                    const DefaultParams& defaults,
                                     const QString& projectFilePath,
                                     const ProjectReader* projectReader,
                                     const QString& inputDir) {
@@ -481,15 +470,10 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   // Recreate the stages and load their state.
   m_stages = std::make_shared<StageSequence>(pages, newPageSelectionAccessor());
   // New projects start with the default parameters; older projects take what they lack from them.
-  const DefaultParams profile = DefaultParamsProvider::getInstance().getParams();
-  *m_stages->processingOptions() = projectReader ? projectReader->readProcessingOptions(profile.getProcessingOptions())
-                                                 : profile.getProcessingOptions();
-  std::unique_ptr<DefaultParams> startValues = projectReader ? projectReader->readDefaultParams() : nullptr;
-  *m_stages->defaultParams() = startValues ? *startValues : profile;
   if (projectReader) {
-    projectReader->readFilterSettings(m_stages->filters());
+    m_stages->loadProject(*projectReader, defaults);
   } else {
-    m_stages->pageLayoutFilter()->loadNewProjectSettings(*m_stages->defaultParams());
+    m_stages->startNewProject(defaults);
   }
 
   // Connect the filter list model to the view and select
@@ -1393,9 +1377,7 @@ void MainWindow::startBatchProcessing() {
   // selection was not at the first page).
   const PageSequence sequence(m_thumbSequence->toPageSequence());
   for (const PageInfo& page : sequence) {
-    for (int i = 0; i < m_stages->count(); i++) {
-      m_stages->filterAt(i)->loadDefaultSettings(page, *m_stages->defaultParams());
-    }
+    m_stages->loadDefaultSettings(page);
     m_batchQueue->addProcessingTask(page, createCompositeTask(page, m_curFilter, /*batch=*/true, m_debug));
   }
 
@@ -1807,10 +1789,10 @@ void MainWindow::newProject() {
 }
 
 void MainWindow::newProjectCreated(ProjectCreationContext* context) {
-  auto pages = std::make_shared<ProjectPages>(
-      context->files(), ProjectPages::AUTO_PAGES,
-      DefaultParamsProvider::getInstance().getParams().getPageSplitParams().getPageOrder());
-  switchToNewProject(pages, context->outDir(), QString(), nullptr, context->inputDir());
+  // The profile is read once: the new project takes its start values and page order from it.
+  const DefaultParams startValues = DefaultParamsProvider::getInstance().getParams();
+  switchToNewProject(ProjectPages::createNew(context->files(), startValues), context->outDir(), startValues, QString(),
+                     nullptr, context->inputDir());
   // A new project is saved right away, so it can be opened again even while it is empty.
   if (saveProjectWithFeedback(context->projectFile())) {
     setSavedProjectFile(context->projectFile());
@@ -1868,7 +1850,8 @@ void MainWindow::projectOpened(ProjectOpeningContext* context) {
   QSettings().setValue("project/lastDir", QFileInfo(context->projectFile()).absolutePath());
 
   switchToNewProject(context->projectReader()->pages(), context->projectReader()->outputDirectory(),
-                     context->projectFile(), context->projectReader());
+                     DefaultParamsProvider::getInstance().getParams(), context->projectFile(),
+                     context->projectReader());
 }
 
 void MainWindow::closeProject() {
@@ -2118,9 +2101,7 @@ void MainWindow::loadPageInteractive(const PageInfo& page) {
     return;
   }
 
-  for (int i = 0; i < m_stages->count(); i++) {
-    m_stages->filterAt(i)->loadDefaultSettings(page, *m_stages->defaultParams());
-  }
+  m_stages->loadDefaultSettings(page);
 
   if (m_imageFrameLayout->indexOf(m_processingIndicationWidget.get()) != -1) {
     m_processingIndicationWidget->processingRestartedEffect();
@@ -2240,7 +2221,7 @@ bool MainWindow::closeProjectInteractive() {
 
 void MainWindow::closeProjectWithoutSaving() {
   auto pages = std::make_shared<ProjectPages>();
-  switchToNewProject(pages, QString());
+  switchToNewProject(pages, QString(), DefaultParamsProvider::getInstance().getParams());
 }
 
 bool MainWindow::saveProjectWithFeedback(const QString& projectFile) {
@@ -2917,77 +2898,13 @@ void MainWindow::eraseInputThumbnails(const std::set<PageId>& removedPages) {
 BackgroundTaskPtr MainWindow::createCompositeTask(const PageInfo& page,
                                                   const int lastFilterIdx,
                                                   const bool batch,
-                                                  bool debug) {
-  std::shared_ptr<fix_orientation::Task> fixOrientationTask;
-  std::shared_ptr<page_split::Task> pageSplitTask;
-  std::shared_ptr<deskew::Task> deskewTask;
-  std::shared_ptr<select_content::Task> selectContentTask;
-  std::shared_ptr<page_layout::Task> pageLayoutTask;
-  std::shared_ptr<output::Task> outputTask;
-
-  if (batch) {
-    debug = false;
-  }
-
-  if (lastFilterIdx >= m_stages->outputFilterIdx()) {
-    outputTask = m_stages->outputFilter()->createTask(page.id(), m_thumbnailCache, m_outFileNameGen, batch, debug);
-    debug = false;
-  }
-  if (lastFilterIdx >= m_stages->pageLayoutFilterIdx()) {
-    pageLayoutTask = m_stages->pageLayoutFilter()->createTask(page.id(), outputTask, batch, debug);
-    debug = false;
-  }
-  if (lastFilterIdx >= m_stages->selectContentFilterIdx()) {
-    selectContentTask = m_stages->selectContentFilter()->createTask(page.id(), pageLayoutTask, batch, debug);
-    debug = false;
-  }
-  if (lastFilterIdx >= m_stages->deskewFilterIdx()) {
-    deskewTask = m_stages->deskewFilter()->createTask(page.id(), selectContentTask, batch, debug);
-    debug = false;
-  }
-  if (lastFilterIdx >= m_stages->pageSplitFilterIdx()) {
-    pageSplitTask = m_stages->pageSplitFilter()->createTask(page, deskewTask, batch, debug);
-    debug = false;
-  }
-  if (lastFilterIdx >= m_stages->fixOrientationFilterIdx()) {
-    fixOrientationTask = m_stages->fixOrientationFilter()->createTask(page.id(), pageSplitTask, batch);
-    debug = false;
-  }
-  assert(fixOrientationTask);
-  return std::make_shared<LoadFileTask>(batch ? BackgroundTask::BATCH : BackgroundTask::INTERACTIVE, page,
-                                        m_thumbnailCache, m_pages, fixOrientationTask);
-}  // MainWindow::createCompositeTask
+                                                  const bool debug) {
+  return m_stages->createTask(page, lastFilterIdx, m_thumbnailCache, m_outFileNameGen, m_pages, batch, debug);
+}
 
 std::shared_ptr<CompositeCacheDrivenTask> MainWindow::createCompositeCacheDrivenTask(const int lastFilterIdx) {
-  std::shared_ptr<fix_orientation::CacheDrivenTask> fixOrientationTask;
-  std::shared_ptr<page_split::CacheDrivenTask> pageSplitTask;
-  std::shared_ptr<deskew::CacheDrivenTask> deskewTask;
-  std::shared_ptr<select_content::CacheDrivenTask> selectContentTask;
-  std::shared_ptr<page_layout::CacheDrivenTask> pageLayoutTask;
-  std::shared_ptr<output::CacheDrivenTask> outputTask;
-
-  if (lastFilterIdx >= m_stages->outputFilterIdx()) {
-    outputTask = m_stages->outputFilter()->createCacheDrivenTask(m_outFileNameGen);
-  }
-  if (lastFilterIdx >= m_stages->pageLayoutFilterIdx()) {
-    pageLayoutTask = m_stages->pageLayoutFilter()->createCacheDrivenTask(outputTask);
-  }
-  if (lastFilterIdx >= m_stages->selectContentFilterIdx()) {
-    selectContentTask = m_stages->selectContentFilter()->createCacheDrivenTask(pageLayoutTask);
-  }
-  if (lastFilterIdx >= m_stages->deskewFilterIdx()) {
-    deskewTask = m_stages->deskewFilter()->createCacheDrivenTask(selectContentTask);
-  }
-  if (lastFilterIdx >= m_stages->pageSplitFilterIdx()) {
-    pageSplitTask = m_stages->pageSplitFilter()->createCacheDrivenTask(deskewTask);
-  }
-  if (lastFilterIdx >= m_stages->fixOrientationFilterIdx()) {
-    fixOrientationTask = m_stages->fixOrientationFilter()->createCacheDrivenTask(pageSplitTask);
-  }
-
-  assert(fixOrientationTask);
-  return fixOrientationTask;
-}  // MainWindow::createCompositeCacheDrivenTask
+  return m_stages->createCacheDrivenTask(lastFilterIdx, m_outFileNameGen);
+}
 
 void MainWindow::updateDisambiguationRecords(const PageSequence& pages) {
   for (const PageInfo& page : pages) {

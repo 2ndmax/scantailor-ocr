@@ -9,6 +9,7 @@
 #include <QString>
 #include <Qt>
 #include <cstddef>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -21,6 +22,7 @@
 #include "PageView.h"
 #include "VirtualFunction.h"
 
+class DefaultParams;
 class ImageFileInfo;
 class ImageInfo;
 class OrthogonalRotation;
@@ -43,6 +45,13 @@ class ProjectPages : public QObject {
   ProjectPages(const std::vector<ImageInfo>& images, Qt::LayoutDirection layoutDirection);
 
   ProjectPages(const std::vector<ImageFileInfo>& files, Pages pages, Qt::LayoutDirection layoutDirection);
+
+  /**
+   * The pages of a new project. Which half of a two-page layout comes first is taken from
+   * the start values of the project.
+   */
+  static std::shared_ptr<ProjectPages> createNew(const std::vector<ImageFileInfo>& files,
+                                                 const DefaultParams& startValues);
 
   ~ProjectPages() override;
 

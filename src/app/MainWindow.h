@@ -38,6 +38,7 @@
 
 class AbstractFilter;
 class AbstractRelinker;
+class DefaultParams;
 class ThumbnailPixmapCache;
 class ProjectPages;
 class PageSequence;
@@ -248,8 +249,12 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   std::shared_ptr<AbstractCommand<void>> relinkingDialogRequester() override;
 
+  /**
+   * \p defaults are the start values of a new project, or what an opened older project lacks.
+   */
   void switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
                           const QString& outDir,
+                          const DefaultParams& defaults,
                           const QString& projectFilePath = QString(),
                           const ProjectReader* projectReader = nullptr,
                           const QString& inputDir = QString());

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "AbstractFilter.h"
+#include "BackgroundTask.h"
 #include "NonCopyable.h"
 #include "filters/deskew/Filter.h"
 #include "filters/fix_orientation/Filter.h"
@@ -17,9 +18,14 @@
 #include "filters/select_content/Filter.h"
 
 class PageId;
+class PageInfo;
 class ProjectPages;
+class ProjectReader;
 class PageSelectionAccessor;
 class AbstractRelinker;
+class CompositeCacheDrivenTask;
+class OutputFileNameGenerator;
+class ThumbnailPixmapCache;
 
 class StageSequence {
   DECLARE_NON_COPYABLE(StageSequence)
@@ -32,6 +38,39 @@ class StageSequence {
   virtual ~StageSequence() = default;
 
   void performRelinking(const AbstractRelinker& relinker);
+
+  /**
+   * Sets up a new project: its settings and start values are taken from \p startValues.
+   */
+  void startNewProject(const DefaultParams& startValues);
+
+  /**
+   * Loads the settings, start values and page parameters of a saved project.
+   * What an older project lacks is taken from \p fallback.
+   */
+  void loadProject(const ProjectReader& reader, const DefaultParams& fallback);
+
+  /**
+   * Gives each step the start values for \p page if it has no parameters of its own yet.
+   */
+  void loadDefaultSettings(const PageInfo& page) const;
+
+  /**
+   * The task that loads \p page and processes it up to the step \p lastFilterIdx.
+   */
+  BackgroundTaskPtr createTask(const PageInfo& page,
+                               int lastFilterIdx,
+                               const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+                               const OutputFileNameGenerator& outFileNameGen,
+                               const std::shared_ptr<ProjectPages>& pages,
+                               bool batch,
+                               bool debug) const;
+
+  /**
+   * The task that updates the thumbnails up to the step \p lastFilterIdx from the stored results.
+   */
+  std::shared_ptr<CompositeCacheDrivenTask> createCacheDrivenTask(int lastFilterIdx,
+                                                                  const OutputFileNameGenerator& outFileNameGen) const;
 
   /**
    * The settings of the project that apply to all its pages, shared with the steps that use them.

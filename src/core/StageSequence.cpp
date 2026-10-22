@@ -3,7 +3,23 @@
 
 #include "StageSequence.h"
 
+#include <cassert>
+
+#include "LoadFileTask.h"
 #include "ProjectPages.h"
+#include "ProjectReader.h"
+#include "filters/deskew/CacheDrivenTask.h"
+#include "filters/deskew/Task.h"
+#include "filters/fix_orientation/CacheDrivenTask.h"
+#include "filters/fix_orientation/Task.h"
+#include "filters/output/CacheDrivenTask.h"
+#include "filters/output/Task.h"
+#include "filters/page_layout/CacheDrivenTask.h"
+#include "filters/page_layout/Task.h"
+#include "filters/page_split/CacheDrivenTask.h"
+#include "filters/page_split/Task.h"
+#include "filters/select_content/CacheDrivenTask.h"
+#include "filters/select_content/Task.h"
 
 StageSequence::StageSequence(const std::shared_ptr<ProjectPages>& pages,
                              const PageSelectionAccessor& pageSelectionAccessor)
@@ -50,3 +66,102 @@ int StageSequence::findFilter(const FilterPtr& filter) const {
   }
   return -1;
 }
+
+void StageSequence::startNewProject(const DefaultParams& startValues) {
+  *m_processingOptions = startValues.getProcessingOptions();
+  *m_defaultParams = startValues;
+  m_pageLayoutFilter->loadNewProjectSettings(*m_defaultParams);
+}
+
+void StageSequence::loadProject(const ProjectReader& reader, const DefaultParams& fallback) {
+  *m_processingOptions = reader.readProcessingOptions(fallback.getProcessingOptions());
+  std::unique_ptr<DefaultParams> startValues = reader.readDefaultParams();
+  *m_defaultParams = startValues ? *startValues : fallback;
+  reader.readFilterSettings(m_filters);
+}
+
+void StageSequence::loadDefaultSettings(const PageInfo& page) const {
+  for (const FilterPtr& filter : m_filters) {
+    filter->loadDefaultSettings(page, *m_defaultParams);
+  }
+}
+
+BackgroundTaskPtr StageSequence::createTask(const PageInfo& page,
+                                            const int lastFilterIdx,
+                                            const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+                                            const OutputFileNameGenerator& outFileNameGen,
+                                            const std::shared_ptr<ProjectPages>& pages,
+                                            const bool batch,
+                                            bool debug) const {
+  std::shared_ptr<fix_orientation::Task> fixOrientationTask;
+  std::shared_ptr<page_split::Task> pageSplitTask;
+  std::shared_ptr<deskew::Task> deskewTask;
+  std::shared_ptr<select_content::Task> selectContentTask;
+  std::shared_ptr<page_layout::Task> pageLayoutTask;
+  std::shared_ptr<output::Task> outputTask;
+
+  if (batch) {
+    debug = false;
+  }
+
+  if (lastFilterIdx >= m_outputFilterIdx) {
+    outputTask = m_outputFilter->createTask(page.id(), thumbnailCache, outFileNameGen, batch, debug);
+    debug = false;
+  }
+  if (lastFilterIdx >= m_pageLayoutFilterIdx) {
+    pageLayoutTask = m_pageLayoutFilter->createTask(page.id(), outputTask, batch, debug);
+    debug = false;
+  }
+  if (lastFilterIdx >= m_selectContentFilterIdx) {
+    selectContentTask = m_selectContentFilter->createTask(page.id(), pageLayoutTask, batch, debug);
+    debug = false;
+  }
+  if (lastFilterIdx >= m_deskewFilterIdx) {
+    deskewTask = m_deskewFilter->createTask(page.id(), selectContentTask, batch, debug);
+    debug = false;
+  }
+  if (lastFilterIdx >= m_pageSplitFilterIdx) {
+    pageSplitTask = m_pageSplitFilter->createTask(page, deskewTask, batch, debug);
+    debug = false;
+  }
+  if (lastFilterIdx >= m_fixOrientationFilterIdx) {
+    fixOrientationTask = m_fixOrientationFilter->createTask(page.id(), pageSplitTask, batch);
+    debug = false;
+  }
+  assert(fixOrientationTask);
+  return std::make_shared<LoadFileTask>(batch ? BackgroundTask::BATCH : BackgroundTask::INTERACTIVE, page,
+                                        thumbnailCache, pages, fixOrientationTask);
+}  // StageSequence::createTask
+
+std::shared_ptr<CompositeCacheDrivenTask> StageSequence::createCacheDrivenTask(
+    const int lastFilterIdx,
+    const OutputFileNameGenerator& outFileNameGen) const {
+  std::shared_ptr<fix_orientation::CacheDrivenTask> fixOrientationTask;
+  std::shared_ptr<page_split::CacheDrivenTask> pageSplitTask;
+  std::shared_ptr<deskew::CacheDrivenTask> deskewTask;
+  std::shared_ptr<select_content::CacheDrivenTask> selectContentTask;
+  std::shared_ptr<page_layout::CacheDrivenTask> pageLayoutTask;
+  std::shared_ptr<output::CacheDrivenTask> outputTask;
+
+  if (lastFilterIdx >= m_outputFilterIdx) {
+    outputTask = m_outputFilter->createCacheDrivenTask(outFileNameGen);
+  }
+  if (lastFilterIdx >= m_pageLayoutFilterIdx) {
+    pageLayoutTask = m_pageLayoutFilter->createCacheDrivenTask(outputTask);
+  }
+  if (lastFilterIdx >= m_selectContentFilterIdx) {
+    selectContentTask = m_selectContentFilter->createCacheDrivenTask(pageLayoutTask);
+  }
+  if (lastFilterIdx >= m_deskewFilterIdx) {
+    deskewTask = m_deskewFilter->createCacheDrivenTask(selectContentTask);
+  }
+  if (lastFilterIdx >= m_pageSplitFilterIdx) {
+    pageSplitTask = m_pageSplitFilter->createCacheDrivenTask(deskewTask);
+  }
+  if (lastFilterIdx >= m_fixOrientationFilterIdx) {
+    fixOrientationTask = m_fixOrientationFilter->createCacheDrivenTask(pageSplitTask);
+  }
+
+  assert(fixOrientationTask);
+  return fixOrientationTask;
+}  // StageSequence::createCacheDrivenTask
