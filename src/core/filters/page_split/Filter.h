@@ -66,6 +66,11 @@ class Filter : public AbstractFilter {
 
   OptionsWidget* optionsWidget();
 
+  /**
+   * The parameters of the images, e.g. for reading the split line found.
+   */
+  const std::shared_ptr<Settings>& settings() const { return m_settings; }
+
   void pageOrientationUpdate(const ImageId& imageId, const OrthogonalRotation& orientation);
 
   std::vector<PageOrderOption> pageOrderOptions() const override;

@@ -21,6 +21,12 @@ Or run each suite separately:
 ./qt_tests
 ```
 
+On Windows, `qt_tests` writes nothing to the console; its results go to a file with
+`qt_tests -o results.txt,txt` (the file then holds the last test class, the end-to-end test).
+Without a screen, as in the CI, set `QT_QPA_PLATFORM=offscreen` only together with
+`QT_PLUGIN_PATH` pointing to the Qt plugins of vcpkg (`installed\x64-windows\Qt6\plugins`):
+without the offscreen plugin, `qt_tests` hangs without a message.
+
 ## Coverage by module
 
 ### core_tests
@@ -78,18 +84,20 @@ systems. No image files are stored in the repository: the scans are drawn in the
   default parameters, so the profile and program settings of the computer play no role. First
   all images up to *Split Pages* (only then is it known which images hold two pages), then
   all pages up to *Output*, with `StageSequence::createTask` as in batch processing.
-- **testAllSteps**: the spread is split into 2 pages (4 in all), the skew angle is found within
-  0.2°, the content box matches the text block within 10 %, every page is output with the
-  resolution of the default parameters, black-and-white output uses CCITT G4, and saving,
-  loading and saving the project again gives the same file. With OCR enabled it also checks the
-  color mode detection (text page black and white, picture page mixed).
+- **testAllSteps**: the spread is split at its gutter into 2 pages (4 in all), the skew angle
+  is found within 0.2°, the content box matches the text block within 10 %, every page is
+  output with the resolution of the default parameters, black-and-white output uses CCITT G4,
+  every output page has 10 to 25 % dark pixels (neither empty nor with the dark border of the
+  scan), and saving, loading and saving the project again gives the same file. With OCR enabled
+  it also checks the color mode detection (text page black and white, picture page mixed).
 - **testColorOutputCompression**: a color page is written with the TIFF compression set in the
   project (JPEG).
 - **testPdfExport**: `StageSequence::pdfExportPages` and `PdfExportOptions::fromProject` build
-  the PDF of the test project (no OCR). Checked: complete file, 4 pages in project order,
-  page size from pixels and resolution, black-and-white compression as set in the project
-  (JBIG2 by default, CCITT G4), JPEG for the color page, and a missing output file makes the
-  export fail without touching an existing PDF.
+  the PDF of the test project (no OCR). Checked: complete file (every entry of the
+  cross-reference table points at its object), 4 pages in project order, page size from pixels
+  and resolution, black-and-white compression as set in the project (JBIG2 by default,
+  CCITT G4), JPEG for the color page, and a missing output file makes the export fail without
+  touching an existing PDF.
 
 It takes a few seconds. Text recognition is not checked, as the CI runners have no language
 files.

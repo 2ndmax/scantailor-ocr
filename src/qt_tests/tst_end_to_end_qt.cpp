@@ -24,6 +24,8 @@
 #include <filters/deskew/Params.h>
 #include <filters/deskew/Settings.h>
 #include <filters/output/GeometryCollector.h>
+#include <filters/page_split/Params.h>
+#include <filters/page_split/Settings.h>
 #include <filters/select_content/Params.h>
 #include <filters/select_content/Settings.h>
 #include <tiffio.h>
@@ -126,7 +128,28 @@ struct TiffInfo {
   QSize size;
   double dpi = 0;
   int compression = -1;
+  // The share of dark pixels, so that an empty or black page is noticed.
+  double darkShare = -1;
 };
+
+double readDarkShare(TIFF* tif, const QSize& size) {
+  const size_t numPixels = static_cast<size_t>(size.width()) * size.height();
+  if (numPixels == 0) {
+    return -1;
+  }
+  std::vector<uint32_t> raster(numPixels);
+  if (TIFFReadRGBAImage(tif, size.width(), size.height(), raster.data(), 0) != 1) {
+    return -1;
+  }
+  size_t dark = 0;
+  for (const uint32_t pixel : raster) {
+    const int gray = (TIFFGetR(pixel) * 11 + TIFFGetG(pixel) * 16 + TIFFGetB(pixel) * 5) / 32;
+    if (gray < 128) {
+      ++dark;
+    }
+  }
+  return static_cast<double>(dark) / numPixels;
+}
 
 TiffInfo readTiff(const QString& filePath) {
   TiffInfo info;
@@ -144,8 +167,11 @@ TiffInfo readTiff(const QString& filePath) {
                && (TIFFGetField(tif, TIFFTAG_XRESOLUTION, &xResolution) == 1);
   TIFFGetFieldDefaulted(tif, TIFFTAG_RESOLUTIONUNIT, &unit);
   TIFFGetFieldDefaulted(tif, TIFFTAG_COMPRESSION, &compression);
-  TIFFClose(tif);
   info.size = QSize(static_cast<int>(width), static_cast<int>(height));
+  if (info.valid) {
+    info.darkShare = readDarkShare(tif, info.size);
+  }
+  TIFFClose(tif);
   info.dpi = (unit == RESUNIT_CENTIMETER) ? xResolution * 2.54 : xResolution;
   info.compression = compression;
   return info;
@@ -215,8 +241,31 @@ QByteArray exportPdf(const std::vector<PdfExportPage>& pages,
   return job.succeeded() ? readFile(filePath) : QByteArray();
 }
 
+// A complete file whose cross-reference table points at the start of each object, as a reader
+// needs it to find the pages.
 bool isCompletePdf(const QByteArray& pdf) {
-  return pdf.startsWith("%PDF-") && pdf.trimmed().endsWith("%%EOF");
+  if (!pdf.startsWith("%PDF-") || !pdf.trimmed().endsWith("%%EOF")) {
+    return false;
+  }
+  const qsizetype startxref = pdf.lastIndexOf("startxref\n");
+  if (startxref < 0) {
+    return false;
+  }
+  const qsizetype xrefOffset = pdf.mid(startxref + 10).split('\n').front().toLongLong();
+  if (pdf.mid(xrefOffset, 7) != "xref\n0 ") {
+    return false;
+  }
+  const qsizetype countEnd = pdf.indexOf('\n', xrefOffset + 7);
+  const int count = pdf.mid(xrefOffset + 7, countEnd - xrefOffset - 7).toInt();
+  // Each entry is 20 bytes long; entry 0 is the free one.
+  for (int id = 1; id < count; ++id) {
+    const qsizetype offset = pdf.mid(countEnd + 1 + id * 20, 10).toLongLong();
+    const QByteArray objectStart = QByteArray::number(id) + " 0 obj";
+    if (pdf.mid(offset, objectStart.size()) != objectStart) {
+      return false;
+    }
+  }
+  return count > 1;
 }
 }  // namespace
 
@@ -244,12 +293,23 @@ void TestEndToEndQt::testAllSteps() {
   QCOMPARE(skewedId.imageId().filePath(), files[0].fileInfo().absoluteFilePath());
   QCOMPARE(pages.pageAt(1).id().imageId(), pages.pageAt(2).id().imageId());
 
+  // It is split at the dark gutter in the middle, not somewhere in the text.
+  const page_split::Settings::Record splitRecord
+      = project.stages->pageSplitFilter()->settings()->getPageRecord(pages.pageAt(1).id().imageId());
+  QVERIFY(splitRecord.params());
+  const page_split::PageLayout& layout = splitRecord.params()->pageLayout();
+  QCOMPARE(layout.type(), page_split::PageLayout::TWO_PAGES);
+  const QPointF splitCenter = layout.inscribedCutterLine(0).center();
+  QVERIFY2(std::abs(splitCenter.x() - PAGE_SIZE.width()) <= 20,
+           qPrintable(QString("Split line at x = %1").arg(splitCenter.x(), 0, 'f', 1)));
+
   // The angle the text was turned by is found, as the angle that turns it back.
   const std::unique_ptr<deskew::Params> deskewParams
       = project.stages->deskewFilter()->settings()->getPageParams(skewedId);
   QVERIFY(deskewParams);
   qInfo("Deskew angle: %.3f", deskewParams->deskewAngle());
-  QVERIFY(std::abs(deskewParams->deskewAngle() + SKEW_DEG) <= 0.2);
+  QVERIFY2(std::abs(deskewParams->deskewAngle() + SKEW_DEG) <= 0.2,
+           qPrintable(QString("Deskew angle %1").arg(deskewParams->deskewAngle(), 0, 'f', 3)));
 
   // The content box holds the text, not the dark border.
   const std::unique_ptr<select_content::Params> contentParams
@@ -257,13 +317,14 @@ void TestEndToEndQt::testAllSteps() {
   QVERIFY(contentParams);
   const QRectF content = contentParams->contentRect();
   qInfo("Content box: %.0f x %.0f", content.width(), content.height());
-  QVERIFY(content.width() >= TEXT_RECT.width() * 0.9);
-  QVERIFY(content.width() <= TEXT_RECT.width() * 1.1);
-  QVERIFY(content.height() >= TEXT_RECT.height() * 0.9);
-  QVERIFY(content.height() <= TEXT_RECT.height() * 1.1);
+  const QString contentSize = QString("Content box %1 x %2").arg(content.width()).arg(content.height());
+  QVERIFY2(content.width() >= TEXT_RECT.width() * 0.9, qPrintable(contentSize));
+  QVERIFY2(content.width() <= TEXT_RECT.width() * 1.1, qPrintable(contentSize));
+  QVERIFY2(content.height() >= TEXT_RECT.height() * 0.9, qPrintable(contentSize));
+  QVERIFY2(content.height() <= TEXT_RECT.height() * 1.1, qPrintable(contentSize));
 
   // Each page has its output file, with the resolution of the start values,
-  // black and white as by default and so compressed as the project says.
+  // black and white as by default, so compressed as the project says and with the text on it.
   const Dpi outputDpi = startValues.getOutputParams().getDpi();
   for (const PageInfo& page : pages) {
     const QString filePath = project.outFileNameGen.filePathFor(page.id());
@@ -272,22 +333,31 @@ void TestEndToEndQt::testAllSteps() {
     QCOMPARE(qRound(output.dpi), outputDpi.horizontal());
     QVERIFY(output.size.height() > output.size.width());
     QCOMPARE(output.compression, project.stages->processingOptions()->tiffCompression.bw);
+    // The text covers about a quarter of its box, and the margins add white around it (about 17 %).
+    // An empty page, or one that kept the dark border of the scan, lies outside.
+    QVERIFY2(output.darkShare >= 0.10 && output.darkShare <= 0.25,
+             qPrintable(QString("%1: %2 % dark pixels")
+                            .arg(QFileInfo(filePath).fileName())
+                            .arg(output.darkShare * 100, 0, 'f', 1)));
   }
 
 #ifdef ENABLE_OCR
   // "Detect Color Mode" as in the app: the geometry comes from the steps before.
   const std::shared_ptr<CompositeCacheDrivenTask> geometryTask
       = project.stages->createCacheDrivenTask(project.stages->outputFilterIdx(), project.outFileNameGen);
-  const auto detect = [&](const PageInfo& page) {
+  const auto detect = [&](const PageInfo& page, output::ColorMode* mode) {
     output::GeometryCollector geometry;
     geometryTask->process(page, &geometry);
-    output::ColorMode mode = output::BLACK_AND_WHITE;
-    const bool detected = geometry.hasGeometry()
-                          && project.stages->outputFilter()->detectColorMode(page, geometry, NullTaskStatus(), &mode);
-    return detected ? mode : static_cast<output::ColorMode>(-1);
+    return geometry.hasGeometry()
+           && project.stages->outputFilter()->detectColorMode(page, geometry, NullTaskStatus(), mode);
   };
-  QCOMPARE(detect(pages.pageAt(0)), output::BLACK_AND_WHITE);
-  QVERIFY(detect(pages.pageAt(3)) != output::BLACK_AND_WHITE);
+  // Each mode starts as one that is not expected, so a mode left unset fails as well.
+  output::ColorMode textMode = output::MIXED;
+  QVERIFY(detect(pages.pageAt(0), &textMode));
+  QCOMPARE(textMode, output::BLACK_AND_WHITE);
+  output::ColorMode pictureMode = output::BLACK_AND_WHITE;
+  QVERIFY(detect(pages.pageAt(3), &pictureMode));
+  QCOMPARE(pictureMode, output::MIXED);
 #endif
 
   // Saved and loaded again, the project is the same, without processing anything again.
@@ -386,8 +456,10 @@ void TestEndToEndQt::testPdfExport() {
   const QRegularExpressionMatch mediaBox
       = QRegularExpression(R"(/MediaBox \[0 0 ([0-9.]+) ([0-9.]+)\])").match(QString::fromLatin1(pdf));
   QVERIFY(mediaBox.hasMatch());
-  QVERIFY(std::abs(mediaBox.captured(1).toDouble() - first.size.width() * 72.0 / first.dpi) < 0.01);
-  QVERIFY(std::abs(mediaBox.captured(2).toDouble() - first.size.height() * 72.0 / first.dpi) < 0.01);
+  QVERIFY2(std::abs(mediaBox.captured(1).toDouble() - first.size.width() * 72.0 / first.dpi) < 0.01,
+           qPrintable(mediaBox.captured(0)));
+  QVERIFY2(std::abs(mediaBox.captured(2).toDouble() - first.size.height() * 72.0 / first.dpi) < 0.01,
+           qPrintable(mediaBox.captured(0)));
 
   // A missing output file makes the export fail with a message, and the PDF from before stays as it was.
   std::vector<PdfExportPage> withMissingFile = pdfPages;
