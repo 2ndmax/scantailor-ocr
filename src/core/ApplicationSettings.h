@@ -109,6 +109,11 @@ class ApplicationSettings {
 
   void setOutputShowGuidesEnabled(bool enabled);
 
+  /** Show the rectangle of the margins in the Margins view; its corners then change the margins. */
+  bool isPageLayoutShowMiddleRectEnabled() const;
+
+  void setPageLayoutShowMiddleRectEnabled(bool enabled);
+
   /**
    * Distance of the deskew and oblique drag handles from the image center, in percent of the
    * largest possible distance (handles at the edge of the view). Smaller values move the
@@ -180,6 +185,8 @@ class ApplicationSettings {
 
   static const int DEFAULT_ZONE_CREATION_MODE;  // 0 = polygonal
   static const bool DEFAULT_OUTPUT_SHOW_GUIDES;
+  static const QString PAGE_LAYOUT_SHOW_MIDDLE_RECT_KEY;
+  static const bool DEFAULT_PAGE_LAYOUT_SHOW_MIDDLE_RECT;
   static const int DEFAULT_DESKEW_HANDLE_DISTANCE;
 
   static const QString PDF_OPEN_AFTER_CREATION_KEY;

@@ -9,7 +9,6 @@
 
 #include <QButtonGroup>
 #include <QLineEdit>
-#include <QSettings>
 #include <cmath>
 #include <utility>
 
@@ -33,12 +32,6 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
       m_leftRightLinked(true),
       m_topBottomLinked(true),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
-  {
-    QSettings appSettings;
-    m_leftRightLinked = appSettings.value("margins/leftRightLinked", true).toBool();
-    m_topBottomLinked = appSettings.value("margins/topBottomLinked", true).toBool();
-  }
-
   setupUi(this);
   // Both limits are as wide as "1000 %".
   for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox}) {
@@ -129,14 +122,10 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const Margins& margins
   autoMargins->setChecked(m_settings->isPageAutoMarginsEnabled(m_pageId));
   updateMarginsControlsEnabled();
 
-  // Each page starts with the saved choice; only unequal margins of this page unlink them.
-  {
-    QSettings appSettings;
-    m_leftRightLinked = appSettings.value("margins/leftRightLinked", true).toBool()
-                        && (std::abs(marginsMm.left() - marginsMm.right()) < 1e-6);
-    m_topBottomLinked = appSettings.value("margins/topBottomLinked", true).toBool()
-                        && (std::abs(marginsMm.top() - marginsMm.bottom()) < 1e-6);
-  }
+  // Not stored: each page starts linked where its two margins are equal, as in the start values dialog.
+  // A click on the chain only applies while this page is shown.
+  m_leftRightLinked = std::abs(marginsMm.left() - marginsMm.right()) < 1e-6;
+  m_topBottomLinked = std::abs(marginsMm.top() - marginsMm.bottom()) < 1e-6;
   updateLinkDisplay(topBottomLink, m_topBottomLinked);
   updateLinkDisplay(leftRightLink, m_leftRightLinked);
 
@@ -275,14 +264,12 @@ void OptionsWidget::vertMarginsChanged(const double val) {
 
 void OptionsWidget::topBottomLinkClicked() {
   m_topBottomLinked = !m_topBottomLinked;
-  QSettings().setValue("margins/topBottomLinked", m_topBottomLinked);
   updateLinkDisplay(topBottomLink, m_topBottomLinked);
   topBottomLinkToggled(m_topBottomLinked);
 }
 
 void OptionsWidget::leftRightLinkClicked() {
   m_leftRightLinked = !m_leftRightLinked;
-  QSettings().setValue("margins/leftRightLinked", m_leftRightLinked);
   updateLinkDisplay(leftRightLink, m_leftRightLinked);
   leftRightLinkToggled(m_leftRightLinked);
 }

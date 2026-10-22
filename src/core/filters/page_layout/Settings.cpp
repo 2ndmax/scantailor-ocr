@@ -155,10 +155,6 @@ class Settings::Impl {
 
   std::vector<Guide>& guides();
 
-  bool isShowingMiddleRectEnabled() const;
-
-  void enableShowingMiddleRect(bool state);
-
   OutputSizeOptions outputSizeOptions() const {
     const QMutexLocker locker(&m_mutex);
     return m_outputSizeOptions;
@@ -207,7 +203,6 @@ class Settings::Impl {
   const bool m_autoMarginsDefault;
   DeviationProvider<PageId> m_deviationProvider;
   std::vector<Guide> m_guides;
-  bool m_showMiddleRect;
   OutputSizeOptions m_outputSizeOptions;
 };
 
@@ -307,14 +302,6 @@ std::vector<Guide>& Settings::guides() {
   return m_impl->guides();
 }
 
-bool Settings::isShowingMiddleRectEnabled() const {
-  return m_impl->isShowingMiddleRectEnabled();
-}
-
-void Settings::enableShowingMiddleRect(const bool state) {
-  m_impl->enableShowingMiddleRect(state);
-}
-
 OutputSizeOptions Settings::outputSizeOptions() const {
   return m_impl->outputSizeOptions();
 }
@@ -368,7 +355,6 @@ Settings::Impl::Impl()
       m_defaultHardMarginsMM(Margins(10.0, 5.0, 10.0, 5.0)),
       m_defaultAlignment(Alignment::TOP, Alignment::HCENTER),
       m_autoMarginsDefault(false),
-      m_showMiddleRect(true),
       m_outputSizeOptions() {
   m_deviationProvider.setComputeValueByKey([this](const PageId& pageId) -> double {
     auto it = m_items.find(pageId);
@@ -391,7 +377,6 @@ void Settings::Impl::clear() {
   // A loaded project sets its own afterwards, a new one takes them from its start values.
   m_outputSizeOptions = OutputSizeOptions();
   m_guides.clear();
-  m_showMiddleRect = true;
 }
 
 void Settings::Impl::performRelinking(const AbstractRelinker& relinker) {
@@ -704,13 +689,5 @@ const DeviationProvider<PageId>& Settings::Impl::deviationProvider() const {
 
 std::vector<Guide>& Settings::Impl::guides() {
   return m_guides;
-}
-
-bool Settings::Impl::isShowingMiddleRectEnabled() const {
-  return m_showMiddleRect;
-}
-
-void Settings::Impl::enableShowingMiddleRect(const bool state) {
-  m_showMiddleRect = state;
 }
 }  // namespace page_layout

@@ -150,10 +150,6 @@ class Settings {
 
   std::vector<Guide>& guides();
 
-  bool isShowingMiddleRectEnabled() const;
-
-  void enableShowingMiddleRect(bool state);
-
   /** Target size and scaling limits of the pages matched to others, for the whole project. */
   OutputSizeOptions outputSizeOptions() const;
 

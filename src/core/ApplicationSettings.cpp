@@ -49,6 +49,8 @@ const QString ApplicationSettings::DEFAULT_ZONE_CREATION_MODE_KEY = "default_zon
 const QString ApplicationSettings::OUTPUT_SHOW_GUIDES_KEY = "output_show_guides";
 const int ApplicationSettings::DEFAULT_ZONE_CREATION_MODE = 0;  // POLYGONAL
 const bool ApplicationSettings::DEFAULT_OUTPUT_SHOW_GUIDES = false;
+const QString ApplicationSettings::PAGE_LAYOUT_SHOW_MIDDLE_RECT_KEY = "page_layout_show_middle_rect";
+const bool ApplicationSettings::DEFAULT_PAGE_LAYOUT_SHOW_MIDDLE_RECT = true;
 const QString ApplicationSettings::DESKEW_HANDLE_DISTANCE_KEY = "deskew_handle_distance";
 const int ApplicationSettings::DEFAULT_DESKEW_HANDLE_DISTANCE = 90;
 const int ApplicationSettings::MIN_DESKEW_HANDLE_DISTANCE = 30;
@@ -242,6 +244,14 @@ bool ApplicationSettings::isOutputShowGuidesEnabled() const {
 
 void ApplicationSettings::setOutputShowGuidesEnabled(bool enabled) {
   writeValue(getKey(OUTPUT_SHOW_GUIDES_KEY), enabled);
+}
+
+bool ApplicationSettings::isPageLayoutShowMiddleRectEnabled() const {
+  return readValue(getKey(PAGE_LAYOUT_SHOW_MIDDLE_RECT_KEY), DEFAULT_PAGE_LAYOUT_SHOW_MIDDLE_RECT).toBool();
+}
+
+void ApplicationSettings::setPageLayoutShowMiddleRectEnabled(bool enabled) {
+  writeValue(getKey(PAGE_LAYOUT_SHOW_MIDDLE_RECT_KEY), enabled);
 }
 
 int ApplicationSettings::getDeskewHandleDistance() const {

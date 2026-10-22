@@ -79,8 +79,6 @@ void Filter::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
   QDomElement filterEl(doc.createElement("page-layout"));
 
-  filterEl.setAttribute("showMiddleRect", m_settings->isShowingMiddleRectEnabled() ? "1" : "0");
-
   if (!m_settings->guides().empty()) {
     QDomElement guidesEl(doc.createElement("guides"));
     for (const Guide& guide : m_settings->guides()) {
@@ -118,7 +116,6 @@ void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filter
 
   const QDomElement filterEl(filtersEl.namedItem("page-layout").toElement());
 
-  m_settings->enableShowingMiddleRect(filterEl.attribute("showMiddleRect", "1") == "1");
   m_settings->setOutputSizeOptions(OutputSizeOptions(filterEl.namedItem("output-size").toElement()));
 
   const QDomElement guidesEl = filterEl.namedItem("guides").toElement();

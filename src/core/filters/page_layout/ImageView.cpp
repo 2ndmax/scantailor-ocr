@@ -3,6 +3,7 @@
 
 #include "ImageView.h"
 
+#include <ApplicationSettings.h>
 #include <NullTaskStatus.h>
 #include <PolygonUtils.h>
 #include <UnitsConverter.h>
@@ -699,7 +700,7 @@ void ImageView::setupContextMenuInteraction() {
   m_guideActionsSeparator = m_contextMenu->addSeparator();
   m_showMiddleRectAction = m_contextMenu->addAction(tr("Show Hard Margins Rectangle"));
   m_showMiddleRectAction->setCheckable(true);
-  m_showMiddleRectAction->setChecked(m_settings->isShowingMiddleRectEnabled());
+  m_showMiddleRectAction->setChecked(ApplicationSettings::getInstance().isPageLayoutShowMiddleRectEnabled());
 
   connect(m_addHorizontalGuideAction, &QAction::triggered,
           [this]() { addHorizontalGuide(widgetToGuideCs().map(m_lastContextMenuPos).y()); });
@@ -710,7 +711,7 @@ void ImageView::setupContextMenuInteraction() {
   connect(m_showMiddleRectAction, &QAction::toggled, [this](bool checked) {
     if (!m_alignment.isNull() && !m_nullContentRect) {
       enableMiddleRectInteraction(checked);
-      m_settings->enableShowingMiddleRect(checked);
+      ApplicationSettings::getInstance().setPageLayoutShowMiddleRectEnabled(checked);
     }
   });
 }
@@ -1119,6 +1120,7 @@ void ImageView::enableMiddleRectInteraction(const bool state) {
 }
 
 bool ImageView::isShowingMiddleRectEnabled() const {
-  return (!m_nullContentRect && m_settings->isShowingMiddleRectEnabled()) || m_alignment.isNull();
+  return (!m_nullContentRect && ApplicationSettings::getInstance().isPageLayoutShowMiddleRectEnabled())
+         || m_alignment.isNull();
 }
 }  // namespace page_layout

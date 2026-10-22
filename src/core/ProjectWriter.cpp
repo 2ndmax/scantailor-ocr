@@ -100,17 +100,20 @@ bool ProjectWriter::write(const QString& filePath,
   rootEl.setAttribute("outputDirectory", toRelativeIfPossible(projectDirPath, m_outFileNameGen.outDir()));
   rootEl.setAttribute("layoutDirection", m_layoutDirection == Qt::LeftToRight ? "LTR" : "RTL");
 
+  // The settings for the whole project come first, then the pages and last the settings of each
+  // page. ProjectReader finds the elements by name, so the order doesn't matter for reading.
+  rootEl.appendChild(processingOptions.toXml(doc, "processing-options"));
+  // The start values of the pages; the processing options of the project are the ones above.
+  QDomElement defaultParamsEl = defaultParams.toXml(doc, "default-params");
+  defaultParamsEl.removeChild(defaultParamsEl.namedItem("processing-options"));
+  rootEl.appendChild(defaultParamsEl);
+
   rootEl.appendChild(processDirectories(doc, projectDirPath));
   rootEl.appendChild(processFiles(doc));
   rootEl.appendChild(processImages(doc));
   rootEl.appendChild(processPages(doc));
   rootEl.appendChild(m_outFileNameGen.disambiguator()->toXml(
       doc, "file-name-disambiguation", std::bind(&ProjectWriter::packFilePath, this, std::placeholders::_1)));
-  rootEl.appendChild(processingOptions.toXml(doc, "processing-options"));
-  // The start values of the pages; the processing options of the project are the ones above.
-  QDomElement defaultParamsEl = defaultParams.toXml(doc, "default-params");
-  defaultParamsEl.removeChild(defaultParamsEl.namedItem("processing-options"));
-  rootEl.appendChild(defaultParamsEl);
 
   QDomElement filtersEl(doc.createElement("filters"));
   rootEl.appendChild(filtersEl);

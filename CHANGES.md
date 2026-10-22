@@ -28,6 +28,13 @@ topic, not by version.
 * **Each project keeps its start values,** a copy of the default parameters that pages added
   later start with. Changing the profile no longer changes an open project; after OK in the
   Default Parameters, a question offers to use the new values for the open project, too.
+* The project file lists the settings for the whole project and the start values first, then
+  the images and pages, and the settings of each page last.
+* "Show Hard Margins Rectangle" (context menu in *Margins*) is a program setting instead of a
+  project setting, like the guides in *Output*.
+* The chain buttons of the margins in *Margins* are no longer remembered: a page starts linked
+  where its two margins are equal, as in the Default Parameters. A click applies while the page
+  is shown.
 * Only English and German are available. The Spanish, French, Korean, Polish, Portuguese and
   Russian translations were removed, as 60-73 % of their texts were untranslated; they can be
   restored from the commit history. Qt's own texts (standard buttons, file dialogs) are
@@ -64,7 +71,7 @@ topic, not by version.
 * The panel **PDF Compression** has a part for each kind of page: *Color and Grayscale* (JPEG,
   **JPEG 2000**, Deflate or None; quality; resolution of the "Background layer" of split pages),
   *Posterized Pages* (Deflate, JPEG, JPEG 2000 or None) and *Black and White* (JBIG2, CCITT G4,
-  Deflate or None). The options are program settings, saved when changed.
+  Deflate or None). The options are stored in the project, saved when changed.
 * **Quality warnings:** the panel **Quality** lists the compression of the ticked pages, in the
   output files (read from the TIFF files, so old files of other projects count correctly) and in
   the PDF, and marks lossy methods (JPEG; JPEG 2000 below quality 100). It warns about lossy
