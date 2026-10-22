@@ -405,3 +405,9 @@ ScanTailor Advanced.
 * New tests for the image readers, the TIFF writer, the PDF export (structure, lossless G4 and
   JBIG2 round trips, text layer, language files, checksums), the Output step, K-means, page
   order and thumbnail files. The `update_translations` target works with Qt 6 again.
+* **End-to-end test:** creates a project from scans drawn in the test, runs all six steps and
+  the PDF export as the program does and checks the results (split, skew angle, content box,
+  output files and their compression, color mode, saving and loading, PDF). For this, the chain
+  of the steps, creating and opening a project and the page list of the PDF export moved from
+  the main window into the core of the program, without a change in behavior; a command line
+  version can use them later. A new project reads the profile only once.

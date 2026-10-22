@@ -60,19 +60,53 @@ Or run each suite separately:
   - **testCollapsibleGroupBoxStateAndSignal**: project widget: collapsed/expanded state and the `collapsedStateChanged` signal.
   - **testErrorWidgetCreation**: creating an `ErrorWidget` and checking its children (without showing a window).
 
+- **Deskew step (TestDeskewQt)**: automatic and manual oblique correction, applying it to other pages, the Apply button waiting for the page.
+- **Fix Orientation step (TestFixOrientationQt)**: saving a zero rotation, trim fields following the rotation and keeping their values on a page switch, the view following changes while loading.
+- **End-to-end test (TestEndToEndQt)**: see below.
+
 The UX tests use `QApplication` and can simulate interaction (clicks, keyboard) without opening windows; they serve as a basis for extending coverage to more widgets or dialogs.
+
+## End-to-end test (TestEndToEndQt)
+
+Runs the whole processing chain without the user interface, the way the application does,
+and checks properties of the result rather than pixels, so it holds across compilers and
+systems. No image files are stored in the repository: the scans are drawn in the test.
+
+- **Pages**: a text page turned by 1.5° with a dark border, a two-page spread with a dark
+  gutter, and a page with a colored picture above black text.
+- **Flow**: `ProjectPages::createNew` and `StageSequence::startNewProject` with the standard
+  default parameters, so the profile and program settings of the computer play no role. First
+  all images up to *Split Pages* (only then is it known which images hold two pages), then
+  all pages up to *Output*, with `StageSequence::createTask` as in batch processing.
+- **testAllSteps**: the spread is split into 2 pages (4 in all), the skew angle is found within
+  0.2°, the content box matches the text block within 10 %, every page is output with the
+  resolution of the default parameters, black-and-white output uses CCITT G4, and saving,
+  loading and saving the project again gives the same file. With OCR enabled it also checks the
+  color mode detection (text page black and white, picture page mixed).
+- **testColorOutputCompression**: a color page is written with the TIFF compression set in the
+  project (JPEG).
+- **testPdfExport**: `StageSequence::pdfExportPages` and `PdfExportOptions::fromProject` build
+  the PDF of the test project (no OCR). Checked: complete file, 4 pages in project order,
+  page size from pixels and resolution, black-and-white compression as set in the project
+  (JBIG2 by default, CCITT G4), JPEG for the color page, and a missing output file makes the
+  export fail without touching an existing PDF.
+
+It takes a few seconds. Text recognition is not checked, as the CI runners have no language
+files.
+
+Known limit: *Select Content* takes a smooth area without edges (such as a plain color
+gradient) for background, so the picture on the test page is made of tiles.
 
 ## UI/UX tests and usage paths
 
-Apart from the widget-level UX tests in `qt_tests` (see above), there are currently no automated tests of the main window, the dialogs or complete usage flows. To improve coverage of UX and usage paths, you can:
+Apart from the widget-level tests and the end-to-end test of the processing chain in `qt_tests` (see above), there are currently no automated tests of the main window, the dialogs or usage flows through the user interface. To improve coverage of UX and usage paths, you can:
 
 1. **Qt Test**: Extend `qt_tests` (TestUxQt) to:
    - Create more widgets and dialogs without showing a window.
    - Simulate events (clicks, keyboard) and check the state.
 
-2. **Integration tests**: Scripts or tests that:
-   - Open sample projects.
-   - Run filters and check the results on disk or in memory.
+2. **Integration tests**: Extend TestEndToEndQt with more kinds of pages or settings, or open
+   existing sample projects and check the results on disk.
 
 3. **E2E tests**: Tools such as Squish or scripts that drive the graphical application (more costly to maintain).
 
