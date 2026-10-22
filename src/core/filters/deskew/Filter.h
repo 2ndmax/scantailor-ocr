@@ -65,6 +65,11 @@ class Filter : public AbstractFilter {
 
   OptionsWidget* optionsWidget();
 
+  /**
+   * The parameters of the pages, e.g. for reading the angle found.
+   */
+  const std::shared_ptr<Settings>& settings() const { return m_settings; }
+
   std::vector<PageOrderOption> pageOrderOptions() const override;
 
   int selectedPageOrder() const override;

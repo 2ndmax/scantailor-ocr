@@ -69,6 +69,11 @@ class Filter : public AbstractFilter {
 
   OptionsWidget* optionsWidget();
 
+  /**
+   * The parameters of the pages, e.g. for reading the content box found.
+   */
+  const std::shared_ptr<Settings>& settings() const { return m_settings; }
+
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
