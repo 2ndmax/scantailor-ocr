@@ -488,13 +488,6 @@ void PdfExportView::setPages(std::vector<Entry> entries) {
   m_thumbnailHandlers.resize(m_entries.size());
   m_thumbnailShown.assign(m_entries.size(), false);
 
-  // Only the file headers are read, so this is quick even for many pages.
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  for (Entry& entry : m_entries) {
-    entry.page.analyze();
-  }
-  QApplication::restoreOverrideCursor();
-
   // The order and the ticks shown so far, and the thumbnails, which are shown again until
   // they have been reloaded. The output file identifies a page.
   std::vector<PdfPageOrder::Item> previous;
@@ -715,14 +708,7 @@ void PdfExportView::startExport() {
     return;
   }
 
-  const ProcessingOptions::Pdf& pdf = m_processingOptions->pdf;
-  PdfExportOptions options;
-  options.colorCompression = pdf.colorCompression;
-  options.colorQuality = pdf.colorQuality;
-  options.backgroundScale = pdf.backgroundScale;
-  options.paletteCompression = pdf.paletteCompression;
-  options.paletteQuality = pdf.paletteQuality;
-  options.bitonalCompression = pdf.bitonalCompression;
+  PdfExportOptions options = PdfExportOptions::fromProject(*m_processingOptions);
   options.threadCount = PdfExportJob::defaultThreadCount();
 
 #ifdef ENABLE_OCR

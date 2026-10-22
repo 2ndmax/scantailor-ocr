@@ -64,8 +64,9 @@ class PdfExportView : public QWidget {
   QWidget* optionsWidget() const;
 
   /**
-   * Sets the pages of the project, in project order. They are analyzed here. Pages that were
-   * shown before keep their place and their tick (see PdfPageOrder).
+   * Sets the pages of the project, in project order, already analyzed (see
+   * StageSequence::pdfExportPages()). Pages that were shown before keep their place
+   * and their tick (see PdfPageOrder).
    * Ignored while a PDF is being created.
    */
   void setPages(std::vector<Entry> entries);

@@ -5,7 +5,11 @@
 
 #include <cassert>
 
+#include <QDir>
+
 #include "LoadFileTask.h"
+#include "OutputFileNameGenerator.h"
+#include "PageSequence.h"
 #include "ProjectPages.h"
 #include "ProjectReader.h"
 #include "filters/deskew/CacheDrivenTask.h"
@@ -14,6 +18,7 @@
 #include "filters/fix_orientation/Task.h"
 #include "filters/output/CacheDrivenTask.h"
 #include "filters/output/Task.h"
+#include "filters/output/Utils.h"
 #include "filters/page_layout/CacheDrivenTask.h"
 #include "filters/page_layout/Task.h"
 #include "filters/page_split/CacheDrivenTask.h"
@@ -165,3 +170,21 @@ std::shared_ptr<CompositeCacheDrivenTask> StageSequence::createCacheDrivenTask(
   assert(fixOrientationTask);
   return fixOrientationTask;
 }  // StageSequence::createCacheDrivenTask
+
+std::vector<PdfExportPage> StageSequence::pdfExportPages(const ProjectPages& pages,
+                                                         const OutputFileNameGenerator& outFileNameGen) const {
+  // The pages in project order, independent of how the thumbnails are sorted.
+  const QString outDir = outFileNameGen.outDir();
+  const QDir foregroundDir(output::Utils::foregroundDir(outDir));
+  const QDir backgroundDir(output::Utils::backgroundDir(outDir));
+  std::vector<PdfExportPage> result;
+  for (const PageInfo& pageInfo : pages.toPageSequence(PAGE_VIEW)) {
+    const PageId& pageId = pageInfo.id();
+    const QString fileName = outFileNameGen.fileNameFor(pageId);
+    result.emplace_back(outFileNameGen.filePathFor(pageId), foregroundDir.absoluteFilePath(fileName),
+                        backgroundDir.absoluteFilePath(fileName), m_outputFilter->isMixedMode(pageId));
+    // Only the file headers are read, so this is quick even for many pages.
+    result.back().analyze();
+  }
+  return result;
+}

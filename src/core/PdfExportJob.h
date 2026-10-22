@@ -13,6 +13,8 @@
 #include "PdfExportPage.h"
 #include "PdfWriter.h"
 
+struct ProcessingOptions;
+
 struct PdfExportOptions {
   /** Grayscale and colour pages and the pictures of split pages: NONE, DEFLATE, JPEG or JPEG2000. */
   PdfCompression colorCompression = PdfCompression::JPEG;
@@ -39,6 +41,12 @@ struct PdfExportOptions {
   QString ocrLanguages;
   /** One of OcrEngine::PageLayout. */
   int ocrPageLayout = 0;
+
+  /**
+   * The compression of the project. The number of threads and the text recognition are
+   * left at their defaults; they are up to the caller.
+   */
+  static PdfExportOptions fromProject(const ProcessingOptions& options);
 };
 
 class OcrEngine;

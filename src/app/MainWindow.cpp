@@ -7,6 +7,7 @@
 #include <core/IconProvider.h>
 
 #include <QActionGroup>
+#include <QApplication>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileSystemModel>
@@ -1672,7 +1673,11 @@ void MainWindow::enterPdfStage() {
   }
   // The output files may have changed since the PDF step was last shown.
   m_pdfView->setDefaultFile(defaultPdfFile());
-  m_pdfView->setPages(pdfExportEntries());
+  // The files of the pages are analyzed meanwhile.
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  std::vector<PdfExportView::Entry> entries = pdfExportEntries();
+  QApplication::restoreOverrideCursor();
+  m_pdfView->setPages(std::move(entries));
   updateMainArea();
 }
 
@@ -1689,20 +1694,11 @@ void MainWindow::leavePdfStage() {
 }
 
 std::vector<PdfExportView::Entry> MainWindow::pdfExportEntries() const {
-  // The pages in project order, independent of the current sorting of the thumbnails.
-  const QString outDir = m_outFileNameGen.outDir();
-  const QDir foregroundDir(output::Utils::foregroundDir(outDir));
-  const QDir backgroundDir(output::Utils::backgroundDir(outDir));
-  const std::shared_ptr<output::Filter>& outputFilter = m_stages->outputFilter();
   std::vector<PdfExportView::Entry> entries;
-  for (const PageInfo& pageInfo : m_pages->toPageSequence(PAGE_VIEW)) {
-    const PageId& pageId = pageInfo.id();
-    const QString fileName = m_outFileNameGen.fileNameFor(pageId);
-    const bool mixed = outputFilter->isMixedMode(pageId);
+  for (PdfExportPage& page : m_stages->pdfExportPages(*m_pages, m_outFileNameGen)) {
     PdfExportView::Entry entry;
-    entry.label = fileName;
-    entry.page = PdfExportPage(m_outFileNameGen.filePathFor(pageId), foregroundDir.absoluteFilePath(fileName),
-                               backgroundDir.absoluteFilePath(fileName), mixed);
+    entry.label = QFileInfo(page.mainFile()).fileName();
+    entry.page = std::move(page);
     entries.push_back(std::move(entry));
   }
   return entries;

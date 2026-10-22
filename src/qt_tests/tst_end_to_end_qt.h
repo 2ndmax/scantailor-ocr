@@ -15,6 +15,7 @@ class TestEndToEndQt : public QObject {
  private slots:
   void testAllSteps();
   void testColorOutputCompression();
+  void testPdfExport();
 };
 
 #endif

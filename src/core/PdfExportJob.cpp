@@ -21,6 +21,7 @@
 #include "ImageLoader.h"
 #include "OcrEngine.h"
 #include "PdfImageEncoder.h"
+#include "ProcessingOptions.h"
 #include "ThreadBudget.h"
 
 namespace {
@@ -235,6 +236,18 @@ bool addTextLayer(const QImage& image,
 #endif
 }
 }  // namespace
+
+PdfExportOptions PdfExportOptions::fromProject(const ProcessingOptions& options) {
+  const ProcessingOptions::Pdf& pdf = options.pdf;
+  PdfExportOptions result;
+  result.colorCompression = pdf.colorCompression;
+  result.colorQuality = pdf.colorQuality;
+  result.backgroundScale = pdf.backgroundScale;
+  result.paletteCompression = pdf.paletteCompression;
+  result.paletteQuality = pdf.paletteQuality;
+  result.bitonalCompression = pdf.bitonalCompression;
+  return result;
+}
 
 PdfExportJob::PdfExportJob(std::vector<PdfExportPage> pages, const QString& outputFile, const PdfExportOptions& options)
     : m_pages(std::move(pages)), m_outputFile(outputFile), m_options(options) {}
