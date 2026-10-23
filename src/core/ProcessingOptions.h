@@ -34,6 +34,8 @@ struct ProcessingOptions {
     /** 10 to 100. */
     int paletteQuality = 85;
     PdfCompression bitonalCompression = PdfCompression::JBIG2;
+    /** Write the PDF as PDF/A-2b. */
+    bool pdfA = true;
     /** Add an invisible text layer. */
     bool ocr = true;
     /** Language codes, e.g. "deu" and "eng". */

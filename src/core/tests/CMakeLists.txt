@@ -43,3 +43,9 @@ target_link_libraries(
 
 add_test(NAME core_tests COMMAND core_tests --log_level=message)
 set_unit_test_environment(core_tests)
+
+# Validates a PDF/A file if veraPDF is installed (see TestPdfWriter.cpp).
+find_program(VERAPDF_EXECUTABLE NAMES verapdf verapdf.bat)
+if (VERAPDF_EXECUTABLE)
+  set_property(TEST core_tests APPEND PROPERTY ENVIRONMENT "VERAPDF=${VERAPDF_EXECUTABLE}")
+endif()

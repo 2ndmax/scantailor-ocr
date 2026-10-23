@@ -1594,14 +1594,14 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="147"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="75"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="74"/>
         <source>Minimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="155"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="78"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="77"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1622,7 +1622,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="146"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="72"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="71"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2786,98 +2786,108 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>PdfCompressionPanel</name>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="47"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="48"/>
         <source>Higher values give better pictures and larger files. Only used with JPEG and JPEG 2000. With JPEG 2000, 100 is lossless; with JPEG, it&apos;s only nearly lossless.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="52"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="53"/>
         <source>Color / Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="53"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="54"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="57"/>
-        <location filename="../app/PdfCompressionPanel.cpp" line="91"/>
-        <location filename="../app/PdfCompressionPanel.cpp" line="109"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="58"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="92"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="110"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="62"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="63"/>
         <source>JPEG makes small files and loses a little quality, mostly at the edges of text. JPEG 2000 looks better at the same size, or makes smaller files at the same quality, but takes much longer to create, and some simple or old PDF programs can&apos;t show it. Deflate is lossless, but makes the PDF very large: a color page can take 10 to 25 MB, uncompressed (None) up to 45 MB.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="66"/>
-        <location filename="../app/PdfCompressionPanel.cpp" line="99"/>
-        <location filename="../app/PdfCompressionPanel.cpp" line="116"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="67"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="100"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="117"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="71"/>
-        <location filename="../app/PdfCompressionPanel.cpp" line="104"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="72"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="105"/>
         <source>Quality:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="74"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="75"/>
         <source>Full</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="75"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="76"/>
         <source>Half</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="76"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="77"/>
         <source>One third</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="78"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="79"/>
         <source>Resolution of the background layer of pages with split output, that is of the pictures, relative to the output resolution. The text is always stored at full resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="80"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="81"/>
         <source>Background layer:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="85"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="86"/>
         <source>Posterized Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="86"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="87"/>
         <source>Color pages that were posterized in the Output step, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color / Grayscale&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="96"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="97"/>
         <source>Deflate is lossless and keeps the few colors exactly, which makes small and sharp files. JPEG and JPEG 2000 convert the page to full color first, which blurs the color areas and often makes the file larger. None is lossless, but large.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="107"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="108"/>
         <source>Black and White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="107"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="108"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfCompressionPanel.cpp" line="114"/>
+        <location filename="../app/PdfCompressionPanel.cpp" line="115"/>
         <source>All methods are lossless. JBIG2 makes the smallest files. CCITT G4 files are about a third larger, but can be shown by very old PDF programs, too. Deflate and None make much larger files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="120"/>
+        <source>Archiving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfCompressionPanel.cpp" line="123"/>
+        <source>Creates the PDF as PDF/A-2b, the ISO standard for long-term archiving. The file then also contains a color profile and metadata, so it will look the same in future PDF programs. Adobe Acrobat opens such files read-only at first; editing has to be enabled there.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2909,43 +2919,43 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="270"/>
+        <location filename="../core/PdfExportJob.cpp" line="271"/>
         <source>The output file %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="317"/>
+        <location filename="../core/PdfExportJob.cpp" line="318"/>
         <source>The split output files of %1 differ in size. Process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="369"/>
+        <location filename="../core/PdfExportJob.cpp" line="370"/>
         <source>No pages are selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="375"/>
+        <location filename="../core/PdfExportJob.cpp" line="376"/>
         <source>Could not create %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="448"/>
+        <location filename="../core/PdfExportJob.cpp" line="450"/>
         <source>Text recognition could not be started.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="460"/>
+        <location filename="../core/PdfExportJob.cpp" line="462"/>
         <source>Out of memory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="467"/>
+        <location filename="../core/PdfExportJob.cpp" line="469"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="535"/>
-        <location filename="../core/PdfExportJob.cpp" line="541"/>
+        <location filename="../core/PdfExportJob.cpp" line="537"/>
+        <location filename="../core/PdfExportJob.cpp" line="543"/>
         <source>Could not write %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3549,49 +3559,49 @@ You should remove them from the project.</source>
 <context>
     <name>ProjectOpeningContext</name>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="32"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="37"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="116"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="31"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="36"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="115"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="33"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="32"/>
         <source>The project file is not compatible with the current application version.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="37"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="36"/>
         <source>Unable to interpret the project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="91"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="90"/>
         <source>Project from an Older Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="92"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="91"/>
         <source>This project was saved by ScanTailor Advanced or an older version (project file version %2). ScanTailor OCR can open it, but processes some settings differently, so the results can differ. Settings that the project doesn&apos;t contain are taken from the profile &quot;%1&quot; of the default parameters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="98"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="97"/>
         <source>Once the project is saved, also automatically, ScanTailor Advanced can no longer open it. A backup copy keeps the original file usable there. It&apos;s saved next to the project as &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="103"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="102"/>
         <source>Create backup and open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="104"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="103"/>
         <source>Open without backup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="117"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="116"/>
         <source>The backup copy &quot;%1&quot; could not be created. The project was not opened.</source>
         <translation type="unfinished"></translation>
     </message>

@@ -58,6 +58,7 @@ ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOpti
   pdf.paletteCompression = pdfCompressionAttribute(pdfEl, "paletteCompression", pdfFallback.paletteCompression);
   pdf.paletteQuality = intAttribute(pdfEl, "paletteQuality", pdfFallback.paletteQuality, 10, 100);
   pdf.bitonalCompression = pdfCompressionAttribute(pdfEl, "bitonalCompression", pdfFallback.bitonalCompression);
+  pdf.pdfA = boolAttribute(pdfEl, "pdfA", pdfFallback.pdfA);
 
   const QDomElement ocrEl = el.namedItem("ocr").toElement();
   pdf.ocr = boolAttribute(ocrEl, "enabled", pdfFallback.ocr);
@@ -95,6 +96,7 @@ QDomElement ProcessingOptions::toXml(QDomDocument& doc, const QString& name) con
   pdfEl.setAttribute("paletteCompression", static_cast<int>(pdf.paletteCompression));
   pdfEl.setAttribute("paletteQuality", pdf.paletteQuality);
   pdfEl.setAttribute("bitonalCompression", static_cast<int>(pdf.bitonalCompression));
+  pdfEl.setAttribute("pdfA", pdf.pdfA ? "1" : "0");
   el.appendChild(pdfEl);
 
   QDomElement ocrEl = doc.createElement("ocr");

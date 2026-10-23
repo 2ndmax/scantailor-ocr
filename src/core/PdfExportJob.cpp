@@ -246,6 +246,7 @@ PdfExportOptions PdfExportOptions::fromProject(const ProcessingOptions& options)
   result.paletteCompression = pdf.paletteCompression;
   result.paletteQuality = pdf.paletteQuality;
   result.bitonalCompression = pdf.bitonalCompression;
+  result.pdfA = pdf.pdfA;
   return result;
 }
 
@@ -378,6 +379,7 @@ void PdfExportJob::run() {
 
   PdfWriter writer(file);
   writer.setProducer(QStringLiteral("ScanTailor OCR"));
+  writer.setPdfA(m_options.pdfA);
   bool ok = writer.begin();
 
   struct Prepared {

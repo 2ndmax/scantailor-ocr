@@ -13,6 +13,7 @@
 
 #include "NonCopyable.h"
 
+class QDateTime;
 class QIODevice;
 
 /**
@@ -25,8 +26,8 @@ class QIODevice;
  * The structure follows the approach of Tesseract's pdfrenderer.cpp: plain
  * objects, a classic cross-reference table and a trailer. Recognized text is
  * written as invisible text (rendering mode 3) in Tesseract's embedded
- * "GlyphLessFont", stretched to the width of each word. PDF/A additions (XMP
- * metadata, output intent) are meant to be added to the catalog later.
+ * "GlyphLessFont", stretched to the width of each word. With setPdfA(), the
+ * catalog also gets XMP metadata and an sRGB output intent, as PDF/A-2b requires.
  */
 class PdfWriter {
   DECLARE_NON_COPYABLE(PdfWriter)
@@ -103,6 +104,9 @@ class PdfWriter {
   /** Shown as the "Producer" in the document properties. */
   void setProducer(const QString& producer) { m_producer = producer; }
 
+  /** Marks the file as PDF/A-2b and adds what that requires. Must be called before finish(). */
+  void setPdfA(const bool pdfA) { m_pdfA = pdfA; }
+
   /** Formats a number the way PDF expects it: no exponent, at most 3 decimals, no trailing zeros. */
   static QByteArray formatNumber(double value);
 
@@ -114,6 +118,9 @@ class PdfWriter {
   void writeFont();
 
   QByteArray textContent(const Page& page) const;
+
+  /** Writes the XMP metadata and the output intent, returns the entries for the catalog. */
+  QByteArray writePdfAObjects(const QDateTime& created);
 
   int allocateObject();
 
@@ -135,6 +142,7 @@ class PdfWriter {
   /** Set once an image needs PDF 1.5 (JPEG 2000). */
   bool m_usesPdf15 = false;
   QString m_producer;
+  bool m_pdfA = false;
   bool m_ok = true;
 };
 

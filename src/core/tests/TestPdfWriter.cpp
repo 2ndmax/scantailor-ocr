@@ -12,8 +12,10 @@
 #include <tiffio.h>
 
 #include <QBuffer>
+#include <QDateTime>
 #include <QFile>
 #include <QImage>
+#include <QProcess>
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
@@ -281,6 +283,125 @@ BOOST_AUTO_TEST_CASE(test_pdf_structure_and_page_size) {
   BOOST_CHECK(pdf.contains("/ImageMask true"));
   BOOST_CHECK(pdf.contains("/ColorSpace /DeviceGray /BitsPerComponent 8 /Filter /DCTDecode"));
   BOOST_CHECK(pdf.contains("/Producer <FEFF0054006500730074>"));
+  BOOST_CHECK(!pdf.contains("/Metadata"));
+  BOOST_CHECK(!pdf.contains("/OutputIntents"));
+}
+
+BOOST_AUTO_TEST_CASE(test_pdf_a) {
+  const QSizeF pageSize(200, 100);
+  PdfWriter::Image picture;
+  picture.encoding = PdfWriter::Image::Encoding::JPEG;
+  picture.data = PdfImageEncoder::encodeJpeg(makeGray(100, 50, 300), 75, &picture.components);
+  picture.width = 100;
+  picture.height = 50;
+  picture.rect = QRectF(QPointF(0, 0), pageSize);
+
+  QBuffer buffer;
+  buffer.open(QIODevice::WriteOnly);
+  PdfWriter writer(buffer);
+  writer.setProducer("A & B");
+  writer.setPdfA(true);
+  BOOST_REQUIRE(writer.begin());
+  BOOST_REQUIRE(writer.addPage({pageSize, {picture}, {}}));
+  BOOST_REQUIRE(writer.finish());
+
+  const QByteArray pdf = buffer.data();
+  checkStructure(pdf, 1);
+  BOOST_CHECK(pdf.contains("/OutputIntents [ << /Type /OutputIntent /S /GTS_PDFA1 "));
+  BOOST_CHECK(pdf.contains("/N 3 /Filter /FlateDecode"));
+  // The metadata stream must not be compressed.
+  BOOST_CHECK(pdf.contains("/Type /Metadata /Subtype /XML /Length "));
+  BOOST_CHECK(pdf.contains("<pdfaid:part>2</pdfaid:part>"));
+  BOOST_CHECK(pdf.contains("<pdfaid:conformance>B</pdfaid:conformance>"));
+  BOOST_CHECK(pdf.contains("<pdf:Producer>A &amp; B</pdf:Producer>"));
+
+  // The creation date is the same in the info dictionary and in the metadata.
+  const qsizetype infoDate = pdf.indexOf("/CreationDate (D:");
+  const qsizetype xmpDate = pdf.indexOf("<xmp:CreateDate>");
+  BOOST_REQUIRE((infoDate >= 0) && (xmpDate >= 0));
+  const QByteArray info = pdf.mid(infoDate + 17, 14);
+  const QDateTime xmp = QDateTime::fromString(QString::fromLatin1(pdf.mid(xmpDate + 16, 19)), Qt::ISODate);
+  BOOST_CHECK_EQUAL(info.toStdString(), xmp.toString("yyyyMMddHHmmss").toStdString());
+}
+
+// Runs only if CMake found veraPDF, see CMakeLists.txt.
+BOOST_AUTO_TEST_CASE(test_pdf_a_with_verapdf) {
+  const QString verapdf = qEnvironmentVariable("VERAPDF");
+  if (verapdf.isEmpty()) {
+    BOOST_TEST_MESSAGE("veraPDF not found, PDF/A validation skipped");
+    return;
+  }
+
+  // Every kind of image the writer knows, and a text layer.
+  const QSizeF pageSize(300, 200);
+  QImage color(120, 80, QImage::Format_RGB888);
+  for (int y = 0; y < color.height(); ++y) {
+    for (int x = 0; x < color.width(); ++x) {
+      color.setPixel(x, y, qRgb(x * 2, y * 3, 128));
+    }
+  }
+  const QImage bitonal = makeBitonal(300, 200, 72);
+  const QImage palette = makePalette(60, 40, 72);
+  std::vector<PdfWriter::Image> images;
+  auto addImage = [&images](PdfWriter::Image image, const QImage& source, const QRectF& rect) {
+    image.width = source.width();
+    image.height = source.height();
+    image.rect = rect;
+    BOOST_REQUIRE(!image.data.isEmpty());
+    images.push_back(image);
+  };
+  PdfWriter::Image image;
+  image.encoding = PdfWriter::Image::Encoding::JPEG;
+  image.data = PdfImageEncoder::encodeJpeg(color, 80, &image.components);
+  addImage(image, color, QRectF(0, 0, 100, 100));
+  image = PdfWriter::Image();
+  image.encoding = PdfWriter::Image::Encoding::JPX;
+  image.data = PdfImageEncoder::encodeJpeg2000(color, 80, &image.components);
+  addImage(image, color, QRectF(100, 0, 100, 100));
+  image = PdfWriter::Image();
+  image.encoding = PdfWriter::Image::Encoding::JPX;
+  const QImage gray = makeGray(40, 40, 72);
+  image.data = PdfImageEncoder::encodeJpeg2000(gray, 80, &image.components);
+  addImage(image, gray, QRectF(200, 0, 100, 100));
+  image = PdfWriter::Image();
+  image.encoding = PdfWriter::Image::Encoding::FLATE;
+  const QByteArray samples
+      = PdfImageEncoder::rawSamples(palette, &image.components, &image.bitsPerComponent, &image.palette);
+  image.data = PdfImageEncoder::deflate(samples, palette.width(), palette.height(), image.components,
+                                        image.bitsPerComponent, false);
+  addImage(image, palette, QRectF(0, 100, 100, 100));
+  image = PdfWriter::Image();
+  image.encoding = PdfWriter::Image::Encoding::CCITT_G4;
+  image.data = PdfImageEncoder::encodeG4(bitonal);
+  addImage(image, bitonal, QRectF(100, 100, 100, 100));
+  image = PdfWriter::Image();
+  image.encoding = PdfWriter::Image::Encoding::JBIG2;
+  image.data = PdfImageEncoder::encodeJbig2(bitonal);
+  image.isMask = true;
+  addImage(image, bitonal, QRectF(0, 0, 300, 200));
+
+  PdfWriter::Page page{pageSize, images, {}};
+  page.words.push_back({QStringLiteral(u"Grüße "), QPointF(10, 50), 60, 12});
+  page.words.push_back({QStringLiteral("ScanTailor"), QPointF(75, 50), 70, 12});
+
+  QTemporaryDir tempDir;
+  const QString path = tempDir.filePath("pdfa.pdf");
+  QFile file(path);
+  BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
+  PdfWriter writer(file);
+  writer.setProducer("ScanTailor OCR");
+  writer.setPdfA(true);
+  BOOST_REQUIRE(writer.begin());
+  BOOST_REQUIRE(writer.addPage(page));
+  BOOST_REQUIRE(writer.finish());
+  file.close();
+
+  QProcess process;
+  process.setProcessChannelMode(QProcess::MergedChannels);
+  process.start(verapdf, {"--flavour", "2b", "--format", "text", path});
+  BOOST_REQUIRE(process.waitForFinished(300000));
+  const QString output = QString::fromLocal8Bit(process.readAll());
+  BOOST_CHECK_MESSAGE(output.startsWith("PASS "), output.toStdString());
 }
 
 BOOST_AUTO_TEST_CASE(test_text_layer) {

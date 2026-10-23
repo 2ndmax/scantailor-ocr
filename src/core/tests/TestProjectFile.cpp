@@ -80,6 +80,7 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   options.pdf.paletteCompression = PdfCompression::NONE;
   options.pdf.paletteQuality = 50;
   options.pdf.bitonalCompression = PdfCompression::CCITT_G4;
+  options.pdf.pdfA = false;
   options.pdf.ocr = false;
   options.pdf.ocrLanguages = QStringList{"fra", "lat"};
   options.pdf.ocrPageLayout = 2;
@@ -106,6 +107,7 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   BOOST_CHECK(read.pdf.paletteCompression == PdfCompression::NONE);
   BOOST_CHECK_EQUAL(read.pdf.paletteQuality, 50);
   BOOST_CHECK(read.pdf.bitonalCompression == PdfCompression::CCITT_G4);
+  BOOST_CHECK(!read.pdf.pdfA);
   BOOST_CHECK(!read.pdf.ocr);
   BOOST_CHECK(read.pdf.ocrLanguages == (QStringList{"fra", "lat"}));
   BOOST_CHECK_EQUAL(read.pdf.ocrPageLayout, 2);

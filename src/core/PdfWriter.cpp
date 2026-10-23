@@ -3,6 +3,7 @@
 
 #include "PdfWriter.h"
 
+#include <QColorSpace>
 #include <QDateTime>
 #include <QIODevice>
 #include <QUuid>
@@ -123,11 +124,16 @@ bool PdfWriter::finish() {
   beginObject(m_pagesId);
   write("<< /Type /Pages /Kids [ " + kids + "] /Count " + QByteArray::number(pageCount()) + " >>\nendobj\n");
 
+  // PDF/A requires the same date in the info dictionary and in the XMP metadata.
+  QDateTime created = QDateTime::currentDateTimeUtc();
+  created.setTime(QTime(created.time().hour(), created.time().minute(), created.time().second()));
+  const QByteArray pdfAEntries = m_pdfA ? writePdfAObjects(created) : QByteArray();
+
   beginObject(m_catalogId);
   // The header was written before the pages were known. JPEG 2000 needs PDF 1.5;
   // the catalog's version takes precedence over the header's.
   const QByteArray version = m_usesPdf15 ? QByteArray(" /Version /1.5") : QByteArray();
-  write("<< /Type /Catalog /Pages " + QByteArray::number(m_pagesId) + " 0 R" + version + " >>\nendobj\n");
+  write("<< /Type /Catalog /Pages " + QByteArray::number(m_pagesId) + " 0 R" + version + pdfAEntries + " >>\nendobj\n");
 
   const int infoId = allocateObject();
   beginObject(infoId);
@@ -135,7 +141,7 @@ bool PdfWriter::finish() {
   if (!m_producer.isEmpty()) {
     info += "/Producer " + textString(m_producer) + ' ';
   }
-  info += "/CreationDate (D:" + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss").toLatin1() + "Z) >>";
+  info += "/CreationDate (D:" + created.toString("yyyyMMddHHmmss").toLatin1() + "Z) >>";
   write(info + "\nendobj\n");
 
   const qint64 xrefOffset = m_written;
@@ -230,6 +236,45 @@ void PdfWriter::writeFont() {
   writeStreamObject(fontFileId, "/Length1 " + QByteArray::number(font.size()) + " /Filter /FlateDecode",
                     qCompress(font, 9).mid(4));
 }  // PdfWriter::writeFont
+
+QByteArray PdfWriter::writePdfAObjects(const QDateTime& created) {
+  // The output intent makes DeviceGray and DeviceRGB device independent, as sRGB.
+  const QByteArray profile = QColorSpace(QColorSpace::SRgb).iccProfile();
+  if (profile.isEmpty()) {
+    m_ok = false;
+    return QByteArray();
+  }
+  const int profileId = allocateObject();
+  writeStreamObject(profileId, "/N 3 /Filter /FlateDecode", qCompress(profile, 9).mid(4));
+
+  QByteArray producer;
+  if (!m_producer.isEmpty()) {
+    producer = "<pdf:Producer>" + m_producer.toHtmlEscaped().toUtf8() + "</pdf:Producer>\n";
+  }
+  // PDF/A doesn't allow filters on the metadata stream, so it stays readable as plain text.
+  const QByteArray xmp
+      = "<?xpacket begin=\"\xEF\xBB\xBF\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n"
+        "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\">\n"
+        "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
+        "<rdf:Description rdf:about=\"\" xmlns:pdfaid=\"http://www.aiim.org/pdfa/ns/id/\" "
+        "xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\" xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\">\n"
+        "<pdfaid:part>2</pdfaid:part>\n"
+        "<pdfaid:conformance>B</pdfaid:conformance>\n"
+        "<xmp:CreateDate>"
+        + created.toString("yyyy-MM-ddTHH:mm:ss").toLatin1() + "Z</xmp:CreateDate>\n" + producer
+        + "</rdf:Description>\n"
+          "</rdf:RDF>\n"
+          "</x:xmpmeta>\n"
+          "<?xpacket end=\"w\"?>";
+  const int metadataId = allocateObject();
+  writeStreamObject(metadataId, "/Type /Metadata /Subtype /XML", xmp);
+
+  // GTS_PDFA1 is the subtype for all parts of PDF/A.
+  return " /Metadata " + QByteArray::number(metadataId)
+         + " 0 R /OutputIntents [ << /Type /OutputIntent /S /GTS_PDFA1 /OutputConditionIdentifier (sRGB IEC61966-2.1) "
+           "/Info (sRGB IEC61966-2.1) /DestOutputProfile "
+         + QByteArray::number(profileId) + " 0 R >> ]";
+}
 
 QByteArray PdfWriter::textContent(const Page& page) const {
   const double pageHeight = page.size.height();

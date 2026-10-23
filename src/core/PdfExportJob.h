@@ -31,6 +31,8 @@ struct PdfExportOptions {
   int paletteQuality = 85;
   /** Black and white pages and the text of split pages: NONE, DEFLATE, CCITT_G4 or JBIG2. */
   PdfCompression bitonalCompression = PdfCompression::JBIG2;
+  /** Write the PDF as PDF/A-2b. */
+  bool pdfA = false;
   /** The number of pages prepared in parallel. */
   int threadCount = 1;
   /** Add an invisible text layer. Requires a build with ENABLE_OCR. */

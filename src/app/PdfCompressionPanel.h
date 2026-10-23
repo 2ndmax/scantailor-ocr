@@ -8,13 +8,14 @@
 
 #include "ProcessingOptions.h"
 
+class QCheckBox;
 class QComboBox;
 class QSpinBox;
 
 /**
- * The contents of the PDF Compression panel: a method for each kind of page, the qualities and
- * the resolution of the background layer. The PDF step and the default parameters put it into
- * their group boxes.
+ * The contents of the PDF Compression panel: a method for each kind of page, the qualities, the
+ * resolution of the background layer and PDF/A. The PDF step and the default parameters put it
+ * into their group boxes.
  */
 class PdfCompressionPanel : public QWidget {
   Q_OBJECT
@@ -53,6 +54,7 @@ class PdfCompressionPanel : public QWidget {
   QComboBox* m_paletteCompression = nullptr;
   QSpinBox* m_paletteQuality = nullptr;
   QComboBox* m_bitonalCompression = nullptr;
+  QCheckBox* m_pdfA = nullptr;
 };
 
 #endif  // SCANTAILOR_APP_PDFCOMPRESSIONPANEL_H_

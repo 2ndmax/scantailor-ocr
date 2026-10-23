@@ -3,6 +3,7 @@
 
 #include "PdfCompressionPanel.h"
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
@@ -115,6 +116,15 @@ PdfCompressionPanel::PdfCompressionPanel(QWidget* parent) : QWidget(parent) {
          "can be shown by very old PDF programs, too. Deflate and None make much larger files."));
   optionsLayout->addRow(tr("Method:"), m_bitonalCompression);
 
+  // Archiving.
+  addHeading(tr("Archiving"), QString(), false);
+  m_pdfA = new QCheckBox(QStringLiteral("PDF/A-2b"));
+  m_pdfA->setToolTip(
+      tr("Creates the PDF as PDF/A-2b, the ISO standard for long-term archiving. The file then also contains a "
+         "color profile and metadata, so it will look the same in future PDF programs. Adobe Acrobat opens "
+         "such files read-only at first; editing has to be enabled there."));
+  optionsLayout->addRow(m_pdfA);
+
   // The lists of the group line up.
   int listWidth = 0;
   for (QComboBox* box : {m_colorCompression, m_backgroundScale, m_paletteCompression, m_bitonalCompression}) {
@@ -136,6 +146,7 @@ PdfCompressionPanel::PdfCompressionPanel(QWidget* parent) : QWidget(parent) {
   for (QSpinBox* box : {m_colorQuality, m_paletteQuality}) {
     connect(box, qOverload<int>(&QSpinBox::valueChanged), this, &PdfCompressionPanel::compressionChanged);
   }
+  connect(m_pdfA, &QCheckBox::toggled, this, &PdfCompressionPanel::compressionChanged);
 }
 
 PdfCompressionPanel::~PdfCompressionPanel() = default;
@@ -147,6 +158,7 @@ void PdfCompressionPanel::setOptions(const ProcessingOptions::Pdf& pdf) {
   const QSignalBlocker paletteBlocker(m_paletteCompression);
   const QSignalBlocker paletteQualityBlocker(m_paletteQuality);
   const QSignalBlocker bitonalBlocker(m_bitonalCompression);
+  const QSignalBlocker pdfABlocker(m_pdfA);
   const ProcessingOptions::Pdf defaults;
   selectData(m_colorCompression, pdf.colorCompression, defaults.colorCompression);
   m_colorQuality->setValue(pdf.colorQuality);
@@ -154,6 +166,7 @@ void PdfCompressionPanel::setOptions(const ProcessingOptions::Pdf& pdf) {
   selectData(m_paletteCompression, pdf.paletteCompression, defaults.paletteCompression);
   m_paletteQuality->setValue(pdf.paletteQuality);
   selectData(m_bitonalCompression, pdf.bitonalCompression, defaults.bitonalCompression);
+  m_pdfA->setChecked(pdf.pdfA);
   updateQualityFields();
 }
 
@@ -164,6 +177,7 @@ void PdfCompressionPanel::storeOptions(ProcessingOptions::Pdf& pdf) const {
   pdf.paletteCompression = static_cast<PdfCompression>(m_paletteCompression->currentData().toInt());
   pdf.paletteQuality = m_paletteQuality->value();
   pdf.bitonalCompression = static_cast<PdfCompression>(m_bitonalCompression->currentData().toInt());
+  pdf.pdfA = m_pdfA->isChecked();
 }
 
 void PdfCompressionPanel::updateQualityFields() {
