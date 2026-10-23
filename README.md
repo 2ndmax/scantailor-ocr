@@ -13,6 +13,18 @@ Website: [www.ScanTailorOCR.eu](https://www.ScanTailorOCR.eu)
 [documentation of ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced#readme).**
 A lot of what is described there applies to ScanTailor OCR as well.
 
+## Project files
+
+ScanTailor OCR saves projects in a new format (project file version 10). Because of the many
+changes, this format is not backward compatible: ScanTailor Advanced can't open projects saved
+by ScanTailor OCR.
+
+Projects of ScanTailor Advanced (version 4) can usually be opened. Some of their settings may be
+processed differently, though, so the results can differ from those of ScanTailor Advanced.
+Once such a project is saved in ScanTailor OCR, also automatically, it has the new format and
+can no longer be opened in ScanTailor Advanced. Keep a copy of the project file if you want to go
+on using it there.
+
 ## How this project came about
 
 ScanTailor OCR is based on [ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced)
