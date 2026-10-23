@@ -68,6 +68,19 @@ class StageSequence {
                                bool debug) const;
 
   /**
+   * Processes all pages through all six steps in this thread, as batch processing in the app does
+   * step by step. Which images have two pages is only known after the step that splits them, so
+   * the images are processed up to that step first. The pages get the same size, which is only
+   * known once the content of all pages is, so all pages go through the Margins step before any
+   * is output.
+   *
+   * \return false if the size of some page is still unknown; then nothing is output.
+   */
+  bool processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+                  const OutputFileNameGenerator& outFileNameGen,
+                  const std::shared_ptr<ProjectPages>& pages) const;
+
+  /**
    * The task that updates the thumbnails up to the step \p lastFilterIdx from the stored results.
    */
   std::shared_ptr<CompositeCacheDrivenTask> createCacheDrivenTask(int lastFilterIdx,

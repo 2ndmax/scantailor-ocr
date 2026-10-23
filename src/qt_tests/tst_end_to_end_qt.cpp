@@ -26,7 +26,6 @@
 #include <filters/output/GeometryCollector.h>
 #include <filters/output/Params.h>
 #include <filters/output/Settings.h>
-#include <filters/page_layout/Filter.h>
 #include <filters/page_split/Params.h>
 #include <filters/page_split/Settings.h>
 #include <filters/select_content/Params.h>
@@ -197,30 +196,8 @@ class TestProject {
     stages->startNewProject(startValues);
   }
 
-  /**
-   * Processes the pages of \p view up to the step \p lastFilterIdx, as batch processing does.
-   */
-  void process(const PageView view, const int lastFilterIdx) {
-    for (const PageInfo& page : pages->toPageSequence(view)) {
-      stages->loadDefaultSettings(page);
-      const BackgroundTaskPtr task
-          = stages->createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, pages, true, false);
-      (*task)();
-    }
-  }
-
-  /**
-   * All six steps. Which images have two pages is only known after the step that splits them,
-   * so the pages are processed after the images, as in the app.
-   */
-  void processAll() {
-    process(IMAGE_VIEW, stages->pageSplitFilterIdx());
-    // The pages get the same size, which is only known once the content of all pages is. The app
-    // allows output only then, so all pages go through the Margins step first.
-    process(PAGE_VIEW, stages->pageLayoutFilterIdx());
-    QVERIFY(stages->pageLayoutFilter()->checkReadyForOutput(*pages));
-    process(PAGE_VIEW, stages->outputFilterIdx());
-  }
+  /** All six steps, as a command line tool would run them. */
+  void processAll() { QVERIFY(stages->processAll(thumbnailCache, outFileNameGen, pages)); }
 
   std::shared_ptr<ProjectPages> pages;
   std::shared_ptr<StageSequence> stages;

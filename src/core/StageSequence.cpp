@@ -139,6 +139,24 @@ BackgroundTaskPtr StageSequence::createTask(const PageInfo& page,
                                         thumbnailCache, pages, fixOrientationTask);
 }  // StageSequence::createTask
 
+bool StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+                               const OutputFileNameGenerator& outFileNameGen,
+                               const std::shared_ptr<ProjectPages>& pages) const {
+  const auto process = [&](const PageView view, const int lastFilterIdx) {
+    for (const PageInfo& page : pages->toPageSequence(view)) {
+      loadDefaultSettings(page);
+      (*createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, pages, true, false))();
+    }
+  };
+  process(IMAGE_VIEW, m_pageSplitFilterIdx);
+  process(PAGE_VIEW, m_pageLayoutFilterIdx);
+  if (!m_pageLayoutFilter->checkReadyForOutput(*pages)) {
+    return false;
+  }
+  process(PAGE_VIEW, m_outputFilterIdx);
+  return true;
+}
+
 std::shared_ptr<CompositeCacheDrivenTask> StageSequence::createCacheDrivenTask(
     const int lastFilterIdx,
     const OutputFileNameGenerator& outFileNameGen) const {
