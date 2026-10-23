@@ -115,9 +115,7 @@ class AccentFrameButton : public QPushButton {
       return;
     }
     const QColor accent = accentColor();
-    // The style sheets of the light and dark color schemes draw buttons with square corners, the
-    // Windows 11 style with rounded ones.
-    const double radius = qApp->styleSheet().contains(QLatin1String("QPushButton")) ? 0.0 : 4.0;
+    const double radius = ColorSchemeManager::instance().hasRoundedCorners() ? 4.0 : 0.0;
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(QPen(accent, 2));
@@ -151,12 +149,15 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
+    // Square or rounded corners, as the buttons of the color scheme.
+    const bool rounded = ColorSchemeManager::instance().hasRoundedCorners();
 
     // Frame; selected tiles have one in the accent color.
     const QRectF frame = QRectF(option.rect).adjusted(1.5, 1.5, -1.5, -1.5);
+    const double frameRadius = rounded ? 4.0 : 0.0;
     painter->setBrush(Qt::NoBrush);
     painter->setPen(selected ? QPen(accentColor(), 2) : QPen(palette.color(QPalette::Mid), 1));
-    painter->drawRoundedRect(frame, 4, 4);
+    painter->drawRoundedRect(frame, frameRadius, frameRadius);
 
     // Tick.
     if (checkable) {
@@ -180,7 +181,8 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
       painter->setPen(QPen(accentColor(), 2));
       painter->setBrush(Qt::NoBrush);
       const QRectF ring = QRectF(badge).adjusted(1, 1, -1, -1);
-      painter->drawRoundedRect(ring, ring.height() / 2.0, ring.height() / 2.0);
+      const double ringRadius = rounded ? ring.height() / 2.0 : 0.0;
+      painter->drawRoundedRect(ring, ringRadius, ringRadius);
       painter->setFont(font);
       painter->setPen(palette.color(QPalette::Text));
       painter->drawText(badge, Qt::AlignCenter, text);

@@ -19,6 +19,7 @@ void ColorSchemeManager::setColorScheme(const ColorScheme& colorScheme) {
   }
   if (const QString* styleSheet = colorScheme.getStyleSheet()) {
     qApp->setStyleSheet(*styleSheet);
+    m_roundedCorners = !styleSheet->contains(QLatin1String("QPushButton"));
   }
   if (const ColorScheme::ColorParams* colorParams = colorScheme.getColorParams()) {
     m_colorParams = std::make_unique<ColorScheme::ColorParams>(*colorParams);

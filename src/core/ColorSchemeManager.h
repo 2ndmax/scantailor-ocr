@@ -26,11 +26,19 @@ class ColorSchemeManager {
 
   QColor getColorParam(const QString& colorParam, const QColor& defaultColor) const;
 
+  /**
+   * Whether the color scheme draws buttons, fields and frames with rounded corners, as the
+   * Windows 11 style does, rather than with square ones, as the style sheets of the light and
+   * dark color schemes do. Frames the program draws itself should follow it.
+   */
+  bool hasRoundedCorners() const { return m_roundedCorners; }
+
  private:
   /** The colour set for \p colorParam by the colour scheme, or null. */
   const QColor* findColorParam(const QString& colorParam) const;
 
   std::unique_ptr<ColorScheme::ColorParams> m_colorParams;
+  bool m_roundedCorners = true;
 };
 
 

@@ -253,7 +253,10 @@ void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark
   framePen.setCosmetic(true);
   painter.setPen(framePen);
   painter.setBrush(QColor(255, 255, 255, 230));
-  painter.drawRoundedRect(square, s * 0.2, s * 0.2);
+  // Square or rounded corners, as the buttons of the color scheme; a slight rounding keeps
+  // a small square from looking frayed.
+  const double radius = ColorSchemeManager::instance().hasRoundedCorners() ? s * 0.2 : 1.0;
+  painter.drawRoundedRect(square, radius, radius);
 
   if (mark == INCOMPLETE_MARK) {
     // An hourglass in the accent color, as the frame of the selected thumbnail: two triangles
