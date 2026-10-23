@@ -26,6 +26,7 @@
 #include <filters/output/GeometryCollector.h>
 #include <filters/output/Params.h>
 #include <filters/output/Settings.h>
+#include <filters/page_layout/Filter.h>
 #include <filters/page_split/Params.h>
 #include <filters/page_split/Settings.h>
 #include <filters/select_content/Params.h>
@@ -214,6 +215,10 @@ class TestProject {
    */
   void processAll() {
     process(IMAGE_VIEW, stages->pageSplitFilterIdx());
+    // The pages get the same size, which is only known once the content of all pages is. The app
+    // allows output only then, so all pages go through the Margins step first.
+    process(PAGE_VIEW, stages->pageLayoutFilterIdx());
+    QVERIFY(stages->pageLayoutFilter()->checkReadyForOutput(*pages));
     process(PAGE_VIEW, stages->outputFilterIdx());
   }
 
@@ -425,9 +430,6 @@ void TestEndToEndQt::testPdfExport() {
   const QDir dir(tempDir.path());
   TestProject project(saveScans(dir), dir.absoluteFilePath("out"), DefaultParams());
   project.processAll();
-  // The pages get the same size. The first page was output before the sizes of the later ones
-  // were known, so it no longer matches its settings; output once more, so that all are current.
-  project.process(PAGE_VIEW, project.stages->outputFilterIdx());
 
   // One page of the PDF for each page of the project, in the order of the project.
   const PageSequence pages = project.pages->toPageSequence(PAGE_VIEW);
