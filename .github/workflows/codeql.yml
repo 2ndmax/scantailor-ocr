@@ -10,23 +10,6 @@ on:
 permissions:
   contents: read
 
-env:
-  # Rules left out for both jobs: style hints, findings in the code Qt generates
-  # (moc/uic in build/), and unused-static-function, which takes the test cases
-  # registered by Boost.Test for unused on Windows.
-  CODEQL_CONFIG: |
-    query-filters:
-      - exclude:
-          id:
-            - cpp/unused-static-function
-            - cpp/commented-out-code
-            - cpp/poorly-documented-function
-            - cpp/trivial-switch
-            - cpp/empty-block
-            - cpp/empty-if
-            - cpp/long-switch
-            - cpp/complex-block
-
 jobs:
   analyze-linux:
     name: Analyze (C++, Ubuntu)
@@ -55,7 +38,7 @@ jobs:
           languages: c-cpp
           build-mode: manual
           queries: security-and-quality
-          config: ${{ env.CODEQL_CONFIG }}
+          config-file: ./.github/codeql/codeql-config.yml
 
       # CodeQL watches this build to see which files are compiled and how.
       - name: Configure and build
@@ -137,7 +120,7 @@ jobs:
           languages: c-cpp
           build-mode: manual
           queries: security-and-quality
-          config: ${{ env.CODEQL_CONFIG }}
+          config-file: ./.github/codeql/codeql-config.yml
 
       # CodeQL watches this build to see which files are compiled and how.
       - name: Configure and build

@@ -1,0 +1,18 @@
+# CodeQL configuration for both jobs in .github/workflows/codeql.yml.
+# A file instead of the inline "config" input: on Windows the action dropped the
+# inline query-filters, so the excluded rules were still run there.
+
+# Rules left out: style hints, findings in the code Qt generates (moc/uic in
+# build/), and unused-static-function, which takes the test cases registered by
+# Boost.Test for unused on Windows.
+query-filters:
+  - exclude:
+      id:
+        - cpp/unused-static-function
+        - cpp/commented-out-code
+        - cpp/poorly-documented-function
+        - cpp/trivial-switch
+        - cpp/empty-block
+        - cpp/empty-if
+        - cpp/long-switch
+        - cpp/complex-block
