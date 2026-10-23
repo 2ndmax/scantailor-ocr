@@ -2968,395 +2968,395 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>PdfExportView</name>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="393"/>
-        <location filename="../app/PdfExportView.cpp" line="694"/>
-        <location filename="../app/PdfExportView.cpp" line="871"/>
+        <location filename="../app/PdfExportView.cpp" line="395"/>
+        <location filename="../app/PdfExportView.cpp" line="696"/>
+        <location filename="../app/PdfExportView.cpp" line="873"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="322"/>
+        <location filename="../app/PdfExportView.cpp" line="324"/>
         <source>Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="344"/>
+        <location filename="../app/PdfExportView.cpp" line="346"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="345"/>
+        <location filename="../app/PdfExportView.cpp" line="347"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="348"/>
+        <location filename="../app/PdfExportView.cpp" line="350"/>
         <source>Include all output pages in the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="349"/>
+        <location filename="../app/PdfExportView.cpp" line="351"/>
         <source>Exclude all pages from the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="440"/>
+        <location filename="../app/PdfExportView.cpp" line="442"/>
         <source>PDF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="381"/>
+        <location filename="../app/PdfExportView.cpp" line="383"/>
         <source>Open the PDF after creating it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="457"/>
+        <location filename="../app/PdfExportView.cpp" line="459"/>
         <source>Text Recognition (OCR)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="371"/>
+        <location filename="../app/PdfExportView.cpp" line="373"/>
         <source>PDF file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="374"/>
+        <location filename="../app/PdfExportView.cpp" line="376"/>
         <source>Browse ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="495"/>
+        <location filename="../app/PdfExportView.cpp" line="497"/>
         <source>Source Files (TIFF)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="496"/>
+        <location filename="../app/PdfExportView.cpp" line="498"/>
         <source>The compression of the TIFF files in the output folder that the selected pages are made from, as set in the TIFF Compression panel of the Output step when the pages were processed. The numbers count the pages; pages with split output count with their picture and with their text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="501"/>
+        <location filename="../app/PdfExportView.cpp" line="503"/>
         <source>How the selected pages are compressed in the PDF, as set in the PDF Compression panel. The numbers count the pages; pages with split output count with their picture and with their text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="676"/>
+        <location filename="../app/PdfExportView.cpp" line="678"/>
         <source>Save PDF As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="346"/>
+        <location filename="../app/PdfExportView.cpp" line="348"/>
         <source>Move forward</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="347"/>
+        <location filename="../app/PdfExportView.cpp" line="349"/>
         <source>Move back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="351"/>
+        <location filename="../app/PdfExportView.cpp" line="353"/>
         <source>Move the selected pages one place towards the start of the PDF. Pages can also be moved with drag and drop.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="354"/>
+        <location filename="../app/PdfExportView.cpp" line="356"/>
         <source>Move the selected pages one place towards the end of the PDF. Pages can also be moved with drag and drop.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="357"/>
+        <location filename="../app/PdfExportView.cpp" line="359"/>
         <source>Output missing pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="358"/>
+        <location filename="../app/PdfExportView.cpp" line="360"/>
         <source>Process the pages not output yet in the Output step, then come back here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="468"/>
+        <location filename="../app/PdfExportView.cpp" line="470"/>
         <source>Quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="474"/>
+        <location filename="../app/PdfExportView.cpp" line="476"/>
         <source>Color / grayscale:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="474"/>
+        <location filename="../app/PdfExportView.cpp" line="476"/>
         <source>Posterized:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="474"/>
+        <location filename="../app/PdfExportView.cpp" line="476"/>
         <source>Black and white:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="481"/>
+        <location filename="../app/PdfExportView.cpp" line="483"/>
         <source>No pages selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="676"/>
+        <location filename="../app/PdfExportView.cpp" line="678"/>
         <source>PDF files (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="698"/>
+        <location filename="../app/PdfExportView.cpp" line="700"/>
         <source>Please enter the file name of the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="706"/>
+        <location filename="../app/PdfExportView.cpp" line="708"/>
         <source>Please enter the complete path of the PDF, including the folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="713"/>
+        <location filename="../app/PdfExportView.cpp" line="715"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="717"/>
+        <location filename="../app/PdfExportView.cpp" line="719"/>
         <source>%1 is a folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="727"/>
+        <location filename="../app/PdfExportView.cpp" line="729"/>
         <source>The file %1 already exists.
 Do you want to replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="742"/>
+        <location filename="../app/PdfExportView.cpp" line="744"/>
         <source>Please tick the pages to include in the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="754"/>
+        <location filename="../app/PdfExportView.cpp" line="756"/>
         <source>The languages %1 of the project aren&apos;t installed on this computer. Download them now?
 
 Without them, the text is only recognized with the other ticked languages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="767"/>
+        <location filename="../app/PdfExportView.cpp" line="769"/>
         <source>The languages %1 still aren&apos;t installed. Recognize the text with the other ticked languages only?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="780"/>
+        <location filename="../app/PdfExportView.cpp" line="782"/>
         <source>Please tick at least one language for the text recognition, or turn it off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="787"/>
+        <location filename="../app/PdfExportView.cpp" line="789"/>
         <source>Copying language files ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="795"/>
+        <location filename="../app/PdfExportView.cpp" line="797"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="818"/>
+        <location filename="../app/PdfExportView.cpp" line="820"/>
         <source>Recognizing the text and creating the PDF ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="819"/>
+        <location filename="../app/PdfExportView.cpp" line="821"/>
         <source>Creating the PDF ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="829"/>
+        <location filename="../app/PdfExportView.cpp" line="831"/>
         <source>Canceling ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="854"/>
+        <location filename="../app/PdfExportView.cpp" line="856"/>
         <source>The PDF was created: %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="860"/>
+        <location filename="../app/PdfExportView.cpp" line="862"/>
         <source>Canceled. No PDF was written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="863"/>
-        <location filename="../app/PdfExportView.cpp" line="872"/>
+        <location filename="../app/PdfExportView.cpp" line="865"/>
+        <location filename="../app/PdfExportView.cpp" line="874"/>
         <source>The PDF could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="869"/>
+        <location filename="../app/PdfExportView.cpp" line="871"/>
         <source>... and %1 more.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="885"/>
+        <location filename="../app/PdfExportView.cpp" line="887"/>
         <source>%1 of %2 output pages selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/PdfExportView.cpp" line="889"/>
+        <location filename="../app/PdfExportView.cpp" line="891"/>
         <source>(%n page(s) not output yet)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1017"/>
+        <location filename="../app/PdfExportView.cpp" line="1019"/>
         <source>uncompressed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1070"/>
+        <location filename="../app/PdfExportView.cpp" line="1072"/>
         <source>In the output folder, the picture of this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1072"/>
+        <location filename="../app/PdfExportView.cpp" line="1074"/>
         <source>In the output folder, this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1075"/>
+        <location filename="../app/PdfExportView.cpp" line="1077"/>
         <source>The PDF compresses it with loss a second time (%1), so the losses add up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1076"/>
+        <location filename="../app/PdfExportView.cpp" line="1078"/>
         <source>The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than necessary.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1082"/>
+        <location filename="../app/PdfExportView.cpp" line="1084"/>
         <source>In the output folder, the text of this page is stored with lossy compression (%1). The PDF can&apos;t undo these losses.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1087"/>
+        <location filename="../app/PdfExportView.cpp" line="1089"/>
         <source>%1 converts the posterized picture of this page to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1092"/>
+        <location filename="../app/PdfExportView.cpp" line="1094"/>
         <source>Mixed page without split output. It is stored as a single image, so with %1 the text is less sharp and the PDF is larger. Enable &quot;Split output&quot; in the Output step and process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1105"/>
+        <location filename="../app/PdfExportView.cpp" line="1107"/>
         <source>Mixed page without split output. It is stored losslessly as a single image. With split output, the PDF is usually much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1117"/>
+        <location filename="../app/PdfExportView.cpp" line="1119"/>
         <source>Not output yet. Process the page in the Output step to include it in the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1125"/>
-        <location filename="../app/PdfExportView.cpp" line="1129"/>
+        <location filename="../app/PdfExportView.cpp" line="1127"/>
+        <location filename="../app/PdfExportView.cpp" line="1131"/>
         <source>%1 (lossy)</source>
         <comment>tooltip</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1138"/>
+        <location filename="../app/PdfExportView.cpp" line="1140"/>
         <source>Black and white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1143"/>
+        <location filename="../app/PdfExportView.cpp" line="1145"/>
         <source>Mixed, split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1144"/>
         <location filename="../app/PdfExportView.cpp" line="1146"/>
+        <location filename="../app/PdfExportView.cpp" line="1148"/>
         <source>%1 (picture), %2 (text)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1150"/>
+        <location filename="../app/PdfExportView.cpp" line="1152"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1152"/>
+        <location filename="../app/PdfExportView.cpp" line="1154"/>
         <source>Color / grayscale, posterized</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1160"/>
+        <location filename="../app/PdfExportView.cpp" line="1162"/>
         <source>Color mode: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1160"/>
+        <location filename="../app/PdfExportView.cpp" line="1162"/>
         <source>Compression TIFF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1161"/>
+        <location filename="../app/PdfExportView.cpp" line="1163"/>
         <source>Compression PDF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1228"/>
-        <location filename="../app/PdfExportView.cpp" line="1237"/>
+        <location filename="../app/PdfExportView.cpp" line="1230"/>
+        <location filename="../app/PdfExportView.cpp" line="1239"/>
         <source>%1 (lossy)</source>
         <comment>short</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1248"/>
+        <location filename="../app/PdfExportView.cpp" line="1250"/>
         <source>Stored with lossy compression: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1258"/>
+        <location filename="../app/PdfExportView.cpp" line="1260"/>
         <source>Compressed with loss twice: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1265"/>
+        <location filename="../app/PdfExportView.cpp" line="1267"/>
         <source>Posterized, converted to full color: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1154"/>
+        <location filename="../app/PdfExportView.cpp" line="1156"/>
         <source>Color / grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1250"/>
+        <location filename="../app/PdfExportView.cpp" line="1252"/>
         <source>The PDF can&apos;t undo these losses. A lossless method in the PDF keeps them and makes the file larger than necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output step and process the pages again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1260"/>
+        <location filename="../app/PdfExportView.cpp" line="1262"/>
         <source>The output files of these pages are stored with lossy compression, and the PDF compresses them with loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second loss.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1267"/>
+        <location filename="../app/PdfExportView.cpp" line="1269"/>
         <source>JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1000"/>
+        <location filename="../app/PdfExportView.cpp" line="1002"/>
         <source>Not output yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="391"/>
+        <location filename="../app/PdfExportView.cpp" line="393"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3759,151 +3759,156 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="62"/>
+        <location filename="../app/SettingsDialog.ui" line="53"/>
+        <source>Saves the project one minute after the first change since it was last saved, without asking. Without changes, nothing is saved. A new project is auto-saved only after it has been saved once.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="65"/>
         <source>Color scheme:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="89"/>
+        <location filename="../app/SettingsDialog.ui" line="92"/>
         <source>Accent color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="103"/>
+        <location filename="../app/SettingsDialog.ui" line="106"/>
         <source>Use the accent color of the color scheme.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="106"/>
+        <location filename="../app/SettingsDialog.ui" line="109"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="130"/>
+        <location filename="../app/SettingsDialog.ui" line="133"/>
         <source>Language:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="157"/>
+        <location filename="../app/SettingsDialog.ui" line="160"/>
         <source>Deskew handle distance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="167"/>
+        <location filename="../app/SettingsDialog.ui" line="170"/>
         <source>How far the drag handles for rotation and oblique correction are placed from the image center, in percent of the largest possible distance. Smaller values move them away from the edge of the view, but make the angle react more strongly to the mouse.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="170"/>
+        <location filename="../app/SettingsDialog.ui" line="173"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="210"/>
+        <location filename="../app/SettingsDialog.ui" line="213"/>
         <source>Performance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="216"/>
+        <location filename="../app/SettingsDialog.ui" line="219"/>
         <source>Processor threads:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="259"/>
+        <location filename="../app/SettingsDialog.ui" line="262"/>
         <source>Thumbnails</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="269"/>
+        <location filename="../app/SettingsDialog.ui" line="272"/>
         <source>Quality:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="276"/>
+        <location filename="../app/SettingsDialog.ui" line="279"/>
         <source>The pixel size of the thumbnail image. The default value is 200.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="312"/>
+        <location filename="../app/SettingsDialog.ui" line="315"/>
         <source>Size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="319"/>
+        <location filename="../app/SettingsDialog.ui" line="322"/>
         <source>The thumbnail size in the view. The default value is 250.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="352"/>
+        <location filename="../app/SettingsDialog.ui" line="355"/>
         <source>Single column thumbnail display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="383"/>
+        <location filename="../app/SettingsDialog.ui" line="386"/>
         <source>Processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="53"/>
+        <location filename="../app/SettingsDialog.ui" line="56"/>
         <source>Auto-save the open project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="96"/>
+        <location filename="../app/SettingsDialog.ui" line="99"/>
         <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="226"/>
+        <location filename="../app/SettingsDialog.ui" line="229"/>
         <source>The maximum number of processor threads that ScanTailor OCR uses at the same time: for the batch processing, the PDF export, the image filters and JPEG 2000. Fewer threads leave room for other programs, more threads finish sooner. A change applies from the next page and the next export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="359"/>
+        <location filename="../app/SettingsDialog.ui" line="362"/>
         <source>Ask before canceling a multi-page selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="389"/>
+        <location filename="../app/SettingsDialog.ui" line="392"/>
         <source>Deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="395"/>
+        <location filename="../app/SettingsDialog.ui" line="398"/>
         <source>Highlight the thumbnails of pages with high deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="402"/>
+        <location filename="../app/SettingsDialog.ui" line="405"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="410"/>
+        <location filename="../app/SettingsDialog.ui" line="413"/>
         <source>Deskew:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="417"/>
+        <location filename="../app/SettingsDialog.ui" line="420"/>
         <source>Select content:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="424"/>
-        <location filename="../app/SettingsDialog.ui" line="447"/>
-        <location filename="../app/SettingsDialog.ui" line="495"/>
+        <location filename="../app/SettingsDialog.ui" line="427"/>
+        <location filename="../app/SettingsDialog.ui" line="450"/>
+        <location filename="../app/SettingsDialog.ui" line="498"/>
         <source>Deviation multiplier: a higher value means lower sensitivity.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="440"/>
+        <location filename="../app/SettingsDialog.ui" line="443"/>
         <source>Margins:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="463"/>
-        <location filename="../app/SettingsDialog.ui" line="479"/>
-        <location filename="../app/SettingsDialog.ui" line="511"/>
+        <location filename="../app/SettingsDialog.ui" line="466"/>
+        <location filename="../app/SettingsDialog.ui" line="482"/>
+        <location filename="../app/SettingsDialog.ui" line="514"/>
         <source>The minimum deviation to be highlighted.</source>
         <translation type="unfinished"></translation>
     </message>
