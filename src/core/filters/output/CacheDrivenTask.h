@@ -31,6 +31,14 @@ class CacheDrivenTask {
                const QPolygonF& contentRectPhys);
 
  private:
+  /**
+   * Whether the stored output of the page matches its current settings and its files are
+   * unchanged. \p xform is already scaled to the output resolution.
+   */
+  bool isOutputUpToDate(const PageInfo& pageInfo,
+                        const ImageTransformation& xform,
+                        const QPolygonF& contentRectPhys) const;
+
   std::shared_ptr<Settings> m_settings;
   OutputFileNameGenerator m_outFileNameGen;
 };

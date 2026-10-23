@@ -129,9 +129,10 @@ class PdfExportView : public QWidget {
 
   /**
    * A thumbnail, or a placeholder in the proportions of the pages if \p thumbnail is null.
-   * The placeholder of a page that isn't output yet says so.
+   * The placeholder of a page that isn't output yet says so. A page changed since the output
+   * gets the hourglass of the Output step.
    */
-  QIcon makeIcon(const QPixmap& thumbnail, bool missing = false) const;
+  QIcon makeIcon(const QPixmap& thumbnail, bool missing = false, bool outdated = false) const;
 
   /** The name of the method chosen in a compression box, as shown there. */
   QString pdfMethodName(const QComboBox* box) const;

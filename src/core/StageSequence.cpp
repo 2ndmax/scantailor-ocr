@@ -17,6 +17,7 @@
 #include "filters/fix_orientation/CacheDrivenTask.h"
 #include "filters/fix_orientation/Task.h"
 #include "filters/output/CacheDrivenTask.h"
+#include "filters/output/OutputStatusCollector.h"
 #include "filters/output/Task.h"
 #include "filters/output/Utils.h"
 #include "filters/page_layout/CacheDrivenTask.h"
@@ -177,6 +178,8 @@ std::vector<PdfExportPage> StageSequence::pdfExportPages(const ProjectPages& pag
   const QString outDir = outFileNameGen.outDir();
   const QDir foregroundDir(output::Utils::foregroundDir(outDir));
   const QDir backgroundDir(output::Utils::backgroundDir(outDir));
+  // The same check as for the hourglass of the Output step; no image is processed.
+  const std::shared_ptr<CompositeCacheDrivenTask> statusTask = createCacheDrivenTask(m_outputFilterIdx, outFileNameGen);
   std::vector<PdfExportPage> result;
   for (const PageInfo& pageInfo : pages.toPageSequence(PAGE_VIEW)) {
     const PageId& pageId = pageInfo.id();
@@ -185,6 +188,11 @@ std::vector<PdfExportPage> StageSequence::pdfExportPages(const ProjectPages& pag
                         backgroundDir.absoluteFilePath(fileName), m_outputFilter->isMixedMode(pageId));
     // Only the file headers are read, so this is quick even for many pages.
     result.back().analyze();
+    if (result.back().kind() != PdfExportPage::MISSING) {
+      output::OutputStatusCollector status;
+      statusTask->process(pageInfo, &status);
+      result.back().setOutdated(!status.isUpToDate());
+    }
   }
   return result;
 }

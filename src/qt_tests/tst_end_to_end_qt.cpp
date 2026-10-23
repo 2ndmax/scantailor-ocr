@@ -24,6 +24,8 @@
 #include <filters/deskew/Params.h>
 #include <filters/deskew/Settings.h>
 #include <filters/output/GeometryCollector.h>
+#include <filters/output/Params.h>
+#include <filters/output/Settings.h>
 #include <filters/page_split/Params.h>
 #include <filters/page_split/Settings.h>
 #include <filters/select_content/Params.h>
@@ -423,6 +425,9 @@ void TestEndToEndQt::testPdfExport() {
   const QDir dir(tempDir.path());
   TestProject project(saveScans(dir), dir.absoluteFilePath("out"), DefaultParams());
   project.processAll();
+  // The pages get the same size. The first page was output before the sizes of the later ones
+  // were known, so it no longer matches its settings; output once more, so that all are current.
+  project.process(PAGE_VIEW, project.stages->outputFilterIdx());
 
   // One page of the PDF for each page of the project, in the order of the project.
   const PageSequence pages = project.pages->toPageSequence(PAGE_VIEW);
@@ -430,6 +435,7 @@ void TestEndToEndQt::testPdfExport() {
   QCOMPARE(pdfPages.size(), pages.numPages());
   for (size_t i = 0; i < pdfPages.size(); ++i) {
     QCOMPARE(pdfPages[i].mainFile(), project.outFileNameGen.filePathFor(pages.pageAt(i).id()));
+    QVERIFY(!pdfPages[i].isOutdated());
   }
 
   // Black and white pages are compressed as the project says: JBIG2 by default, CCITT G4 if set.
@@ -469,4 +475,16 @@ void TestEndToEndQt::testPdfExport() {
   QVERIFY(exportPdf(withMissingFile, pdfFile, PdfExportOptions::fromProject(processingOptions), &errors).isEmpty());
   QVERIFY(!errors.isEmpty());
   QCOMPARE(readFile(pdfFile), pdf);
+
+  // A page changed in the Output step after the output is marked, like with the hourglass there.
+  // Its output file still exists, so it can be exported as it is.
+  const std::shared_ptr<output::Settings> outputSettings = project.stages->outputFilter()->settings();
+  const PageId& changedId = pages.pageAt(1).id();
+  const Dpi dpi = outputSettings->getParams(changedId).outputDpi();
+  outputSettings->setDpi(changedId, Dpi(dpi.horizontal() + 100, dpi.vertical() + 100));
+  const std::vector<PdfExportPage> afterChange = project.stages->pdfExportPages(*project.pages, project.outFileNameGen);
+  for (size_t i = 0; i < afterChange.size(); ++i) {
+    QCOMPARE(afterChange[i].isOutdated(), i == 1);
+    QVERIFY(afterChange[i].kind() != PdfExportPage::MISSING);
+  }
 }

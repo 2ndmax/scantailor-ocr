@@ -65,6 +65,8 @@ class Filter : public AbstractFilter {
 
   OptionsWidget* optionsWidget();
 
+  const std::shared_ptr<Settings>& settings() const { return m_settings; }
+
   /** Whether the page is set to the "Mixed" colour mode. Used by the PDF export. */
   bool isMixedMode(const PageId& pageId) const;
 

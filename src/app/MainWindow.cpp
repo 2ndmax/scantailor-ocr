@@ -1747,7 +1747,7 @@ void MainWindow::outputMissingPages() {
   const std::vector<PdfExportPage> pdfPages = m_stages->pdfExportPages(*m_pages, m_outFileNameGen);
   std::set<PageId> missing;
   for (size_t i = 0; (i < pdfPages.size()) && (i < pages.numPages()); ++i) {
-    if (pdfPages[i].kind() == PdfExportPage::MISSING) {
+    if ((pdfPages[i].kind() == PdfExportPage::MISSING) || pdfPages[i].isOutdated()) {
       missing.insert(pages.pageAt(i).id());
     }
   }

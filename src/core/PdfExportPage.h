@@ -52,6 +52,14 @@ class PdfExportPage {
 
   Kind kind() const { return m_kind; }
 
+  /**
+   * Whether the output files exist, but no longer match the settings of the page (the hourglass of
+   * the Output step), so the PDF would show an older state.
+   */
+  bool isOutdated() const { return m_outdated; }
+
+  void setOutdated(const bool outdated) { m_outdated = outdated; }
+
   /** MRC only: whether the background picture is posterized (a palette image). */
   bool hasPalettePicture() const { return m_palettePicture; }
 
@@ -82,6 +90,7 @@ class PdfExportPage {
   QString m_backgroundFile;
   bool m_mixedMode = false;
   Kind m_kind = MISSING;
+  bool m_outdated = false;
   bool m_palettePicture = false;
   int m_pictureCompression = 0;
   int m_textCompression = 0;

@@ -355,9 +355,10 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   m_backButton->setToolTip(
       tr("Move the selected pages one place towards the end of the PDF. Pages can also be moved with drag and "
          "drop."));
-  // Shown only while pages are missing, next to the buttons that choose the pages.
-  m_outputMissingButton = new QPushButton(tr("Output missing pages"));
-  m_outputMissingButton->setToolTip(tr("Process the pages not output yet in the Output step, then come back here."));
+  // Shown only while pages are missing or changed since the output, next to the buttons that choose the pages.
+  m_outputMissingButton = new QPushButton(tr("Output missing and changed pages"));
+  m_outputMissingButton->setToolTip(
+      tr("Process the pages not output yet or changed since the output in the Output step, then come back here."));
   listButtons->addWidget(m_allButton);
   listButtons->addWidget(m_noneButton);
   listButtons->addSpacing(12);
@@ -566,7 +567,7 @@ void PdfExportView::setPages(std::vector<Entry> entries) {
         item->setIcon(makeIcon(QPixmap(), true));
       } else {
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled);
-        item->setIcon(previousIcons.value(orderItem.key, makeIcon(QPixmap())));
+        item->setIcon(previousIcons.value(orderItem.key, makeIcon(QPixmap(), false, page.isOutdated())));
       }
     }
   }
@@ -719,6 +720,30 @@ void PdfExportView::startExport() {
     QMessageBox::warning(this, title, tr("%1 is a folder.").arg(QDir::toNativeSeparators(path)));
     return;
   }
+  // Asked first: whoever goes back to output the pages creates the PDF later.
+  int outdated = 0;
+  for (int row = 0; row < m_pageList->count(); ++row) {
+    const QListWidgetItem* item = m_pageList->item(row);
+    if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)
+        && m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page.isOutdated()) {
+      ++outdated;
+    }
+  }
+  if (outdated > 0) {
+    QMessageBox box(QMessageBox::Question, title,
+                    tr("%n selected page(s) changed since the output. The PDF would show the state of the last "
+                       "output.\n\nDo you want to output the page(s) again before the PDF is created?",
+                       nullptr, outdated));
+    QPushButton* createButton = box.addButton(tr("Create PDF anyway"), QMessageBox::AcceptRole);
+    QPushButton* backButton = box.addButton(tr("Back"), QMessageBox::RejectRole);
+    box.setDefaultButton(backButton);
+    box.setEscapeButton(backButton);
+    box.exec();
+    if (box.clickedButton() != createButton) {
+      return;
+    }
+  }
+
   // The confirmation of the file dialog only counts for the PDF created right after it.
   // Each further time an existing file is asked about again, even if this view created it:
   // it may have been changed outside the program since.
@@ -890,8 +915,14 @@ void PdfExportView::updateControls() {
     m_selectionLabel->setText(m_selectionLabel->text() + QStringLiteral("  ")
                               + tr("(%n page(s) not output yet)", nullptr, missing));
   }
+  const int outdated = static_cast<int>(
+      std::count_if(m_entries.begin(), m_entries.end(), [](const Entry& entry) { return entry.page.isOutdated(); }));
+  if (outdated > 0) {
+    m_selectionLabel->setText(m_selectionLabel->text() + QStringLiteral("  ")
+                              + tr("(%n page(s) changed since the output)", nullptr, outdated));
+  }
 
-  m_outputMissingButton->setVisible(missing > 0);
+  m_outputMissingButton->setVisible((missing > 0) || (outdated > 0));
   m_outputMissingButton->setEnabled(!running);
 
   const bool hasSelection = !m_pageList->selectedItems().isEmpty();
@@ -956,7 +987,7 @@ QListWidgetItem* PdfExportView::itemForEntry(const int entryIndex) const {
 
 void PdfExportView::showThumbnail(const int entryIndex, const QPixmap& thumbnail) {
   if (QListWidgetItem* item = itemForEntry(entryIndex)) {
-    item->setIcon(makeIcon(thumbnail));
+    item->setIcon(makeIcon(thumbnail, false, m_entries[entryIndex].page.isOutdated()));
   }
   m_thumbnailShown[entryIndex] = true;
 
@@ -967,14 +998,15 @@ void PdfExportView::showThumbnail(const int entryIndex, const QPixmap& thumbnail
     for (int i = 0; i < static_cast<int>(m_entries.size()); ++i) {
       if (!m_thumbnailShown[i]) {
         if (QListWidgetItem* item = itemForEntry(i)) {
-          item->setIcon(makeIcon(QPixmap(), m_entries[i].page.kind() == PdfExportPage::MISSING));
+          const PdfExportPage& page = m_entries[i].page;
+          item->setIcon(makeIcon(QPixmap(), page.kind() == PdfExportPage::MISSING, page.isOutdated()));
         }
       }
     }
   }
 }
 
-QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing) const {
+QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing, const bool outdated) const {
   // All icons have the same size, so that the texts line up.
   const QSize size = m_pageList->iconSize();
   // Painted in screen pixels, so that the icons stay sharp on scaled screens.
@@ -1000,6 +1032,8 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing) cons
       painter.setFont(m_pageList->font());
       painter.setPen(QColor(80, 80, 80));
       painter.drawText(rect.adjusted(4, 4, -4, -4), Qt::AlignCenter | Qt::TextWordWrap, tr("Not output yet"));
+    }
+    if (missing || outdated) {
       ThumbnailBase::drawMark(painter, ThumbnailBase::markRect(rect), ThumbnailBase::INCOMPLETE_MARK);
     }
   } else {
@@ -1009,7 +1043,12 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing) cons
     const QPoint topLeft((size.width() - scaledSize.width()) / 2, (size.height() - scaledSize.height()) / 2);
     painter.drawPixmap(topLeft, scaled);
     painter.setPen(QColor(160, 160, 160));
-    painter.drawRect(QRect(topLeft, scaledSize).adjusted(0, 0, -1, -1));
+    const QRect rect = QRect(topLeft, scaledSize).adjusted(0, 0, -1, -1);
+    painter.drawRect(rect);
+    if (outdated) {
+      // The output file shows an older state of the page, as with the hourglass of the Output step.
+      ThumbnailBase::drawMark(painter, ThumbnailBase::markRect(rect), ThumbnailBase::INCOMPLETE_MARK);
+    }
   }
   painter.end();
   return QIcon(canvas);
@@ -1159,8 +1198,16 @@ QString PdfExportView::pageToolTip(const int entryIndex) const {
       pdf = picturePdf;
       break;
   }
-  QStringList lines{tr("Color mode: %1").arg(mode), tr("Compression TIFF: %1").arg(tiff),
-                    tr("Compression PDF: %1").arg(pdf)};
+  QStringList lines;
+  if (page.isOutdated()) {
+    lines.push_back(
+        tr("Changed since the output. The PDF would show the state of the last output. Process the page in the "
+           "Output step to include the changes."));
+    lines.push_back(QString());
+  }
+  lines.push_back(tr("Color mode: %1").arg(mode));
+  lines.push_back(tr("Compression TIFF: %1").arg(tiff));
+  lines.push_back(tr("Compression PDF: %1").arg(pdf));
   if (!warnings.isEmpty() || !notes.isEmpty()) {
     lines.push_back(QString());
   }

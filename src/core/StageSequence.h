@@ -75,7 +75,8 @@ class StageSequence {
 
   /**
    * The output files of the pages for the PDF export, in the order of the project.
-   * They are already analyzed (see PdfExportPage::analyze()), so they can be exported as they are.
+   * They are already analyzed (see PdfExportPage::analyze()), so they can be exported as they are,
+   * and pages whose output no longer matches their settings are marked (PdfExportPage::isOutdated()).
    */
   std::vector<PdfExportPage> pdfExportPages(const ProjectPages& pages,
                                             const OutputFileNameGenerator& outFileNameGen) const;

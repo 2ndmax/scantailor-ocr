@@ -19,6 +19,7 @@ set(sources
     Task.cpp Task.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     GeometryCollector.h
+    OutputStatusCollector.h
     OutputGenerator.cpp OutputGenerator.h
     OutputMargins.h
     Settings.cpp Settings.h
