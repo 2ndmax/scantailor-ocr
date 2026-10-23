@@ -83,6 +83,9 @@ class PdfExportView : public QWidget {
   /** Emitted when creating a PDF starts and when it has finished. */
   void runningChanged(bool running);
 
+  /** The user wants the pages that aren't output yet to be processed in the Output step. */
+  void outputMissingPagesRequested();
+
  private slots:
   void moveForward();
 
@@ -207,6 +210,7 @@ class PdfExportView : public QWidget {
   QLabel* m_selectionLabel = nullptr;
   QPushButton* m_allButton = nullptr;
   QPushButton* m_noneButton = nullptr;
+  QPushButton* m_outputMissingButton = nullptr;
   QPushButton* m_forwardButton = nullptr;
   QPushButton* m_backButton = nullptr;
   /** Set while setPages() fills the list, so that the positions are only updated once. */

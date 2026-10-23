@@ -47,6 +47,7 @@
 #include "Application.h"
 #include "ApplicationSettings.h"
 #include "CollapsibleGroupBox.h"
+#include "ColorSchemeManager.h"
 #include "ImageId.h"
 #include "OcrEngine.h"
 #include "OcrLanguages.h"
@@ -92,6 +93,33 @@ bool usesQuality(const QComboBox* box) {
   const auto compression = static_cast<PdfCompression>(box->currentData().toInt());
   return (compression == PdfCompression::JPEG) || (compression == PdfCompression::JPEG2000);
 }
+
+/**
+ * A button drawn as the others of the color scheme, with a frame in the accent color, as the frame
+ * of the selected thumbnail: the main action of the step.
+ */
+class AccentFrameButton : public QPushButton {
+ public:
+  explicit AccentFrameButton(const QString& text) : QPushButton(text) {}
+
+ protected:
+  void paintEvent(QPaintEvent* event) override {
+    QPushButton::paintEvent(event);
+    if (!isEnabled()) {
+      return;
+    }
+    const QColor accent = ColorSchemeManager::instance().getColorParam(
+        "ThumbnailSequenceSelectedItemBorder", QApplication::palette().color(QPalette::Highlight).darker(150));
+    // The style sheets of the light and dark color schemes draw buttons with square corners, the
+    // Windows 11 style with rounded ones.
+    const double radius = qApp->styleSheet().contains(QLatin1String("QPushButton")) ? 0.0 : 4.0;
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(accent, 2));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRoundedRect(QRectF(rect()).adjusted(1, 1, -1, -1), radius, radius);
+  }
+};
 }  // namespace
 
 /**
@@ -325,8 +353,13 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   m_backButton->setToolTip(
       tr("Move the selected pages one place towards the end of the PDF. Pages can also be moved with drag and "
          "drop."));
+  // Shown only while pages are missing, next to the buttons that choose the pages.
+  m_outputMissingButton = new QPushButton(tr("Output missing pages"));
+  m_outputMissingButton->setToolTip(tr("Process the pages not output yet in the Output step, then come back here."));
   listButtons->addWidget(m_allButton);
   listButtons->addWidget(m_noneButton);
+  listButtons->addSpacing(12);
+  listButtons->addWidget(m_outputMissingButton);
   listButtons->addStretch(1);
   listButtons->addWidget(m_forwardButton);
   listButtons->addWidget(m_backButton);
@@ -342,31 +375,30 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   fileLayout->addWidget(m_browseButton);
   mainLayout->addLayout(fileLayout);
 
-  // Progress.
-  m_progressBar = new QProgressBar;
-  m_progressBar->setRange(0, 1);
-  m_progressBar->setValue(0);
-  m_progressBar->setFormat("%v / %m");
-  mainLayout->addWidget(m_progressBar);
-  m_statusLabel = new QLabel;
-  m_statusLabel->setWordWrap(true);
-  m_statusLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  mainLayout->addWidget(m_statusLabel);
-
+  // The action in one row: what happens afterwards, the progress and the button that starts it.
   auto* buttons = new QHBoxLayout;
-  buttons->addStretch(1);
   // About what happens after creating, not about the content of the PDF, so next to the button.
   m_openAfterCreation = new QCheckBox(tr("Open the PDF after creating it"));
   m_openAfterCreation->setChecked(ApplicationSettings::getInstance().isPdfOpenAfterCreationEnabled());
   buttons->addWidget(m_openAfterCreation);
   buttons->addSpacing(12);
+  m_progressBar = new QProgressBar;
+  m_progressBar->setRange(0, 1);
+  m_progressBar->setValue(0);
+  m_progressBar->setFormat("%v / %m");
+  buttons->addWidget(m_progressBar, 1);
+  buttons->addSpacing(12);
   m_cancelButton = new QPushButton(tr("Cancel"));
   m_cancelButton->setVisible(false);
-  m_createButton = new QPushButton(tr("Create PDF"));
+  m_createButton = new AccentFrameButton(tr("Create PDF"));
   m_createButton->setDefault(true);
   buttons->addWidget(m_cancelButton);
   buttons->addWidget(m_createButton);
   mainLayout->addLayout(buttons);
+  m_statusLabel = new QLabel;
+  m_statusLabel->setWordWrap(true);
+  m_statusLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  mainLayout->addWidget(m_statusLabel);
 
   m_optionsWidget.reset(createOptionsWidget());
 
@@ -379,6 +411,7 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
   connect(m_pageList->model(), &QAbstractItemModel::rowsRemoved, this, &PdfExportView::updatePositions);
   connect(m_allButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Checked); });
   connect(m_noneButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Unchecked); });
+  connect(m_outputMissingButton, &QPushButton::clicked, this, &PdfExportView::outputMissingPagesRequested);
   connect(m_forwardButton, &QPushButton::clicked, this, &PdfExportView::moveForward);
   connect(m_backButton, &QPushButton::clicked, this, &PdfExportView::moveBack);
   connect(m_fileEdit, &QLineEdit::textEdited, this, [this]() { m_fileChosen = true; });
@@ -855,6 +888,9 @@ void PdfExportView::updateControls() {
     m_selectionLabel->setText(m_selectionLabel->text() + QStringLiteral("  ")
                               + tr("(%n page(s) not output yet)", nullptr, missing));
   }
+
+  m_outputMissingButton->setVisible(missing > 0);
+  m_outputMissingButton->setEnabled(!running);
 
   const bool hasSelection = !m_pageList->selectedItems().isEmpty();
   m_forwardButton->setEnabled(!running && hasSelection);

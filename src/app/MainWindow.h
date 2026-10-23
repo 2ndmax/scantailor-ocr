@@ -177,6 +177,9 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void pdfExportRunningChanged(bool running);
 
+  /** Processes the pages not output yet in the Output step and comes back to the PDF step. */
+  void outputMissingPages();
+
   // Both return true if the project was saved.
   bool saveProjectTriggered();
 
@@ -316,6 +319,9 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   /** Shows the "Create PDF" step instead of the current filter. */
   void enterPdfStage();
+
+  /** Starts batch processing of the given pages, or of all pages for nullptr. */
+  void startBatchProcessingOf(const std::set<PageId>* pages);
 
   /** Removes the "Create PDF" step from the main area and the options area. */
   void leavePdfStage();
@@ -468,6 +474,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::unique_ptr<PdfExportView> m_pdfView;
   /** Whether the "Create PDF" step is shown. m_curFilter then still refers to the last filter. */
   bool m_pdfStage = false;
+  /** Whether the PDF step is shown again when the current batch processing has finished. */
+  bool m_returnToPdfAfterBatch = false;
   /** The "Automatic import" panel above the options of the first step; owned by the options area. */
   AutoImportPanel* m_autoImportPanel = nullptr;
   std::unique_ptr<ScanFolderWatcher> m_scanWatcher;

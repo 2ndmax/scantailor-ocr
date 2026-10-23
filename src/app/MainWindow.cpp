@@ -1385,6 +1385,10 @@ void MainWindow::reloadRequested() {
 }
 
 void MainWindow::startBatchProcessing() {
+  startBatchProcessingOf(nullptr);
+}
+
+void MainWindow::startBatchProcessingOf(const std::set<PageId>* const pages) {
   if (isBatchProcessingInProgress() || !isProjectLoaded()) {
     return;
   }
@@ -1397,6 +1401,9 @@ void MainWindow::startBatchProcessing() {
   // selection was not at the first page).
   const PageSequence sequence(m_thumbSequence->toPageSequence());
   for (const PageInfo& page : sequence) {
+    if (pages && (pages->find(page.id()) == pages->end())) {
+      continue;
+    }
     m_stages->loadDefaultSettings(page);
     m_batchQueue->addProcessingTask(page, createCompositeTask(page, m_curFilter, /*batch=*/true, m_debug));
   }
@@ -1441,6 +1448,8 @@ void MainWindow::stopBatchProcessing(MainAreaAction mainArea) {
 
   m_batchQueue->cancelAndClear();
   m_batchQueue.reset();
+  // Only a batch that has finished goes back to the PDF step; see filterResult().
+  m_returnToPdfAfterBatch = false;
 
   filterList->setBatchProcessingInProgress(false);
   filterList->setEnabled(true);
@@ -1506,6 +1515,7 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
 
   if (isBatchProcessingInProgress()) {
     if (m_batchQueue->allProcessed()) {
+      const bool returnToPdf = m_returnToPdfAfterBatch;
       stopBatchProcessing();
 
       QApplication::alert(this);  // Flash the taskbar entry.
@@ -1533,6 +1543,10 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
       if (m_selectedPage.get(getCurrentView()) == m_thumbSequence->lastPage().id()) {
         // If batch processing finished at the last page, jump to the first one.
         goFirstPage();
+      }
+      if (returnToPdf) {
+        // Started from the PDF step to output the missing pages.
+        filterList->selectRow(filterList->pdfRow());
       }
       return;
     }
@@ -1689,6 +1703,7 @@ void MainWindow::enterPdfStage() {
   if (!m_pdfView) {
     m_pdfView = std::make_unique<PdfExportView>(m_thumbnailCache, m_stages->processingOptions());
     connect(m_pdfView.get(), &PdfExportView::runningChanged, this, &MainWindow::pdfExportRunningChanged);
+    connect(m_pdfView.get(), &PdfExportView::outputMissingPagesRequested, this, &MainWindow::outputMissingPages);
   }
   // The output files may have changed since the PDF step was last shown.
   m_pdfView->setDefaultFile(defaultPdfFile());
@@ -1721,6 +1736,29 @@ std::vector<PdfExportView::Entry> MainWindow::pdfExportEntries() const {
     entries.push_back(std::move(entry));
   }
   return entries;
+}
+
+void MainWindow::outputMissingPages() {
+  if (!m_pdfStage || isBatchProcessingInProgress() || (m_pdfView && m_pdfView->isRunning())) {
+    return;
+  }
+  // The same pages in the same order as the entries of the PDF step.
+  const PageSequence pages = m_pages->toPageSequence(PAGE_VIEW);
+  const std::vector<PdfExportPage> pdfPages = m_stages->pdfExportPages(*m_pages, m_outFileNameGen);
+  std::set<PageId> missing;
+  for (size_t i = 0; (i < pdfPages.size()) && (i < pages.numPages()); ++i) {
+    if (pdfPages[i].kind() == PdfExportPage::MISSING) {
+      missing.insert(pages.pageAt(i).id());
+    }
+  }
+  if (missing.empty()) {
+    return;
+  }
+
+  // Shows the Output step, then processes the missing pages there.
+  filterList->selectRow(m_stages->outputFilterIdx());
+  startBatchProcessingOf(&missing);
+  m_returnToPdfAfterBatch = isBatchProcessingInProgress();
 }
 
 QString MainWindow::defaultPdfFile() const {
