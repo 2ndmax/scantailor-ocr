@@ -177,6 +177,12 @@
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="2" rowspan="2">
            <widget class="QToolButton" name="topBottomLink">
+            <property name="toolTip">
+             <string>Link or unlink the top and bottom margins. While they are linked, changing one changes the other.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Link top and bottom margins</string>
+            </property>
             <property name="minimumSize">
              <size>
               <width>20</width>
@@ -207,9 +213,6 @@ QToolButton:pressed {
   border: 1px solid palette(highlight);
   background-color: palette(alternative-base);
 }</string>
-            </property>
-            <property name="text">
-             <string>...</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -246,6 +249,12 @@ QToolButton:pressed {
           </item>
           <item row="2" column="2" rowspan="2">
            <widget class="QToolButton" name="leftRightLink">
+            <property name="toolTip">
+             <string>Link or unlink the left and right margins. While they are linked, changing one changes the other.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Link left and right margins</string>
+            </property>
             <property name="minimumSize">
              <size>
               <width>20</width>
@@ -276,9 +285,6 @@ QToolButton:pressed {
   border: 1px solid palette(highlight);
   background-color: palette(alternative-base);
 }</string>
-            </property>
-            <property name="text">
-             <string>...</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -901,8 +907,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </property>
           <item row="0" column="0">
            <widget class="QToolButton" name="alignTopLeftBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Align the content box to the top left of the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Top left</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -924,8 +933,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="0" column="1">
            <widget class="QToolButton" name="alignTopBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Align the content box to the top center of the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Top</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -947,8 +959,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="0" column="2">
            <widget class="QToolButton" name="alignTopRightBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Align the content box to the top right of the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Top right</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -970,8 +985,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="1" column="0">
            <widget class="QToolButton" name="alignLeftBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Align the content box to the left center of the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Left</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -993,8 +1011,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="1" column="1">
            <widget class="QToolButton" name="alignCenterBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Center the content box on the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Center</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -1019,8 +1040,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="1" column="2">
            <widget class="QToolButton" name="alignRightBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Align the content box to the right center of the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Right</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -1042,8 +1066,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="2" column="0">
            <widget class="QToolButton" name="alignBottomLeftBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Align the content box to the bottom left of the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Bottom left</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -1065,8 +1092,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="2" column="1">
            <widget class="QToolButton" name="alignBottomBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Align the content box to the bottom center of the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Bottom</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
@@ -1088,8 +1118,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="2" column="2">
            <widget class="QToolButton" name="alignBottomRightBtn">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Align the content box to the bottom right of the page.</string>
+            </property>
+            <property name="accessibleName">
+             <string>Bottom right</string>
             </property>
             <property name="icon">
              <iconset resource="../../../resources/resources.qrc">
