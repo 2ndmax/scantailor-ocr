@@ -104,6 +104,7 @@ StageListView::StageListView(QWidget* parent)
   m_launchBtn->setMinimumSize({18, 18});
   m_launchBtn->setIconSize({18, 18});
   m_launchBtn->setStatusTip(tr("Launch batch processing"));
+  m_launchBtn->setToolTip(tr("Process all pages in this step."));
   m_launchBtn->hide();
 
   connect(m_launchBtn, &QAbstractButton::clicked, this, &StageListView::launchBatchProcessing);

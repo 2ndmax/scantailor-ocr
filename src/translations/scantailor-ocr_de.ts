@@ -3985,7 +3985,12 @@ würden beide zu
         <translation>Stapelverarbeitung starten</translation>
     </message>
     <message>
-        <location filename="../core/StageListView.cpp" line="372"/>
+        <location filename="../core/StageListView.cpp" line="107"/>
+        <source>Process all pages in this step.</source>
+        <translation>Alle Seiten in diesem Schritt verarbeiten.</translation>
+    </message>
+    <message>
+        <location filename="../core/StageListView.cpp" line="373"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>

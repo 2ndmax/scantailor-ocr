@@ -3946,7 +3946,12 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/StageListView.cpp" line="372"/>
+        <location filename="../core/StageListView.cpp" line="107"/>
+        <source>Process all pages in this step.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/StageListView.cpp" line="373"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
