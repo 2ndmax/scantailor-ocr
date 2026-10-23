@@ -732,7 +732,8 @@ void PdfExportView::startExport() {
   if (outdated > 0) {
     QMessageBox box(QMessageBox::Question, title,
                     tr("%n selected page(s) changed since the output. The PDF would show the state of the last "
-                       "output.\n\nDo you want to output the page(s) again before the PDF is created?",
+                       "output.\n\nDo you want to create the PDF anyway? To include the changes, choose \"Back\" "
+                       "and then \"Output missing and changed pages\".",
                        nullptr, outdated));
     QPushButton* createButton = box.addButton(tr("Create PDF anyway"), QMessageBox::AcceptRole);
     QPushButton* backButton = box.addButton(tr("Back"), QMessageBox::RejectRole);

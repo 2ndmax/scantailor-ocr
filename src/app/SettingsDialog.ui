@@ -50,7 +50,7 @@
           <item>
            <widget class="QCheckBox" name="autoSaveProjectCB">
             <property name="toolTip">
-             <string>Saves the project one minute after the first change since it was last saved, without asking. Without changes, nothing is saved. A new project is auto-saved only after it has been saved once.</string>
+             <string>Saves the project without asking one minute after you worked on it, for example changed settings, processed pages or selected another page. A new project is auto-saved only after it has been saved once.</string>
             </property>
             <property name="text">
              <string>Auto-save the open project</string>

@@ -2983,7 +2983,7 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     <message>
         <location filename="../app/PdfExportView.cpp" line="396"/>
         <location filename="../app/PdfExportView.cpp" line="697"/>
-        <location filename="../app/PdfExportView.cpp" line="898"/>
+        <location filename="../app/PdfExportView.cpp" line="899"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3137,265 +3137,265 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <source>%1 is a folder.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <location filename="../app/PdfExportView.cpp" line="734"/>
+        <source>%n selected page(s) changed since the output. The PDF would show the state of the last output.
+
+Do you want to create the PDF anyway? To include the changes, choose &quot;Back&quot; and then &quot;Output missing and changed pages&quot;.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="754"/>
+        <location filename="../app/PdfExportView.cpp" line="755"/>
         <source>The file %1 already exists.
 Do you want to replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="769"/>
+        <location filename="../app/PdfExportView.cpp" line="770"/>
         <source>Please tick the pages to include in the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="781"/>
+        <location filename="../app/PdfExportView.cpp" line="782"/>
         <source>The languages %1 of the project aren&apos;t installed on this computer. Download them now?
 
 Without them, the text is only recognized with the other ticked languages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="794"/>
+        <location filename="../app/PdfExportView.cpp" line="795"/>
         <source>The languages %1 still aren&apos;t installed. Recognize the text with the other ticked languages only?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="807"/>
+        <location filename="../app/PdfExportView.cpp" line="808"/>
         <source>Please tick at least one language for the text recognition, or turn it off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="814"/>
+        <location filename="../app/PdfExportView.cpp" line="815"/>
         <source>Copying language files ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="822"/>
+        <location filename="../app/PdfExportView.cpp" line="823"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="845"/>
+        <location filename="../app/PdfExportView.cpp" line="846"/>
         <source>Recognizing the text and creating the PDF ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="846"/>
+        <location filename="../app/PdfExportView.cpp" line="847"/>
         <source>Creating the PDF ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="856"/>
+        <location filename="../app/PdfExportView.cpp" line="857"/>
         <source>Canceling ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="881"/>
+        <location filename="../app/PdfExportView.cpp" line="882"/>
         <source>The PDF was created: %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="887"/>
+        <location filename="../app/PdfExportView.cpp" line="888"/>
         <source>Canceled. No PDF was written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="890"/>
-        <location filename="../app/PdfExportView.cpp" line="899"/>
+        <location filename="../app/PdfExportView.cpp" line="891"/>
+        <location filename="../app/PdfExportView.cpp" line="900"/>
         <source>The PDF could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="896"/>
+        <location filename="../app/PdfExportView.cpp" line="897"/>
         <source>... and %1 more.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="912"/>
+        <location filename="../app/PdfExportView.cpp" line="913"/>
         <source>%1 of %2 output pages selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/PdfExportView.cpp" line="916"/>
+        <location filename="../app/PdfExportView.cpp" line="917"/>
         <source>(%n page(s) not output yet)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/PdfExportView.cpp" line="922"/>
+        <location filename="../app/PdfExportView.cpp" line="923"/>
         <source>(%n page(s) changed since the output)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1058"/>
+        <location filename="../app/PdfExportView.cpp" line="1059"/>
         <source>uncompressed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1111"/>
+        <location filename="../app/PdfExportView.cpp" line="1112"/>
         <source>In the output folder, the picture of this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1113"/>
+        <location filename="../app/PdfExportView.cpp" line="1114"/>
         <source>In the output folder, this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1116"/>
+        <location filename="../app/PdfExportView.cpp" line="1117"/>
         <source>The PDF compresses it with loss a second time (%1), so the losses add up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1117"/>
+        <location filename="../app/PdfExportView.cpp" line="1118"/>
         <source>The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than necessary.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1123"/>
+        <location filename="../app/PdfExportView.cpp" line="1124"/>
         <source>In the output folder, the text of this page is stored with lossy compression (%1). The PDF can&apos;t undo these losses.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1128"/>
+        <location filename="../app/PdfExportView.cpp" line="1129"/>
         <source>%1 converts the posterized picture of this page to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1133"/>
+        <location filename="../app/PdfExportView.cpp" line="1134"/>
         <source>Mixed page without split output. It is stored as a single image, so with %1 the text is less sharp and the PDF is larger. Enable &quot;Split output&quot; in the Output step and process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1146"/>
+        <location filename="../app/PdfExportView.cpp" line="1147"/>
         <source>Mixed page without split output. It is stored losslessly as a single image. With split output, the PDF is usually much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1158"/>
+        <location filename="../app/PdfExportView.cpp" line="1159"/>
         <source>Not output yet. Process the page in the Output step to include it in the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1166"/>
-        <location filename="../app/PdfExportView.cpp" line="1170"/>
+        <location filename="../app/PdfExportView.cpp" line="1167"/>
+        <location filename="../app/PdfExportView.cpp" line="1171"/>
         <source>%1 (lossy)</source>
         <comment>tooltip</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1179"/>
+        <location filename="../app/PdfExportView.cpp" line="1180"/>
         <source>Black and white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1184"/>
+        <location filename="../app/PdfExportView.cpp" line="1185"/>
         <source>Mixed, split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1185"/>
-        <location filename="../app/PdfExportView.cpp" line="1187"/>
+        <location filename="../app/PdfExportView.cpp" line="1186"/>
+        <location filename="../app/PdfExportView.cpp" line="1188"/>
         <source>%1 (picture), %2 (text)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1191"/>
+        <location filename="../app/PdfExportView.cpp" line="1192"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1193"/>
+        <location filename="../app/PdfExportView.cpp" line="1194"/>
         <source>Color / grayscale, posterized</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1204"/>
+        <location filename="../app/PdfExportView.cpp" line="1205"/>
         <source>Changed since the output. The PDF would show the state of the last output. Process the page in the Output step to include the changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1208"/>
+        <location filename="../app/PdfExportView.cpp" line="1209"/>
         <source>Color mode: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1209"/>
+        <location filename="../app/PdfExportView.cpp" line="1210"/>
         <source>Compression TIFF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1210"/>
+        <location filename="../app/PdfExportView.cpp" line="1211"/>
         <source>Compression PDF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1277"/>
-        <location filename="../app/PdfExportView.cpp" line="1286"/>
+        <location filename="../app/PdfExportView.cpp" line="1278"/>
+        <location filename="../app/PdfExportView.cpp" line="1287"/>
         <source>%1 (lossy)</source>
         <comment>short</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1297"/>
+        <location filename="../app/PdfExportView.cpp" line="1298"/>
         <source>Stored with lossy compression: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1307"/>
+        <location filename="../app/PdfExportView.cpp" line="1308"/>
         <source>Compressed with loss twice: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1314"/>
+        <location filename="../app/PdfExportView.cpp" line="1315"/>
         <source>Posterized, converted to full color: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1195"/>
+        <location filename="../app/PdfExportView.cpp" line="1196"/>
         <source>Color / grayscale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../app/PdfExportView.cpp" line="734"/>
-        <source>%n selected page(s) changed since the output. The PDF would show the state of the last output.
-
-Do you want to output the page(s) again before the PDF is created?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
-        <location filename="../app/PdfExportView.cpp" line="737"/>
-        <source>Create PDF anyway</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/PdfExportView.cpp" line="738"/>
+        <source>Create PDF anyway</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/PdfExportView.cpp" line="739"/>
         <source>Back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1299"/>
+        <location filename="../app/PdfExportView.cpp" line="1300"/>
         <source>The PDF can&apos;t undo these losses. A lossless method in the PDF keeps them and makes the file larger than necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output step and process the pages again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1309"/>
+        <location filename="../app/PdfExportView.cpp" line="1310"/>
         <source>The output files of these pages are stored with lossy compression, and the PDF compresses them with loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second loss.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1316"/>
+        <location filename="../app/PdfExportView.cpp" line="1317"/>
         <source>JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1034"/>
+        <location filename="../app/PdfExportView.cpp" line="1035"/>
         <source>Not output yet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3835,7 +3835,7 @@ would both become
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="53"/>
-        <source>Saves the project one minute after the first change since it was last saved, without asking. Without changes, nothing is saved. A new project is auto-saved only after it has been saved once.</source>
+        <source>Saves the project without asking one minute after you worked on it, for example changed settings, processed pages or selected another page. A new project is auto-saved only after it has been saved once.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
