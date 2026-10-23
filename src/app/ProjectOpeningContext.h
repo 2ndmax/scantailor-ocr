@@ -44,6 +44,12 @@ class ProjectOpeningContext : public QObject {
   void fixDpiDialogDestroyed();
 
  private:
+  /**
+   * For a project saved by ScanTailor Advanced: tells that saving it makes it unusable there and
+   * offers to make a backup copy first. Returns false if the project is not to be opened.
+   */
+  bool confirmOlderVersion();
+
   void showFixDpiDialog();
 
   QString m_projectFile;

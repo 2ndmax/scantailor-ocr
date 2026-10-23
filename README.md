@@ -21,9 +21,11 @@ by ScanTailor OCR.
 
 Projects of ScanTailor Advanced (version 4) can usually be opened. Some of their settings may be
 processed differently, though, so the results can differ from those of ScanTailor Advanced.
-Once such a project is saved in ScanTailor OCR, also automatically, it has the new format and
-can no longer be opened in ScanTailor Advanced. Keep a copy of the project file if you want to go
-on using it there.
+Settings that such a project doesn't contain are taken from the active profile of the default
+parameters. Once the project is saved in ScanTailor OCR, also automatically, it has the new
+format and can no longer be opened in ScanTailor Advanced. ScanTailor OCR tells this when opening
+the project and offers to make a backup copy first (`Book_BACKUP.ScanTailor` next to
+`Book.ScanTailor`), which stays usable in ScanTailor Advanced.
 
 ## How this project came about
 

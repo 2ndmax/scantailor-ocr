@@ -1583,12 +1583,14 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="147"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="75"/>
         <source>Minimal</source>
         <translation>Minimal</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="155"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="78"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
@@ -1609,6 +1611,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="146"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="72"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
@@ -3578,20 +3581,51 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
 <context>
     <name>ProjectOpeningContext</name>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="26"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="31"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="32"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="37"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="116"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="27"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="33"/>
         <source>The project file is not compatible with the current application version.</source>
         <translation>Die Projektdatei ist nicht mit der aktuellen Anwendungsversion kompatibel.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="31"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="37"/>
         <source>Unable to interpret the project file.</source>
         <translation>Die Projektdatei kann nicht interpretiert werden.</translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="91"/>
+        <source>Project from an Older Version</source>
+        <translation>Projekt einer älteren Version</translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="92"/>
+        <source>This project was saved by ScanTailor Advanced or an older version (project file version %2). ScanTailor OCR can open it, but processes some settings differently, so the results can differ. Settings that the project doesn&apos;t contain are taken from the profile &quot;%1&quot; of the default parameters.</source>
+        <translation>Dieses Projekt wurde mit ScanTailor Advanced oder einer älteren Version gespeichert (Projektdatei-Version %2). ScanTailor OCR kann es öffnen, verarbeitet aber einige Einstellungen anders, sodass die Ergebnisse abweichen können. Einstellungen, die das Projekt nicht enthält, werden aus dem Profil „%1“ der Standardparameter übernommen.</translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="98"/>
+        <source>Once the project is saved, also automatically, ScanTailor Advanced can no longer open it. A backup copy keeps the original file usable there. It&apos;s saved next to the project as &quot;%1&quot;.</source>
+        <translation>Sobald das Projekt gespeichert wird, auch automatisch, kann ScanTailor Advanced es nicht mehr öffnen. Mit einer Sicherungskopie bleibt die ursprüngliche Datei dort nutzbar. Sie wird neben dem Projekt als „%1“ gespeichert.</translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="103"/>
+        <source>Create backup and open</source>
+        <translation>Sicherungskopie anlegen und öffnen</translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="104"/>
+        <source>Open without backup</source>
+        <translation>Ohne Sicherungskopie öffnen</translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="117"/>
+        <source>The backup copy &quot;%1&quot; could not be created. The project was not opened.</source>
+        <translation>Die Sicherungskopie „%1“ konnte nicht angelegt werden. Das Projekt wurde nicht geöffnet.</translation>
     </message>
 </context>
 <context>

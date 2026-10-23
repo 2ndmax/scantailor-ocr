@@ -16,6 +16,10 @@ topic, not by version.
   Advanced 1.2 and by older versions of ScanTailor OCR, is still read. ScanTailor Advanced
   therefore no longer opens projects saved by ScanTailor OCR (it would have opened them without
   a warning and dropped the additional settings when saving).
+* Opening a project of version 4 asks first: it tells that some settings are processed
+  differently, that missing settings come from the active profile and that ScanTailor Advanced
+  can no longer open the project once it's saved, also automatically. It offers to make a backup
+  copy next to the project first (`Book_BACKUP.ScanTailor`).
 * Project files and profiles are written safely: the old file is replaced only when everything
   has been written, so a full disk or a crash no longer leaves a broken project.
 * **Settings for the whole project are stored in the project:** TIFF and PDF compression, text

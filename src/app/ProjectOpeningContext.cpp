@@ -3,9 +3,15 @@
 
 #include "ProjectOpeningContext.h"
 
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QMessageBox>
+#include <QPushButton>
 #include <cassert>
 
+#include "DefaultParamsProvider.h"
 #include "FixDpiDialog.h"
 #include "ProjectPages.h"
 #include "version.h"
@@ -32,6 +38,11 @@ void ProjectOpeningContext::proceed() {
     return;
   }
 
+  if (!confirmOlderVersion()) {
+    deleteLater();
+    return;
+  }
+
   if (m_reader.pages()->validateDpis()) {
     deleteLater();
     emit done(this);
@@ -39,6 +50,75 @@ void ProjectOpeningContext::proceed() {
   }
 
   showFixDpiDialog();
+}
+
+namespace {
+/** "Book_BACKUP.ScanTailor" next to "Book.ScanTailor", numbered if that file already exists. */
+QString backupFilePath(const QString& projectFile) {
+  const QFileInfo info(projectFile);
+  const QString suffix = info.suffix().isEmpty() ? QString() : '.' + info.suffix();
+  const QString base = info.dir().filePath(info.completeBaseName() + QLatin1String("_BACKUP"));
+  QString path = base + suffix;
+  for (int number = 2; QFileInfo::exists(path); ++number) {
+    path = base + '_' + QString::number(number) + suffix;
+  }
+  return path;
+}
+
+/** The name of the active profile of the default parameters, as the Default Parameters dialog shows it. */
+QString profileDisplayName() {
+  const QString name = DefaultParamsProvider::getInstance().getProfileName();
+  if (name == "Default") {
+    return QCoreApplication::translate("DefaultParamsDialog", "Default");
+  }
+  if (name == "Minimal") {
+    return QCoreApplication::translate("DefaultParamsDialog", "Minimal");
+  }
+  if (name == "Custom") {
+    return QCoreApplication::translate("DefaultParamsDialog", "Custom");
+  }
+  return name;
+}
+}  // namespace
+
+bool ProjectOpeningContext::confirmOlderVersion() {
+  const int version = m_reader.getVersion().toInt();
+  if ((version == PROJECT_VERSION) || m_projectFile.isEmpty()) {
+    return true;
+  }
+
+  const QString backupFile = backupFilePath(m_projectFile);
+  QMessageBox box(QMessageBox::Warning, tr("Project from an Older Version"),
+                  tr("This project was saved by ScanTailor Advanced or an older version (project file version %2). "
+                     "ScanTailor OCR can open it, but processes some settings differently, so the results can "
+                     "differ. Settings that the project doesn't contain are taken from the profile \"%1\" of the "
+                     "default parameters.")
+                          .arg(profileDisplayName(), QString::number(version))
+                      + "\n\n"
+                      + tr("Once the project is saved, also automatically, ScanTailor Advanced can no longer open "
+                           "it. A backup copy keeps the original file usable there. It's saved next to the project "
+                           "as \"%1\".")
+                            .arg(QFileInfo(backupFile).fileName()),
+                  QMessageBox::NoButton, m_parent);
+  QPushButton* backupButton = box.addButton(tr("Create backup and open"), QMessageBox::AcceptRole);
+  QPushButton* openButton = box.addButton(tr("Open without backup"), QMessageBox::AcceptRole);
+  box.addButton(QMessageBox::Cancel);
+  box.setDefaultButton(backupButton);
+  box.exec();
+
+  if (box.clickedButton() == openButton) {
+    return true;
+  }
+  if (box.clickedButton() != backupButton) {
+    return false;
+  }
+  if (!QFile::copy(m_projectFile, backupFile)) {
+    QMessageBox::warning(m_parent, tr("Error"),
+                         tr("The backup copy \"%1\" could not be created. The project was not opened.")
+                             .arg(QDir::toNativeSeparators(backupFile)));
+    return false;
+  }
+  return true;
 }
 
 void ProjectOpeningContext::fixedDpiSubmitted() {

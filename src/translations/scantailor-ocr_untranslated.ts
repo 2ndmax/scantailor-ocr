@@ -1594,12 +1594,14 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="147"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="75"/>
         <source>Minimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="155"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="78"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1620,6 +1622,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="146"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="72"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3546,19 +3549,50 @@ You should remove them from the project.</source>
 <context>
     <name>ProjectOpeningContext</name>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="26"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="31"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="32"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="37"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="116"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="27"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="33"/>
         <source>The project file is not compatible with the current application version.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="31"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="37"/>
         <source>Unable to interpret the project file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="91"/>
+        <source>Project from an Older Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="92"/>
+        <source>This project was saved by ScanTailor Advanced or an older version (project file version %2). ScanTailor OCR can open it, but processes some settings differently, so the results can differ. Settings that the project doesn&apos;t contain are taken from the profile &quot;%1&quot; of the default parameters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="98"/>
+        <source>Once the project is saved, also automatically, ScanTailor Advanced can no longer open it. A backup copy keeps the original file usable there. It&apos;s saved next to the project as &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="103"/>
+        <source>Create backup and open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="104"/>
+        <source>Open without backup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="117"/>
+        <source>The backup copy &quot;%1&quot; could not be created. The project was not opened.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
