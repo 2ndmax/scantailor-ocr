@@ -94,6 +94,12 @@ bool usesQuality(const QComboBox* box) {
   return (compression == PdfCompression::JPEG) || (compression == PdfCompression::JPEG2000);
 }
 
+/** The accent color of the color scheme: that of the frame of the selected thumbnail. */
+QColor accentColor() {
+  return ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder",
+                                                      QApplication::palette().color(QPalette::Highlight).darker(150));
+}
+
 /**
  * A button drawn as the others of the color scheme, with a frame in the accent color, as the frame
  * of the selected thumbnail: the main action of the step.
@@ -108,8 +114,7 @@ class AccentFrameButton : public QPushButton {
     if (!isEnabled()) {
       return;
     }
-    const QColor accent = ColorSchemeManager::instance().getColorParam(
-        "ThumbnailSequenceSelectedItemBorder", QApplication::palette().color(QPalette::Highlight).darker(150));
+    const QColor accent = accentColor();
     // The style sheets of the light and dark color schemes draw buttons with square corners, the
     // Windows 11 style with rounded ones.
     const double radius = qApp->styleSheet().contains(QLatin1String("QPushButton")) ? 0.0 : 4.0;
@@ -147,17 +152,10 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
-    // Frame; selected tiles are highlighted.
+    // Frame; selected tiles have one in the accent color.
     const QRectF frame = QRectF(option.rect).adjusted(1.5, 1.5, -1.5, -1.5);
-    if (selected) {
-      QColor fill = palette.color(QPalette::Highlight);
-      fill.setAlpha(60);
-      painter->setBrush(fill);
-      painter->setPen(QPen(palette.color(QPalette::Highlight), 2));
-    } else {
-      painter->setBrush(Qt::NoBrush);
-      painter->setPen(QPen(palette.color(QPalette::Mid), 1));
-    }
+    painter->setBrush(Qt::NoBrush);
+    painter->setPen(selected ? QPen(accentColor(), 2) : QPen(palette.color(QPalette::Mid), 1));
     painter->drawRoundedRect(frame, 4, 4);
 
     // Tick.
@@ -178,11 +176,13 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
       const int height = headerHeight(option);
       const int width = std::max(height, metrics.horizontalAdvance(text) + 10);
       const QRect badge(option.rect.right() - TILE_MARGIN - width + 1, option.rect.top() + TILE_MARGIN, width, height);
-      painter->setPen(Qt::NoPen);
-      painter->setBrush(palette.color(QPalette::Highlight));
-      painter->drawRoundedRect(badge, height / 2.0, height / 2.0);
+      // A ring in the accent color, as the frame of the button that creates the PDF.
+      painter->setPen(QPen(accentColor(), 2));
+      painter->setBrush(Qt::NoBrush);
+      const QRectF ring = QRectF(badge).adjusted(1, 1, -1, -1);
+      painter->drawRoundedRect(ring, ring.height() / 2.0, ring.height() / 2.0);
       painter->setFont(font);
-      painter->setPen(palette.color(QPalette::HighlightedText));
+      painter->setPen(palette.color(QPalette::Text));
       painter->drawText(badge, Qt::AlignCenter, text);
     }
 
