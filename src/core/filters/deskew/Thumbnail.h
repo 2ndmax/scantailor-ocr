@@ -27,7 +27,6 @@ class Thumbnail : public ThumbnailBase {
                          const QTransform& thumbToDisplay) override;
 
  private:
-  bool m_deviant;
 };
 }  // namespace deskew
 #endif

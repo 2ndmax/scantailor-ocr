@@ -296,7 +296,6 @@ class ThumbnailSequence::PlaceholderThumb : public QGraphicsItem {
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
 
  private:
-  static QPainterPath m_sCachedPath;
   QSizeF m_maxSize;
 };
 
@@ -329,6 +328,10 @@ class ThumbnailSequence::CompositeItem : public QGraphicsItemGroup {
   const Item* item() { return m_item; }
 
   bool incompleteThumbnail() const;
+
+  QGraphicsItem* thumbnail() const { return m_thumb; }
+
+  QGraphicsItem* labelGroup() const { return m_labelGroup; }
 
   void updateSceneRect(QRectF& sceneRect);
 
@@ -649,10 +652,12 @@ void ThumbnailSequence::Impl::updateSceneItemsPos() {
     commitSceneRect();
     return;
   }
+
   double yOffset = SPACING;
 
   ItemsInOrder::iterator ordIt = m_itemsInOrder.begin();
   const ItemsInOrder::iterator ordEnd(m_itemsInOrder.end());
+  bool severalInRow = false;
 
   while (ordIt != ordEnd) {
     int itemsInRow = 0;
@@ -680,6 +685,8 @@ void ThumbnailSequence::Impl::updateSceneItemsPos() {
       sumItemWidths = ordIt->composite->boundingRect().width();
     }
 
+    severalInRow = severalInRow || (itemsInRow > 1);
+
     // Split free space between the items in the current row.
     const double adjSpacing = std::floor((viewWidth - sumItemWidths) / (itemsInRow + 1));
     xOffset = adjSpacing;
@@ -695,6 +702,23 @@ void ThumbnailSequence::Impl::updateSceneItemsPos() {
     if (ordIt != ordEnd) {
       yOffset += nextYOffset;
     }
+  }
+
+  // With one tile in each row, the marks of all thumbnails line up at the right edge of the tiles,
+  // given by the thumbnails and the labels below them. The labels are the same in all steps, so the
+  // marks stay in place when the step changes. With several tiles in a row, each mark stays at its
+  // own thumbnail. Placeholders, as wide as the maximum, don't count.
+  double marksRight = 0;
+  if (!severalInRow) {
+    for (const Item& item : m_itemsInOrder) {
+      if (dynamic_cast<const ThumbnailBase*>(item.composite->thumbnail())) {
+        marksRight = std::max({marksRight, item.composite->thumbnail()->sceneBoundingRect().right(),
+                               item.composite->labelGroup()->sceneBoundingRect().right()});
+      }
+    }
+  }
+  for (const Item& item : m_itemsInOrder) {
+    ThumbnailBase::alignMarks(item.composite->thumbnail(), marksRight);
   }
 
   commitSceneRect();
@@ -1658,16 +1682,16 @@ void ThumbnailSequence::Item::setSelectionLeader(bool selectionLeader) const {
 
 /*================== ThumbnailSequence::PlaceholderThumb ====================*/
 
-QPainterPath ThumbnailSequence::PlaceholderThumb::m_sCachedPath;
-
-ThumbnailSequence::PlaceholderThumb::PlaceholderThumb(const QSizeF& maxSize) : m_maxSize(maxSize) {}
+ThumbnailSequence::PlaceholderThumb::PlaceholderThumb(const QSizeF& maxSize) : m_maxSize(maxSize) {
+  ThumbnailBase::addMark(this, ThumbnailBase::INCOMPLETE_MARK);
+}
 
 QRectF ThumbnailSequence::PlaceholderThumb::boundingRect() const {
   return QRectF(QPointF(0.0, 0.0), m_maxSize);
 }
 
 void ThumbnailSequence::PlaceholderThumb::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) {
-  IncompleteThumbnail::drawQuestionMark(*painter, boundingRect());
+  // Only the mark, which is a child item.
 }
 
 /*====================== ThumbnailSequence::LabelGroup ======================*/

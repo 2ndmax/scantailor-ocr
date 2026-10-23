@@ -55,6 +55,7 @@
 #include "PdfExportJob.h"
 #include "PdfPageOrder.h"
 #include "SectionHeading.h"
+#include "ThumbnailBase.h"
 #include "ThumbnailLoadResult.h"
 
 namespace {
@@ -168,8 +169,9 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
       painter->drawText(header, Qt::AlignCenter, (sign == WARNING_SIGN) ? warningSign() : informationSign());
     }
 
-    // Pages not in the PDF are drawn faded.
-    if (!included) {
+    // Pages left out of the PDF are drawn faded; pages not output yet are not, so that their
+    // placeholder stays readable.
+    if (checkable && !included) {
       painter->setOpacity(0.4);
     }
 
@@ -524,8 +526,8 @@ void PdfExportView::setPages(std::vector<Entry> entries) {
       // Kept for pages that aren't output yet, for when they are.
       item->setCheckState(orderItem.checked ? Qt::Checked : Qt::Unchecked);
       if (page.kind() == PdfExportPage::MISSING) {
-        // Shown greyed out and can't be selected.
-        item->setFlags(Qt::NoItemFlags);
+        // Can't be ticked or selected; the placeholder shows the hourglass of pages not processed yet.
+        item->setFlags(Qt::ItemIsEnabled);
         item->setIcon(makeIcon(QPixmap(), true));
       } else {
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled);
@@ -960,6 +962,7 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing) cons
       painter.setFont(m_pageList->font());
       painter.setPen(QColor(80, 80, 80));
       painter.drawText(rect.adjusted(4, 4, -4, -4), Qt::AlignCenter | Qt::TextWordWrap, tr("Not output yet"));
+      ThumbnailBase::drawMark(painter, ThumbnailBase::markRect(rect), ThumbnailBase::INCOMPLETE_MARK);
     }
   } else {
     QPixmap scaled = thumbnail.scaled(size * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -1075,7 +1078,7 @@ QString PdfExportView::pageToolTip(const int entryIndex) const {
   }
   const PdfExportPage& page = m_entries[entryIndex].page;
   if (page.kind() == PdfExportPage::MISSING) {
-    return tr("Not output yet");
+    return tr("Not output yet. Process the page in the Output step to include it in the PDF.");
   }
   const PageQuality quality = pageQuality(page);
   const QStringList warnings = pageWarnings(page, quality);

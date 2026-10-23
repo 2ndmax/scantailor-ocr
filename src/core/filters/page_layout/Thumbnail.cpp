@@ -23,8 +23,11 @@ Thumbnail::Thumbnail(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
     : ThumbnailBase(std::move(thumbnailCache), maxSize, imageId, xform, xform.resultingRect()),
       m_params(params),
       m_virtContentRect(xform.transform().map(physContentRect).boundingRect()),
-      m_virtOuterRect(xform.resultingRect()),
-      m_deviant(deviant) {}
+      m_virtOuterRect(xform.resultingRect()) {
+  if (deviant) {
+    addMark(this, DEVIANT_MARK);
+  }
+}
 
 void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDisplay, const QTransform& thumbToDisplay) {
   // We work in display coordinates because we want to be
@@ -90,9 +93,5 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
   painter.setPen(pen);
   painter.drawRect(outerRect);
 
-  if (m_deviant) {
-    painter.setWorldTransform(thumbToDisplay);
-    paintDeviant(painter);
-  }
 }  // Thumbnail::paintOverImage
 }  // namespace page_layout

@@ -38,6 +38,33 @@ class ThumbnailBase : public QGraphicsItem {
 
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
+  /** What a mark on a thumbnail says about the page. */
+  enum Mark {
+    INCOMPLETE_MARK,  ///< An hourglass in the accent color: not processed in this step yet.
+    DEVIANT_MARK      ///< A red exclamation mark: deviates strongly from the other pages.
+  };
+
+  /** The side of a mark, in pixels on the screen. */
+  static constexpr int MARK_SIZE = 26;
+
+  /**
+   * \brief Adds a mark at the top right corner of the item, equally large on all thumbnails and
+   *        with a tooltip. The mark of deviation shows only while deviation is highlighted.
+   */
+  static void addMark(QGraphicsItem* item, Mark mark);
+
+  /**
+   * \brief Moves the marks of the item to the given x in scene coordinates, but not left of the
+   *        item's right edge, so that the marks of thumbnails of different widths line up.
+   */
+  static void alignMarks(QGraphicsItem* item, double sceneRight);
+
+  /** The square of a mark at the top right corner of the rect. */
+  static QRectF markRect(const QRectF& rect);
+
+  /** Draws a mark into the square. */
+  static void drawMark(QPainter& painter, const QRectF& square, Mark mark);
+
  protected:
   /**
    * \brief A hook to allow subclasses to draw over the thumbnail.
@@ -66,8 +93,6 @@ class ThumbnailBase : public QGraphicsItem {
   virtual void prePaintOverImage(QPainter& painter,
                                  const QTransform& imageToDisplay,
                                  const QTransform& thumbToDisplay) {}
-
-  virtual void paintDeviant(QPainter& painter);
 
   void setImageXform(const ImageTransformation& imageXform);
 

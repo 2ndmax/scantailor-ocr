@@ -11,6 +11,8 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileSystemModel>
+#include <QGraphicsItem>
+#include <QHelpEvent>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
@@ -21,6 +23,7 @@
 #include <QSortFilterProxyModel>
 #include <QStackedLayout>
 #include <QThread>
+#include <QToolTip>
 #include <QtWidgets/QInputDialog>
 #include <map>
 #include <memory>
@@ -591,9 +594,25 @@ void MainWindow::setupThumbView() {
   updateThumbViewMinWidth();
   m_thumbSequence->attachView(thumbView);
   thumbView->installEventFilter(this);
+  thumbView->viewport()->installEventFilter(this);
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* ev) {
+  if ((obj == thumbView->viewport()) && (ev->type() == QEvent::ToolTip)) {
+    // Bound to the item, so that the same text over another thumbnail shows there, too.
+    const auto* helpEvent = static_cast<QHelpEvent*>(ev);
+    const QGraphicsItem* item = thumbView->itemAt(helpEvent->pos());
+    const QString tip = item ? item->toolTip() : QString();
+    if (tip.isEmpty()) {
+      QToolTip::hideText();
+    } else {
+      const QRect rect = item->deviceTransform(thumbView->viewportTransform()).mapRect(item->boundingRect()).toRect();
+      QToolTip::showText(helpEvent->globalPos(), tip, thumbView->viewport(), rect);
+    }
+    return true;
+  }
+
+
   if ((obj == thumbView) && (ev->type() == QEvent::Resize)) {
     if (!m_sceneItemsPosUpdater.isActive()) {
       m_sceneItemsPosUpdater.start(150);

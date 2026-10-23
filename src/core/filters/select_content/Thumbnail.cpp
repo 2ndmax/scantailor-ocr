@@ -18,8 +18,11 @@ Thumbnail::Thumbnail(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
     : ThumbnailBase(std::move(thumbnailCache), maxSize, imageId, xform),
       m_contentRect(contentRect),
       m_pageRect(pageRect),
-      m_pageRectEnabled(pageRectEnabled),
-      m_deviant(deviant) {}
+      m_pageRectEnabled(pageRectEnabled) {
+  if (deviant) {
+    addMark(this, DEVIANT_MARK);
+  }
+}
 
 void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDisplay, const QTransform& thumbToDisplay) {
   const QRectF pageRect(virtToThumb().mapRect(m_pageRect));
@@ -52,10 +55,6 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
     contentRect = contentRect.intersected(pageRect);
 
     painter.drawRect(contentRect);
-  }
-
-  if (m_deviant) {
-    paintDeviant(painter);
   }
 }
 }  // namespace select_content

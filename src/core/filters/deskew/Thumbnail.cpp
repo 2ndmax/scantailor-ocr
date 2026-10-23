@@ -12,7 +12,11 @@ Thumbnail::Thumbnail(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
                      const ImageId& imageId,
                      const ImageTransformation& xform,
                      bool deviant)
-    : ThumbnailBase(std::move(thumbnailCache), maxSize, imageId, xform), m_deviant(deviant) {}
+    : ThumbnailBase(std::move(thumbnailCache), maxSize, imageId, xform) {
+  if (deviant) {
+    addMark(this, DEVIANT_MARK);
+  }
+}
 
 void Thumbnail::prePaintOverImage(QPainter& painter,
                                   const QTransform& imageToDisplay,
@@ -50,8 +54,5 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
   }
   painter.drawLines(lines);
 
-  if (m_deviant) {
-    paintDeviant(painter);
-  }
 }  // Thumbnail::paintOverImage
 }  // namespace deskew

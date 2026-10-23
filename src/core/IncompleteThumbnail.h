@@ -4,7 +4,6 @@
 #ifndef SCANTAILOR_CORE_INCOMPLETETHUMBNAIL_H_
 #define SCANTAILOR_CORE_INCOMPLETETHUMBNAIL_H_
 
-#include <QPainterPath>
 #include <memory>
 
 #include "ThumbnailBase.h"
@@ -21,9 +20,8 @@ class QRectF;
  * is supposed to show already split and deskewed pages. However, because
  * the previous filters were not applied to all pages, we can't show them
  * split and deskewed. In that case, we show an image the best we can
- * (maybe split but not deskewed, maybe unsplit). Also we draw a translucent
- * question mark over that image to indicate it's not shown the way it should.
- * This class implements drawing of such thumbnails with question marks.
+ * (maybe split but not deskewed, maybe unsplit). Also we draw an hourglass at the
+ * top right corner of that image to indicate it's not shown the way it should.
  */
 class IncompleteThumbnail : public ThumbnailBase {
  public:
@@ -33,14 +31,6 @@ class IncompleteThumbnail : public ThumbnailBase {
                       const ImageTransformation& imageXform);
 
   ~IncompleteThumbnail() override;
-
-  static void drawQuestionMark(QPainter& painter, const QRectF& boundingRect);
-
- protected:
-  void paintOverImage(QPainter& painter, const QTransform& imageToDisplay, const QTransform& thumbToDisplay) override;
-
- private:
-  static QPainterPath m_sCachedPath;
 };
 
 

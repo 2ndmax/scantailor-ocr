@@ -6,13 +6,17 @@
 #include <PolygonUtils.h>
 
 #include <QApplication>
+#include <QCoreApplication>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPixmapCache>
 #include <QStyleOptionGraphicsItem>
+#include <algorithm>
 #include <cmath>
 #include <utility>
 
 #include "ApplicationSettings.h"
+#include "ColorSchemeManager.h"
 #include "PixmapRenderer.h"
 
 using namespace imageproc;
@@ -174,22 +178,117 @@ void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
   painter->drawPixmap(displayRect.topLeft(), tempPixmap);
 }  // ThumbnailBase::paint
 
-void ThumbnailBase::paintDeviant(QPainter& painter) {
-  if (!ApplicationSettings::getInstance().isHighlightDeviationEnabled()) {
-    return;
+namespace {
+/**
+ * A mark at the top right corner of a thumbnail. It ignores the scale of the thumbnail, so that
+ * all marks are equally large on the screen, and has its own tooltip.
+ */
+class ThumbnailMark : public QGraphicsItem {
+ public:
+  enum { Type = UserType + 1 };
+
+  ThumbnailMark(QGraphicsItem* parent, const ThumbnailBase::Mark mark) : QGraphicsItem(parent), m_mark(mark) {
+    setFlag(ItemIgnoresTransformations);
+    // At the right edge of the parent; ThumbnailSequence lines the marks of all thumbnails up.
+    setPos(parent->boundingRect().topRight());
+    setToolTip(
+        (mark == ThumbnailBase::INCOMPLETE_MARK)
+            ? QCoreApplication::translate("ThumbnailBase", "This page is not processed in this step yet.")
+            : QCoreApplication::translate("ThumbnailBase", "This page deviates strongly from the others. Check it."));
   }
 
-  QPen pen(QColor(0xdd, 0x00, 0x00, 0xcc));
-  pen.setWidth(5);
-  pen.setCosmetic(true);
-  painter.setPen(pen);
+  int type() const override { return Type; }
 
-  QFont font("Serif");
-  font.setWeight(QFont::Bold);
-  font.setPixelSize(static_cast<int>(boundingRect().width() / 2));
-  painter.setFont(font);
+  QRectF boundingRect() const override { return ThumbnailBase::markRect(QRectF()); }
 
-  painter.drawText(boundingRect(), Qt::AlignCenter, "*");
+  // Hidden marks of deviation don't show their tooltip either.
+  QPainterPath shape() const override {
+    QPainterPath path;
+    if (isShown()) {
+      path.addRect(boundingRect());
+    }
+    return path;
+  }
+
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override {
+    if (isShown()) {
+      ThumbnailBase::drawMark(*painter, boundingRect(), m_mark);
+    }
+  }
+
+ private:
+  bool isShown() const {
+    return (m_mark != ThumbnailBase::DEVIANT_MARK) || ApplicationSettings::getInstance().isHighlightDeviationEnabled();
+  }
+
+  ThumbnailBase::Mark m_mark;
+};
+}  // namespace
+
+void ThumbnailBase::addMark(QGraphicsItem* item, const Mark mark) {
+  new ThumbnailMark(item, mark);
+}
+
+void ThumbnailBase::alignMarks(QGraphicsItem* item, const double sceneRight) {
+  // Never left of the item's own right edge.
+  const double right = std::max(item->boundingRect().right(), item->mapFromScene(QPointF(sceneRight, 0)).x());
+  for (QGraphicsItem* child : item->childItems()) {
+    if (child->type() == ThumbnailMark::Type) {
+      child->setX(right);
+    }
+  }
+}
+
+QRectF ThumbnailBase::markRect(const QRectF& rect) {
+  const double margin = 3;
+  return QRectF(rect.right() - margin - MARK_SIZE, rect.top() + margin, MARK_SIZE, MARK_SIZE);
+}
+
+void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark mark) {
+  painter.save();
+  painter.setRenderHint(QPainter::Antialiasing);
+  const double s = square.width();
+  // A light square keeps the mark readable on any image.
+  QPen framePen(QColor(0, 0, 0, 70));
+  framePen.setCosmetic(true);
+  painter.setPen(framePen);
+  painter.setBrush(QColor(255, 255, 255, 230));
+  painter.drawRoundedRect(square, s * 0.2, s * 0.2);
+
+  if (mark == INCOMPLETE_MARK) {
+    // An hourglass in the accent color, as the frame of the selected thumbnail: two triangles
+    // meeting in the middle, closed by a bar at the top and at the bottom.
+    const QColor accent = ColorSchemeManager::instance().getColorParam(
+        "ThumbnailSequenceSelectedItemBorder", QApplication::palette().color(QPalette::Highlight).darker(150));
+    const double x0 = square.left() + s * 0.28;
+    const double x1 = square.right() - s * 0.28;
+    const double y0 = square.top() + s * 0.2;
+    const double y1 = square.bottom() - s * 0.2;
+    const QPointF middle = square.center();
+    QPainterPath glass;
+    glass.moveTo(x0, y0);
+    glass.lineTo(x1, y0);
+    glass.lineTo(middle);
+    glass.lineTo(x1, y1);
+    glass.lineTo(x0, y1);
+    glass.lineTo(middle);
+    glass.closeSubpath();
+    QPen pen(accent);
+    pen.setWidthF(std::max(1.0, s * 0.08));
+    pen.setJoinStyle(Qt::RoundJoin);
+    painter.setPen(pen);
+    painter.setBrush(accent);
+    painter.drawPath(glass);
+  } else {
+    // A red exclamation mark: a bar and a dot.
+    const double barWidth = s * 0.16;
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(0xdd, 0x00, 0x00));
+    painter.drawRoundedRect(QRectF(square.center().x() - barWidth / 2, square.top() + s * 0.16, barWidth, s * 0.46),
+                            barWidth / 2, barWidth / 2);
+    painter.drawEllipse(QPointF(square.center().x(), square.bottom() - s * 0.2), barWidth * 0.62, barWidth * 0.62);
+  }
+  painter.restore();
 }
 
 void ThumbnailBase::setImageXform(const ImageTransformation& imageXform) {

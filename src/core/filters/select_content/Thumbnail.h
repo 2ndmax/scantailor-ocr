@@ -31,7 +31,6 @@ class Thumbnail : public ThumbnailBase {
   QRectF m_contentRect;
   QRectF m_pageRect;
   bool m_pageRectEnabled;
-  bool m_deviant;
 };
 }  // namespace select_content
 #endif

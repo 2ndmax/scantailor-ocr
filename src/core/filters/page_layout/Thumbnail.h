@@ -32,7 +32,6 @@ class Thumbnail : public ThumbnailBase {
   Params m_params;
   QRectF m_virtContentRect;
   QRectF m_virtOuterRect;
-  bool m_deviant;
 };
 }  // namespace page_layout
 #endif
