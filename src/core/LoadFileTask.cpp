@@ -40,6 +40,10 @@ class LoadFileTask::ErrorResult : public FilterResult {
 
   std::shared_ptr<AbstractFilter> filter() override { return nullptr; }
 
+  const QStringList& reasons() const { return m_reasons; }
+
+  bool processingFailed() const { return m_processingFailed; }
+
  private:
   QString m_filePath;
   QStringList m_reasons;
@@ -77,7 +81,9 @@ FilterResultPtr LoadFileTask::operator()() {
       convertToSupportedFormat(image);
       updateImageSizeIfChanged(image);
       overrideDpi(image);
-      m_thumbnailCache->ensureThumbnailExists(m_imageId, image);
+      if (m_thumbnailCache) {
+        m_thumbnailCache->ensureThumbnailExists(m_imageId, image);
+      }
       return m_nextTask->process(*this, FilterData(image));
     }
   } catch (const CancelledException&) {
@@ -91,6 +97,16 @@ FilterResultPtr LoadFileTask::operator()() {
   } catch (...) {
     return processingFailed(QCoreApplication::translate("LoadFileTask", "Unknown error."));
   }
+}
+
+bool LoadFileTask::isFailure(const FilterResultPtr& result, QStringList* reasons, bool* processingFailed) {
+  const auto* error = dynamic_cast<const ErrorResult*>(result.get());
+  if (!error) {
+    return false;
+  }
+  *reasons = error->reasons();
+  *processingFailed = error->processingFailed();
+  return true;
 }
 
 FilterResultPtr LoadFileTask::processingFailed(const QString& reason) const {

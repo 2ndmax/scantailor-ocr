@@ -459,7 +459,9 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
       m_settings->setOutputParams(m_pageId, outParams);
     }
 
-    m_thumbnailCache->recreateThumbnail(ImageId(outFilePath), outImg);
+    if (m_thumbnailCache) {
+      m_thumbnailCache->recreateThumbnail(ImageId(outFilePath), outImg);
+    }
   }
 
   const DespeckleState despeckleState(outImg, specklesImg, params.despeckleLevel(), params.outputDpi());
@@ -495,7 +497,9 @@ void Task::deleteMutuallyExclusiveOutputFiles() {
   const QStringList dirs(Utils::outputFileDirs(m_outFileNameGen.outDir()));
   for (const PageId& page : exclusivePages) {
     m_outFileNameGen.removeFiles(page, dirs);
-    m_thumbnailCache->removeThumbnails(ImageId(m_outFileNameGen.filePathFor(page)));
+    if (m_thumbnailCache) {
+      m_thumbnailCache->removeThumbnails(ImageId(m_outFileNameGen.filePathFor(page)));
+    }
   }
 }
 

@@ -182,6 +182,10 @@ bool Filter::isMixedMode(const PageId& pageId) const {
   return m_settings->getParams(pageId).colorParams().colorMode() == MIXED;
 }
 
+bool Filter::hasOutputParams(const PageId& pageId) const {
+  return m_settings->getOutputParams(pageId) != nullptr;
+}
+
 bool Filter::detectColorMode(const PageInfo& pageInfo,
                              const GeometryCollector& geometry,
                              const TaskStatus& status,

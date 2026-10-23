@@ -197,7 +197,11 @@ class TestProject {
   }
 
   /** All six steps, as a command line tool would run them. */
-  void processAll() { QVERIFY(stages->processAll(thumbnailCache, outFileNameGen, pages)); }
+  void processAll() {
+    const StageSequence::ProcessAllResult result = stages->processAll(thumbnailCache, outFileNameGen);
+    QVERIFY(result.failures.empty());
+    QVERIFY(result.output);
+  }
 
   std::shared_ptr<ProjectPages> pages;
   std::shared_ptr<StageSequence> stages;
@@ -399,6 +403,61 @@ void TestEndToEndQt::testColorOutputCompression() {
                                    PdfExportOptions::fromProject(*project.stages->processingOptions()));
   QVERIFY(isCompletePdf(pdf));
   QVERIFY(pdf.contains("/Filter /DCTDecode"));
+}
+
+void TestEndToEndQt::testMissingImage() {
+  // An image that can't be loaded is reported, and as the size of its pages is unknown, no page
+  // is output.
+  QTemporaryDir tempDir;
+  QVERIFY(tempDir.isValid());
+  const QDir dir(tempDir.path());
+  const std::vector<ImageFileInfo> files = saveScans(dir);
+  const QString missingFile = files[1].fileInfo().absoluteFilePath();
+  QVERIFY(QFile::remove(missingFile));
+
+  const QString outDir = dir.absoluteFilePath("out");
+  TestProject project(files, outDir, DefaultParams());
+  const StageSequence::ProcessAllResult result
+      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+  QVERIFY(!result.output);
+  QVERIFY(!result.cancelled);
+  QCOMPARE(result.failures.size(), size_t(1));
+  QCOMPARE(result.failures[0].kind, StageSequence::PageFailure::LOAD_FAILED);
+  QCOMPARE(result.failures[0].page.imageId().filePath(), missingFile);
+  QVERIFY(QDir(outDir).entryList({"*.tif"}, QDir::Files).isEmpty());
+}
+
+void TestEndToEndQt::testCancelWithoutThumbnails() {
+  // Without thumbnails, processing can be cancelled between two pages and run again.
+  QTemporaryDir tempDir;
+  QVERIFY(tempDir.isValid());
+  const QDir dir(tempDir.path());
+  const std::vector<ImageFileInfo> files{saveScan(skewedPage(), dir.absoluteFilePath("1-skewed.png")),
+                                         saveScan(colorPage(), dir.absoluteFilePath("2-color.png"))};
+  TestProject project(files, dir.absoluteFilePath("out"), DefaultParams());
+  project.thumbnailCache.reset();
+  const int outputIdx = project.stages->outputFilterIdx();
+
+  int calls = 0;
+  const StageSequence::ProcessAllResult cancelled = project.stages->processAll(
+      nullptr, project.outFileNameGen, [&](const int lastFilterIdx, const int done, const int total) {
+        ++calls;
+        if (lastFilterIdx == outputIdx) {
+          return done < 1 || done == total;
+        }
+        return true;
+      });
+  QVERIFY(cancelled.cancelled);
+  QVERIFY(!cancelled.output);
+  QVERIFY(cancelled.failures.empty());
+  // Two pages up to the split, two up to the margins, one output.
+  QCOMPARE(calls, 5);
+  const PageSequence pages = project.pages->toPageSequence(PAGE_VIEW);
+  QVERIFY(QFile::exists(project.outFileNameGen.filePathFor(pages.pageAt(0).id())));
+  QVERIFY(!QFile::exists(project.outFileNameGen.filePathFor(pages.pageAt(1).id())));
+
+  project.processAll();
+  QVERIFY(QFile::exists(project.outFileNameGen.filePathFor(pages.pageAt(1).id())));
 }
 
 void TestEndToEndQt::testPdfExport() {

@@ -4,6 +4,7 @@
 #include "StageSequence.h"
 
 #include <cassert>
+#include <set>
 
 #include <QDir>
 
@@ -29,7 +30,8 @@
 
 StageSequence::StageSequence(const std::shared_ptr<ProjectPages>& pages,
                              const PageSelectionAccessor& pageSelectionAccessor)
-    : m_processingOptions(std::make_shared<ProcessingOptions>()),
+    : m_pages(pages),
+      m_processingOptions(std::make_shared<ProcessingOptions>()),
       m_defaultParams(std::make_shared<DefaultParams>()),
       m_fixOrientationFilter(std::make_shared<fix_orientation::Filter>(pageSelectionAccessor)),
       m_pageSplitFilter(std::make_shared<page_split::Filter>(pages, pageSelectionAccessor)),
@@ -139,22 +141,50 @@ BackgroundTaskPtr StageSequence::createTask(const PageInfo& page,
                                         thumbnailCache, pages, fixOrientationTask);
 }  // StageSequence::createTask
 
-bool StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
-                               const OutputFileNameGenerator& outFileNameGen,
-                               const std::shared_ptr<ProjectPages>& pages) const {
+StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+                                                          const OutputFileNameGenerator& outFileNameGen,
+                                                          const ProgressCallback& progress) const {
+  ProcessAllResult result;
+  std::set<ImageId> failedImages;
+  // Returns false if cancelled.
   const auto process = [&](const PageView view, const int lastFilterIdx) {
-    for (const PageInfo& page : pages->toPageSequence(view)) {
-      loadDefaultSettings(page);
-      (*createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, pages, true, false))();
+    const PageSequence sequence = m_pages->toPageSequence(view);
+    const int total = static_cast<int>(sequence.numPages());
+    int done = 0;
+    for (const PageInfo& page : sequence) {
+      if (failedImages.count(page.imageId()) == 0) {
+        // The pages that only exist after the split get their start values in the second pass;
+        // in the output pass all pages have their parameters.
+        if (lastFilterIdx != m_outputFilterIdx) {
+          loadDefaultSettings(page);
+        }
+        const FilterResultPtr taskResult
+            = (*createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, m_pages, true, false))();
+        QStringList reasons;
+        bool processingFailed = false;
+        if (LoadFileTask::isFailure(taskResult, &reasons, &processingFailed)) {
+          failedImages.insert(page.imageId());
+          result.failures.push_back(
+              {page.id(), processingFailed ? PageFailure::PROCESSING_FAILED : PageFailure::LOAD_FAILED, reasons});
+        } else if ((lastFilterIdx == m_outputFilterIdx) && !m_outputFilter->hasOutputParams(page.id())) {
+          result.failures.push_back({page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}});
+        }
+      }
+      ++done;
+      const bool lastPage = (lastFilterIdx == m_outputFilterIdx) && (done == total);
+      if (progress && !progress(lastFilterIdx, done, total) && !lastPage) {
+        result.cancelled = true;
+        return false;
+      }
     }
+    return true;
   };
-  process(IMAGE_VIEW, m_pageSplitFilterIdx);
-  process(PAGE_VIEW, m_pageLayoutFilterIdx);
-  if (!m_pageLayoutFilter->checkReadyForOutput(*pages)) {
-    return false;
+  if (!process(IMAGE_VIEW, m_pageSplitFilterIdx) || !process(PAGE_VIEW, m_pageLayoutFilterIdx)
+      || !m_pageLayoutFilter->checkReadyForOutput(*m_pages)) {
+    return result;
   }
-  process(PAGE_VIEW, m_outputFilterIdx);
-  return true;
+  result.output = process(PAGE_VIEW, m_outputFilterIdx);
+  return result;
 }
 
 std::shared_ptr<CompositeCacheDrivenTask> StageSequence::createCacheDrivenTask(

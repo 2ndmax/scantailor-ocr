@@ -4,12 +4,15 @@
 #ifndef SCANTAILOR_CORE_STAGESEQUENCE_H_
 #define SCANTAILOR_CORE_STAGESEQUENCE_H_
 
+#include <QStringList>
+#include <functional>
 #include <memory>
 #include <vector>
 
 #include "AbstractFilter.h"
 #include "BackgroundTask.h"
 #include "NonCopyable.h"
+#include "PageId.h"
 #include "PdfExportPage.h"
 #include "filters/deskew/Filter.h"
 #include "filters/fix_orientation/Filter.h"
@@ -18,7 +21,6 @@
 #include "filters/page_split/Filter.h"
 #include "filters/select_content/Filter.h"
 
-class PageId;
 class PageInfo;
 class ProjectPages;
 class ProjectReader;
@@ -33,6 +35,41 @@ class StageSequence {
 
  public:
   using FilterPtr = std::shared_ptr<AbstractFilter>;
+
+  /**
+   * A page that processAll() couldn't process, and why.
+   */
+  struct PageFailure {
+    enum Kind {
+      /** The image file couldn't be loaded. */
+      LOAD_FAILED,
+      /** The image was loaded, but processing it failed with an unexpected error. */
+      PROCESSING_FAILED,
+      /** The output file couldn't be written. */
+      OUTPUT_NOT_WRITTEN
+    };
+
+    PageId page;
+    Kind kind;
+    /** Why, as the step that failed reports it; empty for OUTPUT_NOT_WRITTEN. */
+    QStringList reasons;
+  };
+
+  struct ProcessAllResult {
+    /** The pages that failed, in the order they were processed. */
+    std::vector<PageFailure> failures;
+    /** Whether all pages went through the Output step; then failures only holds OUTPUT_NOT_WRITTEN. */
+    bool output = false;
+    /** Whether processing was cancelled; pages output before that keep their output files. */
+    bool cancelled = false;
+  };
+
+  /**
+   * Called by processAll() after each page with the step the pages are processed up to and how many
+   * of the pages of this pass are done. Returning false cancels processing before the next page,
+   * so no output file is left half-written.
+   */
+  using ProgressCallback = std::function<bool(int lastFilterIdx, int done, int total)>;
 
   StageSequence(const std::shared_ptr<ProjectPages>& pages, const PageSelectionAccessor& pageSelectionAccessor);
 
@@ -72,13 +109,17 @@ class StageSequence {
    * step by step. Which images have two pages is only known after the step that splits them, so
    * the images are processed up to that step first. The pages get the same size, which is only
    * known once the content of all pages is, so all pages go through the Margins step before any
-   * is output.
+   * is output. The pages are those the steps were created with.
    *
-   * \return false if the size of some page is still unknown; then nothing is output.
+   * An image that fails to load or to process is left out of the later passes. Then the size of
+   * its pages stays unknown and, as in the app, no page is output.
+   *
+   * \param thumbnailCache Where the thumbnails are updated; may be null if none are needed.
+   * \param progress Optional; see ProgressCallback.
    */
-  bool processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
-                  const OutputFileNameGenerator& outFileNameGen,
-                  const std::shared_ptr<ProjectPages>& pages) const;
+  ProcessAllResult processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+                              const OutputFileNameGenerator& outFileNameGen,
+                              const ProgressCallback& progress = {}) const;
 
   /**
    * The task that updates the thumbnails up to the step \p lastFilterIdx from the stored results.
@@ -140,6 +181,7 @@ class StageSequence {
   int outputFilterIdx() const { return m_outputFilterIdx; }
 
  private:
+  std::shared_ptr<ProjectPages> m_pages;
   // Before the filters, which get it when they are created.
   std::shared_ptr<ProcessingOptions> m_processingOptions;
   std::shared_ptr<DefaultParams> m_defaultParams;

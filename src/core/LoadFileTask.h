@@ -4,6 +4,7 @@
 #ifndef SCANTAILOR_CORE_LOADFILETASK_H_
 #define SCANTAILOR_CORE_LOADFILETASK_H_
 
+#include <QStringList>
 #include <memory>
 
 #include "BackgroundTask.h"
@@ -34,6 +35,12 @@ class LoadFileTask : public BackgroundTask {
   ~LoadFileTask() override;
 
   FilterResultPtr operator()() override;
+
+  /**
+   * Whether \p result is that of a page that couldn't be loaded or processed. If so, \p reasons
+   * gets why, and \p processingFailed whether the file was loaded but processing it failed.
+   */
+  static bool isFailure(const FilterResultPtr& result, QStringList* reasons, bool* processingFailed);
 
  private:
   class ErrorResult;
