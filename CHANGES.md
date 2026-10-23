@@ -12,11 +12,11 @@ topic, not by version.
   16 px (the Windows icon uses heavier strokes for the small sizes).
 * On the first start, the settings, saved default profiles and OCR languages of ScanTailor
   Advanced are copied over once. The old files are kept.
-* **Project files are saved as version 10** (`.ScanTailor`). Version 4, as written by ScanTailor
-  Advanced 1.2 and by older versions of ScanTailor OCR, is still read. ScanTailor Advanced
-  therefore no longer opens projects saved by ScanTailor OCR (it would have opened them without
+* **Project files are saved as version 10** (`.ScanTailor`). Versions 3 and 4, as written by
+  ScanTailor Advanced 1.1 and 1.2 and by older versions of ScanTailor OCR, are still read.
+  ScanTailor Advanced therefore no longer opens projects saved by ScanTailor OCR (it would have opened them without
   a warning and dropped the additional settings when saving).
-* Opening a project of version 4 asks first: it tells that some settings are processed
+* Opening a project of version 3 or 4 asks first: it tells that some settings are processed
   differently, that missing settings come from the active profile and that ScanTailor Advanced
   can no longer open the project once it's saved, also automatically. It offers to make a backup
   copy next to the project first (`Book_BACKUP.ScanTailor`).

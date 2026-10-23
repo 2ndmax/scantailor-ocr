@@ -9,5 +9,7 @@
 // Project files of ScanTailor Advanced 1.2 and of older versions of this program. They are
 // still read, but saved as PROJECT_VERSION, so that ScanTailor Advanced no longer opens them.
 #define PROJECT_VERSION_UPSTREAM 4
+// Project files of ScanTailor Advanced up to 1.1, read in the same way.
+#define PROJECT_VERSION_UPSTREAM_OLD 3
 
 #endif

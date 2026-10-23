@@ -19,8 +19,9 @@ ScanTailor OCR saves projects in a new format (project file version 10). Because
 changes, this format is not backward compatible: ScanTailor Advanced can't open projects saved
 by ScanTailor OCR.
 
-Projects of ScanTailor Advanced (version 4) can usually be opened. Some of their settings may be
-processed differently, though, so the results can differ from those of ScanTailor Advanced.
+Projects of ScanTailor Advanced (version 3 of 1.1, version 4 of 1.2) can usually be opened. Some
+of their settings may be processed differently, though, so the results can differ from those of
+ScanTailor Advanced.
 Settings that such a project doesn't contain are taken from the active profile of the default
 parameters. Once the project is saved in ScanTailor OCR, also automatically, it has the new
 format and can no longer be opened in ScanTailor Advanced. ScanTailor OCR tells this when opening

@@ -24,8 +24,7 @@ ProjectReader::ProjectReader(const QDomDocument& doc, const QString& projectFile
   QDomElement projectEl(m_doc.documentElement());
 
   m_version = projectEl.attribute("version");
-  if (m_version.isNull()
-      || ((m_version.toInt() != PROJECT_VERSION) && (m_version.toInt() != PROJECT_VERSION_UPSTREAM))) {
+  if (!isSupportedVersion(m_version)) {
     return;
   }
 
@@ -66,6 +65,15 @@ ProjectReader::ProjectReader(const QDomDocument& doc, const QString& projectFile
 }
 
 ProjectReader::~ProjectReader() = default;
+
+bool ProjectReader::isSupportedVersion(const QString& version) {
+  if (version.isNull()) {
+    return false;
+  }
+  const int number = version.toInt();
+  return (number == PROJECT_VERSION) || (number == PROJECT_VERSION_UPSTREAM)
+         || (number == PROJECT_VERSION_UPSTREAM_OLD);
+}
 
 QString ProjectReader::resolvePath(const QString& path) const {
   if (path.isEmpty()) {

@@ -49,6 +49,9 @@ class ProjectReader {
 
   const QString& getVersion() const { return m_version; }
 
+  /** Whether project files of this version are read: this program's and those of ScanTailor Advanced. */
+  static bool isSupportedVersion(const QString& version);
+
   const std::shared_ptr<ProjectPages>& pages() const { return m_pages; }
 
   const SelectedPage& selectedPage() const { return m_selectedPage; }

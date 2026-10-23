@@ -27,8 +27,7 @@ ProjectOpeningContext::~ProjectOpeningContext() {
 void ProjectOpeningContext::proceed() {
   if (!m_reader.success()) {
     deleteLater();
-    if (!m_reader.getVersion().isNull() && (m_reader.getVersion().toInt() != PROJECT_VERSION)
-        && (m_reader.getVersion().toInt() != PROJECT_VERSION_UPSTREAM)) {
+    if (!m_reader.getVersion().isNull() && !ProjectReader::isSupportedVersion(m_reader.getVersion())) {
       QMessageBox::warning(m_parent, tr("Error"),
                            tr("The project file is not compatible with the current application version."));
       return;
