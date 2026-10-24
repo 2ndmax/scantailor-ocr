@@ -4,8 +4,10 @@
 #include "StageSequence.h"
 
 #include <cassert>
+#include <new>
 #include <set>
 
+#include <QCoreApplication>
 #include <QDir>
 
 #include "LoadFileTask.h"
@@ -158,8 +160,17 @@ StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<
         if (lastFilterIdx != m_outputFilterIdx) {
           loadDefaultSettings(page);
         }
-        const FilterResultPtr taskResult
-            = (*createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, m_pages, true, false))();
+        FilterResultPtr taskResult;
+        try {
+          taskResult = (*createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, m_pages, true, false))();
+        } catch (const std::bad_alloc&) {
+          // LoadFileTask leaves it to the out-of-memory handler of the thread pool, which isn't
+          // there in this thread. Further pages would most likely fail the same way.
+          result.failures.push_back({page.id(),
+                                     PageFailure::PROCESSING_FAILED,
+                                     {QCoreApplication::translate("StageSequence", "Out of memory.")}});
+          return false;
+        }
         QStringList reasons;
         bool processingFailed = false;
         if (LoadFileTask::isFailure(taskResult, &reasons, &processingFailed)) {
@@ -181,6 +192,11 @@ StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<
   };
   if (!process(IMAGE_VIEW, m_pageSplitFilterIdx) || !process(PAGE_VIEW, m_pageLayoutFilterIdx)
       || !m_pageLayoutFilter->checkReadyForOutput(*m_pages)) {
+    return result;
+  }
+  // The sizes may be known from an earlier run, but the pages of a failed image would keep their
+  // old output files, which then pass for current ones.
+  if (!result.failures.empty()) {
     return result;
   }
   result.output = process(PAGE_VIEW, m_outputFilterIdx);

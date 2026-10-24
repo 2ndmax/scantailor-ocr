@@ -92,12 +92,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="80"/>
+        <location filename="../core/Application.cpp" line="85"/>
         <source>Unexpected Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="81"/>
+        <location filename="../core/Application.cpp" line="86"/>
         <source>An unexpected error occurred:
 %1
 
@@ -1916,35 +1916,35 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>LoadFileTask</name>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="92"/>
+        <location filename="../core/LoadFileTask.cpp" line="98"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="163"/>
+        <location filename="../core/LoadFileTask.cpp" line="179"/>
         <source>This page could not be processed because of an unexpected error:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="165"/>
-        <location filename="../core/LoadFileTask.cpp" line="175"/>
+        <location filename="../core/LoadFileTask.cpp" line="181"/>
+        <location filename="../core/LoadFileTask.cpp" line="191"/>
         <source>Reason:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="168"/>
+        <location filename="../core/LoadFileTask.cpp" line="184"/>
         <source>Changing the settings of this page or of a previous step may help. Please report this error together with the steps that led to it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="173"/>
+        <location filename="../core/LoadFileTask.cpp" line="189"/>
         <source>The following file could not be loaded:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="179"/>
+        <location filename="../core/LoadFileTask.cpp" line="195"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use &lt;a href=&quot;#relink&quot;&gt;Relink&lt;/a&gt; to locate it.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2189,7 +2189,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3042"/>
+        <location filename="../app/MainWindow.cpp" line="3046"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2244,33 +2244,33 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1646"/>
+        <location filename="../app/MainWindow.cpp" line="1650"/>
         <source>The detection was canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1886"/>
+        <location filename="../app/MainWindow.cpp" line="1890"/>
         <source>The project file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2147"/>
+        <location filename="../app/MainWindow.cpp" line="2151"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2185"/>
+        <location filename="../app/MainWindow.cpp" line="2189"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2200"/>
+        <location filename="../app/MainWindow.cpp" line="2204"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1868"/>
+        <location filename="../app/MainWindow.cpp" line="1872"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="26"/>
         <source>ScanTailor OCR Projects</source>
         <translation type="unfinished"></translation>
@@ -2316,149 +2316,149 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1589"/>
+        <location filename="../app/MainWindow.cpp" line="1593"/>
         <source>Detecting the color mode ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1589"/>
+        <location filename="../app/MainWindow.cpp" line="1593"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1590"/>
-        <location filename="../app/MainWindow.cpp" line="1648"/>
+        <location filename="../app/MainWindow.cpp" line="1594"/>
+        <location filename="../app/MainWindow.cpp" line="1652"/>
         <source>Detect Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1633"/>
+        <location filename="../app/MainWindow.cpp" line="1637"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1640"/>
+        <location filename="../app/MainWindow.cpp" line="1644"/>
         <source>%n page(s) skipped because the steps before Output have not been done yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1643"/>
+        <location filename="../app/MainWindow.cpp" line="1647"/>
         <source>%n page(s) could not be loaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1867"/>
+        <location filename="../app/MainWindow.cpp" line="1871"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1880"/>
-        <location filename="../app/MainWindow.cpp" line="1886"/>
-        <location filename="../app/MainWindow.cpp" line="2260"/>
-        <location filename="../app/MainWindow.cpp" line="2284"/>
+        <location filename="../app/MainWindow.cpp" line="1884"/>
+        <location filename="../app/MainWindow.cpp" line="1890"/>
+        <location filename="../app/MainWindow.cpp" line="2264"/>
+        <location filename="../app/MainWindow.cpp" line="2288"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1880"/>
+        <location filename="../app/MainWindow.cpp" line="1884"/>
         <source>Unable to open the project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1954"/>
+        <location filename="../app/MainWindow.cpp" line="1958"/>
         <source>Default Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1955"/>
+        <location filename="../app/MainWindow.cpp" line="1959"/>
         <source>Also use these default parameters for the open project? Pages added to it later start with them. Otherwise, they only apply to new projects.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2003"/>
+        <location filename="../app/MainWindow.cpp" line="2007"/>
         <source>version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2180"/>
+        <location filename="../app/MainWindow.cpp" line="2184"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2200"/>
+        <location filename="../app/MainWindow.cpp" line="2204"/>
         <source>A PDF is being created. Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2260"/>
-        <location filename="../app/MainWindow.cpp" line="2284"/>
+        <location filename="../app/MainWindow.cpp" line="2264"/>
+        <location filename="../app/MainWindow.cpp" line="2288"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2339"/>
+        <location filename="../app/MainWindow.cpp" line="2343"/>
         <source>Files to Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2342"/>
+        <location filename="../app/MainWindow.cpp" line="2346"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2392"/>
+        <location filename="../app/MainWindow.cpp" line="2396"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2449"/>
+        <location filename="../app/MainWindow.cpp" line="2453"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2610"/>
-        <location filename="../app/MainWindow.cpp" line="2652"/>
+        <location filename="../app/MainWindow.cpp" line="2614"/>
+        <location filename="../app/MainWindow.cpp" line="2656"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2604"/>
+        <location filename="../app/MainWindow.cpp" line="2608"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2629"/>
+        <location filename="../app/MainWindow.cpp" line="2633"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2653"/>
+        <location filename="../app/MainWindow.cpp" line="2657"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2709"/>
+        <location filename="../app/MainWindow.cpp" line="2713"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2767"/>
+        <location filename="../app/MainWindow.cpp" line="2771"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2840"/>
+        <location filename="../app/MainWindow.cpp" line="2844"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3042"/>
+        <location filename="../app/MainWindow.cpp" line="3046"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2919,43 +2919,43 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="271"/>
+        <location filename="../core/PdfExportJob.cpp" line="284"/>
         <source>The output file %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="318"/>
+        <location filename="../core/PdfExportJob.cpp" line="331"/>
         <source>The split output files of %1 differ in size. Process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="370"/>
+        <location filename="../core/PdfExportJob.cpp" line="383"/>
         <source>No pages are selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="376"/>
+        <location filename="../core/PdfExportJob.cpp" line="389"/>
         <source>Could not create %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="450"/>
+        <location filename="../core/PdfExportJob.cpp" line="463"/>
         <source>Text recognition could not be started.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="462"/>
+        <location filename="../core/PdfExportJob.cpp" line="244"/>
         <source>Out of memory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="469"/>
+        <location filename="../core/PdfExportJob.cpp" line="248"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="537"/>
-        <location filename="../core/PdfExportJob.cpp" line="543"/>
+        <location filename="../core/PdfExportJob.cpp" line="556"/>
+        <location filename="../core/PdfExportJob.cpp" line="562"/>
         <source>Could not write %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3408,7 +3408,7 @@ Without them, the text is only recognized with the other ticked languages.</sour
 <context>
     <name>PdfImageEncoder</name>
     <message>
-        <location filename="../core/PdfImageEncoder.cpp" line="436"/>
+        <location filename="../core/PdfImageEncoder.cpp" line="457"/>
         <source>Unexpected G4 strip layout.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4043,6 +4043,14 @@ would both become
     <message>
         <location filename="../core/StageListView.cpp" line="373"/>
         <source>Create PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StageSequence</name>
+    <message>
+        <location filename="../core/StageSequence.cpp" line="171"/>
+        <source>Out of memory.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5946,37 +5954,37 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="568"/>
+        <location filename="../core/filters/output/Task.cpp" line="572"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="609"/>
+        <location filename="../core/filters/output/Task.cpp" line="613"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="620"/>
+        <location filename="../core/filters/output/Task.cpp" line="624"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="621"/>
+        <location filename="../core/filters/output/Task.cpp" line="625"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="622"/>
+        <location filename="../core/filters/output/Task.cpp" line="626"/>
         <source>Fill Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="623"/>
+        <location filename="../core/filters/output/Task.cpp" line="627"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="624"/>
+        <location filename="../core/filters/output/Task.cpp" line="628"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>

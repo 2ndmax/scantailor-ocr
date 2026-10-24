@@ -441,6 +441,25 @@ void TestEndToEndQt::testMissingImage() {
   QVERIFY(QDir(outDir).entryList({"*.tif"}, QDir::Files).isEmpty());
 }
 
+void TestEndToEndQt::testMissingImageAfterEarlierRun() {
+  // After an earlier run the size of all pages is known. An image that fails now must still stop
+  // the output, or its old output files would end up in the PDF as if they were current.
+  QTemporaryDir tempDir;
+  QVERIFY(tempDir.isValid());
+  const QDir dir(tempDir.path());
+  const std::vector<ImageFileInfo> files = saveScans(dir);
+  QVERIFY(allSaved(files));
+  TestProject project(files, dir.absoluteFilePath("out"), DefaultParams());
+  QVERIFY(project.processAll());
+
+  QVERIFY(QFile::remove(files[2].fileInfo().absoluteFilePath()));
+  const StageSequence::ProcessAllResult result
+      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+  QVERIFY(!result.output);
+  QCOMPARE(result.failures.size(), size_t(1));
+  QCOMPARE(result.failures[0].kind, StageSequence::PageFailure::LOAD_FAILED);
+}
+
 void TestEndToEndQt::testCancelWithoutThumbnails() {
   // Without thumbnails, processing can be cancelled between two pages and run again.
   QTemporaryDir tempDir;

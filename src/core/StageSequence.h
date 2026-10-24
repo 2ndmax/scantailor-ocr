@@ -58,7 +58,10 @@ class StageSequence {
   struct ProcessAllResult {
     /** The pages that failed, in the order they were processed. */
     std::vector<PageFailure> failures;
-    /** Whether all pages went through the Output step; then failures only holds OUTPUT_NOT_WRITTEN. */
+    /**
+     * Whether the Output step ran through all pages. A page can still fail in it (e.g. its file
+     * was removed in the meantime), so check failures as well.
+     */
     bool output = false;
     /** Whether processing was cancelled; pages output before that keep their output files. */
     bool cancelled = false;
@@ -111,9 +114,10 @@ class StageSequence {
    * known once the content of all pages is, so all pages go through the Margins step before any
    * is output. The pages are those the steps were created with.
    *
-   * An image that fails to load or to process is left out of the later passes. Then the size of
-   * its pages stays unknown and, as in the app, no page is output. The steps before the output
-   * still store their results and update the thumbnails, also when no page is output.
+   * An image that fails to load or to process is left out of the later passes, and no page is
+   * output, even if the sizes of all pages are known from an earlier run. The steps before the
+   * output still store their results and update the thumbnails, also when no page is output.
+   * Running out of memory ends processing with a PROCESSING_FAILED entry for that page.
    *
    * \param thumbnailCache Where the thumbnails are updated; may be null if none are needed.
    * \param progress Optional; see ProgressCallback.

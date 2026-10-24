@@ -16,6 +16,7 @@ class TestEndToEndQt : public QObject {
   void testAllSteps();
   void testColorOutputCompression();
   void testMissingImage();
+  void testMissingImageAfterEarlierRun();
   void testCancelWithoutThumbnails();
   void testPdfExport();
 };
