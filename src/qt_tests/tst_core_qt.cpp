@@ -14,6 +14,7 @@
 #include <SelectedPage.h>
 #include <SmartFilenameOrdering.h>
 #include <Units.h>
+#include <WorkerThreadPool.h>
 #include <dewarping/Curve.h>
 #include <dewarping/DistortionModel.h>
 #include <filters/output/OptionsWidget.h>
@@ -34,6 +35,7 @@
 #include <QTemporaryDir>
 #include <QtTest/QtTest>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 void TestCoreQt::testUnitsToString() {
@@ -248,4 +250,24 @@ void TestCoreQt::testOutputPageSwitchRedoesPreviousThumbnail() {
   widget.preUpdateUI(second);
   QCOMPARE(thumbnailSpy.count(), 1);
   QCOMPARE(thumbnailSpy.at(0).at(0).value<PageId>(), first);
+}
+
+namespace {
+class ThrowingTask : public BackgroundTask {
+ public:
+  ThrowingTask() : BackgroundTask(BATCH) {}
+
+  FilterResultPtr operator()() override { throw std::runtime_error("test failure"); }
+};
+}  // namespace
+
+void TestCoreQt::testFailedTaskReportsBack() {
+  // A task that fails with an exception has no result. It must report back anyway, or the batch
+  // processing waits for it forever.
+  WorkerThreadPool pool;
+  QSignalSpy spy(&pool, &WorkerThreadPool::taskResult);
+  pool.submitTask(std::make_shared<ThrowingTask>());
+  QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 5000);
+  QVERIFY(!spy.at(0).at(1).value<FilterResultPtr>());
+  pool.shutdown();
 }

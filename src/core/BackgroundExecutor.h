@@ -20,12 +20,15 @@ class BackgroundExecutor {
   BackgroundExecutor();
 
   /**
-   * \brief Waits for background tasks to finish, then destroys the object.
+   * \brief Waits for the running task to finish, then destroys the object.
+   *        Tasks still waiting in the queue are dropped.
    */
   ~BackgroundExecutor();
 
   /**
-   * \brief Waits for pending jobs to finish and stop the background thread.
+   * \brief Waits for the running task to finish and stops the background thread.
+   *        Tasks still waiting in the queue are dropped, as are the results of the
+   *        running one.
    *
    * The destructor also performs these tasks, so this method is only
    * useful to prematuraly stop task processing. After shutdown, any

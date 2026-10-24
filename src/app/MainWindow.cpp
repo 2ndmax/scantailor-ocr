@@ -1491,27 +1491,31 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
     return;
   }
 
-  if (!isBatchProcessingInProgress()) {
-    if (!result->filter()) {
-      // Error loading file. No special action is necessary.
-    } else if (result->filter() != m_stages->filterAt(m_curFilter)) {
-      // Error from one of the previous filters.
-      const int idx = m_stages->findFilter(result->filter());
-      assert(idx >= 0);
-      m_curFilter = idx;
+  // A task that failed with an exception has no result to show (the error is reported already);
+  // a batch goes on with the next pages below.
+  if (result) {
+    if (!isBatchProcessingInProgress()) {
+      if (!result->filter()) {
+        // Error loading file. No special action is necessary.
+      } else if (result->filter() != m_stages->filterAt(m_curFilter)) {
+        // Error from one of the previous filters.
+        const int idx = m_stages->findFilter(result->filter());
+        assert(idx >= 0);
+        m_curFilter = idx;
 
-      ScopedIncDec<int> selectionGuard(m_ignoreSelectionChanges);
-      filterList->selectRow(idx);
+        ScopedIncDec<int> selectionGuard(m_ignoreSelectionChanges);
+        filterList->selectRow(idx);
+      }
     }
+
+    // This needs to be done even if batch processing is taking place,
+    // for instance because thumbnail invalidation is done from here.
+    result->updateUI(this);
+
+    // Processing results carry changed page parameters, which should get
+    // auto-saved even if the user stays on the same page.
+    updateAutoSaveTimer();
   }
-
-  // This needs to be done even if batch processing is taking place,
-  // for instance because thumbnail invalidation is done from here.
-  result->updateUI(this);
-
-  // Processing results carry changed page parameters, which should get
-  // auto-saved even if the user stays on the same page.
-  updateAutoSaveTimer();
 
   if (isBatchProcessingInProgress()) {
     if (m_batchQueue->allProcessed()) {

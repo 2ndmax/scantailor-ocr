@@ -31,7 +31,10 @@ WorkerThreadPool::WorkerThreadPool(QObject* parent) : QObject(parent), m_pool(ne
   updateNumberOfThreads();
 }
 
-WorkerThreadPool::~WorkerThreadPool() = default;
+WorkerThreadPool::~WorkerThreadPool() {
+  // Before this object goes: running tasks post their results to it.
+  shutdown();
+}
 
 void WorkerThreadPool::shutdown() {
   m_pool->waitForDone();
@@ -62,14 +65,16 @@ void WorkerThreadPool::submitTask(const BackgroundTaskPtr& task) {
           // which keeps the program alive instead of terminating it.
           ImageLoadErrorReporter::instance().reportProcessingFailure(QString(), 0,
                                                                      QStringList(QString::fromUtf8(e.what())));
+        } catch (...) {
+          // An exception leaving a thread of the pool would terminate the program.
+          ImageLoadErrorReporter::instance().reportProcessingFailure(QString(), 0, QStringList());
         }
       }
 
-      // A cancelled task reports back, too, without a result: it may have changed page parameters
-      // before it noticed the cancellation.
-      if (result || m_task->isCancelled()) {
-        QCoreApplication::postEvent(&m_owner, new TaskResultEvent(m_task, result));
-      }
+      // Every task reports back, so that it counts as finished, also without a result: a cancelled
+      // one may have changed page parameters before it noticed, and a failed one would make the
+      // batch processing wait for it forever.
+      QCoreApplication::postEvent(&m_owner, new TaskResultEvent(m_task, result));
     }
 
    private:

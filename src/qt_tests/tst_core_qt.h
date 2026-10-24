@@ -21,6 +21,7 @@ class TestCoreQt : public QObject {
   void testOutputDpiChangeUpdatesDewarpingMode();
   void testOutputPageSwitchDropsDelayedReload();
   void testOutputPageSwitchRedoesPreviousThumbnail();
+  void testFailedTaskReportsBack();
 };
 
 class Emitter : public QObject {

@@ -79,6 +79,9 @@ void BackgroundExecutor::Dispatcher::customEvent(QEvent* event) {
   } catch (const std::exception& e) {
     // Keep the program alive. These tasks (e.g. thumbnails) simply produce no result.
     qCritical().noquote() << "Background task failed:" << e.what();
+  } catch (...) {
+    // Any other exception would end the program from here.
+    qCritical().noquote() << "Background task failed with an unknown exception.";
   }
 }
 

@@ -65,6 +65,11 @@ bool Application::notify(QObject* receiver, QEvent* e) {
     qCritical().noquote() << "Unexpected error while handling an event:" << ex.what();
     showUnexpectedError(QString::fromUtf8(ex.what()));
     return false;
+  } catch (...) {
+    // Not derived from std::exception, so there is no reason to show.
+    qCritical().noquote() << "Unexpected error while handling an event.";
+    showUnexpectedError(QString());
+    return false;
   }
 }
 
