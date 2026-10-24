@@ -851,7 +851,8 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
       }
     }
     if (areaFound) {
-      uint32_t v = line[lastWordIdx];
+      // The padding bits behind the width may be 0 (white); they must not count as content.
+      uint32_t v = line[lastWordIdx] | ~lastWordMask;
       if (v) {
         area.setRight(area.right() - countConsecutiveZeroBitsTrailing(~v));
       }
@@ -893,12 +894,13 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
     for (QRect& area : areas) {
       int wordWidth = area.width() >> 5;
 
-      int left = area.left();
-      int leftWord = left >> 5;
-      int right = area.x() + area.width();
-      int rightWord = right >> 5;
-      int top = area.top();
-      int bottom = area.bottom();
+      // All bounds inclusive.
+      const int left = area.left();
+      const int leftWord = left >> 5;
+      const int right = area.right();
+      const int rightWord = right >> 5;
+      const int top = area.top();
+      const int bottom = area.bottom();
 
       const uint32_t* pdata = mask.data();
 
@@ -906,12 +908,12 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
       const auto criteriumWord = (int) (wordWidth * percent);
 
       // cut the dirty upper lines
-      for (int y = top; y < bottom; y++) {
+      for (int y = top; y <= bottom; y++) {
         line = pdata + wpl * y;
 
         int mword = 0;
 
-        for (int k = leftWord; k < rightWord; k++) {
+        for (int k = leftWord; k <= rightWord; k++) {
           if (!line[k]) {
             mword++;  // count the totally white words
           }
@@ -924,12 +926,12 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
       }
 
       // cut the dirty bottom lines
-      for (int y = bottom; y > top; y--) {
+      for (int y = bottom; y >= top; y--) {
         line = pdata + wpl * y;
 
         int mword = 0;
 
-        for (int k = leftWord; k < rightWord; k++) {
+        for (int k = leftWord; k <= rightWord; k++) {
           if (!line[k]) {
             mword++;
           }
@@ -941,10 +943,10 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
         }
       }
 
-      for (int x = left; x < right; x++) {
+      for (int x = left; x <= right; x++) {
         int mword = 0;
 
-        for (int y = top; y < bottom; y++) {
+        for (int y = top; y <= bottom; y++) {
           if (WHITE == mask.getPixel(x, y)) {
             mword++;
           }
@@ -956,10 +958,10 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
         }
       }
 
-      for (int x = right; x > left; x--) {
+      for (int x = right; x >= left; x--) {
         int mword = 0;
 
-        for (int y = top; y < bottom; y++) {
+        for (int y = top; y <= bottom; y++) {
           if (WHITE == mask.getPixel(x, y)) {
             mword++;
           }
@@ -970,9 +972,10 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
           break;
         }
       }
-
-      area = area.intersected(mask.rect());
     }
+  }
+  for (QRect& area : areas) {
+    area = area.intersected(mask.rect());
   }
   return areas;
 }

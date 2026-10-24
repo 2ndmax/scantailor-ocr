@@ -5,6 +5,7 @@
 // strokes and a "picture" half with a gradient. The tests check properties of the result, not
 // bytes, so they hold on every platform.
 
+#include <BinaryImage.h>
 #include <DistortionModel.h>
 #include <Dpi.h>
 #include <Dpm.h>
@@ -32,6 +33,7 @@
 #include <boost/test/unit_test.hpp>
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace Tests {
 using namespace output;
@@ -419,5 +421,35 @@ BOOST_AUTO_TEST_CASE(older_projects_posterize_text_when_posterizing_was_on) {
   BOOST_CHECK(ColorParams(el).colorCommonOptions().getPosterizationOptions().isEnabled());
 }
 
+BOOST_AUTO_TEST_CASE(rect_picture_zones_end_at_the_picture) {
+  // A picture reaching into the last, incomplete word of a line: the padding bits behind the
+  // width counted as picture, so the zone went on to the end of the word.
+  // Filled white, the padding bits are 0 (white), as after BinaryImage::fromIndexed8().
+  imageproc::BinaryImage mask(QSize(40, 10), imageproc::WHITE);
+  mask.fill(QRect(36, 0, 4, 10), imageproc::BLACK);
+  const std::vector<QRect> areas = findRectAreas(mask, imageproc::WHITE, 100);
+  BOOST_REQUIRE_EQUAL(areas.size(), 1u);
+  BOOST_CHECK_EQUAL(areas[0].right(), 35);
+  BOOST_CHECK(mask.rect().contains(areas[0]));
+}
+
+BOOST_AUTO_TEST_CASE(trimming_rect_picture_zones_stays_inside_the_area) {
+  // A picture up to the right edge of a mask 96 pixels wide, its last column mostly not part of
+  // it. The trimming read the column behind the area, i.e. the first pixel of the next line,
+  // which is white here (a picture of its own, apart from the other one).
+  imageproc::BinaryImage mask(QSize(96, 20), imageproc::BLACK);
+  mask.fill(QRect(72, 0, 23, 20), imageproc::WHITE);
+  mask.setPixel(95, 0, imageproc::WHITE);
+  mask.fill(QRect(0, 0, 1, 20), imageproc::WHITE);
+  const std::vector<QRect> areas = findRectAreas(mask, imageproc::WHITE, 50);
+  bool found = false;
+  for (const QRect& area : areas) {
+    if (area.left() >= 64) {
+      found = true;
+      BOOST_CHECK_EQUAL(area.right(), 94);
+    }
+  }
+  BOOST_CHECK(found);
+}
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests
