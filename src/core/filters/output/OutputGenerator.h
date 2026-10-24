@@ -6,6 +6,9 @@
 
 #include <QRect>
 #include <memory>
+#include <vector>
+
+#include "BWColor.h"
 
 #include "ImageTransformation.h"
 #include "OutputImage.h"
@@ -102,5 +105,12 @@ class OutputGenerator {
    */
   QRect m_contentRect;
 };
+
+/**
+ * Finds rectangles of contentColor pixels in mask, for the automatic rectangular picture zones.
+ * Below 100 %, sensitivity trims the rectangles to rows and columns mostly of contentColor.
+ * Declared here for the tests.
+ */
+std::vector<QRect> findRectAreas(const imageproc::BinaryImage& mask, imageproc::BWColor contentColor, int sensitivity);
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_OUTPUTGENERATOR_H_

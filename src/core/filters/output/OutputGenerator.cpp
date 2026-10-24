@@ -801,6 +801,8 @@ inline int findPositionOfTheHighestBitSet(uint32_t v) {
   return MultiplyDeBruijnBitPosition2[(uint32_t) (v * 0x07C4ACDDU) >> 27];
 }
 
+}  // namespace
+
 std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, int sensitivity) {
   if (mask.isNull()) {
     return {};
@@ -975,6 +977,7 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
   return areas;
 }
 
+namespace {
 void applyAffineTransform(QImage& image, const QTransform& xform, const QColor& outsideColor) {
   if (xform.isIdentity()) {
     return;
