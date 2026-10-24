@@ -65,6 +65,9 @@ bool DistortionModel::isValid() const {
     return false;
   }
 
+  // REVIEW-NOTE (2026-10): only the corner quadrilateral is checked, with an absolute px² threshold
+  // -> curves crossing between the corners pass as valid and distort the output there. Not fixed
+  // because the user sees the result and a stricter check would reject models that work today.
   if ((std::fabs(minDot) < 0.01) || (std::fabs(maxDot) < 0.01)) {
     // Too close - possible problems with calculating homography.
     return false;

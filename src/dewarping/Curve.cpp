@@ -4,6 +4,8 @@
 #include "Curve.h"
 
 #include <QDataStream>
+#include <algorithm>
+#include <cmath>
 
 #include "VecNT.h"
 #include "XmlMarshaller.h"
@@ -38,8 +40,26 @@ QDomElement Curve::toXml(QDomDocument& doc, const QString& name) const {
   return el;
 }
 
+namespace {
+bool isFinite(const QPointF& pt) {
+  return std::isfinite(pt.x()) && std::isfinite(pt.y());
+}
+}  // namespace
+
 bool Curve::isValid() const {
-  return m_polyline.size() > 1 && m_polyline.front() != m_polyline.back();
+  if ((m_polyline.size() <= 1) || (m_polyline.front() == m_polyline.back())) {
+    return false;
+  }
+  // A damaged project file can hold NaN or infinity, which later code can't handle.
+  if (!std::all_of(m_polyline.begin(), m_polyline.end(), isFinite)) {
+    return false;
+  }
+  for (int i = 0; i < m_xspline.numControlPoints(); ++i) {
+    if (!isFinite(m_xspline.controlPointPosition(i))) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool Curve::matches(const Curve& other) const {

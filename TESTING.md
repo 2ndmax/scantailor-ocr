@@ -18,6 +18,7 @@ Or run each suite separately:
 ./foundation_tests --log_level=message
 ./math_tests --log_level=message
 ./imageproc_tests --log_level=message
+./dewarping_tests --log_level=message
 ./qt_tests
 ```
 
@@ -55,6 +56,10 @@ without the offscreen plugin, `qt_tests` hangs without a message.
 - **MatrixCalc**: matrix operations.
 - **SidesOfLine**: which side of a line points lie on.
 - **SqDistApproximant**: squared distance approximation.
+- **XSpline**: sampling ends with NaN or huge coordinates; t outside [0, 1]; a single control point.
+
+### dewarping_tests
+- **Dewarping**: curves with NaN or infinity are invalid; dewarping with NaN grid points; large footprints keep the gray level.
 
 ### imageproc_tests
 - **BinaryImage**, **Binarize**, **Morphology**, **RasterOp**, **Scale**, **Shear**, **Transform**, etc.

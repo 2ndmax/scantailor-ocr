@@ -77,12 +77,17 @@ XSpline DewarpingView::splineForCurve(const dewarping::Curve& curve,
                                       const QPointF& defaultFrom,
                                       const QPointF& defaultTo,
                                       const DewarpingOptions& dewarpingOptions) {
+  XSpline spline;
+  // An invalid curve, e.g. with NaN from a damaged project file, can't be fitted to.
+  if (!curve.isValid()) {
+    initNewSpline(spline, defaultFrom, defaultTo, &dewarpingOptions);
+    return spline;
+  }
   if (curve.xspline().numControlPoints() >= 2) {
     return curve.xspline();
   }
 
   const std::vector<QPointF>& polyline = curve.polyline();
-  XSpline spline;
   if (polyline.size() < 2) {
     initNewSpline(spline, defaultFrom, defaultTo, &dewarpingOptions);
   } else {

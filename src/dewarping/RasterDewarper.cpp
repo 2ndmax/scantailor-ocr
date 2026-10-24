@@ -8,6 +8,7 @@
 
 #include <QDebug>
 #include <cmath>
+#include <cstdint>
 #include <stdexcept>
 
 #include "CylindricalSurfaceDewarper.h"
@@ -21,6 +22,14 @@ using namespace imageproc;
 
 namespace dewarping {
 namespace {
+#if INTERPOLATION_METHOD == INTERP_BILLINEAR
+using MixingWeight = float;
+#else
+// In 1/32 pixel units, a pixel weighs 1024. 32 bits overflow from about 128 x 128 source pixels
+// per output pixel (strong reduction, or near the pole of the homography outside the model).
+using MixingWeight = uint64_t;
+#endif
+
 #if INTERPOLATION_METHOD == INTERP_NONE
 template <typename ColorMixer, typename PixelType>
 void dewarpGeneric(const PixelType* const srcData,
@@ -191,8 +200,11 @@ void areaMapGeneratrix(const PixelType* const srcData,
       }
     }
 
-    if ((fSrc32Top < -32.0f * 10000.0f) || (fSrc32Left < -32.0f * 10000.0f)
-        || (fSrc32Bottom > 32.0f * (float(sh) + 10000.f)) || (fSrc32Right > 32.0f * (float(sw) + 10000.f))) {
+    // Written so that NaN fails the check, too: it would give undefined integers below.
+    const bool withinOverflowLimits = (fSrc32Top >= -32.0f * 10000.0f) && (fSrc32Left >= -32.0f * 10000.0f)
+                                      && (fSrc32Bottom <= 32.0f * (float(sh) + 10000.f))
+                                      && (fSrc32Right <= 32.0f * (float(sw) + 10000.f));
+    if (!withinOverflowLimits) {
       // This helps to prevent integer overflows.
       *pDst = bgColor;
       pDst += dstStride;
@@ -233,40 +245,40 @@ void areaMapGeneratrix(const PixelType* const srcData,
      * works correctly with both positive and negative src32Top.
      */
 
-    unsigned backgroundArea = 0;
+    MixingWeight backgroundArea = 0;
 
     if (srcTop < 0) {
-      const unsigned topFraction = 32 - (src32Top & 31);
-      const unsigned horFraction = src32Right - src32Left;
+      const MixingWeight topFraction = 32 - (src32Top & 31);
+      const MixingWeight horFraction = src32Right - src32Left;
       backgroundArea += topFraction * horFraction;
-      const unsigned fullPixelsVer = -1 - srcTop;
+      const MixingWeight fullPixelsVer = -1 - srcTop;
       backgroundArea += horFraction * (fullPixelsVer << 5);
       srcTop = 0;
       src32Top = 0;
     }
     if (srcBottom >= sh) {
-      const unsigned bottomFraction = src32Bottom - (srcBottom << 5);
-      const unsigned horFraction = src32Right - src32Left;
+      const MixingWeight bottomFraction = src32Bottom - (srcBottom << 5);
+      const MixingWeight horFraction = src32Right - src32Left;
       backgroundArea += bottomFraction * horFraction;
-      const unsigned fullPixelsVer = srcBottom - sh;
+      const MixingWeight fullPixelsVer = srcBottom - sh;
       backgroundArea += horFraction * (fullPixelsVer << 5);
       srcBottom = sh - 1;     // inclusive
       src32Bottom = sh << 5;  // exclusive
     }
     if (srcLeft < 0) {
-      const unsigned leftFraction = 32 - (src32Left & 31);
-      const unsigned vertFraction = src32Bottom - src32Top;
+      const MixingWeight leftFraction = 32 - (src32Left & 31);
+      const MixingWeight vertFraction = src32Bottom - src32Top;
       backgroundArea += leftFraction * vertFraction;
-      const unsigned fullPixelsHor = -1 - srcLeft;
+      const MixingWeight fullPixelsHor = -1 - srcLeft;
       backgroundArea += vertFraction * (fullPixelsHor << 5);
       srcLeft = 0;
       src32Left = 0;
     }
     if (srcRight >= sw) {
-      const unsigned rightFraction = src32Right - (srcRight << 5);
-      const unsigned vertFraction = src32Bottom - src32Top;
+      const MixingWeight rightFraction = src32Right - (srcRight << 5);
+      const MixingWeight vertFraction = src32Bottom - src32Top;
       backgroundArea += rightFraction * vertFraction;
-      const unsigned fullPixelsHor = srcRight - sw;
+      const MixingWeight fullPixelsHor = srcRight - sw;
       backgroundArea += vertFraction * (fullPixelsHor << 5);
       srcRight = sw - 1;     // inclusive
       src32Right = sw << 5;  // exclusive
@@ -281,17 +293,17 @@ void areaMapGeneratrix(const PixelType* const srcData,
     mixer.add(bgColor, backgroundArea);
     // }
 
-    const unsigned leftFraction = 32 - (src32Left & 31);
-    const unsigned topFraction = 32 - (src32Top & 31);
-    const unsigned rightFraction = src32Right - (srcRight << 5);
-    const unsigned bottomFraction = src32Bottom - (srcBottom << 5);
+    const MixingWeight leftFraction = 32 - (src32Left & 31);
+    const MixingWeight topFraction = 32 - (src32Top & 31);
+    const MixingWeight rightFraction = src32Right - (srcRight << 5);
+    const MixingWeight bottomFraction = src32Bottom - (srcBottom << 5);
 
     assert(leftFraction + rightFraction + (srcRight - srcLeft - 1) * 32
            == static_cast<unsigned>(src32Right - src32Left));
     assert(topFraction + bottomFraction + (srcBottom - srcTop - 1) * 32
            == static_cast<unsigned>(src32Bottom - src32Top));
 
-    const unsigned srcArea = (src32Bottom - src32Top) * (src32Right - src32Left);
+    const MixingWeight srcArea = (src32Bottom - src32Top) * (src32Right - src32Left);
     if (srcArea == 0) {
       *pDst = bgColor;
       pDst += dstStride;
@@ -313,10 +325,10 @@ void areaMapGeneratrix(const PixelType* const srcData,
         mixer.add(c, srcArea);
       } else {
         // dst pixel maps to a horizontal line of src pixels
-        const unsigned vertFraction = src32Bottom - src32Top;
-        const unsigned leftArea = vertFraction * leftFraction;
-        const unsigned middleArea = vertFraction << 5;
-        const unsigned rightArea = vertFraction * rightFraction;
+        const MixingWeight vertFraction = src32Bottom - src32Top;
+        const MixingWeight leftArea = vertFraction * leftFraction;
+        const MixingWeight middleArea = vertFraction << 5;
+        const MixingWeight rightArea = vertFraction * rightFraction;
 
         mixer.add(srcLine[srcLeft], leftArea);
 
@@ -328,10 +340,10 @@ void areaMapGeneratrix(const PixelType* const srcData,
       }
     } else if (srcLeft == srcRight) {
       // dst pixel maps to a vertical line of src pixels
-      const unsigned horFraction = src32Right - src32Left;
-      const unsigned topArea = horFraction * topFraction;
-      const unsigned middleArea = horFraction << 5;
-      const unsigned bottomArea = horFraction * bottomFraction;
+      const MixingWeight horFraction = src32Right - src32Left;
+      const MixingWeight topArea = horFraction * topFraction;
+      const MixingWeight middleArea = horFraction << 5;
+      const MixingWeight bottomArea = horFraction * bottomFraction;
 
       srcLine += srcLeft;
       mixer.add(*srcLine, topArea);
@@ -346,14 +358,14 @@ void areaMapGeneratrix(const PixelType* const srcData,
       mixer.add(*srcLine, bottomArea);
     } else {
       // dst pixel maps to a block of src pixels
-      const unsigned topArea = topFraction << 5;
-      const unsigned bottomArea = bottomFraction << 5;
-      const unsigned leftArea = leftFraction << 5;
-      const unsigned rightArea = rightFraction << 5;
-      const unsigned topleftArea = topFraction * leftFraction;
-      const unsigned toprightArea = topFraction * rightFraction;
-      const unsigned bottomleftArea = bottomFraction * leftFraction;
-      const unsigned bottomrightArea = bottomFraction * rightFraction;
+      const MixingWeight topArea = topFraction << 5;
+      const MixingWeight bottomArea = bottomFraction << 5;
+      const MixingWeight leftArea = leftFraction << 5;
+      const MixingWeight rightArea = rightFraction << 5;
+      const MixingWeight topleftArea = topFraction * leftFraction;
+      const MixingWeight toprightArea = topFraction * rightFraction;
+      const MixingWeight bottomleftArea = bottomFraction * leftFraction;
+      const MixingWeight bottomrightArea = bottomFraction * rightFraction;
 
       // process the top-left corner
       mixer.add(srcLine[srcLeft], topleftArea);
@@ -441,11 +453,6 @@ void dewarpGeneric(const PixelType* const srcData,
   }
 }  // dewarpGeneric
 #endif  // INTERPOLATION_METHOD
-#if INTERPOLATION_METHOD == INTERP_BILLINEAR
-using MixingWeight = float;
-#else
-using MixingWeight = unsigned;
-#endif
 
 QImage dewarpGrayscale(const QImage& src,
                        const QSize& dstSize,
