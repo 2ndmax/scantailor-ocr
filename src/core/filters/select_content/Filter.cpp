@@ -15,8 +15,7 @@
 #include "CacheDrivenTask.h"
 #include "FilterUiInterface.h"
 #include "OptionsWidget.h"
-#include "OrderByHeightProvider.h"
-#include "OrderByWidthProvider.h"
+#include "OrderBySizeProvider.h"
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "Task.h"
@@ -30,8 +29,8 @@ Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_p
   m_optionsWidget.reset(new OptionsWidget(m_settings, m_defaultParams, pageSelectionAccessor));
 
   const PageOrderOption::ProviderPtr defaultOrder;
-  const auto orderByWidth = std::make_shared<OrderByWidthProvider>(m_settings);
-  const auto orderByHeight = std::make_shared<OrderByHeightProvider>(m_settings);
+  const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);
+  const auto orderByHeight = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::HEIGHT);
   const auto orderByDeviation = std::make_shared<OrderByDeviationProvider>(m_settings->deviationProvider());
   m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
   m_pageOrderOptions.emplace_back(tr("Order by increasing width"), orderByWidth);

@@ -19,8 +19,7 @@ set(sources
     Settings.cpp Settings.h
     Thumbnail.cpp Thumbnail.h
     PhysSizeCalc.cpp PhysSizeCalc.h
-    OrderByWidthProvider.cpp OrderByWidthProvider.h
-    OrderByHeightProvider.cpp OrderByHeightProvider.h
+    OrderBySizeProvider.cpp OrderBySizeProvider.h
     Utils.cpp Utils.h)
 
 add_library(select_content STATIC ${sources} ${ui_files})
