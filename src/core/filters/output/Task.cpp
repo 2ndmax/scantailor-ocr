@@ -303,7 +303,8 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
       if (specklesFile.open(QIODevice::ReadOnly)) {
         specklesImg = BinaryImage(ImageLoader::load(specklesFile, 0));
       }
-      needReprocess = specklesImg.isNull();
+      // A file of another size (e.g. copied back from an earlier run) would be read outside.
+      needReprocess = specklesImg.isNull() || specklesImg.size() != outImg.size();
     }
   }
 
@@ -346,8 +347,10 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
           && distortionModel.isValid()) {
         // A new distortion model was generated.
         // We need to save it to be able to modify it manually.
-        params.setDistortionModel(distortionModel);
-        m_settings->setParams(m_pageId, params);
+        // Only this field: writing back all of params would undo changes the user made to the
+        // page meanwhile in the GUI thread.
+        m_settings->setDistortionModel(m_pageId, distortionModel);
+        params = m_settings->getParams(m_pageId);
         newOutputImageParams.setDistortionModel(distortionModel);
       }
 

@@ -55,7 +55,8 @@ QImage DespeckleState::overlaySpeckles(const QImage& mixed, const imageproc::Bin
     throw std::bad_alloc();
   }
 
-  if (speckles.isNull()) {
+  if (speckles.isNull() || (speckles.size() != result.size())) {
+    // Speckles of another size can't be laid over this image; they would be read outside.
     return result;
   }
 

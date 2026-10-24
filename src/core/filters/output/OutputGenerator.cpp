@@ -1171,14 +1171,16 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::buildEmptyImage() const
 }
 
 void OutputGenerator::Processor::updateBlackOnWhite(const FilterData& input) {
-  Params params = m_settings->getParams(m_pageId);
+  bool blackOnWhite = m_settings->getParams(m_pageId).isBlackOnWhite();
   if (m_takeOverBlackOnWhite && !m_settings->getOutputProcessingParams(m_pageId).isBlackOnWhiteSetManually()) {
-    if (params.isBlackOnWhite() != input.isBlackOnWhite()) {
-      params.setBlackOnWhite(input.isBlackOnWhite());
-      m_settings->setParams(m_pageId, params);
+    if (blackOnWhite != input.isBlackOnWhite()) {
+      blackOnWhite = input.isBlackOnWhite();
+      // Only this field: writing back all of the params would undo changes the user made to the
+      // page meanwhile in the GUI thread.
+      m_settings->setBlackOnWhite(m_pageId, blackOnWhite);
     }
   }
-  m_blackOnWhite = params.isBlackOnWhite();
+  m_blackOnWhite = blackOnWhite;
 }
 
 void OutputGenerator::Processor::initFilterData(const FilterData& input) {
