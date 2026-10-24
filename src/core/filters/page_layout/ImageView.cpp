@@ -209,6 +209,9 @@ void ImageView::alignmentChanged(const Alignment& alignment) {
   m_alignment = alignment;
 
   const Settings::AggregateSizeChanged sizeChanged = m_settings->setPageAlignment(m_pageId, alignment);
+  // With "Match size" turned on or off, the page may change the common size.
+  m_aggregateHardSizeMM = m_settings->getAggregateHardSizeMM();
+  m_committedAggregateHardSizeMM = m_aggregateHardSizeMM;
 
   recalcBoxesAndFit(calcHardMarginsMM());
 
@@ -492,7 +495,13 @@ void ImageView::middleRectDragContinuation(const int edgeMask, const QPointF& mo
 }  // ImageView::middleRectDragContinuation
 
 void ImageView::dragFinished() {
-  const AggregateSizeChanged aggSizeChanged(commitHardMargins(calcHardMarginsMM()));
+  const Margins marginsMm(calcHardMarginsMM());
+  const AggregateSizeChanged aggSizeChanged(commitHardMargins(marginsMm));
+  // With "Scale", the scale factor depends on the margins. The boxes are drawn with the new one,
+  // or the next drag and the stored margins would still use the old one.
+  if (calcScaleFactor(marginsMm) != m_scaleFactor) {
+    recalcBoxesAndFit(marginsMm);
+  }
 
   const QRectF extendedViewport(maxViewportRect().adjusted(-0.5, -0.5, 0.5, 0.5));
   if (extendedViewport.contains(m_beforeResizing.middleWidgetRect)) {
@@ -641,9 +650,14 @@ void ImageView::extendWithSoftMargins(QPolygonF& polyMm) const {
   const QSizeF hardSizeMm(QLineF(polyMm[0], polyMm[1]).length() * factor,
                           QLineF(polyMm[0], polyMm[3]).length() * factor);
   const std::unique_ptr<Params> params(m_settings->getPageParams(m_pageId));
+  // The page may have been removed from the settings meanwhile (another project loaded, pages
+  // removed); then the soft margins don't take the content into account.
+  const QRectF contentRect = params ? params->contentRect() : QRectF();
+  const QSizeF contentSizeMm = params ? params->contentSizeMM() : QSizeF();
+  const QRectF pageRect = params ? params->pageRect() : QRectF();
   const Margins softMarginsMm(
       Utils::calcSoftMarginsMM(hardSizeMm, m_settings->outputSizeOptions().targetSizeMM(m_aggregateHardSizeMM),
-                               m_alignment, params->contentRect(), params->contentSizeMM(), params->pageRect()));
+                               m_alignment, contentRect, contentSizeMm, pageRect));
   if (factor == 1.0) {
     Utils::extendPolyRectWithMargins(polyMm, softMarginsMm);
   } else {
