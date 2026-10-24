@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <algorithm>
 #include <functional>
+#include <unordered_set>
 
 #include "AbstractFilter.h"
 #include "DefaultParams.h"
@@ -55,6 +56,8 @@ ProjectReader::ProjectReader(const QDomDocument& doc, const QString& projectFile
 
   const QDomElement pagesEl(projectEl.namedItem("pages").toElement());
   if (pagesEl.isNull()) {
+    // Without it, the settings of all pages would be lost unnoticed, so the file counts as broken.
+    m_pages.reset();
     return;
   }
   processPages(pagesEl);
@@ -185,6 +188,7 @@ void ProjectReader::processImages(const QDomElement& imagesEl, const Qt::LayoutD
   const QString imageTagName("image");
 
   std::vector<ImageInfo> images;
+  std::unordered_set<ImageId> seenImages;
   int numImageElements = 0;
 
   QDomNode node(imagesEl.firstChild());
@@ -204,7 +208,8 @@ void ProjectReader::processImages(const QDomElement& imagesEl, const Qt::LayoutD
       continue;
     }
     const int subPages = el.attribute("subPages").toInt(&ok);
-    if (!ok) {
+    // ProjectPages only takes images of one or two pages.
+    if (!ok || (subPages < 1) || (subPages > 2)) {
       continue;
     }
     const int fileId = el.attribute("fileId").toInt(&ok);
@@ -225,6 +230,10 @@ void ProjectReader::processImages(const QDomElement& imagesEl, const Qt::LayoutD
       continue;
     }
     const ImageId imageId(fileRecord.filePath, fileImage + int(fileRecord.compatMultiPage));
+    if (!seenImages.insert(imageId).second) {
+      // ProjectPages doesn't support an image twice (a damaged or merged project file).
+      continue;
+    }
     const ImageMetadata metadata(processImageMetadata(el));
     const ImageInfo imageInfo(imageId, metadata, subPages, leftHalfRemoved, rightHalfRemoved);
 

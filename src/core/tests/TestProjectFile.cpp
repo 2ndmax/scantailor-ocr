@@ -205,4 +205,34 @@ BOOST_AUTO_TEST_CASE(test_unreadable_images_are_an_error) {
   BOOST_CHECK(!reader.success());
 }
 
+namespace {
+const QString kProjectStart(
+    "<project version=\"4\" outputDirectory=\"/out\"><directories><directory id=\"1\" path=\"/in\"/></directories>"
+    "<files><file id=\"2\" dirId=\"1\" name=\"a.png\"/></files>");
+}  // namespace
+
+BOOST_AUTO_TEST_CASE(test_missing_pages_are_an_error) {
+  // Without <pages>, the settings of all pages would be lost unnoticed.
+  const ProjectReader reader(parse(
+      kProjectStart + "<images><image id=\"3\" subPages=\"1\" fileId=\"2\" fileImage=\"0\"/></images></project>"));
+  BOOST_CHECK(!reader.success());
+}
+
+BOOST_AUTO_TEST_CASE(test_duplicate_images_are_skipped) {
+  const ProjectReader reader(parse(kProjectStart
+                                   + "<images><image id=\"3\" subPages=\"1\" fileId=\"2\" fileImage=\"0\"/>"
+                                     "<image id=\"4\" subPages=\"1\" fileId=\"2\" fileImage=\"0\"/></images>"
+                                     "<pages/></project>"));
+  BOOST_REQUIRE(reader.success());
+  BOOST_CHECK_EQUAL(reader.pages()->numImages(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(test_images_with_invalid_sub_pages_are_skipped) {
+  // ProjectPages only takes one or two sub pages; with no other image the file is broken.
+  const ProjectReader reader(
+      parse(kProjectStart
+            + "<images><image id=\"3\" subPages=\"3\" fileId=\"2\" fileImage=\"0\"/></images><pages/></project>"));
+  BOOST_CHECK(!reader.success());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
