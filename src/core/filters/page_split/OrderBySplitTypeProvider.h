@@ -5,6 +5,7 @@
 #define SCANTAILOR_PAGE_SPLIT_ORDERBYSPLITTYPEPROVIDER_H_
 
 #include <memory>
+#include <vector>
 
 #include "PageOrderProvider.h"
 #include "Settings.h"
@@ -16,7 +17,19 @@ class OrderBySplitTypeProvider : public PageOrderProvider {
 
   bool precedes(const PageId& lhsPage, bool lhsIncomplete, const PageId& rhsPage, bool rhsIncomplete) const override;
 
+  Comparator snapshot(const std::vector<PageId>& pages) const override;
+
  private:
+  /** The layout type to order by; unknown ones (AUTO_LAYOUT_TYPE) come last. */
+  static int layoutTypeOf(const Settings& settings, const PageId& page);
+
+  static bool compare(int lhsLayoutType,
+                      bool lhsIncomplete,
+                      const PageId& lhsPage,
+                      int rhsLayoutType,
+                      bool rhsIncomplete,
+                      const PageId& rhsPage);
+
   std::shared_ptr<Settings> m_settings;
 };
 }  // namespace page_split

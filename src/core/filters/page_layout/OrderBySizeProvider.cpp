@@ -11,26 +11,25 @@ namespace page_layout {
 OrderBySizeProvider::OrderBySizeProvider(std::shared_ptr<Settings> settings, const Dimension dimension)
     : m_settings(std::move(settings)), m_dimension(dimension) {}
 
-bool OrderBySizeProvider::precedes(const PageId& lhsPage,
-                                   const bool lhsIncomplete,
-                                   const PageId& rhsPage,
-                                   const bool rhsIncomplete) const {
-  const std::unique_ptr<Params> lhsParams(m_settings->getPageParams(lhsPage));
-  const std::unique_ptr<Params> rhsParams(m_settings->getPageParams(rhsPage));
-
-  QSizeF lhsSize;
-  if (lhsParams) {
-    const Margins margins(lhsParams->hardMarginsMM());
-    lhsSize = lhsParams->contentSizeMM();
-    lhsSize += QSizeF(margins.left() + margins.right(), margins.top() + margins.bottom());
+QSizeF OrderBySizeProvider::sizeOf(const Settings& settings, const PageId& page) {
+  const std::unique_ptr<Params> params(settings.getPageParams(page));
+  if (!params) {
+    return QSizeF();
   }
-  QSizeF rhsSize;
-  if (rhsParams) {
-    const Margins margins(rhsParams->hardMarginsMM());
-    rhsSize = rhsParams->contentSizeMM();
-    rhsSize += QSizeF(margins.left() + margins.right(), margins.top() + margins.bottom());
+  QSizeF size = params->contentSizeMM();
+  // An unknown content size (-1 x -1) plus the margins would look like a small, known one.
+  if (size.isValid()) {
+    const Margins margins(params->hardMarginsMM());
+    size += QSizeF(margins.left() + margins.right(), margins.top() + margins.bottom());
   }
+  return size;
+}
 
+bool OrderBySizeProvider::compare(const Dimension dimension,
+                                  const QSizeF& lhsSize,
+                                  const bool lhsIncomplete,
+                                  const QSizeF& rhsSize,
+                                  const bool rhsIncomplete) {
   const bool lhsValid = !lhsIncomplete && lhsSize.isValid();
   const bool rhsValid = !rhsIncomplete && rhsSize.isValid();
 
@@ -38,9 +37,25 @@ bool OrderBySizeProvider::precedes(const PageId& lhsPage,
     // Invalid (unknown) sizes go to the back.
     return lhsValid;
   }
-  if (m_dimension == WIDTH) {
+  if (dimension == WIDTH) {
     return lhsSize.width() < rhsSize.width();
   }
   return lhsSize.height() < rhsSize.height();
-}  // OrderBySizeProvider::precedes
+}
+
+bool OrderBySizeProvider::precedes(const PageId& lhsPage,
+                                   const bool lhsIncomplete,
+                                   const PageId& rhsPage,
+                                   const bool rhsIncomplete) const {
+  return compare(m_dimension, sizeOf(*m_settings, lhsPage), lhsIncomplete, sizeOf(*m_settings, rhsPage), rhsIncomplete);
+}
+
+PageOrderProvider::Comparator OrderBySizeProvider::snapshot(const std::vector<PageId>& pages) const {
+  return snapshotOf<QSizeF>(
+      pages, [settings = m_settings](const PageId& page) { return sizeOf(*settings, page); },
+      [dimension = m_dimension](const QSizeF& lhsSize, const bool lhsIncomplete, const PageId&, const QSizeF& rhsSize,
+                                const bool rhsIncomplete, const PageId&) {
+        return compare(dimension, lhsSize, lhsIncomplete, rhsSize, rhsIncomplete);
+      });
+}
 }  // namespace page_layout

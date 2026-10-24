@@ -9,22 +9,16 @@ namespace select_content {
 OrderBySizeProvider::OrderBySizeProvider(std::shared_ptr<Settings> settings, const Dimension dimension)
     : m_settings(std::move(settings)), m_dimension(dimension) {}
 
-bool OrderBySizeProvider::precedes(const PageId& lhsPage,
-                                   const bool lhsIncomplete,
-                                   const PageId& rhsPage,
-                                   const bool rhsIncomplete) const {
-  const std::unique_ptr<Params> lhsParams(m_settings->getPageParams(lhsPage));
-  const std::unique_ptr<Params> rhsParams(m_settings->getPageParams(rhsPage));
+QSizeF OrderBySizeProvider::sizeOf(const Settings& settings, const PageId& page) {
+  const std::unique_ptr<Params> params(settings.getPageParams(page));
+  return params ? params->contentSizeMM() : QSizeF();
+}
 
-  QSizeF lhsSize;
-  if (lhsParams) {
-    lhsSize = lhsParams->contentSizeMM();
-  }
-  QSizeF rhsSize;
-  if (rhsParams) {
-    rhsSize = rhsParams->contentSizeMM();
-  }
-
+bool OrderBySizeProvider::compare(const Dimension dimension,
+                                  const QSizeF& lhsSize,
+                                  const bool lhsIncomplete,
+                                  const QSizeF& rhsSize,
+                                  const bool rhsIncomplete) {
   const bool lhsValid = !lhsIncomplete && lhsSize.isValid();
   const bool rhsValid = !rhsIncomplete && rhsSize.isValid();
 
@@ -32,9 +26,25 @@ bool OrderBySizeProvider::precedes(const PageId& lhsPage,
     // Invalid (unknown) sizes go to the back.
     return lhsValid;
   }
-  if (m_dimension == WIDTH) {
+  if (dimension == WIDTH) {
     return lhsSize.width() < rhsSize.width();
   }
   return lhsSize.height() < rhsSize.height();
+}
+
+bool OrderBySizeProvider::precedes(const PageId& lhsPage,
+                                   const bool lhsIncomplete,
+                                   const PageId& rhsPage,
+                                   const bool rhsIncomplete) const {
+  return compare(m_dimension, sizeOf(*m_settings, lhsPage), lhsIncomplete, sizeOf(*m_settings, rhsPage), rhsIncomplete);
+}
+
+PageOrderProvider::Comparator OrderBySizeProvider::snapshot(const std::vector<PageId>& pages) const {
+  return snapshotOf<QSizeF>(
+      pages, [settings = m_settings](const PageId& page) { return sizeOf(*settings, page); },
+      [dimension = m_dimension](const QSizeF& lhsSize, const bool lhsIncomplete, const PageId&, const QSizeF& rhsSize,
+                                const bool rhsIncomplete, const PageId&) {
+        return compare(dimension, lhsSize, lhsIncomplete, rhsSize, rhsIncomplete);
+      });
 }
 }  // namespace select_content

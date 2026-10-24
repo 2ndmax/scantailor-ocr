@@ -10,10 +10,26 @@ namespace page_split {
 OrderBySplitTypeProvider::OrderBySplitTypeProvider(std::shared_ptr<Settings> settings)
     : m_settings(std::move(settings)) {}
 
-bool OrderBySplitTypeProvider::precedes(const PageId& lhsPage,
-                                        const bool lhsIncomplete,
-                                        const PageId& rhsPage,
-                                        const bool rhsIncomplete) const {
+int OrderBySplitTypeProvider::layoutTypeOf(const Settings& settings, const PageId& page) {
+  const Settings::Record record(settings.getPageRecord(page.imageId()));
+  const Params* params = record.params();
+
+  int layoutType = record.combinedLayoutType();
+  if (params) {
+    layoutType = params->pageLayout().toLayoutType();
+  }
+  if (layoutType == AUTO_LAYOUT_TYPE) {
+    layoutType = 100;  // To force it below pages with known layout.
+  }
+  return layoutType;
+}
+
+bool OrderBySplitTypeProvider::compare(const int lhsLayoutType,
+                                       const bool lhsIncomplete,
+                                       const PageId& lhsPage,
+                                       const int rhsLayoutType,
+                                       const bool rhsIncomplete,
+                                       const PageId& rhsPage) {
   if (lhsIncomplete != rhsIncomplete) {
     // Pages with question mark go to the bottom.
     return rhsIncomplete;
@@ -26,32 +42,25 @@ bool OrderBySplitTypeProvider::precedes(const PageId& lhsPage,
   assert(!lhsIncomplete);
   assert(!rhsIncomplete);
 
-  const Settings::Record lhsRecord(m_settings->getPageRecord(lhsPage.imageId()));
-  const Settings::Record rhsRecord(m_settings->getPageRecord(rhsPage.imageId()));
-
-  const Params* lhsParams = lhsRecord.params();
-  const Params* rhsParams = rhsRecord.params();
-
-  int lhsLayoutType = lhsRecord.combinedLayoutType();
-  if (lhsParams) {
-    lhsLayoutType = lhsParams->pageLayout().toLayoutType();
-  }
-  if (lhsLayoutType == AUTO_LAYOUT_TYPE) {
-    lhsLayoutType = 100;  // To force it below pages with known layout.
-  }
-
-  int rhsLayoutType = rhsRecord.combinedLayoutType();
-  if (rhsParams) {
-    rhsLayoutType = rhsParams->pageLayout().toLayoutType();
-  }
-  if (rhsLayoutType == AUTO_LAYOUT_TYPE) {
-    rhsLayoutType = 100;  // To force it below pages with known layout.
-  }
-
   if (lhsLayoutType == rhsLayoutType) {
     return lhsPage < rhsPage;
   } else {
     return lhsLayoutType < rhsLayoutType;
   }
-}  // OrderBySplitTypeProvider::precedes
+}
+
+bool OrderBySplitTypeProvider::precedes(const PageId& lhsPage,
+                                        const bool lhsIncomplete,
+                                        const PageId& rhsPage,
+                                        const bool rhsIncomplete) const {
+  // The layout types of pages with question marks don't matter, so they aren't read.
+  const int lhsLayoutType = lhsIncomplete ? 0 : layoutTypeOf(*m_settings, lhsPage);
+  const int rhsLayoutType = rhsIncomplete ? 0 : layoutTypeOf(*m_settings, rhsPage);
+  return compare(lhsLayoutType, lhsIncomplete, lhsPage, rhsLayoutType, rhsIncomplete, rhsPage);
+}
+
+PageOrderProvider::Comparator OrderBySplitTypeProvider::snapshot(const std::vector<PageId>& pages) const {
+  return snapshotOf<int>(
+      pages, [settings = m_settings](const PageId& page) { return layoutTypeOf(*settings, page); }, &compare);
+}
 }  // namespace page_split

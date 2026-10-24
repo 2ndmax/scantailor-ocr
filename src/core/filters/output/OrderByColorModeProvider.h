@@ -5,7 +5,9 @@
 #define SCANTAILOR_OUTPUT_ORDERBYCOLORMODEPROVIDER_H_
 
 #include <memory>
+#include <vector>
 
+#include "ColorParams.h"
 #include "PageOrderProvider.h"
 
 namespace output {
@@ -22,7 +24,13 @@ class OrderByColorModeProvider : public PageOrderProvider {
 
   bool precedes(const PageId& lhsPage, bool lhsIncomplete, const PageId& rhsPage, bool rhsIncomplete) const override;
 
+  Comparator snapshot(const std::vector<PageId>& pages) const override;
+
  private:
+  static ColorMode colorModeOf(const Settings& settings, const PageId& page);
+
+  static bool compare(ColorMode lhsMode, const PageId& lhsPage, ColorMode rhsMode, const PageId& rhsPage);
+
   std::shared_ptr<Settings> m_settings;
 };
 }  // namespace output

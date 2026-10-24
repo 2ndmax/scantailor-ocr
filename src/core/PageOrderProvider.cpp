@@ -3,6 +3,12 @@
 
 #include "PageOrderProvider.h"
 
+PageOrderProvider::Comparator PageOrderProvider::snapshot(const std::vector<PageId>&) const {
+  return [this](const PageId& lhsPage, const bool lhsIncomplete, const PageId& rhsPage, const bool rhsIncomplete) {
+    return precedes(lhsPage, lhsIncomplete, rhsPage, rhsIncomplete);
+  };
+}
+
 std::shared_ptr<const PageOrderProvider> PageOrderProvider::reversed() const {
   class ReversedPageOrderProvider : public PageOrderProvider {
    public:
@@ -10,6 +16,13 @@ std::shared_ptr<const PageOrderProvider> PageOrderProvider::reversed() const {
 
     bool precedes(const PageId& lhsPage, bool lhsIncomplete, const PageId& rhsPage, bool rhsIncomplete) const override {
       return m_parent->precedes(rhsPage, rhsIncomplete, lhsPage, lhsIncomplete);
+    }
+
+    Comparator snapshot(const std::vector<PageId>& pages) const override {
+      return [compare = m_parent->snapshot(pages)](const PageId& lhsPage, const bool lhsIncomplete,
+                                                   const PageId& rhsPage, const bool rhsIncomplete) {
+        return compare(rhsPage, rhsIncomplete, lhsPage, lhsIncomplete);
+      };
     }
 
    private:

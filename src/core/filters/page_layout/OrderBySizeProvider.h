@@ -4,7 +4,9 @@
 #ifndef SCANTAILOR_PAGE_LAYOUT_ORDERBYSIZEPROVIDER_H_
 #define SCANTAILOR_PAGE_LAYOUT_ORDERBYSIZEPROVIDER_H_
 
+#include <QSizeF>
 #include <memory>
+#include <vector>
 
 #include "PageOrderProvider.h"
 #include "Settings.h"
@@ -19,7 +21,18 @@ class OrderBySizeProvider : public PageOrderProvider {
 
   bool precedes(const PageId& lhsPage, bool lhsIncomplete, const PageId& rhsPage, bool rhsIncomplete) const override;
 
+  Comparator snapshot(const std::vector<PageId>& pages) const override;
+
  private:
+  /** The size with the hard margins; invalid if unknown. */
+  static QSizeF sizeOf(const Settings& settings, const PageId& page);
+
+  static bool compare(Dimension dimension,
+                      const QSizeF& lhsSize,
+                      bool lhsIncomplete,
+                      const QSizeF& rhsSize,
+                      bool rhsIncomplete);
+
   std::shared_ptr<Settings> m_settings;
   Dimension m_dimension;
 };

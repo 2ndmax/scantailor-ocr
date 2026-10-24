@@ -11,6 +11,7 @@ set(sources
     TestPageId.cpp
     TestPageRange.cpp
     TestPageOrder.cpp
+    TestPageOrderProviders.cpp
     TestPageSequence.cpp
     TestPdfWriter.cpp
     TestNewScanTracker.cpp

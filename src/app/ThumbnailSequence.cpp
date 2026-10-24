@@ -635,8 +635,16 @@ int ThumbnailSequence::Impl::getGraphicsViewWidth() const {
 void ThumbnailSequence::Impl::orderItems() {
   // Sort pages in m_itemsInOrder using m_orderProvider.
   if (m_orderProvider) {
-    m_itemsInOrder.sort([this](const Item& lhs, const Item& rhs) {
-      return m_orderProvider->precedes(lhs.pageId(), lhs.incompleteThumbnail, rhs.pageId(), rhs.incompleteThumbnail);
+    // Compared against values read once before: processing threads may change the settings
+    // while sorting, and an order that changes meanwhile is undefined behavior.
+    std::vector<PageId> pages;
+    pages.reserve(m_itemsInOrder.size());
+    for (const Item& item : m_itemsInOrder) {
+      pages.push_back(item.pageId());
+    }
+    const PageOrderProvider::Comparator precedes = m_orderProvider->snapshot(pages);
+    m_itemsInOrder.sort([&precedes](const Item& lhs, const Item& rhs) {
+      return precedes(lhs.pageId(), lhs.incompleteThumbnail, rhs.pageId(), rhs.incompleteThumbnail);
     });
   }
 }
