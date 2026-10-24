@@ -41,37 +41,10 @@ DewarpingView::DewarpingView(const QImage& image,
 
   const QPolygonF sourceContentRect(virtualToImage().map(virtContentRect));
 
-  XSpline topSpline(m_distortionModel.topCurve().xspline());
-  XSpline bottomSpline(m_distortionModel.bottomCurve().xspline());
-  if (topSpline.numControlPoints() < 2) {
-    const std::vector<QPointF>& polyline = m_distortionModel.topCurve().polyline();
-
-    XSpline newTopSpline;
-    if (polyline.size() < 2) {
-      initNewSpline(newTopSpline, sourceContentRect[0], sourceContentRect[1], &dewarpingOptions);
-    } else {
-      initNewSpline(newTopSpline, polyline.front(), polyline.back(), &dewarpingOptions);
-      fitSpline(newTopSpline, polyline);
-    }
-
-    topSpline.swap(newTopSpline);
-  }
-  if (bottomSpline.numControlPoints() < 2) {
-    const std::vector<QPointF>& polyline = m_distortionModel.bottomCurve().polyline();
-
-    XSpline newBottomSpline;
-    if (polyline.size() < 2) {
-      initNewSpline(newBottomSpline, sourceContentRect[3], sourceContentRect[2], &dewarpingOptions);
-    } else {
-      initNewSpline(newBottomSpline, polyline.front(), polyline.back(), &dewarpingOptions);
-      fitSpline(newBottomSpline, polyline);
-    }
-
-    bottomSpline.swap(newBottomSpline);
-  }
-
-  m_topSpline.setSpline(topSpline);
-  m_bottomSpline.setSpline(bottomSpline);
+  m_topSpline.setSpline(
+      splineForCurve(m_distortionModel.topCurve(), sourceContentRect[0], sourceContentRect[1], dewarpingOptions));
+  m_bottomSpline.setSpline(
+      splineForCurve(m_distortionModel.bottomCurve(), sourceContentRect[3], sourceContentRect[2], dewarpingOptions));
 
   InteractiveXSpline* splines[2] = {&m_topSpline, &m_bottomSpline};
   int curveIdx = -1;
@@ -99,6 +72,25 @@ DewarpingView::DewarpingView(const QImage& image,
 }
 
 DewarpingView::~DewarpingView() = default;
+
+XSpline DewarpingView::splineForCurve(const dewarping::Curve& curve,
+                                      const QPointF& defaultFrom,
+                                      const QPointF& defaultTo,
+                                      const DewarpingOptions& dewarpingOptions) {
+  if (curve.xspline().numControlPoints() >= 2) {
+    return curve.xspline();
+  }
+
+  const std::vector<QPointF>& polyline = curve.polyline();
+  XSpline spline;
+  if (polyline.size() < 2) {
+    initNewSpline(spline, defaultFrom, defaultTo, &dewarpingOptions);
+  } else {
+    initNewSpline(spline, polyline.front(), polyline.back(), &dewarpingOptions);
+    fitSpline(spline, polyline);
+  }
+  return spline;
+}
 
 void DewarpingView::initNewSpline(XSpline& spline,
                                   const QPointF& p1,

@@ -52,6 +52,15 @@ class DewarpingView : public ImageViewBase, protected InteractionHandler {
   void onPaint(QPainter& painter, const InteractionState& interaction) override;
 
  private:
+  /**
+   * The spline of a stored curve, fitted to its polyline if needed, or a new one from defaultFrom
+   * to defaultTo if the curve has nothing to start from.
+   */
+  static XSpline splineForCurve(const dewarping::Curve& curve,
+                                const QPointF& defaultFrom,
+                                const QPointF& defaultTo,
+                                const DewarpingOptions& dewarpingOptions);
+
   static void initNewSpline(XSpline& spline,
                             const QPointF& p1,
                             const QPointF& p2,
