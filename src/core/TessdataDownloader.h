@@ -14,6 +14,7 @@
 #include <memory>
 #include <vector>
 
+class QJsonObject;
 class QNetworkAccessManager;
 class QNetworkReply;
 class QSaveFile;
@@ -60,6 +61,12 @@ class TessdataDownloader : public QObject {
 
   /** The SHA-1 git computes for a file ("blob <size>\0" followed by the content), as hex. */
   static QByteArray gitBlobSha1(const QByteArray& content);
+
+  /**
+   * Reads one entry of a folder listing of the GitHub API (\p listingPath is "" or "script").
+   * Returns false if it isn't a language file to offer.
+   */
+  static bool listedFile(const QJsonObject& entry, const QString& listingPath, TessdataFile* file);
 
  signals:
   /** \p error is empty on success. */

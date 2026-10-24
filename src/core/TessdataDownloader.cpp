@@ -89,6 +89,19 @@ QString TessdataDownloader::replyError(QNetworkReply* reply) {
 
 /*================================== Listing ==================================*/
 
+bool TessdataDownloader::listedFile(const QJsonObject& entry, const QString& listingPath, TessdataFile* file) {
+  const QString name = entry.value("name").toString();
+  if ((entry.value("type").toString() != "file") || !name.endsWith(kSuffix)) {
+    return false;
+  }
+  const QString codePrefix = listingPath.isEmpty() ? QString() : listingPath + '/';
+  file->code = codePrefix + name.chopped(kSuffix.size());
+  file->url = entry.value("download_url").toString();
+  file->sha = entry.value("sha").toString().toLatin1();
+  file->size = static_cast<qint64>(entry.value("size").toDouble());
+  return !file->url.isEmpty() && !file->sha.isEmpty() && OcrLanguages::isRecognitionModel(file->code);
+}
+
 void TessdataDownloader::fetchList() {
   if (isBusy()) {
     return;
@@ -130,22 +143,11 @@ void TessdataDownloader::listingFinished() {
       emit listReady(std::vector<TessdataFile>(), tr("GitHub sent an unexpected answer."));
       return;
     }
-    const QString codePrefix = path.isEmpty() ? QString() : path + '/';
     for (const QJsonValue& value : doc.array()) {
-      const QJsonObject obj = value.toObject();
-      const QString name = obj.value("name").toString();
-      if ((obj.value("type").toString() != "file") || !name.endsWith(kSuffix)) {
-        continue;
-      }
       TessdataFile file;
-      file.code = codePrefix + name.chopped(kSuffix.size());
-      file.url = obj.value("download_url").toString();
-      file.sha = obj.value("sha").toString().toLatin1();
-      file.size = static_cast<qint64>(obj.value("size").toDouble());
-      if (file.url.isEmpty() || file.sha.isEmpty() || !OcrLanguages::isRecognitionModel(file.code)) {
-        continue;
+      if (listedFile(value.toObject(), path, &file)) {
+        m_listedFiles.push_back(file);
       }
-      m_listedFiles.push_back(file);
     }
   }
 
