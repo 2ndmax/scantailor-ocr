@@ -10,7 +10,7 @@
 
 class QString;
 class QIODevice;
-class QTemporaryFile;
+class QSaveFile;
 
 /**
  * \brief Overwrites files by writing to a temporary file and then replacing
@@ -45,8 +45,9 @@ class AtomicFileOverwriter {
   /**
    * \brief Replaces the target file with the temporary one.
    *
-   * If replacing failed, false is returned and the temporary file
-   * is removed.
+   * The data is written through to the disk first. If writing or
+   * replacing failed, false is returned, the target file stays as it
+   * was and the temporary file is removed.
    */
   bool commit();
 
@@ -56,7 +57,7 @@ class AtomicFileOverwriter {
   void abort();
 
  private:
-  std::unique_ptr<QTemporaryFile> m_tempFile;
+  std::unique_ptr<QSaveFile> m_file;
 };
 
 

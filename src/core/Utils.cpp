@@ -55,7 +55,13 @@ std::wstring longWindowsPath(const QString& path) {
 
 bool Utils::overwritingRename(const QString& from, const QString& to) {
 #ifdef Q_OS_WIN
-  return MoveFileExW(longWindowsPath(from).c_str(), longWindowsPath(to).c_str(), MOVEFILE_REPLACE_EXISTING) != 0;
+  // REVIEW-NOTE (2026-10): on Windows MoveFileExW fails while another handle has the target open
+  // -> the thumbnail stays stale or saving reports an error. Not fixed because a retry loop adds
+  // timing logic for a rare, visible case.
+  // Write-through: the rename is on the disk when this returns, e.g. before a power failure.
+  return MoveFileExW(longWindowsPath(from).c_str(), longWindowsPath(to).c_str(),
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)
+         != 0;
 #else
   return rename(QFile::encodeName(from).data(), QFile::encodeName(to).data()) == 0;
 #endif

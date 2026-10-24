@@ -3,12 +3,7 @@
 
 #include "AtomicFileOverwriter.h"
 
-#include <QFile>
-#include <QTemporaryFile>
-
-#include "Utils.h"
-
-using namespace core;
+#include <QSaveFile>
 
 AtomicFileOverwriter::AtomicFileOverwriter() = default;
 
@@ -19,40 +14,32 @@ AtomicFileOverwriter::~AtomicFileOverwriter() {
 QIODevice* AtomicFileOverwriter::startWriting(const QString& filePath) {
   abort();
 
-  m_tempFile = std::make_unique<QTemporaryFile>(filePath);
-  m_tempFile->setAutoRemove(false);
-  if (!m_tempFile->open()) {
-    m_tempFile.reset();
+  // REVIEW-NOTE (2026-10): if the program dies between startWriting() and commit()/abort(), the
+  // temporary file stays next to the target. Not fixed because it only leaves clutter in the
+  // cache folder.
+  m_file = std::make_unique<QSaveFile>(filePath);
+  if (!m_file->open(QIODevice::WriteOnly)) {
+    m_file.reset();
   }
-  return m_tempFile.get();
+  return m_file.get();
 }
 
 bool AtomicFileOverwriter::commit() {
-  if (!m_tempFile) {
+  if (!m_file) {
     return false;
   }
-
-  const QString tempFilePath(m_tempFile->fileName());
-  const QString targetPath(m_tempFile->fileTemplate());
-
-  // Yes, we have to destroy this object here, because:
-  // 1. Under Windows, open files can't be renamed or deleted.
-  // 2. QTemporaryFile::close() doesn't really close it.
-  m_tempFile.reset();
-
-  if (!Utils::overwritingRename(tempFilePath, targetPath)) {
-    QFile::remove(tempFilePath);
-    return false;
-  }
-  return true;
+  // QSaveFile flushes the data and writes it through to the disk before it replaces the target,
+  // and reports a failure of either (e.g. a full disk); the temporary file is removed then.
+  const bool committed = m_file->commit();
+  m_file.reset();
+  return committed;
 }
 
 void AtomicFileOverwriter::abort() {
-  if (!m_tempFile) {
+  if (!m_file) {
     return;
   }
-
-  const QString tempFilePath(m_tempFile->fileName());
-  m_tempFile.reset();  // See comments in commit()
-  QFile::remove(tempFilePath);
+  // Destroyed without commit(), QSaveFile removes the temporary file.
+  m_file->cancelWriting();
+  m_file.reset();
 }
