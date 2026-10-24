@@ -2545,23 +2545,19 @@ void MainWindow::resetImportMode() {
 }
 
 std::vector<ImageId> MainWindow::imagesToReplace(bool* contiguous) const {
-  QSet<QString> selectedFiles;
+  // Images, not files: a page of a multi-page file is an image of its own.
+  std::set<ImageId> selectedImages;
   for (const PageId& page : m_thumbSequence->selectedItems()) {
-    selectedFiles.insert(page.imageId().filePath());
+    selectedImages.insert(page.imageId());
   }
 
-  // The images in the order of the pages, each once.
+  // The images in the order of the project, each once (both pages of a two-page scan are one
+  // image). Not in the order of the thumbnails, which may be sorted by size or the like.
   std::vector<ImageId> images;
   int first = -1;
   int last = -1;
-  QString previousFile;
-  for (const PageInfo& page : m_thumbSequence->toPageSequence()) {
-    const QString& file = page.imageId().filePath();
-    if (file == previousFile) {
-      continue;  // The other page of a two-page scan.
-    }
-    previousFile = file;
-    if (selectedFiles.contains(file)) {
+  for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
+    if (selectedImages.count(page.imageId()) != 0) {
       if (first < 0) {
         first = static_cast<int>(images.size());
       }
@@ -2575,7 +2571,7 @@ std::vector<ImageId> MainWindow::imagesToReplace(bool* contiguous) const {
     selected.assign(images.begin() + first, images.begin() + last + 1);
   }
   // Without gaps, all images from the first to the last selected one are selected.
-  *contiguous = (static_cast<int>(selected.size()) == selectedFiles.size());
+  *contiguous = (selected.size() == selectedImages.size());
   return selected;
 }
 
@@ -2788,13 +2784,10 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
   }
 
   if (!replacedImages.empty()) {
-    QSet<QString> replacedFiles;
-    for (const ImageId& image : replacedImages) {
-      replacedFiles.insert(image.filePath());
-    }
+    const std::set<ImageId> replaced(replacedImages.begin(), replacedImages.end());
     std::set<PageId> replacedPages;
     for (const PageInfo& page : m_pages->toPageSequence(getCurrentView())) {
-      if (replacedFiles.contains(page.imageId().filePath())) {
+      if (replaced.count(page.imageId()) != 0) {
         replacedPages.insert(page.id());
       }
     }
@@ -2802,8 +2795,16 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
     removeFromProject(replacedPages);
     eraseOutputFiles(replacedPages);
     eraseInputThumbnails(replacedPages);
+    // A file is moved away only once none of its pages is in the project: of a multi-page file,
+    // the other pages stay.
+    std::set<QString> replacedFiles;
+    for (const ImageId& image : replacedImages) {
+      replacedFiles.insert(image.filePath());
+    }
     for (const QString& replacedFile : replacedFiles) {
-      moveReplacedImage(replacedFile);
+      if (!isImageInProject(replacedFile)) {
+        moveReplacedImage(replacedFile);
+      }
     }
 
     // Further scans usually belong right after the replaced page: insert them after the new scan.
