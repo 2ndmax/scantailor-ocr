@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <new>
+
 #define u64 uint64_t
 #define u32 uint32_t
 #define u16 uint16_t
@@ -137,8 +139,14 @@ jbig2enc_init(struct jbig2enc_ctx *ctx) {
   ctx->bp = -1;
   ctx->b = 0;
   ctx->outbuf_used = 0;
-  ctx->outbuf = (u8 *) malloc(JBIG2_OUTPUTBUFFER_SIZE);
+  // The vector first: if new throws, nothing has been allocated yet.
   ctx->output_chunks = new std::vector<uint8_t *>;
+  ctx->outbuf = (u8 *) malloc(JBIG2_OUTPUTBUFFER_SIZE);
+  if (!ctx->outbuf) {
+    // Out of memory: reported like everywhere else in C++, not written to a null pointer.
+    delete ctx->output_chunks;
+    throw std::bad_alloc();
+  }
 }
 
 // see comments in .h file
@@ -162,6 +170,10 @@ emit(struct jbig2enc_ctx *restrict ctx) {
     ctx->output_chunks->push_back(ctx->outbuf);
     ctx->outbuf = (u8 *) malloc(JBIG2_OUTPUTBUFFER_SIZE);
     ctx->outbuf_used = 0;
+    if (!ctx->outbuf) {
+      // The full chunk is in output_chunks, so jbig2enc_dealloc() frees it.
+      throw std::bad_alloc();
+    }
   }
 
   ctx->outbuf[ctx->outbuf_used++] = ctx->b;
@@ -341,6 +353,10 @@ jbig2enc_tobuffer(const struct jbig2enc_ctx *restrict ctx, u8 *restrict buffer) 
 void
 jbig2enc_bitimage(struct jbig2enc_ctx *restrict ctx, const u8 *restrict idata,
                   int mx, int my, bool duplicate_line_removal) {
+  if ((mx <= 0) || (my <= 0)) {
+    // No pixels: each row would still read its first word.
+    return;
+  }
   const u32 *restrict data = (u32 *) idata;
   u8 *const context = ctx->context;
   const unsigned words_per_row = (mx + 31) / 32;

@@ -63,7 +63,7 @@ struct jbig2enc_ctx {
 // -----------------------------------------------------------------------------
 // Returns the number of bytes of output in the given context
 //
-// Before doing this you should make sure that the coder is _flush()'ed
+// Before doing this you should make sure that jbig2enc_final() has been called
 // -----------------------------------------------------------------------------
 unsigned jbig2enc_datasize(const struct jbig2enc_ctx *ctx);
 
@@ -75,20 +75,27 @@ void jbig2enc_tobuffer(const struct jbig2enc_ctx *__restrict__ ctx,
                        uint8_t *__restrict__ buffer);
 
 // -----------------------------------------------------------------------------
-// This function takes almost the same arguments as _image, above. But in this
-// case the data pointer points to packed data.
+// Encodes a 1 bit image of mx x my pixels as a generic region (template 0).
 //
 // This is designed for Leptonica's 1bpp packed format images. Each row is some
-// number of 32-bit words.
+// number of 32-bit words, stored in native byte order; the leftmost pixel is
+// the most significant bit of the word's value. Rows of QImage bytes can't be
+// passed directly on little-endian systems.
 //
 // *The pad bits at the end of each line must be zero.*
+//
+// duplicate_line_removal turns on typical prediction (TPGDON): a row equal to
+// the one above is coded as a single bit. An image without pixels (mx or my
+// not positive) encodes nothing.
+//
+// Throws std::bad_alloc if memory runs out.
 // -----------------------------------------------------------------------------
 void jbig2enc_bitimage(struct jbig2enc_ctx *__restrict__ ctx,
                        const uint8_t *__restrict__ data, int mx, int my,
                        bool duplicate_line_removal);
 
 // -----------------------------------------------------------------------------
-// Init a new context
+// Init a new context. Throws std::bad_alloc if memory runs out.
 // -----------------------------------------------------------------------------
 void jbig2enc_init(struct jbig2enc_ctx *ctx);
 
