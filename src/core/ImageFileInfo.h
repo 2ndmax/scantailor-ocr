@@ -15,17 +15,30 @@ class ImageFileInfo {
   ImageFileInfo(const QFileInfo& fileInfo, const std::vector<ImageMetadata>& imageInfo)
       : m_fileInfo(fileInfo), m_imageInfo(imageInfo) {}
 
+  /** \p pageNumbers: see pageNumbers(). */
+  ImageFileInfo(const QFileInfo& fileInfo,
+                const std::vector<ImageMetadata>& imageInfo,
+                const std::vector<int>& pageNumbers)
+      : m_fileInfo(fileInfo), m_imageInfo(imageInfo), m_pageNumbers(pageNumbers) {}
+
   const QFileInfo& fileInfo() const { return m_fileInfo; }
 
   std::vector<ImageMetadata>& imageInfo() { return m_imageInfo; }
 
   const std::vector<ImageMetadata>& imageInfo() const { return m_imageInfo; }
 
+  /**
+   * The page numbers of the images in the file, one per entry of imageInfo(): from 1 in a
+   * multi-page file, 0 in a single-page one. Empty if not known, e.g. for files to import.
+   */
+  const std::vector<int>& pageNumbers() const { return m_pageNumbers; }
+
   bool isDpiOK() const;
 
  private:
   QFileInfo m_fileInfo;
   std::vector<ImageMetadata> m_imageInfo;
+  std::vector<int> m_pageNumbers;
 };
 
 

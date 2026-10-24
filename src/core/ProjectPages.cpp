@@ -294,7 +294,9 @@ struct File {
 
   explicit File(const QString& fname) : fileName(fname) {}
 
-  explicit operator ImageFileInfo() const { return ImageFileInfo(QFileInfo(fileName), metadata); }
+  std::vector<int> pageNumbers;
+
+  explicit operator ImageFileInfo() const { return ImageFileInfo(QFileInfo(fileName), metadata, pageNumbers); }
 };
 }  // anonymous namespace
 
@@ -308,7 +310,12 @@ std::vector<ImageFileInfo> ProjectPages::toImageFileInfo() const {
 
     for (const ImageDesc& image : m_images) {
       const File file(image.id.filePath());
-      files.insert(file).first->metadata.push_back(image.metadata);
+      const auto it = files.insert(file).first;
+      files.modify(it, [&image](File& f) {
+        f.metadata.push_back(image.metadata);
+        // The real page numbers, as pages of a multi-page file may have been removed.
+        f.pageNumbers.push_back(image.id.page());
+      });
     }
   }
   return std::vector<ImageFileInfo>(files.get<1>().begin(), files.get<1>().end());
@@ -327,18 +334,30 @@ void ProjectPages::updateMetadataFrom(const std::vector<ImageFileInfo>& files) {
     sources[file.fileInfo().absoluteFilePath()] = Source{&file.imageInfo(), 0};
   }
 
-  QMutexLocker locker(&m_mutex);
+  bool wasModified = false;
+  {
+    QMutexLocker locker(&m_mutex);
 
-  for (ImageDesc& image : m_images) {
-    // The same conversion as in toImageFileInfo().
-    const auto it = sources.find(QFileInfo(image.id.filePath()).absoluteFilePath());
-    if (it == sources.end()) {
-      continue;
+    for (ImageDesc& image : m_images) {
+      // The same conversion as in toImageFileInfo().
+      const auto it = sources.find(QFileInfo(image.id.filePath()).absoluteFilePath());
+      if (it == sources.end()) {
+        continue;
+      }
+      Source& source = it->second;
+      if (source.next < source.metadata->size()) {
+        const ImageMetadata& metadata = (*source.metadata)[source.next++];
+        if (image.metadata != metadata) {
+          image.metadata = metadata;
+          wasModified = true;
+        }
+      }
     }
-    Source& source = it->second;
-    if (source.next < source.metadata->size()) {
-      image.metadata = (*source.metadata)[source.next++];
-    }
+  }
+
+  // As in updateImageMetadata(): the change gets saved automatically.
+  if (wasModified) {
+    emit modified();
   }
 }
 
@@ -471,16 +490,13 @@ std::vector<PageInfo> ProjectPages::insertImageImpl(const ImageInfo& newImage,
   PageInfo pageInfoTempl(PageId(newImage.id(), PageId::SINGLE_PAGE), imageDesc.metadata, imageDesc.numLogicalPages,
                          imageDesc.leftHalfRemoved, imageDesc.rightHalfRemoved);
 
-  if ((view == IMAGE_VIEW)
-      || ((imageDesc.numLogicalPages == 1) && (imageDesc.leftHalfRemoved == imageDesc.rightHalfRemoved))) {
+  if (view == IMAGE_VIEW) {
     logicalPages.push_back(pageInfoTempl);
   } else {
-    if ((imageDesc.numLogicalPages == 2) || ((imageDesc.numLogicalPages == 1) && imageDesc.rightHalfRemoved)) {
-      pageInfoTempl.setId(PageId(newImage.id(), m_subPagesInOrder[0]));
-      logicalPages.push_back(pageInfoTempl);
-    }
-    if ((imageDesc.numLogicalPages == 2) || ((imageDesc.numLogicalPages == 1) && imageDesc.leftHalfRemoved)) {
-      pageInfoTempl.setId(PageId(newImage.id(), m_subPagesInOrder[1]));
+    // The same pages as toPageSequence() has: the remaining half is the left or right one, not
+    // the first or second in the reading order.
+    for (int i = 0; i < imageDesc.numLogicalPages; ++i) {
+      pageInfoTempl.setId(PageId(newImage.id(), imageDesc.logicalPageToSubPage(i, m_subPagesInOrder)));
       logicalPages.push_back(pageInfoTempl);
     }
   }
@@ -501,12 +517,22 @@ void ProjectPages::removePagesImpl(const std::set<PageId>& toRemove, bool& modif
       image.numLogicalPages = 0;
       modified = true;
     } else {
-      if (toRemove.find(PageId(image.id, PageId::LEFT_PAGE)) != toRemoveEnd) {
+      // A half counts only if the image shows it: a selection from before the layout changed can
+      // name a half of a single page, or one already removed, and must not remove the whole image.
+      const auto showsHalf = [&image, this](const PageId::SubPage half) {
+        for (int i = 0; i < image.numLogicalPages; ++i) {
+          if (image.logicalPageToSubPage(i, m_subPagesInOrder) == half) {
+            return true;
+          }
+        }
+        return false;
+      };
+      if (showsHalf(PageId::LEFT_PAGE) && (toRemove.find(PageId(image.id, PageId::LEFT_PAGE)) != toRemoveEnd)) {
         image.leftHalfRemoved = true;
         --image.numLogicalPages;
         modified = true;
       }
-      if (toRemove.find(PageId(image.id, PageId::RIGHT_PAGE)) != toRemoveEnd) {
+      if (showsHalf(PageId::RIGHT_PAGE) && (toRemove.find(PageId(image.id, PageId::RIGHT_PAGE)) != toRemoveEnd)) {
         image.rightHalfRemoved = true;
         --image.numLogicalPages;
         modified = true;

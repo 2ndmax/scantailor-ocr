@@ -613,9 +613,15 @@ QVariant FixDpiDialog::TreeModel::data(const QModelIndex& index, const int role)
     return QDir::toNativeSeparators(file.fileInfo().absoluteFilePath());
   }
   const QString fname(file.fileInfo().fileName());
+  // The real page number, as pages of a multi-page file may have been removed from the project.
+  const std::vector<int>& pageNumbers = file.pageNumbers();
+  if ((image.imageIdx < static_cast<int>(pageNumbers.size())) && (pageNumbers[image.imageIdx] > 0)) {
+    return FixDpiDialog::tr("%1 (page %2)").arg(fname).arg(pageNumbers[image.imageIdx]);
+  }
   if (file.imageInfo().size() == 1) {
     return fname;
   }
+  // Page numbers aren't known (files to import): they are the position in the file.
   return FixDpiDialog::tr("%1 (page %2)").arg(fname).arg(image.imageIdx + 1);
 }  // FixDpiDialog::TreeModel::data
 

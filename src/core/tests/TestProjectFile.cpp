@@ -6,6 +6,7 @@
 #include <ImageFileInfo.h>
 #include <ImageInfo.h>
 #include <OutputFileNameGenerator.h>
+#include <PageInfo.h>
 #include <PageSequence.h>
 #include <ProjectPages.h>
 #include <ProjectReader.h>
@@ -17,6 +18,7 @@
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 #include <memory>
+#include <vector>
 
 namespace {
 QDomDocument readDocument(const QString& filePath) {
@@ -235,4 +237,61 @@ BOOST_AUTO_TEST_CASE(test_images_with_invalid_sub_pages_are_skipped) {
   BOOST_CHECK(!reader.success());
 }
 
+BOOST_AUTO_TEST_CASE(test_inserted_half_page_has_the_id_of_its_page) {
+  // Right to left, an image whose right half was removed shows its left half. insertImage()
+  // returned the right one, a page that doesn't exist.
+  const ImageMetadata metadata(QSize(3000, 2000), Dpi(300, 300));
+  ProjectPages pages({ImageInfo(ImageId("/in/a.png"), metadata, 1, false, false)}, Qt::RightToLeft);
+  const std::vector<PageInfo> inserted = pages.insertImage(ImageInfo(ImageId("/in/b.png"), metadata, 1, false, true),
+                                                           AFTER, ImageId("/in/a.png"), PAGE_VIEW);
+  BOOST_REQUIRE_EQUAL(inserted.size(), 1u);
+  bool found = false;
+  for (const PageInfo& page : pages.toPageSequence(PAGE_VIEW)) {
+    found = found || (page.id() == inserted[0].id());
+  }
+  BOOST_CHECK(found);
+}
+
+BOOST_AUTO_TEST_CASE(test_removing_a_half_that_isnt_there_keeps_the_image) {
+  // A selection from before the layout changed can name a half the image doesn't have (any more).
+  const ImageMetadata metadata(QSize(3000, 2000), Dpi(300, 300));
+  ProjectPages pages({ImageInfo(ImageId("/in/single.png"), metadata, 1, false, false),
+                      ImageInfo(ImageId("/in/half.png"), metadata, 1, true, false)},
+                     Qt::LeftToRight);
+  pages.removePages(
+      {PageId(ImageId("/in/single.png"), PageId::LEFT_PAGE), PageId(ImageId("/in/half.png"), PageId::LEFT_PAGE)});
+  BOOST_CHECK_EQUAL(pages.numImages(), 2);
+
+  // The half that is left can still be removed, and then the image goes.
+  pages.removePages({PageId(ImageId("/in/half.png"), PageId::RIGHT_PAGE)});
+  BOOST_CHECK_EQUAL(pages.numImages(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(test_metadata_update_reports_a_change) {
+  // Without modified(), a DPI correction wasn't saved automatically.
+  const QString file = QDir(QDir::tempPath()).absoluteFilePath("dpi.png");
+  ProjectPages pages({ImageInfo(ImageId(file), ImageMetadata(QSize(2000, 3000), Dpi(300, 300)), 1, false, false)},
+                     Qt::LeftToRight);
+  int modifications = 0;
+  QObject::connect(&pages, &ProjectPages::modified, [&modifications] { ++modifications; });
+
+  std::vector<ImageFileInfo> files = pages.toImageFileInfo();
+  pages.updateMetadataFrom(files);
+  BOOST_CHECK_EQUAL(modifications, 0);
+  files[0].imageInfo()[0] = ImageMetadata(QSize(2000, 3000), Dpi(600, 600));
+  pages.updateMetadataFrom(files);
+  BOOST_CHECK_EQUAL(modifications, 1);
+}
+
+BOOST_AUTO_TEST_CASE(test_image_file_info_keeps_the_page_numbers) {
+  // With page 1 removed, the DPI dialog must still call the others pages 2 and 3.
+  const QString multiPage = QDir(QDir::tempPath()).absoluteFilePath("pages.tif");
+  const ImageMetadata metadata(QSize(2000, 3000), Dpi(300, 300));
+  const ProjectPages pages({ImageInfo(ImageId(multiPage, 2), metadata, 1, false, false),
+                            ImageInfo(ImageId(multiPage, 3), metadata, 1, false, false)},
+                           Qt::LeftToRight);
+  const std::vector<ImageFileInfo> files = pages.toImageFileInfo();
+  BOOST_REQUIRE_EQUAL(files.size(), 1u);
+  BOOST_CHECK(files[0].pageNumbers() == std::vector<int>({2, 3}));
+}
 BOOST_AUTO_TEST_SUITE_END()
