@@ -128,6 +128,20 @@ BOOST_AUTO_TEST_CASE(test_integer_upscale_with_different_factors) {
   BOOST_CHECK(same);
 }
 
+BOOST_AUTO_TEST_CASE(test_upscale_of_one_pixel_wide_or_high_images) {
+  // The optimized upscaling needs two source pixels in both directions; with one it read rows
+  // and columns outside the image.
+  for (const QSize srcSize : {QSize(3, 1), QSize(1, 3)}) {
+    GrayImage src(srcSize);
+    src.fill(77);
+    const GrayImage dst(scaleToGray(src, srcSize + QSize(1, 1)));
+    for (int y = 0; y < dst.height(); ++y) {
+      for (int x = 0; x < dst.width(); ++x) {
+        BOOST_TEST(int(dst.data()[y * dst.stride() + x]) == 77);
+      }
+    }
+  }
+}
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

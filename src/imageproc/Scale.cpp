@@ -210,7 +210,9 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
     return scaleDownIntGrayToGray(src, dstSize);
   } else if ((dw % sw == 0) && (dh % sh == 0)) {
     return scaleUpIntGrayToGray(src, dstSize);
-  } else if ((dw > sw) && (dh > sh)) {
+  } else if ((dw > sw) && (dh > sh) && (sw >= 2) && (sh >= 2)) {
+    // It mixes each pixel with its right and lower neighbour, so it needs two source pixels in
+    // both directions; the generic version below handles the rest.
     return scaleUpGrayToGray(src, dstSize);
   }
 
