@@ -7,7 +7,8 @@ set(sources
     TestMatrixCalc.cpp
     TestQuadraticFunction.cpp
     TestSidesOfLine.cpp
-    TestSqDistApproximant.cpp)
+    TestSqDistApproximant.cpp
+    TestXSpline.cpp)
 
 add_executable(math_tests ${sources})
 target_link_libraries(

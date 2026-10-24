@@ -4,6 +4,7 @@
 #include "XSpline.h"
 
 #include <QDebug>
+#include <algorithm>
 #include <cmath>
 
 #include "ToLineProjector.h"
@@ -129,20 +130,29 @@ void XSpline::setControlPointTension(int idx, double tension) {
   m_controlPoints[idx].tension = tension;
 }
 
-QPointF XSpline::pointAt(double t) const {
+std::pair<int, double> XSpline::segmentAndLocalT(const double t) const {
   const int numSegments = this->numSegments();
   assert(numSegments > 0);
-  assert(t >= 0 && t <= 1);
-
-  if (t == 1.0) {
-    // If we went with the branch below, we would end up with
-    // segment == numSegments, which is an error.
-    return pointAtImpl(numSegments - 1, 1.0);
-  } else {
-    const double t2 = t * numSegments;
-    const double segment = std::floor(t2);
-    return pointAtImpl((int) segment, t2 - segment);
+  // A t just outside [0, 1] (rounding) or NaN would address control points that don't exist.
+  // NaN counts as 0.
+  const double clampedT = (t > 0.0) ? std::min(t, 1.0) : 0.0;
+  if (clampedT == 1.0) {
+    // The computation below would give segment == numSegments, which doesn't exist.
+    return {numSegments - 1, 1.0};
   }
+  const double t2 = clampedT * numSegments;
+  const double segment = std::floor(t2);
+  return {static_cast<int>(segment), t2 - segment};
+}
+
+QPointF XSpline::pointAt(double t) const {
+  if (numSegments() == 0) {
+    // A single control point is the whole curve.
+    assert(!m_controlPoints.empty());
+    return m_controlPoints.front().pos;
+  }
+  const auto [segment, localT] = segmentAndLocalT(t);
+  return pointAtImpl(segment, localT);
 }
 
 QPointF XSpline::pointAtImpl(int segment, double t) const {
@@ -189,7 +199,7 @@ void XSpline::sample(const VirtualFunction<void, const QPointF&, double, SampleF
   const double rNumSegments = 1.0 / numSegments;
 
   maybeAddMoreSamples(sink, maxSqdistToSpline, maxSqdistBetweenSamples, numSegments, rNumSegments, fromT, fromPt, toT,
-                      toPt);
+                      toPt, 0);
 
   sink(toPt, toT, TAIL_SAMPLE);
 }  // XSpline::sample
@@ -202,9 +212,21 @@ void XSpline::maybeAddMoreSamples(const VirtualFunction<void, const QPointF&, do
                                   double prevT,
                                   const QPointF& prevPt,
                                   double nextT,
-                                  const QPointF& nextPt) const {
+                                  const QPointF& nextPt,
+                                  const int depth) const {
+  // Each level halves the interval, so this depth gives samples far closer than a pixel on any
+  // real curve. It ends the recursion for huge coordinates, where samples never get close.
+  constexpr int maxDepth = 20;
+  if (depth >= maxDepth) {
+    return;
+  }
+
   const double prevNextSqdist = Vec2d(nextPt - prevPt).squaredNorm();
-  if (prevNextSqdist < 1e-6) {
+  // REVIEW-NOTE (2026-10): the "too close" check only looks at the chord ends -> a closed or
+  // looping curve (start == end) is sampled as 2 points. Not fixed because dewarping rejects such
+  // curves via Curve::isValid() and a change affects sampling of every curve.
+  // Written so that NaN and infinite distances (damaged coordinates) stop, too.
+  if (!(prevNextSqdist >= 1e-6 && std::isfinite(prevNextSqdist))) {
     // Too close. Projecting anything on such a small line segment is dangerous.
     return;
   }
@@ -217,6 +239,10 @@ void XSpline::maybeAddMoreSamples(const VirtualFunction<void, const QPointF&, do
   if (((nearbyJunctionT - prevT) * (nextT - prevT) > 0) && ((nearbyJunctionT - nextT) * (prevT - nextT) > 0)) {
     midT = nearbyJunctionT;
     flags = JUNCTION_SAMPLE;
+  }
+  if ((midT == prevT) || (midT == nextT)) {
+    // The interval can't be split any further.
+    return;
   }
 
   const QPointF midPt(pointAt(midT));
@@ -232,33 +258,28 @@ void XSpline::maybeAddMoreSamples(const VirtualFunction<void, const QPointF&, do
   }
 
   maybeAddMoreSamples(sink, maxSqdistToSpline, maxSqdistBetweenSamples, numSegments, rNumSegments, prevT, prevPt, midT,
-                      midPt);
+                      midPt, depth + 1);
 
   sink(midPt, midT, flags);
 
   maybeAddMoreSamples(sink, maxSqdistToSpline, maxSqdistBetweenSamples, numSegments, rNumSegments, midT, midPt, nextT,
-                      nextPt);
+                      nextPt, depth + 1);
 }  // XSpline::maybeAddMoreSamples
 
 void XSpline::linearCombinationAt(double t, std::vector<LinearCoefficient>& coeffs) const {
-  assert(t >= 0 && t <= 1);
-
-  const int numSegments = this->numSegments();
-  assert(numSegments > 0);
+  if (numSegments() == 0) {
+    // A single control point is the whole curve.
+    assert(!m_controlPoints.empty());
+    coeffs.assign(1, LinearCoefficient(0, 1.0));
+    return;
+  }
 
   int numCoeffs = 4;
   coeffs.resize(numCoeffs);
   LinearCoefficient static_coeffs[4];
 
-  if (t == 1.0) {
-    // If we went with the branch below, we would end up with
-    // segment == numSegments, which is an error.
-    numCoeffs = linearCombinationFor(static_coeffs, numSegments - 1, 1.0);
-  } else {
-    const double t2 = t * numSegments;
-    const double segment = std::floor(t2);
-    numCoeffs = linearCombinationFor(static_coeffs, (int) segment, t2 - segment);
-  }
+  const auto [segment, localT] = segmentAndLocalT(t);
+  numCoeffs = linearCombinationFor(static_coeffs, segment, localT);
 
   for (int i = 0; i < numCoeffs; ++i) {
     coeffs[i] = static_coeffs[i];
@@ -335,20 +356,17 @@ XSpline::PointAndDerivs XSpline::pointAndDtsAt(double t) const {
 }
 
 XSpline::DecomposedDerivs XSpline::decomposedDerivs(const double t) const {
-  assert(t >= 0 && t <= 1);
-
-  const int numSegments = this->numSegments();
-  assert(numSegments > 0);
-
-  if (t == 1.0) {
-    // If we went with the branch below, we would end up with
-    // segment == numSegments, which is an error.
-    return decomposedDerivsImpl(numSegments - 1, 1.0);
-  } else {
-    const double t2 = t * numSegments;
-    const double segment = std::floor(t2);
-    return decomposedDerivsImpl((int) segment, t2 - segment);
+  if (numSegments() == 0) {
+    // A single control point is the whole curve, and doesn't change along it.
+    assert(!m_controlPoints.empty());
+    DecomposedDerivs derivs{};
+    derivs.numControlPoints = 1;
+    derivs.controlPoints[0] = 0;
+    derivs.zeroDerivCoeffs[0] = 1.0;
+    return derivs;
   }
+  const auto [segment, localT] = segmentAndLocalT(t);
+  return decomposedDerivsImpl(segment, localT);
 }
 
 XSpline::DecomposedDerivs XSpline::decomposedDerivsImpl(const int segment, const double t) const {

@@ -6,6 +6,7 @@
 
 #include <QLineF>
 #include <QPointF>
+#include <utility>
 #include <vector>
 
 #include "NumericTraits.h"
@@ -181,6 +182,12 @@ class XSpline : public spfit::FittableSpline {
 
   struct DecomposedDerivs;
 
+  /**
+   * Splits t of the whole curve into a segment and the t within that segment.
+   * t is clamped to [0, 1]. Requires at least one segment.
+   */
+  std::pair<int, double> segmentAndLocalT(double t) const;
+
   QPointF pointAtImpl(int segment, double t) const;
 
   int linearCombinationFor(LinearCoefficient* coeffs, int segment, double t) const;
@@ -197,7 +204,8 @@ class XSpline : public spfit::FittableSpline {
                            double prevT,
                            const QPointF& prevPt,
                            double nextT,
-                           const QPointF& nextPt) const;
+                           const QPointF& nextPt,
+                           int depth) const;
 
   static double sqDistToLine(const QPointF& pt, const QLineF& line);
 
