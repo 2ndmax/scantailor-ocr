@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <new>
 #include <vector>
 
 #include "ImageLoadErrors.h"
@@ -29,6 +30,8 @@
 
 extern "C" {
 #include <jpeglib.h>
+// After jpeglib.h: the error codes and ERREXIT.
+#include <jerror.h>
 }
 
 namespace {
@@ -151,8 +154,7 @@ class JpegDestination : public jpeg_destination_mgr {
   static boolean emptyOutputBuffer(j_compress_ptr cinfo) {
     // libjpeg ignores free_in_buffer here: the whole buffer is full.
     JpegDestination* self = object(cinfo);
-    self->m_out.append(reinterpret_cast<const char*>(self->m_buffer.data()),
-                       static_cast<qsizetype>(self->m_buffer.size()));
+    self->appendToOutput(cinfo, self->m_buffer.size());
     self->next_output_byte = self->m_buffer.data();
     self->free_in_buffer = self->m_buffer.size();
     return TRUE;
@@ -160,8 +162,24 @@ class JpegDestination : public jpeg_destination_mgr {
 
   static void termDestination(j_compress_ptr cinfo) {
     JpegDestination* self = object(cinfo);
-    const size_t used = self->m_buffer.size() - self->free_in_buffer;
-    self->m_out.append(reinterpret_cast<const char*>(self->m_buffer.data()), static_cast<qsizetype>(used));
+    self->appendToOutput(cinfo, self->m_buffer.size() - self->free_in_buffer);
+  }
+
+  /**
+   * An exception must not pass through the C code of libjpeg. Running out of memory goes the way
+   * of libjpeg's own errors instead: its error exit jumps back to the encoder, which cleans up.
+   */
+  void appendToOutput(j_compress_ptr cinfo, const size_t bytes) {
+    bool outOfMemory = false;
+    try {
+      m_out.append(reinterpret_cast<const char*>(m_buffer.data()), static_cast<qsizetype>(bytes));
+    } catch (const std::bad_alloc&) {
+      outOfMemory = true;
+    }
+    if (outOfMemory) {
+      // Outside the catch block, as it doesn't return.
+      ERREXIT(cinfo, JERR_OUT_OF_MEMORY);
+    }
   }
 
   QByteArray& m_out;
@@ -219,6 +237,9 @@ class Jbig2Context {
 }  // namespace
 
 bool PdfImageEncoder::isBitonal(const QImage& image) {
+  // REVIEW-NOTE (2026-10): any 1-bit image counts as bitonal, even with a non-gray color table
+  // -> a two-color page would be exported black and white. Not fixed because the output stage
+  // does not produce such images today.
   return image.depth() == 1;
 }
 
@@ -587,19 +608,29 @@ struct Jp2Output {
   qint64 pos = 0;
 };
 
-/** Makes the output at least \p size bytes long; new bytes are zero. */
-void jp2Grow(Jp2Output* out, const qint64 size) {
+/**
+ * Makes the output at least \p size bytes long; new bytes are zero. Returns false if memory runs
+ * out: an exception must not pass through the C code of OpenJPEG, which gets an error instead.
+ */
+bool jp2Grow(Jp2Output* out, const qint64 size) {
   const qint64 oldSize = out->data.size();
   if (size > oldSize) {
-    out->data.resize(static_cast<int>(size));
+    try {
+      out->data.resize(static_cast<qsizetype>(size));
+    } catch (const std::bad_alloc&) {
+      return false;
+    }
     std::memset(out->data.data() + oldSize, 0, static_cast<size_t>(size - oldSize));
   }
+  return true;
 }
 
 OPJ_SIZE_T jp2Write(void* buffer, const OPJ_SIZE_T size, void* userData) {
   auto* out = static_cast<Jp2Output*>(userData);
   const qint64 end = out->pos + static_cast<qint64>(size);
-  jp2Grow(out, end);
+  if (!jp2Grow(out, end)) {
+    return static_cast<OPJ_SIZE_T>(-1);
+  }
   std::memcpy(out->data.data() + out->pos, buffer, size);
   out->pos = end;
   return size;
@@ -608,20 +639,18 @@ OPJ_SIZE_T jp2Write(void* buffer, const OPJ_SIZE_T size, void* userData) {
 OPJ_OFF_T jp2Skip(const OPJ_OFF_T bytes, void* userData) {
   auto* out = static_cast<Jp2Output*>(userData);
   const qint64 end = out->pos + bytes;
-  if (end < 0) {
+  if ((end < 0) || !jp2Grow(out, end)) {
     return -1;
   }
-  jp2Grow(out, end);
   out->pos = end;
   return bytes;
 }
 
 OPJ_BOOL jp2Seek(const OPJ_OFF_T pos, void* userData) {
   auto* out = static_cast<Jp2Output*>(userData);
-  if (pos < 0) {
+  if ((pos < 0) || !jp2Grow(out, pos)) {
     return OPJ_FALSE;
   }
-  jp2Grow(out, pos);
   out->pos = pos;
   return OPJ_TRUE;
 }
@@ -666,6 +695,9 @@ QByteArray PdfImageEncoder::encodeJpeg2000(const QImage& image, const int qualit
   const int width = image.width();
   const int height = image.height();
 
+  // REVIEW-NOTE (2026-10): waiting for a JPEG 2000 slot and the encoding itself ignore
+  // cancellation -> "Cancel" can take a while with large color pages. Not fixed because the
+  // export still stops and discards the file.
   jp2EncodeSlots().acquire();
   const std::unique_ptr<QSemaphore, void (*)(QSemaphore*)> slot(&jp2EncodeSlots(), [](QSemaphore* s) {
     --g_runningJp2Encodes;

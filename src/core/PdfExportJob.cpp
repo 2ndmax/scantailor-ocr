@@ -487,41 +487,48 @@ void PdfExportJob::run() {
   };
 
   std::vector<std::thread> threads;
-  threads.reserve(threadCount);
-  for (int i = 0; i < threadCount; ++i) {
-    threads.emplace_back(worker);
-  }
+  // Writing can throw too (e.g. std::bad_alloc). The workers are stopped and joined in any case:
+  // destroying a std::thread that still runs would end the program.
+  try {
+    threads.reserve(threadCount);
+    for (int i = 0; i < threadCount; ++i) {
+      threads.emplace_back(worker);
+    }
 
-  while (ok && (nextToWrite < pageCount)) {
-    Prepared item;
-    {
-      std::unique_lock<std::mutex> lock(mutex);
-      // Wake up regularly to notice a cancellation request.
-      while (!m_cancelRequested && (prepared.find(nextToWrite) == prepared.end())) {
-        condition.wait_for(lock, std::chrono::milliseconds(100));
+    while (ok && (nextToWrite < pageCount)) {
+      Prepared item;
+      {
+        std::unique_lock<std::mutex> lock(mutex);
+        // Wake up regularly to notice a cancellation request.
+        while (!m_cancelRequested && (prepared.find(nextToWrite) == prepared.end())) {
+          condition.wait_for(lock, std::chrono::milliseconds(100));
+        }
+        if (m_cancelRequested) {
+          m_cancelled = true;
+          break;
+        }
+        auto it = prepared.find(nextToWrite);
+        item = std::move(it->second);
+        prepared.erase(it);
+        preparedBytes -= item.bytes();
+        ++nextToWrite;
       }
-      if (m_cancelRequested) {
-        m_cancelled = true;
+      condition.notify_all();
+
+      if (!item.ok) {
+        m_errors.append(item.errors);
+        ok = false;
         break;
       }
-      auto it = prepared.find(nextToWrite);
-      item = std::move(it->second);
-      prepared.erase(it);
-      preparedBytes -= item.bytes();
-      ++nextToWrite;
+      if (!writer.addPage(item.page)) {
+        ok = false;
+        break;
+      }
+      emit progress(nextToWrite, pageCount);
     }
-    condition.notify_all();
-
-    if (!item.ok) {
-      m_errors.append(item.errors);
-      ok = false;
-      break;
-    }
-    if (!writer.addPage(item.page)) {
-      ok = false;
-      break;
-    }
-    emit progress(nextToWrite, pageCount);
+  } catch (...) {
+    m_errors.push_back(currentExceptionMessage());
+    ok = false;
   }
 
   {
@@ -534,7 +541,12 @@ void PdfExportJob::run() {
   }
 
   if (ok && !m_cancelled) {
-    ok = writer.finish();
+    try {
+      ok = writer.finish();
+    } catch (...) {
+      m_errors.push_back(currentExceptionMessage());
+      ok = false;
+    }
   }
   if (ok && !m_cancelled) {
     if (file.commit()) {
