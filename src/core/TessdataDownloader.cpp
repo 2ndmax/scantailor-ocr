@@ -13,6 +13,7 @@
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QRegularExpression>
 #include <QSaveFile>
 #include <QUrl>
 #include <mutex>
@@ -26,9 +27,14 @@
 namespace {
 const QString kListingUrl = QStringLiteral("https://api.github.com/repos/tesseract-ocr/tessdata_best/contents/");
 const QString kSuffix = QStringLiteral(".traineddata");
+// The time without any data after which a transfer is given up.
+constexpr int kTransferTimeoutMs = 30000;
 }  // namespace
 
 TessdataDownloader::TessdataDownloader(QObject* parent) : QObject(parent), m_network(new QNetworkAccessManager(this)) {
+  // Without a timeout, a connection that drops silently (e.g. a change of the WLAN) would keep
+  // the dialog waiting forever.
+  m_network->setTransferTimeout(kTransferTimeoutMs);
   // Use the proxy settings of the system, as needed in many company and school networks.
   QNetworkProxyFactory::setUseSystemConfiguration(true);
 
@@ -78,6 +84,11 @@ QNetworkReply* TessdataDownloader::get(const QString& url, const bool githubApi)
 }
 
 QString TessdataDownloader::replyError(QNetworkReply* reply) {
+  if (reply->error() == QNetworkReply::OperationCanceledError) {
+    // Not cancelled by the user (that is handled before): the transfer timeout ended it.
+    return tr("No data arrived for %1 seconds. Please check the connection and try again.")
+        .arg(kTransferTimeoutMs / 1000);
+  }
   const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
   if (((status == 403) || (status == 429)) && (reply->rawHeader("X-RateLimit-Remaining") == "0")) {
     return tr(
@@ -91,7 +102,10 @@ QString TessdataDownloader::replyError(QNetworkReply* reply) {
 
 bool TessdataDownloader::listedFile(const QJsonObject& entry, const QString& listingPath, TessdataFile* file) {
   const QString name = entry.value("name").toString();
-  if ((entry.value("type").toString() != "file") || !name.endsWith(kSuffix)) {
+  // The name comes from the answer of the server and becomes part of the target path. Only plain
+  // names like those of tessdata pass, nothing that leads out of the folder ("..", "/", "\", ":").
+  static const QRegularExpression safeName(QStringLiteral("^[A-Za-z0-9_-]+\\.traineddata$"));
+  if ((entry.value("type").toString() != "file") || !safeName.match(name).hasMatch()) {
     return false;
   }
   const QString codePrefix = listingPath.isEmpty() ? QString() : listingPath + '/';
@@ -183,6 +197,12 @@ void TessdataDownloader::startNextDownload() {
   }
   const TessdataFile& file = m_queue.front();
   const QString target = OcrLanguages::filePath(m_targetDir, file.code);
+  // A second guard besides the name check in listedFile(): the file must end up in the folder.
+  const QString targetDir = QDir(m_targetDir).absolutePath() + '/';
+  if (!QDir::cleanPath(QFileInfo(target).absoluteFilePath()).startsWith(targetDir)) {
+    finishDownloads(tr("Could not write %1: %2").arg(QDir::toNativeSeparators(target), tr("Invalid file name.")));
+    return;
+  }
   if (!QDir().mkpath(QFileInfo(target).absolutePath())) {
     finishDownloads(
         tr("Could not create the folder %1.").arg(QDir::toNativeSeparators(QFileInfo(target).absolutePath())));

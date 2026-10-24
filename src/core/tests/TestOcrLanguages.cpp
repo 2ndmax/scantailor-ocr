@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonObject>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
@@ -76,6 +77,28 @@ BOOST_AUTO_TEST_CASE(test_git_blob_sha1) {
   // The same as "echo hello | git hash-object --stdin".
   BOOST_CHECK(TessdataDownloader::gitBlobSha1("hello\n") == "ce013625030ba8dba906f756967f9e9ca394464a");
   BOOST_CHECK(TessdataDownloader::gitBlobSha1("") == "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391");
+}
+
+BOOST_AUTO_TEST_CASE(test_listed_file_names_stay_in_the_folder) {
+  // The name comes from the answer of the server; it must not lead out of the tessdata folder.
+  const auto entry = [](const QString& name) {
+    QJsonObject obj;
+    obj.insert("type", "file");
+    obj.insert("name", name);
+    obj.insert("download_url", "https://example.org/x");
+    obj.insert("sha", "ce013625030ba8dba906f756967f9e9ca394464a");
+    obj.insert("size", 6);
+    return obj;
+  };
+  TessdataFile file;
+  BOOST_CHECK(TessdataDownloader::listedFile(entry("deu.traineddata"), QString(), &file));
+  BOOST_CHECK(file.code == "deu");
+  BOOST_CHECK(TessdataDownloader::listedFile(entry("Latin.traineddata"), "script", &file));
+  BOOST_CHECK(file.code == "script/Latin");
+  BOOST_CHECK(!TessdataDownloader::listedFile(entry("../../x.traineddata"), QString(), &file));
+  BOOST_CHECK(!TessdataDownloader::listedFile(entry("..\\..\\x.traineddata"), QString(), &file));
+  BOOST_CHECK(!TessdataDownloader::listedFile(entry("a/b.traineddata"), QString(), &file));
+  BOOST_CHECK(!TessdataDownloader::listedFile(entry("C:x.traineddata"), QString(), &file));
 }
 
 BOOST_AUTO_TEST_CASE(test_display_name) {

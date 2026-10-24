@@ -3640,17 +3640,17 @@ You should remove them from the project.</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="823"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="831"/>
         <source>Canceling Multi-Page Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="824"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="832"/>
         <source>The selection of %1 pages will be canceled. Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="828"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="836"/>
         <source>Don&apos;t show this message again.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4238,38 +4238,49 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>TessdataDownloader</name>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="83"/>
+        <location filename="../core/TessdataDownloader.cpp" line="94"/>
         <source>GitHub allows only a limited number of requests per hour without signing in. Please try again later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="130"/>
+        <location filename="../core/TessdataDownloader.cpp" line="157"/>
         <source>GitHub sent an unexpected answer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="186"/>
+        <location filename="../core/TessdataDownloader.cpp" line="208"/>
         <source>Could not create the folder %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="194"/>
+        <location filename="../core/TessdataDownloader.cpp" line="203"/>
+        <location filename="../core/TessdataDownloader.cpp" line="216"/>
         <source>Could not write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="241"/>
-        <location filename="../core/TessdataDownloader.cpp" line="255"/>
+        <location filename="../core/TessdataDownloader.cpp" line="89"/>
+        <source>No data arrived for %1 seconds. Please check the connection and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TessdataDownloader.cpp" line="203"/>
+        <source>Invalid file name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/TessdataDownloader.cpp" line="263"/>
+        <location filename="../core/TessdataDownloader.cpp" line="277"/>
         <source>Could not write the language file of &quot;%1&quot;: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="246"/>
+        <location filename="../core/TessdataDownloader.cpp" line="268"/>
         <source>Downloading &quot;%1&quot; failed: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="251"/>
+        <location filename="../core/TessdataDownloader.cpp" line="273"/>
         <source>The downloaded file of &quot;%1&quot; is incomplete or damaged. Please try again.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4290,7 +4301,7 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="1559"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="1567"/>
         <source>%1 (page %2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4418,12 +4429,12 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>TiffWriter</name>
     <message>
-        <location filename="../core/TiffWriter.cpp" line="126"/>
+        <location filename="../core/TiffWriter.cpp" line="127"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffWriter.cpp" line="135"/>
+        <location filename="../core/TiffWriter.cpp" line="136"/>
         <source>There is no image to write.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5946,7 +5957,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="366"/>
+        <location filename="../core/filters/output/Task.cpp" line="369"/>
         <source>The split output layers could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5954,37 +5965,37 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="572"/>
+        <location filename="../core/filters/output/Task.cpp" line="575"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="613"/>
+        <location filename="../core/filters/output/Task.cpp" line="616"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="624"/>
+        <location filename="../core/filters/output/Task.cpp" line="627"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="625"/>
+        <location filename="../core/filters/output/Task.cpp" line="628"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="626"/>
+        <location filename="../core/filters/output/Task.cpp" line="629"/>
         <source>Fill Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="627"/>
+        <location filename="../core/filters/output/Task.cpp" line="630"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="628"/>
+        <location filename="../core/filters/output/Task.cpp" line="631"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6020,27 +6031,27 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>page_layout::Filter</name>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="35"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="34"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="36"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="35"/>
         <source>Order by increasing width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="37"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="36"/>
         <source>Order by increasing height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="38"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="37"/>
         <source>Order by decreasing deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="44"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="43"/>
         <source>Margins</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6702,27 +6713,27 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>select_content::Filter</name>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="36"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="35"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="37"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="36"/>
         <source>Order by increasing width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="38"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="37"/>
         <source>Order by increasing height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="39"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="38"/>
         <source>Order by decreasing deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="45"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="44"/>
         <source>Select Content</source>
         <translation type="unfinished"></translation>
     </message>

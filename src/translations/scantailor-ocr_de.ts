@@ -3698,17 +3698,17 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <translation>in</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="823"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="831"/>
         <source>Canceling Multi-Page Selection</source>
         <translation>Aufhebung der Mehrseitenauswahl</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="824"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="832"/>
         <source>The selection of %1 pages will be canceled. Continue?</source>
         <translation>Die Auswahl von %1 Seiten wird aufgehoben. Fortfahren?</translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="828"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="836"/>
         <source>Don&apos;t show this message again.</source>
         <translation>Diese Meldung nicht mehr anzeigen.</translation>
     </message>
@@ -4286,38 +4286,49 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>TessdataDownloader</name>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="83"/>
+        <location filename="../core/TessdataDownloader.cpp" line="94"/>
         <source>GitHub allows only a limited number of requests per hour without signing in. Please try again later.</source>
         <translation>GitHub erlaubt ohne Anmeldung nur eine begrenzte Zahl von Anfragen pro Stunde. Bitte versuchen Sie es später noch einmal.</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="130"/>
+        <location filename="../core/TessdataDownloader.cpp" line="157"/>
         <source>GitHub sent an unexpected answer.</source>
         <translation>GitHub hat eine unerwartete Antwort geschickt.</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="186"/>
+        <location filename="../core/TessdataDownloader.cpp" line="208"/>
         <source>Could not create the folder %1.</source>
         <translation>Der Ordner %1 konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="194"/>
+        <location filename="../core/TessdataDownloader.cpp" line="203"/>
+        <location filename="../core/TessdataDownloader.cpp" line="216"/>
         <source>Could not write %1: %2</source>
         <translation>%1 konnte nicht geschrieben werden: %2</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="241"/>
-        <location filename="../core/TessdataDownloader.cpp" line="255"/>
+        <location filename="../core/TessdataDownloader.cpp" line="89"/>
+        <source>No data arrived for %1 seconds. Please check the connection and try again.</source>
+        <translation>%1 Sekunden lang kamen keine Daten an. Bitte prüfen Sie die Verbindung und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <location filename="../core/TessdataDownloader.cpp" line="203"/>
+        <source>Invalid file name.</source>
+        <translation>Ungültiger Dateiname.</translation>
+    </message>
+    <message>
+        <location filename="../core/TessdataDownloader.cpp" line="263"/>
+        <location filename="../core/TessdataDownloader.cpp" line="277"/>
         <source>Could not write the language file of &quot;%1&quot;: %2</source>
         <translation>Die Sprachdatei für „%1“ konnte nicht geschrieben werden: %2</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="246"/>
+        <location filename="../core/TessdataDownloader.cpp" line="268"/>
         <source>Downloading &quot;%1&quot; failed: %2</source>
         <translation>Das Herunterladen von „%1“ ist fehlgeschlagen: %2</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="251"/>
+        <location filename="../core/TessdataDownloader.cpp" line="273"/>
         <source>The downloaded file of &quot;%1&quot; is incomplete or damaged. Please try again.</source>
         <translation>Die heruntergeladene Datei für „%1“ ist unvollständig oder beschädigt. Bitte versuchen Sie es noch einmal.</translation>
     </message>
@@ -4338,7 +4349,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="1559"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="1567"/>
         <source>%1 (page %2)</source>
         <translation>%1 (Seite %2)</translation>
     </message>
@@ -4466,12 +4477,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>TiffWriter</name>
     <message>
-        <location filename="../core/TiffWriter.cpp" line="126"/>
+        <location filename="../core/TiffWriter.cpp" line="127"/>
         <source>Unknown error.</source>
         <translation>Unbekannter Fehler.</translation>
     </message>
     <message>
-        <location filename="../core/TiffWriter.cpp" line="135"/>
+        <location filename="../core/TiffWriter.cpp" line="136"/>
         <source>There is no image to write.</source>
         <translation>Es gibt kein Bild zum Schreiben.</translation>
     </message>
@@ -5996,7 +6007,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="366"/>
+        <location filename="../core/filters/output/Task.cpp" line="369"/>
         <source>The split output layers could not be created.</source>
         <translation>Die Ebenen der geteilten Ausgabe konnten nicht erstellt werden.</translation>
     </message>
@@ -6004,37 +6015,37 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="572"/>
+        <location filename="../core/filters/output/Task.cpp" line="575"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation>Bildzonen sind nur im Farbmodus „Gemischt“ verfügbar.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="613"/>
+        <location filename="../core/filters/output/Task.cpp" line="616"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation>Die Fleckenentfernung ist im Farbmodus „Farbe / Graustufen“ nicht möglich.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="624"/>
+        <location filename="../core/filters/output/Task.cpp" line="627"/>
         <source>Output</source>
         <translation>Ausgabe</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="625"/>
+        <location filename="../core/filters/output/Task.cpp" line="628"/>
         <source>Picture Zones</source>
         <translation>Bildzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="626"/>
+        <location filename="../core/filters/output/Task.cpp" line="629"/>
         <source>Fill Zones</source>
         <translation>Füllzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="627"/>
+        <location filename="../core/filters/output/Task.cpp" line="630"/>
         <source>Dewarping</source>
         <translation>Entzerrung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="628"/>
+        <location filename="../core/filters/output/Task.cpp" line="631"/>
         <source>Despeckling</source>
         <translation>Fleckenentfernung</translation>
     </message>
@@ -6070,27 +6081,27 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>page_layout::Filter</name>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="35"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="34"/>
         <source>Natural order</source>
         <translation>Natürliche Sortierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="36"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="35"/>
         <source>Order by increasing width</source>
         <translation>Sortierung nach aufsteigender Breite</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="37"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="36"/>
         <source>Order by increasing height</source>
         <translation>Sortierung nach aufsteigender Höhe</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="38"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="37"/>
         <source>Order by decreasing deviation</source>
         <translation>Sortierung nach absteigender Abweichung</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="44"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="43"/>
         <source>Margins</source>
         <translation>Ränder</translation>
     </message>
@@ -6759,27 +6770,27 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
 <context>
     <name>select_content::Filter</name>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="36"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="35"/>
         <source>Natural order</source>
         <translation>Natürliche Sortierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="37"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="36"/>
         <source>Order by increasing width</source>
         <translation>Sortierung nach aufsteigender Breite</translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="38"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="37"/>
         <source>Order by increasing height</source>
         <translation>Sortierung nach aufsteigender Höhe</translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="39"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="38"/>
         <source>Order by decreasing deviation</source>
         <translation>Sortierung nach absteigender Abweichung</translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="45"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="44"/>
         <source>Select Content</source>
         <translation>Inhalt auswählen</translation>
     </message>
