@@ -38,6 +38,36 @@ class TessdataPrefix {
   QByteArray m_old;
   bool m_hadOld;
 };
+
+/**
+ * Turns on the test mode of QStandardPaths for the lifetime of the object and
+ * removes the test user folder on both ends, so a failed check can't leave
+ * the test mode on for later tests or a folder behind for the next run.
+ */
+class TestUserDir {
+ public:
+  TestUserDir() {
+    QStandardPaths::setTestModeEnabled(true);
+    m_path = OcrLanguages::userDir();
+    removeFolder();
+  }
+
+  ~TestUserDir() {
+    removeFolder();
+    QStandardPaths::setTestModeEnabled(false);
+  }
+
+  const QString& path() const { return m_path; }
+
+ private:
+  void removeFolder() const {
+    if (!m_path.isEmpty()) {
+      QDir(m_path).removeRecursively();
+    }
+  }
+
+  QString m_path;
+};
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE(OcrLanguagesTestSuite)
@@ -86,15 +116,12 @@ BOOST_AUTO_TEST_CASE(test_available_and_common_dir) {
 
 BOOST_AUTO_TEST_CASE(test_gather_in_user_dir) {
   // Keep away from the real user folders.
-  QStandardPaths::setTestModeEnabled(true);
-  const QString userDir = OcrLanguages::userDir();
-  if (userDir.isEmpty() || QDir(userDir).exists()) {
-    BOOST_TEST_MESSAGE("no unused test user folder, skipped");
-    QStandardPaths::setTestModeEnabled(false);
-    return;
-  }
+  const TestUserDir testUserDir;
+  const QString& userDir = testUserDir.path();
+  BOOST_REQUIRE(!userDir.isEmpty());
 
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   BOOST_REQUIRE(writeFile(dir.filePath("aaa.traineddata"), "content of aaa"));
   BOOST_REQUIRE(writeFile(OcrLanguages::filePath(userDir, "ccc"), "c"));
   const TessdataPrefix prefix(dir.path());
@@ -115,9 +142,6 @@ BOOST_AUTO_TEST_CASE(test_gather_in_user_dir) {
   // A language that doesn't exist anywhere.
   BOOST_CHECK(OcrLanguages::gatherInUserDir(QStringList{"missing"}, &error).isEmpty());
   BOOST_CHECK(!error.isEmpty());
-
-  QDir(userDir).removeRecursively();
-  QStandardPaths::setTestModeEnabled(false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

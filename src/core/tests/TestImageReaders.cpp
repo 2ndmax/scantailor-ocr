@@ -239,6 +239,7 @@ BOOST_AUTO_TEST_SUITE(CoreImageReadersTestSuite)
 
 BOOST_AUTO_TEST_CASE(test_tiled_bilevel_tiff) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("tiled_bw.tif");
   TiffSpec spec;
   spec.width = 100;
@@ -269,6 +270,7 @@ BOOST_AUTO_TEST_CASE(test_tiled_jpeg_gray_tiff) {
     return;
   }
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("tiled_jpeg.tif");
   TiffSpec spec;
   spec.width = 80;
@@ -286,6 +288,7 @@ BOOST_AUTO_TEST_CASE(test_tiled_jpeg_gray_tiff) {
 
 BOOST_AUTO_TEST_CASE(test_4bit_gray_tiff) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("gray4.tif");
   TiffSpec spec;
   spec.width = 37;
@@ -305,6 +308,7 @@ BOOST_AUTO_TEST_CASE(test_4bit_gray_tiff) {
 
 BOOST_AUTO_TEST_CASE(test_big_endian_palette_tiff) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("palette_be.tif");
   TiffSpec spec;
   spec.width = 16;
@@ -329,6 +333,7 @@ BOOST_AUTO_TEST_CASE(test_big_endian_palette_tiff) {
 
 BOOST_AUTO_TEST_CASE(test_float_gray_tiff) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("float.tif");
   TiffSpec spec;
   spec.width = 256;
@@ -347,6 +352,7 @@ BOOST_AUTO_TEST_CASE(test_float_gray_tiff) {
 
 BOOST_AUTO_TEST_CASE(test_signed_int_gray_tiff) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("int16.tif");
   TiffSpec spec;
   spec.width = 11;
@@ -363,6 +369,7 @@ BOOST_AUTO_TEST_CASE(test_signed_int_gray_tiff) {
 
 BOOST_AUTO_TEST_CASE(test_float_rgb_separate_planes_tiff) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("float_rgb.tif");
   TiffSpec spec;
   spec.width = 20;
@@ -386,6 +393,7 @@ BOOST_AUTO_TEST_CASE(test_float_rgb_separate_planes_tiff) {
 BOOST_AUTO_TEST_CASE(test_unassociated_alpha_tiff) {
   // libtiff premultiplies unassociated alpha; the image must say so.
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("rgba.tif");
   TiffSpec spec;
   spec.width = 20;
@@ -412,6 +420,7 @@ BOOST_AUTO_TEST_CASE(test_lzma_and_zstd_tiff) {
       continue;
     }
     QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
     const QString path = dir.filePath("compressed.tif");
     TiffSpec spec;
     spec.width = 40;
@@ -427,6 +436,7 @@ BOOST_AUTO_TEST_CASE(test_lzma_and_zstd_tiff) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_metadata) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("meta.tif");
   TiffSpec spec;
   spec.width = 33;
@@ -444,6 +454,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_metadata) {
 
 BOOST_AUTO_TEST_CASE(test_progressive_jpeg_metadata) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("progressive.jpg");
   {
     jpeg_compress_struct cinfo{};
@@ -487,6 +498,7 @@ BOOST_AUTO_TEST_CASE(test_progressive_jpeg_metadata) {
 
 BOOST_AUTO_TEST_CASE(test_damaged_jpeg_metadata_reports_errors) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("damaged.jpg");
   {
     // The start of image, then an APP0 marker with an impossible length.
@@ -505,6 +517,7 @@ BOOST_AUTO_TEST_CASE(test_damaged_jpeg_metadata_reports_errors) {
 
 BOOST_AUTO_TEST_CASE(test_damaged_tiff_reports_errors) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("damaged.tif");
   TiffSpec spec;
   spec.width = 200;
@@ -533,6 +546,7 @@ BOOST_AUTO_TEST_CASE(test_damaged_tiff_reports_errors) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_round_trip_and_failure) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   QImage image(50, 30, QImage::Format_Indexed8);
   image.setColorCount(256);
   for (int i = 0; i < 256; ++i) {
@@ -603,6 +617,7 @@ bool isNear(const QRgb actual, const QRgb expected, const int tolerance) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_marks_alpha) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("alpha.tif");
   QImage image(20, 10, QImage::Format_ARGB32);
   image.fill(qRgba(200, 100, 50, 128));
@@ -630,6 +645,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_color_is_ycbcr) {
     return;
   }
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QRgb red = qRgb(200, 30, 30);
   const QRgb blue = qRgb(30, 60, 200);
   QImage image(64, 48, QImage::Format_RGB32);
@@ -659,6 +675,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_quality) {
     return;
   }
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   // Fine detail, so the quality makes a difference.
   QImage image(128, 128, QImage::Format_RGB32);
   for (int y = 0; y < image.height(); ++y) {
@@ -680,6 +697,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_gray) {
     return;
   }
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   QImage image(64, 48, QImage::Format_Indexed8);
   image.setColorCount(256);
   for (int i = 0; i < 256; ++i) {
@@ -704,6 +722,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_gray) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_falls_back_to_lzw) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const TiffWriter::Compression jpeg{COMPRESSION_CCITTFAX4, COMPRESSION_JPEG, 85, COMPRESSION_JPEG};
 
   // A palette image, as posterizing produces. JPEG can't store it.
@@ -737,6 +756,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_falls_back_to_lzw) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_bitonal_compressions) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   QImage image(40, 30, QImage::Format_Mono);
   image.setColorCount(2);
   image.setColor(0, qRgb(255, 255, 255));
@@ -779,6 +799,7 @@ QImage makePaletteImage(const int numColors) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_palette_compression_and_depth) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   // The palette setting applies, not the one for color. An odd width tests the last half byte.
   for (const int method : {COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_LZMA, COMPRESSION_NONE}) {
     if (!TIFFIsCODECConfigured(uint16_t(method))) {
@@ -805,6 +826,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_palette_compression_and_depth) {
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_predictor) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   QImage color(64, 40, QImage::Format_RGB32);
   for (int y = 0; y < color.height(); ++y) {
     for (int x = 0; x < color.width(); ++x) {
@@ -880,6 +902,7 @@ BOOST_AUTO_TEST_CASE(test_jp2_gray_and_rgb) {
   for (const int numComps : {1, 3}) {
     for (const bool codestream : {false, true}) {
       QTemporaryDir dir;
+      BOOST_REQUIRE(dir.isValid());
       const QString path = dir.filePath(codestream ? "image.j2k" : "image.jp2");
       BOOST_REQUIRE(writeJp2(path, 64, 48, numComps, codestream));
 
@@ -919,6 +942,7 @@ BOOST_AUTO_TEST_CASE(test_jp2_gray_and_rgb) {
 BOOST_AUTO_TEST_CASE(test_jp2_strip_decoding) {
   for (const int numComps : {1, 3}) {
     QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
     const QString path = dir.filePath("strips.jp2");
     BOOST_REQUIRE(writeJp2(path, 120, 100, numComps, false));
 
@@ -940,6 +964,7 @@ BOOST_AUTO_TEST_CASE(test_jp2_strip_decoding) {
 
 BOOST_AUTO_TEST_CASE(test_jp2_not_recognized) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("not_jp2.tif");
   TiffSpec spec;
   spec.width = 4;

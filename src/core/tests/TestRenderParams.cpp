@@ -43,7 +43,8 @@ BOOST_AUTO_TEST_CASE(test_mixed_equalizes_pictures_only_with_text) {
 }
 
 BOOST_AUTO_TEST_CASE(test_mixed_color_foreground_follows_the_same_rule) {
-  // With a color foreground there is no binarization, so the color setting decides on its own.
+  // There is no binarization with a color foreground, but the color setting still counts only
+  // together with the black and white one.
   SplittingOptions splittingOptions;
   splittingOptions.setSplitOutput(true);
   splittingOptions.setSplittingMode(COLOR_FOREGROUND);
@@ -55,6 +56,10 @@ BOOST_AUTO_TEST_CASE(test_mixed_color_foreground_follows_the_same_rule) {
   const RenderParams on(makeColorParams(MIXED, true, true), splittingOptions);
   BOOST_CHECK(on.normalizeIllumination());
   BOOST_CHECK(on.normalizeIlluminationColor());
+
+  const RenderParams textOnly(makeColorParams(MIXED, true, false), splittingOptions);
+  BOOST_CHECK(!textOnly.normalizeIllumination());
+  BOOST_CHECK(!textOnly.normalizeIlluminationColor());
 }
 
 BOOST_AUTO_TEST_CASE(test_color_mode_uses_the_color_setting) {

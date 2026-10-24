@@ -191,6 +191,7 @@ BOOST_AUTO_TEST_CASE(test_g4_round_trip) {
   BOOST_REQUIRE(!g4.isEmpty());
 
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("g4.tif");
   BOOST_REQUIRE(writeG4Tiff(path, g4, original.width(), original.height()));
   QFile file(path);
@@ -385,6 +386,7 @@ BOOST_AUTO_TEST_CASE(test_pdf_a_with_verapdf) {
   page.words.push_back({QStringLiteral("ScanTailor"), QPointF(75, 50), 70, 12});
 
   QTemporaryDir tempDir;
+  BOOST_REQUIRE(tempDir.isValid());
   const QString path = tempDir.filePath("pdfa.pdf");
   QFile file(path);
   BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
@@ -463,6 +465,7 @@ BOOST_AUTO_TEST_CASE(test_text_layer) {
 
 BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString mainFile = dir.filePath("page.tif");
   const QString fgFile = dir.filePath("fg.tif");
   const QString bgFile = dir.filePath("bg.tif");
@@ -605,6 +608,7 @@ BOOST_AUTO_TEST_CASE(test_deflate_round_trip) {
 
 BOOST_AUTO_TEST_CASE(test_prepare_lossless_pages) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   PdfExportOptions options;
   PdfWriter::Page result;
   QStringList errors;
@@ -690,6 +694,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_lossless_pages) {
 
 BOOST_AUTO_TEST_CASE(test_prepare_split_page_with_palette_picture) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString mainFile = dir.filePath("page.tif");
   const QString fgFile = dir.filePath("fg.tif");
   const QString bgFile = dir.filePath("bg.tif");
@@ -778,6 +783,7 @@ BOOST_AUTO_TEST_CASE(test_jpeg2000) {
 
 BOOST_AUTO_TEST_CASE(test_prepare_jpeg2000_page) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString grayFile = dir.filePath("gray.tif");
   BOOST_REQUIRE(writeLosslessTiff(grayFile, makeGray(40, 30, 300)));
   PdfExportPage page(grayFile, QString(), QString(), false);
@@ -818,6 +824,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_jpeg2000_page) {
 
 BOOST_AUTO_TEST_CASE(test_export_job) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   std::vector<PdfExportPage> pages;
   for (int i = 0; i < 5; ++i) {
     const QString file = dir.filePath(QString("p%1.tif").arg(i));
@@ -860,6 +867,7 @@ BOOST_AUTO_TEST_CASE(test_export_job) {
 
 BOOST_AUTO_TEST_CASE(test_lossy_compressions) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   auto write = [](const QString& path, const QImage& image, const int colorCompression) {
     QFile file(path);
     return file.open(QIODevice::WriteOnly)

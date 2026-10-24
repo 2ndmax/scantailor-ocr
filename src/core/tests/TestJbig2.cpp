@@ -6,7 +6,6 @@
 #include <PdfWriter.h>
 
 #include <QBuffer>
-#include <QCoreApplication>
 #include <QFile>
 #include <QImage>
 #include <QProcess>
@@ -14,7 +13,6 @@
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 #include <cstdint>
-#include <memory>
 #include <vector>
 
 namespace {
@@ -371,15 +369,6 @@ BOOST_AUTO_TEST_CASE(test_jbig2_rendered_by_poppler) {
   if (pdftoppm.isEmpty()) {
     BOOST_TEST_MESSAGE("pdftoppm not found, skipping the check with Poppler.");
     return;
-  }
-
-  // QProcess needs an application object.
-  std::unique_ptr<QCoreApplication> app;
-  if (!QCoreApplication::instance()) {
-    static int argc = 1;
-    static char arg0[] = "core_tests";
-    static char* argv[] = {arg0, nullptr};
-    app = std::make_unique<QCoreApplication>(argc, argv);
   }
 
   const QImage image = makePattern(333, 211, 99u);

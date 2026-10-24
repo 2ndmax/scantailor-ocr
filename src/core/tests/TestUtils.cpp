@@ -24,6 +24,7 @@ BOOST_AUTO_TEST_SUITE(CoreUtilsTestSuite)
 
 BOOST_AUTO_TEST_CASE(test_overwriting_rename) {
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString source = dir.filePath("source.txt");
   const QString target = dir.filePath("target.txt");
   BOOST_REQUIRE(writeFile(source, "new"));
@@ -38,6 +39,7 @@ BOOST_AUTO_TEST_CASE(test_overwriting_rename_long_path) {
   // Paths longer than MAX_PATH (260 characters), such as thumbnails of pages whose
   // names grew with each scan inserted after them. Windows refused to replace them.
   QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
   const QString longDir = dir.filePath(QString(200, QChar('d')));
   BOOST_REQUIRE(QDir().mkpath(longDir));
   const QString source = longDir + QStringLiteral("/source.txt");
