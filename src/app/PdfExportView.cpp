@@ -936,10 +936,15 @@ void PdfExportView::updateControls() {
 void PdfExportView::saveSettings() {
   // Only opening the PDF is a program setting; the rest belongs to the project.
   ApplicationSettings::getInstance().setPdfOpenAfterCreationEnabled(m_openAfterCreation->isChecked());
+  const ProcessingOptions::Pdf before = m_processingOptions->pdf;
   m_compressionPanel->storeOptions(m_processingOptions->pdf);
 #ifdef ENABLE_OCR
   m_ocrPanel->storeOptions(m_processingOptions->pdf);
 #endif
+  if (m_processingOptions->pdf != before) {
+    // The project changed, so it gets saved automatically like other changes.
+    emit projectOptionsChanged();
+  }
 }
 
 void PdfExportView::requestThumbnail(const int generation, const int entryIndex) {

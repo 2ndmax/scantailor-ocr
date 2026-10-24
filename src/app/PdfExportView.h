@@ -83,6 +83,9 @@ class PdfExportView : public QWidget {
   /** Emitted when creating a PDF starts and when it has finished. */
   void runningChanged(bool running);
 
+  /** The PDF options of the project (compression, text recognition) were changed. */
+  void projectOptionsChanged();
+
   /** The user wants the pages that aren't output yet to be processed in the Output step. */
   void outputMissingPagesRequested();
 

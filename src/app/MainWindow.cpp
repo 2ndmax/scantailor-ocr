@@ -1707,6 +1707,7 @@ void MainWindow::enterPdfStage() {
   if (!m_pdfView) {
     m_pdfView = std::make_unique<PdfExportView>(m_thumbnailCache, m_stages->processingOptions());
     connect(m_pdfView.get(), &PdfExportView::runningChanged, this, &MainWindow::pdfExportRunningChanged);
+    connect(m_pdfView.get(), &PdfExportView::projectOptionsChanged, this, &MainWindow::updateAutoSaveTimer);
     connect(m_pdfView.get(), &PdfExportView::outputMissingPagesRequested, this, &MainWindow::outputMissingPages);
   }
   // The output files may have changed since the PDF step was last shown.

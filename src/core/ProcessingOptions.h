@@ -42,6 +42,16 @@ struct ProcessingOptions {
     QStringList ocrLanguages{QStringLiteral("deu"), QStringLiteral("eng")};
     /** One of OcrEngine::PageLayout. */
     int ocrPageLayout = 0;
+
+    bool operator==(const Pdf& other) const {
+      return (colorCompression == other.colorCompression) && (colorQuality == other.colorQuality)
+             && (backgroundScale == other.backgroundScale) && (paletteCompression == other.paletteCompression)
+             && (paletteQuality == other.paletteQuality) && (bitonalCompression == other.bitonalCompression)
+             && (pdfA == other.pdfA) && (ocr == other.ocr) && (ocrLanguages == other.ocrLanguages)
+             && (ocrPageLayout == other.ocrPageLayout);
+    }
+
+    bool operator!=(const Pdf& other) const { return !(*this == other); }
   };
 
   /** For the output files. */
