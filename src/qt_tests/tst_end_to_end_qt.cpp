@@ -199,6 +199,11 @@ class TestProject {
   /** All six steps, as a command line tool would run them. */
   void processAll() {
     const StageSequence::ProcessAllResult result = stages->processAll(thumbnailCache, outFileNameGen);
+    // Which page failed and why, as QVERIFY only shows that one did.
+    for (const StageSequence::PageFailure& failure : result.failures) {
+      qWarning().noquote() << "Page failed:" << failure.page.imageId().filePath() << "sub page"
+                           << failure.page.subPage() << "kind" << failure.kind << failure.reasons.join("; ");
+    }
     QVERIFY(result.failures.empty());
     QVERIFY(result.output);
   }

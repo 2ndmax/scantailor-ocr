@@ -112,7 +112,8 @@ class StageSequence {
    * is output. The pages are those the steps were created with.
    *
    * An image that fails to load or to process is left out of the later passes. Then the size of
-   * its pages stays unknown and, as in the app, no page is output.
+   * its pages stays unknown and, as in the app, no page is output. The steps before the output
+   * still store their results and update the thumbnails, also when no page is output.
    *
    * \param thumbnailCache Where the thumbnails are updated; may be null if none are needed.
    * \param progress Optional; see ProgressCallback.
