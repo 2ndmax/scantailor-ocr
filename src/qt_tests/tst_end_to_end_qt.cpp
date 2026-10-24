@@ -42,6 +42,7 @@
 #include <QRegularExpression>
 #include <QTemporaryDir>
 #include <QtTest/QtTest>
+#include <algorithm>
 #include <cmath>
 #include <memory>
 #include <vector>
@@ -196,16 +197,21 @@ class TestProject {
     stages->startNewProject(startValues);
   }
 
-  /** All six steps, as a command line tool would run them. */
-  void processAll() {
+  /**
+   * All six steps, as a command line tool would run them. Returns false if a page failed or
+   * nothing was output; the caller checks it, as a QVERIFY here wouldn't end the test.
+   */
+  [[nodiscard]] bool processAll() {
     const StageSequence::ProcessAllResult result = stages->processAll(thumbnailCache, outFileNameGen);
     // Which page failed and why, as QVERIFY only shows that one did.
     for (const StageSequence::PageFailure& failure : result.failures) {
       qWarning().noquote() << "Page failed:" << failure.page.imageId().filePath() << "sub page"
                            << failure.page.subPage() << "kind" << failure.kind << failure.reasons.join("; ");
     }
-    QVERIFY(result.failures.empty());
-    QVERIFY(result.output);
+    if (!result.output) {
+      qWarning() << "No output.";
+    }
+    return result.failures.empty() && result.output;
   }
 
   std::shared_ptr<ProjectPages> pages;
@@ -219,6 +225,11 @@ std::vector<ImageFileInfo> saveScans(const QDir& dir) {
   return {saveScan(skewedPage(), dir.absoluteFilePath("1-skewed.png")),
           saveScan(twoPageSpread(), dir.absoluteFilePath("2-spread.png")),
           saveScan(colorPage(), dir.absoluteFilePath("3-color.png"))};
+}
+
+// Saving a scan fails e.g. without the PNG plugin; then the project has images without a size.
+bool allSaved(const std::vector<ImageFileInfo>& files) {
+  return std::all_of(files.begin(), files.end(), [](const ImageFileInfo& file) { return !file.imageInfo().empty(); });
 }
 
 // Exports the pages as the app does, in this thread. Returns the PDF, or nothing on failure.
@@ -267,15 +278,13 @@ void TestEndToEndQt::testAllSteps() {
   QVERIFY(tempDir.isValid());
   const QDir dir(tempDir.path());
   const std::vector<ImageFileInfo> files = saveScans(dir);
-  for (const ImageFileInfo& file : files) {
-    QVERIFY(!file.imageInfo().empty());
-  }
+  QVERIFY(allSaved(files));
 
   const DefaultParams startValues;
   TestProject project(files, dir.absoluteFilePath("out"), startValues);
   QElapsedTimer timer;
   timer.start();
-  project.processAll();
+  QVERIFY(project.processAll());
   qInfo("All six steps for %d pages: %lld ms", static_cast<int>(project.pages->toPageSequence(PAGE_VIEW).numPages()),
         static_cast<long long>(timer.elapsed()));
 
@@ -380,7 +389,7 @@ void TestEndToEndQt::testColorOutputCompression() {
   QVERIFY(tempDir.isValid());
   const QDir dir(tempDir.path());
   const std::vector<ImageFileInfo> files{saveScan(colorPage(), dir.absoluteFilePath("color.png"))};
-  QVERIFY(!files[0].imageInfo().empty());
+  QVERIFY(allSaved(files));
 
   DefaultParams startValues;
   DefaultParams::OutputParams outputParams = startValues.getOutputParams();
@@ -393,7 +402,7 @@ void TestEndToEndQt::testColorOutputCompression() {
   startValues.setProcessingOptions(processingOptions);
 
   TestProject project(files, dir.absoluteFilePath("out"), startValues);
-  project.processAll();
+  QVERIFY(project.processAll());
 
   const PageSequence pages = project.pages->toPageSequence(PAGE_VIEW);
   QCOMPARE(pages.numPages(), size_t(1));
@@ -439,6 +448,7 @@ void TestEndToEndQt::testCancelWithoutThumbnails() {
   const QDir dir(tempDir.path());
   const std::vector<ImageFileInfo> files{saveScan(skewedPage(), dir.absoluteFilePath("1-skewed.png")),
                                          saveScan(colorPage(), dir.absoluteFilePath("2-color.png"))};
+  QVERIFY(allSaved(files));
   TestProject project(files, dir.absoluteFilePath("out"), DefaultParams());
   project.thumbnailCache.reset();
   const int outputIdx = project.stages->outputFilterIdx();
@@ -461,7 +471,7 @@ void TestEndToEndQt::testCancelWithoutThumbnails() {
   QVERIFY(QFile::exists(project.outFileNameGen.filePathFor(pages.pageAt(0).id())));
   QVERIFY(!QFile::exists(project.outFileNameGen.filePathFor(pages.pageAt(1).id())));
 
-  project.processAll();
+  QVERIFY(project.processAll());
   QVERIFY(QFile::exists(project.outFileNameGen.filePathFor(pages.pageAt(1).id())));
 }
 
@@ -469,8 +479,10 @@ void TestEndToEndQt::testPdfExport() {
   QTemporaryDir tempDir;
   QVERIFY(tempDir.isValid());
   const QDir dir(tempDir.path());
-  TestProject project(saveScans(dir), dir.absoluteFilePath("out"), DefaultParams());
-  project.processAll();
+  const std::vector<ImageFileInfo> files = saveScans(dir);
+  QVERIFY(allSaved(files));
+  TestProject project(files, dir.absoluteFilePath("out"), DefaultParams());
+  QVERIFY(project.processAll());
 
   // One page of the PDF for each page of the project, in the order of the project.
   const PageSequence pages = project.pages->toPageSequence(PAGE_VIEW);

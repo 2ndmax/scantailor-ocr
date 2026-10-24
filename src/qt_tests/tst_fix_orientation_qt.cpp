@@ -155,11 +155,17 @@ void TestFixOrientationQt::testTrimFieldsFollowRotation() {
   OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
   // A quarter turn clockwise shows the left edge at the top.
   widget.preUpdateUI(pageInfo(image, QSize(400, 300)), quarterTurns(1));
-  QCOMPARE(spinBox(widget, "trimTopSpin")->value(), 10);
-  QCOMPARE(spinBox(widget, "trimLeftSpin")->value(), 0);
+  QSpinBox* const top = spinBox(widget, "trimTopSpin");
+  QSpinBox* const left = spinBox(widget, "trimLeftSpin");
+  QSpinBox* const right = spinBox(widget, "trimRightSpin");
+  QVERIFY(top != nullptr);
+  QVERIFY(left != nullptr);
+  QVERIFY(right != nullptr);
+  QCOMPARE(top->value(), 10);
+  QCOMPARE(left->value(), 0);
 
   // ... and the top edge at the right.
-  spinBox(widget, "trimRightSpin")->setValue(20);
+  right->setValue(20);
   const ImageTrim saved(settings->getTrim(image));
   QCOMPARE(saved.left, 10);
   QCOMPARE(saved.top, 20);
@@ -185,9 +191,13 @@ void TestFixOrientationQt::testTrimFieldsKeepValuesOnPageSwitch() {
   OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
   widget.preUpdateUI(pageInfo(first, QSize(4000, 3000)), OrthogonalRotation());
   widget.preUpdateUI(pageInfo(second, QSize(4000, 3000)), OrthogonalRotation());
-  QCOMPARE(spinBox(widget, "trimRightSpin")->value(), 1500);
+  QSpinBox* const right = spinBox(widget, "trimRightSpin");
+  QSpinBox* const top = spinBox(widget, "trimTopSpin");
+  QVERIFY(right != nullptr);
+  QVERIFY(top != nullptr);
+  QCOMPARE(right->value(), 1500);
 
-  spinBox(widget, "trimTopSpin")->setValue(5);
+  top->setValue(5);
   QCOMPARE(settings->getTrim(second).right, 1500);
   QCOMPARE(settings->getTrim(second).top, 5);
 }
@@ -207,7 +217,14 @@ void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
       = filter->createTask(info.id(), nullptr, false)->process(NullTaskStatus(), FilterData(pixels));
 
   OptionsWidget* widget = filter->optionsWidget();
-  widget->findChild<QAbstractButton*>("rotateRightBtn")->click();
+  QVERIFY(widget != nullptr);
+  auto* const rotateRight = widget->findChild<QAbstractButton*>("rotateRightBtn");
+  auto* const trimEnabled = widget->findChild<QCheckBox*>("trimEnabledCheck");
+  QSpinBox* const top = spinBox(*widget, "trimTopSpin");
+  QVERIFY(rotateRight != nullptr);
+  QVERIFY(trimEnabled != nullptr);
+  QVERIFY(top != nullptr);
+  rotateRight->click();
   result->updateUI(&ui);
 
   RotationCollector collector;
@@ -218,7 +235,7 @@ void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
   QVERIFY(view != nullptr);
   QCOMPARE(view->virtualDisplayRect().size(), QSizeF(300, 400));
 
-  widget->findChild<QCheckBox*>("trimEnabledCheck")->setChecked(true);
-  spinBox(*widget, "trimTopSpin")->setValue(10);
+  trimEnabled->setChecked(true);
+  top->setValue(10);
   QCOMPARE(view->virtualDisplayRect().size(), QSizeF(300, 390));
 }

@@ -21,8 +21,11 @@ Or run each suite separately:
 ./qt_tests
 ```
 
-On Windows, `qt_tests` writes nothing to the console; its results go to a file with
-`qt_tests -o results.txt,txt` (the file then holds the last test class, the end-to-end test).
+On Windows, `qt_tests` writes nothing to the console; its results go to files with
+`qt_tests -o results.txt,txt`. Each test class writes a file of its own, with its name
+appended: `results_TestCoreQt.txt`, `results_TestUxQt.txt`, `results_TestDeskewQt.txt`,
+`results_TestFixOrientationQt.txt` and `results_TestEndToEndQt.txt`. Test functions named
+on the command line run only in the class that has them.
 Without a screen, as in the CI, set `QT_QPA_PLATFORM=offscreen` only together with
 `QT_PLUGIN_PATH` pointing to the Qt plugins of vcpkg (`installed\x64-windows\Qt6\plugins`):
 without the offscreen plugin, `qt_tests` hangs without a message.
