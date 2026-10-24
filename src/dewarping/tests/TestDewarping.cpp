@@ -1,11 +1,14 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <BinaryImage.h>
 #include <Curve.h>
 #include <CylindricalSurfaceDewarper.h>
 #include <DistortionModel.h>
 #include <GrayImage.h>
 #include <RasterDewarper.h>
+#include <SEDM.h>
+#include <TextLineTracer.h>
 
 #include <QColor>
 #include <QImage>
@@ -15,6 +18,12 @@
 #include <vector>
 
 namespace dewarping {
+struct TextLineTracerTestAccess {
+  static void findMidLineSeeds(const imageproc::SEDM& sedm, const QLineF& midLine, std::vector<QPoint>& seeds) {
+    TextLineTracer::findMidLineSeeds(sedm, midLine, seeds);
+  }
+};
+
 namespace tests {
 namespace {
 const double kNaN = std::numeric_limits<double>::quiet_NaN();
@@ -63,6 +72,15 @@ BOOST_AUTO_TEST_CASE(test_large_footprint_keeps_the_gray_level) {
       BOOST_TEST(std::abs(qGray(result.pixel(x, y)) - 200) <= 1);
     }
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_mid_line_outside_the_image) {
+  // A mid line that misses the image can't be clipped; it was traversed as it was, reading the
+  // distance map outside its memory.
+  const imageproc::SEDM sedm(imageproc::BinaryImage(QSize(100, 80), imageproc::WHITE));
+  std::vector<QPoint> seeds;
+  TextLineTracerTestAccess::findMidLineSeeds(sedm, QLineF(-100000, -100000, -100000, 100000), seeds);
+  BOOST_TEST(seeds.empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

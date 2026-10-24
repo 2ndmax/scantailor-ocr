@@ -421,7 +421,11 @@ BinaryImage TextLineTracer::closeWithObstacles(const BinaryImage& image,
 }
 
 void TextLineTracer::findMidLineSeeds(const SEDM& sedm, QLineF midLine, std::vector<QPoint>& seeds) {
-  lineBoundedByRect(midLine, QRect(QPoint(0, 0), sedm.size()).adjusted(0, 0, -1, -1));
+  const QRect sedmRect(QPoint(0, 0), sedm.size());
+  if (!lineBoundedByRect(midLine, sedmRect.adjusted(0, 0, -1, -1))) {
+    // The line misses the image, or a corner was lost by rounding.
+    return;
+  }
 
   const uint32_t* sedmData = sedm.data();
   const int sedmStride = sedm.stride();
@@ -432,6 +436,10 @@ void TextLineTracer::findMidLineSeeds(const SEDM& sedm, QLineF midLine, std::vec
   GridLineTraverser traverser(midLine);
   while (traverser.hasNext()) {
     const QPoint pt(traverser.next());
+    if (!sedmRect.contains(pt)) {
+      // Rounding of the clipped end points can leave a point just outside.
+      continue;
+    }
     const int32_t level = sedmData[pt.y() * sedmStride + pt.x()];
     if ((level - prevLevel) * dir < 0) {
       // Direction changed.

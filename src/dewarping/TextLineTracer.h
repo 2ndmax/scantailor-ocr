@@ -42,6 +42,9 @@ class TextLineTracer {
                     DebugImages* dbg = nullptr);
 
  private:
+  // Lets dewarping_tests call the private helpers.
+  friend struct TextLineTracerTestAccess;
+
   static imageproc::GrayImage downscale(const imageproc::GrayImage& input, const Dpi& dpi);
 
   static void sanitizeBinaryImage(imageproc::BinaryImage& image, const QRect& contentRect);
