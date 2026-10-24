@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <thread>
 #include <utility>
 
 #include "GaussBlur.h"
@@ -60,10 +59,21 @@ void chromaDenoiseInPlace(QImage& image, const int radius, const int grayLimit) 
   });
 
   const auto sigma = static_cast<float>(radius);
+  // Both channels at the same time, if the thread budget allows it.
   GrayImage cbBlurred;
-  std::thread cbThread([&] { cbBlurred = gaussBlur(cb, sigma, sigma); });
-  const GrayImage crBlurred = gaussBlur(cr, sigma, sigma);
-  cbThread.join();
+  GrayImage crBlurred;
+  parallelFor(
+      2,
+      [&](const int begin, const int end) {
+        for (int channel = begin; channel < end; ++channel) {
+          if (channel == 0) {
+            cbBlurred = gaussBlur(cb, sigma, sigma);
+          } else {
+            crBlurred = gaussBlur(cr, sigma, sigma);
+          }
+        }
+      },
+      1);
 
   const auto limit = static_cast<float>(grayLimit);
   uchar* const dst = image.bits();

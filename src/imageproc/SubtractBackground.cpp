@@ -8,11 +8,11 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
-#include <thread>
 #include <vector>
 
 #include "BrightnessFilter.h"
 #include "GrayImage.h"
+#include "ParallelFor.h"
 
 namespace imageproc {
 namespace {
@@ -184,12 +184,16 @@ void whitenColorInPlace(QImage& image, const int radius, const double coef) {
       channels[2].data()[y * channels[2].stride() + x] = static_cast<uint8_t>(qBlue(pixels[x]));
     }
   }
-  // The channels are independent, so they are computed at the same time.
-  std::thread green([&] { whitenInPlace(channels[1], radius, coef); });
-  std::thread blue([&] { whitenInPlace(channels[2], radius, coef); });
-  whitenInPlace(channels[0], radius, coef);
-  green.join();
-  blue.join();
+  // The channels are independent, so they are computed at the same time, as far as the thread
+  // budget allows.
+  parallelFor(
+      3,
+      [&](const int begin, const int end) {
+        for (int c = begin; c < end; ++c) {
+          whitenInPlace(channels[c], radius, coef);
+        }
+      },
+      1);
   for (int y = 0; y < h; ++y) {
     auto* pixels = reinterpret_cast<QRgb*>(image.scanLine(y));
     const uint8_t* r = channels[0].data() + y * channels[0].stride();
