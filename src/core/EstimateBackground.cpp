@@ -144,8 +144,16 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
                                                 const QPolygonF& areaToConsider,
                                                 const TaskStatus& status,
                                                 DebugImages* dbg) {
+  if (input.isNull()) {
+    // Nothing to estimate; a flat white background.
+    GrayImage white(QSize(1, 1));
+    white.fill(0xff);
+    return PolynomialSurface(0, 0, white);
+  }
   QSize reducedSize(input.size());
   reducedSize.scale(300, 300, Qt::KeepAspectRatio);
+  // Rounding makes a side 0 for images thinner than 1:300, e.g. a content area that is a line.
+  reducedSize = reducedSize.expandedTo(QSize(1, 1));
   GrayImage background(scaleToGray(GrayImage(input), reducedSize));
   if (dbg) {
     dbg->add(background, "downscaled");

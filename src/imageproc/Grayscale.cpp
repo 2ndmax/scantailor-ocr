@@ -240,10 +240,13 @@ GrayImage stretchGrayRange(const GrayImage& src, const double blackClipFraction,
 
 GrayImage createFramedImage(const QSize& size, const unsigned char innerColor, const unsigned char frameColor) {
   GrayImage image(size);
-  image.fill(innerColor);
-
   const int width = size.width();
   const int height = size.height();
+  if ((width <= 0) || (height <= 0)) {
+    // No pixels, so no frame; the lines below would be written outside the image.
+    return image;
+  }
+  image.fill(innerColor);
 
   unsigned char* line = image.data();
   const int stride = image.stride();

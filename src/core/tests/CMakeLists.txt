@@ -4,6 +4,7 @@ set(sources
     TestDeskewParams.cpp
     TestDeviationProvider.cpp
     TestObliqueFinder.cpp
+    TestEstimateBackground.cpp
     TestImageId.cpp
     TestImageReaders.cpp
     TestMargins.cpp
