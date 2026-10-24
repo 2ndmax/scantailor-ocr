@@ -40,7 +40,8 @@ class TiffWriter {
    * \brief Writes a QImage in TIFF format to a file.
    *
    * Failures are reported to ImageLoadErrorReporter, so the user learns about them.
-   * No partially written file is left behind.
+   * The file is replaced only when the new one is complete, so on failure the previous file
+   * stays, and no partially written file is left behind.
    *
    * \param filePath The full path to the file.
    * \param image The image to write. Writing a null image will fail.
@@ -54,7 +55,8 @@ class TiffWriter {
    * \brief Writes a QImage in TIFF format to an IO device.
    *
    * \param device The device to write to. This device must be
-   *        opened for writing and seekable.
+   *        opened for writing and seekable. It stays open; closing it
+   *        (and checking it for write errors) is up to the caller.
    * \param image The image to write. Writing a null image will fail.
    * \param compression The compression, see writeImage(const QString&, ...).
    * \return True on success, false on failure.

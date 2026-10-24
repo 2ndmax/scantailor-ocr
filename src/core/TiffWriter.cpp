@@ -9,6 +9,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QSaveFile>
 #include <QStringList>
 #include <QtCore/QFile>
 #include <algorithm>
@@ -85,9 +86,9 @@ static toff_t deviceSeek(thandle_t context, toff_t offset, int whence) {
   return dev->pos();
 }
 
-static int deviceClose(thandle_t context) {
-  auto* dev = (QIODevice*) context;
-  dev->close();
+static int deviceClose(thandle_t) {
+  // The device belongs to the caller, who closes it (as in TiffReader). A QSaveFile must not
+  // be closed at all, but committed.
   return 0;
 }
 
@@ -136,25 +137,24 @@ bool TiffWriter::writeImageToFile(const QString& filePath, const QImage& image, 
     return false;
   }
 
-  QFile file(filePath);
-  if (!file.open(QFile::WriteOnly)) {
+  // Written to a temporary file that replaces the old one only when complete: a failure (e.g. a
+  // full disk) or a crash keeps the previous output, and readers never see a half-written file.
+  QSaveFile file(filePath);
+  if (!file.open(QIODevice::WriteOnly)) {
     ImageLoadErrorCapture::addError(file.errorString());
     return false;
   }
 
-  bool ok = writeImage(file, image, compression);
-  // libtiff closes the file when done, which flushes Qt's write buffer.
-  // A failure there (e.g. a full disk) only shows up in the file's error state.
-  if (ok && (file.error() != QFileDevice::NoError)) {
+  if (!writeImage(file, image, compression)) {
+    file.cancelWriting();
+    return false;
+  }
+  // commit() flushes Qt's write buffer, so a write failure may only show up here.
+  if (!file.commit()) {
     ImageLoadErrorCapture::addError(file.errorString());
-    ok = false;
+    return false;
   }
-  if (!ok) {
-    // Don't leave a truncated file behind.
-    file.close();
-    file.remove();
-  }
-  return ok;
+  return true;
 }
 
 bool TiffWriter::writeImage(QIODevice& device, const QImage& image, const Compression& compression) {
@@ -278,6 +278,10 @@ bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif,
     case QImage::Format_MonoLSB:
       bitsPerSample = 1;
       if (image.colorCount() < 2) {
+        // REVIEW-NOTE (2026-10): a Format_Mono image without a color table is written as
+        // MINISWHITE (1 = black), while Qt treats 0 as black -> such an image would come out
+        // inverted. Not fixed because BinaryImage::toQImage() always sets the table and
+        // PdfImageEncoder::toMono() relies on the same assumption.
         photometric = PHOTOMETRIC_MINISWHITE;
       } else {
         // Some programs don't understand
