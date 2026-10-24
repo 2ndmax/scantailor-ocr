@@ -19,8 +19,7 @@ set(sources
     ApplyDialog.cpp ApplyDialog.h
     ApplyMarginsDialog.cpp ApplyMarginsDialog.h
     Alignment.cpp Alignment.h
-    OrderByWidthProvider.cpp OrderByWidthProvider.h
-    OrderByHeightProvider.cpp OrderByHeightProvider.h
+    OrderBySizeProvider.cpp OrderBySizeProvider.h
     Guide.cpp Guide.h)
 
 add_library(page_layout STATIC ${sources} ${ui_files})

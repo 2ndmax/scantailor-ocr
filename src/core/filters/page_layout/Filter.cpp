@@ -13,8 +13,7 @@
 #include "FilterUiInterface.h"
 #include "Guide.h"
 #include "OptionsWidget.h"
-#include "OrderByHeightProvider.h"
-#include "OrderByWidthProvider.h"
+#include "OrderBySizeProvider.h"
 #include "Params.h"
 #include "ProjectPages.h"
 #include "ProjectReader.h"
@@ -29,8 +28,8 @@ Filter::Filter(std::shared_ptr<ProjectPages> pages, const PageSelectionAccessor&
   m_optionsWidget.reset(new OptionsWidget(m_settings, m_pages, pageSelectionAccessor));
 
   const PageOrderOption::ProviderPtr defaultOrder;
-  const auto orderByWidth = std::make_shared<OrderByWidthProvider>(m_settings);
-  const auto orderByHeight = std::make_shared<OrderByHeightProvider>(m_settings);
+  const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);
+  const auto orderByHeight = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::HEIGHT);
   const auto orderByDeviation = std::make_shared<OrderByDeviationProvider>(m_settings->deviationProvider());
   m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
   m_pageOrderOptions.emplace_back(tr("Order by increasing width"), orderByWidth);
