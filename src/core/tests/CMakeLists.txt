@@ -19,6 +19,7 @@ set(sources
     TestScanInsertion.cpp
     TestJbig2.cpp
     TestOcrLanguages.cpp
+    TestOutputFileNames.cpp
     TestOutputGenerator.cpp
     TestOutputSize.cpp
     TestPhotoAdjustments.cpp

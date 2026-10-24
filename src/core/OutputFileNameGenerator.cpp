@@ -32,10 +32,9 @@ QString OutputFileNameGenerator::fileNameFor(const PageId& page) const {
   const PageId::SubPage subPage = page.subPage();
   const int label = m_disambiguator->getLabel(page.imageId().filePath());
 
-  QString name(QFileInfo(page.imageId().filePath()).completeBaseName());
-  if (label != 0) {
-    name += QString::fromLatin1("(%1)").arg(label);
-  }
+  // FileNameDisambiguator chooses the labels so that the names below differ for all files; it
+  // knows the suffixes added here.
+  QString name(FileNameDisambiguator::outputStem(page.imageId().filePath(), label));
   if (page.imageId().isMultiPageFile()) {
     name += QString::fromLatin1("_page%1").arg(page.imageId().page(), 4, 10, QLatin1Char('0'));
   }

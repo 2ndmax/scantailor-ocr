@@ -6,16 +6,43 @@
 #include <QDomDocument>
 #include <QFileInfo>
 #include <QMutex>
+#include <QRegularExpression>
+#include <algorithm>
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index_container.hpp>
+#include <vector>
 
 #include "AbstractRelinker.h"
 #include "RelinkablePath.h"
 
 using namespace boost::multi_index;
+
+namespace {
+QString labelText(const int label) {
+  return (label == 0) ? QString() : QString::fromLatin1("(%1)").arg(label);
+}
+
+/**
+ * True if an output name of one stem can be an output name of the other one, as in
+ * "x" + "_page0001" and "x_page0001", or "y" + "_1L" and "y_1L". The suffixes are those
+ * OutputFileNameGenerator::fileNameFor() appends.
+ */
+bool stemsOverlap(const QString& stem1, const QString& stem2) {
+  if (stem1 == stem2) {
+    return true;
+  }
+  const QString& shorter = (stem1.size() < stem2.size()) ? stem1 : stem2;
+  const QString& longer = (stem1.size() < stem2.size()) ? stem2 : stem1;
+  if (!longer.startsWith(shorter)) {
+    return false;
+  }
+  static const QRegularExpression suffixes("^(_page\\d{4,})?(_[12][lr])?$", QRegularExpression::CaseInsensitiveOption);
+  return suffixes.match(longer.mid(shorter.size())).hasMatch();
+}
+}  // namespace
 
 class FileNameDisambiguator::Impl {
  public:
@@ -42,11 +69,11 @@ class FileNameDisambiguator::Impl {
   struct Item {
     QString filePath;
     QString fileName;
+    // The base name without extension, case folded; computed once for the comparisons.
+    QString foldedBaseName;
     int label;
 
     Item(const QString& filePath, int lbl);
-
-    Item(const QString& filePath, const QString& fileName, int lbl);
   };
 
   using Container = multi_index_container<
@@ -60,6 +87,12 @@ class FileNameDisambiguator::Impl {
   using ItemsByFilePath = Container::index<ItemsByFilePathTag>::type;
   using ItemsByFileNameLabel = Container::index<ItemsByFileNameLabelTag>::type;
   using UnorderedItems = Container::index<UnorderedItemsTag>::type;
+
+  /** True if another item in items can have an output name that filePath has with this label. */
+  static bool hasOverlappingItem(const Container& items, const QString& filePath, int label);
+
+  /** The lowest label that gives filePath output names no other item in items can have. */
+  static int freeLabel(const Container& items, const QString& filePath);
 
   mutable QMutex m_mutex;
   Container m_items;
@@ -102,6 +135,10 @@ int FileNameDisambiguator::registerFile(const QString& filePath) {
 
 void FileNameDisambiguator::performRelinking(const AbstractRelinker& relinker) {
   m_impl->performRelinking(relinker);
+}
+
+QString FileNameDisambiguator::outputStem(const QString& filePath, const int label) {
+  return QFileInfo(filePath).completeBaseName() + labelText(label);
 }
 
 /*==================== FileNameDisambiguator::Impl ====================*/
@@ -180,21 +217,10 @@ int FileNameDisambiguator::Impl::registerFile(const QString& filePath) {
     return fpIt->label;
   }
 
-  int label = 0;
-
-  const QString fileName(QFileInfo(filePath).fileName());
-  const ItemsByFileNameLabel::iterator fnIt(m_itemsByFileNameLabel.upper_bound(boost::make_tuple(fileName)));
-  // If the item preceeding fnIt has the same file name,
-  // the new file belongs to the same disambiguation group.
-  if (fnIt != m_itemsByFileNameLabel.begin()) {
-    ItemsByFileNameLabel::iterator prev(fnIt);
-    --prev;
-    if (prev->fileName == fileName) {
-      label = prev->label + 1;
-    }
-  }  // Otherwise, label remains 0.
-  const Item newItem(filePath, fileName, label);
-  m_itemsByFileNameLabel.insert(fnIt, newItem);
+  // Labels already given are kept (they are stored in the project), so the output names of
+  // existing pages don't change; only the new file gets a label of its own.
+  const int label = freeLabel(m_items, filePath);
+  m_items.insert(Item(filePath, label));
   return label;
 }
 
@@ -202,19 +228,48 @@ void FileNameDisambiguator::Impl::performRelinking(const AbstractRelinker& relin
   const QMutexLocker locker(&m_mutex);
   Container newItems;
 
+  // Files that stay where they are keep their labels. A moved or renamed file may now share its
+  // output names with another one; it gets a new label then, instead of being dropped.
+  std::vector<Item> movedItems;
   for (const Item& item : m_unorderedItems) {
-    const RelinkablePath oldPath(item.filePath, RelinkablePath::File);
-    Item newItem(relinker.substitutionPathFor(oldPath), item.label);
-    newItems.insert(newItem);
+    const QString newPath(relinker.substitutionPathFor(RelinkablePath(item.filePath, RelinkablePath::File)));
+    if (newPath == item.filePath) {
+      newItems.insert(item);
+    } else {
+      movedItems.emplace_back(newPath, item.label);
+    }
+  }
+  for (const Item& item : movedItems) {
+    if (newItems.get<ItemsByFilePathTag>().count(item.filePath) != 0) {
+      continue;  // Two paths were relinked to the same file.
+    }
+    const bool labelStillFree = !hasOverlappingItem(newItems, item.filePath, item.label);
+    newItems.insert(labelStillFree ? item : Item(item.filePath, freeLabel(newItems, item.filePath)));
   }
 
   m_items.swap(newItems);
 }
 
+bool FileNameDisambiguator::Impl::hasOverlappingItem(const Container& items, const QString& filePath, const int label) {
+  // Case folded, as the file systems of Windows and macOS ignore case.
+  const QString stem(outputStem(filePath, label).toCaseFolded());
+  return std::any_of(items.begin(), items.end(), [&](const Item& item) {
+    return (item.filePath != filePath) && stemsOverlap(stem, item.foldedBaseName + labelText(item.label));
+  });
+}
+
+int FileNameDisambiguator::Impl::freeLabel(const Container& items, const QString& filePath) {
+  int label = 0;
+  while (hasOverlappingItem(items, filePath, label)) {
+    ++label;
+  }
+  return label;
+}
+
 /*============================ Impl::Item =============================*/
 
 FileNameDisambiguator::Impl::Item::Item(const QString& filePath, int lbl)
-    : filePath(filePath), fileName(QFileInfo(filePath).fileName()), label(lbl) {}
-
-FileNameDisambiguator::Impl::Item::Item(const QString& filePath, const QString& fileName, int lbl)
-    : filePath(filePath), fileName(fileName), label(lbl) {}
+    : filePath(filePath),
+      fileName(QFileInfo(filePath).fileName()),
+      foldedBaseName(QFileInfo(filePath).completeBaseName().toCaseFolded()),
+      label(lbl) {}

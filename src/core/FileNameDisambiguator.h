@@ -17,8 +17,9 @@ class QDomDocument;
 
 /**
  * \brief Associates an integer label with each file path so that
- *        files with the same name but from different directories
- *        have distinctive labels.
+ *        the output names of all files differ: files with the same
+ *        base name (also in another case or with another extension),
+ *        and files whose names look like a label or a page suffix.
  *
  * \note This class is thread-safe.
  */
@@ -65,9 +66,16 @@ class FileNameDisambiguator {
 
   int getLabel(const QString& filePath) const;
 
+  /**
+   * Returns the label of filePath, giving it a new one if it has none yet. Labels given before
+   * stay, so the output names of existing pages don't change.
+   */
   int registerFile(const QString& filePath);
 
   void performRelinking(const AbstractRelinker& relinker);
+
+  /** The start of the output names of filePath: its base name, with the label if not 0. */
+  static QString outputStem(const QString& filePath, int label);
 
  private:
   class Impl;
