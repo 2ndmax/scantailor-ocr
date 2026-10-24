@@ -32,14 +32,15 @@ void filterBrightnessInPlace(QImage& image, const std::function<void(GrayImage&)
 
   const int w = image.width();
   uint8_t* const bits = image.bits();
-  const int stride = image.bytesPerLine();
+  // 64 bits: with more than 2 GiB per image, y * stride overflows an int.
+  const qsizetype stride = image.bytesPerLine();
   const uint8_t* const grayData = gray.data();
   const uint8_t* const filteredData = filtered.data();
   parallelFor(image.height(), [&](const int yBegin, const int yEnd) {
     for (int y = yBegin; y < yEnd; ++y) {
       uint8_t* const line = bits + y * stride;
-      const uint8_t* const grayLine = grayData + y * gray.stride();
-      const uint8_t* const filteredLine = filteredData + y * filtered.stride();
+      const uint8_t* const grayLine = grayData + y * qsizetype(gray.stride());
+      const uint8_t* const filteredLine = filteredData + y * qsizetype(filtered.stride());
       if (depth == 8) {
         // As in wienerColorFilterInPlace(), 8-bit images carry gray levels directly.
         std::copy(filteredLine, filteredLine + w, line);
