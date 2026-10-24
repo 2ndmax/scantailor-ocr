@@ -235,6 +235,19 @@ bool addTextLayer(const QImage& image,
   return false;
 #endif
 }
+
+/** The message for the exception being handled, as the user sees it. Call only in a catch block. */
+QString currentExceptionMessage() {
+  try {
+    throw;
+  } catch (const std::bad_alloc&) {
+    return PdfExportJob::tr("Out of memory.");
+  } catch (const std::exception& e) {
+    return QString::fromLocal8Bit(e.what());
+  } catch (...) {
+    return PdfExportJob::tr("Unknown error.");
+  }
+}
 }  // namespace
 
 PdfExportOptions PdfExportOptions::fromProject(const ProcessingOptions& options) {
@@ -457,16 +470,10 @@ void PdfExportJob::run() {
           } else {
             item.ok = preparePage(m_pages[index], m_options, &item.page, &item.errors, engine, &m_cancelRequested);
           }
-        } catch (const std::bad_alloc&) {
-          item.ok = false;
-          item.errors.push_back(tr("Out of memory."));
-        } catch (const std::exception& e) {
-          item.ok = false;
-          item.errors.push_back(QString::fromLocal8Bit(e.what()));
         } catch (...) {
           // An exception escaping a std::thread would terminate the program.
           item.ok = false;
-          item.errors.push_back(tr("Unknown error."));
+          item.errors.push_back(currentExceptionMessage());
         }
       }
 
