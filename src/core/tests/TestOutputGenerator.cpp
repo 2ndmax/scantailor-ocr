@@ -17,6 +17,7 @@
 #include <filters/output/BlackWhiteOptions.h>
 #include <filters/output/ColorParams.h>
 #include <filters/output/DepthPerception.h>
+#include <filters/output/DewarpingOptions.h>
 #include <filters/output/OutputGenerator.h>
 #include <filters/output/OutputImage.h>
 #include <filters/output/Params.h>
@@ -103,6 +104,9 @@ struct Run {
   int kmeansColors = 0;
   double postScaleFactor = 1.0;
   QRectF content = QRectF(0, 0, WIDTH, HEIGHT);
+  // A manual distortion model that is valid, but less than half a pixel wide, so that
+  // its model domain is empty.
+  bool thinManualDewarping = false;
 };
 
 QImage process(const Run& run) {
@@ -131,6 +135,9 @@ QImage process(const Run& run) {
   shapeOptions.setPictureShape(OFF_SHAPE);
   params.setPictureShapeOptions(shapeOptions);
   params.setDespeckleLevel(0.0);
+  if (run.thinManualDewarping) {
+    params.setDewarpingOptions(DewarpingOptions(MANUAL));
+  }
   settings->setParams(pageId, params);
 
   const FilterData data(syntheticPage(run.colored, run.strokeColor));
@@ -144,6 +151,11 @@ QImage process(const Run& run) {
   ZoneSet pictureZones = run.withPictureZone ? pictureZone() : ZoneSet();
   const ZoneSet fillZones;
   dewarping::DistortionModel distortionModel;
+  if (run.thinManualDewarping) {
+    distortionModel.setTopCurve(dewarping::Curve(std::vector<QPointF>{QPointF(100, 100), QPointF(100.3, 100)}));
+    distortionModel.setBottomCurve(dewarping::Curve(std::vector<QPointF>{QPointF(100, 200), QPointF(100.3, 200)}));
+    BOOST_REQUIRE(distortionModel.isValid());
+  }
   const std::unique_ptr<OutputImage> output
       = generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(), nullptr,
                           nullptr, nullptr, pageId, settings, /*takeOverBlackOnWhite=*/true);
@@ -200,6 +212,21 @@ BOOST_AUTO_TEST_CASE(output_has_the_size_of_the_page) {
   const QImage output = process(Run());
   BOOST_CHECK_EQUAL(output.width(), WIDTH);
   BOOST_CHECK_EQUAL(output.height(), HEIGHT);
+}
+
+BOOST_AUTO_TEST_CASE(empty_dewarping_model_domain_gives_the_page_size) {
+  // The content is smaller than the scan, so the output differs in size from it.
+  Run run;
+  run.content = QRectF(40, 30, 300, 250);
+  const QSize pageSize = process(run).size();
+  run.thinManualDewarping = true;
+  for (const ColorMode mode : {BLACK_AND_WHITE, COLOR_GRAYSCALE, MIXED}) {
+    run.mode = mode;
+    run.withPictureZone = (mode == MIXED);
+    const QImage output = process(run);
+    BOOST_CHECK_EQUAL(output.width(), pageSize.width());
+    BOOST_CHECK_EQUAL(output.height(), pageSize.height());
+  }
 }
 
 BOOST_AUTO_TEST_CASE(black_and_white_output_is_only_black_and_white) {

@@ -2055,7 +2055,8 @@ QImage OutputGenerator::Processor::dewarp(const QTransform& origToSrc,
   // will be mapped to our curved quadrilateral.
   const QRect modelDomain(distortionModel.modelDomain(dewarper, origToSrc * srcToOutput, m_outRect).toRect());
   if (modelDomain.isEmpty()) {
-    GrayImage out(src.size());
+    // Same size as on the normal path, or the results don't match each other and the masks.
+    GrayImage out(m_outRect.size());
     out.fill(0xff);  // white
     return out;
   }
@@ -2068,11 +2069,10 @@ void OutputGenerator::Processor::evenOutLetterWidths(DistortionModel& distortion
                                                      QImage& dewarped) const {
   const std::vector<WidthProfile::Sample> samples
       = WidthProfile::measure(GrayImage(dewarped), m_croppedContentRect, m_dpi.horizontal());
-  // The same model domain as in dewarp(), where output x maps to (x - left) / (right - left).
+  // The same model domain as in dewarp(), where output x maps to (x - left) / width, as in RasterDewarper.
   const CylindricalSurfaceDewarper dewarper(createDewarper(distortionModel, QTransform(), depthPerception.value()));
   const QRect modelDomain(distortionModel.modelDomain(dewarper, m_xform.transform(), m_outRect).toRect());
-  const WidthCorrection correction
-      = WidthProfile::toCorrection(samples, modelDomain.left(), modelDomain.right() - modelDomain.left());
+  const WidthCorrection correction = WidthProfile::toCorrection(samples, modelDomain.left(), modelDomain.width());
   if (correction.isNull()) {
     return;
   }
