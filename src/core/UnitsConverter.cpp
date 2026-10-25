@@ -3,8 +3,6 @@
 
 #include "UnitsConverter.h"
 
-#include "Dpm.h"
-
 UnitsConverter::UnitsConverter(const Dpi& dpi) : m_dpi(dpi) {}
 
 void UnitsConverter::convert(double& horizontalValue, double& verticalValue, Units fromUnits, Units toUnits) const {
@@ -12,21 +10,25 @@ void UnitsConverter::convert(double& horizontalValue, double& verticalValue, Uni
     return;
   }
   // Only pixels need the resolution; millimetres, centimetres and inches convert without it.
+  // REVIEW-NOTE (2026-10): without a DPI, conversions from or to pixels return the value unchanged
+  // -> callers store pixels as millimeters. Not fixed because projects cannot be created with pages
+  // lacking a DPI; only hand-edited project files reach this.
   if (m_dpi.isNull() && ((fromUnits == PIXELS) || (toUnits == PIXELS))) {
     return;
   }
 
-  auto dpm = Dpm(m_dpi);
+  // Calculated with the exact resolution: Dpm would round 72 dpi to whole pixels per metre,
+  // and pixels converted to millimetres and to inches would no longer agree.
   switch (fromUnits) {
     case PIXELS:
       switch (toUnits) {
         case MILLIMETRES:
-          horizontalValue = horizontalValue / dpm.horizontal() * 1000.;
-          verticalValue = verticalValue / dpm.vertical() * 1000.;
+          horizontalValue = horizontalValue / m_dpi.horizontal() * 25.4;
+          verticalValue = verticalValue / m_dpi.vertical() * 25.4;
           break;
         case CENTIMETRES:
-          horizontalValue = horizontalValue / dpm.horizontal() * 100.;
-          verticalValue = verticalValue / dpm.vertical() * 100.;
+          horizontalValue = horizontalValue / m_dpi.horizontal() * 2.54;
+          verticalValue = verticalValue / m_dpi.vertical() * 2.54;
           break;
         case INCHES:
           horizontalValue /= m_dpi.horizontal();
@@ -39,8 +41,8 @@ void UnitsConverter::convert(double& horizontalValue, double& verticalValue, Uni
     case MILLIMETRES:
       switch (toUnits) {
         case PIXELS:
-          horizontalValue = horizontalValue / 1000. * dpm.horizontal();
-          verticalValue = verticalValue / 1000. * dpm.vertical();
+          horizontalValue = horizontalValue / 25.4 * m_dpi.horizontal();
+          verticalValue = verticalValue / 25.4 * m_dpi.vertical();
           break;
         case CENTIMETRES:
           horizontalValue = horizontalValue / 10.;
@@ -57,8 +59,8 @@ void UnitsConverter::convert(double& horizontalValue, double& verticalValue, Uni
     case CENTIMETRES:
       switch (toUnits) {
         case PIXELS:
-          horizontalValue = horizontalValue / 100. * dpm.horizontal();
-          verticalValue = verticalValue / 100. * dpm.vertical();
+          horizontalValue = horizontalValue / 2.54 * m_dpi.horizontal();
+          verticalValue = verticalValue / 2.54 * m_dpi.vertical();
           break;
         case MILLIMETRES:
           horizontalValue = horizontalValue * 10.;

@@ -22,6 +22,7 @@ class TestCoreQt : public QObject {
   void testOutputPageSwitchDropsDelayedReload();
   void testOutputPageSwitchRedoesPreviousThumbnail();
   void testFailedTaskReportsBack();
+  void testImplausibleSettingsFallBackToDefaults();
 };
 
 class Emitter : public QObject {

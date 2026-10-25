@@ -5,6 +5,7 @@
 
 #include <QLocale>
 #include <QtCore/QSettings>
+#include <cmath>
 
 #include "ThreadBudget.h"
 
@@ -71,6 +72,15 @@ ApplicationSettings& ApplicationSettings::getInstance() {
   return instance;
 }
 
+// Settings files can be damaged or edited by hand. These return the stored value only if it can be used.
+static double positiveOrDefault(const double value, const double defaultValue) {
+  return (std::isfinite(value) && value > 0.0) ? value : defaultValue;
+}
+
+static double nonNegativeOrDefault(const double value, const double defaultValue) {
+  return (std::isfinite(value) && value >= 0.0) ? value : defaultValue;
+}
+
 QVariant ApplicationSettings::readValue(const QString& key, const QVariant& defaultValue) const {
   const QMutexLocker locker(&m_mutex);
   return m_settings.value(key, defaultValue);
@@ -123,7 +133,8 @@ void ApplicationSettings::setHighlightDeviationEnabled(bool enabled) {
 }
 
 double ApplicationSettings::getDeskewDeviationCoef() const {
-  return readValue(getKey(DESKEW_DEVIATION_COEF_KEY), DEFAULT_DESKEW_DEVIATION_COEF).toDouble();
+  return positiveOrDefault(readValue(getKey(DESKEW_DEVIATION_COEF_KEY), DEFAULT_DESKEW_DEVIATION_COEF).toDouble(),
+                           DEFAULT_DESKEW_DEVIATION_COEF);
 }
 
 void ApplicationSettings::setDeskewDeviationCoef(double value) {
@@ -131,7 +142,9 @@ void ApplicationSettings::setDeskewDeviationCoef(double value) {
 }
 
 double ApplicationSettings::getDeskewDeviationThreshold() const {
-  return readValue(getKey(DESKEW_DEVIATION_THRESHOLD_KEY), DEFAULT_DESKEW_DEVIATION_THRESHOLD).toDouble();
+  return nonNegativeOrDefault(
+      readValue(getKey(DESKEW_DEVIATION_THRESHOLD_KEY), DEFAULT_DESKEW_DEVIATION_THRESHOLD).toDouble(),
+      DEFAULT_DESKEW_DEVIATION_THRESHOLD);
 }
 
 void ApplicationSettings::setDeskewDeviationThreshold(double value) {
@@ -139,7 +152,9 @@ void ApplicationSettings::setDeskewDeviationThreshold(double value) {
 }
 
 double ApplicationSettings::getSelectContentDeviationCoef() const {
-  return readValue(getKey(SELECT_CONTENT_DEVIATION_COEF_KEY), DEFAULT_SELECT_CONTENT_DEVIATION_COEF).toDouble();
+  return positiveOrDefault(
+      readValue(getKey(SELECT_CONTENT_DEVIATION_COEF_KEY), DEFAULT_SELECT_CONTENT_DEVIATION_COEF).toDouble(),
+      DEFAULT_SELECT_CONTENT_DEVIATION_COEF);
 }
 
 void ApplicationSettings::setSelectContentDeviationCoef(double value) {
@@ -147,8 +162,9 @@ void ApplicationSettings::setSelectContentDeviationCoef(double value) {
 }
 
 double ApplicationSettings::getSelectContentDeviationThreshold() const {
-  return readValue(getKey(SELECT_CONTENT_DEVIATION_THRESHOLD_KEY), DEFAULT_SELECT_CONTENT_DEVIATION_THRESHOLD)
-      .toDouble();
+  return nonNegativeOrDefault(
+      readValue(getKey(SELECT_CONTENT_DEVIATION_THRESHOLD_KEY), DEFAULT_SELECT_CONTENT_DEVIATION_THRESHOLD).toDouble(),
+      DEFAULT_SELECT_CONTENT_DEVIATION_THRESHOLD);
 }
 
 void ApplicationSettings::setSelectContentDeviationThreshold(double value) {
@@ -156,7 +172,8 @@ void ApplicationSettings::setSelectContentDeviationThreshold(double value) {
 }
 
 double ApplicationSettings::getMarginsDeviationCoef() const {
-  return readValue(getKey(MARGINS_DEVIATION_COEF_KEY), DEFAULT_MARGINS_DEVIATION_COEF).toDouble();
+  return positiveOrDefault(readValue(getKey(MARGINS_DEVIATION_COEF_KEY), DEFAULT_MARGINS_DEVIATION_COEF).toDouble(),
+                           DEFAULT_MARGINS_DEVIATION_COEF);
 }
 
 void ApplicationSettings::setMarginsDeviationCoef(double value) {
@@ -164,7 +181,9 @@ void ApplicationSettings::setMarginsDeviationCoef(double value) {
 }
 
 double ApplicationSettings::getMarginsDeviationThreshold() const {
-  return readValue(getKey(MARGINS_DEVIATION_THRESHOLD_KEY), DEFAULT_MARGINS_DEVIATION_THRESHOLD).toDouble();
+  return nonNegativeOrDefault(
+      readValue(getKey(MARGINS_DEVIATION_THRESHOLD_KEY), DEFAULT_MARGINS_DEVIATION_THRESHOLD).toDouble(),
+      DEFAULT_MARGINS_DEVIATION_THRESHOLD);
 }
 
 void ApplicationSettings::setMarginsDeviationThreshold(double value) {
@@ -172,7 +191,8 @@ void ApplicationSettings::setMarginsDeviationThreshold(double value) {
 }
 
 QSize ApplicationSettings::getThumbnailQuality() const {
-  return readValue(getKey(THUMBNAIL_QUALITY_KEY), DEFAULT_THUMBNAIL_QUALITY).toSize();
+  const QSize size = readValue(getKey(THUMBNAIL_QUALITY_KEY), DEFAULT_THUMBNAIL_QUALITY).toSize();
+  return (size.width() > 0 && size.height() > 0) ? size : DEFAULT_THUMBNAIL_QUALITY;
 }
 
 void ApplicationSettings::setThumbnailQuality(const QSize& quality) {
@@ -180,7 +200,8 @@ void ApplicationSettings::setThumbnailQuality(const QSize& quality) {
 }
 
 QSizeF ApplicationSettings::getMaxLogicalThumbnailSize() const {
-  return readValue(getKey(MAX_LOGICAL_THUMBNAIL_SIZE_KEY), DEFAULT_MAX_LOGICAL_THUMBNAIL_SIZE).toSizeF();
+  const QSizeF size = readValue(getKey(MAX_LOGICAL_THUMBNAIL_SIZE_KEY), DEFAULT_MAX_LOGICAL_THUMBNAIL_SIZE).toSizeF();
+  return (size.width() > 0 && size.height() > 0) ? size : DEFAULT_MAX_LOGICAL_THUMBNAIL_SIZE;
 }
 
 void ApplicationSettings::setMaxLogicalThumbnailSize(const QSizeF& size) {

@@ -30,8 +30,13 @@ void UnitsProvider::removeListener(UnitsListener* listener) {
 }
 
 void UnitsProvider::unitsChanged() {
-  for (UnitsListener* listener : m_unitsListeners) {
-    listener->onUnitsChanged(m_units);
+  // A listener may add or remove listeners, itself included (e.g. by destroying a widget), while it is notified.
+  // So the walk goes over a copy, and a listener that is gone by its turn is skipped.
+  const std::list<UnitsListener*> listeners = m_unitsListeners;
+  for (UnitsListener* listener : listeners) {
+    if (std::find(m_unitsListeners.begin(), m_unitsListeners.end(), listener) != m_unitsListeners.end()) {
+      listener->onUnitsChanged(m_units);
+    }
   }
 }
 

@@ -4,6 +4,8 @@
 #include <Dpi.h>
 #include <Units.h>
 #include <UnitsConverter.h>
+#include <UnitsListener.h>
+#include <UnitsProvider.h>
 
 #include <QString>
 #include <boost/test/unit_test.hpp>
@@ -56,6 +58,68 @@ BOOST_AUTO_TEST_CASE(test_physical_units_convert_without_dpi) {
   double py = 100.0;
   converter.convert(px, py, PIXELS, MILLIMETRES);
   BOOST_CHECK_EQUAL(px, 100.0);  // Left as it is.
+}
+
+// Pixels to millimetres and to inches must agree: 72 dpi is 2834.65 pixels per metre, not 2835.
+BOOST_AUTO_TEST_CASE(test_pixel_conversion_is_exact) {
+  const UnitsConverter converter{Dpi(72, 72)};
+  double x = 1000.0;
+  double y = 1000.0;
+  converter.convert(x, y, PIXELS, MILLIMETRES);
+  BOOST_CHECK_CLOSE(x, 1000.0 / 72.0 * 25.4, 1e-9);
+  BOOST_CHECK_CLOSE(y, 1000.0 / 72.0 * 25.4, 1e-9);
+  converter.convert(x, y, MILLIMETRES, PIXELS);
+  BOOST_CHECK_CLOSE(x, 1000.0, 1e-9);
+
+  x = 1000.0;
+  converter.convert(x, y, PIXELS, CENTIMETRES);
+  BOOST_CHECK_CLOSE(x, 1000.0 / 72.0 * 2.54, 1e-9);
+  converter.convert(x, y, CENTIMETRES, PIXELS);
+  BOOST_CHECK_CLOSE(x, 1000.0, 1e-9);
+}
+
+namespace {
+// Takes itself off the listener list when the units change, as a widget being destroyed in the handler would.
+class SelfDeletingListener : public UnitsListener {
+ public:
+  explicit SelfDeletingListener(int& calls) : m_calls(calls) {}
+  void onUnitsChanged(Units) override {
+    ++m_calls;
+    delete this;
+  }
+
+ private:
+  int& m_calls;
+};
+
+class CountingListener : public UnitsListener {
+ public:
+  explicit CountingListener(int& calls) : m_calls(calls) {}
+  void onUnitsChanged(Units) override { ++m_calls; }
+
+ private:
+  int& m_calls;
+};
+}  // namespace
+
+BOOST_AUTO_TEST_CASE(test_listener_may_remove_itself_while_notified) {
+  UnitsProvider& provider = UnitsProvider::getInstance();
+  const Units original = provider.getUnits();
+  int calls[3] = {0, 0, 0};
+  CountingListener first(calls[0]);
+  new SelfDeletingListener(calls[1]);
+  CountingListener last(calls[2]);
+
+  provider.setUnits(original == INCHES ? MILLIMETRES : INCHES);
+  BOOST_CHECK_EQUAL(calls[0], 1);
+  BOOST_CHECK_EQUAL(calls[1], 1);
+  BOOST_CHECK_EQUAL(calls[2], 1);
+
+  // The deleted listener is gone for good.
+  provider.setUnits(original);
+  BOOST_CHECK_EQUAL(calls[0], 2);
+  BOOST_CHECK_EQUAL(calls[1], 1);
+  BOOST_CHECK_EQUAL(calls[2], 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

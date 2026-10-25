@@ -6,7 +6,9 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QtGlobal>
+#include <algorithm>
 #include <cmath>
+#include <iterator>
 
 namespace {
 int intAttribute(const QDomElement& el, const QString& name, const int fallback, const int min, const int max) {
@@ -14,6 +16,21 @@ int intAttribute(const QDomElement& el, const QString& name, const int fallback,
   const int value = el.attribute(name).toInt(&ok);
   return ok ? qBound(min, value, max) : fallback;
 }
+
+// A code that the TIFF writer does not know, or that does not fit the kind of image, would make
+// every page fail to write, so such a value counts as damaged. The lists are the methods offered by
+// TiffCompressionPanel.
+template <size_t N>
+int compressionAttribute(const QDomElement& el, const QString& name, const int fallback, const int (&allowed)[N]) {
+  const int value = intAttribute(el, name, fallback, 0, 65535);
+  return std::find(std::begin(allowed), std::end(allowed), value) != std::end(allowed) ? value : fallback;
+}
+
+constexpr int BW_COMPRESSIONS[]
+    = {COMPRESSION_NONE, COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_LZMA, COMPRESSION_CCITTFAX4};
+constexpr int COLOR_COMPRESSIONS[]
+    = {COMPRESSION_NONE, COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_LZMA, COMPRESSION_JPEG};
+constexpr int PALETTE_COMPRESSIONS[] = {COMPRESSION_NONE, COMPRESSION_LZW, COMPRESSION_DEFLATE, COMPRESSION_LZMA};
 
 bool boolAttribute(const QDomElement& el, const QString& name, const bool fallback) {
   const QString value = el.attribute(name);
@@ -35,10 +52,10 @@ int toPercent(const double share) {
 ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOptions& fallback) {
   const QDomElement tiffEl = el.namedItem("tiff").toElement();
   const TiffWriter::Compression& tiff = fallback.tiffCompression;
-  tiffCompression.bw = intAttribute(tiffEl, "bw", tiff.bw, 0, 65535);
-  tiffCompression.color = intAttribute(tiffEl, "color", tiff.color, 0, 65535);
+  tiffCompression.bw = compressionAttribute(tiffEl, "bw", tiff.bw, BW_COMPRESSIONS);
+  tiffCompression.color = compressionAttribute(tiffEl, "color", tiff.color, COLOR_COMPRESSIONS);
   tiffCompression.jpegQuality = intAttribute(tiffEl, "jpegQuality", tiff.jpegQuality, 10, 100);
-  tiffCompression.palette = intAttribute(tiffEl, "palette", tiff.palette, 0, 65535);
+  tiffCompression.palette = compressionAttribute(tiffEl, "palette", tiff.palette, PALETTE_COMPRESSIONS);
 
   const QDomElement colorEl = el.namedItem("color-detection").toElement();
   const ColorModeDetector::Options& color = fallback.colorDetection;

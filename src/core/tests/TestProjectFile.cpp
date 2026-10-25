@@ -91,6 +91,31 @@ BOOST_AUTO_TEST_CASE(test_folder_starting_with_dots_is_stored_relative) {
   BOOST_CHECK(dirEl.attribute("path") == "..scans");
 }
 
+// A compression code the writer does not know would make every output page fail without a hint.
+BOOST_AUTO_TEST_CASE(test_unknown_tiff_compression_falls_back) {
+  ProcessingOptions fallback;
+  fallback.tiffCompression = {COMPRESSION_LZW, COMPRESSION_DEFLATE, 70, COMPRESSION_LZW};
+
+  const QDomDocument unknown = parse("<processing><tiff bw=\"12345\" color=\"12345\" palette=\"12345\"/></processing>");
+  const ProcessingOptions read(unknown.documentElement(), fallback);
+  BOOST_CHECK_EQUAL(read.tiffCompression.bw, COMPRESSION_LZW);
+  BOOST_CHECK_EQUAL(read.tiffCompression.color, COMPRESSION_DEFLATE);
+  BOOST_CHECK_EQUAL(read.tiffCompression.palette, COMPRESSION_LZW);
+
+  // Known codes that do not fit the kind of image: G4 is for black and white only, JPEG can't store a palette.
+  const QDomDocument misplaced = parse("<processing><tiff bw=\"7\" color=\"4\" palette=\"7\"/></processing>");
+  const ProcessingOptions readMisplaced(misplaced.documentElement(), fallback);
+  BOOST_CHECK_EQUAL(readMisplaced.tiffCompression.bw, COMPRESSION_LZW);
+  BOOST_CHECK_EQUAL(readMisplaced.tiffCompression.color, COMPRESSION_DEFLATE);
+  BOOST_CHECK_EQUAL(readMisplaced.tiffCompression.palette, COMPRESSION_LZW);
+
+  const QDomDocument valid = parse("<processing><tiff bw=\"4\" color=\"7\" palette=\"5\"/></processing>");
+  const ProcessingOptions readValid(valid.documentElement(), fallback);
+  BOOST_CHECK_EQUAL(readValid.tiffCompression.bw, COMPRESSION_CCITTFAX4);
+  BOOST_CHECK_EQUAL(readValid.tiffCompression.color, COMPRESSION_JPEG);
+  BOOST_CHECK_EQUAL(readValid.tiffCompression.palette, COMPRESSION_LZW);
+}
+
 BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   QTemporaryDir tempDir;
   BOOST_REQUIRE(tempDir.isValid());

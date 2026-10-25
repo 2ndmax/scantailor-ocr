@@ -3,6 +3,7 @@
 
 #include "tst_core_qt.h"
 
+#include <ApplicationSettings.h>
 #include <DefaultParams.h>
 #include <FileNameDisambiguator.h>
 #include <ImageInfo.h>
@@ -274,4 +275,46 @@ void TestCoreQt::testFailedTaskReportsBack() {
   QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 5000);
   QVERIFY(!spy.at(0).at(1).value<FilterResultPtr>());
   pool.shutdown();
+}
+
+void TestCoreQt::testImplausibleSettingsFallBackToDefaults() {
+  // A damaged or hand-edited settings file must not give empty thumbnails or mark every page as deviating.
+  ApplicationSettings& settings = ApplicationSettings::getInstance();
+  settings.setThumbnailQuality(QSize());
+  QCOMPARE(settings.getThumbnailQuality(), QSize(200, 200));
+  settings.setThumbnailQuality(QSize(300, 0));
+  QCOMPARE(settings.getThumbnailQuality(), QSize(200, 200));
+  settings.setMaxLogicalThumbnailSize(QSizeF(0, 0));
+  QCOMPARE(settings.getMaxLogicalThumbnailSize(), QSizeF(250, 160));
+
+  settings.setDeskewDeviationCoef(0);
+  QCOMPARE(settings.getDeskewDeviationCoef(), 1.5);
+  settings.setSelectContentDeviationCoef(-1);
+  QCOMPARE(settings.getSelectContentDeviationCoef(), 0.35);
+  settings.setMarginsDeviationCoef(0);
+  QCOMPARE(settings.getMarginsDeviationCoef(), 0.35);
+  settings.setDeskewDeviationThreshold(-2);
+  QCOMPARE(settings.getDeskewDeviationThreshold(), 1.0);
+  settings.setSelectContentDeviationThreshold(-2);
+  QCOMPARE(settings.getSelectContentDeviationThreshold(), 1.0);
+  settings.setMarginsDeviationThreshold(-2);
+  QCOMPARE(settings.getMarginsDeviationThreshold(), 1.0);
+
+  // Plausible values are kept.
+  settings.setThumbnailQuality(QSize(400, 400));
+  QCOMPARE(settings.getThumbnailQuality(), QSize(400, 400));
+  settings.setDeskewDeviationCoef(2.0);
+  QCOMPARE(settings.getDeskewDeviationCoef(), 2.0);
+  settings.setDeskewDeviationThreshold(0.0);
+  QCOMPARE(settings.getDeskewDeviationThreshold(), 0.0);
+
+  // Leave the settings as the other tests expect them.
+  settings.setThumbnailQuality(QSize(200, 200));
+  settings.setMaxLogicalThumbnailSize(QSizeF(250, 160));
+  settings.setDeskewDeviationCoef(1.5);
+  settings.setSelectContentDeviationCoef(0.35);
+  settings.setMarginsDeviationCoef(0.35);
+  settings.setDeskewDeviationThreshold(1.0);
+  settings.setSelectContentDeviationThreshold(1.0);
+  settings.setMarginsDeviationThreshold(1.0);
 }
