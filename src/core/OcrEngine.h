@@ -68,6 +68,17 @@ class OcrEngine {
                  std::vector<OcrWord>* words,
                  QString* error);
 
+  /**
+   * \brief Reads a language file for Tesseract (its FileReader).
+   *
+   * Tesseract would open the files itself in the ANSI code page, which fails for folders with
+   * other characters (e.g. a Cyrillic user name on a German Windows). So init() hands the folder
+   * to Tesseract in UTF-8 and the files are read here.
+   *
+   * \param utf8FileName The path of the file, in UTF-8.
+   */
+  static bool readDataFile(const char* utf8FileName, std::vector<char>* data);
+
  private:
   std::unique_ptr<tesseract::TessBaseAPI> m_api;
 };

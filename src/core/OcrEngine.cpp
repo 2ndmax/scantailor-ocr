@@ -46,12 +46,13 @@ OcrEngine::~OcrEngine() {
 bool OcrEngine::init(const QString& tessdataDir, const QString& languages, QString* error) {
   limitTesseractThreads();
   m_api = std::make_unique<tesseract::TessBaseAPI>();
-  // REVIEW-NOTE (2026-10): the tessdata path is passed in the ANSI code page -> a path with characters outside it
-  // (e.g. a Cyrillic user name on a German Windows) makes Init() fail. Not fixed because it needs Tesseract's
-  // FileReader init variant; the failure is reported to the user.
-  const QByteArray dir = QFile::encodeName(QDir::toNativeSeparators(tessdataDir));
+  // In UTF-8, for readDataFile(): Tesseract only joins the folder and the file names.
+  const QByteArray dir = QDir::toNativeSeparators(tessdataDir).toUtf8();
   const QByteArray langs = languages.toUtf8();
-  if (m_api->Init(dir.constData(), langs.constData(), tesseract::OEM_LSTM_ONLY) != 0) {
+  // data_size 0: the first argument is the folder, not the content of a language file.
+  if (m_api->Init(dir.constData(), 0, langs.constData(), tesseract::OEM_LSTM_ONLY, nullptr, 0, nullptr, nullptr, false,
+                  &OcrEngine::readDataFile)
+      != 0) {
     m_api.reset();
     if (error) {
       *error = QCoreApplication::translate("OcrEngine", "Could not load the language files \"%1\" from %2.")
@@ -60,6 +61,16 @@ bool OcrEngine::init(const QString& tessdataDir, const QString& languages, QStri
     return false;
   }
   return true;
+}
+
+bool OcrEngine::readDataFile(const char* utf8FileName, std::vector<char>* data) {
+  QFile file(QString::fromUtf8(utf8FileName));
+  if (!file.open(QIODevice::ReadOnly)) {
+    return false;
+  }
+  // Read straight into the buffer: the "best" models are large.
+  data->resize(static_cast<size_t>(file.size()));
+  return file.read(data->data(), file.size()) == file.size();
 }
 
 bool OcrEngine::recognize(const QImage& image,
