@@ -63,7 +63,7 @@ TiffCompressionPanel::TiffCompressionPanel(QWidget* parent) : QWidget(parent) {
   layout->addRow(tr("Method:"), m_colorCompression);
 
   m_jpegQuality = new QSpinBox;
-  m_jpegQuality->setRange(10, 100);
+  m_jpegQuality->setRange(TiffWriter::Compression::MIN_JPEG_QUALITY, TiffWriter::Compression::MAX_JPEG_QUALITY);
   core::Utils::setNumberFieldWidth(m_jpegQuality, -100, 0);
   m_jpegQuality->setToolTip(
       tr("Higher values give better pictures and larger files. Only used with JPEG compression."));

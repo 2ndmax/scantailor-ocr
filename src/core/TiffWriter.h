@@ -26,8 +26,11 @@ struct TiffCompression {
   int bw = COMPRESSION_CCITTFAX4;
   /** For grayscale and color images. */
   int color = COMPRESSION_LZW;
-  /** For JPEG compression, 1 to 100. */
+  /** For JPEG compression, MIN_JPEG_QUALITY to MAX_JPEG_QUALITY. */
   int jpegQuality = 85;
+  /** The range of jpegQuality, for the settings, the panel and the writer. */
+  static constexpr int MIN_JPEG_QUALITY = 10;
+  static constexpr int MAX_JPEG_QUALITY = 100;
   /** For palette images, such as posterized pages. */
   int palette = COMPRESSION_LZW;
 };

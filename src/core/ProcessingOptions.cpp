@@ -54,7 +54,9 @@ ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOpti
   const TiffWriter::Compression& tiff = fallback.tiffCompression;
   tiffCompression.bw = compressionAttribute(tiffEl, "bw", tiff.bw, BW_COMPRESSIONS);
   tiffCompression.color = compressionAttribute(tiffEl, "color", tiff.color, COLOR_COMPRESSIONS);
-  tiffCompression.jpegQuality = intAttribute(tiffEl, "jpegQuality", tiff.jpegQuality, 10, 100);
+  tiffCompression.jpegQuality
+      = intAttribute(tiffEl, "jpegQuality", tiff.jpegQuality, TiffWriter::Compression::MIN_JPEG_QUALITY,
+                     TiffWriter::Compression::MAX_JPEG_QUALITY);
   tiffCompression.palette = compressionAttribute(tiffEl, "palette", tiff.palette, PALETTE_COMPRESSIONS);
 
   const QDomElement colorEl = el.namedItem("color-detection").toElement();

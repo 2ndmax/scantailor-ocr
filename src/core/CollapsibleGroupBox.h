@@ -45,7 +45,8 @@ class CollapsibleGroupBox : public QGroupBox {
 
  signals:
 
-  /** Signal emitted when the group box collapsed/expanded state is changed, and when first shown */
+  /** Signal emitted when the group box collapsed/expanded state is changed, also when the saved state is applied
+   *  at the first show. It is not sent when the group box stays as it is. */
   void collapsedStateChanged(bool collapsed);
 
  public slots:

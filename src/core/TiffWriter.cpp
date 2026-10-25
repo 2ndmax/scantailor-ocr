@@ -243,7 +243,8 @@ void TiffWriter::setCompression(const TiffHandle& tif, const int compression, co
   TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION, uint16_t(compression));
   if (compression == COMPRESSION_JPEG) {
     // A pseudo tag of the JPEG codec, so it has to follow the compression.
-    TIFFSetField(tif.handle(), TIFFTAG_JPEGQUALITY, std::clamp(jpegQuality, 1, 100));
+    TIFFSetField(tif.handle(), TIFFTAG_JPEGQUALITY,
+                 std::clamp(jpegQuality, TiffCompression::MIN_JPEG_QUALITY, TiffCompression::MAX_JPEG_QUALITY));
   }
 }
 

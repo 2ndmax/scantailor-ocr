@@ -13,6 +13,7 @@ class TestUxQt : public QObject {
   void testCheckBoxToggleChangesState();
   void testLineEditAcceptsInput();
   void testCollapsibleGroupBoxStateAndSignal();
+  void testCollapsedStateIsLoadedForGroupDisabledAtStart();
   void testErrorWidgetCreation();
 };
 

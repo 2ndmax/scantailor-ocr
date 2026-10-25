@@ -31,6 +31,9 @@ class BoldTitlePainter : public QObject {
     QFont font = groupBox->font();
     font.setBold(true);
 
+    // REVIEW-NOTE (2026-10): QStyleOptionGroupBox is built by hand and sizes use the normal font -> the
+    // pressed state of checkable groups is missing and long bold titles may be clipped. Not fixed because a
+    // QProxyStyle rewrite is out of proportion.
     QStyleOptionGroupBox option;
     option.initFrom(groupBox);
     option.fontMetrics = QFontMetrics(font);
@@ -173,6 +176,8 @@ void CollapsibleGroupBox::changeEvent(QEvent* event) {
 
 void CollapsibleGroupBox::childEvent(QChildEvent* event) {
   auto* childWidget = dynamic_cast<QWidget*>(event->child());
+  // REVIEW-NOTE (2026-10): only ChildAdded is handled -> m_collapsedWidgets keeps pointers to removed
+  // children. Not fixed because no panel removes children today.
   if (childWidget && (event->type() == QEvent::ChildAdded)) {
     if (m_collapsed) {
       if (childWidget->isVisible()) {
@@ -209,10 +214,8 @@ CollapsibleGroupBox::~CollapsibleGroupBox() {
 }
 
 void CollapsibleGroupBox::loadState() {
-  if (!isEnabled()) {
-    return;
-  }
-
+  // Also for a group that is disabled when first shown (e.g. for a black and white page): The saved state
+  // is applied now, and saveState() may write it back later, when the group is enabled.
   const QString key = getSettingsKey();
   if (key.isEmpty()) {
     return;

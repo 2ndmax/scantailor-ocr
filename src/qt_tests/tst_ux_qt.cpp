@@ -9,6 +9,7 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QSettings>
 #include <QSignalSpy>
 #include <QWidget>
 #include <QtTest/QtTest>
@@ -69,6 +70,21 @@ void TestUxQt::testCollapsibleGroupBoxStateAndSignal() {
   QVERIFY(!group.isCollapsed());
   QCOMPARE(spy.count(), 2);
   QCOMPARE(spy.at(1).at(0).toBool(), false);
+}
+
+void TestUxQt::testCollapsedStateIsLoadedForGroupDisabledAtStart() {
+  // A group that is disabled when it is first shown (e.g. the picture options on a black and white page)
+  // must still get the state the user left it in, or the next start overwrites that state.
+  const QString key = "CollapsibleGroupBox/disabledAtStart";
+  QSettings().setValue(key + "/collapsed", true);
+  {
+    CollapsibleGroupBox group("Options");
+    group.setObjectName("disabledAtStart");
+    group.setEnabled(false);
+    group.show();
+    QVERIFY(group.isCollapsed());
+  }
+  QSettings().remove(key);
 }
 
 void TestUxQt::testErrorWidgetCreation() {
