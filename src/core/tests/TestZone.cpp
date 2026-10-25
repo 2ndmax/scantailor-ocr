@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <PropertySet.h>
+#include <zones/EditableSpline.h>
 #include <zones/SerializableSpline.h>
 #include <zones/Zone.h>
 
@@ -34,6 +35,34 @@ BOOST_AUTO_TEST_CASE(test_zone_without_area_is_invalid) {
   BOOST_CHECK(!zoneOf(collinear).isValid());
 
   BOOST_CHECK(!zoneOf(QPolygonF()).isValid());
+}
+
+BOOST_AUTO_TEST_CASE(test_empty_spline_has_no_points) {
+  const EditableSpline spline;
+  BOOST_CHECK(spline.toPolygon().isEmpty());
+}
+
+BOOST_AUTO_TEST_CASE(test_set_bridged_takes_the_value) {
+  EditableSpline spline;
+  spline.appendVertex(QPointF(0, 0));
+  spline.appendVertex(QPointF(10, 0));
+  spline.appendVertex(QPointF(10, 10));
+  spline.setBridged(true);
+  BOOST_CHECK(spline.bridged());
+  spline.setBridged(false);
+  BOOST_CHECK(!spline.bridged());
+}
+
+BOOST_AUTO_TEST_CASE(test_vertex_has_at_least_zero_siblings) {
+  EditableSpline spline;
+  spline.appendVertex(QPointF(0, 0));
+  spline.appendVertex(QPointF(10, 0));
+  spline.appendVertex(QPointF(10, 10));
+  const SplineVertex::Ptr vertex = spline.firstVertex();
+  BOOST_CHECK(vertex->hasAtLeastSiblings(0));
+  BOOST_CHECK(vertex->hasAtLeastSiblings(1));
+  BOOST_CHECK(vertex->hasAtLeastSiblings(2));
+  BOOST_CHECK(!vertex->hasAtLeastSiblings(3));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

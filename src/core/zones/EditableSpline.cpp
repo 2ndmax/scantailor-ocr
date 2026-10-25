@@ -47,6 +47,9 @@ QPolygonF EditableSpline::toPolygon() const {
     poly.push_back(vertex->point());
   }
 
+  if (!lastVertex()) {
+    return poly;  // No vertices.
+  }
   vertex = lastVertex()->next(SplineVertex::LOOP_IF_BRIDGED);
   if (vertex) {
     poly.push_back(vertex->point());

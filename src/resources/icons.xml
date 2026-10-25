@@ -15,17 +15,11 @@
   <icon name="undo" styled="on">
     <file>:/icons/undo.svg</file>
   </icon>
-  <icon name="plus">
-    <file>:/icons/plus.svg</file>
-  </icon>
   <icon name="trashed">
     <file>:/icons/trashed.svg</file>
   </icon>
   <icon name="untrash">
     <file>:/icons/untrash.svg</file>
-  </icon>
-  <icon name="minus">
-    <file>:/icons/minus.svg</file>
   </icon>
   <icon name="insert-here" styled="on">
     <file>:/icons/insert-here.svg</file>

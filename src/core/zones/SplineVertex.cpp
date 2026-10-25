@@ -29,6 +29,9 @@ void SplineVertex::remove() {
 }
 
 bool SplineVertex::hasAtLeastSiblings(const int num) {
+  if (num <= 0) {
+    return true;
+  }
   int todo = num;
   for (SplineVertex::Ptr node = shared_from_this(); (node = node->next(LOOP)).get() != this;) {
     if (--todo == 0) {

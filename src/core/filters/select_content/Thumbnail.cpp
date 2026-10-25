@@ -52,7 +52,10 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
 
     // Adjust to compensate for pen width.
     contentRect.adjust(-1, -1, 1, 1);
-    contentRect = contentRect.intersected(pageRect);
+    if (!m_pageRect.isNull()) {
+      // Without a page box (an old project file) the content box is not cut.
+      contentRect = contentRect.intersected(pageRect);
+    }
 
     painter.drawRect(contentRect);
   }

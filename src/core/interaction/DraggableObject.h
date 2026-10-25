@@ -34,9 +34,9 @@ class DraggableObject {
       : m_paintCallback(&DraggableObject::defaultPaint),
         m_proximityThresholdCallback(&DraggableObject::defaultProximityThreshold),
         m_proximityPriorityCallback(&DraggableObject::defaultProximityPriority),
-        m_proximityCallback(),
-        m_dragInitiatedCallback(),
-        m_dragContinuationCallback(),
+        m_proximityCallback(&DraggableObject::defaultProximity),
+        m_dragInitiatedCallback(&DraggableObject::defaultDragInitiated),
+        m_dragContinuationCallback(&DraggableObject::defaultDragContinuation),
         m_dragFinishedCallback(&DraggableObject::defaultDragFinished) {}
 
   virtual ~DraggableObject() = default;
@@ -107,6 +107,13 @@ class DraggableObject {
   }
 
   static int defaultProximityPriority() { return 0; }
+
+  // Infinitely far away, so nothing is dragged.
+  static Proximity defaultProximity(const QPointF&) { return Proximity(); }
+
+  static void defaultDragInitiated(const QPointF&) {}
+
+  static void defaultDragContinuation(const QPointF&, Qt::KeyboardModifiers) {}
 
   static void defaultDragFinished(const QPointF&) {}
 

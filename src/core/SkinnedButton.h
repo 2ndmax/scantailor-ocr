@@ -21,8 +21,7 @@ class SkinnedButton : public QToolButton {
   /**
    * \brief Construct a skinned button from a single image.
    *
-   * \param file The path to a file or a Qt resource to the
-   *        image representing the normal state of the button.
+   * \param icon The icon representing the normal state of the button.
    * \param parent An optional parent widget.
    */
   explicit SkinnedButton(const QIcon& icon, QWidget* parent = nullptr);
@@ -30,15 +29,12 @@ class SkinnedButton : public QToolButton {
   /**
    * \brief Construct a skinned button from a set of 3 images.
    *
-   * \param normal_state_file The path to a file or a Qt resource
-   *        to the image representing the normal state of the button.
-   * \param hover_state_file The path to a file or a Qt resource
-   *        to the image representing the hover state of the button.
-   * \param pressed_state_file The path to a file or a Qt resource
-   *        to the image representing the pressed state of the button.
+   * \param normalStateIcon The icon representing the normal state of the button.
+   * \param hoverStateIcon The icon representing the hover state of the button.
+   * \param pressedStateIcon The icon representing the pressed state of the button.
    * \param parent An optional parent widget.
    *
-   * Note that the sizes of all 3 images should be the same.
+   * Note that the sizes of all 3 icons should be the same.
    */
   SkinnedButton(const QIcon& normalStateIcon,
                 const QIcon& hoverStateIcon,
@@ -48,20 +44,16 @@ class SkinnedButton : public QToolButton {
   /**
    * \brief Set the hover state image.
    *
-   * \param file The path to a file or a Qt resource to the
-   *        image representing the hover state of the button.
-   *        This image should have the same size as the normal
-   *        state image.
+   * \param icon The icon representing the hover state of the button.
+   *        It should have the same size as the normal state icon.
    */
   void setHoverImage(const QIcon& icon);
 
   /**
    * \brief Set the pressed state image.
    *
-   * \param file The path to a file or a Qt resource to the
-   *        image representing the pressed state of the button.
-   *        This image should have the same size as the normal
-   *        state image.
+   * \param icon The icon representing the pressed state of the button.
+   *        It should have the same size as the normal state icon.
    */
   void setPressedImage(const QIcon& icon);
 

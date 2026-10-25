@@ -58,15 +58,17 @@ bool SkinnedButton::event(QEvent* e) {
   switch (e->type()) {
     case QEvent::HoverEnter:
       m_hovered = true;
+      updateAppearance();
       break;
     case QEvent::HoverLeave:
       m_hovered = false;
+      updateAppearance();
       break;
     default:
-      return QToolButton::event(e);
+      break;
   }
-  updateAppearance();
-  return true;
+  // The base class gets the hover events as well, it keeps its own state with them.
+  return QToolButton::event(e);
 }
 
 void SkinnedButton::updateAppearance() {

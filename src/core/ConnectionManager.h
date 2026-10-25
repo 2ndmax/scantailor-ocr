@@ -16,6 +16,10 @@ class ConnectionManager {
 
     ~ScopedBlock();
 
+    ScopedBlock(const ScopedBlock&) = delete;
+
+    ScopedBlock& operator=(const ScopedBlock&) = delete;
+
    private:
     ConnectionManager& m_parent;
     bool m_needSetup;

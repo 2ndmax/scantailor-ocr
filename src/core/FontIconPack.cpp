@@ -96,6 +96,11 @@ const FontIconEngine::SymbolData& FontIconEngine::getSymbolData(QIcon::State sta
   if (it != m_iconSymbolDataMap.end()) {
     return it->second;
   }
+  if (m_iconSymbolDataMap.empty()) {
+    // An icon without any symbol.
+    static const SymbolData noSymbol(QString(), 0, 1.0f);
+    return noSymbol;
+  }
   return m_iconSymbolDataMap.begin()->second;
 }
 }  // namespace

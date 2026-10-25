@@ -100,6 +100,11 @@ const QString& SvgStyledIconEngine::getIconFilePath(QIcon::State state) {
   if (it != m_iconFilePathMap.end()) {
     return it->second;
   }
+  if (m_iconFilePathMap.empty()) {
+    // An icon without any file, e.g. from an icons.xml entry without a file element.
+    static const QString noFile;
+    return noFile;
+  }
   return m_iconFilePathMap.begin()->second;
 }
 

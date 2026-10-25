@@ -32,6 +32,11 @@ class EditableSpline {
 
   EditableSpline(const SerializableSpline& spline);
 
+  // A copy would share the sentinel with the original.
+  EditableSpline(const EditableSpline&) = delete;
+
+  EditableSpline& operator=(const EditableSpline&) = delete;
+
   virtual ~EditableSpline();
 
   void appendVertex(const QPointF& pt);
@@ -44,7 +49,7 @@ class EditableSpline {
 
   bool bridged() const { return m_sentinel->bridged(); }
 
-  void setBridged(bool bridged) { m_sentinel->setBridged(true); }
+  void setBridged(bool bridged) { m_sentinel->setBridged(bridged); }
 
   QPolygonF toPolygon() const;
 
