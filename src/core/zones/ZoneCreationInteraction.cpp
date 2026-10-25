@@ -146,6 +146,12 @@ void ZoneCreationInteraction::onPaint(QPainter& painter, const InteractionState&
   m_visualizer.drawVertex(painter, toScreen.map(m_nextVertexImagePos), m_visualizer.highlightBrightColor());
 }  // ZoneCreationInteraction::onPaint
 
+void ZoneCreationInteraction::addFinishedZone() {
+  m_spline->setBridged(true);
+  m_context.zones().addZone(m_spline);
+  m_context.zones().commit();
+}
+
 void ZoneCreationInteraction::cancel() {
   makePeerPreceeder(*m_context.createDefaultInteraction());
   m_context.imageView().update();
@@ -189,9 +195,7 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
       m_spline->appendVertex(m_nextVertexImagePos);
       m_spline->appendVertex(m_nextVertexImagePos_mid2);
 
-      m_spline->setBridged(true);
-      m_context.zones().addZone(m_spline);
-      m_context.zones().commit();
+      addFinishedZone();
     }
 
     makePeerPreceeder(*m_context.createDefaultInteraction());
@@ -201,9 +205,7 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
     if (m_spline->hasAtLeastSegments(2) && (m_nextVertexImagePos == m_spline->firstVertex()->point())) {
       // Finishing the spline. Bridging the first and the last points
       // will create another segment.
-      m_spline->setBridged(true);
-      m_context.zones().addZone(m_spline);
-      m_context.zones().commit();
+      addFinishedZone();
 
       makePeerPreceeder(*m_context.createDefaultInteraction());
       m_context.imageView().update();
@@ -281,9 +283,7 @@ void ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionSt
     } else if (m_spline->hasAtLeastSegments(2) && (m_nextVertexImagePos == m_spline->firstVertex()->point())) {
       // Finishing the spline. Bridging the first and the last points
       // will create another segment.
-      m_spline->setBridged(true);
-      m_context.zones().addZone(m_spline);
-      m_context.zones().commit();
+      addFinishedZone();
 
       makePeerPreceeder(*m_context.createDefaultInteraction());
       m_context.imageView().update();
