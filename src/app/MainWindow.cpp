@@ -2271,6 +2271,7 @@ bool MainWindow::closeProjectInteractive() {
   switch (promptProjectSave()) {
     case SAVE:
       if (!Utils::overwritingRename(backupFilePath, m_projectFile)) {
+        QFile::remove(backupFilePath);  // Otherwise it stays next to the project, and is written again at the next try.
         QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
         return false;
       }
@@ -3000,18 +3001,15 @@ PageSelectionAccessor MainWindow::newPageSelectionAccessor() {
 
 void MainWindow::changeEvent(QEvent* event) {
   if (event != nullptr) {
-    switch (event->type()) {
-      case QEvent::LanguageChange:
-        retranslateUi(this);
-        updateWindowTitle();
-        if (m_pdfView && !m_pdfStage && !m_pdfView->isRunning()) {
-          // Its texts are set when it's created; it's created again when it's next shown.
-          m_pdfView.reset();
-        }
-        break;
-      default:
-        QWidget::changeEvent(event);
-        break;
+    // Also for the language: Qt translates its own texts of the window here (e.g. the context menu of the tool bars).
+    QMainWindow::changeEvent(event);
+    if (event->type() == QEvent::LanguageChange) {
+      retranslateUi(this);
+      updateWindowTitle();
+      if (m_pdfView && !m_pdfStage && !m_pdfView->isRunning()) {
+        // Its texts are set when it's created; it's created again when it's next shown.
+        m_pdfView.reset();
+      }
     }
   }
 }

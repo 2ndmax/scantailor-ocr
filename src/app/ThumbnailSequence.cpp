@@ -14,6 +14,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPen>
+#include <QPointer>
 #include <QRubberBand>
 #include <QStyleOptionGraphicsItem>
 #include <QtWidgets/QCheckBox>
@@ -217,6 +218,12 @@ class ThumbnailSequence::Impl {
 
   void commitSceneRect();
 
+  /**
+   * Called after pages were inserted or removed, when the items after them were shifted by the height of one item.
+   * That is only right in one column. With several items in a row, everything is laid out again.
+   */
+  void commitSceneRectAfterShift();
+
   int getGraphicsViewWidth() const;
 
   void orderItems();
@@ -280,7 +287,7 @@ class ThumbnailSequence::Impl::ViewportRubberBandFilter : public QObject {
 
  private:
   Impl* m_impl;
-  QGraphicsView* m_view;
+  QPointer<QGraphicsView> m_view;  // Null once the view is gone.
   QRubberBand m_rubberBand;
   QPoint m_origin;
   bool m_active = false;
@@ -1140,6 +1147,8 @@ void ThumbnailSequence::Impl::insert(const PageInfo& newPage, BeforeOrAfter befo
   const QPointF posDelta(0.0, composite->boundingRect().height() + SPACING);
 
   const Item item(newPage, composite.get());
+  // REVIEW-NOTE (2026-10): ins.second is not checked -> inserting an existing PageId adds an orphan tile to the scene.
+  // Not fixed because all callers filter out pages already in the project.
   const std::pair<ItemsInOrder::iterator, bool> ins(m_itemsInOrder.insert(ordIt, item));
   composite->setItem(&*ins.first);
   m_graphicsScene.addItem(composite.release());
@@ -1150,7 +1159,7 @@ void ThumbnailSequence::Impl::insert(const PageInfo& newPage, BeforeOrAfter befo
     ordIt->composite->updateSceneRect(m_sceneRect);
   }
 
-  commitSceneRect();
+  commitSceneRectAfterShift();
 }  // ThumbnailSequence::Impl::insert
 
 void ThumbnailSequence::Impl::removePages(const std::set<PageId>& pagesToRemove) {
@@ -1180,7 +1189,7 @@ void ThumbnailSequence::Impl::removePages(const std::set<PageId>& pagesToRemove)
     }
   }
 
-  commitSceneRect();
+  commitSceneRectAfterShift();
 }
 
 bool ThumbnailSequence::Impl::multipleItemsSelected() const {
@@ -1627,6 +1636,14 @@ std::unique_ptr<ThumbnailSequence::CompositeItem> ThumbnailSequence::Impl::getCo
   return composite;
 }
 
+void ThumbnailSequence::Impl::commitSceneRectAfterShift() {
+  if (m_viewMode == MULTI_COLUMN) {
+    updateSceneItemsPos();  // Commits the scene rectangle itself.
+  } else {
+    commitSceneRect();
+  }
+}
+
 void ThumbnailSequence::Impl::commitSceneRect() {
   if (m_sceneRect.isNull()) {
     m_graphicsScene.setSceneRect(QRectF(0.0, 0.0, 1.0, 1.0));
@@ -1848,7 +1865,8 @@ void ThumbnailSequence::CompositeItem::contextMenuEvent(QGraphicsSceneContextMen
 }
 
 ThumbnailSequence::Impl::ViewportRubberBandFilter::ViewportRubberBandFilter(Impl* impl, QGraphicsView* view)
-    : QObject(view->viewport()), m_impl(impl), m_view(view), m_rubberBand(QRubberBand::Rectangle, view->viewport()) {
+    : QObject(), m_impl(impl), m_view(view), m_rubberBand(QRubberBand::Rectangle, view->viewport()) {
+  // No QObject parent: Impl owns the filter, and a second owner would delete it twice.
   view->viewport()->installEventFilter(this);
 }
 
