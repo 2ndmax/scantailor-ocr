@@ -177,7 +177,9 @@ void ImageView::createContentBox() {
   enableContentRectInteraction(true);
 
   update();
-  emit manualContentRectSet(m_contentRect);
+  // Like after dragging: forcePageRectDescribeContent() may have enlarged the page box,
+  // which has to be stored as well.
+  contentRectDragFinished();
 }
 
 void ImageView::removeContentBox() {
