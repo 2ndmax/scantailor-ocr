@@ -181,7 +181,9 @@ void Application::initPortableVersion() {
   }
 
   const QDir portableConfigPath(applicationDirPath() + '/' + portableConfigDirName);
-  if ((portableConfigPath.exists() && QTemporaryDir(portableConfigPath.absolutePath()).isValid())
+  // A temporary directory *inside* the config directory proves it is writable (the path alone
+  // would only be a template for a sibling in the program directory).
+  if ((portableConfigPath.exists() && QTemporaryDir(portableConfigPath.absoluteFilePath("XXXXXX")).isValid())
       || (!portableConfigPath.exists() && portableConfigPath.mkpath("."))) {
     m_portableConfigPath = portableConfigPath.absolutePath();
   }
