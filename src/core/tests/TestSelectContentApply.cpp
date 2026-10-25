@@ -1,12 +1,21 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <Dpi.h>
+#include <FilterData.h>
+#include <ImageTransformation.h>
+#include <NullTaskStatus.h>
+#include <filters/select_content/ContentBoxFinder.h>
 #include <filters/select_content/Dependencies.h>
+#include <filters/select_content/DetectionOptions.h>
 #include <filters/select_content/Params.h>
 
 #include <QDomDocument>
+#include <QImage>
+#include <QPainter>
 #include <QPolygonF>
 #include <boost/test/unit_test.hpp>
+#include <cmath>
 
 namespace Tests {
 using namespace select_content;
@@ -114,6 +123,44 @@ BOOST_AUTO_TEST_CASE(detection_options_are_stored_with_the_page) {
   QDomDocument oldDoc;
   const Params oldPage(Params(Dependencies(pageOutline)).toXml(oldDoc, "params"));
   BOOST_CHECK(!oldPage.detectionOptions());
+}
+
+// A 300 x 600 dpi scan, pre-scaled to 300 dpi in both axes. The page box must mask the same
+// area as in an equal-DPI scan; scaled by the original DPI per axis, it covered only the upper
+// half, and content in the lower half was lost.
+BOOST_AUTO_TEST_CASE(content_box_with_unequal_dpi) {
+  // 4 x 6 inches: 1200 x 3600 pixels; text in the lower half, from 1 to 3 inches across
+  // and from 4 to 5 inches down.
+  QImage image(1200, 3600, QImage::Format_RGB32);
+  image.fill(Qt::white);
+  {
+    QPainter painter(&image);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::black);
+    for (int y = 2400; y < 3000; y += 60) {
+      for (int x = 300; x + 50 <= 900; x += 70) {
+        painter.drawRect(QRect(x, y, 50, 30));
+      }
+    }
+  }
+  image.setDotsPerMeterX(static_cast<int>(std::lround(300 / 0.0254)));
+  image.setDotsPerMeterY(static_cast<int>(std::lround(600 / 0.0254)));
+
+  ImageTransformation xform(QRectF(image.rect()), Dpi(300, 600));
+  xform.preScaleToEqualizeDpi();
+  const FilterData data(FilterData(image), xform);
+  const QRectF pageRect(xform.resultingRect());
+  BOOST_REQUIRE(std::fabs(pageRect.height() - 1800) < 1);
+
+  const QRectF content = ContentBoxFinder::findContentBox(NullTaskStatus(), data, pageRect, DetectionOptions());
+  BOOST_TEST_MESSAGE("content " << content.left() << "," << content.top() << " " << content.width() << "x"
+                                << content.height());
+  // In the pre-scaled coordinates: x 300 to 840 (the last word ends there), y 1200 to 1500.
+  BOOST_REQUIRE(!content.isEmpty());
+  BOOST_CHECK(std::fabs(content.top() - 1200) < 20);
+  BOOST_CHECK(std::fabs(content.bottom() - 1500) < 20);
+  BOOST_CHECK(std::fabs(content.left() - 300) < 20);
+  BOOST_CHECK(std::fabs(content.right() - 840) < 20);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

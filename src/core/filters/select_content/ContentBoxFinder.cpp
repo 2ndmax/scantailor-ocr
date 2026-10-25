@@ -112,11 +112,10 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
 
   // Text touching the masked area would be removed with the border, see DetectionOptions.
   if (!options.ignorePageBox()) {
-    const double xscale = 150.0 / data.xform().origDpi().horizontal();
-    const double yscale = 150.0 / data.xform().origDpi().vertical();
-    const QRectF pageRect150(QPointF(pageRect.left() * xscale, pageRect.top() * yscale),
-                             QPointF(pageRect.right() * xscale, pageRect.bottom() * yscale));
-    PolygonRasterizer::fillExcept(bw150, BLACK, pageRect150, Qt::WindingFill);
+    // pageRect is in the coordinates of data.xform(), whose DPI is already evened out,
+    // so it goes back to the original image and from there to the 150 dpi one.
+    const QPolygonF pageArea150((data.xform().transformBack() * xform150dpi.transform()).map(QPolygonF(pageRect)));
+    PolygonRasterizer::fillExcept(bw150, BLACK, pageArea150, Qt::WindingFill);
   }
 
   PolygonRasterizer::fillExcept(bw150, BLACK, xform150dpi.resultingPreCropArea(), Qt::WindingFill);
