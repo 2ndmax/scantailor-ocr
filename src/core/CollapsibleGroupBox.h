@@ -70,6 +70,9 @@ class CollapsibleGroupBox : public QGroupBox {
 
   void initialize();
 
+  /** Tooltip and accessible name of the collapse button, for its state and the group's title. */
+  void updateCollapseButtonTexts();
+
   void loadState();
 
   void saveState();

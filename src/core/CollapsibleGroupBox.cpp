@@ -81,6 +81,7 @@ void CollapsibleGroupBox::initialize() {
   m_collapseButton->setFixedSize(14, 14);
   m_collapseButton->setIconSize({10, 10});
   m_collapseButton->setIcon(m_collapseIcon);
+  updateCollapseButtonTexts();
   setFocusProxy(m_collapseButton);
   setFocusPolicy(Qt::StrongFocus);
 
@@ -98,6 +99,7 @@ void CollapsibleGroupBox::setCollapsed(const bool collapse) {
   if (changed) {
     m_collapsed = collapse;
     m_collapseButton->setIcon(collapse ? m_expandIcon : m_collapseIcon);
+    updateCollapseButtonTexts();
 
     updateWidgets();
 
@@ -161,6 +163,8 @@ void CollapsibleGroupBox::showEvent(QShowEvent* event) {
   }
   m_shown = true;
 
+  // Group boxes from .ui files get their title after the constructor.
+  updateCollapseButtonTexts();
   loadState();
 
   QWidget::showEvent(event);
@@ -172,6 +176,14 @@ void CollapsibleGroupBox::changeEvent(QEvent* event) {
   if ((event->type() == QEvent::EnabledChange) && isEnabled()) {
     m_collapseButton->setEnabled(true);
   }
+  if (event->type() == QEvent::LanguageChange) {
+    updateCollapseButtonTexts();
+  }
+}
+
+void CollapsibleGroupBox::updateCollapseButtonTexts() {
+  m_collapseButton->setToolTip(m_collapsed ? tr("Expand") : tr("Collapse"));
+  m_collapseButton->setAccessibleName(title());
 }
 
 void CollapsibleGroupBox::childEvent(QChildEvent* event) {

@@ -279,6 +279,19 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     </message>
 </context>
 <context>
+    <name>CollapsibleGroupBox</name>
+    <message>
+        <location filename="../core/CollapsibleGroupBox.cpp" line="185"/>
+        <source>Expand</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CollapsibleGroupBox.cpp" line="185"/>
+        <source>Collapse</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColorPickupInteraction</name>
     <message>
         <location filename="../core/filters/output/ColorPickupInteraction.cpp" line="18"/>
@@ -1878,7 +1891,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>ImageViewBase</name>
     <message>
-        <location filename="../core/ImageViewBase.cpp" line="203"/>
+        <location filename="../core/ImageViewBase.cpp" line="204"/>
         <source>Use the mouse wheel or +/- to zoom. When zoomed, dragging is possible. Double-click to see the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1886,17 +1899,17 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>InteractiveXSpline</name>
     <message>
-        <location filename="../core/interaction/InteractiveXSpline.cpp" line="39"/>
+        <location filename="../core/interaction/InteractiveXSpline.cpp" line="40"/>
         <source>Click to create a new control point.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/interaction/InteractiveXSpline.cpp" line="59"/>
+        <location filename="../core/interaction/InteractiveXSpline.cpp" line="60"/>
         <source>This point can be dragged. Hold Ctrl or Shift to drag along axes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/interaction/InteractiveXSpline.cpp" line="61"/>
+        <location filename="../core/interaction/InteractiveXSpline.cpp" line="62"/>
         <source>Drag this point or delete it by pressing the D key.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2092,7 +2105,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1095"/>
-        <location filename="../app/MainWindow.cpp" line="663"/>
+        <location filename="../app/MainWindow.cpp" line="668"/>
         <source>Save Project</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2190,7 +2203,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3066"/>
+        <location filename="../app/MainWindow.cpp" line="3077"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2215,251 +2228,251 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="560"/>
+        <location filename="../app/MainWindow.cpp" line="565"/>
         <source>Stop batch processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="663"/>
+        <location filename="../app/MainWindow.cpp" line="668"/>
         <source>Save the project?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1158"/>
+        <location filename="../app/MainWindow.cpp" line="1163"/>
         <source>Insert Before ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1159"/>
+        <location filename="../app/MainWindow.cpp" line="1164"/>
         <source>Insert After ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1163"/>
+        <location filename="../app/MainWindow.cpp" line="1168"/>
         <source>Remove from Project ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1237"/>
+        <location filename="../app/MainWindow.cpp" line="1242"/>
         <source>Insert Here ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1651"/>
+        <location filename="../app/MainWindow.cpp" line="1660"/>
         <source>The detection was canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1895"/>
+        <location filename="../app/MainWindow.cpp" line="1904"/>
         <source>The project file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2157"/>
+        <location filename="../app/MainWindow.cpp" line="2166"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2195"/>
+        <location filename="../app/MainWindow.cpp" line="2204"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2210"/>
+        <location filename="../app/MainWindow.cpp" line="2219"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1877"/>
+        <location filename="../app/MainWindow.cpp" line="1886"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="26"/>
         <source>ScanTailor OCR Projects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1173"/>
+        <location filename="../app/MainWindow.cpp" line="1178"/>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1174"/>
+        <location filename="../app/MainWindow.cpp" line="1179"/>
         <source>All Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1175"/>
+        <location filename="../app/MainWindow.cpp" line="1180"/>
         <source>This Page and the Following Ones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1177"/>
+        <location filename="../app/MainWindow.cpp" line="1182"/>
         <source>Every Other Page (Odd Pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1177"/>
+        <location filename="../app/MainWindow.cpp" line="1182"/>
         <source>Every Other Page (Even Pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1178"/>
+        <location filename="../app/MainWindow.cpp" line="1183"/>
         <source>This Page and Every Other Following Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1179"/>
+        <location filename="../app/MainWindow.cpp" line="1184"/>
         <source>Every Other Selected Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1182"/>
+        <location filename="../app/MainWindow.cpp" line="1187"/>
         <source>This Page Only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1594"/>
+        <location filename="../app/MainWindow.cpp" line="1603"/>
         <source>Detecting the color mode ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1594"/>
+        <location filename="../app/MainWindow.cpp" line="1603"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1595"/>
-        <location filename="../app/MainWindow.cpp" line="1653"/>
+        <location filename="../app/MainWindow.cpp" line="1604"/>
+        <location filename="../app/MainWindow.cpp" line="1662"/>
         <source>Detect Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1638"/>
+        <location filename="../app/MainWindow.cpp" line="1647"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1645"/>
+        <location filename="../app/MainWindow.cpp" line="1654"/>
         <source>%n page(s) skipped because the steps before Output have not been done yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1648"/>
+        <location filename="../app/MainWindow.cpp" line="1657"/>
         <source>%n page(s) could not be loaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1876"/>
+        <location filename="../app/MainWindow.cpp" line="1885"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1889"/>
-        <location filename="../app/MainWindow.cpp" line="1895"/>
-        <location filename="../app/MainWindow.cpp" line="2270"/>
-        <location filename="../app/MainWindow.cpp" line="2294"/>
+        <location filename="../app/MainWindow.cpp" line="1898"/>
+        <location filename="../app/MainWindow.cpp" line="1904"/>
+        <location filename="../app/MainWindow.cpp" line="2280"/>
+        <location filename="../app/MainWindow.cpp" line="2306"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1889"/>
+        <location filename="../app/MainWindow.cpp" line="1898"/>
         <source>Unable to open the project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1963"/>
+        <location filename="../app/MainWindow.cpp" line="1972"/>
         <source>Default Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1964"/>
+        <location filename="../app/MainWindow.cpp" line="1973"/>
         <source>Also use these default parameters for the open project? Pages added to it later start with them. Otherwise, they only apply to new projects.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2012"/>
+        <location filename="../app/MainWindow.cpp" line="2021"/>
         <source>version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2190"/>
+        <location filename="../app/MainWindow.cpp" line="2199"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2210"/>
+        <location filename="../app/MainWindow.cpp" line="2219"/>
         <source>A PDF is being created. Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2270"/>
-        <location filename="../app/MainWindow.cpp" line="2294"/>
+        <location filename="../app/MainWindow.cpp" line="2280"/>
+        <location filename="../app/MainWindow.cpp" line="2306"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2340"/>
+        <location filename="../app/MainWindow.cpp" line="2352"/>
         <source>Files to Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2343"/>
+        <location filename="../app/MainWindow.cpp" line="2355"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2394"/>
+        <location filename="../app/MainWindow.cpp" line="2406"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2456"/>
+        <location filename="../app/MainWindow.cpp" line="2468"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2628"/>
-        <location filename="../app/MainWindow.cpp" line="2670"/>
+        <location filename="../app/MainWindow.cpp" line="2640"/>
+        <location filename="../app/MainWindow.cpp" line="2682"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2622"/>
+        <location filename="../app/MainWindow.cpp" line="2634"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2647"/>
+        <location filename="../app/MainWindow.cpp" line="2659"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2671"/>
+        <location filename="../app/MainWindow.cpp" line="2683"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2725"/>
+        <location filename="../app/MainWindow.cpp" line="2737"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2785"/>
+        <location filename="../app/MainWindow.cpp" line="2800"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2864"/>
+        <location filename="../app/MainWindow.cpp" line="2878"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3066"/>
+        <location filename="../app/MainWindow.cpp" line="3077"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2485,22 +2498,22 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>OcrEngine</name>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="51"/>
+        <location filename="../core/OcrEngine.cpp" line="58"/>
         <source>Could not load the language files &quot;%1&quot; from %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="67"/>
+        <location filename="../core/OcrEngine.cpp" line="84"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="99"/>
+        <location filename="../core/OcrEngine.cpp" line="116"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="100"/>
+        <location filename="../core/OcrEngine.cpp" line="117"/>
         <source>Text recognition failed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2718,70 +2731,67 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>PageScopeGroupBox</name>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="32"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="36"/>
         <source>Apply to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="33"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="37"/>
         <source>This page only (already applied)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="34"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="38"/>
         <source>All pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="35"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="39"/>
         <source>This page and the following ones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="38"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="42"/>
         <source>This page and every other following page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="40"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="44"/>
         <source>Every other page (odd pages)</source>
         <extracomment>All odd pages; the text for even pages is used when the current page is even.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="41"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="45"/>
         <source>Selected pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="42"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="46"/>
         <source>Every other selected page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="43"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="47"/>
         <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="44"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="48"/>
         <source>The current page will be included.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="80"/>
+        <location filename="../core/PageScopeGroupBox.cpp" line="84"/>
         <source>Every other page (even pages)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="85"/>
-        <source>1 page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="85"/>
-        <source>%1 pages</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <location filename="../core/PageScopeGroupBox.cpp" line="89"/>
+        <source>%n page(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -3654,17 +3664,17 @@ You should remove them from the project.</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="831"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="844"/>
         <source>Canceling Multi-Page Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="832"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="845"/>
         <source>The selection of %1 pages will be canceled. Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="836"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="849"/>
         <source>Don&apos;t show this message again.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4045,17 +4055,12 @@ would both become
 <context>
     <name>StageListView</name>
     <message>
-        <location filename="../core/StageListView.cpp" line="106"/>
-        <source>Launch batch processing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/StageListView.cpp" line="107"/>
-        <source>Process all pages in this step.</source>
+        <source>Process all pages in this step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/StageListView.cpp" line="373"/>
+        <location filename="../core/StageListView.cpp" line="382"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4315,7 +4320,7 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../app/ThumbnailSequence.cpp" line="1567"/>
+        <location filename="../app/ThumbnailSequence.cpp" line="1586"/>
         <source>%1 (page %2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4462,12 +4467,12 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ZoneContextMenuInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="188"/>
+        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="195"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="192"/>
+        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="199"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4475,32 +4480,32 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ZoneCreationInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="304"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="317"/>
         <source>Rectangle selection: move to the opposite corner and click to finish. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="308"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="321"/>
         <source>Lasso selection: click here to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="310"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="323"/>
         <source>Lasso selection: hold the left mouse button and draw around the area. The zone closes when you reach the starting point. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="317"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="330"/>
         <source>Polygon selection: click here to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="319"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="332"/>
         <source>Polygon selection: click to add a corner, click the first corner to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="323"/>
+        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="336"/>
         <source>Polygon selection: click to add corners. Clicking the last corner again removes it. X switches to lasso. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4541,7 +4546,7 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ZoneDragInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneDragInteraction.cpp" line="21"/>
+        <location filename="../core/zones/ZoneDragInteraction.cpp" line="25"/>
         <source>Release left mouse button to finish dragging.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4608,17 +4613,17 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>deskew::ImageView</name>
     <message>
-        <location filename="../core/filters/deskew/ImageView.cpp" line="34"/>
+        <location filename="../core/filters/deskew/ImageView.cpp" line="35"/>
         <source>Use Ctrl+Wheel to rotate or Ctrl+Shift+Wheel for finer rotation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ImageView.cpp" line="36"/>
+        <location filename="../core/filters/deskew/ImageView.cpp" line="37"/>
         <source>Drag this handle to rotate the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ImageView.cpp" line="37"/>
+        <location filename="../core/filters/deskew/ImageView.cpp" line="38"/>
         <source>Drag this handle to adjust oblique (shear).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4689,13 +4694,13 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="67"/>
+        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="37"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="185"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="68"/>
+        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="38"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="186"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
@@ -4711,7 +4716,7 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="93"/>
+        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="63"/>
         <source>Apply Deskew and Oblique</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4795,22 +4800,22 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="192"/>
+        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="195"/>
         <source>Bottom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="206"/>
+        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="212"/>
         <source>Left:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="220"/>
+        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="229"/>
         <source>Right:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="274"/>
+        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="286"/>
         <source>Applies the rotation and the trim of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4825,7 +4830,7 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="277"/>
+        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="289"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6152,38 +6157,38 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="346"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="355"/>
         <source>Bottom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="474"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="486"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="479"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="491"/>
         <source>Fill with margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="484"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="496"/>
         <source>Scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="509"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="519"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="521"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="531"/>
         <source>How much the content of this page is enlarged or reduced in the output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="512"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="524"/>
         <source>Factor:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="435"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="447"/>
         <source>Output Size</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6193,40 +6198,40 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="556"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="566"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="568"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="578"/>
         <source>The largest width and the largest height of all pages whose size is matched, margins included. Without an own target size, it is the output size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="559"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="571"/>
         <source>Common size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="591"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="603"/>
         <source>Sets the output size by hand instead of using the common size. Turned on, the fields start with the common size. Pages larger than this size are reduced.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="594"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="606"/>
         <source>Own target size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="606"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="616"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="636"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="618"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="628"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="648"/>
         <source>Width × height of the output pages, margins included.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="669"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="681"/>
         <source>Enlarge to at most:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="701"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="713"/>
         <source>Reduce to at most:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6236,9 +6241,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="410"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="772"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1192"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="422"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="784"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1204"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6278,183 +6283,183 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="407"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="419"/>
         <source>Applies the margins of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="444"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="456"/>
         <source>This Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="456"/>
         <location filename="../core/filters/page_layout/OptionsWidget.ui" line="468"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="480"/>
         <source>Off: the page keeps its own size and is not part of the common size.
 Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
 Scale: the content is enlarged or reduced to fit the output size, within the limits below. The margins keep their size; the rest is filled with margins.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="461"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="473"/>
         <source>Match size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="544"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="556"/>
         <source>These settings apply to the whole project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="547"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="559"/>
         <source>All Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="666"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="676"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="678"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="688"/>
         <source>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="698"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="708"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="710"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="720"/>
         <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="769"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="781"/>
         <source>Applies &quot;Match size&quot; of this page to other pages. The settings under &quot;All Pages&quot; apply to all pages anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="797"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="809"/>
         <source>Alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="816"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="828"/>
         <source>Horizontal mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="823"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="835"/>
         <source>Vertical mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="834"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="856"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="846"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="868"/>
         <source>Auto</source>
         <comment>auto</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="839"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="861"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="851"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="873"/>
         <source>Manual</source>
         <comment>manual</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="844"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="866"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="856"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="878"/>
         <source>Original</source>
         <comment>original</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="911"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="923"/>
         <source>Align the content box to the top left of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="914"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="926"/>
         <source>Top left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="937"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="949"/>
         <source>Align the content box to the top center of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="940"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="952"/>
         <source>Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="963"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="975"/>
         <source>Align the content box to the top right of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="966"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="978"/>
         <source>Top right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="989"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1001"/>
         <source>Align the content box to the left center of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="992"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1004"/>
         <source>Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1015"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1027"/>
         <source>Center the content box on the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1018"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1030"/>
         <source>Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1044"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1056"/>
         <source>Align the content box to the right center of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1047"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1059"/>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1070"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1082"/>
         <source>Align the content box to the bottom left of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1073"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1085"/>
         <source>Bottom left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1096"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1108"/>
         <source>Align the content box to the bottom center of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1099"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1111"/>
         <source>Bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1122"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1134"/>
         <source>Align the content box to the bottom right of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1125"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1137"/>
         <source>Bottom right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1217"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1229"/>
         <source>‣ Right-click to open the context menu for creating and removing guides.
 ‣ Right-click on a guide to open the context menu for deleting it.
 ‣ Ctrl+Alt+left mouse button – drag the guide under the cursor.
@@ -6464,17 +6469,17 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1225"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1237"/>
         <source>Guides and mouse ⓘ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="609"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="621"/>
         <source>Size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1189"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1201"/>
         <source>Applies the alignment of this page to other pages: the modes and the position. Whether the size is matched is applied under &quot;Output Size&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6811,13 +6816,13 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="79"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="261"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="267"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="95"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="280"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="286"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6838,7 +6843,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../core/filters/select_content/OptionsWidget.ui" line="60"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="245"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="251"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6873,70 +6878,70 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="235"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="241"/>
         <source>Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="242"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="248"/>
         <source>Use the whole page box as the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="258"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="264"/>
         <source>Detect the content box automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="277"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="283"/>
         <source>Keep the content box set by hand in the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="310"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="320"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="316"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="326"/>
         <source>The highest share of black pixels a line may have to count as text. Raise it for art books and photo pages: above 85 %, shadows are kept and pictures count as content; from 95 % on, the whole page box is the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="313"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="319"/>
         <source>Fill factor:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="326"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="361"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="332"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="367"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="345"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="355"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="351"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="361"/>
         <source>How much of the content touching the image border is kept. At 0 %, it is removed as before (scanner edges, shadows); raise it for pictures that reach the edge of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="348"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="354"/>
         <source>Border tolerance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="377"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="383"/>
         <source>Search for content in the whole image, not only inside the page box. Helps when text close to the edge of the page box is not detected. The content box still stays inside the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="380"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="386"/>
         <source>Ignore page box during detection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="432"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="438"/>
         <source>Applies the page box and the content box of this page, with the settings of the content detection, to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="435"/>
+        <location filename="../core/filters/select_content/OptionsWidget.ui" line="441"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>

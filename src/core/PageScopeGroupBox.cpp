@@ -14,9 +14,13 @@
 namespace {
 QLabel* createHint(const QString& text, QWidget* parent) {
   auto* hint = new QLabel(text, parent);
+  // Smaller than the other texts, but relative to them, so it grows with a larger system font.
+  // A font given in pixels has no point size.
   QFont font(hint->font());
-  font.setPointSize(7);
-  hint->setFont(font);
+  if (font.pointSizeF() > 0) {
+    font.setPointSizeF(font.pointSizeF() * 0.85);
+    hint->setFont(font);
+  }
   return hint;
 }
 
@@ -82,7 +86,9 @@ void PageScopeGroupBox::setPages(const PageId& curPage, const PageSelectionAcces
 
   for (int scope = 0; scope < SCOPE_COUNT; ++scope) {
     const auto count = static_cast<int>(pagesFor(static_cast<Scope>(scope)).size());
-    m_counts[scope]->setText((count == 1) ? tr("1 page") : tr("%1 pages").arg(count));
+    m_counts[scope]->setText(tr("%n page(s)", nullptr, count));
+    // The count stands in a label of its own, so screen readers get it with the option.
+    m_buttons[scope]->setAccessibleDescription(m_counts[scope]->text());
   }
 
   // Pages selected in the thumbnail list are most likely the ones to apply to.

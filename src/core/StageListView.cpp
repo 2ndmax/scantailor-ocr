@@ -103,8 +103,11 @@ StageListView::StageListView(QWidget* parent)
                                   iconProvider.getIcon("play-pressed"), viewport());
   m_launchBtn->setMinimumSize({18, 18});
   m_launchBtn->setIconSize({18, 18});
-  m_launchBtn->setStatusTip(tr("Launch batch processing"));
-  m_launchBtn->setToolTip(tr("Process all pages in this step."));
+  // One text for all three; the button shows only an icon, so screen readers need the name.
+  const QString launchText = tr("Process all pages in this step");
+  m_launchBtn->setStatusTip(launchText);
+  m_launchBtn->setToolTip(launchText);
+  m_launchBtn->setAccessibleName(launchText);
   m_launchBtn->hide();
 
   connect(m_launchBtn, &QAbstractButton::clicked, this, &StageListView::launchBatchProcessing);
