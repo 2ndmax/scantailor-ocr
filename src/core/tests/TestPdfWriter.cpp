@@ -937,11 +937,14 @@ BOOST_AUTO_TEST_CASE(test_export_job) {
   BOOST_REQUIRE(file.open(QIODevice::ReadOnly));
   const QByteArray pdf = file.readAll();
   checkStructure(pdf, 5);
-  // The pages are written in the given order, even though they are prepared in parallel.
-  int pos = 0;
+  // The pages are written in the given order, even though they are prepared in parallel. Each page
+  // is searched after the previous one; a missing page stops the check, since a search from -1
+  // would start at the end of the file and report every following page as well.
+  qsizetype pos = 0;
   for (int i = 0; i < 5; ++i) {
     pos = pdf.indexOf("/Subtype /Image /Width " + QByteArray::number(200 + i) + ' ', pos);
-    BOOST_CHECK_MESSAGE(pos >= 0, "page " << i);
+    BOOST_REQUIRE_MESSAGE(pos >= 0, "page " << i << " missing or out of order");
+    ++pos;
   }
   // JBIG2 is the default.
   BOOST_CHECK_EQUAL(pdf.count("/Filter /JBIG2Decode"), 5);

@@ -19,10 +19,11 @@ BOOST_AUTO_TEST_CASE(test_same_file) {
 
 BOOST_AUTO_TEST_CASE(test_dirs_different) {
   const SmartFilenameOrdering less;
+  // Files in different folders are ordered by folder: "/ect" before "/etc".
   const QFileInfo lhs("/etc/file");
   const QFileInfo rhs("/ect/file");
-  BOOST_CHECK(less(lhs, rhs) == (lhs.absolutePath() < rhs.absolutePath()));
-  BOOST_CHECK(less(rhs, lhs) == (rhs.absolutePath() < lhs.absolutePath()));
+  BOOST_CHECK(!less(lhs, rhs));
+  BOOST_CHECK(less(rhs, lhs));
 }
 
 BOOST_AUTO_TEST_CASE(test_simple_case) {
@@ -41,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_avg_case) {
   BOOST_CHECK(less(rhs, lhs));
 }
 
-BOOST_AUTO_TEST_CASE(test_compex_case) {
+BOOST_AUTO_TEST_CASE(test_complex_case) {
   const SmartFilenameOrdering less;
   const QFileInfo lhs("/etc/a10_10.png");
   const QFileInfo rhs("/etc/a010_2.png");

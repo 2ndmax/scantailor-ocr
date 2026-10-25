@@ -234,14 +234,25 @@ void TestCoreQt::testOutputPageSwitchDropsDelayedReload() {
 
   auto* sensitivitySB = widget.findChild<QSpinBox*>("pictureShapeSensitivitySB");
   QVERIFY(sensitivitySB != nullptr);
-  sensitivitySB->setValue((sensitivitySB->value() > sensitivitySB->minimum()) ? sensitivitySB->value() - 1
-                                                                              : sensitivitySB->value() + 1);
+  const auto changeSensitivity = [sensitivitySB] {
+    sensitivitySB->setValue((sensitivitySB->value() > sensitivitySB->minimum()) ? sensitivitySB->value() - 1
+                                                                                : sensitivitySB->value() + 1);
+  };
+  const int delay = output::OptionsWidget::RELOAD_DELAY_MS;
+
+  // Without a page switch the change does lead to a delayed reload; otherwise the check below
+  // would pass without testing anything.
+  changeSensitivity();
+  QTRY_COMPARE_WITH_TIMEOUT(reloadSpy.count(), 1, 4 * delay);
+
+  const int thumbnailsBefore = static_cast<int>(thumbnailSpy.count());
+  changeSensitivity();
   widget.preUpdateUI(second);
 
-  QCOMPARE(thumbnailSpy.count(), 1);
-  QCOMPARE(thumbnailSpy.at(0).at(0).value<PageId>(), first);
-  QTest::qWait(1000);
-  QCOMPARE(reloadSpy.count(), 0);
+  QCOMPARE(static_cast<int>(thumbnailSpy.count()), thumbnailsBefore + 1);
+  QCOMPARE(thumbnailSpy.last().at(0).value<PageId>(), first);
+  QTest::qWait(delay + 250);
+  QCOMPARE(reloadSpy.count(), 1);
 }
 
 void TestCoreQt::testOutputPageSwitchRedoesPreviousThumbnail() {

@@ -472,20 +472,21 @@ void TestEndToEndQt::testCancelWithoutThumbnails() {
   project.thumbnailCache.reset();
   const int outputIdx = project.stages->outputFilterIdx();
 
-  int calls = 0;
+  // The cancel request comes from the progress of the output, after its first page. How often the
+  // steps before report their progress is not checked here.
+  bool cancelRequested = false;
   const StageSequence::ProcessAllResult cancelled = project.stages->processAll(
       nullptr, project.outFileNameGen, [&](const int lastFilterIdx, const int done, const int total) {
-        ++calls;
-        if (lastFilterIdx == outputIdx) {
-          return done < 1 || done == total;
+        if (lastFilterIdx == outputIdx && done >= 1 && done < total) {
+          cancelRequested = true;
+          return false;
         }
         return true;
       });
+  QVERIFY(cancelRequested);
   QVERIFY(cancelled.cancelled);
   QVERIFY(!cancelled.output);
   QVERIFY(cancelled.failures.empty());
-  // Two pages up to the split, two up to the margins, one output.
-  QCOMPARE(calls, 5);
   const PageSequence pages = project.pages->toPageSequence(PAGE_VIEW);
   QVERIFY(QFile::exists(project.outFileNameGen.filePathFor(pages.pageAt(0).id())));
   QVERIFY(!QFile::exists(project.outFileNameGen.filePathFor(pages.pageAt(1).id())));

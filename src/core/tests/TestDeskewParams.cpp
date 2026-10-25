@@ -90,29 +90,73 @@ BOOST_AUTO_TEST_CASE(params_oblique_mode_attribute_roundtrip_xml) {
 /** Selective Apply To… merge semantics (issue #117): deskew-only must not overwrite oblique. */
 BOOST_AUTO_TEST_CASE(apply_merge_deskew_only_preserves_oblique) {
   const Dependencies deps;
-  const Params existing(1.0, 3.0, deps, MODE_MANUAL, MODE_MANUAL);
-  const Params current(2.0, 4.0, deps, MODE_AUTO, MODE_AUTO);
+  const Params existing(1.0, 3.0, deps, MODE_MANUAL, MODE_MANUAL, DETECT_CONTENT);
+  const Params current(2.0, 4.0, deps, MODE_AUTO, MODE_AUTO, DETECT_TOP_EDGE);
 
-  const Params merged(current.deskewAngle(), existing.obliqueAngle(), deps, current.mode(), existing.obliqueMode());
+  const Params merged = Params::mergedForApply(&existing, current, true, false, false, DETECT_CONTENT);
 
   BOOST_CHECK_CLOSE(merged.deskewAngle(), 2.0, 1e-6);
   BOOST_CHECK_CLOSE(merged.obliqueAngle(), 3.0, 1e-6);
   BOOST_CHECK(merged.mode() == MODE_AUTO);
   BOOST_CHECK(merged.obliqueMode() == MODE_MANUAL);
+  BOOST_CHECK(merged.detection() == DETECT_TOP_EDGE);
 }
 
 /** Selective Apply To… merge semantics (issue #117): oblique-only must not overwrite deskew. */
 BOOST_AUTO_TEST_CASE(apply_merge_oblique_only_preserves_deskew) {
   const Dependencies deps;
-  const Params existing(1.0, 3.0, deps, MODE_MANUAL, MODE_MANUAL);
-  const Params current(2.0, 4.0, deps, MODE_AUTO, MODE_AUTO);
+  const Params existing(1.0, 3.0, deps, MODE_MANUAL, MODE_MANUAL, DETECT_CONTENT);
+  const Params current(2.0, 4.0, deps, MODE_AUTO, MODE_AUTO, DETECT_TOP_EDGE);
 
-  const Params merged(existing.deskewAngle(), current.obliqueAngle(), deps, existing.mode(), current.obliqueMode());
+  const Params merged = Params::mergedForApply(&existing, current, false, true, false, DETECT_CONTENT);
 
   BOOST_CHECK_CLOSE(merged.deskewAngle(), 1.0, 1e-6);
   BOOST_CHECK_CLOSE(merged.obliqueAngle(), 4.0, 1e-6);
   BOOST_CHECK(merged.mode() == MODE_MANUAL);
   BOOST_CHECK(merged.obliqueMode() == MODE_AUTO);
+  BOOST_CHECK(merged.detection() == DETECT_CONTENT);
+}
+
+/** A page without parameters gets the applied angle; the other one starts automatic at 0. */
+BOOST_AUTO_TEST_CASE(apply_merge_to_a_page_without_params) {
+  const Dependencies deps;
+  const Params current(2.0, 4.0, deps, MODE_MANUAL, MODE_MANUAL, DETECT_TOP_EDGE);
+
+  const Params deskewOnly = Params::mergedForApply(nullptr, current, true, false, false, DETECT_CONTENT);
+  BOOST_CHECK_CLOSE(deskewOnly.deskewAngle(), 2.0, 1e-6);
+  BOOST_CHECK(deskewOnly.mode() == MODE_MANUAL);
+  BOOST_CHECK(deskewOnly.detection() == DETECT_TOP_EDGE);
+  BOOST_CHECK_EQUAL(deskewOnly.obliqueAngle(), 0.0);
+  BOOST_CHECK(deskewOnly.obliqueMode() == MODE_AUTO);
+
+  // Without deskew, the detection method comes from the defaults, not from the current page.
+  const Params obliqueOnly = Params::mergedForApply(nullptr, current, false, true, false, DETECT_CONTENT);
+  BOOST_CHECK_EQUAL(obliqueOnly.deskewAngle(), 0.0);
+  BOOST_CHECK(obliqueOnly.mode() == MODE_AUTO);
+  BOOST_CHECK(obliqueOnly.detection() == DETECT_CONTENT);
+  BOOST_CHECK_CLOSE(obliqueOnly.obliqueAngle(), 4.0, 1e-6);
+  BOOST_CHECK(obliqueOnly.obliqueMode() == MODE_MANUAL);
+}
+
+/** An automatic angle applied to another page is measured there again: its dependencies are dropped. */
+BOOST_AUTO_TEST_CASE(apply_merge_remeasures_automatic_angles_on_other_pages) {
+  const Dependencies pageDeps(QPolygonF(QRectF(0, 0, 100, 200)), OrthogonalRotation());
+  const Params existing(1.0, 3.0, pageDeps, MODE_MANUAL, MODE_MANUAL);
+  const Params manual(2.0, 4.0, Dependencies(), MODE_MANUAL, MODE_MANUAL);
+  const Params automatic(2.0, 4.0, Dependencies(), MODE_AUTO, MODE_MANUAL);
+
+  BOOST_CHECK(
+      Params::mergedForApply(&existing, manual, true, true, false, DETECT_CONTENT).dependencies().matches(pageDeps));
+  BOOST_CHECK(!Params::mergedForApply(&existing, automatic, true, false, false, DETECT_CONTENT)
+                   .dependencies()
+                   .matches(pageDeps));
+  // Only the oblique angle applied: the automatic deskew of the current page doesn't matter.
+  BOOST_CHECK(Params::mergedForApply(&existing, automatic, false, true, false, DETECT_CONTENT)
+                  .dependencies()
+                  .matches(pageDeps));
+  // The current page itself keeps its dependencies.
+  BOOST_CHECK(
+      Params::mergedForApply(&existing, automatic, true, false, true, DETECT_CONTENT).dependencies().matches(pageDeps));
 }
 
 BOOST_AUTO_TEST_CASE(params_auto_oblique_false_roundtrip_xml) {
