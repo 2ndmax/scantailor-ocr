@@ -41,6 +41,8 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
     const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
     PageId newPageId(kv.first);
     newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
+    // REVIEW-NOTE (2026-10): map::insert drops a second record with the same new id -> one of two pages relinked
+    // onto the same file loses its boxes. Not fixed because such a project already contains the same page twice.
     newParams.insert(PageParams::value_type(newPageId, kv.second));
   }
 
@@ -80,19 +82,25 @@ bool Settings::isParamsNull(const PageId& pageId) const {
   return (m_pageParams.find(pageId) == m_pageParams.end());
 }
 
+// The detection box and tolerance are read by processing threads while loading a project
+// writes them, so they are guarded like the page params.
 QSizeF Settings::pageDetectionBox() const {
+  QMutexLocker locker(&m_mutex);
   return m_pageDetectionBox;
 }
 
 void Settings::setPageDetectionBox(QSizeF size) {
+  QMutexLocker locker(&m_mutex);
   m_pageDetectionBox = size;
 }
 
 double Settings::pageDetectionTolerance() const {
+  QMutexLocker locker(&m_mutex);
   return m_pageDetectionTolerance;
 }
 
 void Settings::setPageDetectionTolerance(double tolerance) {
+  QMutexLocker locker(&m_mutex);
   m_pageDetectionTolerance = tolerance;
 }
 
