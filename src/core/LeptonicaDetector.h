@@ -23,7 +23,7 @@ class TaskStatus;
 class LeptonicaDetector {
  public:
   // Version 3 invalidates automatic verdicts once so MIXED pages acquire the
-  // region geometry now consumed by Output.
+  // region geometry (regionBounds), which no other code uses so far.
   static constexpr int DETECTOR_SCHEMA_VERSION = 3;
 
   enum class ColorType { BlackWhite, Grayscale, Mixed, Color };

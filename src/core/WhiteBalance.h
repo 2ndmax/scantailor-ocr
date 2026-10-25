@@ -39,9 +39,10 @@ class WhiteBalance {
    * Calculates per-channel multipliers to shift paperColor toward neutral gray,
    * then applies those multipliers to all pixels.
    *
-   * \param image The source image (must be RGB32 or ARGB32)
+   * \param image The source image (any format; it is converted to RGB32 if it gets corrected)
    * \param paperColor The color that should become neutral
-   * \return The corrected image
+   * \return The corrected image as RGB32, without an alpha channel. If paperColor is invalid, already
+   *         neutral or has a zero channel, the image is returned as it is.
    */
   static QImage apply(const QImage& image, const QColor& paperColor);
 
@@ -52,7 +53,7 @@ class WhiteBalance {
    * meaning correction would have minimal effect.
    *
    * \param paperColor The detected paper color
-   * \param threshold Minimum channel deviation to consider significant (default: 10)
+   * \param threshold Minimum channel deviation to consider significant (default: 5)
    * \return true if the color has a significant cast
    */
   static bool hasSignificantCast(const QColor& paperColor, int threshold = 5);

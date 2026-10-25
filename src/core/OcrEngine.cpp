@@ -25,6 +25,9 @@ bool cancelRequested(void* cancelFlag, int /*words*/) {
 void limitTesseractThreads() {
   static std::once_flag once;
   std::call_once(once, [] {
+    // REVIEW-NOTE (2026-10): OMP_THREAD_LIMIT is set from a worker thread -> races with getenv() on POSIX and has
+    // no effect if OpenMP started earlier. Not fixed because Windows builds are unaffected; a future CLI must
+    // set the limit before starting threads as well.
     if (qEnvironmentVariableIsEmpty("OMP_THREAD_LIMIT")) {
       qputenv("OMP_THREAD_LIMIT", "1");
     }
@@ -43,6 +46,9 @@ OcrEngine::~OcrEngine() {
 bool OcrEngine::init(const QString& tessdataDir, const QString& languages, QString* error) {
   limitTesseractThreads();
   m_api = std::make_unique<tesseract::TessBaseAPI>();
+  // REVIEW-NOTE (2026-10): the tessdata path is passed in the ANSI code page -> a path with characters outside it
+  // (e.g. a Cyrillic user name on a German Windows) makes Init() fail. Not fixed because it needs Tesseract's
+  // FileReader init variant; the failure is reported to the user.
   const QByteArray dir = QFile::encodeName(QDir::toNativeSeparators(tessdataDir));
   const QByteArray langs = languages.toUtf8();
   if (m_api->Init(dir.constData(), langs.constData(), tesseract::OEM_LSTM_ONLY) != 0) {

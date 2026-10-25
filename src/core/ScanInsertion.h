@@ -11,7 +11,8 @@ namespace scan_insertion {
 /**
  * The name a new scan gets when it is inserted after \p anchorFile or replaces it:
  * "<name of anchorFile without extension>_<file name of scanFile>". So "A.tif" and
- * "B.tif" give "A_B.tif", which is sorted right after "A.tif", and further scans
+ * "B.tif" give "A_B.tif", which is sorted right after "A.tif" unless another name starts with "A"
+ * followed by a character that sorts before "_" (such as "A2.tif" or "A-1.tif"). Further scans
  * inserted after "A.tif" are sorted by their own (time stamp) names.
  */
 QString prefixedFileName(const QString& anchorFile, const QString& scanFile);
