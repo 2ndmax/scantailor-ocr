@@ -3,6 +3,7 @@
 
 #include "ZoomHandler.h"
 
+#include <QCursor>
 #include <QShortcut>
 #include <QWheelEvent>
 #include <cmath>
@@ -82,7 +83,11 @@ void ZoomHandler::zoom(double factor) {
       focusPoint = QRectF(m_imageView.rect()).center();
       break;
     case CURSOR:
-      focusPoint = m_virtualMousePos;
+      // The cursor can be anywhere in a shortcut: not moved over the view yet, or outside of it.
+      focusPoint = m_imageView.mapFromGlobal(QCursor::pos()) + QPointF(0.5, 0.5);
+      if (!m_imageView.rect().contains(focusPoint.toPoint())) {
+        focusPoint = QRectF(m_imageView.rect()).center();
+      }
       break;
   }
   m_imageView.setWidgetFocalPointWithoutMoving(focusPoint);
@@ -96,8 +101,4 @@ void ZoomHandler::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& 
   }
   m_imageView.setZoomLevel(1.0);
   m_imageView.moveTowardsIdealPosition(std::numeric_limits<double>::max());
-}
-
-void ZoomHandler::onMouseMoveEvent(QMouseEvent* event, InteractionState&) {
-  m_virtualMousePos = event->pos() + QPointF(0.5, 0.5);
 }

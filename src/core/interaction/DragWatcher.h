@@ -30,6 +30,8 @@ class DragWatcher : public InteractionHandler {
 
   void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
 
+  void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) override;
+
  private:
   void updateState(QPoint mousePos);
 

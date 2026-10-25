@@ -29,6 +29,12 @@ void DragWatcher::onMouseMoveEvent(QMouseEvent* event, InteractionState&) {
   updateState(event->pos());
 }
 
+void DragWatcher::onMouseReleaseEvent(QMouseEvent*, InteractionState&) {
+  // The drag is over. Without this, the next press at the same place (tapping on a trackpad) would still be
+  // judged by the old drag.
+  m_dragInProgress = false;
+}
+
 void DragWatcher::updateState(const QPoint mousePos) {
   if (m_dragHandler.isActive()) {
     if (!m_dragInProgress) {

@@ -36,8 +36,6 @@ class ZoomHandler : public InteractionHandler {
  protected:
   void onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) override;
 
-  void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
-
   void onWheelEvent(QWheelEvent* event, InteractionState& interaction) override;
 
  private:
@@ -48,7 +46,6 @@ class ZoomHandler : public InteractionHandler {
   InteractionState::Captor m_interaction;
   Focus m_focus;
   bool m_zoomAllOnDoubleClick = true;
-  QPointF m_virtualMousePos;
   std::unique_ptr<QShortcut> m_magnifyShortcut;
   std::unique_ptr<QShortcut> m_diminishShortcut;
 };

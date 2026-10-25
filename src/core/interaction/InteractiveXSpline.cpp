@@ -15,6 +15,7 @@
 
 #ifndef Q_MOC_RUN
 
+#include <algorithm>
 #include <functional>
 
 #endif
@@ -119,12 +120,16 @@ void InteractiveXSpline::onMouseMoveEvent(QMouseEvent*, InteractionState& intera
 }
 
 void InteractiveXSpline::onMousePressEvent(QMouseEvent* event, InteractionState& interaction) {
+  if (event->button() != Qt::LeftButton) {
+    return;  // Dragging the new point ends with the left button, so no other button may start it.
+  }
   if (interaction.captured()) {
     return;
   }
 
   if (interaction.proximityLeader(m_curveProximity)) {
-    const auto segment = int(m_curveProximityT * m_spline.numSegments());
+    // At the very end of the curve (t == 1) the point goes into the last segment, not behind it.
+    const int segment = std::min(int(m_curveProximityT * m_spline.numSegments()), m_spline.numSegments() - 1);
     const int pntIdx = segment + 1;
 
     m_spline.insertControlPoint(pntIdx, m_curveProximityPointStorage, 1);

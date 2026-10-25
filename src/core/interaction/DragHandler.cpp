@@ -39,6 +39,9 @@ void DragHandler::onMouseReleaseEvent(QMouseEvent* event, InteractionState& inte
   if (!interaction.capturedBy(m_interaction)) {
     return;
   }
+  if (event->buttons() & (Qt::LeftButton | Qt::MiddleButton)) {
+    return;  // Only the last of the buttons that can drag ends the drag.
+  }
 
   m_interaction.release();
   event->accept();
