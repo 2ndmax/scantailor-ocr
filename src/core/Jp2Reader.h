@@ -47,12 +47,33 @@ class Jp2Reader {
   static QImage readImage(QIODevice& device, const QSize& minSize = QSize());
 
   /**
-   * \brief Changes when huge images are decoded strip by strip.
+   * \brief Changes when huge images are decoded strip by strip, for as long as it exists.
    *
    * Only meant for tests, which can't easily use images large enough to reach
    * the defaults (1 GiB of decoded samples, 128 MiB per strip, at least 256 rows).
+   * The previous parameters come back on destruction, also when a test throws.
    */
-  static void setStripDecodingParameters(uint64_t thresholdBytes, uint64_t stripBytes, uint32_t minStripRows);
+  class StripDecodingOverride {
+   public:
+    StripDecodingOverride(uint64_t thresholdBytes, uint64_t stripBytes, uint32_t minStripRows);
+
+    ~StripDecodingOverride();
+
+    StripDecodingOverride(const StripDecodingOverride&) = delete;
+
+    StripDecodingOverride& operator=(const StripDecodingOverride&) = delete;
+
+    /**
+     * \brief The number of strips decoded (by any thread) since this object was created.
+     */
+    uint64_t decodedStrips() const;
+
+   private:
+    uint64_t m_oldThresholdBytes;
+    uint64_t m_oldStripBytes;
+    uint32_t m_oldMinStripRows;
+    uint64_t m_decodedStripsAtStart;
+  };
 };
 
 

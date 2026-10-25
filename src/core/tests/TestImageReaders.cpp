@@ -1194,11 +1194,16 @@ BOOST_AUTO_TEST_CASE(test_jp2_strip_decoding) {
     BOOST_REQUIRE(!whole.isNull());
 
     // Force strip decoding with strips of 16 rows, the last one being shorter.
-    Jp2Reader::setStripDecodingParameters(0, 1, 16);
-    const QImage stripped = Jp2Reader::readImage(file);
-    Jp2Reader::setStripDecodingParameters(uint64_t(1) << 30, uint64_t(128) << 20, 256);
+    QImage stripped;
+    uint64_t decodedStrips = 0;
+    {
+      const Jp2Reader::StripDecodingOverride stripOverride(0, 1, 16);
+      stripped = Jp2Reader::readImage(file);
+      decodedStrips = stripOverride.decodedStrips();
+    }
 
     BOOST_REQUIRE(!stripped.isNull());
+    BOOST_CHECK_EQUAL(decodedStrips, 7u);  // 100 rows: 6 strips of 16 rows, the last one of 4
     BOOST_CHECK(stripped.format() == whole.format());
     BOOST_CHECK(stripped == whole);
   }

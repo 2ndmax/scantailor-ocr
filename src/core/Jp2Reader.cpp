@@ -16,6 +16,7 @@
 #include <cstring>
 #include <memory>
 #include <new>
+#include <optional>
 #include <vector>
 
 #include "Dpm.h"
@@ -213,6 +214,9 @@ bool parseHeader(QIODevice& device, const Jp2Format format, HeaderInfo& info) {
 
 /*================================ OpenJPEG ==================================*/
 
+// REVIEW-NOTE (2026-10): with opj_codec_set_threads() OpenJPEG calls these callbacks from worker threads where no
+// thread_local ImageLoadErrorCapture is active -> their detail text is only logged.
+// Not fixed because the main thread still reports a generic error.
 void opjErrorHandler(const char* msg, void*) {
   ImageLoadErrorCapture::addError(QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg));
 }
@@ -230,10 +234,16 @@ OPJ_SIZE_T streamRead(void* buffer, OPJ_SIZE_T numBytes, void* userData) {
 OPJ_OFF_T streamSkip(OPJ_OFF_T numBytes, void* userData) {
   auto* device = static_cast<QIODevice*>(userData);
   const qint64 target = std::min<qint64>(device->pos() + numBytes, device->size());
+  // At the end of a truncated file, report what was really skipped, so that
+  // OpenJPEG doesn't believe it is further on than it is.
+  const qint64 skipped = target - device->pos();
   if ((target < 0) || !device->seek(target)) {
     return -1;
   }
-  return numBytes;
+  if ((skipped == 0) && (numBytes > 0)) {
+    return -1;
+  }
+  return skipped;
 }
 
 OPJ_BOOL streamSeek(OPJ_OFF_T pos, void* userData) {
@@ -441,6 +451,22 @@ std::atomic<uint64_t> g_stripDecodingThreshold{uint64_t(1) << 30};  // 1 GiB
 std::atomic<uint64_t> g_stripBytes{uint64_t(128) << 20};  // 128 MiB
 // Strips are at least this high, to limit the overhead at strip boundaries.
 std::atomic<uint32_t> g_minStripRows{256};
+// Counts the strips decoded so far, so that tests can see the strip path was taken.
+std::atomic<uint64_t> g_decodedStrips{0};
+
+// The memory OpenJPEG needs for the samples of a full decode, or nothing if that
+// doesn't even fit into 64 bits, which only a forged header can cause.
+std::optional<uint64_t> fullDecodeBytes(const opj_image_t& image) {
+  uint64_t bytes = sizeof(OPJ_INT32);
+  for (const uint64_t factor : {static_cast<uint64_t>(image.x1 - image.x0), static_cast<uint64_t>(image.y1 - image.y0),
+                                static_cast<uint64_t>(image.numcomps)}) {
+    if ((factor != 0) && (bytes > UINT64_MAX / factor)) {
+      return std::nullopt;
+    }
+    bytes *= factor;
+  }
+  return bytes;
+}
 
 bool isSingleTile(opj_codec_t* codec) {
   opj_codestream_info_v2_t* info = opj_get_cstr_info(codec);
@@ -522,6 +548,7 @@ QImage decodeInStrips(opj_codec_t* codec, opj_stream_t* stream, opj_image_t* ima
     for (int y = 0; y < strip.height(); ++y) {
       std::memcpy(result.scanLine(static_cast<int>(stripY0 - y0) + y), strip.constScanLine(y), bytesToCopy);
     }
+    ++g_decodedStrips;
     stripY0 = stripY1;
   }
 
@@ -600,9 +627,11 @@ QImage decode(QIODevice& device,
   }
 
   if (allowStrips && (reduce == 0)) {
-    const uint64_t fullDecodeBytes
-        = static_cast<uint64_t>(image->x1 - image->x0) * (image->y1 - image->y0) * image->numcomps * sizeof(OPJ_INT32);
-    if ((fullDecodeBytes > g_stripDecodingThreshold.load()) && !hasSubsampledComponents(*image)
+    const std::optional<uint64_t> decodeBytes = fullDecodeBytes(*image);
+    if (!decodeBytes) {
+      return QImage();
+    }
+    if ((*decodeBytes > g_stripDecodingThreshold.load()) && !hasSubsampledComponents(*image)
         && isSingleTile(codec.get())) {
       QImage result = decodeInStrips(codec.get(), stream.get(), image.get(), stripsFailed);
       return result;
@@ -617,12 +646,22 @@ QImage decode(QIODevice& device,
 }  // decode
 }  // namespace
 
-void Jp2Reader::setStripDecodingParameters(const uint64_t thresholdBytes,
-                                           const uint64_t stripBytes,
-                                           const uint32_t minStripRows) {
-  g_stripDecodingThreshold = thresholdBytes;
-  g_stripBytes = stripBytes;
-  g_minStripRows = std::max<uint32_t>(minStripRows, 1);
+Jp2Reader::StripDecodingOverride::StripDecodingOverride(const uint64_t thresholdBytes,
+                                                        const uint64_t stripBytes,
+                                                        const uint32_t minStripRows)
+    : m_oldThresholdBytes(g_stripDecodingThreshold.exchange(thresholdBytes)),
+      m_oldStripBytes(g_stripBytes.exchange(stripBytes)),
+      m_oldMinStripRows(g_minStripRows.exchange(std::max<uint32_t>(minStripRows, 1))),
+      m_decodedStripsAtStart(g_decodedStrips.load()) {}
+
+Jp2Reader::StripDecodingOverride::~StripDecodingOverride() {
+  g_stripDecodingThreshold = m_oldThresholdBytes;
+  g_stripBytes = m_oldStripBytes;
+  g_minStripRows = m_oldMinStripRows;
+}
+
+uint64_t Jp2Reader::StripDecodingOverride::decodedStrips() const {
+  return g_decodedStrips.load() - m_decodedStripsAtStart;
 }
 
 bool Jp2Reader::canRead(QIODevice& device) {
