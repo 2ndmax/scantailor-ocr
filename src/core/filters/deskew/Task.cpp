@@ -127,10 +127,9 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
       // The user has just toggled the setting for this page - it wins over anything stored.
       autoObliqueEnabled = *pending;
     } else if (priorParamsBeforeRecompute) {
-      // "Auto apply oblique" is a master switch: a page may opt out of auto oblique on its own,
-      // but stored per-page parameters must not opt back in while the switch is off. Otherwise
-      // re-running auto deskew would reactivate oblique the user had deactivated.
-      autoObliqueEnabled = autoObliqueByDefault && priorParamsBeforeRecompute->autoOblique();
+      // The Auto / Manual choice belongs to the page: measuring it again keeps it. The start
+      // value of the project only applies to pages without parameters of their own.
+      autoObliqueEnabled = priorParamsBeforeRecompute->autoOblique();
     } else {
       autoObliqueEnabled = autoObliqueByDefault;
     }
@@ -187,13 +186,20 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
       } else {
         uiData.setEffectiveObliqueAngle(preservedObliqueDeg);
       }
-
-      Params newParams(uiData.effectiveDeskewAngle(), uiData.effectiveObliqueAngle(), deps, uiData.mode(),
-                       uiData.obliqueMode(), uiData.detection());
-      m_settings->setPageParams(m_pageId, newParams);
-
-      status.throwIfCancelled();
+    } else {
+      // Nothing of the image is left to measure (e.g. a crop area outside of it). The page still
+      // gets parameters, so that it has a fixed state instead of staying unfinished for ever.
+      uiData.setEffectiveDeskewAngle(0);
+      uiData.setMode(MODE_AUTO);
+      uiData.setObliqueMode(autoObliqueEnabled ? MODE_AUTO : MODE_MANUAL);
+      uiData.setEffectiveObliqueAngle(preservedObliqueDeg);
     }
+
+    Params newParams(uiData.effectiveDeskewAngle(), uiData.effectiveObliqueAngle(), deps, uiData.mode(),
+                     uiData.obliqueMode(), uiData.detection());
+    m_settings->setPageParams(m_pageId, newParams);
+
+    status.throwIfCancelled();
   }
 
   ImageTransformation newXform(data.xform());

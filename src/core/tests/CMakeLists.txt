@@ -2,6 +2,7 @@ set(sources
     main.cpp
     TestContentSpanFinder.cpp
     TestDeskewParams.cpp
+    TestDeskewTask.cpp
     TestDeviationProvider.cpp
     TestObliqueFinder.cpp
     TestEstimateBackground.cpp

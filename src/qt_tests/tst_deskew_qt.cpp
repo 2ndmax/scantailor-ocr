@@ -46,6 +46,9 @@ void TestDeskewQt::testObliqueAutoMeasuresAgain() {
   auto settings = std::make_shared<Settings>();
   const PageId page(ImageId("page.png"));
   auto startValues = std::make_shared<DefaultParams>();
+  DefaultParams::DeskewParams manualStart(startValues->getDeskewParams());
+  manualStart.setAutoOblique(false);
+  startValues->setDeskewParams(manualStart);
   const bool profileAutoOblique = DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique();
   OptionsWidget widget(settings, startValues, PageSelectionAccessor(nullptr));
   widget.preUpdateUI(page);
@@ -61,8 +64,9 @@ void TestDeskewQt::testObliqueAutoMeasuresAgain() {
   QCOMPARE(params->mode(), MODE_MANUAL);
   QVERIFY(params->needsRemeasure(measuredDeps()));
   QCOMPARE(settings->takePendingAutoOblique(page), std::optional<bool>(true));
-  // The buttons set the start value of the project, not the one of the profile.
-  QVERIFY(startValues->getDeskewParams().isAutoOblique());
+  // The choice applies to this page only: neither the start value of the project nor the one
+  // of the profile changes.
+  QVERIFY(!startValues->getDeskewParams().isAutoOblique());
   QCOMPARE(DefaultParamsProvider::getInstance().getParams().getDeskewParams().isAutoOblique(), profileAutoOblique);
 }
 

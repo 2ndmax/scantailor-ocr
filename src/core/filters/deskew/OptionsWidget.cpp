@@ -215,11 +215,9 @@ void OptionsWidget::detectionChanged(const int index) {
 }
 
 void OptionsWidget::obliqueModeChanged(const bool autoMode) {
-  // The mode buttons also carry what used to be the "Automatic oblique correction" check box,
-  // so the choice becomes the start value of the project for pages that get processed later on.
-  DefaultParams::DeskewParams deskewParams(m_defaultParams->getDeskewParams());
-  deskewParams.setAutoOblique(autoMode);
-  m_defaultParams->setDeskewParams(deskewParams);
+  // The choice only applies to this page. The start value of the project is changed in the
+  // start values or spread with "Apply To..." - before, it was changed here as well, and other
+  // pages silently lost their automatic oblique angle when measured again.
 
   // The spin box must not report the reset back to us as a manual edit.
   auto block = m_connectionManager.getScopedBlock();
