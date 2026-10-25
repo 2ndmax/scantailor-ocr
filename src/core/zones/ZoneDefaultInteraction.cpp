@@ -33,6 +33,10 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
 
   m_removeZoneShortcut = std::make_unique<QShortcut>(Qt::Key_Delete, &m_context.imageView());
   m_removeVertexShortcut = std::make_unique<QShortcut>(Qt::Key_D, &m_context.imageView());
+  // Only while the image view has the focus: with the focus elsewhere, Delete would remove
+  // the zone that happens to be under the mouse, without undo.
+  m_removeZoneShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+  m_removeVertexShortcut->setContext(Qt::WidgetWithChildrenShortcut);
   QObject::connect(m_removeZoneShortcut.get(), &QShortcut::activated, &m_context.imageView(),
                    std::bind(&ZoneDefaultInteraction::removeZoneUnderMouse, this));
   QObject::connect(m_removeVertexShortcut.get(), &QShortcut::activated, &m_context.imageView(),

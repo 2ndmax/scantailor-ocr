@@ -6,7 +6,11 @@
 #include <PolygonUtils.h>
 #include <Transform.h>
 
+#include <QAbstractSpinBox>
 #include <QApplication>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QTextEdit>
 
 #include <QtOpenGLWidgets/QOpenGLWidget>
 
@@ -568,7 +572,16 @@ void ImageViewBase::resizeEvent(QResizeEvent* event) {
 }
 
 void ImageViewBase::enterEvent(QEnterEvent* event) {
-  viewport()->setFocus();
+  // Taking the focus makes the keys work on the image right away, but not while the user
+  // types into an input field: Delete, +/- or the arrows meant for it would act on the
+  // image or delete a zone instead.
+  const QWidget* focused = QApplication::focusWidget();
+  const bool typingIntoField = qobject_cast<const QAbstractSpinBox*>(focused) || qobject_cast<const QLineEdit*>(focused)
+                               || qobject_cast<const QTextEdit*>(focused)
+                               || qobject_cast<const QPlainTextEdit*>(focused);
+  if (!typingIntoField) {
+    viewport()->setFocus();
+  }
   QAbstractScrollArea::enterEvent(event);
 }
 

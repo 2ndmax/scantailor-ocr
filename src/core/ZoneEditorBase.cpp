@@ -70,6 +70,11 @@ ZoneEditorBase::ZoneEditorBase(const QImage& image,
   m_shortcutLasso->setAutoRepeat(false);
   m_shortcutRectangular = new QShortcut(Qt::Key_C, this);
   m_shortcutRectangular->setAutoRepeat(false);
+  // Only while the image view has the focus: elsewhere the keys belong to other widgets,
+  // and the chosen mode is stored as the default.
+  for (QShortcut* shortcut : {m_shortcutPolygonal, m_shortcutLasso, m_shortcutRectangular}) {
+    shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+  }
   connect(m_shortcutPolygonal, &QShortcut::activated, [this]() { setZoneCreationMode(ZoneCreationMode::POLYGONAL); });
   connect(m_shortcutLasso, &QShortcut::activated, [this]() { setZoneCreationMode(ZoneCreationMode::LASSO); });
   connect(m_shortcutRectangular, &QShortcut::activated,
