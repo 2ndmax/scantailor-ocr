@@ -13,6 +13,7 @@
 #include "ApplyDialog.h"
 #include "DetectionOptions.h"
 #include "Settings.h"
+#include "Utils.h"
 
 namespace select_content {
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
@@ -37,7 +38,8 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo) {
   auto block = m_connectionManager.getScopedBlock();
 
   m_pageId = pageInfo.id();
-  m_dpi = pageInfo.metadata().dpi();
+  // The page box is in virtual pixels, which have the equalized resolution.
+  m_dpi = Utils::virtualDpi(pageInfo.metadata().dpi());
 
   contentBoxGroup->setEnabled(false);
   pageBoxGroup->setEnabled(false);

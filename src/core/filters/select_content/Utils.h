@@ -15,6 +15,12 @@ class Utils {
   Utils() = delete;
 
   static Params buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams);
+
+  /**
+   * The resolution of the virtual pixels the page box is measured in: an image with unequal
+   * resolutions is scaled to the smaller one (see ImageTransformation::preScaleToEqualizeDpi()).
+   */
+  static Dpi virtualDpi(const Dpi& imageDpi);
 };
 }  // namespace select_content
 

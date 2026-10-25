@@ -111,11 +111,18 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
                                       m_settings->pageDetectionTolerance(), m_dbg.get());
       } else if (newParams.pageDetectionMode() == MODE_DISABLED) {
         pageRect = data.xform().resultingRect();
+      } else if (!params || params->dependencies().rotatedPageOutline().empty()) {
+        // A manual page box from the start values only has a size yet (the page was never
+        // processed here): it goes into the middle of the page, not into its top left corner.
+        pageRect.moveCenter(data.xform().resultingRect().center());
       }
 
       if (!data.xform().resultingRect().intersected(pageRect).isValid()) {
         pageRect = data.xform().resultingRect();
       }
+      // A manual page box larger than the page, or from a larger page outline (e.g. before
+      // the split line moved), must not reach out of the image.
+      pageRect = pageRect.intersected(data.xform().resultingRect());
 
       // When offcut/page outline changes, keep manual content aligned with page motion (issue #90).
       if (newParams.contentDetectionMode() == MODE_MANUAL && contentRect.isValid() && oldPageRect.isValid()

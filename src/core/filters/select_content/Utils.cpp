@@ -3,8 +3,11 @@
 
 #include "Utils.h"
 
+#include <Dpi.h>
 #include <core/DefaultParams.h>
 #include <core/UnitsConverter.h>
+
+#include <algorithm>
 
 #include "Params.h"
 
@@ -13,7 +16,7 @@ using namespace select_content;
 Params Utils::buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams) {
   const DefaultParams::SelectContentParams& selectContentParams = defaultParams.getSelectContentParams();
 
-  const UnitsConverter unitsConverter(dpi);
+  const UnitsConverter unitsConverter(virtualDpi(dpi));
 
   const QSizeF& pageRectSize = selectContentParams.getPageRectSize();
   double pageRectWidth = pageRectSize.width();
@@ -23,4 +26,9 @@ Params Utils::buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultPar
   return Params(QRectF(), QSizeF(), QRectF(QPointF(0, 0), QSizeF(pageRectWidth, pageRectHeight)), Dependencies(),
                 selectContentParams.isContentDetectEnabled() ? MODE_AUTO : MODE_DISABLED,
                 selectContentParams.getPageDetectMode(), selectContentParams.isFineTuneCorners());
+}
+
+Dpi Utils::virtualDpi(const Dpi& imageDpi) {
+  const int smaller = std::min(imageDpi.horizontal(), imageDpi.vertical());
+  return Dpi(smaller, smaller);
 }
