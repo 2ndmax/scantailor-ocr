@@ -3,8 +3,12 @@
 
 #include "PictureZoneComparator.h"
 
+#include <PolygonUtils.h>
+
 #include "PictureLayerProperty.h"
 #include "ZoneSet.h"
+
+using namespace imageproc;
 
 namespace output {
 bool PictureZoneComparator::equal(const ZoneSet& lhs, const ZoneSet& rhs) {
@@ -21,7 +25,8 @@ bool PictureZoneComparator::equal(const ZoneSet& lhs, const ZoneSet& rhs) {
 }
 
 bool PictureZoneComparator::equal(const Zone& lhs, const Zone& rhs) {
-  if (lhs.spline().toPolygon() != rhs.spline().toPolygon()) {
+  // Like FillZoneComparator: points that only differ by rounding errors are the same zone.
+  if (!PolygonUtils::fuzzyCompare(lhs.spline().toPolygon(), rhs.spline().toPolygon())) {
     return false;
   }
   return equal(lhs.properties(), rhs.properties());

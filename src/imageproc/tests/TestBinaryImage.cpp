@@ -119,6 +119,23 @@ BOOST_AUTO_TEST_CASE(test_fill_except) {
   BOOST_CHECK(surroundingsIntact(image.toQImage(), blackImage, rect));
 }
 
+// A part of a 16 bit image is binarized from its own position, not from the top left corner.
+BOOST_AUTO_TEST_CASE(test_part_of_rgb16_image) {
+  QImage image(100, 100, QImage::Format_RGB16);
+  image.fill(Qt::white);
+  for (int y = 50; y < 60; ++y) {
+    for (int x = 50; x < 60; ++x) {
+      image.setPixel(x, y, qRgb(0, 0, 0));
+    }
+  }
+  const BinaryImage part(image, QRect(50, 50, 10, 10));
+  BOOST_REQUIRE(part.size() == QSize(10, 10));
+  BOOST_CHECK_EQUAL(part.countBlackPixels(), 100);
+
+  const BinaryImage corner(image, QRect(0, 0, 10, 10));
+  BOOST_CHECK_EQUAL(corner.countBlackPixels(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(test_content_bounding_box4) {
   static const int inp[]
       = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,

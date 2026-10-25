@@ -194,6 +194,10 @@ class BinaryImage {
    *
    * This value is usually (width + 31) / 32, but it can also
    * be bigger than that.
+   *
+   * The bits behind the width in the last word of a line (the fill bits) have no defined
+   * value: conversions from a QImage clear them, but fill(BLACK) and invert() set them.
+   * Code that reads whole words has to mask them out.
    */
   int wordsPerLine() const { return m_wpl; }
 

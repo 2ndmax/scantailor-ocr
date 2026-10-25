@@ -485,6 +485,7 @@ void BinaryImage::setPixel(int x, int y, BWColor color) {
 }
 
 BWColor BinaryImage::getPixel(int x, int y) const {
+  assert(x >= 0 && x < m_width && y >= 0 && y < m_height);
   const uint32_t* line = this->data() + m_wpl * y;
   return (BWColor) ((line[x >> 5] >> (31 - (x & 31))) & 1);
 }
@@ -916,6 +917,7 @@ BinaryImage BinaryImage::fromRgb16(const QImage& image, const QRect& rect, const
   assert(image.bytesPerLine() % 4 == 0);
   const int srcWpl = image.bytesPerLine() / 2;
   const auto* srcLine = (const uint16_t*) image.bits();
+  srcLine += rect.top() * srcWpl + rect.left();
 
   BinaryImage dst(width, height);
   const int dstWpl = dst.wordsPerLine();
