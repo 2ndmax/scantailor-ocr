@@ -448,6 +448,24 @@ BOOST_AUTO_TEST_CASE(older_projects_posterize_text_when_posterizing_was_on) {
   BOOST_CHECK(ColorParams(el).colorCommonOptions().getPosterizationOptions().isEnabled());
 }
 
+// A gray image is filled with the gray of the color, not with its blue byte.
+BOOST_AUTO_TEST_CASE(gray_image_margins_get_the_gray_of_the_color) {
+  QImage image(8, 4, QImage::Format_Indexed8);
+  QList<QRgb> table;
+  for (int i = 0; i < 256; ++i) {
+    table.append(qRgb(i, i, i));
+  }
+  image.setColorTable(table);
+  image.fill(10);
+  imageproc::BinaryImage mask(QSize(8, 4), imageproc::WHITE);
+  mask.fill(QRect(0, 0, 4, 4), imageproc::BLACK);  // The content is the left half.
+
+  const QColor color(200, 10, 30);
+  fillMarginsInPlace(image, mask, color);
+  BOOST_CHECK_EQUAL(image.pixelIndex(1, 1), 10);
+  BOOST_CHECK_EQUAL(image.pixelIndex(6, 1), qGray(color.rgb()));
+}
+
 BOOST_AUTO_TEST_CASE(rect_picture_zones_end_at_the_picture) {
   // A picture reaching into the last, incomplete word of a line: the padding bits behind the
   // width counted as picture, so the zone went on to the end of the word.

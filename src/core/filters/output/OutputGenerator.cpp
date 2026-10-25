@@ -58,6 +58,7 @@
 #include <cmath>
 #include <functional>
 #include <stdexcept>
+#include <type_traits>
 
 #include "ColorParams.h"
 #include "DebugImages.h"
@@ -480,7 +481,13 @@ void fillExcept(QImage& image, const BinaryImage& bwMask, const QColor& color) {
   const int width = image.width();
   const int height = image.height();
   const uint32_t msb = uint32_t(1) << 31;
-  const auto fillingPixel = static_cast<MixedPixel>(color.rgba());
+  MixedPixel fillingPixel;
+  if constexpr (std::is_same_v<MixedPixel, uint8_t>) {
+    // A gray pixel holds the gray of the color; the lowest byte of rgba() would be its blue part.
+    fillingPixel = static_cast<uint8_t>(qGray(color.rgb()));
+  } else {
+    fillingPixel = static_cast<MixedPixel>(color.rgba());
+  }
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -2796,6 +2803,9 @@ DistortionModel OutputGenerator::Processor::buildMarginalDistortionModel() const
     setupTrivialDistortionModel(distortionModel);
   }
 
+  // REVIEW-NOTE (2026-10): the control points are in original coordinates but drawn onto the pre-rotated
+  // bwImage -> on rotated pages the debug image shows them at wrong places. Not fixed because it only
+  // affects the debug output.
   if (m_dbg) {
     QImage outImage(bwImage.toQImage().convertToFormat(QImage::Format_RGB32));
     for (int i = 0; i <= topSpline.numSegments(); i++) {
