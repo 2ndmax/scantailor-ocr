@@ -15,6 +15,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cstdlib>
 #include <limits>
+#include <stdexcept>
 #include <vector>
 
 namespace dewarping {
@@ -81,6 +82,14 @@ BOOST_AUTO_TEST_CASE(test_mid_line_outside_the_image) {
   std::vector<QPoint> seeds;
   TextLineTracerTestAccess::findMidLineSeeds(sedm, QLineF(-100000, -100000, -100000, 100000), seeds);
   BOOST_TEST(seeds.empty());
+}
+
+// The dewarper needs two points on each directrix; fewer used to be read as if they were there.
+BOOST_AUTO_TEST_CASE(test_directrix_with_fewer_than_two_points_is_rejected) {
+  const std::vector<QPointF> good{{0, 0}, {1000, 0}};
+  const std::vector<QPointF> single{{0, 2000}};
+  BOOST_CHECK_THROW(CylindricalSurfaceDewarper(good, single, 2.0), std::invalid_argument);
+  BOOST_CHECK_THROW(CylindricalSurfaceDewarper(single, good, 2.0), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

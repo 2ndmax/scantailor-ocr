@@ -4,6 +4,7 @@
 #include "PolylineIntersector.h"
 
 #include <cmath>
+#include <stdexcept>
 
 #include "ToLineProjector.h"
 
@@ -15,7 +16,12 @@ void PolylineIntersector::Hint::update(int newSegment) {
 }
 
 PolylineIntersector::PolylineIntersector(const std::vector<QPointF>& polyline)
-    : m_polyline(polyline), m_numSegments(static_cast<int>(polyline.size() - 1)) {}
+    : m_polyline(polyline), m_numSegments(static_cast<int>(polyline.size()) - 1) {
+  // intersect() looks for a segment, and the end points are read without checking the size.
+  if (polyline.size() < 2) {
+    throw std::invalid_argument("PolylineIntersector: a polyline needs at least 2 points");
+  }
+}
 
 QPointF PolylineIntersector::intersect(const QLineF& line, Hint& hint) const {
   const QLineF normal(line.normalVector());

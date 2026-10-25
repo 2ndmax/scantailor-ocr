@@ -16,6 +16,14 @@ BOOST_AUTO_TEST_CASE(test_division_by_scalar) {
   BOOST_CHECK_CLOSE(res[1], 4.0, 1e-9);
 }
 
+// Whole-number elements are divided one by one, not multiplied by 1 / scalar, which is 0 for them.
+BOOST_AUTO_TEST_CASE(test_division_of_whole_numbers) {
+  const VecNT<2, int> vec(10, 20);
+  const VecNT<2, int> res(vec / 2);
+  BOOST_CHECK_EQUAL(res[0], 5);
+  BOOST_CHECK_EQUAL(res[1], 10);
+}
+
 BOOST_AUTO_TEST_CASE(test_scalar_divided_by_vector) {
   const Vec2d vec(2, 8);
   const Vec2d res(16.0 / vec);

@@ -26,6 +26,9 @@ class PolylineIntersector {
   };
 
 
+  /**
+   * \throws std::invalid_argument if the polyline has fewer than 2 points.
+   */
   explicit PolylineIntersector(const std::vector<QPointF>& polyline);
 
   QPointF intersect(const QLineF& line, Hint& hint) const;

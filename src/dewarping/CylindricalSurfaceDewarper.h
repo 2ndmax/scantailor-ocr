@@ -40,6 +40,11 @@ class CylindricalSurfaceDewarper {
    *        by two outer generatrixes, in some unknown units :)
    *        This model assumes that plane is perpendicular to the camera direction.
    *        In practice, just use values between 1 and 3.
+   *
+   * \throws std::invalid_argument if a directrix has fewer than 2 points.
+   * \throws std::runtime_error if the directrices are degenerate, so that a system of equations
+   *         can't be solved. Callers check DistortionModel::isValid() first, which rules this out for
+   *         the usual cases.
    */
   CylindricalSurfaceDewarper(const std::vector<QPointF>& imgDirectrix1,
                              const std::vector<QPointF>& imgDirectrix2,
@@ -52,6 +57,10 @@ class CylindricalSurfaceDewarper {
    */
   double directrixArcLength() const { return m_directrixArcLength; }
 
+  /**
+   * \throws std::runtime_error if the equations of the dewarping can't be solved for this position,
+   *         e.g. when the directrices touch each other.
+   */
   Generatrix mapGeneratrix(double crvX, State& state) const;
 
   /**
@@ -59,6 +68,8 @@ class CylindricalSurfaceDewarper {
    * to dewarped normalized coordinates. See comments
    * in the beginning of the *.cpp file for more information
    * about coordinate systems we work with.
+   *
+   * \throws std::runtime_error like mapGeneratrix().
    */
   QPointF mapToDewarpedSpace(const QPointF& imgPt) const;
 
@@ -67,6 +78,8 @@ class CylindricalSurfaceDewarper {
    * to warped image coordinates. See comments in the beginning
    * of the *.cpp file for more information about coordinate
    * systems we owork with.
+   *
+   * \throws std::runtime_error like mapGeneratrix().
    */
   QPointF mapToWarpedSpace(const QPointF& crvPt) const;
 

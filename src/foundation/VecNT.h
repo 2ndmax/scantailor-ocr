@@ -296,7 +296,11 @@ VecNT<N, T>& VecNT<N, T>::operator*=(T scalar) {
 
 template <size_t N, typename T>
 VecNT<N, T>& VecNT<N, T>::operator/=(T scalar) {
-  return *this *= (T(1) / scalar);
+  // Not multiplied by T(1) / scalar, which is 0 for whole numbers.
+  for (size_t i = 0; i < N; ++i) {
+    m_data[i] /= scalar;
+  }
+  return *this;
 }
 
 template <size_t N, typename T>

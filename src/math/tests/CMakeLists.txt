@@ -4,6 +4,7 @@ set(sources
     TestHessians.cpp
     TestLineBoundedByRect.cpp
     TestLinearSolver.cpp
+    TestPolylineIntersector.cpp
     TestLinearFunction.cpp
     TestMatrixCalc.cpp
     TestQuadraticFunction.cpp

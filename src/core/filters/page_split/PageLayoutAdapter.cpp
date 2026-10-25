@@ -47,6 +47,11 @@ QVector<QLineF> PageLayoutAdapter::adaptCutters(const QVector<QLineF>& cuttersLi
 
   for (QLineF cutter : cuttersList) {
     QLineF adaptedCutter = adaptCutter(cutter, newRect);
+    // A line that could not be adapted comes back as it was, with its points in any order.
+    // Sorting by x1 and the correction below need p1 to be the upper point.
+    if (adaptedCutter.y1() > adaptedCutter.y2()) {
+      adaptedCutter = QLineF(adaptedCutter.p2(), adaptedCutter.p1());
+    }
     adaptedCutters.append(adaptedCutter);
   }
 

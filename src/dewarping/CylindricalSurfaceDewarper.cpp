@@ -61,11 +61,21 @@ class CylindricalSurfaceDewarper::CoupledPolylinesIterator {
 };
 
 
+namespace {
+// The dewarper reads the end points of the directrices, so each needs at least 2 points.
+const std::vector<QPointF>& requireTwoPoints(const std::vector<QPointF>& directrix) {
+  if (directrix.size() < 2) {
+    throw std::invalid_argument("CylindricalSurfaceDewarper: a directrix needs at least 2 points");
+  }
+  return directrix;
+}
+}  // namespace
+
 CylindricalSurfaceDewarper::CylindricalSurfaceDewarper(const std::vector<QPointF>& imgDirectrix1,
                                                        const std::vector<QPointF>& imgDirectrix2,
                                                        double depthPerception,
                                                        const WidthCorrection& widthCorrection)
-    : m_pln2img(calcPlnToImgHomography(imgDirectrix1, imgDirectrix2)),
+    : m_pln2img(calcPlnToImgHomography(requireTwoPoints(imgDirectrix1), requireTwoPoints(imgDirectrix2))),
       m_img2pln(m_pln2img.inv()),
       m_depthPerception(depthPerception),
       m_plnStraightLineY(calcPlnStraightLineY(imgDirectrix1, imgDirectrix2, m_pln2img, m_img2pln)),

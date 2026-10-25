@@ -11,6 +11,7 @@ set(sources
     TestImageReaders.cpp
     TestMargins.cpp
     TestPageId.cpp
+    TestPageLayout.cpp
     TestPageRange.cpp
     TestPageOrder.cpp
     TestPageOrderProviders.cpp
@@ -38,6 +39,7 @@ set(sources
     TestUnits.cpp
     TestWidthCorrection.cpp
     TestWidthProfile.cpp
+    TestZone.cpp
     TestUtils.cpp)
 # The color mode detection comes with OCR (Leptonica).
 if (TESSERACT_TARGET)

@@ -41,8 +41,8 @@ class ImageLoader {
   static QImage loadReportingErrors(const ImageId& imageId, const QSize& minSize, QStringList* errorMessages);
 
   /**
-   * Reads with QImageReader. p forcedFormat is a format name to use instead of recognizing it by content,
-   * or null. On failure, the reason is put into p errorString.
+   * Reads with QImageReader. \p forcedFormat is a format name to use instead of recognizing it by content,
+   * or null. On failure, the reason is put into \p errorString.
    */
   static bool readWithQt(QIODevice& ioDev,
                          const QSize& minSize,

@@ -28,7 +28,7 @@ PageLayout::PageLayout(const QRectF& fullRect, const QLineF& cutter1, const QLin
     : m_uncutOutline(fullRect), m_cutter1(cutter1), m_cutter2(cutter2), m_type(SINGLE_PAGE_CUT) {}
 
 PageLayout::PageLayout(const QRectF fullRect, const QLineF& splitLine)
-    : m_uncutOutline(fullRect), m_cutter1(splitLine), m_type(TWO_PAGES) {}
+    : m_uncutOutline(fullRect), m_cutter1(splitLine), m_cutter2(splitLine), m_type(TWO_PAGES) {}
 
 PageLayout::PageLayout(const QPolygonF& outline, const QLineF& cutter1, const QLineF& cutter2, Type type)
     : m_uncutOutline(outline), m_cutter1(cutter1), m_cutter2(cutter2), m_type(type) {}
@@ -37,7 +37,12 @@ PageLayout::PageLayout(const QDomElement& layoutEl)
     : m_uncutOutline(XmlUnmarshaller::polygonF(layoutEl.namedItem("outline").toElement())),
       m_cutter1(XmlUnmarshaller::lineF(layoutEl.namedItem("cutter1").toElement())),
       m_cutter2(XmlUnmarshaller::lineF(layoutEl.namedItem("cutter2").toElement())),
-      m_type(typeFromString(layoutEl.attribute("type"))) {}
+      m_type(typeFromString(layoutEl.attribute("type"))) {
+  if (m_type == TWO_PAGES) {
+    // Only the first line is stored for two pages; the second one is the same.
+    m_cutter2 = m_cutter1;
+  }
+}
 
 void PageLayout::setType(Type type) {
   m_type = type;
