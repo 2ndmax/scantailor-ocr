@@ -65,4 +65,20 @@ BOOST_AUTO_TEST_CASE(test_from_xml_attributes) {
   BOOST_CHECK_CLOSE(m.bottom(), 4.0, 0.01);
 }
 
+// A damaged or hand-edited project file must not bring NaN or infinite margins. Negative
+// margins are allowed (Margins step, down to -9999).
+BOOST_AUTO_TEST_CASE(test_invalid_values_from_xml_become_zero) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("margins");
+  el.setAttribute("left", "nan");
+  el.setAttribute("top", "inf");
+  el.setAttribute("right", "-5");
+  el.setAttribute("bottom", "7.5x");
+  const Margins m(el);
+  BOOST_CHECK_EQUAL(m.left(), 0.0);
+  BOOST_CHECK_EQUAL(m.top(), 0.0);
+  BOOST_CHECK_EQUAL(m.right(), -5.0);
+  BOOST_CHECK_EQUAL(m.bottom(), 0.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

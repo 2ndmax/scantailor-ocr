@@ -8,8 +8,18 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>
+#include <cmath>
 
 using namespace foundation;
+
+namespace {
+// A damaged or hand-edited project file may hold anything. Negative margins are valid.
+double marginFromXml(const QDomElement& el, const QString& name) {
+  bool ok = false;
+  const double value = el.attribute(name).toDouble(&ok);
+  return (ok && std::isfinite(value)) ? value : 0.0;
+}
+}  // namespace
 
 Margins::Margins() : m_top(), m_bottom(), m_left(), m_right() {}
 
@@ -17,10 +27,10 @@ Margins::Margins(double left, double top, double right, double bottom)
     : m_top(top), m_bottom(bottom), m_left(left), m_right(right) {}
 
 Margins::Margins(const QDomElement& el)
-    : m_top(el.attribute("top").toDouble()),
-      m_bottom(el.attribute("bottom").toDouble()),
-      m_left(el.attribute("left").toDouble()),
-      m_right(el.attribute("right").toDouble()) {}
+    : m_top(marginFromXml(el, "top")),
+      m_bottom(marginFromXml(el, "bottom")),
+      m_left(marginFromXml(el, "left")),
+      m_right(marginFromXml(el, "right")) {}
 
 QDomElement Margins::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));

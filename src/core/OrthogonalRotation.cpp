@@ -13,7 +13,14 @@
 
 OrthogonalRotation::OrthogonalRotation() : m_degrees(0) {}
 
-OrthogonalRotation::OrthogonalRotation(const QDomElement& el) : m_degrees(el.attribute("degrees").toInt()) {}
+OrthogonalRotation::OrthogonalRotation(const QDomElement& el) : m_degrees(0) {
+  // A damaged or hand-edited project file may hold any angle. transform() and rotate()
+  // only handle 0, 90, 180 and 270, so full turns are removed and anything else becomes 0.
+  const int degrees = ((el.attribute("degrees").toInt() % 360) + 360) % 360;
+  if (degrees % 90 == 0) {
+    m_degrees = degrees;
+  }
+}
 
 int OrthogonalRotation::toDegrees() const {
   return m_degrees;

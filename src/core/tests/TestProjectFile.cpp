@@ -5,6 +5,7 @@
 #include <FileNameDisambiguator.h>
 #include <ImageFileInfo.h>
 #include <ImageInfo.h>
+#include <OrthogonalRotation.h>
 #include <OutputFileNameGenerator.h>
 #include <PageInfo.h>
 #include <PageSequence.h>
@@ -18,6 +19,7 @@
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -293,5 +295,32 @@ BOOST_AUTO_TEST_CASE(test_image_file_info_keeps_the_page_numbers) {
   const std::vector<ImageFileInfo> files = pages.toImageFileInfo();
   BOOST_REQUIRE_EQUAL(files.size(), 1u);
   BOOST_CHECK(files[0].pageNumbers() == std::vector<int>({2, 3}));
+}
+
+// Only 0, 90, 180 and 270 are valid; anything else from a project file is brought back to them.
+BOOST_AUTO_TEST_CASE(test_rotation_from_xml_is_normalized) {
+  const std::vector<std::pair<QString, int>> cases
+      = {{"90", 90}, {"360", 0}, {"-90", 270}, {"450", 90}, {"45", 0}, {"abc", 0}};
+  for (const auto& [degrees, expected] : cases) {
+    QDomDocument doc;
+    QDomElement el = doc.createElement("rotation");
+    el.setAttribute("degrees", degrees);
+    BOOST_CHECK_MESSAGE(OrthogonalRotation(el).toDegrees() == expected, degrees.toStdString());
+  }
+}
+
+// A malformed value in a profile must not switch despeckling off.
+BOOST_AUTO_TEST_CASE(test_malformed_despeckle_level_falls_back) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("output");
+  el.setAttribute("despeckleLevel", "strong");
+  BOOST_CHECK_EQUAL(DefaultParams::OutputParams(el).getDespeckleLevel(), 1.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_deskew_mode_disabled_round_trip) {
+  QDomDocument doc;
+  const DefaultParams::DeskewParams params(0.0, MODE_DISABLED);
+  const DefaultParams::DeskewParams read(params.toXml(doc, "deskew"));
+  BOOST_CHECK(read.getMode() == MODE_DISABLED);
 }
 BOOST_AUTO_TEST_SUITE_END()

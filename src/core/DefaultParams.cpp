@@ -5,6 +5,8 @@
 
 #include <foundation/Utils.h>
 
+#include <cmath>
+
 #include "XmlMarshaller.h"
 #include "XmlUnmarshaller.h"
 
@@ -74,14 +76,14 @@ DefaultParams::DeskewParams::DeskewParams()
 
 DefaultParams::DeskewParams::DeskewParams(const QDomElement& el)
     : m_deskewAngleDeg(el.attribute("deskewAngleDeg").toDouble()),
-      m_mode((el.attribute("mode") == "manual") ? MODE_MANUAL : MODE_AUTO),
+      m_mode(stringToAutoManualMode(el.attribute("mode"))),
       m_autoOblique(el.attribute("autoOblique", "0") != "0"),
       m_detection(deskew::skewDetectionFromString(el.attribute("detection"), deskew::DETECT_CONTENT)) {}
 
 QDomElement DefaultParams::DeskewParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("deskewAngleDeg", Utils::doubleToString(m_deskewAngleDeg));
-  el.setAttribute("mode", (m_mode == MODE_AUTO) ? "auto" : "manual");
+  el.setAttribute("mode", autoManualModeToString(m_mode));
   el.setAttribute("autoOblique", m_autoOblique ? "1" : "0");
   el.setAttribute("detection", deskew::skewDetectionToString(m_detection));
   return el;
@@ -187,6 +189,15 @@ DefaultParams::OutputParams::OutputParams(const Dpi& dpi,
 
 DefaultParams::OutputParams::OutputParams() : m_dpi(600, 600), m_despeckleLevel(1.0) {}
 
+namespace {
+double despeckleLevelFromXml(const QDomElement& el) {
+  // A malformed value would become 0.0 and silently switch despeckling off.
+  bool ok = false;
+  const double level = el.attribute("despeckleLevel").toDouble(&ok);
+  return (ok && std::isfinite(level)) ? level : 1.0;
+}
+}  // namespace
+
 DefaultParams::OutputParams::OutputParams(const QDomElement& el)
     : m_dpi(el.namedItem("dpi").toElement()),
       m_colorParams(el.namedItem("colorParams").toElement()),
@@ -196,7 +207,7 @@ DefaultParams::OutputParams::OutputParams(const QDomElement& el)
       // malformed; the double one would silently turn that into the minimum value.
       m_depthPerception(el.attribute("depthPerception")),
       m_dewarpingOptions(el.namedItem("dewarpingOptions").toElement()),
-      m_despeckleLevel(el.attribute("despeckleLevel", "1.0").toDouble()) {}
+      m_despeckleLevel(despeckleLevelFromXml(el)) {}
 
 QDomElement DefaultParams::OutputParams::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
