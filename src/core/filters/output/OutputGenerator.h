@@ -4,6 +4,8 @@
 #ifndef SCANTAILOR_OUTPUT_OUTPUTGENERATOR_H_
 #define SCANTAILOR_OUTPUT_OUTPUTGENERATOR_H_
 
+#include <QColor>
+#include <QImage>
 #include <QRect>
 #include <memory>
 #include <vector>
@@ -112,5 +114,10 @@ class OutputGenerator {
  * Declared here for the tests.
  */
 std::vector<QRect> findRectAreas(const imageproc::BinaryImage& mask, imageproc::BWColor contentColor, int sensitivity);
+
+/**
+ * Fills the pixels of image outside the content mask with color. Declared here for the tests.
+ */
+void fillMarginsInPlace(QImage& image, const imageproc::BinaryImage& contentMask, const QColor& color);
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_OUTPUTGENERATOR_H_

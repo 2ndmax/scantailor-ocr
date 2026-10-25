@@ -624,6 +624,8 @@ void fillMarginsInPlace(BinaryImage& image, const BinaryImage& contentMask, cons
   fillExcept(image, contentMask, color);
 }
 
+}  // namespace
+
 void fillMarginsInPlace(QImage& image, const BinaryImage& contentMask, const QColor& color) {
   if (image.size() != contentMask.size()) {
     throw std::invalid_argument("fillMarginsInPlace: img and mask have different sizes");
@@ -643,6 +645,8 @@ void fillMarginsInPlace(QImage& image, const BinaryImage& contentMask, const QCo
     fillExcept<uint32_t>(image, contentMask, color);
   }
 }
+
+namespace {
 
 void removeAutoPictureZones(ZoneSet& pictureZones) {
   for (auto it = pictureZones.begin(); it != pictureZones.end();) {
