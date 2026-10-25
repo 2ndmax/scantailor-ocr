@@ -69,6 +69,9 @@ void ImageTransformation::preScaleToEqualizeDpi() {
 }
 
 void ImageTransformation::setPreRotation(const OrthogonalRotation& rotation) {
+  // REVIEW-NOTE (2026-10): the rotation is built from m_origRect.size(), not the pre-scaled size
+  // -> with unequal x/y DPI the translation is off. Not fixed because update() re-normalizes the
+  // pre-crop area and changing it could move stored areas of existing projects.
   m_preRotation = rotation;
   m_preRotateXform = m_preRotation.transform(m_origRect.size());
   resetPreCropArea();
@@ -170,8 +173,11 @@ QTransform ImageTransformation::calcPostScaleXform(const Dpi& targetDpi) {
   // Normally m_preScaledDpi would be symmetric, so we could just
   // use that, but just in case ...
 
-  const QTransform toOrig(m_postScaleXform * m_transform.inverted());
-  // IMPORTANT: in the above line we assume post-scale is the last transform.
+  // The oblique shear is left out: it keeps the heights, but the unit vertical would map back
+  // to a slanted line 1/cos(oblique) long and stretch the page vertically.
+  const QTransform withoutShear(m_preScaleXform * m_preRotateXform * m_preCropXform
+                                * calcPostRotateXform(m_postRotation, 0.0) * m_postCropXform);
+  const QTransform toOrig(withoutShear.inverted());
 
   const QLineF horUnit(QPointF(0, 0), QPointF(1, 0));
   const QLineF vertUnit(QPointF(0, 0), QPointF(0, 1));

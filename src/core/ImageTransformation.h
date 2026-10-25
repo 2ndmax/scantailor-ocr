@@ -7,6 +7,8 @@
 #include <QPolygonF>
 #include <QRectF>
 #include <QTransform>
+#include <QtMath>
+#include <cmath>
 
 #include "Dpi.h"
 #include "OrthogonalRotation.h"
@@ -140,7 +142,7 @@ class ImageTransformation {
 
   /**
    * \brief Set oblique (shear) in degrees for the 4th step (issue #53).
-   * Applied after rotation. Vertical shear: x' = x + tan(degrees)*y.
+   * Applied after rotation. Vertical shear: x' = x - tan(degrees)*y.
    */
   void setPostOblique(double degrees);
 
@@ -156,13 +158,16 @@ class ImageTransformation {
 
   /**
    * \brief Returns the sine of the 4th step rotation angle.
+   *
+   * Computed from the angle: with an oblique shear the matrix of the 4th step
+   * holds rotation and shear together.
    */
-  double postRotationSin() const { return m_postRotateXform.m12(); }
+  double postRotationSin() const { return std::sin(qDegreesToRadians(m_postRotation)); }
 
   /**
-   * \brief Returns the cosine of the 3rd step rotation angle.
+   * \brief Returns the cosine of the 4th step rotation angle.
    */
-  double postRotationCos() const { return m_postRotateXform.m11(); }
+  double postRotationCos() const { return std::cos(qDegreesToRadians(m_postRotation)); }
 
   /**
    * \brief Set the 5th step transformation, resetting the following ones.

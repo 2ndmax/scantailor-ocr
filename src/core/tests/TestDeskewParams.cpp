@@ -11,7 +11,9 @@
 #include <QPolygonF>
 #include <QRectF>
 #include <QTransform>
+#include <QtMath>
 #include <boost/test/unit_test.hpp>
+#include <cmath>
 
 namespace Tests {
 using namespace deskew;
@@ -240,6 +242,37 @@ BOOST_AUTO_TEST_CASE(orig_pre_crop_area_is_in_image_coordinates) {
   const QRectF rotatedArea = rotated.origPreCropArea().boundingRect();
   BOOST_CHECK_CLOSE(rotatedArea.width(), 200.0, 1e-6);
   BOOST_CHECK_CLOSE(rotatedArea.height(), 100.0, 1e-6);
+}
+
+// A shear keeps the heights, so doubling the DPI has to double both axes and keep
+// the aspect ratio. Measured with the shear, the height grew by 1/cos(oblique).
+BOOST_AUTO_TEST_CASE(post_scale_keeps_aspect_ratio_with_oblique) {
+  for (const double rotationDeg : {0.0, 3.0}) {
+    const QRectF rect(0, 0, 1000, 1000);
+    ImageTransformation xform(rect, Dpi(300, 300));
+    xform.setPreCropArea(QPolygonF(rect));
+    xform.setPostRotation(rotationDeg);
+    xform.setPostOblique(5.0);
+    const QTransform unscaled = xform.transform();
+
+    xform.postScaleToDpi(Dpi(600, 600));
+    const QTransform scaled = xform.transform();
+    BOOST_CHECK_CLOSE(scaled.m11(), 2.0 * unscaled.m11(), 1e-6);
+    BOOST_CHECK_CLOSE(scaled.m12(), 2.0 * unscaled.m12(), 1e-6);
+    BOOST_CHECK_CLOSE(scaled.m21(), 2.0 * unscaled.m21(), 1e-6);
+    BOOST_CHECK_CLOSE(scaled.m22(), 2.0 * unscaled.m22(), 1e-6);
+  }
+}
+
+// The deskew handles are drawn with these; the shear must not change them.
+BOOST_AUTO_TEST_CASE(post_rotation_sin_cos_ignore_oblique) {
+  const QRectF rect(0, 0, 1000, 1000);
+  ImageTransformation xform(rect, Dpi(300, 300));
+  xform.setPreCropArea(QPolygonF(rect));
+  xform.setPostRotation(5.0);
+  xform.setPostOblique(5.0);
+  BOOST_CHECK_CLOSE(xform.postRotationCos(), std::cos(qDegreesToRadians(5.0)), 1e-6);
+  BOOST_CHECK_CLOSE(xform.postRotationSin(), std::sin(qDegreesToRadians(5.0)), 1e-6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
