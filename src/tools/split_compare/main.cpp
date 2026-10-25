@@ -31,6 +31,7 @@
 #include <QDir>
 #include <QDomDocument>
 #include <QFile>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QPainter>
 #include <algorithm>
@@ -73,7 +74,9 @@ std::vector<double> columnDarkness(const imageproc::GrayImage& gray) {
   return result;
 }
 
-// The rotation set in the Fix Orientation step for each file of a project, by file name.
+// The rotation set in the Fix Orientation step for each file of a project, by the file's canonical
+// path: files of the same name in different folders get their own rotation, and files outside the
+// project none.
 std::map<QString, int> rotationsFromProject(const QString& projectPath) {
   std::map<QString, int> rotations;
   QFile file(projectPath);
@@ -83,10 +86,18 @@ std::map<QString, int> rotationsFromProject(const QString& projectPath) {
     return rotations;
   }
   const QDomElement root = doc.documentElement();
-  std::map<QString, QString> fileNames;  // file id -> name
+  // The project stores folders relative to its own folder where possible.
+  const QDir projectDir = QFileInfo(projectPath).absoluteDir();
+  std::map<QString, QString> dirPaths;  // directory id -> path
+  for (QDomElement el = root.firstChildElement("directories").firstChildElement("directory"); !el.isNull();
+       el = el.nextSiblingElement("directory")) {
+    dirPaths[el.attribute("id")] = projectDir.absoluteFilePath(el.attribute("path"));
+  }
+  std::map<QString, QString> filePaths;  // file id -> canonical path
   for (QDomElement el = root.firstChildElement("files").firstChildElement("file"); !el.isNull();
        el = el.nextSiblingElement("file")) {
-    fileNames[el.attribute("id")] = el.attribute("name");
+    filePaths[el.attribute("id")]
+        = QFileInfo(QDir(dirPaths[el.attribute("dirId")]).filePath(el.attribute("name"))).canonicalFilePath();
   }
   std::map<QString, QString> imageFiles;  // image id -> file id
   for (QDomElement el = root.firstChildElement("images").firstChildElement("image"); !el.isNull();
@@ -94,14 +105,28 @@ std::map<QString, int> rotationsFromProject(const QString& projectPath) {
     imageFiles[el.attribute("id")] = el.attribute("fileId");
   }
   for (const auto& image : imageFiles) {
-    rotations[fileNames[image.second]] = 0;
+    rotations[filePaths[image.second]] = 0;
   }
   const QDomElement orientation = root.firstChildElement("filters").firstChildElement("fix-orientation");
   for (QDomElement el = orientation.firstChildElement("image"); !el.isNull(); el = el.nextSiblingElement("image")) {
-    const QString name = fileNames[imageFiles[el.attribute("id")]];
-    rotations[name] = el.firstChildElement("rotation").attribute("degrees").toInt();
+    const QString path = filePaths[imageFiles[el.attribute("id")]];
+    rotations[path] = el.firstChildElement("rotation").attribute("degrees").toInt();
   }
+  // Files the project lists but that don't exist have no canonical path.
+  rotations.erase(QString());
   return rotations;
+}
+
+// Sets rotation to the given degrees; false unless they are 0, 90, 180 or 270.
+bool toOrthogonalRotation(const int degrees, OrthogonalRotation* rotation) {
+  if ((degrees < 0) || (degrees >= 360) || (degrees % 90 != 0)) {
+    return false;
+  }
+  *rotation = OrthogonalRotation();
+  for (int deg = 0; deg < degrees; deg += 90) {
+    rotation->nextClockwiseDirection();
+  }
+  return true;
 }
 }  // namespace
 
@@ -116,12 +141,17 @@ int main(int argc, char** argv) {
   const QDir inDir(args[1]);
   const QDir outDir(args[2]);
   QDir().mkpath(outDir.path());
-  int rotation = 0;
+  OrthogonalRotation rotation;
   QString only;
   QString projectPath;
   for (int i = 3; i < args.size(); ++i) {
     if (args[i].startsWith("--rotate=")) {
-      rotation = args[i].mid(9).toInt();
+      bool ok = false;
+      const int degrees = args[i].mid(9).toInt(&ok);
+      if (!ok || !toOrthogonalRotation(degrees, &rotation)) {
+        std::cerr << "--rotate must be 0, 90, 180 or 270\n";
+        return 1;
+      }
     } else if (args[i].startsWith("--only=")) {
       only = args[i].mid(7);
     } else if (args[i].startsWith("--project=")) {
@@ -129,17 +159,25 @@ int main(int argc, char** argv) {
     }
   }
 
+  const auto canonicalPath = [&](const QString& file) { return QFileInfo(inDir.filePath(file)).canonicalFilePath(); };
   QStringList files = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"}, QDir::Files, QDir::Name);
   std::map<QString, int> projectRotations;
   if (!projectPath.isEmpty()) {
     projectRotations = rotationsFromProject(projectPath);
     files.erase(std::remove_if(files.begin(), files.end(),
-                               [&](const QString& file) { return projectRotations.count(file) == 0; }),
+                               [&](const QString& file) { return projectRotations.count(canonicalPath(file)) == 0; }),
                 files.end());
   }
   std::cout << "file;width;edges_x;spine_x;spine_score;second_score;lines_x\n";
   for (const QString& file : files) {
     if (!only.isEmpty() && !file.contains(only)) {
+      continue;
+    }
+    OrthogonalRotation rot = rotation;
+    const auto projectRotation = projectRotations.find(canonicalPath(file));
+    if ((projectRotation != projectRotations.end()) && !toOrthogonalRotation(projectRotation->second, &rot)) {
+      std::cerr << "Skipped " << file.toStdString() << ": the project has the rotation " << projectRotation->second
+                << "\n";
       continue;
     }
     const QImage image = ImageLoader::load(inDir.filePath(file));
@@ -151,12 +189,6 @@ int main(int argc, char** argv) {
     const QImage gray = imageproc::toGrayscale(image);
 
     ImageTransformation xform(QRectF(gray.rect()), dpiOf(image));
-    OrthogonalRotation rot;
-    const auto projectRotation = projectRotations.find(file);
-    const int fileRotation = (projectRotation != projectRotations.end()) ? projectRotation->second : rotation;
-    for (int deg = 0; deg < fileRotation; deg += 90) {
-      rot.nextClockwiseDirection();
-    }
     xform.setPreRotation(rot);
 
     imageproc::GrayImage gray100;

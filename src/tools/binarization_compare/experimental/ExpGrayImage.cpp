@@ -373,7 +373,9 @@ unsigned int grayBiModalTiledValue(GrayImage const& src,
     threshold = part * Tmax + (512 - part) * Tmin;
     threshold >>= 8;
     Tn = threshold + 1;
-    while (threshold != Tn) {
+    // The iteration can alternate between two thresholds forever, so it is limited.
+    int const maxIterations = 256;
+    for (int iteration = 0; (threshold != Tn) && (iteration < maxIterations); iteration++) {
       Tn = threshold;
       Tb = Tw = 0;
       ib = iw = 0;
@@ -3277,7 +3279,11 @@ void grayRobustInPlace(GrayImage& src, int const radius, float const coef) {
         float const mean = gmean_line[x];
         float retval = origin;
         float const sc = mean - origin;
-        float const robust = 255.0f - (mean + 255.0f) * sc / (mean + sc);
+        float const denominator = mean + sc;
+        // A zero denominator (e.g. a black area, mean = origin = 0) would give NaN, which the
+        // clamping below turns into white; the limits of the formula are used instead.
+        float const robust
+            = (denominator != 0.0f) ? (255.0f - (mean + 255.0f) * sc / denominator) : ((sc == 0.0f) ? 255.0f : 0.0f);
         retval = coef * robust + (1.0f - coef) * origin + 0.5f;
         retval = (retval < 0.0f) ? 0.0f : (retval < 255.0f) ? retval : 255.0f;
         src_line[x] = (unsigned char) retval;
@@ -3392,13 +3398,15 @@ unsigned int grayDominantaValue(GrayImage const& src) {
     histogram[i] += histogram[i - 1];
   }
 
+  // Halves the window of i gray levels that holds the most pixels, starting with half the range.
+  // A window starting at j covers the levels j .. j + i - 1, so all windows count i levels.
   unsigned int ilow = 0;
   for (unsigned int i = (256 >> 1); i > 0; i >>= 1) {
     uint64_t sum_max = 0;
     unsigned int inew = ilow;
-    for (unsigned int j = ilow; j < (ilow + i); j++) {
-      uint64_t const sum_low = (j > 0) ? histogram[j] : 0;
-      uint64_t const sum_high = histogram[j + i];
+    for (unsigned int j = ilow; j <= (ilow + i); j++) {
+      uint64_t const sum_low = (j > 0) ? histogram[j - 1] : 0;
+      uint64_t const sum_high = histogram[j + i - 1];
       uint64_t const sum = sum_high - sum_low;
       if (sum > sum_max) {
         inew = j;

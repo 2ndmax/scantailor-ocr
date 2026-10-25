@@ -37,9 +37,24 @@ const QStringList kImageSuffixes = {"tif", "tiff", "png", "jpg", "jpeg", "jp2", 
 // Set by --colors.
 bool gColors = false;
 
+// A hash of this program file: it changes with every rebuild, so that a change in the code of a
+// method also computes all pages again, not only a change of its id or parameters.
+QString programStamp() {
+  static const QString stamp = [] {
+    QFile program(QCoreApplication::applicationFilePath());
+    QCryptographicHash hash(QCryptographicHash::Md5);
+    if (program.open(QIODevice::ReadOnly)) {
+      hash.addData(&program);
+    }
+    return QString::fromLatin1(hash.result().toHex());
+  }();
+  return stamp;
+}
+
 // Changes whenever the compared methods change, so that all pages are computed again.
 QString methodsStamp() {
   QStringList parts;
+  parts << programStamp();
   if (gColors) {
     parts << "colors";
     for (const ColorMethod& method : colorMethods()) {
@@ -56,9 +71,10 @@ QString methodsStamp() {
 QString pageId(const QFileInfo& file) {
   QString id = file.completeBaseName();
   id.replace(QRegularExpression("[^A-Za-z0-9_.-]+"), "_");
-  // Long names (copies of copies) are shortened, a hash of the full name keeps them apart.
+  // Long names (copies of copies) are shortened. A hash of the full path keeps them apart, and
+  // also files of the same name from different folders.
   const QString hash = QString::fromLatin1(
-      QCryptographicHash::hash(file.fileName().toUtf8(), QCryptographicHash::Md5).toHex().left(6));
+      QCryptographicHash::hash(file.absoluteFilePath().toUtf8(), QCryptographicHash::Md5).toHex().left(6));
   return id.left(40) + "_" + hash;
 }
 
@@ -98,10 +114,14 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
     return false;
   }
   outDir.mkpath(id);
+  // Without info.json the page is computed again next time and the viewer leaves it out, until
+  // all its images are saved.
+  QFile::remove(pageDir.filePath("info.json"));
+  bool saved = true;
   const imageproc::GrayImage gray(image);
   const QImage shown = gColors ? image.convertToFormat(QImage::Format_RGB32) : gray.toQImage();
-  shown.save(pageDir.filePath("original.jpg"), "JPG", 90);
-  shown.scaledToWidth(600, Qt::SmoothTransformation).save(pageDir.filePath("overview.jpg"), "JPG", 85);
+  saved &= shown.save(pageDir.filePath("original.jpg"), "JPG", 90);
+  saved &= shown.scaledToWidth(600, Qt::SmoothTransformation).save(pageDir.filePath("overview.jpg"), "JPG", 85);
 
   QJsonArray results;
   if (gColors) {
@@ -112,7 +132,7 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
       const QImage result = method.run(image, text);
       const qint64 ms = timer.elapsed();
       const QString fileName = method.id + ".png";
-      result.save(pageDir.filePath(fileName), "PNG");
+      saved &= result.save(pageDir.filePath(fileName), "PNG");
       std::cout << "  " << qPrintable(method.label) << ": " << ms << " ms" << std::endl;
       results.append(QJsonObject{{"id", method.id},
                                  {"label", method.label},
@@ -128,7 +148,7 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
     const QImage result = method.run(gray);
     const qint64 ms = timer.elapsed();
     const QString fileName = method.id + ((method.group == "filter") ? ".jpg" : ".png");
-    result.save(pageDir.filePath(fileName), (method.group == "filter") ? "JPG" : "PNG", 90);
+    saved &= result.save(pageDir.filePath(fileName), (method.group == "filter") ? "JPG" : "PNG", 90);
     std::cout << "  " << qPrintable(method.label) << ": " << ms << " ms" << std::endl;
     results.append(QJsonObject{{"id", method.id},
                                {"label", method.label},
@@ -138,10 +158,21 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
                                {"file", fileName}});
   }
 
+  if (!saved) {
+    std::cerr << "  could not save all images in " << qPrintable(QDir::toNativeSeparators(pageDir.path())) << std::endl;
+    return false;
+  }
+
   const int dpi = static_cast<int>(std::lround(image.dotsPerMeterX() * 0.0254));
   // Only the file name, not the folder, which may contain personal names.
-  const QJsonObject info{{"id", id},   {"file", file.fileName()}, {"width", gray.width()}, {"height", gray.height()},
-                         {"dpi", dpi}, {"stamp", stamp},          {"results", results}};
+  const QJsonObject info{{"id", id},
+                         {"mode", viewerMode(gColors)},
+                         {"file", file.fileName()},
+                         {"width", gray.width()},
+                         {"height", gray.height()},
+                         {"dpi", dpi},
+                         {"stamp", stamp},
+                         {"results", results}};
   QFile infoFile(pageDir.filePath("info.json"));
   if (!infoFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
     return false;

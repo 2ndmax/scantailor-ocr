@@ -140,7 +140,13 @@ int main(int argc, char** argv) {
       only = arg.mid(7);
     }
     if (arg.startsWith("--inset=")) {
-      insetOverride = arg.mid(8).toInt();
+      // From 50 % on, the edges left out meet and no content is left.
+      bool ok = false;
+      insetOverride = arg.mid(8).toInt(&ok);
+      if (!ok || (insetOverride < 0) || (insetOverride >= 50)) {
+        std::cerr << "--inset must be a whole number from 0 to 49\n";
+        return 1;
+      }
     }
     if (arg.startsWith("--minpicture=")) {
       options.minPictureShare = arg.mid(13).toDouble() / 100;
@@ -163,7 +169,8 @@ int main(int argc, char** argv) {
 
   const NullTaskStatus status;
   std::vector<Result> results;
-  QStringList files = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
+  QStringList files
+      = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg", "*.jp2", "*.j2k"}, QDir::Files, QDir::Name);
   if (!only.isEmpty()) {
     files = files.filter(only);
   }

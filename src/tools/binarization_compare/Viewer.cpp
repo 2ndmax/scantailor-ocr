@@ -177,12 +177,20 @@ selectPage(store.get("page", null));
 )HTML";
 }  // namespace
 
+QString viewerMode(const bool colors) {
+  return colors ? QStringLiteral("colors") : QStringLiteral("binarization");
+}
+
 bool writeViewer(const QDir& outDir, const bool colors) {
   QJsonArray pages;
   for (const QString& name : outDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
     QFile infoFile(outDir.filePath(name + "/info.json"));
     if (infoFile.open(QIODevice::ReadOnly)) {
-      pages.append(QJsonDocument::fromJson(infoFile.readAll()).object());
+      // Only pages of this comparison: a run with and one without --colors may share the folder.
+      const QJsonObject page = QJsonDocument::fromJson(infoFile.readAll()).object();
+      if (page.value("mode").toString() == viewerMode(colors)) {
+        pages.append(page);
+      }
     }
   }
   QFile data(outDir.filePath("data.js"));

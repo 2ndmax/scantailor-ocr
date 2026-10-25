@@ -655,6 +655,10 @@ double hsvKMeansInPlace(QImage& dst,
     }
 
     /* iteration clusters map */
+    // An empty cluster gets its start pixel back only once: the clusters 0 and ncount + 1 (no
+    // foreground or background colors) stay empty, and re-seeding them every round counted as a
+    // change, so the loop always ran all 50 rounds.
+    bool reseeded[256] = {false};
     for (unsigned int itr = 0; itr < 50; itr++) {
       for (int i = 0; i < sfull; i++) {
         mean_h[i] = 0.0;
@@ -694,6 +698,10 @@ double hsvKMeansInPlace(QImage& dst,
           mean_h[i] = mean_h0[i];
           mean_s[i] = mean_s0[i];
           mean_v[i] = mean_v0[i];
+          if (reseeded[i]) {
+            continue;
+          }
+          reseeded[i] = true;
 
           unsigned int y0 = mean_y[i];
           unsigned int x0 = mean_x[i];
