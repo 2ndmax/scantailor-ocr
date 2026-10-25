@@ -2285,6 +2285,8 @@ bool MainWindow::closeProjectInteractive() {
       QFile::remove(backupFilePath);
       break;
     case CANCEL:
+      // The project stays open; the backup would only be left next to it.
+      QFile::remove(backupFilePath);
       return false;
   }
 
