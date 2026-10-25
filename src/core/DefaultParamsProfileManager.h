@@ -34,6 +34,21 @@ class DefaultParamsProfileManager {
 
   std::unique_ptr<DefaultParams> createMinimalProfile() const;
 
+  struct StartProfile {
+    std::unique_ptr<DefaultParams> params;
+    /** The name of the profile used in this session. */
+    QString name;
+    /** The name to keep in the settings for the next start. */
+    QString storedName;
+  };
+
+  /**
+   * \brief The profile to start the program with.
+   *
+   * \param storedName The profile chosen in the settings.
+   */
+  StartProfile startProfile(const QString& storedName) const;
+
  private:
   QString m_path;
 };

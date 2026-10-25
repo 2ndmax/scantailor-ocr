@@ -13,27 +13,12 @@ DefaultParamsProvider::DefaultParamsProvider() {
   ApplicationSettings& settings = ApplicationSettings::getInstance();
   DefaultParamsProfileManager defaultParamsProfileManager;
 
-  const QString profile = settings.getCurrentProfile();
-  if (profile == "Default") {
-    m_params = defaultParamsProfileManager.createDefaultProfile();
-    m_profileName = profile;
-  } else if ((profile == "Minimal") || (profile == "Source")) {
-    // "Source" is the former name of the minimal profile.
-    m_params = defaultParamsProfileManager.createMinimalProfile();
-    m_profileName = "Minimal";
-    if (profile != m_profileName) {
-      settings.setCurrentProfile(m_profileName);
-    }
-  } else {
-    std::unique_ptr<DefaultParams> params = defaultParamsProfileManager.readProfile(profile);
-    if (params != nullptr) {
-      m_params = std::move(params);
-      m_profileName = profile;
-    } else {
-      m_params = defaultParamsProfileManager.createDefaultProfile();
-      m_profileName = "Default";
-      settings.setCurrentProfile("Default");
-    }
+  const QString storedName = settings.getCurrentProfile();
+  DefaultParamsProfileManager::StartProfile start = defaultParamsProfileManager.startProfile(storedName);
+  m_params = std::move(start.params);
+  m_profileName = start.name;
+  if (start.storedName != storedName) {
+    settings.setCurrentProfile(start.storedName);
   }
 }
 

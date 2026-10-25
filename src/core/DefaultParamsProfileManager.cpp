@@ -149,6 +149,28 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::createMinimalProfile
                                          selectContentParams, pageLayoutParams, outputParams);
 }
 
+DefaultParamsProfileManager::StartProfile DefaultParamsProfileManager::startProfile(const QString& storedName) const {
+  StartProfile start;
+  if (storedName == "Default") {
+    start.params = createDefaultProfile();
+    start.name = storedName;
+  } else if ((storedName == "Minimal") || (storedName == "Source")) {
+    // "Source" is the former name of the minimal profile.
+    start.params = createMinimalProfile();
+    start.name = "Minimal";
+  } else {
+    start.params = readProfile(storedName);
+    if (start.params != nullptr) {
+      start.name = storedName;
+    } else {
+      start.params = createDefaultProfile();
+      start.name = "Default";
+    }
+  }
+  start.storedName = start.name;
+  return start;
+}
+
 bool DefaultParamsProfileManager::deleteProfile(const QString& name) const {
   QDir dir(m_path);
   QFileInfo profile(dir.absoluteFilePath(name + ".stp"));
