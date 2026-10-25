@@ -2306,16 +2306,8 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
   // dialog and project paths compare correctly when project already has images).
   class ProxyModel : public QSortFilterProxyModel {
    public:
-    explicit ProxyModel(const ProjectPages& pages) {
+    explicit ProxyModel(QSet<QString> inProjectPaths) : m_inProjectPaths(std::move(inProjectPaths)) {
       setDynamicSortFilter(true);
-
-      const PageSequence sequence(pages.toPageSequence(IMAGE_VIEW));
-      for (const PageInfo& page : sequence) {
-        const QString path(QFileInfo(page.imageId().filePath()).absoluteFilePath());
-        if (!path.isEmpty()) {
-          m_inProjectPaths.insert(QDir::cleanPath(path));
-        }
-      }
     }
 
    protected:
@@ -2325,8 +2317,7 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
       if (data.isNull()) {
         return true;
       }
-      const QString path(QDir::cleanPath(QFileInfo(data.toString()).absoluteFilePath()));
-      return !m_inProjectPaths.contains(path);
+      return !m_inProjectPaths.contains(imagePathKey(data.toString()));
     }
 
     bool lessThan(const QModelIndex& left, const QModelIndex& right) const override { return left.row() < right.row(); }
@@ -2346,7 +2337,7 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
   }
   auto dialog = std::make_unique<QFileDialog>(this, tr("Files to Insert"), dialogDir);
   dialog->setFileMode(QFileDialog::ExistingFiles);
-  dialog->setProxyModel(new ProxyModel(*m_pages));
+  dialog->setProxyModel(new ProxyModel(projectImagePathKeys()));
   dialog->setNameFilter(tr("Images not in project (%1)")
                             .arg("*.png *.tiff *.tif *.jpeg *.jpg *.jp2 *.j2k *.j2c *.jpc *.jpf *.jpx *.jph *.jhc"));
   // XXX: Adding individual pages from a multi-page TIFF where
@@ -2584,13 +2575,26 @@ std::vector<ImageId> MainWindow::imagesToReplace(bool* contiguous) const {
 }
 
 bool MainWindow::isImageInProject(const QString& filePath) const {
-  const QFileInfo file(filePath);
+  return projectImagePathKeys().contains(imagePathKey(filePath));
+}
+
+QString MainWindow::imagePathKey(const QString& filePath) {
+  const QString path(QDir::cleanPath(QFileInfo(filePath).absoluteFilePath()));
+#ifdef Q_OS_WIN
+  return path.toCaseFolded();
+#else
+  return path;
+#endif
+}
+
+QSet<QString> MainWindow::projectImagePathKeys() const {
+  QSet<QString> keys;
   for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
-    if (QFileInfo(page.imageId().filePath()) == file) {
-      return true;
+    if (!page.imageId().filePath().isEmpty()) {
+      keys.insert(imagePathKey(page.imageId().filePath()));
     }
   }
-  return false;
+  return keys;
 }
 
 ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& newName) {
@@ -2663,13 +2667,10 @@ bool MainWindow::startAutoImport(const QString& dir, const bool chooseExistingIm
   }
 
   if (chooseExistingImages) {
-    QSet<QString> inProject;
-    for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
-      inProject.insert(QFileInfo(page.imageId().filePath()).absoluteFilePath());
-    }
+    const QSet<QString> inProject(projectImagePathKeys());
     std::vector<QFileInfo> others;
     for (const QString& image : ScanFolderWatcher::imagesIn(dir)) {
-      if (!inProject.contains(image)) {
+      if (!inProject.contains(imagePathKey(image))) {
         others.emplace_back(image);
       }
     }

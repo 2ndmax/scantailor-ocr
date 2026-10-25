@@ -7,6 +7,7 @@
 #include <QMainWindow>
 #include <QObjectCleanupHandler>
 #include <QPointer>
+#include <QSet>
 #include <QSizeF>
 #include <QString>
 #include <QTimer>
@@ -383,6 +384,17 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   void resetImportMode();
 
   bool isImageInProject(const QString& filePath) const;
+
+  /**
+   * \brief A file path in the form used to tell whether an image is in the project.
+   *
+   * Absolute and cleaned, and on Windows without case, so that "c:\scans\a.tif" and
+   * "C:/Scans/a.tif" are the same image.
+   */
+  static QString imagePathKey(const QString& filePath);
+
+  /** imagePathKey() of every image in the project. */
+  QSet<QString> projectImagePathKeys() const;
 
   /**
    * The images of the selected pages, in page order, each once; a new scan replaces them.
