@@ -91,6 +91,26 @@ BOOST_AUTO_TEST_CASE(text_page_is_black_and_white) {
   BOOST_CHECK(detect(page, true) == ColorModeDetector::Mode::BlackWhite);
 }
 
+BOOST_AUTO_TEST_CASE(classification_does_not_depend_on_the_resolution) {
+  // The same pages scanned at 150 dpi: the picture detection still works at 300 dpi.
+  const auto at150Dpi = [](const QImage& page) {
+    QImage scaled = page.scaled(page.size() / 2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    const int dotsPerMeter = qRound(150 / 0.0254);
+    scaled.setDotsPerMeterX(dotsPerMeter);
+    scaled.setDotsPerMeterY(dotsPerMeter);
+    return scaled;
+  };
+  QImage textPage = blankPage();
+  drawText(textPage, 120, PAGE_HEIGHT - 120, QColor(20, 20, 20), 1);
+  BOOST_CHECK(detect(at150Dpi(textPage), true) == ColorModeDetector::Mode::BlackWhite);
+
+  QImage photoPage = blankPage();
+  drawText(photoPage, 120, 700, QColor(20, 20, 20), 2);
+  drawPicture(photoPage, QRect(160, 760, 900, 640), false, 3);
+  drawText(photoPage, 1450, PAGE_HEIGHT - 120, QColor(20, 20, 20), 4);
+  BOOST_CHECK(detect(at150Dpi(photoPage), true) == ColorModeDetector::Mode::Mixed);
+}
+
 BOOST_AUTO_TEST_CASE(text_with_gray_photo_is_mixed) {
   QImage page = blankPage();
   drawText(page, 120, 700, QColor(20, 20, 20), 2);

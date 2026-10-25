@@ -54,10 +54,18 @@ bool isColored(const QRgb rgb) {
 
 PictureMeasurement measurePictures(const QImage& content, const TaskStatus& status) {
   PictureMeasurement result;
+  // detectPictures() and the thresholds above expect 300 dpi, so lower resolutions are scaled up
+  // as well (otherwise its morphology spans twice the distance at 150 dpi and dense text merges
+  // into "pictures"). Each axis on its own, for scans with unequal resolutions. The upscaling is
+  // limited, so that bogus resolutions in the metadata can't blow up the memory.
   const double dotsPerMeter300 = 300 / 0.0254;
-  const double dpm = (content.dotsPerMeterX() > 0) ? content.dotsPerMeterX() : dotsPerMeter300;
-  const double scale = std::min(1.0, dotsPerMeter300 / dpm);
-  const QSize size300(std::max(1, qRound(content.width() * scale)), std::max(1, qRound(content.height() * scale)));
+  const double maxUpscale = 4.0;
+  const auto scaleTo300 = [&](const int dotsPerMeter) {
+    return (dotsPerMeter > 0) ? std::min(maxUpscale, dotsPerMeter300 / dotsPerMeter) : 1.0;
+  };
+  const double scaleX = scaleTo300(content.dotsPerMeterX());
+  const double scaleY = scaleTo300((content.dotsPerMeterY() > 0) ? content.dotsPerMeterY() : content.dotsPerMeterX());
+  const QSize size300(std::max(1, qRound(content.width() * scaleX)), std::max(1, qRound(content.height() * scaleY)));
 
   const GrayImage gray300(scaleToGray(GrayImage(content), size300));
   // Light areas are pictures; BinaryImage stores them as WHITE, so invert to count them as black.
