@@ -219,13 +219,8 @@ QPointF ImageView::handlePosition(int lineIdx, int handleIdx) const {
   return handleIdx == 0 ? line.p1() : line.p2();
 }
 
-void ImageView::handleMoveRequest(int lineIdx, int handleIdx, const QPointF& pos) {
-  const QRectF validArea(getOccupiedWidgetRect());
-
-  qreal minXTop = validArea.left();
-  qreal maxXTop = validArea.right();
-  qreal minXBottom = validArea.left();
-  qreal maxXBottom = validArea.right();
+ImageView::CutterLimits ImageView::cutterLimits(const int lineIdx, const QRectF& validArea) const {
+  CutterLimits limits{validArea.left(), validArea.right(), validArea.left(), validArea.right()};
 
   // preventing intersection with other cutters
   for (int i = 0; i < m_virtLayout.numCutters(); i++) {
@@ -236,27 +231,33 @@ void ImageView::handleMoveRequest(int lineIdx, int handleIdx, const QPointF& pos
       anotherLine.intersects(QLineF(validArea.topLeft(), validArea.topRight()), &pTopI);
       anotherLine.intersects(QLineF(validArea.bottomLeft(), validArea.bottomRight()), &pBottomI);
 
-      if ((pTopI.x() < minXTop) || (pTopI.x() > maxXTop) || (pBottomI.x() < minXBottom)
-          || (pBottomI.x() > maxXBottom)) {
+      if ((pTopI.x() < limits.minXTop) || (pTopI.x() > limits.maxXTop) || (pBottomI.x() < limits.minXBottom)
+          || (pBottomI.x() > limits.maxXBottom)) {
         continue;
       }
 
       if (lineIdx > i) {
-        minXTop = pTopI.x();
-        minXBottom = pBottomI.x();
+        limits.minXTop = pTopI.x();
+        limits.minXBottom = pBottomI.x();
       } else {
-        maxXTop = pTopI.x();
-        maxXBottom = pBottomI.x();
+        limits.maxXTop = pTopI.x();
+        limits.maxXBottom = pBottomI.x();
       }
     }
   }
+  return limits;
+}
+
+void ImageView::handleMoveRequest(int lineIdx, int handleIdx, const QPointF& pos) {
+  const QRectF validArea(getOccupiedWidgetRect());
+  const CutterLimits limits(cutterLimits(lineIdx, validArea));
 
   QLineF virtLine(virtualCutterLine(lineIdx));
   if (handleIdx == 0) {
-    const QPointF wpt(qBound(minXTop, pos.x(), maxXTop), validArea.top());
+    const QPointF wpt(qBound(limits.minXTop, pos.x(), limits.maxXTop), validArea.top());
     virtLine.setP1(widgetToVirtual().map(wpt));
   } else {
-    const QPointF wpt(qBound(minXBottom, pos.x(), maxXBottom), validArea.bottom());
+    const QPointF wpt(qBound(limits.minXBottom, pos.x(), limits.maxXBottom), validArea.bottom());
     virtLine.setP2(widgetToVirtual().map(wpt));
   }
 
@@ -277,38 +278,11 @@ void ImageView::lineMoveRequest(int lineIdx, QLineF line) {
   line.intersects(QLineF(validArea.topLeft(), validArea.topRight()), &pTop);
   line.intersects(QLineF(validArea.bottomLeft(), validArea.bottomRight()), &pBottom);
 
-  qreal minXTop = validArea.left();
-  qreal maxXTop = validArea.right();
-  qreal minXBottom = validArea.left();
-  qreal maxXBottom = validArea.right();
-
-  // preventing intersection with other cutters
-  for (int i = 0; i < m_virtLayout.numCutters(); i++) {
-    if (i != lineIdx) {
-      QPointF pTopI;
-      QPointF pBottomI;
-      QLineF anotherLine = virtualToWidget().map(m_virtLayout.cutterLine(i));
-      anotherLine.intersects(QLineF(validArea.topLeft(), validArea.topRight()), &pTopI);
-      anotherLine.intersects(QLineF(validArea.bottomLeft(), validArea.bottomRight()), &pBottomI);
-
-      if ((pTopI.x() < minXTop) || (pTopI.x() > maxXTop) || (pBottomI.x() < minXBottom)
-          || (pBottomI.x() > maxXBottom)) {
-        continue;
-      }
-
-      if (lineIdx > i) {
-        minXTop = pTopI.x();
-        minXBottom = pBottomI.x();
-      } else {
-        maxXTop = pTopI.x();
-        maxXBottom = pBottomI.x();
-      }
-    }
-  }
+  const CutterLimits limits(cutterLimits(lineIdx, validArea));
 
   // Limit movement.
-  const double left = qMax(minXTop - pTop.x(), minXBottom - pBottom.x());
-  const double right = qMax(pTop.x() - maxXTop, pBottom.x() - maxXBottom);
+  const double left = qMax(limits.minXTop - pTop.x(), limits.minXBottom - pBottom.x());
+  const double right = qMax(pTop.x() - limits.maxXTop, pBottom.x() - limits.maxXBottom);
   if ((left > right) && (left > 0.0)) {
     line.translate(left, 0.0);
   } else if (right > 0.0) {

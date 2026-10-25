@@ -63,6 +63,20 @@ class ImageView : public ImageViewBase, private InteractionHandler {
 
   void lineMoveRequest(int lineIdx, QLineF line);
 
+  /** How far a cutter line may move along the top and the bottom edge, in widget coordinates. */
+  struct CutterLimits {
+    qreal minXTop;
+    qreal maxXTop;
+    qreal minXBottom;
+    qreal maxXBottom;
+  };
+
+  /**
+   * The limits for moving cutter \p lineIdx within \p validArea (widget coordinates)
+   * without crossing another cutter.
+   */
+  CutterLimits cutterLimits(int lineIdx, const QRectF& validArea) const;
+
   void dragFinished();
 
   QPointF leftPageCenter() const;
