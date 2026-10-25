@@ -20,7 +20,10 @@ bool lineBoundedByRect(QLineF& line, const QRectF& rect) {
       // line is parallel to rectLine.
       continue;
     }
-    if ((s1 < 0) || (s1 > 1)) {
+    // With a tolerance: a line through a corner meets both edges there, and rounding may put
+    // both intersections just outside their edges, which lost the line.
+    static const double tolerance = 1e-9;
+    if ((s1 < -tolerance) || (s1 > 1 + tolerance)) {
       // Intersection outside of rect.
       continue;
     }
