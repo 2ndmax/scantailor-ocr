@@ -9,6 +9,8 @@
 #include <QAbstractSpinBox>
 #include <QApplication>
 #include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QTextEdit>
 
 #include <QtOpenGLWidgets/QOpenGLWidget>
 
@@ -577,30 +579,17 @@ void ImageViewBase::resizeEvent(QResizeEvent* event) {
 }
 
 void ImageViewBase::enterEvent(QEnterEvent* event) {
-  // Taking the focus makes the keys work on the image right away, but not while another
-  // widget works with the keys: an input field, or another view such as the thumbnails.
-  // Delete, +/- or the arrows meant for it would act on the image or delete a zone instead.
-  if (!keysBelongToAnotherWidget()) {
+  // Taking the focus makes the keys work on the image right away, but not while the user
+  // types into an input field: Delete, +/- or the arrows meant for it would act on the
+  // image or delete a zone instead.
+  const QWidget* focused = QApplication::focusWidget();
+  const bool typingIntoField = qobject_cast<const QAbstractSpinBox*>(focused) || qobject_cast<const QLineEdit*>(focused)
+                               || qobject_cast<const QTextEdit*>(focused)
+                               || qobject_cast<const QPlainTextEdit*>(focused);
+  if (!typingIntoField) {
     viewport()->setFocus();
   }
   QAbstractScrollArea::enterEvent(event);
-}
-
-bool ImageViewBase::keysBelongToAnotherWidget() const {
-  const QWidget* focused = QApplication::focusWidget();
-  if (qobject_cast<const QAbstractSpinBox*>(focused) || qobject_cast<const QLineEdit*>(focused)) {
-    return true;
-  }
-  // Views (thumbnails, lists, text fields) are scroll areas; the focus may be on their viewport.
-  for (const QWidget* widget = focused; widget; widget = widget->parentWidget()) {
-    if (widget == this) {
-      return false;
-    }
-    if (qobject_cast<const QAbstractScrollArea*>(widget)) {
-      return true;
-    }
-  }
-  return false;
 }
 
 void ImageViewBase::leaveEvent(QEvent* event) {
