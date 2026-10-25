@@ -8,6 +8,7 @@
 
 #include <QAbstractSpinBox>
 #include <QApplication>
+#include <QDoubleSpinBox>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QTextEdit>
@@ -578,15 +579,41 @@ void ImageViewBase::resizeEvent(QResizeEvent* event) {
   }
 }
 
+/**
+ * Whether \p focused is an input field with a typed value the user hasn't confirmed yet.
+ * A field merely clicked into, or confirmed with Enter, can give up the focus: otherwise one
+ * would have to click into the image to get it back, and that click already starts a zone.
+ */
+static bool isTypingUnconfirmed(const QWidget* focused) {
+  // The focus may be on the edit field inside a spin box rather than on the spin box itself.
+  if (qobject_cast<const QLineEdit*>(focused) && qobject_cast<const QAbstractSpinBox*>(focused->parentWidget())) {
+    focused = focused->parentWidget();
+  }
+  // Multi-line text has no confirmation.
+  if (qobject_cast<const QTextEdit*>(focused) || qobject_cast<const QPlainTextEdit*>(focused)) {
+    return true;
+  }
+  // A spin box shows its value formatted again once it took it (Enter, arrow keys).
+  if (const auto* spinBox = qobject_cast<const QDoubleSpinBox*>(focused)) {
+    return spinBox->cleanText() != spinBox->textFromValue(spinBox->value());
+  }
+  // Other spin boxes: typed text marks their edit field as modified; showing a new value (arrow
+  // keys, or Enter when the text gets reformatted) clears that again.
+  if (const auto* spinBox = qobject_cast<const QAbstractSpinBox*>(focused)) {
+    const auto* edit = spinBox->findChild<const QLineEdit*>();
+    return edit && edit->isModified();
+  }
+  if (const auto* lineEdit = qobject_cast<const QLineEdit*>(focused)) {
+    return lineEdit->isModified();
+  }
+  return false;
+}
+
 void ImageViewBase::enterEvent(QEnterEvent* event) {
   // Taking the focus makes the keys work on the image right away, but not while the user
   // types into an input field: Delete, +/- or the arrows meant for it would act on the
   // image or delete a zone instead.
-  const QWidget* focused = QApplication::focusWidget();
-  const bool typingIntoField = qobject_cast<const QAbstractSpinBox*>(focused) || qobject_cast<const QLineEdit*>(focused)
-                               || qobject_cast<const QTextEdit*>(focused)
-                               || qobject_cast<const QPlainTextEdit*>(focused);
-  if (!typingIntoField) {
+  if (!isTypingUnconfirmed(QApplication::focusWidget())) {
     viewport()->setFocus();
   }
   QAbstractScrollArea::enterEvent(event);
