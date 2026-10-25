@@ -3,6 +3,7 @@ set(sources
     TestConstraintSet.cpp
     TestHessians.cpp
     TestLineBoundedByRect.cpp
+    TestLinearSolver.cpp
     TestLinearFunction.cpp
     TestMatrixCalc.cpp
     TestQuadraticFunction.cpp

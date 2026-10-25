@@ -6,6 +6,7 @@
 
 #include <NonCopyable.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
@@ -74,9 +75,16 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
   tbuffer += num_elements_A;
 
   // Copy this matrix to lu.
+  T largestAbsEntry = T();
   for (size_t i = 0; i < num_elements_A; ++i) {
     luData[i] = A[i];
+    largestAbsEntry = std::max(largestAbsEntry, T(std::abs(A[i])));
   }
+  // A pivot counts as zero below the usual rank tolerance, relative to the largest entry, so that
+  // a system with small entries isn't taken for singular. It is never above the former absolute
+  // threshold: the least squares fits (PolynomialSurface and others) solve ill-conditioned normal
+  // equations and silently keep zero coefficients when the solver gives up.
+  const T pivotThreshold(std::min(epsilon, numeric_limits<T>::epsilon() * T(m_rowsAB) * largestAbsEntry));
 
   // Maps virtual row numbers to physical ones.
   size_t* const perm = pbuffer;
@@ -97,7 +105,8 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
       }
     }
 
-    if (largestAbsPivot <= epsilon) {
+    // Also catches an all-zero matrix, whose threshold is 0.
+    if (largestAbsPivot <= pivotThreshold) {
       throw std::runtime_error("LinearSolver: not a full rank matrix");
     }
 
@@ -112,9 +121,9 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
     for (size_t j = i + 1; j < m_rowsAB; ++j) {
       const T* p1 = pPivot;
       T* p2 = pCol + perm[j];
-      if (std::abs(*p2) <= epsilon) {
-        // We consider it's already zero.
-        *p2 = T();
+      // Only exact zeros are skipped: what matters is the factor, at most 1 thanks to the
+      // pivot choice, not the size of the entry. Skipping small entries gave wrong results.
+      if (*p2 == T()) {
         continue;
       }
 
@@ -157,14 +166,19 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
       const int physRow = static_cast<int>(perm[virtRow]);
       T right(pBCol[physRow]);
 
-      // Move everything to the right side, then verify it's zero.
+      // Move everything to the right side, then verify it's zero, relative to the size
+      // of the terms: their rounding errors grow with them. Never stricter than the former
+      // absolute threshold.
+      T magnitude(std::abs(right));
       const T* pLu = luData + physRow;
       // Go left to right all the way.
       for (size_t luCol = 0; luCol < m_colsArowsX; ++luCol) {
-        right -= *pLu * pYCol[luCol];
+        const T term(*pLu * pYCol[luCol]);
+        right -= term;
+        magnitude += std::abs(term);
         pLu += m_rowsAB;
       }
-      if (std::abs(right) > epsilon) {
+      if (std::abs(right) > epsilon * std::max(T(1), magnitude)) {
         throw std::runtime_error("LinearSolver: inconsistent overdetermined system");
       }
     }
