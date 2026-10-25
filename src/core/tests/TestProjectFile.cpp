@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <DefaultParams.h>
+#include <DefaultParamsProfileManager.h>
 #include <FileNameDisambiguator.h>
 #include <ImageFileInfo.h>
 #include <ImageInfo.h>
@@ -12,12 +13,15 @@
 #include <ProjectPages.h>
 #include <ProjectReader.h>
 #include <ProjectWriter.h>
+#include <version.h>
 
 #include <QDir>
 #include <QDomDocument>
 #include <QFile>
 #include <QTemporaryDir>
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
+#include <list>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -315,6 +319,71 @@ BOOST_AUTO_TEST_CASE(test_malformed_despeckle_level_falls_back) {
   QDomElement el = doc.createElement("output");
   el.setAttribute("despeckleLevel", "strong");
   BOOST_CHECK_EQUAL(DefaultParams::OutputParams(el).getDespeckleLevel(), 1.0);
+}
+
+namespace {
+bool writeTextFile(const QString& path, const QByteArray& content) {
+  QFile file(path);
+  return file.open(QIODevice::WriteOnly) && (file.write(content) == content.size());
+}
+
+QByteArray profileXml(const int version) {
+  return "<profile version=\"" + QByteArray::number(version) + "\"><default-params/></profile>";
+}
+}  // namespace
+
+// A profile file that can't be read right now (locked, damaged, from a newer version) falls back
+// for this session only; the choice in the settings is kept for the next start.
+BOOST_AUTO_TEST_CASE(test_unreadable_start_profile_keeps_the_choice) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const DefaultParamsProfileManager manager(dir.path());
+  BOOST_REQUIRE(writeTextFile(dir.filePath("Damaged.stp"), "<profile version="));
+  BOOST_REQUIRE(writeTextFile(dir.filePath("Newer.stp"), profileXml(PROJECT_VERSION + 1)));
+
+  for (const QString name : {"Damaged", "Newer"}) {
+    const DefaultParamsProfileManager::StartProfile start = manager.startProfile(name);
+    BOOST_CHECK(start.params != nullptr);
+    BOOST_CHECK(start.name == "Default");
+    BOOST_CHECK_MESSAGE(start.storedName == name, name.toStdString());
+  }
+
+  // A profile that is gone for good is replaced in the settings.
+  const DefaultParamsProfileManager::StartProfile missing = manager.startProfile("Missing");
+  BOOST_CHECK(missing.name == "Default");
+  BOOST_CHECK(missing.storedName == "Default");
+}
+
+// Missing values come from the defaults, so older profiles are fine; only newer ones are refused.
+BOOST_AUTO_TEST_CASE(test_profiles_of_older_versions_are_read) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const DefaultParamsProfileManager manager(dir.path());
+  for (const int version :
+       {PROJECT_VERSION_UPSTREAM_OLD, PROJECT_VERSION_UPSTREAM, PROJECT_VERSION - 1, PROJECT_VERSION}) {
+    BOOST_REQUIRE(writeTextFile(dir.filePath("Old.stp"), profileXml(version)));
+    BOOST_CHECK_MESSAGE(manager.readProfile("Old") != nullptr, version);
+  }
+  BOOST_REQUIRE(writeTextFile(dir.filePath("Old.stp"), profileXml(PROJECT_VERSION + 1)));
+  DefaultParamsProfileManager::LoadStatus status = DefaultParamsProfileManager::SUCCESS;
+  BOOST_CHECK(manager.readProfile("Old", &status) == nullptr);
+  BOOST_CHECK(status == DefaultParamsProfileManager::INCOMPATIBLE_VERSION_ERROR);
+}
+
+// A profile saved in the current format next to its old .xml file.
+BOOST_AUTO_TEST_CASE(test_profile_with_stp_and_xml_file) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const DefaultParamsProfileManager manager(dir.path());
+  BOOST_REQUIRE(writeTextFile(dir.filePath("Both.stp"), profileXml(PROJECT_VERSION)));
+  BOOST_REQUIRE(writeTextFile(dir.filePath("Both.xml"), profileXml(PROJECT_VERSION_UPSTREAM)));
+
+  const std::list<QString> profiles = manager.getProfileList();
+  BOOST_CHECK_EQUAL(std::count(profiles.begin(), profiles.end(), QString("Both")), 1);
+
+  BOOST_CHECK(manager.deleteProfile("Both"));
+  BOOST_CHECK(manager.readProfile("Both") == nullptr);
+  BOOST_CHECK(manager.getProfileList().empty());
 }
 
 BOOST_AUTO_TEST_CASE(test_deskew_mode_disabled_round_trip) {

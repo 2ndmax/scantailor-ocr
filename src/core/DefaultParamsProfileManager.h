@@ -7,6 +7,7 @@
 
 #include <foundation/NonCopyable.h>
 
+#include <QFileInfo>
 #include <QtCore/QString>
 #include <list>
 #include <memory>
@@ -50,6 +51,9 @@ class DefaultParamsProfileManager {
   StartProfile startProfile(const QString& storedName) const;
 
  private:
+  /** The .stp file of the profile, or else its .xml file. Either may not exist. */
+  QFileInfo profileFile(const QString& name) const;
+
   QString m_path;
 };
 

@@ -8,6 +8,7 @@
 #include <QSaveFile>
 #include <QtGui/QtGui>
 #include <QtXml/QDomDocument>
+#include <algorithm>
 
 #include "Application.h"
 #include "DefaultParams.h"
@@ -37,24 +38,31 @@ std::list<QString> DefaultParamsProfileManager::getProfileList() const {
     QList<QFileInfo> fileInfoList = dir.entryInfoList();
     for (const QFileInfo& fileInfo : fileInfoList) {
       if (fileInfo.isFile() && ((fileInfo.suffix() == "stp") || (fileInfo.suffix() == "xml"))) {
-        profileList.push_back(fileInfo.completeBaseName());
+        // A profile can have both files.
+        const QString name = fileInfo.completeBaseName();
+        if (std::find(profileList.begin(), profileList.end(), name) == profileList.end()) {
+          profileList.push_back(name);
+        }
       }
     }
   }
   return profileList;
 }
 
+QFileInfo DefaultParamsProfileManager::profileFile(const QString& name) const {
+  const QDir dir(m_path);
+  // .xml is the format of older versions; once saved again, the profile is a .stp file.
+  const QFileInfo stp(dir.absoluteFilePath(name + ".stp"));
+  return stp.exists() ? stp : QFileInfo(dir.absoluteFilePath(name + ".xml"));
+}
+
 std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(const QString& name, LoadStatus* status) const {
-  QDir dir(m_path);
-  QFileInfo profile(dir.absoluteFilePath(name + ".stp"));
+  const QFileInfo profile = profileFile(name);
   if (!profile.exists()) {
-    profile = QFileInfo(dir.absoluteFilePath(name + ".xml"));
-    if (!profile.exists()) {
-      if (status) {
-        *status = IO_ERROR;
-      }
-      return nullptr;
+    if (status) {
+      *status = IO_ERROR;
     }
+    return nullptr;
   }
 
   QFile profileFile(profile.filePath());
@@ -76,8 +84,11 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(const QS
   profileFile.close();
 
   const QDomElement profileElement(doc.documentElement());
-  const QString version = profileElement.attribute("version");
-  if (version.isNull() || ((version.toInt() != PROJECT_VERSION) && (version.toInt() != PROJECT_VERSION_UPSTREAM))) {
+  // Older versions are fine, the defaults fill in what they lack. Profiles are saved as PROJECT_VERSION,
+  // so accepting only that one would drop all of them with the next version.
+  bool versionOk = false;
+  const int version = profileElement.attribute("version").toInt(&versionOk);
+  if (!versionOk || (version < PROJECT_VERSION_UPSTREAM_OLD) || (version > PROJECT_VERSION)) {
     if (status) {
       *status = INCOMPATIBLE_VERSION_ERROR;
     }
@@ -165,6 +176,12 @@ DefaultParamsProfileManager::StartProfile DefaultParamsProfileManager::startProf
     } else {
       start.params = createDefaultProfile();
       start.name = "Default";
+      if (profileFile(storedName).exists()) {
+        // Locked for a moment (virus scanner, cloud sync), damaged or from a newer version:
+        // the defaults are used for this session, the user's choice is kept for the next start.
+        start.storedName = storedName;
+        return start;
+      }
     }
   }
   start.storedName = start.name;
@@ -172,15 +189,17 @@ DefaultParamsProfileManager::StartProfile DefaultParamsProfileManager::startProf
 }
 
 bool DefaultParamsProfileManager::deleteProfile(const QString& name) const {
-  QDir dir(m_path);
-  QFileInfo profile(dir.absoluteFilePath(name + ".stp"));
-  if (!profile.exists()) {
-    profile = QFileInfo(dir.absoluteFilePath(name + ".xml"));
-    if (!profile.exists()) {
-      return false;
+  // Both files go, or the old .xml one would take the place of the deleted profile.
+  const QDir dir(m_path);
+  bool found = false;
+  for (const QString& suffix : {QStringLiteral(".stp"), QStringLiteral(".xml")}) {
+    QFile file(dir.absoluteFilePath(name + suffix));
+    if (file.exists()) {
+      found = true;
+      if (!file.remove()) {
+        return false;
+      }
     }
   }
-
-  QFile profileFile(profile.filePath());
-  return profileFile.remove();
+  return found;
 }
