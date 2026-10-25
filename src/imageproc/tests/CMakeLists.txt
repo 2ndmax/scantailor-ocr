@@ -14,6 +14,7 @@ set(sources
     TestMorphology.cpp
     TestBinarize.cpp
     TestPolygonRasterizer.cpp
+    TestPolygonUtils.cpp
     TestSeedFill.cpp
     TestSEDM.cpp
     TestRastLineFinder.cpp

@@ -188,7 +188,9 @@ QPolygonF PolygonUtils::convexHull(std::vector<QPointF> pointCloud) {
 
   hull.resize(k);
 
-  QPolygonF poly(k);
+  // Reserved, not sized: QPolygonF(k) would start with k points at (0, 0).
+  QPolygonF poly;
+  poly.reserve(k);
   for (const QPointF& pt : hull) {
     poly << pt;
   }
