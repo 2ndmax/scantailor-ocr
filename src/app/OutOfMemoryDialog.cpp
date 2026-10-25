@@ -23,12 +23,14 @@ void OutOfMemoryDialog::setParams(const QString& projectFile,
                                   std::shared_ptr<StageSequence> stages,
                                   std::shared_ptr<ProjectPages> pages,
                                   const SelectedPage& selectedPage,
-                                  const OutputFileNameGenerator& outFileNameGen) {
+                                  const OutputFileNameGenerator& outFileNameGen,
+                                  const QString& emptyProjectInputDir) {
   m_projectFile = projectFile;
   m_stages = std::move(stages);
   m_pages = std::move(pages);
   m_selectedPage = selectedPage;
   m_outFileNameGen = outFileNameGen;
+  m_emptyProjectInputDir = emptyProjectInputDir;
 
   ui.saveProjectBtn->setVisible(!projectFile.isEmpty());
 }
@@ -55,7 +57,7 @@ void OutOfMemoryDialog::saveProjectAs() {
 }
 
 bool OutOfMemoryDialog::saveProjectWithFeedback(const QString& projectFile) {
-  ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen);
+  ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
 
   if (!writer.write(projectFile, m_stages->filters(), *m_stages->processingOptions(), *m_stages->defaultParams())) {
     QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));

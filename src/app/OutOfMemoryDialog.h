@@ -24,7 +24,9 @@ class OutOfMemoryDialog : public QDialog {
                  std::shared_ptr<StageSequence> stages,
                  std::shared_ptr<ProjectPages> pages,
                  const SelectedPage& selectedPage,
-                 const OutputFileNameGenerator& outFileNameGen);
+                 const OutputFileNameGenerator& outFileNameGen,
+                 // Written for a project without images, see ProjectWriter.
+                 const QString& emptyProjectInputDir);
 
  private slots:
 
@@ -43,6 +45,7 @@ class OutOfMemoryDialog : public QDialog {
   std::shared_ptr<ProjectPages> m_pages;
   SelectedPage m_selectedPage;
   OutputFileNameGenerator m_outFileNameGen;
+  QString m_emptyProjectInputDir;
 };
 
 
