@@ -90,6 +90,9 @@ void ImageLoadErrorNotifier::showPending() {
       }
       // Whatever the user has seen doesn't need to be shown again.
       m_entries.clear();
+      // The box deletes itself (WA_DeleteOnClose) only later: failures arriving until then
+      // must get a new box, not this one, or they flash up and are lost.
+      m_messageBox = nullptr;
     });
     m_messageBox = box;
   }
