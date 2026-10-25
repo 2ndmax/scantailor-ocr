@@ -6,6 +6,7 @@ set(sources
     TestObliqueFinder.cpp
     TestEstimateBackground.cpp
     TestImageId.cpp
+    TestImageTrim.cpp
     TestImageReaders.cpp
     TestMargins.cpp
     TestPageId.cpp

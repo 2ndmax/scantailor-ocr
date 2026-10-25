@@ -60,8 +60,9 @@ QRect ImageTrim::toInnerRect(const QSize& imageSize) const {
     redistributeExcess(t, b, t + b + kMinTrimInnerSide - imageSize.height());
   }
 
-  int w = std::max(kMinTrimInnerSide, imageSize.width() - l - r);
-  int h = std::max(kMinTrimInnerSide, imageSize.height() - t - b);
+  // An image smaller than the minimum side keeps its own size.
+  int w = std::min(imageSize.width(), std::max(kMinTrimInnerSide, imageSize.width() - l - r));
+  int h = std::min(imageSize.height(), std::max(kMinTrimInnerSide, imageSize.height() - t - b));
 
   if (l + w > imageSize.width()) {
     l = std::max(0, imageSize.width() - w);
