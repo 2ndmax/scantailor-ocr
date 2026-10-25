@@ -29,6 +29,9 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
     const RelinkablePath oldPath(kv.first.filePath(), RelinkablePath::File);
     ImageId newImageId(kv.first);
     newImageId.setFilePath(relinker.substitutionPathFor(oldPath));
+    // REVIEW-NOTE (2026-10): map::insert drops a second record with the same new id -> one of two images
+    // relinked onto the same file loses its settings. Not fixed because such a project already contains the
+    // same image twice.
     newRecords.insert(PerPageRecords::value_type(newImageId, kv.second));
   }
 

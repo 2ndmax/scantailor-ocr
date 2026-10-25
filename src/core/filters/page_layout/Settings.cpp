@@ -387,6 +387,9 @@ void Settings::Impl::performRelinking(const AbstractRelinker& relinker) {
     const RelinkablePath oldPath(item.pageId.imageId().filePath(), RelinkablePath::File);
     Item newItem(item);
     newItem.pageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
+    // REVIEW-NOTE (2026-10): insert() fails silently for a second item with the same new page id -> one of
+    // two pages relinked onto the same file loses margins and alignment. Not fixed because such a project
+    // already contains the same page twice.
     newItems.insert(newItem);
   }
 
@@ -688,6 +691,8 @@ const DeviationProvider<PageId>& Settings::Impl::deviationProvider() const {
 }
 
 std::vector<Guide>& Settings::Impl::guides() {
+  // REVIEW-NOTE (2026-10): returns a mutable reference without holding m_mutex -> concurrent save and sync
+  // would race. Not fixed because all callers run in the GUI thread.
   return m_guides;
 }
 }  // namespace page_layout

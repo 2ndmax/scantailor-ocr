@@ -37,6 +37,8 @@ void InteractionState::updateProximity(Captor& captor,
                                        const Proximity& proximity,
                                        int priority,
                                        Proximity proximityThreshold) {
+  // REVIEW-NOTE (2026-10): a captor that is already the leader is skipped -> a better second proximity from
+  // it is ignored. Not fixed because each captor reports only once per pass today.
   if (captor.is_linked()) {
     return;
   }

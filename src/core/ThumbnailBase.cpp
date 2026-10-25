@@ -295,6 +295,8 @@ void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark
 }
 
 void ThumbnailBase::setImageXform(const ImageTransformation& imageXform) {
+  // REVIEW-NOTE (2026-10): m_displayArea is not updated here -> a changed transform would use the old display
+  // area. Not fixed because only the constructor calls it.
   m_imageXform = imageXform;
   const QSizeF unscaledSize(m_displayArea.size().expandedTo(QSizeF(1, 1)));
   QSizeF scaledSize(unscaledSize);

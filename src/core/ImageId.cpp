@@ -23,6 +23,9 @@ bool operator!=(const ImageId& lhs, const ImageId& rhs) {
 }
 
 bool operator<(const ImageId& lhs, const ImageId& rhs) {
+  // REVIEW-NOTE (2026-10): paths are compared case-sensitively, also on Windows -> the same file added via
+  // differently cased paths becomes two images. Not fixed because changing comparison and hashing affects
+  // existing projects.
   const int comp = lhs.filePath().compare(rhs.filePath());
   if (comp < 0) {
     return true;

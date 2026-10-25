@@ -31,6 +31,8 @@ class PngHandle {
 
 
 PngHandle::PngHandle() {
+  // REVIEW-NOTE (2026-10): no error/warning callbacks are given to libpng -> its messages go to stderr
+  // instead of ImageLoadErrorCapture. Not fixed because loading still fails with a generic error.
   m_png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   if (!m_png) {
     throw std::bad_alloc();

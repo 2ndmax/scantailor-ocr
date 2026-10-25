@@ -8,6 +8,8 @@
 #include <config.h>
 #endif
 
+// REVIEW-NOTE (2026-10): operator~ yields values outside the range of enums without a fixed underlying type ->
+// undefined behavior since C++17. Not fixed because no code applies ~ to these flags today.
 #define DEFINE_FLAG_OPS(type)                    \
   inline type operator&(type lhs, type rhs) {    \
     return type(unsigned(lhs) & unsigned(rhs));  \

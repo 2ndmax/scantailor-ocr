@@ -128,6 +128,8 @@ void wienerColorFilterInPlace(QImage& image, QSize const& window_size, double co
     int const image_bpl = image.bytesPerLine();
     // A 32-bit pixel has 3 color channels; the 4th byte is alpha (or unused) and stays as it is.
     int const pixelBytes = image.depth() / 8;
+    // REVIEW-NOTE (2026-10): the loop assumes B,G,R,A byte order (little-endian) -> on big-endian hosts alpha
+    // is filtered and blue is skipped. Not fixed because releases are built for little-endian targets only.
     int const cnum = (pixelBytes == 4) ? 3 : pixelBytes;
 
     GrayImage gray = GrayImage(image);

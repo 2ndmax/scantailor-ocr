@@ -76,6 +76,9 @@ ConnectivityMap::ConnectivityMap(const ConnectivityMap& other)
 
 ConnectivityMap::ConnectivityMap(const InfluenceMap& imap)
     : m_plainData(nullptr), m_size(imap.size()), m_stride(imap.stride()), m_maxLabel(imap.maxLabel()) {
+  // REVIEW-NOTE (2026-10): m_plainData is not set here and the fast path of operator=(InfluenceMap) keeps an
+  // old maxLabel() -> data() returns null and maxLabel() is stale. Not fixed because it is inherited and no
+  // caller uses these paths.
   if (m_size.isEmpty()) {
     return;
   }

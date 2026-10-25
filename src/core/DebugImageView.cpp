@@ -72,6 +72,8 @@ void DebugImageView::setLive(const bool live) {
 
 void DebugImageView::imageLoaded(const QImage& image) {
   // A debug image whose file is gone can't be shown; the image views need a non-empty image.
+  // REVIEW-NOTE (2026-10): an empty image leaves the loading indicator running -> a deleted debug image spins
+  // forever. Not fixed because it only affects the debug view.
   if (!m_isLive || image.isNull()) {
     return;
   }

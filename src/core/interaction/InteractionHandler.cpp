@@ -8,6 +8,9 @@
 
 #include "InteractionState.h"
 
+// REVIEW-NOTE (2026-10): the iterator is advanced before the call, which only guards against "delete this" ->
+// a handler deleting its next sibling during dispatch would cause a use-after-free. Not fixed because no
+// handler does that today.
 #define DISPATCH(list, call)                      \
   {                                               \
     HandlerList::iterator it(list->begin());      \

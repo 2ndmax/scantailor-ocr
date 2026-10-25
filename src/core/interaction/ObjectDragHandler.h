@@ -20,6 +20,8 @@ class ObjectDragHandler : public InteractionHandler {
   DECLARE_NON_COPYABLE(ObjectDragHandler)
 
  public:
+  // REVIEW-NOTE (2026-10): m_obj starts as nullptr and the on*() methods dereference it -> linking the
+  // handler before setObject() crashes. Not fixed because every view calls setObject() in its constructor.
   explicit ObjectDragHandler(DraggableObject* obj = nullptr);
 
   void setObject(DraggableObject* obj) { m_obj = obj; }

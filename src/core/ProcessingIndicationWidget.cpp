@@ -36,6 +36,8 @@ void ProcessingIndicationWidget::processingRestartedEffect() {
 
 void ProcessingIndicationWidget::paintEvent(QPaintEvent* event) {
   QRect animationRect(this->animationRect());
+  // REVIEW-NOTE (2026-10): a partial repaint without the animation rect draws nothing -> that strip briefly
+  // lacks the veil. Not fixed because the next full repaint restores it.
   if (!event->rect().contains(animationRect)) {
     update(animationRect);
     return;

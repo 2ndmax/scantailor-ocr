@@ -19,6 +19,9 @@ void ColorSchemeManager::setColorScheme(const ColorScheme& colorScheme) {
   }
   if (const QString* styleSheet = colorScheme.getStyleSheet()) {
     qApp->setStyleSheet(*styleSheet);
+    // REVIEW-NOTE (2026-10): rounded corners are guessed from the style sheet -> always true in the native
+    // scheme, also without the Windows 11 style. Not fixed because it only affects frame corners and needs a
+    // new ColorScheme method.
     m_roundedCorners = !styleSheet->contains(QLatin1String("QPushButton"));
   }
   if (const ColorScheme::ColorParams* colorParams = colorScheme.getColorParams()) {

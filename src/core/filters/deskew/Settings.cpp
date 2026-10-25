@@ -40,6 +40,9 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
     const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
     PageId newPageId(kv.first);
     newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
+    // REVIEW-NOTE (2026-10): insert() silently drops a page whose relinked id already exists, while
+    // m_pendingAutoOblique keeps the last one -> one of two pages relinked onto the same file loses its
+    // angles. Not fixed because such a project already contains the same page twice.
     newParams.insert(PerPageParams::value_type(newPageId, kv.second));
   }
 
