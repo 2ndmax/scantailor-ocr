@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 #include "ToLineProjector.h"
 #include "VecNT.h"
@@ -816,5 +817,11 @@ double XSpline::HBlendFunc::secondDerivative(double u) const {
 double XSpline::PointAndDerivs::signedCurvature() const {
   const double cross = firstDeriv.x() * secondDeriv.y() - firstDeriv.y() * secondDeriv.x();
   double tlen = std::sqrt(firstDeriv.x() * firstDeriv.x() + firstDeriv.y() * firstDeriv.y());
-  return cross / (tlen * tlen * tlen);
+  const double tlenCubed = tlen * tlen * tlen;
+  if (tlenCubed < std::numeric_limits<double>::min()) {
+    // No usable tangent (e.g. coinciding control points): dividing would give NaN or infinity,
+    // which would end up in the optimizer. Treat the spot as straight.
+    return 0.0;
+  }
+  return cross / tlenCubed;
 }

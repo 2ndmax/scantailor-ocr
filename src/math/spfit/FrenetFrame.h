@@ -30,6 +30,13 @@ class FrenetFrame {
 
   const Vec2d& origin() const { return m_origin; }
 
+  /**
+   * \brief False if the tangent vector was too short to give a direction.
+   *
+   * The unit tangent and unit normal are then zero vectors.
+   */
+  bool isValid() const { return m_unitTangent.squaredNorm() > 0; }
+
   const Vec2d& unitTangent() const { return m_unitTangent; }
 
   const Vec2d& unitNormal() const { return m_unitNormal; }

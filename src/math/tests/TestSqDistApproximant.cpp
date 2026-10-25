@@ -2,6 +2,8 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <ToLineProjector.h>
+#include <XSpline.h>
+#include <spfit/PolylineModelShape.h>
 #include <spfit/SqDistApproximant.h>
 
 #include <QLineF>
@@ -10,6 +12,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdlib>
+#include <vector>
 
 namespace spfit {
 namespace tests {
@@ -72,6 +75,24 @@ BOOST_AUTO_TEST_CASE(test_general_case) {
       BOOST_REQUIRE_CLOSE(approx.evaluate(pt), control, 1e-06);
     }
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_polyline_with_tiny_segment) {
+  // Two vertices less than 0.001 px apart give a segment with a degenerate tangent.
+  const PolylineModelShape shape(std::vector<QPointF>{QPointF(0, 0), QPointF(0.0005, 0), QPointF(10, 0)});
+  const QPointF pt(0.00025, 5);
+  const SqDistApproximant approx(shape.localSqDistApproximant(pt, FittableSpline::DEFAULT_SAMPLE));
+  // The sample must still pull towards the polyline instead of silently not counting.
+  BOOST_CHECK_CLOSE(approx.evaluate(pt), 25.0, 1.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_curvature_without_tangent) {
+  XSpline::PointAndDerivs pd;
+  pd.firstDeriv = QPointF(0, 0);
+  pd.secondDeriv = QPointF(1, 1);
+  BOOST_CHECK_EQUAL(pd.signedCurvature(), 0.0);
+  pd.firstDeriv = QPointF(1e-120, 0);
+  BOOST_CHECK_EQUAL(pd.signedCurvature(), 0.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -110,7 +110,9 @@ SqDistApproximant PolylineModelShape::calcApproximant(const QPointF& pt,
                                                       const Flags polylineFlags,
                                                       const FrenetFrame& frenetFrame,
                                                       const double signedCurvature) const {
-  if (sampleFlags & (FittableSpline::HEAD_SAMPLE | FittableSpline::TAIL_SAMPLE)) {
+  // Without a tangent (a segment shorter than the minimum FrenetFrame accepts) the curve distance
+  // has no direction to measure along; it would come out as zero and the sample would not count.
+  if ((sampleFlags & (FittableSpline::HEAD_SAMPLE | FittableSpline::TAIL_SAMPLE)) || !frenetFrame.isValid()) {
     return SqDistApproximant::pointDistance(frenetFrame.origin());
   } else {
     return SqDistApproximant::curveDistance(pt, frenetFrame, signedCurvature);

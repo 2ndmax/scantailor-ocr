@@ -37,9 +37,9 @@ class LinearForceBalancer {
   double calcInternalForceWeight(double internalForce, double externalForce) const;
 
   /**
-   * Returns the current internal / external force ratio, then moves
-   * it towards its target value. After it reaches its target value,
-   * further nextIteration() calls will keep returning the same value.
+   * Moves the current internal / external force ratio towards its target
+   * value. After it reaches its target value, further nextIteration()
+   * calls leave it unchanged.
    */
   void nextIteration();
 
