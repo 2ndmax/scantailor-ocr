@@ -10,6 +10,7 @@
 #include <functional>
 
 #include "ImageViewBase.h"
+#include "Zone.h"
 #include "ZoneInteractionContext.h"
 
 ZoneCreationInteraction::ZoneCreationInteraction(ZoneInteractionContext& context, InteractionState& interaction)
@@ -148,6 +149,11 @@ void ZoneCreationInteraction::onPaint(QPainter& painter, const InteractionState&
 
 void ZoneCreationInteraction::addFinishedZone() {
   m_spline->setBridged(true);
+  // A zone without area (all points on one line, e.g. a rectangle of zero width) covers nothing,
+  // and loading the project would drop it anyway (Zone::isValid()). So it is not added at all.
+  if (!Zone(*m_spline).isValid()) {
+    return;
+  }
   m_context.zones().addZone(m_spline);
   m_context.zones().commit();
 }

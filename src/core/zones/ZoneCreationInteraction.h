@@ -39,7 +39,7 @@ class ZoneCreationInteraction : public InteractionHandler {
  private:
   void updateStatusTip();
 
-  /** Closes the spline and adds it to the zones as a new zone. */
+  /** Closes the spline and adds it to the zones as a new zone, unless it has no area. */
   void addFinishedZone();
 
   bool isDragHandlerPermitted(const InteractionState& interaction) const;
