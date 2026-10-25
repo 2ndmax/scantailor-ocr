@@ -75,10 +75,6 @@ class PageLayoutEstimator {
                                                bool rightOffcut,
                                                DebugImages* dbg);
 
-  static imageproc::BinaryImage to300DpiBinary(const QImage& img,
-                                               QTransform& xform,
-                                               imageproc::BinaryThreshold threshold);
-
   static imageproc::BinaryImage removeGarbageAnd2xDownscale(const imageproc::BinaryImage& image, DebugImages* dbg);
 
   static bool checkForLeftOffcut(const imageproc::BinaryImage& image);

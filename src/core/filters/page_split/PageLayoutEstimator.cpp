@@ -15,13 +15,11 @@
 #include <PolygonRasterizer.h>
 #include <RasterOp.h>
 #include <ReduceThreshold.h>
-#include <Scale.h>
 #include <SeedFill.h>
 #include <Shear.h>
 #include <SkewFinder.h>
 #include <SlicedHistogram.h>
 #include <Transform.h>
-#include <imageproc/OrthogonalRotation.h>
 
 #include <QDebug>
 #include <QPainter>
@@ -64,6 +62,8 @@ std::unique_ptr<PageLayout> autoDetectSinglePageLayout(const LayoutType layoutTy
                                                        const std::vector<QLineF>& ltrLines,
                                                        const QRectF& virtualImageRect) {
   const double imageCenter = virtualImageRect.center().x();
+  // Relative to half the width, not to the center's x, which a trim moves.
+  const double edgeThreshold = 0.65 * 0.5 * virtualImageRect.width();
 
   // A loop just to be able to break from it.
   do {
@@ -79,14 +79,14 @@ std::unique_ptr<PageLayout> autoDetectSinglePageLayout(const LayoutType layoutTy
     if (!ltrLines.empty()) {
       const QLineF& firstLine = ltrLines.front();
       const double lineCenter = lineCenterX(firstLine);
-      if (std::fabs(imageCenter - lineCenter) > 0.65 * imageCenter) {
+      if (std::fabs(imageCenter - lineCenter) > edgeThreshold) {
         break;
       }
     }
     if (ltrLines.size() > 1) {
       const QLineF& lastLine = ltrLines.back();
       const double lineCenter = lineCenterX(lastLine);
-      if (std::fabs(imageCenter - lineCenter) > 0.65 * imageCenter) {
+      if (std::fabs(imageCenter - lineCenter) > edgeThreshold) {
         break;
       }
     }
@@ -188,8 +188,8 @@ PageLayout PageLayoutEstimator::estimatePageLayout(const LayoutType layoutType,
 namespace {
 class BadTwoPageSplitter {
  public:
-  explicit BadTwoPageSplitter(double imageWidth)
-      : m_imageCenter(0.5 * imageWidth), m_distFromCenterThreshold(0.6 * m_imageCenter) {}
+  BadTwoPageSplitter(double imageCenter, double halfImageWidth)
+      : m_imageCenter(imageCenter), m_distFromCenterThreshold(0.6 * halfImageWidth) {}
 
   /**
    * Returns true if the line is too close to an edge
@@ -237,8 +237,11 @@ std::unique_ptr<PageLayout> PageLayoutEstimator::tryCutAtFoldingLine(const Layou
 
   std::sort(lines.begin(), lines.end(), CenterComparator());
 
-  const QRectF virtualImageRect(preXform.transform().mapRect(input.rect()));
+  // The trimmed page, as in the other branches. With a trim it doesn't start at x = 0,
+  // so the thresholds below are relative to its center and half its width.
+  const QRectF virtualImageRect(preXform.resultingRect());
   const QPointF center(virtualImageRect.center());
+  const double halfWidth = 0.5 * virtualImageRect.width();
 
   if (numPages == 1) {
     // If all of the lines are close to one of the edges,
@@ -248,7 +251,7 @@ std::unique_ptr<PageLayout> PageLayoutEstimator::tryCutAtFoldingLine(const Layou
     while (lines.size() > 1) {  // just to be able to break from it.
       const QLineF leftLine(lines.front());
       const QLineF rightLine(lines.back());
-      const double threshold = 0.3 * center.x();
+      const double threshold = 0.3 * halfWidth;
       double leftDist = center.x() - lineCenterX(leftLine);
       double rightDist = center.x() - lineCenterX(rightLine);
       if ((leftDist < 0) != (rightDist < 0)) {
@@ -274,7 +277,7 @@ std::unique_ptr<PageLayout> PageLayoutEstimator::tryCutAtFoldingLine(const Layou
     assert(numPages == 2);
     // In two page mode we ignore the lines that are too close
     // to the edge.
-    lines.erase(std::remove_if(lines.begin(), lines.end(), BadTwoPageSplitter(virtualImageRect.width())), lines.end());
+    lines.erase(std::remove_if(lines.begin(), lines.end(), BadTwoPageSplitter(center.x(), halfWidth)), lines.end());
 
     if (method == SPINE_LINE_DETECTION) {
       // The line closest to the center may well be the edge of a text column
@@ -308,13 +311,18 @@ PageLayout PageLayoutEstimator::cutAtWhitespace(const LayoutType layoutType,
                                                 const ImageTransformation& preXform,
                                                 const BinaryThreshold bwThreshold,
                                                 DebugImages* const dbg) {
+  // Rendered through preXform, like VertLineFinder does, so that rotation, trim and DPI
+  // correction apply. xform then maps the 300 dpi image to the image the search runs on.
+  ImageTransformation xform300(preXform);
+  xform300.preScaleToDpi(Dpi(300, 300));
+  QRect targetRect(xform300.resultingRect().toRect());
+  if (targetRect.isEmpty()) {
+    targetRect.setWidth(1);
+    targetRect.setHeight(1);
+  }
+  BinaryImage img(transformToGray(input, xform300.transform(), targetRect, OutsidePixels::assumeWeakColor(Qt::white)),
+                  bwThreshold);
   QTransform xform;
-
-  // Convert to B/W and rotate.
-  BinaryImage img(to300DpiBinary(input, xform, bwThreshold));
-  // Note: here we assume the only transformation applied
-  // to the input image is orthogonal rotation.
-  img = orthogonalRotation(img, preXform.preRotation().toDegrees());
   if (dbg) {
     dbg->add(img, "bw300");
   }
@@ -366,7 +374,7 @@ PageLayout PageLayoutEstimator::cutAtWhitespace(const LayoutType layoutType,
   const int numPages = page_split::numPages(layoutType, preXform);
   const PageLayout layout(cutAtWhitespaceDeskewed150(layoutType, numPages, img, leftOffcut, rightOffcut, dbg));
 
-  PageLayout transformedLayout(layout.transformed(xform.inverted()));
+  PageLayout transformedLayout(layout.transformed(xform.inverted() * xform300.transformBack() * preXform.transform()));
   // We don't want a skewed outline!
   transformedLayout.setUncutOutline(preXform.resultingRect());
   return transformedLayout;
@@ -438,25 +446,6 @@ PageLayout PageLayoutEstimator::cutAtWhitespaceDeskewed150(const LayoutType layo
     return processContentSpansTwoPages(layoutType, spans, width, height);
   }
 }  // PageLayoutEstimator::cutAtWhitespaceDeskewed150
-
-imageproc::BinaryImage PageLayoutEstimator::to300DpiBinary(const QImage& img,
-                                                           QTransform& xform,
-                                                           const BinaryThreshold binaryThreshold) {
-  const double xfactor = (300.0 * constants::DPI2DPM) / img.dotsPerMeterX();
-  const double yfactor = (300.0 * constants::DPI2DPM) / img.dotsPerMeterY();
-  if ((std::fabs(xfactor - 1.0) < 0.1) && (std::fabs(yfactor - 1.0) < 0.1)) {
-    return BinaryImage(img, binaryThreshold);
-  }
-
-  QTransform scaleXform;
-  scaleXform.scale(xfactor, yfactor);
-  xform *= scaleXform;
-  const QSize newSize(std::max(1, (int) std::ceil(xfactor * img.width())),
-                      std::max(1, (int) std::ceil(yfactor * img.height())));
-
-  const GrayImage newImage(scaleToGray(GrayImage(img), newSize));
-  return BinaryImage(newImage, binaryThreshold);
-}
 
 BinaryImage PageLayoutEstimator::removeGarbageAnd2xDownscale(const BinaryImage& image, DebugImages* dbg) {
   BinaryImage reduced(ReduceThreshold(image)(2));
