@@ -1394,13 +1394,17 @@ void MainWindow::startBatchProcessingOf(const std::set<PageId>* const pages) {
     return;
   }
 
-  m_interactiveQueue->cancelAndClear();
-
-  m_batchQueue = std::make_unique<ProcessingTaskQueue>();
   // Use full page sequence in current display order so all pages are processed
   // (fixes batch missing pages when e.g. order is "decreasing deviation" and
   // selection was not at the first page).
   const PageSequence sequence(m_thumbSequence->toPageSequence());
+  if (sequence.numPages() == 0) {
+    return;  // A project without pages has nothing to process.
+  }
+
+  m_interactiveQueue->cancelAndClear();
+
+  m_batchQueue = std::make_unique<ProcessingTaskQueue>();
   for (const PageInfo& page : sequence) {
     if (pages && (pages->find(page.id()) == pages->end())) {
       continue;

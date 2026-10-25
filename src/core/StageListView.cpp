@@ -185,7 +185,7 @@ void StageListView::setBatchProcessingInProgress(const bool inProgress) {
 
   if (inProgress) {
     removeLaunchButton(selectedRow());
-    updateRowSpans();  // Join columns.
+    updateRowSpans();  // Separate columns (the animation is in column 1).
     // Some styles (Oxygen) visually separate items in a selected row.
     // We really don't want that, so we pretend the items are not selected.
     // Same goes for hovered items.
@@ -200,7 +200,7 @@ void StageListView::setBatchProcessingInProgress(const bool inProgress) {
     initiateBatchAnimationFrameRendering();
     m_timerId = startTimer(180);
   } else {
-    updateRowSpans();  // Separate columns.
+    updateRowSpans();  // Join columns.
     placeLaunchButton(selectedRow());
 
     m_firstColDelegate->removeChanges(QStyle::State_Selected | QStyle::State_MouseOver);
@@ -269,6 +269,12 @@ void StageListView::removeLaunchButton(const int row) {
 
 void StageListView::placeLaunchButton(int row) {
   if (row == -1) {
+    return;
+  }
+  if (!m_batchProcessingPossible || m_batchProcessingInProgress) {
+    // Selecting a stage must not bring the button back when there is nothing to start: setBatchProcessingPossible()
+    // does nothing when the value stays false.
+    m_launchBtn->hide();
     return;
   }
   if (row == pdfRow()) {
@@ -350,7 +356,7 @@ void StageListView::Model::disableBatchProcessingAnimation() {
 }
 
 int StageListView::Model::columnCount(const QModelIndex& parent) const {
-  return 2;
+  return parent.isValid() ? 0 : 2;
 }
 
 void StageListView::Model::setPdfRowEnabled(const bool enabled) {
@@ -363,7 +369,7 @@ void StageListView::Model::setPdfRowEnabled(const bool enabled) {
 
 int StageListView::Model::rowCount(const QModelIndex& parent) const {
   // The filters, then the PDF row.
-  return m_stages->count() + 1;
+  return parent.isValid() ? 0 : m_stages->count() + 1;
 }
 
 QVariant StageListView::Model::data(const QModelIndex& index, const int role) const {
