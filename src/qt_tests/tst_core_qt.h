@@ -23,6 +23,7 @@ class TestCoreQt : public QObject {
   void testOutputPageSwitchRedoesPreviousThumbnail();
   void testFailedTaskReportsBack();
   void testImplausibleSettingsFallBackToDefaults();
+  void testPageSplitThumbnailSkipsLineOutsideThePage();
 };
 
 class Emitter : public QObject {

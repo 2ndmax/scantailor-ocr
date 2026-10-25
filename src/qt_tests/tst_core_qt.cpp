@@ -5,8 +5,10 @@
 
 #include <ApplicationSettings.h>
 #include <DefaultParams.h>
+#include <Dpi.h>
 #include <FileNameDisambiguator.h>
 #include <ImageInfo.h>
+#include <ImageTransformation.h>
 #include <OutputFileNameGenerator.h>
 #include <PageSelectionAccessor.h>
 #include <ProjectPages.h>
@@ -21,6 +23,8 @@
 #include <filters/output/OptionsWidget.h>
 #include <filters/output/Settings.h>
 #include <filters/page_split/Filter.h>
+#include <filters/page_split/PageLayout.h>
+#include <filters/page_split/Thumbnail.h>
 #include <foundation/Utils.h>
 
 #include <QCheckBox>
@@ -29,7 +33,9 @@
 #include <QDomDocument>
 #include <QFile>
 #include <QFileInfo>
+#include <QImage>
 #include <QLineEdit>
+#include <QPainter>
 #include <QSignalSpy>
 #include <QSpinBox>
 #include <QString>
@@ -317,4 +323,27 @@ void TestCoreQt::testImplausibleSettingsFallBackToDefaults() {
   settings.setDeskewDeviationThreshold(1.0);
   settings.setSelectContentDeviationThreshold(1.0);
   settings.setMarginsDeviationThreshold(1.0);
+}
+
+// A split line that misses the page has no inscribed part, a line from (0,0) to (0,0). The thumbnail
+// must not draw it, QPainter would draw it as a dot at the top left of the image.
+void TestCoreQt::testPageSplitThumbnailSkipsLineOutsideThePage() {
+  const ImageTransformation xform(QRectF(0, 0, 100, 200), Dpi(300, 300));
+  const page_split::PageLayout layout(QRectF(10, 10, 80, 180), QLineF(500, 0, 500, 200));
+  QCOMPARE(layout.type(), page_split::PageLayout::TWO_PAGES);
+  QVERIFY(layout.inscribedCutterLine(0).isNull());
+
+  page_split::Thumbnail thumbnail(nullptr, QSizeF(100, 200), ImageId("page.png"), xform, layout, false, false);
+  QImage image(40, 40, QImage::Format_ARGB32_Premultiplied);
+  image.fill(Qt::white);
+  {
+    QPainter painter(&image);
+    // The image origin lands at (5, 5), the page outline starts at (15, 15).
+    thumbnail.prePaintOverImage(painter, QTransform::fromTranslate(5, 5), QTransform());
+  }
+  for (int y = 0; y < 12; ++y) {
+    for (int x = 0; x < 12; ++x) {
+      QVERIFY2(image.pixel(x, y) == qRgb(255, 255, 255), qPrintable(QString("pixel %1,%2 is drawn").arg(x).arg(y)));
+    }
+  }
 }

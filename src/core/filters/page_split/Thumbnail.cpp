@@ -74,13 +74,20 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
   pen.setCosmetic(true);
   painter.setPen(pen);
 
+  const auto drawCutter = [&](int idx) {
+    const QLineF line(m_layout.inscribedCutterLine(idx));
+    // A line that misses the page has no inscribed part (a null line); QPainter would draw it as a dot.
+    if (!line.isNull()) {
+      painter.drawLine(line);
+    }
+  };
   switch (m_layout.type()) {
     case PageLayout::SINGLE_PAGE_CUT:
-      painter.drawLine(m_layout.inscribedCutterLine(0));
-      painter.drawLine(m_layout.inscribedCutterLine(1));
+      drawCutter(0);
+      drawCutter(1);
       break;
     case PageLayout::TWO_PAGES:
-      painter.drawLine(m_layout.inscribedCutterLine(0));
+      drawCutter(0);
       break;
     default:;
   }
