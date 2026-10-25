@@ -15,6 +15,7 @@ class FilterData;
 class DebugImages;
 class ProjectPages;
 class QImage;
+class QPolygonF;
 
 namespace deskew {
 class Task;
@@ -23,6 +24,7 @@ class Task;
 namespace page_split {
 class Filter;
 class Settings;
+class Params;
 
 class PageLayout;
 
@@ -44,6 +46,12 @@ class Task {
 
  private:
   class UiUpdater;
+
+  /**
+   * Stores \p origPreCropArea in the dependencies of \p params, which were read from
+   * a project file written before the trim was part of them.
+   */
+  void recordPreCropArea(const Params& params, const QPolygonF& origPreCropArea);
 
   std::shared_ptr<Filter> m_filter;
   std::shared_ptr<Settings> m_settings;

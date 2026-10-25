@@ -4,6 +4,7 @@
 #ifndef SCANTAILOR_PAGE_SPLIT_DEPENDENCIES_H_
 #define SCANTAILOR_PAGE_SPLIT_DEPENDENCIES_H_
 
+#include <QPolygonF>
 #include <QSize>
 
 #include "LayoutType.h"
@@ -28,11 +29,29 @@ class Dependencies {
 
   explicit Dependencies(const QDomElement& el);
 
-  Dependencies(const QSize& imageSize, OrthogonalRotation rotation, LayoutType layoutType);
+  /**
+   * \param origPreCropArea The area left by the trim of the "Fix Orientation" step, in
+   *        original image coordinates (ImageTransformation::origPreCropArea()). The split
+   *        line is stored in coordinates relative to it.
+   */
+  Dependencies(const QSize& imageSize,
+               OrthogonalRotation rotation,
+               const QPolygonF& origPreCropArea,
+               LayoutType layoutType);
 
   void setLayoutType(LayoutType type);
 
   const OrthogonalRotation& orientation() const;
+
+  /**
+   * \brief False for dependencies read from a project file written before the
+   *        trim was part of them.
+   */
+  bool hasPreCropArea() const;
+
+  const QPolygonF& preCropArea() const;
+
+  void setPreCropArea(const QPolygonF& origPreCropArea);
 
   bool compatibleWith(const Params& params) const;
 
@@ -43,6 +62,8 @@ class Dependencies {
  private:
   QSize m_imageSize;
   OrthogonalRotation m_rotation;
+  // Empty if unknown, see hasPreCropArea().
+  QPolygonF m_preCropArea;
   LayoutType m_layoutType;
 };
 
@@ -53,6 +74,18 @@ inline const OrthogonalRotation& Dependencies::orientation() const {
 
 inline void Dependencies::setLayoutType(LayoutType type) {
   m_layoutType = type;
+}
+
+inline bool Dependencies::hasPreCropArea() const {
+  return !m_preCropArea.empty();
+}
+
+inline const QPolygonF& Dependencies::preCropArea() const {
+  return m_preCropArea;
+}
+
+inline void Dependencies::setPreCropArea(const QPolygonF& origPreCropArea) {
+  m_preCropArea = origPreCropArea;
 }
 }  // namespace page_split
 #endif  // ifndef SCANTAILOR_PAGE_SPLIT_DEPENDENCIES_H_

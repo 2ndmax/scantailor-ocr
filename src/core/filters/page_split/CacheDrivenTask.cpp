@@ -61,7 +61,8 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
   const Settings::Record record(m_settings->getPageRecord(pageInfo.imageId()));
 
   const OrthogonalRotation preRotation(xform.preRotation());
-  const Dependencies deps(pageInfo.metadata().size(), preRotation, record.combinedLayoutType());
+  const Dependencies deps(pageInfo.metadata().size(), preRotation, xform.origPreCropArea(),
+                          record.combinedLayoutType());
 
   const Params* params = record.params();
 
@@ -83,6 +84,9 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
 
   if (m_nextTask) {
     ImageTransformation newXform(xform);
+    // REVIEW-NOTE (2026-10): if the sub-page no longer matches the layout type, pageOutline() is empty and the whole
+    // image is passed on -> one run may process the full image for a page that is about to vanish. Not fixed because
+    // the page list is corrected right after and a reschedule needs pipeline changes.
     const QPolygonF pagePoly(layout.pageOutline(pageInfo.id().subPage()).toPolygon());
     const QPolygonF merged(intersectPreCropWithPageOutline(pagePoly, newXform.preCropArea()));
     newXform.setPreCropArea(merged);

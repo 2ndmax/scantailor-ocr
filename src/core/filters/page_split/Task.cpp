@@ -107,7 +107,8 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
   status.throwIfCancelled();
 
   Settings::Record record(m_settings->getPageRecord(m_pageInfo.imageId()));
-  Dependencies deps(data.origImage().size(), data.xform().preRotation(), record.combinedLayoutType());
+  Dependencies deps(data.origImage().size(), data.xform().preRotation(), data.xform().origPreCropArea(),
+                    record.combinedLayoutType());
 
   while (true) {
     const Params* const params = record.params();
@@ -132,6 +133,9 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
       PageLayout correctedPageLayout = params->pageLayout();
       PageLayoutAdapter::correctPageLayoutType(&correctedPageLayout);
       if (correctedPageLayout.type() == params->pageLayout().type()) {
+        if (!params->dependencies().hasPreCropArea()) {
+          recordPreCropArea(*params, deps.preCropArea());
+        }
         break;
       } else {
         newLayout = correctedPageLayout;
@@ -171,6 +175,10 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
       // new layout type.
       continue;
     }
+    if (conflict) {
+      // The other thread's params are used, so their dependencies are the ones that belong to them.
+      deps = record.params()->dependencies();
+    }
 
     break;
   }
@@ -186,6 +194,9 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
 
   if (m_nextTask != nullptr) {
     ImageTransformation newXform(data.xform());
+    // REVIEW-NOTE (2026-10): if the sub-page no longer matches the layout type, pageOutline() is empty and the whole
+    // image is passed on -> one run may process the full image for a page that is about to vanish. Not fixed because
+    // the page list is corrected right after and a reschedule needs pipeline changes.
     const QPolygonF pagePoly(layout.pageOutline(m_pageInfo.id().subPage()).toPolygon());
     const QPolygonF merged(intersectPreCropWithPageOutline(pagePoly, newXform.preCropArea()));
     newXform.setPreCropArea(merged);
@@ -194,6 +205,19 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
   return std::make_shared<UiUpdater>(m_filter, m_pages, std::move(m_dbg), data.origImage(), m_pageInfo, data.xform(),
                                      uiData, m_batchProcessing);
 }  // Task::process
+
+void Task::recordPreCropArea(const Params& params, const QPolygonF& origPreCropArea) {
+  // The split line of such a page is kept (see Dependencies::compatibleWith()), but from
+  // now on a change of the trim must be noticed.
+  Dependencies deps(params.dependencies());
+  deps.setPreCropArea(origPreCropArea);
+  Params newParams(params);
+  newParams.setDependencies(deps);
+
+  Settings::UpdateAction update;
+  update.setParams(newParams);
+  m_settings->updatePage(m_pageInfo.imageId(), update);
+}
 
 /*============================ Task::UiUpdater =========================*/
 

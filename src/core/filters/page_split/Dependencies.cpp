@@ -3,9 +3,13 @@
 
 #include "Dependencies.h"
 
+#include <PolygonUtils.h>
+
 #include "Params.h"
 #include "XmlMarshaller.h"
 #include "XmlUnmarshaller.h"
+
+using imageproc::PolygonUtils;
 
 namespace page_split {
 Dependencies::Dependencies() : m_layoutType(AUTO_LAYOUT_TYPE) {}
@@ -13,10 +17,14 @@ Dependencies::Dependencies() : m_layoutType(AUTO_LAYOUT_TYPE) {}
 Dependencies::Dependencies(const QDomElement& el)
     : m_imageSize(XmlUnmarshaller::size(el.namedItem("size").toElement())),
       m_rotation(el.namedItem("rotation").toElement()),
+      m_preCropArea(XmlUnmarshaller::polygonF(el.namedItem("preCropArea").toElement())),
       m_layoutType(layoutTypeFromString(XmlUnmarshaller::string(el.namedItem("layoutType").toElement()))) {}
 
-Dependencies::Dependencies(const QSize& imageSize, const OrthogonalRotation rotation, const LayoutType layoutType)
-    : m_imageSize(imageSize), m_rotation(rotation), m_layoutType(layoutType) {}
+Dependencies::Dependencies(const QSize& imageSize,
+                           const OrthogonalRotation rotation,
+                           const QPolygonF& origPreCropArea,
+                           const LayoutType layoutType)
+    : m_imageSize(imageSize), m_rotation(rotation), m_preCropArea(origPreCropArea), m_layoutType(layoutType) {}
 
 bool Dependencies::compatibleWith(const Params& params) const {
   const Dependencies& deps = params.dependencies();
@@ -25,6 +33,12 @@ bool Dependencies::compatibleWith(const Params& params) const {
     return false;
   }
   if (m_rotation != deps.m_rotation) {
+    return false;
+  }
+  // The split line is stored relative to the trimmed area, so a new trim moves it.
+  // Pages from project files without the trim keep their split line until the trim
+  // changes (Task records the current trim for them).
+  if (hasPreCropArea() && deps.hasPreCropArea() && !PolygonUtils::fuzzyCompare(m_preCropArea, deps.m_preCropArea)) {
     return false;
   }
   if (m_layoutType == deps.m_layoutType) {
@@ -54,6 +68,9 @@ QDomElement Dependencies::toXml(QDomDocument& doc, const QString& tagName) const
   QDomElement el(doc.createElement(tagName));
   el.appendChild(m_rotation.toXml(doc, "rotation"));
   el.appendChild(marshaller.size(m_imageSize, "size"));
+  if (hasPreCropArea()) {
+    el.appendChild(marshaller.polygonF(m_preCropArea, "preCropArea"));
+  }
   el.appendChild(marshaller.string(layoutTypeToString(m_layoutType), "layoutType"));
   return el;
 }
