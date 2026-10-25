@@ -223,7 +223,7 @@ void OptionsWidget::tiffCompressionChanged(const bool delayReload) {
   emit invalidateAllThumbnails();
   if (delayReload) {
     // Don't recreate the page for every step of the spin box.
-    m_delayedReloadRequest.start(750);
+    m_delayedReloadRequest.start(RELOAD_DELAY_MS);
   } else {
     emit reloadRequested();
   }
@@ -357,7 +357,7 @@ void OptionsWidget::pictureShapeSensitivityChanged(int value) {
   m_pictureShapeOptions.setSensitivity(value);
   m_settings->setPictureShapeOptions(m_pageId, m_pictureShapeOptions);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::higherSearchSensivityToggled(const bool checked) {
@@ -787,7 +787,7 @@ void OptionsWidget::handleDespeckleLevelChange(const double level, const bool de
     emit invalidateThumbnail(m_pageId);
   } else {
     if (delay) {
-      m_delayedReloadRequest.start(750);
+      m_delayedReloadRequest.start(RELOAD_DELAY_MS);
     } else {
       emit reloadRequested();
     }
@@ -901,7 +901,7 @@ void OptionsWidget::depthPerceptionChangedSlot(int val) {
 void OptionsWidget::depthPerceptionSliderReleased() {
   // The Dewarping tab follows the slider by itself; other tabs need the page recalculated.
   if (m_lastTab != TAB_DEWARPING) {
-    m_delayedReloadRequest.start(750);
+    m_delayedReloadRequest.start(RELOAD_DELAY_MS);
   }
 }
 
@@ -1215,7 +1215,7 @@ void OptionsWidget::coloredDimmingChanged(const double value) {
   opt.setColoredDimming(value);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::binarizationBoundChanged() {
@@ -1224,7 +1224,7 @@ void OptionsWidget::binarizationBoundChanged() {
   opt.setWolfUpperBound(upperBoundSB->value());
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::bwForegroundToggled(bool) {
@@ -1282,7 +1282,7 @@ void OptionsWidget::chromaRadiusChanged(int value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::chromaGrayLimitChanged(int value) {
@@ -1291,7 +1291,7 @@ void OptionsWidget::chromaGrayLimitChanged(int value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::subtractBgToggled(bool checked) {
@@ -1314,7 +1314,7 @@ void OptionsWidget::subtractBgCoefChanged(double value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::subtractBgRadiusChanged(int value) {
@@ -1323,7 +1323,7 @@ void OptionsWidget::subtractBgRadiusChanged(int value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::subtractBgWhiteToggled(bool checked) {
@@ -1355,7 +1355,7 @@ void OptionsWidget::knnCoefChanged(double value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::knnRadiusChanged(int value) {
@@ -1364,7 +1364,7 @@ void OptionsWidget::knnRadiusChanged(int value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::sharpenToggled(bool checked) {
@@ -1387,7 +1387,7 @@ void OptionsWidget::sharpenCoefChanged(double value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::sharpenRadiusChanged(int value) {
@@ -1396,7 +1396,7 @@ void OptionsWidget::sharpenRadiusChanged(int value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::wienerToggled(bool checked) {
@@ -1419,7 +1419,7 @@ void OptionsWidget::wienerCoefChanged(double value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::wienerWindowSizeChanged(int value) {
@@ -1428,7 +1428,7 @@ void OptionsWidget::wienerWindowSizeChanged(int value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::colorSegmentationToggled(bool checked) {
@@ -1452,7 +1452,7 @@ void OptionsWidget::reduceNoiseChanged(int value) {
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::redAdjustmentChanged(int value) {
@@ -1463,7 +1463,7 @@ void OptionsWidget::redAdjustmentChanged(int value) {
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::greenAdjustmentChanged(int value) {
@@ -1474,7 +1474,7 @@ void OptionsWidget::greenAdjustmentChanged(int value) {
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::blueAdjustmentChanged(int value) {
@@ -1485,7 +1485,7 @@ void OptionsWidget::blueAdjustmentChanged(int value) {
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 bool OptionsWidget::reducesTextColors() const {
@@ -1564,7 +1564,7 @@ void OptionsWidget::kmeansColorsChanged(const int value) {
   blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::kmeansFixBlackToggled(const bool checked) {
@@ -1585,7 +1585,7 @@ void OptionsWidget::posterizeLevelChanged(int value) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  m_delayedReloadRequest.start(750);
+  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
 void OptionsWidget::posterizeNormalizationToggled(bool checked) {

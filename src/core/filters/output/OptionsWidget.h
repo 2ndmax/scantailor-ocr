@@ -43,6 +43,9 @@ class Settings;
 class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   Q_OBJECT
  public:
+  /** How long after the last change of a setting the page is processed again, in milliseconds. */
+  static constexpr int RELOAD_DELAY_MS = 750;
+
   OptionsWidget(std::shared_ptr<Settings> settings,
                 std::shared_ptr<ProcessingOptions> processingOptions,
                 const PageSelectionAccessor& pageSelectionAccessor);
