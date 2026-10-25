@@ -39,6 +39,14 @@ void ImageLoadErrorCapture::addWarning(const QString& message) {
   }
 }
 
+void ImageLoadErrorCapture::addPartialRead(const QString& reason) {
+  if (t_currentCapture) {
+    append(t_currentCapture->m_partialReads, reason);
+  } else {
+    qWarning().noquote() << reason;
+  }
+}
+
 QStringList ImageLoadErrorCapture::messages() const {
   return m_errors.isEmpty() ? m_warnings : m_errors;
 }

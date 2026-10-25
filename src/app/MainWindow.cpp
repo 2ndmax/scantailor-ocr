@@ -55,6 +55,7 @@
 #include "PageOrientationPropagator.h"
 #include "PageSelectionAccessor.h"
 #include "PageSequence.h"
+#include "PartlyAddedFilesMessage.h"
 #include "ProcessingIndicationWidget.h"
 #include "ProcessingTaskQueue.h"
 #include "ProjectCreationContext.h"
@@ -1853,6 +1854,7 @@ void MainWindow::newProjectCreated(ProjectCreationContext* context) {
   const DefaultParams startValues = DefaultParamsProvider::getInstance().getParams();
   switchToNewProject(ProjectPages::createNew(context->files(), startValues), context->outDir(), startValues, QString(),
                      nullptr, context->inputDir());
+  PartlyAddedFilesMessage::showIfNeeded(this, context->files());
   // A new project is saved right away, so it can be opened again even while it is empty.
   if (saveProjectWithFeedback(context->projectFile())) {
     setSavedProjectFile(context->projectFile());
@@ -2372,6 +2374,7 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
         files.at(i), [&](const ImageMetadata& metadata) { imageFileInfo.imageInfo().push_back(metadata); });
 
     if (status == ImageMetadataLoader::LOADED) {
+      imageFileInfo.setPartialReads(errorCapture.partialReads());
       newFiles.push_back(imageFileInfo);
       loadedFiles.push_back(fileInfo.absoluteFilePath());
     } else {
@@ -2414,6 +2417,7 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
       insertionPoint = inserted.back().imageId();
     }
   }
+  PartlyAddedFilesMessage::showIfNeeded(this, newFiles);
 }  // MainWindow::showInsertFileDialog
 
 std::vector<PageInfo> MainWindow::insertImageFile(const ImageFileInfo& file,
@@ -2606,7 +2610,9 @@ ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& n
     // The scanning program may not have closed the file yet.
     for (int attempt = 0; attempt < 5; ++attempt) {
       if (QFile::rename(oldPath, newPath)) {
-        return ImageFileInfo(QFileInfo(newPath), file.imageInfo());
+        ImageFileInfo renamed(QFileInfo(newPath), file.imageInfo());
+        renamed.setPartialReads(file.partialReads());
+        return renamed;
       }
       QThread::msleep(100);
     }
@@ -2694,6 +2700,7 @@ bool MainWindow::startAutoImport(const QString& dir, const bool chooseExistingIm
         }
         saveProjectWithFeedback(m_projectFile);
       }
+      PartlyAddedFilesMessage::showIfNeeded(this, chosen);
     }
   }
 
@@ -2838,6 +2845,7 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
   saveProjectWithFeedback(m_projectFile);
   // E.g. inserting becomes possible with the first page.
   updateAutoImportPanel();
+  PartlyAddedFilesMessage::showIfNeeded(this, {file});
 }
 
 void MainWindow::importDeferredScans() {

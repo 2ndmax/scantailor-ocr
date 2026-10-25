@@ -36,6 +36,18 @@ class ImageLoadErrorCapture {
   static void addWarning(const QString& message);
 
   /**
+   * \brief Reports that a file could only be read in part, e.g. a multi-page TIFF whose
+   *        later pages are damaged.
+   *
+   * Unlike a warning, \p reason is meant for the user although loading succeeded: the
+   * caller tells them which files were only partly taken over. May be called from any thread.
+   */
+  static void addPartialRead(const QString& reason);
+
+  /** The reasons collected by addPartialRead(). */
+  const QStringList& partialReads() const { return m_partialReads; }
+
+  /**
    * \brief The collected errors, or if there were none, the collected warnings.
    *
    * Duplicates are removed and the number of messages is limited.
@@ -48,6 +60,7 @@ class ImageLoadErrorCapture {
   ImageLoadErrorCapture* m_prev;
   QStringList m_errors;
   QStringList m_warnings;
+  QStringList m_partialReads;
 };
 
 

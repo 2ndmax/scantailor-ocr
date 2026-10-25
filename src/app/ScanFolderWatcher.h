@@ -70,6 +70,8 @@ class ScanFolderWatcher : public QObject {
     int session = 0;
     QString filePath;
     std::vector<ImageMetadata> metadata;
+    // See ImageFileInfo::partialReads().
+    QStringList partialReads;
     bool ok = false;
   };
 

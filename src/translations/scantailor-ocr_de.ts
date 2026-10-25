@@ -1822,22 +1822,22 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Probleme mit Bilddateien</translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="113"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="116"/>
         <source>(writing)</source>
         <translation>(Schreiben)</translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="115"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="118"/>
         <source>(processing)</source>
         <translation>(Verarbeitung)</translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="105"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="108"/>
         <source>Unknown page</source>
         <translation>Unbekannte Seite</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="143"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="146"/>
         <source>%n page(s) could not be processed because of an unexpected error.</source>
         <translation>
             <numerusform>%n Seite konnte wegen eines unerwarteten Fehlers nicht verarbeitet werden.</numerusform>
@@ -1845,7 +1845,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="139"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="142"/>
         <source>%n output file(s) could not be written.</source>
         <translation>
             <numerusform>%n Ausgabedatei konnte nicht geschrieben werden.</numerusform>
@@ -1858,12 +1858,12 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Diese Meldung in dieser Sitzung nicht mehr anzeigen</translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="110"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="113"/>
         <source>(page %1)</source>
         <translation>(Seite %1)</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="136"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="139"/>
         <source>%n image(s) could not be loaded.</source>
         <translation>
             <numerusform>%n Bild konnte nicht geladen werden.</numerusform>
@@ -1871,7 +1871,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="158"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="161"/>
         <source>... and %n more (see details).</source>
         <translation>
             <numerusform>... und %n weiteres (siehe Details).</numerusform>
@@ -1883,7 +1883,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     <name>ImageLoader</name>
     <message>
         <location filename="../core/ImageLoader.cpp" line="47"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="753"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="763"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation>Das Dateiformat wird nicht unterstützt oder die Datei ist beschädigt.</translation>
     </message>
@@ -1891,7 +1891,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>ImageViewBase</name>
     <message>
-        <location filename="../core/ImageViewBase.cpp" line="194"/>
+        <location filename="../core/ImageViewBase.cpp" line="203"/>
         <source>Use the mouse wheel or +/- to zoom. When zoomed, dragging is possible. Double-click to see the whole page.</source>
         <translation>Verwenden Sie das Mausrad oder +/- zum Zoomen. Im gezoomten Zustand ist das Ziehen möglich. Doppelklick zeigt wieder die ganze Seite.</translation>
     </message>
@@ -1917,12 +1917,12 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>Jp2Reader</name>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="319"/>
+        <location filename="../core/Jp2Reader.cpp" line="329"/>
         <source>The image contains a component that could not be decoded.</source>
         <translation>Das Bild enthält eine Komponente, die nicht dekodiert werden konnte.</translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="642"/>
+        <location filename="../core/Jp2Reader.cpp" line="681"/>
         <source>The JPEG 2000 file header is damaged or incomplete.</source>
         <translation>Der Dateikopf der JPEG-2000-Datei ist beschädigt oder unvollständig.</translation>
     </message>
@@ -2067,7 +2067,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1095"/>
-        <location filename="../app/MainWindow.cpp" line="662"/>
+        <location filename="../app/MainWindow.cpp" line="663"/>
         <source>Save Project</source>
         <translation>Projekt speichern</translation>
     </message>
@@ -2149,7 +2149,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3048"/>
+        <location filename="../app/MainWindow.cpp" line="3066"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
@@ -2174,126 +2174,126 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Aktuelle Seite neu laden</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="559"/>
+        <location filename="../app/MainWindow.cpp" line="560"/>
         <source>Stop batch processing</source>
         <translation>Stapelverarbeitung abbrechen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="662"/>
+        <location filename="../app/MainWindow.cpp" line="663"/>
         <source>Save the project?</source>
         <translation>Projekt speichern?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1157"/>
+        <location filename="../app/MainWindow.cpp" line="1158"/>
         <source>Insert Before ...</source>
         <translation>Einfügen vor ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1158"/>
+        <location filename="../app/MainWindow.cpp" line="1159"/>
         <source>Insert After ...</source>
         <translation>Einfügen nach ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1162"/>
+        <location filename="../app/MainWindow.cpp" line="1163"/>
         <source>Remove from Project ...</source>
         <translation>Aus Projekt entfernen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1236"/>
+        <location filename="../app/MainWindow.cpp" line="1237"/>
         <source>Insert Here ...</source>
         <translation>Hier einfügen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1650"/>
+        <location filename="../app/MainWindow.cpp" line="1651"/>
         <source>The detection was canceled.</source>
         <translation>Die Erkennung wurde abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1891"/>
+        <location filename="../app/MainWindow.cpp" line="1895"/>
         <source>The project file is damaged.</source>
         <translation>Die Projektdatei ist beschädigt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2152"/>
+        <location filename="../app/MainWindow.cpp" line="2157"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
 Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt auswählen“ oder „Ränder“ aus.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2190"/>
+        <location filename="../app/MainWindow.cpp" line="2195"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation>%2 – ScanTailor OCR %3 [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2205"/>
+        <location filename="../app/MainWindow.cpp" line="2210"/>
         <source>Create PDF</source>
         <translation>PDF erstellen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1873"/>
+        <location filename="../app/MainWindow.cpp" line="1877"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="26"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor-OCR-Projekte</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1172"/>
+        <location filename="../app/MainWindow.cpp" line="1173"/>
         <source>Select</source>
         <translation>Auswählen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1173"/>
+        <location filename="../app/MainWindow.cpp" line="1174"/>
         <source>All Pages</source>
         <translation>Alle Seiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1174"/>
+        <location filename="../app/MainWindow.cpp" line="1175"/>
         <source>This Page and the Following Ones</source>
         <translation>Diese und darauffolgende Seiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1176"/>
+        <location filename="../app/MainWindow.cpp" line="1177"/>
         <source>Every Other Page (Odd Pages)</source>
         <translation>Jede zweite Seite (ungerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1176"/>
+        <location filename="../app/MainWindow.cpp" line="1177"/>
         <source>Every Other Page (Even Pages)</source>
         <translation>Jede zweite Seite (gerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1177"/>
+        <location filename="../app/MainWindow.cpp" line="1178"/>
         <source>This Page and Every Other Following Page</source>
         <translation>Diese Seite und jede zweite darauffolgende Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1178"/>
+        <location filename="../app/MainWindow.cpp" line="1179"/>
         <source>Every Other Selected Page</source>
         <translation>Jede zweite ausgewählte Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1181"/>
+        <location filename="../app/MainWindow.cpp" line="1182"/>
         <source>This Page Only</source>
         <translation>Nur diese Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1593"/>
+        <location filename="../app/MainWindow.cpp" line="1594"/>
         <source>Detecting the color mode ...</source>
         <translation>Der Farbmodus wird erkannt ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1593"/>
+        <location filename="../app/MainWindow.cpp" line="1594"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1594"/>
-        <location filename="../app/MainWindow.cpp" line="1652"/>
+        <location filename="../app/MainWindow.cpp" line="1595"/>
+        <location filename="../app/MainWindow.cpp" line="1653"/>
         <source>Detect Color Mode</source>
         <translation>Farbmodus erkennen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1637"/>
+        <location filename="../app/MainWindow.cpp" line="1638"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation>
             <numerusform>Farbmodus für %n Seite erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
@@ -2301,7 +2301,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1644"/>
+        <location filename="../app/MainWindow.cpp" line="1645"/>
         <source>%n page(s) skipped because the steps before Output have not been done yet.</source>
         <translation>
             <numerusform>%n Seite übersprungen, weil die Schritte vor der Ausgabe noch nicht ausgeführt wurden.</numerusform>
@@ -2309,7 +2309,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1647"/>
+        <location filename="../app/MainWindow.cpp" line="1648"/>
         <source>%n page(s) could not be loaded.</source>
         <translation>
             <numerusform>%n Seite konnte nicht geladen werden.</numerusform>
@@ -2317,112 +2317,112 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1872"/>
+        <location filename="../app/MainWindow.cpp" line="1876"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1885"/>
-        <location filename="../app/MainWindow.cpp" line="1891"/>
-        <location filename="../app/MainWindow.cpp" line="2265"/>
-        <location filename="../app/MainWindow.cpp" line="2289"/>
+        <location filename="../app/MainWindow.cpp" line="1889"/>
+        <location filename="../app/MainWindow.cpp" line="1895"/>
+        <location filename="../app/MainWindow.cpp" line="2270"/>
+        <location filename="../app/MainWindow.cpp" line="2294"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1885"/>
+        <location filename="../app/MainWindow.cpp" line="1889"/>
         <source>Unable to open the project file.</source>
         <translation>Die Projektdatei kann nicht geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1959"/>
+        <location filename="../app/MainWindow.cpp" line="1963"/>
         <source>Default Parameters</source>
         <translation>Standardparameter</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1960"/>
+        <location filename="../app/MainWindow.cpp" line="1964"/>
         <source>Also use these default parameters for the open project? Pages added to it later start with them. Otherwise, they only apply to new projects.</source>
         <translation>Diese Standardparameter auch für das geöffnete Projekt verwenden? Später hinzugefügte Seiten beginnen dann mit ihnen. Andernfalls gelten sie nur für neue Projekte.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2008"/>
+        <location filename="../app/MainWindow.cpp" line="2012"/>
         <source>version </source>
         <translation>Version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2185"/>
+        <location filename="../app/MainWindow.cpp" line="2190"/>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2205"/>
+        <location filename="../app/MainWindow.cpp" line="2210"/>
         <source>A PDF is being created. Do you want to cancel it?</source>
         <translation>Ein PDF wird gerade erstellt. Möchten Sie den Vorgang abbrechen?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2265"/>
-        <location filename="../app/MainWindow.cpp" line="2289"/>
+        <location filename="../app/MainWindow.cpp" line="2270"/>
+        <location filename="../app/MainWindow.cpp" line="2294"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2344"/>
+        <location filename="../app/MainWindow.cpp" line="2340"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2347"/>
+        <location filename="../app/MainWindow.cpp" line="2343"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2397"/>
+        <location filename="../app/MainWindow.cpp" line="2394"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2454"/>
+        <location filename="../app/MainWindow.cpp" line="2456"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2611"/>
-        <location filename="../app/MainWindow.cpp" line="2653"/>
+        <location filename="../app/MainWindow.cpp" line="2628"/>
+        <location filename="../app/MainWindow.cpp" line="2670"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2605"/>
+        <location filename="../app/MainWindow.cpp" line="2622"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2630"/>
+        <location filename="../app/MainWindow.cpp" line="2647"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2654"/>
+        <location filename="../app/MainWindow.cpp" line="2671"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2710"/>
+        <location filename="../app/MainWindow.cpp" line="2725"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2768"/>
+        <location filename="../app/MainWindow.cpp" line="2785"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen. Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2846"/>
+        <location filename="../app/MainWindow.cpp" line="2864"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3048"/>
+        <location filename="../app/MainWindow.cpp" line="3066"/>
         <source>Enter the page number:</source>
         <translation>Seitennummer:</translation>
     </message>
@@ -2724,12 +2724,12 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Bitte beachten Sie, dass ScanTailor OCR zwar versucht, Situationen, in denen der Speicher voll ist, abzufangen und Ihnen die Möglichkeit zu geben, Ihr Projekt zu speichern, aber das ist nicht immer möglich. Dieses Mal hat es geklappt, aber beim nächsten Mal könnte es einfach abstürzen.</translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="61"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="63"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/OutOfMemoryDialog.cpp" line="61"/>
+        <location filename="../app/OutOfMemoryDialog.cpp" line="63"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
@@ -2801,6 +2801,19 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <location filename="../core/PageScopeGroupBox.cpp" line="85"/>
         <source>%1 pages</source>
         <translation>%1 Seiten</translation>
+    </message>
+</context>
+<context>
+    <name>PartlyAddedFilesMessage</name>
+    <message>
+        <location filename="../app/PartlyAddedFilesMessage.cpp" line="25"/>
+        <source>Files Only Partly Added</source>
+        <translation>Dateien nur teilweise übernommen</translation>
+    </message>
+    <message>
+        <location filename="../app/PartlyAddedFilesMessage.cpp" line="26"/>
+        <source>These files were only partly added:</source>
+        <translation>Diese Dateien wurden nur teilweise übernommen:</translation>
     </message>
 </context>
 <context>
@@ -3446,7 +3459,7 @@ Ohne sie wird der Text nur mit den übrigen angekreuzten Sprachen erkannt.</tran
 <context>
     <name>ProjectFilesDialog</name>
     <message numerus="yes">
-        <location filename="../app/ProjectFilesDialog.cpp" line="618"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="627"/>
         <source>... and %n more.</source>
         <translation>
             <numerusform>... und %n weitere.</numerusform>
@@ -3460,7 +3473,7 @@ Ohne sie wird der Text nur mit den übrigen angekreuzten Sprachen erkannt.</tran
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="27"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="278"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="287"/>
         <source>Input Folder</source>
         <translation>Eingabeordner</translation>
     </message>
@@ -3473,13 +3486,13 @@ Ohne sie wird der Text nur mit den übrigen angekreuzten Sprachen erkannt.</tran
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="50"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="292"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="301"/>
         <source>Output Folder</source>
         <translation>Ausgabeordner</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="69"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="314"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="323"/>
         <source>Project File</source>
         <translation>Projektdatei</translation>
     </message>
@@ -3532,92 +3545,92 @@ p, li { white-space: pre-wrap; }
         <translation>Dateien im Projekt</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="205"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="211"/>
         <source>Images Already in the Folder</source>
         <translation>Bilder, die schon im Ordner liegen</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="207"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="213"/>
         <source>These images are already in the folder %1, but not in the project. Move those that are to be added to the project to the right.</source>
         <translation>Diese Bilder liegen schon im Ordner %1, sind aber nicht im Projekt. Verschieben Sie die, die ins Projekt aufgenommen werden sollen, nach rechts.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="214"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="220"/>
         <source>Files to Add</source>
         <translation>Hinzuzufügende Dateien</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="315"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="324"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor-OCR-Projekte</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="440"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="504"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="510"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="516"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="537"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="543"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="621"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="449"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="513"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="519"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="525"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="546"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="552"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="630"/>
         <location filename="../app/RelinkingDialog.cpp" line="199"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="440"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="449"/>
         <source>Project file is not set or its folder doesn&apos;t exist.</source>
         <translation>Die Projektdatei ist nicht festgelegt, oder ihr Ordner existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="445"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="454"/>
         <source>Overwrite File?</source>
         <translation>Datei überschreiben?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="446"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="455"/>
         <source>The project file %1 already exists. Overwrite it?</source>
         <translation>Die Projektdatei %1 existiert bereits. Soll sie überschrieben werden?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="504"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="513"/>
         <source>No files in project!</source>
         <translation>Keine Dateien im Projekt!</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="510"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="519"/>
         <source>Input folder is not set or doesn&apos;t exist.</source>
         <translation>Der Eingabeordner ist nicht festgelegt oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="516"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="525"/>
         <source>Input and output folders can&apos;t be the same.</source>
         <translation>Eingabe- und Ausgabeordner können nicht identisch sein.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="528"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="537"/>
         <location filename="../app/RelinkingDialog.cpp" line="192"/>
         <source>Create Folder?</source>
         <translation>Ordner erstellen?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="528"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="537"/>
         <location filename="../app/RelinkingDialog.cpp" line="193"/>
         <source>Output folder doesn&apos;t exist. Create it?</source>
         <translation>Der Ausgabeordner existiert nicht. Soll er erstellt werden?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="537"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="546"/>
         <location filename="../app/RelinkingDialog.cpp" line="200"/>
         <source>Unable to create output folder.</source>
         <translation>Der Ausgabeordner kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="543"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="552"/>
         <source>Output folder is not set or doesn&apos;t exist.</source>
         <translation>Der Ausgabeordner ist nicht festgelegt oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="622"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="631"/>
         <source>Some of the files failed to load.
 Either their format is not supported, or they are damaged.
 You should remove them from the project.</source>
@@ -4455,7 +4468,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Ungültige Kachelaufteilung.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="590"/>
+        <location filename="../core/TiffReader.cpp" line="603"/>
         <source>Page %1 doesn&apos;t exist in this file.</source>
         <translation>Seite %1 existiert in dieser Datei nicht.</translation>
     </message>
@@ -4465,17 +4478,18 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Die Bildabmessungen fehlen oder sind ungültig.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="593"/>
+        <location filename="../core/TiffReader.cpp" line="548"/>
+        <location filename="../core/TiffReader.cpp" line="606"/>
         <source>Page %1 of this file is damaged.</source>
         <translation>Seite %1 dieser Datei ist beschädigt.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="761"/>
+        <location filename="../core/TiffReader.cpp" line="774"/>
         <source>The color palette of the image is missing.</source>
         <translation>Die Farbpalette des Bildes fehlt.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="843"/>
+        <location filename="../core/TiffReader.cpp" line="856"/>
         <source>Unsupported sample format (%1 bits per sample, format %2).</source>
         <translation>Nicht unterstütztes Sample-Format (%1 Bit pro Sample, Format %2).</translation>
     </message>
@@ -4687,7 +4701,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.ui" line="44"/>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="146"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="149"/>
         <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
@@ -4698,38 +4712,38 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.ui" line="60"/>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="162"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="165"/>
         <source>Manual</source>
         <translation>Manuell</translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.ui" line="74"/>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="179"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="182"/>
         <source>Angle:</source>
         <translation>Winkel:</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="108"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="111"/>
         <source>Detection:</source>
         <translation>Erkennung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="115"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="118"/>
         <source>How Auto finds the angle of this page: from the lines of the content, or from the top edge of the page (recommended for book scans with a dark background).</source>
         <translation>Wie „Automatisch“ den Winkel dieser Seite findet: aus den Zeilen des Inhalts oder aus der oberen Seitenkante (empfohlen für Buchscans mit dunklem Hintergrund).</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="149"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="152"/>
         <source>Detect the oblique angle automatically.</source>
         <translation>Erkennt den Scherungswinkel automatisch.</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="165"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="168"/>
         <source>Keep the oblique angle set below.</source>
         <translation>Behält den darunter eingestellten Scherungswinkel bei.</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="241"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="247"/>
         <source>Applies the rotation angle (with Auto: the detection method) and the oblique correction of this page to other pages.</source>
         <translation>Überträgt den Drehwinkel (bei „Automatisch“: das Erkennungsverfahren) und die Scherungskorrektur dieser Seite auf andere Seiten.</translation>
     </message>
@@ -4740,12 +4754,12 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Obere Seitenkante</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="137"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="140"/>
         <source>Oblique</source>
         <translation>Scherung</translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="244"/>
+        <location filename="../core/filters/deskew/OptionsWidget.ui" line="250"/>
         <source>Apply to ...</source>
         <translation>Anwenden auf ...</translation>
     </message>
@@ -6583,7 +6597,7 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
 <context>
     <name>page_split::ImageView</name>
     <message>
-        <location filename="../core/filters/page_split/ImageView.cpp" line="59"/>
+        <location filename="../core/filters/page_split/ImageView.cpp" line="60"/>
         <source>Drag the line or the handles.</source>
         <translation>Ziehen Sie die Linie oder die Ziehpunkte.</translation>
     </message>

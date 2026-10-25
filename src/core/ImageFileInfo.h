@@ -5,6 +5,7 @@
 #define SCANTAILOR_CORE_IMAGEFILEINFO_H_
 
 #include <QFileInfo>
+#include <QStringList>
 #include <vector>
 
 #include "ImageMetadata.h"
@@ -35,10 +36,19 @@ class ImageFileInfo {
 
   bool isDpiOK() const;
 
+  /**
+   * Why only some of the images of the file could be read (see
+   * ImageLoadErrorCapture::addPartialRead()). Empty if the whole file was read.
+   */
+  const QStringList& partialReads() const { return m_partialReads; }
+
+  void setPartialReads(const QStringList& reasons) { m_partialReads = reasons; }
+
  private:
   QFileInfo m_fileInfo;
   std::vector<ImageMetadata> m_imageInfo;
   std::vector<int> m_pageNumbers;
+  QStringList m_partialReads;
 };
 
 

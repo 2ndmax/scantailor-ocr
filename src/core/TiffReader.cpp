@@ -524,7 +524,7 @@ ImageMetadataLoader::Status TiffReader::readMetadata(QIODevice& device,
   // pages -> an extra small page may appear. Not fixed because skipping them would shift page
   // numbers of existing projects.
   std::vector<ImageMetadata> pages;
-  do {
+  while (true) {
     const TiffInfo info(tif);
     if (!TIFFIsCODECConfigured(info.compression)) {
       ImageLoadErrorCapture::addError(unsupportedCompressionMessage(info.compression));
@@ -536,7 +536,20 @@ ImageMetadataLoader::Status TiffReader::readMetadata(QIODevice& device,
       return ImageMetadataLoader::GENERIC_ERROR;
     }
     pages.push_back(currentPageMetadata(tif));
-  } while (TIFFReadDirectory(tif.handle()));
+
+    if (TIFFLastDirectory(tif.handle())) {
+      break;
+    }
+    if (!TIFFReadDirectory(tif.handle())) {
+      // Another page is announced but its directory can't be read, so neither it nor any
+      // page after it is reachable. The pages so far are taken over, and the caller is told
+      // that the file was only read in part, rather than losing the rest without a word.
+      ImageLoadErrorCapture::addPartialRead(
+          QCoreApplication::translate("TiffReader", "Page %1 of this file is damaged.")
+              .arg(static_cast<int>(pages.size()) + 1));
+      break;
+    }
+  }
 
   for (const ImageMetadata& page : pages) {
     out(page);

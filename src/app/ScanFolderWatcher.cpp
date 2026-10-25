@@ -9,6 +9,7 @@
 #include <QMutexLocker>
 #include <QRunnable>
 
+#include "ImageLoadErrors.h"
 #include "ImageLoader.h"
 #include "ImageMetadataLoader.h"
 
@@ -29,8 +30,10 @@ class ScanFolderWatcher::LoadTask : public QRunnable {
     LoadResult result;
     result.session = m_session;
     result.filePath = m_filePath;
+    ImageLoadErrorCapture errorCapture;
     const ImageMetadataLoader::Status status = ImageMetadataLoader::load(
         m_filePath, [&](const ImageMetadata& metadata) { result.metadata.push_back(metadata); });
+    result.partialReads = errorCapture.partialReads();
     // Loading the whole image makes sure the scanning program has finished writing it.
     // A TIFF file, for instance, gets its directory at the end.
     result.ok = (status == ImageMetadataLoader::LOADED) && !result.metadata.empty()
@@ -155,7 +158,9 @@ void ScanFolderWatcher::processLoadResults() {
     }
     if (result.ok) {
       m_tracker.done(result.filePath);
-      emit imageReady(ImageFileInfo(QFileInfo(result.filePath), result.metadata));
+      ImageFileInfo file(QFileInfo(result.filePath), result.metadata);
+      file.setPartialReads(result.partialReads);
+      emit imageReady(file);
     } else if (m_tracker.loadFailed(result.filePath, m_clock.elapsed())) {
       emit imageFailed(result.filePath);
     }

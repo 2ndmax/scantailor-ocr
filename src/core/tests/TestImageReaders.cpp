@@ -786,6 +786,43 @@ BOOST_AUTO_TEST_CASE(test_tiff_damaged_page_directory_message) {
   BOOST_CHECK_MESSAGE(messages.contains(QLatin1String("Page 2 of this file is damaged.")), messages.toStdString());
 }
 
+// The link from page 2 to page 3 points beyond the end of the file.
+BOOST_AUTO_TEST_CASE(test_tiff_damaged_next_directory_is_reported) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  TiffSpec spec;
+  spec.width = 8;
+  spec.height = 8;
+
+  const QString intactPath = dir.filePath("intact.tif");
+  BOOST_REQUIRE(writeTiff(intactPath, spec, [](int, int, int) { return 0.0; }, 3));
+  {
+    ImageLoadErrorCapture capture;
+    std::vector<ImageMetadata> pages;
+    BOOST_CHECK_EQUAL(
+        ImageMetadataLoader::load(intactPath, [&](const ImageMetadata& metadata) { pages.push_back(metadata); }),
+        ImageMetadataLoader::LOADED);
+    BOOST_CHECK_EQUAL(pages.size(), 3u);
+    BOOST_CHECK(capture.partialReads().isEmpty());
+  }
+
+  const QString damagedPath = dir.filePath("damaged_link.tif");
+  QByteArray data = readFile(intactPath);
+  const uint32_t ifd = ifdOffset(data, 1);
+  writeLe(data, ifd + 2 + 12 * readLe(data, ifd, 2), 4, static_cast<uint32_t>(data.size()) + 4096);
+  BOOST_REQUIRE(writeFile(damagedPath, data));
+
+  ImageLoadErrorCapture capture;
+  std::vector<ImageMetadata> pages;
+  BOOST_CHECK_EQUAL(
+      ImageMetadataLoader::load(damagedPath, [&](const ImageMetadata& metadata) { pages.push_back(metadata); }),
+      ImageMetadataLoader::LOADED);
+  // The readable pages are taken over, and the loss of the rest is reported.
+  BOOST_CHECK_EQUAL(pages.size(), 2u);
+  BOOST_CHECK_MESSAGE(capture.partialReads().contains(QLatin1String("Page 3 of this file is damaged.")),
+                      capture.partialReads().join(QLatin1Char('\n')).toStdString());
+}
+
 BOOST_AUTO_TEST_CASE(test_tiff_writer_round_trip_and_failure) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());

@@ -18,6 +18,7 @@ set(gui_only_sources
     StateIcon.cpp StateIcon.h
     LoadFilesStatusDialog.cpp LoadFilesStatusDialog.h
     ImageLoadErrorNotifier.cpp ImageLoadErrorNotifier.h
+    PartlyAddedFilesMessage.cpp PartlyAddedFilesMessage.h
     ProjectCreationContext.cpp ProjectCreationContext.h
     ProjectOpeningContext.cpp ProjectOpeningContext.h
     OutOfMemoryDialog.cpp OutOfMemoryDialog.h

@@ -45,12 +45,18 @@ class ProjectFilesDialog::Item {
 
   std::vector<ImageMetadata>& perPageMetadata() { return m_perPageMetadata; }
 
+  /** See ImageFileInfo::partialReads(). */
+  const QStringList& partialReads() const { return m_partialReads; }
+
+  void setPartialReads(const QStringList& reasons) { m_partialReads = reasons; }
+
  private:
   QFileInfo m_fileInfo;
   Qt::ItemFlags m_flags;
   std::vector<ImageMetadata> m_perPageMetadata;
   Status m_status;
   QString m_loadError;
+  QStringList m_partialReads;
 };
 
 
@@ -243,7 +249,10 @@ bool ProjectFilesDialog::isImportingNewScans() const {
 
 std::vector<ImageFileInfo> ProjectFilesDialog::inProjectFiles() const {
   std::vector<ImageFileInfo> files;
-  m_inProjectFiles->items([&](const Item& item) { files.emplace_back(item.fileInfo(), item.perPageMetadata()); });
+  m_inProjectFiles->items([&](const Item& item) {
+    files.emplace_back(item.fileInfo(), item.perPageMetadata());
+    files.back().setPartialReads(item.partialReads());
+  });
 
   std::sort(files.begin(), files.end(), [](const ImageFileInfo& lhs, const ImageFileInfo& rhs) {
     return SmartFilenameOrdering()(lhs.fileInfo(), rhs.fileInfo());
@@ -744,6 +753,7 @@ ProjectFilesDialog::FileList::LoadStatus ProjectFilesDialog::FileList::loadNextF
     item.perPageMetadata().swap(perPageMetadata);
     item.setStatus(Item::STATUS_LOAD_OK);
     item.setLoadError(QString());
+    item.setPartialReads(errorCapture.partialReads());
   } else {
     status = LOAD_FAILED;
     item.setStatus(Item::STATUS_LOAD_FAILED);
