@@ -1730,6 +1730,8 @@ void MainWindow::leavePdfStage() {
   // The PDF view and its options are kept, just taken out of the window.
   removeFilterOptionsWidget();
   removeImageWidget();
+  // Scans that arrived in the step. Not right away: the new step is still being set up.
+  QTimer::singleShot(0, this, [this]() { importDeferredScans(); });
 }
 
 std::vector<PdfExportView::Entry> MainWindow::pdfExportEntries() const {
@@ -2731,7 +2733,9 @@ void MainWindow::changeAutoImportDirectory() {
 }
 
 bool MainWindow::canImportScansNow() const {
-  return !isBatchProcessingInProgress() && !(m_pdfView && m_pdfView->isRunning());
+  // In the "Create PDF" step the page list shown there would go stale (a replaced page even
+  // loses its output files), so new scans wait until the step is left.
+  return !isBatchProcessingInProgress() && !m_pdfStage && !(m_pdfView && m_pdfView->isRunning());
 }
 
 void MainWindow::scanReady(const ImageFileInfo& file) {
