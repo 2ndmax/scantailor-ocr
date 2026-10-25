@@ -297,6 +297,9 @@ class ImageViewBase : public QAbstractScrollArea {
 
   bool validateHqPixmap() const;
 
+  /** Whether the keyboard is in use by another widget (an input field or another view). */
+  bool keysBelongToAnotherWidget() const;
+
   /** The current viewport size in screen pixels, which an HQ pixmap is built for. */
   QSize hqTargetSize() const;
 
