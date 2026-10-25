@@ -26,6 +26,8 @@
 #include <limits>
 #include <vector>
 
+#include "TestTiffFile.h"
+
 namespace {
 const double kMetersPerInch = 0.0254;
 
@@ -60,7 +62,7 @@ bool isBlack(const QImage& image, const int x, const int y) {
 
 /** Wraps raw G4 data into a TIFF file, so that libtiff can decode it again. */
 bool writeG4Tiff(const QString& path, const QByteArray& g4, const int width, const int height) {
-  TIFF* tif = TIFFOpen(QFile::encodeName(path).constData(), "w");
+  TIFF* tif = Tests::openTiffFile(path, "w");
   if (!tif) {
     return false;
   }

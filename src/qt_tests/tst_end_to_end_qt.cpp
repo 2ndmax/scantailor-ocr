@@ -47,6 +47,8 @@
 #include <memory>
 #include <vector>
 
+#include "core/tests/TestTiffFile.h"
+
 namespace {
 constexpr int DPI = 300;
 constexpr double SKEW_DEG = 1.5;
@@ -156,7 +158,7 @@ double readDarkShare(TIFF* tif, const QSize& size) {
 
 TiffInfo readTiff(const QString& filePath) {
   TiffInfo info;
-  TIFF* tif = TIFFOpen(QFile::encodeName(filePath).constData(), "r");
+  TIFF* tif = Tests::openTiffFile(filePath, "r");
   if (!tif) {
     return info;
   }
