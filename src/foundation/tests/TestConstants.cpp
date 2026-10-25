@@ -8,6 +8,11 @@
 
 BOOST_AUTO_TEST_SUITE(FoundationConstantsTestSuite)
 
+// Constant expressions, so that no other static initialization can see them before they are set.
+static_assert(constants::PI > 3.14 && constants::PI < 3.15, "PI");
+static_assert(constants::DEG2RAD > 0.0174 && constants::DEG2RAD < 0.0175, "DEG2RAD");
+static_assert(constants::DPI2DPM > 39.3 && constants::DPI2DPM < 39.4, "DPI2DPM");
+
 BOOST_AUTO_TEST_CASE(test_pi) {
   BOOST_CHECK_CLOSE(constants::PI, 3.14159265358979323846, 0.0001);
 }

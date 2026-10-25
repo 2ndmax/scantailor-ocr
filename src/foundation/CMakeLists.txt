@@ -1,5 +1,5 @@
 set(sources
-    Constants.h Constants.cpp
+    Constants.h
     NonCopyable.h
     AlignedArray.h
     FastQueue.h

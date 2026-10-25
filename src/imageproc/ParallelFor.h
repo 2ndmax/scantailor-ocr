@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <optional>
 #include <thread>
 #include <vector>
 
@@ -33,6 +34,12 @@ void parallelFor(const int count, const Body& body, const int minPerSlice = 32) 
   // An exception must not leave a thread function, as that calls std::terminate.
   std::vector<std::exception_ptr> errors(slices);
   const auto runSlice = [&](const int slice) {
+    // A helper thread works for the same task as the calling thread, so what it starts in turn shares
+    // the thread budget with it instead of getting all threads again.
+    std::optional<ThreadBudget::TaskScope> helperScope;
+    if (slice > 0) {
+      helperScope.emplace();
+    }
     try {
       body(bound(slice), bound(slice + 1));
     } catch (...) {

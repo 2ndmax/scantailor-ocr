@@ -109,6 +109,32 @@ BOOST_AUTO_TEST_CASE(test_runs_on_one_thread_in_a_full_batch) {
   }
 }
 
+// The helper threads work for the same page: what they start in turn shares the budget of the page,
+// it does not get all threads again.
+BOOST_AUTO_TEST_CASE(test_helper_threads_share_the_budget_of_their_task) {
+  const ThreadLimit limit(ThreadBudget::availableThreads());
+  const int maxThreads = ThreadBudget::maxThreads();
+  if (maxThreads < 2) {
+    BOOST_TEST_MESSAGE("only one thread available, skipped");
+    return;
+  }
+  const ThreadBudget::TaskScope scope;
+  std::atomic<int> mostInHelper{0};
+  parallelFor(
+      1000,
+      [&](const int begin, const int) {
+        if (begin != 0) {  // Not the calling thread.
+          int threads = ThreadBudget::threadsForCurrentTask();
+          int seen = mostInHelper.load();
+          while (threads > seen && !mostInHelper.compare_exchange_weak(seen, threads)) {
+          }
+        }
+      },
+      1);
+  BOOST_TEST(mostInHelper.load() >= 1);
+  BOOST_TEST(mostInHelper.load() < maxThreads);
+}
+
 BOOST_AUTO_TEST_CASE(test_exception_in_a_helper_thread_reaches_the_caller) {
   const ThreadLimit limit(ThreadBudget::availableThreads());
   if (ThreadBudget::threadsForCurrentTask() < 2) {
