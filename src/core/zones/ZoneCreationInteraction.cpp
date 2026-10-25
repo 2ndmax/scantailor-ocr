@@ -157,6 +157,7 @@ void ZoneCreationInteraction::onMousePressEvent(QMouseEvent* event, InteractionS
     return;
   }
   m_leftMouseButtonPressed = true;
+  m_lassoVertexAddedSincePress = false;
   m_mouseButtonModifiers = event->modifiers();
   event->accept();
 }
@@ -207,8 +208,9 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
       makePeerPreceeder(*m_context.createDefaultInteraction());
       m_context.imageView().update();
       delete this;
-    } else if (m_nextVertexImagePos == m_spline->lastVertex()->point()) {
-      // Removing the last vertex.
+    } else if (!m_lassoVertexAddedSincePress && (m_nextVertexImagePos == m_spline->lastVertex()->point())) {
+      // Removing the last vertex, i.e. a click on it. The vertex that the stroke ending now has added stays,
+      // also if the stroke was too short to count as a drag.
       m_spline->lastVertex()->remove();
       if (!m_spline->firstVertex()) {
         // If it was the only vertex, cancelling spline creation.
@@ -275,6 +277,7 @@ void ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionSt
     Proximity minDistance = interaction.proximityThreshold();
     if ((Proximity(last, screenMousePos) > minDistance) && (Proximity(first, screenMousePos) > minDistance)) {
       m_spline->appendVertex(m_nextVertexImagePos);
+      m_lassoVertexAddedSincePress = true;
     } else if (m_spline->hasAtLeastSegments(2) && (m_nextVertexImagePos == m_spline->firstVertex()->point())) {
       // Finishing the spline. Bridging the first and the last points
       // will create another segment.

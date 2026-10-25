@@ -76,6 +76,7 @@ class ZoneCreationInteraction : public InteractionHandler {
   QPointF m_nextVertexImagePos_mid2;
   ZoneCreationMode m_initialZoneCreationMode;
   bool m_leftMouseButtonPressed;
+  bool m_lassoVertexAddedSincePress = false;
   Qt::KeyboardModifiers m_mouseButtonModifiers;
   std::unique_ptr<QShortcut> m_cancelShortcut;
 };

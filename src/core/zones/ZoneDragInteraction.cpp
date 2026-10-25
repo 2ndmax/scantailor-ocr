@@ -3,16 +3,20 @@
 
 #include "ZoneDragInteraction.h"
 
+#include <QApplication>
 #include <QMouseEvent>
 #include <QPainter>
+#include <algorithm>
+#include <cmath>
 
 #include "ImageViewBase.h"
 #include "ZoneInteractionContext.h"
 
 ZoneDragInteraction::ZoneDragInteraction(ZoneInteractionContext& context,
                                          InteractionState& interaction,
-                                         const EditableSpline::Ptr& spline)
-    : m_context(context), m_spline(spline) {
+                                         const EditableSpline::Ptr& spline,
+                                         const bool isNewCopy)
+    : m_context(context), m_spline(spline), m_isNewCopy(isNewCopy) {
   m_initialMousePos = m_context.imageView().mapFromGlobal(QCursor::pos()) + QPointF(0.5, 0.5);
 
   const QTransform toScreen(m_context.imageView().imageToWidget());
@@ -34,7 +38,12 @@ void ZoneDragInteraction::onPaint(QPainter& painter, const InteractionState& int
 
 void ZoneDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) {
   if (event->button() == Qt::LeftButton) {
-    m_context.zones().commit();
+    if (m_isNewCopy && (m_largestShift < QApplication::startDragDistance())) {
+      // A click on the zone with the copy keys only: the copy would lie exactly on the original, unseen.
+      m_context.zones().removeZone(m_spline);
+    } else {
+      m_context.zones().commit();
+    }
     makePeerPreceeder(*m_context.createDefaultInteraction());
     delete this;
   }
@@ -44,6 +53,7 @@ void ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState&
   const QTransform toScreen(m_context.imageView().imageToWidget());
   const QTransform fromScreen(m_context.imageView().widgetToImage());
   const QPointF shift = (event->pos() + QPointF(0.5, 0.5)) - m_initialMousePos;
+  m_largestShift = std::max(m_largestShift, std::hypot(shift.x(), shift.y()));
   const QPointF splineShift = toScreen.map(m_spline->firstVertex()->point()) - m_initialSplineFirstVertexPos;
 
   SplineVertex::Ptr vertex(m_spline->firstVertex());

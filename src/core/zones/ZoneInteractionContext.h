@@ -27,8 +27,8 @@ class ZoneInteractionContext {
                                                                          const EditableSpline::Ptr& spline,
                                                                          const SplineVertex::Ptr& vertex)>;
 
-  using ZoneDragInteractionCreator
-      = std::function<InteractionHandler*(InteractionState& interaction, const EditableSpline::Ptr& spline)>;
+  using ZoneDragInteractionCreator = std::function<
+      InteractionHandler*(InteractionState& interaction, const EditableSpline::Ptr& spline, bool isNewCopy)>;
 
   using ContextMenuInteractionCreator = std::function<InteractionHandler*(InteractionState& interaction)>;
 
@@ -64,9 +64,14 @@ class ZoneInteractionContext {
     m_vertexDragInteractionCreator = creator;
   }
 
+  /**
+   * \param isNewCopy The spline was just added as a copy of another zone. It is taken out again if the
+   *        mouse button is released without the zone having been moved.
+   */
   virtual InteractionHandler* createZoneDragInteraction(InteractionState& interaction,
-                                                        const EditableSpline::Ptr& spline) {
-    return m_zoneDragInteractionCreator(interaction, spline);
+                                                        const EditableSpline::Ptr& spline,
+                                                        bool isNewCopy = false) {
+    return m_zoneDragInteractionCreator(interaction, spline, isNewCopy);
   }
 
   void setZoneDragInteractionCreator(const ZoneDragInteractionCreator& creator) {
@@ -117,7 +122,9 @@ class ZoneInteractionContext {
   /**
    * Creates an instance of ZoneDragInteraction.
    */
-  InteractionHandler* createStdZoneDragInteraction(InteractionState& interaction, const EditableSpline::Ptr& spline);
+  InteractionHandler* createStdZoneDragInteraction(InteractionState& interaction,
+                                                   const EditableSpline::Ptr& spline,
+                                                   bool isNewCopy);
 
   /**
    * Creates an instance of ZoneContextMenuInteraction. May return null.

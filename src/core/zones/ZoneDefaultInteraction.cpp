@@ -203,7 +203,7 @@ void ZoneDefaultInteraction::onMousePressEvent(QMouseEvent* event, InteractionSt
   } else if (interaction.proximityLeader(m_zoneAreaDragCopyProximity)) {
     auto newSpline = std::make_shared<EditableSpline>(SerializableSpline(*m_splineUnderMouse));
     m_context.zones().addZone(newSpline, *m_context.zones().propertiesFor(m_splineUnderMouse));
-    makePeerPreceeder(*m_context.createZoneDragInteraction(interaction, newSpline));
+    makePeerPreceeder(*m_context.createZoneDragInteraction(interaction, newSpline, /*isNewCopy=*/true));
     delete this;
     event->accept();
   } else if ((m_context.getZoneCreationMode() == ZoneCreationMode::LASSO) && (event->modifiers() == Qt::NoModifier)) {
@@ -253,9 +253,7 @@ void ZoneDefaultInteraction::onMouseReleaseEvent(QMouseEvent* event, Interaction
 }
 
 void ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) {
-  const QTransform toScreen(m_context.imageView().imageToWidget());
-
-  m_screenMousePos = toScreen.map(event->pos() + QPointF(0.5, 0.5));
+  m_screenMousePos = event->pos() + QPointF(0.5, 0.5);
   m_context.imageView().update();
 }
 

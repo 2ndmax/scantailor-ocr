@@ -25,7 +25,8 @@ ZoneInteractionContext::ZoneInteractionContext(ImageViewBase& imageView, Editabl
       m_zoneDragInteractionCreator(std::bind(&ZoneInteractionContext::createStdZoneDragInteraction,
                                              this,
                                              std::placeholders::_1,
-                                             std::placeholders::_2)),
+                                             std::placeholders::_2,
+                                             std::placeholders::_3)),
       m_contextMenuInteractionCreator(
           std::bind(&ZoneInteractionContext::createStdContextMenuInteraction, this, std::placeholders::_1)),
       m_showPropertiesCommand(&ZoneInteractionContext::showPropertiesStub),
@@ -48,8 +49,9 @@ InteractionHandler* ZoneInteractionContext::createStdVertexDragInteraction(Inter
 }
 
 InteractionHandler* ZoneInteractionContext::createStdZoneDragInteraction(InteractionState& interaction,
-                                                                         const EditableSpline::Ptr& spline) {
-  return new ZoneDragInteraction(*this, interaction, spline);
+                                                                         const EditableSpline::Ptr& spline,
+                                                                         const bool isNewCopy) {
+  return new ZoneDragInteraction(*this, interaction, spline, isNewCopy);
 }
 
 InteractionHandler* ZoneInteractionContext::createStdContextMenuInteraction(InteractionState& interaction) {

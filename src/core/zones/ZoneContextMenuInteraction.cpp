@@ -8,10 +8,18 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QPainterPath>
+#include <QTimer>
 #include <functional>
 
 #include "ImageViewBase.h"
 #include "ZoneInteractionContext.h"
+
+namespace {
+// Where the context menu was asked for: the event position (issue #75), or the cursor if there was no event.
+QPoint contextMenuScreenPos(const ZoneInteractionContext& context) {
+  return context.lastContextMenuScreenPos().isNull() ? QCursor::pos() : context.lastContextMenuScreenPos();
+}
+}  // namespace
 
 class ZoneContextMenuInteraction::OrderByArea {
  public:
@@ -47,7 +55,8 @@ ZoneContextMenuInteraction* ZoneContextMenuInteraction::create(ZoneInteractionCo
 std::vector<ZoneContextMenuInteraction::Zone> ZoneContextMenuInteraction::zonesUnderMouse(
     ZoneInteractionContext& context) {
   const QTransform fromScreen(context.imageView().widgetToImage());
-  const QPointF imageMousePos(fromScreen.map(context.imageView().mapFromGlobal(QCursor::pos()) + QPointF(0.5, 0.5)));
+  const QPointF imageMousePos(
+      fromScreen.map(context.imageView().mapFromGlobal(contextMenuScreenPos(context)) + QPointF(0.5, 0.5)));
 
   // Find zones containing the mouse position.
   std::vector<Zone> selectableZones;
@@ -114,9 +123,7 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(ZoneInteractionContext& c
   connect(m_menu.get(), &QMenu::aboutToHide, this, &ZoneContextMenuInteraction::menuAboutToHide, Qt::QueuedConnection);
 
   highlightItem(0);
-  const QPoint menuPos
-      = context.lastContextMenuScreenPos().isNull() ? QCursor::pos() : context.lastContextMenuScreenPos();
-  m_menu->popup(menuPos);  // Use event position for multi-monitor (issue #75).
+  m_menu->popup(contextMenuScreenPos(context));
 }
 
 ZoneContextMenuInteraction::~ZoneContextMenuInteraction() = default;

@@ -19,7 +19,8 @@ class ZoneDragInteraction : public InteractionHandler {
  public:
   ZoneDragInteraction(ZoneInteractionContext& context,
                       InteractionState& interaction,
-                      const EditableSpline::Ptr& spline);
+                      const EditableSpline::Ptr& spline,
+                      bool isNewCopy = false);
 
  protected:
   void onPaint(QPainter& painter, const InteractionState& interaction) override;
@@ -32,6 +33,8 @@ class ZoneDragInteraction : public InteractionHandler {
   EditableSpline::Ptr m_spline;
   QPointF m_initialMousePos;
   QPointF m_initialSplineFirstVertexPos;
+  bool m_isNewCopy;
+  double m_largestShift = 0;  // In screen pixels.
   InteractionState::Captor m_interaction;
   BasicSplineVisualizer m_visualizer;
 };
