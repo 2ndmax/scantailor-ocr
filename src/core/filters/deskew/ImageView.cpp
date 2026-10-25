@@ -12,6 +12,7 @@
 #include <QScrollBar>
 #include <QStyle>
 #include <QWheelEvent>
+#include <algorithm>
 #include <functional>
 
 #include "ImagePresentation.h"
@@ -320,7 +321,10 @@ QRectF ImageView::getObliqueArcSquare() const {
   const double obliqueSin = std::sin(m_maxObliqueDeg * constants::DEG2RAD);
   QSizeF arcSize(obliqueSin, 1.0);
   arcSize.scale(reducedScreenRect.size(), Qt::KeepAspectRatio);
-  arcSize.setWidth(arcSize.height());
+  // In a view narrower than tall the square would be as wide as the view is high, and its circle would
+  // reach past the left edge. Limited to the width, the right-aligned circle always stays in the view.
+  const double edge = std::min(arcSize.height(), reducedScreenRect.width());
+  arcSize = QSizeF(edge, edge);
 
   QRectF arcSquare(QPointF(0, 0), arcSize);
   arcSquare.moveRight(reducedScreenRect.right());
