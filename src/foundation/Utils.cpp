@@ -3,8 +3,12 @@
 
 #include "Utils.h"
 
+#include <QLocale>
+
 namespace foundation {
 QString Utils::doubleToString(double val) {
-  return QString::number(val, 'g', 16);
+  // The shortest form that reads back as the same value. 16 digits weren't always enough,
+  // and a page then counted as changed after reopening the project.
+  return QString::number(val, 'g', QLocale::FloatingPointShortest);
 }
 }  // namespace foundation

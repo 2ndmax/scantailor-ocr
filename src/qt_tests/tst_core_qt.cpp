@@ -64,6 +64,10 @@ void TestCoreQt::testUtilsDoubleToString() {
   QCOMPARE(foundation::Utils::doubleToString(0.0), QString("0"));
   QVERIFY(foundation::Utils::doubleToString(123.456).contains("123"));
   QVERIFY(foundation::Utils::doubleToString(-42.5).startsWith("-"));
+  // Read back unchanged, as the project file needs it (0.1 * 12 is 1.2000000000000002).
+  for (const double value : {0.1 * 12, 0.1 * 3, 1.0 / 3.0, 1e-300}) {
+    QCOMPARE(foundation::Utils::doubleToString(value).toDouble(), value);
+  }
 }
 
 void TestCoreQt::testSmartFilenameOrdering() {
