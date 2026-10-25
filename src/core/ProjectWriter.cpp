@@ -81,7 +81,7 @@ static QString toRelativeIfPossible(const QString& projectDirPath, const QString
   }
   const QDir projectDir(projectDirPath);
   const QString rel(projectDir.relativeFilePath(absolutePath));
-  if (QDir::isAbsolutePath(rel) || rel.startsWith("..")) {
+  if (QDir::isAbsolutePath(rel) || rel == ".." || rel.startsWith("../")) {
     return absolutePath;
   }
   return rel;

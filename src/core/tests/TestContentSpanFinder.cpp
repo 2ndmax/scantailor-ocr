@@ -98,5 +98,28 @@ BOOST_AUTO_TEST_CASE(test_min_content_and_whitespace_width) {
   BOOST_REQUIRE(spans[0] == Span(1, 1 + 4));
 }
 
+// A minimum content width of 0 must not turn the start of the histogram into a span.
+BOOST_AUTO_TEST_CASE(test_zero_min_content_width_reports_no_phantom_span) {
+  ContentSpanFinder spanFinder;
+  spanFinder.setMinContentWidth(0);
+  spanFinder.setMinWhitespaceWidth(3);
+
+  std::vector<Span> spans;
+  spanFinder.find(SlicedHistogram(), [&](const Span& span) { spans.push_back(span); });
+  BOOST_CHECK(spans.empty());
+
+  SlicedHistogram hist;
+  hist.setSize(6);
+  hist[0] = 0;
+  hist[1] = 0;
+  hist[2] = 1;
+  hist[3] = 1;
+  hist[4] = 0;
+  hist[5] = 0;
+  spanFinder.find(hist, [&](const Span& span) { spans.push_back(span); });
+  BOOST_REQUIRE_EQUAL(spans.size(), 1u);
+  BOOST_CHECK(spans[0] == Span(2, 2 + 2));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

@@ -51,12 +51,18 @@ BOOST_AUTO_TEST_CASE(test_new_file_ready_once_stable) {
 BOOST_AUTO_TEST_CASE(test_growing_file_waits) {
   NewScanTracker tracker;
   tracker.reset({});
-  BOOST_CHECK(tracker.update({file("c.tif", 100)}, 0).empty());
-  BOOST_CHECK(tracker.update({file("c.tif", 100)}, 250).empty());
-  BOOST_CHECK(tracker.update({file("c.tif", 200)}, 500).empty());     // Still growing.
-  BOOST_CHECK(tracker.update({file("c.tif", 200, 1)}, 750).empty());  // Touched again.
-  BOOST_CHECK(tracker.update({file("c.tif", 200, 1)}, 1000).empty());
-  BOOST_CHECK_EQUAL(tracker.update({file("c.tif", 200, 1)}, 1250).size(), 1u);
+  qint64 now = 0;
+  BOOST_CHECK(tracker.update({file("c.tif", 100)}, now).empty());
+  // Still growing, then touched again: the count of unchanged checks starts over each time.
+  for (const auto& changed : {file("c.tif", 200), file("c.tif", 200, 1)}) {
+    now += 250;
+    BOOST_CHECK(tracker.update({changed}, now).empty());
+  }
+  // Unchanged now, so it takes STABLE_CHECKS more checks, and not one fewer.
+  for (int i = 0; i < NewScanTracker::STABLE_CHECKS; ++i) {
+    now += 250;
+    BOOST_CHECK(tracker.update({file("c.tif", 200, 1)}, now).empty() == (i < NewScanTracker::STABLE_CHECKS - 1));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_empty_file_waits) {
@@ -70,14 +76,44 @@ BOOST_AUTO_TEST_CASE(test_failed_load_is_retried_then_given_up) {
   NewScanTracker tracker;
   tracker.reset({});
   BOOST_REQUIRE_EQUAL(updatesUntilReady(tracker, {file("e.tif", 100)}), NewScanTracker::STABLE_CHECKS + 1);
-  BOOST_CHECK(!tracker.loadFailed("e.tif", 1000));
-  // Tried again after being unchanged for a while.
-  BOOST_CHECK(tracker.update({file("e.tif", 100)}, 1250).empty());
-  BOOST_CHECK_EQUAL(tracker.update({file("e.tif", 100)}, 1500).size(), 1u);
+  qint64 now = 1000;
+  BOOST_CHECK(!tracker.loadFailed("e.tif", now));
+  // Tried again after STABLE_CHECKS unchanged checks.
+  for (int i = 0; i < NewScanTracker::STABLE_CHECKS - 1; ++i) {
+    now += 250;
+    BOOST_CHECK(tracker.update({file("e.tif", 100)}, now).empty());
+  }
+  now += 250;
+  BOOST_CHECK_EQUAL(tracker.update({file("e.tif", 100)}, now).size(), 1u);
   // Given up long after it appeared.
   BOOST_CHECK(tracker.loadFailed("e.tif", NewScanTracker::GIVE_UP_MS + 250));
   BOOST_CHECK(!tracker.hasPending());
   BOOST_CHECK(tracker.update({file("e.tif", 100)}, NewScanTracker::GIVE_UP_MS + 500).empty());
+}
+
+// A placeholder the scanning program leaves behind (or a log that keeps growing) never becomes stable.
+// It must not keep the folder watcher in its fast polling for ever.
+BOOST_AUTO_TEST_CASE(test_never_stable_file_is_given_up) {
+  NewScanTracker tracker;
+  tracker.reset({});
+  BOOST_CHECK(tracker.update({file("empty.tif", 0)}, 0).empty());
+  BOOST_CHECK(tracker.hasPending());
+  BOOST_CHECK(tracker.update({file("empty.tif", 0)}, NewScanTracker::GIVE_UP_MS - 250).empty());
+  BOOST_CHECK(tracker.hasPending());
+  BOOST_CHECK(tracker.update({file("empty.tif", 0)}, NewScanTracker::GIVE_UP_MS).empty());
+  BOOST_CHECK(!tracker.hasPending());
+  // And it stays ignored.
+  BOOST_CHECK(tracker.update({file("empty.tif", 0)}, NewScanTracker::GIVE_UP_MS + 250).empty());
+  BOOST_CHECK(!tracker.hasPending());
+
+  // Same for a file that changes at every check.
+  tracker.reset({});
+  qint64 now = 0;
+  for (int size = 1; now < NewScanTracker::GIVE_UP_MS; ++size, now += 250) {
+    BOOST_CHECK(tracker.update({file("log.txt", size)}, now).empty());
+  }
+  BOOST_CHECK(tracker.update({file("log.txt", 9999)}, now).empty());
+  BOOST_CHECK(!tracker.hasPending());
 }
 
 BOOST_AUTO_TEST_CASE(test_vanished_file_is_forgotten) {

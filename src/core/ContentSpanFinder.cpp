@@ -31,7 +31,8 @@ void ContentSpanFinder::findImpl(const SlicedHistogram& histogram,
       // pass on the first content block, in order to avoid
       // growing a non existing content block.
 
-      if (contentEnd - contentBegin >= m_minContentWidth) {
+      // The placeholder block is empty, and an empty block is no content even if the minimum width is 0.
+      if (contentEnd > contentBegin && contentEnd - contentBegin >= m_minContentWidth) {
         handler(Span(contentBegin, contentEnd));
       }
 
@@ -51,7 +52,7 @@ void ContentSpanFinder::findImpl(const SlicedHistogram& histogram,
     contentEnd = i;
   }
 
-  if (contentEnd - contentBegin >= m_minContentWidth) {
+  if (contentEnd > contentBegin && contentEnd - contentBegin >= m_minContentWidth) {
     handler(Span(contentBegin, contentEnd));
   }
 }  // ContentSpanFinder::findImpl

@@ -31,6 +31,12 @@ std::vector<QString> NewScanTracker::update(const std::vector<FileState>& listin
     if (pending.loading) {
       continue;
     }
+    if (nowMs - pending.firstSeenMs >= GIVE_UP_MS) {
+      // Never became stable, e.g. an empty placeholder file or a log file that keeps growing.
+      // Without giving up, the folder would be polled at the fast rate for ever.
+      done(file.path);
+      continue;
+    }
     if ((file.size > 0) && (file.size == pending.size) && (file.modified == pending.modified)) {
       ++pending.stableChecks;
     } else {

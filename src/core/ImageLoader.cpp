@@ -80,14 +80,37 @@ QImage ImageLoader::load(QIODevice& ioDev, const int pageNum, const QSize& minSi
   }
 
   QImage image;
+  QString errorString;
+  if (readWithQt(ioDev, minSize, nullptr, image, errorString)) {
+    return image;
+  }
+  // Issue #98: on some builds Qt may not detect JPG format; force it for .jpg/.jpeg files.
+  // Forcing is only the second try, because the JPEG plugin accepts any content when forced,
+  // so a PNG that is named .jpg would fail.
+  if (const QFile* file = qobject_cast<QFile*>(&ioDev)) {
+    const QString ext = QFileInfo(file->fileName()).suffix().toLower();
+    if ((ext == QStringLiteral("jpg") || ext == QStringLiteral("jpeg")) && ioDev.seek(0)) {
+      QImage forcedImage;
+      QString forcedErrorString;
+      if (readWithQt(ioDev, minSize, "jpeg", forcedImage, forcedErrorString)) {
+        return forcedImage;
+      }
+      errorString = forcedErrorString;
+    }
+  }
+  ImageLoadErrorCapture::addError(errorString);
+  return QImage();
+}
+
+bool ImageLoader::readWithQt(QIODevice& ioDev,
+                             const QSize& minSize,
+                             const char* forcedFormat,
+                             QImage& image,
+                             QString& errorString) {
   QImageReader reader(&ioDev);
   reader.setAutoTransform(true);  // Helps with orientation and some formats (issue #20).
-  // Issue #98: on some builds Qt may not detect JPG format; force it for .jpg/.jpeg files.
-  if (QFile* file = qobject_cast<QFile*>(&ioDev)) {
-    const QString ext = QFileInfo(file->fileName()).suffix().toLower();
-    if (ext == QStringLiteral("jpg") || ext == QStringLiteral("jpeg")) {
-      reader.setFormat("jpeg");
-    }
+  if (forcedFormat) {
+    reader.setFormat(forcedFormat);
   }
   if (minSize.isValid() && !minSize.isEmpty() && (reader.format() == "jpeg")) {
     // libjpeg can decode directly at 1/2, 1/4 or 1/8 of the size, which is
@@ -105,7 +128,8 @@ QImage ImageLoader::load(QIODevice& ioDev, const int pageNum, const QSize& minSi
     }
   }
   if (!reader.read(&image)) {
-    ImageLoadErrorCapture::addError(reader.errorString());
+    errorString = reader.errorString();
+    return false;
   }
-  return image;
+  return true;
 }

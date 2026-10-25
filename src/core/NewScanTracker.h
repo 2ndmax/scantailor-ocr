@@ -32,7 +32,7 @@ class NewScanTracker {
   /** Checks in a row a file must stay unchanged to become a candidate. */
   static constexpr int STABLE_CHECKS = 2;
 
-  /** A file that still can't be loaded this long after it appeared is given up. */
+  /** A file that this long after it appeared still can't be loaded, or never became stable, is given up. */
   static constexpr qint64 GIVE_UP_MS = 60000;
 
   /** Starts over. The files in \p existing are never imported. */

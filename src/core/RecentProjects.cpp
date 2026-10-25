@@ -3,8 +3,25 @@
 
 #include "RecentProjects.h"
 
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QSettings>
+#include <algorithm>
+
+namespace {
+// The same file can be reached by paths that differ in separators, "." or ".." parts, and on Windows in letter case.
+bool isSameFile(const QString& a, const QString& b) {
+  const QString normalizedA = QDir::cleanPath(QFileInfo(a).absoluteFilePath());
+  const QString normalizedB = QDir::cleanPath(QFileInfo(b).absoluteFilePath());
+#ifdef Q_OS_WIN
+  const Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive;
+#else
+  const Qt::CaseSensitivity caseSensitivity = Qt::CaseSensitive;
+#endif
+  return normalizedA.compare(normalizedB, caseSensitivity) == 0;
+}
+}  // namespace
 
 void RecentProjects::read() {
   QSettings settings;
@@ -55,8 +72,9 @@ bool RecentProjects::validate() {
 void RecentProjects::setMostRecent(const QString& filePath) {
   const auto begin(m_projectFiles.begin());
   const auto end(m_projectFiles.end());
-  auto it(std::find(begin, end, filePath));
+  auto it(std::find_if(begin, end, [&](const QString& path) { return isSameFile(path, filePath); }));
   if (it != end) {
+    *it = filePath;  // Keep the spelling that was used last.
     m_projectFiles.splice(begin, m_projectFiles, it);
   } else {
     m_projectFiles.push_front(filePath);

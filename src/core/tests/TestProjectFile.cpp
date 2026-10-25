@@ -71,6 +71,26 @@ BOOST_AUTO_TEST_CASE(test_empty_project_keeps_input_dir) {
   BOOST_CHECK(reader.directories().front() == inputDir);
 }
 
+// A folder whose name merely starts with two dots is inside the project folder, not above it.
+BOOST_AUTO_TEST_CASE(test_folder_starting_with_dots_is_stored_relative) {
+  QTemporaryDir tempDir;
+  BOOST_REQUIRE(tempDir.isValid());
+  const QDir root(tempDir.path());
+  BOOST_REQUIRE(root.mkdir("..scans"));
+  const QString projectFile = root.absoluteFilePath("Buch.ScanTailor");
+
+  auto pages = std::make_shared<ProjectPages>();
+  const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(), root.absoluteFilePath("..out"),
+                                       Qt::LeftToRight);
+  BOOST_REQUIRE(ProjectWriter(pages, SelectedPage(), outGen, root.absoluteFilePath("..scans"))
+                    .write(projectFile, {}, ProcessingOptions(), DefaultParams()));
+
+  const QDomDocument doc = readDocument(projectFile);
+  BOOST_CHECK(doc.documentElement().attribute("outputDirectory") == "..out");
+  const QDomElement dirEl = doc.documentElement().firstChildElement("directories").firstChildElement("directory");
+  BOOST_CHECK(dirEl.attribute("path") == "..scans");
+}
+
 BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   QTemporaryDir tempDir;
   BOOST_REQUIRE(tempDir.isValid());

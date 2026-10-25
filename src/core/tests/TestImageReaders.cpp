@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <ImageLoadErrors.h>
+#include <ImageLoader.h>
 #include <ImageMetadata.h>
 #include <ImageMetadataLoader.h>
 #include <Jp2Reader.h>
@@ -619,6 +620,20 @@ BOOST_AUTO_TEST_CASE(test_exif_upside_down_jpeg_metadata) {
   BOOST_CHECK(pages[0].size() == QSize(64, 48));
   BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 300);
   BOOST_CHECK_EQUAL(pages[0].dpi().vertical(), 200);
+}
+
+// The file name says JPEG, the content is a PNG: Qt recognizes it by content, so it has to load.
+BOOST_AUTO_TEST_CASE(test_png_named_jpg_loads) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("wrong_name.jpg");
+  QImage source(30, 20, QImage::Format_RGB32);
+  source.fill(Qt::red);
+  BOOST_REQUIRE(source.save(path, "PNG"));
+
+  const QImage image = ImageLoader::load(path);
+  BOOST_REQUIRE(!image.isNull());
+  BOOST_CHECK(image.size() == QSize(30, 20));
 }
 
 BOOST_AUTO_TEST_CASE(test_damaged_jpeg_metadata_reports_errors) {
