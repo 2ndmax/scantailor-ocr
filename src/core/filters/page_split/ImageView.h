@@ -77,6 +77,12 @@ class ImageView : public ImageViewBase, private InteractionHandler {
    */
   CutterLimits cutterLimits(int lineIdx, const QRectF& validArea) const;
 
+  /** Whether cutter \p lineIdx, placed at \p virtLine, crosses another cutter within the image. */
+  bool crossesOtherCutter(int lineIdx, const QLineF& virtLine) const;
+
+  /** Moves cutter \p lineIdx towards \p virtLine, but no further than to the next cutter. */
+  void setCutterLineWithoutCrossing(int lineIdx, const QLineF& virtLine);
+
   void dragFinished();
 
   QPointF leftPageCenter() const;

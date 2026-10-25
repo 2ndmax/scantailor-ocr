@@ -266,6 +266,55 @@ ImageView::CutterLimits ImageView::cutterLimits(const int lineIdx, const QRectF&
   return limits;
 }
 
+bool ImageView::crossesOtherCutter(const int lineIdx, const QLineF& virtLine) const {
+  // Over the whole height of the image, not only the visible part: when zoomed in, slanted
+  // cutters may cross above or below what is shown.
+  const QRectF area(virtualDisplayRect());
+  const QLineF topEdge(area.topLeft(), area.topRight());
+  const QLineF bottomEdge(area.bottomLeft(), area.bottomRight());
+  const auto xAt = [](const QLineF& line, const QLineF& edge) {
+    QPointF crossing;
+    line.intersects(edge, &crossing);
+    return crossing.x();
+  };
+  for (int i = 0; i < m_virtLayout.numCutters(); ++i) {
+    if (i == lineIdx) {
+      continue;
+    }
+    const QLineF other(m_virtLayout.cutterLine(i));
+    const double distanceTop = xAt(virtLine, topEdge) - xAt(other, topEdge);
+    const double distanceBottom = xAt(virtLine, bottomEdge) - xAt(other, bottomEdge);
+    if (distanceTop * distanceBottom <= 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void ImageView::setCutterLineWithoutCrossing(const int lineIdx, const QLineF& virtLine) {
+  const QLineF current(virtualCutterLine(lineIdx));
+  if (!crossesOtherCutter(lineIdx, virtLine) || crossesOtherCutter(lineIdx, current)) {
+    // Also when the cutters cross already (e.g. from a project file): don't get stuck.
+    m_virtLayout.setCutterLine(lineIdx, virtLine);
+    return;
+  }
+  // Move as far towards the requested place as possible: the cutter stops at the other one.
+  const auto between = [&](const double t) {
+    return QLineF(current.p1() + t * (virtLine.p1() - current.p1()), current.p2() + t * (virtLine.p2() - current.p2()));
+  };
+  double allowed = 0.0;
+  double blocked = 1.0;
+  for (int i = 0; i < 30; ++i) {
+    const double middle = 0.5 * (allowed + blocked);
+    if (crossesOtherCutter(lineIdx, between(middle))) {
+      blocked = middle;
+    } else {
+      allowed = middle;
+    }
+  }
+  m_virtLayout.setCutterLine(lineIdx, between(allowed));
+}
+
 void ImageView::handleMoveRequest(int lineIdx, int handleIdx, const QPointF& pos) {
   const QRectF validArea(getOccupiedWidgetRect());
   const CutterLimits limits(cutterLimits(lineIdx, validArea));
@@ -279,7 +328,7 @@ void ImageView::handleMoveRequest(int lineIdx, int handleIdx, const QPointF& pos
     virtLine.setP2(widgetToVirtual().map(wpt));
   }
 
-  m_virtLayout.setCutterLine(lineIdx, virtLine);
+  setCutterLineWithoutCrossing(lineIdx, virtLine);
   update();
 }
 
@@ -307,7 +356,7 @@ void ImageView::lineMoveRequest(int lineIdx, QLineF line) {
     line.translate(-right, 0.0);
   }
 
-  m_virtLayout.setCutterLine(lineIdx, widgetToVirtual().map(line));
+  setCutterLineWithoutCrossing(lineIdx, widgetToVirtual().map(line));
   update();
 }
 
