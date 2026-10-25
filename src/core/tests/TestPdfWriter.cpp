@@ -16,11 +16,15 @@
 #include <QFile>
 #include <QImage>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QTemporaryDir>
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
+#include <vector>
 
 namespace {
 const double kMetersPerInch = 0.0254;
@@ -169,6 +173,23 @@ QByteArray unpredict(const QByteArray& filtered, const int bytesPerRow, const in
     }
   }
   return out;
+}
+
+// Unpacks the compressed stream whose "/Length " entry starts at or after \p from.
+QByteArray inflateStream(const QByteArray& pdf, const int from) {
+  const QByteArray lengthKey = "/Length ";
+  const int lengthStart = pdf.indexOf(lengthKey, from) + static_cast<int>(lengthKey.size());
+  const int length = pdf.mid(lengthStart, pdf.indexOf(' ', lengthStart) - lengthStart).toInt();
+  QByteArray zlib = pdf.mid(pdf.indexOf("stream\n", lengthStart) + 7, length);
+  // qUncompress() expects the uncompressed size in front; a generous upper bound will do.
+  zlib.prepend(QByteArray::fromHex("00100000"));
+  return qUncompress(zlib);
+}
+
+// The content stream of the first page, written right before the page.
+QByteArray firstPageContent(const QByteArray& pdf) {
+  const int contentPos = pdf.lastIndexOf("/Filter /FlateDecode /Length ", pdf.indexOf("/Type /Page "));
+  return (contentPos > 0) ? inflateStream(pdf, contentPos) : QByteArray();
 }
 }  // namespace
 
@@ -444,23 +465,94 @@ BOOST_AUTO_TEST_CASE(test_text_layer) {
   BOOST_CHECK(pdf.contains("/ToUnicode "));
   BOOST_CHECK(pdf.contains("/Length1 572 "));
 
-  // The content streams are compressed; unpack the first page's one, written right before the page.
-  const QByteArray streamDict = "/Filter /FlateDecode /Length ";
-  const int contentPos = pdf.lastIndexOf(streamDict, pdf.indexOf("/Type /Page "));
-  BOOST_REQUIRE(contentPos > 0);
-  const int lengthStart = contentPos + static_cast<int>(streamDict.size());
-  const int length = pdf.mid(lengthStart, pdf.indexOf(' ', lengthStart) - lengthStart).toInt();
-  const int dataStart = pdf.indexOf("stream\n", lengthStart) + 7;
-  QByteArray zlib = pdf.mid(dataStart, length);
-  // qUncompress() expects the uncompressed size in front; a generous upper bound will do.
-  zlib.prepend(QByteArray::fromHex("00100000"));
-  const QByteArray content = qUncompress(zlib);
+  // The content streams are compressed.
+  const QByteArray content = firstPageContent(pdf);
   BOOST_REQUIRE(!content.isEmpty());
   BOOST_CHECK(content.contains("BT\n3 Tr\n/F0 10 Tf\n"));
   // "Grüße" is 5 characters, half an em each: 25 points stretched to 60 points. The trailing space comes after.
   BOOST_CHECK(content.contains("240 Tz\n1 0 0 1 20 200 Tm\n<0047007200FC00DF00650020> Tj\n"));
   // "Ab" without a space: 10 points stretched to 60 points.
   BOOST_CHECK(content.contains("600 Tz\n1 0 0 1 90 200 Tm\n<00410062> Tj\nET\n"));
+}
+
+// ISO 32000-1, 9.10.3: a bfrange may only count up the last byte of its destination,
+// so <0000> <FFFF> <0000> leaves every character from U+0100 on undefined.
+BOOST_AUTO_TEST_CASE(test_to_unicode_cmap_follows_bfrange_rule) {
+  PdfWriter::Word word;
+  word.text = "A";
+  word.origin = QPointF(20, 100);
+  word.width = 10;
+  word.fontSize = 10;
+  QBuffer buffer;
+  buffer.open(QIODevice::WriteOnly);
+  PdfWriter writer(buffer);
+  BOOST_REQUIRE(writer.begin());
+  BOOST_REQUIRE(writer.addPage({QSizeF(200, 300), {}, {word}}));
+  BOOST_REQUIRE(writer.finish());
+  const QByteArray pdf = buffer.data();
+
+  const QByteArray ref = "/ToUnicode ";
+  const int refPos = pdf.indexOf(ref);
+  BOOST_REQUIRE(refPos > 0);
+  const int idStart = refPos + static_cast<int>(ref.size());
+  const QByteArray id = pdf.mid(idStart, pdf.indexOf(' ', idStart) - idStart);
+  const int objectPos = pdf.indexOf("\n" + id + " 0 obj\n");
+  BOOST_REQUIRE(objectPos > 0);
+  const QString cmap = QString::fromLatin1(inflateStream(pdf, objectPos));
+  BOOST_REQUIRE(cmap.contains("endcmap"));
+
+  // Every block holds at most 100 entries, and together they map each code to itself.
+  const QRegularExpression block("(\\d+) beginbfrange\\n(.*?)endbfrange",
+                                 QRegularExpression::DotMatchesEverythingOption);
+  const QRegularExpression entry("<([0-9A-F]{4})> <([0-9A-F]{4})> <([0-9A-F]{4})>");
+  std::vector<bool> mapped(0x10000, false);
+  for (auto blocks = block.globalMatch(cmap); blocks.hasNext();) {
+    const auto b = blocks.next();
+    int entries = 0;
+    for (auto it = entry.globalMatch(b.captured(2)); it.hasNext(); ++entries) {
+      const auto e = it.next();
+      const int lo = e.captured(1).toInt(nullptr, 16);
+      const int hi = e.captured(2).toInt(nullptr, 16);
+      const int dst = e.captured(3).toInt(nullptr, 16);
+      BOOST_CHECK_EQUAL(dst, lo);
+      BOOST_CHECK_LE((dst & 0xff) + (hi - lo), 255);
+      for (int code = lo; code <= hi; ++code) {
+        mapped[code] = true;
+      }
+    }
+    BOOST_CHECK_EQUAL(b.captured(1).toInt(), entries);
+    BOOST_CHECK_LE(entries, 100);
+  }
+  BOOST_CHECK(std::all_of(mapped.begin(), mapped.end(), [](bool m) { return m; }));
+}
+
+// A NaN or infinite value would put "nan" or "inf" into the content stream.
+BOOST_AUTO_TEST_CASE(test_non_finite_numbers) {
+  BOOST_CHECK(PdfWriter::formatNumber(std::numeric_limits<double>::quiet_NaN()) == "0");
+  BOOST_CHECK(PdfWriter::formatNumber(std::numeric_limits<double>::infinity()) == "0");
+  BOOST_CHECK(PdfWriter::formatNumber(-std::numeric_limits<double>::infinity()) == "0");
+
+  PdfWriter::Word word;
+  word.text = "A";
+  word.origin = QPointF(20, 100);
+  word.width = std::numeric_limits<double>::quiet_NaN();
+  word.fontSize = std::numeric_limits<double>::quiet_NaN();
+  PdfWriter::Word infinite = word;
+  infinite.width = 10;
+  infinite.fontSize = std::numeric_limits<double>::infinity();
+  QBuffer buffer;
+  buffer.open(QIODevice::WriteOnly);
+  PdfWriter writer(buffer);
+  BOOST_REQUIRE(writer.begin());
+  BOOST_REQUIRE(writer.addPage({QSizeF(200, 300), {}, {word, infinite}}));
+  BOOST_REQUIRE(writer.finish());
+
+  // The words are skipped, so the content stream holds no text operators.
+  const QByteArray content = firstPageContent(buffer.data());
+  BOOST_REQUIRE(!content.isEmpty());
+  BOOST_CHECK(!content.contains("nan"));
+  BOOST_CHECK(!content.contains("inf"));
+  BOOST_CHECK(!content.contains(" Tj"));
 }
 
 BOOST_AUTO_TEST_CASE(test_prepare_split_page) {

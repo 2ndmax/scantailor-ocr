@@ -161,6 +161,10 @@ bool PdfWriter::finish() {
 }
 
 QByteArray PdfWriter::formatNumber(const double value) {
+  if (!std::isfinite(value)) {
+    // PDF has no notation for them; "nan" or "inf" would make the file invalid.
+    return "0";
+  }
   const double rounded = std::round(value * 1000.0) / 1000.0;
   QByteArray str = QByteArray::number(rounded, 'f', 3);
   while (str.endsWith('0')) {
@@ -217,13 +221,24 @@ void PdfWriter::writeFont() {
   writeStreamObject(cidToGidMapId, "/Filter /FlateDecode", qCompress(cidToGidMap, 9).mid(4));
 
   // Maps the CIDs back to the same Unicode values, for searching and copying.
-  const QByteArray toUnicode
+  // A bfrange may only count up the last byte of its destination (ISO 32000-1, 9.10.3),
+  // so there is one range per high byte, and a block holds at most 100 of them.
+  QByteArray toUnicode
       = "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n"
         "/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n"
         "/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n"
-        "1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n"
-        "1 beginbfrange\n<0000> <FFFF> <0000>\nendbfrange\n"
-        "endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n";
+        "1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n";
+  static const int rangesPerBlock = 100;
+  for (int first = 0; first < 256; first += rangesPerBlock) {
+    const int last = std::min(first + rangesPerBlock, 256) - 1;
+    toUnicode += QByteArray::number(last - first + 1) + " beginbfrange\n";
+    for (int high = first; high <= last; ++high) {
+      const QByteArray hh = QByteArray::number(high, 16).rightJustified(2, '0').toUpper();
+      toUnicode += '<' + hh + "00> <" + hh + "FF> <" + hh + "00>\n";
+    }
+    toUnicode += "endbfrange\n";
+  }
+  toUnicode += "endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n";
   writeStreamObject(toUnicodeId, "/Filter /FlateDecode", qCompress(toUnicode, 9).mid(4));
 
   beginObject(descriptorId);
@@ -281,7 +296,8 @@ QByteArray PdfWriter::textContent(const Page& page) const {
   QByteArray text = "BT\n3 Tr\n";
   double currentFontSize = -1;
   for (const Word& word : page.words) {
-    if (word.text.isEmpty() || (word.width <= 0) || (word.fontSize <= 0)) {
+    if (word.text.isEmpty() || !std::isfinite(word.width) || (word.width <= 0) || !std::isfinite(word.fontSize)
+        || (word.fontSize <= 0)) {
       continue;
     }
     QByteArray hex;
