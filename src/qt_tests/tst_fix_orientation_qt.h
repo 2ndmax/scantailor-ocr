@@ -12,6 +12,7 @@ class TestFixOrientationQt : public QObject {
   void testZeroRotationIsSaved();
   void testTrimFieldsFollowRotation();
   void testTrimFieldsKeepValuesOnPageSwitch();
+  void testTrimFieldsShowWhatIsComputed();
   void testViewFollowsChangesDuringLoading();
 };
 

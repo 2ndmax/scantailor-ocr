@@ -142,7 +142,17 @@ void OptionsWidget::updateTrimMaximums() {
 }
 
 void OptionsWidget::pullTrimToControls() {
-  const ImageTrim trim(m_settings->getTrim(m_pageId.imageId()).rotated(m_rotation));
+  ImageTrim trim(m_settings->getTrim(m_pageId.imageId()).rotated(m_rotation));
+  const QSize viewSize(m_rotation.rotate(m_imagePixelSize));
+  if (trim.enabled && viewSize.isValid()) {
+    // Show the values that are used. A trim that does not fit the image (e.g. after the image was replaced by
+    // a smaller one) is redistributed by toInnerRect(); cutting it to the field maximums would show other values.
+    const QRect inner(trim.toInnerRect(viewSize));
+    trim.left = inner.left();
+    trim.top = inner.top();
+    trim.right = viewSize.width() - inner.left() - inner.width();
+    trim.bottom = viewSize.height() - inner.top() - inner.height();
+  }
   trimEnabledCheck->setChecked(trim.enabled);
   // Each maximum depends on the opposite field, so the values are set against the full ranges.
   for (QSpinBox* spinBox : {trimLeftSpin, trimRightSpin, trimTopSpin, trimBottomSpin}) {

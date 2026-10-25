@@ -276,6 +276,9 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
       newParams.setContentSizeMM(keptParams.contentSizeMM());
       newParams.setDetectionOptions(keptParams.detectionOptions());
     }
+    // REVIEW-NOTE (2026-10): manual page and content boxes are only shifted for target pages that already
+    // have params -> unprocessed pages get the boxes in the source page's coordinates. Not fixed because the
+    // shift needs the target outline, which is only known in Task.
     if (oldParams) {
       if (applyPageBox && (newParams.pageDetectionMode() == MODE_MANUAL)) {
         QRectF correctedPageRect = newParams.pageRect();

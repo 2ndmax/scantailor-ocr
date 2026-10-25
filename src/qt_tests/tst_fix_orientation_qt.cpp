@@ -202,6 +202,29 @@ void TestFixOrientationQt::testTrimFieldsKeepValuesOnPageSwitch() {
   QCOMPARE(settings->getTrim(second).top, 5);
 }
 
+void TestFixOrientationQt::testTrimFieldsShowWhatIsComputed() {
+  // A trim that does not fit the image, e.g. after the image was replaced by a smaller one: the fields
+  // show the values that are used (ImageTrim::toInnerRect() redistributes them), not cut ones.
+  auto settings = std::make_shared<Settings>();
+  const ImageId image("small.png");
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.left = 3000;
+  trim.right = 3000;
+  settings->setTrim(image, trim);
+
+  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(pageInfo(image, QSize(400, 300)), OrthogonalRotation());
+  QSpinBox* const left = spinBox(widget, "trimLeftSpin");
+  QSpinBox* const right = spinBox(widget, "trimRightSpin");
+  QVERIFY(left != nullptr);
+  QVERIFY(right != nullptr);
+  const QRect inner = trim.toInnerRect(QSize(400, 300));
+  QCOMPARE(left->value(), inner.left());
+  QCOMPARE(right->value(), 400 - inner.left() - inner.width());
+  QCOMPARE(left->value() + right->value() + inner.width(), 400);
+}
+
 void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
   // Rotating a page while it is processed must not be undone when it is shown, and the view must
   // show the rotation and the trim.
