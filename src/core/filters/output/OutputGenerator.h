@@ -109,11 +109,11 @@ class OutputGenerator {
 };
 
 /**
- * Finds rectangles of contentColor pixels in mask, for the automatic rectangular picture zones.
- * Below 100 %, sensitivity trims the rectangles to rows and columns mostly of contentColor.
+ * Finds rectangles of white (content) pixels in mask, for the automatic rectangular picture zones.
+ * Below 100 %, sensitivity trims the rectangles to rows and columns mostly of white pixels.
  * Declared here for the tests.
  */
-std::vector<QRect> findRectAreas(const imageproc::BinaryImage& mask, imageproc::BWColor contentColor, int sensitivity);
+std::vector<QRect> findRectAreas(const imageproc::BinaryImage& mask, int sensitivity);
 
 /**
  * Fills the pixels of image outside the content mask with color. Declared here for the tests.

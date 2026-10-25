@@ -814,7 +814,7 @@ inline int findPositionOfTheHighestBitSet(uint32_t v) {
 
 }  // namespace
 
-std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, int sensitivity) {
+std::vector<QRect> findRectAreas(const BinaryImage& mask, int sensitivity) {
   if (mask.isNull()) {
     return {};
   }
@@ -828,7 +828,6 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
   const int lastWordBits = w - (lastWordIdx << 5);
   const int lastWordUnusedBits = 32 - lastWordBits;
   const uint32_t lastWordMask = ~uint32_t(0) << lastWordUnusedBits;
-  const uint32_t modifier = (contentColor == WHITE) ? ~uint32_t(0) : 0;
   const uint32_t* const data = mask.data();
 
   const uint32_t* line = data;
@@ -839,7 +838,7 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, BWColor contentColor, 
     area.setBottom(y);
     bool areaFound = false;
     for (int i = 0; i <= lastWordIdx; ++i) {
-      uint32_t word = line[i] ^ modifier;
+      uint32_t word = ~line[i];  // white pixels are the content
       if (i == lastWordIdx) {
         // The last (possibly incomplete) word.
         word &= lastWordMask;
@@ -2533,7 +2532,7 @@ void OutputGenerator::Processor::processPictureZones(BinaryImage& mask, ZoneSet&
     m_settings->setOutputProcessingParams(m_pageId, m_outputProcessingParams);
   }
   if ((m_pictureShapeOptions.getPictureShape() == RECTANGULAR_SHAPE) && !m_outputProcessingParams.isAutoZonesFound()) {
-    std::vector<QRect> areas = findRectAreas(mask, WHITE, m_pictureShapeOptions.getSensitivity());
+    std::vector<QRect> areas = findRectAreas(mask, m_pictureShapeOptions.getSensitivity());
 
     const QTransform fromWorkingCs = [this]() {
       QTransform toWorkingCs = m_xform.transform();
