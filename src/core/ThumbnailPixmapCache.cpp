@@ -368,6 +368,8 @@ void ThumbnailPixmapCache::Impl::setThumbDir(const QString& thumbDir) {
   }
 
   m_thumbDir = thumbDir;
+  // Same as in the constructor: only created if the parent ($OUT/cache) exists.
+  QDir().mkdir(m_thumbDir);
 
   for (const Item& item : m_loadQueue) {
     // This trick will make all queued tasks to expire.
@@ -447,6 +449,8 @@ ThumbnailPixmapCache::Status ThumbnailPixmapCache::Impl::request(
   assert(lqIt->completionHandlers.empty());
 
   if (m_endOfLoadedItems == m_removeQueue.end()) {
+    // REVIEW-NOTE (2026-10): if the item at m_endOfLoadedItems gets loaded, the marker ends up on a LOADED item
+    // -> the LRU order is slightly wrong. Not fixed because it only changes which thumbnail is evicted first.
     m_endOfLoadedItems = m_items.project<RemoveQueueTag>(lqIt);
   }
   lqIt->completionHandlers.push_back(*completionHandler);
@@ -502,6 +506,16 @@ void ThumbnailPixmapCache::Impl::recreateThumbnail(const ImageId& imageId, const
   // Note that we may be called from multiple threads at the same time.
   if (!writeThumbnailFile(makeThumbnail(image, maxThumbSize), thumbFilePath)) {
     return;
+  }
+
+  // Thumbnails in other sizes (another thumbnail quality) show the old image now.
+  // They would be loaded unchecked once the user switches back to that size.
+  const QDir dir(thumbDir);
+  const QString thumbFileName(QFileInfo(thumbFilePath).fileName());
+  for (const QString& name : findThumbFileNames(imageId, thumbDir)) {
+    if (name != thumbFileName) {
+      QFile::remove(dir.absoluteFilePath(name));
+    }
   }
 
   const QMutexLocker locker2(&m_mutex);
@@ -658,6 +672,9 @@ QString ThumbnailPixmapCache::Impl::getPathHash(const ImageId& imageId) {
 }
 
 QString ThumbnailPixmapCache::Impl::getThumbFileNamePrefix(const ImageId& imageId) {
+  // REVIEW-NOTE (2026-10): the name contains the full base name plus hash -> deep output folders with long image
+  // names can exceed MAX_PATH and the thumbnail is never saved. Not fixed because it then is only rebuilt from the
+  // full image.
   const QFileInfo origImgPath(imageId.filePath());
   QString prefix(origImgPath.completeBaseName());
   prefix += QChar('_');
@@ -693,6 +710,11 @@ void ThumbnailPixmapCache::Impl::renameThumbnails(const ImageId& from, const Ima
   const QDir dir(thumbDir);
   const QString fromPrefix(getThumbFileNamePrefix(from));
   const QString toPrefix(getThumbFileNamePrefix(to));
+  if (toPrefix == fromPrefix) {
+    // Removing the target first would delete the only files. Paths differing only in case
+    // get different prefixes, because the hash of the path is case sensitive.
+    return;
+  }
   for (const QString& oldName : findThumbFileNames(from, thumbDir)) {
     // The rest of the name is the size and the extension.
     const QString newPath(dir.absoluteFilePath(toPrefix + oldName.mid(fromPrefix.size())));
@@ -798,6 +820,8 @@ void ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result) {
       // We keep items that failed to load, as they are cheap
       // to keep and helps us avoid trying to load them
       // again and again.
+      // REVIEW-NOTE (2026-10): failed items are kept and never retried -> a file that was briefly unreadable keeps
+      // an empty thumbnail for the session. Not fixed because a retry needs a time limit; reopening the project helps.
 
       item.status = Item::LOAD_FAILED;
 
@@ -962,6 +986,8 @@ const QSize& ThumbnailPixmapCache::Impl::getMaxThumbSize() const {
 void ThumbnailPixmapCache::Impl::setMaxThumbSize(const QSize& maxSize) {
   const QMutexLocker locker(&m_mutex);
 
+  // REVIEW-NOTE (2026-10): items IN_PROGRESS are not discarded here -> a thumbnail loading during a size change is
+  // stored in the old size. Not fixed because it only affects sharpness until the item is evicted.
   removeLoadedItemsLocked();
   m_maxThumbSize = maxSize;
 }

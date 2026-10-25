@@ -27,8 +27,8 @@ class ThumbnailPixmapCache {
   /**
    * \brief Constructor. To be called from the GUI thread only.
    *
-   * \param thumbDir The directory to store thumbnails in. If the
-   *        provided directory doesn't exist, it will be created.
+   * \param thumbDir The directory to store thumbnails in. If it doesn't
+   *        exist, it is created, but only if its parent directory exists.
    * \param maxSize The maximum width and height for thumbnails.
    *        The actual thumbnail size is going to depend on its aspect
    *        ratio, but it won't exceed the provided maximum.
@@ -49,6 +49,9 @@ class ThumbnailPixmapCache {
    */
   virtual ~ThumbnailPixmapCache();
 
+  /**
+   * \brief Switches to another thumbnail directory, creating it like the constructor does.
+   */
   void setThumbDir(const QString& thumbDir);
 
   const QSize& getMaxThumbSize() const;

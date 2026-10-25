@@ -31,7 +31,13 @@ void writeThumbs(ThumbnailPixmapCache& cache, const ImageId& imageId) {
   cache.setMaxThumbSize(QSize(250, 250));
   cache.recreateThumbnail(imageId, image);
   cache.setMaxThumbSize(QSize(400, 400));
-  cache.recreateThumbnail(imageId, image);
+  cache.ensureThumbnailExists(imageId, image);
+}
+
+QImage whiteImage() {
+  QImage image(600, 800, QImage::Format_RGB32);
+  image.fill(Qt::white);
+  return image;
 }
 }  // namespace
 
@@ -67,6 +73,53 @@ BOOST_AUTO_TEST_CASE(rename_and_remove_cover_all_sizes) {
   // The thumbnails of the other image stay.
   BOOST_CHECK_EQUAL(thumbsStartingWith(thumbDir, "scan_1L_").size(), 2);
   BOOST_CHECK_EQUAL(thumbDir.entryList(QDir::Files).size(), 2);
+}
+
+BOOST_AUTO_TEST_CASE(recreate_removes_other_sizes) {
+  // Otherwise switching the thumbnail quality back shows an old processing result.
+  QTemporaryDir tmp;
+  BOOST_REQUIRE(tmp.isValid());
+  const QDir thumbDir(QDir(tmp.path()).filePath("thumbs"));
+  ThumbnailPixmapCache cache(thumbDir.path(), QSize(400, 400), 40, 5);
+  const ImageId imageId(QDir(tmp.path()).filePath("scan.tif"));
+
+  cache.recreateThumbnail(imageId, whiteImage());
+  BOOST_REQUIRE_EQUAL(thumbsStartingWith(thumbDir, "scan_").filter("_q400.png").size(), 1);
+
+  cache.setMaxThumbSize(QSize(250, 250));
+  cache.recreateThumbnail(imageId, whiteImage());
+  BOOST_CHECK_EQUAL(thumbsStartingWith(thumbDir, "scan_").filter("_q250.png").size(), 1);
+  BOOST_CHECK(thumbsStartingWith(thumbDir, "scan_").filter("_q400.png").isEmpty());
+}
+
+BOOST_AUTO_TEST_CASE(set_thumb_dir_creates_the_folder) {
+  // Relinking to a new output folder creates only <out>/cache, not <out>/cache/thumbs.
+  QTemporaryDir tmp;
+  BOOST_REQUIRE(tmp.isValid());
+  const QDir outDir(tmp.path());
+  BOOST_REQUIRE(outDir.mkpath("old/cache"));
+  BOOST_REQUIRE(outDir.mkpath("new/cache"));
+  ThumbnailPixmapCache cache(outDir.filePath("old/cache/thumbs"), QSize(250, 250), 40, 5);
+
+  const QDir newThumbDir(outDir.filePath("new/cache/thumbs"));
+  cache.setThumbDir(newThumbDir.path());
+  BOOST_CHECK(newThumbDir.exists());
+
+  cache.recreateThumbnail(ImageId(outDir.filePath("scan.tif")), whiteImage());
+  BOOST_CHECK_EQUAL(thumbsStartingWith(newThumbDir, "scan_").size(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(rename_to_itself_keeps_thumbnails) {
+  QTemporaryDir tmp;
+  BOOST_REQUIRE(tmp.isValid());
+  const QDir thumbDir(QDir(tmp.path()).filePath("thumbs"));
+  ThumbnailPixmapCache cache(thumbDir.path(), QSize(250, 250), 40, 5);
+  const ImageId imageId(QDir(tmp.path()).filePath("scan_1L.tif"));
+  writeThumbs(cache, imageId);
+  BOOST_REQUIRE_EQUAL(thumbsStartingWith(thumbDir, "scan_1L_").size(), 2);
+
+  cache.renameThumbnails(imageId, imageId);
+  BOOST_CHECK_EQUAL(thumbsStartingWith(thumbDir, "scan_1L_").size(), 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
