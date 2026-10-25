@@ -233,6 +233,54 @@ bool writeJp2(const QString& path, const int width, const int height, const int 
   opj_image_destroy(image);
   return ok;
 }
+
+// Writes a gray JPEG; exifOrientation 0 writes no EXIF segment.
+void writeGrayJpeg(const QString& path,
+                   const int width,
+                   const int height,
+                   const int xDpi,
+                   const int yDpi,
+                   const bool progressive,
+                   const int exifOrientation = 0) {
+  jpeg_compress_struct cinfo{};
+  jpeg_error_mgr jerr{};
+  cinfo.err = jpeg_std_error(&jerr);
+  jpeg_create_compress(&cinfo);
+  unsigned char* buffer = nullptr;
+  unsigned long size = 0;
+  jpeg_mem_dest(&cinfo, &buffer, &size);
+  cinfo.image_width = width;
+  cinfo.image_height = height;
+  cinfo.input_components = 1;
+  cinfo.in_color_space = JCS_GRAYSCALE;
+  jpeg_set_defaults(&cinfo);
+  if (progressive) {
+    jpeg_simple_progression(&cinfo);
+  }
+  cinfo.density_unit = 1;  // dpi
+  cinfo.X_density = static_cast<UINT16>(xDpi);
+  cinfo.Y_density = static_cast<UINT16>(yDpi);
+  jpeg_start_compress(&cinfo, TRUE);
+  if (exifOrientation != 0) {
+    // "Exif\0\0", a big-endian TIFF header and an IFD0 holding only Orientation (0x0112, SHORT).
+    const unsigned char exif[]
+        = {'E', 'x', 'i', 'f',  0,    0, 'M', 'M', 0, 0x2a, 0, 0, 0,
+           8,   0,   1,   0x01, 0x12, 0, 3,   0,   0, 0,    1, 0, static_cast<unsigned char>(exifOrientation),
+           0,   0,   0,   0,    0,    0};
+    jpeg_write_marker(&cinfo, JPEG_APP0 + 1, exif, sizeof(exif));
+  }
+  std::vector<JSAMPLE> row(width, 128);
+  while (cinfo.next_scanline < cinfo.image_height) {
+    JSAMPROW rowPtr = row.data();
+    jpeg_write_scanlines(&cinfo, &rowPtr, 1);
+  }
+  jpeg_finish_compress(&cinfo);
+  jpeg_destroy_compress(&cinfo);
+  QFile file(path);
+  BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
+  file.write(reinterpret_cast<const char*>(buffer), static_cast<qint64>(size));
+  free(buffer);
+}
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE(CoreImageReadersTestSuite)
@@ -456,36 +504,7 @@ BOOST_AUTO_TEST_CASE(test_progressive_jpeg_metadata) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
   const QString path = dir.filePath("progressive.jpg");
-  {
-    jpeg_compress_struct cinfo{};
-    jpeg_error_mgr jerr{};
-    cinfo.err = jpeg_std_error(&jerr);
-    jpeg_create_compress(&cinfo);
-    unsigned char* buffer = nullptr;
-    unsigned long size = 0;
-    jpeg_mem_dest(&cinfo, &buffer, &size);
-    cinfo.image_width = 64;
-    cinfo.image_height = 48;
-    cinfo.input_components = 1;
-    cinfo.in_color_space = JCS_GRAYSCALE;
-    jpeg_set_defaults(&cinfo);
-    jpeg_simple_progression(&cinfo);
-    cinfo.density_unit = 1;  // dpi
-    cinfo.X_density = 300;
-    cinfo.Y_density = 300;
-    jpeg_start_compress(&cinfo, TRUE);
-    std::vector<JSAMPLE> row(64, 128);
-    while (cinfo.next_scanline < cinfo.image_height) {
-      JSAMPROW rowPtr = row.data();
-      jpeg_write_scanlines(&cinfo, &rowPtr, 1);
-    }
-    jpeg_finish_compress(&cinfo);
-    jpeg_destroy_compress(&cinfo);
-    QFile file(path);
-    BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
-    file.write(reinterpret_cast<const char*>(buffer), static_cast<qint64>(size));
-    free(buffer);
-  }
+  writeGrayJpeg(path, 64, 48, 300, 300, true);
 
   std::vector<ImageMetadata> pages;
   const auto status
@@ -494,6 +513,41 @@ BOOST_AUTO_TEST_CASE(test_progressive_jpeg_metadata) {
   BOOST_REQUIRE_EQUAL(pages.size(), 1u);
   BOOST_CHECK(pages[0].size() == QSize(64, 48));
   BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 300);
+}
+
+// ImageLoader turns JPEGs upright by their EXIF orientation, so the metadata of a photo
+// stored landscape with Orientation=6 has to report the upright size and swapped DPI axes.
+BOOST_AUTO_TEST_CASE(test_exif_rotated_jpeg_metadata) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("rotated.jpg");
+  writeGrayJpeg(path, 64, 48, 300, 200, false, 6);
+
+  std::vector<ImageMetadata> pages;
+  const auto status
+      = ImageMetadataLoader::load(path, [&](const ImageMetadata& metadata) { pages.push_back(metadata); });
+  BOOST_REQUIRE(status == ImageMetadataLoader::LOADED);
+  BOOST_REQUIRE_EQUAL(pages.size(), 1u);
+  BOOST_CHECK(pages[0].size() == QSize(48, 64));
+  BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 200);
+  BOOST_CHECK_EQUAL(pages[0].dpi().vertical(), 300);
+}
+
+// Orientation=3 turns the photo by 180 degrees: the stored size stays.
+BOOST_AUTO_TEST_CASE(test_exif_upside_down_jpeg_metadata) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("upside_down.jpg");
+  writeGrayJpeg(path, 64, 48, 300, 200, false, 3);
+
+  std::vector<ImageMetadata> pages;
+  const auto status
+      = ImageMetadataLoader::load(path, [&](const ImageMetadata& metadata) { pages.push_back(metadata); });
+  BOOST_REQUIRE(status == ImageMetadataLoader::LOADED);
+  BOOST_REQUIRE_EQUAL(pages.size(), 1u);
+  BOOST_CHECK(pages[0].size() == QSize(64, 48));
+  BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 300);
+  BOOST_CHECK_EQUAL(pages[0].dpi().vertical(), 200);
 }
 
 BOOST_AUTO_TEST_CASE(test_damaged_jpeg_metadata_reports_errors) {

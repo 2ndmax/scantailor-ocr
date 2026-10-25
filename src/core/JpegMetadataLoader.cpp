@@ -7,6 +7,7 @@
 #include <QIODevice>
 #include <cassert>
 #include <csetjmp>
+#include <cstdint>
 #include <cstring>
 
 #include "Dpm.h"
@@ -199,6 +200,69 @@ QString JpegErrorManager::formatMessage(j_common_ptr cinfo) {
 JpegErrorManager* JpegErrorManager::object(j_common_ptr cinfo) {
   return static_cast<JpegErrorManager*>(cinfo->err);
 }
+
+/*============================= EXIF orientation ===========================*/
+
+// Returns the EXIF Orientation tag (1..8) from a saved APP1 marker, or 0 if there is none.
+int exifOrientation(const jpeg_saved_marker_ptr marker) {
+  static const unsigned char exifHeader[] = {'E', 'x', 'i', 'f', 0, 0};
+  if ((marker->marker != JPEG_APP0 + 1) || (marker->data_length < sizeof(exifHeader))
+      || (memcmp(marker->data, exifHeader, sizeof(exifHeader)) != 0)) {
+    return 0;
+  }
+  // The rest is a TIFF structure; its offsets count from the TIFF header.
+  const unsigned char* const tiff = marker->data + sizeof(exifHeader);
+  const unsigned length = marker->data_length - sizeof(exifHeader);
+  if (length < 8) {
+    return 0;
+  }
+  bool bigEndian;
+  if ((tiff[0] == 'M') && (tiff[1] == 'M')) {
+    bigEndian = true;
+  } else if ((tiff[0] == 'I') && (tiff[1] == 'I')) {
+    bigEndian = false;
+  } else {
+    return 0;
+  }
+  const auto read16 = [&](const unsigned offset) -> unsigned {
+    return bigEndian ? ((tiff[offset] << 8) | tiff[offset + 1]) : ((tiff[offset + 1] << 8) | tiff[offset]);
+  };
+  const auto read32 = [&](const unsigned offset) -> uint32_t {
+    return bigEndian ? ((uint32_t(read16(offset)) << 16) | read16(offset + 2))
+                     : ((uint32_t(read16(offset + 2)) << 16) | read16(offset));
+  };
+
+  const uint32_t ifd0 = read32(4);
+  // Compared as subtraction, so a huge offset from a damaged file can't overflow.
+  if ((ifd0 > length) || (length - ifd0 < 2)) {
+    return 0;
+  }
+  const unsigned entryCount = read16(ifd0);
+  static const unsigned entrySize = 12;
+  for (unsigned i = 0; i < entryCount; ++i) {
+    const uint32_t entry = ifd0 + 2 + i * entrySize;
+    if (length - ifd0 < 2 + (i + 1) * entrySize) {
+      return 0;
+    }
+    static const unsigned orientationTag = 0x0112;
+    static const unsigned typeShort = 3;
+    if ((read16(entry) == orientationTag) && (read16(entry + 2) == typeShort)) {
+      const unsigned orientation = read16(entry + 8);
+      return ((orientation >= 1) && (orientation <= 8)) ? int(orientation) : 0;
+    }
+  }
+  return 0;
+}
+
+int exifOrientation(j_decompress_ptr cinfo) {
+  for (jpeg_saved_marker_ptr marker = cinfo->marker_list; marker != nullptr; marker = marker->next) {
+    const int orientation = exifOrientation(marker);
+    if (orientation != 0) {
+      return orientation;
+    }
+  }
+  return 0;
+}
 }  // namespace
 
 /*============================= JpegMetadataLoader ==========================*/
@@ -233,6 +297,8 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
   }
 
   cinfo.create(&srcMgr);
+  // Keeps APP1 for its EXIF orientation.
+  jpeg_save_markers(cinfo.ptr(), JPEG_APP0 + 1, 0xffff);
 
   const int headerStatus = jpeg_read_header(cinfo.ptr(), 0);
   if (headerStatus == JPEG_HEADER_TABLES_ONLY) {
@@ -245,7 +311,7 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
   // The size and the resolution are known from the header. jpeg_start_decompress() isn't
   // needed for them, and would take memory for the whole image with progressive files.
 
-  const QSize size(cinfo->image_width, cinfo->image_height);
+  QSize size(cinfo->image_width, cinfo->image_height);
   Dpi dpi;
   if (cinfo->density_unit == 1) {
     // Dots per inch.
@@ -253,6 +319,14 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
   } else if (cinfo->density_unit == 2) {
     // Dots per centimeter.
     dpi = Dpm(cinfo->X_density * 100, cinfo->Y_density * 100);
+  }
+
+  // ImageLoader turns the image upright by its EXIF orientation. Orientations 5 to 8 turn it by
+  // 90 degrees, so the metadata has to swap the axes, or the size of the loaded image won't match
+  // and LoadFileTask takes the file for replaced.
+  if (exifOrientation(cinfo.ptr()) >= 5) {
+    size.transpose();
+    dpi = Dpi(dpi.vertical(), dpi.horizontal());
   }
 
   out(ImageMetadata(size, dpi));
