@@ -130,7 +130,8 @@ class ImageViewBase : public QAbstractScrollArea {
   /**
    * Sample the image at the given widget rectangle (e.g. for color pickup).
    * Uses the underlying image instead of widget grab, so it works with OpenGL (issue #89).
-   * Returns a small image region around the widget rect center in image space, or null if out of bounds.
+   * Returns the image region under the widget rect at any zoom, scaled down to at most
+   * \p maxImageSide pixels per side, or null if out of bounds.
    */
   QImage sampleImageAtWidgetRect(const QRect& widgetRect, int maxImageSide = 31) const;
 
@@ -296,6 +297,9 @@ class ImageViewBase : public QAbstractScrollArea {
 
   bool validateHqPixmap() const;
 
+  /** The current viewport size in screen pixels, which an HQ pixmap is built for. */
+  QSize hqTargetSize() const;
+
   void scheduleHqVersionRebuild();
 
   void hqVersionBuilt(const QPoint& origin, const QImage& image);
@@ -351,6 +355,12 @@ class ImageViewBase : public QAbstractScrollArea {
    * so that it maps one to one to them on scaled screens too.
    */
   qreal m_hqDevicePixelRatio = 1.0;
+
+  /**
+   * The viewport size in screen pixels m_hqPixmap is built for. It is cut to that size,
+   * so a larger viewport (e.g. a scroll bar disappeared) needs a new one.
+   */
+  QSize m_hqTargetSize;
 
   /**
    * Used to check if we need to extend the delay before building m_hqPixmap.

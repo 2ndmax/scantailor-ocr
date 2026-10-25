@@ -163,14 +163,19 @@ ImageViewBase::ImageViewBase(const QImage& image,
   viewport()->setFocusPolicy(Qt::WheelFocus);
 
   if (downscaledVersion.isNull()) {
-    m_pixmap = QPixmap::fromImage(createDownscaledImage(image));
+    if (!image.isNull()) {
+      m_pixmap = QPixmap::fromImage(createDownscaledImage(image));
+    }
   } else if (downscaledVersion.pixmap().isNull()) {
     m_pixmap = QPixmap::fromImage(downscaledVersion.image());
   } else {
     m_pixmap = downscaledVersion.pixmap();
   }
 
-  m_pixmapToImage.scale((double) m_image.width() / m_pixmap.width(), (double) m_image.height() / m_pixmap.height());
+  // An empty image (e.g. loading failed) leaves the identity, rather than dividing by zero.
+  if (!m_pixmap.isNull()) {
+    m_pixmapToImage.scale((double) m_image.width() / m_pixmap.width(), (double) m_image.height() / m_pixmap.height());
+  }
 
   m_widgetFocalPoint = centeredWidgetFocalPoint();
   m_pixmapFocalPoint = m_virtualToImage.map(virtualDisplayRect().center());
@@ -284,19 +289,18 @@ QImage ImageViewBase::sampleImageAtWidgetRect(const QRect& widgetRect, const int
   if (m_image.isNull() || widgetRect.isEmpty()) {
     return QImage();
   }
-  const QPointF widgetCenter(widgetRect.center());
-  const QPointF imagePoint(widgetToImage().map(widgetCenter));
-  const int ix = qRound(imagePoint.x());
-  const int iy = qRound(imagePoint.y());
-  const int half = maxImageSide / 2;
-  const int x1 = qBound(0, ix - half, m_image.width());
-  const int y1 = qBound(0, iy - half, m_image.height());
-  const int x2 = qBound(0, ix + half, m_image.width());
-  const int y2 = qBound(0, iy + half, m_image.height());
-  if (x2 <= x1 || y2 <= y1) {
+  // The whole image area under the widget rect, as the screen grab without OpenGL sees it,
+  // so that the zoom doesn't change which part of the image counts.
+  const QRect imageRect = widgetToImage().mapRect(QRectF(widgetRect)).toAlignedRect().intersected(m_image.rect());
+  if (imageRect.isEmpty()) {
     return QImage();
   }
-  return m_image.copy(x1, y1, x2 - x1, y2 - y1);
+  const QImage area(m_image.copy(imageRect));
+  if ((area.width() <= maxImageSide) && (area.height() <= maxImageSide)) {
+    return area;
+  }
+  // Zoomed out far: fewer pixels do for the color, and they keep their original colors.
+  return area.scaled(maxImageSide, maxImageSide, Qt::KeepAspectRatio, Qt::FastTransformation);
 }
 
 void ImageViewBase::setWidgetFocalPoint(const QPointF& widgetFp) {
@@ -385,8 +389,11 @@ void ImageViewBase::updateTransformPreservingScale(const ImagePresentation& pres
 
   const QLineF widgetLineAfter((m_imageToVirtual * m_virtualToWidget).map(imageLine));
 
-  m_zoom *= widgetLineBefore.length() / widgetLineAfter.length();
-  updateWidgetTransform();
+  // Both lengths are zero if the view has no area (see updateWidgetTransform()).
+  if ((widgetLineBefore.length() > 0) && (widgetLineAfter.length() > 0)) {
+    m_zoom *= widgetLineBefore.length() / widgetLineAfter.length();
+    updateWidgetTransform();
+  }
 
   update();
   updatePhysSize();
@@ -731,6 +738,11 @@ void ImageViewBase::updateWidgetTransform() {
   const TransformChangeWatcher watcher(*this);
 
   const QRectF virtRect(virtualDisplayRect());
+  if (virtRect.isEmpty() || maxViewportRect().isEmpty()) {
+    // Nothing to fit (e.g. the view is collapsed by a splitter): dividing by the empty size
+    // would give a singular or NaN transform, so the previous one is kept.
+    return;
+  }
   const QPointF virtOrigin(m_imageToVirtual.map(m_pixmapFocalPoint));
   const QPointF widgetOrigin(m_widgetFocalPoint);
 
@@ -938,6 +950,10 @@ bool ImageViewBase::validateHqPixmap() const {
   if (m_hqDevicePixelRatio != viewport()->devicePixelRatioF()) {
     return false;
   }
+
+  if (m_hqTargetSize != hqTargetSize()) {
+    return false;
+  }
   return true;
 }
 
@@ -969,7 +985,7 @@ void ImageViewBase::initiateBuildingHqVersion() {
   const QTransform xform(m_imageToVirtual * m_virtualToWidget);
   // Built in screen pixels, see m_hqDevicePixelRatio.
   const qreal dpr = viewport()->devicePixelRatioF();
-  const QSize targetSize(qRound(viewport()->width() * dpr), qRound(viewport()->height() * dpr));
+  const QSize targetSize(hqTargetSize());
   const auto task
       = std::make_shared<HqTransformTask>(this, m_image, xform * QTransform::fromScale(dpr, dpr), targetSize);
 
@@ -978,7 +994,13 @@ void ImageViewBase::initiateBuildingHqVersion() {
   m_hqTransformTask = task;
   m_hqXform = xform;
   m_hqDevicePixelRatio = dpr;
+  m_hqTargetSize = targetSize;
   m_hqSourceId = m_image.cacheKey();
+}
+
+QSize ImageViewBase::hqTargetSize() const {
+  const qreal dpr = viewport()->devicePixelRatioF();
+  return QSize(qRound(viewport()->width() * dpr), qRound(viewport()->height() * dpr));
 }
 
 /**
