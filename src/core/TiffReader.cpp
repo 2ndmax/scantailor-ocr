@@ -212,6 +212,26 @@ QString unsupportedCompressionMessage(const uint16_t compression) {
       .arg(TiffReader::compressionName(compression));
 }
 
+QString invalidDimensionsMessage() {
+  return QCoreApplication::translate("TiffReader", "The image dimensions are missing or invalid.");
+}
+
+/**
+ * libtiff decides which extra sample is alpha, and also takes an unspecified one
+ * of an RGB image for it. Asking it keeps gray and CMYK pages opaque.
+ */
+bool rgbaImageHasAlpha(TIFF* tif) {
+  TIFFRGBAImage rgba;
+  char message[1024] = "";
+  if (!TIFFRGBAImageBegin(&rgba, tif, 0, message)) {
+    // TIFFReadRGBAImageOriented() fails the same way and reports the reason.
+    return false;
+  }
+  const bool hasAlpha = (rgba.alpha != 0);
+  TIFFRGBAImageEnd(&rgba);
+  return hasAlpha;
+}
+
 /**
  * \brief Decodes the image row by row, regardless of whether it's stored
  *        in strips or in tiles.
@@ -499,12 +519,20 @@ ImageMetadataLoader::Status TiffReader::readMetadata(QIODevice& device,
   // Pages are only reported once all of them turned out to be readable.
   // A page we would fail to decode later is better rejected right away,
   // while the user is still importing files.
+  //
+  // REVIEW-NOTE (2026-10): reduced-resolution/mask IFDs (TIFFTAG_SUBFILETYPE) are imported as
+  // pages -> an extra small page may appear. Not fixed because skipping them would shift page
+  // numbers of existing projects.
   std::vector<ImageMetadata> pages;
   do {
-    uint16_t compression = COMPRESSION_NONE;
-    TIFFGetField(tif.handle(), TIFFTAG_COMPRESSION, &compression);
-    if (!TIFFIsCODECConfigured(compression)) {
-      ImageLoadErrorCapture::addError(unsupportedCompressionMessage(compression));
+    const TiffInfo info(tif);
+    if (!TIFFIsCODECConfigured(info.compression)) {
+      ImageLoadErrorCapture::addError(unsupportedCompressionMessage(info.compression));
+      return ImageMetadataLoader::GENERIC_ERROR;
+    }
+    // TiffInfo leaves sizes beyond INT_MAX at 0, so this also catches those.
+    if ((info.width <= 0) || (info.height <= 0)) {
+      ImageLoadErrorCapture::addError(invalidDimensionsMessage());
       return ImageMetadataLoader::GENERIC_ERROR;
     }
     pages.push_back(currentPageMetadata(tif));
@@ -555,16 +583,22 @@ QImage TiffReader::readImage(QIODevice& device, const int pageNum) {
     return QImage();
   }
   if (!TIFFSetDirectory(tif.handle(), static_cast<uint16_t>(pageNum))) {
-    ImageLoadErrorCapture::addError(
-        QCoreApplication::translate("TiffReader", "Page %1 doesn't exist in this file.").arg(pageNum + 1));
+    // Counting the directories only follows their links, so a page whose directory
+    // can't be read still counts.
+    if (pageNum >= TIFFNumberOfDirectories(tif.handle())) {
+      ImageLoadErrorCapture::addError(
+          QCoreApplication::translate("TiffReader", "Page %1 doesn't exist in this file.").arg(pageNum + 1));
+    } else {
+      ImageLoadErrorCapture::addError(
+          QCoreApplication::translate("TiffReader", "Page %1 of this file is damaged.").arg(pageNum + 1));
+    }
     return QImage();
   }
 
   const TiffInfo info(tif);
   if ((info.width <= 0) || (info.height <= 0)) {
     // Missing or nonsensical ImageWidth / ImageLength tags.
-    ImageLoadErrorCapture::addError(
-        QCoreApplication::translate("TiffReader", "The image dimensions are missing or invalid."));
+    ImageLoadErrorCapture::addError(invalidDimensionsMessage());
     return QImage();
   }
 
@@ -677,10 +711,20 @@ ImageMetadata TiffReader::currentPageMetadata(const TiffHandle& tif) {
 }
 
 Dpi TiffReader::getDpi(float xres, float yres, unsigned resUnit) {
+  // The rationals may be anything up to 2^32-1 in a damaged file, and rounding a value
+  // beyond INT_MAX to int is undefined. No scanner comes near 100000 dpi.
+  static const double maxDpi = 100000;
+  const auto plausible = [](const double dpi) { return std::isfinite(dpi) && (dpi >= 0) && (dpi < maxDpi); };
   switch (resUnit) {
     case RESUNIT_INCH:  // inch
+      if (!plausible(xres) || !plausible(yres)) {
+        return Dpi();
+      }
       return Dpi(qRound(xres), qRound(yres));
     case RESUNIT_CENTIMETER:  // cm
+      if (!plausible(xres * 2.54) || !plausible(yres * 2.54)) {
+        return Dpi();
+      }
       return Dpm(qRound(xres * 100), qRound(yres * 100));
     default:
       break;
@@ -688,6 +732,9 @@ Dpi TiffReader::getDpi(float xres, float yres, unsigned resUnit) {
   return Dpi();
 }
 
+// REVIEW-NOTE (2026-10): TIFFTAG_ORIENTATION is ignored on the fast paths and only partly honored
+// by TIFFReadRGBAImageOriented -> such pages may load mirrored or rotated. Not fixed because the
+// user corrects rotation in Fix Orientation anyway and a fix would turn pages of existing projects.
 QImage TiffReader::extractBinaryOrIndexed8Image(const TiffHandle& tif, const TiffInfo& info) {
   QImage::Format format = QImage::Format_Indexed8;
   if (info.bitsPerSample == 1) {
@@ -912,9 +959,9 @@ QImage TiffReader::extractNumericImage(const TiffHandle& tif, const TiffInfo& in
 
 QImage TiffReader::readRgbaImage(const TiffHandle& tif, const TiffInfo& info) {
   // libtiff's RGBA interface always returns associated (premultiplied) alpha,
-  // converting unassociated alpha if necessary.
+  // converting unassociated alpha if necessary. Without alpha it delivers opaque pixels.
   QImage image(info.width, info.height,
-               info.samplesPerPixel == 3 ? QImage::Format_RGB32 : QImage::Format_ARGB32_Premultiplied);
+               rgbaImageHasAlpha(tif.handle()) ? QImage::Format_ARGB32_Premultiplied : QImage::Format_RGB32);
   if (image.isNull()) {
     throw std::bad_alloc();
   }

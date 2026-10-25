@@ -44,6 +44,7 @@ struct TiffSpec {
   bool bigEndian = false;
   std::vector<uint16_t> colormap;  // 3 * 2^bitsPerSample entries for palette images.
   int extraSample = -1;            // The kind of the last sample (EXTRASAMPLE_*), -1 for none.
+  uint16_t resolutionUnit = RESUNIT_INCH;
 };
 
 // Returns the value of one sample of the image to be written.
@@ -87,11 +88,8 @@ void packSample(const TiffSpec& spec, const double value, uint8_t* row, const si
   }
 }
 
-bool writeTiff(const QString& path, const TiffSpec& spec, const SampleFunc& sample) {
-  TIFF* tif = TIFFOpen(QFile::encodeName(path).constData(), spec.bigEndian ? "wb" : "wl");
-  if (!tif) {
-    return false;
-  }
+// Writes the tags and the data of the current directory.
+bool writeTiffPage(TIFF* tif, const TiffSpec& spec, const SampleFunc& sample) {
   TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, static_cast<uint32_t>(spec.width));
   TIFFSetField(tif, TIFFTAG_IMAGELENGTH, static_cast<uint32_t>(spec.height));
   TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, spec.bitsPerSample);
@@ -102,7 +100,7 @@ bool writeTiff(const QString& path, const TiffSpec& spec, const SampleFunc& samp
   TIFFSetField(tif, TIFFTAG_PLANARCONFIG, spec.planarConfig);
   TIFFSetField(tif, TIFFTAG_XRESOLUTION, 300.0f);
   TIFFSetField(tif, TIFFTAG_YRESOLUTION, 300.0f);
-  TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_INCH);
+  TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, spec.resolutionUnit);
   if (!spec.colormap.empty()) {
     const size_t n = spec.colormap.size() / 3;
     TIFFSetField(tif, TIFFTAG_COLORMAP, spec.colormap.data(), spec.colormap.data() + n, spec.colormap.data() + 2 * n);
@@ -163,8 +161,81 @@ bool writeTiff(const QString& path, const TiffSpec& spec, const SampleFunc& samp
       }
     }
   }
+  return ok;
+}
+
+// Writes \p numPages identical pages.
+bool writeTiff(const QString& path, const TiffSpec& spec, const SampleFunc& sample, const int numPages = 1) {
+  TIFF* tif = TIFFOpen(QFile::encodeName(path).constData(), spec.bigEndian ? "wb" : "wl");
+  if (!tif) {
+    return false;
+  }
+  bool ok = true;
+  for (int page = 0; (page < numPages) && ok; ++page) {
+    ok = writeTiffPage(tif, spec, sample) && TIFFWriteDirectory(tif);
+  }
   TIFFClose(tif);
   return ok;
+}
+
+/*
+ * Little-endian TIFF files only: helpers that damage the file in a controlled way.
+ */
+uint32_t readLe(const QByteArray& data, const uint32_t offset, const int bytes) {
+  uint32_t value = 0;
+  for (int i = bytes - 1; i >= 0; --i) {
+    value = (value << 8) | static_cast<uint8_t>(data[offset + i]);
+  }
+  return value;
+}
+
+void writeLe(QByteArray& data, const uint32_t offset, const int bytes, uint32_t value) {
+  for (int i = 0; i < bytes; ++i, value >>= 8) {
+    data[offset + i] = static_cast<char>(value & 0xff);
+  }
+}
+
+// The offset of the directory of page \p page.
+uint32_t ifdOffset(const QByteArray& data, const int page) {
+  uint32_t offset = readLe(data, 4, 4);
+  for (int i = 0; i < page; ++i) {
+    const uint32_t entryCount = readLe(data, offset, 2);
+    offset = readLe(data, offset + 2 + 12 * entryCount, 4);
+  }
+  return offset;
+}
+
+// Replaces the value of \p tag in the directory at \p ifd by a single LONG.
+bool setTiffTag(QByteArray& data, const uint32_t ifd, const uint16_t tag, const uint32_t value) {
+  const uint32_t entryCount = readLe(data, ifd, 2);
+  for (uint32_t i = 0; i < entryCount; ++i) {
+    const uint32_t entry = ifd + 2 + 12 * i;
+    if (readLe(data, entry, 2) == tag) {
+      writeLe(data, entry + 2, 2, TIFF_LONG);
+      writeLe(data, entry + 4, 4, 1);
+      writeLe(data, entry + 8, 4, value);
+      return true;
+    }
+  }
+  return false;
+}
+
+QByteArray readFile(const QString& path) {
+  QFile file(path);
+  return file.open(QIODevice::ReadOnly) ? file.readAll() : QByteArray();
+}
+
+bool writeFile(const QString& path, const QByteArray& data) {
+  QFile file(path);
+  return file.open(QIODevice::WriteOnly) && (file.write(data) == data.size());
+}
+
+QStringList readTiffMetadata(const QString& path,
+                             std::vector<ImageMetadata>& pages,
+                             ImageMetadataLoader::Status& status) {
+  ImageLoadErrorCapture capture;
+  status = ImageMetadataLoader::load(path, [&](const ImageMetadata& metadata) { pages.push_back(metadata); });
+  return capture.messages();
 }
 
 QImage readTiff(const QString& path, QStringList* messages = nullptr) {
@@ -580,22 +651,139 @@ BOOST_AUTO_TEST_CASE(test_damaged_tiff_reports_errors) {
   spec.rowsPerStrip = 200;
   BOOST_REQUIRE(writeTiff(path, spec, [](int x, int y, int) { return (x ^ y) & 0xff; }));
 
-  // Scramble the compressed data, which starts right after the 8-byte header.
-  QFile file(path);
-  BOOST_REQUIRE(file.open(QIODevice::ReadWrite));
-  QByteArray data = file.readAll();
-  for (int i = 8; i < 400 && i < data.size(); ++i) {
-    data[i] = static_cast<char>(0xff);
-  }
-  file.seek(0);
-  file.write(data);
-  file.close();
+  // The only strip is moved behind the end of the file, so reading it fails for sure.
+  QByteArray data = readFile(path);
+  BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_STRIPOFFSETS, 0x7fffff00));
+  BOOST_REQUIRE(writeFile(path, data));
 
   QStringList messages;
   const QImage image = readTiff(path, &messages);
-  if (image.isNull()) {
-    BOOST_CHECK(!messages.isEmpty());
+  BOOST_CHECK(image.isNull());
+  BOOST_CHECK(!messages.isEmpty());
+}
+
+// A 16-bit gray scan takes libtiff's RGBA path, but has no alpha channel.
+BOOST_AUTO_TEST_CASE(test_16bit_gray_tiff_is_opaque) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("gray16.tif");
+  TiffSpec spec;
+  spec.width = 20;
+  spec.height = 10;
+  spec.bitsPerSample = 16;
+  BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 40000.0; }));
+
+  const QImage image = readTiff(path);
+  BOOST_REQUIRE(!image.isNull());
+  BOOST_CHECK(!image.hasAlphaChannel());
+  BOOST_CHECK_LE(std::abs(qGray(image.pixel(7, 3)) - 40000 / 257), 2);
+}
+
+// CMYK has four samples, none of them alpha.
+BOOST_AUTO_TEST_CASE(test_cmyk_tiff_is_opaque) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("cmyk.tif");
+  TiffSpec spec;
+  spec.width = 20;
+  spec.height = 10;
+  spec.samplesPerPixel = 4;
+  spec.photometric = PHOTOMETRIC_SEPARATED;
+  BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int s) { return s == 0 ? 255.0 : 0.0; }));  // Pure cyan.
+
+  const QImage image = readTiff(path);
+  BOOST_REQUIRE(!image.isNull());
+  BOOST_CHECK(!image.hasAlphaChannel());
+  const QRgb px = image.pixel(7, 3);
+  BOOST_CHECK_LE(qRed(px), 2);
+  BOOST_CHECK_GE(qGreen(px), 253);
+  BOOST_CHECK_GE(qBlue(px), 253);
+}
+
+// libtiff allows rationals up to 2^32-1; rounding that to int is undefined behavior.
+BOOST_AUTO_TEST_CASE(test_tiff_huge_resolution_is_ignored) {
+  for (const uint16_t unit : {uint16_t(RESUNIT_INCH), uint16_t(RESUNIT_CENTIMETER)}) {
+    QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
+    const QString path = dir.filePath("huge_dpi.tif");
+    TiffSpec spec;
+    spec.width = 8;
+    spec.height = 8;
+    spec.resolutionUnit = unit;
+    BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
+    // libtiff doesn't write such a value itself, so the rationals are set to 4294967295/1.
+    QByteArray data = readFile(path);
+    const uint32_t ifd = ifdOffset(data, 0);
+    for (uint32_t i = 0; i < readLe(data, ifd, 2); ++i) {
+      const uint32_t entry = ifd + 2 + 12 * i;
+      const uint32_t tag = readLe(data, entry, 2);
+      if ((tag == TIFFTAG_XRESOLUTION) || (tag == TIFFTAG_YRESOLUTION)) {
+        const uint32_t rational = readLe(data, entry + 8, 4);
+        writeLe(data, rational, 4, 0xffffffffu);
+        writeLe(data, rational + 4, 4, 1);
+      }
+    }
+    BOOST_REQUIRE(writeFile(path, data));
+
+    std::vector<ImageMetadata> pages;
+    ImageMetadataLoader::Status status;
+    readTiffMetadata(path, pages, status);
+    BOOST_REQUIRE(status == ImageMetadataLoader::LOADED);
+    BOOST_REQUIRE_EQUAL(pages.size(), 1u);
+    BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 0);
+    BOOST_CHECK_EQUAL(pages[0].dpi().vertical(), 0);
   }
+}
+
+// A width beyond INT_MAX would become negative in the page metadata.
+BOOST_AUTO_TEST_CASE(test_tiff_width_beyond_int_max_is_rejected) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("huge_width.tif");
+  TiffSpec spec;
+  spec.width = 8;
+  spec.height = 8;
+  BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
+  QByteArray data = readFile(path);
+  BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGEWIDTH, 0x80000001u));
+  BOOST_REQUIRE(writeFile(path, data));
+
+  std::vector<ImageMetadata> pages;
+  ImageMetadataLoader::Status status;
+  const QStringList messages = readTiffMetadata(path, pages, status);
+  BOOST_CHECK(status != ImageMetadataLoader::LOADED);
+  for (const ImageMetadata& page : pages) {
+    BOOST_CHECK_GE(page.size().width(), 0);
+  }
+  BOOST_CHECK(!messages.isEmpty());
+}
+
+// Page 2 exists, but its directory lacks the required ImageLength tag.
+BOOST_AUTO_TEST_CASE(test_tiff_damaged_page_directory_message) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("damaged_page.tif");
+  TiffSpec spec;
+  spec.width = 8;
+  spec.height = 8;
+  BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }, 2));
+  QByteArray data = readFile(path);
+  // An unknown private tag takes the place of ImageLength.
+  const uint32_t ifd = ifdOffset(data, 1);
+  for (uint32_t i = 0; i < readLe(data, ifd, 2); ++i) {
+    if (readLe(data, ifd + 2 + 12 * i, 2) == TIFFTAG_IMAGELENGTH) {
+      writeLe(data, ifd + 2 + 12 * i, 2, 65000);
+    }
+  }
+  BOOST_REQUIRE(writeFile(path, data));
+
+  ImageLoadErrorCapture capture;
+  QFile file(path);
+  BOOST_REQUIRE(file.open(QIODevice::ReadOnly));
+  BOOST_CHECK(TiffReader::readImage(file, 1).isNull());
+  const QString messages = capture.messages().join(QLatin1Char('\n'));
+  BOOST_CHECK_MESSAGE(!messages.contains(QLatin1String("doesn't exist")), messages.toStdString());
+  BOOST_CHECK_MESSAGE(messages.contains(QLatin1String("Page 2 of this file is damaged.")), messages.toStdString());
 }
 
 BOOST_AUTO_TEST_CASE(test_tiff_writer_round_trip_and_failure) {
