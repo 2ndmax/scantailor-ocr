@@ -54,12 +54,12 @@ ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const I
   rootInteractionHandler().makeLastFollower(m_dragHandler);
   rootInteractionHandler().makeLastFollower(m_zoomHandler);
 
-  auto* rotateLeft = new QAction(nullptr);
+  auto* rotateLeft = new QAction(this);
   rotateLeft->setShortcut(QKeySequence(","));
   connect(rotateLeft, &QAction::triggered, this, &ImageView::doRotateLeft);
   addAction(rotateLeft);
 
-  auto* rotateRight = new QAction(nullptr);
+  auto* rotateRight = new QAction(this);
   rotateRight->setShortcut(QKeySequence("."));
   connect(rotateRight, &QAction::triggered, this, &ImageView::doRotateRight);
   addAction(rotateRight);
