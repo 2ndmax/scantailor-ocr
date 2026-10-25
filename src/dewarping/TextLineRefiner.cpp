@@ -205,6 +205,15 @@ TextLineRefiner::Snake TextLineRefiner::makeSnake(const std::vector<QPointF>& po
 
     baseT = nextT;
   }
+
+  // In float arithmetic, the position of the last node may come out a little beyond the
+  // length of the line, and then the loop above leaves it out. The snake must reach the end.
+  if (!snake.nodes.empty() && (pointsInserted < pointsInSnake)) {
+    SnakeNode node;
+    node.center = Vec2f(polyline.back());
+    node.ribHalfLength = 4;
+    snake.nodes.push_back(node);
+  }
   return snake;
 }  // TextLineRefiner::makeSnake
 

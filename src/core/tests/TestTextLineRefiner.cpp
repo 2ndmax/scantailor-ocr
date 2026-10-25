@@ -58,6 +58,25 @@ BOOST_AUTO_TEST_CASE(test_line_shorter_than_20_px_terminates) {
   BOOST_CHECK(allFinite(polylines.front()));
 }
 
+// The snake has to reach the end of the line. In float arithmetic the position of the last node
+// could come out a little beyond the length, and the last node was left out.
+BOOST_AUTO_TEST_CASE(test_snake_keeps_the_end_of_the_line) {
+  GrayImage image(QSize(2200, 100));
+  image.fill(255);
+  const TextLineRefiner refiner(image, Dpi(200, 200), Vec2f(0.0f, 1.0f));
+  int shortened = 0;
+  for (double length = 40.0; length < 2040.0; length += 0.73) {
+    const QPointF end(50 + length, 50);
+    std::list<std::vector<QPointF>> polylines{{QPointF(50, 50), QPointF(50 + length / 3, 50), end}};
+    refiner.refine(polylines, /*iterations=*/0, nullptr);
+    const std::vector<QPointF>& snake = polylines.front();
+    if (snake.empty() || (std::abs(snake.back().x() - end.x()) > 0.5)) {
+      ++shortened;
+    }
+  }
+  BOOST_CHECK_EQUAL(shortened, 0);
+}
+
 BOOST_AUTO_TEST_CASE(test_degenerate_lines_terminate) {
   BOOST_CHECK(refine({QPointF(50, 50)}).front().empty());
   BOOST_CHECK(refine({QPointF(50, 50), QPointF(50, 50)}).front().empty());
