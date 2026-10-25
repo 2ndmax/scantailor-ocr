@@ -125,6 +125,8 @@ class SkewFinder {
    */
   void setResolutionRatio(double ratio);
 
+  double resolutionRatio() const { return m_resolutionRatio; }
+
   /**
    * \brief Process the image and determine its skew.
    * \note If the image contains text columns at (slightly) different

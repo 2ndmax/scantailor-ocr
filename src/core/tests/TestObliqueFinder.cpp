@@ -128,5 +128,22 @@ BOOST_AUTO_TEST_CASE(oblique_angle_is_removed_from_the_page) {
   BOOST_CHECK_SMALL(bottom.x() - top.x(), 3.0);
 }
 
+// A fax scan with 200 x 100 dpi. The measured angles are physical ones; the mask turned by
+// 90 degrees has its axes swapped, so it needs the inverse resolution ratio.
+BOOST_AUTO_TEST_CASE(oblique_angle_with_unequal_dpi) {
+  const double obliqueDeg = 3.0;
+  const QImage physical(textBlock(0.0, obliqueDeg).toQImage());
+  // Twice the pixels horizontally: stretching keeps all detail, unlike squashing.
+  const BinaryImage fax(physical.scaled(2 * WIDTH, HEIGHT, Qt::IgnoreAspectRatio, Qt::FastTransformation));
+  SkewFinder skewFinder;
+  skewFinder.setResolutionRatio(200.0 / 100.0);
+  const std::optional<double> found(findObliqueDegrees(fax, skewFinder, 5.0));
+  BOOST_REQUIRE(found.has_value());
+  BOOST_TEST_MESSAGE("measured oblique " << *found);
+  BOOST_CHECK_CLOSE(std::abs(*found), obliqueDeg, 15.0);
+  // The caller's finder is left as it was.
+  BOOST_CHECK_EQUAL(skewFinder.resolutionRatio(), 2.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

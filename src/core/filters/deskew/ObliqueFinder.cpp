@@ -59,7 +59,11 @@ std::optional<double> findObliqueDegrees(const BinaryImage& mask, SkewFinder& sk
   const BinaryImage rotated = orthogonalRotation(sausage, 90);
 
   const Skew s1 = skewFinder.findSkew(mask);
+  // The turned mask has its axes swapped, so its resolution ratio is the inverse one.
+  const double resolutionRatio = skewFinder.resolutionRatio();
+  skewFinder.setResolutionRatio(1.0 / resolutionRatio);
   const Skew s2 = skewFinder.findSkew(rotated);
+  skewFinder.setResolutionRatio(resolutionRatio);
 
   if ((s1.confidence() < Skew::GOOD_CONFIDENCE) || (s2.confidence() < Skew::GOOD_CONFIDENCE)) {
     // Not enough structure in the image to tell an oblique angle from noise. Reporting no angle
@@ -68,6 +72,10 @@ std::optional<double> findObliqueDegrees(const BinaryImage& mask, SkewFinder& sk
   }
 
   // Weight angles by confidence so low-confidence skew contributes less (PR #110, zvezdochiot).
+  // REVIEW-NOTE (2026-10): angle * c / (c + 1) shrinks each angle towards zero instead of
+  // weighting it -> with confidence 2 only 67 % of the oblique angle is corrected. Not fixed
+  // because the weighting was adopted on purpose (PR #110) and a change alters every automatic
+  // oblique angle.
   const double angleHor = s1.angle() * s1.confidence() / (s1.confidence() + 1.0);
   const double angleVert = s2.angle() * s2.confidence() / (s2.confidence() + 1.0);
   double oblique = angleVert - angleHor;
