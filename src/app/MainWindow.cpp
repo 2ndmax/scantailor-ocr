@@ -2427,12 +2427,16 @@ std::vector<PageInfo> MainWindow::insertImageFile(const ImageFileInfo& file,
                                                   const BeforeOrAfter beforeOrAfter,
                                                   ImageId existing) {
   std::vector<PageInfo> inserted;
+  const auto numImages = static_cast<int>(file.imageInfo().size());
   int imageNum = -1;  // Zero-based image number in a multi-page TIFF.
   for (const ImageMetadata& metadata : file.imageInfo()) {
     ++imageNum;
 
     const int numSubPages = ProjectPages::adviseNumberOfLogicalPages(metadata, OrthogonalRotation());
-    const ImageInfo imageInfo(ImageId(file.fileInfo(), imageNum), metadata, numSubPages, false, false);
+    // Numbered like the pages of a new project; counting from 0 here made the first two
+    // pages of a multi-page file the same image and lost the last one.
+    const ImageId imageId(ImageId::ofImageInFile(file.fileInfo().absoluteFilePath(), numImages, imageNum));
+    const ImageInfo imageInfo(imageId, metadata, numSubPages, false, false);
     const std::vector<PageInfo> pages = insertImage(imageInfo, beforeOrAfter, existing);
     inserted.insert(inserted.end(), pages.begin(), pages.end());
     // The next image of a multi-page TIFF follows this one.
