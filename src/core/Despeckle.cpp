@@ -8,7 +8,10 @@
 
 #include <QDebug>
 #include <QImage>
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
+#include <limits>
 #include <unordered_map>
 
 #include "DebugImages.h"
@@ -194,14 +197,18 @@ union Distance {
 
   bool operator!=(const Distance& other) const { return raw != other.raw; }
 
+  // REVIEW-NOTE (2026-10): distance vectors are int16_t -> for padded widths above 32767 px they
+  // overflow and distances become wrong. Not fixed because such widths are far beyond normal
+  // scans; sqdist() itself uses 64-bit math.
   void reset(int x) {
     vec.x = static_cast<int16_t>(std::numeric_limits<int16_t>::max() - x);
     vec.y = 0;
   }
 
   uint32_t sqdist() const {
-    const int x = vec.x;
-    const int y = vec.y;
+    // In 64 bits: with |x| near 32767, x*x + 4*y*y leaves the int range from |y| > 16384 on.
+    const int64_t x = vec.x;
+    const int64_t y = vec.y;
     return static_cast<uint32_t>(x * x + VERTICAL_SCALE_SQ * y * y);
   }
 };
@@ -632,6 +639,9 @@ void voronoiDistances(const ConnectivityMap& cmap,
       const uint32_t label = cmapData[offset];
       assert(label != 0);
 
+      // REVIEW-NOTE (2026-10): the neighbor's seed is computed from the current pixel's position
+      // and without VERTICAL_SCALE_SQ -> component distances are off by up to one pixel. Not fixed
+      // because it is inherited from ScanTailor and changes despeckling results (see second-chance note).
       const int x1 = x + distanceData[offset].vec.x;
       const int y1 = y + distanceData[offset].vec.y;
 
@@ -646,9 +656,11 @@ void voronoiDistances(const ConnectivityMap& cmap,
 
         const int x2 = x + distanceData[nbhOffset].vec.x;
         const int y2 = y + distanceData[nbhOffset].vec.y;
-        const int dx = x1 - x2;
-        const int dy = y1 - y2;
-        const uint32_t sqdist = dx * dx + dy * dy;
+        // In 64 bits and capped: far apart seeds would wrap around to a small distance.
+        const int64_t dx = x1 - x2;
+        const int64_t dy = y1 - y2;
+        const auto sqdist
+            = static_cast<uint32_t>(std::min<int64_t>(dx * dx + dy * dy, std::numeric_limits<uint32_t>::max()));
 
         updateDistance(conns, label, nbhLabel, sqdist);
       }
@@ -704,7 +716,9 @@ void despeckleImpl(BinaryImage& image, const Settings& settings, const TaskStatu
         components[unifiedBigComponent] = components[label];
         // Set numPixels to a large value so that canBeAttachedTo()
         // always allows attaching to any such component.
-        components[unifiedBigComponent].numPixels = width * height;
+        // Capped below the tag bits, which a page of 2^30 pixels would reach.
+        components[unifiedBigComponent].numPixels
+            = static_cast<uint32_t>(std::min<uint64_t>(uint64_t(width) * uint64_t(height), ~Component::TAG_MASK));
       }
       remappingTable[label] = unifiedBigComponent;
     }
@@ -776,6 +790,11 @@ void despeckleImpl(BinaryImage& image, const Settings& settings, const TaskStatu
     // Give such components a second chance. Maybe they do have
     // big neighbors, but Voronoi regions from a smaller ones
     // block the path to the bigger ones.
+    //
+    // REVIEW-NOTE (2026-10): pixels set to specialDistance/reset() keep vectors that point nowhere
+    // -> voronoiDistances() reports ~1e9 for links to big components, so the "second chance" never
+    // attaches a small component to a big neighbor. Not fixed because it is inherited from
+    // ScanTailor and a fix changes despeckling of every page; needs a comparison test first.
 
     const Distance zeroDistance(Distance::zero());
     const Distance specialDistance(Distance::special());
