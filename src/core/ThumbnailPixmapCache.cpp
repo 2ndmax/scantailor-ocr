@@ -158,6 +158,12 @@ class ThumbnailPixmapCache::Impl : public QThread {
 
   static QImage makeThumbnail(const QImage& image, const QSize& maxThumbSize);
 
+  /**
+   * Writes \p thumbnail as PNG to \p thumbFilePath, replacing an existing file atomically.
+   * Returns false if it couldn't be written; any existing file is then left untouched.
+   */
+  static bool writeThumbnailFile(const QImage& thumbnail, const QString& thumbFilePath);
+
   void queuedToInProgress(const LoadQueue::iterator& lqIt);
 
   void postLoadResult(const LoadQueue::iterator& lqIt, const QImage& image, ThumbnailLoadResult::Status status);
@@ -476,13 +482,7 @@ void ThumbnailPixmapCache::Impl::ensureThumbnailExists(const ImageId& imageId, c
     return;
   }
 
-  const QImage thumbnail(makeThumbnail(image, maxThumbSize));
-
-  AtomicFileOverwriter overwriter;
-  QIODevice* iodev = overwriter.startWriting(thumbFilePath);
-  if (iodev && thumbnail.save(iodev, "PNG")) {
-    overwriter.commit();
-  }
+  writeThumbnailFile(makeThumbnail(image, maxThumbSize), thumbFilePath);
 }
 
 void ThumbnailPixmapCache::Impl::recreateThumbnail(const ImageId& imageId, const QImage& image) {
@@ -499,19 +499,8 @@ void ThumbnailPixmapCache::Impl::recreateThumbnail(const ImageId& imageId, const
   locker.unlock();
 
   const QString thumbFilePath(getThumbFilePath(imageId, thumbDir, maxThumbSize));
-  const QImage thumbnail(makeThumbnail(image, maxThumbSize));
-  bool thumbWritten = false;
-
   // Note that we may be called from multiple threads at the same time.
-  AtomicFileOverwriter overwriter;
-  QIODevice* iodev = overwriter.startWriting(thumbFilePath);
-  if (iodev && thumbnail.save(iodev, "PNG")) {
-    thumbWritten = overwriter.commit();
-  } else {
-    overwriter.abort();
-  }
-
-  if (!thumbWritten) {
+  if (!writeThumbnailFile(makeThumbnail(image, maxThumbSize), thumbFilePath)) {
     return;
   }
 
@@ -634,12 +623,18 @@ QImage ThumbnailPixmapCache::Impl::loadSaveThumbnail(const ImageId& imageId,
   }
 
   const QImage thumbnail(makeThumbnail(image, maxThumbSize));
+  writeThumbnailFile(thumbnail, thumbFilePath);
+  return thumbnail;
+}
+
+bool ThumbnailPixmapCache::Impl::writeThumbnailFile(const QImage& thumbnail, const QString& thumbFilePath) {
   AtomicFileOverwriter overwriter;
   QIODevice* iodev = overwriter.startWriting(thumbFilePath);
   if (iodev && thumbnail.save(iodev, "PNG")) {
-    overwriter.commit();
+    return overwriter.commit();
   }
-  return thumbnail;
+  overwriter.abort();
+  return false;
 }
 
 QString ThumbnailPixmapCache::Impl::getThumbFilePath(const ImageId& imageId,
