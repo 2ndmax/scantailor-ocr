@@ -6,6 +6,7 @@
 #include <FileNameDisambiguator.h>
 #include <ImageFileInfo.h>
 #include <ImageInfo.h>
+#include <ImageSettings.h>
 #include <OrthogonalRotation.h>
 #include <OutputFileNameGenerator.h>
 #include <PageInfo.h>
@@ -391,5 +392,19 @@ BOOST_AUTO_TEST_CASE(test_deskew_mode_disabled_round_trip) {
   const DefaultParams::DeskewParams params(0.0, MODE_DISABLED);
   const DefaultParams::DeskewParams read(params.toXml(doc, "deskew"));
   BOOST_CHECK(read.getMode() == MODE_DISABLED);
+}
+
+BOOST_AUTO_TEST_CASE(test_bw_threshold_out_of_range_falls_back) {
+  // A damaged project file must not black out or white out the page.
+  for (const char* value : {"300", "-5", "257", "-1"}) {
+    const QDomDocument doc = parse(QString("<image bwThreshold=\"%1\" blackOnWhite=\"1\"/>").arg(value));
+    const ImageSettings::PageParams params(doc.documentElement());
+    BOOST_CHECK_EQUAL(int(params.getBwThreshold()), 128);
+  }
+  for (const int value : {0, 140, 256}) {
+    const QDomDocument doc = parse(QString("<image bwThreshold=\"%1\" blackOnWhite=\"1\"/>").arg(value));
+    const ImageSettings::PageParams params(doc.documentElement());
+    BOOST_CHECK_EQUAL(int(params.getBwThreshold()), value);
+  }
 }
 BOOST_AUTO_TEST_SUITE_END()

@@ -11,12 +11,18 @@ using namespace core;
 using namespace imageproc;
 
 namespace {
-/** A missing or malformed threshold must not silently become 0, which would black out the page. */
+// Used when nothing better is known; the middle of the gray range.
+const int kDefaultBwThreshold = 128;
+
+/**
+ * A missing, malformed or out-of-range threshold must not silently be used: a value
+ * below 0 or above 256 would white out or black out the whole page.
+ */
 BinaryThreshold readBwThreshold(const QDomElement& el) {
   bool ok = false;
   const int threshold = el.attribute("bwThreshold").toInt(&ok);
-  if (!ok) {
-    return BinaryThreshold(128);
+  if (!ok || (threshold < 0) || (threshold > 256)) {
+    return BinaryThreshold(kDefaultBwThreshold);
   }
   return BinaryThreshold(threshold);
 }
@@ -57,7 +63,7 @@ std::unique_ptr<ImageSettings::PageParams> ImageSettings::getPageParams(const Pa
 
 /*=============================== ImageSettings::Params ==================================*/
 
-ImageSettings::PageParams::PageParams() : m_bwThreshold(0), m_blackOnWhite(true) {}
+ImageSettings::PageParams::PageParams() : m_bwThreshold(kDefaultBwThreshold), m_blackOnWhite(true) {}
 
 ImageSettings::PageParams::PageParams(const BinaryThreshold& bwThreshold, bool blackOnWhite)
     : m_bwThreshold(bwThreshold), m_blackOnWhite(blackOnWhite) {}
