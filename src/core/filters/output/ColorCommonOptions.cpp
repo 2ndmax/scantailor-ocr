@@ -170,7 +170,7 @@ ColorCommonOptions::PosterizationOptions::PosterizationOptions()
 
 ColorCommonOptions::PosterizationOptions::PosterizationOptions(const QDomElement& el)
     : m_isEnabled(el.attribute("enabled") == "1"),
-      m_level(el.attribute("level").toInt()),
+      m_level(el.attribute("level", "4").toInt()),
       m_isNormalizationEnabled(el.attribute("normalizationEnabled") == "1"),
       m_forceBlackAndWhite(el.attribute("forceBlackAndWhite") == "1") {}
 

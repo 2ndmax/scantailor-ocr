@@ -7,10 +7,39 @@
 #include <XmlUnmarshaller.h>
 #include <foundation/Utils.h>
 
+#include <cmath>
+
 using namespace foundation;
 
 namespace output {
-Params::Params() : m_dpi(600, 600), m_despeckleLevel(1.0), m_blackOnWhite(true) {}
+namespace {
+const double DEFAULT_DESPECKLE_LEVEL = 1.0;
+
+// ScanTailor stored the level as a word. The slider values 1 to 3 are the same levels.
+double despeckleLevelFromXml(const QString& value) {
+  if (value.isEmpty()) {
+    return DEFAULT_DESPECKLE_LEVEL;
+  }
+  bool ok = false;
+  const double level = value.toDouble(&ok);
+  if (ok && std::isfinite(level)) {
+    return level;
+  }
+  switch (despeckleLevelFromString(value)) {
+    case DESPECKLE_OFF:
+      return 0.0;
+    case DESPECKLE_CAUTIOUS:
+      return 1.0;
+    case DESPECKLE_NORMAL:
+      return 2.0;
+    case DESPECKLE_AGGRESSIVE:
+      return 3.0;
+  }
+  return DEFAULT_DESPECKLE_LEVEL;
+}
+}  // namespace
+
+Params::Params() : m_dpi(600, 600), m_despeckleLevel(DEFAULT_DESPECKLE_LEVEL), m_blackOnWhite(true) {}
 
 Params::Params(const Dpi& dpi,
                const ColorParams& colorParams,
@@ -38,7 +67,7 @@ Params::Params(const QDomElement& el)
       m_distortionModel(el.namedItem("distortion-model").toElement()),
       m_depthPerception(el.attribute("depthPerception")),
       m_dewarpingOptions(el.namedItem("dewarping-options").toElement()),
-      m_despeckleLevel(el.attribute("despeckleLevel").toDouble()),
+      m_despeckleLevel(despeckleLevelFromXml(el.attribute("despeckleLevel"))),
       m_blackOnWhite(el.attribute("blackOnWhite", "1") != "0") {}
 
 QDomElement Params::toXml(QDomDocument& doc, const QString& name) const {

@@ -30,11 +30,11 @@ BlackWhiteOptions::BlackWhiteOptions(const QDomElement& el)
       m_savitzkyGolaySmoothingEnabled(el.attribute("savitzkyGolaySmoothing") == "1"),
       m_morphologicalSmoothingEnabled(el.attribute("morphologicalSmoothing") == "1"),
       m_normalizeIllumination(el.attribute("normalizeIlluminationBW") == "1"),
-      m_windowSize(el.attribute("windowSize").toInt()),
-      m_sauvolaCoef(el.attribute("sauvolaCoef").toDouble()),
-      m_wolfLowerBound(el.attribute("wolfLowerBound").toInt()),
-      m_wolfUpperBound(el.attribute("wolfUpperBound").toInt()),
-      m_wolfCoef(el.attribute("wolfCoef").toDouble()),
+      m_windowSize(el.attribute("windowSize", "200").toInt()),
+      m_sauvolaCoef(el.attribute("sauvolaCoef", "0.34").toDouble()),
+      m_wolfLowerBound(el.attribute("wolfLowerBound", "1").toInt()),
+      m_wolfUpperBound(el.attribute("wolfUpperBound", "254").toInt()),
+      m_wolfCoef(el.attribute("wolfCoef", "0.3").toDouble()),
       m_coloredDimming(std::clamp(el.attribute("coloredDimming").toDouble(), MIN_COLORED_DIMMING, MAX_COLORED_DIMMING)),
       m_binarizationMethod(parseBinarizationMethod(el.attribute("binarizationMethod"))),
       m_colorSegmenterOptions(el.namedItem("color-segmenter-options").toElement()) {}
@@ -174,7 +174,7 @@ BlackWhiteOptions::ColorSegmenterOptions::ColorSegmenterOptions()
 
 BlackWhiteOptions::ColorSegmenterOptions::ColorSegmenterOptions(const QDomElement& el)
     : m_isEnabled(el.attribute("enabled") == "1"),
-      m_noiseReduction(el.attribute("noiseReduction").toInt()),
+      m_noiseReduction(el.attribute("noiseReduction", "7").toInt()),
       m_redThresholdAdjustment(el.attribute("redThresholdAdjustment").toInt()),
       m_greenThresholdAdjustment(el.attribute("greenThresholdAdjustment").toInt()),
       m_blueThresholdAdjustment(el.attribute("blueThresholdAdjustment").toInt()),

@@ -11,7 +11,7 @@ PictureShapeOptions::PictureShapeOptions()
 
 PictureShapeOptions::PictureShapeOptions(const QDomElement& el)
     : m_pictureShape(parsePictureShape(el.attribute("pictureShape"))),
-      m_sensitivity(el.attribute("sensitivity").toInt()),
+      m_sensitivity(el.attribute("sensitivity", "100").toInt()),
       m_higherSearchSensitivity(el.attribute("higherSearchSensitivity") == "1") {}
 
 QDomElement PictureShapeOptions::toXml(QDomDocument& doc, const QString& name) const {
