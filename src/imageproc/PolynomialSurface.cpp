@@ -57,6 +57,9 @@ PolynomialSurface::PolynomialSurface(const int horDegree, const int vertDegree, 
     DynamicMatrixCalc<double> mc;
     mc(AtA).solve(mc(Atb)).write(m_coeffs.data());
   } catch (const std::runtime_error&) {
+    // REVIEW-NOTE (2026-10): the LinearSolver rejects the normal equations -> the exception is swallowed and
+    // the coefficients stay 0, so the background surface is silently empty and the page gets no illumination
+    // compensation. Not fixed because a page without the compensation is a usable fallback.
   }
 }
 
@@ -103,6 +106,9 @@ PolynomialSurface::PolynomialSurface(const int horDegree,
     DynamicMatrixCalc<double> mc;
     mc(AtA).solve(mc(Atb)).write(m_coeffs.data());
   } catch (const std::runtime_error&) {
+    // REVIEW-NOTE (2026-10): the LinearSolver rejects the normal equations -> the exception is swallowed and
+    // the coefficients stay 0, so the background surface is silently empty and the page gets no illumination
+    // compensation. Not fixed because a page without the compensation is a usable fallback.
   }
 }
 

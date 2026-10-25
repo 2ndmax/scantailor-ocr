@@ -32,6 +32,10 @@ ZoneCreationInteraction::ZoneCreationInteraction(ZoneInteractionContext& context
   makeLastFollower(m_dragHandler);
   m_dragHandler.makeFirstFollower(m_dragWatcher);
 
+  // REVIEW-NOTE (2026-10): while a zone is drawn, this handler and the one of the editor both own the +/- shortcuts
+  // -> the keys are ambiguous and do not zoom while drawing (IA-02). Not fixed because using the editor's handler
+  // needs a design change: the editor would have to allow zooming while this interaction holds the capture, or
+  // the shortcuts would have to exist once per ImageView.
   makeLastFollower(m_zoomHandler);
 
   interaction.capture(m_interaction);
