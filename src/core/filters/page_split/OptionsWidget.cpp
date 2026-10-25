@@ -201,7 +201,10 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
 
   // While the page is still being processed, its split line isn't known yet,
   // so only the page type is stored and the page is processed again.
-  if (!m_uiDataValid || (lt == PAGE_PLUS_OFFCUT)
+  // The same from "page plus offcut" to "two pages": neither cut of that layout is a
+  // split line (one may be the image edge), so the split line is detected anew.
+  const bool fromPagePlusOffcut = m_uiDataValid && (m_uiData.pageLayout().type() == PageLayout::SINGLE_PAGE_CUT);
+  if (!m_uiDataValid || (lt == PAGE_PLUS_OFFCUT) || ((lt == TWO_PAGES) && fromPagePlusOffcut)
       || ((lt != SINGLE_PAGE_UNCUT) && (m_uiData.splitLineMode() == MODE_AUTO))) {
     m_settings->updatePage(m_pageId.imageId(), update);
     emit reloadRequested();
@@ -230,11 +233,10 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
 
 void OptionsWidget::showApplyDialog() {
   const Settings::Record record(m_settings->getPageRecord(m_pageId.imageId()));
-  if (!record.params()) {
-    return;
-  }
-
-  auto* dialog = new SplitModeDialog(this, m_pageId, m_pageSelectionAccessor, record.combinedLayoutType());
+  // The page type and the detection method can be applied before the page was processed,
+  // only the split line needs its params.
+  auto* dialog = new SplitModeDialog(this, m_pageId, m_pageSelectionAccessor, record.combinedLayoutType(),
+                                     record.params() != nullptr);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   const PageId sourcePage = m_pageId;
   connect(dialog, &SplitModeDialog::accepted, this,

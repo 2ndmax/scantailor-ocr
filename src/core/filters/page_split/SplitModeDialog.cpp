@@ -11,13 +11,15 @@ namespace page_split {
 SplitModeDialog::SplitModeDialog(QWidget* const parent,
                                  const PageId& curPage,
                                  const PageSelectionAccessor& pageSelectionAccessor,
-                                 const LayoutType layoutType)
+                                 const LayoutType layoutType,
+                                 const bool hasSplitLine)
     : QDialog(parent), m_layoutType(layoutType) {
   setupUi(this);
   scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
   // Only a page type set by hand has a split line to apply; an automatic one is detected anew.
-  if ((m_layoutType == AUTO_LAYOUT_TYPE) || (m_layoutType == SINGLE_PAGE_UNCUT)) {
+  // Before the page was processed, there is no split line yet.
+  if ((m_layoutType == AUTO_LAYOUT_TYPE) || (m_layoutType == SINGLE_PAGE_UNCUT) || !hasSplitLine) {
     applyCutOption->setChecked(false);
     applyCutOption->setEnabled(false);
   }

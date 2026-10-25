@@ -26,7 +26,8 @@ class SplitModeDialog : public QDialog, private Ui::SplitModeDialog {
   SplitModeDialog(QWidget* parent,
                   const PageId& curPage,
                   const PageSelectionAccessor& pageSelectionAccessor,
-                  LayoutType layoutType);
+                  LayoutType layoutType,
+                  bool hasSplitLine);
 
   ~SplitModeDialog() override;
 
