@@ -7,6 +7,7 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <algorithm>
 #include <functional>
 #include <utility>
 
@@ -222,26 +223,43 @@ QPointF ImageView::handlePosition(int lineIdx, int handleIdx) const {
 ImageView::CutterLimits ImageView::cutterLimits(const int lineIdx, const QRectF& validArea) const {
   CutterLimits limits{validArea.left(), validArea.right(), validArea.left(), validArea.right()};
 
+  const QLineF topEdge(validArea.topLeft(), validArea.topRight());
+  const QLineF bottomEdge(validArea.bottomLeft(), validArea.bottomRight());
+  // Where a cutter crosses the top and the bottom edge, in widget coordinates.
+  const auto crossings = [&](const int idx, QPointF& top, QPointF& bottom) {
+    const QLineF line(virtualToWidget().map(m_virtLayout.cutterLine(idx)));
+    line.intersects(topEdge, &top);
+    line.intersects(bottomEdge, &bottom);
+  };
+  QPointF ownTop;
+  QPointF ownBottom;
+  crossings(lineIdx, ownTop, ownBottom);
+  const double ownX = 0.5 * (ownTop.x() + ownBottom.x());
+  // The whole image, not only its visible part: a cutter scrolled out of view when zoomed in
+  // must not be crossed either.
+  const QRectF displayArea(virtualToWidget().mapRect(virtualDisplayRect()));
+
   // preventing intersection with other cutters
   for (int i = 0; i < m_virtLayout.numCutters(); i++) {
     if (i != lineIdx) {
       QPointF pTopI;
       QPointF pBottomI;
-      QLineF anotherLine = virtualToWidget().map(m_virtLayout.cutterLine(i));
-      anotherLine.intersects(QLineF(validArea.topLeft(), validArea.topRight()), &pTopI);
-      anotherLine.intersects(QLineF(validArea.bottomLeft(), validArea.bottomRight()), &pBottomI);
+      crossings(i, pTopI, pBottomI);
 
-      if ((pTopI.x() < limits.minXTop) || (pTopI.x() > limits.maxXTop) || (pBottomI.x() < limits.minXBottom)
-          || (pBottomI.x() > limits.maxXBottom)) {
+      if ((pTopI.x() < displayArea.left()) || (pTopI.x() > displayArea.right()) || (pBottomI.x() < displayArea.left())
+          || (pBottomI.x() > displayArea.right())) {
         continue;
       }
 
-      if (lineIdx > i) {
-        limits.minXTop = pTopI.x();
-        limits.minXBottom = pBottomI.x();
+      // The cutters have no fixed roles (see PageLayout), so left and right follow their positions.
+      const double otherX = 0.5 * (pTopI.x() + pBottomI.x());
+      const bool otherIsLeft = (otherX < ownX) || ((otherX == ownX) && (i < lineIdx));
+      if (otherIsLeft) {
+        limits.minXTop = std::max(limits.minXTop, pTopI.x());
+        limits.minXBottom = std::max(limits.minXBottom, pBottomI.x());
       } else {
-        limits.maxXTop = pTopI.x();
-        limits.maxXBottom = pBottomI.x();
+        limits.maxXTop = std::min(limits.maxXTop, pTopI.x());
+        limits.maxXBottom = std::min(limits.maxXBottom, pBottomI.x());
       }
     }
   }
