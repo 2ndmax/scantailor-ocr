@@ -19,6 +19,13 @@ class ImageId {
 
   explicit ImageId(const QFileInfo& fileInfo, int page = 0);
 
+  /**
+   * \brief The id of image \p zeroBasedIndex in a file holding \p numImagesInFile images.
+   *
+   * The images of a multi-page file count from 1, the only image of a single-image file has 0.
+   */
+  static ImageId ofImageInFile(const QString& filePath, int numImagesInFile, int zeroBasedIndex);
+
   bool isNull() const { return m_filePath.isNull(); }
 
   const QString& filePath() const { return m_filePath; }

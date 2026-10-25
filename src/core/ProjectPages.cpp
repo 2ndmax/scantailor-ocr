@@ -52,10 +52,9 @@ ProjectPages::ProjectPages(const std::vector<ImageFileInfo>& files,
     const QString& filePath = file.fileInfo().absoluteFilePath();
     const std::vector<ImageMetadata>& images = file.imageInfo();
     const auto numImages = static_cast<int>(images.size());
-    const int multiPageBase = numImages > 1 ? 1 : 0;
     for (int i = 0; i < numImages; ++i) {
       const ImageMetadata& metadata = images[i];
-      const ImageId id(filePath, multiPageBase + i);
+      const ImageId id(ImageId::ofImageInFile(filePath, numImages, i));
       m_images.emplace_back(id, metadata, pages);
     }
   }

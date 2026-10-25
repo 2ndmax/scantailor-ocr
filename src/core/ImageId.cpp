@@ -9,6 +9,11 @@ ImageId::ImageId(const QString& filePath, const int page) : m_filePath(filePath)
 
 ImageId::ImageId(const QFileInfo& fileInfo, const int page) : m_filePath(fileInfo.absoluteFilePath()), m_page(page) {}
 
+ImageId ImageId::ofImageInFile(const QString& filePath, const int numImagesInFile, const int zeroBasedIndex) {
+  const int multiPageBase = (numImagesInFile > 1) ? 1 : 0;
+  return ImageId(filePath, multiPageBase + zeroBasedIndex);
+}
+
 bool operator==(const ImageId& lhs, const ImageId& rhs) {
   return ((lhs.page() == rhs.page()) && (lhs.filePath() == rhs.filePath()));
 }
