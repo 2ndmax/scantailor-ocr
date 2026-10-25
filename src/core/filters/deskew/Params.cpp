@@ -55,6 +55,33 @@ bool Params::needsRemeasure(const Dependencies& deps) const {
   return !deps.matches(m_deps) && ((m_rotation.mode == MODE_AUTO) || (m_oblique.mode == MODE_AUTO));
 }
 
+Params Params::mergedForApply(const Params* existing,
+                              const Params& current,
+                              const bool applyDeskew,
+                              const bool applyOblique,
+                              const bool isCurrentPage,
+                              const SkewDetection defaultDetection) {
+  // Dependencies describe the image a page was computed from, so they are never transferable
+  // between pages. Keep the ones the target page already has; a page we know nothing about gets
+  // empty dependencies, which makes the task recompute (auto mode) or fill them in (manual mode).
+  // Automatic angles are measured on each page itself, deskew with the detection method applied,
+  // rather than copying the angles of the current page.
+  const bool remeasure
+      = !isCurrentPage
+        && ((applyDeskew && current.mode() == MODE_AUTO) || (applyOblique && current.obliqueMode() == MODE_AUTO));
+  const Dependencies deps(existing && !remeasure ? existing->dependencies() : Dependencies());
+  if (!existing) {
+    return Params(applyDeskew ? current.deskewAngle() : 0.0, applyOblique ? current.obliqueAngle() : 0.0, deps,
+                  applyDeskew ? current.mode() : MODE_AUTO, applyOblique ? current.obliqueMode() : MODE_AUTO,
+                  applyDeskew ? current.detection() : defaultDetection);
+  }
+  return Params(applyDeskew ? current.deskewAngle() : existing->deskewAngle(),
+                applyOblique ? current.obliqueAngle() : existing->obliqueAngle(), deps,
+                applyDeskew ? current.mode() : existing->mode(),
+                applyOblique ? current.obliqueMode() : existing->obliqueMode(),
+                applyDeskew ? current.detection() : existing->detection());
+}
+
 QDomElement Params::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
   el.setAttribute("mode", m_rotation.mode == MODE_AUTO ? "auto" : "manual");

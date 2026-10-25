@@ -78,6 +78,23 @@ class Params {
    */
   bool needsRemeasure(const Dependencies& deps) const;
 
+  /**
+   * \brief The parameters of a page after "Apply to..." from the current page.
+   *
+   * \param existing The parameters the page has, or null if it has none yet.
+   * \param current The parameters of the current page; its dependencies are not used.
+   * \param applyDeskew, applyOblique Which of the two angles (with mode) are applied.
+   * \param isCurrentPage Whether the page is the current page itself.
+   * \param defaultDetection The detection method of a page without parameters when only
+   *        the oblique angle is applied.
+   */
+  static Params mergedForApply(const Params* existing,
+                               const Params& current,
+                               bool applyDeskew,
+                               bool applyOblique,
+                               bool isCurrentPage,
+                               SkewDetection defaultDetection);
+
   QDomElement toXml(QDomDocument& doc, const QString& name) const;
 
  private:

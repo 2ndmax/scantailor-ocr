@@ -15,36 +15,6 @@
 #include "Settings.h"
 
 namespace deskew {
-namespace {
-
-Params mergeParamsForApply(const std::unique_ptr<Params>& existing,
-                           const OptionsWidget::UiData& cur,
-                           const bool applyDeskew,
-                           const bool applyOblique,
-                           const bool isCurrentPage,
-                           const SkewDetection defaultDetection) {
-  // Dependencies describe the image a page was computed from, so they are never transferable
-  // between pages. Keep the ones the target page already has; a page we know nothing about gets
-  // empty dependencies, which makes the task recompute (auto mode) or fill them in (manual mode).
-  // Automatic angles are measured on each page itself, deskew with the detection method applied,
-  // rather than copying the angles of the current page.
-  const bool remeasure
-      = !isCurrentPage
-        && ((applyDeskew && cur.mode() == MODE_AUTO) || (applyOblique && cur.obliqueMode() == MODE_AUTO));
-  const Dependencies deps(existing && !remeasure ? existing->dependencies() : Dependencies());
-  if (!existing) {
-    return Params(applyDeskew ? cur.effectiveDeskewAngle() : 0.0, applyOblique ? cur.effectiveObliqueAngle() : 0.0,
-                  deps, applyDeskew ? cur.mode() : MODE_AUTO, applyOblique ? cur.obliqueMode() : MODE_AUTO,
-                  applyDeskew ? cur.detection() : defaultDetection);
-  }
-  return Params(applyDeskew ? cur.effectiveDeskewAngle() : existing->deskewAngle(),
-                applyOblique ? cur.effectiveObliqueAngle() : existing->obliqueAngle(), deps,
-                applyDeskew ? cur.mode() : existing->mode(), applyOblique ? cur.obliqueMode() : existing->obliqueMode(),
-                applyDeskew ? cur.detection() : existing->detection());
-}
-
-}  // namespace
-
 const double OptionsWidget::MAX_ANGLE = 45.0;
 
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
@@ -100,10 +70,12 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDes
     return;
   }
 
+  const Params current(m_uiData.effectiveDeskewAngle(), m_uiData.effectiveObliqueAngle(), m_uiData.dependencies(),
+                       m_uiData.mode(), m_uiData.obliqueMode(), m_uiData.detection());
   for (const PageId& pageId : pages) {
     std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
-    const Params merged(mergeParamsForApply(existing, m_uiData, applyDeskew, applyOblique, pageId == m_pageId,
-                                            m_defaultParams->getDeskewParams().getDetection()));
+    const Params merged(Params::mergedForApply(existing.get(), current, applyDeskew, applyOblique, pageId == m_pageId,
+                                               m_defaultParams->getDeskewParams().getDetection()));
     m_settings->setPageParams(pageId, merged);
     if (applyOblique) {
       // The applied oblique mode wins over one the page still had pending.
