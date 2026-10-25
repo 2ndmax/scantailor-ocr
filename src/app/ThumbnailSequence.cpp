@@ -288,7 +288,8 @@ class ThumbnailSequence::Impl::ViewportRubberBandFilter : public QObject {
  private:
   Impl* m_impl;
   QPointer<QGraphicsView> m_view;  // Null once the view is gone.
-  QRubberBand m_rubberBand;
+  // The viewport owns the rubber band (Qt parent); the filter only deletes it if it outlives the filter.
+  QPointer<QRubberBand> m_rubberBand;
   QPoint m_origin;
   bool m_active = false;
 };
@@ -1865,7 +1866,7 @@ void ThumbnailSequence::CompositeItem::contextMenuEvent(QGraphicsSceneContextMen
 }
 
 ThumbnailSequence::Impl::ViewportRubberBandFilter::ViewportRubberBandFilter(Impl* impl, QGraphicsView* view)
-    : QObject(), m_impl(impl), m_view(view), m_rubberBand(QRubberBand::Rectangle, view->viewport()) {
+    : QObject(), m_impl(impl), m_view(view), m_rubberBand(new QRubberBand(QRubberBand::Rectangle, view->viewport())) {
   // No QObject parent: Impl owns the filter, and a second owner would delete it twice.
   view->viewport()->installEventFilter(this);
 }
@@ -1874,10 +1875,11 @@ ThumbnailSequence::Impl::ViewportRubberBandFilter::~ViewportRubberBandFilter() {
   if (m_view) {
     m_view->viewport()->removeEventFilter(this);
   }
+  delete m_rubberBand;  // Null if the viewport has deleted it already.
 }
 
 bool ThumbnailSequence::Impl::ViewportRubberBandFilter::eventFilter(QObject* watched, QEvent* event) {
-  if (!m_view || watched != m_view->viewport()) {
+  if (!m_view || !m_rubberBand || watched != m_view->viewport()) {
     return QObject::eventFilter(watched, event);
   }
 
@@ -1893,8 +1895,8 @@ bool ThumbnailSequence::Impl::ViewportRubberBandFilter::eventFilter(QObject* wat
       }
       m_origin = me->pos();
       m_active = true;
-      m_rubberBand.setGeometry(QRect(m_origin, QSize()));
-      m_rubberBand.show();
+      m_rubberBand->setGeometry(QRect(m_origin, QSize()));
+      m_rubberBand->show();
       return true;
     }
     case QEvent::MouseMove: {
@@ -1902,7 +1904,7 @@ bool ThumbnailSequence::Impl::ViewportRubberBandFilter::eventFilter(QObject* wat
         return false;
       }
       auto* const me = static_cast<QMouseEvent*>(event);
-      m_rubberBand.setGeometry(QRect(m_origin, me->pos()).normalized());
+      m_rubberBand->setGeometry(QRect(m_origin, me->pos()).normalized());
       return true;
     }
     case QEvent::MouseButtonRelease: {
@@ -1911,8 +1913,8 @@ bool ThumbnailSequence::Impl::ViewportRubberBandFilter::eventFilter(QObject* wat
         return false;
       }
       m_active = false;
-      m_rubberBand.hide();
-      const QRect r(m_rubberBand.geometry().normalized());
+      m_rubberBand->hide();
+      const QRect r(m_rubberBand->geometry().normalized());
       if (r.width() > 3 && r.height() > 3) {
         const QRectF sceneRect(m_view->mapToScene(r).boundingRect());
         m_impl->extendSelectionBySceneRect(sceneRect);
