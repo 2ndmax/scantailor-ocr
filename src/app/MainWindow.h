@@ -420,7 +420,10 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   /** Imports the scans that arrived while the project couldn't be changed. */
   void importDeferredScans();
 
-  /** Whether scans can be added right now, i.e. no batch processing and no PDF is being created. */
+  /**
+   * Whether scans can be added right now: no batch processing, no PDF step, no other scan being imported
+   * and no open question about canceling a multi-page selection.
+   */
   bool canImportScansNow() const;
 
   void removeFromProject(const std::set<PageId>& pages);
@@ -493,8 +496,10 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::unique_ptr<ScanFolderWatcher> m_scanWatcher;
   /** The folder shown in the panel, watched while importing is on. */
   QString m_importDir;
-  /** Scans that arrived during batch processing or while a PDF was being created. */
+  /** Scans that arrived while they couldn't be imported (see canImportScansNow()), in their order. */
   std::vector<ImageFileInfo> m_deferredScans;
+  /** Whether importScan() is running; its questions run a nested event loop in which more scans may arrive. */
+  bool m_importingScan = false;
   int m_scansWithoutDpi = 0;
   AutoImportPanel::Mode m_importMode = AutoImportPanel::APPEND;
   ScanInsertionAnchor m_insertAnchor;

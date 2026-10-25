@@ -270,6 +270,7 @@ class ThumbnailSequence::Impl {
   GraphicsScene m_graphicsScene;
   QRectF m_sceneRect;
   bool m_selectionMode;
+  bool m_selectionQuestionOpen = false;
   std::optional<PreReorderNeighbours> m_preReorderNeighbours;
 
   std::unique_ptr<ViewportRubberBandFilter> m_rubberBandFilter;
@@ -491,6 +492,10 @@ ThumbnailSequence::ViewMode ThumbnailSequence::getViewMode() const {
 
 void ThumbnailSequence::setViewMode(ThumbnailSequence::ViewMode mode) {
   m_impl->setViewMode(mode);
+}
+
+bool ThumbnailSequence::isSelectionQuestionOpen() const {
+  return m_impl->m_selectionQuestionOpen;
 }
 
 void ThumbnailSequence::setSelectionModeEnabled(bool enabled) {
@@ -848,7 +853,11 @@ bool ThumbnailSequence::Impl::cancelingSelectionAccepted() {
         appSettings.setCancelingSelectionQuestionEnabled(false);
       }
     });
-    if (msgBox.exec() != QMessageBox::Ok) {
+    m_selectionQuestionOpen = true;
+    const int answer = msgBox.exec();
+    m_selectionQuestionOpen = false;
+    emit m_owner.selectionQuestionClosed();
+    if (answer != QMessageBox::Ok) {
       return false;
     }
   }

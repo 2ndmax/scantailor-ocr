@@ -18,11 +18,13 @@
 #include <QProcess>
 #include <QProgressDialog>
 #include <QResource>
+#include <QScopeGuard>
 #include <QScrollBar>
 #include <QSet>
 #include <QSortFilterProxyModel>
 #include <QStackedLayout>
 #include <QThread>
+#include <QTimer>
 #include <QToolTip>
 #include <QtWidgets/QInputDialog>
 #include <map>
@@ -293,6 +295,9 @@ MainWindow::MainWindow()
           &MainWindow::pageContextMenuRequested);
   connect(m_thumbSequence.get(), &ThumbnailSequence::pastLastPageContextMenuRequested, this,
           &MainWindow::pastLastPageContextMenuRequested);
+  // Scans that arrived while the question was open; later, as the answer may still be handled.
+  connect(m_thumbSequence.get(), &ThumbnailSequence::selectionQuestionClosed, this,
+          [this]() { QTimer::singleShot(0, this, [this]() { importDeferredScans(); }); });
   connect(selectionModeBtn, &QAbstractButton::clicked, m_thumbSequence.get(),
           &ThumbnailSequence::setSelectionModeEnabled);
 
@@ -2748,15 +2753,16 @@ void MainWindow::changeAutoImportDirectory() {
 bool MainWindow::canImportScansNow() const {
   // In the "Create PDF" step the page list shown there would go stale (a replaced page even
   // loses its output files), so new scans wait until the step is left.
-  return !isBatchProcessingInProgress() && !m_pdfStage && !(m_pdfView && m_pdfView->isRunning());
+  // While a scan is imported or the question about canceling a multi-page selection is open, a nested
+  // event loop runs; a scan imported in it would change the project before the first one is saved.
+  return !isBatchProcessingInProgress() && !m_pdfStage && !(m_pdfView && m_pdfView->isRunning()) && !m_importingScan
+         && !m_thumbSequence->isSelectionQuestionOpen();
 }
 
 void MainWindow::scanReady(const ImageFileInfo& file) {
-  if (canImportScansNow()) {
-    importScan(file);
-  } else {
-    m_deferredScans.push_back(file);
-  }
+  // Behind the scans that are already waiting, so all of them are imported in the order they arrived.
+  m_deferredScans.push_back(file);
+  importDeferredScans();
 }
 
 void MainWindow::importScan(const ImageFileInfo& scan) {
@@ -2764,6 +2770,8 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
   if (isImageInProject(scan.fileInfo().absoluteFilePath())) {
     return;
   }
+  m_importingScan = true;
+  const auto importFinished = qScopeGuard([this]() { m_importingScan = false; });
 
   ImageFileInfo file(scan);
   BeforeOrAfter beforeOrAfter = BEFORE;
@@ -2854,12 +2862,11 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
 }
 
 void MainWindow::importDeferredScans() {
-  if (m_deferredScans.empty() || !canImportScansNow()) {
-    return;
-  }
-  std::vector<ImageFileInfo> scans;
-  scans.swap(m_deferredScans);
-  for (const ImageFileInfo& file : scans) {
+  // One at a time: a scan arriving during an import waits behind the others, and if importing
+  // becomes impossible in between, the rest waits.
+  while (!m_deferredScans.empty() && canImportScansNow()) {
+    const ImageFileInfo file = m_deferredScans.front();
+    m_deferredScans.erase(m_deferredScans.begin());
     importScan(file);
   }
 }

@@ -239,6 +239,9 @@ class ThumbnailSequence : public QObject {
 
   void setViewMode(ViewMode mode);
 
+  /** Whether the question about canceling a multi-page selection is open (a nested event loop runs). */
+  bool isSelectionQuestionOpen() const;
+
  public slots:
   void setSelectionModeEnabled(bool enabled);
 
@@ -257,6 +260,9 @@ class ThumbnailSequence : public QObject {
    * below the last page.
    */
   void pastLastPageContextMenuRequested(const QPoint& screenPos);
+
+  /** Emitted when the question about canceling a multi-page selection has been answered. */
+  void selectionQuestionClosed();
 
  private:
   class Item;
