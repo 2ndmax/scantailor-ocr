@@ -341,8 +341,8 @@ BOOST_AUTO_TEST_CASE(test_jbig2_round_trip) {
   checkRoundTrip(gray);
 }
 
-BOOST_AUTO_TEST_CASE(test_jbig2_output_in_several_chunks) {
-  // The encoder writes into chunks of 20 KiB; noise compresses badly, so it takes several.
+BOOST_AUTO_TEST_CASE(test_jbig2_large_output) {
+  // Noise compresses badly, so the coded output grows to well over 60 KiB.
   QImage noise = makeMono(1200, 800);
   uint32_t seed = 4711u;
   for (int y = 0; y < noise.height(); ++y) {
@@ -365,8 +365,8 @@ BOOST_AUTO_TEST_CASE(test_jbig2_bitimage_without_pixels) {
   jbig2enc_bitimage(&ctx, nullptr, 5, 0, true);
   jbig2enc_final(&ctx);
   BOOST_CHECK_GT(jbig2enc_datasize(&ctx), 0u);
-  jbig2enc_dealloc(&ctx);
 }
+
 BOOST_AUTO_TEST_CASE(test_jbig2_colour_table) {
   // The colour table decides which pixels are black, not the bit values.
   const QImage original = makePattern(97, 41, 7u);

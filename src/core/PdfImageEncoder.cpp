@@ -220,20 +220,6 @@ void appendSegmentHeader(QByteArray& out, const uint32_t number, const int type,
   appendU32(out, dataLength);
 }
 
-class Jbig2Context {
-  DECLARE_NON_COPYABLE(Jbig2Context)
-
- public:
-  Jbig2Context() : m_ctx(std::make_unique<jbig2enc_ctx>()) { jbig2enc_init(m_ctx.get()); }
-
-  ~Jbig2Context() { jbig2enc_dealloc(m_ctx.get()); }
-
-  jbig2enc_ctx* get() { return m_ctx.get(); }
-
- private:
-  // About 64 KiB, too much for the stack.
-  std::unique_ptr<jbig2enc_ctx> m_ctx;
-};
 }  // namespace
 
 bool PdfImageEncoder::isBitonal(const QImage& image) {
@@ -506,7 +492,9 @@ QByteArray PdfImageEncoder::encodeJbig2(const QImage& image) {
 
   QByteArray coded;
   {
-    Jbig2Context ctx;
+    // The context holds about 64 KiB, too much for the stack.
+    const auto ctx = std::make_unique<jbig2enc_ctx>();
+    jbig2enc_init(ctx.get());
     // Typical prediction (TPGDON) skips rows that repeat the previous one, like blank lines.
     jbig2enc_bitimage(ctx.get(), reinterpret_cast<const uint8_t*>(words.data()), width, height, true);
     jbig2enc_final(ctx.get());

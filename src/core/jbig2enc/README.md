@@ -19,10 +19,13 @@ Changes made for ScanTailor OCR (2026):
 * The state table `ctbl` is `static const`.
 * Renamed `jbig2arith.cc` to `jbig2arith.cpp`.
 * Comments that described the removed parts or the data layout unclearly were
-  corrected, and the macro `JBIG2_OUTPUTBUFFER_SIZE` got parentheses.
-* `jbig2enc_init()` and `emit()` throw `std::bad_alloc` when `malloc` fails
-  instead of writing to a null pointer; `jbig2enc_bitimage()` encodes nothing
-  for an image without pixels.
+  corrected.
+* The coded bytes go into one `std::vector<uint8_t>` (`jbig2enc_ctx::output`)
+  instead of a list of 20 KiB chunks from `malloc`. This removes
+  `JBIG2_OUTPUTBUFFER_SIZE` and `jbig2enc_dealloc()`: the context frees its
+  memory when it is destroyed, and running out of memory throws
+  `std::bad_alloc` instead of writing to a null pointer.
+* `jbig2enc_bitimage()` encodes nothing for an image without pixels.
 * Removed the debug branches `TRACE`, `CODER_DEBUGGING` and `SURPRISE_MAP`.
   `BRANCH_OPT` stays: with GCC and Clang it turns `likely`/`unlikely` into
   `__builtin_expect`.

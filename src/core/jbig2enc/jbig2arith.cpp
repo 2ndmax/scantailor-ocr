@@ -22,11 +22,9 @@
 
 #include "jbig2arith.h"
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include <new>
+#include <algorithm>
 
 #define u64 uint64_t
 #define u32 uint32_t
@@ -139,42 +137,14 @@ void jbig2enc_init(struct jbig2enc_ctx* ctx) {
   ctx->ct = 12;
   ctx->bp = -1;
   ctx->b = 0;
-  ctx->outbuf_used = 0;
-  // The vector first: if new throws, nothing has been allocated yet.
-  ctx->output_chunks = new std::vector<uint8_t*>;
-  ctx->outbuf = (u8*) malloc(JBIG2_OUTPUTBUFFER_SIZE);
-  if (!ctx->outbuf) {
-    // Out of memory: reported like everywhere else in C++, not written to a null pointer.
-    delete ctx->output_chunks;
-    throw std::bad_alloc();
-  }
-}
-
-// see comments in .h file
-void jbig2enc_dealloc(struct jbig2enc_ctx* ctx) {
-  for (std::vector<uint8_t*>::iterator i = ctx->output_chunks->begin(); i != ctx->output_chunks->end(); ++i) {
-    free(*i);
-  }
-  delete ctx->output_chunks;
-  free(ctx->outbuf);
+  ctx->output.clear();
 }
 
 // -----------------------------------------------------------------------------
-// Emit a byte from the compressor by appending to the current output buffer.
-// If the buffer is full, allocate a new one
+// Emit a byte from the compressor by appending it to the output.
 // -----------------------------------------------------------------------------
 static void inline emit(struct jbig2enc_ctx* restrict ctx) {
-  if (unlikely(ctx->outbuf_used == JBIG2_OUTPUTBUFFER_SIZE)) {
-    ctx->output_chunks->push_back(ctx->outbuf);
-    ctx->outbuf = (u8*) malloc(JBIG2_OUTPUTBUFFER_SIZE);
-    ctx->outbuf_used = 0;
-    if (!ctx->outbuf) {
-      // The full chunk is in output_chunks, so jbig2enc_dealloc() frees it.
-      throw std::bad_alloc();
-    }
-  }
-
-  ctx->outbuf[ctx->outbuf_used++] = ctx->b;
+  ctx->output.push_back(ctx->b);
 }
 
 // -----------------------------------------------------------------------------
@@ -288,18 +258,12 @@ void jbig2enc_final(struct jbig2enc_ctx* restrict ctx) {
 
 // see comments in .h file
 unsigned jbig2enc_datasize(const struct jbig2enc_ctx* ctx) {
-  return JBIG2_OUTPUTBUFFER_SIZE * ctx->output_chunks->size() + ctx->outbuf_used;
+  return static_cast<unsigned>(ctx->output.size());
 }
 
 // see comments in .h file
 void jbig2enc_tobuffer(const struct jbig2enc_ctx* restrict ctx, u8* restrict buffer) {
-  int j = 0;
-  for (std::vector<u8*>::const_iterator i = ctx->output_chunks->begin(); i != ctx->output_chunks->end(); ++i) {
-    memcpy(&buffer[j], *i, JBIG2_OUTPUTBUFFER_SIZE);
-    j += JBIG2_OUTPUTBUFFER_SIZE;
-  }
-
-  memcpy(&buffer[j], ctx->outbuf, ctx->outbuf_used);
+  std::copy(ctx->output.begin(), ctx->output.end(), buffer);
 }
 
 // This is the context used for the TPGD bits

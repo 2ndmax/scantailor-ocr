@@ -27,15 +27,13 @@
 #include <vector>
 
 #define JBIG2_MAX_CTX 65536
-#define JBIG2_OUTPUTBUFFER_SIZE (20 * 1024)
 
 // -----------------------------------------------------------------------------
 // This is the context for the arithmetic encoder used in JBIG2. The coder is a
 // state machine; only the states for coding generic region images are kept
 // here (see README.md).
 //
-// When outputting data, the bytes are collected into chunks of size
-// JBIG2_OUTPUTBUFFER_SIZE. The full ones are kept in a vector.
+// The coded bytes are appended to a vector.
 // -----------------------------------------------------------------------------
 struct jbig2enc_ctx {
   // these are the current state of the arithmetic coder
@@ -44,10 +42,7 @@ struct jbig2enc_ctx {
   uint8_t ct, b;
   int bp;
 
-  // This is a list of output chunks, not including the current one
-  std::vector<uint8_t*>* output_chunks;
-  uint8_t* outbuf;                 // this is the current output chunk
-  int outbuf_used;                 // number of bytes used in outbuf
+  std::vector<uint8_t> output;     // the coded bytes so far
   uint8_t context[JBIG2_MAX_CTX];  // state machine context for encoding images
 };
 
@@ -83,14 +78,10 @@ void jbig2enc_tobuffer(const struct jbig2enc_ctx* ctx, uint8_t* buffer);
 void jbig2enc_bitimage(struct jbig2enc_ctx* ctx, const uint8_t* data, int mx, int my, bool duplicate_line_removal);
 
 // -----------------------------------------------------------------------------
-// Init a new context. Throws std::bad_alloc if memory runs out.
+// Init a new context or reset a used one. The context frees its memory
+// itself when it is destroyed.
 // -----------------------------------------------------------------------------
 void jbig2enc_init(struct jbig2enc_ctx* ctx);
-
-// -----------------------------------------------------------------------------
-// Destroy a context
-// -----------------------------------------------------------------------------
-void jbig2enc_dealloc(struct jbig2enc_ctx* ctx);
 
 // -----------------------------------------------------------------------------
 // Flush any remaining arithmetic encoder context to the output.
