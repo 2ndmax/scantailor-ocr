@@ -20,6 +20,8 @@
 // Fixes: the windows of grayMapMean (as in imageproc/ExperimentalBinarization.cpp) and
 // grayEMDenoiserInPlace were one row or column too small, and grayBiModalTiledMap
 // extrapolated at the top and left edges.
+// Speed: grayMapMax and grayMapContrast use imageproc's erodeGray and dilateGray, which give the
+// same result in O(1) instead of O(radius) per pixel.
 
 #include "ExpGrayImage.h"
 #include <algorithm>
@@ -29,6 +31,7 @@
 #include <vector>
 #include "ExpBinarize.h"
 #include "Grayscale.h"
+#include "Morphology.h"
 #include "Scale.h"
 
 namespace imageproc {
@@ -160,152 +163,48 @@ GrayImage grayMapDeviation(GrayImage const& src, int const radius) {
   return gray;
 }  // grayMapDeviation
 
+namespace {
+// The window around each pixel. Pixels outside the image are 0 for the maximum and 255 for the
+// minimum, so they never win.
+Brick windowOfRadius(int const radius) {
+  return Brick(-radius, -radius, radius, radius);
+}
+}  // namespace
+
 GrayImage grayMapMax(GrayImage const& src, int const radius) {
   if (src.isNull()) {
     return GrayImage();
   }
-  GrayImage gray = GrayImage(src);
-  if (gray.isNull()) {
-    return GrayImage();
+  if (radius <= 0) {
+    return GrayImage(src);
   }
-
-  if (radius > 0) {
-    GrayImage gmax = GrayImage(src);
-    if (gmax.isNull()) {
-      return gray;
-    }
-    int const w = src.width();
-    int const h = src.height();
-    unsigned char* gray_line = gray.data();
-    int const gray_stride = gray.stride();
-    unsigned char* gmax_line = gmax.data();
-
-    for (int y = 0; y < h; y++) {
-      for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-
-        unsigned char const origin = gray_line[x];
-        unsigned char immax = origin;
-        for (int xf = left; xf < right; xf++) {
-          unsigned char imf = gray_line[xf];
-          if (imf > immax) {
-            immax = imf;
-          }
-        }
-        gmax_line[x] = immax;
-      }
-      gray_line += gray_stride;
-      gmax_line += gray_stride;
-    }
-
-    gmax_line = gmax.data();
-    gray_line = gray.data();
-    for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
-
-      for (int x = 0; x < w; x++) {
-        unsigned char const origin = gray_line[x];
-        unsigned char immax = origin;
-        unsigned long int idx = top * gray_stride + x;
-        for (int yf = top; yf < bottom; yf++) {
-          unsigned char immaxf = gmax_line[idx];
-          if (immaxf > immax) {
-            immax = immaxf;
-          }
-          idx += gray_stride;
-        }
-        gray_line[x] = immax;
-      }
-      gray_line += gray_stride;
-    }
-  }
-
-  return gray;
+  // erodeGray spreads the lighter pixels, i.e. takes the maximum.
+  return erodeGray(src, windowOfRadius(radius), 0x00);
 }  // grayMapMax
 
 GrayImage grayMapContrast(GrayImage const& src, int const radius) {
   if (src.isNull()) {
     return GrayImage();
   }
-  GrayImage gray = GrayImage(src);
-  if (gray.isNull()) {
-    return GrayImage();
+  if (radius <= 0) {
+    return GrayImage(src);
   }
-
-  if (radius > 0) {
-    GrayImage gmax = GrayImage(src);
-    if (gmax.isNull()) {
-      return gray;
+  // erodeGray takes the maximum, dilateGray the minimum.
+  GrayImage gray = erodeGray(src, windowOfRadius(radius), 0x00);
+  GrayImage const gmin = dilateGray(src, windowOfRadius(radius), 0xff);
+  int const w = gray.width();
+  int const h = gray.height();
+  unsigned char* gray_line = gray.data();
+  int const gray_stride = gray.stride();
+  unsigned char const* gmin_line = gmin.data();
+  int const gmin_stride = gmin.stride();
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      gray_line[x] = static_cast<unsigned char>(gray_line[x] - gmin_line[x]);
     }
-    GrayImage gmin = GrayImage(src);
-    if (gmin.isNull()) {
-      return gray;
-    }
-    int const w = src.width();
-    int const h = src.height();
-    unsigned char* gray_line = gray.data();
-    int const gray_stride = gray.stride();
-    unsigned char* gmax_line = gmax.data();
-    unsigned char* gmin_line = gmin.data();
-
-    for (int y = 0; y < h; y++) {
-      for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-
-        unsigned char const origin = gray_line[x];
-        unsigned char immin = origin;
-        unsigned char immax = origin;
-        for (int xf = left; xf < right; xf++) {
-          unsigned char imf = gray_line[xf];
-          if (imf > immax) {
-            immax = imf;
-          }
-          if (imf < immin) {
-            immin = imf;
-          }
-        }
-        gmax_line[x] = immax;
-        gmin_line[x] = immin;
-      }
-      gray_line += gray_stride;
-      gmax_line += gray_stride;
-      gmin_line += gray_stride;
-    }
-
-    gmax_line = gmax.data();
-    gmin_line = gmin.data();
-    gray_line = gray.data();
-    for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
-
-      for (int x = 0; x < w; x++) {
-        unsigned char const origin = gray_line[x];
-        unsigned char immin = origin;
-        unsigned char immax = origin;
-        unsigned long int idx = top * gray_stride + x;
-        for (int yf = top; yf < bottom; yf++) {
-          unsigned char immaxf = gmax_line[idx];
-          unsigned char imminf = gmin_line[idx];
-          if (immaxf > immax) {
-            immax = immaxf;
-          }
-          if (imminf < immin) {
-            immin = imminf;
-          }
-          idx += gray_stride;
-        }
-        unsigned char threshold = (immax - immin);
-
-        gray_line[x] = threshold;
-      }
-      gray_line += gray_stride;
-    }
+    gray_line += gray_stride;
+    gmin_line += gmin_stride;
   }
-
   return gray;
 }  // grayMapContrast
 
