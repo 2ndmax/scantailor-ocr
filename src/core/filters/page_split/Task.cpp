@@ -5,8 +5,6 @@
 
 #include <UnitsProvider.h>
 
-#include <QPainterPath>
-
 #include <utility>
 
 #include "DebugImagesImpl.h"
@@ -21,26 +19,11 @@
 #include "ProjectPages.h"
 #include "Settings.h"
 #include "TaskStatus.h"
+#include "Utils.h"
 #include "filters/deskew/Task.h"
 
 namespace page_split {
 using imageproc::BinaryThreshold;
-
-static QPolygonF intersectPreCropWithPageOutline(const QPolygonF& pageOutlinePoly, const QPolygonF& incomingPreCrop) {
-  QPainterPath pathPage;
-  pathPage.addPolygon(pageOutlinePoly);
-  QPainterPath pathIncoming;
-  pathIncoming.addPolygon(incomingPreCrop);
-  const QPainterPath intersection = pathPage.intersected(pathIncoming);
-  if (intersection.isEmpty()) {
-    return pageOutlinePoly;
-  }
-  const QPolygonF clipped = intersection.toFillPolygon();
-  if (clipped.isEmpty()) {
-    return pageOutlinePoly;
-  }
-  return clipped;
-}
 
 class Task::UiUpdater : public FilterResult {
  public:
@@ -69,19 +52,6 @@ class Task::UiUpdater : public FilterResult {
   bool m_batchProcessing;
 };
 
-
-static ProjectPages::LayoutType toPageLayoutType(const PageLayout& layout) {
-  switch (layout.type()) {
-    case PageLayout::SINGLE_PAGE_UNCUT:
-    case PageLayout::SINGLE_PAGE_CUT:
-      return ProjectPages::ONE_PAGE_LAYOUT;
-    case PageLayout::TWO_PAGES:
-      return ProjectPages::TWO_PAGE_LAYOUT;
-  }
-
-  assert(!"Unreachable");
-  return ProjectPages::ONE_PAGE_LAYOUT;
-}
 
 Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<Settings> settings,
@@ -190,7 +160,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
   uiData.setPageLayout(layout);
   uiData.setSplitLineMode(record.params()->splitLineMode());
 
-  m_pages->setLayoutTypeFor(m_pageInfo.imageId(), toPageLayoutType(layout));
+  m_pages->setLayoutTypeFor(m_pageInfo.imageId(), Utils::toPageLayoutType(layout));
 
   if (m_nextTask != nullptr) {
     ImageTransformation newXform(data.xform());
@@ -198,7 +168,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
     // image is passed on -> one run may process the full image for a page that is about to vanish. Not fixed because
     // the page list is corrected right after and a reschedule needs pipeline changes.
     const QPolygonF pagePoly(layout.pageOutline(m_pageInfo.id().subPage()).toPolygon());
-    const QPolygonF merged(intersectPreCropWithPageOutline(pagePoly, newXform.preCropArea()));
+    const QPolygonF merged(Utils::intersectPreCropWithPageOutline(pagePoly, newXform.preCropArea()));
     newXform.setPreCropArea(merged);
     return m_nextTask->process(status, FilterData(data, newXform));
   }

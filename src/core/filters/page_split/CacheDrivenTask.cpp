@@ -3,8 +3,6 @@
 
 #include "CacheDrivenTask.h"
 
-#include <QPainterPath>
-
 #include <utility>
 
 #include "IncompleteThumbnail.h"
@@ -13,27 +11,12 @@
 #include "ProjectPages.h"
 #include "Settings.h"
 #include "Thumbnail.h"
+#include "Utils.h"
 #include "core/AbstractFilterDataCollector.h"
 #include "core/ThumbnailCollector.h"
 #include "filters/deskew/CacheDrivenTask.h"
 
 namespace page_split {
-
-static QPolygonF intersectPreCropWithPageOutline(const QPolygonF& pageOutlinePoly, const QPolygonF& incomingPreCrop) {
-  QPainterPath pathPage;
-  pathPage.addPolygon(pageOutlinePoly);
-  QPainterPath pathIncoming;
-  pathIncoming.addPolygon(incomingPreCrop);
-  const QPainterPath intersection = pathPage.intersected(pathIncoming);
-  if (intersection.isEmpty()) {
-    return pageOutlinePoly;
-  }
-  const QPolygonF clipped = intersection.toFillPolygon();
-  if (clipped.isEmpty()) {
-    return pageOutlinePoly;
-  }
-  return clipped;
-}
 
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,
                                  std::shared_ptr<ProjectPages> projectPages,
@@ -41,19 +24,6 @@ CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,
     : m_nextTask(std::move(nextTask)), m_settings(std::move(settings)), m_projectPages(std::move(projectPages)) {}
 
 CacheDrivenTask::~CacheDrivenTask() = default;
-
-static ProjectPages::LayoutType toPageLayoutType(const PageLayout& layout) {
-  switch (layout.type()) {
-    case PageLayout::SINGLE_PAGE_UNCUT:
-    case PageLayout::SINGLE_PAGE_CUT:
-      return ProjectPages::ONE_PAGE_LAYOUT;
-    case PageLayout::TWO_PAGES:
-      return ProjectPages::TWO_PAGE_LAYOUT;
-  }
-
-  assert(!"Unreachable");
-  return ProjectPages::ONE_PAGE_LAYOUT;
-}
 
 void CacheDrivenTask::process(const PageInfo& pageInfo,
                               AbstractFilterDataCollector* collector,
@@ -80,7 +50,7 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
   // usually this is set in Task, but if user changed layout with Apply To..
   // and just jumped to next stage - the Task::process isn't invoked for all pages
   // so we must additionally ensure here that we display right number of pages.
-  m_projectPages->setLayoutTypeFor(pageInfo.id().imageId(), toPageLayoutType(layout));
+  m_projectPages->setLayoutTypeFor(pageInfo.id().imageId(), Utils::toPageLayoutType(layout));
 
   if (m_nextTask) {
     ImageTransformation newXform(xform);
@@ -88,7 +58,7 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
     // image is passed on -> one run may process the full image for a page that is about to vanish. Not fixed because
     // the page list is corrected right after and a reschedule needs pipeline changes.
     const QPolygonF pagePoly(layout.pageOutline(pageInfo.id().subPage()).toPolygon());
-    const QPolygonF merged(intersectPreCropWithPageOutline(pagePoly, newXform.preCropArea()));
+    const QPolygonF merged(Utils::intersectPreCropWithPageOutline(pagePoly, newXform.preCropArea()));
     newXform.setPreCropArea(merged);
     m_nextTask->process(pageInfo, collector, newXform);
     return;
