@@ -6,19 +6,6 @@
 #include <cassert>
 #include <cmath>
 
-ArcLengthMapper::Hint::Hint() : m_lastSegment(0), m_direction(1) {}
-
-void ArcLengthMapper::Hint::update(int newSegment) {
-  // Note: staying in the same segment tells us nothing about the direction
-  // we are scanning in, so the previous one has to be preserved. Resetting
-  // it to +1 here would make the "adjacent segment" probes of a backwards
-  // scan look the wrong way and fall back to a binary search.
-  if (newSegment != m_lastSegment) {
-    m_direction = (newSegment < m_lastSegment) ? -1 : 1;
-  }
-  m_lastSegment = newSegment;
-}
-
 ArcLengthMapper::ArcLengthMapper() : m_prevFX() {}
 
 void ArcLengthMapper::addSample(double x, double fx) {
@@ -87,23 +74,8 @@ double ArcLengthMapper::arcLenToX(double arcLen, Hint& hint) const {
     hint.update(hint.m_lastSegment - hint.m_direction);
     return interpolateArcLenInSegment(arcLen, hint.m_lastSegment);
   }
-  // Do a binary search.
-  int leftIdx = 0;
-  auto rightIdx = static_cast<int>(m_samples.size() - 1);
-  double leftArcLen = m_samples[leftIdx].arcLen;
-  while (leftIdx + 1 < rightIdx) {
-    const int midIdx = (leftIdx + rightIdx) >> 1;
-    const double midArcLen = m_samples[midIdx].arcLen;
-    if ((arcLen - midArcLen) * (arcLen - leftArcLen) <= 0) {
-      // Note: <= 0 vs < 0 is actually important for this branch.
-      // 0 would indicate either left or mid point is our exact answer.
-      rightIdx = midIdx;
-    } else {
-      leftIdx = midIdx;
-      leftArcLen = midArcLen;
-    }
-  }
-
+  const int leftIdx = findSegmentBinary(static_cast<int>(m_samples.size()),
+                                        [&](const int idx) { return arcLen - m_samples[idx].arcLen; });
   hint.update(leftIdx);
   return interpolateArcLenInSegment(arcLen, leftIdx);
 }  // ArcLengthMapper::arcLenToX
@@ -137,23 +109,8 @@ double ArcLengthMapper::xToArcLen(double x, Hint& hint) const {
     hint.update(hint.m_lastSegment - hint.m_direction);
     return interpolateXInSegment(x, hint.m_lastSegment);
   }
-  // Do a binary search.
-  int leftIdx = 0;
-  auto rightIdx = static_cast<int>(m_samples.size() - 1);
-  double leftX = m_samples[leftIdx].x;
-  while (leftIdx + 1 < rightIdx) {
-    const int midIdx = (leftIdx + rightIdx) >> 1;
-    const double midX = m_samples[midIdx].x;
-    if ((x - midX) * (x - leftX) <= 0) {
-      // Note: <= 0 vs < 0 is actually important for this branch.
-      // 0 would indicate either left or mid point is our exact answer.
-      rightIdx = midIdx;
-    } else {
-      leftIdx = midIdx;
-      leftX = midX;
-    }
-  }
-
+  const int leftIdx
+      = findSegmentBinary(static_cast<int>(m_samples.size()), [&](const int idx) { return x - m_samples[idx].x; });
   hint.update(leftIdx);
   return interpolateXInSegment(x, leftIdx);
 }  // ArcLengthMapper::xToArcLen

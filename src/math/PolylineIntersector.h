@@ -8,23 +8,12 @@
 #include <QPointF>
 #include <vector>
 
+#include "SegmentSearch.h"
 #include "VecNT.h"
 
 class PolylineIntersector {
  public:
-  class Hint {
-    friend class PolylineIntersector;
-
-   public:
-    Hint();
-
-   private:
-    void update(int newSegment);
-
-    int m_lastSegment;
-    int m_direction;
-  };
-
+  using Hint = SegmentHint;
 
   /**
    * \throws std::invalid_argument if the polyline has fewer than 2 points.

@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include "SegmentSearch.h"
+
 /**
  * \brief Maps from x to arclen(f(x)) and back.
  *
@@ -20,19 +22,7 @@
 class ArcLengthMapper {
   // Member-wise copying is OK.
  public:
-  class Hint {
-    friend class ArcLengthMapper;
-
-   public:
-    Hint();
-
-   private:
-    void update(int newSegment);
-
-    int m_lastSegment;
-    int m_direction;
-  };
-
+  using Hint = SegmentHint;
 
   ArcLengthMapper();
 

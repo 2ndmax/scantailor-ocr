@@ -7,6 +7,7 @@ set(generic_sources
     ArcLengthMapper.cpp ArcLengthMapper.h
     LineBoundedByRect.cpp LineBoundedByRect.h
     PolylineIntersector.cpp PolylineIntersector.h
+    SegmentSearch.h
     LinearFunction.cpp LinearFunction.h
     QuadraticFunction.cpp QuadraticFunction.h
     XSpline.cpp XSpline.h)

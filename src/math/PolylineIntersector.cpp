@@ -8,13 +8,6 @@
 
 #include "ToLineProjector.h"
 
-PolylineIntersector::Hint::Hint() : m_lastSegment(0), m_direction(1) {}
-
-void PolylineIntersector::Hint::update(int newSegment) {
-  m_direction = newSegment < m_lastSegment ? -1 : 1;
-  m_lastSegment = newSegment;
-}
-
 PolylineIntersector::PolylineIntersector(const std::vector<QPointF>& polyline)
     : m_polyline(polyline), m_numSegments(static_cast<int>(polyline.size()) - 1) {
   // intersect() looks for a segment, and the end points are read without checking the size.
@@ -52,24 +45,8 @@ QPointF PolylineIntersector::intersect(const QLineF& line, Hint& hint) const {
   // OK, let's do a binary search then.
   const QPointF origin(normal.p1());
   const Vec2d nv(normal.p2() - normal.p1());
-  int leftIdx = 0;
-  auto rightIdx = static_cast<int>(m_polyline.size() - 1);
-  double leftDot = nv.dot(m_polyline[leftIdx] - origin);
-
-  while (leftIdx + 1 < rightIdx) {
-    const int midIdx = (leftIdx + rightIdx) >> 1;
-    const double midDot = nv.dot(m_polyline[midIdx] - origin);
-
-    if (midDot * leftDot <= 0) {
-      // Note: <= 0 vs < 0 is actually important for this branch.
-      // 0 would indicate either left or mid point is our exact answer.
-      rightIdx = midIdx;
-    } else {
-      leftIdx = midIdx;
-      leftDot = midDot;
-    }
-  }
-
+  const int leftIdx = findSegmentBinary(static_cast<int>(m_polyline.size()),
+                                        [&](const int idx) { return nv.dot(m_polyline[idx] - origin); });
   hint.update(leftIdx);
   return intersectWithSegment(line, leftIdx);
 }  // PolylineIntersector::intersect
