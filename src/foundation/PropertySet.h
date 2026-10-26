@@ -25,6 +25,8 @@ class PropertySet {
    */
   PropertySet(const PropertySet& other);
 
+  PropertySet(PropertySet&& other) = default;
+
   PropertySet(const QDomElement& el, const PropertyFactory& factory);
 
   virtual ~PropertySet() = default;
@@ -33,6 +35,8 @@ class PropertySet {
    * \brief Makes a deep copy of another property set.
    */
   PropertySet& operator=(const PropertySet& other);
+
+  PropertySet& operator=(PropertySet&& other) = default;
 
   void swap(PropertySet& other);
 

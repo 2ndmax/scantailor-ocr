@@ -2,12 +2,14 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <PropertySet.h>
+#include <filters/output/FillColorProperty.h>
 #include <zones/EditableSpline.h>
 #include <zones/SerializableSpline.h>
 #include <zones/Zone.h>
 
 #include <QPolygonF>
 #include <boost/test/unit_test.hpp>
+#include <utility>
 
 namespace {
 Zone zoneOf(const QPolygonF& polygon) {
@@ -35,6 +37,33 @@ BOOST_AUTO_TEST_CASE(test_zone_without_area_is_invalid) {
   BOOST_CHECK(!zoneOf(collinear).isValid());
 
   BOOST_CHECK(!zoneOf(QPolygonF()).isValid());
+}
+
+// A copy owns its own properties: changing it leaves the original as it was.
+BOOST_AUTO_TEST_CASE(test_property_set_copy_is_deep) {
+  PropertySet original;
+  original.locateOrCreate<output::FillColorProperty>()->setColor(Qt::white);
+
+  PropertySet copy(original);
+  copy.locate<output::FillColorProperty>()->setColor(Qt::black);
+  BOOST_CHECK(original.locate<output::FillColorProperty>()->color() == QColor(Qt::white));
+
+  PropertySet assigned;
+  assigned = original;
+  BOOST_CHECK(assigned.locate<output::FillColorProperty>() != original.locate<output::FillColorProperty>());
+}
+
+// Moving hands the properties over instead of copying them one by one.
+BOOST_AUTO_TEST_CASE(test_property_set_move_keeps_the_properties) {
+  PropertySet source;
+  const auto property = source.locateOrCreate<output::FillColorProperty>();
+
+  PropertySet moved(std::move(source));
+  BOOST_CHECK(moved.locate<output::FillColorProperty>() == property);
+
+  PropertySet assigned;
+  assigned = std::move(moved);
+  BOOST_CHECK(assigned.locate<output::FillColorProperty>() == property);
 }
 
 BOOST_AUTO_TEST_CASE(test_empty_spline_has_no_points) {
