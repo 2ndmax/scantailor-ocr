@@ -167,6 +167,13 @@ class PageLayout {
   static void maybeAddIntersectionPoint(QPolygonF& poly, const QLineF& line1, const QLineF& line2);
 
   /**
+   * \brief The part of the uncut outline between two lines across it.
+   *
+   * \p line2 is turned to the direction of \p line1 first.
+   */
+  QPolygonF outlineBetween(const QLineF& line1, QLineF line2) const;
+
+  /**
    * This polygon always corresponds to a rectangle, unless it's empty.
    * It's vertex 0 corresponds to top-left vertex of a rectangle, and
    * it goes clockwise from there, ending at vertex 3.

@@ -53,10 +53,6 @@ void PageLayout::setType(Type type) {
 
 void PageLayout::setUncutOutline(const QRectF& outline) {
   m_uncutOutline = outline;
-  if (m_uncutOutline.size() < 4) {
-    // Empty rect?
-    return;
-  }
 }
 
 const QLineF& PageLayout::cutterLine(int idx) const {
@@ -166,19 +162,7 @@ QPolygonF PageLayout::singlePageOutline() const {
       return QPolygonF();
   }
 
-  const QLineF line1(extendToCover(m_cutter1, m_uncutOutline));
-  QLineF line2(extendToCover(m_cutter2, m_uncutOutline));
-  ensureSameDirection(line1, line2);
-  const QLineF reverseLine1(line1.p2(), line1.p1());
-  const QLineF reverseLine2(line2.p2(), line2.p1());
-
-  QPolygonF poly;
-  poly << line1.p1();
-  maybeAddIntersectionPoint(poly, line1.normalVector(), line2.normalVector());
-  poly << line2.p1() << line2.p2();
-  maybeAddIntersectionPoint(poly, reverseLine1.normalVector(), reverseLine2.normalVector());
-  poly << line1.p2();
-  return PolygonUtils::round(m_uncutOutline).intersected(PolygonUtils::round(poly));
+  return outlineBetween(extendToCover(m_cutter1, m_uncutOutline), extendToCover(m_cutter2, m_uncutOutline));
 }
 
 QPolygonF PageLayout::leftPageOutline() const {
@@ -194,19 +178,7 @@ QPolygonF PageLayout::leftPageOutline() const {
       break;
   }
 
-  const QLineF line1(m_uncutOutline[0], m_uncutOutline[3]);
-  QLineF line2(extendToCover(m_cutter1, m_uncutOutline));
-  ensureSameDirection(line1, line2);
-  const QLineF reverseLine1(line1.p2(), line1.p1());
-  const QLineF reverseLine2(line2.p2(), line2.p1());
-
-  QPolygonF poly;
-  poly << line1.p1();
-  maybeAddIntersectionPoint(poly, line1.normalVector(), line2.normalVector());
-  poly << line2.p1() << line2.p2();
-  maybeAddIntersectionPoint(poly, reverseLine1.normalVector(), reverseLine2.normalVector());
-  poly << line1.p2();
-  return PolygonUtils::round(m_uncutOutline).intersected(PolygonUtils::round(poly));
+  return outlineBetween(QLineF(m_uncutOutline[0], m_uncutOutline[3]), extendToCover(m_cutter1, m_uncutOutline));
 }
 
 QPolygonF PageLayout::rightPageOutline() const {
@@ -222,8 +194,10 @@ QPolygonF PageLayout::rightPageOutline() const {
       break;
   }
 
-  const QLineF line1(m_uncutOutline[1], m_uncutOutline[2]);
-  QLineF line2(extendToCover(m_cutter1, m_uncutOutline));
+  return outlineBetween(QLineF(m_uncutOutline[1], m_uncutOutline[2]), extendToCover(m_cutter1, m_uncutOutline));
+}
+
+QPolygonF PageLayout::outlineBetween(const QLineF& line1, QLineF line2) const {
   ensureSameDirection(line1, line2);
   const QLineF reverseLine1(line1.p2(), line1.p1());
   const QLineF reverseLine2(line2.p2(), line2.p1());
