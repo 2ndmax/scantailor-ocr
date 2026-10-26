@@ -1,6 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <GlyphLessFont.h>
 #include <ImageLoadErrors.h>
 #include <Jp2Reader.h>
 #include <PdfExportJob.h>
@@ -466,7 +467,12 @@ BOOST_AUTO_TEST_CASE(test_text_layer) {
   BOOST_CHECK_EQUAL(pdf.count("/FontFile2 "), 1);
   BOOST_CHECK_EQUAL(pdf.count("/Font << /F0 "), 2);
   BOOST_CHECK(pdf.contains("/ToUnicode "));
-  BOOST_CHECK(pdf.contains("/Length1 572 "));
+  // The embedded font file is the GlyphLessFont, and /Length1 gives its uncompressed size.
+  const QByteArray font = glyphLessFontData();
+  const int fontPos = pdf.indexOf("/Length1 ");
+  BOOST_REQUIRE(fontPos > 0);
+  BOOST_CHECK(pdf.mid(fontPos).startsWith("/Length1 " + QByteArray::number(font.size()) + " "));
+  BOOST_CHECK(inflateStream(pdf, fontPos) == font);
 
   // The content streams are compressed.
   const QByteArray content = firstPageContent(pdf);
