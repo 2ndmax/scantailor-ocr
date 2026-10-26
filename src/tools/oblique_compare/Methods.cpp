@@ -46,8 +46,6 @@ const double STROKE_MAX_SECOND_PEAK = 0.45;
 const int STROKE_PASSES = 3;
 /** (e): a single edge counts only if the stroke direction differs from it by no more than this. */
 const double EDGE_STROKES_AGREE_DEG = 0.3;
-/** (e): without an edge, the stroke direction counts only up to this angle. */
-const double STROKE_FALLBACK_MAX_DEG = 3.0;
 
 double degrees(const double tangent) {
   return std::atan(tangent) / DEG2RAD;
@@ -466,11 +464,6 @@ Finding edgesThenStrokes(const BinaryImage& image, const QImage& gray, const dou
   }
   const Finding strokes(strokeDirection(gray, deskewAngleDeg));
   if (!edges.angle) {
-    // Without an edge the strokes stand alone. Whole pages in italics read 3° to 5° off (measured
-    // with this tool), so larger angles are not trusted.
-    if (strokes.angle && (std::abs(*strokes.angle) > STROKE_FALLBACK_MAX_DEG)) {
-      return Finding{std::nullopt, strokes.confidence};
-    }
     return strokes;
   }
   if (*edges.confidence >= 2) {

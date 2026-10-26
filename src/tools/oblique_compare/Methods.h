@@ -51,7 +51,12 @@ Finding strokeDirection(const QImage& gray, double deskewAngleDeg);
 /**
  * (e) (c2) where the text has straight edges, else (d). Edges that disagree give no angle. A single
  * edge (ragged text in one column) cannot tell a shear from a keystone, so (d) has to confirm it
- * within EDGE_STROKES_AGREE_DEG. Without an edge, (d) counts only up to STROKE_FALLBACK_MAX_DEG.
+ * within EDGE_STROKES_AGREE_DEG.
+ *
+ * Known limit: a page set wholly in italics and without a straight edge (centered, a few lines)
+ * depends on (d) alone, and (d) then reads up to about 5° off. Limiting (d) to ±3° there would have
+ * caught most of these, but also left every such page with a real shear above 3° uncorrected, since
+ * italics cannot be told apart reliably enough; so it is not done.
  */
 Finding edgesThenStrokes(const imageproc::BinaryImage& image, const QImage& gray, double deskewAngleDeg);
 
