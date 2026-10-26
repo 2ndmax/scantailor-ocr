@@ -45,6 +45,39 @@ std::optional<double> findObliqueDegrees(const imageproc::BinaryImage& mask,
  */
 imageproc::BinaryImage deskewedMask(const imageproc::BinaryImage& mask, double deskewAngleDeg);
 
+/** What the straight vertical edges of the text tell about the oblique angle of a page. */
+struct TextEdges {
+  /** The straight edges found: where many lines of a column start or end. */
+  int count = 0;
+  /**
+   * Whether all edges lean alike. If they do not, the page is not sheared but seen in perspective
+   * or curved, and shearing it would set one edge right and another one wrong.
+   */
+  bool agree = false;
+  /** The weighted mean lean of the edges, as the oblique angle that straightens the page; 0 without edges. */
+  double angleDeg = 0;
+};
+
+/**
+ * \brief Finds the straight vertical edges of the text on a deskewed mask (see deskewedMask()).
+ *
+ * For each line of text, every column contributes where its text starts and ends. Straight lines
+ * through many of these points, robust against lines that start elsewhere (indents, a picture
+ * beside them, centered text), are the edges: the left edge of every column and the right edge of
+ * justified text. A few lines are too short an edge; one pixel off at a line start tilts it by a lot.
+ *
+ * \param resolutionRatio Horizontal by vertical resolution; the angle is a physical one.
+ */
+TextEdges measureTextEdges(const imageproc::BinaryImage& deskewedMask, double resolutionRatio = 1.0);
+
+/**
+ * \brief The oblique angle from the text edges (see measureTextEdges()), or nothing.
+ *
+ * It takes at least two edges that agree: a single edge cannot tell a shear from a perspective.
+ */
+std::optional<double> findObliqueFromTextEdges(const imageproc::BinaryImage& deskewedMask,
+                                               double resolutionRatio = 1.0);
+
 }  // namespace deskew
 
 #endif

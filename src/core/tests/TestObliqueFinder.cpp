@@ -14,6 +14,7 @@
 #include <QRectF>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
+#include <iomanip>
 #include <optional>
 
 namespace Tests {
@@ -47,6 +48,42 @@ BinaryImage textBlock(const double skewDeg, const double obliqueDeg) {
       word << QPointF(left, top) << QPointF(left + 50, topRight) << QPointF(left + 50, topRight + 8)
            << QPointF(left, top + 8);
       painter.drawPolygon(word);
+    }
+  }
+  painter.end();
+  return BinaryImage(image);
+}
+
+enum class Setting { JUSTIFIED, RAGGED, CENTERED };
+
+/**
+ * 25 lines of "words" between x = 100 and 700 at the top, from y = 100 to 500. Lower down, the left
+ * end of the lines moves by \p leftDeg and the right end by \p rightDeg: alike for a shear,
+ * opposite for a keystone. Ragged lines end short of the right edge, centered ones on both sides.
+ */
+BinaryImage textColumn(const double leftDeg, const double rightDeg, const Setting setting) {
+  QImage image(WIDTH, HEIGHT, QImage::Format_RGB32);
+  image.fill(Qt::white);
+  QPainter painter(&image);
+  painter.setPen(Qt::NoPen);
+  painter.setBrush(Qt::black);
+  for (int i = 0; i < 25; ++i) {
+    const int y = 100 + 16 * i;
+    double left = 100 + (y - 100) * std::tan(leftDeg * DEG2RAD);
+    double right = 700 + (y - 100) * std::tan(rightDeg * DEG2RAD);
+    // Fixed, uneven amounts, so that no two lines end alike.
+    const double shortBy = (i * 37) % 120 + 10;
+    if (setting != Setting::JUSTIFIED) {
+      right -= shortBy;
+    }
+    if (setting == Setting::CENTERED) {
+      left += shortBy;
+    }
+    // Words of about 50 pixels with gaps of 10, spread over the whole line like justified text.
+    const int words = std::max(1, static_cast<int>((right - left + 10) / 60));
+    const double wordWidth = (right - left - 10.0 * (words - 1)) / words;
+    for (int w = 0; w < words; ++w) {
+      painter.drawRect(QRectF(left + w * (wordWidth + 10), y, wordWidth, 8));
     }
   }
   painter.end();
@@ -181,6 +218,83 @@ BOOST_AUTO_TEST_CASE(rotated_and_sheared_page_stays_in_place) {
   BOOST_CHECK_SMALL(result.y(), 1e-6);
   BOOST_CHECK_SMALL(result.width() - 849.76685913264282, 1e-6);
   BOOST_CHECK_SMALL(result.height() - 641.04648584709935, 1e-6);
+}
+
+BOOST_AUTO_TEST_CASE(text_edges_of_a_sheared_column) {
+  const BinaryImage column(textColumn(3.0, 3.0, Setting::JUSTIFIED));
+  const TextEdges edges(measureTextEdges(column));
+  BOOST_TEST_MESSAGE("edges " << edges.count << ", angle " << std::setprecision(17) << edges.angleDeg);
+  // The left and the right edge.
+  BOOST_CHECK_EQUAL(edges.count, 2);
+  BOOST_CHECK(edges.agree);
+  BOOST_CHECK_SMALL(edges.angleDeg - 3.0, 0.05);
+  // Pinned when the text edges came in (2026-10): any change here changes every automatic oblique angle.
+  BOOST_CHECK_CLOSE(edges.angleDeg, 2.9668095443314009, 1e-9);
+  const std::optional<double> found(findObliqueFromTextEdges(column));
+  BOOST_REQUIRE(found.has_value());
+  BOOST_CHECK_EQUAL(*found, edges.angleDeg);
+}
+
+BOOST_AUTO_TEST_CASE(text_edges_of_an_upright_column) {
+  const std::optional<double> found(findObliqueFromTextEdges(textColumn(0.0, 0.0, Setting::JUSTIFIED)));
+  BOOST_REQUIRE(found.has_value());
+  BOOST_CHECK_SMALL(*found, 0.05);
+}
+
+// The program applies the angle with setPostOblique(): it must straighten the left edge of the
+// block completely, not only partly, too far or the other way.
+BOOST_AUTO_TEST_CASE(text_edge_angle_straightens_the_page) {
+  const double obliqueDeg = 3.0;
+  const std::optional<double> found(findObliqueFromTextEdges(textBlock(0.0, obliqueDeg)));
+  BOOST_REQUIRE(found.has_value());
+  const double shiftBefore = 400 * std::tan(obliqueDeg * DEG2RAD);
+  ImageTransformation xform(pageTransformation());
+  xform.setPostOblique(*found);
+  const QPointF top(xform.transform().map(QPointF(100, 100)));
+  const QPointF bottom(xform.transform().map(QPointF(100 + shiftBefore, 500)));
+  BOOST_TEST_MESSAGE("left edge from x " << top.x() << " to x " << bottom.x());
+  BOOST_CHECK_SMALL(bottom.x() - top.x(), 1.0);
+}
+
+// A keystone leans the left and the right edge in opposite directions: no shear.
+BOOST_AUTO_TEST_CASE(text_edges_of_a_keystone_give_no_angle) {
+  const BinaryImage column(textColumn(1.0, -1.0, Setting::JUSTIFIED));
+  const TextEdges edges(measureTextEdges(column));
+  BOOST_CHECK_EQUAL(edges.count, 2);
+  BOOST_CHECK(!edges.agree);
+  BOOST_CHECK(!findObliqueFromTextEdges(column).has_value());
+}
+
+// Ragged lines have their left edge only, which cannot tell a shear from a keystone.
+BOOST_AUTO_TEST_CASE(single_text_edge_gives_no_angle) {
+  const BinaryImage column(textColumn(2.0, 2.0, Setting::RAGGED));
+  const TextEdges edges(measureTextEdges(column));
+  BOOST_CHECK_EQUAL(edges.count, 1);
+  BOOST_CHECK_SMALL(edges.angleDeg - 2.0, 0.05);
+  BOOST_CHECK(!findObliqueFromTextEdges(column).has_value());
+}
+
+BOOST_AUTO_TEST_CASE(centered_text_has_no_edges) {
+  const BinaryImage column(textColumn(2.0, 2.0, Setting::CENTERED));
+  BOOST_CHECK_EQUAL(measureTextEdges(column).count, 0);
+  BOOST_CHECK(!findObliqueFromTextEdges(column).has_value());
+}
+
+BOOST_AUTO_TEST_CASE(too_few_lines_give_no_edges) {
+  BinaryImage column(textColumn(2.0, 2.0, Setting::JUSTIFIED));
+  // Only the top four lines are left.
+  column.fill(QRect(0, 100 + 16 * 4, WIDTH, HEIGHT), WHITE);
+  BOOST_CHECK_EQUAL(measureTextEdges(column).count, 0);
+}
+
+// A fax scan with 200 x 100 dpi: the angle is a physical one.
+BOOST_AUTO_TEST_CASE(text_edges_with_unequal_dpi) {
+  const double obliqueDeg = 3.0;
+  const QImage physical(textColumn(obliqueDeg, obliqueDeg, Setting::JUSTIFIED).toQImage());
+  const BinaryImage fax(physical.scaled(2 * WIDTH, HEIGHT, Qt::IgnoreAspectRatio, Qt::FastTransformation));
+  const std::optional<double> found(findObliqueFromTextEdges(fax, 200.0 / 100.0));
+  BOOST_REQUIRE(found.has_value());
+  BOOST_CHECK_SMALL(*found - obliqueDeg, 0.05);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

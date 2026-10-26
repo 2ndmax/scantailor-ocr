@@ -29,11 +29,11 @@ struct Finding {
 };
 
 /**
- * (c2) Fits straight lines through the starts and ends of the text lines of every column of the
- * deskewed, cleaned-up page, so also through the right edge of justified text. Lines that start
- * elsewhere (centered text, a picture beside them) are left out as outliers. All edges found must
- * lean alike within EDGES_AGREE_DEG; if they do not, it is no shear (perspective, a curved page)
- * and there is no angle. The confidence is the number of edges, negative if they disagree.
+ * (c2) deskew::measureTextEdges() on the deskewed, cleaned-up page: straight lines through the
+ * starts and ends of the text lines of every column. All edges found must lean alike; if they do
+ * not, it is no shear (perspective, a curved page) and there is no angle. Unlike the program
+ * (deskew::findObliqueFromTextEdges()), a single edge gives an angle here, so that (e) can check
+ * it. The confidence is the number of edges, negative if they disagree.
  */
 Finding edgeFit(const imageproc::BinaryImage& image, double deskewAngleDeg);
 
