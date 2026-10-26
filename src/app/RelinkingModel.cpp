@@ -3,7 +3,6 @@
 
 #include "RelinkingModel.h"
 
-#include <foundation/Hashes.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -76,7 +75,7 @@ class RelinkingModel::StatusUpdateThread : private QThread {
       boost::multi_index::indexed_by<
           boost::multi_index::hashed_unique<boost::multi_index::tag<HashedByKeyTag>,
                                             boost::multi_index::member<Task, QString, &Task::key>,
-                                            hashes::hash<QString>>,
+                                            std::hash<QString>>,
           boost::multi_index::sequenced<boost::multi_index::tag<OrderedByPriorityTag>>>>;
 
   using TasksByKey = TaskList::index<HashedByKeyTag>::type;

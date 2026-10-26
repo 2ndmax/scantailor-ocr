@@ -4,11 +4,11 @@
 #ifndef SCANTAILOR_FOUNDATION_PROPERTYFACTORY_H_
 #define SCANTAILOR_FOUNDATION_PROPERTYFACTORY_H_
 
+#include <QHashFunctions>
 #include <QString>
 #include <memory>
 #include <unordered_map>
 
-#include "Hashes.h"
 #include "Property.h"
 
 class QDomElement;
@@ -25,7 +25,7 @@ class PropertyFactory {
   std::shared_ptr<Property> construct(const QDomElement& el) const;
 
  private:
-  using Registry = std::unordered_map<QString, PropertyConstructor, hashes::hash<QString>>;
+  using Registry = std::unordered_map<QString, PropertyConstructor>;
   Registry m_registry;
 };
 

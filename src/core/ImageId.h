@@ -4,8 +4,8 @@
 #ifndef SCANTAILOR_CORE_IMAGEID_H_
 #define SCANTAILOR_CORE_IMAGEID_H_
 
-#include <foundation/Hashes.h>
 
+#include <QHashFunctions>
 #include <QString>
 
 class QFileInfo;
@@ -61,7 +61,7 @@ namespace std {
 template <>
 struct hash<ImageId> {
   size_t operator()(const ImageId& imageId) const noexcept {
-    return (hashes::hash<QString>()(imageId.filePath()) ^ hash<int>()(imageId.page()) << 1);
+    return (std::hash<QString>()(imageId.filePath()) ^ hash<int>()(imageId.page()) << 1);
   }
 };
 }  // namespace std

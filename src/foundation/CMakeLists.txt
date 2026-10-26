@@ -26,7 +26,6 @@ set(sources
     PriorityQueue.h
     Grid.h
     ValueConv.h
-    Hashes.h
     Utils.cpp Utils.h)
 
 add_library(foundation STATIC ${sources})

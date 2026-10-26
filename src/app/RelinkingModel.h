@@ -5,6 +5,7 @@
 #define SCANTAILOR_APP_RELINKINGMODEL_H_
 
 #include <QAbstractItemModel>
+#include <QHashFunctions>
 #include <QModelIndex>
 #include <QPixmap>
 #include <QString>
@@ -17,7 +18,6 @@
 #include <vector>
 
 #include "AbstractRelinker.h"
-#include "Hashes.h"
 #include "NonCopyable.h"
 #include "RelinkablePath.h"
 #include "VirtualFunction.h"
@@ -144,9 +144,9 @@ class RelinkingModel : public QAbstractItemModel {
     void swap(Relinker& other);
 
    private:
-    std::unordered_map<QString, QString, hashes::hash<QString>> m_mappings;
+    std::unordered_map<QString, QString> m_mappings;
     /** The paths mapped to. */
-    std::unordered_set<QString, hashes::hash<QString>> m_targets;
+    std::unordered_set<QString> m_targets;
   };
 
 
@@ -180,7 +180,7 @@ class RelinkingModel : public QAbstractItemModel {
 
   std::vector<Item> m_items;
   std::vector<Group> m_groups;
-  std::unordered_map<QString, int, hashes::hash<QString>> m_groupByOrigDir;
+  std::unordered_map<QString, int> m_groupByOrigDir;
   std::set<QString> m_origPathSet;
   int m_outputItem;
   const std::shared_ptr<Relinker> m_relinker;

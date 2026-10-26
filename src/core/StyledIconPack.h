@@ -4,8 +4,8 @@
 #ifndef SCANTAILOR_CORE_STYLEDICONPACK_H_
 #define SCANTAILOR_CORE_STYLEDICONPACK_H_
 
-#include <foundation/Hashes.h>
 
+#include <QHashFunctions>
 #include <QString>
 #include <unordered_map>
 
@@ -24,7 +24,7 @@ class StyledIconPack : public AbstractIconPack {
  private:
   void addIconFromElement(const QDomElement& iconElement);
 
-  std::unordered_map<QString, QIcon, hashes::hash<QString>> m_iconMap;
+  std::unordered_map<QString, QIcon> m_iconMap;
 };
 
 

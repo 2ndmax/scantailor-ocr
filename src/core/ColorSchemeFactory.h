@@ -4,9 +4,9 @@
 #ifndef SCANTAILOR_CORE_COLORSCHEMEFACTORY_H_
 #define SCANTAILOR_CORE_COLORSCHEMEFACTORY_H_
 
-#include <foundation/Hashes.h>
 #include <foundation/NonCopyable.h>
 
+#include <QHashFunctions>
 #include <QString>
 #include <functional>
 #include <memory>
@@ -26,7 +26,7 @@ class ColorSchemeFactory {
   std::unique_ptr<ColorScheme> create(const QString& scheme) const;
 
  private:
-  using Registry = std::unordered_map<QString, ColorSchemeConstructor, hashes::hash<QString>>;
+  using Registry = std::unordered_map<QString, ColorSchemeConstructor>;
 
   Registry m_registry;
 };

@@ -4,9 +4,10 @@
 #ifndef SCANTAILOR_CORE_COLORSCHEME_H_
 #define SCANTAILOR_CORE_COLORSCHEME_H_
 
-#include <foundation/Hashes.h>
 
 #include <QColor>
+#include <QHashFunctions>
+#include <QString>
 #include <unordered_map>
 
 class QStyle;
@@ -22,7 +23,7 @@ class ColorScheme {
 
   virtual const QString* getStyleSheet() const = 0;
 
-  using ColorParams = std::unordered_map<QString, QColor, hashes::hash<QString>>;
+  using ColorParams = std::unordered_map<QString, QColor>;
 
   /**
    * List of colors for elements that don't support styling.

@@ -109,7 +109,7 @@ const QString& SvgStyledIconEngine::getIconFilePath(QIcon::State state) {
 }
 
 void forEachElement(QDomElement el,
-                    const std::unordered_set<QString, hashes::hash<QString>>& names,
+                    const std::unordered_set<QString>& names,
                     const std::function<void(QDomElement&)>& consumer) {
   if (names.find(el.nodeName()) != names.end()) {
     consumer(el);

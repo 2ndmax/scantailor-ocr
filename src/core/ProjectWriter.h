@@ -4,8 +4,8 @@
 #ifndef SCANTAILOR_CORE_PROJECTWRITER_H_
 #define SCANTAILOR_CORE_PROJECTWRITER_H_
 
-#include <foundation/Hashes.h>
 
+#include <QHashFunctions>
 #include <QString>
 #include <Qt>
 #include <boost/multi_index/hashed_index.hpp>
@@ -109,14 +109,13 @@ class ProjectWriter {
       Directory,
       boost::multi_index::indexed_by<
           boost::multi_index::hashed_unique<boost::multi_index::member<Directory, QString, &Directory::path>,
-                                            hashes::hash<QString>>,
+                                            std::hash<QString>>,
           boost::multi_index::sequenced<boost::multi_index::tag<Sequenced>>>>;
 
   using Files = boost::multi_index::multi_index_container<
       File,
       boost::multi_index::indexed_by<
-          boost::multi_index::hashed_unique<boost::multi_index::member<File, QString, &File::path>,
-                                            hashes::hash<QString>>,
+          boost::multi_index::hashed_unique<boost::multi_index::member<File, QString, &File::path>, std::hash<QString>>,
           boost::multi_index::sequenced<boost::multi_index::tag<Sequenced>>>>;
 
   using Images = boost::multi_index::multi_index_container<
