@@ -5,6 +5,10 @@
 #define SCANTAILOR_CORE_PDFEXPORTPAGE_H_
 
 #include <QString>
+#include <set>
+#include <vector>
+
+#include "PageId.h"
 
 /**
  * \brief One page of the PDF export: its output files and how it will be stored.
@@ -50,6 +54,11 @@ class PdfExportPage {
   /** Whether the page is set to the "Mixed" colour mode. */
   bool isMixedMode() const { return m_mixedMode; }
 
+  /** The project page whose output this is. A null PageId if the page wasn't made from a project. */
+  const PageId& pageId() const { return m_pageId; }
+
+  void setPageId(const PageId& pageId) { m_pageId = pageId; }
+
   Kind kind() const { return m_kind; }
 
   /**
@@ -84,10 +93,17 @@ class PdfExportPage {
   /** The name of a TIFF compression, as in the TIFF Compression panel of the Output step. */
   static QString tiffCompressionName(int compression);
 
+  /**
+   * The project pages of \p pages that the Output step has to process (again), because their
+   * output is missing or outdated.
+   */
+  static std::set<PageId> pagesToOutput(const std::vector<PdfExportPage>& pages);
+
  private:
   QString m_mainFile;
   QString m_foregroundFile;
   QString m_backgroundFile;
+  PageId m_pageId;
   bool m_mixedMode = false;
   Kind m_kind = MISSING;
   bool m_outdated = false;

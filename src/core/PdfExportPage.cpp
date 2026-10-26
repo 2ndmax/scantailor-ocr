@@ -134,3 +134,13 @@ QString PdfExportPage::tiffCompressionName(const int compression) {
       return QCoreApplication::translate("PdfExportPage", "method %1").arg(compression);
   }
 }
+
+std::set<PageId> PdfExportPage::pagesToOutput(const std::vector<PdfExportPage>& pages) {
+  std::set<PageId> result;
+  for (const PdfExportPage& page : pages) {
+    if ((page.kind() == MISSING) || page.isOutdated()) {
+      result.insert(page.pageId());
+    }
+  }
+  return result;
+}

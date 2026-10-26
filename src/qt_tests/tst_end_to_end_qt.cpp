@@ -495,6 +495,7 @@ void TestEndToEndQt::testPdfExport() {
   QCOMPARE(pdfPages.size(), pages.numPages());
   for (size_t i = 0; i < pdfPages.size(); ++i) {
     QCOMPARE(pdfPages[i].mainFile(), project.outFileNameGen.filePathFor(pages.pageAt(i).id()));
+    QCOMPARE(pdfPages[i].pageId(), pages.pageAt(i).id());
     QVERIFY(!pdfPages[i].isOutdated());
   }
 

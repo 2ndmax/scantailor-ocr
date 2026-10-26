@@ -248,6 +248,7 @@ std::vector<PdfExportPage> StageSequence::pdfExportPages(const ProjectPages& pag
     const QString fileName = outFileNameGen.fileNameFor(pageId);
     result.emplace_back(outFileNameGen.filePathFor(pageId), foregroundDir.absoluteFilePath(fileName),
                         backgroundDir.absoluteFilePath(fileName), m_outputFilter->isMixedMode(pageId));
+    result.back().setPageId(pageId);
     // Only the file headers are read, so this is quick even for many pages.
     result.back().analyze();
     if (result.back().kind() != PdfExportPage::MISSING) {

@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <set>
 #include <vector>
 
 #include "TestTiffFile.h"
@@ -632,6 +633,32 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   PdfExportPage missing(dir.filePath("none.tif"), fgFile, bgFile, false);
   missing.analyze();
   BOOST_CHECK_EQUAL(missing.kind(), PdfExportPage::MISSING);
+}
+
+BOOST_AUTO_TEST_CASE(test_pages_to_output) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString outputFile = dir.filePath("output.tif");
+  BOOST_REQUIRE(writeLosslessTiff(outputFile, makeGray(40, 30, 300)));
+
+  const auto makePage = [](const QString& file, const PageId& pageId) {
+    PdfExportPage page(file, QString(), QString(), false);
+    page.setPageId(pageId);
+    page.analyze();
+    return page;
+  };
+  const PageId done(ImageId("a.tif"), PageId::SINGLE_PAGE);
+  const PageId missing(ImageId("b.tif"), PageId::LEFT_PAGE);
+  const PageId outdated(ImageId("b.tif"), PageId::RIGHT_PAGE);
+  std::vector<PdfExportPage> pages{makePage(outputFile, done), makePage(dir.filePath("none.tif"), missing),
+                                   makePage(outputFile, outdated)};
+  pages[2].setOutdated(true);
+
+  // Found by their page, not by their place in the list.
+  BOOST_CHECK(PdfExportPage::pagesToOutput(pages) == std::set<PageId>({missing, outdated}));
+  std::reverse(pages.begin(), pages.end());
+  BOOST_CHECK(PdfExportPage::pagesToOutput(pages) == std::set<PageId>({missing, outdated}));
+  BOOST_CHECK(PdfExportPage::pagesToOutput({}).empty());
 }
 
 BOOST_AUTO_TEST_CASE(test_raw_samples) {

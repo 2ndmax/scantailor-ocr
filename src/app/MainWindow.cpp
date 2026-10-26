@@ -1662,15 +1662,7 @@ void MainWindow::outputMissingPages() {
   if (!m_pdfStage || isBatchProcessingInProgress() || (m_pdfView && m_pdfView->isRunning())) {
     return;
   }
-  // The same pages in the same order as the entries of the PDF step.
-  const PageSequence pages = m_pages->toPageSequence(PAGE_VIEW);
-  const std::vector<PdfExportPage> pdfPages = m_stages->pdfExportPages(*m_pages, m_outFileNameGen);
-  std::set<PageId> missing;
-  for (size_t i = 0; (i < pdfPages.size()) && (i < pages.numPages()); ++i) {
-    if ((pdfPages[i].kind() == PdfExportPage::MISSING) || pdfPages[i].isOutdated()) {
-      missing.insert(pages.pageAt(i).id());
-    }
-  }
+  std::set<PageId> missing = PdfExportPage::pagesToOutput(m_stages->pdfExportPages(*m_pages, m_outFileNameGen));
   if (missing.empty()) {
     return;
   }
