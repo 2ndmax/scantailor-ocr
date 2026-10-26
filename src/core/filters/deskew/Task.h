@@ -67,11 +67,12 @@ class Task {
 
   /**
    * \brief The automatic oblique angle of a cleaned-up page that is deskewed by \p deskewAngleDeg,
-   *        or nothing if its lines are too unclear.
+   *        from the straight edges of its text (see findObliqueFromTextEdges()), or nothing if
+   *        they are too few or disagree. \p resolutionRatio is horizontal by vertical resolution.
    */
-  static std::optional<double> findObliqueAngle(imageproc::SkewFinder& skewFinder,
-                                                const imageproc::BinaryImage& image,
-                                                double deskewAngleDeg);
+  static std::optional<double> findObliqueAngle(const imageproc::BinaryImage& image,
+                                                double deskewAngleDeg,
+                                                double resolutionRatio);
 
  private:
   class UiUpdater;

@@ -260,6 +260,22 @@ QString textSummary(const std::vector<PageResult>& results, const RunInfo& info)
       }
     }
   }
+  out << "\nRechenzeit je Seite (Mittel, Millisekunden; parallele Läufe bremsen einander etwas)\n";
+  for (const int dpi : {150, 300, 600}) {
+    out << dpi << " dpi:";
+    for (size_t m = 0; m < info.methods.size(); ++m) {
+      double sum = 0;
+      int count = 0;
+      for (const PageResult& r : results) {
+        if (r.spec.dpi == dpi) {
+          sum += r.methods[m].milliseconds;
+          ++count;
+        }
+      }
+      out << " | " << info.methods[m] << " " << ((count > 0) ? QString::number(std::lround(sum / count)) : "–");
+    }
+    out << "\n";
+  }
   out << "\nFazit\n";
   for (const QString& line : conclusions(results, info)) {
     out << "- " << line << "\n";

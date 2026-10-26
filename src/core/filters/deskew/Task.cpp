@@ -172,7 +172,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
 
       if (autoObliqueEnabled) {
         const std::optional<double> obliqueDeg
-            = findObliqueAngle(skewFinder, rotatedImage, uiData.effectiveDeskewAngle());
+            = findObliqueAngle(rotatedImage, uiData.effectiveDeskewAngle(), skewFinder.resolutionRatio());
         if (obliqueDeg) {
           uiData.setEffectiveObliqueAngle(*obliqueDeg);
         }
@@ -254,16 +254,11 @@ std::optional<double> Task::findDeskewAngle(SkewFinder& skewFinder,
   return -skew.angle();
 }
 
-std::optional<double> Task::findObliqueAngle(SkewFinder& skewFinder,
-                                             const BinaryImage& image,
-                                             const double deskewAngleDeg) {
-  // Find oblique on the deskewed (horizontal) mask for better accuracy (PR #110 feedback).
-  const BinaryImage horizontalMask(deskewedMask(image, deskewAngleDeg));
-  const std::optional<double> obliqueDeg = findObliqueDegrees(horizontalMask, skewFinder, 5.0);
-  if (!obliqueDeg) {
-    return std::nullopt;
-  }
-  return -*obliqueDeg;
+std::optional<double> Task::findObliqueAngle(const BinaryImage& image,
+                                             const double deskewAngleDeg,
+                                             const double resolutionRatio) {
+  // The text edges are measured along the lines, so the lines have to be horizontal first.
+  return findObliqueFromTextEdges(deskewedMask(image, deskewAngleDeg), resolutionRatio);
 }
 
 int Task::from150dpi(int size, int targetDpi) {

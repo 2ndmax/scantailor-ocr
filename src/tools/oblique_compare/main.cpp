@@ -77,9 +77,9 @@ struct Method {
 
 const std::vector<Method>& methods() {
   static const std::vector<Method> METHODS
-      = {{QStringLiteral("heute"),
+      = {{QStringLiteral("Programm"),
           [](const ScanInput& in) {
-            return Finding{deskew::Task::findObliqueAngle(in.skewFinder, in.cleaned, in.deskewAngleDeg), std::nullopt};
+            return Finding{deskew::Task::findObliqueAngle(in.cleaned, in.deskewAngleDeg, 1.0), std::nullopt};
           }},
          {QStringLiteral("(c2) Kanten"), [](const ScanInput& in) { return edgeFit(in.cleaned, in.deskewAngleDeg); }},
          {QStringLiteral("(d) Strichrichtung"),
@@ -110,6 +110,8 @@ struct ScanMeasurement {
   std::optional<double> rotation;
   /** In the order of methods(). */
   std::vector<Finding> findings;
+  /** The time each method took, in the order of methods(). */
+  std::vector<double> milliseconds;
 };
 
 /** Like the program: the deskew angle first, then each oblique method on the page turned by it. */
@@ -119,7 +121,10 @@ ScanMeasurement measureAll(const QImage& scan, const int dpi) {
   ScanMeasurement result;
   result.rotation = deskew::Task::findDeskewAngle(skewFinder, image, deskew::DETECT_CONTENT);
   for (const Method& method : methods()) {
+    QElapsedTimer timer;
+    timer.start();
     result.findings.push_back(method.find({skewFinder, image, scan, result.rotation.value_or(0.0), dpi}));
+    result.milliseconds.push_back(timer.nsecsElapsed() / 1e6);
   }
   return result;
 }
@@ -137,6 +142,7 @@ void measureScan(const QImage& scan, const int dpi, const bool shifted, PageResu
     } else {
       result.methods[m].shear = finding.angle;
       result.methods[m].confidence = finding.confidence;
+      result.methods[m].milliseconds = measured.milliseconds[m];
     }
   }
 }
@@ -420,7 +426,8 @@ bool writeRealReport(const Options& options,
              "</title><style>body{font-family:sans-serif;margin:24px;color:#222;background:#fff}pre{font-size:13px;"
              "white-space:pre-wrap}figure{display:inline-block;margin:8px;vertical-align:top}figure img{border:1px "
              "solid #ccc;max-width:100%}figcaption{font-size:13px}</style></head><body>\n<h1>Scherung an Echtbildern"
-             "</h1>\n<p>Linien: die Senkrechte nach dem erkannten Winkel; grau heute, blau (c2), orange (d), rot (e). "
+             "</h1>\n<p>Linien: die Senkrechte nach dem erkannten Winkel; grau das Programm, blau (c2), orange (d), "
+             "rot (e). "
              "Fehlt eine Farbe, hat das Verfahren keinen Winkel. Stehen die Linien parallel zu den senkrechten "
              "Kanten des Texts, stimmt der Winkel.</p>\n<pre>"
           << text.toHtmlEscaped() << "</pre>\n";

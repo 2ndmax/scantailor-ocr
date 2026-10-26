@@ -144,13 +144,16 @@ aids, not tests: they never fail, they write results for a person to judge.
 
 ### oblique_compare
 
-Measures the automatic oblique (shear) detection on synthetic pages with a known angle: today's
-method (`deskew::Task::findObliqueAngle`, after `findDeskewAngle` as in the deskew step) against
-the candidates in `Methods.h` (straight text edges, stroke direction, both combined). Each page is
-measured a second time moved by a fraction of a pixel, which shows how stable the angle is.
+Measures the automatic oblique (shear) detection on synthetic pages with a known angle: the
+program's method (`deskew::Task::findObliqueAngle`, after `findDeskewAngle` as in the deskew step)
+against the candidates in `Methods.h` (any straight text edge, stroke direction, both combined).
+Each page is measured a second time moved by a fraction of a pixel, which shows how stable the
+angle is. With `--images=<folder>` it measures real scans instead, as they are and with known
+shears added, and shows each straightened by every method side by side.
 
 ```bash
 oblique_compare <output folder> [--pages=<n>] [--seed=<n>] [--jobs=<n>]
+oblique_compare <output folder> --images=<folder> [--jobs=<n>]
 ```
 
 - `--pages`: number of pages of the fixed sample (default 243). Text amount, layout, alignment

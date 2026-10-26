@@ -20,6 +20,8 @@ struct MethodResult {
   std::optional<double> shearShifted;
   /** On the scan, as far as the method measures it; in the method's own scale. */
   std::optional<double> confidence;
+  /** The time the method took on the scan. */
+  double milliseconds = 0;
 };
 
 struct PageResult {

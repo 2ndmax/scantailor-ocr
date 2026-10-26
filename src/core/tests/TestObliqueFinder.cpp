@@ -100,28 +100,6 @@ ImageTransformation pageTransformation() {
 
 BOOST_AUTO_TEST_SUITE(ObliqueFinderTestSuite)
 
-BOOST_AUTO_TEST_CASE(build_sausage_mask_null_returns_null) {
-  const BinaryImage empty;
-  const BinaryImage result = buildSausageMask(empty);
-  BOOST_CHECK(result.isNull());
-}
-
-BOOST_AUTO_TEST_CASE(build_sausage_mask_preserves_size) {
-  BinaryImage img(50, 30, WHITE);
-  img.fill(QRect(10, 5, 20, 10), BLACK);
-  const BinaryImage result = buildSausageMask(img);
-  BOOST_REQUIRE(!result.isNull());
-  BOOST_CHECK_EQUAL(result.width(), 50);
-  BOOST_CHECK_EQUAL(result.height(), 30);
-}
-
-BOOST_AUTO_TEST_CASE(find_oblique_null_mask_returns_nullopt) {
-  const BinaryImage empty;
-  SkewFinder finder;
-  const auto result = findObliqueDegrees(empty, finder, 5.0);
-  BOOST_CHECK(!result.has_value());
-}
-
 BOOST_AUTO_TEST_CASE(deskewed_mask_turns_measured_lines_horizontal) {
   const double skewDeg = 2.0;
   const BinaryImage image(textBlock(skewDeg, 0.0));
@@ -146,45 +124,8 @@ BOOST_AUTO_TEST_CASE(deskewed_mask_turns_measured_lines_horizontal) {
   BOOST_CHECK_SMALL(end.y() - start.y(), 3.0);
 }
 
-BOOST_AUTO_TEST_CASE(oblique_angle_is_removed_from_the_page) {
-  const double obliqueDeg = 3.0;
-  const BinaryImage image(textBlock(0.0, obliqueDeg));
-  SkewFinder skewFinder;
-  const std::optional<double> found(findObliqueDegrees(image, skewFinder, 5.0));
-  BOOST_REQUIRE(found.has_value());
-  BOOST_TEST_MESSAGE("measured oblique " << *found);
-  BOOST_CHECK_CLOSE(std::abs(*found), obliqueDeg, 15.0);
-
-  // As in Task: the oblique angle of the page is the negated measurement. It must straighten the
-  // left edge of the block completely, not only partly, too far or the other way.
-  const double shiftBefore = 400 * std::tan(obliqueDeg * DEG2RAD);
-  ImageTransformation xform(pageTransformation());
-  xform.setPostOblique(-*found);
-  const QPointF top(xform.transform().map(QPointF(100, 100)));
-  const QPointF bottom(xform.transform().map(QPointF(100 + shiftBefore, 500)));
-  BOOST_TEST_MESSAGE("left edge from x " << top.x() << " to x " << bottom.x());
-  BOOST_CHECK_SMALL(bottom.x() - top.x(), 3.0);
-}
-
-// A fax scan with 200 x 100 dpi. The measured angles are physical ones; the mask turned by
-// 90 degrees has its axes swapped, so it needs the inverse resolution ratio.
-BOOST_AUTO_TEST_CASE(oblique_angle_with_unequal_dpi) {
-  const double obliqueDeg = 3.0;
-  const QImage physical(textBlock(0.0, obliqueDeg).toQImage());
-  // Twice the pixels horizontally: stretching keeps all detail, unlike squashing.
-  const BinaryImage fax(physical.scaled(2 * WIDTH, HEIGHT, Qt::IgnoreAspectRatio, Qt::FastTransformation));
-  SkewFinder skewFinder;
-  skewFinder.setResolutionRatio(200.0 / 100.0);
-  const std::optional<double> found(findObliqueDegrees(fax, skewFinder, 5.0));
-  BOOST_REQUIRE(found.has_value());
-  BOOST_TEST_MESSAGE("measured oblique " << *found);
-  BOOST_CHECK_CLOSE(std::abs(*found), obliqueDeg, 15.0);
-  // The caller's finder is left as it was.
-  BOOST_CHECK_EQUAL(skewFinder.resolutionRatio(), 2.0);
-}
-
 // Pins the mask rotated about its centre. Even a shift by a fraction of a pixel changes the mask
-// and with it the measured oblique angle, by up to about 0.2 degrees (review DS-11).
+// and with it the measured angles (review DS-11).
 BOOST_AUTO_TEST_CASE(deskewed_mask_keeps_its_content_in_place) {
   const BinaryImage mask(deskewedMask(textBlock(2.0, 0.0), -2.0));
   const int w = mask.width();
@@ -278,6 +219,11 @@ BOOST_AUTO_TEST_CASE(centered_text_has_no_edges) {
   const BinaryImage column(textColumn(2.0, 2.0, Setting::CENTERED));
   BOOST_CHECK_EQUAL(measureTextEdges(column).count, 0);
   BOOST_CHECK(!findObliqueFromTextEdges(column).has_value());
+}
+
+BOOST_AUTO_TEST_CASE(null_mask_has_no_edges) {
+  BOOST_CHECK_EQUAL(measureTextEdges(BinaryImage()).count, 0);
+  BOOST_CHECK(!findObliqueFromTextEdges(BinaryImage()).has_value());
 }
 
 BOOST_AUTO_TEST_CASE(too_few_lines_give_no_edges) {
