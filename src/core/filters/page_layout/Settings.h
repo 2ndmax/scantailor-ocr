@@ -158,10 +158,6 @@ class Settings {
  private:
   class Impl;
   class Item;
-  class ModifyMargins;
-  class ModifyAlignment;
-
-  class ModifyContentSize;
 
   std::unique_ptr<Impl> m_impl;
 };

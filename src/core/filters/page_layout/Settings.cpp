@@ -57,51 +57,6 @@ class Settings::Item {
 };
 
 
-class Settings::ModifyMargins {
- public:
-  ModifyMargins(const Margins& marginsMm, const bool autoMargins)
-      : m_marginsMM(marginsMm), m_autoMargins(autoMargins) {}
-
-  void operator()(Item& item) {
-    item.hardMarginsMM = m_marginsMM;
-    item.autoMargins = m_autoMargins;
-  }
-
- private:
-  Margins m_marginsMM;
-  bool m_autoMargins;
-};
-
-
-class Settings::ModifyAlignment {
- public:
-  explicit ModifyAlignment(const Alignment& alignment) : m_alignment(alignment) {}
-
-  void operator()(Item& item) { item.alignment = m_alignment; }
-
- private:
-  Alignment m_alignment;
-};
-
-
-class Settings::ModifyContentSize {
- public:
-  ModifyContentSize(const QSizeF& contentSizeMm, const QRectF& contentRect, const QRectF& pageRect)
-      : m_contentSizeMM(contentSizeMm), m_contentRect(contentRect), m_pageRect(pageRect) {}
-
-  void operator()(Item& item) {
-    item.contentSizeMM = m_contentSizeMM;
-    item.contentRect = m_contentRect;
-    item.pageRect = m_pageRect;
-  }
-
- private:
-  QSizeF m_contentSizeMM;
-  QRectF m_contentRect;
-  QRectF m_pageRect;
-};
-
-
 class Settings::Impl {
  public:
   Impl();
@@ -190,6 +145,13 @@ class Settings::Impl {
   using UnorderedItems = Container::index<SequencedTag>::type;
   using DescWidthOrder = Container::index<DescWidthTag>::type;
   using DescHeightOrder = Container::index<DescHeightTag>::type;
+
+  /**
+   * Applies p modify to the page's item. A page without one gets an item with the default
+   * values, changed by p modify before it is inserted. Expects m_mutex to be locked.
+   */
+  template <typename Modifier>
+  Container::iterator modifyOrInsertLocked(const PageId& pageId, Modifier modify);
 
   mutable QMutex m_mutex;
   Container m_items;
@@ -370,6 +332,26 @@ Settings::Impl::Impl()
 
 Settings::Impl::~Impl() = default;
 
+template <typename Modifier>
+Settings::Impl::Container::iterator Settings::Impl::modifyOrInsertLocked(const PageId& pageId, Modifier modify) {
+  const Container::iterator it(m_items.find(pageId));
+  if (it != m_items.end()) {
+    m_items.modify(it, modify);
+    return it;
+  }
+  // The item is complete before it is inserted, so it takes its place in the ordered indexes once.
+  Item item(pageId, m_defaultHardMarginsMM, m_invalidRect, m_invalidRect, m_invalidSize, m_defaultAlignment,
+            m_autoMarginsDefault);
+  modify(item);
+  return m_items.insert(it, item);
+}
+
+namespace {
+Settings::AggregateSizeChanged aggregateSizeChange(const QSizeF& before, const QSizeF& after) {
+  return (before == after) ? Settings::AGGREGATE_SIZE_UNCHANGED : Settings::AGGREGATE_SIZE_CHANGED;
+}
+}  // namespace
+
 void Settings::Impl::clear() {
   const QMutexLocker locker(&m_mutex);
   m_items.clear();
@@ -477,15 +459,11 @@ Params Settings::Impl::updateContentSizeAndGetParams(const PageId& pageId,
     *aggHardSizeBefore = computeAggregateHardSizeMMLocked();
   }
 
-  const Container::iterator it(m_items.find(pageId));
-  Container::iterator itemIt(it);
-  if (it == m_items.end()) {
-    const Item item(pageId, m_defaultHardMarginsMM, pageRect, contentRect, contentSizeMm, m_defaultAlignment,
-                    m_autoMarginsDefault);
-    itemIt = m_items.insert(it, item);
-  } else {
-    m_items.modify(it, ModifyContentSize(contentSizeMm, contentRect, pageRect));
-  }
+  const Container::iterator itemIt = modifyOrInsertLocked(pageId, [&](Item& item) {
+    item.contentSizeMM = contentSizeMm;
+    item.contentRect = contentRect;
+    item.pageRect = pageRect;
+  });
 
   if (aggHardSizeAfter) {
     *aggHardSizeAfter = computeAggregateHardSizeMMLocked();
@@ -510,15 +488,7 @@ Margins Settings::Impl::getHardMarginsMM(const PageId& pageId) const {
 void Settings::Impl::setHardMarginsMM(const PageId& pageId, const Margins& marginsMm) {
   const QMutexLocker locker(&m_mutex);
 
-  const Container::iterator it(m_items.find(pageId));
-  if (it == m_items.end()) {
-    const Item item(pageId, marginsMm, m_invalidRect, m_invalidRect, m_invalidSize, m_defaultAlignment,
-                    m_autoMarginsDefault);
-    m_items.insert(it, item);
-  } else {
-    m_items.modify(it, ModifyMargins(marginsMm, it->autoMargins));
-  }
-
+  modifyOrInsertLocked(pageId, [&](Item& item) { item.hardMarginsMM = marginsMm; });
   m_deviationProvider.addOrUpdate(pageId);
 }
 
@@ -537,48 +507,22 @@ Settings::AggregateSizeChanged Settings::Impl::setPageAlignment(const PageId& pa
   const QMutexLocker locker(&m_mutex);
 
   const QSizeF aggSizeBefore(computeAggregateHardSizeMMLocked());
-
-  const Container::iterator it(m_items.find(pageId));
-  if (it == m_items.end()) {
-    const Item item(pageId, m_defaultHardMarginsMM, m_invalidRect, m_invalidRect, m_invalidSize, alignment,
-                    m_autoMarginsDefault);
-    m_items.insert(it, item);
-  } else {
-    m_items.modify(it, ModifyAlignment(alignment));
-  }
-
+  modifyOrInsertLocked(pageId, [&](Item& item) { item.alignment = alignment; });
   m_deviationProvider.addOrUpdate(pageId);
-
-  const QSizeF aggSizeAfter(computeAggregateHardSizeMMLocked());
-  if (aggSizeBefore == aggSizeAfter) {
-    return AGGREGATE_SIZE_UNCHANGED;
-  } else {
-    return AGGREGATE_SIZE_CHANGED;
-  }
+  return aggregateSizeChange(aggSizeBefore, computeAggregateHardSizeMMLocked());
 }
 
 Settings::AggregateSizeChanged Settings::Impl::setContentSizeMM(const PageId& pageId, const QSizeF& contentSizeMm) {
   const QMutexLocker locker(&m_mutex);
 
   const QSizeF aggSizeBefore(computeAggregateHardSizeMMLocked());
-
-  const Container::iterator it(m_items.find(pageId));
-  if (it == m_items.end()) {
-    const Item item(pageId, m_defaultHardMarginsMM, m_invalidRect, m_invalidRect, contentSizeMm, m_defaultAlignment,
-                    m_autoMarginsDefault);
-    m_items.insert(it, item);
-  } else {
-    m_items.modify(it, ModifyContentSize(contentSizeMm, m_invalidRect, it->pageRect));
-  }
-
+  // The page rect stays; the content rect no longer fits the new size.
+  modifyOrInsertLocked(pageId, [&](Item& item) {
+    item.contentSizeMM = contentSizeMm;
+    item.contentRect = m_invalidRect;
+  });
   m_deviationProvider.addOrUpdate(pageId);
-
-  const QSizeF aggSizeAfter(computeAggregateHardSizeMMLocked());
-  if (aggSizeBefore == aggSizeAfter) {
-    return AGGREGATE_SIZE_UNCHANGED;
-  } else {
-    return AGGREGATE_SIZE_CHANGED;
-  }
+  return aggregateSizeChange(aggSizeBefore, computeAggregateHardSizeMMLocked());
 }
 
 void Settings::Impl::invalidateContentSize(const PageId& pageId) {
@@ -586,7 +530,10 @@ void Settings::Impl::invalidateContentSize(const PageId& pageId) {
 
   const Container::iterator it(m_items.find(pageId));
   if (it != m_items.end()) {
-    m_items.modify(it, ModifyContentSize(m_invalidSize, m_invalidRect, it->pageRect));
+    m_items.modify(it, [&](Item& item) {
+      item.contentSizeMM = m_invalidSize;
+      item.contentRect = m_invalidRect;
+    });
   }
 
   m_deviationProvider.addOrUpdate(pageId);
@@ -670,14 +617,7 @@ bool Settings::Impl::isPageAutoMarginsEnabled(const PageId& pageId) {
 void Settings::Impl::setPageAutoMarginsEnabled(const PageId& pageId, const bool state) {
   const QMutexLocker locker(&m_mutex);
 
-  const Container::iterator it(m_items.find(pageId));
-  if (it == m_items.end()) {
-    const Item item(pageId, m_defaultHardMarginsMM, m_invalidRect, m_invalidRect, m_invalidSize, m_defaultAlignment,
-                    state);
-    m_items.insert(it, item);
-  } else {
-    m_items.modify(it, ModifyMargins(it->hardMarginsMM, state));
-  }
+  modifyOrInsertLocked(pageId, [&](Item& item) { item.autoMargins = state; });
 }
 
 bool Settings::Impl::isParamsNull(const PageId& pageId) const {
