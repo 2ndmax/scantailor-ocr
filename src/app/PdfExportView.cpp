@@ -594,6 +594,14 @@ bool PdfExportView::isRunning() const {
   return m_thread != nullptr;
 }
 
+std::set<PageId> PdfExportView::pagesToOutput() const {
+  std::vector<PdfExportPage> pages;
+  for (const Entry& entry : m_entries) {
+    pages.push_back(entry.page);
+  }
+  return PdfExportPage::pagesToOutput(pages);
+}
+
 void PdfExportView::cancelAndWait() {
   if (!m_thread) {
     return;

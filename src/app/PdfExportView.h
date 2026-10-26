@@ -8,6 +8,7 @@
 #include <QStringList>
 #include <QWidget>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "PdfExportPage.h"
@@ -75,6 +76,12 @@ class PdfExportView : public QWidget {
   void setDefaultFile(const QString& file);
 
   bool isRunning() const;
+
+  /**
+   * The pages whose output is missing or outdated, as the page list shows them. The files aren't
+   * inspected again.
+   */
+  std::set<PageId> pagesToOutput() const;
 
   /** Cancels a running export and waits until it has stopped. */
   void cancelAndWait();

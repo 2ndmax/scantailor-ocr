@@ -1659,10 +1659,11 @@ std::vector<PdfExportView::Entry> MainWindow::pdfExportEntries() const {
 }
 
 void MainWindow::outputMissingPages() {
-  if (!m_pdfStage || isBatchProcessingInProgress() || (m_pdfView && m_pdfView->isRunning())) {
+  if (!m_pdfStage || !m_pdfView || isBatchProcessingInProgress() || m_pdfView->isRunning()) {
     return;
   }
-  std::set<PageId> missing = PdfExportPage::pagesToOutput(m_stages->pdfExportPages(*m_pages, m_outFileNameGen));
+  // The pages shown as missing or outdated; their files were inspected when the step was shown.
+  std::set<PageId> missing = m_pdfView->pagesToOutput();
   if (missing.empty()) {
     return;
   }
