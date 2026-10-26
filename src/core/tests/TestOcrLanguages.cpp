@@ -6,19 +6,14 @@
 
 #include <QDir>
 #include <QFile>
-#include <QFileInfo>
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 
-namespace {
-bool writeFile(const QString& path, const QByteArray& content) {
-  QDir().mkpath(QFileInfo(path).absolutePath());
-  QFile file(path);
-  return file.open(QIODevice::WriteOnly) && (file.write(content) == content.size());
-}
+#include "TestHelpers.h"
 
+namespace {
 /** Points TESSDATA_PREFIX to a folder for the lifetime of the object. */
 class TessdataPrefix {
  public:
@@ -118,11 +113,11 @@ BOOST_AUTO_TEST_CASE(test_display_name) {
 BOOST_AUTO_TEST_CASE(test_available_and_common_dir) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
-  BOOST_REQUIRE(writeFile(dir.filePath("aaa.traineddata"), "a"));
-  BOOST_REQUIRE(writeFile(dir.filePath("bbb.traineddata"), "b"));
-  BOOST_REQUIRE(writeFile(dir.filePath("osd.traineddata"), "o"));
-  BOOST_REQUIRE(writeFile(dir.filePath("equ.traineddata"), "e"));
-  BOOST_REQUIRE(writeFile(dir.filePath("script/Latin.traineddata"), "l"));
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("aaa.traineddata"), "a"));
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("bbb.traineddata"), "b"));
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("osd.traineddata"), "o"));
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("equ.traineddata"), "e"));
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("script/Latin.traineddata"), "l"));
   const TessdataPrefix prefix(dir.path());
 
   const std::map<QString, QString> languages = OcrLanguages::available();
@@ -145,8 +140,8 @@ BOOST_AUTO_TEST_CASE(test_gather_in_user_dir) {
 
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
-  BOOST_REQUIRE(writeFile(dir.filePath("aaa.traineddata"), "content of aaa"));
-  BOOST_REQUIRE(writeFile(OcrLanguages::filePath(userDir, "ccc"), "c"));
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("aaa.traineddata"), "content of aaa"));
+  BOOST_REQUIRE(Tests::writeFile(OcrLanguages::filePath(userDir, "ccc"), "c"));
   const TessdataPrefix prefix(dir.path());
 
   // "aaa" and "ccc" are in different folders, so "aaa" is copied next to "ccc".

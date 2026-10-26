@@ -8,17 +8,7 @@
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 
-namespace {
-bool writeFile(const QString& path, const QByteArray& content) {
-  QFile file(path);
-  return file.open(QIODevice::WriteOnly) && (file.write(content) == content.size());
-}
-
-QByteArray readFile(const QString& path) {
-  QFile file(path);
-  return file.open(QIODevice::ReadOnly) ? file.readAll() : QByteArray();
-}
-}  // namespace
+#include "TestHelpers.h"
 
 BOOST_AUTO_TEST_SUITE(CoreUtilsTestSuite)
 
@@ -27,12 +17,12 @@ BOOST_AUTO_TEST_CASE(test_overwriting_rename) {
   BOOST_REQUIRE(dir.isValid());
   const QString source = dir.filePath("source.txt");
   const QString target = dir.filePath("target.txt");
-  BOOST_REQUIRE(writeFile(source, "new"));
-  BOOST_REQUIRE(writeFile(target, "old"));
+  BOOST_REQUIRE(Tests::writeFile(source, "new"));
+  BOOST_REQUIRE(Tests::writeFile(target, "old"));
 
   BOOST_REQUIRE(core::Utils::overwritingRename(source, target));
   BOOST_CHECK(!QFile::exists(source));
-  BOOST_CHECK(readFile(target) == "new");
+  BOOST_CHECK(Tests::readFile(target) == "new");
 }
 
 BOOST_AUTO_TEST_CASE(test_overwriting_rename_long_path) {
@@ -45,18 +35,18 @@ BOOST_AUTO_TEST_CASE(test_overwriting_rename_long_path) {
   const QString source = longDir + QStringLiteral("/source.txt");
   const QString target = longDir + '/' + QString(80, QChar('t')) + QStringLiteral(".txt");
   BOOST_REQUIRE(target.size() > 260);
-  BOOST_REQUIRE(writeFile(source, "new"));
-  BOOST_REQUIRE(writeFile(target, "old"));
+  BOOST_REQUIRE(Tests::writeFile(source, "new"));
+  BOOST_REQUIRE(Tests::writeFile(target, "old"));
 
   BOOST_REQUIRE(core::Utils::overwritingRename(source, target));
   BOOST_CHECK(!QFile::exists(source));
-  BOOST_CHECK(readFile(target) == "new");
+  BOOST_CHECK(Tests::readFile(target) == "new");
 
   // Also when the target doesn't exist yet.
-  BOOST_REQUIRE(writeFile(source, "newer"));
+  BOOST_REQUIRE(Tests::writeFile(source, "newer"));
   const QString other = longDir + '/' + QString(80, QChar('o')) + QStringLiteral(".txt");
   BOOST_REQUIRE(core::Utils::overwritingRename(source, other));
-  BOOST_CHECK(readFile(other) == "newer");
+  BOOST_CHECK(Tests::readFile(other) == "newer");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

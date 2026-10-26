@@ -28,15 +28,14 @@
 #include <set>
 #include <vector>
 
+#include "TestHelpers.h"
 #include "TestTiffFile.h"
 
 namespace {
 const double kMetersPerInch = 0.0254;
 
 QImage makeBitonal(const int width, const int height, const int dpi) {
-  QImage image(width, height, QImage::Format_Mono);
-  image.setColorTable({qRgb(255, 255, 255), qRgb(0, 0, 0)});
-  image.fill(0);
+  QImage image = Tests::whiteMonoImage(width, height);
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       // A pattern with long and short runs, like text.
@@ -56,10 +55,6 @@ QImage makeGray(const int width, const int height, const int dpi) {
   image.setDotsPerMeterX(static_cast<int>(std::lround(dpi / kMetersPerInch)));
   image.setDotsPerMeterY(static_cast<int>(std::lround(dpi / kMetersPerInch)));
   return image;
-}
-
-bool isBlack(const QImage& image, const int x, const int y) {
-  return qGray(image.pixel(x, y)) < 128;
 }
 
 /** Wraps raw G4 data into a TIFF file, so that libtiff can decode it again. */
@@ -184,10 +179,8 @@ QByteArray inflateStream(const QByteArray& pdf, const int from) {
   const QByteArray lengthKey = "/Length ";
   const int lengthStart = pdf.indexOf(lengthKey, from) + static_cast<int>(lengthKey.size());
   const int length = pdf.mid(lengthStart, pdf.indexOf(' ', lengthStart) - lengthStart).toInt();
-  QByteArray zlib = pdf.mid(pdf.indexOf("stream\n", lengthStart) + 7, length);
-  // qUncompress() expects the uncompressed size in front; a generous upper bound will do.
-  zlib.prepend(QByteArray::fromHex("00100000"));
-  return qUncompress(zlib);
+  // inflate() needs the uncompressed size; a generous upper bound will do.
+  return inflate(pdf.mid(pdf.indexOf("stream\n", lengthStart) + 7, length), 1 << 20);
 }
 
 // The content stream of the first page, written right before the page.
@@ -228,7 +221,7 @@ BOOST_AUTO_TEST_CASE(test_g4_round_trip) {
   bool allMatch = true;
   for (int y = 0; y < original.height(); ++y) {
     for (int x = 0; x < original.width(); ++x) {
-      allMatch = allMatch && (isBlack(decoded, x, y) == isBlack(original, x, y));
+      allMatch = allMatch && (Tests::isBlack(decoded, x, y) == Tests::isBlack(original, x, y));
     }
   }
   BOOST_CHECK(allMatch);
@@ -673,9 +666,7 @@ BOOST_AUTO_TEST_CASE(test_raw_samples) {
   QByteArray palette;
 
   // Black and white: black is 0, as in PDF's gray.
-  QImage bitonal(10, 1, QImage::Format_Mono);
-  bitonal.setColorTable({qRgb(255, 255, 255), qRgb(0, 0, 0)});
-  bitonal.fill(0);
+  QImage bitonal = Tests::whiteMonoImage(10, 1);
   bitonal.setPixel(0, 0, 1);
   QByteArray samples = PdfImageEncoder::rawSamples(bitonal, &components, &bits, &palette);
   BOOST_REQUIRE_EQUAL(samples.size(), 2);

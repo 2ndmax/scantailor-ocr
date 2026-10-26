@@ -29,6 +29,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 
+#include "TestHelpers.h"
 #include "TestTiffFile.h"
 
 namespace {
@@ -221,16 +222,6 @@ bool setTiffTag(QByteArray& data, const uint32_t ifd, const uint16_t tag, const 
     }
   }
   return false;
-}
-
-QByteArray readFile(const QString& path) {
-  QFile file(path);
-  return file.open(QIODevice::ReadOnly) ? file.readAll() : QByteArray();
-}
-
-bool writeFile(const QString& path, const QByteArray& data) {
-  QFile file(path);
-  return file.open(QIODevice::WriteOnly) && (file.write(data) == data.size());
 }
 
 QStringList readTiffMetadata(const QString& path,
@@ -673,9 +664,9 @@ BOOST_AUTO_TEST_CASE(test_damaged_tiff_reports_errors) {
   BOOST_REQUIRE(writeTiff(path, spec, [](int x, int y, int) { return (x ^ y) & 0xff; }));
 
   // The only strip is moved behind the end of the file, so reading it fails for sure.
-  QByteArray data = readFile(path);
+  QByteArray data = Tests::readFile(path);
   BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_STRIPOFFSETS, 0x7fffff00));
-  BOOST_REQUIRE(writeFile(path, data));
+  BOOST_REQUIRE(Tests::writeFile(path, data));
 
   QStringList messages;
   const QImage image = readTiff(path, &messages);
@@ -733,7 +724,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_huge_resolution_is_ignored) {
     spec.resolutionUnit = unit;
     BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
     // libtiff doesn't write such a value itself, so the rationals are set to 4294967295/1.
-    QByteArray data = readFile(path);
+    QByteArray data = Tests::readFile(path);
     const uint32_t ifd = ifdOffset(data, 0);
     for (uint32_t i = 0; i < readLe(data, ifd, 2); ++i) {
       const uint32_t entry = ifd + 2 + 12 * i;
@@ -744,7 +735,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_huge_resolution_is_ignored) {
         writeLe(data, rational + 4, 4, 1);
       }
     }
-    BOOST_REQUIRE(writeFile(path, data));
+    BOOST_REQUIRE(Tests::writeFile(path, data));
 
     std::vector<ImageMetadata> pages;
     ImageMetadataLoader::Status status;
@@ -765,9 +756,9 @@ BOOST_AUTO_TEST_CASE(test_tiff_width_beyond_int_max_is_rejected) {
   spec.width = 8;
   spec.height = 8;
   BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
-  QByteArray data = readFile(path);
+  QByteArray data = Tests::readFile(path);
   BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGEWIDTH, 0x80000001u));
-  BOOST_REQUIRE(writeFile(path, data));
+  BOOST_REQUIRE(Tests::writeFile(path, data));
 
   std::vector<ImageMetadata> pages;
   ImageMetadataLoader::Status status;
@@ -788,7 +779,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_damaged_page_directory_message) {
   spec.width = 8;
   spec.height = 8;
   BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }, 2));
-  QByteArray data = readFile(path);
+  QByteArray data = Tests::readFile(path);
   // An unknown private tag takes the place of ImageLength.
   const uint32_t ifd = ifdOffset(data, 1);
   for (uint32_t i = 0; i < readLe(data, ifd, 2); ++i) {
@@ -796,7 +787,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_damaged_page_directory_message) {
       writeLe(data, ifd + 2 + 12 * i, 2, 65000);
     }
   }
-  BOOST_REQUIRE(writeFile(path, data));
+  BOOST_REQUIRE(Tests::writeFile(path, data));
 
   ImageLoadErrorCapture capture;
   QFile file(path);
@@ -828,10 +819,10 @@ BOOST_AUTO_TEST_CASE(test_tiff_damaged_next_directory_is_reported) {
   }
 
   const QString damagedPath = dir.filePath("damaged_link.tif");
-  QByteArray data = readFile(intactPath);
+  QByteArray data = Tests::readFile(intactPath);
   const uint32_t ifd = ifdOffset(data, 1);
   writeLe(data, ifd + 2 + 12 * readLe(data, ifd, 2), 4, static_cast<uint32_t>(data.size()) + 4096);
-  BOOST_REQUIRE(writeFile(damagedPath, data));
+  BOOST_REQUIRE(Tests::writeFile(damagedPath, data));
 
   ImageLoadErrorCapture capture;
   std::vector<ImageMetadata> pages;
@@ -1057,11 +1048,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_jpeg_falls_back_to_lzw) {
 BOOST_AUTO_TEST_CASE(test_tiff_writer_bitonal_compressions) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
-  QImage image(40, 30, QImage::Format_Mono);
-  image.setColorCount(2);
-  image.setColor(0, qRgb(255, 255, 255));
-  image.setColor(1, qRgb(0, 0, 0));
-  image.fill(0);
+  QImage image = Tests::whiteMonoImage(40, 30);
   for (int y = 5; y < 25; ++y) {
     for (int x = 8; x < 20; ++x) {
       image.setPixel(x, y, 1);
@@ -1169,11 +1156,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_writer_predictor) {
   }
 
   // Not for black and white images.
-  QImage bw(40, 30, QImage::Format_Mono);
-  bw.setColorCount(2);
-  bw.setColor(0, qRgb(255, 255, 255));
-  bw.setColor(1, qRgb(0, 0, 0));
-  bw.fill(0);
+  QImage bw = Tests::whiteMonoImage(40, 30);
   const QString bwPath = dir.filePath("bw_lzw.tif");
   BOOST_REQUIRE(writeTiffWith(bwPath, bw, {COMPRESSION_LZW, COMPRESSION_LZW, 85}));
   BOOST_CHECK_EQUAL(readWrittenTags(bwPath).predictor, PREDICTOR_NONE);

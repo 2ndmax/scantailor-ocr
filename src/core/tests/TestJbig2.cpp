@@ -16,6 +16,8 @@
 #include <cstdint>
 #include <vector>
 
+#include "TestHelpers.h"
+
 namespace {
 /*
  * A decoder for what PdfImageEncoder::encodeJbig2() writes, written from the
@@ -223,20 +225,9 @@ bool decodeJbig2(const QByteArray& data, int* width, int* height, std::vector<ui
   return true;
 }  // decodeJbig2
 
-bool isBlack(const QImage& image, const int x, const int y) {
-  return qGray(image.pixel(x, y)) < 128;
-}
-
-QImage makeMono(const int width, const int height) {
-  QImage image(width, height, QImage::Format_Mono);
-  image.setColorTable({qRgb(255, 255, 255), qRgb(0, 0, 0)});
-  image.fill(0);
-  return image;
-}
-
 /** Text-like strokes, some repeated rows (typical prediction) and random noise. */
 QImage makePattern(const int width, const int height, uint32_t seed) {
-  QImage image = makeMono(width, height);
+  QImage image = Tests::whiteMonoImage(width, height);
   for (int y = 0; y < height; ++y) {
     const bool blankBand = (y / 9) % 4 == 3;
     for (int x = 0; x < width; ++x) {
@@ -261,7 +252,7 @@ long countMismatches(const QImage& original, const int width, const int height, 
   long mismatches = 0;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      if (isBlack(original, x, y) != (pixels[static_cast<size_t>(y) * width + x] != 0)) {
+      if (Tests::isBlack(original, x, y) != (pixels[static_cast<size_t>(y) * width + x] != 0)) {
         ++mismatches;
       }
     }
@@ -324,9 +315,9 @@ BOOST_AUTO_TEST_CASE(test_jbig2_round_trip) {
   checkRoundTrip(makePattern(1, 1, 2u));
 
   // Uniform images: everything is predicted, very little data.
-  QImage white = makeMono(150, 80);
+  QImage white = Tests::whiteMonoImage(150, 80);
   checkRoundTrip(white);
-  QImage black = makeMono(70, 40);
+  QImage black = Tests::whiteMonoImage(70, 40);
   black.fill(1);
   checkRoundTrip(black);
 
@@ -343,7 +334,7 @@ BOOST_AUTO_TEST_CASE(test_jbig2_round_trip) {
 
 BOOST_AUTO_TEST_CASE(test_jbig2_large_output) {
   // Noise compresses badly, so the coded output grows to well over 60 KiB.
-  QImage noise = makeMono(1200, 800);
+  QImage noise = Tests::whiteMonoImage(1200, 800);
   uint32_t seed = 4711u;
   for (int y = 0; y < noise.height(); ++y) {
     for (int x = 0; x < noise.width(); ++x) {
@@ -432,7 +423,7 @@ BOOST_AUTO_TEST_CASE(test_jbig2_rendered_by_poppler) {
     long mismatches = 0;
     for (int y = 0; y < image.height(); ++y) {
       for (int x = 0; x < image.width(); ++x) {
-        if (isBlack(rendered, x * scale + scale / 2, y * scale + scale / 2) != isBlack(image, x, y)) {
+        if (Tests::isBlack(rendered, x * scale + scale / 2, y * scale + scale / 2) != Tests::isBlack(image, x, y)) {
           ++mismatches;
         }
       }

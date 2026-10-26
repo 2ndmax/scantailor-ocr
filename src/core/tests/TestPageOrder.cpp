@@ -23,6 +23,8 @@
 #include <memory>
 #include <vector>
 
+#include "TestHelpers.h"
+
 namespace Tests {
 
 namespace {
@@ -32,20 +34,6 @@ std::vector<PageId::SubPage> subPagesInOrder(const ProjectPages& pages) {
     subPages.push_back(page.id().subPage());
   }
   return subPages;
-}
-
-void writeFile(const QString& path, const QByteArray& content) {
-  QFile file(path);
-  BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
-  file.write(content);
-}
-
-QByteArray readFile(const QString& path) {
-  QFile file(path);
-  if (!file.open(QIODevice::ReadOnly)) {
-    return QByteArray();
-  }
-  return file.readAll();
 }
 }  // namespace
 
@@ -99,11 +87,11 @@ BOOST_AUTO_TEST_CASE(switching_renames_the_output_files) {
   BOOST_REQUIRE(outDir.mkpath("foreground"));
   const QDir foregroundDir(outDir.filePath("foreground"));
 
-  writeFile(outDir.filePath("scan_1L.tif"), "left");
-  writeFile(outDir.filePath("scan_2R.tif"), "right");
-  writeFile(foregroundDir.filePath("scan_1L.tif"), "left foreground");
+  BOOST_REQUIRE(Tests::writeFile(outDir.filePath("scan_1L.tif"), "left"));
+  BOOST_REQUIRE(Tests::writeFile(outDir.filePath("scan_2R.tif"), "right"));
+  BOOST_REQUIRE(Tests::writeFile(foregroundDir.filePath("scan_1L.tif"), "left foreground"));
   // Left over from earlier, to be replaced.
-  writeFile(outDir.filePath("scan_2L.tif"), "stale");
+  BOOST_REQUIRE(Tests::writeFile(outDir.filePath("scan_2L.tif"), "stale"));
   const QDateTime leftModified = QFileInfo(outDir.filePath("scan_1L.tif")).lastModified();
 
   OutputFileNameGenerator generator(std::make_shared<FileNameDisambiguator>(), outDir.path(), Qt::LeftToRight);
@@ -112,18 +100,18 @@ BOOST_AUTO_TEST_CASE(switching_renames_the_output_files) {
 
   generator.setLayoutDirectionRenamingFiles(Qt::RightToLeft, images, dirs);
   BOOST_CHECK(generator.layoutDirection() == Qt::RightToLeft);
-  BOOST_CHECK(readFile(outDir.filePath("scan_2L.tif")) == "left");
-  BOOST_CHECK(readFile(outDir.filePath("scan_1R.tif")) == "right");
-  BOOST_CHECK(readFile(foregroundDir.filePath("scan_2L.tif")) == "left foreground");
+  BOOST_CHECK(Tests::readFile(outDir.filePath("scan_2L.tif")) == "left");
+  BOOST_CHECK(Tests::readFile(outDir.filePath("scan_1R.tif")) == "right");
+  BOOST_CHECK(Tests::readFile(foregroundDir.filePath("scan_2L.tif")) == "left foreground");
   BOOST_CHECK(!QFile::exists(outDir.filePath("scan_1L.tif")));
   BOOST_CHECK(!QFile::exists(outDir.filePath("scan_2R.tif")));
   BOOST_CHECK(!QFile::exists(foregroundDir.filePath("scan_1L.tif")));
   BOOST_CHECK(QFileInfo(outDir.filePath("scan_2L.tif")).lastModified() == leftModified);
 
   generator.setLayoutDirectionRenamingFiles(Qt::LeftToRight, images, dirs);
-  BOOST_CHECK(readFile(outDir.filePath("scan_1L.tif")) == "left");
-  BOOST_CHECK(readFile(outDir.filePath("scan_2R.tif")) == "right");
-  BOOST_CHECK(readFile(foregroundDir.filePath("scan_1L.tif")) == "left foreground");
+  BOOST_CHECK(Tests::readFile(outDir.filePath("scan_1L.tif")) == "left");
+  BOOST_CHECK(Tests::readFile(outDir.filePath("scan_2R.tif")) == "right");
+  BOOST_CHECK(Tests::readFile(foregroundDir.filePath("scan_1L.tif")) == "left foreground");
   BOOST_CHECK_EQUAL(outDir.entryList(QDir::Files).size(), 2);
 }
 
@@ -134,10 +122,10 @@ BOOST_AUTO_TEST_CASE(removing_deletes_the_files_in_all_folders) {
   BOOST_REQUIRE(outDir.mkpath("foreground"));
   const QDir foregroundDir(outDir.filePath("foreground"));
 
-  writeFile(outDir.filePath("scan_1L.tif"), "left");
-  writeFile(outDir.filePath("scan_2R.tif"), "right");
-  writeFile(foregroundDir.filePath("scan_1L.tif"), "left foreground");
-  writeFile(foregroundDir.filePath("scan_2R.tif"), "right foreground");
+  BOOST_REQUIRE(Tests::writeFile(outDir.filePath("scan_1L.tif"), "left"));
+  BOOST_REQUIRE(Tests::writeFile(outDir.filePath("scan_2R.tif"), "right"));
+  BOOST_REQUIRE(Tests::writeFile(foregroundDir.filePath("scan_1L.tif"), "left foreground"));
+  BOOST_REQUIRE(Tests::writeFile(foregroundDir.filePath("scan_2R.tif"), "right foreground"));
 
   const OutputFileNameGenerator generator(std::make_shared<FileNameDisambiguator>(), outDir.path(), Qt::LeftToRight);
   const ImageId imageId(outDir.filePath("scan.png"));
