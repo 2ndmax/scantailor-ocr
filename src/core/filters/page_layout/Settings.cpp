@@ -147,8 +147,9 @@ class Settings::Impl {
   using DescHeightOrder = Container::index<DescHeightTag>::type;
 
   /**
-   * Applies p modify to the page's item. A page without one gets an item with the default
-   * values, changed by p modify before it is inserted. Expects m_mutex to be locked.
+   * Applies the modifier to the item of the page. A page without one gets an item with
+   * the default values, which the modifier changes before it is inserted.
+   * Expects m_mutex to be locked.
    */
   template <typename Modifier>
   Container::iterator modifyOrInsertLocked(const PageId& pageId, Modifier modify);

@@ -49,7 +49,7 @@ class Utils {
   static void extendPolyRectWithMargins(QPolygonF& polyRect, const Margins& margins);
 
   /**
-   * rief Each margin divided by p factor.
+   * \brief Each margin divided by \p factor.
    *
    * The output enlarges the page rect by the scale factor, so margins that must keep their size
    * in the output are added divided by it.

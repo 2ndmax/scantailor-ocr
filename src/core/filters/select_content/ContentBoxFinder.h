@@ -55,7 +55,7 @@ class ContentBoxFinder {
   static void filterShadows(const TaskStatus& status, imageproc::BinaryImage& shadows, DebugImages* dbg);
 
   /**
-   * Cuts off the content at one edge of p area if it is separated by a gap and judged to be
+   * Cuts off the content at one edge of \p area if it is separated by a gap and judged to be
    * garbage; returns the area that remains.
    */
   static QRect trimEdge(const imageproc::BinaryImage& content,
