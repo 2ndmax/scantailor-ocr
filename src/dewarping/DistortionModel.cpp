@@ -6,6 +6,7 @@
 #include <QDomDocument>
 #include <QRectF>
 #include <QTransform>
+#include <limits>
 
 #include "CylindricalSurfaceDewarper.h"
 
@@ -39,8 +40,8 @@ bool DistortionModel::isValid() const {
   const Vec2d poly[4] = {m_topCurve.polyline().front(), m_topCurve.polyline().back(), m_bottomCurve.polyline().back(),
                          m_bottomCurve.polyline().front()};
 
-  double minDot = NumericTraits<double>::max();
-  double maxDot = NumericTraits<double>::min();
+  double minDot = std::numeric_limits<double>::max();
+  double maxDot = std::numeric_limits<double>::lowest();
 
   for (int i = 0; i < 4; ++i) {
     const Vec2d cur(poly[i]);
@@ -114,9 +115,9 @@ QRectF DistortionModel::modelDomain(const CylindricalSurfaceDewarper& dewarper,
 }
 
 QRectF DistortionModel::boundingBox(const QTransform& transform) const {
-  double top = NumericTraits<double>::max();
+  double top = std::numeric_limits<double>::max();
   double left = top;
-  double bottom = NumericTraits<double>::min();
+  double bottom = std::numeric_limits<double>::lowest();
   double right = bottom;
 
   for (QPointF pt : m_topCurve.polyline()) {

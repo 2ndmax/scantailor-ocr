@@ -5,10 +5,10 @@
 #define SCANTAILOR_SPFIT_FITTABLESPLINE_H_
 
 #include <QPointF>
+#include <limits>
 #include <vector>
 
 #include "FlagOps.h"
-#include "NumericTraits.h"
 #include "VirtualFunction.h"
 
 namespace spfit {
@@ -54,7 +54,8 @@ class FittableSpline {
      */
     double maxDistBetweenSamples;
 
-    explicit SamplingParams(double maxDistFromSpline = 0.2, double maxDistBetweenSamples = NumericTraits<double>::max())
+    explicit SamplingParams(double maxDistFromSpline = 0.2,
+                            double maxDistBetweenSamples = std::numeric_limits<double>::max())
         : maxDistFromSpline(maxDistFromSpline), maxDistBetweenSamples(maxDistBetweenSamples) {}
   };
 

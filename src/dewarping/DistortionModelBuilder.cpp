@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QRandomGenerator>
+#include <limits>
 
 #include "CylindricalSurfaceDewarper.h"
 #include "DebugImages.h"
@@ -44,7 +45,7 @@ struct DistortionModelBuilder::RansacModel {
   const TracedCurve* bottomCurve;
   double totalError;
 
-  RansacModel() : topCurve(nullptr), bottomCurve(nullptr), totalError(NumericTraits<double>::max()) {}
+  RansacModel() : topCurve(nullptr), bottomCurve(nullptr), totalError(std::numeric_limits<double>::max()) {}
 
   bool isValid() const { return topCurve && bottomCurve; }
 };

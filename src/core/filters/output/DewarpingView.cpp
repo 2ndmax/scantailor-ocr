@@ -9,6 +9,7 @@
 #include <QPainter>
 #include <QShortcut>
 #include <functional>
+#include <limits>
 
 #include "ImagePresentation.h"
 #include "ToLineProjector.h"
@@ -313,8 +314,8 @@ QPolygonF DewarpingView::virtMarginArea(int marginIdx) const {
 
   // Project every vertex in the m_virtDisplayArea polygon
   // to vert_line and to its normal, keeping track min and max values.
-  double min = NumericTraits<double>::max();
-  double max = NumericTraits<double>::min();
+  double min = std::numeric_limits<double>::max();
+  double max = std::numeric_limits<double>::lowest();
   double normalMax = max;
   const ToLineProjector vertLineProjector(vertBoundary);
   const ToLineProjector normalProjector(normal);

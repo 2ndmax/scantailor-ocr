@@ -7,8 +7,8 @@
 
 #include <cassert>
 #include <cmath>
+#include <limits>
 
-#include "NumericTraits.h"
 #include "SidesOfLine.h"
 
 using namespace imageproc;
@@ -52,7 +52,7 @@ const QPoint* TowardsLineTracer::trace(const float maxDist) {
     int bestDmIdx = -1;
     int bestPmIdx = -1;
     uint32_t bestSquaredDist = 0;
-    float bestProbability = NumericTraits<float>::min();
+    float bestProbability = std::numeric_limits<float>::lowest();
 
     for (int i = 0; i < m_numSteps; ++i) {
       const Step& step = m_steps[i];

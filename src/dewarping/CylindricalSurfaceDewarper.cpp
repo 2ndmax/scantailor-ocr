@@ -4,8 +4,8 @@
 #include "CylindricalSurfaceDewarper.h"
 
 #include <QDebug>
+#include <limits>
 
-#include "NumericTraits.h"
 #include "ToLineProjector.h"
 
 /*
@@ -281,7 +281,7 @@ void CylindricalSurfaceDewarper::initArcLengthMapper(const std::vector<QPointF>&
   CoupledPolylinesIterator it(imgDirectrix1, imgDirectrix2, m_pln2img, m_img2pln);
   QPointF imgCurve1Pt;
   QPointF imgCurve2Pt;
-  double prevPlnX = NumericTraits<double>::min();
+  double prevPlnX = std::numeric_limits<double>::lowest();
   double plnX;
   while (it.next(imgCurve1Pt, imgCurve2Pt, plnX)) {
     if (plnX <= prevPlnX) {

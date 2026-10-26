@@ -10,9 +10,9 @@
 #include <QPainter>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 #include "DebugImages.h"
-#include "NumericTraits.h"
 
 using namespace imageproc;
 
@@ -307,8 +307,8 @@ QImage TextLineRefiner::visualizeGradient(const Grid<float>& gradient) const {
   const int height = gradient.height();
   const int gradientStride = gradient.stride();
   // First let's find the maximum and minimum values.
-  float minValue = NumericTraits<float>::max();
-  float maxValue = NumericTraits<float>::min();
+  float minValue = std::numeric_limits<float>::max();
+  float maxValue = std::numeric_limits<float>::lowest();
 
   const float* gradientLine = gradient.data();
   for (int y = 0; y < height; ++y) {
@@ -458,7 +458,7 @@ bool TextLineRefiner::Optimizer::thicknessAdjustment(Snake& snake, const Grid<fl
 
   int bestI = 0;
   int bestJ = 0;
-  float bestCost = NumericTraits<float>::max();
+  float bestCost = std::numeric_limits<float>::max();
   for (int i = 0; i < NUM_RIB_ADJUSTMENTS; ++i) {
     const float headRib = snake.nodes.front().ribHalfLength + rib_adjustments[i];
     if (headRib <= std::numeric_limits<float>::epsilon()) {
@@ -530,7 +530,7 @@ bool TextLineRefiner::Optimizer::tangentMovement(Snake& snake, const Grid<float>
       step.prevStepIdx = ~uint32_t(0);
       step.node.center = initialPos + tangentMovement * unitTangent;
       step.node.ribHalfLength = rib;
-      step.pathCost = NumericTraits<float>::max();
+      step.pathCost = std::numeric_limits<float>::max();
 
       float baseCost = calcExternalEnergy(gradient, step.node, downNormal);
 
@@ -561,7 +561,7 @@ bool TextLineRefiner::Optimizer::tangentMovement(Snake& snake, const Grid<float>
 
   // Find the best overall path.
   uint32_t bestPathIdx = ~uint32_t(0);
-  float bestCost = NumericTraits<float>::max();
+  float bestCost = std::numeric_limits<float>::max();
   for (uint32_t lastStepIdx : paths) {
     const Step& step = stepStorage[lastStepIdx];
     if (step.pathCost < bestCost) {
@@ -642,7 +642,7 @@ bool TextLineRefiner::Optimizer::normalMovement(Snake& snake, const Grid<float>&
       step.prevStepIdx = ~uint32_t(0);
       step.node.center = node.center + normalMovement * downNormal;
       step.node.ribHalfLength = node.ribHalfLength;
-      step.pathCost = NumericTraits<float>::max();
+      step.pathCost = std::numeric_limits<float>::max();
 
       const float baseCost = calcExternalEnergy(gradient, step.node, downNormal);
 
@@ -670,7 +670,7 @@ bool TextLineRefiner::Optimizer::normalMovement(Snake& snake, const Grid<float>&
 
   // Find the best overall path.
   uint32_t bestPathIdx = ~uint32_t(0);
-  float bestCost = NumericTraits<float>::max();
+  float bestCost = std::numeric_limits<float>::max();
   for (uint32_t lastStepIdx : paths) {
     const Step& step = stepStorage[lastStepIdx];
     if (step.pathCost < bestCost) {

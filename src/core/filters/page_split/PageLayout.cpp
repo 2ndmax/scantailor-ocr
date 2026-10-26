@@ -7,8 +7,8 @@
 
 #include <QTransform>
 #include <cassert>
+#include <limits>
 
-#include "NumericTraits.h"
 #include "ToLineProjector.h"
 #include "XmlMarshaller.h"
 #include "XmlUnmarshaller.h"
@@ -108,8 +108,8 @@ QLineF PageLayout::inscribedCutterLine(int idx) const {
   const QPointF origin(rawLine.p1());
   const QPointF lineVec(rawLine.p2() - origin);
 
-  double minProj = NumericTraits<double>::max();
-  double maxProj = NumericTraits<double>::min();
+  double minProj = std::numeric_limits<double>::max();
+  double maxProj = std::numeric_limits<double>::lowest();
   QPointF minPt;
   QPointF maxPt;
 
@@ -311,8 +311,8 @@ QLineF PageLayout::extendToCover(const QLineF& line, const QPolygonF& poly) {
 
   // Project every vertex of the polygon onto the line and take extremas.
 
-  double min = NumericTraits<double>::max();
-  double max = NumericTraits<double>::min();
+  double min = std::numeric_limits<double>::max();
+  double max = std::numeric_limits<double>::lowest();
   const ToLineProjector projector(line);
 
   for (const QPointF& pt : poly) {

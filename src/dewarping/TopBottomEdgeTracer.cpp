@@ -11,13 +11,13 @@
 #include <QDebug>
 #include <QPainter>
 #include <cmath>
+#include <limits>
 
 #include "DebugImages.h"
 #include "DistortionModelBuilder.h"
 #include "GridLineTraverser.h"
 #include "LineBoundedByRect.h"
 #include "MatrixCalc.h"
-#include "NumericTraits.h"
 #include "PriorityQueue.h"
 #include "TaskStatus.h"
 #include "ToLineProjector.h"
@@ -72,7 +72,7 @@ struct TopBottomEdgeTracer::GridNode {
    * Note that is one doesn't modify dirDeriv.
    */
   void setupForInterior() {
-    pathCost = NumericTraits<float>::max();
+    pathCost = std::numeric_limits<float>::max();
     packedData = INVALID_HEAP_IDX;
   }
 
@@ -707,7 +707,7 @@ void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Gr
 
         step.pathCost += externalWeight * adjustedExternalEnergy;
 
-        float bestCost = NumericTraits<float>::max();
+        float bestCost = std::numeric_limits<float>::max();
         uint32_t bestPrevStepIdx = step.prevStepIdx;
 
         for (uint32_t prevStepIdx : paths) {
@@ -739,7 +739,7 @@ void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Gr
             }
           }
 
-          assert(cost < NumericTraits<float>::max());
+          assert(cost < std::numeric_limits<float>::max());
 
           if (cost < bestCost) {
             bestCost = cost;
@@ -761,7 +761,7 @@ void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Gr
     }
 
     uint32_t bestPathIdx = ~uint32_t(0);
-    float bestCost = NumericTraits<float>::max();
+    float bestCost = std::numeric_limits<float>::max();
     for (uint32_t lastStepIdx : paths) {
       const Step& step = stepStorage[lastStepIdx];
       if (step.pathCost < bestCost) {
@@ -834,7 +834,7 @@ void TopBottomEdgeTracer::upTheHillSnake(std::vector<QPointF>& snake, const Grid
 
         step.pathCost += externalWeight * adjustedExternalEnergy;
 
-        float bestCost = NumericTraits<float>::max();
+        float bestCost = std::numeric_limits<float>::max();
         uint32_t bestPrevStepIdx = step.prevStepIdx;
 
         for (uint32_t prevStepIdx : paths) {
@@ -866,7 +866,7 @@ void TopBottomEdgeTracer::upTheHillSnake(std::vector<QPointF>& snake, const Grid
             }
           }
 
-          assert(cost < NumericTraits<float>::max());
+          assert(cost < std::numeric_limits<float>::max());
 
           if (cost < bestCost) {
             bestCost = cost;
@@ -888,7 +888,7 @@ void TopBottomEdgeTracer::upTheHillSnake(std::vector<QPointF>& snake, const Grid
     }
 
     uint32_t bestPathIdx = ~uint32_t(0);
-    float bestCost = NumericTraits<float>::max();
+    float bestCost = std::numeric_limits<float>::max();
     for (uint32_t lastStepIdx : paths) {
       const Step& step = stepStorage[lastStepIdx];
       if (step.pathCost < bestCost) {
@@ -932,8 +932,8 @@ QImage TopBottomEdgeTracer::visualizeGradient(const Grid<GridNode>& grid, const 
   const int height = grid.height();
   const int gridStride = grid.stride();
   // First let's find the maximum and minimum values.
-  float minValue = NumericTraits<float>::max();
-  float maxValue = NumericTraits<float>::min();
+  float minValue = std::numeric_limits<float>::max();
+  float maxValue = std::numeric_limits<float>::lowest();
 
   const GridNode* gridLine = grid.data();
   for (int y = 0; y < height; ++y) {
@@ -992,8 +992,8 @@ QImage TopBottomEdgeTracer::visualizeBlurredGradient(const Grid<GridNode>& grid)
   const int height = grid.height();
   const int gridStride = grid.stride();
   // First let's find the maximum and minimum values.
-  float minValue = NumericTraits<float>::max();
-  float maxValue = NumericTraits<float>::min();
+  float minValue = std::numeric_limits<float>::max();
+  float maxValue = std::numeric_limits<float>::lowest();
 
   const GridNode* gridLine = grid.data();
   for (int y = 0; y < height; ++y) {

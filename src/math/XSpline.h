@@ -6,10 +6,10 @@
 
 #include <QLineF>
 #include <QPointF>
+#include <limits>
 #include <utility>
 #include <vector>
 
-#include "NumericTraits.h"
 #include "QuadraticFunction.h"
 #include "VirtualFunction.h"
 #include "spfit/FittableSpline.h"

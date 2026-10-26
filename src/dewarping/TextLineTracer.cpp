@@ -19,6 +19,7 @@
 
 #include <QPainter>
 #include <cmath>
+#include <limits>
 
 #include "DebugImages.h"
 #include "DetectVertContentBounds.h"
@@ -26,7 +27,6 @@
 #include "DistortionModelBuilder.h"
 #include "GridLineTraverser.h"
 #include "LineBoundedByRect.h"
-#include "NumericTraits.h"
 #include "TaskStatus.h"
 #include "TextLineRefiner.h"
 #include "ToLineProjector.h"
@@ -494,8 +494,8 @@ QImage TextLineTracer::visualizeGradient(const QImage& background, const Grid<fl
   const int height = grad.height();
   const int gradStride = grad.stride();
   // First let's find the maximum and minimum values.
-  float minValue = NumericTraits<float>::max();
-  float maxValue = NumericTraits<float>::min();
+  float minValue = std::numeric_limits<float>::max();
+  float maxValue = std::numeric_limits<float>::lowest();
 
   const float* gradLine = grad.data();
   for (int y = 0; y < height; ++y) {

@@ -177,12 +177,12 @@ void XSpline::sample(const VirtualFunction<void, const QPointF&, double, SampleF
   }
 
   double maxSqdistToSpline = params.maxDistFromSpline;
-  if (maxSqdistToSpline != NumericTraits<double>::max()) {
+  if (maxSqdistToSpline != std::numeric_limits<double>::max()) {
     maxSqdistToSpline *= params.maxDistFromSpline;
   }
 
   double maxSqdistBetweenSamples = params.maxDistBetweenSamples;
-  if (maxSqdistBetweenSamples != NumericTraits<double>::max()) {
+  if (maxSqdistBetweenSamples != std::numeric_limits<double>::max()) {
     maxSqdistBetweenSamples *= params.maxDistBetweenSamples;
   }
 

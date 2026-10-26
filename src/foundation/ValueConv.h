@@ -5,8 +5,7 @@
 #define SCANTAILOR_FOUNDATION_VALUECONV_H_
 
 #include <cmath>
-
-#include "NumericTraits.h"
+#include <limits>
 
 template <typename ToType>
 class StaticCastValueConv {
@@ -21,7 +20,8 @@ class StaticCastValueConv {
 template <typename ToType>
 class RoundAndClipValueConv {
  public:
-  explicit RoundAndClipValueConv(ToType min = NumericTraits<ToType>::min(), ToType max = NumericTraits<ToType>::max())
+  explicit RoundAndClipValueConv(ToType min = std::numeric_limits<ToType>::lowest(),
+                                 ToType max = std::numeric_limits<ToType>::max())
       : m_min(min), m_max(max) {}
 
   template <typename FromType>

@@ -18,7 +18,6 @@ set(sources
     XmlUnmarshaller.cpp XmlUnmarshaller.h
     StaticPool.h
     DynamicPool.h
-    NumericTraits.h
     TaskStatus.h
     VecNT.h
     VecT.h

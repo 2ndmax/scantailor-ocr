@@ -4,6 +4,7 @@
 #include "PolylineModelShape.h"
 
 #include <QDebug>
+#include <limits>
 #include <stdexcept>
 
 #include "FrenetFrame.h"
@@ -37,7 +38,7 @@ SqDistApproximant PolylineModelShape::localSqDistApproximant(const QPointF& pt,
 
   // First, find the point on the polyline closest to pt.
   QPointF bestFootPoint;
-  double bestSqdist = NumericTraits<double>::max();
+  double bestSqdist = std::numeric_limits<double>::max();
   double segmentT = -1;
   int segmentIdx = -1;  // If bestFootPoint is on a segment, its index goes here.
   int vertexIdx = -1;   // If bestFootPoint is a vertex, its index goes here.
