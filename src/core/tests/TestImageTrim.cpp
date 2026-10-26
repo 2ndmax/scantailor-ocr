@@ -35,5 +35,43 @@ BOOST_AUTO_TEST_CASE(inner_rect_of_a_tiny_image_stays_inside) {
   BOOST_CHECK(!inner.isEmpty());
 }
 
+// Trims that leave less than the minimum side: the part that one edge can't give up is taken
+// from the opposite edge. The expected rectangles are those the code produced before the
+// excess was redistributed in one place (review FO-06).
+BOOST_AUTO_TEST_CASE(inner_rect_takes_the_excess_from_both_edges) {
+  struct Case {
+    int leading;
+    int trailing;
+    int imageSide;
+    int expectedPos;
+    int expectedLength;
+  };
+  const Case cases[] = {
+      {100, 0, 100, 68, 32},  // Only the leading edge can give up something.
+      {0, 100, 100, 0, 32},   // Only the trailing edge can.
+      {60, 60, 100, 34, 32},  // Both edges give up the same.
+      {10, 70, 100, 4, 32},   // Both can, unequal trims.
+      {3, 90, 100, 0, 32},    // The leading edge gives up all it has.
+      {2, 0, 20, 0, 20},      // Image smaller than the minimum side.
+  };
+  for (const Case& c : cases) {
+    ImageTrim horizontal;
+    horizontal.enabled = true;
+    horizontal.left = c.leading;
+    horizontal.right = c.trailing;
+    const QRect h = horizontal.toInnerRect(QSize(c.imageSide, 200));
+    BOOST_CHECK_EQUAL(h.x(), c.expectedPos);
+    BOOST_CHECK_EQUAL(h.width(), c.expectedLength);
+
+    ImageTrim vertical;
+    vertical.enabled = true;
+    vertical.top = c.leading;
+    vertical.bottom = c.trailing;
+    const QRect v = vertical.toInnerRect(QSize(200, c.imageSide));
+    BOOST_CHECK_EQUAL(v.y(), c.expectedPos);
+    BOOST_CHECK_EQUAL(v.height(), c.expectedLength);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

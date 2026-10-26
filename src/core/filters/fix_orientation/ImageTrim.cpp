@@ -9,15 +9,17 @@ namespace fix_orientation {
 
 namespace {
 
+// Takes \p excess off the two (non-negative) edges, half from each where possible. What one
+// edge can't give up is taken from the other one; neither edge drops below zero.
 void redistributeExcess(int& leading, int& trailing, const int excess) {
   if (excess <= 0) {
     return;
   }
   const int fromLeading = std::min(leading, (excess + 1) / 2);
-  leading -= fromLeading;
-  trailing -= (excess - fromLeading);
-  leading = std::max(0, leading);
-  trailing = std::max(0, trailing);
+  const int fromTrailing = std::min(trailing, excess - fromLeading);
+  const int restFromLeading = std::min(leading - fromLeading, excess - fromLeading - fromTrailing);
+  leading -= fromLeading + restFromLeading;
+  trailing -= fromTrailing;
 }
 
 // A quarter turn clockwise moves the left edge to the top, the top edge to the right and so on.
@@ -60,16 +62,10 @@ QRect ImageTrim::toInnerRect(const QSize& imageSize) const {
     redistributeExcess(t, b, t + b + kMinTrimInnerSide - imageSize.height());
   }
 
-  // An image smaller than the minimum side keeps its own size.
-  int w = std::min(imageSize.width(), std::max(kMinTrimInnerSide, imageSize.width() - l - r));
-  int h = std::min(imageSize.height(), std::max(kMinTrimInnerSide, imageSize.height() - t - b));
-
-  if (l + w > imageSize.width()) {
-    l = std::max(0, imageSize.width() - w);
-  }
-  if (t + h > imageSize.height()) {
-    t = std::max(0, imageSize.height() - h);
-  }
+  // An image smaller than the minimum side keeps its own size. After the redistribution above,
+  // the rectangle always lies inside the image.
+  const int w = std::min(imageSize.width(), std::max(kMinTrimInnerSide, imageSize.width() - l - r));
+  const int h = std::min(imageSize.height(), std::max(kMinTrimInnerSide, imageSize.height() - t - b));
 
   return QRect(l, t, w, h);
 }
