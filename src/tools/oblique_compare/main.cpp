@@ -48,32 +48,45 @@ const int NUM_CASES = 10;
 /** Not a multiple of half a pixel, so that the sampling grid really moves. */
 const QPointF SHIFT(0.37, 0.61);
 
+/** What a method gets of a scan: the cleaned-up page of the deskew step, the gray scan, the deskew angle. */
+struct ScanInput {
+  SkewFinder& skewFinder;
+  const BinaryImage& cleaned;
+  const QImage& gray;
+  double deskewAngleDeg;
+};
+
 /** An oblique method: the angle in the sense of deskew::Task::findObliqueAngle(), or nothing. */
 struct Method {
   QString name;
-  std::function<Finding(SkewFinder&, const BinaryImage& cleaned, double deskewAngleDeg)> find;
+  std::function<Finding(const ScanInput&)> find;
 };
 
 const std::vector<Method>& methods() {
   static const std::vector<Method> METHODS
       = {{QStringLiteral("heute"),
-          [](SkewFinder& skewFinder, const BinaryImage& image, const double deskewAngleDeg) {
-            return Finding{deskew::Task::findObliqueAngle(skewFinder, image, deskewAngleDeg), std::nullopt};
+          [](const ScanInput& in) {
+            return Finding{deskew::Task::findObliqueAngle(in.skewFinder, in.cleaned, in.deskewAngleDeg), std::nullopt};
           }},
          {QStringLiteral("(a) volle Gewichtung"),
-          [](SkewFinder& skewFinder, const BinaryImage& image, const double deskewAngleDeg) {
-            return sausageFullWeight(skewFinder, image, deskewAngleDeg, true);
-          }},
+          [](const ScanInput& in) { return sausageFullWeight(in.skewFinder, in.cleaned, in.deskewAngleDeg, true); }},
          {QStringLiteral("(a) ohne Konfidenzprüfung"),
-          [](SkewFinder& skewFinder, const BinaryImage& image, const double deskewAngleDeg) {
-            return sausageFullWeight(skewFinder, image, deskewAngleDeg, false);
-          }},
+          [](const ScanInput& in) { return sausageFullWeight(in.skewFinder, in.cleaned, in.deskewAngleDeg, false); }},
          {QStringLiteral("(b) Senkrechten-Suche"),
-          [](SkewFinder&, const BinaryImage& image, const double deskewAngleDeg) {
-            return verticalEdgeSearch(image, deskewAngleDeg);
-          }},
-         {QStringLiteral("(c) Zeilenanfänge"), [](SkewFinder&, const BinaryImage& image, const double deskewAngleDeg) {
-            return lineStartFit(image, deskewAngleDeg);
+          [](const ScanInput& in) { return verticalEdgeSearch(in.cleaned, in.deskewAngleDeg); }},
+         {QStringLiteral("(c) Zeilenanfänge"),
+          [](const ScanInput& in) { return lineStartFit(in.cleaned, in.deskewAngleDeg); }},
+         {QStringLiteral("(c2) Kanten links und rechts"),
+          [](const ScanInput& in) { return edgeFit(in.cleaned, in.deskewAngleDeg); }},
+         {QStringLiteral("(d) Strichrichtung"),
+          [](const ScanInput& in) { return strokeDirection(in.gray, in.deskewAngleDeg); }},
+         {QStringLiteral("(e) Kanten, sonst Strichrichtung"), [](const ScanInput& in) {
+            // Straight edges are the most exact; if they disagree, the page is no case for a shear.
+            const Finding edges(edgeFit(in.cleaned, in.deskewAngleDeg));
+            if (edges.angle || (edges.confidence.value_or(0.0) < 0)) {
+              return edges;
+            }
+            return strokeDirection(in.gray, in.deskewAngleDeg);
           }}};
   return METHODS;
 }
@@ -104,7 +117,7 @@ void measureScan(const QImage& scan, const int dpi, const bool shifted, PageResu
     result.rotation = rotation;
   }
   for (size_t m = 0; m < methods().size(); ++m) {
-    const Finding finding(methods()[m].find(skewFinder, image, rotation.value_or(0.0)));
+    const Finding finding(methods()[m].find({skewFinder, image, scan, rotation.value_or(0.0)}));
     if (shifted) {
       result.methods[m].shearShifted = finding.angle;
     } else {
@@ -134,9 +147,10 @@ QString angleText(const std::optional<double>& angle) {
 
 QString pageText(const PageSpec& s) {
   return QStringLiteral("Seite %1 · %2 dpi · %3 · %4 · %5 · Störung: %6")
-      .arg(s.index)
-      .arg(s.dpi)
-      .arg(toString(s.text), toString(s.layout), toString(s.alignment), toString(s.disturbance));
+             .arg(s.index)
+             .arg(s.dpi)
+             .arg(toString(s.text), toString(s.layout), toString(s.alignment), toString(s.disturbance))
+         + ((s.keystone != 0) ? QStringLiteral(" · Trapez %1 %").arg(number(100 * s.keystone, 1)) : QString());
 }
 
 /** The direction in the scan of the upright vertical, for the given angles. */

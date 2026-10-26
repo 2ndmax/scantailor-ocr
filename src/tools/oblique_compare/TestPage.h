@@ -38,6 +38,12 @@ struct PageSpec {
   /** The oblique angle that straightens the scan, in the sense of deskew::Task::findObliqueAngle(). */
   double shearDeg = 0;
   ShearClass shearClass = ShearClass::NONE;
+  /**
+   * Perspective, as from a camera tilted towards the top or bottom: the bottom of the page is this
+   * much wider than the top, relative to the page width (negative: narrower). The left and right
+   * edges then lean in opposite directions; it is no shear, and the page has none besides.
+   */
+  double keystone = 0;
   TextAmount text = TextAmount::FULL_PAGE;
   Layout layout = Layout::ONE_COLUMN;
   Alignment alignment = Alignment::JUSTIFIED;
@@ -50,7 +56,8 @@ const int PAGES_PER_ROUND = 81;
 
 /**
  * The fixed sample. The angles are random and not on any grid: rotation within ±5°, shear 0° on
- * one page in six, 0.1° to 1° on two in six, 1° to 4° on three in six, either sign.
+ * one page in six, 0.1° to 1° on two in six, 1° to 4° on three in six, either sign. Half of the
+ * pages without shear get a keystone of 1 % to 6 % instead.
  */
 PageSpec pageSpec(int index, uint32_t seed);
 

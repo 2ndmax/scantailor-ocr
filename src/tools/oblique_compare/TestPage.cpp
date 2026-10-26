@@ -9,6 +9,7 @@
 
 #include <QFontMetricsF>
 #include <QPainter>
+#include <QPolygonF>
 #include <QTransform>
 #include <algorithm>
 #include <cmath>
@@ -167,6 +168,26 @@ QImage disturbed(const QImage& src, const PageSpec& spec, Random rnd) {
   return src;
 }
 
+/** The page in perspective: the top narrower and the bottom wider by half of \p keystone each. */
+QImage withKeystone(const QImage& page, const double keystone) {
+  const double w = page.width();
+  const double h = page.height();
+  const double d = 0.25 * keystone * w;
+  QPolygonF rect;
+  rect << QPointF(0, 0) << QPointF(w, 0) << QPointF(w, h) << QPointF(0, h);
+  QPolygonF trapezoid;
+  trapezoid << QPointF(d, 0) << QPointF(w - d, 0) << QPointF(w + d, h) << QPointF(-d, h);
+  QTransform xform;
+  QTransform::quadToQuad(rect, trapezoid, xform);
+  QImage result(page.size(), QImage::Format_RGB32);
+  result.fill(Qt::white);
+  QPainter painter(&result);
+  painter.setRenderHint(QPainter::SmoothPixmapTransform);
+  painter.setTransform(xform);
+  painter.drawImage(0, 0, page);
+  return result;
+}
+
 /** Sets one line of a paragraph into a column; the words are drawn only if \p painter is given. */
 class LineSetter {
  public:
@@ -318,6 +339,13 @@ PageSpec pageSpec(const int index, const uint32_t seed) {
     spec.shearClass = ShearClass::LARGE;
     spec.shearDeg = sign * rnd.uniform(1.0, 4.0);
   }
+  if (spec.shearClass == ShearClass::NONE) {
+    // A sequence of its own, so that the pages above stay as they were before keystones came in.
+    Random keystoneRnd(pageSeed(seed, index, 5));
+    if (keystoneRnd.below(2) == 0) {
+      spec.keystone = ((keystoneRnd.below(2) == 0) ? -1.0 : 1.0) * keystoneRnd.uniform(0.01, 0.06);
+    }
+  }
   return spec;
 }
 
@@ -397,6 +425,9 @@ QImage renderPage(const PageSpec& spec, const uint32_t seed, const QFont& font) 
     }
   }
   painter.end();
+  if (spec.keystone != 0) {
+    canvas = withKeystone(canvas, spec.keystone);
+  }
   return GrayImage(canvas).toQImage();
 }
 

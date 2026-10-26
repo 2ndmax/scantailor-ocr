@@ -6,6 +6,8 @@
 
 #include <optional>
 
+class QImage;
+
 namespace imageproc {
 class BinaryImage;
 class SkewFinder;
@@ -47,6 +49,22 @@ Finding verticalEdgeSearch(const imageproc::BinaryImage& image, double deskewAng
  * fewer than a third of the lines share one straight edge, there is no angle.
  */
 Finding lineStartFit(const imageproc::BinaryImage& image, double deskewAngleDeg);
+
+/**
+ * (c2) Like (c), but with every straight edge of the text: the starts and ends of the lines of
+ * every column, so also the right edge of justified text. All edges found must lean alike within
+ * EDGES_AGREE_DEG; if they do not, it is no shear (perspective, a curved page) and there is no
+ * angle. The confidence is the number of edges, negative if they disagree.
+ */
+Finding edgeFit(const imageproc::BinaryImage& image, double deskewAngleDeg);
+
+/**
+ * (d) The direction of the vertical stroke edges on the gray page (stems of letters): the least
+ * squares direction of the gradients of nearly vertical edges, in narrowing windows around the
+ * estimate. Needs no straight edge of the text block, but takes italic type for shear. The
+ * confidence is the number of edge pixels used.
+ */
+Finding strokeDirection(const QImage& gray, double deskewAngleDeg);
 
 }  // namespace compare
 

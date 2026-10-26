@@ -113,6 +113,9 @@ std::vector<Group> groups() {
   for (const ShearClass c : {ShearClass::NONE, ShearClass::SMALL, ShearClass::LARGE}) {
     result.push_back({QStringLiteral("Scherung ") + toString(c), [c](const PageSpec& s) { return s.shearClass == c; }});
   }
+  result.push_back({QStringLiteral("Scherung 0°, ohne Trapez"),
+                    [](const PageSpec& s) { return (s.shearClass == ShearClass::NONE) && (s.keystone == 0); }});
+  result.push_back({QStringLiteral("Trapez (Scherung 0°)"), [](const PageSpec& s) { return s.keystone != 0; }});
   for (const Alignment a : {Alignment::JUSTIFIED, Alignment::RAGGED_RIGHT, Alignment::CENTERED}) {
     result.push_back({toString(a), [a](const PageSpec& s) { return s.alignment == a; }});
   }
@@ -213,7 +216,8 @@ std::vector<QString> conclusions(const std::vector<PageResult>& results, const R
 QString hint(const RunInfo& info) {
   return QStringLiteral(
              "%1 künstliche Seiten, Startwert %2, Schrift %3, Laufzeit %4 s. Die wahren Winkel sind stufenlos "
-             "zufällig (Drehung ±5°, Scherung 0° / 0,1°–1° / 1°–4°). Restschräge: was nach der Korrektur übrig "
+             "zufällig (Drehung ±5°, Scherung 0° / 0,1°–1° / 1°–4°; die Hälfte der Seiten mit 0° hat stattdessen ein "
+             "Trapez von 1–6 %, das keine Scherung ist). Restschräge: was nach der Korrektur übrig "
              "bleibt; ohne erkannten Winkel bleibt die ganze Scherung. Unruhe: Unterschied des Winkels, wenn "
              "derselbe Scan um (%5; %6) Pixel verschoben ist; kippt: nur auf einem der beiden Scans ein Winkel.")
       .arg(info.pages)
@@ -306,17 +310,17 @@ QString csvNumber(const std::optional<double>& value) {
 QString csv(const std::vector<PageResult>& results, const RunInfo& info) {
   QString text;
   QTextStream out(&text);
-  out << "seite;textmenge;aufbau;satz;dpi;stoerung;klasse;drehung_wahr;drehung_erkannt;verfahren;scherung_wahr;"
+  out << "seite;textmenge;aufbau;satz;dpi;stoerung;klasse;trapez;drehung_wahr;drehung_erkannt;verfahren;scherung_wahr;"
          "erkannt;erkannt_verschoben;konfidenz;restschraege\n";
   for (const PageResult& r : results) {
     const PageSpec& s = r.spec;
     for (size_t m = 0; m < info.methods.size(); ++m) {
       const MethodResult& mr = r.methods[m];
       out << s.index << ";" << toString(s.text) << ";" << toString(s.layout) << ";" << toString(s.alignment) << ";"
-          << s.dpi << ";" << toString(s.disturbance) << ";" << toString(s.shearClass) << ";" << csvNumber(s.rotationDeg)
-          << ";" << csvNumber(r.rotation) << ";" << info.methods[m] << ";" << csvNumber(s.shearDeg) << ";"
-          << csvNumber(mr.shear) << ";" << csvNumber(mr.shearShifted) << ";" << csvNumber(mr.confidence) << ";"
-          << csvNumber(r.residualShear(static_cast<int>(m))) << "\n";
+          << s.dpi << ";" << toString(s.disturbance) << ";" << toString(s.shearClass) << ";" << csvNumber(s.keystone)
+          << ";" << csvNumber(s.rotationDeg) << ";" << csvNumber(r.rotation) << ";" << info.methods[m] << ";"
+          << csvNumber(s.shearDeg) << ";" << csvNumber(mr.shear) << ";" << csvNumber(mr.shearShifted) << ";"
+          << csvNumber(mr.confidence) << ";" << csvNumber(r.residualShear(static_cast<int>(m))) << "\n";
     }
   }
   return text;
