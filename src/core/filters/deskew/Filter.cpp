@@ -61,11 +61,11 @@ QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc)
   int contentPages = 0;
   int topEdgePages = 0;
   writer.enumPages([&](const PageId& pageId, const int numericId) {
-    this->writeParams(doc, filterEl, pageId, numericId);
     const std::unique_ptr<Params> params(m_settings->getPageParams(pageId));
     if (!params) {
       return;
     }
+    this->writeParams(doc, filterEl, *params, numericId);
     if (params->detection() == DETECT_TOP_EDGE) {
       ++topEdgePages;
     } else {
@@ -122,15 +122,10 @@ void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filter
   loadImageSettings(reader, filterEl.namedItem("image-settings").toElement());
 }  // Filter::loadSettings
 
-void Filter::writeParams(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const {
-  const std::unique_ptr<Params> params(m_settings->getPageParams(pageId));
-  if (!params) {
-    return;
-  }
-
+void Filter::writeParams(QDomDocument& doc, QDomElement& filterEl, const Params& params, int numericId) const {
   QDomElement pageEl(doc.createElement("page"));
   pageEl.setAttribute("id", numericId);
-  pageEl.appendChild(params->toXml(doc, "params"));
+  pageEl.appendChild(params.toXml(doc, "params"));
 
   filterEl.appendChild(pageEl);
 }

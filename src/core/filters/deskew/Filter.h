@@ -77,7 +77,7 @@ class Filter : public AbstractFilter {
   void selectPageOrder(int option) override;
 
  private:
-  void writeParams(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
+  void writeParams(QDomDocument& doc, QDomElement& filterEl, const Params& params, int numericId) const;
 
   void saveImageSettings(const ProjectWriter& writer, QDomDocument& doc, QDomElement& filterEl) const;
 
