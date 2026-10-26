@@ -38,7 +38,7 @@
 using namespace core;
 using namespace imageproc;
 
-class ImageViewBase::HqTransformTask : public AbstractCommand<std::shared_ptr<AbstractCommand<void>>>, public QObject {
+class ImageViewBase::HqTransformTask : public AbstractCommand<std::shared_ptr<AbstractCommand<void>>> {
   DECLARE_NON_COPYABLE(HqTransformTask)
 
  public:
@@ -136,7 +136,6 @@ ImageViewBase::ImageViewBase(const QImage& image,
       m_transformChangeWatchersActive(0),
       m_ignoreScrollEvents(0),
       m_ignoreResizeEvents(0),
-      m_hqTransformEnabled(true),
       m_infoProvider(Dpm(m_image)) {
   /* For some reason, the default viewport fills background with
    * a color different from QPalette::Window at the first show on Windows.
@@ -211,25 +210,6 @@ ImageViewBase::ImageViewBase(const QImage& image,
 }
 
 ImageViewBase::~ImageViewBase() = default;
-
-void ImageViewBase::hqTransformSetEnabled(const bool enabled) {
-  if (!enabled && m_hqTransformEnabled) {
-    // Turning off.
-    m_hqTransformEnabled = false;
-    if (m_hqTransformTask) {
-      m_hqTransformTask->cancel();
-      m_hqTransformTask.reset();
-    }
-    if (!m_hqPixmap.isNull()) {
-      m_hqPixmap = QPixmap();
-      update();
-    }
-  } else if (enabled && !m_hqTransformEnabled) {
-    // Turning on.
-    m_hqTransformEnabled = true;
-    update();
-  }
-}
 
 QImage ImageViewBase::createDownscaledImage(const QImage& image) {
   assert(!image.isNull());
@@ -958,10 +938,6 @@ void ImageViewBase::setWidgetFocalPointWithoutMoving(const QPointF newWidgetFp) 
  * Returns true if m_hqPixmap is valid and up to date.
  */
 bool ImageViewBase::validateHqPixmap() const {
-  if (!m_hqTransformEnabled) {
-    return false;
-  }
-
   if (m_hqPixmap.isNull()) {
     return false;
   }
@@ -1034,10 +1010,6 @@ QSize ImageViewBase::hqTargetSize() const {
  * Gets called from HqTransformationTask::Result.
  */
 void ImageViewBase::hqVersionBuilt(const QPoint& origin, const QImage& image) {
-  if (!m_hqTransformEnabled) {
-    return;
-  }
-
   // The image and origin are in screen pixels.
   m_hqPixmap = QPixmap::fromImage(image);
   m_hqPixmap.setDevicePixelRatio(m_hqDevicePixelRatio);

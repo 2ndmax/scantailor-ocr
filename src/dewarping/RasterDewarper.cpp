@@ -13,142 +13,13 @@
 
 #include "CylindricalSurfaceDewarper.h"
 
-#define INTERP_NONE 0
-#define INTERP_BILLINEAR 1
-#define INTERP_AREA_MAPPING 2
-#define INTERPOLATION_METHOD INTERP_AREA_MAPPING
-
 using namespace imageproc;
 
 namespace dewarping {
 namespace {
-#if INTERPOLATION_METHOD == INTERP_BILLINEAR
-using MixingWeight = float;
-#else
 // In 1/32 pixel units, a pixel weighs 1024. 32 bits overflow from about 128 x 128 source pixels
 // per output pixel (strong reduction, or near the pole of the homography outside the model).
 using MixingWeight = uint64_t;
-#endif
-
-#if INTERPOLATION_METHOD == INTERP_NONE
-template <typename ColorMixer, typename PixelType>
-void dewarpGeneric(const PixelType* const srcData,
-                   const QSize srcSize,
-                   const int srcStride,
-                   PixelType* const dstData,
-                   const QSize dstSize,
-                   const int dstStride,
-                   const CylindricalSurfaceDewarper& distortionModel,
-                   const QRectF& modelDomain,
-                   const PixelType bgColor) {
-  const int srcWidth = srcSize.width();
-  const int srcHeight = srcSize.height();
-  const int dstWidth = dstSize.width();
-  const int dstHeight = dstSize.height();
-
-  CylindricalSurfaceDewarper::State state;
-
-  const double modelDomainLeft = modelDomain.left();
-  const double modelXScale = 1.0 / (modelDomain.right() - modelDomain.left());
-
-  const float modelDomainTop = modelDomain.top();
-  const float modelYScale = 1.0 / (modelDomain.bottom() - modelDomain.top());
-
-  for (int dstX = 0; dstX < dstWidth; ++dstX) {
-    const double modelX = (dstX - modelDomainLeft) * modelXScale;
-    const CylindricalSurfaceDewarper::Generatrix generatrix(distortionModel.mapGeneratrix(modelX, state));
-
-    const HomographicTransform<1, float> homog(generatrix.pln2img.mat());
-    const Vec2f origin(generatrix.imgLine.p1());
-    const Vec2f vec(generatrix.imgLine.p2() - generatrix.imgLine.p1());
-    for (int dstY = 0; dstY < dstHeight; ++dstY) {
-      const float modelY = (float(dstY) - modelDomainTop) * modelYScale;
-      const Vec2f srcPt(origin + vec * homog(modelY));
-      const int srcX = qRound(srcPt[0]);
-      const int srcY = qRound(srcPt[1]);
-      if ((srcX < 0) || (srcX >= srcWidth) || (srcY < 0) || (srcY >= srcHeight)) {
-        dstData[dstY * dstStride + dstX] = bgColor;
-        continue;
-      }
-
-      dstData[dstY * dstStride + dstX] = srcData[srcY * srcStride + srcX];
-    }
-  }
-}  // dewarpGeneric
-
-#elif INTERPOLATION_METHOD == INTERP_BILLINEAR
-template <typename ColorMixer, typename PixelType>
-void dewarpGeneric(const PixelType* const srcData,
-                   const QSize srcSize,
-                   const int srcStride,
-                   PixelType* const dstData,
-                   const QSize dstSize,
-                   const int dstStride,
-                   const CylindricalSurfaceDewarper& distortionModel,
-                   const QRectF& modelDomain,
-                   const PixelType bgColor) {
-  const int srcWidth = srcSize.width();
-  const int srcHeight = srcSize.height();
-  const int dstWidth = dstSize.width();
-  const int dstHeight = dstSize.height();
-
-  CylindricalSurfaceDewarper::State state;
-
-  const double modelDomainLeft = modelDomain.left() - 0.5f;
-  const double modelXScale = 1.0 / (modelDomain.right() - modelDomain.left());
-
-  const float modelDomainTop = modelDomain.top() - 0.5f;
-  const float modelYScale = 1.0 / (modelDomain.bottom() - modelDomain.top());
-
-  for (int dstX = 0; dstX < dstWidth; ++dstX) {
-    const double modelX = (dstX - modelDomainLeft) * modelXScale;
-    const CylindricalSurfaceDewarper::Generatrix generatrix(distortionModel.mapGeneratrix(modelX, state));
-
-    const HomographicTransform<1, float> homog(generatrix.pln2img.mat());
-    const Vec2f origin(generatrix.imgLine.p1());
-    const Vec2f vec(generatrix.imgLine.p2() - generatrix.imgLine.p1());
-    for (int dstY = 0; dstY < dstHeight; ++dstY) {
-      const float modelY = ((float) dstY - modelDomainTop) * modelYScale;
-      const Vec2f srcPt(origin + vec * homog(modelY));
-
-      const int srcX0 = (int) std::floor(srcPt[0] - 0.5f);
-      const int srcY0 = (int) std::floor(srcPt[1] - 0.5f);
-      const int srcX1 = srcX0 + 1;
-      const int srcY1 = srcY0 + 1;
-      const float x = srcPt[0] - srcX0;
-      const float y = srcPt[1] - srcY0;
-
-      PixelType tlColor = bgColor;
-      if ((srcX0 >= 0) && (srcX0 < srcWidth) && (srcY0 >= 0) && (srcY0 < srcHeight)) {
-        tlColor = srcData[srcY0 * srcStride + srcX0];
-      }
-
-      PixelType trColor = bgColor;
-      if ((srcX1 >= 0) && (srcX1 < srcWidth) && (srcY0 >= 0) && (srcY0 < srcHeight)) {
-        trColor = srcData[srcY0 * srcStride + srcX1];
-      }
-
-      PixelType blColor = bgColor;
-      if ((srcX0 >= 0) && (srcX0 < srcWidth) && (srcY1 >= 0) && (srcY1 < srcHeight)) {
-        blColor = srcData[srcY1 * srcStride + srcX0];
-      }
-
-      PixelType brColor = bgColor;
-      if ((srcX1 >= 0) && (srcX1 < srcWidth) && (srcY1 >= 0) && (srcY1 < srcHeight)) {
-        brColor = srcData[srcY1 * srcStride + srcX1];
-      }
-
-      ColorMixer mixer;
-      mixer.add(tlColor, (1.5f - y) * (1.5f - x));
-      mixer.add(trColor, (1.5f - y) * (x - 0.5f));
-      mixer.add(blColor, (y - 0.5f) * (1.5f - x));
-      mixer.add(brColor, (y - 0.5f) * (x - 0.5f));
-      dstData[dstY * dstStride + dstX] = mixer.mix(1.0f);
-    }
-  }
-}  // dewarpGeneric
-
-#elif INTERPOLATION_METHOD == INTERP_AREA_MAPPING
 
 template <typename ColorMixer, typename PixelType>
 void areaMapGeneratrix(const PixelType* const srcData,
@@ -452,7 +323,6 @@ void dewarpGeneric(const PixelType* const srcData,
     prevGridColumn.swap(nextGridColumn);
   }
 }  // dewarpGeneric
-#endif  // INTERPOLATION_METHOD
 
 QImage dewarpGrayscale(const QImage& src,
                        const QSize& dstSize,

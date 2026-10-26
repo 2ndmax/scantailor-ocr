@@ -25,9 +25,6 @@ AutoManualMode obliqueModeFromXml(const QDomElement& deskewEl) {
 
 }  // namespace
 
-Params::Params(const double deskewAngleDeg, const Dependencies& deps, const AutoManualMode deskewMode)
-    : m_rotation{deskewAngleDeg, deskewMode}, m_oblique{0.0, MODE_AUTO}, m_deps(deps) {}
-
 Params::Params(const double deskewAngleDeg,
                const double obliqueDeg,
                const Dependencies& deps,
@@ -35,12 +32,6 @@ Params::Params(const double deskewAngleDeg,
                const AutoManualMode obliqueMode,
                const SkewDetection detection)
     : m_rotation{deskewAngleDeg, deskewMode, detection}, m_oblique{obliqueDeg, obliqueMode}, m_deps(deps) {}
-
-Params::Params(const double deskewAngleDeg,
-               const double obliqueDeg,
-               const Dependencies& deps,
-               const AutoManualMode mode)
-    : m_rotation{deskewAngleDeg, mode}, m_oblique{obliqueDeg, mode}, m_deps(deps) {}
 
 Params::Params(const QDomElement& deskewEl, const SkewDetection legacyDetection)
     : m_rotation{deskewEl.attribute("angle").toDouble(),

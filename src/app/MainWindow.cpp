@@ -824,7 +824,6 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
   connect(widget, qOverload<const PageInfo&>(&FilterOptionsWidget::invalidateThumbnail), this,
           qOverload<const PageInfo&>(&MainWindow::invalidateThumbnail));
   connect(widget, &FilterOptionsWidget::invalidateAllThumbnails, this, &MainWindow::invalidateAllThumbnails);
-  connect(widget, &FilterOptionsWidget::goToPage, this, [this](const PageId& pageId) { goToPage(pageId); });
   connect(widget, &FilterOptionsWidget::fixDpiRequested, this, &MainWindow::fixDpiDialogRequested);
   connect(widget, &FilterOptionsWidget::colorModeDetectionRequested, this, &MainWindow::colorModeDetectionRequested);
   // Asynchronous for the same reason as reloadRequested().

@@ -193,9 +193,6 @@ byteout(struct jbig2enc_ctx *restrict ctx) {
 
 rblock:
   if (ctx->bp >= 0) {
-#ifdef TRACE
-    printf("emit %x\n", ctx->b);
-#endif
     emit(ctx);
   }
   ctx->b = ctx->c >> 20;
@@ -206,9 +203,6 @@ rblock:
 
 lblock:
   if (ctx->bp >= 0) {
-#ifdef TRACE
-    printf("emit %x\n", ctx->b);
-#endif
     emit(ctx);
   }
   ctx->b = ctx->c >> 19;
@@ -227,23 +221,7 @@ encode_bit(struct jbig2enc_ctx *restrict ctx, u8 *restrict context, u32 ctxnum, 
   const u8 mps = i > 46 ? 1 : 0;
   const u16 qe = ctbl[i].qe;
 
-#ifdef CODER_DEBUGGING
-    fprintf(stderr, "B: %d %d %d %d\n", ctxnum, qe, ctx->a, d);
-#endif
-
-#ifdef TRACE
-  static int ec = 0;
-  printf("%d\t%d %d %x %x %x %d %x %d\n", ec++, i, mps, qe, ctx->a, ctx->c, ctx->ct, ctx->b, ctx->bp);
-#endif
-
   if (unlikely(d != mps)) goto codelps;
-#ifdef SURPRISE_MAP
-  {
-  u8 b = static_cast<unsigned char>
-    (((static_cast<float>(qe) / 0xac02) * 255));
-  write(3, &b, 1);
-  }
-#endif
   ctx->a -= qe;
   if (unlikely((ctx->a & 0x8000) == 0)) {
     if (unlikely(ctx->a < qe)) {
@@ -260,13 +238,6 @@ encode_bit(struct jbig2enc_ctx *restrict ctx, u8 *restrict context, u32 ctxnum, 
   return;
 
 codelps:
-#ifdef SURPRISE_MAP
-  {
-  u8 b = static_cast<unsigned char>
-    ((1.0f - (static_cast<float>(qe) / 0xac02)) * 255);
-  write(3, &b, 1);
-  }
-#endif
   ctx->a -= qe;
   if (ctx->a < qe) {
     ctx->c += qe;
@@ -304,15 +275,9 @@ encode_final(struct jbig2enc_ctx *restrict ctx) {
   byteout(ctx);
   emit(ctx);
   if (ctx->b != 0xff) {
-#ifdef TRACE
-    printf("emit 0xff\n");
-#endif
     ctx->b = 0xff;
     emit(ctx);
   }
-#ifdef TRACE
-  printf("emit 0xac\n");
-#endif
   ctx->b = 0xac;
   emit(ctx);
 }

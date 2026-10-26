@@ -132,11 +132,9 @@ BackgroundTaskPtr StageSequence::createTask(const PageInfo& page,
   }
   if (lastFilterIdx >= m_pageSplitFilterIdx) {
     pageSplitTask = m_pageSplitFilter->createTask(page, deskewTask, batch, debug);
-    debug = false;
   }
   if (lastFilterIdx >= m_fixOrientationFilterIdx) {
     fixOrientationTask = m_fixOrientationFilter->createTask(page.id(), pageSplitTask, batch);
-    debug = false;
   }
   assert(fixOrientationTask);
   return std::make_shared<LoadFileTask>(batch ? BackgroundTask::BATCH : BackgroundTask::INTERACTIVE, page,

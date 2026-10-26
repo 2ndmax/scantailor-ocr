@@ -118,7 +118,6 @@ set(common_sources
     IconPack.h
     AbstractIconPack.cpp AbstractIconPack.h
     StyledIconPack.cpp StyledIconPack.h
-    FontIconPack.cpp FontIconPack.h
     ConnectionManager.cpp ConnectionManager.h
     ZoneEditorBase.cpp ZoneEditorBase.h
     ZoneModeListener.h

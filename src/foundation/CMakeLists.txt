@@ -11,7 +11,6 @@ set(sources
     Property.h
     PropertyFactory.cpp PropertyFactory.h
     PropertySet.cpp PropertySet.h
-    PerformanceTimer.cpp PerformanceTimer.h
     ThreadBudget.cpp ThreadBudget.h
     GridLineTraverser.cpp GridLineTraverser.h
     LineIntersectionScalar.cpp LineIntersectionScalar.h

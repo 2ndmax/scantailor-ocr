@@ -5,7 +5,6 @@
 
 #include <QDomDocument>
 #include <QDomElement>
-#include <QPointF>
 #include <QSize>
 #include <QString>
 #include <QTransform>
@@ -46,72 +45,6 @@ QSize OrthogonalRotation::rotate(const QSize& dimensions) const {
   } else {
     return dimensions;
   }
-}
-
-QSize OrthogonalRotation::unrotate(const QSize& dimensions) const {
-  return rotate(dimensions);
-}
-
-QSizeF OrthogonalRotation::rotate(const QSizeF& dimensions) const {
-  if ((m_degrees == 90) || (m_degrees == 270)) {
-    return QSizeF(dimensions.height(), dimensions.width());
-  } else {
-    return dimensions;
-  }
-}
-
-QSizeF OrthogonalRotation::unrotate(const QSizeF& dimensions) const {
-  return rotate(dimensions);
-}
-
-QPointF OrthogonalRotation::rotate(const QPointF& point, const double xmax, const double ymax) const {
-  QPointF rotated;
-
-  switch (m_degrees) {
-    case 0:
-      rotated = point;
-      break;
-    case 90:
-      rotated.setX(ymax - point.y());
-      rotated.setY(point.x());
-      break;
-    case 180:
-      rotated.setX(xmax - point.x());
-      rotated.setY(ymax - point.y());
-      break;
-    case 270:
-      rotated.setX(point.y());
-      rotated.setY(xmax - point.x());
-      break;
-    default:
-      assert(!"Unreachable");
-  }
-  return rotated;
-}
-
-QPointF OrthogonalRotation::unrotate(const QPointF& point, const double xmax, const double ymax) const {
-  QPointF unrotated;
-
-  switch (m_degrees) {
-    case 0:
-      unrotated = point;
-      break;
-    case 90:
-      unrotated.setX(point.y());
-      unrotated.setY(xmax - point.x());
-      break;
-    case 180:
-      unrotated.setX(xmax - point.x());
-      unrotated.setY(ymax - point.y());
-      break;
-    case 270:
-      unrotated.setX(ymax - point.y());
-      unrotated.setY(point.x());
-      break;
-    default:
-      assert(!"Unreachable");
-  }
-  return unrotated;
 }
 
 QTransform OrthogonalRotation::transform(const QSizeF& dimensions) const {

@@ -3,16 +3,6 @@
 
 #include "InteractionState.h"
 
-InteractionState::Captor& InteractionState::Captor::operator=(Captor& other) {
-  swap_nodes(other);
-  other.unlink();
-  return *this;
-}
-
-InteractionState::Captor& InteractionState::Captor::operator=(CopyHelper other) {
-  return (*this = *other.captor);
-}
-
 InteractionState::InteractionState()
     : m_proximityThreshold(Proximity::fromDist(10.0)),
       m_bestProximityPriority(std::numeric_limits<int>::min()),

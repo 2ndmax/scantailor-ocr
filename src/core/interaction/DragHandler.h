@@ -4,8 +4,6 @@
 #ifndef SCANTAILOR_INTERACTION_DRAGHANDLER_H_
 #define SCANTAILOR_INTERACTION_DRAGHANDLER_H_
 
-#define BOOST_SIGNALS_NAMESPACE signal
-
 #include <QCoreApplication>
 #include <QPoint>
 #include <functional>

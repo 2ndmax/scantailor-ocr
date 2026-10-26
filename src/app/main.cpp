@@ -6,7 +6,6 @@
 #include <core/ApplicationSettings.h>
 #include <core/ColorSchemeFactory.h>
 #include <core/ColorSchemeManager.h>
-#include <core/FontIconPack.h>
 #include <core/IconProvider.h>
 #include <core/StyledIconPack.h>
 

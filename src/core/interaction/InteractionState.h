@@ -19,26 +19,10 @@ class InteractionState {
  public:
   class Captor : public boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>> {
     friend class InteractionState;
-
-   private:
-    struct CopyHelper {
-      Captor* captor;
-
-      explicit CopyHelper(Captor* cap) : captor(cap) {}
-    };
+    DECLARE_NON_COPYABLE(Captor)
 
    public:
     Captor() = default;
-
-    Captor(Captor& other) { swap_nodes(other); }
-
-    explicit Captor(CopyHelper other) { swap_nodes(*other.captor); }
-
-    Captor& operator=(Captor& other);
-
-    Captor& operator=(CopyHelper other);
-
-    explicit operator CopyHelper() { return CopyHelper(this); }
 
     void release() { unlink(); }
 

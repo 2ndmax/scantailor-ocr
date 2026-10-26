@@ -37,17 +37,12 @@ class Params {
  public:
   // Member-wise copying is OK.
 
-  Params(double deskewAngleDeg, const Dependencies& deps, AutoManualMode deskewMode);
-
   Params(double deskewAngleDeg,
          double obliqueDeg,
          const Dependencies& deps,
          AutoManualMode deskewMode,
          AutoManualMode obliqueMode,
          SkewDetection detection = DETECT_CONTENT);
-
-  /** Legacy: oblique mode matches \p mode (coupled deskew/oblique). */
-  Params(double deskewAngleDeg, double obliqueDeg, const Dependencies& deps, AutoManualMode mode);
 
   /**
    * \p legacyDetection is used when the element has no "detection" attribute. Projects saved

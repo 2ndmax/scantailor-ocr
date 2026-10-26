@@ -81,11 +81,6 @@ class ImageViewBase : public QAbstractScrollArea {
   const QPixmap& downscaledPixmap() const { return m_pixmap; }
 
   /**
-   * \brief Enable or disable the high-quality transform.
-   */
-  void hqTransformSetEnabled(bool enabled);
-
-  /**
    * \brief A stand-alone function to create a downscaled image
    *        to be passed to the constructor.
    *
@@ -471,8 +466,6 @@ class ImageViewBase : public QAbstractScrollArea {
   int m_ignoreScrollEvents;
 
   int m_ignoreResizeEvents;
-
-  bool m_hqTransformEnabled;
 
   ImageViewInfoProvider m_infoProvider;
 };

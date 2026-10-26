@@ -6,20 +6,6 @@
 #include <QString>
 
 namespace output {
-QString despeckleLevelToString(const DespeckleLevel level) {
-  switch (level) {
-    case DESPECKLE_OFF:
-      return "off";
-    case DESPECKLE_CAUTIOUS:
-      return "cautious";
-    case DESPECKLE_NORMAL:
-      return "normal";
-    case DESPECKLE_AGGRESSIVE:
-      return "aggressive";
-  }
-  return QString();
-}
-
 DespeckleLevel despeckleLevelFromString(const QString& str) {
   if (str == "off") {
     return DESPECKLE_OFF;

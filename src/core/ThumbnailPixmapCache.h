@@ -59,22 +59,6 @@ class ThumbnailPixmapCache {
   void setMaxThumbSize(const QSize& maxSize);
 
   /**
-   * \brief Take the pixmap from cache, if it's there.
-   *
-   * If it's not, LOAD_FAILED will be returned.
-   *
-   * \note This function is to be called from the GUI thread only.
-   */
-  Status loadFromCache(const ImageId& imageId, QPixmap& pixmap);
-
-  /**
-   * \brief Take the pixmap from cache or from disk, blocking if necessary.
-   *
-   * \note This function is to be called from the GUI thread only.
-   */
-  Status loadNow(const ImageId& imageId, QPixmap& pixmap);
-
-  /**
    * \brief Take the pixmap from cache or schedule a load request.
    *
    * If the pixmap is in cache, return it immediately. Otherwise,

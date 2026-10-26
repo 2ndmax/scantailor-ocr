@@ -7,7 +7,6 @@
 class QString;
 class QSize;
 class QSizeF;
-class QPointF;
 class QTransform;
 class QDomElement;
 class QDomDocument;
@@ -31,16 +30,6 @@ class OrthogonalRotation {
   void prevClockwiseDirection();
 
   QSize rotate(const QSize& dimensions) const;
-
-  QSize unrotate(const QSize& dimensions) const;
-
-  QSizeF rotate(const QSizeF& dimensions) const;
-
-  QSizeF unrotate(const QSizeF& dimensions) const;
-
-  QPointF rotate(const QPointF& point, double xmax, double ymax) const;
-
-  QPointF unrotate(const QPointF& point, double xmax, double ymax) const;
 
   QTransform transform(const QSizeF& dimensions) const;
 
