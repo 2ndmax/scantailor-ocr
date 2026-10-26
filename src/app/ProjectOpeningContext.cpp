@@ -17,8 +17,8 @@
 #include "ProjectPages.h"
 #include "version.h"
 
-ProjectOpeningContext::ProjectOpeningContext(QWidget* parent, const QString& projectFile, const QDomDocument& doc)
-    : m_projectFile(projectFile), m_reader(doc, projectFile), m_parent(parent) {}
+ProjectOpeningContext::ProjectOpeningContext(QWidget* parent, const QString& projectFile)
+    : m_projectFile(projectFile), m_parent(parent) {}
 
 ProjectOpeningContext::~ProjectOpeningContext() {
   // Deleting a null pointer is OK.
@@ -26,24 +26,36 @@ ProjectOpeningContext::~ProjectOpeningContext() {
 }
 
 void ProjectOpeningContext::proceed() {
-  if (!m_reader.success()) {
-    deleteLater();
-    if (!m_reader.getVersion().isNull() && !ProjectReader::isSupportedVersion(m_reader.getVersion())) {
+  ProjectReader::FileResult result = ProjectReader::readFile(m_projectFile);
+  switch (result.error) {
+    case ProjectReader::FileError::NONE:
+      break;
+    case ProjectReader::FileError::CANNOT_OPEN:
+      deleteLater();
+      QMessageBox::warning(m_parent, tr("Error"), tr("Unable to open the project file."));
+      return;
+    case ProjectReader::FileError::DAMAGED:
+      deleteLater();
+      QMessageBox::warning(m_parent, tr("Error"), tr("The project file is damaged."));
+      return;
+    case ProjectReader::FileError::INCOMPATIBLE_VERSION:
+      deleteLater();
       QMessageBox::warning(m_parent, tr("Error"),
                            tr("The project file is not compatible with the current application version."));
       return;
-    }
-
-    QMessageBox::critical(m_parent, tr("Error"), tr("Unable to interpret the project file."));
-    return;
+    case ProjectReader::FileError::UNREADABLE:
+      deleteLater();
+      QMessageBox::critical(m_parent, tr("Error"), tr("Unable to interpret the project file."));
+      return;
   }
+  m_reader = std::move(result.reader);
 
   if (!confirmOlderVersion()) {
     deleteLater();
     return;
   }
 
-  if (m_reader.pages()->validateDpis()) {
+  if (m_reader->pages()->validateDpis()) {
     deleteLater();
     emit done(this);
     return;
@@ -70,7 +82,7 @@ QString profileDisplayName() {
 }  // namespace
 
 bool ProjectOpeningContext::confirmOlderVersion() {
-  const int version = m_reader.getVersion().toInt();
+  const int version = m_reader->getVersion().toInt();
   if ((version == PROJECT_VERSION) || m_projectFile.isEmpty()) {
     return true;
   }
@@ -110,7 +122,7 @@ bool ProjectOpeningContext::confirmOlderVersion() {
 }
 
 void ProjectOpeningContext::fixedDpiSubmitted() {
-  m_reader.pages()->updateMetadataFrom(m_fixDpiDialog->files());
+  m_reader->pages()->updateMetadataFrom(m_fixDpiDialog->files());
   emit done(this);
 }
 
@@ -120,7 +132,7 @@ void ProjectOpeningContext::fixDpiDialogDestroyed() {
 
 void ProjectOpeningContext::showFixDpiDialog() {
   assert(!m_fixDpiDialog);
-  m_fixDpiDialog = new FixDpiDialog(m_reader.pages()->toImageFileInfo(), m_parent);
+  m_fixDpiDialog = new FixDpiDialog(m_reader->pages()->toImageFileInfo(), m_parent);
   m_fixDpiDialog->setAttribute(Qt::WA_DeleteOnClose);
   m_fixDpiDialog->setAttribute(Qt::WA_QuitOnClose, false);
   if (m_parent) {

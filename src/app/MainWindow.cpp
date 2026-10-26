@@ -1864,21 +1864,7 @@ void MainWindow::openProject() {
 }
 
 void MainWindow::openProject(const QString& projectFile) {
-  QFile file(projectFile);
-  if (!file.open(QIODevice::ReadOnly)) {
-    QMessageBox::warning(this, tr("Error"), tr("Unable to open the project file."));
-    return;
-  }
-
-  QDomDocument doc;
-  if (!doc.setContent(&file)) {
-    QMessageBox::warning(this, tr("Error"), tr("The project file is damaged."));
-    return;
-  }
-
-  file.close();
-
-  auto* context = new ProjectOpeningContext(this, projectFile, doc);
+  auto* context = new ProjectOpeningContext(this, projectFile);
   connect(context, &ProjectOpeningContext::done, this, &MainWindow::projectOpened);
   context->proceed();
 }

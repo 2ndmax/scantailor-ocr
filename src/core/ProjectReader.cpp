@@ -4,6 +4,7 @@
 #include "ProjectReader.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <algorithm>
 #include <functional>
@@ -68,6 +69,31 @@ ProjectReader::ProjectReader(const QDomDocument& doc, const QString& projectFile
 }
 
 ProjectReader::~ProjectReader() = default;
+
+ProjectReader::FileResult ProjectReader::readFile(const QString& projectFilePath) {
+  FileResult result;
+  QFile file(projectFilePath);
+  if (!file.open(QIODevice::ReadOnly)) {
+    result.error = FileError::CANNOT_OPEN;
+    return result;
+  }
+  QDomDocument doc;
+  if (!doc.setContent(&file)) {
+    result.error = FileError::DAMAGED;
+    return result;
+  }
+  file.close();
+
+  auto reader = std::make_unique<ProjectReader>(doc, projectFilePath);
+  if (reader->success()) {
+    result.reader = std::move(reader);
+  } else if (!reader->getVersion().isNull() && !isSupportedVersion(reader->getVersion())) {
+    result.error = FileError::INCOMPATIBLE_VERSION;
+  } else {
+    result.error = FileError::UNREADABLE;
+  }
+  return result;
+}
 
 bool ProjectReader::isSupportedVersion(const QString& version) {
   if (version.isNull()) {

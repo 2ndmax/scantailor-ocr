@@ -260,6 +260,43 @@ BOOST_AUTO_TEST_CASE(test_unreadable_images_are_an_error) {
 }
 
 namespace {
+// Writes \p content into a file in \p dir and reads it as a project file.
+ProjectReader::FileResult readProjectText(const QDir& dir, const QByteArray& content) {
+  const QString path = dir.absoluteFilePath("Buch.ScanTailor");
+  QFile file(path);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate) || (file.write(content) != content.size())) {
+    BOOST_FAIL("Unable to write the project file.");
+  }
+  file.close();
+  return ProjectReader::readFile(path);
+}
+}  // namespace
+
+// Each reason for not opening a project file has its own message in the app.
+BOOST_AUTO_TEST_CASE(test_read_file_tells_why_it_failed) {
+  QTemporaryDir tempDir;
+  BOOST_REQUIRE(tempDir.isValid());
+  const QDir root(tempDir.path());
+  using Error = ProjectReader::FileError;
+
+  const ProjectReader::FileResult good = readProjectText(
+      root, "<project version=\"4\" outputDirectory=\"/out\"><directories/><files/><images/><pages/></project>");
+  BOOST_CHECK(good.error == Error::NONE);
+  BOOST_REQUIRE(good.reader);
+  BOOST_CHECK(good.reader->success());
+
+  const ProjectReader::FileResult missing = ProjectReader::readFile(root.absoluteFilePath("missing.ScanTailor"));
+  BOOST_CHECK(!missing.reader);
+  BOOST_CHECK(missing.error == Error::CANNOT_OPEN);
+
+  BOOST_CHECK(readProjectText(root, "<project version=\"4\"><directories>").error == Error::DAMAGED);
+  BOOST_CHECK(readProjectText(root, "<project version=\"999\"/>").error == Error::INCOMPATIBLE_VERSION);
+  BOOST_CHECK(readProjectText(root, "<project version=\"4\"/>").error == Error::UNREADABLE);
+  // Without a version it is not a project file of any version.
+  BOOST_CHECK(readProjectText(root, "<html/>").error == Error::UNREADABLE);
+}
+
+namespace {
 const QString kProjectStart(
     "<project version=\"4\" outputDirectory=\"/out\"><directories><directory id=\"1\" path=\"/in\"/></directories>"
     "<files><file id=\"2\" dirId=\"1\" name=\"a.png\"/></files>");

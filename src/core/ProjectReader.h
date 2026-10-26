@@ -28,9 +28,21 @@ class ProjectReader {
  public:
   using FilterPtr = std::shared_ptr<AbstractFilter>;
 
+  /** Why readFile() could not read a project file. */
+  enum class FileError { NONE, CANNOT_OPEN, DAMAGED, INCOMPATIBLE_VERSION, UNREADABLE };
+
+  struct FileResult {
+    /** Null if the file could not be read. */
+    std::unique_ptr<ProjectReader> reader;
+    FileError error = FileError::NONE;
+  };
+
   explicit ProjectReader(const QDomDocument& doc, const QString& projectFilePath = QString());
 
   ~ProjectReader();
+
+  /** Reads the project file \p projectFilePath. The caller tells the user what went wrong. */
+  static FileResult readFile(const QString& projectFilePath);
 
   void readFilterSettings(const std::vector<FilterPtr>& filters) const;
 
