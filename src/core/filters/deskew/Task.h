@@ -7,6 +7,7 @@
 #include <FilterData.h>
 
 #include <memory>
+#include <optional>
 
 #include "FilterResult.h"
 #include "NonCopyable.h"
@@ -21,7 +22,8 @@ class DebugImages;
 
 namespace imageproc {
 class BinaryImage;
-}
+class SkewFinder;
+}  // namespace imageproc
 
 namespace select_content {
 class Task;
@@ -50,10 +52,29 @@ class Task {
 
   FilterResultPtr process(const TaskStatus& status, FilterData data);
 
+  // The automatic measurement of process(), public for the developer tool oblique_compare, so that
+  // it measures exactly what the program does.
+
+  /** \brief Removes horizontal shadows from \p img, which would disturb the measurement. */
+  static void cleanup(const TaskStatus& status, imageproc::BinaryImage& img, const Dpi& dpi);
+
+  /**
+   * \brief The automatic deskew angle of a cleaned-up page, or nothing if its lines are too unclear.
+   */
+  static std::optional<double> findDeskewAngle(imageproc::SkewFinder& skewFinder,
+                                               const imageproc::BinaryImage& image,
+                                               SkewDetection detection);
+
+  /**
+   * \brief The automatic oblique angle of a cleaned-up page that is deskewed by \p deskewAngleDeg,
+   *        or nothing if its lines are too unclear.
+   */
+  static std::optional<double> findObliqueAngle(imageproc::SkewFinder& skewFinder,
+                                                const imageproc::BinaryImage& image,
+                                                double deskewAngleDeg);
+
  private:
   class UiUpdater;
-
-  static void cleanup(const TaskStatus& status, imageproc::BinaryImage& img, const Dpi& dpi);
 
   static int from150dpi(int size, int targetDpi);
 

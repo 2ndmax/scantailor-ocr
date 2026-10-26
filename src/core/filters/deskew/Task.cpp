@@ -165,23 +165,16 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
         uiData.setEffectiveDeskewAngle(priorParamsBeforeRecompute->deskewAngle());
         uiData.setMode(MODE_MANUAL);
       } else {
-        const Skew skew(uiData.detection() == DETECT_TOP_EDGE ? skewFinder.findSkewFromTopEdge(rotatedImage)
-                                                              : skewFinder.findSkew(rotatedImage));
-        if (skew.confidence() >= Skew::GOOD_CONFIDENCE) {
-          uiData.setEffectiveDeskewAngle(-skew.angle());
-        } else {
-          uiData.setEffectiveDeskewAngle(0);
-        }
+        uiData.setEffectiveDeskewAngle(findDeskewAngle(skewFinder, rotatedImage, uiData.detection()).value_or(0));
         uiData.setMode(MODE_AUTO);
       }
       uiData.setObliqueMode(autoObliqueEnabled ? MODE_AUTO : MODE_MANUAL);
 
       if (autoObliqueEnabled) {
-        // Find oblique on the deskewed (horizontal) mask for better accuracy (PR #110 feedback).
-        const BinaryImage horizontalMask(deskewedMask(rotatedImage, uiData.effectiveDeskewAngle()));
-        const std::optional<double> obliqueDeg = findObliqueDegrees(horizontalMask, skewFinder, 5.0);
+        const std::optional<double> obliqueDeg
+            = findObliqueAngle(skewFinder, rotatedImage, uiData.effectiveDeskewAngle());
         if (obliqueDeg) {
-          uiData.setEffectiveObliqueAngle(-*obliqueDeg);
+          uiData.setEffectiveObliqueAngle(*obliqueDeg);
         }
       } else {
         uiData.setEffectiveObliqueAngle(preservedObliqueDeg);
@@ -250,6 +243,28 @@ void Task::cleanup(const TaskStatus& status, BinaryImage& image, const Dpi& dpi)
 
   rasterOp<RopSubtract<RopDst, RopSrc>>(image, garbage);
 }  // Task::cleanup
+
+std::optional<double> Task::findDeskewAngle(SkewFinder& skewFinder,
+                                            const BinaryImage& image,
+                                            const SkewDetection detection) {
+  const Skew skew(detection == DETECT_TOP_EDGE ? skewFinder.findSkewFromTopEdge(image) : skewFinder.findSkew(image));
+  if (skew.confidence() < Skew::GOOD_CONFIDENCE) {
+    return std::nullopt;
+  }
+  return -skew.angle();
+}
+
+std::optional<double> Task::findObliqueAngle(SkewFinder& skewFinder,
+                                             const BinaryImage& image,
+                                             const double deskewAngleDeg) {
+  // Find oblique on the deskewed (horizontal) mask for better accuracy (PR #110 feedback).
+  const BinaryImage horizontalMask(deskewedMask(image, deskewAngleDeg));
+  const std::optional<double> obliqueDeg = findObliqueDegrees(horizontalMask, skewFinder, 5.0);
+  if (!obliqueDeg) {
+    return std::nullopt;
+  }
+  return -*obliqueDeg;
+}
 
 int Task::from150dpi(int size, int targetDpi) {
   const int newSize = (size * targetDpi + 75) / 150;
