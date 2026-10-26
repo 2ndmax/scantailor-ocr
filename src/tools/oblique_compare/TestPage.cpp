@@ -188,12 +188,48 @@ QImage withKeystone(const QImage& page, const double keystone) {
   return result;
 }
 
-/** Sets one line of a paragraph into a column; the words are drawn only if \p painter is given. */
+/** Where the words come from, and which of them are set in italics. */
+class WordSource {
+ public:
+  WordSource(Random& rnd, Random& italicRnd, const Italic italic)
+      : m_rnd(rnd), m_italicRnd(italicRnd), m_italic(italic) {}
+
+  /** The next word; \p italic tells whether it is set in italics. */
+  QString next(bool& italic) {
+    switch (m_italic) {
+      case Italic::PAGE:
+        italic = true;
+        break;
+      case Italic::WORDS:
+        // Phrases of a few words, as for titles or emphasis.
+        m_inPhrase = m_italicRnd.uniform() < (m_inPhrase ? 0.7 : 0.06);
+        italic = m_inPhrase;
+        break;
+      default:
+        italic = false;
+        break;
+    }
+    return word(m_rnd);
+  }
+
+ private:
+  Random& m_rnd;
+  Random& m_italicRnd;
+  Italic m_italic;
+  bool m_inPhrase = false;
+};
+
+/** Sets text in one size, upright or in italics. */
 class LineSetter {
  public:
-  LineSetter(const QFont& font, const double pixelSize) : m_font(font), m_metrics(m_font) {
-    m_font.setPixelSize(std::max(1, static_cast<int>(std::lround(pixelSize))));
+  LineSetter(const QFont& font, const double pixelSize)
+      : m_font(font), m_italicFont(font), m_metrics(m_font), m_italicMetrics(m_italicFont) {
+    const int px = std::max(1, static_cast<int>(std::lround(pixelSize)));
+    m_font.setPixelSize(px);
+    m_italicFont.setPixelSize(px);
+    m_italicFont.setItalic(true);
     m_metrics = QFontMetricsF(m_font);
+    m_italicMetrics = QFontMetricsF(m_italicFont);
   }
 
   double space() const { return m_metrics.horizontalAdvance(QLatin1Char(' ')); }
@@ -204,60 +240,108 @@ class LineSetter {
 
   double pixelSize() const { return m_font.pixelSize(); }
 
-  double width(const QString& text) const { return m_metrics.horizontalAdvance(text); }
+  double width(const QString& text, const bool italic = false) const {
+    return (italic ? m_italicMetrics : m_metrics).horizontalAdvance(text);
+  }
 
-  void draw(QPainter& painter, const QString& text, const double x, const double baseline) const {
-    painter.setFont(m_font);
+  void draw(QPainter& painter,
+            const QString& text,
+            const double x,
+            const double baseline,
+            const bool italic = false) const {
+    painter.setFont(italic ? m_italicFont : m_font);
     painter.drawText(QPointF(x, baseline), text);
   }
 
  private:
   QFont m_font;
+  QFont m_italicFont;
   QFontMetricsF m_metrics;
+  QFontMetricsF m_italicMetrics;
+};
+
+/** How paragraphs start: indented first lines, list items with a bullet and a hanging indent. */
+struct ParagraphStyle {
+  bool indents = false;
+  bool lists = false;
+  double indent = 0;
+  double listIndent = 0;
+};
+
+/** Where the text of a column stands: at the start of a paragraph, inside a list item. */
+struct Paragraph {
+  bool starts = true;
+  bool listItem = false;
+};
+
+struct Word {
+  QString text;
+  double width;
+  bool italic;
 };
 
 /**
  * One line between \p left and \p right. Justified lines fill the column except at the end of a
  * paragraph; ragged lines stop after the last word that fits; centered lines are of random length.
+ * \p layoutRnd decides on list items, so that pages without lists stay as they were before.
  */
 void setLine(QPainter& painter,
              const LineSetter& setter,
              const Alignment alignment,
+             const ParagraphStyle& style,
              const double left,
              const double right,
              const double baseline,
-             Random& rnd) {
+             Random& rnd,
+             WordSource& words,
+             Random& layoutRnd,
+             Paragraph& paragraph) {
   const bool paragraphEnd = rnd.uniform() < 0.1;
+  if (paragraph.starts) {
+    paragraph.listItem = style.lists && (layoutRnd.below(4) == 0);
+  }
+  double textLeft = left;
+  if (paragraph.listItem) {
+    textLeft = left + style.listIndent;
+    if (paragraph.starts) {
+      setter.draw(painter, QString(QChar(0x2022)), left, baseline);
+    }
+  } else if (paragraph.starts && style.indents && (alignment != Alignment::CENTERED)) {
+    textLeft = left + style.indent;
+  }
+  paragraph.starts = paragraphEnd;
+
   double lineEnd = right;
   if (alignment == Alignment::CENTERED) {
-    lineEnd = left + rnd.uniform(0.35, 1.0) * (right - left);
+    lineEnd = textLeft + rnd.uniform(0.35, 1.0) * (right - textLeft);
   } else if (paragraphEnd) {
-    lineEnd = left + rnd.uniform(0.3, 0.8) * (right - left);
+    lineEnd = textLeft + rnd.uniform(0.3, 0.8) * (right - textLeft);
   }
 
-  std::vector<std::pair<QString, double>> words;
+  std::vector<Word> line;
   double used = 0;
   while (true) {
-    const QString w(word(rnd));
-    const double width = setter.width(w);
-    const double needed = (words.empty() ? 0.0 : setter.space()) + width;
-    if (left + used + needed > lineEnd) {
+    bool italic = false;
+    const QString w(words.next(italic));
+    const double width = setter.width(w, italic);
+    const double needed = (line.empty() ? 0.0 : setter.space()) + width;
+    if (textLeft + used + needed > lineEnd) {
       break;
     }
     used += needed;
-    words.emplace_back(w, width);
+    line.push_back({w, width, italic});
   }
 
-  double x = left;
+  double x = textLeft;
   double gap = setter.space();
-  if ((alignment == Alignment::JUSTIFIED) && !paragraphEnd && (words.size() > 1)) {
-    gap += (lineEnd - left - used) / static_cast<double>(words.size() - 1);
+  if ((alignment == Alignment::JUSTIFIED) && !paragraphEnd && (line.size() > 1)) {
+    gap += (lineEnd - textLeft - used) / static_cast<double>(line.size() - 1);
   } else if (alignment == Alignment::CENTERED) {
-    x += 0.5 * (right - left - used);
+    x += 0.5 * (right - textLeft - used);
   }
-  for (const auto& w : words) {
-    setter.draw(painter, w.first, x, baseline);
-    x += w.second + gap;
+  for (const Word& w : line) {
+    setter.draw(painter, w.text, x, baseline, w.italic);
+    x += w.width + gap;
   }
 }
 }  // namespace
@@ -317,6 +401,17 @@ QString toString(const ShearClass shearClass) {
   }
 }
 
+QString toString(const Italic italic) {
+  switch (italic) {
+    case Italic::NONE:
+      return QStringLiteral("ohne Kursiv");
+    case Italic::WORDS:
+      return QStringLiteral("kursive Wörter");
+    default:
+      return QStringLiteral("ganz kursiv");
+  }
+}
+
 PageSpec pageSpec(const int index, const uint32_t seed) {
   Random rnd(pageSeed(seed, index, 1));
   PageSpec spec;
@@ -328,35 +423,44 @@ PageSpec pageSpec(const int index, const uint32_t seed) {
   spec.dpi = DPIS[(index / 27) % 3];
   spec.disturbance = static_cast<Disturbance>(rnd.below(3));
   spec.rotationDeg = rnd.uniform(-5.0, 5.0);
-  const int shearDraw = rnd.below(6);
+  const int shearDraw = rnd.below(8);
   const double sign = (rnd.below(2) == 0) ? -1.0 : 1.0;
-  if (shearDraw == 0) {
+  if (shearDraw <= 1) {
     spec.shearClass = ShearClass::NONE;
-  } else if (shearDraw <= 2) {
+    if (shearDraw == 1) {
+      Random keystoneRnd(pageSeed(seed, index, 5));
+      spec.keystone = ((keystoneRnd.below(2) == 0) ? -1.0 : 1.0) * keystoneRnd.uniform(0.01, 0.06);
+    }
+  } else if (shearDraw <= 3) {
     spec.shearClass = ShearClass::SMALL;
     spec.shearDeg = sign * rnd.uniform(0.1, 1.0);
   } else {
     spec.shearClass = ShearClass::LARGE;
     spec.shearDeg = sign * rnd.uniform(1.0, 4.0);
   }
-  if (spec.shearClass == ShearClass::NONE) {
-    // A sequence of its own, so that the pages above stay as they were before keystones came in.
-    Random keystoneRnd(pageSeed(seed, index, 5));
-    if (keystoneRnd.below(2) == 0) {
-      spec.keystone = ((keystoneRnd.below(2) == 0) ? -1.0 : 1.0) * keystoneRnd.uniform(0.01, 0.06);
-    }
-  }
+
+  Random extras(pageSeed(seed, index, 6));
+  spec.serif = (extras.below(2) == 0);
+  const int italicDraw = extras.below(6);
+  spec.italic = (italicDraw == 0) ? Italic::PAGE : (italicDraw == 1) ? Italic::WORDS : Italic::NONE;
+  spec.headerFooter = (extras.below(2) == 0);
+  spec.indents = (extras.below(2) == 0);
+  spec.lists = (extras.below(4) == 0);
   return spec;
 }
 
-QFont textFont() {
-  QFont font(QStringLiteral("Arial"));
-  font.setStyleHint(QFont::SansSerif);
+QFont textFont(const bool serif) {
+  QFont font(serif ? QStringLiteral("Times New Roman") : QStringLiteral("Arial"));
+  font.setStyleHint(serif ? QFont::Serif : QFont::SansSerif);
   return font;
 }
 
-QImage renderPage(const PageSpec& spec, const uint32_t seed, const QFont& font) {
+QImage renderPage(const PageSpec& spec, const uint32_t seed) {
   Random rnd(pageSeed(seed, spec.index, 2));
+  Random italicRnd(pageSeed(seed, spec.index, 7));
+  Random layoutRnd(pageSeed(seed, spec.index, 8));
+  WordSource words(rnd, italicRnd, spec.italic);
+  const QFont font(textFont(spec.serif));
   const int dpi = spec.dpi;
   const QSize pageSize(static_cast<int>(std::lround(mm(210, dpi))), static_cast<int>(std::lround(mm(297, dpi))));
 
@@ -375,6 +479,23 @@ QImage renderPage(const PageSpec& spec, const uint32_t seed, const QFont& font) 
   const LineSetter body(font, 10.5 / 72.0 * dpi);
   const LineSetter headline(font, 19.0 / 72.0 * dpi);
   const double lineHeight = 1.4 * body.pixelSize();
+
+  if (spec.headerFooter) {
+    // A running head with the chapter left and the page number right, and a page number below.
+    const LineSetter small(font, 9.0 / 72.0 * dpi);
+    const QString chapter(QStringLiteral("Kapitel %1 · %2").arg(1 + spec.index % 12).arg(word(layoutRnd)));
+    const QString number(QString::number(1 + spec.index));
+    const double headBaseline = top - mm(10, dpi);
+    small.draw(painter, chapter, left, headBaseline, true);
+    small.draw(painter, number, right - small.width(number), headBaseline);
+    small.draw(painter, number, 0.5 * (left + right - small.width(number)), bottom + mm(12, dpi));
+  }
+
+  ParagraphStyle style;
+  style.indents = spec.indents;
+  style.lists = spec.lists;
+  style.indent = body.pixelSize();
+  style.listIndent = mm(4, dpi);
 
   std::vector<Column> columns;
   if (spec.layout == Layout::TWO_COLUMNS) {
@@ -413,6 +534,7 @@ QImage renderPage(const PageSpec& spec, const uint32_t seed, const QFont& font) 
 
   int lines = 0;
   for (const Column& column : columns) {
+    Paragraph paragraph;
     for (double baseline = textTop + body.ascent(); baseline + body.descent() <= textBottom && lines < lineLimit;
          baseline += lineHeight) {
       double lineLeft = column.left;
@@ -420,7 +542,7 @@ QImage renderPage(const PageSpec& spec, const uint32_t seed, const QFont& font) 
           && (baseline - body.ascent() < picture.bottom() + mm(3, dpi))) {
         lineLeft = picture.right() + mm(5, dpi);
       }
-      setLine(painter, body, spec.alignment, lineLeft, column.right, baseline, rnd);
+      setLine(painter, body, spec.alignment, style, lineLeft, column.right, baseline, rnd, words, layoutRnd, paragraph);
       ++lines;
     }
   }

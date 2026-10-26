@@ -6,9 +6,7 @@
 #include <BinaryImage.h>
 #include <Constants.h>
 #include <GrayImage.h>
-#include <SkewFinder.h>
 #include <Transform.h>
-#include <imageproc/OrthogonalRotation.h>
 
 #include <QImage>
 #include <QRect>
@@ -27,20 +25,29 @@ namespace compare {
 namespace {
 using constants::DEG2RAD;
 const double MAX_OBLIQUE_DEG = 5.0;
-/** (b) gives no angle if its best score stands out less than this from the average one. */
-const double VERTICAL_MIN_CONFIDENCE = 0.0;
-/** (c) needs at least this many lines on one edge, spanning at least this many line heights. */
+/** (c2) needs at least this many lines on one edge, spanning at least this many line heights. */
 const int MIN_EDGE_LINES = 5;
 const double MIN_EDGE_HEIGHT_IN_LINES = 10.0;
 /** (c2): a gap in a line wider than this many line heights separates columns. */
 const double COLUMN_GAP_IN_LINES = 1.5;
 /** (c2): edges that lean differently by more than this are not a shear. */
 const double EDGES_AGREE_DEG = 0.2;
-/** (d): the windows around the estimate, in turn, and the edge pixels needed for an angle. */
-const double STROKE_WINDOW_DEG[] = {10.0, 5.0, 3.0};
+/** (d): the edge directions looked at (Â± from vertical), the histogram bins and their smoothing. */
+const double STROKE_RANGE_DEG = 25.0;
+const double STROKE_BIN_DEG = 0.5;
+const double STROKE_SMOOTHING_BINS = 3.0;
+/** (d): the windows around the most frequent direction, in turn, and the edge pixels needed. */
+const double STROKE_WINDOW_DEG[] = {5.0, 3.0};
 const int STROKE_MIN_EDGES = 2000;
+/** (d): a second direction this far away and this high relative to the first means italics. */
+const double STROKE_SECOND_PEAK_MIN_DEG = 6.0;
+const double STROKE_MAX_SECOND_PEAK = 0.45;
 /** (d): measurements, each on the page with the shear found so far undone. */
 const int STROKE_PASSES = 3;
+/** (e): a single edge counts only if the stroke direction differs from it by no more than this. */
+const double EDGE_STROKES_AGREE_DEG = 0.3;
+/** (e): without an edge, the stroke direction counts only up to this angle. */
+const double STROKE_FALLBACK_MAX_DEG = 3.0;
 
 double degrees(const double tangent) {
   return std::atan(tangent) / DEG2RAD;
@@ -51,88 +58,6 @@ struct Point {
   float x;
   float y;
 };
-
-/**
- * The left and right ends of the black runs of text strokes. Runs longer than \p maxRun belong to
- * pictures or rules; their ends would outweigh the text.
- */
-std::vector<Point> verticalEdges(const BinaryImage& image, const int maxRun) {
-  std::vector<Point> edges;
-  const int w = image.width();
-  const int h = image.height();
-  const float middle = 0.5f * h;
-  for (int y = 0; y < h; ++y) {
-    int runStart = -1;
-    for (int x = 0; x <= w; ++x) {
-      const bool black = (x < w) && (image.getPixel(x, y) == BLACK);
-      if (black && (runStart < 0)) {
-        runStart = x;
-      } else if (!black && (runStart >= 0)) {
-        if (x - runStart <= maxRun) {
-          // The edges lie between the pixels: left of the first and right of the last.
-          edges.push_back({static_cast<float>(runStart) - 0.5f, static_cast<float>(y) - middle});
-          edges.push_back({static_cast<float>(x) - 0.5f, static_cast<float>(y) - middle});
-        }
-        runStart = -1;
-      }
-    }
-  }
-  return edges;
-}
-
-/** Bins per pixel of the projection, and the smoothing in pixels. */
-const int SUBBINS = 4;
-const double SMOOTHING_PX = 0.7;
-
-/**
- * How sharply the edges line up along the direction x - tangent * y = const: the sum of squares of
- * their projection onto the x axis. The projection is fine and then smoothed, so that the score does
- * not prefer angles at which the edges happen to fall onto the pixel grid.
- */
-double alignmentScore(const std::vector<Point>& edges,
-                      const double tangent,
-                      const int width,
-                      const int height,
-                      std::vector<double>& histogram,
-                      std::vector<double>& smoothed) {
-  const double reach = std::abs(tangent) * 0.5 * height + 8.0;
-  const int bins = SUBBINS * (width + static_cast<int>(std::ceil(2 * reach)) + 2);
-  histogram.assign(bins, 0.0);
-  for (const Point& p : edges) {
-    const double u = SUBBINS * (p.x - tangent * p.y + reach);
-    const int i = static_cast<int>(std::floor(u));
-    const double f = u - i;
-    histogram[i] += 1.0 - f;
-    histogram[i + 1] += f;
-  }
-  static const std::vector<double> kernel = [] {
-    const double sigma = SMOOTHING_PX * SUBBINS;
-    const int radius = static_cast<int>(std::ceil(3 * sigma));
-    std::vector<double> k(2 * radius + 1);
-    for (int i = -radius; i <= radius; ++i) {
-      k[i + radius] = std::exp(-0.5 * i * i / (sigma * sigma));
-    }
-    return k;
-  }();
-  const int radius = static_cast<int>(kernel.size() / 2);
-  smoothed.assign(bins, 0.0);
-  for (int i = 0; i < bins; ++i) {
-    if (histogram[i] == 0.0) {
-      continue;
-    }
-    for (int k = -radius; k <= radius; ++k) {
-      const int j = i + k;
-      if ((j >= 0) && (j < bins)) {
-        smoothed[j] += histogram[i] * kernel[k + radius];
-      }
-    }
-  }
-  double score = 0;
-  for (const double v : smoothed) {
-    score += v * v;
-  }
-  return score;
-}
 
 /** The text lines of a page: bands of rows with ink, separated by empty rows. */
 struct Band {
@@ -201,13 +126,6 @@ std::vector<bool> inkColumns(const BinaryImage& image, const Band& band) {
     ink[x] = (black >= 2);
   }
   return ink;
-}
-
-/** The first column of the band with ink, or -1. */
-int lineStart(const BinaryImage& image, const Band& band) {
-  const std::vector<bool> ink(inkColumns(image, band));
-  const auto it = std::find(ink.begin(), ink.end(), true);
-  return (it == ink.end()) ? -1 : static_cast<int>(it - ink.begin());
 }
 
 /** A straight vertical edge that several lines start or end at: x = x0 + tangent * (y - y0). */
@@ -332,108 +250,6 @@ GrayImage deskewedGray(const QImage& gray, const double deskewAngleDeg) {
 }
 }  // namespace
 
-Finding sausageFullWeight(SkewFinder& skewFinder,
-                          const BinaryImage& image,
-                          const double deskewAngleDeg,
-                          const bool checkConfidence) {
-  const BinaryImage mask(deskew::deskewedMask(image, deskewAngleDeg));
-  if (mask.isNull()) {
-    return {};
-  }
-  const BinaryImage rotated(orthogonalRotation(deskew::buildSausageMask(mask), 90));
-  const Skew s1 = skewFinder.findSkew(mask);
-  const double resolutionRatio = skewFinder.resolutionRatio();
-  skewFinder.setResolutionRatio(1.0 / resolutionRatio);
-  const Skew s2 = skewFinder.findSkew(rotated);
-  skewFinder.setResolutionRatio(resolutionRatio);
-  Finding finding;
-  finding.confidence = std::min(s1.confidence(), s2.confidence());
-  if (checkConfidence && (*finding.confidence < Skew::GOOD_CONFIDENCE)) {
-    return finding;
-  }
-  const double oblique = std::clamp(s2.angle() - s1.angle(), -MAX_OBLIQUE_DEG, MAX_OBLIQUE_DEG);
-  // Like deskew::Task::findObliqueAngle(): the angle of the page is the negated measurement.
-  finding.angle = -oblique;
-  return finding;
-}
-
-Finding verticalEdgeSearch(const BinaryImage& image, const double deskewAngleDeg) {
-  const BinaryImage mask(deskew::deskewedMask(image, deskewAngleDeg));
-  if (mask.isNull()) {
-    return {};
-  }
-  // Wider than any letter of body text, narrower than a picture.
-  const std::vector<Point> edges(verticalEdges(mask, std::max(4, mask.width() / 50)));
-  if (edges.empty()) {
-    return {};
-  }
-  std::vector<double> histogram;
-  std::vector<double> smoothed;
-  const auto score = [&](const double deg) {
-    return alignmentScore(edges, std::tan(deg * DEG2RAD), mask.width(), mask.height(), histogram, smoothed);
-  };
-
-  // Coarse search over the whole range, then a fine one around the best coarse angle.
-  const int coarseSteps = 50;
-  const double coarseStep = MAX_OBLIQUE_DEG / coarseSteps;
-  double bestDeg = 0;
-  double bestScore = -1;
-  double sumScores = 0;
-  for (int i = -coarseSteps; i <= coarseSteps; ++i) {
-    const double deg = i * coarseStep;
-    const double s = score(deg);
-    sumScores += s;
-    if (s > bestScore) {
-      bestScore = s;
-      bestDeg = deg;
-    }
-  }
-  const double meanScore = sumScores / (2 * coarseSteps + 1);
-  const int fineSteps = 10;
-  const double coarseBest = bestDeg;
-  for (int i = -fineSteps; i <= fineSteps; ++i) {
-    const double deg = coarseBest + i * coarseStep / fineSteps;
-    const double s = score(deg);
-    if (s > bestScore) {
-      bestScore = s;
-      bestDeg = deg;
-    }
-  }
-  Finding finding;
-  // Like SkewFinder: how far the best score stands out from the average one.
-  finding.confidence = bestScore / meanScore - 1.0;
-  if (*finding.confidence >= VERTICAL_MIN_CONFIDENCE) {
-    finding.angle = bestDeg;
-  }
-  return finding;
-}
-
-Finding lineStartFit(const BinaryImage& image, const double deskewAngleDeg) {
-  const BinaryImage mask(deskew::deskewedMask(image, deskewAngleDeg));
-  if (mask.isNull()) {
-    return {};
-  }
-  const TextLines text(textLines(mask));
-  std::vector<Point> starts;
-  for (const Band& line : text.lines) {
-    const int x = lineStart(mask, line);
-    if (x >= 0) {
-      starts.push_back({static_cast<float>(x), 0.5f * (line.top + line.bottom)});
-    }
-  }
-  const int n = static_cast<int>(starts.size());
-  if (n < MIN_EDGE_LINES) {
-    return {};
-  }
-  const Edge edge(fitEdge(starts, text.typicalHeight, n));
-  Finding finding;
-  finding.confidence = static_cast<double>(edge.members.size()) / n;
-  if (edge.valid) {
-    finding.angle = degrees(edge.tangent);
-  }
-  return finding;
-}
-
 Finding edgeFit(const BinaryImage& image, const double deskewAngleDeg) {
   const BinaryImage mask(deskew::deskewedMask(image, deskewAngleDeg));
   if (mask.isNull()) {
@@ -500,43 +316,93 @@ Finding edgeFit(const BinaryImage& image, const double deskewAngleDeg) {
 }
 
 namespace {
-/** One measurement of (d): the tangent of the stroke edges and the number of edge pixels used. */
+/** One measurement of (d). */
 struct StrokeMeasurement {
   double tangent = 0;
+  /** The number of edge pixels used. */
   int used = 0;
+  /** The highest other direction, at least STROKE_SECOND_PEAK_MIN_DEG away, relative to the main one. */
+  double secondPeak = 0;
 };
 
 std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page) {
   const int w = page.width();
+  // A stem counts only where its edge goes on about a third of a millimetre above and below; that
+  // leaves out the brackets of serifs and the curves of round letters. The page is about as wide as
+  // A4, so its width tells the resolution.
+  const int reach = std::max(2, static_cast<int>(std::lround(w / 600.0)));
   const int h = page.height();
-  if ((w < 3) || (h < 3)) {
+  if ((w < 3) || (h < 2 * reach + 3)) {
     return std::nullopt;
   }
-  // The gradients of strong edges that are nearly vertical (Sobel; a full black-white step gives 1020).
-  const int minMagnitude = 250;
-  const double preWindow = std::tan(STROKE_WINDOW_DEG[0] * DEG2RAD);
-  std::vector<std::pair<float, float>> gradients;
   const uint8_t* data = page.data();
   const int stride = page.stride();
-  for (int y = 1; y < h - 1; ++y) {
+  // Sobel; a full black-white step gives 1020.
+  const auto gradientX = [&](const int x, const int y) {
     const uint8_t* above = data + (y - 1) * stride;
     const uint8_t* line = data + y * stride;
     const uint8_t* below = data + (y + 1) * stride;
+    return (above[x + 1] + 2 * line[x + 1] + below[x + 1]) - (above[x - 1] + 2 * line[x - 1] + below[x - 1]);
+  };
+  const int minMagnitude = 250;
+  const double preWindow = std::tan(STROKE_RANGE_DEG * DEG2RAD);
+  std::vector<std::pair<float, float>> gradients;
+  for (int y = reach + 1; y < h - reach - 1; ++y) {
+    const uint8_t* above = data + (y - 1) * stride;
+    const uint8_t* below = data + (y + 1) * stride;
     for (int x = 1; x < w - 1; ++x) {
-      const int gx = (above[x + 1] + 2 * line[x + 1] + below[x + 1]) - (above[x - 1] + 2 * line[x - 1] + below[x - 1]);
+      const int gx = gradientX(x, y);
       if (std::abs(gx) < minMagnitude) {
         continue;
       }
       const int gy = (below[x - 1] + 2 * below[x] + below[x + 1]) - (above[x - 1] + 2 * above[x] + above[x + 1]);
-      if (std::abs(gy) <= preWindow * std::abs(gx)) {
+      if (std::abs(gy) > preWindow * std::abs(gx)) {
+        continue;
+      }
+      const int up = gradientX(x, y - reach);
+      const int down = gradientX(x, y + reach);
+      const bool straight = (std::abs(up) >= minMagnitude) && (std::abs(down) >= minMagnitude) && ((up > 0) == (gx > 0))
+                            && ((down > 0) == (gx > 0));
+      if (straight) {
         gradients.emplace_back(static_cast<float>(gx), static_cast<float>(gy));
       }
     }
   }
 
-  // An edge sheared by s has the gradient (1, -tan s). Least squares of gy = -t * gx over the edges
-  // within a window around the estimate, the window narrowing step by step.
+  // The most frequent direction first: a histogram of the edge directions, smoothed. On a page
+  // in italics, that is the slant of the italics, not the shear.
+  const int bins = static_cast<int>(std::lround(2 * STROKE_RANGE_DEG / STROKE_BIN_DEG)) + 1;
+  std::vector<double> histogram(bins, 0.0);
+  for (const auto& [gx, gy] : gradients) {
+    const int bin = static_cast<int>(std::lround((degrees(-gy / gx) + STROKE_RANGE_DEG) / STROKE_BIN_DEG));
+    histogram[std::clamp(bin, 0, bins - 1)] += static_cast<double>(gx) * gx;
+  }
+  const int radius = static_cast<int>(std::ceil(3 * STROKE_SMOOTHING_BINS));
+  std::vector<double> smoothed(bins, 0.0);
+  for (int b = 0; b < bins; ++b) {
+    for (int k = -radius; k <= radius; ++k) {
+      if ((b + k >= 0) && (b + k < bins)) {
+        smoothed[b] += histogram[b + k] * std::exp(-0.5 * k * k / (STROKE_SMOOTHING_BINS * STROKE_SMOOTHING_BINS));
+      }
+    }
+  }
+  const int peak = static_cast<int>(std::max_element(smoothed.begin(), smoothed.end()) - smoothed.begin());
+  if (smoothed[peak] <= 0) {
+    return std::nullopt;
+  }
   StrokeMeasurement m;
+  // A second direction of similar weight well away from the first: italics among upright type.
+  double second = 0;
+  for (int b = 0; b < bins; ++b) {
+    if (std::abs(b - peak) * STROKE_BIN_DEG >= STROKE_SECOND_PEAK_MIN_DEG) {
+      second = std::max(second, smoothed[b]);
+    }
+  }
+  m.secondPeak = second / smoothed[peak];
+
+  // Then least squares around it. An edge sheared by s has the gradient (1, -tan s): gy = -t * gx
+  // over the edges within a window around the estimate, the window narrowing step by step.
+  m.tangent = std::tan((peak * STROKE_BIN_DEG - STROKE_RANGE_DEG) * DEG2RAD);
   for (const double windowDeg : STROKE_WINDOW_DEG) {
     const double window = std::tan(windowDeg * DEG2RAD);
     double sxx = 0;
@@ -573,21 +439,49 @@ Finding strokeDirection(const QImage& gray, const double deskewAngleDeg) {
   // A single measurement falls short of the shear by about a tenth (measured with this tool), so
   // the shear found is undone and what is left is measured again.
   double tangent = 0;
-  int used = 0;
+  StrokeMeasurement last;
   for (int pass = 0; pass < STROKE_PASSES; ++pass) {
     const std::optional<StrokeMeasurement> m(measureStrokes(pass == 0 ? page : unsheared(page, tangent)));
     if (!m) {
       return {};
     }
     tangent += m->tangent;
-    used = m->used;
+    last = *m;
   }
   Finding finding;
-  finding.confidence = used;
-  if ((used >= STROKE_MIN_EDGES) && (std::abs(degrees(tangent)) <= MAX_OBLIQUE_DEG)) {
+  finding.confidence = last.secondPeak;
+  // Italics lean on purpose: on a page with much of them, the strokes do not show the shear.
+  if ((last.used >= STROKE_MIN_EDGES) && (last.secondPeak <= STROKE_MAX_SECOND_PEAK)
+      && (std::abs(degrees(tangent)) <= MAX_OBLIQUE_DEG)) {
     finding.angle = degrees(tangent);
   }
   return finding;
+}
+
+Finding edgesThenStrokes(const BinaryImage& image, const QImage& gray, const double deskewAngleDeg) {
+  const Finding edges(edgeFit(image, deskewAngleDeg));
+  if (edges.confidence.value_or(0.0) < 0) {
+    // The edges disagree: no shear.
+    return edges;
+  }
+  const Finding strokes(strokeDirection(gray, deskewAngleDeg));
+  if (!edges.angle) {
+    // Without an edge the strokes stand alone. Whole pages in italics read 3° to 5° off (measured
+    // with this tool), so larger angles are not trusted.
+    if (strokes.angle && (std::abs(*strokes.angle) > STROKE_FALLBACK_MAX_DEG)) {
+      return Finding{std::nullopt, strokes.confidence};
+    }
+    return strokes;
+  }
+  if (*edges.confidence >= 2) {
+    return edges;
+  }
+  // A single edge cannot tell a shear from a keystone, which leans the edges and the strokes
+  // differently. The strokes have to confirm it.
+  if (strokes.angle && (std::abs(*strokes.angle - *edges.angle) <= EDGE_STROKES_AGREE_DEG)) {
+    return edges;
+  }
+  return Finding{std::nullopt, edges.confidence};
 }
 
 }  // namespace compare

@@ -144,18 +144,21 @@ aids, not tests: they never fail, they write results for a person to judge.
 
 ### oblique_compare
 
-Measures the automatic oblique (shear) detection on synthetic pages with a known angle, using the
-same functions as the deskew step (`deskew::Task::findDeskewAngle`, `findObliqueAngle`). Each page
-is measured a second time moved by a fraction of a pixel, which shows how stable the angle is.
+Measures the automatic oblique (shear) detection on synthetic pages with a known angle: today's
+method (`deskew::Task::findObliqueAngle`, after `findDeskewAngle` as in the deskew step) against
+the candidates in `Methods.h` (straight text edges, stroke direction, both combined). Each page is
+measured a second time moved by a fraction of a pixel, which shows how stable the angle is.
 
 ```bash
 oblique_compare <output folder> [--pages=<n>] [--seed=<n>] [--jobs=<n>]
 ```
 
-- `--pages`: number of pages of the fixed sample (default 162). Text amount, layout, alignment
+- `--pages`: number of pages of the fixed sample (default 243). Text amount, layout, alignment
   (justified, ragged right, centered) and resolution (150/300/600 dpi) go round in turn, every
-  combination once in 81 pages. Rotation (±5°), shear (0° on one page in six, 0.1° to 1° on two,
-  1° to 4° on three) and disturbance (none, noise, blur) are random; the angles lie on no grid.
+  combination once in 81 pages. Random, the angles on no grid: rotation (±5°); shear 0° on one
+  page in eight, 0° with a keystone (perspective, 1–6 %) on one, 0.1° to 1° on two, 1° to 4° on
+  four; disturbance (none, noise, blur); Arial or Times New Roman; italics (none, some phrases, the
+  whole page); running heads and page numbers; indented paragraphs; list items.
 - `--seed`: start value of the pseudo-random sequence (default 20261026); the same seed always
   gives the same pages.
 - `--jobs`: pages measured at the same time (default half of the cores, at most 6). A 600 dpi

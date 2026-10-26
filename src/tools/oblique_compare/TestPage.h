@@ -24,11 +24,15 @@ enum class Disturbance { NONE, NOISE, BLUR };
 /** None checks for false alarms; small is the slight shear a user notices only on a close look. */
 enum class ShearClass { NONE, SMALL, LARGE };
 
+/** Italic type: none, a few phrases, or the whole page. Italics lean on purpose; that is no shear. */
+enum class Italic { NONE, WORDS, PAGE };
+
 QString toString(TextAmount text);
 QString toString(Layout layout);
 QString toString(Alignment alignment);
 QString toString(Disturbance disturbance);
 QString toString(ShearClass shearClass);
+QString toString(Italic italic);
 
 /** What a test page looks like. The same index and seed always give the same page. */
 struct PageSpec {
@@ -49,26 +53,36 @@ struct PageSpec {
   Alignment alignment = Alignment::JUSTIFIED;
   int dpi = 300;
   Disturbance disturbance = Disturbance::NONE;
+  /** Times New Roman instead of Arial. */
+  bool serif = false;
+  Italic italic = Italic::NONE;
+  /** A running head (chapter left, page number right) and a page number at the foot. */
+  bool headerFooter = false;
+  /** The first line of each paragraph indented by one em. */
+  bool indents = false;
+  /** Some paragraphs are list items: a bullet, the text with a hanging indent. */
+  bool lists = false;
 };
 
 /** Text amount, layout, alignment and resolution go round in turn: every combination once in 81 pages. */
 const int PAGES_PER_ROUND = 81;
 
 /**
- * The fixed sample. The angles are random and not on any grid: rotation within ±5°, shear 0° on
- * one page in six, 0.1° to 1° on two in six, 1° to 4° on three in six, either sign. Half of the
- * pages without shear get a keystone of 1 % to 6 % instead.
+ * The fixed sample. The angles are random and not on any grid: rotation within ±5°; shear 0° on
+ * one page in eight, 0° with a keystone of 1 % to 6 % on one in eight, 0.1° to 1° on two in eight,
+ * 1° to 4° on four in eight, either sign. Font, italics, running heads, indents and lists are
+ * drawn at random too, each from a sequence of its own.
  */
 PageSpec pageSpec(int index, uint32_t seed);
 
 /**
- * The font for the text: Arial, which every Windows has, or else the sans serif font Qt finds.
- * The family really used is written into the report.
+ * The font for the text: Arial or Times New Roman, which every Windows has, or else the font of
+ * that kind Qt finds. The families really used are written into the report.
  */
-QFont textFont();
+QFont textFont(bool serif);
 
 /** The upright page without disturbance (8 bits with a gray palette, as imageproc expects). */
-QImage renderPage(const PageSpec& spec, uint32_t seed, const QFont& font);
+QImage renderPage(const PageSpec& spec, uint32_t seed);
 
 /**
  * The page as a scanner would deliver it: sheared, rotated, moved by \p shift pixels and disturbed.

@@ -132,6 +132,18 @@ std::vector<Group> groups() {
     result.push_back(
         {QStringLiteral("Störung: ") + toString(d), [d](const PageSpec& s) { return s.disturbance == d; }});
   }
+  result.push_back({QStringLiteral("serifenlos"), [](const PageSpec& s) { return !s.serif; }});
+  result.push_back({QStringLiteral("Serifen"), [](const PageSpec& s) { return s.serif; }});
+  for (const Italic i : {Italic::NONE, Italic::WORDS, Italic::PAGE}) {
+    result.push_back({toString(i), [i](const PageSpec& s) { return s.italic == i; }});
+  }
+  result.push_back({QStringLiteral("Kopf- und Fußzeile"), [](const PageSpec& s) { return s.headerFooter; }});
+  result.push_back({QStringLiteral("Einzüge"), [](const PageSpec& s) { return s.indents; }});
+  result.push_back({QStringLiteral("Aufzählungen"), [](const PageSpec& s) { return s.lists; }});
+  result.push_back({QStringLiteral("Flattersatz, eine Spalte, Trapez"), [](const PageSpec& s) {
+                      return (s.alignment == Alignment::RAGGED_RIGHT) && (s.layout == Layout::ONE_COLUMN)
+                             && (s.keystone != 0);
+                    }});
   return result;
 }
 
@@ -217,7 +229,9 @@ QString hint(const RunInfo& info) {
   return QStringLiteral(
              "%1 künstliche Seiten, Startwert %2, Schrift %3, Laufzeit %4 s. Die wahren Winkel sind stufenlos "
              "zufällig (Drehung ±5°, Scherung 0° / 0,1°–1° / 1°–4°; die Hälfte der Seiten mit 0° hat stattdessen ein "
-             "Trapez von 1–6 %, das keine Scherung ist). Restschräge: was nach der Korrektur übrig "
+             "Trapez von 1–6 %, das keine Scherung ist). Dazu zufällig: Serifenschrift, Kursivschrift (einzelne "
+             "Wörter oder die ganze Seite), Kopf- und Fußzeilen, Einzüge, Aufzählungen. Restschräge: was nach der "
+             "Korrektur übrig "
              "bleibt; ohne erkannten Winkel bleibt die ganze Scherung. Unruhe: Unterschied des Winkels, wenn "
              "derselbe Scan um (%5; %6) Pixel verschoben ist; kippt: nur auf einem der beiden Scans ein Winkel.")
       .arg(info.pages)
@@ -311,7 +325,7 @@ QString csv(const std::vector<PageResult>& results, const RunInfo& info) {
   QString text;
   QTextStream out(&text);
   out << "seite;textmenge;aufbau;satz;dpi;stoerung;klasse;trapez;drehung_wahr;drehung_erkannt;verfahren;scherung_wahr;"
-         "erkannt;erkannt_verschoben;konfidenz;restschraege\n";
+         "erkannt;erkannt_verschoben;konfidenz;restschraege;schrift;kursiv;kopf_fuss;einzuege;aufzaehlungen\n";
   for (const PageResult& r : results) {
     const PageSpec& s = r.spec;
     for (size_t m = 0; m < info.methods.size(); ++m) {
@@ -320,7 +334,9 @@ QString csv(const std::vector<PageResult>& results, const RunInfo& info) {
           << s.dpi << ";" << toString(s.disturbance) << ";" << toString(s.shearClass) << ";" << csvNumber(s.keystone)
           << ";" << csvNumber(s.rotationDeg) << ";" << csvNumber(r.rotation) << ";" << info.methods[m] << ";"
           << csvNumber(s.shearDeg) << ";" << csvNumber(mr.shear) << ";" << csvNumber(mr.shearShifted) << ";"
-          << csvNumber(mr.confidence) << ";" << csvNumber(r.residualShear(static_cast<int>(m))) << "\n";
+          << csvNumber(mr.confidence) << ";" << csvNumber(r.residualShear(static_cast<int>(m))) << ";"
+          << (s.serif ? "Serifen" : "serifenlos") << ";" << toString(s.italic) << ";" << (s.headerFooter ? 1 : 0) << ";"
+          << (s.indents ? 1 : 0) << ";" << (s.lists ? 1 : 0) << "\n";
     }
   }
   return text;

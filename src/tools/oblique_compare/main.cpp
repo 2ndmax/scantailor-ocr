@@ -68,32 +68,17 @@ const std::vector<Method>& methods() {
           [](const ScanInput& in) {
             return Finding{deskew::Task::findObliqueAngle(in.skewFinder, in.cleaned, in.deskewAngleDeg), std::nullopt};
           }},
-         {QStringLiteral("(a) volle Gewichtung"),
-          [](const ScanInput& in) { return sausageFullWeight(in.skewFinder, in.cleaned, in.deskewAngleDeg, true); }},
-         {QStringLiteral("(a) ohne Konfidenzprüfung"),
-          [](const ScanInput& in) { return sausageFullWeight(in.skewFinder, in.cleaned, in.deskewAngleDeg, false); }},
-         {QStringLiteral("(b) Senkrechten-Suche"),
-          [](const ScanInput& in) { return verticalEdgeSearch(in.cleaned, in.deskewAngleDeg); }},
-         {QStringLiteral("(c) Zeilenanfänge"),
-          [](const ScanInput& in) { return lineStartFit(in.cleaned, in.deskewAngleDeg); }},
-         {QStringLiteral("(c2) Kanten links und rechts"),
-          [](const ScanInput& in) { return edgeFit(in.cleaned, in.deskewAngleDeg); }},
+         {QStringLiteral("(c2) Kanten"), [](const ScanInput& in) { return edgeFit(in.cleaned, in.deskewAngleDeg); }},
          {QStringLiteral("(d) Strichrichtung"),
           [](const ScanInput& in) { return strokeDirection(in.gray, in.deskewAngleDeg); }},
-         {QStringLiteral("(e) Kanten, sonst Strichrichtung"), [](const ScanInput& in) {
-            // Straight edges are the most exact; if they disagree, the page is no case for a shear.
-            const Finding edges(edgeFit(in.cleaned, in.deskewAngleDeg));
-            if (edges.angle || (edges.confidence.value_or(0.0) < 0)) {
-              return edges;
-            }
-            return strokeDirection(in.gray, in.deskewAngleDeg);
-          }}};
+         {QStringLiteral("(e) Kanten, sonst Strichrichtung"),
+          [](const ScanInput& in) { return edgesThenStrokes(in.cleaned, in.gray, in.deskewAngleDeg); }}};
   return METHODS;
 }
 
 struct Options {
   QString outDir;
-  int pages = 2 * PAGES_PER_ROUND;
+  int pages = 3 * PAGES_PER_ROUND;
   uint32_t seed = 20261026;
   int jobs = 1;
 };
@@ -127,8 +112,8 @@ void measureScan(const QImage& scan, const int dpi, const bool shifted, PageResu
   }
 }
 
-PageResult measure(const PageSpec& spec, const Options& options, const QFont& font) {
-  const QImage upright(renderPage(spec, options.seed, font));
+PageResult measure(const PageSpec& spec, const Options& options) {
+  const QImage upright(renderPage(spec, options.seed));
   PageResult result;
   result.spec = spec;
   result.methods.resize(methods().size());
@@ -150,7 +135,12 @@ QString pageText(const PageSpec& s) {
              .arg(s.index)
              .arg(s.dpi)
              .arg(toString(s.text), toString(s.layout), toString(s.alignment), toString(s.disturbance))
-         + ((s.keystone != 0) ? QStringLiteral(" · Trapez %1 %").arg(number(100 * s.keystone, 1)) : QString());
+         + ((s.keystone != 0) ? QStringLiteral(" · Trapez %1 %").arg(number(100 * s.keystone, 1)) : QString())
+         + QStringLiteral(" · %1 · %2")
+               .arg(s.serif ? QStringLiteral("Serifen") : QStringLiteral("serifenlos"), toString(s.italic))
+         + (s.headerFooter ? QStringLiteral(" · Kopf- und Fußzeile") : QString())
+         + (s.indents ? QStringLiteral(" · Einzüge") : QString())
+         + (s.lists ? QStringLiteral(" · Aufzählungen") : QString());
 }
 
 /** The direction in the scan of the upright vertical, for the given angles. */
@@ -178,7 +168,7 @@ QImage angleImage(const QImage& scan, const QPointF& truth, const QPointF& found
   return image;
 }
 
-std::vector<CaseImage> caseImages(const std::vector<PageResult>& results, const Options& options, const QFont& font) {
+std::vector<CaseImage> caseImages(const std::vector<PageResult>& results, const Options& options) {
   std::vector<CaseImage> cases;
   for (size_t m = 0; m < methods().size(); ++m) {
     const int method = static_cast<int>(m);
@@ -191,7 +181,7 @@ std::vector<CaseImage> caseImages(const std::vector<PageResult>& results, const 
     });
     sorted.resize(std::min<size_t>(sorted.size(), NUM_CASES));
     for (const PageResult* r : sorted) {
-      const QImage upright(renderPage(r->spec, options.seed, font));
+      const QImage upright(renderPage(r->spec, options.seed));
       const double rotation = r->rotation.value_or(0.0);
       const QImage image(angleImage(scannedPage(upright, r->spec, options.seed),
                                     vertical(r->spec.rotationDeg, r->spec.shearDeg),
@@ -245,7 +235,7 @@ int main(int argc, char** argv) {
   Options options;
   if (!parseOptions(app.arguments(), options)) {
     std::cerr << "Usage: oblique_compare <output folder> [--pages=<n>] [--seed=<n>] [--jobs=<n>]\n"
-                 "Defaults: 162 pages (every combination twice), seed 20261026, half of the processor cores "
+                 "Defaults: 243 pages (every combination three times), seed 20261026, half of the processor cores "
                  "(at most 6)."
               << std::endl;
     return 1;
@@ -260,7 +250,7 @@ int main(int argc, char** argv) {
     images.remove(file);
   }
 
-  const QFont font(textFont());
+
   QElapsedTimer timer;
   timer.start();
 
@@ -272,7 +262,7 @@ int main(int argc, char** argv) {
   for (int j = 0; j < options.jobs; ++j) {
     workers.emplace_back([&]() {
       for (int i = nextPage++; i < options.pages; i = nextPage++) {
-        results[i] = measure(pageSpec(i, options.seed), options, font);
+        results[i] = measure(pageSpec(i, options.seed), options);
         const std::lock_guard<std::mutex> lock(outputMutex);
         ++done;
         std::cerr << "\rpage " << done << "/" << options.pages << std::flush;
@@ -284,12 +274,12 @@ int main(int argc, char** argv) {
   }
   std::cerr << "\rmeasured " << options.pages << " pages in " << timer.elapsed() / 1000 << " s" << std::endl;
 
-  const std::vector<CaseImage> cases(caseImages(results, options, font));
+  const std::vector<CaseImage> cases(caseImages(results, options));
 
   RunInfo info;
   info.pages = options.pages;
   info.seed = options.seed;
-  info.fontFamily = QFontInfo(font).family();
+  info.fontFamily = QFontInfo(textFont(false)).family() + QStringLiteral(" / ") + QFontInfo(textFont(true)).family();
   info.seconds = timer.elapsed() / 1000.0;
   info.shift = SHIFT;
   for (const Method& method : methods()) {
