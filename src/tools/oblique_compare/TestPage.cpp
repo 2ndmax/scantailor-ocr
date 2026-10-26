@@ -1,0 +1,417 @@
+// Copyright (C) 2026  ScanTailor OCR contributors
+// Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
+
+#include "TestPage.h"
+
+#include <GrayImage.h>
+#include <Grayscale.h>
+#include <Transform.h>
+
+#include <QFontMetricsF>
+#include <QPainter>
+#include <QTransform>
+#include <algorithm>
+#include <cmath>
+#include <utility>
+#include <vector>
+
+using namespace imageproc;
+
+namespace compare {
+
+namespace {
+const double DEG2RAD = M_PI / 180.0;
+
+/** splitmix64: the same numbers on every machine and with every compiler. */
+class Random {
+ public:
+  explicit Random(const uint64_t seed) : m_state(seed) {}
+
+  uint64_t next() {
+    uint64_t z = (m_state += 0x9E3779B97F4A7C15ull);
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
+    return z ^ (z >> 31);
+  }
+
+  int below(const int n) { return static_cast<int>(next() % static_cast<uint64_t>(n)); }
+
+  double uniform() { return static_cast<double>(next() >> 11) * (1.0 / 9007199254740992.0); }
+
+  double uniform(const double from, const double to) { return from + (to - from) * uniform(); }
+
+  double gaussian() {
+    const double u1 = std::max(uniform(), 1e-12);
+    const double u2 = uniform();
+    return std::sqrt(-2.0 * std::log(u1)) * std::cos(2.0 * M_PI * u2);
+  }
+
+ private:
+  uint64_t m_state;
+};
+
+uint64_t pageSeed(const uint32_t seed, const int index, const uint32_t purpose) {
+  return (static_cast<uint64_t>(seed) << 32) ^ (static_cast<uint64_t>(purpose) << 24) ^ static_cast<uint64_t>(index);
+}
+
+double mm(const double millimeters, const int dpi) {
+  return millimeters * dpi / 25.4;
+}
+
+const char16_t* const WORDS[] = {
+    u"die",    u"mit",      u"ist",        u"nicht",      u"Licht",   u"Bild",     u"wirklich", u"Linie",    u"Seite",
+    u"bis",    u"ihr",      u"sich",       u"Zeit",       u"Kirche",  u"Richtung", u"Inhalt",   u"Initiale", u"in",
+    u"im",     u"wie",      u"vielleicht", u"Finsternis", u"Gericht", u"Kristall", u"Mitte",    u"Pflicht",  u"Fischer",
+    u"Wissen", u"Schrift",  u"Papier",     u"Titel",      u"Kapitel", u"und",      u"der",      u"das",      u"ein",
+    u"zu",     u"auf",      u"Hand",       u"Stadt",      u"Wasser",  u"Tal",      u"Weg",      u"Vater",    u"Yacht",
+    u"Fluss",  u"Park",     u"Ärger",      u"Öffnung",    u"Übung",   u"Äpfel",    u"Öl",       u"Überall",  u"für",
+    u"über",   u"können",   u"müssen",     u"Größe",      u"Bücher",  u"Mädchen",  u"Tür",      u"hören",    u"würde",
+    u"später", u"Frühling", u"möglich",    u"nämlich",    u"Dr.",     u"Nr.",      u"Tel."};
+const int NUM_WORDS = sizeof(WORDS) / sizeof(WORDS[0]);
+
+QString word(Random& rnd) {
+  QString result(QString::fromUtf16(WORDS[rnd.below(NUM_WORDS)]));
+  if (result.endsWith(QLatin1Char('.'))) {
+    return result;
+  }
+  const double r = rnd.uniform();
+  if (r < 0.12) {
+    result += QLatin1Char('.');
+  } else if (r < 0.24) {
+    result += QLatin1Char(',');
+  }
+  return result;
+}
+
+/** A dark area with lighter shapes, like a photo after binarization. */
+void drawPicture(QPainter& painter, const QRectF& rect, Random& rnd) {
+  painter.fillRect(rect, QColor(60, 60, 60));
+  for (int i = 0; i < 6; ++i) {
+    const int gray = 100 + rnd.below(136);
+    const double w = rnd.uniform(0.15, 0.5) * rect.width();
+    const double h = rnd.uniform(0.15, 0.5) * rect.height();
+    const QPointF center(rect.left() + rnd.uniform(w / 2, rect.width() - w / 2),
+                         rect.top() + rnd.uniform(h / 2, rect.height() - h / 2));
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(gray, gray, gray));
+    painter.drawEllipse(center, w / 2, h / 2);
+  }
+}
+
+struct Column {
+  double left;
+  double right;
+};
+
+/** imageproc works on 8-bit images with a gray palette, not on Format_Grayscale8. */
+QImage grayCanvas(const QSize& size) {
+  QImage image(size, QImage::Format_Indexed8);
+  image.setColorTable(createGrayscalePalette());
+  return image;
+}
+
+QImage blurred(const QImage& src, const double sigma) {
+  const int radius = std::max(1, static_cast<int>(std::ceil(2.5 * sigma)));
+  std::vector<int> kernel(2 * radius + 1);
+  int sum = 0;
+  for (int i = -radius; i <= radius; ++i) {
+    kernel[i + radius] = static_cast<int>(std::lround(1024.0 * std::exp(-0.5 * i * i / (sigma * sigma))));
+    sum += kernel[i + radius];
+  }
+  const int w = src.width();
+  const int h = src.height();
+  QImage tmp(grayCanvas(src.size()));
+  for (int y = 0; y < h; ++y) {
+    const uint8_t* in = src.constScanLine(y);
+    uint8_t* out = tmp.scanLine(y);
+    for (int x = 0; x < w; ++x) {
+      int acc = 0;
+      for (int k = -radius; k <= radius; ++k) {
+        acc += kernel[k + radius] * in[std::clamp(x + k, 0, w - 1)];
+      }
+      out[x] = static_cast<uint8_t>((acc + sum / 2) / sum);
+    }
+  }
+  QImage dst(grayCanvas(src.size()));
+  for (int y = 0; y < h; ++y) {
+    uint8_t* out = dst.scanLine(y);
+    for (int x = 0; x < w; ++x) {
+      int acc = 0;
+      for (int k = -radius; k <= radius; ++k) {
+        acc += kernel[k + radius] * tmp.constScanLine(std::clamp(y + k, 0, h - 1))[x];
+      }
+      out[x] = static_cast<uint8_t>((acc + sum / 2) / sum);
+    }
+  }
+  return dst;
+}
+
+QImage disturbed(const QImage& src, const PageSpec& spec, Random rnd) {
+  switch (spec.disturbance) {
+    case Disturbance::NONE:
+      return src;
+    case Disturbance::BLUR:
+      return blurred(src, mm(0.07, spec.dpi));
+    case Disturbance::NOISE: {
+      QImage dst(src.copy());
+      for (int y = 0; y < dst.height(); ++y) {
+        uint8_t* line = dst.scanLine(y);
+        for (int x = 0; x < dst.width(); ++x) {
+          line[x] = static_cast<uint8_t>(
+              std::clamp(static_cast<int>(std::lround(line[x] + 14.0 * rnd.gaussian())), 0, 255));
+        }
+      }
+      return dst;
+    }
+  }
+  return src;
+}
+
+/** Sets one line of a paragraph into a column; the words are drawn only if \p painter is given. */
+class LineSetter {
+ public:
+  LineSetter(const QFont& font, const double pixelSize) : m_font(font), m_metrics(m_font) {
+    m_font.setPixelSize(std::max(1, static_cast<int>(std::lround(pixelSize))));
+    m_metrics = QFontMetricsF(m_font);
+  }
+
+  double space() const { return m_metrics.horizontalAdvance(QLatin1Char(' ')); }
+
+  double ascent() const { return m_metrics.ascent(); }
+
+  double descent() const { return m_metrics.descent(); }
+
+  double pixelSize() const { return m_font.pixelSize(); }
+
+  double width(const QString& text) const { return m_metrics.horizontalAdvance(text); }
+
+  void draw(QPainter& painter, const QString& text, const double x, const double baseline) const {
+    painter.setFont(m_font);
+    painter.drawText(QPointF(x, baseline), text);
+  }
+
+ private:
+  QFont m_font;
+  QFontMetricsF m_metrics;
+};
+
+/**
+ * One line between \p left and \p right. Justified lines fill the column except at the end of a
+ * paragraph; ragged lines stop after the last word that fits; centered lines are of random length.
+ */
+void setLine(QPainter& painter,
+             const LineSetter& setter,
+             const Alignment alignment,
+             const double left,
+             const double right,
+             const double baseline,
+             Random& rnd) {
+  const bool paragraphEnd = rnd.uniform() < 0.1;
+  double lineEnd = right;
+  if (alignment == Alignment::CENTERED) {
+    lineEnd = left + rnd.uniform(0.35, 1.0) * (right - left);
+  } else if (paragraphEnd) {
+    lineEnd = left + rnd.uniform(0.3, 0.8) * (right - left);
+  }
+
+  std::vector<std::pair<QString, double>> words;
+  double used = 0;
+  while (true) {
+    const QString w(word(rnd));
+    const double width = setter.width(w);
+    const double needed = (words.empty() ? 0.0 : setter.space()) + width;
+    if (left + used + needed > lineEnd) {
+      break;
+    }
+    used += needed;
+    words.emplace_back(w, width);
+  }
+
+  double x = left;
+  double gap = setter.space();
+  if ((alignment == Alignment::JUSTIFIED) && !paragraphEnd && (words.size() > 1)) {
+    gap += (lineEnd - left - used) / static_cast<double>(words.size() - 1);
+  } else if (alignment == Alignment::CENTERED) {
+    x += 0.5 * (right - left - used);
+  }
+  for (const auto& w : words) {
+    setter.draw(painter, w.first, x, baseline);
+    x += w.second + gap;
+  }
+}
+}  // namespace
+
+QString toString(const TextAmount text) {
+  switch (text) {
+    case TextAmount::FULL_PAGE:
+      return QStringLiteral("volle Seite");
+    case TextAmount::HALF_PAGE:
+      return QStringLiteral("halbe Seite");
+    default:
+      return QStringLiteral("wenige Zeilen");
+  }
+}
+
+QString toString(const Layout layout) {
+  switch (layout) {
+    case Layout::ONE_COLUMN:
+      return QStringLiteral("eine Spalte");
+    case Layout::TWO_COLUMNS:
+      return QStringLiteral("zwei Spalten");
+    default:
+      return QStringLiteral("Text mit Bild");
+  }
+}
+
+QString toString(const Alignment alignment) {
+  switch (alignment) {
+    case Alignment::JUSTIFIED:
+      return QStringLiteral("Blocksatz");
+    case Alignment::RAGGED_RIGHT:
+      return QStringLiteral("Flattersatz");
+    default:
+      return QStringLiteral("zentriert");
+  }
+}
+
+QString toString(const Disturbance disturbance) {
+  switch (disturbance) {
+    case Disturbance::NONE:
+      return QStringLiteral("keine");
+    case Disturbance::NOISE:
+      return QStringLiteral("Rauschen");
+    default:
+      return QStringLiteral("Unschärfe");
+  }
+}
+
+QString toString(const ShearClass shearClass) {
+  switch (shearClass) {
+    case ShearClass::NONE:
+      return QStringLiteral("0°");
+    case ShearClass::SMALL:
+      return QStringLiteral("0,1° bis 1°");
+    default:
+      return QStringLiteral("1° bis 4°");
+  }
+}
+
+PageSpec pageSpec(const int index, const uint32_t seed) {
+  Random rnd(pageSeed(seed, index, 1));
+  PageSpec spec;
+  spec.index = index;
+  spec.text = static_cast<TextAmount>(index % 3);
+  spec.layout = static_cast<Layout>((index / 3) % 3);
+  spec.alignment = static_cast<Alignment>((index / 9) % 3);
+  static const int DPIS[] = {150, 300, 600};
+  spec.dpi = DPIS[(index / 27) % 3];
+  spec.disturbance = static_cast<Disturbance>(rnd.below(3));
+  spec.rotationDeg = rnd.uniform(-5.0, 5.0);
+  const int shearDraw = rnd.below(6);
+  const double sign = (rnd.below(2) == 0) ? -1.0 : 1.0;
+  if (shearDraw == 0) {
+    spec.shearClass = ShearClass::NONE;
+  } else if (shearDraw <= 2) {
+    spec.shearClass = ShearClass::SMALL;
+    spec.shearDeg = sign * rnd.uniform(0.1, 1.0);
+  } else {
+    spec.shearClass = ShearClass::LARGE;
+    spec.shearDeg = sign * rnd.uniform(1.0, 4.0);
+  }
+  return spec;
+}
+
+QFont textFont() {
+  QFont font(QStringLiteral("Arial"));
+  font.setStyleHint(QFont::SansSerif);
+  return font;
+}
+
+QImage renderPage(const PageSpec& spec, const uint32_t seed, const QFont& font) {
+  Random rnd(pageSeed(seed, spec.index, 2));
+  const int dpi = spec.dpi;
+  const QSize pageSize(static_cast<int>(std::lround(mm(210, dpi))), static_cast<int>(std::lround(mm(297, dpi))));
+
+  QImage canvas(pageSize, QImage::Format_RGB32);
+  canvas.fill(Qt::white);
+  QPainter painter(&canvas);
+  painter.setRenderHint(QPainter::Antialiasing);
+  painter.setRenderHint(QPainter::TextAntialiasing);
+  painter.setPen(Qt::black);
+
+  const double left = mm(20, dpi);
+  const double right = pageSize.width() - mm(20, dpi);
+  const double top = mm(25, dpi);
+  const double bottom = pageSize.height() - mm(25, dpi);
+
+  const LineSetter body(font, 10.5 / 72.0 * dpi);
+  const LineSetter headline(font, 19.0 / 72.0 * dpi);
+  const double lineHeight = 1.4 * body.pixelSize();
+
+  std::vector<Column> columns;
+  if (spec.layout == Layout::TWO_COLUMNS) {
+    const double middle = 0.5 * (left + right);
+    columns.push_back({left, middle - mm(4, dpi)});
+    columns.push_back({middle + mm(4, dpi), right});
+  } else {
+    columns.push_back({left, right});
+  }
+
+  double textTop = top;
+  int lineLimit = 1 << 30;
+  double textBottom = bottom;
+  if (spec.text == TextAmount::FEW_LINES) {
+    // A chapter start: a headline and a few lines below it.
+    const double baseline = top + headline.ascent();
+    QString title;
+    for (int i = 0; i < 3; ++i) {
+      title += (i > 0 ? QStringLiteral(" ") : QString()) + QString::fromUtf16(WORDS[rnd.below(NUM_WORDS)]);
+    }
+    const double titleLeft
+        = (spec.alignment == Alignment::CENTERED) ? 0.5 * (left + right - headline.width(title)) : left;
+    headline.draw(painter, title, titleLeft, baseline);
+    textTop = baseline + headline.descent() + lineHeight;
+    lineLimit = 3;
+  } else if (spec.text == TextAmount::HALF_PAGE) {
+    textBottom = 0.5 * (top + bottom);
+  }
+
+  QRectF picture;
+  if (spec.layout == Layout::TEXT_WITH_PICTURE) {
+    picture = QRectF(left, textTop, 0.45 * (right - left), mm(55, dpi));
+    drawPicture(painter, picture, rnd);
+    painter.setPen(Qt::black);
+  }
+
+  int lines = 0;
+  for (const Column& column : columns) {
+    for (double baseline = textTop + body.ascent(); baseline + body.descent() <= textBottom && lines < lineLimit;
+         baseline += lineHeight) {
+      double lineLeft = column.left;
+      if (!picture.isNull() && (baseline + body.descent() > picture.top())
+          && (baseline - body.ascent() < picture.bottom() + mm(3, dpi))) {
+        lineLeft = picture.right() + mm(5, dpi);
+      }
+      setLine(painter, body, spec.alignment, lineLeft, column.right, baseline, rnd);
+      ++lines;
+    }
+  }
+  painter.end();
+  return GrayImage(canvas).toQImage();
+}
+
+QImage scannedPage(const QImage& upright, const PageSpec& spec, const uint32_t seed, const QPointF& shift) {
+  const QPointF center(0.5 * upright.width(), 0.5 * upright.height());
+  const QTransform shear(1, 0, std::tan(spec.shearDeg * DEG2RAD), 1, 0, 0);
+  QTransform rotation;
+  rotation.rotate(-spec.rotationDeg);
+  const QTransform xform(QTransform::fromTranslate(-center.x(), -center.y()) * shear * rotation
+                         * QTransform::fromTranslate(center.x(), center.y()));
+  // The page area stays the same for every shift, so that only the sampling grid moves.
+  const QRect dstRect(xform.mapRect(QRectF(upright.rect())).toAlignedRect().adjusted(-1, -1, 1, 1));
+  const QTransform shifted(xform * QTransform::fromTranslate(shift.x(), shift.y()));
+  const GrayImage scan(transformToGray(upright, shifted, dstRect, OutsidePixels::assumeColor(Qt::white)));
+  return disturbed(scan.toQImage(), spec, Random(pageSeed(seed, spec.index, 4)));
+}
+
+}  // namespace compare
