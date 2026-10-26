@@ -191,7 +191,7 @@ DistortionModelBuilder::TracedCurve DistortionModelBuilder::polylineToCurve(
   const Vec2d centroid(this->centroid(polyline));
 
   // Fit the polyline to a spline, extending it to bounds at the same time.
-  const XSpline extendedSpline(fitExtendedSpline(trimmedPolyline, centroid, bounds));
+  const XSpline extendedSpline(fitExtendedSpline(trimmedPolyline, bounds));
 
   const double order = centroid.dot(m_downDirection);
   return TracedCurve(trimmedPolyline, extendedSpline, order);
@@ -301,7 +301,6 @@ void DistortionModelBuilder::intersectBack(std::deque<QPointF>& polyline, const 
 }
 
 XSpline DistortionModelBuilder::fitExtendedSpline(const std::vector<QPointF>& polyline,
-                                                  const Vec2d& centroid,
                                                   const std::pair<QLineF, QLineF>& bounds) {
   using namespace spfit;
 
@@ -554,13 +553,13 @@ QImage DistortionModelBuilder::visualizeModel(const QImage& background,
       // We've got a reverse segment.
       if (!reverseSegments.empty() && (reverseSegments.back().back() == int(i) - 1)) {
         // Continue the previous sequence.
-        reverseSegments.back().push_back(static_cast<int&&>(i));
+        reverseSegments.back().push_back(static_cast<int>(i));
       } else {
         // Start a new sequence.
         reverseSegments.emplace_back();
         std::vector<int>& sequence = reverseSegments.back();
-        sequence.push_back(static_cast<int&&>(i - 1));
-        sequence.push_back(static_cast<int&&>(i));
+        sequence.push_back(static_cast<int>(i - 1));
+        sequence.push_back(static_cast<int>(i));
       }
     }
 

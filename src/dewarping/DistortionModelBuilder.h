@@ -94,9 +94,7 @@ class DistortionModelBuilder {
 
   static void intersectBack(std::deque<QPointF>& polyline, const QLineF& bound);
 
-  static XSpline fitExtendedSpline(const std::vector<QPointF>& polyline,
-                                   const Vec2d& centroid,
-                                   const std::pair<QLineF, QLineF>& bounds);
+  static XSpline fitExtendedSpline(const std::vector<QPointF>& polyline, const std::pair<QLineF, QLineF>& bounds);
 
   QImage visualizeTrimmedPolylines(const QImage& background, const std::vector<TracedCurve>& curves) const;
 
