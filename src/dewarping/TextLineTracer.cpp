@@ -21,6 +21,7 @@
 #include <cmath>
 #include <limits>
 
+#include "AvgUnitVector.h"
 #include "DebugImages.h"
 #include "DetectVertContentBounds.h"
 #include "DistortionModel.h"
@@ -399,18 +400,6 @@ void TextLineTracer::extractTextLines(std::list<std::vector<QPointF>>& out,
     out.back().swap(polyline);
   }
 }  // TextLineTracer::extractTextLines
-
-Vec2f TextLineTracer::calcAvgUnitVector(const std::pair<QLineF, QLineF>& bounds) {
-  Vec2f v1(bounds.first.p2() - bounds.first.p1());
-  v1 /= std::sqrt(v1.squaredNorm());
-
-  Vec2f v2(bounds.second.p2() - bounds.second.p1());
-  v2 /= std::sqrt(v2.squaredNorm());
-
-  Vec2f v3(v1 + v2);
-  v3 /= std::sqrt(v3.squaredNorm());
-  return v3;
-}
 
 BinaryImage TextLineTracer::closeWithObstacles(const BinaryImage& image,
                                                const BinaryImage& obstacles,

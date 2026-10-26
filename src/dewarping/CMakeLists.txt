@@ -1,4 +1,5 @@
 set(sources
+    AvgUnitVector.h
     Curve.cpp Curve.h
     DistortionModel.cpp DistortionModel.h
     DistortionModelBuilder.cpp DistortionModelBuilder.h

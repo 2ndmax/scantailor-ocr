@@ -54,8 +54,6 @@ class TextLineTracer {
                                const std::pair<QLineF, QLineF>& bounds,
                                DebugImages* dbg);
 
-  static Vec2f calcAvgUnitVector(const std::pair<QLineF, QLineF>& bounds);
-
   static imageproc::BinaryImage closeWithObstacles(const imageproc::BinaryImage& image,
                                                    const imageproc::BinaryImage& obstacles,
                                                    const QSize& brick);

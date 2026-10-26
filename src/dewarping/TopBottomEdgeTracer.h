@@ -53,8 +53,6 @@ class TopBottomEdgeTracer {
 
   static void verticalSobelInPlace(Grid<GridNode>& grid);
 
-  static Vec2f calcAvgUnitVector(const std::pair<QLineF, QLineF>& bounds);
-
   static Vec2f directionFromPointToLine(const QPointF& pt, const QLineF& line);
 
   static void prepareForShortestPathsFrom(PrioQueue& queue, Grid<GridNode>& grid, const QLineF& from);
