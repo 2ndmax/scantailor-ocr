@@ -49,6 +49,14 @@ class Utils {
   static void extendPolyRectWithMargins(QPolygonF& polyRect, const Margins& margins);
 
   /**
+   * rief Each margin divided by p factor.
+   *
+   * The output enlarges the page rect by the scale factor, so margins that must keep their size
+   * in the output are added divided by it.
+   */
+  static Margins marginsDividedBy(const Margins& margins, double factor);
+
+  /**
    * \brief Calculates margins to extend hardSizeMm to aggregateHardSizeMm.
    *
    * \param hardSizeMm Source size in millimeters.

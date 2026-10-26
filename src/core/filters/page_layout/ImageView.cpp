@@ -524,13 +524,7 @@ void ImageView::recalcBoxesAndFit(const Margins& marginsMm) {
   m_scaleFactor = calcScaleFactor(marginsMm);
 
   QPolygonF polyMm(virtToMm.map(m_innerRect));
-  if (m_scaleFactor == 1.0) {
-    Utils::extendPolyRectWithMargins(polyMm, marginsMm);
-  } else {
-    Utils::extendPolyRectWithMargins(polyMm,
-                                     Margins(marginsMm.left() / m_scaleFactor, marginsMm.top() / m_scaleFactor,
-                                             marginsMm.right() / m_scaleFactor, marginsMm.bottom() / m_scaleFactor));
-  }
+  Utils::extendPolyRectWithMargins(polyMm, Utils::marginsDividedBy(marginsMm, m_scaleFactor));
 
   const QRectF middleRect(mmToVirt.map(polyMm).boundingRect());
 
@@ -658,12 +652,7 @@ void ImageView::extendWithSoftMargins(QPolygonF& polyMm) const {
   const Margins softMarginsMm(
       Utils::calcSoftMarginsMM(hardSizeMm, m_settings->outputSizeOptions().targetSizeMM(m_aggregateHardSizeMM),
                                m_alignment, contentRect, contentSizeMm, pageRect));
-  if (factor == 1.0) {
-    Utils::extendPolyRectWithMargins(polyMm, softMarginsMm);
-  } else {
-    Utils::extendPolyRectWithMargins(polyMm, Margins(softMarginsMm.left() / factor, softMarginsMm.top() / factor,
-                                                     softMarginsMm.right() / factor, softMarginsMm.bottom() / factor));
-  }
+  Utils::extendPolyRectWithMargins(polyMm, Utils::marginsDividedBy(softMarginsMm, factor));
 }
 
 QSizeF ImageView::origRectToSizeMM(const QRectF& rect) const {

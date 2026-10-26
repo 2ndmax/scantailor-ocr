@@ -107,6 +107,14 @@ BOOST_AUTO_TEST_CASE(scaled_page_has_the_target_size_and_unchanged_margins) {
   BOOST_CHECK_CLOSE(contentOut.left() - newXform.resultingRect().left(), 100.0, 1e-6);
 }
 
+BOOST_AUTO_TEST_CASE(margins_divided_by_the_scale_factor) {
+  const Margins divided = Utils::marginsDividedBy(Margins(10, 20, 30, 40), 2.0);
+  BOOST_CHECK_EQUAL(divided.left(), 5.0);
+  BOOST_CHECK_EQUAL(divided.top(), 10.0);
+  BOOST_CHECK_EQUAL(divided.right(), 15.0);
+  BOOST_CHECK_EQUAL(divided.bottom(), 20.0);
+}
+
 BOOST_AUTO_TEST_CASE(page_without_content_is_not_scaled) {
   const Dpi dpi(254, 254);
   const ImageTransformation xform(QRectF(0, 0, 3000, 4000), dpi);

@@ -37,6 +37,10 @@ QSizeF Utils::calcRectSizeMM(const ImageTransformation& xform, const QRectF& rec
   return QSizeF(width, height);
 }
 
+Margins Utils::marginsDividedBy(const Margins& margins, const double factor) {
+  return Margins(margins.left() / factor, margins.top() / factor, margins.right() / factor, margins.bottom() / factor);
+}
+
 void Utils::extendPolyRectWithMargins(QPolygonF& polyRect, const Margins& margins) {
   const QPointF downUv(getDownUnitVector(polyRect));
   const QPointF rightUv(getRightUnitVector(polyRect));
@@ -238,8 +242,7 @@ QPolygonF Utils::calcPageRectPhys(const ImageTransformation& xform,
   const Margins marginsMm(hardMarginsMm.left() + softMarginsMm.left(), hardMarginsMm.top() + softMarginsMm.top(),
                           hardMarginsMm.right() + softMarginsMm.right(),
                           hardMarginsMm.bottom() + softMarginsMm.bottom());
-  extendPolyRectWithMargins(polyMm, Margins(marginsMm.left() / factor, marginsMm.top() / factor,
-                                            marginsMm.right() / factor, marginsMm.bottom() / factor));
+  extendPolyRectWithMargins(polyMm, marginsDividedBy(marginsMm, factor));
   return pixelsToMmTransform.inverted().map(polyMm);
 }
 
