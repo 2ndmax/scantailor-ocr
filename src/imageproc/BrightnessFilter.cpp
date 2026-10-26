@@ -7,16 +7,11 @@
 #include <algorithm>
 #include <cstdint>
 
+#include "ClampToByte.h"
 #include "GrayImage.h"
 #include "ParallelFor.h"
 
 namespace imageproc {
-namespace {
-uint8_t clampToByte(const float val) {
-  return static_cast<uint8_t>(std::clamp(val, 0.0f, 255.0f) + 0.5f);
-}
-}  // namespace
-
 void filterBrightnessInPlace(QImage& image, const std::function<void(GrayImage&)>& filter) {
   if (image.isNull()) {
     return;

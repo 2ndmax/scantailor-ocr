@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "ClampToByte.h"
 #include "ParallelFor.h"
 
 namespace imageproc {
@@ -38,7 +39,7 @@ QImage dimColoredPixels(const QImage& image, const double coef) {
         const auto move = [&](const int c) {
           const float value = darken ? static_cast<float>(c) * (1.0f - t)
                                      : static_cast<float>(c) + (255.0f - static_cast<float>(c)) * t;
-          return static_cast<int>(std::clamp(value, 0.0f, 255.0f) + 0.5f);
+          return clampToByte(value);
         };
         line[x] = qRgb(move(r), move(g), move(b));
       }

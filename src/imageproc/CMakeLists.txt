@@ -28,6 +28,7 @@ set(sources
     WienerFilter.cpp WienerFilter.h
     SubtractBackground.cpp SubtractBackground.h
     BrightnessFilter.cpp BrightnessFilter.h
+    ClampToByte.h
     ChromaDenoiser.cpp ChromaDenoiser.h
     ColoredDimming.cpp ColoredDimming.h
     ColorKMeans.cpp ColorKMeans.h

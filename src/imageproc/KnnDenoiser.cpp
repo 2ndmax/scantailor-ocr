@@ -10,6 +10,7 @@
 #include <cstdint>
 
 #include "BrightnessFilter.h"
+#include "ClampToByte.h"
 #include "GrayImage.h"
 #include "IntegralImage.h"
 #include "ParallelFor.h"
@@ -70,7 +71,7 @@ void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
         color /= sumWeights;
         const float lerp = (count > kThresholdLerp) ? kNoiseLerp : (1.0f - kNoiseLerp);
         color += (origin - color) * lerp;
-        line[x] = static_cast<uint8_t>(std::clamp(color, 0.0f, 255.0f) + 0.5f);
+        line[x] = clampToByte(color);
       }
     }
   });

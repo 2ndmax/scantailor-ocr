@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "BrightnessFilter.h"
+#include "ClampToByte.h"
 #include "GrayImage.h"
 #include "ParallelFor.h"
 
@@ -144,10 +145,6 @@ GrayImage estimateBackground(const GrayImage& image, const int radius) {
   }
   const int reducedRadius = std::max(1, static_cast<int>(std::lround(static_cast<double>(radius) / factor)));
   return enlarge(median(reduce(image, factor), reducedRadius), image.size(), factor);
-}
-
-uint8_t clampToByte(const float val) {
-  return static_cast<uint8_t>(std::clamp(val, 0.0f, 255.0f) + 0.5f);
 }
 
 // Divides by the background, which takes it to white and keeps dark text dark.

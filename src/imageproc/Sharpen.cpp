@@ -8,6 +8,7 @@
 #include <cstdint>
 
 #include "BrightnessFilter.h"
+#include "ClampToByte.h"
 #include "GaussBlur.h"
 #include "GrayImage.h"
 #include "ParallelFor.h"
@@ -31,7 +32,7 @@ void sharpenInPlace(GrayImage& image, const int radius, const double coef) {
       for (int x = 0; x < w; ++x) {
         const float origin = line[x];
         const float val = origin + amount * (origin - static_cast<float>(blurLine[x]));
-        line[x] = static_cast<uint8_t>(std::clamp(val, 0.0f, 255.0f) + 0.5f);
+        line[x] = clampToByte(val);
       }
     }
   });

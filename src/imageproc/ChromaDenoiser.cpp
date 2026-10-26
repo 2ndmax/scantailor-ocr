@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <utility>
 
+#include "ClampToByte.h"
 #include "GaussBlur.h"
 #include "GrayImage.h"
 #include "ParallelFor.h"
@@ -21,10 +22,6 @@ constexpr float kG = 0.587f;
 constexpr float kB = 0.114f;
 constexpr float kCb = 0.564f;
 constexpr float kCr = 0.713f;
-
-uint8_t clampToByte(const float val) {
-  return static_cast<uint8_t>(std::clamp(val, 0.0f, 255.0f) + 0.5f);
-}
 }  // namespace
 
 void chromaDenoiseInPlace(QImage& image, const int radius, const int grayLimit) {
