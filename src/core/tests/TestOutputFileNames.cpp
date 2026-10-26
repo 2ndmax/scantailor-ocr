@@ -1,18 +1,18 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include <AbstractRelinker.h>
 #include <FileNameDisambiguator.h>
 #include <ImageId.h>
 #include <OutputFileNameGenerator.h>
 #include <PageId.h>
-#include <RelinkablePath.h>
 
 #include <QDomDocument>
 #include <QStringList>
 #include <boost/test/unit_test.hpp>
 #include <memory>
 #include <vector>
+
+#include "TestHelpers.h"
 
 namespace Tests {
 namespace {
@@ -45,19 +45,6 @@ bool allDistinct(const QStringList& names) {
 PageId page(const QString& path, const int pageNumber = 0, const PageId::SubPage subPage = PageId::SINGLE_PAGE) {
   return PageId(ImageId(path, pageNumber), subPage);
 }
-
-class RenamingRelinker : public AbstractRelinker {
- public:
-  RenamingRelinker(const QString& from, const QString& to) : m_from(from), m_to(to) {}
-
-  QString substitutionPathFor(const RelinkablePath& origPath) const override {
-    return (origPath.normalizedPath() == m_from) ? m_to : origPath.normalizedPath();
-  }
-
- private:
-  QString m_from;
-  QString m_to;
-};
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE(OutputFileNamesTestSuite)

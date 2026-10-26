@@ -23,6 +23,7 @@ set(sources
     TestProjectFile.cpp
     TestProjectFiles.cpp
     TestRecentProjects.cpp
+    TestRelinkedKeys.cpp
     TestRenderParams.cpp
     TestScanInsertion.cpp
     TestSettingsSetup.cpp

@@ -11,6 +11,7 @@ set(common_sources
     SmartFilenameOrdering.cpp SmartFilenameOrdering.h
     AbstractRelinker.h
     RelinkablePath.cpp RelinkablePath.h
+    RelinkedKeys.h
     ImageInfo.cpp ImageInfo.h
     ImageFileInfo.cpp ImageFileInfo.h
     ImageMetadata.cpp ImageMetadata.h

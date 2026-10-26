@@ -4,10 +4,9 @@
 #include "Settings.h"
 
 #include "../../Utils.h"
-#include "AbstractRelinker.h"
 #include "FillColorProperty.h"
 #include "PictureLayerProperty.h"
-#include "RelinkablePath.h"
+#include "RelinkedKeys.h"
 
 using namespace core;
 
@@ -32,46 +31,12 @@ void Settings::clear() {
 void Settings::performRelinking(const AbstractRelinker& relinker) {
   const QMutexLocker locker(&m_mutex);
 
-  PerPageParams newParams;
-  PerPageOutputParams newOutputParams;
-  PerPageZones newPictureZones;
-  PerPageZones newFillZones;
-  PerPageOutputProcessingParams newOutputProcessingParams;
-
-  for (const PerPageParams::value_type& kv : m_perPageParams) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    newParams.insert(PerPageParams::value_type(newPageId, kv.second));
-  }
-
-  for (const PerPageOutputParams::value_type& kv : m_perPageOutputParams) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    newOutputParams.insert(PerPageOutputParams::value_type(newPageId, kv.second));
-  }
-
-  for (const PerPageZones::value_type& kv : m_perPagePictureZones) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    newPictureZones.insert(PerPageZones::value_type(newPageId, kv.second));
-  }
-
-  for (const PerPageZones::value_type& kv : m_perPageFillZones) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    newFillZones.insert(PerPageZones::value_type(newPageId, kv.second));
-  }
-
-  for (const PerPageOutputProcessingParams::value_type& kv : m_perPageOutputProcessingParams) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    newOutputProcessingParams.insert(PerPageOutputProcessingParams::value_type(newPageId, kv.second));
-  }
+  // All tables are relinked before any is replaced, so a failure leaves them consistent.
+  PerPageParams newParams = relinkedKeys(m_perPageParams, relinker);
+  PerPageOutputParams newOutputParams = relinkedKeys(m_perPageOutputParams, relinker);
+  PerPageZones newPictureZones = relinkedKeys(m_perPagePictureZones, relinker);
+  PerPageZones newFillZones = relinkedKeys(m_perPageFillZones, relinker);
+  PerPageOutputProcessingParams newOutputProcessingParams = relinkedKeys(m_perPageOutputProcessingParams, relinker);
 
   m_perPageParams.swap(newParams);
   m_perPageOutputParams.swap(newOutputParams);
