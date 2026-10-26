@@ -11,6 +11,7 @@
 #include <QSizeF>
 #include <QString>
 #include <QTimer>
+#include <array>
 #include <functional>
 #include <map>
 #include <memory>
@@ -137,18 +138,6 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void filterSelectionChanged(const QItemSelection& selected);
 
-  void switchFilter1();
-
-  void switchFilter2();
-
-  void switchFilter3();
-
-  void switchFilter4();
-
-  void switchFilter5();
-
-  void switchFilter6();
-
   void pageOrderingChanged(int idx);
 
   void reloadRequested();
@@ -224,6 +213,9 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   void scanFailed(const QString& filePath);
 
  private:
+  /** The shortcut actions for the steps, in the order of the step list. */
+  std::array<QAction*, 6> filterSwitchActions() const;
+
   class PageSelectionProviderImpl;
 
   enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };

@@ -232,12 +232,9 @@ MainWindow::MainWindow()
   addAction(actionDiminishThumbnails);
   addAction(actionReloadPage);
 
-  addAction(actionSwitchFilter1);
-  addAction(actionSwitchFilter2);
-  addAction(actionSwitchFilter3);
-  addAction(actionSwitchFilter4);
-  addAction(actionSwitchFilter5);
-  addAction(actionSwitchFilter6);
+  for (QAction* action : filterSwitchActions()) {
+    addAction(action);
+  }
   // Should be enough to save a project.
   OutOfMemoryHandler::instance().allocateEmergencyMemory(3 * 1024 * 1024);
 
@@ -279,12 +276,10 @@ MainWindow::MainWindow()
   connect(actionDiminishThumbnails, &QAction::triggered, diminishThumbnails);
   connect(actionReloadPage, &QAction::triggered, this, &MainWindow::reloadCurrentPage);
 
-  connect(actionSwitchFilter1, &QAction::triggered, this, &MainWindow::switchFilter1);
-  connect(actionSwitchFilter2, &QAction::triggered, this, &MainWindow::switchFilter2);
-  connect(actionSwitchFilter3, &QAction::triggered, this, &MainWindow::switchFilter3);
-  connect(actionSwitchFilter4, &QAction::triggered, this, &MainWindow::switchFilter4);
-  connect(actionSwitchFilter5, &QAction::triggered, this, &MainWindow::switchFilter5);
-  connect(actionSwitchFilter6, &QAction::triggered, this, &MainWindow::switchFilter6);
+  const std::array<QAction*, 6> switchActions = filterSwitchActions();
+  for (int idx = 0; idx < int(switchActions.size()); ++idx) {
+    connect(switchActions[idx], &QAction::triggered, this, [this, idx]() { filterList->selectRow(idx); });
+  }
 
   connect(filterList->selectionModel(), &QItemSelectionModel::selectionChanged, this,
           &MainWindow::filterSelectionChanged);
@@ -1270,28 +1265,9 @@ void MainWindow::filterSelectionChanged(const QItemSelection& selected) {
   updateMainArea();
 }  // MainWindow::filterSelectionChanged
 
-void MainWindow::switchFilter1() {
-  filterList->selectRow(0);
-}
-
-void MainWindow::switchFilter2() {
-  filterList->selectRow(1);
-}
-
-void MainWindow::switchFilter3() {
-  filterList->selectRow(2);
-}
-
-void MainWindow::switchFilter4() {
-  filterList->selectRow(3);
-}
-
-void MainWindow::switchFilter5() {
-  filterList->selectRow(4);
-}
-
-void MainWindow::switchFilter6() {
-  filterList->selectRow(5);
+std::array<QAction*, 6> MainWindow::filterSwitchActions() const {
+  return {actionSwitchFilter1, actionSwitchFilter2, actionSwitchFilter3,
+          actionSwitchFilter4, actionSwitchFilter5, actionSwitchFilter6};
 }
 
 void MainWindow::pageOrderingChanged(int idx) {
@@ -1729,9 +1705,10 @@ void MainWindow::setPageNavigationEnabled(const bool enabled) {
 void MainWindow::pdfExportRunningChanged(const bool running) {
   // The output files and the project must stay as they are while the PDF is being created.
   filterList->setEnabled(!running);
-  for (QAction* action : {actionNewProject, actionOpenProject, actionCloseProject, actionSwitchFilter1,
-                          actionSwitchFilter2, actionSwitchFilter3, actionSwitchFilter4, actionSwitchFilter5,
-                          actionSwitchFilter6, actionFixDpi, actionRelinking}) {
+  for (QAction* action : {actionNewProject, actionOpenProject, actionCloseProject, actionFixDpi, actionRelinking}) {
+    action->setEnabled(!running);
+  }
+  for (QAction* action : filterSwitchActions()) {
     action->setEnabled(!running);
   }
   if (!running) {
