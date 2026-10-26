@@ -54,9 +54,9 @@ struct jbig2enc_ctx {
   int bp;
 
   // This is a list of output chunks, not including the current one
-  std::vector<uint8_t *> *output_chunks;
-  uint8_t *outbuf;  // this is the current output chunk
-  int outbuf_used;  // number of bytes used in outbuf
+  std::vector<uint8_t*>* output_chunks;
+  uint8_t* outbuf;                 // this is the current output chunk
+  int outbuf_used;                 // number of bytes used in outbuf
   uint8_t context[JBIG2_MAX_CTX];  // state machine context for encoding images
 };
 
@@ -65,14 +65,13 @@ struct jbig2enc_ctx {
 //
 // Before doing this you should make sure that jbig2enc_final() has been called
 // -----------------------------------------------------------------------------
-unsigned jbig2enc_datasize(const struct jbig2enc_ctx *ctx);
+unsigned jbig2enc_datasize(const struct jbig2enc_ctx* ctx);
 
 // -----------------------------------------------------------------------------
 // Writes the output of the given context to a buffer. The buffer must be at
 // least long enough to contain all the data (see _datasize)
 // -----------------------------------------------------------------------------
-void jbig2enc_tobuffer(const struct jbig2enc_ctx *__restrict__ ctx,
-                       uint8_t *__restrict__ buffer);
+void jbig2enc_tobuffer(const struct jbig2enc_ctx* __restrict__ ctx, uint8_t* __restrict__ buffer);
 
 // -----------------------------------------------------------------------------
 // Encodes a 1 bit image of mx x my pixels as a generic region (template 0).
@@ -90,23 +89,25 @@ void jbig2enc_tobuffer(const struct jbig2enc_ctx *__restrict__ ctx,
 //
 // Throws std::bad_alloc if memory runs out.
 // -----------------------------------------------------------------------------
-void jbig2enc_bitimage(struct jbig2enc_ctx *__restrict__ ctx,
-                       const uint8_t *__restrict__ data, int mx, int my,
+void jbig2enc_bitimage(struct jbig2enc_ctx* __restrict__ ctx,
+                       const uint8_t* __restrict__ data,
+                       int mx,
+                       int my,
                        bool duplicate_line_removal);
 
 // -----------------------------------------------------------------------------
 // Init a new context. Throws std::bad_alloc if memory runs out.
 // -----------------------------------------------------------------------------
-void jbig2enc_init(struct jbig2enc_ctx *ctx);
+void jbig2enc_init(struct jbig2enc_ctx* ctx);
 
 // -----------------------------------------------------------------------------
 // Destroy a context
 // -----------------------------------------------------------------------------
-void jbig2enc_dealloc(struct jbig2enc_ctx *ctx);
+void jbig2enc_dealloc(struct jbig2enc_ctx* ctx);
 
 // -----------------------------------------------------------------------------
 // Flush any remaining arithmetic encoder context to the output.
 // -----------------------------------------------------------------------------
-void jbig2enc_final(struct jbig2enc_ctx *ctx);
+void jbig2enc_final(struct jbig2enc_ctx* ctx);
 
 #endif  // EXPERIMENTAL_USERS_AGL_JBIG2ENC_JBIG2ENC_H__

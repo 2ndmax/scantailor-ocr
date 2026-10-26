@@ -59,8 +59,6 @@ jobs:
           # Deleted files can't be checked (--diff-filter=d leaves them out).
           SRC_FILES=$(git diff --name-only --diff-filter=d "$BASE" HEAD -- src/ \
             | grep -E '\.(cpp|h)$' \
-            | grep -v '/translations/' \
-            | grep -v '/jbig2enc/' \
             || true)
           if [ -z "$SRC_FILES" ]; then
             COUNT=0

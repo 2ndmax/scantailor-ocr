@@ -20,9 +20,19 @@ Changes made for ScanTailor OCR (2026):
 * Renamed `jbig2arith.cc` to `jbig2arith.cpp`.
 * Comments that described the removed parts or the data layout unclearly were
   corrected, and the macro `JBIG2_OUTPUTBUFFER_SIZE` got parentheses.
+* `jbig2enc_init()` and `emit()` throw `std::bad_alloc` when `malloc` fails
+  instead of writing to a null pointer; `jbig2enc_bitimage()` encodes nothing
+  for an image without pixels.
+* Removed the debug branches `TRACE`, `CODER_DEBUGGING` and `SURPRISE_MAP`.
+  `BRANCH_OPT` stays: with GCC and Clang it turns `likely`/`unlikely` into
+  `__builtin_expect`.
+* Formatted with the repository's `.clang-format` like all other code. Only the
+  state table `ctbl` is excluded (`// clang-format off`), so that it keeps one
+  line per state as in Table E.1 of the standard.
 
-The code is kept in its original formatting so that it can be compared with
-upstream; the Lint workflow skips this folder.
+To compare with upstream, format the upstream files with the same
+`.clang-format` first, then compare, e.g.
+`clang-format --style=file:.clang-format jbig2arith.cc > upstream.cpp`.
 
 jbig2enc's `COPYING` notes that JBIG2 may be covered by patents (annex I of the
 JBIG2 specification, ITU-T T.88 / ISO/IEC 14492 from 2000).

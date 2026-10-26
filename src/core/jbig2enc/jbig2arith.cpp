@@ -22,16 +22,16 @@
 
 #include "jbig2arith.h"
 
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <new>
 
 #define u64 uint64_t
 #define u32 uint32_t
 #define u16 uint16_t
-#define u8  uint8_t
+#define u8 uint8_t
 
 // C++ doesn't have C99 restricted pointers, but GCC does allow __restrict__
 #if !defined(_WIN32)
@@ -51,6 +51,7 @@ struct context {
 // -----------------------------------------------------------------------------
 // And this is the table of states for that adaptive compressor
 // -----------------------------------------------------------------------------
+// clang-format off: one line per state, as in Table E.1 of the standard.
 static const struct context ctbl[] = {
   // This is the standard state table from
   // Table E.1 of the standard. The switch has been omitted and
@@ -115,6 +116,7 @@ static const struct context ctbl[] = {
 #undef SWITCH
 #undef F
 };
+// clang-format on
 
 #if __GNUC__ >= 4
 #define BRANCH_OPT
@@ -122,16 +124,15 @@ static const struct context ctbl[] = {
 
 // GCC peephole optimisations
 #ifdef BRANCH_OPT
-#define likely(x)       __builtin_expect((x),1)
-#define unlikely(x)     __builtin_expect((x),0)
+#define likely(x) __builtin_expect((x), 1)
+#define unlikely(x) __builtin_expect((x), 0)
 #else
-#define likely(x)       x
-#define unlikely(x)     x
+#define likely(x) x
+#define unlikely(x) x
 #endif
 
 // see comments in .h file
-void
-jbig2enc_init(struct jbig2enc_ctx *ctx) {
+void jbig2enc_init(struct jbig2enc_ctx* ctx) {
   memset(ctx->context, 0, JBIG2_MAX_CTX);
   ctx->a = 0x8000;
   ctx->c = 0;
@@ -140,8 +141,8 @@ jbig2enc_init(struct jbig2enc_ctx *ctx) {
   ctx->b = 0;
   ctx->outbuf_used = 0;
   // The vector first: if new throws, nothing has been allocated yet.
-  ctx->output_chunks = new std::vector<uint8_t *>;
-  ctx->outbuf = (u8 *) malloc(JBIG2_OUTPUTBUFFER_SIZE);
+  ctx->output_chunks = new std::vector<uint8_t*>;
+  ctx->outbuf = (u8*) malloc(JBIG2_OUTPUTBUFFER_SIZE);
   if (!ctx->outbuf) {
     // Out of memory: reported like everywhere else in C++, not written to a null pointer.
     delete ctx->output_chunks;
@@ -150,10 +151,8 @@ jbig2enc_init(struct jbig2enc_ctx *ctx) {
 }
 
 // see comments in .h file
-void
-jbig2enc_dealloc(struct jbig2enc_ctx *ctx) {
-  for (std::vector<uint8_t *>::iterator i = ctx->output_chunks->begin();
-       i != ctx->output_chunks->end(); ++i) {
+void jbig2enc_dealloc(struct jbig2enc_ctx* ctx) {
+  for (std::vector<uint8_t*>::iterator i = ctx->output_chunks->begin(); i != ctx->output_chunks->end(); ++i) {
     free(*i);
   }
   delete ctx->output_chunks;
@@ -164,11 +163,10 @@ jbig2enc_dealloc(struct jbig2enc_ctx *ctx) {
 // Emit a byte from the compressor by appending to the current output buffer.
 // If the buffer is full, allocate a new one
 // -----------------------------------------------------------------------------
-static void inline
-emit(struct jbig2enc_ctx *restrict ctx) {
+static void inline emit(struct jbig2enc_ctx* restrict ctx) {
   if (unlikely(ctx->outbuf_used == JBIG2_OUTPUTBUFFER_SIZE)) {
     ctx->output_chunks->push_back(ctx->outbuf);
-    ctx->outbuf = (u8 *) malloc(JBIG2_OUTPUTBUFFER_SIZE);
+    ctx->outbuf = (u8*) malloc(JBIG2_OUTPUTBUFFER_SIZE);
     ctx->outbuf_used = 0;
     if (!ctx->outbuf) {
       // The full chunk is in output_chunks, so jbig2enc_dealloc() frees it.
@@ -182,13 +180,15 @@ emit(struct jbig2enc_ctx *restrict ctx) {
 // -----------------------------------------------------------------------------
 // The BYTEOUT procedure from the standard
 // -----------------------------------------------------------------------------
-static void
-byteout(struct jbig2enc_ctx *restrict ctx) {
-  if (ctx->b == 0xff) goto rblock;
+static void byteout(struct jbig2enc_ctx* restrict ctx) {
+  if (ctx->b == 0xff)
+    goto rblock;
 
-  if (ctx->c < 0x8000000) goto lblock;
+  if (ctx->c < 0x8000000)
+    goto lblock;
   ctx->b += 1;
-  if (ctx->b != 0xff) goto lblock;
+  if (ctx->b != 0xff)
+    goto lblock;
   ctx->c &= 0x7ffffff;
 
 rblock:
@@ -215,13 +215,13 @@ lblock:
 // -----------------------------------------------------------------------------
 // A merging of the ENCODE, CODELPS and CODEMPS procedures from the standard
 // -----------------------------------------------------------------------------
-static void
-encode_bit(struct jbig2enc_ctx *restrict ctx, u8 *restrict context, u32 ctxnum, u8 d) {
+static void encode_bit(struct jbig2enc_ctx* restrict ctx, u8* restrict context, u32 ctxnum, u8 d) {
   const u8 i = context[ctxnum];
   const u8 mps = i > 46 ? 1 : 0;
   const u16 qe = ctbl[i].qe;
 
-  if (unlikely(d != mps)) goto codelps;
+  if (unlikely(d != mps))
+    goto codelps;
   ctx->a -= qe;
   if (unlikely((ctx->a & 0x8000) == 0)) {
     if (unlikely(ctx->a < qe)) {
@@ -260,8 +260,7 @@ renorme:
 // -----------------------------------------------------------------------------
 // The FINALISE procudure from the standard
 // -----------------------------------------------------------------------------
-static void
-encode_final(struct jbig2enc_ctx *restrict ctx) {
+static void encode_final(struct jbig2enc_ctx* restrict ctx) {
   // SETBITS
   const u32 tempc = ctx->c + ctx->a;
   ctx->c |= 0xffff;
@@ -283,23 +282,19 @@ encode_final(struct jbig2enc_ctx *restrict ctx) {
 }
 
 // see comments in .h file
-void
-jbig2enc_final(struct jbig2enc_ctx *restrict ctx) {
+void jbig2enc_final(struct jbig2enc_ctx* restrict ctx) {
   encode_final(ctx);
 }
 
 // see comments in .h file
-unsigned
-jbig2enc_datasize(const struct jbig2enc_ctx *ctx) {
+unsigned jbig2enc_datasize(const struct jbig2enc_ctx* ctx) {
   return JBIG2_OUTPUTBUFFER_SIZE * ctx->output_chunks->size() + ctx->outbuf_used;
 }
 
 // see comments in .h file
-void
-jbig2enc_tobuffer(const struct jbig2enc_ctx *restrict ctx, u8 *restrict buffer) {
+void jbig2enc_tobuffer(const struct jbig2enc_ctx* restrict ctx, u8* restrict buffer) {
   int j = 0;
-  for (std::vector<u8 *>::const_iterator i = ctx->output_chunks->begin();
-       i != ctx->output_chunks->end(); ++i) {
+  for (std::vector<u8*>::const_iterator i = ctx->output_chunks->begin(); i != ctx->output_chunks->end(); ++i) {
     memcpy(&buffer[j], *i, JBIG2_OUTPUTBUFFER_SIZE);
     j += JBIG2_OUTPUTBUFFER_SIZE;
   }
@@ -315,15 +310,17 @@ jbig2enc_tobuffer(const struct jbig2enc_ctx *restrict ctx, u8 *restrict buffer) 
 // number of 32-bit words, stored in native byte order; the leftmost pixel is
 // the most significant bit of the word's value.
 // -----------------------------------------------------------------------------
-void
-jbig2enc_bitimage(struct jbig2enc_ctx *restrict ctx, const u8 *restrict idata,
-                  int mx, int my, bool duplicate_line_removal) {
+void jbig2enc_bitimage(struct jbig2enc_ctx* restrict ctx,
+                       const u8* restrict idata,
+                       int mx,
+                       int my,
+                       bool duplicate_line_removal) {
   if ((mx <= 0) || (my <= 0)) {
     // No pixels: each row would still read its first word.
     return;
   }
-  const u32 *restrict data = (u32 *) idata;
-  u8 *const context = ctx->context;
+  const u32* restrict data = (u32*) idata;
+  u8* const context = ctx->context;
   const unsigned words_per_row = (mx + 31) / 32;
   const unsigned bytes_per_row = words_per_row * 4;
 
@@ -341,14 +338,14 @@ jbig2enc_bitimage(struct jbig2enc_ctx *restrict ctx, const u8 *restrict idata,
     u32 w1, w2, w3;
     w1 = w2 = w3 = 0;
 
-    if (y >= 2) w1 = data[(y - 2) * words_per_row];
+    if (y >= 2)
+      w1 = data[(y - 2) * words_per_row];
     if (y >= 1) {
       w2 = data[(y - 1) * words_per_row];
 
       if (duplicate_line_removal) {
         // it's possible that the last row was the same as this row
-        if (memcmp(&data[y * words_per_row], &data[(y - 1) * words_per_row],
-                   bytes_per_row) == 0) {
+        if (memcmp(&data[y * words_per_row], &data[(y - 1) * words_per_row], bytes_per_row) == 0) {
           sltp = ltp ^ 1;
           ltp = 1;
         } else {
@@ -359,7 +356,8 @@ jbig2enc_bitimage(struct jbig2enc_ctx *restrict ctx, const u8 *restrict idata,
     }
     if (duplicate_line_removal) {
       encode_bit(ctx, context, TPGDCTX, sltp);
-      if (ltp) continue;
+      if (ltp)
+        continue;
     }
     w3 = data[y * words_per_row];
 
@@ -374,7 +372,7 @@ jbig2enc_bitimage(struct jbig2enc_ctx *restrict ctx, const u8 *restrict idata,
       const u16 tval = (c1 << 11) | (c2 << 4) | c3;
       const u8 v = (w3 & 0x80000000) >> 31;
 
-      //fprintf(stderr, "%d %d %d %d\n", x, y, tval, v);
+      // fprintf(stderr, "%d %d %d %d\n", x, y, tval, v);
       encode_bit(ctx, context, tval, v);
       c1 <<= 1;
       c2 <<= 1;
@@ -425,4 +423,3 @@ jbig2enc_bitimage(struct jbig2enc_ctx *restrict ctx, const u8 *restrict idata,
     }
   }
 }
-
