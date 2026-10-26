@@ -2482,6 +2482,9 @@ std::vector<ImageId> MainWindow::imagesToReplace(bool* contiguous) const {
 }
 
 bool MainWindow::isImageInProject(const QString& filePath) const {
+  // REVIEW-NOTE (2026-10): every call collects the paths of all images again -> the work per
+  // imported scan grows with the project. Not fixed because it takes milliseconds even for large
+  // projects and reads nothing from disk.
   return projectImagePathKeys().contains(imagePathKey(filePath));
 }
 
@@ -2511,6 +2514,8 @@ ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& n
     // Don't take the renamed file for another new scan.
     m_scanWatcher->ignore(newPath);
     // The scanning program may not have closed the file yet.
+    // REVIEW-NOTE (2026-10): if renaming fails, the window waits here -> up to 0.5 s without response.
+    // Not fixed because it happens rarely and retrying with a timer would split the import into steps.
     for (int attempt = 0; attempt < 5; ++attempt) {
       if (QFile::rename(oldPath, newPath)) {
         ImageFileInfo renamed(QFileInfo(newPath), file.imageInfo());
@@ -2540,6 +2545,7 @@ void MainWindow::moveReplacedImage(const QString& filePath) {
       = scan_insertion::replacedFilePath(filePath, [](const QString& path) { return QFileInfo::exists(path); });
   if (QDir().mkpath(dir)) {
     // A background task may still be reading the image.
+    // REVIEW-NOTE (2026-10): as in renameScan(), up to 0.5 s without response if moving fails.
     for (int attempt = 0; attempt < 5; ++attempt) {
       if (QFile::rename(filePath, target)) {
         return;
