@@ -25,6 +25,7 @@ set(sources
     TestRecentProjects.cpp
     TestRenderParams.cpp
     TestScanInsertion.cpp
+    TestSettingsSetup.cpp
     TestJbig2.cpp
     TestOcrLanguages.cpp
     TestOutputFileNames.cpp

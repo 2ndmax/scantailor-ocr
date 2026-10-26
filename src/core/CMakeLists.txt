@@ -64,6 +64,7 @@ set(common_sources
     ProjectWriter.cpp ProjectWriter.h
     ProjectFiles.cpp ProjectFiles.h
     ProjectSession.cpp ProjectSession.h
+    SettingsSetup.cpp SettingsSetup.h
     AtomicFileOverwriter.cpp AtomicFileOverwriter.h
     EstimateBackground.cpp EstimateBackground.h
     Despeckle.cpp Despeckle.h

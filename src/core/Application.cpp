@@ -11,7 +11,6 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMessageBox>
-#include <QTemporaryDir>
 #include <QTextDocument>
 #include <QTimer>
 #include <QToolTip>
@@ -20,6 +19,7 @@
 #include <exception>
 
 #include "OutOfMemoryHandler.h"
+#include "SettingsSetup.h"
 
 Application::Application(int& argc, char** argv) : QApplication(argc, argv), m_currentLocale("en") {
   initTranslations();
@@ -175,18 +175,7 @@ void Application::initTranslations() {
 }
 
 void Application::initPortableVersion() {
-  const QString portableConfigDirName = QString::fromUtf8(PORTABLE_CONFIG_DIR);
-  if (portableConfigDirName.isEmpty()) {
-    return;
-  }
-
-  const QDir portableConfigPath(applicationDirPath() + '/' + portableConfigDirName);
-  // A temporary directory *inside* the config directory proves it is writable (the path alone
-  // would only be a template for a sibling in the program directory).
-  if ((portableConfigPath.exists() && QTemporaryDir(portableConfigPath.absoluteFilePath("XXXXXX")).isValid())
-      || (!portableConfigPath.exists() && portableConfigPath.mkpath("."))) {
-    m_portableConfigPath = portableConfigPath.absolutePath();
-  }
+  m_portableConfigPath = settings_setup::portableConfigPath();
 }
 
 bool Application::isPortableVersion() const {

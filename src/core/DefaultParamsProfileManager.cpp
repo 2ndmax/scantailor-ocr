@@ -10,8 +10,8 @@
 #include <QtXml/QDomDocument>
 #include <algorithm>
 
-#include "Application.h"
 #include "DefaultParams.h"
+#include "SettingsSetup.h"
 #include "version.h"
 
 using namespace page_split;
@@ -19,10 +19,9 @@ using namespace output;
 using namespace page_layout;
 
 DefaultParamsProfileManager::DefaultParamsProfileManager() {
-  // qApp is a plain QApplication in the tests, not an Application.
-  auto* app = qobject_cast<Application*>(qApp);
-  if (app != nullptr && app->isPortableVersion()) {
-    m_path = app->getPortableConfigPath() + "/profiles";
+  const QString portableConfigPath = settings_setup::portableConfigPath();
+  if (!portableConfigPath.isNull()) {
+    m_path = portableConfigPath + "/profiles";
   } else {
     m_path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/profiles";
   }
