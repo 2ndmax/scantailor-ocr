@@ -5,8 +5,7 @@
 
 #include <cassert>
 
-#include "AbstractRelinker.h"
-#include "RelinkablePath.h"
+#include "RelinkedKeys.h"
 
 namespace page_split {
 Settings::Settings() : m_defaultLayoutType(AUTO_LAYOUT_TYPE) {}
@@ -23,27 +22,9 @@ void Settings::clear() {
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {
   QMutexLocker locker(&m_mutex);
-  PerPageRecords newRecords;
-
-  for (const PerPageRecords::value_type& kv : m_perPageRecords) {
-    const RelinkablePath oldPath(kv.first.filePath(), RelinkablePath::File);
-    ImageId newImageId(kv.first);
-    newImageId.setFilePath(relinker.substitutionPathFor(oldPath));
-    // REVIEW-NOTE (2026-10): map::insert drops a second record with the same new id -> one of two images
-    // relinked onto the same file loses its settings. Not fixed because such a project already contains the
-    // same image twice.
-    newRecords.insert(PerPageRecords::value_type(newImageId, kv.second));
-  }
-
+  PerPageRecords newRecords = relinkedKeys(m_perPageRecords, relinker);
+  PerPageMethods newMethods = relinkedKeys(m_perPageMethods, relinker);
   m_perPageRecords.swap(newRecords);
-
-  PerPageMethods newMethods;
-  for (const PerPageMethods::value_type& kv : m_perPageMethods) {
-    const RelinkablePath oldPath(kv.first.filePath(), RelinkablePath::File);
-    ImageId newImageId(kv.first);
-    newImageId.setFilePath(relinker.substitutionPathFor(oldPath));
-    newMethods.insert(PerPageMethods::value_type(newImageId, kv.second));
-  }
   m_perPageMethods.swap(newMethods);
 }
 

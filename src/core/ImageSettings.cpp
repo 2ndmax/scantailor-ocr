@@ -3,8 +3,7 @@
 
 #include "ImageSettings.h"
 
-#include "AbstractRelinker.h"
-#include "RelinkablePath.h"
+#include "RelinkedKeys.h"
 #include "Utils.h"
 
 using namespace core;
@@ -35,15 +34,7 @@ void ImageSettings::clear() {
 
 void ImageSettings::performRelinking(const AbstractRelinker& relinker) {
   QMutexLocker locker(&m_mutex);
-  PerPageParams newParams;
-  for (const auto& kv : m_perPageParams) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    newParams.insert(PerPageParams::value_type(newPageId, kv.second));
-  }
-
-  m_perPageParams.swap(newParams);
+  m_perPageParams = relinkedKeys(m_perPageParams, relinker);
 }
 
 void ImageSettings::setPageParams(const PageId& pageId, const PageParams& params) {

@@ -6,8 +6,7 @@
 #include <iostream>
 
 #include "../../Utils.h"
-#include "AbstractRelinker.h"
-#include "RelinkablePath.h"
+#include "RelinkedKeys.h"
 
 using namespace core;
 
@@ -35,18 +34,7 @@ void Settings::clear() {
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {
   QMutexLocker locker(&m_mutex);
-  PageParams newParams;
-
-  for (const PageParams::value_type& kv : m_pageParams) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    // REVIEW-NOTE (2026-10): map::insert drops a second record with the same new id -> one of two pages relinked
-    // onto the same file loses its boxes. Not fixed because such a project already contains the same page twice.
-    newParams.insert(PageParams::value_type(newPageId, kv.second));
-  }
-
-  m_pageParams.swap(newParams);
+  m_pageParams = relinkedKeys(m_pageParams, relinker);
 
   m_deviationProvider.clear();
   for (const PageParams::value_type& kv : m_pageParams) {

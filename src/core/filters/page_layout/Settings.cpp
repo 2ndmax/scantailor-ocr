@@ -20,7 +20,7 @@
 #include "PageId.h"
 #include "PageSequence.h"
 #include "Params.h"
-#include "RelinkablePath.h"
+#include "RelinkedKeys.h"
 
 
 using namespace ::boost;
@@ -384,9 +384,8 @@ void Settings::Impl::performRelinking(const AbstractRelinker& relinker) {
   Container newItems;
 
   for (const Item& item : m_unorderedItems) {
-    const RelinkablePath oldPath(item.pageId.imageId().filePath(), RelinkablePath::File);
     Item newItem(item);
-    newItem.pageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
+    newItem.pageId = relinkedKey(item.pageId, relinker);
     // REVIEW-NOTE (2026-10): insert() fails silently for a second item with the same new page id -> one of
     // two pages relinked onto the same file loses margins and alignment. Not fixed because such a project
     // already contains the same page twice.

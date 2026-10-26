@@ -4,8 +4,7 @@
 #include "Settings.h"
 
 #include "../../Utils.h"
-#include "AbstractRelinker.h"
-#include "RelinkablePath.h"
+#include "RelinkedKeys.h"
 
 using namespace core;
 
@@ -34,26 +33,14 @@ void Settings::clear() {
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {
   QMutexLocker locker(&m_mutex);
-  PerPageParams newParams;
+  m_perPageParams = relinkedKeys(m_perPageParams, relinker);
 
-  for (const PerPageParams::value_type& kv : m_perPageParams) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    // REVIEW-NOTE (2026-10): insert() silently drops a page whose relinked id already exists, while
-    // m_pendingAutoOblique keeps the last one -> one of two pages relinked onto the same file loses its
-    // angles. Not fixed because such a project already contains the same page twice.
-    newParams.insert(PerPageParams::value_type(newPageId, kv.second));
-  }
-
-  m_perPageParams.swap(newParams);
-
+  // REVIEW-NOTE (2026-10): relinkedKeys() keeps the first of two pages relinked onto the same file, this
+  // loop the last one -> such a page may get the angles of one page and the pending state of the other.
+  // Not fixed because such a project already contains the same page twice.
   std::unordered_map<PageId, bool> newPending;
   for (const auto& kv : m_pendingAutoOblique) {
-    const RelinkablePath oldPath(kv.first.imageId().filePath(), RelinkablePath::File);
-    PageId newPageId(kv.first);
-    newPageId.imageId().setFilePath(relinker.substitutionPathFor(oldPath));
-    newPending[newPageId] = kv.second;
+    newPending[relinkedKey(kv.first, relinker)] = kv.second;
   }
   m_pendingAutoOblique.swap(newPending);
 

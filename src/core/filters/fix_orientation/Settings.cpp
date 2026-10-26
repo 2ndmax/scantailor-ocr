@@ -4,26 +4,11 @@
 #include "Settings.h"
 
 #include "../../Utils.h"
-#include "AbstractRelinker.h"
-#include "RelinkablePath.h"
+#include "RelinkedKeys.h"
 
 using namespace core;
 
 namespace fix_orientation {
-namespace {
-// The same values under the image ids that the relinker substitutes.
-template <typename PerImage>
-PerImage relinked(const PerImage& perImage, const AbstractRelinker& relinker) {
-  PerImage result;
-  for (const auto& [imageId, value] : perImage) {
-    ImageId newImageId(imageId);
-    newImageId.setFilePath(relinker.substitutionPathFor(RelinkablePath(imageId.filePath(), RelinkablePath::File)));
-    result.emplace(newImageId, value);
-  }
-  return result;
-}
-}  // namespace
-
 Settings::Settings() = default;
 
 Settings::~Settings() = default;
@@ -36,8 +21,8 @@ void Settings::clear() {
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {
   QMutexLocker locker(&m_mutex);
-  m_perImageRotation = relinked(m_perImageRotation, relinker);
-  m_perImageTrim = relinked(m_perImageTrim, relinker);
+  m_perImageRotation = relinkedKeys(m_perImageRotation, relinker);
+  m_perImageTrim = relinkedKeys(m_perImageTrim, relinker);
 }
 
 void Settings::applyRotation(const ImageId& imageId, const OrthogonalRotation rotation) {
