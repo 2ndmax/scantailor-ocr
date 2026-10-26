@@ -12,6 +12,7 @@ set(sources
     TestMargins.cpp
     TestPageId.cpp
     TestPageLayout.cpp
+    TestPageLayoutSettings.cpp
     TestPageRange.cpp
     TestPageOrder.cpp
     TestPageOrderProviders.cpp
