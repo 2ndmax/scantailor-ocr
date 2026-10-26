@@ -264,15 +264,6 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
                           const QString& inputDir = QString());
 
   /**
-   * Whether a project with a missing output folder is still where it was: the parent of the
-   * output folder and all images exist. For a project without images, \p inputDir must exist.
-   */
-  static bool isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir);
-
-  /** Whether all image files of the project exist. Each file is checked once. */
-  static bool allImagesExist(const ProjectPages& pages);
-
-  /**
    * Makes \p projectFile, just saved, the file of the open project and the most recent project.
    */
   void setSavedProjectFile(const QString& projectFile);

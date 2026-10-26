@@ -8,6 +8,8 @@
 #include <QFileInfoList>
 #include <QString>
 
+class ProjectPages;
+
 /** Naming rules for project files and the images a project can be made of. */
 namespace project_files {
 /** The pattern of project files for file dialogs, e.g. "*.ScanTailor". */
@@ -27,6 +29,21 @@ bool isImportableImage(const QFileInfo& file);
 
 /** The importable images directly in \p dir, without its subfolders. */
 QFileInfoList importableImagesIn(const QString& dir);
+
+/** Whether all image files of the project exist. Each file is checked once. */
+bool allImagesExist(const ProjectPages& pages);
+
+/**
+ * Whether a project with a missing output folder is still where it was: the parent of the
+ * output folder and all images exist. For a project without images, \p inputDir must exist.
+ */
+bool isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir);
+
+/**
+ * Where the backup copy of a project file from an older version goes: "Book_BACKUP.ScanTailor"
+ * next to "Book.ScanTailor", numbered if that file already exists.
+ */
+QString backupFilePath(const QString& projectFile);
 }  // namespace project_files
 
 #endif  // SCANTAILOR_CORE_PROJECTFILES_H_

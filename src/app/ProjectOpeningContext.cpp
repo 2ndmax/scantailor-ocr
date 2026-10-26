@@ -13,6 +13,7 @@
 
 #include "DefaultParamsProvider.h"
 #include "FixDpiDialog.h"
+#include "ProjectFiles.h"
 #include "ProjectPages.h"
 #include "version.h"
 
@@ -52,18 +53,6 @@ void ProjectOpeningContext::proceed() {
 }
 
 namespace {
-/** "Book_BACKUP.ScanTailor" next to "Book.ScanTailor", numbered if that file already exists. */
-QString backupFilePath(const QString& projectFile) {
-  const QFileInfo info(projectFile);
-  const QString suffix = info.suffix().isEmpty() ? QString() : '.' + info.suffix();
-  const QString base = info.dir().filePath(info.completeBaseName() + QLatin1String("_BACKUP"));
-  QString path = base + suffix;
-  for (int number = 2; QFileInfo::exists(path); ++number) {
-    path = base + '_' + QString::number(number) + suffix;
-  }
-  return path;
-}
-
 /** The name of the active profile of the default parameters, as the Default Parameters dialog shows it. */
 QString profileDisplayName() {
   const QString name = DefaultParamsProvider::getInstance().getProfileName();
@@ -86,7 +75,7 @@ bool ProjectOpeningContext::confirmOlderVersion() {
     return true;
   }
 
-  const QString backupFile = backupFilePath(m_projectFile);
+  const QString backupFile = project_files::backupFilePath(m_projectFile);
   QMessageBox box(QMessageBox::Warning, tr("Project from an Older Version"),
                   tr("This project was saved by ScanTailor Advanced or an older version (project file version %2). "
                      "ScanTailor OCR can open it, but processes some settings differently, so the results can "

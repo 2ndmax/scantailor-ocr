@@ -6,6 +6,9 @@
 #include <QDir>
 #include <QSet>
 
+#include "PageSequence.h"
+#include "ProjectPages.h"
+
 namespace project_files {
 namespace {
 const QString projectExtension = QStringLiteral(".ScanTailor");
@@ -49,5 +52,47 @@ QFileInfoList importableImagesIn(const QString& dir) {
     }
   }
   return images;
+}
+
+bool allImagesExist(const ProjectPages& pages) {
+  QSet<QString> checked;
+  for (const PageInfo& page : pages.toPageSequence(IMAGE_VIEW)) {
+    const QString path = page.imageId().filePath();
+    if (checked.contains(path)) {
+      continue;
+    }
+    checked.insert(path);
+    if (!QFileInfo::exists(path)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir) {
+  // The folder the output folder belongs into must exist ...
+  if (!QFileInfo(outDir).absoluteDir().exists()) {
+    return false;
+  }
+  // ... and so must the images of the project. Otherwise the project has probably been
+  // moved or copied to another computer, and the user should relink it.
+  if (!allImagesExist(pages)) {
+    return false;
+  }
+  if (pages.toPageSequence(IMAGE_VIEW).numPages() == 0) {
+    return !inputDir.isEmpty() && QDir(inputDir).exists();
+  }
+  return true;
+}
+
+QString backupFilePath(const QString& projectFile) {
+  const QFileInfo info(projectFile);
+  const QString suffix = info.suffix().isEmpty() ? QString() : '.' + info.suffix();
+  const QString base = info.dir().filePath(info.completeBaseName() + QLatin1String("_BACKUP"));
+  QString path = base + suffix;
+  for (int number = 2; QFileInfo::exists(path); ++number) {
+    path = base + '_' + QString::number(number) + suffix;
+  }
+  return path;
 }
 }  // namespace project_files

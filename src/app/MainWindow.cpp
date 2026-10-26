@@ -379,37 +379,6 @@ PageSequence MainWindow::allPages() const {
   return m_thumbSequence->toPageSequence();
 }
 
-bool MainWindow::isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir) {
-  // The folder the output folder belongs into must exist ...
-  if (!QFileInfo(outDir).absoluteDir().exists()) {
-    return false;
-  }
-  // ... and so must the images of the project. Otherwise the project has probably been
-  // moved or copied to another computer, and the user should relink it.
-  if (!allImagesExist(pages)) {
-    return false;
-  }
-  if (pages.toPageSequence(IMAGE_VIEW).numPages() == 0) {
-    return !inputDir.isEmpty() && QDir(inputDir).exists();
-  }
-  return true;
-}
-
-bool MainWindow::allImagesExist(const ProjectPages& pages) {
-  QSet<QString> checked;
-  for (const PageInfo& page : pages.toPageSequence(IMAGE_VIEW)) {
-    const QString path = page.imageId().filePath();
-    if (checked.contains(path)) {
-      continue;
-    }
-    checked.insert(path);
-    if (!QFileInfo::exists(path)) {
-      return false;
-    }
-  }
-  return true;
-}
-
 std::set<PageId> MainWindow::selectedPages() const {
   return m_thumbSequence->selectedItems();
 }
@@ -447,7 +416,8 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
     }
   }
 
-  if (!outDir.isEmpty() && !QDir(outDir).exists() && isProjectInPlace(*pages, outDir, m_emptyProjectInputDir)) {
+  if (!outDir.isEmpty() && !QDir(outDir).exists()
+      && project_files::isProjectInPlace(*pages, outDir, m_emptyProjectInputDir)) {
     // The output folder was deleted, e.g. to output everything again. The project is
     // where it was, so the folder is created again rather than asking for relinking.
     QDir().mkdir(outDir);
@@ -525,7 +495,7 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   updateMainArea();
 
   // Offer relinking right away, like fixing the DPI when adding images without it.
-  if (!QDir(outDir).exists() || !allImagesExist(*m_pages)) {
+  if (!QDir(outDir).exists() || !project_files::allImagesExist(*m_pages)) {
     showRelinkingDialog();
   }
 }  // MainWindow::switchToNewProject
