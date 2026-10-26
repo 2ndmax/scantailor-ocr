@@ -146,18 +146,18 @@ BOOST_AUTO_TEST_CASE(oblique_angle_with_unequal_dpi) {
   BOOST_CHECK_EQUAL(skewFinder.resolutionRatio(), 2.0);
 }
 
-// Pins the rotated mask, so that a change of the rotation centre (review DS-11) is seen if it
-// moves the content. The values were taken from the code before that change.
+// Pins the mask rotated about its centre. Even a shift by a fraction of a pixel changes the mask
+// and with it the measured oblique angle, by up to about 0.2 degrees (review DS-11).
 BOOST_AUTO_TEST_CASE(deskewed_mask_keeps_its_content_in_place) {
   const BinaryImage mask(deskewedMask(textBlock(2.0, 0.0), -2.0));
   const int w = mask.width();
   const int h = mask.height();
-  BOOST_CHECK_EQUAL(w, 821);
-  BOOST_CHECK_EQUAL(h, 629);
-  BOOST_CHECK_EQUAL(mask.countBlackPixels(), 99467);
+  BOOST_CHECK_EQUAL(w, 822);
+  BOOST_CHECK_EQUAL(h, 628);
+  BOOST_CHECK_EQUAL(mask.countBlackPixels(), 99456);
   // A shifted content would change the share of the left and the top half.
-  BOOST_CHECK_EQUAL(mask.countBlackPixels(QRect(0, 0, w / 2, h)), 49998);
-  BOOST_CHECK_EQUAL(mask.countBlackPixels(QRect(0, 0, w, h / 2)), 47746);
+  BOOST_CHECK_EQUAL(mask.countBlackPixels(QRect(0, 0, w / 2, h)), 50064);
+  BOOST_CHECK_EQUAL(mask.countBlackPixels(QRect(0, 0, w, h / 2)), 47731);
 }
 
 // Pins the page transformation with both a rotation and an oblique angle, so that a change of

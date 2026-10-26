@@ -93,16 +93,11 @@ BinaryImage deskewedMask(const BinaryImage& mask, const double deskewAngleDeg) {
 
   const int w = mask.width();
   const int h = mask.height();
-  // REVIEW-NOTE (2026-10): QTransform applies these calls in reverse order, so the mask is rotated
-  // about (-center), not about the centre; the result is right only because dstRect is taken from
-  // the mapped corners -> a fixed dstRect would give a shifted mask. Not fixed because a rotation
-  // about the centre moves the pixel grid of dstRect by a fraction of a pixel and changes the mask
-  // (TestObliqueFinder, deskewed_mask_keeps_its_content_in_place).
-  QTransform rotXform;
+  // Rotation about the centre. "*=" applies each step after the previous ones.
   const QPointF center(0.5 * w, 0.5 * h);
-  rotXform.translate(-center.x(), -center.y());
-  rotXform.rotate(deskewAngleDeg);
-  rotXform.translate(center.x(), center.y());
+  QTransform rotXform(QTransform().translate(-center.x(), -center.y()));
+  rotXform *= QTransform().rotate(deskewAngleDeg);
+  rotXform *= QTransform().translate(center.x(), center.y());
   const QRectF srcRectF(0, 0, w, h);
   QPolygonF dstCorners;
   dstCorners << rotXform.map(srcRectF.topLeft()) << rotXform.map(srcRectF.topRight())
