@@ -54,6 +54,7 @@ class PageInfo;
 class QStackedLayout;
 class WorkerThreadPool;
 class ProjectReader;
+struct ProjectSession;
 class DebugImages;
 class ContentBoxPropagator;
 class PageOrientationPropagator;
@@ -254,14 +255,13 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::shared_ptr<AbstractCommand<void>> relinkingDialogRequester() override;
 
   /**
-   * \p defaults are the start values of a new project, or what an opened older project lacks.
+   * Shows \p project in the window. \p projectFilePath is empty for a project not saved yet.
+   * \p selectedPage is the page to select in an opened project; without it, the page selected
+   * before is looked for in the new project.
    */
-  void switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
-                          const QString& outDir,
-                          const DefaultParams& defaults,
+  void switchToNewProject(const ProjectSession& project,
                           const QString& projectFilePath = QString(),
-                          const ProjectReader* projectReader = nullptr,
-                          const QString& inputDir = QString());
+                          const SelectedPage* selectedPage = nullptr);
 
   /**
    * Makes \p projectFile, just saved, the file of the open project and the most recent project.
@@ -431,8 +431,6 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::shared_ptr<CompositeCacheDrivenTask> createCompositeCacheDrivenTask(int lastFilterIdx);
 
   void createBatchProcessingWidget();
-
-  void updateDisambiguationRecords(const PageSequence& pages);
 
   void performRelinking(const std::shared_ptr<AbstractRelinker>& relinker);
 

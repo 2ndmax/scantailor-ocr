@@ -20,6 +20,7 @@
 #include "PageView.h"
 #include "ProcessingOptions.h"
 #include "ProjectPages.h"
+#include "StageSequence.h"
 #include "version.h"
 
 #ifndef Q_MOC_RUN
@@ -85,6 +86,10 @@ static QString toRelativeIfPossible(const QString& projectDirPath, const QString
     return absolutePath;
   }
   return rel;
+}
+
+bool ProjectWriter::write(const QString& filePath, const StageSequence& stages) const {
+  return write(filePath, stages.filters(), *stages.processingOptions(), *stages.defaultParams());
 }
 
 bool ProjectWriter::write(const QString& filePath,

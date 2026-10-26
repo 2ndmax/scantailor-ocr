@@ -6,21 +6,16 @@
 #include <CompositeCacheDrivenTask.h>
 #include <DefaultParams.h>
 #include <Dpm.h>
-#include <FileNameDisambiguator.h>
 #include <ImageFileInfo.h>
 #include <ImageMetadata.h>
 #include <NullTaskStatus.h>
-#include <OutputFileNameGenerator.h>
 #include <PageSelectionAccessor.h>
 #include <PageSequence.h>
 #include <PdfExportJob.h>
 #include <ProjectPages.h>
 #include <ProjectReader.h>
-#include <ProjectWriter.h>
-#include <SelectedPage.h>
+#include <ProjectSession.h>
 #include <StageSequence.h>
-#include <ThumbnailPixmapCache.h>
-#include <Utils.h>
 #include <filters/deskew/Params.h>
 #include <filters/deskew/Settings.h>
 #include <filters/output/GeometryCollector.h>
@@ -33,7 +28,6 @@
 #include <tiffio.h>
 
 #include <QDir>
-#include <QDomDocument>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QFileInfo>
@@ -187,17 +181,21 @@ QByteArray readFile(const QString& filePath) {
   return file.open(QIODevice::ReadOnly) ? file.readAll() : QByteArray();
 }
 
-// A project set up as the app sets up a new one, without its window.
-class TestProject {
+// The "Project Files" dialog creates the output folder before the project is set up.
+const QString& createdDir(const QString& dir) {
+  QDir().mkpath(dir);
+  return dir;
+}
+
+// A new project set up as the app sets it up, without its window.
+class TestProject : public ProjectSession {
  public:
   TestProject(const std::vector<ImageFileInfo>& files, const QString& outDir, const DefaultParams& startValues)
-      : pages(ProjectPages::createNew(files, startValues)),
-        stages(std::make_shared<StageSequence>(pages, PageSelectionAccessor(nullptr))),
-        outFileNameGen(std::make_shared<FileNameDisambiguator>(), outDir, pages->layoutDirection()) {
-    QDir().mkpath(outDir);
-    thumbnailCache = core::Utils::createThumbnailCache(outDir);
-    stages->startNewProject(startValues);
-  }
+      : ProjectSession(ProjectSession::createNew(ProjectPages::createNew(files, startValues),
+                                                 createdDir(outDir),
+                                                 QString(),
+                                                 startValues,
+                                                 PageSelectionAccessor(nullptr))) {}
 
   /**
    * All six steps, as a command line tool would run them. Returns false if a page failed or
@@ -215,11 +213,6 @@ class TestProject {
     }
     return result.failures.empty() && result.output;
   }
-
-  std::shared_ptr<ProjectPages> pages;
-  std::shared_ptr<StageSequence> stages;
-  OutputFileNameGenerator outFileNameGen;
-  std::shared_ptr<ThumbnailPixmapCache> thumbnailCache;
 };
 
 // The three scans of the test project: skewed page, two-page spread, color page.
@@ -367,21 +360,11 @@ void TestEndToEndQt::testAllSteps() {
   // Saved and loaded again, the project is the same, without processing anything again.
   const QString firstFile = dir.absoluteFilePath("first.ScanTailor");
   const QString secondFile = dir.absoluteFilePath("second.ScanTailor");
-  QVERIFY(ProjectWriter(project.pages, SelectedPage(), project.outFileNameGen)
-              .write(firstFile, project.stages->filters(), *project.stages->processingOptions(),
-                     *project.stages->defaultParams()));
-  QDomDocument doc;
-  QFile file(firstFile);
-  QVERIFY(file.open(QIODevice::ReadOnly));
-  QVERIFY(static_cast<bool>(doc.setContent(&file)));
-  const ProjectReader reader(doc, firstFile);
-  QVERIFY(reader.success());
-  StageSequence loaded(reader.pages(), PageSelectionAccessor(nullptr));
-  loaded.loadProject(reader, DefaultParams());
-  const OutputFileNameGenerator loadedNames(reader.namingDisambiguator(), reader.outputDirectory(),
-                                            reader.pages()->layoutDirection());
-  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), loadedNames)
-              .write(secondFile, loaded.filters(), *loaded.processingOptions(), *loaded.defaultParams()));
+  QVERIFY(project.write(firstFile));
+  const ProjectReader::FileResult read = ProjectReader::readFile(firstFile);
+  QVERIFY(read.reader);
+  const ProjectSession loaded = ProjectSession::load(*read.reader, DefaultParams(), PageSelectionAccessor(nullptr));
+  QVERIFY(loaded.write(secondFile));
   QCOMPARE(readFile(secondFile), readFile(firstFile));
 }
 

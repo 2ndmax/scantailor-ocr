@@ -28,6 +28,7 @@ class ProjectPages;
 class PageInfo;
 struct ProcessingOptions;
 class DefaultParams;
+class StageSequence;
 class QDomDocument;
 class QDomElement;
 
@@ -52,6 +53,9 @@ class ProjectWriter {
              const std::vector<FilterPtr>& filters,
              const ProcessingOptions& processingOptions,
              const DefaultParams& defaultParams) const;
+
+  /** Writes the settings of the steps in \p stages with the project. */
+  bool write(const QString& filePath, const StageSequence& stages) const;
 
   /**
    * \p out will be called like this: out(ImageId, numeric_image_id)

@@ -67,6 +67,7 @@
 #include "ProjectOpeningContext.h"
 #include "ProjectPages.h"
 #include "ProjectReader.h"
+#include "ProjectSession.h"
 #include "ProjectWriter.h"
 #include "RecentProjects.h"
 #include "RelinkingDialog.h"
@@ -387,12 +388,9 @@ std::vector<PageRange> MainWindow::selectedRanges() const {
   return m_thumbSequence->selectedRanges();
 }
 
-void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
-                                    const QString& outDir,
-                                    const DefaultParams& defaults,
+void MainWindow::switchToNewProject(const ProjectSession& project,
                                     const QString& projectFilePath,
-                                    const ProjectReader* projectReader,
-                                    const QString& inputDir) {
+                                    const SelectedPage* selectedPage) {
   stopBatchProcessing(CLEAR_MAIN_AREA);
   m_interactiveQueue->cancelAndClear();
   // The PDF page selection belongs to the project.
@@ -407,25 +405,8 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   m_scansWithoutDpi = 0;
   resetImportMode();
 
-  m_emptyProjectInputDir.clear();
-  if (pages->numImages() == 0) {
-    if (!inputDir.isEmpty()) {
-      m_emptyProjectInputDir = inputDir;
-    } else if (projectReader && !projectReader->directories().empty()) {
-      m_emptyProjectInputDir = projectReader->directories().front();
-    }
-  }
-
-  if (!outDir.isEmpty() && !QDir(outDir).exists()
-      && project_files::isProjectInPlace(*pages, outDir, m_emptyProjectInputDir)) {
-    // The output folder was deleted, e.g. to output everything again. The project is
-    // where it was, so the folder is created again rather than asking for relinking.
-    QDir().mkdir(outDir);
-  }
-  if (!outDir.isEmpty()) {
-    Utils::maybeCreateCacheDir(outDir);
-  }
-  m_pages = pages;
+  m_emptyProjectInputDir = project.emptyProjectInputDir;
+  m_pages = project.pages;
   m_projectFile = projectFilePath;
   // Changes to the page list (inserting, removing, splitting pages) should
   // trigger the auto-save just like switching pages does. The signal may
@@ -433,29 +414,12 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   connect(m_pages.get(), &ProjectPages::modified, this, &MainWindow::updateAutoSaveTimer);
   connect(m_pages.get(), &ProjectPages::layoutDirectionChanged, this, &MainWindow::pageOrderChanged);
 
-  if (projectReader) {
-    m_selectedPage = projectReader->selectedPage();
+  if (selectedPage) {
+    m_selectedPage = *selectedPage;
   }
-
-  std::shared_ptr<FileNameDisambiguator> disambiguator;
-  if (projectReader) {
-    disambiguator = projectReader->namingDisambiguator();
-  } else {
-    disambiguator.reset(new FileNameDisambiguator);
-  }
-
-  m_outFileNameGen = OutputFileNameGenerator(disambiguator, outDir, pages->layoutDirection());
-  // These two need to go in this order.
-  updateDisambiguationRecords(pages->toPageSequence(IMAGE_VIEW));
-
-  // Recreate the stages and load their state.
-  m_stages = std::make_shared<StageSequence>(pages, newPageSelectionAccessor());
-  // New projects start with the default parameters; older projects take what they lack from them.
-  if (projectReader) {
-    m_stages->loadProject(*projectReader, defaults);
-  } else {
-    m_stages->startNewProject(defaults);
-  }
+  m_outFileNameGen = project.outFileNameGen;
+  m_stages = project.stages;
+  m_thumbnailCache = project.thumbnailCache;
 
   // Connect the filter list model to the view and select
   // the first item.
@@ -478,13 +442,6 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   m_pageOrientationPropagator = std::make_unique<PageOrientationPropagator>(
       m_stages->pageSplitFilter(), createCompositeCacheDrivenTask(m_stages->fixOrientationFilterIdx()));
 
-  // Thumbnails are stored relative to the output directory,
-  // so recreate the thumbnail cache.
-  if (outDir.isEmpty()) {
-    m_thumbnailCache.reset();
-  } else {
-    m_thumbnailCache = Utils::createThumbnailCache(m_outFileNameGen.outDir());
-  }
   resetThumbSequence(currentPageOrderProvider());
 
   m_importDir = suggestedImportDirectory();
@@ -495,7 +452,7 @@ void MainWindow::switchToNewProject(const std::shared_ptr<ProjectPages>& pages,
   updateMainArea();
 
   // Offer relinking right away, like fixing the DPI when adding images without it.
-  if (!QDir(outDir).exists() || !project_files::allImagesExist(*m_pages)) {
+  if (!QDir(m_outFileNameGen.outDir()).exists() || !project_files::allImagesExist(*m_pages)) {
     showRelinkingDialog();
   }
 }  // MainWindow::switchToNewProject
@@ -1831,8 +1788,9 @@ void MainWindow::newProject() {
 void MainWindow::newProjectCreated(ProjectCreationContext* context) {
   // The profile is read once: the new project takes its start values and page order from it.
   const DefaultParams startValues = DefaultParamsProvider::getInstance().getParams();
-  switchToNewProject(ProjectPages::createNew(context->files(), startValues), context->outDir(), startValues, QString(),
-                     nullptr, context->inputDir());
+  switchToNewProject(ProjectSession::createNew(ProjectPages::createNew(context->files(), startValues),
+                                               context->outDir(), context->inputDir(), startValues,
+                                               newPageSelectionAccessor()));
   PartlyAddedFilesMessage::showIfNeeded(this, context->files());
   // A new project is saved right away, so it can be opened again even while it is empty.
   if (saveProjectWithFeedback(context->projectFile())) {
@@ -1877,9 +1835,9 @@ void MainWindow::projectOpened(ProjectOpeningContext* context) {
 
   QSettings().setValue("project/lastDir", QFileInfo(context->projectFile()).absolutePath());
 
-  switchToNewProject(context->projectReader()->pages(), context->projectReader()->outputDirectory(),
-                     DefaultParamsProvider::getInstance().getParams(), context->projectFile(),
-                     context->projectReader());
+  const ProjectSession project = ProjectSession::load(
+      *context->projectReader(), DefaultParamsProvider::getInstance().getParams(), newPageSelectionAccessor());
+  switchToNewProject(project, context->projectFile(), &project.selectedPage);
 }
 
 void MainWindow::closeProject() {
@@ -2202,9 +2160,8 @@ bool MainWindow::closeProjectInteractive() {
   const QFileInfo backupFile(projectFile.absoluteDir(), QString::fromLatin1("Backup.") + projectFile.fileName());
   const QString backupFilePath(backupFile.absoluteFilePath());
 
-  ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
-
-  if (!writer.write(backupFilePath, m_stages->filters(), *m_stages->processingOptions(), *m_stages->defaultParams())) {
+  const ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
+  if (!writer.write(backupFilePath, *m_stages)) {
     // Backup file could not be written???
     QFile::remove(backupFilePath);
     switch (promptProjectSave()) {
@@ -2252,14 +2209,14 @@ bool MainWindow::closeProjectInteractive() {
 }  // MainWindow::closeProjectInteractive
 
 void MainWindow::closeProjectWithoutSaving() {
-  auto pages = std::make_shared<ProjectPages>();
-  switchToNewProject(pages, QString(), DefaultParamsProvider::getInstance().getParams());
+  switchToNewProject(ProjectSession::createNew(std::make_shared<ProjectPages>(), QString(), QString(),
+                                               DefaultParamsProvider::getInstance().getParams(),
+                                               newPageSelectionAccessor()));
 }
 
 bool MainWindow::saveProjectWithFeedback(const QString& projectFile) {
-  ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
-
-  if (!writer.write(projectFile, m_stages->filters(), *m_stages->processingOptions(), *m_stages->defaultParams())) {
+  const ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
+  if (!writer.write(projectFile, *m_stages)) {
     QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
     return false;
   }
@@ -2952,12 +2909,6 @@ BackgroundTaskPtr MainWindow::createCompositeTask(const PageInfo& page,
 
 std::shared_ptr<CompositeCacheDrivenTask> MainWindow::createCompositeCacheDrivenTask(const int lastFilterIdx) {
   return m_stages->createCacheDrivenTask(lastFilterIdx, m_outFileNameGen);
-}
-
-void MainWindow::updateDisambiguationRecords(const PageSequence& pages) {
-  for (const PageInfo& page : pages) {
-    m_outFileNameGen.disambiguator()->registerFile(page.imageId().filePath());
-  }
 }
 
 PageSelectionAccessor MainWindow::newPageSelectionAccessor() {
