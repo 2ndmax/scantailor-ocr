@@ -60,6 +60,12 @@ Finding strokeDirection(const QImage& gray, double deskewAngleDeg, int dpi);
  */
 Finding edgesThenStrokes(const imageproc::BinaryImage& image, const QImage& gray, double deskewAngleDeg, int dpi);
 
+/**
+ * The gray page turned by \p deskewAngleDeg and then unsheared by \p obliqueAngleDeg, both about
+ * its centre: what the methods measure on, for looking at the result.
+ */
+QImage straightened(const QImage& gray, double deskewAngleDeg, double obliqueAngleDeg);
+
 }  // namespace compare
 
 #endif

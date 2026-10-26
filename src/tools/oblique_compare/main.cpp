@@ -304,6 +304,59 @@ QImage realPageImage(const QString& path, const RealPage& page) {
   return image;
 }
 
+/**
+ * The page side by side: only deskewed, then straightened with the angle of each method. A fine
+ * vertical grid lies over each panel; on the right one the text edges and stems run along it.
+ */
+QImage comparisonImage(const QString& path, const RealPage& page) {
+  const QImage gray(GrayImage(ImageLoader::load(path)).toQImage());
+  const double rotation = page.asIs.rotation.value_or(0.0);
+  std::vector<std::pair<QString, QImage>> panels;
+  panels.emplace_back(QStringLiteral("nur gedreht"), straightened(gray, rotation, 0.0));
+  // The combination is one of the others; it is named in the caption.
+  for (size_t m = 0; m + 1 < methods().size(); ++m) {
+    const std::optional<double>& angle = page.asIs.findings[m].angle;
+    if (angle) {
+      panels.emplace_back(methods()[m].name + QStringLiteral(": ") + angleText(angle),
+                          straightened(gray, rotation, *angle));
+    } else {
+      panels.emplace_back(methods()[m].name + QStringLiteral(": kein Winkel"), QImage());
+    }
+  }
+
+  const int panelHeight = std::min(gray.height(), 1600);
+  const int labelHeight = 28;
+  const int gap = 12;
+  int panelWidth = 0;
+  for (auto& [label, image] : panels) {
+    if (!image.isNull()) {
+      image = image.scaledToHeight(panelHeight, Qt::SmoothTransformation).convertToFormat(QImage::Format_RGB32);
+      panelWidth = std::max(panelWidth, image.width());
+    }
+  }
+  QImage result(static_cast<int>(panels.size()) * (panelWidth + gap), panelHeight + labelHeight, QImage::Format_RGB32);
+  result.fill(Qt::white);
+  QPainter painter(&result);
+  QFont font(painter.font());
+  font.setPixelSize(18);
+  painter.setFont(font);
+  for (size_t i = 0; i < panels.size(); ++i) {
+    const int left = static_cast<int>(i) * (panelWidth + gap);
+    const auto& [label, image] = panels[i];
+    painter.setPen(Qt::black);
+    painter.drawText(QRect(left, 0, panelWidth, labelHeight), Qt::AlignCenter, label);
+    if (image.isNull()) {
+      continue;
+    }
+    painter.drawImage(left, labelHeight, image);
+    painter.setPen(QPen(QColor(40, 90, 230, 110), 1));
+    for (int x = 20; x < image.width(); x += 20) {
+      painter.drawLine(left + x, labelHeight, left + x, labelHeight + image.height());
+    }
+  }
+  return result;
+}
+
 bool writeRealReport(const Options& options,
                      const std::vector<QString>& paths,
                      const std::vector<RealPage>& pages,
@@ -379,6 +432,20 @@ bool writeRealReport(const Options& options,
     }
     htmlOut << "<figure><img src=\"" << file << "\" alt=\"\"><figcaption>" << pages[i].name.toHtmlEscaped()
             << "</figcaption></figure>\n";
+  }
+  htmlOut << "<h2>Vergleich je Verfahren</h2>\n<p>Jede Seite gedreht und mit dem Winkel des Verfahrens entschert. "
+             "Das blaue Raster ist senkrecht: Wo die linke und rechte Textkante und die Buchstabenstämme parallel "
+             "zum Raster laufen, stimmt der Winkel. Zum genauen Hinsehen das Bild in voller Größe öffnen.</p>\n";
+  const int combined = static_cast<int>(methods().size()) - 1;
+  for (size_t i = 0; i < pages.size(); ++i) {
+    const QString file(QStringLiteral("bilder/vergleich_%1.png").arg(i + 1));
+    if (!comparisonImage(paths[i], pages[i]).save(options.outDir + QLatin1Char('/') + file)) {
+      *error = QStringLiteral("Cannot write ") + file;
+      return false;
+    }
+    htmlOut << "<figure><a href=\"" << file << "\"><img src=\"" << file << "\" alt=\"\"></a><figcaption>"
+            << pages[i].name.toHtmlEscaped() << ": " << methods()[combined].name.toHtmlEscaped() << " ergibt "
+            << angleText(pages[i].asIs.findings[combined].angle) << "</figcaption></figure>\n";
   }
   htmlOut << "</body></html>\n";
 

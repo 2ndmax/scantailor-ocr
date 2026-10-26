@@ -476,4 +476,8 @@ Finding edgesThenStrokes(const BinaryImage& image, const QImage& gray, const dou
   return Finding{std::nullopt, edges.confidence};
 }
 
+QImage straightened(const QImage& gray, const double deskewAngleDeg, const double obliqueAngleDeg) {
+  return unsheared(deskewedGray(gray, deskewAngleDeg), std::tan(obliqueAngleDeg * DEG2RAD)).toQImage();
+}
+
 }  // namespace compare
