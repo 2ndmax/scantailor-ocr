@@ -3,22 +3,15 @@
 
 #include "tst_fix_orientation_qt.h"
 
-#include <DefaultParams.h>
-#include <FileNameDisambiguator.h>
 #include <FilterData.h>
 #include <FilterResult.h>
 #include <FilterUiInterface.h>
-#include <ImageInfo.h>
 #include <ImageViewBase.h>
 #include <NullTaskStatus.h>
-#include <OutputFileNameGenerator.h>
 #include <PageInfo.h>
 #include <PageOrientationCollector.h>
 #include <PageSelectionAccessor.h>
-#include <ProjectPages.h>
 #include <ProjectReader.h>
-#include <ProjectWriter.h>
-#include <SelectedPage.h>
 #include <filters/fix_orientation/CacheDrivenTask.h>
 #include <filters/fix_orientation/Filter.h>
 #include <filters/fix_orientation/OptionsWidget.h>
@@ -27,28 +20,18 @@
 
 #include <QAbstractButton>
 #include <QCheckBox>
-#include <QDir>
 #include <QDomDocument>
-#include <QFile>
 #include <QImage>
 #include <QSpinBox>
-#include <QTemporaryDir>
 #include <QtTest/QtTest>
 #include <memory>
 #include <vector>
 
+#include "tst_project_xml.h"
+
 using namespace fix_orientation;
 
 namespace {
-QDomDocument readDocument(const QString& filePath) {
-  QDomDocument doc;
-  QFile file(filePath);
-  if (file.open(QIODevice::ReadOnly)) {
-    doc.setContent(&file);
-  }
-  return doc;
-}
-
 PageInfo pageInfo(const ImageId& imageId, const QSize& size) {
   return PageInfo(PageId(imageId), ImageMetadata(size, Dpi(300, 300)), 1, false, false);
 }
@@ -96,47 +79,17 @@ class RotationCollector : public PageOrientationCollector {
 void TestFixOrientationQt::testZeroRotationIsSaved() {
   // An image without a saved rotation gets the default rotation when loaded, so a rotation of 0
   // must be saved too.
-  QTemporaryDir tempDir;
-  QVERIFY(tempDir.isValid());
-  const QDir dir(tempDir.path());
-  const QString firstFile = dir.absoluteFilePath("first.ScanTailor");
-  const QString secondFile = dir.absoluteFilePath("second.ScanTailor");
-  const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(), dir.absoluteFilePath("out"),
-                                       Qt::LeftToRight);
+  const auto makeFixOrientationEl = [](QDomDocument& doc, const QString& imageId) {
+    QDomElement fixOrientationEl = doc.createElement("fix-orientation");
+    QDomElement imageEl = doc.createElement("image");
+    imageEl.setAttribute("id", imageId);
+    imageEl.appendChild(OrthogonalRotation().toXml(doc, "rotation"));
+    fixOrientationEl.appendChild(imageEl);
+    return fixOrientationEl;
+  };
+  const auto makeFilter = [](const ProjectReader&) { return std::make_shared<Filter>(PageSelectionAccessor(nullptr)); };
 
-  const ImageMetadata metadata(QSize(2000, 3000), Dpi(300, 300));
-  auto pages = std::make_shared<ProjectPages>(
-      std::vector<ImageInfo>{ImageInfo(ImageId(dir.absoluteFilePath("scan.png"), 0), metadata, 1, false, false)},
-      Qt::LeftToRight);
-  QVERIFY(ProjectWriter(pages, SelectedPage(), outGen).write(firstFile, {}, ProcessingOptions(), DefaultParams()));
-
-  QDomDocument doc = readDocument(firstFile);
-  QDomElement projectEl = doc.documentElement();
-  const QString imageId = projectEl.namedItem("images").firstChildElement("image").attribute("id");
-  QVERIFY(!imageId.isEmpty());
-  QDomElement filtersEl = projectEl.namedItem("filters").toElement();
-  if (filtersEl.isNull()) {
-    filtersEl = doc.createElement("filters");
-    projectEl.appendChild(filtersEl);
-  }
-  QDomElement fixOrientationEl = doc.createElement("fix-orientation");
-  QDomElement imageEl = doc.createElement("image");
-  imageEl.setAttribute("id", imageId);
-  imageEl.appendChild(OrthogonalRotation().toXml(doc, "rotation"));
-  fixOrientationEl.appendChild(imageEl);
-  filtersEl.appendChild(fixOrientationEl);
-
-  const ProjectReader reader(doc, firstFile);
-  QVERIFY(reader.success());
-  auto filter = std::make_shared<Filter>(PageSelectionAccessor(nullptr));
-  reader.readFilterSettings({filter});
-  QVERIFY(ProjectWriter(reader.pages(), SelectedPage(), outGen)
-              .write(secondFile, {filter}, ProcessingOptions(), DefaultParams()));
-
-  const QDomElement rotationEl = readDocument(secondFile)
-                                     .documentElement()
-                                     .namedItem("filters")
-                                     .namedItem("fix-orientation")
+  const QDomElement rotationEl = ProjectXml::saveAndReload("fix-orientation", makeFixOrientationEl, makeFilter)
                                      .firstChildElement("image")
                                      .firstChildElement("rotation");
   QVERIFY(!rotationEl.isNull());
