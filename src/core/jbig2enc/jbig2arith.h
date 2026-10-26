@@ -20,23 +20,14 @@
 // Modified for ScanTailor OCR (2026), see README.md in this folder:
 // only the parts for lossless generic region coding are kept.
 
-#ifndef JBIG2ENC_JBIG2ENC_H__
-#define JBIG2ENC_JBIG2ENC_H__
+#ifndef SCANTAILOR_CORE_JBIG2ENC_JBIG2ARITH_H_
+#define SCANTAILOR_CORE_JBIG2ENC_JBIG2ARITH_H_
 
-#if defined(sun)
-#include <sys/types.h>
-#else
-#include <stdint.h>
-#endif
-
+#include <cstdint>
 #include <vector>
 
 #define JBIG2_MAX_CTX 65536
 #define JBIG2_OUTPUTBUFFER_SIZE (20 * 1024)
-
-#ifdef _MSC_VER
-#define __restrict__ __restrict
-#endif
 
 // -----------------------------------------------------------------------------
 // This is the context for the arithmetic encoder used in JBIG2. The coder is a
@@ -71,7 +62,7 @@ unsigned jbig2enc_datasize(const struct jbig2enc_ctx* ctx);
 // Writes the output of the given context to a buffer. The buffer must be at
 // least long enough to contain all the data (see _datasize)
 // -----------------------------------------------------------------------------
-void jbig2enc_tobuffer(const struct jbig2enc_ctx* __restrict__ ctx, uint8_t* __restrict__ buffer);
+void jbig2enc_tobuffer(const struct jbig2enc_ctx* ctx, uint8_t* buffer);
 
 // -----------------------------------------------------------------------------
 // Encodes a 1 bit image of mx x my pixels as a generic region (template 0).
@@ -89,11 +80,7 @@ void jbig2enc_tobuffer(const struct jbig2enc_ctx* __restrict__ ctx, uint8_t* __r
 //
 // Throws std::bad_alloc if memory runs out.
 // -----------------------------------------------------------------------------
-void jbig2enc_bitimage(struct jbig2enc_ctx* __restrict__ ctx,
-                       const uint8_t* __restrict__ data,
-                       int mx,
-                       int my,
-                       bool duplicate_line_removal);
+void jbig2enc_bitimage(struct jbig2enc_ctx* ctx, const uint8_t* data, int mx, int my, bool duplicate_line_removal);
 
 // -----------------------------------------------------------------------------
 // Init a new context. Throws std::bad_alloc if memory runs out.
@@ -110,4 +97,4 @@ void jbig2enc_dealloc(struct jbig2enc_ctx* ctx);
 // -----------------------------------------------------------------------------
 void jbig2enc_final(struct jbig2enc_ctx* ctx);
 
-#endif  // EXPERIMENTAL_USERS_AGL_JBIG2ENC_JBIG2ENC_H__
+#endif  // SCANTAILOR_CORE_JBIG2ENC_JBIG2ARITH_H_

@@ -26,6 +26,11 @@ Changes made for ScanTailor OCR (2026):
 * Removed the debug branches `TRACE`, `CODER_DEBUGGING` and `SURPRISE_MAP`.
   `BRANCH_OPT` stays: with GCC and Clang it turns `likely`/`unlikely` into
   `__builtin_expect`.
+* The header uses no reserved names: its include guard is
+  `SCANTAILOR_CORE_JBIG2ENC_JBIG2ARITH_H_`, and the declarations no longer use
+  `__restrict__` (which the header used to define for MSVC). It includes
+  `<cstdint>` instead of choosing between `<sys/types.h>` (Solaris) and
+  `<stdint.h>`.
 * Formatted with the repository's `.clang-format` like all other code. Only the
   state table `ctbl` is excluded (`// clang-format off`), so that it keeps one
   line per state as in Table E.1 of the standard.
