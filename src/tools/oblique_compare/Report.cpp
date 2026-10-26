@@ -307,7 +307,7 @@ QString csv(const std::vector<PageResult>& results, const RunInfo& info) {
   QString text;
   QTextStream out(&text);
   out << "seite;textmenge;aufbau;satz;dpi;stoerung;klasse;drehung_wahr;drehung_erkannt;verfahren;scherung_wahr;"
-         "erkannt;erkannt_verschoben;restschraege\n";
+         "erkannt;erkannt_verschoben;konfidenz;restschraege\n";
   for (const PageResult& r : results) {
     const PageSpec& s = r.spec;
     for (size_t m = 0; m < info.methods.size(); ++m) {
@@ -315,7 +315,7 @@ QString csv(const std::vector<PageResult>& results, const RunInfo& info) {
       out << s.index << ";" << toString(s.text) << ";" << toString(s.layout) << ";" << toString(s.alignment) << ";"
           << s.dpi << ";" << toString(s.disturbance) << ";" << toString(s.shearClass) << ";" << csvNumber(s.rotationDeg)
           << ";" << csvNumber(r.rotation) << ";" << info.methods[m] << ";" << csvNumber(s.shearDeg) << ";"
-          << csvNumber(mr.shear) << ";" << csvNumber(mr.shearShifted) << ";"
+          << csvNumber(mr.shear) << ";" << csvNumber(mr.shearShifted) << ";" << csvNumber(mr.confidence) << ";"
           << csvNumber(r.residualShear(static_cast<int>(m))) << "\n";
     }
   }

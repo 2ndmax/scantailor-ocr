@@ -18,6 +18,8 @@ struct MethodResult {
   std::optional<double> shear;
   /** On the same scan moved by a fraction of a pixel (RunInfo::shift). */
   std::optional<double> shearShifted;
+  /** On the scan, as far as the method measures it; in the method's own scale. */
+  std::optional<double> confidence;
 };
 
 struct PageResult {

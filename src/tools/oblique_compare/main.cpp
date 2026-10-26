@@ -33,6 +33,7 @@
 #include <mutex>
 #include <thread>
 
+#include "Methods.h"
 #include "Report.h"
 #include "TestPage.h"
 #include "filters/deskew/Task.h"
@@ -50,13 +51,29 @@ const QPointF SHIFT(0.37, 0.61);
 /** An oblique method: the angle in the sense of deskew::Task::findObliqueAngle(), or nothing. */
 struct Method {
   QString name;
-  std::function<std::optional<double>(SkewFinder&, const BinaryImage& cleaned, double deskewAngleDeg)> find;
+  std::function<Finding(SkewFinder&, const BinaryImage& cleaned, double deskewAngleDeg)> find;
 };
 
 const std::vector<Method>& methods() {
   static const std::vector<Method> METHODS
-      = {{QStringLiteral("heute"), [](SkewFinder& skewFinder, const BinaryImage& image, const double deskewAngleDeg) {
-            return deskew::Task::findObliqueAngle(skewFinder, image, deskewAngleDeg);
+      = {{QStringLiteral("heute"),
+          [](SkewFinder& skewFinder, const BinaryImage& image, const double deskewAngleDeg) {
+            return Finding{deskew::Task::findObliqueAngle(skewFinder, image, deskewAngleDeg), std::nullopt};
+          }},
+         {QStringLiteral("(a) volle Gewichtung"),
+          [](SkewFinder& skewFinder, const BinaryImage& image, const double deskewAngleDeg) {
+            return sausageFullWeight(skewFinder, image, deskewAngleDeg, true);
+          }},
+         {QStringLiteral("(a) ohne Konfidenzprüfung"),
+          [](SkewFinder& skewFinder, const BinaryImage& image, const double deskewAngleDeg) {
+            return sausageFullWeight(skewFinder, image, deskewAngleDeg, false);
+          }},
+         {QStringLiteral("(b) Senkrechten-Suche"),
+          [](SkewFinder&, const BinaryImage& image, const double deskewAngleDeg) {
+            return verticalEdgeSearch(image, deskewAngleDeg);
+          }},
+         {QStringLiteral("(c) Zeilenanfänge"), [](SkewFinder&, const BinaryImage& image, const double deskewAngleDeg) {
+            return lineStartFit(image, deskewAngleDeg);
           }}};
   return METHODS;
 }
@@ -87,8 +104,13 @@ void measureScan(const QImage& scan, const int dpi, const bool shifted, PageResu
     result.rotation = rotation;
   }
   for (size_t m = 0; m < methods().size(); ++m) {
-    const std::optional<double> shear(methods()[m].find(skewFinder, image, rotation.value_or(0.0)));
-    (shifted ? result.methods[m].shearShifted : result.methods[m].shear) = shear;
+    const Finding finding(methods()[m].find(skewFinder, image, rotation.value_or(0.0)));
+    if (shifted) {
+      result.methods[m].shearShifted = finding.angle;
+    } else {
+      result.methods[m].shear = finding.angle;
+      result.methods[m].confidence = finding.confidence;
+    }
   }
 }
 
