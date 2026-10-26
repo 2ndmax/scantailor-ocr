@@ -3,6 +3,7 @@
 
 #include "ImageFileInfo.h"
 
+#include <algorithm>
 
 bool ImageFileInfo::isDpiOK() const {
   return std::find_if(m_imageInfo.begin(), m_imageInfo.end(),
