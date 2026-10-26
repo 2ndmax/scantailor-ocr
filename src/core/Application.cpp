@@ -19,11 +19,9 @@
 #include <exception>
 
 #include "OutOfMemoryHandler.h"
-#include "SettingsSetup.h"
 
 Application::Application(int& argc, char** argv) : QApplication(argc, argv), m_currentLocale("en") {
   initTranslations();
-  initPortableVersion();
   installEventFilter(this);
 }
 
@@ -172,16 +170,4 @@ void Application::initTranslations() {
       }
     }
   }
-}
-
-void Application::initPortableVersion() {
-  m_portableConfigPath = settings_setup::portableConfigPath();
-}
-
-bool Application::isPortableVersion() const {
-  return !m_portableConfigPath.isNull();
-}
-
-const QString& Application::getPortableConfigPath() const {
-  return m_portableConfigPath;
 }

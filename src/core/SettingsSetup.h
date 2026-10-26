@@ -17,6 +17,13 @@ QString portableConfigPath(const QString& programDir);
 
 /** portableConfigPath() for the running program. Checked once, the result is kept. */
 QString portableConfigPath();
+
+/**
+ * Prepares QSettings for the program: its name, the INI format, the portable config folder if
+ * there is one, the settings taken over from ScanTailor Advanced, and the number of processing
+ * threads. Call it once at startup, before the settings are read.
+ */
+void setUp();
 }  // namespace settings_setup
 
 #endif

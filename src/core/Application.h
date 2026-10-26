@@ -30,10 +30,6 @@ class Application : public QApplication {
 
   std::list<QString> getLanguagesList() const;
 
-  bool isPortableVersion() const;
-
-  const QString& getPortableConfigPath() const;
-
  private:
   /** Tells the user about an unexpected error that was caught in notify(). */
   void showUnexpectedError(const QString& reason);
@@ -46,13 +42,10 @@ class Application : public QApplication {
   /** Loads Qt's own translation (standard buttons, dialogs, context menus) for \p locale. */
   void installQtLanguage(const QString& locale);
 
-  void initPortableVersion();
-
   QTranslator m_translator;
   QTranslator m_qtTranslator;
   QString m_currentLocale;
   std::map<QString, QString> m_translationsMap;
-  QString m_portableConfigPath;
 };
 
 
