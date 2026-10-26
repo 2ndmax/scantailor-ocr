@@ -8,6 +8,7 @@
 #include <QFileInfo>
 #include <QSettings>
 
+#include "ProjectFiles.h"
 #include "RecentProjects.h"
 
 namespace project_file_dialogs {
@@ -21,17 +22,11 @@ QString askForFileToSave(QWidget* parent, const QString& currentProjectFile) {
   }
 
   // The translation of the main window is used.
-  QString projectFile(QFileDialog::getSaveFileName(
-      parent, QString(), projectDir,
-      QCoreApplication::translate("MainWindow", "ScanTailor OCR Projects") + " (*.ScanTailor)"));
-  if (projectFile.isEmpty()) {
-    return QString();
-  }
-
-  if (!projectFile.endsWith(".ScanTailor", Qt::CaseInsensitive)) {
-    projectFile += ".ScanTailor";
-  }
-  return projectFile;
+  const QString projectFile(
+      QFileDialog::getSaveFileName(parent, QString(), projectDir,
+                                   QCoreApplication::translate("MainWindow", "ScanTailor OCR Projects") + " ("
+                                       + project_files::fileNamePattern() + ')'));
+  return project_files::withProjectExtension(projectFile);
 }
 
 void rememberSavedProject(const QString& projectFile) {

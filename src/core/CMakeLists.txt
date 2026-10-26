@@ -62,6 +62,7 @@ set(common_sources
     FilterUiInterface.h
     ProjectReader.cpp ProjectReader.h
     ProjectWriter.cpp ProjectWriter.h
+    ProjectFiles.cpp ProjectFiles.h
     AtomicFileOverwriter.cpp AtomicFileOverwriter.h
     EstimateBackground.cpp EstimateBackground.h
     Despeckle.cpp Despeckle.h

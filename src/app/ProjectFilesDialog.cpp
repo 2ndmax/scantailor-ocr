@@ -19,6 +19,7 @@
 #include "ImageLoadErrors.h"
 #include "ImageMetadataLoader.h"
 #include "NonCopyable.h"
+#include "ProjectFiles.h"
 #include "ScanFolderWatcher.h"
 #include "SmartFilenameOrdering.h"
 
@@ -320,17 +321,15 @@ void ProjectFilesDialog::projectFileBrowse() {
   }
 
   // Overwriting is asked about when the dialog is accepted.
-  QString file(QFileDialog::getSaveFileName(this, tr("Project File"), initialPath,
-                                            tr("ScanTailor OCR Projects") + " (*.ScanTailor)", nullptr,
-                                            QFileDialog::DontConfirmOverwrite));
+  const QString file(
+      QFileDialog::getSaveFileName(this, tr("Project File"), initialPath,
+                                   tr("ScanTailor OCR Projects") + " (" + project_files::fileNamePattern() + ')',
+                                   nullptr, QFileDialog::DontConfirmOverwrite));
   if (file.isEmpty()) {
     return;
   }
-  if (!file.endsWith(".ScanTailor", Qt::CaseInsensitive)) {
-    file += ".ScanTailor";
-  }
   m_autoProjectFile = false;
-  setProjectFile(file);
+  setProjectFile(project_files::withProjectExtension(file));
 }
 
 void ProjectFilesDialog::projectFileEdited() {
@@ -383,15 +382,10 @@ void ProjectFilesDialog::setInputDir(const QString& dir, const bool autoAddFiles
     inpDirLine->setCursorPosition(std::min(cursorPos, static_cast<int>(shownDir.length())));
   }
   if (m_autoOutDir) {
-    setOutputDir(QDir::cleanPath(QDir(dir).filePath("out")));
+    setOutputDir(project_files::defaultOutputDir(dir));
   }
   if (m_autoProjectFile) {
-    // Named like the input directory and saved into it.
-    QString name(QDir(dir).dirName());
-    if (name.isEmpty()) {
-      name = QStringLiteral("project");
-    }
-    setProjectFile(QDir::cleanPath(QDir(dir).filePath(name + ".ScanTailor")));
+    setProjectFile(project_files::defaultProjectFile(dir));
   }
 
   QFileInfoList files(QDir(dir).entryInfoList(QDir::Files));
@@ -415,7 +409,7 @@ void ProjectFilesDialog::setInputDir(const QString& dir, const bool autoAddFiles
   ItemList items;
   for (const QFileInfo& file : files) {
     Qt::ItemFlags flags;
-    if (ScanFolderWatcher::isImportableImage(file)) {
+    if (project_files::isImportableImage(file)) {
       flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
     items.emplace_back(file, flags);
@@ -438,9 +432,8 @@ void ProjectFilesDialog::setProjectFile(const QString& file) {
 }
 
 bool ProjectFilesDialog::checkProjectFile() {
-  QString file(projectFile());
-  if (!file.isEmpty() && !file.endsWith(".ScanTailor", Qt::CaseInsensitive)) {
-    file += ".ScanTailor";
+  const QString file = project_files::withProjectExtension(projectFile());
+  if (file != projectFile()) {
     setProjectFile(file);
   }
 

@@ -17,8 +17,6 @@
 #include "ImageFileInfo.h"
 #include "NewScanTracker.h"
 
-class QFileInfo;
-
 /**
  * \brief Watches a directory for new images, e.g. saved there by a scanning program.
  *
@@ -32,9 +30,6 @@ class ScanFolderWatcher : public QObject {
   explicit ScanFolderWatcher(QObject* parent = nullptr);
 
   ~ScanFolderWatcher() override;
-
-  /** Whether ScanTailor can import the file, judged by its extension. */
-  static bool isImportableImage(const QFileInfo& file);
 
   /** The importable images in \p dir, as absolute paths. */
   static QSet<QString> imagesIn(const QString& dir);

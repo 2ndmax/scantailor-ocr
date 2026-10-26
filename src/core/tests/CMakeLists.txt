@@ -21,6 +21,7 @@ set(sources
     TestNewScanTracker.cpp
     TestPdfPageOrder.cpp
     TestProjectFile.cpp
+    TestProjectFiles.cpp
     TestRecentProjects.cpp
     TestRenderParams.cpp
     TestScanInsertion.cpp

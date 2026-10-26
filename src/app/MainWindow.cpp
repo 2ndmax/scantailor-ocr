@@ -62,6 +62,7 @@
 #include "ProcessingTaskQueue.h"
 #include "ProjectCreationContext.h"
 #include "ProjectFileDialogs.h"
+#include "ProjectFiles.h"
 #include "ProjectFilesDialog.h"
 #include "ProjectOpeningContext.h"
 #include "ProjectPages.h"
@@ -1881,8 +1882,9 @@ void MainWindow::openProject() {
   }
 
   const QString projectDir(QSettings().value("project/lastDir").toString());
-  const QString projectFile(QFileDialog::getOpenFileName(this, tr("Open Project"), projectDir,
-                                                         tr("ScanTailor OCR Projects") + " (*.ScanTailor)"));
+  const QString projectFile(
+      QFileDialog::getOpenFileName(this, tr("Open Project"), projectDir,
+                                   tr("ScanTailor OCR Projects") + " (" + project_files::fileNamePattern() + ')'));
   if (projectFile.isEmpty()) {
     // Cancelled by user.
     return;

@@ -12,6 +12,7 @@
 #include "ImageLoadErrors.h"
 #include "ImageLoader.h"
 #include "ImageMetadataLoader.h"
+#include "ProjectFiles.h"
 
 namespace {
 // While new files wait to be completely written, the directory is checked this often.
@@ -66,19 +67,10 @@ ScanFolderWatcher::~ScanFolderWatcher() {
   m_loadPool.waitForDone();
 }
 
-bool ScanFolderWatcher::isImportableImage(const QFileInfo& file) {
-  static const QSet<QString> extensions{"png", "jpg", "jpeg", "tif", "tiff",
-                                        // JPEG 2000: JP2 files, JPX / JPH files and raw codestreams.
-                                        "jp2", "j2k", "j2c", "jpc", "jpf", "jpx", "jph", "jhc"};
-  return extensions.contains(file.suffix().toLower());
-}
-
 QSet<QString> ScanFolderWatcher::imagesIn(const QString& dir) {
   QSet<QString> images;
-  for (const QFileInfo& file : QDir(dir).entryInfoList(QDir::Files)) {
-    if (isImportableImage(file)) {
-      images.insert(file.absoluteFilePath());
-    }
+  for (const QFileInfo& file : project_files::importableImagesIn(dir)) {
+    images.insert(file.absoluteFilePath());
   }
   return images;
 }
@@ -116,14 +108,12 @@ void ScanFolderWatcher::check() {
   }
 
   std::vector<NewScanTracker::FileState> listing;
-  for (const QFileInfo& file : QDir(m_dir).entryInfoList(QDir::Files)) {
-    if (isImportableImage(file)) {
-      NewScanTracker::FileState state;
-      state.path = file.absoluteFilePath();
-      state.size = file.size();
-      state.modified = file.lastModified();
-      listing.push_back(state);
-    }
+  for (const QFileInfo& file : project_files::importableImagesIn(m_dir)) {
+    NewScanTracker::FileState state;
+    state.path = file.absoluteFilePath();
+    state.size = file.size();
+    state.modified = file.lastModified();
+    listing.push_back(state);
   }
 
   for (const QString& filePath : m_tracker.update(listing, m_clock.elapsed())) {
