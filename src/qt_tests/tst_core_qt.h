@@ -5,7 +5,6 @@
 #define TST_CORE_QT_H
 
 #include <QObject>
-#include <QString>
 
 class TestCoreQt : public QObject {
   Q_OBJECT
@@ -15,7 +14,6 @@ class TestCoreQt : public QObject {
   void testUnitsToLocalizedString();
   void testUtilsDoubleToString();
   void testSmartFilenameOrdering();
-  void testSignalSpy();
   void testPageSplitKeepsLayoutTypeWithoutParams();
   void testOutputDisplayKeepsColorEqualization();
   void testOutputDpiChangeUpdatesDewarpingMode();
@@ -24,15 +22,6 @@ class TestCoreQt : public QObject {
   void testFailedTaskReportsBack();
   void testImplausibleSettingsFallBackToDefaults();
   void testPageSplitThumbnailSkipsLineOutsideThePage();
-};
-
-class Emitter : public QObject {
-  Q_OBJECT
- public:
-  explicit Emitter(QObject* parent = nullptr) : QObject(parent) {}
-  void doEmit(const QString& value) { emit valueChanged(value); }
- signals:
-  void valueChanged(const QString& value);
 };
 
 #endif

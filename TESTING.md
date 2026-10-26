@@ -66,13 +66,11 @@ without the offscreen plugin, `qt_tests` hangs without a message.
 - **Dpi**: resolution (DPI) and XML serialization.
 
 ### qt_tests (Qt Test)
-- **Logic tests (TestCoreQt)**: Units, foundation::Utils, SmartFilenameOrdering, QSignalSpy (signals and arguments).
+- **Logic tests (TestCoreQt)**: Units, foundation::Utils, SmartFilenameOrdering.
 - **UX tests (TestUxQt)**:
-  - **testButtonClickEmitsSignal**: a click on a `QPushButton` emits `clicked()` (simulated with `QTest::mouseClick`).
-  - **testCheckBoxToggleChangesState**: state change via `setChecked` and the `toggled` signal.
-  - **testLineEditAcceptsInput**: text input with `QTest::keyClicks` and a check of the resulting text.
   - **testCollapsibleGroupBoxStateAndSignal**: project widget: collapsed/expanded state and the `collapsedStateChanged` signal.
-  - **testErrorWidgetCreation**: creating an `ErrorWidget` and checking its children (without showing a window).
+  - **testCollapsedStateIsLoadedForGroupDisabledAtStart**: a group that is disabled when first shown still gets its saved collapsed state.
+  - **testErrorWidgetShowsItsText**: an `ErrorWidget` passes its text and text format to its label (without showing a window).
 
 - **Deskew step (TestDeskewQt)**: automatic and manual oblique correction, applying it to other pages, the Apply button waiting for the page.
 - **Fix Orientation step (TestFixOrientationQt)**: saving a zero rotation, trim fields following the rotation and keeping their values on a page switch, the view following changes while loading.

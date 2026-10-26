@@ -6,53 +6,12 @@
 #include <CollapsibleGroupBox.h>
 #include <ErrorWidget.h>
 
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QPushButton>
+#include <QLabel>
+#include <QList>
 #include <QSettings>
 #include <QSignalSpy>
-#include <QWidget>
 #include <QtTest/QtTest>
-
-void TestUxQt::testButtonClickEmitsSignal() {
-  QPushButton button("Click me");
-  QSignalSpy spy(&button, &QPushButton::clicked);
-  QVERIFY(spy.isValid());
-
-  QTest::mouseClick(&button, Qt::LeftButton);
-  QCOMPARE(spy.count(), 1);
-
-  QTest::mouseClick(&button, Qt::LeftButton);
-  QCOMPARE(spy.count(), 2);
-}
-
-void TestUxQt::testCheckBoxToggleChangesState() {
-  QCheckBox box("Option");
-  QVERIFY(!box.isChecked());
-
-  box.setChecked(true);
-  QVERIFY(box.isChecked());
-
-  box.setChecked(false);
-  QVERIFY(!box.isChecked());
-
-  QSignalSpy spy(&box, &QCheckBox::toggled);
-  box.setChecked(true);
-  QCOMPARE(spy.count(), 1);
-  QVERIFY(box.isChecked());
-}
-
-void TestUxQt::testLineEditAcceptsInput() {
-  QLineEdit edit;
-  QCOMPARE(edit.text(), QString());
-
-  QTest::keyClicks(&edit, "Hello UX");
-  QCOMPARE(edit.text(), QString("Hello UX"));
-
-  edit.clear();
-  QTest::keyClicks(&edit, "123");
-  QCOMPARE(edit.text(), QString("123"));
-}
+#include <algorithm>
 
 void TestUxQt::testCollapsibleGroupBoxStateAndSignal() {
   CollapsibleGroupBox group("Options");
@@ -87,7 +46,13 @@ void TestUxQt::testCollapsedStateIsLoadedForGroupDisabledAtStart() {
   QSettings().remove(key);
 }
 
-void TestUxQt::testErrorWidgetCreation() {
-  ErrorWidget widget("Error de prueba", Qt::PlainText);
-  QVERIFY(widget.findChildren<QWidget*>().size() >= 1);
+void TestUxQt::testErrorWidgetShowsItsText() {
+  // The text and its format reach the label of the widget.
+  const QString text("<b>Test error</b>");
+  ErrorWidget widget(text, Qt::RichText);
+  const QList<QLabel*> labels = widget.findChildren<QLabel*>();
+  const auto textLabel
+      = std::find_if(labels.begin(), labels.end(), [&](const QLabel* label) { return label->text() == text; });
+  QVERIFY(textLabel != labels.end());
+  QCOMPARE((*textLabel)->textFormat(), Qt::RichText);
 }

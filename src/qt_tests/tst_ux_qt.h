@@ -9,12 +9,9 @@
 class TestUxQt : public QObject {
   Q_OBJECT
  private slots:
-  void testButtonClickEmitsSignal();
-  void testCheckBoxToggleChangesState();
-  void testLineEditAcceptsInput();
   void testCollapsibleGroupBoxStateAndSignal();
   void testCollapsedStateIsLoadedForGroupDisabledAtStart();
-  void testErrorWidgetCreation();
+  void testErrorWidgetShowsItsText();
 };
 
 #endif

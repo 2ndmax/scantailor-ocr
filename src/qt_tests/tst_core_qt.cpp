@@ -82,21 +82,6 @@ void TestCoreQt::testSmartFilenameOrdering() {
   QVERIFY(less(d, c));
 }
 
-void TestCoreQt::testSignalSpy() {
-  Emitter obj;
-  QSignalSpy spy(&obj, &Emitter::valueChanged);
-  QVERIFY(spy.isValid());
-  QCOMPARE(spy.count(), 0);
-
-  obj.doEmit(QString("hello"));
-  QCOMPARE(spy.count(), 1);
-  QCOMPARE(spy.at(0).at(0).toString(), QString("hello"));
-
-  obj.doEmit(QString("world"));
-  QCOMPARE(spy.count(), 2);
-  QCOMPARE(spy.at(1).at(0).toString(), QString("world"));
-}
-
 void TestCoreQt::testPageSplitKeepsLayoutTypeWithoutParams() {
   // A page type chosen for a page that wasn't processed yet has no split line (params).
   // It must still be saved.
