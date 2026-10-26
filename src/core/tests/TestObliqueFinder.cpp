@@ -10,6 +10,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QPolygonF>
+#include <QRect>
 #include <QRectF>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
@@ -143,6 +144,43 @@ BOOST_AUTO_TEST_CASE(oblique_angle_with_unequal_dpi) {
   BOOST_CHECK_CLOSE(std::abs(*found), obliqueDeg, 15.0);
   // The caller's finder is left as it was.
   BOOST_CHECK_EQUAL(skewFinder.resolutionRatio(), 2.0);
+}
+
+// Pins the rotated mask, so that a change of the rotation centre (review DS-11) is seen if it
+// moves the content. The values were taken from the code before that change.
+BOOST_AUTO_TEST_CASE(deskewed_mask_keeps_its_content_in_place) {
+  const BinaryImage mask(deskewedMask(textBlock(2.0, 0.0), -2.0));
+  const int w = mask.width();
+  const int h = mask.height();
+  BOOST_CHECK_EQUAL(w, 821);
+  BOOST_CHECK_EQUAL(h, 629);
+  BOOST_CHECK_EQUAL(mask.countBlackPixels(), 99467);
+  // A shifted content would change the share of the left and the top half.
+  BOOST_CHECK_EQUAL(mask.countBlackPixels(QRect(0, 0, w / 2, h)), 49998);
+  BOOST_CHECK_EQUAL(mask.countBlackPixels(QRect(0, 0, w, h / 2)), 47746);
+}
+
+// Pins the page transformation with both a rotation and an oblique angle, so that a change of
+// the shear centre (review C-17) is seen if it moves the page. The values were taken from the
+// code before that change.
+BOOST_AUTO_TEST_CASE(rotated_and_sheared_page_stays_in_place) {
+  ImageTransformation xform(pageTransformation());
+  xform.setPostRotation(3.0);
+  xform.setPostOblique(2.0);
+  const QRectF rect(0, 0, WIDTH, HEIGHT);
+  const QPointF expected[] = {QPointF(52.325320820255754, 0), QPointF(849.76685913264282, 41.868764994355068),
+                              QPointF(797.44153831238702, 641.04648584709935), QPointF(0, 599.1777208527443)};
+  const QPointF corners[] = {rect.topLeft(), rect.topRight(), rect.bottomRight(), rect.bottomLeft()};
+  for (int i = 0; i < 4; ++i) {
+    const QPointF mapped(xform.transform().map(corners[i]));
+    BOOST_CHECK_SMALL(mapped.x() - expected[i].x(), 1e-6);
+    BOOST_CHECK_SMALL(mapped.y() - expected[i].y(), 1e-6);
+  }
+  const QRectF result(xform.resultingRect());
+  BOOST_CHECK_SMALL(result.x(), 1e-6);
+  BOOST_CHECK_SMALL(result.y(), 1e-6);
+  BOOST_CHECK_SMALL(result.width() - 849.76685913264282, 1e-6);
+  BOOST_CHECK_SMALL(result.height() - 641.04648584709935, 1e-6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
