@@ -5,6 +5,8 @@
 
 #include <vector>
 
+#include "PageRange.h"
+
 void PageSequence::append(const PageInfo& pageInfo) {
   m_pages.push_back(pageInfo);
 }
@@ -50,26 +52,12 @@ std::set<PageId> PageSequence::selectPagePlusFollowers(const PageId& page) const
 }
 
 std::set<PageId> PageSequence::selectEveryOther(const PageId& base) const {
-  std::set<PageId> selection;
-
-  auto it(m_pages.begin());
-  const auto end(m_pages.end());
-  for (; it != end && it->id() != base; ++it) {
-    // Continue until we have a match.
-  }
-  if (it == end) {
-    return selection;
-  }
-
-  const int baseIdx = static_cast<int>(it - m_pages.begin());
-  int idx = 0;
+  PageRange range;
+  range.pages.reserve(m_pages.size());
   for (const PageInfo& pageInfo : m_pages) {
-    if (((idx - baseIdx) & 1) == 0) {
-      selection.insert(pageInfo.id());
-    }
-    ++idx;
+    range.pages.push_back(pageInfo.id());
   }
-  return selection;
+  return range.selectEveryOther(base);
 }
 
 std::set<PageId> PageSequence::selectThisPageAndFollowingEveryOther(const PageId& page) const {

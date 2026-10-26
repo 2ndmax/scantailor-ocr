@@ -20,6 +20,23 @@ static PageInfo makePage(const char* path, const int imageIdx) {
 
 BOOST_AUTO_TEST_SUITE(PageSequenceTestSuite)
 
+BOOST_AUTO_TEST_CASE(select_every_other_goes_both_ways_from_base) {
+  PageSequence seq;
+  std::vector<PageInfo> pages;
+  for (int i = 0; i < 7; ++i) {
+    pages.push_back(makePage("/scan", i));
+    seq.append(pages.back());
+  }
+
+  const std::set<PageId> result = seq.selectEveryOther(pages[3].id());
+
+  BOOST_CHECK_EQUAL(result.size(), 3u);
+  for (int i = 1; i < 7; i += 2) {
+    BOOST_CHECK(result.count(pages[static_cast<size_t>(i)].id()) == 1);
+  }
+  BOOST_CHECK(seq.selectEveryOther(makePage("/other", 0).id()).empty());
+}
+
 BOOST_AUTO_TEST_CASE(select_this_page_and_following_every_other_from_first) {
   PageSequence seq;
   std::vector<PageInfo> pages;
