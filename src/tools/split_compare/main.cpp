@@ -44,16 +44,11 @@
 #include "filters/page_split/PageLayoutEstimator.h"
 #include "filters/page_split/SpineLineFinder.h"
 #include "filters/page_split/VertLineFinder.h"
+#include "tools/ToolImageDpi.h"
 
 using namespace page_split;
 
 namespace {
-Dpi dpiOf(const QImage& image) {
-  const int x = static_cast<int>(std::lround(image.dotsPerMeterX() * 0.0254));
-  const int y = static_cast<int>(std::lround(image.dotsPerMeterY() * 0.0254));
-  return Dpi(x > 0 ? x : 300, y > 0 ? y : 300);
-}
-
 double xAtMiddle(const QLineF& line) {
   return 0.5 * (line.p1().x() + line.p2().x());
 }
@@ -188,7 +183,7 @@ int main(int argc, char** argv) {
     // As the program does (FilterData): other gray formats are not handled everywhere.
     const QImage gray = imageproc::toGrayscale(image);
 
-    ImageTransformation xform(QRectF(gray.rect()), dpiOf(image));
+    ImageTransformation xform(QRectF(gray.rect()), tools::dpiOrDefault(image));
     xform.setPreRotation(rot);
 
     imageproc::GrayImage gray100;

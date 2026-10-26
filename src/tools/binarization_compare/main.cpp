@@ -21,7 +21,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
-#include <cmath>
 #include <iostream>
 
 #include "ColorMethods.h"
@@ -29,6 +28,7 @@
 #include "ImageLoader.h"
 #include "Methods.h"
 #include "Viewer.h"
+#include "tools/ToolImageDpi.h"
 
 using namespace binarization_compare;
 
@@ -163,7 +163,8 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
     return false;
   }
 
-  const int dpi = static_cast<int>(std::lround(image.dotsPerMeterX() * 0.0254));
+  // 0 if the image has no resolution; the viewer leaves it out then.
+  const int dpi = tools::storedDpi(image).horizontal();
   // Only the file name, not the folder, which may contain personal names.
   const QJsonObject info{{"id", id},
                          {"mode", viewerMode(gColors)},

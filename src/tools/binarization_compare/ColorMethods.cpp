@@ -3,8 +3,6 @@
 
 #include "ColorMethods.h"
 
-#include <cmath>
-
 #include "BinaryImage.h"
 #include "BinaryThreshold.h"
 #include "ColorKMeans.h"
@@ -13,6 +11,7 @@
 #include "ExpColorFilter.h"
 #include "GrayImage.h"
 #include "Posterizer.h"
+#include "tools/ToolImageDpi.h"
 
 namespace binarization_compare {
 namespace {
@@ -21,15 +20,9 @@ using imageproc::BinaryImage;
 // The noise reduction of the color segmentation, as the default of the Output step.
 const int kNoiseReduction = 7;
 
-Dpi dpiOf(const QImage& image) {
-  const int x = static_cast<int>(std::lround(image.dotsPerMeterX() * 0.0254));
-  const int y = static_cast<int>(std::lround(image.dotsPerMeterY() * 0.0254));
-  return Dpi(x > 0 ? x : 300, y > 0 ? y : 300);
-}
-
 // Each letter in the average color of its pixels, the background white.
 QImage segmented(const QImage& color, const QImage& text) {
-  const imageproc::ColorSegmenter segmenter(dpiOf(color), kNoiseReduction);
+  const imageproc::ColorSegmenter segmenter(tools::dpiOrDefault(color), kNoiseReduction);
   return segmenter.segment(BinaryImage(text), color.convertToFormat(QImage::Format_RGB32))
       .convertToFormat(QImage::Format_RGB32);
 }
@@ -48,7 +41,7 @@ QImage kmeans(const QImage& color, const QImage& text, const int k, const bool f
 // Our K-means on the pixels of the text: each pixel on its own, or letters as one color and only
 // larger areas pixel by pixel. A letter is at most as large as a filled square of a quarter inch.
 QImage textKMeans(const QImage& color, const QImage& text, const int k, const bool combined) {
-  const Dpi dpi = dpiOf(color);
+  const Dpi dpi = tools::dpiOrDefault(color);
   const int quarterInch = (dpi.horizontal() + dpi.vertical()) / 8;
   return imageproc::reduceTextColorsKMeans(color, BinaryImage(text), k, true, combined ? quarterInch * quarterInch : 0);
 }
