@@ -6,6 +6,8 @@
 
 #include <BinaryThreshold.h>
 
+#include <Qt>
+
 #include "DetectionOptions.h"
 
 class TaskStatus;
@@ -52,33 +54,17 @@ class ContentBoxFinder {
 
   static void filterShadows(const TaskStatus& status, imageproc::BinaryImage& shadows, DebugImages* dbg);
 
-  static QRect trimLeft(const imageproc::BinaryImage& content,
+  /**
+   * Cuts off the content at one edge of p area if it is separated by a gap and judged to be
+   * garbage; returns the area that remains.
+   */
+  static QRect trimEdge(const imageproc::BinaryImage& content,
                         const imageproc::BinaryImage& contentBlocks,
                         const imageproc::BinaryImage& textMask,
                         const QRect& area,
+                        Qt::Edge edge,
                         Garbage& garbage,
                         DebugImages* dbg);
-
-  static QRect trimRight(const imageproc::BinaryImage& content,
-                         const imageproc::BinaryImage& contentBlocks,
-                         const imageproc::BinaryImage& textMask,
-                         const QRect& area,
-                         Garbage& garbage,
-                         DebugImages* dbg);
-
-  static QRect trimTop(const imageproc::BinaryImage& content,
-                       const imageproc::BinaryImage& contentBlocks,
-                       const imageproc::BinaryImage& textMask,
-                       const QRect& area,
-                       Garbage& garbage,
-                       DebugImages* dbg);
-
-  static QRect trimBottom(const imageproc::BinaryImage& content,
-                          const imageproc::BinaryImage& contentBlocks,
-                          const imageproc::BinaryImage& textMask,
-                          const QRect& area,
-                          Garbage& garbage,
-                          DebugImages* dbg);
 
   static QRect trim(const imageproc::BinaryImage& content,
                     const imageproc::BinaryImage& contentBlocks,

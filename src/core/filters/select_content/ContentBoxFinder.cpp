@@ -327,7 +327,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
     if (sideMask & LEFT) {
       sideMask &= ~LEFT;
       oldContentRect = contentRect;
-      contentRect = trimLeft(content, contentBlocks, textMask, contentRect, vertGarbage, dbg);
+      contentRect = trimEdge(content, contentBlocks, textMask, contentRect, Qt::LeftEdge, vertGarbage, dbg);
 
       status.throwIfCancelled();
 
@@ -342,7 +342,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
     if (sideMask & RIGHT) {
       sideMask &= ~RIGHT;
       oldContentRect = contentRect;
-      contentRect = trimRight(content, contentBlocks, textMask, contentRect, vertGarbage, dbg);
+      contentRect = trimEdge(content, contentBlocks, textMask, contentRect, Qt::RightEdge, vertGarbage, dbg);
 
       status.throwIfCancelled();
 
@@ -357,7 +357,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
     if (sideMask & TOP) {
       sideMask &= ~TOP;
       oldContentRect = contentRect;
-      contentRect = trimTop(content, contentBlocks, textMask, contentRect, horGarbage, dbg);
+      contentRect = trimEdge(content, contentBlocks, textMask, contentRect, Qt::TopEdge, horGarbage, dbg);
 
       status.throwIfCancelled();
 
@@ -372,7 +372,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
     if (sideMask & BOTTOM) {
       sideMask &= ~BOTTOM;
       oldContentRect = contentRect;
-      contentRect = trimBottom(content, contentBlocks, textMask, contentRect, horGarbage, dbg);
+      contentRect = trimEdge(content, contentBlocks, textMask, contentRect, Qt::BottomEdge, horGarbage, dbg);
 
       status.throwIfCancelled();
 
@@ -905,81 +905,59 @@ imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::Binar
   return textMask;
 }  // ContentBoxFinder::estimateTextMask
 
-QRect ContentBoxFinder::trimLeft(const imageproc::BinaryImage& content,
+QRect ContentBoxFinder::trimEdge(const imageproc::BinaryImage& content,
                                  const imageproc::BinaryImage& contentBlocks,
                                  const imageproc::BinaryImage& text,
                                  const QRect& area,
+                                 const Qt::Edge edge,
                                  Garbage& garbage,
                                  DebugImages* const dbg) {
-  const SlicedHistogram hist(contentBlocks, area, SlicedHistogram::COLS);
+  const bool columns = (edge == Qt::LeftEdge) || (edge == Qt::RightEdge);
+  const bool fromStart = (edge == Qt::LeftEdge) || (edge == Qt::TopEdge);
+  const SlicedHistogram hist(contentBlocks, area, columns ? SlicedHistogram::COLS : SlicedHistogram::ROWS);
+  const int size = static_cast<int>(hist.size());
+  const int offset = columns ? area.left() : area.top();
+  // The direction from the edge into the area.
+  const int step = fromStart ? 1 : -1;
+  const auto inHist = [size](const int i) { return (i >= 0) && (i < size); };
 
-  size_t start = 0;
-  while (start < hist.size()) {
-    size_t firstWs = start;
-    for (; firstWs < hist.size() && hist[firstWs] != 0; ++firstWs) {
-      // Skip non-empty columns.
-    }
-    size_t firstNonWs = firstWs;
-    for (; firstNonWs < hist.size() && hist[firstNonWs] == 0; ++firstNonWs) {
-      // Skip empty columns.
-    }
-
-    firstWs += area.left();
-    firstNonWs += area.left();
-
-    QRect newArea(area);
-    newArea.setLeft(static_cast<int>(firstNonWs));
-    if (newArea.isEmpty()) {
-      return area;
-    }
-
-    QRect removedArea(area);
-    removedArea.setRight(static_cast<int>(firstWs - 1));
-    if (removedArea.isEmpty()) {
-      return newArea;
-    }
-
-    bool canRetryGrouped = false;
-    const QRect res = trim(content, contentBlocks, text, area, newArea, removedArea, garbage, canRetryGrouped, dbg);
-    if (canRetryGrouped) {
-      start = firstNonWs - area.left();
-    } else {
-      return res;
-    }
-  }
-  return area;
-}  // ContentBoxFinder::trimLeft
-
-QRect ContentBoxFinder::trimRight(const imageproc::BinaryImage& content,
-                                  const imageproc::BinaryImage& contentBlocks,
-                                  const imageproc::BinaryImage& text,
-                                  const QRect& area,
-                                  Garbage& garbage,
-                                  DebugImages* const dbg) {
-  const SlicedHistogram hist(contentBlocks, area, SlicedHistogram::COLS);
-
-  auto start = static_cast<int>(hist.size() - 1);
-  while (start >= 0) {
+  int start = fromStart ? 0 : size - 1;
+  while (inHist(start)) {
     int firstWs = start;
-    for (; firstWs >= 0 && hist[firstWs] != 0; --firstWs) {
-      // Skip non-empty columns.
+    for (; inHist(firstWs) && hist[firstWs] != 0; firstWs += step) {
+      // Skip non-empty lines.
     }
     int firstNonWs = firstWs;
-    for (; firstNonWs >= 0 && hist[firstNonWs] == 0; --firstNonWs) {
-      // Skip empty columns.
+    for (; inHist(firstNonWs) && hist[firstNonWs] == 0; firstNonWs += step) {
+      // Skip empty lines.
     }
 
-    firstWs += area.left();
-    firstNonWs += area.left();
-
+    // newArea starts at the content after the gap; removedArea is what lies before the gap.
+    const int newAreaEdge = offset + firstNonWs;
+    const int removedAreaEnd = offset + firstWs - step;
     QRect newArea(area);
-    newArea.setRight(firstNonWs);
+    QRect removedArea(area);
+    switch (edge) {
+      case Qt::LeftEdge:
+        newArea.setLeft(newAreaEdge);
+        removedArea.setRight(removedAreaEnd);
+        break;
+      case Qt::RightEdge:
+        newArea.setRight(newAreaEdge);
+        removedArea.setLeft(removedAreaEnd);
+        break;
+      case Qt::TopEdge:
+        newArea.setTop(newAreaEdge);
+        removedArea.setBottom(removedAreaEnd);
+        break;
+      case Qt::BottomEdge:
+        newArea.setBottom(newAreaEdge);
+        removedArea.setTop(removedAreaEnd);
+        break;
+    }
     if (newArea.isEmpty()) {
       return area;
     }
-
-    QRect removedArea(area);
-    removedArea.setLeft(firstWs + 1);
     if (removedArea.isEmpty()) {
       return newArea;
     }
@@ -987,103 +965,13 @@ QRect ContentBoxFinder::trimRight(const imageproc::BinaryImage& content,
     bool canRetryGrouped = false;
     const QRect res = trim(content, contentBlocks, text, area, newArea, removedArea, garbage, canRetryGrouped, dbg);
     if (canRetryGrouped) {
-      start = firstNonWs - area.left();
+      start = firstNonWs;
     } else {
       return res;
     }
   }
   return area;
-}  // ContentBoxFinder::trimRight
-
-QRect ContentBoxFinder::trimTop(const imageproc::BinaryImage& content,
-                                const imageproc::BinaryImage& contentBlocks,
-                                const imageproc::BinaryImage& text,
-                                const QRect& area,
-                                Garbage& garbage,
-                                DebugImages* const dbg) {
-  const SlicedHistogram hist(contentBlocks, area, SlicedHistogram::ROWS);
-
-  size_t start = 0;
-  while (start < hist.size()) {
-    size_t firstWs = start;
-    for (; firstWs < hist.size() && hist[firstWs] != 0; ++firstWs) {
-      // Skip non-empty columns.
-    }
-    size_t firstNonWs = firstWs;
-    for (; firstNonWs < hist.size() && hist[firstNonWs] == 0; ++firstNonWs) {
-      // Skip empty columns.
-    }
-
-    firstWs += area.top();
-    firstNonWs += area.top();
-
-    QRect newArea(area);
-    newArea.setTop(static_cast<int>(firstNonWs));
-    if (newArea.isEmpty()) {
-      return area;
-    }
-
-    QRect removedArea(area);
-    removedArea.setBottom(static_cast<int>(firstWs - 1));
-    if (removedArea.isEmpty()) {
-      return newArea;
-    }
-
-    bool canRetryGrouped = false;
-    const QRect res = trim(content, contentBlocks, text, area, newArea, removedArea, garbage, canRetryGrouped, dbg);
-    if (canRetryGrouped) {
-      start = firstNonWs - area.top();
-    } else {
-      return res;
-    }
-  }
-  return area;
-}  // ContentBoxFinder::trimTop
-
-QRect ContentBoxFinder::trimBottom(const imageproc::BinaryImage& content,
-                                   const imageproc::BinaryImage& contentBlocks,
-                                   const imageproc::BinaryImage& text,
-                                   const QRect& area,
-                                   Garbage& garbage,
-                                   DebugImages* const dbg) {
-  const SlicedHistogram hist(contentBlocks, area, SlicedHistogram::ROWS);
-
-  auto start = static_cast<int>(hist.size() - 1);
-  while (start >= 0) {
-    int firstWs = start;
-    for (; firstWs >= 0 && hist[firstWs] != 0; --firstWs) {
-      // Skip non-empty columns.
-    }
-    int firstNonWs = firstWs;
-    for (; firstNonWs >= 0 && hist[firstNonWs] == 0; --firstNonWs) {
-      // Skip empty columns.
-    }
-
-    firstWs += area.top();
-    firstNonWs += area.top();
-
-    QRect newArea(area);
-    newArea.setBottom(firstNonWs);
-    if (newArea.isEmpty()) {
-      return area;
-    }
-
-    QRect removedArea(area);
-    removedArea.setTop(firstWs + 1);
-    if (removedArea.isEmpty()) {
-      return newArea;
-    }
-
-    bool canRetryGrouped = false;
-    const QRect res = trim(content, contentBlocks, text, area, newArea, removedArea, garbage, canRetryGrouped, dbg);
-    if (canRetryGrouped) {
-      start = firstNonWs - area.top();
-    } else {
-      return res;
-    }
-  }
-  return area;
-}  // ContentBoxFinder::trimBottom
+}  // ContentBoxFinder::trimEdge
 
 QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
                              const imageproc::BinaryImage& contentBlocks,
