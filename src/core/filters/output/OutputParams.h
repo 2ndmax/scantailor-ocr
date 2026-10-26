@@ -10,9 +10,12 @@
 
 class QDomDocument;
 class QDomElement;
+class QFileInfo;
 class QString;
 
 namespace output {
+class RenderParams;
+
 class OutputParams {
  public:
   OutputParams(const OutputImageParams& outputImageParams,
@@ -49,6 +52,21 @@ class OutputParams {
   const ZoneSet& pictureZones() const;
 
   const ZoneSet& fillZones() const;
+
+  /**
+   * Whether this stored output still matches the current settings of the page and its
+   * source and output files are unchanged. Which output files are checked depends on
+   * \p renderParams: the single output file, or the foreground, background and, if
+   * requested, original background files in their folders below \p outDir.
+   * The automask and speckles files are not checked.
+   */
+  bool isUpToDate(const OutputImageParams& newOutputImageParams,
+                  const ZoneSet& newPictureZones,
+                  const ZoneSet& newFillZones,
+                  const QFileInfo& sourceFileInfo,
+                  const QFileInfo& outFileInfo,
+                  const QString& outDir,
+                  const RenderParams& renderParams) const;
 
  private:
   OutputImageParams m_outputImageParams;

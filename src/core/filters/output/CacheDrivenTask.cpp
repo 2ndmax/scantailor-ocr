@@ -3,11 +3,9 @@
 
 #include "CacheDrivenTask.h"
 
-#include <QDir>
 #include <QFileInfo>
 #include <utility>
 
-#include "FillZoneComparator.h"
 #include "GeometryCollector.h"
 #include "IncompleteThumbnail.h"
 #include "OutputGenerator.h"
@@ -15,11 +13,9 @@
 #include "OutputStatusCollector.h"
 #include "PageInfo.h"
 #include "Params.h"
-#include "PictureZoneComparator.h"
 #include "RenderParams.h"
 #include "Settings.h"
 #include "Thumbnail.h"
-#include "Utils.h"
 #include "core/AbstractFilterDataCollector.h"
 #include "core/ThumbnailCollector.h"
 
@@ -76,48 +72,9 @@ bool CacheDrivenTask::isOutputUpToDate(const PageInfo& pageInfo,
       params.splittingOptions(), params.dewarpingOptions(), params.distortionModel(), params.depthPerception(),
       params.despeckleLevel(), params.pictureShapeOptions(), m_settings->getOutputProcessingParams(pageInfo.id()),
       params.isBlackOnWhite());
-  if (!storedOutputParams->outputImageParams().matches(newOutputImageParams)) {
-    return false;
-  }
-
-  const ZoneSet newPictureZones(m_settings->pictureZonesForPage(pageInfo.id()));
-  if (!PictureZoneComparator::equal(storedOutputParams->pictureZones(), newPictureZones)) {
-    return false;
-  }
-  const ZoneSet newFillZones(m_settings->fillZonesForPage(pageInfo.id()));
-  if (!FillZoneComparator::equal(storedOutputParams->fillZones(), newFillZones)) {
-    return false;
-  }
-
-  const QFileInfo sourceFileInfo(pageInfo.id().imageId().filePath());
-  if (!storedOutputParams->sourceFileParams().matches(OutputFileParams(sourceFileInfo))) {
-    return false;
-  }
-
-  const QFileInfo outFileInfo(m_outFileNameGen.filePathFor(pageInfo.id()));
-  const RenderParams renderParams(params.colorParams(), params.splittingOptions());
-  if (!renderParams.splitOutput()) {
-    return outFileInfo.exists() && storedOutputParams->outputFileParams().matches(OutputFileParams(outFileInfo));
-  }
-
-  const QString outDir = m_outFileNameGen.outDir();
-  const QFileInfo foregroundFileInfo(QDir(Utils::foregroundDir(outDir)).absoluteFilePath(outFileInfo.fileName()));
-  const QFileInfo backgroundFileInfo(QDir(Utils::backgroundDir(outDir)).absoluteFilePath(outFileInfo.fileName()));
-  if (!foregroundFileInfo.exists() || !backgroundFileInfo.exists()) {
-    return false;
-  }
-  if (!storedOutputParams->foregroundFileParams().matches(OutputFileParams(foregroundFileInfo))
-      || !storedOutputParams->backgroundFileParams().matches(OutputFileParams(backgroundFileInfo))) {
-    return false;
-  }
-  if (renderParams.originalBackground()) {
-    const QFileInfo originalBackgroundFileInfo(
-        QDir(Utils::originalBackgroundDir(outDir)).absoluteFilePath(outFileInfo.fileName()));
-    if (!originalBackgroundFileInfo.exists()
-        || !storedOutputParams->originalBackgroundFileParams().matches(OutputFileParams(originalBackgroundFileInfo))) {
-      return false;
-    }
-  }
-  return true;
+  return storedOutputParams->isUpToDate(
+      newOutputImageParams, m_settings->pictureZonesForPage(pageInfo.id()), m_settings->fillZonesForPage(pageInfo.id()),
+      QFileInfo(pageInfo.id().imageId().filePath()), QFileInfo(m_outFileNameGen.filePathFor(pageInfo.id())),
+      m_outFileNameGen.outDir(), RenderParams(params.colorParams(), params.splittingOptions()));
 }  // CacheDrivenTask::isOutputUpToDate
 }  // namespace output

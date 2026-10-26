@@ -3,10 +3,16 @@
 
 #include "OutputParams.h"
 
+#include <QDir>
 #include <QDomDocument>
+#include <QFileInfo>
 
+#include "FillZoneComparator.h"
 #include "FillZonePropFactory.h"
+#include "PictureZoneComparator.h"
 #include "PictureZonePropFactory.h"
+#include "RenderParams.h"
+#include "Utils.h"
 
 namespace output {
 OutputParams::OutputParams(const OutputImageParams& outputImageParams,
@@ -55,5 +61,49 @@ QDomElement OutputParams::toXml(QDomDocument& doc, const QString& name) const {
   el.appendChild(m_pictureZones.toXml(doc, "zones"));
   el.appendChild(m_fillZones.toXml(doc, "fill-zones"));
   return el;
+}
+
+bool OutputParams::isUpToDate(const OutputImageParams& newOutputImageParams,
+                              const ZoneSet& newPictureZones,
+                              const ZoneSet& newFillZones,
+                              const QFileInfo& sourceFileInfo,
+                              const QFileInfo& outFileInfo,
+                              const QString& outDir,
+                              const RenderParams& renderParams) const {
+  if (!m_outputImageParams.matches(newOutputImageParams)) {
+    return false;
+  }
+  if (!PictureZoneComparator::equal(m_pictureZones, newPictureZones)) {
+    return false;
+  }
+  if (!FillZoneComparator::equal(m_fillZones, newFillZones)) {
+    return false;
+  }
+  if (!m_sourceFileParams.matches(OutputFileParams(sourceFileInfo))) {
+    return false;
+  }
+
+  if (!renderParams.splitOutput()) {
+    return outFileInfo.exists() && m_outputFileParams.matches(OutputFileParams(outFileInfo));
+  }
+
+  const QFileInfo foregroundFileInfo(QDir(Utils::foregroundDir(outDir)).absoluteFilePath(outFileInfo.fileName()));
+  const QFileInfo backgroundFileInfo(QDir(Utils::backgroundDir(outDir)).absoluteFilePath(outFileInfo.fileName()));
+  if (!foregroundFileInfo.exists() || !backgroundFileInfo.exists()) {
+    return false;
+  }
+  if (!m_foregroundFileParams.matches(OutputFileParams(foregroundFileInfo))
+      || !m_backgroundFileParams.matches(OutputFileParams(backgroundFileInfo))) {
+    return false;
+  }
+  if (renderParams.originalBackground()) {
+    const QFileInfo originalBackgroundFileInfo(
+        QDir(Utils::originalBackgroundDir(outDir)).absoluteFilePath(outFileInfo.fileName()));
+    if (!originalBackgroundFileInfo.exists()
+        || !m_originalBackgroundFileParams.matches(OutputFileParams(originalBackgroundFileInfo))) {
+      return false;
+    }
+  }
+  return true;
 }
 }  // namespace output

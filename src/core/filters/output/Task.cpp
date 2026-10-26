@@ -23,7 +23,6 @@
 #include "DewarpingView.h"
 #include "Dpm.h"
 #include "ErrorWidget.h"
-#include "FillZoneComparator.h"
 #include "FillZoneEditor.h"
 #include "Filter.h"
 #include "FilterData.h"
@@ -35,7 +34,6 @@
 #include "OutputImageBuilder.h"
 #include "OutputImageWithForeground.h"
 #include "OutputImageWithOriginalBackground.h"
-#include "PictureZoneComparator.h"
 #include "PictureZoneEditor.h"
 #include "RenderParams.h"
 #include "Settings.h"
@@ -132,11 +130,8 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
   const QString backgroundDir(Utils::backgroundDir(m_outFileNameGen.outDir()));
   const QString originalBackgroundDir(Utils::originalBackgroundDir(m_outFileNameGen.outDir()));
   const QString foregroundFilePath(QDir(foregroundDir).absoluteFilePath(outFileInfo.fileName()));
-  const QFileInfo foregroundFileInfo(foregroundFilePath);
   const QString backgroundFilePath(QDir(backgroundDir).absoluteFilePath(outFileInfo.fileName()));
-  const QFileInfo backgroundFileInfo(backgroundFilePath);
   const QString originalBackgroundFilePath(QDir(originalBackgroundDir).absoluteFilePath(outFileInfo.fileName()));
-  const QFileInfo originalBackgroundFileInfo(originalBackgroundFilePath);
 
   const QString automaskDir(Utils::automaskDir(m_outFileNameGen.outDir()));
   const QString automaskFilePath(QDir(automaskDir).absoluteFilePath(outFileInfo.fileName()));
@@ -173,89 +168,20 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
   ZoneSet newPictureZones(m_settings->pictureZonesForPage(m_pageId));
   const ZoneSet newFillZones(m_settings->fillZonesForPage(m_pageId));
 
+  // A file written with the stored output params that is still there and unchanged.
+  const auto isUnchanged = [](const QFileInfo& fileInfo, const OutputFileParams& storedFileParams) {
+    return fileInfo.exists() && storedFileParams.matches(OutputFileParams(fileInfo));
+  };
   bool needReprocess = false;
-  do {  // Just to be able to break from it.
-    std::unique_ptr<OutputParams> storedOutputParams(m_settings->getOutputParams(m_pageId));
-
-    if (!storedOutputParams) {
-      needReprocess = true;
-      break;
-    }
-
-    if (!storedOutputParams->outputImageParams().matches(newOutputImageParams)) {
-      needReprocess = true;
-      break;
-    }
-
-    if (!PictureZoneComparator::equal(storedOutputParams->pictureZones(), newPictureZones)) {
-      needReprocess = true;
-      break;
-    }
-
-    if (!FillZoneComparator::equal(storedOutputParams->fillZones(), newFillZones)) {
-      needReprocess = true;
-      break;
-    }
-
-    if (!storedOutputParams->sourceFileParams().matches(OutputFileParams(sourceFileInfo))) {
-      needReprocess = true;
-      break;
-    }
-    if (!renderParams.splitOutput()) {
-      if (!outFileInfo.exists()) {
-        needReprocess = true;
-        break;
-      }
-      if (!storedOutputParams->outputFileParams().matches(OutputFileParams(outFileInfo))) {
-        needReprocess = true;
-        break;
-      }
-    } else {
-      if (!foregroundFileInfo.exists() || !backgroundFileInfo.exists()) {
-        needReprocess = true;
-        break;
-      }
-      if (!(storedOutputParams->foregroundFileParams().matches(OutputFileParams(foregroundFileInfo)))
-          || !(storedOutputParams->backgroundFileParams().matches(OutputFileParams(backgroundFileInfo)))) {
-        needReprocess = true;
-        break;
-      }
-      if (renderParams.originalBackground()) {
-        if (!originalBackgroundFileInfo.exists()) {
-          needReprocess = true;
-          break;
-        }
-        if (!(storedOutputParams->originalBackgroundFileParams().matches(
-                OutputFileParams(originalBackgroundFileInfo)))) {
-          needReprocess = true;
-          break;
-        }
-      }
-    }
-
-    if (needPictureEditor) {
-      if (!automaskFileInfo.exists()) {
-        needReprocess = true;
-        break;
-      }
-
-      if (!storedOutputParams->automaskFileParams().matches(OutputFileParams(automaskFileInfo))) {
-        needReprocess = true;
-        break;
-      }
-    }
-
-    if (needSpecklesImage) {
-      if (!specklesFileInfo.exists()) {
-        needReprocess = true;
-        break;
-      }
-      if (!storedOutputParams->specklesFileParams().matches(OutputFileParams(specklesFileInfo))) {
-        needReprocess = true;
-        break;
-      }
-    }
-  } while (false);
+  {
+    const std::unique_ptr<OutputParams> storedOutputParams(m_settings->getOutputParams(m_pageId));
+    needReprocess
+        = !storedOutputParams
+          || !storedOutputParams->isUpToDate(newOutputImageParams, newPictureZones, newFillZones, sourceFileInfo,
+                                             outFileInfo, m_outFileNameGen.outDir(), renderParams)
+          || (needPictureEditor && !isUnchanged(automaskFileInfo, storedOutputParams->automaskFileParams()))
+          || (needSpecklesImage && !isUnchanged(specklesFileInfo, storedOutputParams->specklesFileParams()));
+  }
 
   QImage outImg;
   BinaryImage automaskImg;
