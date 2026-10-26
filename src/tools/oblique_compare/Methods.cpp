@@ -323,12 +323,11 @@ struct StrokeMeasurement {
   double secondPeak = 0;
 };
 
-std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page) {
+std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int dpi) {
   const int w = page.width();
   // A stem counts only where its edge goes on about a third of a millimetre above and below; that
-  // leaves out the brackets of serifs and the curves of round letters. The page is about as wide as
-  // A4, so its width tells the resolution.
-  const int reach = std::max(2, static_cast<int>(std::lround(w / 600.0)));
+  // leaves out the brackets of serifs and the curves of round letters.
+  const int reach = std::max(2, static_cast<int>(std::lround(dpi / 76.2)));
   const int h = page.height();
   if ((w < 3) || (h < 2 * reach + 3)) {
     return std::nullopt;
@@ -432,14 +431,14 @@ GrayImage unsheared(const GrayImage& page, const double tangent) {
 }
 }  // namespace
 
-Finding strokeDirection(const QImage& gray, const double deskewAngleDeg) {
+Finding strokeDirection(const QImage& gray, const double deskewAngleDeg, const int dpi) {
   const GrayImage page(deskewedGray(gray, deskewAngleDeg));
   // A single measurement falls short of the shear by about a tenth (measured with this tool), so
   // the shear found is undone and what is left is measured again.
   double tangent = 0;
   StrokeMeasurement last;
   for (int pass = 0; pass < STROKE_PASSES; ++pass) {
-    const std::optional<StrokeMeasurement> m(measureStrokes(pass == 0 ? page : unsheared(page, tangent)));
+    const std::optional<StrokeMeasurement> m(measureStrokes(pass == 0 ? page : unsheared(page, tangent), dpi));
     if (!m) {
       return {};
     }
@@ -456,13 +455,13 @@ Finding strokeDirection(const QImage& gray, const double deskewAngleDeg) {
   return finding;
 }
 
-Finding edgesThenStrokes(const BinaryImage& image, const QImage& gray, const double deskewAngleDeg) {
+Finding edgesThenStrokes(const BinaryImage& image, const QImage& gray, const double deskewAngleDeg, const int dpi) {
   const Finding edges(edgeFit(image, deskewAngleDeg));
   if (edges.confidence.value_or(0.0) < 0) {
     // The edges disagree: no shear.
     return edges;
   }
-  const Finding strokes(strokeDirection(gray, deskewAngleDeg));
+  const Finding strokes(strokeDirection(gray, deskewAngleDeg, dpi));
   if (!edges.angle) {
     return strokes;
   }

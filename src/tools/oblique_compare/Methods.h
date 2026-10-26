@@ -46,7 +46,7 @@ Finding edgeFit(const imageproc::BinaryImage& image, double deskewAngleDeg);
  * direction relative to the first. Measured limit: whole pages in italics still get a wrong angle
  * now and then; Times New Roman reads about 0.1° too far.
  */
-Finding strokeDirection(const QImage& gray, double deskewAngleDeg);
+Finding strokeDirection(const QImage& gray, double deskewAngleDeg, int dpi);
 
 /**
  * (e) (c2) where the text has straight edges, else (d). Edges that disagree give no angle. A single
@@ -58,7 +58,7 @@ Finding strokeDirection(const QImage& gray, double deskewAngleDeg);
  * caught most of these, but also left every such page with a real shear above 3° uncorrected, since
  * italics cannot be told apart reliably enough; so it is not done.
  */
-Finding edgesThenStrokes(const imageproc::BinaryImage& image, const QImage& gray, double deskewAngleDeg);
+Finding edgesThenStrokes(const imageproc::BinaryImage& image, const QImage& gray, double deskewAngleDeg, int dpi);
 
 }  // namespace compare
 
