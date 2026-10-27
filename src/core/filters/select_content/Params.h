@@ -84,6 +84,10 @@ class Params {
   AutoManualMode m_contentDetectionMode;
   AutoManualMode m_pageDetectionMode;
   bool m_fineTuneCorners;
+  // REVIEW-NOTE (2026-10): the detection options are stored here and in m_deps, also twice in the
+  // project file -> looks like duplicated data. Not fixed because the two have different roles:
+  // these are the wanted options (options panel), m_deps holds the ones the box was detected with,
+  // and Task detects again when they differ. The detection modes follow the same pattern.
   std::optional<DetectionOptions> m_detectionOptions;
 };
 
