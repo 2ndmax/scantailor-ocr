@@ -153,9 +153,7 @@ void NewOpenProjectPanel::paintEvent(QPaintEvent*) {
   // ClearType fringes is hard to read there, so the panel gets the window background.
   painter.fillRect(exceptMargins, palette().window());
 
-  const QBrush borderBrush
-      = ColorSchemeManager::instance().getColorParam("OpenNewProjectBorder", palette().windowText());
-  painter.setPen(QPen(borderBrush, border));
+  painter.setPen(QPen(ColorSchemeManager::instance().getColorParam("OpenNewProjectBorder"), border));
 
   painter.drawRect(exceptMargins);
 }  // NewOpenProjectPanel::paintEvent

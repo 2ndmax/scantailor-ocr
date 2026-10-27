@@ -4,6 +4,9 @@
 #include "ColorSchemeManager.h"
 
 #include <QApplication>
+#include <cassert>
+
+#include "NativeColorScheme.h"
 
 ColorSchemeManager& ColorSchemeManager::instance() {
   static ColorSchemeManager instance;
@@ -29,20 +32,11 @@ void ColorSchemeManager::setColorScheme(const ColorScheme& colorScheme) {
   }
 }
 
-QBrush ColorSchemeManager::getColorParam(const QString& colorParam, const QBrush& defaultBrush) const {
-  const QColor* color = findColorParam(colorParam);
-  return color ? QBrush(*color, defaultBrush.style()) : defaultBrush;
-}
-
-QColor ColorSchemeManager::getColorParam(const QString& colorParam, const QColor& defaultColor) const {
-  const QColor* color = findColorParam(colorParam);
-  return color ? *color : defaultColor;
-}
-
-const QColor* ColorSchemeManager::findColorParam(const QString& colorParam) const {
+QColor ColorSchemeManager::getColorParam(const QString& colorParam) const {
   if (!m_colorParams) {
-    return nullptr;
+    m_colorParams = std::make_unique<ColorScheme::ColorParams>(*NativeColorScheme().getColorParams());
   }
   const auto it = m_colorParams->find(colorParam);
-  return (it != m_colorParams->end()) ? &it->second : nullptr;
+  assert((it != m_colorParams->end()) && "Every color scheme sets every color parameter.");
+  return (it != m_colorParams->end()) ? it->second : QColor();
 }

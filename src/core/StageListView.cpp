@@ -300,10 +300,8 @@ void StageListView::createBatchAnimationSequence(const int squareSide) {
   const int numFrames = 8;
   m_batchAnimationPixmaps.resize(numFrames);
 
-  const QColor headColor
-      = ColorSchemeManager::instance().getColorParam("StageListHead", palette().color(QPalette::Window).darker(200));
-  const QColor tailColor
-      = ColorSchemeManager::instance().getColorParam("StageListTail", palette().color(QPalette::Window).darker(130));
+  const QColor headColor = ColorSchemeManager::instance().getColorParam("StageListHead");
+  const QColor tailColor = ColorSchemeManager::instance().getColorParam("StageListTail");
 
   // Rendered in screen pixels, so that the animation stays sharp on scaled screens.
   const qreal dpr = devicePixelRatioF();

@@ -6,7 +6,6 @@
 
 #include <foundation/NonCopyable.h>
 
-#include <QBrush>
 #include <QColor>
 #include <memory>
 
@@ -22,9 +21,13 @@ class ColorSchemeManager {
 
   void setColorScheme(const ColorScheme& colorScheme);
 
-  QBrush getColorParam(const QString& colorParam, const QBrush& defaultBrush) const;
-
-  QColor getColorParam(const QString& colorParam, const QColor& defaultColor) const;
+  /**
+   * \brief A color for an element that doesn't support styling, as the color scheme sets it.
+   *
+   * Every color scheme sets every parameter. Before a scheme is set, as in tests, the colors of
+   * the native scheme are used.
+   */
+  QColor getColorParam(const QString& colorParam) const;
 
   /**
    * Whether the color scheme draws buttons, fields and frames with rounded corners, as the
@@ -34,10 +37,7 @@ class ColorSchemeManager {
   bool hasRoundedCorners() const { return m_roundedCorners; }
 
  private:
-  /** The colour set for \p colorParam by the colour scheme, or null. */
-  const QColor* findColorParam(const QString& colorParam) const;
-
-  std::unique_ptr<ColorScheme::ColorParams> m_colorParams;
+  mutable std::unique_ptr<ColorScheme::ColorParams> m_colorParams;
   bool m_roundedCorners = true;
 };
 

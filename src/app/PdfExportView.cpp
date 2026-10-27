@@ -96,8 +96,7 @@ bool usesQuality(const QComboBox* box) {
 
 /** The accent color of the color scheme: that of the frame of the selected thumbnail. */
 QColor accentColor() {
-  return ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder",
-                                                      QApplication::palette().color(QPalette::Highlight).darker(150));
+  return ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder");
 }
 
 /**

@@ -1592,11 +1592,7 @@ std::unique_ptr<ThumbnailSequence::LabelGroup> ThumbnailSequence::Impl::getLabel
   auto boldTextItem = std::make_unique<QGraphicsSimpleTextItem>();
   boldTextItem->setText(text);
 
-  const QBrush selectedItemTextColor = ColorSchemeManager::instance().getColorParam(
-      "ThumbnailSequenceSelectedItemText", QApplication::palette().highlightedText());
-  const QBrush selectionLeaderTextColor
-      = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectionLeaderText", selectedItemTextColor);
-  boldTextItem->setBrush(selectionLeaderTextColor);
+  boldTextItem->setBrush(ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectionLeaderText"));
 
   QRectF normalTextBox(normalTextItem->boundingRect());
   QRectF boldTextBox(boldTextItem->boundingRect());
@@ -1760,8 +1756,7 @@ void ThumbnailSequence::LabelGroup::updateAppearence(bool selected, bool selecti
   m_normalLabel->setVisible(!selectionLeader);
   m_boldLabel->setVisible(selectionLeader);
 
-  const QBrush itemTextColor
-      = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceItemText", QApplication::palette().text());
+  const QColor itemTextColor = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceItemText");
 
   // Only the selection leader is drawn on a filled background; other selected pages keep the
   // normal text color and icon.
@@ -1829,12 +1824,10 @@ QRectF ThumbnailSequence::CompositeItem::boundingRect() const {
 void ThumbnailSequence::CompositeItem::paint(QPainter* painter,
                                              const QStyleOptionGraphicsItem* option,
                                              QWidget* widget) {
-  const QBrush selectedItemBackgroundColor = ColorSchemeManager::instance().getColorParam(
-      "ThumbnailSequenceSelectedItemBackground", QApplication::palette().color(QPalette::Highlight));
-  const QBrush selectionLeaderBackgroundColor = ColorSchemeManager::instance().getColorParam(
-      "ThumbnailSequenceSelectionLeaderBackground", selectedItemBackgroundColor);
-  const QColor selectedItemBorderColor = ColorSchemeManager::instance().getColorParam(
-      "ThumbnailSequenceSelectedItemBorder", QApplication::palette().color(QPalette::Highlight).darker(150));
+  const QColor selectionLeaderBackgroundColor
+      = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectionLeaderBackground");
+  const QColor selectedItemBorderColor
+      = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder");
 
   if (!m_item->isSelected()) {
     return;

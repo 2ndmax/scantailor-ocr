@@ -30,8 +30,6 @@ LightColorScheme::LightColorScheme()
     : StyleSheetColorScheme(lightColors(),
                             QString::fromUtf8(":/light_scheme/stylesheet/stylesheet.qss"),
                             DEFAULT_ACCENT_COLOR) {
-  setColorParam("ThumbnailSequenceSelectedItemBackground", QColor("#727272"));
-  setColorParam("ThumbnailSequenceSelectedItemText", Qt::white);
   setColorParam("ThumbnailSequenceItemText", Qt::black);
   setColorParam("ThumbnailSequenceSelectionLeaderBackground", QColor("#4A4A4A"));
   setColorParam("ThumbnailSequenceSelectionLeaderText", Qt::white);

@@ -15,6 +15,7 @@ class TestUxQt : public QObject {
   void testStyledIconFollowsPaletteColor();
   void testThumbnailDoesNotKeepThePreviousOne();
   void testThumbnailBorderIsTheAccentColor();
+  void testColorSchemesSetTheSameParameters();
 };
 
 #endif

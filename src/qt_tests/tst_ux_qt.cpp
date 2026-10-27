@@ -11,6 +11,7 @@
 #include <ImageId.h>
 #include <ImageTransformation.h>
 #include <LightColorScheme.h>
+#include <NativeColorScheme.h>
 #include <StyledIconPack.h>
 #include <ThumbnailBase.h>
 #include <ThumbnailPixmapCache.h>
@@ -24,6 +25,7 @@
 #include <QPainter>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QStringList>
 #include <QTemporaryDir>
 #include <QThread>
 #include <QtTest/QtTest>
@@ -179,4 +181,20 @@ void TestUxQt::testThumbnailBorderIsTheAccentColor() {
   settings.setAccentColor(QColor());
   QCOMPARE(lightBorder, chosen);
   QCOMPARE(darkBorder, chosen);
+}
+
+void TestUxQt::testColorSchemesSetTheSameParameters() {
+  // The call sites have no fallback colors: every scheme sets every parameter.
+  const auto names = [](const ColorScheme& scheme) {
+    QStringList list;
+    for (const auto& [name, color] : *scheme.getColorParams()) {
+      list << name;
+    }
+    list.sort();
+    return list;
+  };
+  const QStringList light = names(LightColorScheme());
+  QVERIFY(!light.isEmpty());
+  QCOMPARE(names(DarkColorScheme()), light);
+  QCOMPARE(names(NativeColorScheme()), light);
 }

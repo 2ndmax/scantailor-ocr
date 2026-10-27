@@ -30,8 +30,6 @@ DarkColorScheme::DarkColorScheme()
     : StyleSheetColorScheme(darkColors(),
                             QString::fromUtf8(":/dark_scheme/stylesheet/stylesheet.qss"),
                             DEFAULT_ACCENT_COLOR) {
-  setColorParam("ThumbnailSequenceSelectedItemBackground", QColor("#424242"));
-  setColorParam("ThumbnailSequenceSelectedItemText", QColor("#DDDDDD"));
   setColorParam("ThumbnailSequenceItemText", QColor("#DDDDDD"));
   setColorParam("ThumbnailSequenceSelectionLeaderBackground", QColor("#7A7A7A"));
   setColorParam("ThumbnailSequenceSelectionLeaderText", Qt::white);

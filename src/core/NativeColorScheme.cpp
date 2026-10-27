@@ -124,8 +124,6 @@ void NativeColorScheme::loadStyleSheet() {
 void NativeColorScheme::loadColorParams() {
   const QPalette palette = QPalette();
 
-  m_customColors["ThumbnailSequenceSelectedItemBackground"] = palette.color(QPalette::Highlight).lighter(130);
-  m_customColors["ThumbnailSequenceSelectedItemText"] = palette.color(QPalette::HighlightedText);
   m_customColors["ThumbnailSequenceItemText"] = palette.color(QPalette::Text);
   m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = palette.color(QPalette::Highlight);
   m_customColors["ThumbnailSequenceSelectionLeaderText"] = palette.color(QPalette::HighlightedText);

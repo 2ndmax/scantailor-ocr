@@ -261,8 +261,7 @@ void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark
   if (mark == INCOMPLETE_MARK) {
     // An hourglass in the accent color, as the frame of the selected thumbnail: two triangles
     // meeting in the middle, closed by a bar at the top and at the bottom.
-    const QColor accent = ColorSchemeManager::instance().getColorParam(
-        "ThumbnailSequenceSelectedItemBorder", QApplication::palette().color(QPalette::Highlight).darker(150));
+    const QColor accent = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder");
     const double x0 = square.left() + s * 0.28;
     const double x1 = square.right() - s * 0.28;
     const double y0 = square.top() + s * 0.2;
