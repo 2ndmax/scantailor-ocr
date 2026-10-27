@@ -25,7 +25,7 @@ Or run each suite separately:
 On Windows, `qt_tests` writes nothing to the console; its results go to files with
 `qt_tests -o results.txt,txt`. Each test class writes a file of its own, with its name
 appended: `results_TestCoreQt.txt`, `results_TestUxQt.txt`, `results_TestDeskewQt.txt`,
-`results_TestFixOrientationQt.txt` and `results_TestEndToEndQt.txt`. Test functions named
+`results_TestFixOrientationQt.txt`, `results_TestSelectContentQt.txt` and `results_TestEndToEndQt.txt`. Test functions named
 on the command line run only in the class that has them.
 Without a screen, as in the CI, set `QT_QPA_PLATFORM=offscreen` only together with
 `QT_PLUGIN_PATH` pointing to the Qt plugins of vcpkg (`installed\x64-windows\Qt6\plugins`):
@@ -71,9 +71,14 @@ without the offscreen plugin, `qt_tests` hangs without a message.
   - **testCollapsibleGroupBoxStateAndSignal**: project widget: collapsed/expanded state and the `collapsedStateChanged` signal.
   - **testCollapsedStateIsLoadedForGroupDisabledAtStart**: a group that is disabled when first shown still gets its saved collapsed state.
   - **testErrorWidgetShowsItsText**: an `ErrorWidget` passes its text and text format to its label (without showing a window).
+  - **testStyledIconFollowsPaletteColor**: styled icons keep their colored renderer, but take a new palette color.
+  - **testThumbnailDoesNotKeepThePreviousOne**: a thumbnail looks the same whichever was painted before it through the shared temporary pixmap.
+  - **testThumbnailBorderIsTheAccentColor**: the selected thumbnail and its marks take the scheme's or the chosen accent color.
+  - **testColorSchemesSetTheSameParameters**: Light, Dark and the native scheme set every color parameter.
 
 - **Deskew step (TestDeskewQt)**: automatic and manual oblique correction, applying it to other pages, the Apply button waiting for the page.
 - **Fix Orientation step (TestFixOrientationQt)**: saving a zero rotation, trim fields following the rotation and keeping their values on a page switch, the view following changes while loading.
+- **Select Content step (TestSelectContentQt)**: changed detection settings make the task detect the content box again, going back to those it was detected with does not, also for pages from before these settings.
 - **End-to-end test (TestEndToEndQt)**: see below.
 
 The UX tests use `QApplication` and can simulate interaction (clicks, keyboard) without opening windows; they serve as a basis for extending coverage to more widgets or dialogs.
