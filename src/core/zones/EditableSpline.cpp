@@ -33,7 +33,7 @@ void EditableSpline::appendVertex(const QPointF& pt) {
 }
 
 bool EditableSpline::hasAtLeastSegments(int num) const {
-  for (SegmentIterator it((EditableSpline&) *this); num > 0 && it.hasNext(); it.next()) {
+  for (SegmentIterator it(*this); num > 0 && it.hasNext(); it.next()) {
     --num;
   }
   return num == 0;

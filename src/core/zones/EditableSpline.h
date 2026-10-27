@@ -18,7 +18,7 @@ class EditableSpline {
 
   class SegmentIterator {
    public:
-    explicit SegmentIterator(EditableSpline& spline) : m_nextVertex(spline.firstVertex()) {}
+    explicit SegmentIterator(const EditableSpline& spline) : m_nextVertex(spline.firstVertex()) {}
 
     bool hasNext() const;
 
