@@ -199,6 +199,18 @@ Margins Utils::calcSoftMarginsMM(const QSizeF& hardSizeMm,
   return Margins(left, top, right, bottom);
 }  // Utils::calcSoftMarginsMM
 
+double Utils::calcScaleFactor(const OutputSizeOptions& outputSizeOptions,
+                              const Params& params,
+                              const QSizeF& contentSizeMm,
+                              const Margins& hardMarginsMm,
+                              const Alignment& alignment,
+                              const QSizeF& aggregateHardSizeMm) {
+  if (params.contentSizeMM().isEmpty()) {
+    return 1.0;
+  }
+  return outputSizeOptions.scaleFactor(contentSizeMm, hardMarginsMm, alignment, aggregateHardSizeMm);
+}
+
 QPolygonF Utils::calcPageRectPhys(const ImageTransformation& xform,
                                   const QPolygonF& contentRectPhys,
                                   const Params& params,
@@ -209,12 +221,8 @@ QPolygonF Utils::calcPageRectPhys(const ImageTransformation& xform,
 
   QPolygonF polyMm(pixelsToMmTransform.map(contentRectPhys));
   const QSizeF contentSizeMm(QLineF(polyMm[0], polyMm[1]).length(), QLineF(polyMm[0], polyMm[3]).length());
-  // A page without content comes with a tiny stand-in rect (adaptContentRect()) that would be
-  // scaled up to the maximum; such a page is not scaled, as the options panel shows.
-  const double factor = params.contentSizeMM().isEmpty()
-                            ? 1.0
-                            : outputSizeOptions.scaleFactor(contentSizeMm, params.hardMarginsMM(), params.alignment(),
-                                                            aggregateHardSizeMm);
+  const double factor = calcScaleFactor(outputSizeOptions, params, contentSizeMm, params.hardMarginsMM(),
+                                        params.alignment(), aggregateHardSizeMm);
   if (scaleFactor) {
     *scaleFactor = factor;
   }

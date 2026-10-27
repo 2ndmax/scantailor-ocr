@@ -132,6 +132,20 @@ BOOST_AUTO_TEST_CASE(page_without_content_is_not_scaled) {
   BOOST_CHECK_CLOSE(pageRect.height(), 2300.0, 1e-6);
 }
 
+BOOST_AUTO_TEST_CASE(only_the_stored_content_size_decides_whether_a_page_has_content) {
+  // The view and the options panel pass other sizes than the output; the rule is the same for all.
+  const QSizeF standInMm(0.002, 0.002);
+  const Params noContent(MARGINS_MM, QRectF(), QRectF(), QSizeF(0, 0), scaling(), false);
+  BOOST_CHECK_EQUAL(
+      Utils::calcScaleFactor(OutputSizeOptions(), noContent, standInMm, MARGINS_MM, scaling(), QSizeF(160, 230)), 1.0);
+
+  // Tiny content is still content: scaled up to the maximum enlargement, as in the output.
+  const Params tinyContent(MARGINS_MM, QRectF(), QRectF(), standInMm, scaling(), false);
+  BOOST_CHECK_GT(
+      Utils::calcScaleFactor(OutputSizeOptions(), tinyContent, standInMm, MARGINS_MM, scaling(), QSizeF(160, 230)),
+      1.0);
+}
+
 BOOST_AUTO_TEST_CASE(options_and_alignment_are_stored_only_when_used) {
   QDomDocument doc;
   BOOST_CHECK(OutputSizeOptions().isDefault());

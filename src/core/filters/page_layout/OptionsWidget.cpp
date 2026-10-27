@@ -18,6 +18,7 @@
 #include "Params.h"
 #include "ProjectPages.h"
 #include "Settings.h"
+#include "Utils.h"
 
 using namespace core;
 
@@ -44,15 +45,15 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   updateLinkDisplay(leftRightLink, m_leftRightLinked);
   updateAlignmentButtonsEnabled();
 
-  Utils::mapSetValue(m_alignmentByButton, alignTopLeftBtn, Alignment(Alignment::TOP, Alignment::LEFT));
-  Utils::mapSetValue(m_alignmentByButton, alignTopBtn, Alignment(Alignment::TOP, Alignment::HCENTER));
-  Utils::mapSetValue(m_alignmentByButton, alignTopRightBtn, Alignment(Alignment::TOP, Alignment::RIGHT));
-  Utils::mapSetValue(m_alignmentByButton, alignLeftBtn, Alignment(Alignment::VCENTER, Alignment::LEFT));
-  Utils::mapSetValue(m_alignmentByButton, alignCenterBtn, Alignment(Alignment::VCENTER, Alignment::HCENTER));
-  Utils::mapSetValue(m_alignmentByButton, alignRightBtn, Alignment(Alignment::VCENTER, Alignment::RIGHT));
-  Utils::mapSetValue(m_alignmentByButton, alignBottomLeftBtn, Alignment(Alignment::BOTTOM, Alignment::LEFT));
-  Utils::mapSetValue(m_alignmentByButton, alignBottomBtn, Alignment(Alignment::BOTTOM, Alignment::HCENTER));
-  Utils::mapSetValue(m_alignmentByButton, alignBottomRightBtn, Alignment(Alignment::BOTTOM, Alignment::RIGHT));
+  core::Utils::mapSetValue(m_alignmentByButton, alignTopLeftBtn, Alignment(Alignment::TOP, Alignment::LEFT));
+  core::Utils::mapSetValue(m_alignmentByButton, alignTopBtn, Alignment(Alignment::TOP, Alignment::HCENTER));
+  core::Utils::mapSetValue(m_alignmentByButton, alignTopRightBtn, Alignment(Alignment::TOP, Alignment::RIGHT));
+  core::Utils::mapSetValue(m_alignmentByButton, alignLeftBtn, Alignment(Alignment::VCENTER, Alignment::LEFT));
+  core::Utils::mapSetValue(m_alignmentByButton, alignCenterBtn, Alignment(Alignment::VCENTER, Alignment::HCENTER));
+  core::Utils::mapSetValue(m_alignmentByButton, alignRightBtn, Alignment(Alignment::VCENTER, Alignment::RIGHT));
+  core::Utils::mapSetValue(m_alignmentByButton, alignBottomLeftBtn, Alignment(Alignment::BOTTOM, Alignment::LEFT));
+  core::Utils::mapSetValue(m_alignmentByButton, alignBottomBtn, Alignment(Alignment::BOTTOM, Alignment::HCENTER));
+  core::Utils::mapSetValue(m_alignmentByButton, alignBottomRightBtn, Alignment(Alignment::BOTTOM, Alignment::RIGHT));
 
   m_alignmentButtonGroup = new QButtonGroup(this);
   for (const auto& buttonAndAlignment : m_alignmentByButton) {
@@ -298,8 +299,8 @@ void OptionsWidget::updateScaleFactorDisplay() {
   double factor = 1.0;
   const std::unique_ptr<Params> params(m_settings->getPageParams(m_pageId));
   if (params) {
-    factor = m_settings->outputSizeOptions().scaleFactor(params->contentSizeMM(), m_marginsMM, m_alignment,
-                                                         m_settings->getAggregateHardSizeMM());
+    factor = Utils::calcScaleFactor(m_settings->outputSizeOptions(), *params, params->contentSizeMM(), m_marginsMM,
+                                    m_alignment, m_settings->getAggregateHardSizeMM());
   }
   scaleFactorValue->setText(QString("%1 %").arg(std::round(factor * 100)));
   scaleFactorLabel->setEnabled(!m_alignment.isNull());

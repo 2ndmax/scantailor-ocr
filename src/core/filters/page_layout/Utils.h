@@ -90,6 +90,23 @@ class Utils {
                                     const OutputSizeOptions& outputSizeOptions = OutputSizeOptions(),
                                     double* scaleFactor = nullptr);
 
+  /**
+   * \brief The factor the content of a page is scaled by to fit the output size.
+   *
+   * The one rule for the output (calcPageRectPhys()), the view and the options panel: a page
+   * without content, that is an empty content size in \p params, is not scaled. Its content rect
+   * is only a tiny stand-in (adaptContentRect()) that would be scaled up to the maximum.
+   *
+   * \param contentSizeMm The size of the content rect the page is laid out with.
+   * \param hardMarginsMm, alignment The ones of \p params, or the ones being edited.
+   */
+  static double calcScaleFactor(const OutputSizeOptions& outputSizeOptions,
+                                const Params& params,
+                                const QSizeF& contentSizeMm,
+                                const Margins& hardMarginsMm,
+                                const Alignment& alignment,
+                                const QSizeF& aggregateHardSizeMm);
+
   static QPolygonF shiftToRoundedOrigin(const QPolygonF& poly);
 
   static Params buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams);
