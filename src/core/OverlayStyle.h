@@ -16,7 +16,7 @@
 namespace OverlayStyle {
 /** How strong a line is drawn. Each place picks the level of its role, not a width of its own. */
 enum class Line {
-  /** Grids and orientation lines over the text, resting zone outlines: 2 pixels. */
+  /** Grids and orientation lines over the text, resting zone outlines, color picker, crosshair: 2 pixels. */
   Fine,
   /** Editable borders on the page (split line, boxes, margins, guides), a zone being edited: 3 pixels. */
   Normal,
@@ -32,10 +32,16 @@ qreal lineWidth(Line line);
 /** A cosmetic pen (same width at any zoom) of the given color and line level. */
 QPen pen(const QColor& color, Line line);
 
-/** Lines, boxes and tints of the main element: grids, arcs, split lines, content box, margins. */
+/**
+ * Lines, boxes and tints of the main element: grids, arcs, split lines, content box, margins,
+ * the highlighted zone, the picture zone mask.
+ */
 QColor primary(int alpha = 255);
 
-/** The second element where two must be told apart: page box, right page, aligned margins, guides. */
+/**
+ * The second element where two must be told apart: page box, right page, aligned margins, guides,
+ * resting zones, the color picker, the crosshair in the output, the dewarping control points.
+ */
 QColor secondary(int alpha = 255);
 
 /** A page that is removed. */

@@ -124,8 +124,8 @@ make -j$(nproc)
 * `-DBUILD_TESTS=OFF` – don't build the unit tests.
 * `-DBUILD_DEV_TOOLS=ON` – also build the developer tools `binarization_compare` (compares the
   binarization methods), `color_detect` (color mode detection on sample pages), `split_compare`
-  (split line detection methods) and `oblique_compare` (oblique detection on synthetic pages, see
-  [TESTING.md](TESTING.md)).
+  (split line detection methods) and `oblique_compare` (oblique detection on synthetic pages or,
+  with `--images`, on real scans; see [TESTING.md](TESTING.md)).
 * `-DTIFF_REQUIRED_CODECS=...` / `-DTIFF_RECOMMENDED_CODECS=...` – the TIFF compression schemes
   libtiff has to / should support (defaults: `LZW;PACKBITS;CCITT;JPEG;OJPEG;DEFLATE;LZMA` /
   `ZSTD;WEBP;LERC`). `-DSKIP_TIFF_CODEC_CHECK=ON` skips the check.
