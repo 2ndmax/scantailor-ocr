@@ -59,7 +59,7 @@ class StyleSheetColorScheme : public ColorScheme {
 
   void loadStyleSheet(const QString& path, const char* defaultAccentColor);
 
-  void loadCommonColorParams();
+  void loadCommonColorParams(const char* defaultAccentColor);
 
   QPalette m_palette;
   QString m_styleSheet;

@@ -3,11 +3,14 @@
 
 #include "tst_ux_qt.h"
 
+#include <ApplicationSettings.h>
 #include <CollapsibleGroupBox.h>
+#include <DarkColorScheme.h>
 #include <Dpi.h>
 #include <ErrorWidget.h>
 #include <ImageId.h>
 #include <ImageTransformation.h>
+#include <LightColorScheme.h>
 #include <StyledIconPack.h>
 #include <ThumbnailBase.h>
 #include <ThumbnailPixmapCache.h>
@@ -158,4 +161,22 @@ void TestUxQt::testThumbnailDoesNotKeepThePreviousOne() {
   const QImage lightAlone = paintThumbnail(lightThumb);
   paintThumbnail(darkThumb);
   QCOMPARE(paintThumbnail(lightThumb), lightAlone);
+}
+
+void TestUxQt::testThumbnailBorderIsTheAccentColor() {
+  // The selected thumbnail and the marks take the accent color of the scheme, or the chosen one.
+  const auto border
+      = [](const ColorScheme& scheme) { return scheme.getColorParams()->at("ThumbnailSequenceSelectedItemBorder"); };
+  ApplicationSettings& settings = ApplicationSettings::getInstance();
+  settings.setAccentColor(QColor());
+  QCOMPARE(border(LightColorScheme()), QColor(LightColorScheme::DEFAULT_ACCENT_COLOR));
+  QCOMPARE(border(DarkColorScheme()), QColor(DarkColorScheme::DEFAULT_ACCENT_COLOR));
+
+  const QColor chosen(0x12, 0x9a, 0x45);
+  settings.setAccentColor(chosen);
+  const QColor lightBorder = border(LightColorScheme());
+  const QColor darkBorder = border(DarkColorScheme());
+  settings.setAccentColor(QColor());
+  QCOMPARE(lightBorder, chosen);
+  QCOMPARE(darkBorder, chosen);
 }

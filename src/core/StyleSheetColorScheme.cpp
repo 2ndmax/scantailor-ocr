@@ -17,7 +17,7 @@ StyleSheetColorScheme::StyleSheetColorScheme(const BaseColors& colors,
                                              const char* defaultAccentColor) {
   loadPalette(colors);
   loadStyleSheet(styleSheetPath, defaultAccentColor);
-  loadCommonColorParams();
+  loadCommonColorParams(defaultAccentColor);
 }
 
 const QPalette* StyleSheetColorScheme::getPalette() const {
@@ -87,9 +87,11 @@ void StyleSheetColorScheme::loadStyleSheet(const QString& path, const char* defa
 #endif
 }
 
-void StyleSheetColorScheme::loadCommonColorParams() {
+void StyleSheetColorScheme::loadCommonColorParams(const char* defaultAccentColor) {
+  // The selected thumbnail and the marks on thumbnails are drawn in the accent color, as the borders of
+  // focused controls in the style sheet are.
   const QColor accent = ApplicationSettings::getInstance().getAccentColor();
-  m_customColors["ThumbnailSequenceSelectedItemBorder"] = accent.isValid() ? accent : QColor("#3399ff");
+  m_customColors["ThumbnailSequenceSelectedItemBorder"] = accent.isValid() ? accent : QColor(defaultAccentColor);
   m_customColors["ProcessingIndicationHead"] = m_palette.color(QPalette::WindowText);
   m_customColors["ProcessingIndicationTail"] = m_palette.color(QPalette::Highlight);
   m_customColors["StageListHead"] = m_customColors.at("ProcessingIndicationHead");
