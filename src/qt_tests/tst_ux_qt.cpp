@@ -4,19 +4,29 @@
 #include "tst_ux_qt.h"
 
 #include <CollapsibleGroupBox.h>
+#include <Dpi.h>
 #include <ErrorWidget.h>
+#include <ImageId.h>
+#include <ImageTransformation.h>
 #include <StyledIconPack.h>
+#include <ThumbnailBase.h>
+#include <ThumbnailPixmapCache.h>
 
+#include <QElapsedTimer>
 #include <QFile>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QLabel>
 #include <QList>
+#include <QPainter>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QTemporaryDir>
+#include <QThread>
 #include <QtTest/QtTest>
 #include <algorithm>
+#include <cmath>
+#include <memory>
 
 void TestUxQt::testCollapsibleGroupBoxStateAndSignal() {
   CollapsibleGroupBox group("Options");
@@ -93,4 +103,59 @@ void TestUxQt::testStyledIconFollowsPaletteColor() {
 
   QCOMPARE(first, QColor(0x20, 0x80, 0x40));
   QCOMPARE(second, QColor(0xa0, 0x10, 0x10));
+}
+
+namespace {
+/** An image that is a thumbnail in \p cache, once its background loading has finished. */
+bool addLoadedThumbnail(ThumbnailPixmapCache& cache, const ImageId& id, const QImage& image) {
+  if (!image.save(id.filePath())) {
+    return false;
+  }
+  cache.ensureThumbnailExists(id, image);
+  QElapsedTimer wait;
+  wait.start();
+  QPixmap loaded;
+  while (cache.loadRequest(id, loaded, {}) != ThumbnailPixmapCache::LOADED && wait.elapsed() < 10000) {
+    QCoreApplication::processEvents();
+    QThread::msleep(10);
+  }
+  return !loaded.isNull();
+}
+
+QImage paintThumbnail(ThumbnailBase& thumb) {
+  const QRectF bounds = thumb.boundingRect();
+  QImage target(int(std::ceil(bounds.width())) + 4, int(std::ceil(bounds.height())) + 4,
+                QImage::Format_ARGB32_Premultiplied);
+  target.fill(Qt::white);
+  QPainter painter(&target);
+  thumb.paint(&painter, nullptr, nullptr);
+  painter.end();
+  return target;
+}
+}  // namespace
+
+void TestUxQt::testThumbnailDoesNotKeepThePreviousOne() {
+  // All thumbnails are drawn through one temporary pixmap; what one leaves there must not show
+  // in the next, e.g. at the antialiased edges of a deskewed page.
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  auto cache = std::make_shared<ThumbnailPixmapCache>(dir.path(), QSize(250, 250), 100, 5);
+  QImage dark(2000, 3000, QImage::Format_RGB32);
+  dark.fill(qRgb(0x10, 0x20, 0x30));
+  QImage light(2000, 3000, QImage::Format_RGB32);
+  light.fill(qRgb(0xf0, 0xe0, 0xd0));
+  const ImageId darkId(dir.filePath("dark.png"));
+  const ImageId lightId(dir.filePath("light.png"));
+  QVERIFY(addLoadedThumbnail(*cache, darkId, dark));
+  QVERIFY(addLoadedThumbnail(*cache, lightId, light));
+
+  ImageTransformation xform(QRectF(0, 0, 2000, 3000), Dpi(300, 300));
+  xform.setPostRotation(3.0);
+  ThumbnailBase darkThumb(cache, QSizeF(250, 250), darkId, xform);
+  ThumbnailBase lightThumb(cache, QSizeF(250, 250), lightId, xform);
+
+  paintThumbnail(lightThumb);
+  const QImage lightAlone = paintThumbnail(lightThumb);
+  paintThumbnail(darkThumb);
+  QCOMPARE(paintThumbnail(lightThumb), lightAlone);
 }

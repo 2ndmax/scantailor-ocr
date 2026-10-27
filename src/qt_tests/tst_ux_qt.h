@@ -13,6 +13,7 @@ class TestUxQt : public QObject {
   void testCollapsedStateIsLoadedForGroupDisabledAtStart();
   void testErrorWidgetShowsItsText();
   void testStyledIconFollowsPaletteColor();
+  void testThumbnailDoesNotKeepThePreviousOne();
 };
 
 #endif
