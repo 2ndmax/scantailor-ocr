@@ -15,12 +15,12 @@ using namespace core;
 StyleSheetColorScheme::StyleSheetColorScheme(const Colors& colors,
                                              const QString& styleSheetPath,
                                              const char* defaultAccentColor) {
-  // Selections in the palette, the selected thumbnail and the marks on thumbnails take the accent color,
-  // as the style sheet does.
+  // The palette carries the accent color to the style sheet (palette(highlight)), to selections and to
+  // the thumbnails.
   const QColor chosenAccent = ApplicationSettings::getInstance().getAccentColor();
   const QColor accent = chosenAccent.isValid() ? chosenAccent : QColor(defaultAccentColor);
   loadPalette(colors, accent);
-  loadStyleSheet(styleSheetPath, defaultAccentColor);
+  loadStyleSheet(styleSheetPath);
   loadColorParams(colors, accent);
 }
 
@@ -67,13 +67,12 @@ void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& acce
   m_palette.setColor(QPalette::Disabled, QPalette::HighlightedText, colors.disabledText);
 }
 
-void StyleSheetColorScheme::loadStyleSheet(const QString& path, const char* defaultAccentColor) {
+void StyleSheetColorScheme::loadStyleSheet(const QString& path) {
   QFile styleSheetFile(path);
   if (styleSheetFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     m_styleSheet = styleSheetFile.readAll();
     styleSheetFile.close();
   }
-  m_styleSheet = Utils::qssApplyAccentColor(m_styleSheet, defaultAccentColor);
 
 #ifdef _WIN32
   m_styleSheet = Utils::qssConvertPxToEm(m_styleSheet, 13, 4);

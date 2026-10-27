@@ -115,16 +115,6 @@ QString Utils::qssConvertPxToEm(const QString& stylesheet, const double base, co
   return result;
 }
 
-QString Utils::qssApplyAccentColor(const QString& stylesheet, const QString& defaultAccentColor) {
-  const QColor accent = ApplicationSettings::getInstance().getAccentColor();
-  if (!accent.isValid()) {
-    return stylesheet;
-  }
-  QString result = stylesheet;
-  result.replace(defaultAccentColor, accent.name(), Qt::CaseInsensitive);
-  return result;
-}
-
 QString Utils::dpiText(const int dpi) {
   return QStringLiteral("%1 dpi").arg(dpi);
 }

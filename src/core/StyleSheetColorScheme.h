@@ -44,14 +44,14 @@ class StyleSheetColorScheme : public ColorScheme {
  protected:
   /**
    * \param styleSheetPath The style sheet in the resources.
-   * \param defaultAccentColor The accent color in the style sheet; the one the user chose replaces it.
+   * \param defaultAccentColor The accent color unless the user chose another one.
    */
   StyleSheetColorScheme(const Colors& colors, const QString& styleSheetPath, const char* defaultAccentColor);
 
  private:
   void loadPalette(const Colors& colors, const QColor& accent);
 
-  void loadStyleSheet(const QString& path, const char* defaultAccentColor);
+  void loadStyleSheet(const QString& path);
 
   void loadColorParams(const Colors& colors, const QColor& accent);
 

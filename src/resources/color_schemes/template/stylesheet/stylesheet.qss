@@ -16,8 +16,8 @@ QLineEdit, QListView {
   min-height: 17px;
   min-width: 17px;
   text-align: center;
-  selection-background-color: {{accent}};
-  selection-color: {{textOnAccent}};
+  selection-background-color: palette(highlight);
+  selection-color: palette(highlighted-text);
 }
 
 QToolButton {
@@ -37,16 +37,16 @@ QPushButton:default, QToolButton:default {
 }
 
 QPushButton:hover, QToolButton:hover, QPushButton:active:focus, QToolButton:active:focus, QLineEdit:active:focus {
-  border-color: {{accent}};
+  border-color: palette(highlight);
 }
 
 QPushButton:pressed, QToolButton:pressed, QPushButton:checked:active:focus, QToolButton:checked:active:focus {
-  border-color: {{accent}};
+  border-color: palette(highlight);
   background-color: {{pressed}};
 }
 
 QPushButton:checked, QToolButton:checked {
-  border-color: {{accent}};
+  border-color: palette(highlight);
   background-color: {{pressed}};
 }
 
@@ -87,11 +87,11 @@ QMenu::indicator:non-exclusive:unchecked, QMenu::indicator:non-exclusive:uncheck
 
 QCheckBox::indicator:unchecked:hover, QTreeView::indicator:unchecked:hover, QTableView::indicator:unchecked:hover, QGroupBox::indicator:unchecked:hover,
 QCheckBox::indicator:unchecked:active:focus, QTreeView::indicator:unchecked:active:focus, QTableView::indicator:unchecked:active:focus, QGroupBox::indicator:unchecked:active:focus {
-  border-color: {{accent}};
+  border-color: palette(highlight);
 }
 
 QCheckBox::indicator:unchecked:pressed, QTreeView::indicator:unchecked:pressed, QTableView::indicator:unchecked:pressed, QGroupBox::indicator:unchecked:pressed {
-  border-color: {{accent}};
+  border-color: palette(highlight);
   background-color: {{pressed}};
 }
 
@@ -103,7 +103,7 @@ QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled
 QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked, QGroupBox::indicator:checked,
 QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate, QGroupBox::indicator:indeterminate,
 QMenu::indicator:non-exclusive:checked {
-  background-color: {{accent}};
+  background-color: palette(highlight);
   border-radius: 1.75px;
 }
 
@@ -122,17 +122,17 @@ QGroupBox::indicator:indeterminate:hover,
 QCheckBox::indicator:checked:active:focus, QTreeView::indicator:checked:active:focus, QTableView::indicator:checked:active:focus, QGroupBox::indicator:checked:active:focus,
 QCheckBox::indicator:indeterminate:active:focus, QTreeView::indicator:indeterminate:active:focus, QTableView::indicator:indeterminate:active:focus,
 QGroupBox::indicator:indeterminate:active:focus {
-  border: 1px solid {{accent}};
+  border: 1px solid palette(highlight);
   margin: 0px;
   border-radius: 2.75px;
 }
 
 QCheckBox::indicator:checked:pressed, QTreeView::indicator:checked:pressed, QTableView::indicator:checked:pressed, QGroupBox::indicator:checked:pressed,
 QCheckBox::indicator:indeterminate:pressed, QTreeView::indicator:indeterminate:pressed, QTableView::indicator:indeterminate:pressed, QGroupBox::indicator:indeterminate:pressed {
-  border: 1px solid {{accent}};
+  border: 1px solid palette(highlight);
   margin: 0px;
   border-radius: 2.75px;
-  background-color: {{accent}};
+  background-color: palette(highlight);
 }
 
 QCheckBox::indicator:checked:pressed, QTreeView::indicator:checked:pressed, QTableView::indicator:checked:pressed, QGroupBox::indicator:checked:pressed {
@@ -171,11 +171,11 @@ QMenu::indicator:exclusive:unchecked, QMenu::indicator:exclusive:unchecked:selec
 }
 
 QRadioButton::indicator:unchecked:hover, QRadioButton::indicator:unchecked:active:focus {
-  border-color: {{accent}};
+  border-color: palette(highlight);
 }
 
 QRadioButton::indicator:unchecked:pressed {
-  border-color: {{accent}};
+  border-color: palette(highlight);
   background-color: {{pressed}};
 }
 
@@ -186,22 +186,22 @@ QRadioButton::indicator:unchecked:disabled {
 
 QRadioButton::indicator:checked,
 QMenu::indicator:exclusive:checked {
-  background-color: {{accent}};
+  background-color: palette(highlight);
   border-radius: 6.75px;
   image: url(:/{{scheme}}_scheme/icons/radiobutton_checked.svg);
 }
 
 QRadioButton::indicator:checked:hover, QRadioButton::indicator:checked:active:focus {
-  border: 1px solid {{accent}};
+  border: 1px solid palette(highlight);
   margin: 0px;
   border-radius: 7.5px;
 }
 
 QRadioButton::indicator:checked:pressed {
-  border: 1px solid {{accent}};
+  border: 1px solid palette(highlight);
   margin: 0px;
   border-radius: 7.5px;
-  background-color: {{accent}};
+  background-color: palette(highlight);
   image: url(:/{{scheme}}_scheme/icons/radiobutton_checked_pressed.svg);
 }
 
@@ -219,7 +219,7 @@ QProgressBar {
 }
 
 QProgressBar::chunk {
-  background-color: {{accent}};
+  background-color: palette(highlight);
   border-radius: 6.75px;
 }
 
@@ -248,7 +248,7 @@ QGraphicsView {
 
 QGroupBox#recentProjectsGroup {
   background-color: transparent;
-  border: 1px solid {{accent}};
+  border: 1px solid palette(highlight);
   border-radius: 0px;
   margin-top: 0.75em;  /* half the title height: the line runs through the middle of the title */
   padding-top: 0.5em;
@@ -498,8 +498,8 @@ QComboBox {
   padding: 1px 0px 1px 8px;
   min-height: 17px;
   min-width: 17px;
-  selection-background-color: {{accent}};
-  selection-color: {{textOnAccent}};
+  selection-background-color: palette(highlight);
+  selection-color: palette(highlighted-text);
 }
 
 QComboBox:editable {
@@ -512,11 +512,11 @@ QComboBox:disabled, QAbstractSpinBox:disabled {
 }
 
 QComboBox:hover, QComboBox:active:focus, QAbstractSpinBox:active:focus {
-  border-color: {{accent}};
+  border-color: palette(highlight);
 }
 
 QComboBox:on {
-  border-color: {{accent}};
+  border-color: palette(highlight);
   background-color: {{pressed}};
 }
 
@@ -535,8 +535,8 @@ QComboBox::down-arrow {
 QComboBox QAbstractItemView {
   border: none;
   padding: 1px 1px 1px 1px;
-  selection-background-color: {{accent}};
-  selection-color: {{textOnAccent}};
+  selection-background-color: palette(highlight);
+  selection-color: palette(highlighted-text);
 }
 
 QAbstractSpinBox {
@@ -545,8 +545,8 @@ QAbstractSpinBox {
   border-radius: 0px;
   padding: 1px 3px 1px 3px;
   min-height: 17px;
-  selection-background-color: {{accent}};
-  selection-color: {{textOnAccent}};
+  selection-background-color: palette(highlight);
+  selection-color: palette(highlighted-text);
 }
 
 QAbstractSpinBox::up-button {

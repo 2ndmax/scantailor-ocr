@@ -2,7 +2,7 @@
 # "role = #rrggbb".
 #
 # The two schemes share one style sheet and one set of icons, in src/resources/color_schemes/template.
-# Their colors are placeholders such as {{accent}}, which become the color of that role.
+# Their colors are placeholders such as {{border}}, which become the color of that role.
 # {{scheme}} becomes the name of the scheme, which is also the prefix of its resources.
 # The scheme class reads its palette and color parameters from the header
 # color_schemes/<scheme>_scheme_colors.h, which has a constant for every role, in the namespace
@@ -42,14 +42,6 @@ function(generate_color_scheme scheme qrc_var)
     string(APPEND header "inline constexpr const char* ${CMAKE_MATCH_1} = \"${CMAKE_MATCH_2}\";\n")
   endforeach()
   string(APPEND header "}  // namespace ${scheme}_scheme_colors\n")
-  # A chosen accent color replaces the text of the accent everywhere in the style sheet.
-  string(TOLOWER "${color_accent}" accent)
-  foreach(role IN LISTS roles)
-    string(TOLOWER "${color_${role}}" color)
-    if(NOT role STREQUAL "accent" AND color STREQUAL accent)
-      message(FATAL_ERROR "${colors_file}: ${role} has the color of the accent, which a chosen accent color would replace")
-    endif()
-  endforeach()
   write_if_changed("${CMAKE_BINARY_DIR}/color_schemes/${scheme}_scheme_colors.h" "${header}")
 
   file(GLOB_RECURSE templates RELATIVE "${template_dir}" CONFIGURE_DEPENDS "${template_dir}/*")

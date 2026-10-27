@@ -32,8 +32,8 @@ textOnAccent = #ffffff
 error = #d40000
 
 # Focus, hover and pressed borders, selected text and items, checked boxes, progress, the selected
-# thumbnail. A chosen accent color replaces this value wherever it is in the style sheet, so no other
-# color of this table may have it.
+# thumbnail. The style sheet takes it from the palette (palette(highlight)), and so does a chosen
+# accent color.
 accent = #1d73df
 
 # Links in messages.
