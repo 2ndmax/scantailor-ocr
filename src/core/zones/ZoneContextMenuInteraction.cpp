@@ -21,6 +21,8 @@ QPoint contextMenuScreenPos(const ZoneInteractionContext& context) {
 }
 }  // namespace
 
+// REVIEW-NOTE (2026-10): each comparison builds both polygons again -> O(n log n) polygon copies per sort.
+// Not fixed because only the zones under the cursor are sorted, once per context menu.
 class ZoneContextMenuInteraction::OrderByArea {
  public:
   bool operator()(const EditableZoneSet::Zone& lhs, const EditableZoneSet::Zone& rhs) const {

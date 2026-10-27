@@ -153,6 +153,8 @@ ImageViewBase::ImageViewBase(const QImage& image,
    */
   viewport()->setAutoFillBackground(false);
 
+  // REVIEW-NOTE (2026-10): every view gets its own QOpenGLWidget -> one OpenGL context per open view.
+  // Not fixed because OpenGL is off by default and only one or two views are open at a time.
   if (ApplicationSettings::getInstance().isOpenGlEnabled()) {
     if (OpenGLSupport::supported()) {
       setViewport(new QOpenGLWidget());

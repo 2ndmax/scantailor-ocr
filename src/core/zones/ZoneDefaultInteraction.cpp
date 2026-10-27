@@ -107,6 +107,8 @@ void ZoneDefaultInteraction::onProximityUpdate(const QPointF& mousePos, Interact
   for (const EditableZoneSet::Zone& zone : m_context.zones()) {
     const EditableSpline::Ptr& spline = zone.spline();
 
+    // REVIEW-NOTE (2026-10): a new polygon per zone and mouse move, only for containsPoint() -> one allocation
+    // per zone on every move. Not fixed because a page has few zones with few vertices.
     if (spline->toPolygon().containsPoint(imageMousePos, Qt::WindingFill)) {
       m_splineUnderMouse = spline;
     }
