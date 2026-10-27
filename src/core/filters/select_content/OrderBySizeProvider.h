@@ -6,35 +6,19 @@
 
 #include <QSizeF>
 #include <memory>
-#include <vector>
 
-#include "PageOrderProvider.h"
+#include "OrderBySizeProviderBase.h"
 #include "Settings.h"
 
 namespace select_content {
 /** Orders pages by the width or the height of their content box. */
-class OrderBySizeProvider : public PageOrderProvider {
+class OrderBySizeProvider : public OrderBySizeProviderBase {
  public:
-  enum Dimension { WIDTH, HEIGHT };
-
   OrderBySizeProvider(std::shared_ptr<Settings> settings, Dimension dimension);
-
-  bool precedes(const PageId& lhsPage, bool lhsIncomplete, const PageId& rhsPage, bool rhsIncomplete) const override;
-
-  Comparator snapshot(const std::vector<PageId>& pages) const override;
 
  private:
   /** The size of the content box; invalid if unknown. */
   static QSizeF sizeOf(const Settings& settings, const PageId& page);
-
-  static bool compare(Dimension dimension,
-                      const QSizeF& lhsSize,
-                      bool lhsIncomplete,
-                      const QSizeF& rhsSize,
-                      bool rhsIncomplete);
-
-  std::shared_ptr<Settings> m_settings;
-  Dimension m_dimension;
 };
 }  // namespace select_content
 #endif

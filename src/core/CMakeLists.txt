@@ -112,6 +112,7 @@ set(common_sources
     ImageSettings.cpp ImageSettings.h
     NullTaskStatus.h
     OrderByCompletenessProvider.cpp OrderByCompletenessProvider.h
+    OrderBySizeProviderBase.cpp OrderBySizeProviderBase.h
     SkinnedButton.cpp SkinnedButton.h
     CollapsibleGroupBox.cpp CollapsibleGroupBox.h
     SectionHeading.cpp SectionHeading.h
