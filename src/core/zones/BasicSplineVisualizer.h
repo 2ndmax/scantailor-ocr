@@ -34,9 +34,9 @@ class BasicSplineVisualizer {
   static QPolygonF screenPolylineSkipping(const SplineVertex::Ptr& vertex, const QTransform& toScreen);
 
   /**
-   * \brief Highlights \p vertex: its two edges in a gradient towards it, and the vertex itself.
+   * \brief Highlights \p vertex: its two edges and the vertex itself, in the highlight colors.
    *
-   * \p pen gives the line style; its brush is replaced by the gradient.
+   * \p pen gives the line style; its color is replaced by the highlight color.
    */
   void drawHighlightedVertex(QPainter& painter, const QTransform& toScreen, const SplineVertex::Ptr& vertex, QPen pen);
 

@@ -57,91 +57,38 @@ void ZoneCreationInteraction::onPaint(QPainter& painter, const InteractionState&
 
   m_visualizer.drawSplines(painter, toScreen, m_context.zones());
 
+  // Placed edges in the solid color, the edges that follow the mouse in the highlight color.
   const QPen solidLinePen(m_visualizer.activePen());
+  QPen movingLinePen(solidLinePen);
+  movingLinePen.setColor(m_visualizer.highlightDarkColor());
 
-  QLinearGradient gradient;  // From inactive to active point.
-  gradient.setColorAt(0.0, m_visualizer.solidColor());
-  gradient.setColorAt(1.0, m_visualizer.highlightDarkColor());
-
-  QPen gradientPen(solidLinePen);  // gets the gradient as its brush below
-
-  painter.setPen(solidLinePen);
   painter.setBrush(Qt::NoBrush);
-
-  QColor startColor = m_visualizer.solidColor();
-  QColor stopColor = m_visualizer.highlightDarkColor();
-  QColor midColor;
-
-  int red = (startColor.red() + stopColor.red()) / 2;
-  int green = (startColor.green() + stopColor.green()) / 2;
-  int blue = (startColor.blue() + stopColor.blue()) / 2;
-
-  midColor.setRgb(red, green, blue);
-
-  QLinearGradient gradientMid1;
-  gradientMid1.setColorAt(0.0, startColor);
-  gradientMid1.setColorAt(1.0, midColor);
-
-  QLinearGradient gradientMid2;
-  gradientMid2.setColorAt(0.0, midColor);
-  gradientMid2.setColorAt(1.0, stopColor);
 
   if (currentZoneCreationMode() == ZoneCreationMode::RECTANGULAR) {
     if (m_nextVertexImagePos != m_spline->firstVertex()->point()) {
       m_visualizer.drawVertex(painter, toScreen.map(m_nextVertexImagePos_mid1), m_visualizer.highlightBrightColor());
       m_visualizer.drawVertex(painter, toScreen.map(m_nextVertexImagePos_mid2), m_visualizer.highlightBrightColor());
 
-      const QLineF line1Mid1(toScreen.map(QLineF(m_spline->firstVertex()->point(), m_nextVertexImagePos_mid1)));
-      gradientMid1.setStart(line1Mid1.p1());
-      gradientMid1.setFinalStop(line1Mid1.p2());
-      gradientPen.setBrush(gradientMid1);
-      painter.setPen(gradientPen);
-      painter.drawLine(line1Mid1);
-
-      const QLineF line2Mid1(toScreen.map(QLineF(m_nextVertexImagePos_mid1, m_nextVertexImagePos)));
-      gradientMid2.setStart(line2Mid1.p1());
-      gradientMid2.setFinalStop(line2Mid1.p2());
-      gradientPen.setBrush(gradientMid2);
-      painter.setPen(gradientPen);
-      painter.drawLine(line2Mid1);
-
-      const QLineF line1Mid2(toScreen.map(QLineF(m_spline->firstVertex()->point(), m_nextVertexImagePos_mid2)));
-      gradientMid1.setStart(line1Mid2.p1());
-      gradientMid1.setFinalStop(line1Mid2.p2());
-      gradientPen.setBrush(gradientMid1);
-      painter.setPen(gradientPen);
-      painter.drawLine(line1Mid2);
-
-      const QLineF line2Mid2(toScreen.map(QLineF(m_nextVertexImagePos_mid2, m_nextVertexImagePos)));
-      gradientMid2.setStart(line2Mid2.p1());
-      gradientMid2.setFinalStop(line2Mid2.p2());
-      gradientPen.setBrush(gradientMid2);
-      painter.setPen(gradientPen);
-      painter.drawLine(line2Mid2);
+      // All four sides of the rectangle follow the mouse.
+      const QPointF first(m_spline->firstVertex()->point());
+      painter.setPen(movingLinePen);
+      painter.drawLine(toScreen.map(QLineF(first, m_nextVertexImagePos_mid1)));
+      painter.drawLine(toScreen.map(QLineF(m_nextVertexImagePos_mid1, m_nextVertexImagePos)));
+      painter.drawLine(toScreen.map(QLineF(first, m_nextVertexImagePos_mid2)));
+      painter.drawLine(toScreen.map(QLineF(m_nextVertexImagePos_mid2, m_nextVertexImagePos)));
     }
   } else {
     for (EditableSpline::SegmentIterator it(*m_spline); it.hasNext();) {
       const SplineSegment segment(it.next());
-      const QLineF line(toScreen.map(segment.toLine()));
-
-      if ((segment.prev == m_spline->firstVertex()) && (segment.prev->point() == m_nextVertexImagePos)) {
-        gradient.setStart(line.p2());
-        gradient.setFinalStop(line.p1());
-        gradientPen.setBrush(gradient);
-        painter.setPen(gradientPen);
-        painter.drawLine(line);
-        painter.setPen(solidLinePen);
-      } else {
-        painter.drawLine(line);
-      }
+      // With the mouse back on the first vertex, the edge from it closes the zone and follows the mouse.
+      const bool closingEdge
+          = (segment.prev == m_spline->firstVertex()) && (segment.prev->point() == m_nextVertexImagePos);
+      painter.setPen(closingEdge ? movingLinePen : solidLinePen);
+      painter.drawLine(toScreen.map(segment.toLine()));
     }
 
-    const QLineF line(toScreen.map(QLineF(m_spline->lastVertex()->point(), m_nextVertexImagePos)));
-    gradient.setStart(line.p1());
-    gradient.setFinalStop(line.p2());
-    gradientPen.setBrush(gradient);
-    painter.setPen(gradientPen);
-    painter.drawLine(line);
+    painter.setPen(movingLinePen);
+    painter.drawLine(toScreen.map(QLineF(m_spline->lastVertex()->point(), m_nextVertexImagePos)));
   }
 
   m_visualizer.drawVertex(painter, toScreen.map(m_nextVertexImagePos), m_visualizer.highlightBrightColor());

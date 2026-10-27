@@ -3,7 +3,6 @@
 
 #include "BasicSplineVisualizer.h"
 
-#include <QLinearGradient>
 #include <QPainter>
 #include <QTransform>
 
@@ -51,23 +50,13 @@ void BasicSplineVisualizer::drawHighlightedVertex(QPainter& painter,
                                                   const QTransform& toScreen,
                                                   const SplineVertex::Ptr& vertex,
                                                   QPen pen) {
-  QLinearGradient gradient;  // From the neighbor to the highlighted vertex.
-  gradient.setColorAt(0.0, m_solidColor);
-  gradient.setColorAt(1.0, m_highlightDarkColor);
-
   const QPointF prev(toScreen.map(vertex->prev(SplineVertex::LOOP)->point()));
   const QPointF pt(toScreen.map(vertex->point()));
   const QPointF next(toScreen.map(vertex->next(SplineVertex::LOOP)->point()));
 
-  gradient.setStart(prev);
-  gradient.setFinalStop(pt);
-  pen.setBrush(gradient);
+  pen.setColor(m_highlightDarkColor);
   painter.setPen(pen);
   painter.drawLine(prev, pt);
-
-  gradient.setStart(next);
-  pen.setBrush(gradient);
-  painter.setPen(pen);
   painter.drawLine(next, pt);
 
   drawVertex(painter, pt, m_highlightBrightColor);

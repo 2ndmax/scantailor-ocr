@@ -78,7 +78,7 @@ void ZoneDefaultInteraction::onPaint(QPainter& painter, const InteractionState& 
   }
 
   if (interaction.proximityLeader(m_vertexProximity)) {
-    // The two adjacent edges in a gradient towards the highlight color.
+    // The two adjacent edges in the highlight color.
     m_visualizer.drawHighlightedVertex(painter, toScreen, m_nearestVertex, m_visualizer.activePen());
   } else if (interaction.proximityLeader(m_segmentProximity)) {
     const QLineF line(toScreen.map(m_nearestSegment.toLine()));
