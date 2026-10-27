@@ -75,9 +75,9 @@ class EditableZoneSet : public QObject {
 
   EditableZoneSet();
 
-  const_iterator begin() const { return iterator(m_zoneItemsInOrder.begin()); }
+  const_iterator begin() const { return iterator(itemsInOrder().begin()); }
 
-  const_iterator end() const { return iterator(m_zoneItemsInOrder.end()); }
+  const_iterator end() const { return iterator(itemsInOrder().end()); }
 
   const PropertySet& defaultProperties() const { return m_defaultProps; }
 
@@ -100,8 +100,9 @@ class EditableZoneSet : public QObject {
   void committed();
 
  private:
+  const ZoneItemsInOrder& itemsInOrder() const { return m_zoneItems.get<ZoneItemOrderedTag>(); }
+
   ZoneItems m_zoneItems;
-  ZoneItemsInOrder& m_zoneItemsInOrder;
   PropertySet m_defaultProps;
 };
 

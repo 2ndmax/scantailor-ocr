@@ -3,7 +3,7 @@
 
 #include "EditableZoneSet.h"
 
-EditableZoneSet::EditableZoneSet() : m_zoneItems(), m_zoneItemsInOrder(m_zoneItems.get<ZoneItemOrderedTag>()) {}
+EditableZoneSet::EditableZoneSet() = default;
 
 void EditableZoneSet::setDefaultProperties(const PropertySet& props) {
   m_defaultProps = props;
