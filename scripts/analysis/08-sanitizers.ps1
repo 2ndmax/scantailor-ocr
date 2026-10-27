@@ -59,8 +59,7 @@ param(
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-ubsan" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
-$clang = "$LlvmBin\clang-cl.exe"
-if (-not (Test-Path $clang)) { throw "clang-cl not found in $LlvmBin; install the VS component 'C++ Clang Compiler for Windows'." }
+$clang = Get-ClangCl
 
 # The clang runtime libraries, e.g. ...\Llvm\x64\lib\clang\22\lib\windows.
 $rtDir = Get-ChildItem "$LlvmBin\..\lib\clang" -Directory | Sort-Object { [int]$_.Name } |

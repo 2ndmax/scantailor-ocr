@@ -29,8 +29,7 @@ param(
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-clang-cl" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
-$clang = "$LlvmBin\clang-cl.exe"
-if (-not (Test-Path $clang)) { throw "clang-cl not found in $LlvmBin; install the VS component 'C++ Clang Compiler for Windows'." }
+$clang = Get-ClangCl
 $log = "$OutDir\07-clang-cl.log"
 $env:CFLAGS = '/W4 /external:W0 /external:anglebrackets'
 $env:CXXFLAGS = $env:CFLAGS

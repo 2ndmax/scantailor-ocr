@@ -8,9 +8,21 @@
 #>
 
 . "$PSScriptRoot\..\common.ps1"
-if (-not $Vs) { throw 'No Visual Studio installation with the C++ tools found.' }
+if (-not $Vs) {
+    throw 'No Visual Studio installation with the C++ tools found: scripts\setup\1-setup-windows.ps1 installs it.'
+}
 # All logs and results go here unless a script is given -OutDir (ignored by git).
 $ResultsDir = "$PSScriptRoot\results"
+
+# clang-cl.exe of Visual Studio, for the runs 07 and 08.
+function Get-ClangCl {
+    $clang = "$LlvmBin\clang-cl.exe"
+    if (-not (Test-Path $clang)) {
+        throw "clang-cl not found in $LlvmBin; scripts\setup\2-setup-analysis.ps1 adds the Visual Studio " +
+              "component 'C++ Clang Compiler for Windows'."
+    }
+    return $clang
+}
 
 # The configure arguments shared by all builds (generator, toolchain, project options).
 function Get-ConfigureArgs([string]$BuildDir, [string]$VcpkgRoot, [string]$BuildType = 'Release') {

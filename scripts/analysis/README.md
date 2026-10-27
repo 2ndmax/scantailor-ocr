@@ -36,12 +36,21 @@ and of 01.  09 reads whatever output exists.
 
 - Visual Studio with the C++ tools (found through `vswhere`); CMake, Ninja, clang-tidy and
   clang-format come with it.
-- vcpkg with the project's dependencies for `x64-windows`, in `VCPKG_ROOT` (or `-VcpkgRoot`),
-  as described in [BUILDING.md](../../BUILDING.md).
+- vcpkg with the project's dependencies for `x64-windows`, in `VCPKG_ROOT` (or `-VcpkgRoot`).
 - For 03: cppcheck (on `PATH` or in `C:\Program Files\Cppcheck`, or `-Cppcheck <exe>`).
 - For 04: EDG, set up as described [below](#setting-up-edg-for-run-04).
-- For 07 and 08: the Visual Studio component "C++ Clang Compiler for Windows" (Visual Studio
-  Installer → "Modify" → "Individual components").
+- For 07 and 08: the Visual Studio component "C++ Clang Compiler for Windows".
+
+Two setup scripts take care of all of this; each shows a menu of steps, 0 runs all of them:
+
+- `scripts\setup\1-setup-windows.ps1` sets up the build itself: Visual Studio, vcpkg and its
+  packages, `VCPKG_ROOT` (see [BUILDING.md](../../BUILDING.md)).
+- `scripts\setup\2-setup-analysis.ps1` shows for every run whether its tools are there and
+  installs the missing ones: the Clang compiler and the .NET Framework 4.8.1 SDK with the Visual
+  Studio Installer, cppcheck with winget (both into their standard folders), and EDG by starting
+  `3-setup-edg.ps1`.
+
+      powershell -ExecutionPolicy Bypass -File scripts\setup\2-setup-analysis.ps1
 
 The builds go into fresh directories next to `build`.  A script stops if its build directory
 already exists; delete it for a new run.  Keep build directories on a short path: with MSVC,

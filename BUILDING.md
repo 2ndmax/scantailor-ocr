@@ -168,7 +168,8 @@ MSVC switches, a clang-cl build and a build with sanitizers, and write their fin
 `scripts\analysis\results`. What each run does, how to set it up and how to merge the results
 is described in [scripts/analysis/README.md](scripts/analysis/README.md).
 
-They need, in addition to the steps above:
+`scripts\setup\2-setup-analysis.ps1` shows for every run whether its tools are there and
+installs the missing ones. By hand, they need, in addition to the steps above:
 
 * For the clang-cl build and the sanitizers: the Visual Studio component
   **"C++ Clang Compiler for Windows"** (Visual Studio Installer → "Modify" → "Individual

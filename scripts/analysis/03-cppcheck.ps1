@@ -34,9 +34,9 @@ param(
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-analysis" }
+if (-not $Cppcheck) { $Cppcheck = Find-Cppcheck }
 if (-not $Cppcheck) {
-    $c = Get-Command cppcheck -ErrorAction SilentlyContinue
-    $Cppcheck = if ($c) { $c.Source } else { "$env:ProgramFiles\Cppcheck\cppcheck.exe" }
+    throw 'cppcheck not found: scripts\setup\2-setup-analysis.ps1 installs it, or pass -Cppcheck <exe>.'
 }
 $dbDir = "$BuildDir\cppcheck-db"
 $cache = "$BuildDir\cppcheck-build"

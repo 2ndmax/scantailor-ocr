@@ -37,7 +37,6 @@ $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
 $log = "$LogDir\1-setup-windows.log"
 $BuildDir = "$Root\build"
-$Installer = "$vswhereDir\setup.exe"
 
 # The components BUILDING.md asks for; the workload is added for the installer's dependencies.
 $VsComponents = @(
@@ -89,11 +88,6 @@ function Get-MissingVsComponents {
     return $missing
 }
 
-function Get-AnyVsInstance {
-    if (-not (Test-Path "$vswhereDir\vswhere.exe")) { return $null }
-    return (& "$vswhereDir\vswhere.exe" -latest -products * -property installationPath)
-}
-
 function Install-VisualStudio {
     $edition = $VsEditions[(Read-Choice 'Which edition of Visual Studio?' ($VsEditions | ForEach-Object { $_.Name }))]
     Write-Host "Installs $($edition.Name) into $($edition.Folder), with the C++ tools, the CMake tools"
@@ -116,28 +110,13 @@ function Install-VisualStudio {
     return ($rc -eq 0)
 }
 
-function Add-VsComponents([string]$Instance, [string[]]$Components) {
-    Write-Host "Adds to the Visual Studio in $Instance`:"
-    $Components | ForEach-Object { Write-Host "  $_" }
-    Write-Host 'Close Visual Studio first. Windows asks for administrator rights.'
-    if (-not (Read-YesNo 'Add them now?' $false)) { return $false }
-    $arguments = @('modify', '--installPath', "`"$Instance`"", '--passive', '--norestart') +
-                 ($Components | ForEach-Object { '--add', $_ })
-    Add-LogLine $log "# $(Get-Stamp) `"$Installer`" $($arguments -join ' ')"
-    $process = Start-Process -FilePath $Installer -ArgumentList $arguments -Verb RunAs -Wait -PassThru
-    Add-LogLine $log "# Exit code: $($process.ExitCode)"
-    # 3010: done, a restart of Windows is needed to finish.
-    if ($process.ExitCode -eq 3010) { Write-Host 'Done; restart Windows when convenient.' -ForegroundColor Yellow }
-    return ($process.ExitCode -in 0, 3010)
-}
-
 $stepVisualStudio = {
     $missing = @(Get-MissingVsComponents)
     if (-not $missing.Count) {
         Write-Host "Visual Studio with the C++ tools: $Vs"
     } else {
         $instance = Get-AnyVsInstance
-        $ok = if ($instance) { Add-VsComponents $instance $missing } else { Install-VisualStudio }
+        $ok = if ($instance) { Add-VsComponents $instance $missing $log } else { Install-VisualStudio }
         if (-not $ok) { return $false }
         Find-VisualStudio
         $missing = @(Get-MissingVsComponents)

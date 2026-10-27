@@ -33,6 +33,15 @@ function Find-VisualStudio {
 }
 Find-VisualStudio
 
+# cppcheck.exe from PATH or its standard folder (where winget installs it), or $null.
+function Find-Cppcheck {
+    $command = Get-Command cppcheck -ErrorAction SilentlyContinue
+    if ($command) { return $command.Source }
+    $standard = "$env:ProgramFiles\Cppcheck\cppcheck.exe"
+    if (Test-Path $standard) { return $standard }
+    return $null
+}
+
 function Get-VcpkgRoot([string]$VcpkgRoot) {
     if (-not $VcpkgRoot) { $VcpkgRoot = $env:VCPKG_ROOT }
     if (-not $VcpkgRoot -or -not (Test-Path $VcpkgRoot)) {

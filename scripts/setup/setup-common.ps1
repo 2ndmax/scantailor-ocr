@@ -80,6 +80,29 @@ function Read-Choice([string]$Question, [string[]]$Options) {
     }
 }
 
+# The installation folder of the newest Visual Studio, with or without the C++ tools, or $null.
+function Get-AnyVsInstance {
+    if (-not (Test-Path "$vswhereDir\vswhere.exe")) { return $null }
+    return (& "$vswhereDir\vswhere.exe" -latest -products * -property installationPath)
+}
+
+# Adds components to an installed Visual Studio with its installer. Returns $true on success.
+function Add-VsComponents([string]$Instance, [string[]]$Components, [string]$Log) {
+    Write-Host "Adds to the Visual Studio in $Instance`:"
+    $Components | ForEach-Object { Write-Host "  $_" }
+    Write-Host 'Close Visual Studio first. Windows asks for administrator rights.'
+    if (-not (Read-YesNo 'Add them now?' $false)) { return $false }
+    $installer = "$vswhereDir\setup.exe"
+    $arguments = @('modify', '--installPath', "`"$Instance`"", '--passive', '--norestart') +
+                 ($Components | ForEach-Object { '--add', $_ })
+    Add-LogLine $Log "# $(Get-Stamp) `"$installer`" $($arguments -join ' ')"
+    $process = Start-Process -FilePath $installer -ArgumentList $arguments -Verb RunAs -Wait -PassThru
+    Add-LogLine $Log "# Exit code: $($process.ExitCode)"
+    # 3010: done, a restart of Windows is needed to finish.
+    if ($process.ExitCode -eq 3010) { Write-Host 'Done; restart Windows when convenient.' -ForegroundColor Yellow }
+    return ($process.ExitCode -in 0, 3010)
+}
+
 function Write-Step([string]$Text) {
     Write-Host ''
     Write-Host "== $Text" -ForegroundColor Cyan
@@ -101,10 +124,11 @@ function Invoke-Shown([string]$CommandLine, [string]$Log, [switch]$InVsEnv) {
     return $rc
 }
 
-# The step menu. $Steps: ordered hashtables with Title, Done (scriptblock: $true when the step's
-# work is already there) and Run (scriptblock: $true on success). Runs $Selected (numbers, 0 = all)
-# without the menu when it is given.
-function Invoke-StepMenu([string]$Title, [string[]]$Info, [object[]]$Steps, [int[]]$Selected) {
+# The step menu. $Info: lines shown under the title, or a scriptblock that returns them (evaluated
+# each time the menu is shown). $Steps: hashtables with Title, Done (scriptblock: $true when the
+# step's work is already there) and Run (scriptblock: $true on success). Runs $Selected (numbers,
+# 0 = all) without the menu when it is given.
+function Invoke-StepMenu([string]$Title, [object]$Info, [object[]]$Steps, [int[]]$Selected) {
     $runSteps = {
         param([int[]]$Numbers)
         if ($Numbers -contains 0) { $Numbers = 1..$Steps.Count }
@@ -122,12 +146,18 @@ function Invoke-StepMenu([string]$Title, [string[]]$Info, [object[]]$Steps, [int
         return $true
     }
     # Count, not truthiness: @(0) ("all steps") counts as false in PowerShell.
-    if ($Selected.Count -gt 0) { return (& $runSteps $Selected) }
+    if ($Selected.Count -gt 0) {
+        Write-Host $Title -ForegroundColor Cyan
+        $lines = if ($Info -is [scriptblock]) { & $Info } else { $Info }
+        foreach ($line in $lines) { Write-Host $line }
+        return (& $runSteps $Selected)
+    }
 
     while ($true) {
         Write-Host ''
         Write-Host $Title -ForegroundColor Cyan
-        foreach ($line in $Info) { Write-Host $line }
+        $lines = if ($Info -is [scriptblock]) { & $Info } else { $Info }
+        foreach ($line in $lines) { Write-Host $line }
         Write-Host ''
         Write-Host '  0  All steps in order'
         for ($i = 0; $i -lt $Steps.Count; $i++) {
