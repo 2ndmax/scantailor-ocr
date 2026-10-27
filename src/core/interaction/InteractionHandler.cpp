@@ -5,6 +5,7 @@
 
 #include <QKeyEvent>
 #include <QPainter>
+#include <cassert>
 
 #include "InteractionState.h"
 

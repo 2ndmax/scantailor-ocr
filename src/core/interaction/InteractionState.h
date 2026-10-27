@@ -11,8 +11,6 @@
 #include "NonCopyable.h"
 #include "Proximity.h"
 
-class Proximity;
-
 class InteractionState {
   DECLARE_NON_COPYABLE(InteractionState)
 

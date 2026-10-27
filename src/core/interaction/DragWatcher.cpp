@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QMouseEvent>
+#include <cmath>
 
 #include "DragHandler.h"
 

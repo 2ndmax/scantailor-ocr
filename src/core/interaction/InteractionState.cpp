@@ -3,6 +3,8 @@
 
 #include "InteractionState.h"
 
+#include <limits>
+
 InteractionState::InteractionState()
     : m_proximityThreshold(Proximity::fromDist(10.0)),
       m_bestProximityPriority(std::numeric_limits<int>::min()),

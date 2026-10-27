@@ -4,6 +4,7 @@
 #include "DraggablePolygon.h"
 
 #include <QPainter>
+#include <limits>
 
 DraggablePolygon::DraggablePolygon() : m_proximityPriority(0) {}
 
