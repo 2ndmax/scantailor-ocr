@@ -12,12 +12,16 @@
 
 using namespace core;
 
-StyleSheetColorScheme::StyleSheetColorScheme(const BaseColors& colors,
+StyleSheetColorScheme::StyleSheetColorScheme(const Colors& colors,
                                              const QString& styleSheetPath,
                                              const char* defaultAccentColor) {
-  loadPalette(colors);
+  // Selections in the palette, the selected thumbnail and the marks on thumbnails take the accent color,
+  // as the style sheet does.
+  const QColor chosenAccent = ApplicationSettings::getInstance().getAccentColor();
+  const QColor accent = chosenAccent.isValid() ? chosenAccent : QColor(defaultAccentColor);
+  loadPalette(colors, accent);
   loadStyleSheet(styleSheetPath, defaultAccentColor);
-  loadCommonColorParams(defaultAccentColor);
+  loadColorParams(colors, accent);
 }
 
 const QPalette* StyleSheetColorScheme::getPalette() const {
@@ -36,40 +40,31 @@ QStyle* StyleSheetColorScheme::getStyle() const {
   return QStyleFactory::create("Fusion");
 }
 
-void StyleSheetColorScheme::setColorParam(const QString& name, const QColor& color) {
-  m_customColors[name] = color;
-}
-
-void StyleSheetColorScheme::loadPalette(const BaseColors& colors) {
+void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& accent) {
   m_palette.setColor(QPalette::Window, colors.window);
-  m_palette.setColor(QPalette::WindowText, colors.windowText);
-  m_palette.setColor(QPalette::Disabled, QPalette::WindowText, colors.disabledWindowText);
-  m_palette.setColor(QPalette::Base, colors.base);
-  m_palette.setColor(QPalette::Disabled, QPalette::Base, colors.disabledBase);
-  m_palette.setColor(QPalette::AlternateBase, m_palette.color(QPalette::Window));
-  m_palette.setColor(QPalette::Disabled, QPalette::AlternateBase,
-                     m_palette.color(QPalette::Disabled, QPalette::Window));
-  m_palette.setColor(QPalette::ToolTipBase, colors.toolTipBase);
-  m_palette.setColor(QPalette::ToolTipText, colors.toolTipText);
-  m_palette.setColor(QPalette::Text, m_palette.color(QPalette::WindowText));
-  m_palette.setColor(QPalette::Disabled, QPalette::Text, m_palette.color(QPalette::Disabled, QPalette::WindowText));
-  m_palette.setColor(QPalette::Light, colors.light);
-  m_palette.setColor(QPalette::Midlight, colors.midlight);
-  m_palette.setColor(QPalette::Dark, colors.dark);
-  m_palette.setColor(QPalette::Mid, colors.mid);
-  m_palette.setColor(QPalette::Shadow, colors.shadow);
-  m_palette.setColor(QPalette::Button, m_palette.color(QPalette::Base));
-  m_palette.setColor(QPalette::Disabled, QPalette::Button, m_palette.color(QPalette::Disabled, QPalette::Base));
-  m_palette.setColor(QPalette::ButtonText, m_palette.color(QPalette::WindowText));
-  m_palette.setColor(QPalette::Disabled, QPalette::ButtonText,
-                     m_palette.color(QPalette::Disabled, QPalette::WindowText));
-  m_palette.setColor(QPalette::BrightText, colors.brightText);
+  m_palette.setColor(QPalette::AlternateBase, colors.window);
+  m_palette.setColor(QPalette::Midlight, colors.window);
+  m_palette.setColor(QPalette::Base, colors.content);
+  m_palette.setColor(QPalette::Button, colors.content);
+  m_palette.setColor(QPalette::ToolTipBase, colors.content);
+  m_palette.setColor(QPalette::Light, colors.content);
+  m_palette.setColor(QPalette::Dark, colors.border);
+  m_palette.setColor(QPalette::Mid, colors.border);
+  m_palette.setColor(QPalette::Shadow, colors.border);
+  m_palette.setColor(QPalette::BrightText, colors.error);
   m_palette.setColor(QPalette::Link, colors.link);
-  m_palette.setColor(QPalette::Highlight, colors.highlight);
-  m_palette.setColor(QPalette::Disabled, QPalette::Highlight, colors.disabledHighlight);
-  m_palette.setColor(QPalette::HighlightedText, m_palette.color(QPalette::WindowText));
-  m_palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
-                     m_palette.color(QPalette::Disabled, QPalette::WindowText));
+  for (const QPalette::ColorRole role :
+       {QPalette::WindowText, QPalette::Text, QPalette::ButtonText, QPalette::ToolTipText}) {
+    m_palette.setColor(role, colors.text);
+    m_palette.setColor(QPalette::Disabled, role, colors.disabledText);
+  }
+  m_palette.setColor(QPalette::Highlight, accent);
+  m_palette.setColor(QPalette::HighlightedText, colors.textOnAccent);
+  // Selections of disabled lists and of lists in an inactive window are not in the accent color.
+  m_palette.setColor(QPalette::Inactive, QPalette::Highlight, colors.inactiveSelection);
+  m_palette.setColor(QPalette::Inactive, QPalette::HighlightedText, colors.text);
+  m_palette.setColor(QPalette::Disabled, QPalette::Highlight, colors.inactiveSelection);
+  m_palette.setColor(QPalette::Disabled, QPalette::HighlightedText, colors.disabledText);
 }
 
 void StyleSheetColorScheme::loadStyleSheet(const QString& path, const char* defaultAccentColor) {
@@ -87,13 +82,16 @@ void StyleSheetColorScheme::loadStyleSheet(const QString& path, const char* defa
 #endif
 }
 
-void StyleSheetColorScheme::loadCommonColorParams(const char* defaultAccentColor) {
-  // The selected thumbnail and the marks on thumbnails are drawn in the accent color, as the borders of
-  // focused controls in the style sheet are.
-  const QColor accent = ApplicationSettings::getInstance().getAccentColor();
-  m_customColors["ThumbnailSequenceSelectedItemBorder"] = accent.isValid() ? accent : QColor(defaultAccentColor);
-  m_customColors["ProcessingIndicationHead"] = m_palette.color(QPalette::WindowText);
-  m_customColors["ProcessingIndicationTail"] = m_palette.color(QPalette::Highlight);
-  m_customColors["StageListHead"] = m_customColors.at("ProcessingIndicationHead");
-  m_customColors["StageListTail"] = m_customColors.at("ProcessingIndicationTail");
+void StyleSheetColorScheme::loadColorParams(const Colors& colors, const QColor& accent) {
+  m_customColors["ThumbnailSequenceItemText"] = colors.text;
+  m_customColors["ThumbnailSequenceSelectedItemBorder"] = accent;
+  m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = accent;
+  m_customColors["ThumbnailSequenceSelectionLeaderText"] = colors.textOnAccent;
+  m_customColors["OpenNewProjectBorder"] = colors.border;
+  m_customColors["ProcessingIndicationFade"] = colors.imageView;
+  m_customColors["ProcessingIndicationHead"] = colors.text;
+  m_customColors["ProcessingIndicationTail"] = accent;
+  m_customColors["StageListHead"] = colors.text;
+  m_customColors["StageListTail"] = accent;
+  m_customColors["FixDpiDialogErrorText"] = colors.error;
 }

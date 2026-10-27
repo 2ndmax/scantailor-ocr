@@ -1,5 +1,5 @@
 QPushButton {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   background-color: palette(base);
   border-radius: 0px;
   padding: 1px 9px 1px 9px;
@@ -9,31 +9,31 @@ QPushButton {
 }
 
 QLineEdit, QListView {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   background-color: palette(base);
   border-radius: 0px;
   padding: 1px 3px 1px 3px;
   min-height: 17px;
   min-width: 17px;
   text-align: center;
-  selection-background-color: {{selectionBackground}};
-  selection-color: white;
+  selection-background-color: {{accent}};
+  selection-color: {{textOnAccent}};
 }
 
 QToolButton {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   background-color: palette(base);
   border-radius: 0px;
   text-align: center;
 }
 
 QPushButton:disabled, QLineEdit:disabled, QListView:disabled, QToolButton:disabled {
-  border: 1px solid {{disabledControlBorder}};
-  background-color: {{disabledBackground}};
+  border: 1px solid {{border}};
+  background-color: {{content}};
 }
 
 QPushButton:default, QToolButton:default {
-  border-color: {{defaultButtonBorder}};
+  border-color: {{text}};
 }
 
 QPushButton:hover, QToolButton:hover, QPushButton:active:focus, QToolButton:active:focus, QLineEdit:active:focus {
@@ -42,17 +42,17 @@ QPushButton:hover, QToolButton:hover, QPushButton:active:focus, QToolButton:acti
 
 QPushButton:pressed, QToolButton:pressed, QPushButton:checked:active:focus, QToolButton:checked:active:focus {
   border-color: {{accent}};
-  background-color: {{pressedBackground}};
+  background-color: {{pressed}};
 }
 
 QPushButton:checked, QToolButton:checked {
   border-color: {{accent}};
-  background-color: {{pressedBackground}};
+  background-color: {{pressed}};
 }
 
 QPushButton:checked:disabled, QToolButton:checked:disabled {
-  border-color: {{accent}};
-  background-color: {{disabledBackground}};
+  border-color: {{border}};
+  background-color: {{content}};
 }
 
 QPushButton:flat, QToolButton:flat {
@@ -72,14 +72,14 @@ QMenu::indicator:non-exclusive, QMenu::indicator:exclusive {
 }
 
 QCheckBox::indicator:unchecked, QTreeView::indicator:unchecked, QTableView::indicator:unchecked, QGroupBox::indicator:unchecked {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   margin: 0px;
   background-color: palette(base);
   border-radius: 2.75px;
 }
 
 QMenu::indicator:non-exclusive:unchecked, QMenu::indicator:non-exclusive:unchecked:selected {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   margin: 0px 0px 0px 2px;
   background-color: palette(base);
   border-radius: 2.75px;
@@ -92,18 +92,18 @@ QCheckBox::indicator:unchecked:active:focus, QTreeView::indicator:unchecked:acti
 
 QCheckBox::indicator:unchecked:pressed, QTreeView::indicator:unchecked:pressed, QTableView::indicator:unchecked:pressed, QGroupBox::indicator:unchecked:pressed {
   border-color: {{accent}};
-  background-color: {{indicatorUncheckedPressedBackground}};
+  background-color: {{pressed}};
 }
 
 QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled, QGroupBox::indicator:unchecked:disabled {
-  border-color: {{disabledControlBorder}};
-  background-color: {{disabledBackground}};
+  border-color: {{border}};
+  background-color: {{content}};
 }
 
 QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked, QGroupBox::indicator:checked,
 QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate, QGroupBox::indicator:indeterminate,
 QMenu::indicator:non-exclusive:checked {
-  background-color: {{menuIndicatorChecked}};
+  background-color: {{accent}};
   border-radius: 1.75px;
 }
 
@@ -132,7 +132,7 @@ QCheckBox::indicator:indeterminate:pressed, QTreeView::indicator:indeterminate:p
   border: 1px solid {{accent}};
   margin: 0px;
   border-radius: 2.75px;
-  background-color: {{indicatorCheckedPressedBackground}};
+  background-color: {{accent}};
 }
 
 QCheckBox::indicator:checked:pressed, QTreeView::indicator:checked:pressed, QTableView::indicator:checked:pressed, QGroupBox::indicator:checked:pressed {
@@ -145,7 +145,7 @@ QCheckBox::indicator:indeterminate:pressed, QTreeView::indicator:indeterminate:p
 
 QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled, QGroupBox::indicator:checked:disabled,
 QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:disabled, QTableView::indicator:indeterminate:disabled, QGroupBox::indicator:indeterminate:disabled {
-  background-color: {{indicatorCheckedDisabledBackground}};
+  background-color: {{disabledText}};
 }
 
 QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled, QGroupBox::indicator:checked:disabled {
@@ -157,14 +157,14 @@ QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:
 }
 
 QRadioButton::indicator:unchecked {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   margin: 0px;
   background-color: palette(base);
   border-radius: 7.5px;
 }
 
 QMenu::indicator:exclusive:unchecked, QMenu::indicator:exclusive:unchecked:selected {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   margin: 0px 0px 0px 2px;
   background-color: palette(base);
   border-radius: 7.5px;
@@ -176,17 +176,17 @@ QRadioButton::indicator:unchecked:hover, QRadioButton::indicator:unchecked:activ
 
 QRadioButton::indicator:unchecked:pressed {
   border-color: {{accent}};
-  background-color: {{indicatorUncheckedPressedBackground}};
+  background-color: {{pressed}};
 }
 
 QRadioButton::indicator:unchecked:disabled {
-  border-color: {{disabledControlBorder}};
-  background-color: {{disabledBackground}};
+  border-color: {{border}};
+  background-color: {{content}};
 }
 
 QRadioButton::indicator:checked,
 QMenu::indicator:exclusive:checked {
-  background-color: {{menuIndicatorChecked}};
+  background-color: {{accent}};
   border-radius: 6.75px;
   image: url(:/{{scheme}}_scheme/icons/radiobutton_checked.svg);
 }
@@ -201,17 +201,17 @@ QRadioButton::indicator:checked:pressed {
   border: 1px solid {{accent}};
   margin: 0px;
   border-radius: 7.5px;
-  background-color: {{indicatorCheckedPressedBackground}};
+  background-color: {{accent}};
   image: url(:/{{scheme}}_scheme/icons/radiobutton_checked_pressed.svg);
 }
 
 QRadioButton::indicator:checked:disabled {
-  background-color: {{indicatorCheckedDisabledBackground}};
+  background-color: {{disabledText}};
   image: url(:/{{scheme}}_scheme/icons/radiobutton_checked_disabled.svg);
 }
 
 QProgressBar {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   background-color: palette(base);
   border-radius: 6.75px;
   height: 14px;
@@ -219,13 +219,13 @@ QProgressBar {
 }
 
 QProgressBar::chunk {
-  background-color: {{progressBarChunk}};
+  background-color: {{accent}};
   border-radius: 6.75px;
 }
 
 QGroupBox {
   background-color: palette(window);
-  border: 1px solid {{groupBoxBorder}};
+  border: 1px solid {{border}};
   border-radius: 0px;
   margin-top: 8px;
 }
@@ -237,7 +237,7 @@ QGroupBox::title {
 }
 
 QGraphicsView, ImageViewBase, QFrame#imageViewFrame {
-  background-color: {{imageViewBackground}};
+  background-color: {{imageView}};
   background-attachment: scroll;
   border: none;
 }
@@ -264,7 +264,7 @@ QGroupBox#recentProjectsGroup::title {
 
 QMenuBar {
   background-color: palette(window);
-  border-bottom: 1px solid {{pressedBackground}};
+  border-bottom: 1px solid {{border}};
   margin-bottom: 1px;
 }
 
@@ -277,13 +277,13 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected {
-   border: 1px solid {{menuBarItemBorder}};
-  background-color: {{menuBarItemSelectedBackground}};
+   border: 1px solid {{border}};
+  background-color: {{hover}};
 }
 
 QMenuBar::item:pressed {
-   border: 1px solid {{menuBarItemBorder}};
-  background-color: {{pressedBackground}};
+   border: 1px solid {{border}};
+  background-color: {{pressed}};
 }
 
 QMenu {
@@ -293,7 +293,7 @@ QMenu {
 
 QMenu::separator {
   height: 1px;
-  background: {{pressedBackground}};
+  background: {{border}};
   margin-left: 5px;
   margin-right: 5px;
 }
@@ -305,18 +305,18 @@ QMenu::item {
 }
 
 QMenu::item:disabled {
-  background-color: {{disabledBackground}};
+  background-color: {{content}};
   color: {{disabledText}};
 }
 
 QMenu::item:selected {
-  background-color: palette(highlight);
-  color: palette(highlighted-text);
+  background-color: {{hover}};
+  color: {{text}};
 }
 
 QDockWidget::title {
-  background-color: {{barBackground}};
-  border: 1px solid {{frameBorder}};
+  background-color: {{bar}};
+  border: 1px solid {{border}};
   text-align: center;
   min-height: 18px;
 }
@@ -332,7 +332,7 @@ QDockWidget:disabled {
 }
 
 QDockWidget > QWidget {
-  border: 1px solid {{frameBorder}};
+  border: 1px solid {{border}};
   border-top: none;
   border-bottom: none;
 }
@@ -345,22 +345,22 @@ QDockWidget::close-button, QDockWidget::float-button {
 }
 
 QDockWidget::close-button:hover, QDockWidget::float-button:hover, QDockWidget::close-button:active:focus, QDockWidget::float-button:active:focus {
-  background-color: {{hoverBackground}};
+  background-color: {{hover}};
 }
 
 QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
-  background-color: {{pressedBackground}};
+  background-color: {{pressed}};
 }
 
 QScrollBar:vertical {
-  background: {{scrollBarBackground}};
+  background: {{bar}};
   border: none;
   width: 17px;
   margin: 0px;
 }
 
 QScrollBar::handle:vertical {
-  background-color: {{scrollBarHandle}};
+  background-color: {{border}};
   border: none;
   min-height: 20px;
   margin: 17px 2px 17px 2px;
@@ -383,14 +383,14 @@ QScrollBar::sub-line:vertical {
 }
 
 QScrollBar:horizontal {
-  background: {{scrollBarBackground}};
+  background: {{bar}};
   border: none;
   height: 17px;
   margin: 0px;
 }
 
 QScrollBar::handle:horizontal {
-  background-color: {{scrollBarHandle}};
+  background-color: {{border}};
   border: none;
   min-width: 20px;
   margin: 2px 17px 2px 17px;
@@ -411,7 +411,7 @@ QScrollBar::sub-line:horizontal {
 }
 
 QScrollBar::add-line:horizontal:pressed, QScrollBar::sub-line:horizontal:pressed, QScrollBar::add-line:vertical:pressed, QScrollBar::sub-line:vertical:pressed {
-  background: {{scrollBarButtonPressed}};
+  background: {{pressed}};
 }
 
 QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal, QScrollBar:down-arrow:vertical, QScrollBar::up-arrow:vertical {
@@ -449,8 +449,8 @@ QTabBar::tab {
   padding: 3px 9px 3px 9px;
   min-height: 17px;
   min-width: 17px;
-  background-color: {{barBackground}};
-  border: 1px solid {{frameBorder}};
+  background-color: {{bar}};
+  border: 1px solid {{border}};
 }
 
 QTabBar::tab:!first {
@@ -458,7 +458,7 @@ QTabBar::tab:!first {
 }
 
 QTabBar::tab:hover {
-  background-color: {{hoverBackground}};
+  background-color: {{hover}};
 }
 
 QTabBar::tab:selected {
@@ -492,14 +492,14 @@ output--TabbedImageView > QTabBar::tab:selected {
 }
 
 QComboBox {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   background-color: palette(base);
   border-radius: 2.75px;
   padding: 1px 0px 1px 8px;
   min-height: 17px;
   min-width: 17px;
-  selection-background-color: {{selectionBackground}};
-  selection-color: white;
+  selection-background-color: {{accent}};
+  selection-color: {{textOnAccent}};
 }
 
 QComboBox:editable {
@@ -507,8 +507,8 @@ QComboBox:editable {
 }
 
 QComboBox:disabled, QAbstractSpinBox:disabled {
-  border: 1px solid {{disabledControlBorder}};
-  background-color: {{disabledBackground}};
+  border: 1px solid {{border}};
+  background-color: {{content}};
 }
 
 QComboBox:hover, QComboBox:active:focus, QAbstractSpinBox:active:focus {
@@ -517,7 +517,7 @@ QComboBox:hover, QComboBox:active:focus, QAbstractSpinBox:active:focus {
 
 QComboBox:on {
   border-color: {{accent}};
-  background-color: {{pressedBackground}};
+  background-color: {{pressed}};
 }
 
 QComboBox::drop-down {
@@ -535,18 +535,18 @@ QComboBox::down-arrow {
 QComboBox QAbstractItemView {
   border: none;
   padding: 1px 1px 1px 1px;
-  selection-background-color: {{selectionBackground}};
-  selection-color: white;
+  selection-background-color: {{accent}};
+  selection-color: {{textOnAccent}};
 }
 
 QAbstractSpinBox {
-  border: 1px solid {{controlBorder}};
+  border: 1px solid {{border}};
   background-color: palette(base);
   border-radius: 0px;
   padding: 1px 3px 1px 3px;
   min-height: 17px;
-  selection-background-color: {{selectionBackground}};
-  selection-color: white;
+  selection-background-color: {{accent}};
+  selection-color: {{textOnAccent}};
 }
 
 QAbstractSpinBox::up-button {
@@ -592,7 +592,7 @@ QSlider:horizontal {
 QSlider::groove:horizontal {
   border: none;
   height: 6px;
-  background-color: {{sliderGroove}};
+  background-color: {{border}};
 }
 
 QSlider::handle:horizontal {
@@ -610,26 +610,26 @@ QSlider::handle:disabled {
 QToolTip {
   color: palette(tooltip-text);
   background-color: palette(tooltip-base);
-  border: 1px solid {{toolTipBorder}};
+  border: 1px solid {{border}};
   border-radius: 0px;
 }
 
 QStatusBar {
-  background-color: {{barBackground}};
+  background-color: {{bar}};
   color: palette(window-text);
 }
 
 QTreeView, QTableView {
   alternate-background-color: palette(window);
   background: palette(base);
-  border: 1px solid {{frameBorder}};
+  border: 1px solid {{border}};
 }
 
 QTreeView QHeaderView::section, QTableView QHeaderView::section {
-  background: {{barBackground}};
+  background: {{bar}};
   border-style: none;
-  border-right: 1px solid {{frameBorder}};
-  border-bottom: 1px solid {{frameBorder}};
+  border-right: 1px solid {{border}};
+  border-bottom: 1px solid {{border}};
   padding-left: 4px;
   padding-top: 1px;
   min-height: 17px;
@@ -637,7 +637,7 @@ QTreeView QHeaderView::section, QTableView QHeaderView::section {
 }
 
 QTreeView::item:selected:disabled, QTableView::item:selected:disabled {
-  background: {{disabledSelectionBackground}};
+  background: {{inactiveSelection}};
 }
 
 QTreeView::branch {

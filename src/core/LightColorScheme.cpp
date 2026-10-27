@@ -3,39 +3,25 @@
 
 #include "LightColorScheme.h"
 
-namespace colors = light_scheme_colors;
-
 namespace {
-StyleSheetColorScheme::BaseColors lightColors() {
-  StyleSheetColorScheme::BaseColors base;
-  base.window = QColor(colors::window);
-  base.windowText = QColor(colors::text);
-  base.disabledWindowText = QColor(colors::disabledText);
-  base.base = QColor(colors::base);
-  base.disabledBase = QColor(colors::disabledBackground);
-  base.toolTipBase = QColor(colors::toolTipBase);
-  base.toolTipText = QColor(colors::toolTipText);
-  base.light = QColor(colors::light);
-  base.midlight = QColor(colors::midlight);
-  base.dark = QColor(colors::dark);
-  base.mid = QColor(colors::mid);
-  base.shadow = QColor(colors::shadow);
-  base.brightText = QColor(colors::brightText);
-  base.link = QColor(colors::link);
-  base.highlight = QColor(colors::highlight);
-  base.disabledHighlight = QColor(colors::disabledSelectionBackground);
-  return base;
+StyleSheetColorScheme::Colors lightColors() {
+  namespace table = light_scheme_colors;
+  StyleSheetColorScheme::Colors colors;
+  colors.window = QColor(table::window);
+  colors.content = QColor(table::content);
+  colors.border = QColor(table::border);
+  colors.text = QColor(table::text);
+  colors.disabledText = QColor(table::disabledText);
+  colors.textOnAccent = QColor(table::textOnAccent);
+  colors.error = QColor(table::error);
+  colors.link = QColor(table::link);
+  colors.imageView = QColor(table::imageView);
+  colors.inactiveSelection = QColor(table::inactiveSelection);
+  return colors;
 }
 }  // namespace
 
 LightColorScheme::LightColorScheme()
     : StyleSheetColorScheme(lightColors(),
                             QString::fromUtf8(":/light_scheme/stylesheet/stylesheet.qss"),
-                            DEFAULT_ACCENT_COLOR) {
-  setColorParam("ThumbnailSequenceItemText", QColor(colors::thumbnailItemText));
-  setColorParam("ThumbnailSequenceSelectionLeaderBackground", QColor(colors::thumbnailSelectionLeaderBackground));
-  setColorParam("ThumbnailSequenceSelectionLeaderText", QColor(colors::thumbnailSelectionLeaderText));
-  setColorParam("OpenNewProjectBorder", QColor(colors::openNewProjectBorder));
-  setColorParam("ProcessingIndicationFade", QColor(colors::imageViewBackground));
-  setColorParam("FixDpiDialogErrorText", QColor(colors::fixDpiDialogErrorText));
-}
+                            DEFAULT_ACCENT_COLOR) {}

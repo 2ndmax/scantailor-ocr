@@ -12,28 +12,25 @@
 
 /**
  * A color scheme of the Fusion style with its own palette and style sheet, as Light and Dark are.
- * Both are built the same way; the subclasses only give their colors.
+ * Both are built the same way from the same meanings of colors; the subclasses only give the colors.
  */
 class StyleSheetColorScheme : public ColorScheme {
  public:
-  /** The colors the palette is derived from. */
-  struct BaseColors {
+  /**
+   * The colors of the scheme that the palette and the color parameters are made of, one for each
+   * meaning (see src/resources/color_schemes/light.colors).
+   */
+  struct Colors {
     QColor window;
-    QColor windowText;
-    QColor disabledWindowText;
-    QColor base;
-    QColor disabledBase;
-    QColor toolTipBase;
-    QColor toolTipText;
-    QColor light;
-    QColor midlight;
-    QColor dark;
-    QColor mid;
-    QColor shadow;
-    QColor brightText;
+    QColor content;
+    QColor border;
+    QColor text;
+    QColor disabledText;
+    QColor textOnAccent;
+    QColor error;
     QColor link;
-    QColor highlight;
-    QColor disabledHighlight;
+    QColor imageView;
+    QColor inactiveSelection;
   };
 
   QStyle* getStyle() const override;
@@ -49,17 +46,14 @@ class StyleSheetColorScheme : public ColorScheme {
    * \param styleSheetPath The style sheet in the resources.
    * \param defaultAccentColor The accent color in the style sheet; the one the user chose replaces it.
    */
-  StyleSheetColorScheme(const BaseColors& colors, const QString& styleSheetPath, const char* defaultAccentColor);
-
-  /** Adds a color for an element that doesn't support styling, beyond the ones both schemes have. */
-  void setColorParam(const QString& name, const QColor& color);
+  StyleSheetColorScheme(const Colors& colors, const QString& styleSheetPath, const char* defaultAccentColor);
 
  private:
-  void loadPalette(const BaseColors& colors);
+  void loadPalette(const Colors& colors, const QColor& accent);
 
   void loadStyleSheet(const QString& path, const char* defaultAccentColor);
 
-  void loadCommonColorParams(const char* defaultAccentColor);
+  void loadColorParams(const Colors& colors, const QColor& accent);
 
   QPalette m_palette;
   QString m_styleSheet;

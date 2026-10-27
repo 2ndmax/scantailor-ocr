@@ -65,8 +65,8 @@ class Utils {
   static QString qssConvertPxToEm(const QString& stylesheet, double base, int precise);
 
   /**
-   * Replaces the accent color of a color scheme's style sheet (the borders of focused and hovered
-   * controls) and the color of the progress bar by the accent color chosen in the settings.
+   * Replaces the accent color of a color scheme's style sheet (borders of focused and hovered
+   * controls, selections, checked boxes, the progress bar) by the accent color chosen in the settings.
    * The style sheet is returned unchanged if no accent color is chosen.
    */
   static QString qssApplyAccentColor(const QString& stylesheet, const QString& defaultAccentColor);

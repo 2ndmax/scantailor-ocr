@@ -1,155 +1,49 @@
-# All colors of the Light scheme, read by cmake/ColorSchemes.cmake. Each {{role}} in the shared style
+# All colors of the Light scheme, read by cmake/ColorSchemes.cmake. Each color has one meaning, and the
+# Light and Dark schemes give each meaning a color of their own. Each {{meaning}} in the shared style
 # sheet and icons in template/ becomes the color given here; LightColorScheme reads its palette and
 # color parameters from the generated header light_scheme_colors.h.
 
-# Borders of hovered, focused and checked controls, the selected thumbnail and the marks on
-# thumbnails: the default accent color (DEFAULT_ACCENT_COLOR). A chosen accent color replaces this
-# value wherever it is in the style sheet, so no other role may have it.
-accent = #1e76e3
-
-# Dock titles, tabs, status bar and table headers.
-barBackground = #d9d9d9
-
-# Borders of buttons, fields and check boxes.
-controlBorder = #cccccc
-
-# Border of the default button.
-defaultButtonBorder = #4a4a4a
-
-# Background of disabled fields, lists, buttons and other controls (palette).
-disabledBackground = #ffffff
-
-# Borders of disabled controls.
-disabledControlBorder = #d9d9d9
-
-# Selected items of disabled lists, trees and tables (palette).
-disabledSelectionBackground = #d9d9d9
-
-# Text of disabled controls (palette), disabled menu items and disabled icons.
-disabledText = #909090
-
-# Borders of docks, tabs, trees and tables.
-frameBorder = #cccccc
-
-# Border of group boxes.
-groupBoxBorder = #d1d1d1
-
-# Hovered tabs and dock buttons.
-hoverBackground = #ebebeb
-
-# Background of the image views, and the veil over them while a page is processed.
-imageViewBackground = #909090
-
-# Disabled check box or radio button that is checked.
-indicatorCheckedDisabledBackground = #b5b5b5
-
-# Pressed check box or radio button that is checked.
-indicatorCheckedPressedBackground = #555555
-
-# Check mark and radio dot.
-indicatorMark = #ffffff
-
-# Check mark and radio dot when disabled.
-indicatorMarkDisabled = #f0f0f0
-
-# Check mark and radio dot while pressed.
-indicatorMarkPressed = #ffffff
-
-# Pressed check box or radio button that is unchecked.
-indicatorUncheckedPressedBackground = #b5b5b5
-
-# Border of selected and pressed menu bar items.
-menuBarItemBorder = #d9d9d9
-
-# Selected menu bar item.
-menuBarItemSelectedBackground = #ffffff
-
-# Checked marks in menus.
-menuIndicatorChecked = #6c6c6c
-
-# Pressed and checked buttons, menu bar line, menu separators.
-pressedBackground = #bdbdbd
-
-# Filled part of progress bars.
-progressBarChunk = #5d9bf3
-
-# Arrows of scroll bars.
-scrollBarArrow = #909090
-
-# Groove of scroll bars.
-scrollBarBackground = #e3e3e3
-
-# Pressed arrow buttons of scroll bars.
-scrollBarButtonPressed = #d9d9d9
-
-# Handle of scroll bars.
-scrollBarHandle = #bdbdbd
-
-# Selected text in fields and lists.
-selectionBackground = #3399ff
-
-# Groove of sliders.
-sliderGroove = #cccccc
-
-# Handle of sliders.
-sliderHandle = #ffffff
-
-# Border of the slider handle.
-sliderHandleBorder = #a4a4a4
-
-# Arrows of spin boxes and combo boxes.
-spinBoxArrow = #555555
-
-# Pressed arrows of spin boxes and combo boxes.
-spinBoxArrowPressed = #303030
-
-# Text of windows and controls (palette), tree branches and the buttons of docks.
-text = #303030
-
-# Border of tool tips.
-toolTipBorder = #000000
-
-# ---- Palette of the scheme (LightColorScheme), set in C++ ----
-
-# Background of windows and dialogs.
+# Background of windows, dialogs, the menu bar and the selected tab.
 window = #f0f0f0
 
-# Background of fields, lists and buttons.
-base = #ffffff
+# Background of text and of what holds it: fields, lists, trees, tables, buttons, menus, tool tips.
+content = #ffffff
 
-# Background of tool tips.
-toolTipBase = #ffffcd
+# Dock titles, tabs, the status bar, table headers and the groove of scroll bars.
+bar = #e3e3e3
 
-# Text of tool tips.
-toolTipText = #000000
+# Background behind the pages in the image views, and the veil over them while a page is processed.
+imageView = #909090
 
-# Shades of frames and bevels that the Fusion style draws, from light to shadow.
-light = #ffffff
-midlight = #f0f0f0
-dark = #d9d9d9
-mid = #cccccc
-shadow = #bdbdbd
+# All borders and lines, also of disabled controls; tree lines, the handle of scroll bars, the groove
+# of sliders.
+border = #ababab
 
-# Text that has to stand out from its background.
-brightText = #f40000
+# Text and icons; the border of the default button; names under the thumbnails.
+text = #303030
 
-# Links.
-link = #0000ff
+# Text and icons of disabled controls; the filling of checked, disabled check boxes.
+disabledText = #909090
 
-# Selected items in lists and trees.
-highlight = #b5b5b5
+# Text and marks on the accent color: selected text and items, check marks.
+textOnAccent = #ffffff
 
-# ---- Colors of what the style sheet doesn't reach (color parameters), set in C++ ----
+# Error messages.
+error = #d40000
 
-# Names under the thumbnails.
-thumbnailItemText = #000000
+# Focus, hover and pressed borders, selected text and items, checked boxes, progress, the selected
+# thumbnail. A chosen accent color replaces this value wherever it is in the style sheet, so no other
+# color of this table may have it.
+accent = #1d73df
 
-# Name under the thumbnail that leads a selection: background and text.
-thumbnailSelectionLeaderBackground = #4a4a4a
-thumbnailSelectionLeaderText = #ffffff
+# Links in messages.
+link = #0f64d2
 
-# Border of the panel for creating or opening a project.
-openNewProjectBorder = #cccccc
+# Element under the mouse: tabs, dock buttons, menu items.
+hover = #d9d9d9
 
-# Invalid resolution in the "Fix DPI" dialog.
-fixDpiDialogErrorText = #fb0000
+# Pressed and checked buttons, an open menu, a pressed unchecked box.
+pressed = #cccccc
+
+# Selected items of lists and trees that are disabled or in an inactive window.
+inactiveSelection = #d9d9d9

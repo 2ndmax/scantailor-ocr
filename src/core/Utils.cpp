@@ -120,13 +120,8 @@ QString Utils::qssApplyAccentColor(const QString& stylesheet, const QString& def
   if (!accent.isValid()) {
     return stylesheet;
   }
-  const QString accentName = accent.name();
-
   QString result = stylesheet;
-  result.replace(defaultAccentColor, accentName, Qt::CaseInsensitive);
-  // The selection color is left as it is; only the progress bar takes the accent color.
-  const QRegularExpression progressBarColor(R"((QProgressBar::chunk\s*\{[^}]*background-color:\s*)#[0-9a-fA-F]{6})");
-  result.replace(progressBarColor, QStringLiteral("\\1") + accentName);
+  result.replace(defaultAccentColor, accent.name(), Qt::CaseInsensitive);
   return result;
 }
 
