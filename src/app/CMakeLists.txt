@@ -3,11 +3,12 @@ set(CMAKE_AUTORCC ON)
 
 set(target_name scantailor-ocr)
 
-set(resource_files
-    resources.qrc
-    dark_scheme/dark_scheme.qrc
-    light_scheme/light_scheme.qrc)
+set(resource_files resources.qrc)
 list_items_prepend(resource_files "${SCANTAILOR_RESOURCES_DIR}/")
+foreach(scheme light dark)
+  generate_color_scheme(${scheme} scheme_qrc)
+  list(APPEND resource_files "${scheme_qrc}")
+endforeach()
 
 set(gui_only_sources
     RelinkingModel.cpp RelinkingModel.h

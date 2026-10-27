@@ -1,0 +1,108 @@
+# The colors of the Light scheme for the shared style sheet and icons in template/.
+# Each {{role}} there becomes the color given here (cmake/ColorSchemes.cmake).
+
+# Borders of hovered, focused and checked controls: the default accent color, which must be
+# DEFAULT_ACCENT_COLOR of the scheme class: a chosen accent color replaces exactly this value.
+accent = #1e76e3
+
+# Dock titles, tabs, status bar and table headers.
+barBackground = #dbdbdb
+
+# Borders of buttons, fields and check boxes.
+controlBorder = #cccccc
+
+# Border of the default button.
+defaultButtonBorder = #4b4b4b
+
+# Background of disabled controls.
+disabledControlBackground = #fafafa
+
+# Borders of disabled controls.
+disabledControlBorder = #dedede
+
+# Disabled menu items and disabled icons.
+disabledText = #909090
+
+# Borders of docks, tabs, trees and tables.
+frameBorder = #cccccc
+
+# Border of group boxes.
+groupBoxBorder = #d1d1d1
+
+# Hovered tabs and dock buttons.
+hoverBackground = #ebebeb
+
+# Tree branches and the buttons of docks.
+iconForeground = #303030
+
+# Background of the image views.
+imageViewBackground = #939393
+
+# Disabled check box or radio button that is checked.
+indicatorCheckedDisabledBackground = #b5b5b5
+
+# Pressed check box or radio button that is checked.
+indicatorCheckedPressedBackground = #555555
+
+# Check mark and radio dot.
+indicatorMark = #fafafa
+
+# Check mark and radio dot when disabled.
+indicatorMarkDisabled = #f0f0f0
+
+# Check mark and radio dot while pressed.
+indicatorMarkPressed = #ffffff
+
+# Pressed check box or radio button that is unchecked.
+indicatorUncheckedPressedBackground = #b5b5b5
+
+# Border of selected and pressed menu bar items.
+menuBarItemBorder = #dbdbdb
+
+# Selected menu bar item.
+menuBarItemSelectedBackground = #fafafa
+
+# Checked marks in menus.
+menuIndicatorChecked = #6c6c6c
+
+# Pressed and checked buttons, menu bar line, menu separators.
+pressedBackground = #bfbfbf
+
+# Filled part of progress bars.
+progressBarChunk = #5d9bf3
+
+# Arrows of scroll bars.
+scrollBarArrow = #939393
+
+# Groove of scroll bars.
+scrollBarBackground = #e3e3e3
+
+# Pressed arrow buttons of scroll bars.
+scrollBarButtonPressed = #d9d9d9
+
+# Handle of scroll bars.
+scrollBarHandle = #bdbdbd
+
+# Selected items of disabled trees and tables.
+selectedDisabledItemBackground = #dfdfdf
+
+# Selected text in fields and lists.
+selectionBackground = #3399ff
+
+# Groove of sliders.
+sliderGroove = #cccccc
+
+# Handle of sliders.
+sliderHandle = #faffff
+
+# Border of the slider handle.
+sliderHandleBorder = #a4a4a4
+
+# Arrows of spin boxes and combo boxes.
+spinBoxArrow = #585858
+
+# Pressed arrows of spin boxes and combo boxes.
+spinBoxArrowPressed = #303030
+
+# Border of tool tips.
+toolTipBorder = #000000
