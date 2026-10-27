@@ -26,7 +26,6 @@
 
 #include "ApplicationSettings.h"
 #include "BackgroundExecutor.h"
-#include "ColorSchemeManager.h"
 #include "Dpm.h"
 #include "ImagePresentation.h"
 #include "OpenGLSupport.h"

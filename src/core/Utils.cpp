@@ -17,7 +17,6 @@
 #include <QStyleOptionComboBox>
 #include <QStyleOptionFrame>
 #include <QStyleOptionSpinBox>
-#include <QTextDocument>
 #include <QWidget>
 #include <algorithm>
 #include <cmath>
@@ -65,17 +64,6 @@ bool Utils::overwritingRename(const QString& from, const QString& to) {
 #else
   return rename(QFile::encodeName(from).data(), QFile::encodeName(to).data()) == 0;
 #endif
-}
-
-QString Utils::richTextForLink(const QString& label, const QString& target) {
-  return QString::fromLatin1(
-             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\""
-             "\"http://www.w3.org/TR/REC-html40/strict.dtd\">"
-             "<html><head><meta name=\"qrichtext\" content=\"1\" />"
-             "</head><body><p style=\"margin-top:0px; margin-bottom:0px;"
-             "margin-left:0px; margin-right:0px; -qt-block-indent:0;"
-             "text-indent:0px;\"><a href=\"%1\">%2</a></p></body></html>")
-      .arg(target.toHtmlEscaped(), label.toHtmlEscaped());
 }
 
 void Utils::maybeCreateCacheDir(const QString& outputDir) {

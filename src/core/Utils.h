@@ -50,18 +50,6 @@ class Utils {
    */
   static bool overwritingRename(const QString& from, const QString& to);
 
-  /**
-   * \brief Generate rich text, complete with headers and stuff,
-   *        for a clickable link.
-   *
-   * \param label The text to show as a link.
-   * \param target A URL or something else. If the link will
-   *        be used in a QLable, this string will be passed
-   *        to QLabel::linkActivated(const QString&).
-   * \return The resulting reach text.
-   */
-  static QString richTextForLink(const QString& label, const QString& target = QString(QChar('#')));
-
   static QString qssConvertPxToEm(const QString& stylesheet, double base, int precise);
 
   /// A resolution as shown in the lists of resolutions, e.g. "300 dpi".
