@@ -6,6 +6,7 @@
 #include <BinaryImage.h>
 #include <Constants.h>
 #include <GrayImage.h>
+#include <NullTaskStatus.h>
 #include <Transform.h>
 
 #include <QImage>
@@ -59,7 +60,8 @@ GrayImage deskewedGray(const QImage& gray, const double deskewAngleDeg) {
 }  // namespace
 
 Finding edgeFit(const BinaryImage& image, const double deskewAngleDeg) {
-  const deskew::TextEdges edges(deskew::measureTextEdges(deskew::deskewedMask(image, deskewAngleDeg)));
+  const deskew::TextEdges edges(
+      deskew::measureTextEdges(deskew::deskewedMask(image, deskewAngleDeg), NullTaskStatus()));
   Finding finding;
   finding.confidence = edges.agree ? edges.count : -edges.count;
   if ((edges.count > 0) && edges.agree) {

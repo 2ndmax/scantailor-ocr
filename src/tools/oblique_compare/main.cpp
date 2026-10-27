@@ -79,7 +79,8 @@ const std::vector<Method>& methods() {
   static const std::vector<Method> METHODS
       = {{QStringLiteral("Programm"),
           [](const ScanInput& in) {
-            return Finding{deskew::Task::findObliqueAngle(in.cleaned, in.deskewAngleDeg, 1.0), std::nullopt};
+            return Finding{deskew::Task::findObliqueAngle(NullTaskStatus(), in.cleaned, in.deskewAngleDeg, 1.0),
+                           std::nullopt};
           }},
          {QStringLiteral("(c2) Kanten"), [](const ScanInput& in) { return edgeFit(in.cleaned, in.deskewAngleDeg); }},
          {QStringLiteral("(d) Strichrichtung"),

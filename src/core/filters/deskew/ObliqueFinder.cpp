@@ -11,6 +11,7 @@
 #include <BWColor.h>
 #include <BinaryImage.h>
 #include <Constants.h>
+#include <TaskStatus.h>
 #include <imageproc/Transform.h>
 
 #include <QImage>
@@ -150,7 +151,8 @@ struct Edge {
 Edge fitEdge(const std::vector<EdgePoint>& points,
              const double typicalHeight,
              const int lineCount,
-             const double resolutionRatio) {
+             const double resolutionRatio,
+             const TaskStatus& status) {
   Edge edge;
   const int n = static_cast<int>(points.size());
   if (n < 2) {
@@ -172,6 +174,7 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
   // The points of the edge being tested; kept between pairs to save allocations.
   std::vector<int> members;
   for (int i = 0; i < n; ++i) {
+    status.throwIfCancelled();
     for (int j = 0; j < n; ++j) {
       const double dy = points[j].y - points[i].y;
       if (dy < 0.25 * span) {
@@ -258,10 +261,11 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
 std::vector<Edge> allEdges(std::vector<EdgePoint> points,
                            const double typicalHeight,
                            const int lineCount,
-                           const double resolutionRatio) {
+                           const double resolutionRatio,
+                           const TaskStatus& status) {
   std::vector<Edge> edges;
   while (true) {
-    const Edge edge(fitEdge(points, typicalHeight, lineCount, resolutionRatio));
+    const Edge edge(fitEdge(points, typicalHeight, lineCount, resolutionRatio, status));
     if (!edge.valid) {
       return edges;
     }
@@ -277,7 +281,7 @@ std::vector<Edge> allEdges(std::vector<EdgePoint> points,
 }
 }  // namespace
 
-TextEdges measureTextEdges(const BinaryImage& deskewedMask, const double resolutionRatio) {
+TextEdges measureTextEdges(const BinaryImage& deskewedMask, const TaskStatus& status, const double resolutionRatio) {
   TextEdges result;
   if (deskewedMask.isNull()) {
     return result;
@@ -314,8 +318,8 @@ TextEdges measureTextEdges(const BinaryImage& deskewedMask, const double resolut
     }
   }
 
-  std::vector<Edge> edges(allEdges(starts, text.typicalHeight, lineCount, resolutionRatio));
-  const std::vector<Edge> rightEdges(allEdges(ends, text.typicalHeight, lineCount, resolutionRatio));
+  std::vector<Edge> edges(allEdges(starts, text.typicalHeight, lineCount, resolutionRatio, status));
+  const std::vector<Edge> rightEdges(allEdges(ends, text.typicalHeight, lineCount, resolutionRatio, status));
   edges.insert(edges.end(), rightEdges.begin(), rightEdges.end());
   if (edges.empty()) {
     return result;
@@ -337,8 +341,10 @@ TextEdges measureTextEdges(const BinaryImage& deskewedMask, const double resolut
   return result;
 }
 
-std::optional<double> findObliqueFromTextEdges(const BinaryImage& deskewedMask, const double resolutionRatio) {
-  const TextEdges edges(measureTextEdges(deskewedMask, resolutionRatio));
+std::optional<double> findObliqueFromTextEdges(const BinaryImage& deskewedMask,
+                                               const TaskStatus& status,
+                                               const double resolutionRatio) {
+  const TextEdges edges(measureTextEdges(deskewedMask, status, resolutionRatio));
   if ((edges.count < 2) || !edges.agree) {
     return std::nullopt;
   }

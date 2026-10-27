@@ -10,6 +10,8 @@
 
 #include <optional>
 
+class TaskStatus;
+
 namespace imageproc {
 class BinaryImage;
 }  // namespace imageproc
@@ -45,9 +47,12 @@ struct TextEdges {
  * beside them, centered text), are the edges: the left edge of every column and the right edge of
  * justified text. A few lines are too short an edge; one pixel off at a line start tilts it by a lot.
  *
+ * \param status Cancels the search, which takes seconds on a page with a large table.
  * \param resolutionRatio Horizontal by vertical resolution; the angle is a physical one.
  */
-TextEdges measureTextEdges(const imageproc::BinaryImage& deskewedMask, double resolutionRatio = 1.0);
+TextEdges measureTextEdges(const imageproc::BinaryImage& deskewedMask,
+                           const TaskStatus& status,
+                           double resolutionRatio = 1.0);
 
 /**
  * \brief The oblique angle from the text edges (see measureTextEdges()), or nothing.
@@ -55,6 +60,7 @@ TextEdges measureTextEdges(const imageproc::BinaryImage& deskewedMask, double re
  * It takes at least two edges that agree: a single edge cannot tell a shear from a perspective.
  */
 std::optional<double> findObliqueFromTextEdges(const imageproc::BinaryImage& deskewedMask,
+                                               const TaskStatus& status,
                                                double resolutionRatio = 1.0);
 
 }  // namespace deskew
