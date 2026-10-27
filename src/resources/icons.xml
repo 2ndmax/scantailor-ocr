@@ -90,9 +90,6 @@
   <icon name="left_page_thumb" styled="on">
     <file>:/icons/left_page_thumb.svg</file>
   </icon>
-  <icon name="aqua-sphere">
-    <file>:/icons/aqua-sphere.svg</file>
-  </icon>
   <icon name="big-down-arrow" styled="on">
     <file>:/icons/big-down-arrow.svg</file>
   </icon>
