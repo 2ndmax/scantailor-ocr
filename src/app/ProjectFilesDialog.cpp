@@ -3,6 +3,7 @@
 
 #include "ProjectFilesDialog.h"
 
+#include <core/ColorSchemeManager.h>
 #include <core/IconProvider.h>
 
 #include <QCoreApplication>
@@ -689,15 +690,11 @@ QVariant ProjectFilesDialog::FileList::data(const QModelIndex& index, const int 
     case Qt::DisplayRole:
       return item.fileInfo().fileName();
     case Qt::ForegroundRole:
-      switch (item.status()) {
-        case Item::STATUS_DEFAULT:
-          return QVariant();
-        case Item::STATUS_LOAD_OK:
-          return QBrush(QColor(0x00, 0xff, 0x00));
-        case Item::STATUS_LOAD_FAILED:
-          return QBrush(QColor(0xff, 0x00, 0x00));
+      // Only the files that failed to load stand out; the others need no attention.
+      if (item.status() == Item::STATUS_LOAD_FAILED) {
+        return QBrush(ColorSchemeManager::instance().getColorParam("ErrorText"));
       }
-      break;
+      return QVariant();
     case Qt::ToolTipRole:
       if (!item.loadError().isEmpty()) {
         return item.loadError();
