@@ -56,10 +56,7 @@ void ZoneDefaultInteraction::onPaint(QPainter& painter, const InteractionState& 
 
     if (!interaction.captured() && interaction.proximityLeader(m_vertexProximity)
         && (spline == m_nearestVertexSpline)) {
-      SplineVertex::Ptr vertex(m_nearestVertex->next(SplineVertex::LOOP));
-      for (; vertex != m_nearestVertex; vertex = vertex->next(SplineVertex::LOOP)) {
-        points.push_back(toScreen.map(vertex->point()));
-      }
+      points = BasicSplineVisualizer::screenPolylineSkipping(m_nearestVertex, toScreen);
       painter.drawPolyline(points);
     } else if (!interaction.captured() && interaction.proximityLeader(m_segmentProximity)
                && (spline == m_nearestSegmentSpline)) {
@@ -75,31 +72,8 @@ void ZoneDefaultInteraction::onPaint(QPainter& painter, const InteractionState& 
   }
 
   if (interaction.proximityLeader(m_vertexProximity)) {
-    // Draw the two adjacent edges in gradient red-to-orange.
-    QLinearGradient gradient;  // From inactive to active point.
-    gradient.setColorAt(0.0, m_visualizer.solidColor());
-    gradient.setColorAt(1.0, m_visualizer.highlightDarkColor());
-
-    QPen pen(painter.pen());
-
-    const QPointF prev(toScreen.map(m_nearestVertex->prev(SplineVertex::LOOP)->point()));
-    const QPointF pt(toScreen.map(m_nearestVertex->point()));
-    const QPointF next(toScreen.map(m_nearestVertex->next(SplineVertex::LOOP)->point()));
-
-    gradient.setStart(prev);
-    gradient.setFinalStop(pt);
-    pen.setBrush(gradient);
-    painter.setPen(pen);
-    painter.drawLine(prev, pt);
-
-    gradient.setStart(next);
-    pen.setBrush(gradient);
-    painter.setPen(pen);
-    painter.drawLine(next, pt);
-
-    // Visualize the highlighted vertex.
-    const QPointF screenVertex(toScreen.map(m_nearestVertex->point()));
-    m_visualizer.drawVertex(painter, screenVertex, m_visualizer.highlightBrightColor());
+    // The two adjacent edges in gradient red-to-orange, with the pen of the last spline drawn.
+    m_visualizer.drawHighlightedVertex(painter, toScreen, m_nearestVertex, painter.pen());
   } else if (interaction.proximityLeader(m_segmentProximity)) {
     const QLineF line(toScreen.map(m_nearestSegment.toLine()));
     // Draw the highlighted edge in orange.

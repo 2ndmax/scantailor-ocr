@@ -37,42 +37,18 @@ void ZoneVertexDragInteraction::onPaint(QPainter& painter, const InteractionStat
       continue;
     }
     // Draw the solid part of the spline.
-    QPolygonF points;
-    SplineVertex::Ptr vertex(m_vertex->next(SplineVertex::LOOP));
-    for (; vertex != m_vertex; vertex = vertex->next(SplineVertex::LOOP)) {
-      points.push_back(toScreen.map(vertex->point()));
-    }
+    const QPolygonF points(BasicSplineVisualizer::screenPolylineSkipping(m_vertex, toScreen));
 
     m_visualizer.prepareForSpline(painter, spline);
     painter.drawPolyline(points);
   }
-
-  QLinearGradient gradient;  // From remote to selected point.
-  gradient.setColorAt(0.0, m_visualizer.solidColor());
-  gradient.setColorAt(1.0, m_visualizer.highlightDarkColor());
 
   QPen gradientPen;
   gradientPen.setCosmetic(true);
   gradientPen.setWidthF(1.5);
 
   painter.setBrush(Qt::NoBrush);
-
-  const QPointF pt(toScreen.map(m_vertex->point()));
-  const QPointF prev(toScreen.map(m_vertex->prev(SplineVertex::LOOP)->point()));
-  const QPointF next(toScreen.map(m_vertex->next(SplineVertex::LOOP)->point()));
-
-  gradient.setStart(prev);
-  gradient.setFinalStop(pt);
-  gradientPen.setBrush(gradient);
-  painter.setPen(gradientPen);
-  painter.drawLine(prev, pt);
-
-  gradient.setStart(next);
-  gradientPen.setBrush(gradient);
-  painter.setPen(gradientPen);
-  painter.drawLine(next, pt);
-
-  m_visualizer.drawVertex(painter, toScreen.map(m_vertex->point()), m_visualizer.highlightBrightColor());
+  m_visualizer.drawHighlightedVertex(painter, toScreen, m_vertex, gradientPen);
 }  // ZoneVertexDragInteraction::onPaint
 
 void ZoneVertexDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) {

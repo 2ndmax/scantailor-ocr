@@ -6,6 +6,7 @@
 
 #include <QColor>
 #include <QPen>
+#include <QPolygonF>
 
 #include "EditableSpline.h"
 
@@ -24,6 +25,20 @@ class BasicSplineVisualizer {
   QRgb highlightDarkColor() const { return m_highlightDarkColor; }
 
   void drawVertex(QPainter& painter, const QPointF& pt, const QColor& color);
+
+  /**
+   * \brief The outline of a spline without the two edges at \p vertex, in screen coordinates.
+   *
+   * It runs from the vertex after \p vertex to the one before it.
+   */
+  static QPolygonF screenPolylineSkipping(const SplineVertex::Ptr& vertex, const QTransform& toScreen);
+
+  /**
+   * \brief Highlights \p vertex: its two edges in a gradient towards it, and the vertex itself.
+   *
+   * \p pen gives the line style; its brush is replaced by the gradient.
+   */
+  void drawHighlightedVertex(QPainter& painter, const QTransform& toScreen, const SplineVertex::Ptr& vertex, QPen pen);
 
   void drawSplines(QPainter& painter, const QTransform& toScreen, const EditableZoneSet& zones);
 
