@@ -35,11 +35,12 @@ Unpack it to `D:\vcpkg`.
 ```
 cd /d D:\vcpkg
 bootstrap-vcpkg.bat
-vcpkg install --recurse qtbase qtsvg qttools qttranslations libjpeg-turbo libpng "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate,tools]" openjpeg zlib boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda tesseract
+powershell -NoProfile -Command "& .\vcpkg.exe install --recurse (Get-Content D:\scantailor-ocr\scripts\setup\vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' })"
 ```
 
-`tesseract` is only needed for text recognition in the PDF export (see the build options
-below).
+The packages are listed in [scripts/setup/vcpkg-packages.txt](scripts/setup/vcpkg-packages.txt),
+which the setup script and the GitHub workflows use as well. `tesseract` is only needed for
+text recognition in the PDF export (see the build options below).
 
 This compiles Qt and everything else from source and takes a while – plan for an hour or more
 and several gigabytes of disk space.

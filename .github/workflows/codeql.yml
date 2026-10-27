@@ -82,19 +82,19 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ github.run_id }}
           restore-keys: vcpkg-${{ runner.os }}-
 
-      # Keep the package list the same as in ci.yml, so the cached packages are used.
+      # The package list is shared with ci.yml (scripts/setup/vcpkg-packages.txt), so the
+      # cached packages are used.
       - name: Install dependencies (vcpkg)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
+          $packages = Get-Content scripts/setup/vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' }
           & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install `
             --clean-after-build `
             "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `
             "--x-packages-root=$env:RUNNER_TEMP\vcpkg-packages" `
             "--downloads-root=$env:RUNNER_TEMP\vcpkg-downloads" `
-            qtbase qtsvg qttools qttranslations libjpeg-turbo libpng `
-            "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate]" openjpeg zlib tesseract `
-            boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda
+            @packages
 
       # Same as running vcvars64.bat: finds Visual Studio and passes the variables
       # it sets on to the following steps.
