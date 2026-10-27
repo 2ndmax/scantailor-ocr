@@ -10,6 +10,8 @@
 
 $ErrorActionPreference = 'Stop'
 $Root = (Resolve-Path "$PSScriptRoot\..\..").Path
+# All logs and results go here unless a script is given -OutDir (ignored by git).
+$ResultsDir = "$PSScriptRoot\results"
 $Utf8 = New-Object Text.UTF8Encoding $false
 
 $vswhereDir = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer"
@@ -43,6 +45,13 @@ function Get-ConfigureArgs([string]$BuildDir, [string]$VcpkgRoot, [string]$Build
 function Invoke-VsLogged([string]$CommandLine, [string]$Log) {
     cmd /c "chcp 65001 >nul && `"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine >> `"$Log`" 2>&1"
     return $LASTEXITCODE
+}
+
+# The value of an environment variable inside the developer environment (e.g. INCLUDE).
+function Get-VsEnv([string]$Name) {
+    $line = cmd /c "`"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && set $Name" |
+        Where-Object { $_ -like "$Name=*" } | Select-Object -First 1
+    return "$line".Substring($Name.Length + 1)
 }
 
 function Get-Stamp { Get-Date -Format 'yyyy-MM-dd HH:mm:ss' }
@@ -117,4 +126,25 @@ function Get-StdSwitches([string]$BuildDir) {
     $db = Get-Content "$BuildDir\compile_commands.json" -Raw | ConvertFrom-Json
     return ($db | ForEach-Object { [regex]::Matches($_.command, '[-/]std:\S+') | ForEach-Object Value } |
         Group-Object | ForEach-Object { "$($_.Name) x$($_.Count)" }) -join ', '
+}
+
+# The MSVC conformance runs 05 and 06: a full rebuild with /W4 (dependency headers external,
+# their warnings suppressed) like run 01, but without /analyze, so their warnings can be compared
+# with the C4xxx warnings of run 01. $Flags are added to /W4, $Extra to the configure arguments.
+function Invoke-ConformanceRun([string]$Id, [string]$Name, [string]$Title, [string]$Flags,
+                               [string]$Extra, [string]$OutDir, [string]$BuildDir, [string]$VcpkgRoot) {
+    $flagsAll = "/W4 /external:W0 /external:anglebrackets $Flags".Trim()
+    $log = "$OutDir\$Id-$Name.log"
+    $env:CFLAGS = $flagsAll
+    $env:CXXFLAGS = $flagsAll
+    New-Log $log "${Id}: $Title, full rebuild in $(Split-Path $BuildDir -Leaf)" (@(
+        "# Compiler: $(Get-ClVersion)"
+    ) + (Get-ToolVersions) + @("# CFLAGS/CXXFLAGS env: $flagsAll"))
+    $rc = Invoke-Build $log $BuildDir "$(Get-ConfigureArgs $BuildDir $VcpkgRoot) -DENABLE_CODE_ANALYSIS=OFF $Extra"
+    if (Test-Path "$BuildDir\compile_commands.json") {
+        # Records the language standard actually used, as a check of the override.
+        Add-LogLine $log "# Standard switches in compile_commands.json: $(Get-StdSwitches $BuildDir)"
+    }
+    Add-LogLine $log "# End: $(Get-Stamp)"
+    return $rc
 }

@@ -140,10 +140,11 @@ make -j$(nproc)
 
 ## Optional: code analysis
 
-None of this is needed for a normal build. The scripts in `scripts\analysis` run the compiler's
-static analysis, clang-tidy, cppcheck, a clang-cl build and a build with sanitizers, each in a
-build directory of its own, and write their findings to log files. What each run does and how
-to merge the results is described in [scripts/analysis/README.md](scripts/analysis/README.md).
+None of this is needed for a normal build. The numbered scripts in `scripts\analysis` run the
+compiler's static analysis, clang-tidy, cppcheck, the EDG C++ front end, builds with stricter
+MSVC switches, a clang-cl build and a build with sanitizers, and write their findings to
+`scripts\analysis\results`. What each run does, how to set it up and how to merge the results
+is described in [scripts/analysis/README.md](scripts/analysis/README.md).
 
 They need, in addition to the steps above:
 
@@ -152,6 +153,8 @@ They need, in addition to the steps above:
   components"). clang-tidy and clang-format come with Visual Studio.
 * For the cppcheck run: [cppcheck](https://cppcheck.sourceforge.io/), installed to
   `C:\Program Files\Cppcheck` or on the `PATH`.
+* For the EDG run: the Visual Studio component **".NET Framework 4.8.1 SDK"**, and EDG set up
+  once in `D:\edgcpp` with `EDG_ROOT` pointing there, as described in the README of the scripts.
 * `VCPKG_ROOT` set as in step 5 (or `-VcpkgRoot <folder>` passed to the script).
 
 The code formatting is checked on GitHub for every push. To check it beforehand, run the

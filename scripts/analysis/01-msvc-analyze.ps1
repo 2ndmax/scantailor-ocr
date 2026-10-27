@@ -6,12 +6,13 @@
   Configures a fresh build directory with ENABLE_CODE_ANALYSIS=ON and builds everything,
   including the tests and the dev tools. The analysis results are also written as SARIF,
   one file per translation unit; they are collected into <OutDir>\01-msvc-analyze-sarif.
-  The build directory is reused by the clang-tidy and cppcheck runs (its compile_commands.json).
+  The build directory is reused by the runs 02 (clang-tidy), 03 (cppcheck) and 04 (EDG), which
+  read its compile_commands.json.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\msvc-analyze.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\01-msvc-analyze.ps1
 
 .PARAMETER OutDir
-  Where the log and the SARIF files go. Default: ANALYSE in the repository.
+  Where the log and the SARIF files go. Default: results in this folder.
 
 .PARAMETER BuildDir
   The build directory, must not exist yet. Default: build-analysis in the repository.
@@ -25,7 +26,7 @@ param(
     [string]$VcpkgRoot = ''
 )
 . "$PSScriptRoot\common.ps1"
-if (-not $OutDir) { $OutDir = "$Root\ANALYSE" }
+if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-analysis" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $log = "$OutDir\01-msvc-analyze.log"

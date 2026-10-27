@@ -121,6 +121,8 @@ docs/_build/
 # Tests / coverage output
 Testing/
 test_results/
+scripts/analysis/results/
+scripts/setup/logs/
 coverage/
 lcov.info
 

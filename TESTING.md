@@ -176,6 +176,14 @@ The output folder (suggested: `ANALYSE/scherung/`, local only) gets `bericht.htm
 figures per group of pages, conclusions and images of the pages with the largest remaining shear
 in `bilder/`), `ergebnisse.csv` (one row per page and method) and `zusammenfassung.txt`.
 
+## Code analysis
+
+Besides the tests, the scripts in `scripts\analysis` check the code with several compilers and
+analysis tools (MSVC code analysis, clang-tidy, cppcheck, the EDG C++ front end, clang-cl,
+sanitizers) and merge their findings into one table. They are numbered in the order in which
+they are best run; [scripts/analysis/README.md](scripts/analysis/README.md) describes each run,
+its setup and its output.
+
 ## Disabling tests
 
 In environments without Boost or without the test dependencies:

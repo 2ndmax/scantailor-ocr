@@ -3,7 +3,7 @@
   Run 02: clang-tidy with the repository's .clang-tidy over all sources in src/ except the tests.
 
 .DESCRIPTION
-  Needs the build directory of run 01 (msvc-analyze.ps1) for its compile_commands.json and the
+  Needs the build directory of run 01 (01-msvc-analyze.ps1) for its compile_commands.json and the
   generated headers. The compile database is filtered (tests and generated files removed,
   MSVC /analyze switches stripped, as clang-tidy doesn't know them), and the files are run in
   parallel through a generated ninja file, so the output stays grouped per file.
@@ -12,10 +12,10 @@
   <OutDir>\02-clang-tidy-fixes. clang-tidy only writes such a file for units with at least
   one diagnostic. Diagnostics in headers appear once per including source file.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\clang-tidy.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\02-clang-tidy.ps1
 
 .PARAMETER OutDir
-  Where the log and the YAML files go. Default: ANALYSE in the repository.
+  Where the log and the YAML files go. Default: results in this folder.
 
 .PARAMETER BuildDir
   The build directory of run 01. Default: build-analysis in the repository.
@@ -25,7 +25,7 @@ param(
     [string]$BuildDir = ''
 )
 . "$PSScriptRoot\common.ps1"
-if (-not $OutDir) { $OutDir = "$Root\ANALYSE" }
+if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-analysis" }
 $tidy = "$LlvmBin\clang-tidy.exe"
 $dbDir = "$BuildDir\tidy-db"

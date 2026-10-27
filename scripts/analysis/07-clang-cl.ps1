@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Run 06: full build with clang-cl instead of MSVC cl.exe, as a second compiler.
+  Run 07: full build with clang-cl instead of MSVC cl.exe, as a second compiler.
 
 .DESCRIPTION
   Needs the Visual Studio component "C++ Clang Compiler for Windows". C++17, /W4 (= -Wall
@@ -9,10 +9,10 @@
   clang-cl doesn't know /external:anglebrackets and says so once per file
   ("argument unused during compilation"); that is harmless.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\clang-cl.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\07-clang-cl.ps1
 
 .PARAMETER OutDir
-  Where the log goes. Default: ANALYSE in the repository.
+  Where the log goes. Default: results in this folder.
 
 .PARAMETER BuildDir
   The build directory, must not exist yet. Default: build-clang-cl in the repository.
@@ -26,16 +26,16 @@ param(
     [string]$VcpkgRoot = ''
 )
 . "$PSScriptRoot\common.ps1"
-if (-not $OutDir) { $OutDir = "$Root\ANALYSE" }
+if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-clang-cl" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $clang = "$LlvmBin\clang-cl.exe"
 if (-not (Test-Path $clang)) { throw "clang-cl not found in $LlvmBin; install the VS component 'C++ Clang Compiler for Windows'." }
-$log = "$OutDir\06-clang-cl.log"
+$log = "$OutDir\07-clang-cl.log"
 $env:CFLAGS = '/W4 /external:W0 /external:anglebrackets'
 $env:CXXFLAGS = $env:CFLAGS
 
-New-Log $log '06: clang-cl instead of MSVC cl.exe, full rebuild' (@(
+New-Log $log '07: clang-cl instead of MSVC cl.exe, full rebuild' (@(
     "# Build directory: $BuildDir"
     "# Compiler: $((& $clang --version | Select-Object -First 1))"
 ) + (Get-ToolVersions) + @("# CFLAGS/CXXFLAGS env: $env:CXXFLAGS"))

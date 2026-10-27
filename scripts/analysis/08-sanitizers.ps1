@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-  Run 07: UndefinedBehaviorSanitizer (UBSan) together with AddressSanitizer (ASan).
+  Run 08: UndefinedBehaviorSanitizer (UBSan) together with AddressSanitizer (ASan).
 
 .DESCRIPTION
   Builds with clang-cl and -fsanitize=address,undefined (RelWithDebInfo, so the stack traces have
   function names), then
-    a) runs all test programs                                    -> 07-ubsan-tests.log
-    b) lets the two command-line dev tools process real scans    -> 07-ubsan-tools.log
+    a) runs all test programs                                    -> 08-ubsan-tests.log
+    b) lets the two command-line dev tools process real scans    -> 08-ubsan-tools.log
   The sanitizer reports are in the stderr sections of the logs: UBSan as "runtime error: ..."
   with file:line, ASan as "ERROR: AddressSanitizer: ...", both with stack traces. The programs
   keep running after a report, so all findings of a program are collected.
@@ -30,7 +30,7 @@
   (core_tests, qt_tests) right at startup, with a stack trace only in Qt's DLL initialization.
   This one report is no finding in the project's code; the programs run on after it.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\sanitizers.ps1 -Images D:\scans
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\08-sanitizers.ps1 -Images D:\scans
 
 .PARAMETER Images
   A folder with scans (.tif, .tiff, .jp2, top level only) for the dev tools. Without it,
@@ -40,7 +40,7 @@
   Reuse an existing build directory and only run a) and b).
 
 .PARAMETER OutDir
-  Where the logs go. Default: ANALYSE in the repository.
+  Where the logs go. Default: results in this folder.
 
 .PARAMETER BuildDir
   The build directory. Default: build-ubsan in the repository.
@@ -56,7 +56,7 @@ param(
     [string]$VcpkgRoot = ''
 )
 . "$PSScriptRoot\common.ps1"
-if (-not $OutDir) { $OutDir = "$Root\ANALYSE" }
+if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-ubsan" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $clang = "$LlvmBin\clang-cl.exe"
@@ -81,11 +81,11 @@ $header = @(
 
 # --- Build ---------------------------------------------------------------------------------------
 if (-not $SkipBuild) {
-    $log = "$OutDir\07-ubsan-build.log"
+    $log = "$OutDir\08-ubsan-build.log"
     $env:CFLAGS = $flags
     $env:CXXFLAGS = $flags
     $env:LDFLAGS = $ldflags
-    New-Log $log '07: UBSan + ASan build with clang-cl (RelWithDebInfo)' ($header + @(
+    New-Log $log '08: UBSan + ASan build with clang-cl (RelWithDebInfo)' ($header + @(
         "# Build directory: $BuildDir"
         "# LDFLAGS env: $ldflags"
     ) + (Get-ToolVersions))
@@ -141,21 +141,21 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
 }
 
 # --- a) Tests ------------------------------------------------------------------------------------
-$log = "$OutDir\07-ubsan-tests.log"
-New-Log $log '07: UBSan + ASan, all test programs (QT_QPA_PLATFORM=offscreen)' $header
+$log = "$OutDir\08-ubsan-tests.log"
+New-Log $log '08: UBSan + ASan, all test programs (QT_QPA_PLATFORM=offscreen)' $header
 foreach ($t in 'foundation_tests.exe', 'math_tests.exe', 'imageproc_tests.exe', 'core_tests.exe', 'qt_tests.exe') {
     Invoke-Logged $log $t '' 60
 }
 
 # --- b) Dev tools on real scans ------------------------------------------------------------------
 if (-not $Images) { exit 0 }
-$log = "$OutDir\07-ubsan-tools.log"
+$log = "$OutDir\08-ubsan-tools.log"
 $in = "$BuildDir\tool-input"
 $res = "$BuildDir\tool-output"
 New-Item -ItemType Directory -Force $in, "$res\binarization", "$res\binarization-colors", "$res\color_detect" | Out-Null
 $imgs = Get-ChildItem $Images -File | Where-Object { $_.Extension -in '.tif', '.tiff', '.jp2' }
 foreach ($i in $imgs) { Copy-Item $i.FullName $in -Force }
-New-Log $log '07: UBSan + ASan, dev tools binarization_compare and color_detect on real scans' ($header + @(
+New-Log $log '08: UBSan + ASan, dev tools binarization_compare and color_detect on real scans' ($header + @(
     "# Input: copies of $($imgs.Count) images from $Images (top level, tif/jp2) in $in`:"
 ) + @($imgs | ForEach-Object { "#   $($_.Name) ($([int]($_.Length / 1KB)) KB)" }) + @(
     "# Output images: $res (not part of this log)"

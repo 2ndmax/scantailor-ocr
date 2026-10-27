@@ -3,21 +3,21 @@
   Merges the raw output of the analysis runs into one table of distinct findings.
 
 .DESCRIPTION
-  Reads the logs written by the run scripts in this folder (01-07) and collects every warning
+  Reads the logs written by the run scripts in this folder (01-08) and collects every warning
   or runtime report with its location. A finding is one combination of tool, check, file and
-  line; repeats (a header reported once per including file, the same warning in the runs 01, 04
-  and 05) are merged, and the runs that reported it are listed.
+  line; repeats (a header reported once per including file, the same warning in the runs 01, 05
+  and 06) are merged, and the runs that reported it are listed.
 
-  Writes two files into the analysis folder:
+  Writes two files into the results folder:
     findings.csv  all findings, one per row (semicolon separated, UTF-8 with BOM for Excel)
     findings.md   a summary per tool and check, then the findings grouped by file and line.
                   Checks listed in -BulkChecks are only counted there, not listed.
 
-  Not read: the failed setup attempts of run 07 (07-*-failed.log, 07-*-aborted.log).
+  Not read: the failed setup attempts of run 08 (08-*-failed.log, 08-*-aborted.log).
   Does not need Visual Studio or any of the tools.
 
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File scripts\analysis\merge-findings.ps1
+  powershell -ExecutionPolicy Bypass -File scripts\analysis\09-merge-findings.ps1
 #>
 param(
   [string] $AnalysisDir,
@@ -25,13 +25,14 @@ param(
   [string[]] $BulkChecks = @(
     'C4100', '-Wunused-parameter',                  # unreferenced parameter
     'C4267',                                        # size_t to a smaller type
-    'C4456', 'C4457', 'C4458', 'C4459', 'C6246'     # a name hides another one
+    'C4456', 'C4457', 'C4458', 'C4459', 'C6246',    # a name hides another one
+    '#161-D'                                        # EDG: MSVC's "#pragma warning" (Q_OBJECT)
   )
 )
 
 $ErrorActionPreference = 'Stop'
 $Root = (Resolve-Path "$PSScriptRoot\..\..").Path
-if (-not $AnalysisDir) { $AnalysisDir = Join-Path $Root 'ANALYSE' }
+if (-not $AnalysisDir) { $AnalysisDir = Join-Path $PSScriptRoot 'results' }
 $AnalysisDir = (Resolve-Path $AnalysisDir).Path
 $Utf8 = New-Object Text.UTF8Encoding $false
 
@@ -72,8 +73,8 @@ function Read-Lines([string] $name) {
 
 # MSVC: file(line): warning C4xxx: text   and   file(line) : warning C6xxx: text
 $reMsvc = '^(?<file>[A-Za-z]:\\[^(]+)\((?<line>\d+)(,\d+)?\)\s?:\s+warning (?<code>C\d{4}):\s*(?<msg>.*)$'
-foreach ($run in @(@('01', '01-msvc-analyze.log'), @('04', '04-msvc-cxx20.log'),
-                   @('05', '05-msvc-zc-preprocessor.log'))) {
+foreach ($run in @(@('01', '01-msvc-analyze.log'), @('05', '05-msvc-cxx20.log'),
+                   @('06', '06-msvc-zc-preprocessor.log'))) {
   foreach ($l in Read-Lines $run[1]) {
     if ($l -match $reMsvc) {
       Add-Finding 'MSVC' $run[0] $Matches.code $Matches.file $Matches.line $Matches.msg
@@ -83,8 +84,8 @@ foreach ($run in @(@('01', '01-msvc-analyze.log'), @('04', '04-msvc-cxx20.log'),
 
 # Clang: file:line:col: warning: text [check]   or (clang-cl)   file(line,col): warning: text [-Wx]
 $reClang = '^(?<file>[A-Za-z]:\\.+?)(?::(?<line>\d+):\d+|\((?<line>\d+),\d+\)):\s+(?:warning|error):\s+(?<msg>.*?)\s+\[(?<check>[^\]]+)\]\s*$'
-foreach ($run in @(@('clang-tidy', '02', '02-clang-tidy.log'), @('clang-cl', '06', '06-clang-cl.log'),
-                   @('clang-cl', '07', '07-ubsan-build.log'))) {
+foreach ($run in @(@('clang-tidy', '02', '02-clang-tidy.log'), @('clang-cl', '07', '07-clang-cl.log'),
+                   @('clang-cl', '08', '08-ubsan-build.log'))) {
   foreach ($l in Read-Lines $run[2]) {
     if ($l -match $reClang) {
       $check = ($Matches.check -split ',')[0]
@@ -104,11 +105,19 @@ if (Test-Path $xmlPath) {
   }
 } else { Write-Warning "missing: 03-cppcheck.xml" }
 
+# EDG: "file", line n: warning #177-D: text   (one line each, through --no_wrap_diagnostics)
+$reEdg = '^"(?<file>[^"]+)", line (?<line>\d+): (?:catastrophic error|error|warning|remark) #(?<check>[\w-]+): (?<msg>.*)$'
+foreach ($l in Read-Lines '04-edg.log') {
+  if ($l -match $reEdg) {
+    Add-Finding 'EDG' '04' "#$($Matches.check)" $Matches.file $Matches.line $Matches.msg
+  }
+}
+
 # Sanitizers: UBSan reports its location directly; for ASan the first stack frame
 # in the project's own code is taken (or the first frame at all, if there is none).
 $reUbsan = '^(?<file>[A-Za-z]:\\.+?):(?<line>\d+):\d+: runtime error: (?<msg>.*)$'
 $reFrame = '^\s+#\d+ 0x[0-9a-f]+ in \S+ (?<file>[A-Za-z]:\\.+?):(?<line>\d+)'
-foreach ($name in @('07-ubsan-tests.log', '07-ubsan-tools.log')) {
+foreach ($name in @('08-ubsan-tests.log', '08-ubsan-tools.log')) {
   $lines = Read-Lines $name
   # The type of a report (shift-base, allocation-size-too-big ...) is in its SUMMARY line.
   function Get-SummaryType([int] $from, [string] $fallback) {
@@ -121,7 +130,7 @@ foreach ($name in @('07-ubsan-tests.log', '07-ubsan-tools.log')) {
     $l = $lines[$i]
     if ($l -match $reUbsan) {
       $file = $Matches.file; $line = $Matches.line; $msg = $Matches.msg
-      Add-Finding 'UBSan' '07' (Get-SummaryType $i 'runtime error') $file $line $msg
+      Add-Finding 'UBSan' '08' (Get-SummaryType $i 'runtime error') $file $line $msg
     } elseif ($l -match 'ERROR: AddressSanitizer: (?<msg>.*)$') {
       $msg = $Matches.msg -replace '0x[0-9a-f]+', '0x...'
       $check = Get-SummaryType $i 'AddressSanitizer'
@@ -132,7 +141,7 @@ foreach ($name in @('07-ubsan-tests.log', '07-ubsan-tools.log')) {
           if ((Get-RelPath $Matches.file) -like 'src/*') { $file = $Matches.file; $line = $Matches.line; break }
         } elseif ($lines[$j] -match '^\s*$' -and $file -ne '(no stack frame)') { break }
       }
-      Add-Finding 'ASan' '07' $check $file $line $msg
+      Add-Finding 'ASan' '08' $check $file $line $msg
     }
   }
 }
@@ -160,7 +169,7 @@ $md = New-Object Text.StringBuilder
 $commit = (& git -C $Root rev-parse --short HEAD 2>$null)
 [void]$md.AppendLine('# Findings of the analysis runs (merged)')
 [void]$md.AppendLine()
-[void]$md.AppendLine("Generated by ``scripts/analysis/merge-findings.ps1`` on $(Get-Date -Format 'yyyy-MM-dd HH:mm') (repository at ``$commit``) from ``$AnalysisDir``.")
+[void]$md.AppendLine("Generated by ``scripts/analysis/09-merge-findings.ps1`` on $(Get-Date -Format 'yyyy-MM-dd HH:mm') (repository at ``$commit``) from ``$AnalysisDir``.")
 [void]$md.AppendLine('One finding = tool + check + file + line. "Runs" lists the runs that reported it, "n" how often it')
 [void]$md.AppendLine('appeared in total (headers count once per including file). All findings are in `findings.csv`.')
 [void]$md.AppendLine()
