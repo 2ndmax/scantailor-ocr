@@ -69,16 +69,6 @@ class CompactSpinBoxStyle : public QProxyStyle {
     return result;
   }
 
-  void polish(QWidget* widget) override {
-    QProxyStyle::polish(widget);
-    // Number fields keep their width instead of filling a widened panel.
-    if (auto* spinBox = qobject_cast<QAbstractSpinBox*>(widget)) {
-      spinBox->setSizePolicy(QSizePolicy::Fixed, spinBox->sizePolicy().verticalPolicy());
-    }
-  }
-
-  using QProxyStyle::polish;
-
  private:
   static int buttonColumnWidth(const QStyleOptionSpinBox& spinBox) { return spinBox.fontMetrics.height(); }
 };
