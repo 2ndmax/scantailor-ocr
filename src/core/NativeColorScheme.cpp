@@ -10,7 +10,16 @@
 #include <QStyleFactory>
 #include <QStyleOptionSpinBox>
 
+#include "StyleSheetColorScheme.h"
+#include "color_schemes/dark_scheme_colors.h"
+#include "color_schemes/light_scheme_colors.h"
+
 namespace {
+/** The background of the image views: a little darker than the window. */
+QColor imageViewColor(const QPalette& palette) {
+  return palette.window().color().darker(115);
+}
+
 /**
  * The Windows 11 style puts the two arrows of a spin box next to each other, which makes each
  * spin box about 40 pixels wider than in the other color schemes, so rows of spin boxes don't
@@ -102,33 +111,23 @@ const ColorScheme::ColorParams* NativeColorScheme::getColorParams() const {
 }
 
 void NativeColorScheme::loadStyleSheet() {
-  const QPalette palette = QPalette();
-
   m_styleSheet.append(QString("QGraphicsView, ImageViewBase, QFrame#imageViewFrame {\n"
                               "  background-color: %1;\n"
                               "  background-attachment: scroll;\n"
                               "}")
-                          .arg(palette.window().color().darker(115).name()));
+                          .arg(imageViewColor(QPalette()).name()));
 }
 
 void NativeColorScheme::loadColorParams() {
+  // The same meanings as in Light and Dark, taken from the system's palette.
   const QPalette palette = QPalette();
-
-  m_customColors["ThumbnailSequenceItemText"] = palette.color(QPalette::Text);
-  m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = palette.color(QPalette::Highlight);
-  m_customColors["ThumbnailSequenceSelectionLeaderText"] = palette.color(QPalette::HighlightedText);
-  m_customColors["ThumbnailSequenceSelectedItemBorder"] = palette.color(QPalette::Highlight).darker(150);
-  m_customColors["OpenNewProjectBorder"] = palette.color(QPalette::WindowText);
-  m_customColors["ProcessingIndicationFade"] = palette.window().color().darker(115);
-  m_customColors["ErrorText"] = QColor(Qt::red);
-  if (palette.window().color().lightnessF() < 0.5) {
-    // If system scheme is dark, adapt some colors.
-    m_customColors["ProcessingIndicationHead"] = palette.color(QPalette::Window).lighter(200);
-    m_customColors["ProcessingIndicationTail"] = palette.color(QPalette::Window).lighter(130);
-  } else {
-    m_customColors["ProcessingIndicationHead"] = palette.color(QPalette::Window).darker(200);
-    m_customColors["ProcessingIndicationTail"] = palette.color(QPalette::Window).darker(130);
-  }
-  m_customColors["StageListHead"] = m_customColors.at("ProcessingIndicationHead");
-  m_customColors["StageListTail"] = m_customColors.at("ProcessingIndicationTail");
+  StyleSheetColorScheme::Colors colors;
+  colors.text = palette.color(QPalette::Text);
+  colors.border = palette.color(QPalette::Mid);
+  colors.imageView = imageViewColor(palette);
+  // The palette has no error color: the one of Light or Dark, whichever matches the window.
+  const bool darkWindow = palette.color(QPalette::Window).lightnessF() < 0.5;
+  colors.error = QColor(darkWindow ? dark_scheme_colors::error : light_scheme_colors::error);
+  m_customColors = StyleSheetColorScheme::colorParams(colors, palette.color(QPalette::Highlight),
+                                                      palette.color(QPalette::HighlightedText));
 }

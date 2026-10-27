@@ -218,3 +218,23 @@ void TestUxQt::testTextOnAccentHasTheHigherContrast() {
   QCOMPARE(scheme->getPalette()->color(QPalette::HighlightedText), expected);
   QCOMPARE(scheme->getColorParams()->at("ThumbnailSequenceSelectionLeaderText"), expected);
 }
+
+void TestUxQt::testNativeSchemeFollowsTheSameMeanings() {
+  // The native scheme has the system's palette and takes its color parameters from it by the same
+  // meanings as Light and Dark: the selection color as the accent, its text color as text on it.
+  // The palette has no error color, so it is the one of Light or Dark, whichever matches the window.
+  const QPalette palette;
+  const NativeColorScheme scheme;
+  const ColorScheme::ColorParams& params = *scheme.getColorParams();
+  QCOMPARE(params.at("ThumbnailSequenceItemText"), palette.color(QPalette::Text));
+  QCOMPARE(params.at("ThumbnailSequenceSelectedItemBorder"), palette.color(QPalette::Highlight));
+  QCOMPARE(params.at("ThumbnailSequenceSelectionLeaderBackground"), palette.color(QPalette::Highlight));
+  QCOMPARE(params.at("ThumbnailSequenceSelectionLeaderText"), palette.color(QPalette::HighlightedText));
+  QCOMPARE(params.at("OpenNewProjectBorder"), palette.color(QPalette::Mid));
+  QCOMPARE(params.at("ProcessingIndicationHead"), palette.color(QPalette::Text));
+  QCOMPARE(params.at("ProcessingIndicationTail"), palette.color(QPalette::Highlight));
+  QCOMPARE(params.at("StageListHead"), palette.color(QPalette::Text));
+  QCOMPARE(params.at("StageListTail"), palette.color(QPalette::Highlight));
+  const bool darkWindow = palette.color(QPalette::Window).lightnessF() < 0.5;
+  QCOMPARE(params.at("ErrorText"), QColor(darkWindow ? dark_scheme_colors::error : light_scheme_colors::error));
+}
