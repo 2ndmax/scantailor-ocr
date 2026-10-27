@@ -36,7 +36,8 @@ param(
     [string]$Python = '',
     [string]$OutDir = ''
 )
-. "$PSScriptRoot\..\analysis\common.ps1"
+. "$PSScriptRoot\..\common.ps1"
+if (-not $Vs) { throw 'No Visual Studio installation with the C++ tools found: run 1-setup-windows.ps1 first.' }
 if (-not $OutDir) { $OutDir = "$PSScriptRoot\logs" }
 if (-not $EdgDir) { $EdgDir = $env:EDG_ROOT }
 if (-not $EdgDir) { throw 'No folder for EDG: pass -EdgDir or set EDG_ROOT.' }
