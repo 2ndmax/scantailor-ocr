@@ -10,6 +10,7 @@
 #include "ApplicationSettings.h"
 #include "ImagePresentation.h"
 #include "OutputMargins.h"
+#include "OverlayStyle.h"
 
 namespace output {
 ImageView::ImageView(const QImage& image, const QImage& downscaledImage)
@@ -37,7 +38,9 @@ void ImageView::drawGuides(QPainter& painter) {
   const QRect vp = viewport()->rect();
   const int cx = vp.center().x();
   const int cy = vp.center().y();
-  painter.setPen(QPen(QColor(255, 0, 0, 120), 1.0, Qt::DashLine));
+  QPen pen(OverlayStyle::pen(OverlayStyle::secondary(), OverlayStyle::Line::Fine));
+  pen.setStyle(Qt::DashLine);
+  painter.setPen(pen);
   painter.drawLine(cx, vp.top(), cx, vp.bottom());
   painter.drawLine(vp.left(), cy, vp.right(), cy);
 }

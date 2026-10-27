@@ -9,6 +9,7 @@
 
 #include "ApplicationSettings.h"
 #include "ImageViewBase.h"
+#include "OverlayStyle.h"
 #include "ScopedIncDec.h"
 #include "ZoneInteractionContext.h"
 
@@ -45,9 +46,7 @@ void ColorPickupInteraction::onPaint(QPainter& painter, const InteractionState& 
   painter.setWorldTransform(QTransform());
   painter.setRenderHint(QPainter::Antialiasing, true);
 
-  QPen pen(Qt::red);
-  pen.setWidthF(1.5);
-  painter.setPen(pen);
+  painter.setPen(OverlayStyle::pen(OverlayStyle::secondary(), OverlayStyle::Line::Fine));
   painter.setBrush(Qt::NoBrush);
   painter.drawEllipse(targetBoundingRect());
 }
