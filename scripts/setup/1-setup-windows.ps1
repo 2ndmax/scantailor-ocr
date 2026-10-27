@@ -3,15 +3,17 @@
   Setup 1: everything BUILDING.md describes for Windows, from Visual Studio to the finished build.
 
 .DESCRIPTION
-  Asks for the vcpkg folder, then shows the steps in a menu; each can be run on its own, 0 runs
-  all of them in order:
+  Shows the steps in a menu; each can be run on its own, 0 runs all of them in order. The vcpkg
+  folder is asked for when a step first needs it (3, 4 or 5):
     1. Visual Studio: checks for the C++ tools, the CMake tools and the Windows SDK. Installs
        Visual Studio Community (or the Build Tools) with winget when it is missing, or adds the
        missing components with the Visual Studio Installer. Both go to their standard folder.
-    2. vcpkg: gets it (git clone, or the ZIP without Git), builds it and installs the packages of
+    2. Git and GitHub CLI: installs what is missing with winget; then points out the Git
+       settings and the GitHub sign-in that are still to do (it does not do them itself).
+    3. vcpkg: gets it (git clone, or the ZIP without Git), builds it and installs the packages of
        vcpkg-packages.txt (an hour or more the first time).
-    3. VCPKG_ROOT: sets the variable for your user account.
-    4. Build: configures and builds ScanTailor OCR in the build folder of the repository; then
+    4. VCPKG_ROOT: sets the variable for your user account.
+    5. Build: configures and builds ScanTailor OCR in the build folder of the repository; then
        offers to download the OCR languages German and English and to run the tests.
   Each step skips what is already there. The output also goes to logs\1-setup-windows.log.
 
@@ -57,19 +59,28 @@ Write-Intro 'ScanTailor OCR - set up the build on Windows' @(
     'This script sets up everything needed to build ScanTailor OCR from this repository:'
     'Visual Studio, vcpkg with the libraries, the variable VCPKG_ROOT and the build itself.'
     "Repository: $Root (the folder this script is in; the build goes to its subfolder build)"
-    'After the folder question it shows the steps in a menu; nothing is installed without asking.'
+    'It shows the steps in a menu; nothing is installed without asking.'
     ''
     'vcpkg is the package manager that builds Qt and the other libraries; with them its folder'
-    'needs at least 35 GB. An existing vcpkg folder is used as it is.'
+    'needs at least 35 GB. Its folder is asked for in step 3; an existing one is used as it is.'
 )
-if (-not $VcpkgDir) {
-    $default = if ($env:VCPKG_ROOT) { $env:VCPKG_ROOT } else { Join-Path (Get-DefaultBase) 'vcpkg' }
+# Until the folder is asked for, the suggestion stands in for it (the [done] marks of the menu).
+$VcpkgAsked = [bool]$VcpkgDir
+$VcpkgDir = if ($VcpkgDir) { [IO.Path]::GetFullPath($VcpkgDir).TrimEnd('\') }
+            elseif ($env:VCPKG_ROOT) { $env:VCPKG_ROOT }
+            else { Join-Path (Get-DefaultBase) 'vcpkg' }
+$header = @("# Build directory: $BuildDir")
+if ($VcpkgAsked) { $header = @("# vcpkg: $VcpkgDir") + $header }
+New-Log $log 'setup 1: Windows build' $header
+
+# Asks for the vcpkg folder the first time a step needs it; -VcpkgDir answers it beforehand.
+function Confirm-VcpkgDir {
+    if ($script:VcpkgAsked) { return }
     if ($env:VCPKG_ROOT -and -not $Unattended) { Write-Host 'The suggestion is the folder in VCPKG_ROOT, which is set already.' }
-    $VcpkgDir = Read-Folder 'Folder for vcpkg' $default
-} else {
-    $VcpkgDir = [IO.Path]::GetFullPath($VcpkgDir).TrimEnd('\')
+    $script:VcpkgDir = Read-Folder 'Folder for vcpkg' $script:VcpkgDir
+    $script:VcpkgAsked = $true
+    Add-LogLine $log "# $(Get-Stamp) vcpkg: $script:VcpkgDir"
 }
-New-Log $log 'setup 1: Windows build' @("# vcpkg: $VcpkgDir", "# Build directory: $BuildDir")
 
 # --- Step 1: Visual Studio --------------------------------------------------------------------
 
@@ -126,14 +137,110 @@ $stepVisualStudio = {
         }
         Write-Host "Visual Studio with the C++ tools: $Vs"
     }
-    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-        Write-Host 'Git is not installed. It is not needed for the build (vcpkg then comes as a ZIP),' -ForegroundColor Yellow
-        Write-Host 'but for EDG (3-setup-edg.ps1): https://git-scm.com/download/win' -ForegroundColor Yellow
+    return $true
+}
+
+# --- Step 2: Git and GitHub CLI ---------------------------------------------------------------
+
+$GitTools = @(
+    @{ Name = 'Git'; Command = 'git'; Id = 'Git.Git'; Folder = "$env:ProgramFiles\Git" }
+    @{ Name = 'GitHub CLI (gh)'; Command = 'gh'; Id = 'GitHub.cli'; Folder = "$env:ProgramFiles\GitHub CLI" }
+)
+
+function Get-MissingGitTools {
+    return @($GitTools | Where-Object { -not (Get-Command $_.Command -ErrorAction SilentlyContinue) })
+}
+
+# Reloads PATH from the registry, so what winget has just installed is found in this window too.
+function Update-Path {
+    $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
+                [Environment]::GetEnvironmentVariable('Path', 'User')
+}
+
+$stepGit = {
+    $missing = @(Get-MissingGitTools)
+    if ($missing.Count) {
+        Write-Host "Missing: $(($missing | ForEach-Object { $_.Name }) -join ', ')"
+        Write-Host 'Git is not needed for the build, but with it step 3 gets vcpkg with its history, so it'
+        Write-Host 'can be updated (without Git it comes as a ZIP); EDG (3-setup-edg.ps1) needs Git as well.'
+        Write-Host 'gh is the command line for GitHub (pull requests, releases).'
+        if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Write-Host 'winget (App Installer) is not available. Install them from https://git-scm.com/download/win' -ForegroundColor Yellow
+            Write-Host 'and https://cli.github.com/.' -ForegroundColor Yellow
+            return $false
+        }
+        Write-Host 'Installs them with winget into their standard folders:'
+        $missing | ForEach-Object { Write-Host "  $($_.Name): $($_.Folder)" }
+        Write-Host 'This means accepting the license terms, which winget shows; Windows may ask for'
+        Write-Host 'administrator rights.'
+        if (-not (Read-YesNo 'Install now?' $false)) { return $false }
+        foreach ($tool in $missing) {
+            Add-LogLine $log "# $(Get-Stamp) winget install --id $($tool.Id) --exact --source winget"
+            # Run directly in the console, so the questions of winget can be answered.
+            & winget install --id $tool.Id --exact --source winget
+            $rc = $LASTEXITCODE
+            Add-LogLine $log "# Exit code: $rc"
+            if ($rc -ne 0) {
+                Write-Host "Installing $($tool.Name) failed (winget exit code $rc)." -ForegroundColor Red
+                return $false
+            }
+        }
+        Update-Path
+        $missing = @(Get-MissingGitTools)
+        if ($missing.Count) {
+            Write-Host "Installed, but not found: $(($missing | ForEach-Object { $_.Name }) -join ', '). Open a new window." -ForegroundColor Red
+            return $false
+        }
+    }
+    foreach ($tool in $GitTools) {
+        $version = cmd /c "$($tool.Command) --version 2>nul" | Select-Object -First 1
+        $folder = Split-Path (Get-Command $tool.Command).Source
+        Write-Host "$($tool.Name): $version ($folder)"
+    }
+    # Only hints: both concern the user's own accounts.
+    if (-not (cmd /c 'git config --global user.name 2>nul') -or -not (cmd /c 'git config --global user.email 2>nul')) {
+        Write-Host 'Before the first commit, set your name and e-mail address for Git:' -ForegroundColor Yellow
+        Write-Host '  git config --global user.name "Your Name"' -ForegroundColor Yellow
+        Write-Host '  git config --global user.email "you@example.com"' -ForegroundColor Yellow
+    }
+    cmd /c 'gh auth status >nul 2>&1'
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host 'gh is not signed in to GitHub; to sign in, run: gh auth login' -ForegroundColor Yellow
     }
     return $true
 }
 
-# --- Step 2: vcpkg ----------------------------------------------------------------------------
+# --- Step 3: vcpkg ----------------------------------------------------------------------------
+
+# Downloads a file; curl.exe (Windows 10 1803 and later) is much faster than Invoke-WebRequest in Windows PowerShell 5.1.
+function Save-Download([string]$Url, [string]$OutFile) {
+    Write-Host "Downloading $Url"
+    Add-LogLine $log "# $(Get-Stamp) Download $Url"
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+        # --progress-bar: one bar with the percentage instead of curl's table of numbers.
+        & curl.exe --location --fail --retry 3 --progress-bar --output $OutFile $Url
+        $ok = ($LASTEXITCODE -eq 0)
+    } else {
+        # The progress bar slows Invoke-WebRequest down by orders of magnitude.
+        $oldProgress = $ProgressPreference
+        $ProgressPreference = 'SilentlyContinue'
+        try {
+            Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $OutFile
+            $ok = $true
+        } catch {
+            Write-Host $_.Exception.Message -ForegroundColor Red
+            $ok = $false
+        } finally {
+            $ProgressPreference = $oldProgress
+        }
+    }
+    if (-not $ok) {
+        # A partial file would look like a finished download on the next run.
+        if (Test-Path -LiteralPath $OutFile) { Remove-Item -LiteralPath $OutFile }
+        Write-Host "Download failed: $Url" -ForegroundColor Red
+    }
+    return $ok
+}
 
 function Get-Vcpkg {
     if (Test-Path "$VcpkgDir\bootstrap-vcpkg.bat") { return $true }
@@ -147,19 +254,31 @@ function Get-Vcpkg {
     # Without Git: the ZIP of the repository, unpacked next to the folder and renamed.
     $zip = "$env:TEMP\vcpkg-master.zip"
     $parent = Split-Path $VcpkgDir
-    Write-Host "Downloading vcpkg as a ZIP to $zip"
-    Add-LogLine $log "# $(Get-Stamp) Download https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip"
-    Invoke-WebRequest -UseBasicParsing 'https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip' -OutFile $zip
-    New-Item -ItemType Directory -Force $parent | Out-Null
-    Expand-Archive $zip -DestinationPath $parent -Force
-    if (Test-Path $VcpkgDir) { Remove-Item $VcpkgDir }
-    Rename-Item "$parent\vcpkg-master" (Split-Path $VcpkgDir -Leaf)
-    Remove-Item $zip
+    if (-not (Save-Download 'https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip' $zip)) { return $false }
+    # A drive root such as D:\ always exists and cannot be created.
+    if (-not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
+    Write-Host "Unpacking to $parent"
+    $unpacked = Join-Path $parent 'vcpkg-master'
+    # A leftover of an earlier attempt would block the rename below.
+    if (Test-Path -LiteralPath $unpacked) { Remove-Item -LiteralPath $unpacked -Recurse -Force }
+    if (Get-Command tar.exe -ErrorAction SilentlyContinue) {
+        # tar.exe (bsdtar, Windows 10 1803 and later) reads ZIP files and is far faster than Expand-Archive in PowerShell 5.1.
+        & tar.exe -xf $zip -C $parent
+        if ($LASTEXITCODE -ne 0) { Write-Host "Unpacking failed (tar exit code $LASTEXITCODE)." -ForegroundColor Red; return $false }
+    } else {
+        # The .NET class unpacks without the per-file overhead of Expand-Archive.
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $parent)
+    }
+    if (Test-Path -LiteralPath $VcpkgDir) { Remove-Item -LiteralPath $VcpkgDir }
+    Rename-Item -LiteralPath $unpacked -NewName (Split-Path $VcpkgDir -Leaf)
+    Remove-Item -LiteralPath $zip
     return $true
 }
 
 $stepVcpkg = {
     if (-not $Vs) { Write-Host 'Visual Studio is missing; run step 1 first.' -ForegroundColor Red; return $false }
+    Confirm-VcpkgDir
     if (-not (Get-Vcpkg)) { return $false }
     if (-not (Test-Path "$VcpkgDir\vcpkg.exe")) {
         if ((Invoke-Shown "cd /d `"$VcpkgDir`" && bootstrap-vcpkg.bat -disableMetrics" $log) -ne 0) { return $false }
@@ -173,10 +292,11 @@ $stepVcpkg = {
     return ((Invoke-Shown "`"$VcpkgDir\vcpkg.exe`" install --recurse $quoted" $log) -eq 0)
 }
 
-# --- Step 3: VCPKG_ROOT -----------------------------------------------------------------------
+# --- Step 4: VCPKG_ROOT -----------------------------------------------------------------------
 
 $stepVcpkgRoot = {
-    if (-not (Test-Path "$VcpkgDir\vcpkg.exe")) { Write-Host 'vcpkg is missing; run step 2 first.' -ForegroundColor Red; return $false }
+    Confirm-VcpkgDir
+    if (-not (Test-Path "$VcpkgDir\vcpkg.exe")) { Write-Host 'vcpkg is missing; run step 3 first.' -ForegroundColor Red; return $false }
     # For the user account (like setx, without its length limit); new windows see it.
     [Environment]::SetEnvironmentVariable('VCPKG_ROOT', $VcpkgDir, 'User')
     $env:VCPKG_ROOT = $VcpkgDir
@@ -185,12 +305,13 @@ $stepVcpkgRoot = {
     return $true
 }
 
-# --- Step 4: build ----------------------------------------------------------------------------
+# --- Step 5: build ----------------------------------------------------------------------------
 
 $stepBuild = {
     if (-not $Vs) { Write-Host 'Visual Studio is missing; run step 1 first.' -ForegroundColor Red; return $false }
+    Confirm-VcpkgDir
     if (-not (Test-Path "$VcpkgDir\installed\x64-windows")) {
-        Write-Host 'The vcpkg packages are missing; run step 2 first.' -ForegroundColor Red
+        Write-Host 'The vcpkg packages are missing; run step 3 first.' -ForegroundColor Red
         return $false
     }
     $toolchain = "$VcpkgDir\scripts\buildsystems\vcpkg.cmake"
@@ -206,9 +327,7 @@ $stepBuild = {
         New-Item -ItemType Directory -Force $tessdata | Out-Null
         foreach ($language in $languages) {
             $url = "https://github.com/tesseract-ocr/tessdata_best/raw/main/$language.traineddata"
-            Write-Host "Downloading $url"
-            Add-LogLine $log "# $(Get-Stamp) Download $url"
-            Invoke-WebRequest -UseBasicParsing $url -OutFile "$tessdata\$language.traineddata"
+            if (-not (Save-Download $url "$tessdata\$language.traineddata")) { return $false }
         }
     }
     if (Read-YesNo 'Run the tests (a few minutes)?' $false) {
@@ -220,6 +339,8 @@ $stepBuild = {
 $menu = @(
     @{ Title = 'Visual Studio: check, install or add the C++ components'
        Done = { $Vs -and -not @(Get-MissingVsComponents).Count }; Run = $stepVisualStudio }
+    @{ Title = 'Git and GitHub CLI: check or install'
+       Done = { -not @(Get-MissingGitTools).Count }; Run = $stepGit }
     @{ Title = 'vcpkg: get it and build the libraries (an hour or more the first time)'
        Done = { Test-Path "$VcpkgDir\installed\x64-windows\share\qtbase" }; Run = $stepVcpkg }
     @{ Title = 'Set VCPKG_ROOT for your user account'
@@ -227,10 +348,10 @@ $menu = @(
     @{ Title = 'Configure and build ScanTailor OCR'
        Done = { Test-Path "$BuildDir\scantailor-ocr.exe" }; Run = $stepBuild }
 )
-$ok = Invoke-StepMenu 'ScanTailor OCR - set up the build on Windows' @(
-    "vcpkg:      $VcpkgDir"
+$ok = Invoke-StepMenu 'ScanTailor OCR - set up the build on Windows' {
     "Repository: $Root"
     "Log:        $log"
-) $menu $Steps
+    if ($VcpkgAsked) { "vcpkg:      $VcpkgDir" }
+} $menu $Steps
 Add-LogLine $log "# End: $(Get-Stamp)"
 if ($ok) { exit 0 } else { exit 1 }
