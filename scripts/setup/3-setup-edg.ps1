@@ -3,8 +3,9 @@
   Setup 3: the EDG C++ front end for analysis run 04, with the SoftFloat library it needs.
 
 .DESCRIPTION
-  Asks for the folder that gets the two checkouts edgcpp and softfloat, then shows the steps in
-  a menu; each can be run on its own, 0 runs all of them in order:
+  Shows the steps in a menu; each can be run on its own, 0 runs all of them in order. The folders
+  of the two checkouts, EDG and SoftFloat, are asked for one after the other when a step first
+  needs them:
     1. Requirements: Visual Studio with the C++ tools, the .NET Framework 4.8.1 SDK (EDG links
        mscoree.lib for its C++/CLI support), Python 3.6 or later, Git.
     2. Sources: clones EDG (github.com/edgcpp/compiler) and Berkeley SoftFloat 3. EDG either at
@@ -24,8 +25,11 @@
   Run these steps without the menu (0 = all), taking the default answer of every question.
 
 .PARAMETER EdgDir
-  The EDG checkout; SoftFloat goes next to it. Default: asked, suggesting the folder of EDG_ROOT,
-  else D:\edgcpp if drive D: exists, else C:\edgcpp.
+  The EDG checkout. Default: asked, suggesting EDG_ROOT, else D:\edgcpp if drive D: exists, else
+  C:\edgcpp.
+
+.PARAMETER SoftFloatDir
+  The SoftFloat checkout. Default: asked, suggesting the folder softfloat next to EDG.
 
 .PARAMETER Latest
   With -Steps: the newest EDG instead of the tested version.
@@ -40,6 +44,7 @@
 param(
     [int[]]$Steps = @(),
     [string]$EdgDir = '',
+    [string]$SoftFloatDir = '',
     [switch]$Latest,
     [string]$Python = '',
     [switch]$Yes
@@ -60,24 +65,68 @@ $SoftFloatCommit = 'a0c6494cdc11865811dec815d5c0049fba9d82a8'
 
 Write-Intro 'ScanTailor OCR - set up EDG for analysis run 04' @(
     'This script gets and builds the EDG C++ front end, which analysis run 04 uses to check the'
-    'code, and the SoftFloat library EDG needs. After the folder question it shows the steps in'
-    'a menu; nothing is installed without asking.'
+    'code, and the SoftFloat library EDG needs. It shows the steps in a menu; nothing is'
+    'installed without asking.'
     ''
-    'The folder gets two subfolders: edgcpp (EDG, about 4 GB with its build) and softfloat.'
-    'Existing checkouts there are used as they are.'
+    'Steps 2 to 5 ask for the folders of EDG (about 4 GB with its build) and of SoftFloat, one'
+    'after the other. Existing checkouts there are used as they are.'
 )
-if ($EdgDir) {
-    $EdgDir = [IO.Path]::GetFullPath($EdgDir).TrimEnd('\')
-} else {
-    $default = if ($env:EDG_ROOT) { Split-Path ([IO.Path]::GetFullPath($env:EDG_ROOT)) } else { Get-DefaultBase }
-    if ($env:EDG_ROOT -and -not $Unattended) { Write-Host 'The suggestion is the folder of EDG_ROOT, which is set already.' }
-    $EdgDir = Join-Path (Read-Folder 'Folder for edgcpp and softfloat' $default) 'edgcpp'
+# Until the folders are asked for, the suggestions stand in for them (the [done] marks of the menu).
+$EdgAsked = [bool]$EdgDir
+$SoftFloatAsked = [bool]$SoftFloatDir
+$EdgDir = if ($EdgDir) { [IO.Path]::GetFullPath($EdgDir).TrimEnd('\') }
+          elseif ($env:EDG_ROOT) { [IO.Path]::GetFullPath($env:EDG_ROOT).TrimEnd('\') }
+          else { Join-Path (Get-DefaultBase) 'edgcpp' }
+$SoftFloatDir = if ($SoftFloatDir) { [IO.Path]::GetFullPath($SoftFloatDir).TrimEnd('\') }
+                else { Join-Path (Split-Path $EdgDir) 'softfloat' }
+
+# The folders that follow from $EdgDir and $SoftFloatDir.
+function Set-EdgPaths {
+    $script:EdgBuildDir = "$script:EdgDir\build\msvc-release"
+    $script:SoftFloatBuildDir = "$script:SoftFloatDir\build-msvc"
+    $script:Cpfe = "$script:EdgBuildDir\bin\cpfe.exe"
 }
-$SoftFloatDir = Join-Path (Split-Path $EdgDir) 'softfloat'
-$EdgBuildDir = "$EdgDir\build\msvc-release"
-$SoftFloatBuildDir = "$SoftFloatDir\build-msvc"
-$Cpfe = "$EdgBuildDir\bin\cpfe.exe"
-New-Log $log 'setup 3: EDG C++ front end and SoftFloat' @("# EDG: $EdgDir", "# SoftFloat: $SoftFloatDir")
+Set-EdgPaths
+$header = @()
+if ($EdgAsked) { $header += "# EDG: $EdgDir" }
+if ($SoftFloatAsked) { $header += "# SoftFloat: $SoftFloatDir" }
+New-Log $log 'setup 3: EDG C++ front end and SoftFloat' $header -KeepPrevious
+
+# Asks for a checkout folder; a drive root is refused, as git clones only into an empty folder.
+function Read-CheckoutFolder([string]$Question, [string]$Default) {
+    while ($true) {
+        $folder = Read-Folder $Question $Default
+        # Read-Folder keeps the backslash of a drive root: D:\ is 3 characters.
+        if ($folder.Length -gt 3) { return $folder }
+        if ($Unattended) { throw "The checkout needs a folder of its own, not the drive itself: $folder" }
+        Write-Host 'The checkout needs a folder of its own, not the drive itself.' -ForegroundColor Yellow
+    }
+}
+
+# Asks for the folders of EDG and then SoftFloat the first time a step needs them; -EdgDir and
+# -SoftFloatDir answer them beforehand. -EdgOnly: for the steps that only use EDG.
+function Confirm-EdgDir([switch]$EdgOnly) {
+    if (-not $script:EdgAsked) {
+        if ($env:EDG_ROOT -and -not $Unattended) { Write-Host 'The suggestion is the folder in EDG_ROOT, which is set already.' }
+        $script:EdgDir = Read-CheckoutFolder 'Folder for EDG' $script:EdgDir
+        $script:EdgAsked = $true
+        Add-LogLine $log "# $(Get-Stamp) EDG: $script:EdgDir"
+        # The suggestion follows the folder chosen for EDG.
+        if (-not $script:SoftFloatAsked) { $script:SoftFloatDir = Join-Path (Split-Path $script:EdgDir) 'softfloat' }
+    }
+    if (-not $script:SoftFloatAsked -and -not $EdgOnly) {
+        while ($true) {
+            $script:SoftFloatDir = Read-CheckoutFolder 'Folder for SoftFloat' $script:SoftFloatDir
+            if ($script:SoftFloatDir -ne $script:EdgDir) { break }
+            if ($Unattended) { throw "SoftFloat needs a folder other than EDG's: $script:SoftFloatDir" }
+            Write-Host "SoftFloat needs a folder other than EDG's." -ForegroundColor Yellow
+            $script:SoftFloatDir = Join-Path (Split-Path $script:EdgDir) 'softfloat'
+        }
+        $script:SoftFloatAsked = $true
+        Add-LogLine $log "# $(Get-Stamp) SoftFloat: $script:SoftFloatDir"
+    }
+    Set-EdgPaths
+}
 
 # python.exe (3.x) or $null. The Microsoft Store placeholder "python.exe" doesn't run, so each
 # candidate is tried.
@@ -125,12 +174,16 @@ $stepRequirements = {
     $py = Find-Python
     if ($py) { Write-Host "Python: $py" }
     else {
-        Write-Host 'No Python 3 found. vcpkg brings one along (1-setup-windows.ps1, step 2); else install' -ForegroundColor Red
+        Write-Host 'No Python 3 found. vcpkg brings one along (1-setup-windows.ps1, step 3); else install' -ForegroundColor Red
         Write-Host 'Python 3 or pass -Python <python.exe>.' -ForegroundColor Red
         $ok = $false
     }
     if (Get-Command git -ErrorAction SilentlyContinue) { Write-Host "Git: $((Get-Command git).Source)" }
-    else { Write-Host 'Git is missing: https://git-scm.com/download/win' -ForegroundColor Red; $ok = $false }
+    else {
+        Write-Host 'Git is missing: 1-setup-windows.ps1 installs it (step 2), or' -ForegroundColor Red
+        Write-Host 'https://git-scm.com/download/win' -ForegroundColor Red
+        $ok = $false
+    }
     return $ok
 }
 
@@ -138,6 +191,7 @@ $stepRequirements = {
 
 $stepSources = {
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) { Write-Host 'Git is missing; see step 1.' -ForegroundColor Red; return $false }
+    Confirm-EdgDir
     $newest = if ($Unattended) { [bool]$Latest } else {
         (Read-Choice 'Which version of EDG?' @(
             "the version this setup was tested with ($($EdgCommit.Substring(0, 8)))"
@@ -171,6 +225,7 @@ $stepSources = {
 $stepBuild = {
     if (-not $Vs) { Write-Host 'Visual Studio is missing; see step 1.' -ForegroundColor Red; return $false }
     if (-not (Find-Mscoree)) { Write-Host 'The .NET Framework 4.8.1 SDK is missing; see step 1.' -ForegroundColor Red; return $false }
+    Confirm-EdgDir
     if (-not ((Test-Path $EdgDir) -and (Test-Path $SoftFloatDir))) {
         Write-Host 'The sources are missing; run step 2 first.' -ForegroundColor Red
         return $false
@@ -200,6 +255,7 @@ $stepBuild = {
 # --- Step 4: EDG_ROOT -------------------------------------------------------------------------
 
 $stepEdgRoot = {
+    Confirm-EdgDir -EdgOnly
     if (-not (Test-Path $EdgDir)) { Write-Host 'EDG is missing; run step 2 first.' -ForegroundColor Red; return $false }
     [Environment]::SetEnvironmentVariable('EDG_ROOT', $EdgDir, 'User')
     $env:EDG_ROOT = $EdgDir
@@ -211,6 +267,7 @@ $stepEdgRoot = {
 # --- Step 5: check ----------------------------------------------------------------------------
 
 $stepCheck = {
+    Confirm-EdgDir -EdgOnly
     if (-not (Test-Path $Cpfe)) { Write-Host 'EDG is not built; run step 3 first.' -ForegroundColor Red; return $false }
     # C++17 code that must pass in strict standard mode.
     $checkDir = "$LogDir\3-setup-edg-check"
@@ -238,10 +295,10 @@ $menu = @(
     @{ Title = 'Check the front end with a small test file'
        Done = { $false }; Run = $stepCheck }
 )
-$ok = Invoke-StepMenu 'ScanTailor OCR - set up EDG for analysis run 04' @(
-    "EDG:       $EdgDir"
-    "SoftFloat: $SoftFloatDir"
+$ok = Invoke-StepMenu 'ScanTailor OCR - set up EDG for analysis run 04' {
     "Log:       $log"
-) $menu $Steps
+    if ($EdgAsked) { "EDG:       $EdgDir" }
+    if ($SoftFloatAsked) { "SoftFloat: $SoftFloatDir" }
+} $menu $Steps
 Add-LogLine $log "# End: $(Get-Stamp)"
 if ($ok) { exit 0 } else { exit 1 }

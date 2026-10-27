@@ -3,8 +3,8 @@
   Setup 2: the tools the analysis runs in scripts\analysis need beyond the build.
 
 .DESCRIPTION
-  Shows for every analysis run whether its tools are there, then offers the missing ones in a
-  menu; each step can be run on its own, 0 runs all of them in order:
+  Offers the tools in a menu; each step can be run on its own, 0 runs all of them in order, 9
+  shows for every analysis run whether its tools are there:
     1. Visual Studio components, added with the Visual Studio Installer: "C++ Clang Compiler for
        Windows" (clang-cl and the sanitizer runtime, runs 07 and 08) and the .NET Framework
        4.8.1 SDK (run 04).
@@ -30,7 +30,7 @@ param(
 $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
 $log = "$LogDir\2-setup-analysis.log"
-New-Log $log 'setup 2: analysis tools'
+New-Log $log 'setup 2: analysis tools' -KeepPrevious
 
 $ClangComponent = 'Microsoft.VisualStudio.Component.VC.Llvm.Clang'
 $NetSdkComponent = 'Microsoft.Net.Component.4.8.1.SDK'
@@ -66,7 +66,7 @@ $status = {
     $clang = if (Test-ClangCl) { 'ready' } else { 'missing: Visual Studio component "C++ Clang Compiler for Windows" (step 1)' }
     $sanitizers = if (Test-Sanitizers) { 'ready' } else { $clang }
     $vcpkg = if ($env:VCPKG_ROOT -and (Test-Path $env:VCPKG_ROOT)) { "ready ($env:VCPKG_ROOT)" } `
-             else { 'missing: VCPKG_ROOT (1-setup-windows.ps1, step 3)' }
+             else { 'missing: VCPKG_ROOT (1-setup-windows.ps1, step 4)' }
     @(
         'Analysis runs and what they need:'
         "  01, 05, 06  MSVC              $msvc"
@@ -76,7 +76,6 @@ $status = {
         "  07          clang-cl          $clang"
         "  08          sanitizers        $sanitizers"
         "  all builds  vcpkg             $vcpkg"
-        "Log: $log"
     )
 }
 
@@ -134,6 +133,11 @@ $menu = @(
     @{ Title = 'EDG (run 04): start 3-setup-edg.ps1'
        Done = { [bool](Get-Cpfe) }; Run = $stepEdg }
 )
-$ok = Invoke-StepMenu 'ScanTailor OCR - set up the analysis tools' $status $menu $Steps
+$extra = @(
+    @{ Key = '9'; Title = 'Show which analysis runs are ready and what they still need'; Run = $status }
+)
+# Unattended, the overview goes first, as there is no menu to ask for it.
+$info = if ($Unattended) { { & $status; "Log: $log" } } else { { "Log: $log" } }
+$ok = Invoke-StepMenu 'ScanTailor OCR - set up the analysis tools' $info $menu $Steps $extra
 Add-LogLine $log "# End: $(Get-Stamp)"
 if ($ok) { exit 0 } else { exit 1 }

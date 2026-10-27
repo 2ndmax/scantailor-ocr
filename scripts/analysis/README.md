@@ -43,8 +43,8 @@ and of 01.  09 reads whatever output exists.
 
 Two setup scripts take care of all of this; each shows a menu of steps, 0 runs all of them:
 
-- `scripts\setup\1-setup-windows.ps1` sets up the build itself: Visual Studio, vcpkg and its
-  packages, `VCPKG_ROOT` (see [BUILDING.md](../../BUILDING.md)).
+- `scripts\setup\1-setup-windows.ps1` sets up the build itself: Visual Studio, Git and the
+  GitHub CLI, vcpkg and its packages, `VCPKG_ROOT` (see [BUILDING.md](../../BUILDING.md)).
 - `scripts\setup\2-setup-analysis.ps1` shows for every run whether its tools are there and
   installs the missing ones: the Clang compiler and the .NET Framework 4.8.1 SDK with the Visual
   Studio Installer, cppcheck with winget (both into their standard folders), and EDG by starting

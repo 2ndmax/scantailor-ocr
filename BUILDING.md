@@ -24,19 +24,24 @@ PowerShell window and run:
 powershell -ExecutionPolicy Bypass -File D:\scantailor-ocr\scripts\setup\1-setup-windows.ps1
 ```
 
-It asks for the vcpkg folder (suggesting `D:\vcpkg` when drive D: exists) and then offers four
-steps in a menu; each can be run on its own, 0 runs all of them in order:
+It offers five steps in a menu; each can be run on its own, 0 runs all of them in order:
 
 1. Visual Studio (step 2 below): checks for the C++ components; installs Visual Studio
    Community or the Build Tools with winget when it is missing, or adds missing components with
-   the Visual Studio Installer, both into their standard folder.
-2. vcpkg (steps 3 and 4): gets vcpkg and installs the packages.
-3. `VCPKG_ROOT` (step 5): sets the variable for your user account.
-4. Build (steps 6 and 7): configures and builds; then offers to download the OCR languages German
+   the Visual Studio Installer, both into their standard folder on drive C: (the Build Tools
+   about 4 GB, Community about 10 GB).
+2. Git and the GitHub CLI: installs them with winget when they are missing. Not needed for the
+   build, but with Git step 3 gets vcpkg with its history, so it can be updated later.
+3. vcpkg (steps 3 and 4): asks for the vcpkg folder (suggesting `D:\vcpkg` when drive D:
+   exists), gets vcpkg and installs the packages.
+4. `VCPKG_ROOT` (step 5): sets the variable for your user account.
+5. Build (steps 6 and 7): configures and builds; then offers to download the OCR languages German
    and English and to run the tests.
 
-Each step skips what is already there, and asks before installing anything. The output also
-goes to `scripts\setup\logs\1-setup-windows.log`. The steps below describe the same by hand.
+Each step skips what is already there, and asks before installing anything; it warns when the
+drive has too little free space. The output also goes to `scripts\setup\logs\1-setup-windows.log`,
+the one of the run before to `1-setup-windows.previous.log`. The steps below describe the same
+by hand.
 
 **2. Install Visual Studio Community** (the free edition):
 <https://visualstudio.microsoft.com/vs/community/>

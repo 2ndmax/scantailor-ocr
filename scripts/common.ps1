@@ -70,17 +70,24 @@ function Add-LogLine([string]$Log, [string]$Text) {
     [IO.File]::AppendAllText($Log, $Text + "`r`n", $Utf8)
 }
 
-# Creates the log with the standard header lines plus run-specific ones.
-function New-Log([string]$Log, [string]$Title, [string[]]$Extra = @()) {
+# Creates the log with the standard header lines plus run-specific ones. -KeepPrevious keeps the
+# log of the run before as <name>.previous.log, in case that run failed.
+function New-Log([string]$Log, [string]$Title, [string[]]$Extra = @(), [switch]$KeepPrevious) {
     # Through cmd, so a missing Git (possible before the setup) or a ZIP download of the
-    # repository only leaves the lines empty.
+    # repository only leaves the lines empty. Not inside the strings below: Windows PowerShell
+    # garbles the escaped quotes of a string nested in $() of another string.
+    $commit = cmd /c "git -C `"$Root`" rev-parse HEAD 2>nul"
+    $changes = (cmd /c "git -C `"$Root`" status --porcelain 2>nul") -join '; '
     $lines = @(
         "# Run $Title"
         "# Start: $(Get-Stamp)"
-        "# Commit: $(cmd /c "git -C `"$Root`" rev-parse HEAD 2>nul")"
-        "# Working tree: $((cmd /c "git -C `"$Root`" status --porcelain 2>nul") -join '; ')"
+        "# Commit: $commit"
+        "# Working tree: $changes"
     ) + $Extra + @('')
     New-Item -ItemType Directory -Force (Split-Path $Log) | Out-Null
+    if ($KeepPrevious -and (Test-Path -LiteralPath $Log)) {
+        Move-Item -LiteralPath $Log ([IO.Path]::ChangeExtension($Log, '.previous.log')) -Force
+    }
     [IO.File]::WriteAllLines($Log, $lines, $Utf8)
 }
 

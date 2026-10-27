@@ -127,8 +127,9 @@ function Invoke-Shown([string]$CommandLine, [string]$Log, [switch]$InVsEnv) {
 # The step menu. $Info: lines shown under the title, or a scriptblock that returns them (evaluated
 # each time the menu is shown). $Steps: hashtables with Title, Done (scriptblock: $true when the
 # step's work is already there) and Run (scriptblock: $true on success). Runs $Selected (numbers,
-# 0 = all) without the menu when it is given.
-function Invoke-StepMenu([string]$Title, [object]$Info, [object[]]$Steps, [int[]]$Selected) {
+# 0 = all) without the menu when it is given. $Extra: hashtables with Key, Title and Run (a
+# scriptblock that returns lines to show), listed after the steps; not part of 0 nor of -Steps.
+function Invoke-StepMenu([string]$Title, [object]$Info, [object[]]$Steps, [int[]]$Selected, [object[]]$Extra = @()) {
     $runSteps = {
         param([int[]]$Numbers)
         if ($Numbers -contains 0) { $Numbers = 1..$Steps.Count }
@@ -164,9 +165,16 @@ function Invoke-StepMenu([string]$Title, [object]$Info, [object[]]$Steps, [int[]
             $mark = if (& $Steps[$i].Done) { '  [done]' } else { '' }
             Write-Host ("  {0}  {1}{2}" -f ($i + 1), $Steps[$i].Title, $mark)
         }
+        foreach ($item in $Extra) { Write-Host ("  {0}  {1}" -f $item.Key, $item.Title) }
         Write-Host '  Q  Quit'
         $typed = (Read-Host 'Step(s), e.g. 0 or 2,4').Trim()
         if ($typed -match '^[qQ]$') { return $true }
+        $chosen = @($Extra | Where-Object { $_.Key -eq $typed })
+        if ($chosen.Count) {
+            Write-Host ''
+            foreach ($line in (& $chosen[0].Run)) { Write-Host $line }
+            continue
+        }
         $numbers = @($typed -split '[,\s]+' | Where-Object { $_ -match '^\d+$' } | ForEach-Object { [int]$_ })
         if (-not $numbers.Count) { continue }
         [void](& $runSteps $numbers)

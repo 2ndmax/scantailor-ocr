@@ -46,14 +46,17 @@ $VsComponents = @(
     'Microsoft.VisualStudio.Component.VC.CMake.Project'
     'Microsoft.VisualStudio.Component.Windows11SDK.26100'
 )
+# SizeGb: about what the installation takes on drive C:, with the components above.
 $VsEditions = @(
-    @{ Name = 'Visual Studio Community 2026'; Id = 'Microsoft.VisualStudio.Community'
-       Workload = 'Microsoft.VisualStudio.Workload.NativeDesktop'
+    @{ Name = 'Visual Studio Community 2026 (with the editor, about 10 GB)'; Id = 'Microsoft.VisualStudio.Community'
+       Workload = 'Microsoft.VisualStudio.Workload.NativeDesktop'; SizeGb = 10
        Folder = "$env:ProgramFiles\Microsoft Visual Studio\18\Community" }
-    @{ Name = 'Build Tools for Visual Studio 2026 (no editor, smaller)'; Id = 'Microsoft.VisualStudio.BuildTools'
-       Workload = 'Microsoft.VisualStudio.Workload.VCTools'
+    @{ Name = 'Build Tools for Visual Studio 2026 (no editor, about 4 GB)'; Id = 'Microsoft.VisualStudio.BuildTools'
+       Workload = 'Microsoft.VisualStudio.Workload.VCTools'; SizeGb = 4
        Folder = 'the standard folder of the Visual Studio Installer' }
 )
+# vcpkg with all the packages, the first time.
+$VcpkgSizeGb = 35
 
 Write-Intro 'ScanTailor OCR - set up the build on Windows' @(
     'This script sets up everything needed to build ScanTailor OCR from this repository:'
@@ -62,24 +65,47 @@ Write-Intro 'ScanTailor OCR - set up the build on Windows' @(
     'It shows the steps in a menu; nothing is installed without asking.'
     ''
     'vcpkg is the package manager that builds Qt and the other libraries; with them its folder'
-    'needs at least 35 GB. Its folder is asked for in step 3; an existing one is used as it is.'
+    "needs at least $VcpkgSizeGb GB. Its folder is asked for when a step first needs it; an existing"
+    'one is used as it is.'
 )
 # Until the folder is asked for, the suggestion stands in for it (the [done] marks of the menu).
 $VcpkgAsked = [bool]$VcpkgDir
 $VcpkgDir = if ($VcpkgDir) { [IO.Path]::GetFullPath($VcpkgDir).TrimEnd('\') }
             elseif ($env:VCPKG_ROOT) { $env:VCPKG_ROOT }
             else { Join-Path (Get-DefaultBase) 'vcpkg' }
+# A drive root such as D:\ (D: after the trim) would put vcpkg's files loose on the drive.
+if ($VcpkgAsked -and $VcpkgDir.Length -le 2) { throw "vcpkg needs a folder of its own, not the drive itself: $VcpkgDir\" }
 $header = @("# Build directory: $BuildDir")
 if ($VcpkgAsked) { $header = @("# vcpkg: $VcpkgDir") + $header }
-New-Log $log 'setup 1: Windows build' $header
+New-Log $log 'setup 1: Windows build' $header -KeepPrevious
 
 # Asks for the vcpkg folder the first time a step needs it; -VcpkgDir answers it beforehand.
 function Confirm-VcpkgDir {
     if ($script:VcpkgAsked) { return }
     if ($env:VCPKG_ROOT -and -not $Unattended) { Write-Host 'The suggestion is the folder in VCPKG_ROOT, which is set already.' }
-    $script:VcpkgDir = Read-Folder 'Folder for vcpkg' $script:VcpkgDir
+    while ($true) {
+        $folder = Read-Folder 'Folder for vcpkg' $script:VcpkgDir
+        # Read-Folder keeps the backslash of a drive root: D:\ is 3 characters.
+        if ($folder.Length -gt 3) { break }
+        if ($Unattended) { throw "vcpkg needs a folder of its own, not the drive itself: $folder" }
+        Write-Host "vcpkg needs a folder of its own, not the drive itself, for example $(Join-Path $folder 'vcpkg')." -ForegroundColor Yellow
+    }
+    $script:VcpkgDir = $folder
     $script:VcpkgAsked = $true
     Add-LogLine $log "# $(Get-Stamp) vcpkg: $script:VcpkgDir"
+}
+
+# Warns when the drive of $Path has less than $NeededGb free. Returns $false when the user stops.
+function Confirm-FreeSpace([string]$Path, [int]$NeededGb) {
+    $drive = [IO.Path]::GetPathRoot([IO.Path]::GetFullPath($Path))
+    $info = New-Object IO.DriveInfo $drive
+    # A missing drive is reported by the step itself, when it fails to write there.
+    if (-not $info.IsReady) { return $true }
+    $freeGb = [math]::Floor($info.AvailableFreeSpace / 1GB)
+    Add-LogLine $log "# $(Get-Stamp) Free on $drive`: $freeGb GB, needed: about $NeededGb GB"
+    if ($freeGb -ge $NeededGb) { return $true }
+    Write-Host "Only $freeGb GB are free on $drive; this needs about $NeededGb GB." -ForegroundColor Yellow
+    return (Read-YesNo 'Continue anyway?' $false)
 }
 
 # --- Step 1: Visual Studio --------------------------------------------------------------------
@@ -104,12 +130,14 @@ function Install-VisualStudio {
     Write-Host "Installs $($edition.Name) into $($edition.Folder), with the C++ tools, the CMake tools"
     Write-Host 'and the Windows 11 SDK. This means accepting the license terms of Microsoft, which winget'
     Write-Host 'and the installer show. Windows asks for administrator rights; the download is several'
-    Write-Host 'gigabytes and takes 20 to 60 minutes.'
+    Write-Host "gigabytes and takes 20 to 60 minutes. It needs about $($edition.SizeGb) GB on drive C:, wherever"
+    Write-Host 'vcpkg goes.'
     if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
         Write-Host 'winget (App Installer) is not available. Install Visual Studio from' -ForegroundColor Yellow
         Write-Host 'https://visualstudio.microsoft.com/vs/community/ as described in BUILDING.md.' -ForegroundColor Yellow
         return $false
     }
+    if (-not (Confirm-FreeSpace $env:ProgramFiles $edition.SizeGb)) { return $false }
     if (-not (Read-YesNo 'Install now?' $false)) { return $false }
     $adds = (@($edition.Workload) + $VsComponents | ForEach-Object { "--add $_" }) -join ' '
     $override = "--wait --passive --norestart $adds"
@@ -279,13 +307,16 @@ function Get-Vcpkg {
 $stepVcpkg = {
     if (-not $Vs) { Write-Host 'Visual Studio is missing; run step 1 first.' -ForegroundColor Red; return $false }
     Confirm-VcpkgDir
+    # Only the first time: later runs add little to the packages already built.
+    if (-not (Test-Path "$VcpkgDir\installed\x64-windows\share\qtbase") -and
+        -not (Confirm-FreeSpace $VcpkgDir $VcpkgSizeGb)) { return $false }
     if (-not (Get-Vcpkg)) { return $false }
     if (-not (Test-Path "$VcpkgDir\vcpkg.exe")) {
         if ((Invoke-Shown "cd /d `"$VcpkgDir`" && bootstrap-vcpkg.bat -disableMetrics" $log) -ne 0) { return $false }
     }
     $packages = @(Get-Content "$PSScriptRoot\vcpkg-packages.txt" | Where-Object { $_ -and $_ -notmatch '^#' })
     Write-Host "Installs $($packages.Count) packages (list: scripts\setup\vcpkg-packages.txt). The first time,"
-    Write-Host 'vcpkg compiles Qt and everything else from source: an hour or more and at least 35 GB.'
+    Write-Host "vcpkg compiles Qt and everything else from source: an hour or more and at least $VcpkgSizeGb GB."
     Write-Host 'Packages that are already installed are skipped.'
     if (-not (Read-YesNo 'Install the packages now?' $true)) { return $false }
     $quoted = ($packages | ForEach-Object { "`"$_`"" }) -join ' '
