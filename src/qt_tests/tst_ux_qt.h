@@ -16,6 +16,7 @@ class TestUxQt : public QObject {
   void testThumbnailDoesNotKeepThePreviousOne();
   void testThumbnailBorderIsTheAccentColor();
   void testColorSchemesSetTheSameParameters();
+  void testTextOnAccentHasTheHigherContrast();
 };
 
 #endif

@@ -26,7 +26,8 @@ class StyleSheetColorScheme : public ColorScheme {
     QColor border;
     QColor text;
     QColor disabledText;
-    QColor textOnAccent;
+    QColor lightTextOnAccent;
+    QColor darkTextOnAccent;
     QColor error;
     QColor link;
     QColor imageView;
@@ -41,6 +42,12 @@ class StyleSheetColorScheme : public ColorScheme {
 
   const ColorParams* getColorParams() const override;
 
+  /**
+   * The color of text and marks on \p accent: of \p lightText and \p darkText the one with more contrast
+   * to it, so that a chosen accent color of any lightness stays readable.
+   */
+  static QColor textOnAccent(const QColor& accent, const QColor& lightText, const QColor& darkText);
+
  protected:
   /**
    * \param styleSheetPath The style sheet in the resources.
@@ -49,11 +56,12 @@ class StyleSheetColorScheme : public ColorScheme {
   StyleSheetColorScheme(const Colors& colors, const QString& styleSheetPath, const char* defaultAccentColor);
 
  private:
-  void loadPalette(const Colors& colors, const QColor& accent);
+  void loadPalette(const Colors& colors, const QColor& accent, const QColor& onAccent);
 
-  void loadStyleSheet(const QString& path);
+  /** \param lightMarks Whether the marks on the accent color are the light ones. */
+  void loadStyleSheet(const QString& path, bool lightMarks);
 
-  void loadColorParams(const Colors& colors, const QColor& accent);
+  void loadColorParams(const Colors& colors, const QColor& accent, const QColor& onAccent);
 
   QPalette m_palette;
   QString m_styleSheet;

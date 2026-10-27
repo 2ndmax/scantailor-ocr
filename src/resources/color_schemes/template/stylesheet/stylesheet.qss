@@ -109,11 +109,11 @@ QMenu::indicator:non-exclusive:checked {
 
 QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked, QGroupBox::indicator:checked,
 QMenu::indicator:non-exclusive:checked {
-  image: url(:/{{scheme}}_scheme/icons/checkbox_checked.svg);
+  image: url(:/{{scheme}}_scheme/icons/marks/checkbox_checked.svg);
 }
 
 QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate, QGroupBox::indicator:indeterminate {
-  image: url(:/{{scheme}}_scheme/icons/checkbox_indeterminate.svg);
+  image: url(:/{{scheme}}_scheme/icons/marks/checkbox_indeterminate.svg);
 }
 
 QCheckBox::indicator:checked:hover, QTreeView::indicator:checked:hover, QTableView::indicator:checked:hover, QGroupBox::indicator:checked:hover,
@@ -136,11 +136,11 @@ QCheckBox::indicator:indeterminate:pressed, QTreeView::indicator:indeterminate:p
 }
 
 QCheckBox::indicator:checked:pressed, QTreeView::indicator:checked:pressed, QTableView::indicator:checked:pressed, QGroupBox::indicator:checked:pressed {
-  image: url(:/{{scheme}}_scheme/icons/checkbox_checked_pressed.svg);
+  image: url(:/{{scheme}}_scheme/icons/marks/checkbox_checked_pressed.svg);
 }
 
 QCheckBox::indicator:indeterminate:pressed, QTreeView::indicator:indeterminate:pressed, QTableView::indicator:indeterminate:pressed, QGroupBox::indicator:indeterminate:pressed {
-  image: url(:/{{scheme}}_scheme/icons/checkbox_indeterminate_pressed.svg);
+  image: url(:/{{scheme}}_scheme/icons/marks/checkbox_indeterminate_pressed.svg);
 }
 
 QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled, QGroupBox::indicator:checked:disabled,
@@ -188,7 +188,7 @@ QRadioButton::indicator:checked,
 QMenu::indicator:exclusive:checked {
   background-color: palette(highlight);
   border-radius: 6.75px;
-  image: url(:/{{scheme}}_scheme/icons/radiobutton_checked.svg);
+  image: url(:/{{scheme}}_scheme/icons/marks/radiobutton_checked.svg);
 }
 
 QRadioButton::indicator:checked:hover, QRadioButton::indicator:checked:active:focus {
@@ -202,7 +202,7 @@ QRadioButton::indicator:checked:pressed {
   margin: 0px;
   border-radius: 7.5px;
   background-color: palette(highlight);
-  image: url(:/{{scheme}}_scheme/icons/radiobutton_checked_pressed.svg);
+  image: url(:/{{scheme}}_scheme/icons/marks/radiobutton_checked_pressed.svg);
 }
 
 QRadioButton::indicator:checked:disabled {

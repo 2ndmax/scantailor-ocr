@@ -25,8 +25,10 @@ text = #eeeeee
 # Text and icons of disabled controls; the filling of checked, disabled check boxes.
 disabledText = #989898
 
-# Text and marks on the accent color: selected text and items, check marks.
-textOnAccent = #262626
+# Text and marks on the accent color: selected text and items, check marks. Of these two, the one
+# with more contrast to the accent color is taken, also to a chosen one.
+lightTextOnAccent = #ffffff
+darkTextOnAccent = #262626
 
 # Error messages.
 error = #ffb6ae

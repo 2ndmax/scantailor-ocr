@@ -12,7 +12,8 @@ StyleSheetColorScheme::Colors darkColors() {
   colors.border = QColor(table::border);
   colors.text = QColor(table::text);
   colors.disabledText = QColor(table::disabledText);
-  colors.textOnAccent = QColor(table::textOnAccent);
+  colors.lightTextOnAccent = QColor(table::lightTextOnAccent);
+  colors.darkTextOnAccent = QColor(table::darkTextOnAccent);
   colors.error = QColor(table::error);
   colors.link = QColor(table::link);
   colors.imageView = QColor(table::imageView);

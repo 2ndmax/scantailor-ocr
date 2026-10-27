@@ -75,6 +75,7 @@ without the offscreen plugin, `qt_tests` hangs without a message.
   - **testThumbnailDoesNotKeepThePreviousOne**: a thumbnail looks the same whichever was painted before it through the shared temporary pixmap.
   - **testThumbnailBorderIsTheAccentColor**: the selected thumbnail and its marks take the scheme's or the chosen accent color.
   - **testColorSchemesSetTheSameParameters**: Light, Dark and the native scheme set every color parameter.
+  - **testTextOnAccentHasTheHigherContrast**: text and marks on the accent color are light or dark, whichever has more contrast to it, also for a chosen accent color.
 
 - **Deskew step (TestDeskewQt)**: automatic and manual oblique correction, applying it to other pages, the Apply button waiting for the page.
 - **Fix Orientation step (TestFixOrientationQt)**: saving a zero rotation, trim fields following the rotation and keeping their values on a page switch, the view following changes while loading.

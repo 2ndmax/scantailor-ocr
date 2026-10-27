@@ -3,7 +3,8 @@
 #
 # The two schemes share one style sheet and one set of icons, in src/resources/color_schemes/template.
 # Their colors are placeholders such as {{border}}, which become the color of that role.
-# {{scheme}} becomes the name of the scheme, which is also the prefix of its resources.
+# {{scheme}} becomes the name of the scheme, which is also the prefix of its resources. The icons in
+# icons/marks/ are drawn on the accent color; their {{textOnAccent}} is written in two variants (below).
 # The scheme class reads its palette and color parameters from the header
 # color_schemes/<scheme>_scheme_colors.h, which has a constant for every role, in the namespace
 # <scheme>_scheme_colors.
@@ -53,16 +54,27 @@ function(generate_color_scheme scheme qrc_var)
     foreach(role IN LISTS roles)
       string(REPLACE "{{${role}}}" "${color_${role}}" content "${content}")
     endforeach()
-    if(content MATCHES "{{([A-Za-z0-9_]+)}}")
-      message(FATAL_ERROR "${colors_file} has no color for {{${CMAKE_MATCH_1}}} in ${template}")
-    endif()
 
-    if(template STREQUAL "scheme.qrc")
-      set(output "${output_dir}/${scheme}_scheme.qrc")
+    # The marks on the accent color (icons/marks/) are written twice: icons/marks_light/ with
+    # lightTextOnAccent and icons/marks_dark/ with darkTextOnAccent for {{textOnAccent}}. The scheme
+    # class takes the one with more contrast to the accent color.
+    if(template MATCHES "^icons/marks/(.*)$")
+      set(outputs "icons/marks_light/${CMAKE_MATCH_1}" "icons/marks_dark/${CMAKE_MATCH_1}")
+    elseif(template STREQUAL "scheme.qrc")
+      set(outputs "${scheme}_scheme.qrc")
     else()
-      set(output "${output_dir}/${template}")
+      set(outputs "${template}")
     endif()
-    write_if_changed("${output}" "${content}")
+    foreach(output IN LISTS outputs)
+      set(output_content "${content}")
+      if(output MATCHES "^icons/marks_(light|dark)/")
+        string(REPLACE "{{textOnAccent}}" "${color_${CMAKE_MATCH_1}TextOnAccent}" output_content "${output_content}")
+      endif()
+      if(output_content MATCHES "{{([A-Za-z0-9_]+)}}")
+        message(FATAL_ERROR "${colors_file} has no color for {{${CMAKE_MATCH_1}}} in ${template}")
+      endif()
+      write_if_changed("${output_dir}/${output}" "${output_content}")
+    endforeach()
   endforeach()
 
   set(${qrc_var} "${output_dir}/${scheme}_scheme.qrc" PARENT_SCOPE)

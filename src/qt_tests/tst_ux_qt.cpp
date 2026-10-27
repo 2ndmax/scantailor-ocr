@@ -198,3 +198,22 @@ void TestUxQt::testColorSchemesSetTheSameParameters() {
   QCOMPARE(names(DarkColorScheme()), light);
   QCOMPARE(names(NativeColorScheme()), light);
 }
+
+void TestUxQt::testTextOnAccentHasTheHigherContrast() {
+  const QColor light("#ffffff");
+  const QColor dark("#262626");
+  // The default accent colors of Light and Dark, and chosen ones of either lightness.
+  QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor(LightColorScheme::DEFAULT_ACCENT_COLOR), light, dark), light);
+  QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor(DarkColorScheme::DEFAULT_ACCENT_COLOR), light, dark), dark);
+  QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor("#000080"), light, dark), light);
+  QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor("#ffff00"), light, dark), dark);
+
+  // A light accent color chosen in the Light scheme gets dark text, in the palette and on thumbnails.
+  ApplicationSettings& settings = ApplicationSettings::getInstance();
+  settings.setAccentColor(QColor("#ffff00"));
+  const LightColorScheme scheme;
+  settings.setAccentColor(QColor());
+  const QColor expected(light_scheme_colors::darkTextOnAccent);
+  QCOMPARE(scheme.getPalette()->color(QPalette::HighlightedText), expected);
+  QCOMPARE(scheme.getColorParams()->at("ThumbnailSequenceSelectionLeaderText"), expected);
+}

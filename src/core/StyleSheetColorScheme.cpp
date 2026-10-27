@@ -6,11 +6,30 @@
 #include <QFile>
 #include <QStyle>
 #include <QStyleFactory>
+#include <algorithm>
+#include <cmath>
 
 #include "ApplicationSettings.h"
 #include "Utils.h"
 
 using namespace core;
+
+namespace {
+/** The relative luminance of a color, as WCAG 2 defines it for contrast. */
+double relativeLuminance(const QColor& color) {
+  const auto linear = [](const double channel) {
+    return (channel <= 0.03928) ? channel / 12.92 : std::pow((channel + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * linear(color.redF()) + 0.7152 * linear(color.greenF()) + 0.0722 * linear(color.blueF());
+}
+
+/** The contrast ratio of two colors, from 1 to 21, as WCAG 2 defines it. */
+double contrastRatio(const QColor& first, const QColor& second) {
+  const double a = relativeLuminance(first);
+  const double b = relativeLuminance(second);
+  return (std::max(a, b) + 0.05) / (std::min(a, b) + 0.05);
+}
+}  // namespace
 
 StyleSheetColorScheme::StyleSheetColorScheme(const Colors& colors,
                                              const QString& styleSheetPath,
@@ -19,9 +38,14 @@ StyleSheetColorScheme::StyleSheetColorScheme(const Colors& colors,
   // the thumbnails.
   const QColor chosenAccent = ApplicationSettings::getInstance().getAccentColor();
   const QColor accent = chosenAccent.isValid() ? chosenAccent : QColor(defaultAccentColor);
-  loadPalette(colors, accent);
-  loadStyleSheet(styleSheetPath);
-  loadColorParams(colors, accent);
+  const QColor onAccent = textOnAccent(accent, colors.lightTextOnAccent, colors.darkTextOnAccent);
+  loadPalette(colors, accent, onAccent);
+  loadStyleSheet(styleSheetPath, onAccent == colors.lightTextOnAccent);
+  loadColorParams(colors, accent, onAccent);
+}
+
+QColor StyleSheetColorScheme::textOnAccent(const QColor& accent, const QColor& lightText, const QColor& darkText) {
+  return (contrastRatio(accent, lightText) >= contrastRatio(accent, darkText)) ? lightText : darkText;
 }
 
 const QPalette* StyleSheetColorScheme::getPalette() const {
@@ -40,7 +64,7 @@ QStyle* StyleSheetColorScheme::getStyle() const {
   return QStyleFactory::create("Fusion");
 }
 
-void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& accent) {
+void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& accent, const QColor& onAccent) {
   m_palette.setColor(QPalette::Window, colors.window);
   m_palette.setColor(QPalette::AlternateBase, colors.window);
   m_palette.setColor(QPalette::Midlight, colors.window);
@@ -59,7 +83,7 @@ void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& acce
     m_palette.setColor(QPalette::Disabled, role, colors.disabledText);
   }
   m_palette.setColor(QPalette::Highlight, accent);
-  m_palette.setColor(QPalette::HighlightedText, colors.textOnAccent);
+  m_palette.setColor(QPalette::HighlightedText, onAccent);
   // Selections of disabled lists and of lists in an inactive window are not in the accent color.
   m_palette.setColor(QPalette::Inactive, QPalette::Highlight, colors.inactiveSelection);
   m_palette.setColor(QPalette::Inactive, QPalette::HighlightedText, colors.text);
@@ -67,12 +91,15 @@ void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& acce
   m_palette.setColor(QPalette::Disabled, QPalette::HighlightedText, colors.disabledText);
 }
 
-void StyleSheetColorScheme::loadStyleSheet(const QString& path) {
+void StyleSheetColorScheme::loadStyleSheet(const QString& path, const bool lightMarks) {
   QFile styleSheetFile(path);
   if (styleSheetFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     m_styleSheet = styleSheetFile.readAll();
     styleSheetFile.close();
   }
+  // The marks on the accent color exist with light and with dark text color (cmake/ColorSchemes.cmake).
+  m_styleSheet.replace(QStringLiteral("/icons/marks/"),
+                       lightMarks ? QStringLiteral("/icons/marks_light/") : QStringLiteral("/icons/marks_dark/"));
 
 #ifdef _WIN32
   m_styleSheet = Utils::qssConvertPxToEm(m_styleSheet, 13, 4);
@@ -81,11 +108,11 @@ void StyleSheetColorScheme::loadStyleSheet(const QString& path) {
 #endif
 }
 
-void StyleSheetColorScheme::loadColorParams(const Colors& colors, const QColor& accent) {
+void StyleSheetColorScheme::loadColorParams(const Colors& colors, const QColor& accent, const QColor& onAccent) {
   m_customColors["ThumbnailSequenceItemText"] = colors.text;
   m_customColors["ThumbnailSequenceSelectedItemBorder"] = accent;
   m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = accent;
-  m_customColors["ThumbnailSequenceSelectionLeaderText"] = colors.textOnAccent;
+  m_customColors["ThumbnailSequenceSelectionLeaderText"] = onAccent;
   m_customColors["OpenNewProjectBorder"] = colors.border;
   m_customColors["ProcessingIndicationFade"] = colors.imageView;
   m_customColors["ProcessingIndicationHead"] = colors.text;
