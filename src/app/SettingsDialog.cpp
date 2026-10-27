@@ -3,9 +3,9 @@
 
 #include "SettingsDialog.h"
 
+#include <color_schemes/dark_scheme_colors.h>
+#include <color_schemes/light_scheme_colors.h>
 #include <core/ApplicationSettings.h>
-#include <core/DarkColorScheme.h>
-#include <core/LightColorScheme.h>
 
 #include <QColorDialog>
 #include <QPainter>
@@ -145,8 +145,8 @@ QColor SettingsDialog::displayedAccentColor() const {
   if (m_accentColor.isValid()) {
     return m_accentColor;
   }
-  return QColor((ui.colorSchemeBox->currentData().toString() == "light") ? LightColorScheme::DEFAULT_ACCENT_COLOR
-                                                                         : DarkColorScheme::DEFAULT_ACCENT_COLOR);
+  return QColor((ui.colorSchemeBox->currentData().toString() == "light") ? light_scheme_colors::accent
+                                                                         : dark_scheme_colors::accent);
 }
 
 void SettingsDialog::updateAccentColorDisplay() {

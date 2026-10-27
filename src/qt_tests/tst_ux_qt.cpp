@@ -5,16 +5,17 @@
 
 #include <ApplicationSettings.h>
 #include <CollapsibleGroupBox.h>
-#include <DarkColorScheme.h>
 #include <Dpi.h>
 #include <ErrorWidget.h>
 #include <ImageId.h>
 #include <ImageTransformation.h>
-#include <LightColorScheme.h>
 #include <NativeColorScheme.h>
+#include <StyleSheetColorScheme.h>
 #include <StyledIconPack.h>
 #include <ThumbnailBase.h>
 #include <ThumbnailPixmapCache.h>
+#include <color_schemes/dark_scheme_colors.h>
+#include <color_schemes/light_scheme_colors.h>
 
 #include <QElapsedTimer>
 #include <QFile>
@@ -171,13 +172,13 @@ void TestUxQt::testThumbnailBorderIsTheAccentColor() {
       = [](const ColorScheme& scheme) { return scheme.getColorParams()->at("ThumbnailSequenceSelectedItemBorder"); };
   ApplicationSettings& settings = ApplicationSettings::getInstance();
   settings.setAccentColor(QColor());
-  QCOMPARE(border(LightColorScheme()), QColor(LightColorScheme::DEFAULT_ACCENT_COLOR));
-  QCOMPARE(border(DarkColorScheme()), QColor(DarkColorScheme::DEFAULT_ACCENT_COLOR));
+  QCOMPARE(border(*StyleSheetColorScheme::of<light_scheme_colors>()), QColor(light_scheme_colors::accent));
+  QCOMPARE(border(*StyleSheetColorScheme::of<dark_scheme_colors>()), QColor(dark_scheme_colors::accent));
 
   const QColor chosen(0x12, 0x9a, 0x45);
   settings.setAccentColor(chosen);
-  const QColor lightBorder = border(LightColorScheme());
-  const QColor darkBorder = border(DarkColorScheme());
+  const QColor lightBorder = border(*StyleSheetColorScheme::of<light_scheme_colors>());
+  const QColor darkBorder = border(*StyleSheetColorScheme::of<dark_scheme_colors>());
   settings.setAccentColor(QColor());
   QCOMPARE(lightBorder, chosen);
   QCOMPARE(darkBorder, chosen);
@@ -193,9 +194,9 @@ void TestUxQt::testColorSchemesSetTheSameParameters() {
     list.sort();
     return list;
   };
-  const QStringList light = names(LightColorScheme());
+  const QStringList light = names(*StyleSheetColorScheme::of<light_scheme_colors>());
   QVERIFY(!light.isEmpty());
-  QCOMPARE(names(DarkColorScheme()), light);
+  QCOMPARE(names(*StyleSheetColorScheme::of<dark_scheme_colors>()), light);
   QCOMPARE(names(NativeColorScheme()), light);
 }
 
@@ -203,17 +204,17 @@ void TestUxQt::testTextOnAccentHasTheHigherContrast() {
   const QColor light("#ffffff");
   const QColor dark("#262626");
   // The default accent colors of Light and Dark, and chosen ones of either lightness.
-  QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor(LightColorScheme::DEFAULT_ACCENT_COLOR), light, dark), light);
-  QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor(DarkColorScheme::DEFAULT_ACCENT_COLOR), light, dark), dark);
+  QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor(light_scheme_colors::accent), light, dark), light);
+  QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor(dark_scheme_colors::accent), light, dark), dark);
   QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor("#000080"), light, dark), light);
   QCOMPARE(StyleSheetColorScheme::textOnAccent(QColor("#ffff00"), light, dark), dark);
 
   // A light accent color chosen in the Light scheme gets dark text, in the palette and on thumbnails.
   ApplicationSettings& settings = ApplicationSettings::getInstance();
   settings.setAccentColor(QColor("#ffff00"));
-  const LightColorScheme scheme;
+  const auto scheme = StyleSheetColorScheme::of<light_scheme_colors>();
   settings.setAccentColor(QColor());
   const QColor expected(light_scheme_colors::darkTextOnAccent);
-  QCOMPARE(scheme.getPalette()->color(QPalette::HighlightedText), expected);
-  QCOMPARE(scheme.getColorParams()->at("ThumbnailSequenceSelectionLeaderText"), expected);
+  QCOMPARE(scheme->getPalette()->color(QPalette::HighlightedText), expected);
+  QCOMPARE(scheme->getColorParams()->at("ThumbnailSequenceSelectionLeaderText"), expected);
 }

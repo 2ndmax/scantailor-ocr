@@ -1,7 +1,7 @@
 # All colors of the Dark scheme, read by cmake/ColorSchemes.cmake. Each color has one meaning, and the
 # Light and Dark schemes give each meaning a color of their own. Each {{meaning}} in the shared style
-# sheet and icons in template/ becomes the color given here; DarkColorScheme reads its palette and
-# color parameters from the generated header dark_scheme_colors.h.
+# sheet and icons in template/ becomes the color given here; StyleSheetColorScheme reads its palette
+# and color parameters from the generated header dark_scheme_colors.h.
 
 # Background of windows, dialogs, the menu bar and the selected tab.
 window = #535353

@@ -77,8 +77,6 @@ set(common_sources
     OutputFileNameGenerator.cpp OutputFileNameGenerator.h
     Margins.cpp Margins.h
     ColorScheme.h
-    DarkColorScheme.cpp DarkColorScheme.h
-    LightColorScheme.cpp LightColorScheme.h
     StyleSheetColorScheme.cpp StyleSheetColorScheme.h
     NativeColorScheme.cpp NativeColorScheme.h
     ColorSchemeManager.cpp ColorSchemeManager.h

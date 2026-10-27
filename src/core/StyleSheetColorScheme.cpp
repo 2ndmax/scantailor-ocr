@@ -32,8 +32,9 @@ double contrastRatio(const QColor& first, const QColor& second) {
 }  // namespace
 
 StyleSheetColorScheme::StyleSheetColorScheme(const Colors& colors,
-                                             const QString& styleSheetPath,
+                                             const QString& name,
                                              const char* defaultAccentColor) {
+  const QString styleSheetPath = QString(":/%1_scheme/stylesheet/stylesheet.qss").arg(name);
   // The palette carries the accent color to the style sheet (palette(highlight)), to selections and to
   // the thumbnails.
   const QColor chosenAccent = ApplicationSettings::getInstance().getAccentColor();

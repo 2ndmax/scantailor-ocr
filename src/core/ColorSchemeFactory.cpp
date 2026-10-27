@@ -5,14 +5,15 @@
 
 #include "ApplicationSettings.h"
 #include "ColorScheme.h"
-#include "DarkColorScheme.h"
-#include "LightColorScheme.h"
 #include "NativeColorScheme.h"
+#include "StyleSheetColorScheme.h"
+#include "color_schemes/dark_scheme_colors.h"
+#include "color_schemes/light_scheme_colors.h"
 
 ColorSchemeFactory::ColorSchemeFactory() {
   registerColorScheme("native", []() { return std::make_unique<NativeColorScheme>(); });
-  registerColorScheme("light", []() { return std::make_unique<LightColorScheme>(); });
-  registerColorScheme("dark", []() { return std::make_unique<DarkColorScheme>(); });
+  registerColorScheme("light", []() { return StyleSheetColorScheme::of<light_scheme_colors>(); });
+  registerColorScheme("dark", []() { return StyleSheetColorScheme::of<dark_scheme_colors>(); });
 }
 
 void ColorSchemeFactory::registerColorScheme(const QString& scheme, const ColorSchemeConstructor& constructor) {
