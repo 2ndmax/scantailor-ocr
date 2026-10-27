@@ -258,10 +258,10 @@ void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark
   const double radius = ColorSchemeManager::instance().hasRoundedCorners() ? s * 0.2 : 1.0;
   painter.drawRoundedRect(square, radius, radius);
 
+  // Both marks are in the accent color, as the frame of the selected thumbnail; their shapes tell them apart.
+  const QColor accent = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder");
   if (mark == INCOMPLETE_MARK) {
-    // An hourglass in the accent color, as the frame of the selected thumbnail: two triangles
-    // meeting in the middle, closed by a bar at the top and at the bottom.
-    const QColor accent = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder");
+    // An hourglass: two triangles meeting in the middle, closed by a bar at the top and at the bottom.
     const double x0 = square.left() + s * 0.28;
     const double x1 = square.right() - s * 0.28;
     const double y0 = square.top() + s * 0.2;
@@ -282,10 +282,10 @@ void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark
     painter.setBrush(accent);
     painter.drawPath(glass);
   } else {
-    // A red exclamation mark: a bar and a dot.
+    // An exclamation mark: a bar and a dot.
     const double barWidth = s * 0.16;
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(0xdd, 0x00, 0x00));
+    painter.setBrush(accent);
     painter.drawRoundedRect(QRectF(square.center().x() - barWidth / 2, square.top() + s * 0.16, barWidth, s * 0.46),
                             barWidth / 2, barWidth / 2);
     painter.drawEllipse(QPointF(square.center().x(), square.bottom() - s * 0.2), barWidth * 0.62, barWidth * 0.62);

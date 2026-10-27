@@ -41,7 +41,7 @@ class ThumbnailBase : public QGraphicsItem {
   /** What a mark on a thumbnail says about the page. */
   enum Mark {
     INCOMPLETE_MARK,  ///< An hourglass in the accent color: not processed in this step yet.
-    DEVIANT_MARK      ///< A red exclamation mark: deviates strongly from the other pages.
+    DEVIANT_MARK      ///< An exclamation mark in the accent color: deviates strongly from the other pages.
   };
 
   /** The side of a mark, in pixels on the screen. */
