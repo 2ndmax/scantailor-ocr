@@ -4,7 +4,7 @@
 #include "Thumbnail.h"
 
 #include <core/IconProvider.h>
-#include <core/OverlayColors.h>
+#include <core/OverlayStyle.h>
 
 #include <QPainter>
 #include <utility>
@@ -37,19 +37,19 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
   painter.setPen(Qt::NoPen);
   switch (m_layout.type()) {
     case PageLayout::SINGLE_PAGE_UNCUT:
-      painter.setBrush(OverlayColors::primary(50));
+      painter.setBrush(OverlayStyle::primary(50));
       painter.drawRect(canvasRect);
       return;  // No split line will be drawn.
     case PageLayout::SINGLE_PAGE_CUT:
-      painter.setBrush(OverlayColors::primary(50));
+      painter.setBrush(OverlayStyle::primary(50));
       painter.drawPolygon(m_layout.singlePageOutline());
       break;
     case PageLayout::TWO_PAGES: {
       const QPolygonF leftPoly(m_layout.leftPageOutline());
       const QPolygonF rightPoly(m_layout.rightPageOutline());
-      painter.setBrush(m_leftHalfRemoved ? OverlayColors::removed() : OverlayColors::primary(50));
+      painter.setBrush(m_leftHalfRemoved ? OverlayStyle::removed() : OverlayStyle::primary(50));
       painter.drawPolygon(leftPoly);
-      painter.setBrush(m_rightHalfRemoved ? OverlayColors::removed() : OverlayColors::secondary(50));
+      painter.setBrush(m_rightHalfRemoved ? OverlayStyle::removed() : OverlayStyle::secondary(50));
       painter.drawPolygon(rightPoly);
       // Draw the trash icon.
       if (m_leftHalfRemoved || m_rightHalfRemoved) {
@@ -70,7 +70,7 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
 
   painter.setRenderHint(QPainter::Antialiasing, true);
 
-  QPen pen(OverlayColors::primary());
+  QPen pen(OverlayStyle::primary());
   pen.setWidth(1);
   pen.setCosmetic(true);
   painter.setPen(pen);

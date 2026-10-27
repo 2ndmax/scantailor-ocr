@@ -1,8 +1,8 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#ifndef SCANTAILOR_CORE_OVERLAYCOLORS_H_
-#define SCANTAILOR_CORE_OVERLAYCOLORS_H_
+#ifndef SCANTAILOR_CORE_OVERLAYSTYLE_H_
+#define SCANTAILOR_CORE_OVERLAYSTYLE_H_
 
 #include <QColor>
 #include <QPixmap>
@@ -12,7 +12,7 @@
  * lines, boxes, margins, zones and handles. They lie on the scanned pages, mostly white, so they
  * don't follow the color scheme or the accent color.
  */
-namespace OverlayColors {
+namespace OverlayStyle {
 /** Lines, boxes and tints of the main element: grids, arcs, split lines, content box, margins. */
 QColor primary(int alpha = 255);
 
@@ -24,6 +24,6 @@ QColor removed();
 
 /** A handle to drag: a white circle with a border in the primary color, 16 pixels wide. */
 QPixmap handlePixmap();
-}  // namespace OverlayColors
+}  // namespace OverlayStyle
 
-#endif  // SCANTAILOR_CORE_OVERLAYCOLORS_H_
+#endif  // SCANTAILOR_CORE_OVERLAYSTYLE_H_

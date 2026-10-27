@@ -3,7 +3,7 @@
 
 #include "ImageView.h"
 
-#include <OverlayColors.h>
+#include <OverlayStyle.h>
 #include <TaskStatus.h>
 
 #include <QDebug>
@@ -207,7 +207,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
 
   if (m_pageRectEnabled) {
     // Draw the page bounding box.
-    QPen pen(OverlayColors::secondary());
+    QPen pen(OverlayStyle::secondary());
     pen.setWidthF(2.0);
     pen.setCosmetic(true);
     painter.setPen(pen);
@@ -222,12 +222,12 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
   }
 
   // Draw the content bounding box.
-  QPen pen(OverlayColors::primary());
+  QPen pen(OverlayStyle::primary());
   pen.setWidthF(1.0);
   pen.setCosmetic(true);
   painter.setPen(pen);
 
-  painter.setBrush(OverlayColors::primary(50));
+  painter.setBrush(OverlayStyle::primary(50));
 
   // Pen strokes will be outside of m_contentRect - that's how drawRect() works.
   painter.drawRect(m_contentRect);

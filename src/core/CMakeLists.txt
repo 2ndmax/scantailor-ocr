@@ -31,7 +31,7 @@ set(common_sources
     ThumbnailLoadResult.h
     ThumbnailPixmapCache.cpp ThumbnailPixmapCache.h
     ThumbnailBase.cpp ThumbnailBase.h
-    OverlayColors.cpp OverlayColors.h
+    OverlayStyle.cpp OverlayStyle.h
     ThumbnailFactory.cpp ThumbnailFactory.h
     IncompleteThumbnail.cpp IncompleteThumbnail.h
     ContentBoxPropagator.cpp ContentBoxPropagator.h

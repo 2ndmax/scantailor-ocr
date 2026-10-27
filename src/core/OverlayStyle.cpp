@@ -1,12 +1,12 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include "OverlayColors.h"
+#include "OverlayStyle.h"
 
 #include <QGuiApplication>
 #include <QPainter>
 
-namespace OverlayColors {
+namespace OverlayStyle {
 QColor primary(const int alpha) {
   return QColor(0x1d, 0x73, 0xdf, alpha);
 }
@@ -32,4 +32,4 @@ QPixmap handlePixmap() {
   painter.drawEllipse(QRectF(2.0, 2.0, 12.0, 12.0));
   return pixmap;
 }
-}  // namespace OverlayColors
+}  // namespace OverlayStyle

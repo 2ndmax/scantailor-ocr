@@ -4,7 +4,7 @@
 #include "DewarpingView.h"
 
 #include <CylindricalSurfaceDewarper.h>
-#include <OverlayColors.h>
+#include <OverlayStyle.h>
 
 #include <QDebug>
 #include <QPainter>
@@ -166,7 +166,7 @@ void DewarpingView::onPaint(QPainter& painter, const InteractionState& interacti
   painter.setBrush(Qt::NoBrush);
 
   QPen gridPen;
-  gridPen.setColor(OverlayColors::primary());
+  gridPen.setColor(OverlayStyle::primary());
   gridPen.setCosmetic(true);
   gridPen.setWidthF(1.2);
 
@@ -232,7 +232,7 @@ void DewarpingView::paintXSpline(QPainter& painter,
 #if 0  // No point in drawing the curve itself - we already draw the grid.
         painter.setWorldTransform(imageToVirtual() * virtualToWidget());
 
-        QPen curvePen(OverlayColors::primary());
+        QPen curvePen(OverlayStyle::primary());
         curvePen.setWidthF(1.5);
         curvePen.setCosmetic(true);
         painter.setPen(curvePen);
@@ -244,7 +244,7 @@ void DewarpingView::paintXSpline(QPainter& painter,
   // so let's draw them in widget coordinates.
   painter.setWorldMatrixEnabled(false);
 
-  QPen existingPointPen(OverlayColors::secondary());
+  QPen existingPointPen(OverlayStyle::secondary());
   existingPointPen.setWidthF(4.0);
   existingPointPen.setCosmetic(true);
   painter.setPen(existingPointPen);
@@ -257,7 +257,7 @@ void DewarpingView::paintXSpline(QPainter& painter,
   QPointF pt;
   if (ispline.curveIsProximityLeader(interaction, &pt)) {
     QPen newPointPen(existingPointPen);
-    newPointPen.setColor(OverlayColors::primary());
+    newPointPen.setColor(OverlayStyle::primary());
     painter.setPen(newPointPen);
     painter.drawPoint(pt);
   }

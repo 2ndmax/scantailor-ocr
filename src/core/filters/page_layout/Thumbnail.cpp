@@ -3,7 +3,7 @@
 
 #include "Thumbnail.h"
 
-#include <OverlayColors.h>
+#include <OverlayStyle.h>
 #include <PolygonUtils.h>
 
 #include <QPainter>
@@ -59,11 +59,11 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
     // "Align with other pages" is turned off.
     // Different color is useful on a thumbnail list to
     // distinguish "safe" pages from potentially problematic ones.
-    bgColor = OverlayColors::primary(70);
-    fgColor = OverlayColors::primary();
+    bgColor = OverlayStyle::primary(70);
+    fgColor = OverlayStyle::primary();
   } else {
-    bgColor = OverlayColors::secondary(40);
-    fgColor = OverlayColors::secondary();
+    bgColor = OverlayStyle::secondary(40);
+    fgColor = OverlayStyle::secondary();
   }
 
   // we round inner rect to check whether content rect is empty and this is just an adapted rect.

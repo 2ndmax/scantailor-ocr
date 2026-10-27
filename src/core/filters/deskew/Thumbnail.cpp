@@ -3,7 +3,7 @@
 
 #include "Thumbnail.h"
 
-#include <OverlayColors.h>
+#include <OverlayStyle.h>
 
 #include <QPainter>
 #include <utility>
@@ -25,7 +25,7 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
                                   const QTransform& thumbToDisplay) {
   painter.setRenderHint(QPainter::Antialiasing, false);
 
-  QPen pen(OverlayColors::primary(70));
+  QPen pen(OverlayStyle::primary(70));
   pen.setWidth(1);
   pen.setCosmetic(true);
   painter.setPen(pen);
