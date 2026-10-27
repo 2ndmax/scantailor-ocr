@@ -10,10 +10,13 @@
 #include <zones/Zone.h>
 #include <zones/ZoneSet.h>
 
+#include <QDomDocument>
+#include <QDomElement>
 #include <QPolygonF>
 #include <QRectF>
 #include <boost/test/unit_test.hpp>
 #include <map>
+#include <memory>
 #include <unordered_map>
 
 #include "TestHelpers.h"
@@ -54,12 +57,19 @@ BOOST_AUTO_TEST_CASE(test_output_settings_relink_every_table) {
   zones.add(Zone(SerializableSpline(QPolygonF(QRectF(10, 10, 50, 50))), PropertySet()));
   output::OutputProcessingParams processingParams;
   processingParams.setBlackOnWhiteSetManually(true);
+  // The stored output of the page, read from XML: only its despeckle level is set.
+  QDomDocument doc;
+  QDomElement outputEl(doc.createElement("output"));
+  QDomElement imageEl(doc.createElement("image"));
+  imageEl.setAttribute("despeckleLevel", 1.5);
+  outputEl.appendChild(imageEl);
 
   output::Settings settings;
   settings.setDespeckleLevel(page, 2.5);
   settings.setPictureZones(page, zones);
   settings.setFillZones(page, zones);
   settings.setOutputProcessingParams(page, processingParams);
+  settings.setOutputParams(page, output::OutputParams(outputEl));
 
   settings.performRelinking(Tests::RenamingRelinker("/a/scan.tif", "/c/scan_new.tif"));
 
@@ -69,6 +79,11 @@ BOOST_AUTO_TEST_CASE(test_output_settings_relink_every_table) {
   BOOST_TEST(!settings.pictureZonesForPage(moved).empty());
   BOOST_TEST(!settings.fillZonesForPage(moved).empty());
   BOOST_TEST(settings.getOutputProcessingParams(moved).isBlackOnWhiteSetManually());
+  // Without the stored output, the moved page would count as out of date and be processed again.
+  BOOST_TEST(!settings.getOutputParams(page));
+  const std::unique_ptr<output::OutputParams> movedOutput(settings.getOutputParams(moved));
+  BOOST_REQUIRE(movedOutput);
+  BOOST_TEST(movedOutput->outputImageParams().despeckleLevel() == 1.5);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
