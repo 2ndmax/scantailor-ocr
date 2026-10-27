@@ -32,6 +32,10 @@ SerializableSpline::SerializableSpline(const QDomElement& el) {
   }
 }
 
+// REVIEW-NOTE (2026-10): the points are stored in reverse order, while toPolygon() returns them unchanged
+// -> converting a polygon and back reverses its direction. Not fixed because the reversal dates back to the
+// original ScanTailor without a stated reason, and removing it would change the point order of zones in
+// project files and for code that might depend on the direction.
 SerializableSpline::SerializableSpline(const QPolygonF& polygon) {
   for (int i = polygon.size() - 1; i >= 0; i--) {
     m_points.push_back(polygon[i]);
