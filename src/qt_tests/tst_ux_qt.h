@@ -12,6 +12,7 @@ class TestUxQt : public QObject {
   void testCollapsibleGroupBoxStateAndSignal();
   void testCollapsedStateIsLoadedForGroupDisabledAtStart();
   void testErrorWidgetShowsItsText();
+  void testStyledIconFollowsPaletteColor();
 };
 
 #endif

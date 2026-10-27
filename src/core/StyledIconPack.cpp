@@ -11,7 +11,9 @@
 #include <cmath>
 #include <functional>
 #include <map>
+#include <memory>
 #include <unordered_set>
+#include <utility>
 
 std::unique_ptr<StyledIconPack> StyledIconPack::createDefault() {
   return std::make_unique<StyledIconPack>(":/icons.xml");
@@ -60,7 +62,19 @@ class SvgStyledIconEngine : public QIconEngine {
 
   const QString& getIconFilePath(QIcon::State state);
 
+  /**
+   * The renderer for the colored icon. Built once per mode and state, because Qt asks custom
+   * engines again on every repaint; built anew when the color of the mode has changed.
+   */
+  QSvgRenderer& renderer(QIcon::Mode mode, QIcon::State state);
+
+  struct ColoredRenderer {
+    QRgb color;
+    std::shared_ptr<QSvgRenderer> renderer;
+  };
+
   std::map<QIcon::State, QString> m_iconFilePathMap;
+  std::map<std::pair<QIcon::Mode, QIcon::State>, ColoredRenderer> m_renderers;
 };
 
 QRectF fitKeepingAspectRatio(const QSizeF& srcSize, const QRectF& boundingRect) {
@@ -72,8 +86,18 @@ QRectF fitKeepingAspectRatio(const QSizeF& srcSize, const QRectF& boundingRect) 
 }
 
 void SvgStyledIconEngine::paint(QPainter* painter, const QRect& rect, QIcon::Mode mode, QIcon::State state) {
-  QSvgRenderer renderer(generateIcon(getIconFilePath(state), mode));
-  renderer.render(painter, fitKeepingAspectRatio(renderer.viewBoxF().size(), rect));
+  QSvgRenderer& svg = renderer(mode, state);
+  svg.render(painter, fitKeepingAspectRatio(svg.viewBoxF().size(), rect));
+}
+
+QSvgRenderer& SvgStyledIconEngine::renderer(const QIcon::Mode mode, const QIcon::State state) {
+  const QRgb color = AbstractIconPack::iconColor(mode).rgba();
+  ColoredRenderer& cached = m_renderers[{mode, state}];
+  if (!cached.renderer || (cached.color != color)) {
+    cached.color = color;
+    cached.renderer = std::make_shared<QSvgRenderer>(generateIcon(getIconFilePath(state), mode));
+  }
+  return *cached.renderer;
 }
 
 QPixmap SvgStyledIconEngine::pixmap(const QSize& size, QIcon::Mode mode, QIcon::State state) {
@@ -93,6 +117,8 @@ SvgStyledIconEngine* SvgStyledIconEngine::clone() const {
 
 void SvgStyledIconEngine::addFile(const QString& fileName, const QSize&, QIcon::Mode, QIcon::State state) {
   m_iconFilePathMap.insert(std::make_pair(state, fileName));
+  // A new file can change what getIconFilePath() gives for any state.
+  m_renderers.clear();
 }
 
 const QString& SvgStyledIconEngine::getIconFilePath(QIcon::State state) {
