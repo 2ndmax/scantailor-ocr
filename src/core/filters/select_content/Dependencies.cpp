@@ -82,6 +82,12 @@ void Dependencies::setDetectionOptions(const std::optional<DetectionOptions>& de
   m_params.setDetectionOptions(detectionOptions);
 }
 
+void Dependencies::assumeDefaultDetectionOptionsIfUnknown() {
+  if (!m_params.detectionOptions()) {
+    m_params.setDetectionOptions(DetectionOptions());
+  }
+}
+
 /* ================================= Dependencies::Params ================================= */
 
 Dependencies::Params::Params()

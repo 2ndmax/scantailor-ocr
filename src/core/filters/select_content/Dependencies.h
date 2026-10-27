@@ -56,6 +56,15 @@ class Dependencies {
 
   void setDetectionOptions(const std::optional<DetectionOptions>& detectionOptions);
 
+  /**
+   * \brief Makes known which settings the content box was detected with, if it isn't yet.
+   *
+   * Pages of projects from before the detection settings have none stored; they were detected
+   * with the defaults. Once the settings are known on both sides, the task detects again exactly
+   * when other settings are chosen (see Params::needUpdateContentBox()).
+   */
+  void assumeDefaultDetectionOptionsIfUnknown();
+
  private:
   class Params {
    public:
@@ -81,6 +90,8 @@ class Dependencies {
     void setPageDetectionMode(AutoManualMode pageDetectionMode);
 
     void setDetectionOptions(const std::optional<DetectionOptions>& detectionOptions);
+
+    const std::optional<DetectionOptions>& detectionOptions() const { return m_detectionOptions; }
 
    private:
     AutoManualMode m_contentDetectionMode;

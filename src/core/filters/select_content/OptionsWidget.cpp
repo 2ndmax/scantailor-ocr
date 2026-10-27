@@ -145,8 +145,9 @@ void OptionsWidget::detectionOptionsChanged() {
     // Kept for when the page is switched to Auto.
     commitCurrentParams();
   } else {
+    // The task compares the new settings with those the box was detected with.
     Dependencies deps = m_uiData.dependencies();
-    deps.setContentDetectionMode(MODE_DISABLED);  // Makes the task detect the content box again.
+    deps.assumeDefaultDetectionOptionsIfUnknown();
     m_uiData.setDependencies(deps);
     commitCurrentParams();
     emit reloadRequested();

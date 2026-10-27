@@ -5,6 +5,7 @@
 #include "tst_deskew_qt.h"
 #include "tst_end_to_end_qt.h"
 #include "tst_fix_orientation_qt.h"
+#include "tst_select_content_qt.h"
 #include "tst_ux_qt.h"
 
 #include <QApplication>
@@ -96,7 +97,8 @@ int main(int argc, char* argv[]) {
   TestDeskewQt tc3;
   TestFixOrientationQt tc4;
   TestEndToEndQt tc5;
-  const std::vector<QObject*> testObjects{&tc1, &tc2, &tc3, &tc4, &tc5};
+  TestSelectContentQt tc6;
+  const std::vector<QObject*> testObjects{&tc1, &tc2, &tc3, &tc4, &tc5, &tc6};
 
   int failed = 0;
   for (QObject* testObject : testObjects) {
