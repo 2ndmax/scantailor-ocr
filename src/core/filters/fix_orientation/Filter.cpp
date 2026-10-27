@@ -42,11 +42,9 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
 }
 
 void Filter::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
-  if (m_optionsWidget.get()) {
-    const OrthogonalRotation rotation(m_settings->getRotationFor(pageInfo.id().imageId()));
-    m_optionsWidget->preUpdateUI(pageInfo, rotation);
-    ui->setOptionsWidget(m_optionsWidget.get(), ui->KEEP_OWNERSHIP);
-  }
+  const OrthogonalRotation rotation(m_settings->getRotationFor(pageInfo.id().imageId()));
+  m_optionsWidget->preUpdateUI(pageInfo, rotation);
+  ui->setOptionsWidget(m_optionsWidget.get(), ui->KEEP_OWNERSHIP);
 }
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
