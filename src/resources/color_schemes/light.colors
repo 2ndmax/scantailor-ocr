@@ -8,22 +8,22 @@
 accent = #1e76e3
 
 # Dock titles, tabs, status bar and table headers.
-barBackground = #dbdbdb
+barBackground = #d9d9d9
 
 # Borders of buttons, fields and check boxes.
 controlBorder = #cccccc
 
 # Border of the default button.
-defaultButtonBorder = #4b4b4b
+defaultButtonBorder = #4a4a4a
 
 # Background of disabled fields, lists, buttons and other controls (palette).
-disabledBackground = #fafafa
+disabledBackground = #ffffff
 
 # Borders of disabled controls.
-disabledControlBorder = #dedede
+disabledControlBorder = #d9d9d9
 
 # Selected items of disabled lists, trees and tables (palette).
-disabledSelectionBackground = #dfdfdf
+disabledSelectionBackground = #d9d9d9
 
 # Text of disabled controls (palette), disabled menu items and disabled icons.
 disabledText = #909090
@@ -38,7 +38,7 @@ groupBoxBorder = #d1d1d1
 hoverBackground = #ebebeb
 
 # Background of the image views, and the veil over them while a page is processed.
-imageViewBackground = #939393
+imageViewBackground = #909090
 
 # Disabled check box or radio button that is checked.
 indicatorCheckedDisabledBackground = #b5b5b5
@@ -47,7 +47,7 @@ indicatorCheckedDisabledBackground = #b5b5b5
 indicatorCheckedPressedBackground = #555555
 
 # Check mark and radio dot.
-indicatorMark = #fafafa
+indicatorMark = #ffffff
 
 # Check mark and radio dot when disabled.
 indicatorMarkDisabled = #f0f0f0
@@ -59,22 +59,22 @@ indicatorMarkPressed = #ffffff
 indicatorUncheckedPressedBackground = #b5b5b5
 
 # Border of selected and pressed menu bar items.
-menuBarItemBorder = #dbdbdb
+menuBarItemBorder = #d9d9d9
 
 # Selected menu bar item.
-menuBarItemSelectedBackground = #fafafa
+menuBarItemSelectedBackground = #ffffff
 
 # Checked marks in menus.
 menuIndicatorChecked = #6c6c6c
 
 # Pressed and checked buttons, menu bar line, menu separators.
-pressedBackground = #bfbfbf
+pressedBackground = #bdbdbd
 
 # Filled part of progress bars.
 progressBarChunk = #5d9bf3
 
 # Arrows of scroll bars.
-scrollBarArrow = #939393
+scrollBarArrow = #909090
 
 # Groove of scroll bars.
 scrollBarBackground = #e3e3e3
@@ -92,13 +92,13 @@ selectionBackground = #3399ff
 sliderGroove = #cccccc
 
 # Handle of sliders.
-sliderHandle = #faffff
+sliderHandle = #ffffff
 
 # Border of the slider handle.
 sliderHandleBorder = #a4a4a4
 
 # Arrows of spin boxes and combo boxes.
-spinBoxArrow = #585858
+spinBoxArrow = #555555
 
 # Pressed arrows of spin boxes and combo boxes.
 spinBoxArrowPressed = #303030
@@ -115,7 +115,7 @@ toolTipBorder = #000000
 window = #f0f0f0
 
 # Background of fields, lists and buttons.
-base = #fcfcfc
+base = #ffffff
 
 # Background of tool tips.
 toolTipBase = #ffffcd
@@ -126,9 +126,9 @@ toolTipText = #000000
 # Shades of frames and bevels that the Fusion style draws, from light to shadow.
 light = #ffffff
 midlight = #f0f0f0
-dark = #dadada
+dark = #d9d9d9
 mid = #cccccc
-shadow = #bebebe
+shadow = #bdbdbd
 
 # Text that has to stand out from its background.
 brightText = #f40000
