@@ -620,12 +620,13 @@ void ImageView::recalcOuterRect() {
 }
 
 double ImageView::calcScaleFactor(const Margins& hardMarginsMm) const {
-  // Like Utils::calcPageRectPhys(): a page without content is not scaled.
-  if (m_nullContentRect) {
+  const std::unique_ptr<Params> params(m_settings->getPageParams(m_pageId));
+  // Without params (the page was removed meanwhile) there is nothing to scale, as in the options panel.
+  if (!params) {
     return 1.0;
   }
-  return m_settings->outputSizeOptions().scaleFactor(origRectToSizeMM(m_innerRect), hardMarginsMm, m_alignment,
-                                                     m_aggregateHardSizeMM);
+  return Utils::calcScaleFactor(m_settings->outputSizeOptions(), *params, origRectToSizeMM(m_innerRect), hardMarginsMm,
+                                m_alignment, m_aggregateHardSizeMM);
 }
 
 QSizeF ImageView::hardSizeMM() const {
