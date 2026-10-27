@@ -125,13 +125,22 @@ void NativeColorScheme::loadColorParams() {
   const QPalette palette = QPalette();
 
   m_customColors["ThumbnailSequenceSelectedItemBackground"] = palette.color(QPalette::Highlight).lighter(130);
+  m_customColors["ThumbnailSequenceSelectedItemText"] = palette.color(QPalette::HighlightedText);
+  m_customColors["ThumbnailSequenceItemText"] = palette.color(QPalette::Text);
   m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = palette.color(QPalette::Highlight);
+  m_customColors["ThumbnailSequenceSelectionLeaderText"] = palette.color(QPalette::HighlightedText);
+  m_customColors["ThumbnailSequenceSelectedItemBorder"] = palette.color(QPalette::Highlight).darker(150);
+  m_customColors["OpenNewProjectBorder"] = palette.color(QPalette::WindowText);
   m_customColors["ProcessingIndicationFade"] = palette.window().color().darker(115);
+  m_customColors["FixDpiDialogErrorText"] = QColor(Qt::red);
   if (palette.window().color().lightnessF() < 0.5) {
     // If system scheme is dark, adapt some colors.
     m_customColors["ProcessingIndicationHead"] = palette.color(QPalette::Window).lighter(200);
     m_customColors["ProcessingIndicationTail"] = palette.color(QPalette::Window).lighter(130);
-    m_customColors["StageListHead"] = m_customColors.at("ProcessingIndicationHead");
-    m_customColors["StageListTail"] = m_customColors.at("ProcessingIndicationTail");
+  } else {
+    m_customColors["ProcessingIndicationHead"] = palette.color(QPalette::Window).darker(200);
+    m_customColors["ProcessingIndicationTail"] = palette.color(QPalette::Window).darker(130);
   }
+  m_customColors["StageListHead"] = m_customColors.at("ProcessingIndicationHead");
+  m_customColors["StageListTail"] = m_customColors.at("ProcessingIndicationTail");
 }
