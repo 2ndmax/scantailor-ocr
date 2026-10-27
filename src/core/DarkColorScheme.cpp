@@ -3,95 +3,37 @@
 
 #include "DarkColorScheme.h"
 
-#include <QFile>
-#include <QStyle>
-#include <QStyleFactory>
-
-#include "ApplicationSettings.h"
-#include "Utils.h"
-
-using namespace core;
-
-DarkColorScheme::DarkColorScheme() {
-  loadPalette();
-  loadStyleSheet();
-  loadColorParams();
+namespace {
+StyleSheetColorScheme::BaseColors darkColors() {
+  StyleSheetColorScheme::BaseColors colors;
+  colors.window = QColor("#535353");
+  colors.windowText = QColor("#DDDDDD");
+  colors.disabledWindowText = QColor("#989898");
+  colors.base = QColor("#454545");
+  colors.disabledBase = QColor("#4D4D4D");
+  colors.toolTipBase = QColor("#707070");
+  colors.toolTipText = colors.windowText;
+  colors.light = QColor("#666666");
+  colors.midlight = QColor("#535353");
+  colors.dark = QColor("#404040");
+  colors.mid = QColor("#333333");
+  colors.shadow = QColor("#262626");
+  colors.brightText = QColor("#FC5248");
+  colors.link = QColor("#4F95FC");
+  colors.highlight = QColor("#6B6B6B");
+  colors.disabledHighlight = QColor("#5D5D5D");
+  return colors;
 }
+}  // namespace
 
-const QPalette* DarkColorScheme::getPalette() const {
-  return &m_palette;
-}
-
-const QString* DarkColorScheme::getStyleSheet() const {
-  return &m_styleSheet;
-}
-
-const ColorScheme::ColorParams* DarkColorScheme::getColorParams() const {
-  return &m_customColors;
-}
-
-QStyle* DarkColorScheme::getStyle() const {
-  return QStyleFactory::create("Fusion");
-}
-
-void DarkColorScheme::loadPalette() {
-  m_palette.setColor(QPalette::Window, "#535353");
-  m_palette.setColor(QPalette::WindowText, "#DDDDDD");
-  m_palette.setColor(QPalette::Disabled, QPalette::WindowText, "#989898");
-  m_palette.setColor(QPalette::Base, "#454545");
-  m_palette.setColor(QPalette::Disabled, QPalette::Base, "#4D4D4D");
-  m_palette.setColor(QPalette::AlternateBase, m_palette.color(QPalette::Window));
-  m_palette.setColor(QPalette::Disabled, QPalette::AlternateBase,
-                     m_palette.color(QPalette::Disabled, QPalette::Window));
-  m_palette.setColor(QPalette::ToolTipBase, "#707070");
-  m_palette.setColor(QPalette::ToolTipText, m_palette.color(QPalette::WindowText));
-  m_palette.setColor(QPalette::Text, m_palette.color(QPalette::WindowText));
-  m_palette.setColor(QPalette::Disabled, QPalette::Text, m_palette.color(QPalette::Disabled, QPalette::WindowText));
-  m_palette.setColor(QPalette::Light, "#666666");
-  m_palette.setColor(QPalette::Midlight, "#535353");
-  m_palette.setColor(QPalette::Dark, "#404040");
-  m_palette.setColor(QPalette::Mid, "#333333");
-  m_palette.setColor(QPalette::Shadow, "#262626");
-  m_palette.setColor(QPalette::Button, m_palette.color(QPalette::Base));
-  m_palette.setColor(QPalette::Disabled, QPalette::Button, m_palette.color(QPalette::Disabled, QPalette::Base));
-  m_palette.setColor(QPalette::ButtonText, m_palette.color(QPalette::WindowText));
-  m_palette.setColor(QPalette::Disabled, QPalette::ButtonText,
-                     m_palette.color(QPalette::Disabled, QPalette::WindowText));
-  m_palette.setColor(QPalette::BrightText, "#FC5248");
-  m_palette.setColor(QPalette::Link, "#4F95FC");
-  m_palette.setColor(QPalette::Highlight, "#6B6B6B");
-  m_palette.setColor(QPalette::Disabled, QPalette::Highlight, "#5D5D5D");
-  m_palette.setColor(QPalette::HighlightedText, m_palette.color(QPalette::WindowText));
-  m_palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
-                     m_palette.color(QPalette::Disabled, QPalette::WindowText));
-}
-
-void DarkColorScheme::loadStyleSheet() {
-  QFile styleSheetFile(QString::fromUtf8(":/dark_scheme/stylesheet/stylesheet.qss"));
-  if (styleSheetFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    m_styleSheet = styleSheetFile.readAll();
-    styleSheetFile.close();
-  }
-  m_styleSheet = Utils::qssApplyAccentColor(m_styleSheet, DEFAULT_ACCENT_COLOR);
-
-#ifdef _WIN32
-  m_styleSheet = Utils::qssConvertPxToEm(m_styleSheet, 13, 4);
-#else
-  m_styleSheet = Utils::qssConvertPxToEm(m_styleSheet, 16, 4);
-#endif
-}
-
-void DarkColorScheme::loadColorParams() {
-  m_customColors["ThumbnailSequenceSelectedItemBackground"] = "#424242";
-  m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = "#7A7A7A";
-  m_customColors["ThumbnailSequenceSelectionLeaderText"] = Qt::white;
-  const QColor accent = ApplicationSettings::getInstance().getAccentColor();
-  m_customColors["ThumbnailSequenceSelectedItemBorder"] = accent.isValid() ? accent : QColor("#3399ff");
-  m_customColors["OpenNewProjectBorder"] = "#535353";
-  m_customColors["ProcessingIndicationFade"] = "#282828";
-  m_customColors["ProcessingIndicationHead"] = m_palette.color(QPalette::WindowText);
-  m_customColors["ProcessingIndicationTail"] = m_palette.color(QPalette::Highlight);
-  m_customColors["StageListHead"] = m_customColors.at("ProcessingIndicationHead");
-  m_customColors["StageListTail"] = m_customColors.at("ProcessingIndicationTail");
-  m_customColors["FixDpiDialogErrorText"] = "#F34941";
+DarkColorScheme::DarkColorScheme()
+    : StyleSheetColorScheme(darkColors(),
+                            QString::fromUtf8(":/dark_scheme/stylesheet/stylesheet.qss"),
+                            DEFAULT_ACCENT_COLOR) {
+  setColorParam("ThumbnailSequenceSelectedItemBackground", QColor("#424242"));
+  setColorParam("ThumbnailSequenceSelectionLeaderBackground", QColor("#7A7A7A"));
+  setColorParam("ThumbnailSequenceSelectionLeaderText", Qt::white);
+  setColorParam("OpenNewProjectBorder", QColor("#535353"));
+  setColorParam("ProcessingIndicationFade", QColor("#282828"));
+  setColorParam("FixDpiDialogErrorText", QColor("#F34941"));
 }

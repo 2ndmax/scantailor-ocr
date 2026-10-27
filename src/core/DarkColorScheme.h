@@ -4,37 +4,14 @@
 #ifndef SCANTAILOR_CORE_DARKCOLORSCHEME_H_
 #define SCANTAILOR_CORE_DARKCOLORSCHEME_H_
 
-#include <QPalette>
-#include <QString>
+#include "StyleSheetColorScheme.h"
 
-#include "ColorScheme.h"
-
-class DarkColorScheme : public ColorScheme {
+class DarkColorScheme : public StyleSheetColorScheme {
  public:
   /** The color of the borders of focused and hovered controls, unless the user chose another one. */
   static constexpr const char* DEFAULT_ACCENT_COLOR = "#0f64d2";
 
   DarkColorScheme();
-
-  QStyle* getStyle() const override;
-
-  const QPalette* getPalette() const override;
-
-  const QString* getStyleSheet() const override;
-
-  const ColorParams* getColorParams() const override;
-
- private:
-  void loadPalette();
-
-  void loadStyleSheet();
-
-  void loadColorParams();
-
-  QPalette m_palette;
-  QString m_styleSheet;
-  ColorParams m_customColors;
 };
-
 
 #endif  // SCANTAILOR_CORE_DARKCOLORSCHEME_H_

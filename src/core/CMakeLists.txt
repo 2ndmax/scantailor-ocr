@@ -78,6 +78,7 @@ set(common_sources
     ColorScheme.h
     DarkColorScheme.cpp DarkColorScheme.h
     LightColorScheme.cpp LightColorScheme.h
+    StyleSheetColorScheme.cpp StyleSheetColorScheme.h
     NativeColorScheme.cpp NativeColorScheme.h
     ColorSchemeManager.cpp ColorSchemeManager.h
     PageRange.cpp PageRange.h
