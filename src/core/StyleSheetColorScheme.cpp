@@ -119,5 +119,5 @@ void StyleSheetColorScheme::loadColorParams(const Colors& colors, const QColor& 
   m_customColors["ProcessingIndicationTail"] = accent;
   m_customColors["StageListHead"] = colors.text;
   m_customColors["StageListTail"] = accent;
-  m_customColors["FixDpiDialogErrorText"] = colors.error;
+  m_customColors["ErrorText"] = colors.error;
 }

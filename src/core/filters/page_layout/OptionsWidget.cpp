@@ -743,7 +743,7 @@ void OptionsWidget::setupSourceDpiControls() {
 
   m_sourceDpiNormalPalette = sourceXDpi->lineEdit()->palette();
   m_sourceDpiErrorPalette = m_sourceDpiNormalPalette;
-  const QColor errorColor(ColorSchemeManager::instance().getColorParam("FixDpiDialogErrorText"));
+  const QColor errorColor(ColorSchemeManager::instance().getColorParam("ErrorText"));
   m_sourceDpiErrorPalette.setColor(QPalette::Text, errorColor);
 }
 

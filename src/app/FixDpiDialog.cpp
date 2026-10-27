@@ -161,7 +161,7 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
 
   m_normalPalette = xDpi->lineEdit()->palette();
   m_errorPalette = m_normalPalette;
-  const QColor errorTextColor = ColorSchemeManager::instance().getColorParam("FixDpiDialogErrorText");
+  const QColor errorTextColor = ColorSchemeManager::instance().getColorParam("ErrorText");
   m_errorPalette.setColor(QPalette::Text, errorTextColor);
 
   // Opens with the pages that need fixing, if there are any.

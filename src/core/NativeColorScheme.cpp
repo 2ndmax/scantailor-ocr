@@ -120,7 +120,7 @@ void NativeColorScheme::loadColorParams() {
   m_customColors["ThumbnailSequenceSelectedItemBorder"] = palette.color(QPalette::Highlight).darker(150);
   m_customColors["OpenNewProjectBorder"] = palette.color(QPalette::WindowText);
   m_customColors["ProcessingIndicationFade"] = palette.window().color().darker(115);
-  m_customColors["FixDpiDialogErrorText"] = QColor(Qt::red);
+  m_customColors["ErrorText"] = QColor(Qt::red);
   if (palette.window().color().lightnessF() < 0.5) {
     // If system scheme is dark, adapt some colors.
     m_customColors["ProcessingIndicationHead"] = palette.color(QPalette::Window).lighter(200);
