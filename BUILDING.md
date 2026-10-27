@@ -3,15 +3,15 @@
 ## Windows, step by step
 
 These steps assume a machine with nothing installed yet. vcpkg comes without an installer: it is
-simply unpacked into a folder of your choice. The examples below use `C:\Dev` as that folder –
-any path works, as long as you use it consistently and it contains no spaces or non-English
-characters.
+simply unpacked into a folder of your choice. The examples below put everything directly on
+drive `D:` – any path works, as long as you use it consistently and it contains no spaces or
+non-English characters.
 
-**1. Get the source code** into `C:\Dev\scantailor-ocr`, either with
+**1. Get the source code** into `D:\scantailor-ocr`, either with
 [Git for Windows](https://git-scm.com/download/win):
 
 ```
-cd /d C:\Dev
+cd /d D:\
 git clone https://github.com/2ndmax/scantailor-ocr.git
 ```
 
@@ -27,13 +27,13 @@ components, only these are needed:
 * Windows 11 SDK
 
 **3. Download vcpkg** as a ZIP: <https://github.com/microsoft/vcpkg>
-Unpack it to `C:\Dev\vcpkg`.
+Unpack it to `D:\vcpkg`.
 
 **4. Build the libraries with vcpkg.** Open the **"Native Tools Command Prompt for VS x64"**
 (from the start menu, inside the Visual Studio folder) and run:
 
 ```
-cd /d C:\Dev\vcpkg
+cd /d D:\vcpkg
 bootstrap-vcpkg.bat
 vcpkg install --recurse qtbase qtsvg qttools qttranslations libjpeg-turbo libpng "tiff[core,jpeg,zip,lzma,zstd,webp,lerc,libdeflate,tools]" openjpeg zlib boost-test boost-foreach boost-intrusive boost-multi-index boost-lambda tesseract
 ```
@@ -47,17 +47,17 @@ and several gigabytes of disk space.
 **5. Tell the build where vcpkg is.** In the same command prompt:
 
 ```
-setx VCPKG_ROOT C:\Dev\vcpkg
+setx VCPKG_ROOT D:\vcpkg
 ```
 
 This sets the variable for your user account; no administrator rights or restart are needed.
 Close the command prompt and open a new **"Native Tools Command Prompt for VS x64"**, which
-sees the variable. `echo %VCPKG_ROOT%` should now show `C:\Dev\vcpkg`.
+sees the variable. `echo %VCPKG_ROOT%` should now show `D:\vcpkg`.
 
 **6. Configure and build.** In the new command prompt:
 
 ```
-cd /d C:\Dev\scantailor-ocr
+cd /d D:\scantailor-ocr
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake"
 cmake --build build
 ```
