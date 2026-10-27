@@ -176,12 +176,6 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
       const int height = headerHeight(option);
       const int width = std::max(height, metrics.horizontalAdvance(text) + 10);
       const QRect badge(option.rect.right() - TILE_MARGIN - width + 1, option.rect.top() + TILE_MARGIN, width, height);
-      // A ring in the accent color, as the frame of the button that creates the PDF.
-      painter->setPen(QPen(accentColor(), 2));
-      painter->setBrush(Qt::NoBrush);
-      const QRectF ring = QRectF(badge).adjusted(1, 1, -1, -1);
-      const double ringRadius = rounded ? ring.height() / 2.0 : 0.0;
-      painter->drawRoundedRect(ring, ringRadius, ringRadius);
       painter->setFont(font);
       painter->setPen(palette.color(QPalette::Text));
       painter->drawText(badge, Qt::AlignCenter, text);
