@@ -35,6 +35,10 @@ struct TiffCompression {
   int palette = COMPRESSION_LZW;
 };
 
+namespace tiff_device {
+class TiffHandle;
+}
+
 class TiffWriter {
  public:
   using Compression = TiffCompression;
@@ -74,7 +78,7 @@ class TiffWriter {
   static bool writeImage(QIODevice& device, const QImage& image, const Compression& compression = Compression());
 
  private:
-  class TiffHandle;
+  using TiffHandle = tiff_device::TiffHandle;
 
   static bool writeImageToFile(const QString& filePath, const QImage& image, const Compression& compression);
 

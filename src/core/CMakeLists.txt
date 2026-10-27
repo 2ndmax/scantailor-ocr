@@ -47,6 +47,7 @@ set(common_sources
     FilterData.cpp FilterData.h
     ImageMetadataLoader.cpp ImageMetadataLoader.h
     ImageLoadErrors.cpp ImageLoadErrors.h
+    TiffDevice.cpp TiffDevice.h
     TiffReader.cpp TiffReader.h
     Jp2Reader.cpp Jp2Reader.h
     Jp2MetadataLoader.cpp Jp2MetadataLoader.h

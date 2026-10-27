@@ -18,6 +18,10 @@ class Dpi;
  *
  * Diagnostic messages from libtiff are forwarded to ImageLoadErrorCapture.
  */
+namespace tiff_device {
+class TiffHandle;
+}
+
 class TiffReader {
  public:
   static bool canRead(QIODevice& device);
@@ -51,7 +55,7 @@ class TiffReader {
 
  private:
   class TiffHeader;
-  class TiffHandle;
+  using TiffHandle = tiff_device::TiffHandle;
 
   struct TiffInfo;
 

@@ -18,6 +18,7 @@
 
 #include "Dpm.h"
 #include "ImageLoadErrors.h"
+#include "TiffDevice.h"
 #include "TiffReader.h"
 
 /**
@@ -39,72 +40,6 @@ const uint8_t TiffWriter::m_reverseBitsLUT[256]
        0x27, 0xa7, 0x67, 0xe7, 0x17, 0x97, 0x57, 0xd7, 0x37, 0xb7, 0x77, 0xf7, 0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f,
        0xef, 0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff};
 
-
-class TiffWriter::TiffHandle {
- public:
-  explicit TiffHandle(TIFF* handle) : m_handle(handle) {}
-
-  ~TiffHandle() {
-    if (m_handle) {
-      TIFFClose(m_handle);
-    }
-  }
-
-  TIFF* handle() const { return m_handle; }
-
- private:
-  TIFF* m_handle;
-};
-
-
-static tsize_t deviceRead(thandle_t context, tdata_t data, tsize_t size) {
-  // Not implemented.
-  return 0;
-}
-
-static tsize_t deviceWrite(thandle_t context, tdata_t data, tsize_t size) {
-  auto* dev = (QIODevice*) context;
-  return (tsize_t) dev->write(static_cast<char*>(data), size);
-}
-
-static toff_t deviceSeek(thandle_t context, toff_t offset, int whence) {
-  auto* dev = (QIODevice*) context;
-
-  switch (whence) {
-    case SEEK_SET:
-      dev->seek(offset);
-      break;
-    case SEEK_CUR:
-      dev->seek(dev->pos() + offset);
-      break;
-    case SEEK_END:
-      dev->seek(dev->size() + offset);
-      break;
-    default:
-      break;
-  }
-  return dev->pos();
-}
-
-static int deviceClose(thandle_t) {
-  // The device belongs to the caller, who closes it (as in TiffReader). A QSaveFile must not
-  // be closed at all, but committed.
-  return 0;
-}
-
-static toff_t deviceSize(thandle_t context) {
-  auto* dev = (QIODevice*) context;
-  return dev->size();
-}
-
-static int deviceMap(thandle_t, tdata_t*, toff_t*) {
-  // Not implemented.
-  return 0;
-}
-
-static void deviceUnmap(thandle_t, tdata_t, toff_t) {
-  // Not implemented.
-}
 
 /** The highest color index used by an 8-bit palette image. */
 static int maxColorIndex(const QImage& image) {
@@ -169,11 +104,8 @@ bool TiffWriter::writeImage(QIODevice& device, const QImage& image, const Compre
     return false;
   }
 
-  TiffHandle tif(TIFFClientOpen(
-      // Libtiff seems to be buggy with L or H flags,
-      // so we use B.
-      "file", "wBm", &device, &deviceRead, &deviceWrite, &deviceSeek, &deviceClose, &deviceSize, &deviceMap,
-      &deviceUnmap));
+  // Libtiff seems to be buggy with L or H flags, so we use B.
+  TiffHandle tif(tiff_device::open(device, "file", "wBm", tiff_device::Access::WRITE));
   if (!tif.handle()) {
     return false;
   }

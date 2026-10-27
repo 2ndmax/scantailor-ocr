@@ -26,6 +26,7 @@
 #include "Dpm.h"
 #include "ImageLoadErrors.h"
 #include "ImageMetadata.h"
+#include "TiffDevice.h"
 
 class TiffReader::TiffHeader {
  public:
@@ -42,23 +43,6 @@ class TiffReader::TiffHeader {
  private:
   Signature m_signature;
   int m_version;
-};
-
-
-class TiffReader::TiffHandle {
- public:
-  explicit TiffHandle(TIFF* handle) : m_handle(handle) {}
-
-  ~TiffHandle() {
-    if (m_handle) {
-      TIFFClose(m_handle);
-    }
-  }
-
-  TIFF* handle() const { return m_handle; }
-
- private:
-  TIFF* m_handle;
 };
 
 
@@ -431,56 +415,6 @@ SampleReader sampleReaderFor(const uint16_t sampleFormat, const uint16_t bitsPer
 }
 }  // namespace
 
-static tsize_t deviceRead(thandle_t context, tdata_t data, tsize_t size) {
-  auto* dev = (QIODevice*) context;
-  return (tsize_t) dev->read(static_cast<char*>(data), size);
-}
-
-static tsize_t deviceWrite(thandle_t context, tdata_t data, tsize_t size) {
-  // Not implemented.
-  return 0;
-}
-
-static toff_t deviceSeek(thandle_t context, toff_t offset, int whence) {
-  auto* dev = (QIODevice*) context;
-
-  switch (whence) {
-    case SEEK_SET:
-      dev->seek(offset);
-      break;
-    case SEEK_CUR:
-      dev->seek(dev->pos() + offset);
-      break;
-    case SEEK_END:
-      dev->seek(dev->size() + offset);
-      break;
-    default:
-      break;
-  }
-  return dev->pos();
-}
-
-static int deviceClose(thandle_t) {
-  // Deliberately a no-op. libtiff calls this from TIFFClose(), but the
-  // device is owned by our caller, who merely lends it to us - closing it
-  // here would be a surprising side effect of reading an image.
-  return 0;
-}
-
-static toff_t deviceSize(thandle_t context) {
-  auto* dev = (QIODevice*) context;
-  return dev->size();
-}
-
-static int deviceMap(thandle_t, tdata_t*, toff_t*) {
-  // Not implemented.
-  return 0;
-}
-
-static void deviceUnmap(thandle_t, tdata_t, toff_t) {
-  // Not implemented.
-}
-
 bool TiffReader::canRead(QIODevice& device) {
   if (!device.isReadable()) {
     return false;
@@ -510,8 +444,7 @@ ImageMetadataLoader::Status TiffReader::readMetadata(QIODevice& device,
 
   ensureTiffHandlersInstalled();
 
-  TiffHandle tif(TIFFClientOpen("TIFF", "rBm", &device, &deviceRead, &deviceWrite, &deviceSeek, &deviceClose,
-                                &deviceSize, &deviceMap, &deviceUnmap));
+  TiffHandle tif(tiff_device::open(device, "TIFF", "rBm", tiff_device::Access::READ));
   if (!tif.handle()) {
     return ImageMetadataLoader::GENERIC_ERROR;
   }
@@ -584,8 +517,7 @@ QImage TiffReader::readImage(QIODevice& device, const int pageNum) {
 
   ensureTiffHandlersInstalled();
 
-  TiffHandle tif(TIFFClientOpen("TIFF", "rBm", &device, &deviceRead, &deviceWrite, &deviceSeek, &deviceClose,
-                                &deviceSize, &deviceMap, &deviceUnmap));
+  TiffHandle tif(tiff_device::open(device, "TIFF", "rBm", tiff_device::Access::READ));
   if (!tif.handle()) {
     return QImage();
   }
