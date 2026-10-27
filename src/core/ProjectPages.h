@@ -148,6 +148,20 @@ class ProjectPages : public QObject {
     ImageDesc(const ImageId& id, const ImageMetadata& metadata, Pages pages);
 
     PageId::SubPage logicalPageToSubPage(int logicalPage, const PageId::SubPage* subPagesInOrder) const;
+
+    /**
+     * \brief Sets the number of pages to \p wanted, one less if a half is removed.
+     *
+     * \return Whether the number changed.
+     */
+    bool setNumLogicalPages(int wanted);
+
+    /**
+     * \brief Clears the removed halves where the rules above forbid them.
+     *
+     * \return False if the number of pages is neither 1 nor 2; such an image is not taken.
+     */
+    bool enforceRules();
   };
 
   void initSubPagesInOrder(Qt::LayoutDirection layoutDirection);
