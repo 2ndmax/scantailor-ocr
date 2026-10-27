@@ -34,6 +34,7 @@ LightColorScheme::LightColorScheme()
   setColorParam("ThumbnailSequenceSelectedItemText", Qt::white);
   setColorParam("ThumbnailSequenceItemText", Qt::black);
   setColorParam("ThumbnailSequenceSelectionLeaderBackground", QColor("#4A4A4A"));
+  setColorParam("ThumbnailSequenceSelectionLeaderText", Qt::white);
   setColorParam("OpenNewProjectBorder", QColor("#CCCCCC"));
   setColorParam("ProcessingIndicationFade", QColor("#939393"));
   setColorParam("FixDpiDialogErrorText", QColor("#FB0000"));
