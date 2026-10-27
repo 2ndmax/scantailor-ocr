@@ -259,6 +259,9 @@ void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark
   painter.drawRoundedRect(square, radius, radius);
 
   // Both marks are in the accent color, as the frame of the selected thumbnail; their shapes tell them apart.
+  // REVIEW-NOTE (2026-10): a light accent color on the white mark square (Dark's default #5ea8ff
+  // has 2.5:1, a chosen yellow far less) -> the hourglass and the exclamation mark are hard to see.
+  // Not fixed because the marks are meant to be in the accent color the user chose.
   const QColor accent = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder");
   if (mark == INCOMPLETE_MARK) {
     // An hourglass: two triangles meeting in the middle, closed by a bar at the top and at the bottom.
