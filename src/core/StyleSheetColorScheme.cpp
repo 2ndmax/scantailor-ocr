@@ -42,7 +42,7 @@ StyleSheetColorScheme::StyleSheetColorScheme(const Colors& colors,
   const QColor onAccent = textOnAccent(accent, colors.lightTextOnAccent, colors.darkTextOnAccent);
   loadPalette(colors, accent, onAccent);
   loadStyleSheet(styleSheetPath, onAccent == colors.lightTextOnAccent);
-  loadColorParams(colors, accent, onAccent);
+  m_customColors = colorParams(colors, accent, onAccent);
 }
 
 QColor StyleSheetColorScheme::textOnAccent(const QColor& accent, const QColor& lightText, const QColor& darkText) {
@@ -109,16 +109,20 @@ void StyleSheetColorScheme::loadStyleSheet(const QString& path, const bool light
 #endif
 }
 
-void StyleSheetColorScheme::loadColorParams(const Colors& colors, const QColor& accent, const QColor& onAccent) {
-  m_customColors["ThumbnailSequenceItemText"] = colors.text;
-  m_customColors["ThumbnailSequenceSelectedItemBorder"] = accent;
-  m_customColors["ThumbnailSequenceSelectionLeaderBackground"] = accent;
-  m_customColors["ThumbnailSequenceSelectionLeaderText"] = onAccent;
-  m_customColors["OpenNewProjectBorder"] = colors.border;
-  m_customColors["ProcessingIndicationFade"] = colors.imageView;
-  m_customColors["ProcessingIndicationHead"] = colors.text;
-  m_customColors["ProcessingIndicationTail"] = accent;
-  m_customColors["StageListHead"] = colors.text;
-  m_customColors["StageListTail"] = accent;
-  m_customColors["ErrorText"] = colors.error;
+ColorScheme::ColorParams StyleSheetColorScheme::colorParams(const Colors& colors,
+                                                            const QColor& accent,
+                                                            const QColor& onAccent) {
+  ColorParams params;
+  params["ThumbnailSequenceItemText"] = colors.text;
+  params["ThumbnailSequenceSelectedItemBorder"] = accent;
+  params["ThumbnailSequenceSelectionLeaderBackground"] = accent;
+  params["ThumbnailSequenceSelectionLeaderText"] = onAccent;
+  params["OpenNewProjectBorder"] = colors.border;
+  params["ProcessingIndicationFade"] = colors.imageView;
+  params["ProcessingIndicationHead"] = colors.text;
+  params["ProcessingIndicationTail"] = accent;
+  params["StageListHead"] = colors.text;
+  params["StageListTail"] = accent;
+  params["ErrorText"] = colors.error;
+  return params;
 }
