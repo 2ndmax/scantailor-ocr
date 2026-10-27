@@ -117,14 +117,13 @@ void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
 
     tempPixmap = QPixmap(static_cast<int>(std::ceil(w * dpr)), static_cast<int>(std::ceil(h * dpr)));
     tempPixmap.setDevicePixelRatio(dpr);
-
-    if (!tempPixmap.hasAlphaChannel()) {
-      // This actually forces the alpha channel to be created.
-      tempPixmap.fill(Qt::transparent);
-    }
-
-    QPixmapCache::insert(cacheKey, tempPixmap);
   }
+  // While the cache shares the pixmap, painting on it would copy it first. So it is taken out of the
+  // cache for painting and put back afterwards.
+  QPixmapCache::remove(cacheKey);
+  // Each thumbnail starts from a transparent pixmap: the image is drawn in Source mode, and its
+  // antialiased edges would keep what the previous thumbnail left. This also creates the alpha channel.
+  tempPixmap.fill(Qt::transparent);
 
   QPainter tempPainter;
   tempPainter.begin(&tempPixmap);
@@ -170,6 +169,7 @@ void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
   tempPainter.restore();
 
   tempPainter.end();
+  QPixmapCache::insert(cacheKey, tempPixmap);
 
   painter->setWorldTransform(QTransform());
   painter->setClipRect(displayRect);
