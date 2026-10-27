@@ -16,6 +16,7 @@ set(sources
     TestPageRange.cpp
     TestPageOrder.cpp
     TestPageOrderProviders.cpp
+    TestProjectPagesLayout.cpp
     TestPageSequence.cpp
     TestPageSplitDependencies.cpp
     TestPdfWriter.cpp
