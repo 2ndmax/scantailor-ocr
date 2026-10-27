@@ -5,11 +5,12 @@
 #define SCANTAILOR_CORE_DARKCOLORSCHEME_H_
 
 #include "StyleSheetColorScheme.h"
+#include "color_schemes/dark_scheme_colors.h"
 
 class DarkColorScheme : public StyleSheetColorScheme {
  public:
   /** The color of the borders of focused and hovered controls, unless the user chose another one. */
-  static constexpr const char* DEFAULT_ACCENT_COLOR = "#0f64d2";
+  static constexpr const char* DEFAULT_ACCENT_COLOR = dark_scheme_colors::accent;
 
   DarkColorScheme();
 };

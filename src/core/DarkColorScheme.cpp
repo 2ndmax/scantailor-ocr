@@ -3,26 +3,28 @@
 
 #include "DarkColorScheme.h"
 
+namespace colors = dark_scheme_colors;
+
 namespace {
 StyleSheetColorScheme::BaseColors darkColors() {
-  StyleSheetColorScheme::BaseColors colors;
-  colors.window = QColor("#535353");
-  colors.windowText = QColor("#DDDDDD");
-  colors.disabledWindowText = QColor("#989898");
-  colors.base = QColor("#454545");
-  colors.disabledBase = QColor("#4D4D4D");
-  colors.toolTipBase = QColor("#424242");
-  colors.toolTipText = colors.windowText;
-  colors.light = QColor("#666666");
-  colors.midlight = QColor("#535353");
-  colors.dark = QColor("#404040");
-  colors.mid = QColor("#333333");
-  colors.shadow = QColor("#262626");
-  colors.brightText = QColor("#FC5248");
-  colors.link = QColor("#4F95FC");
-  colors.highlight = QColor("#6B6B6B");
-  colors.disabledHighlight = QColor("#5D5D5D");
-  return colors;
+  StyleSheetColorScheme::BaseColors base;
+  base.window = QColor(colors::window);
+  base.windowText = QColor(colors::windowText);
+  base.disabledWindowText = QColor(colors::disabledWindowText);
+  base.base = QColor(colors::base);
+  base.disabledBase = QColor(colors::disabledBase);
+  base.toolTipBase = QColor(colors::toolTipBase);
+  base.toolTipText = QColor(colors::toolTipText);
+  base.light = QColor(colors::light);
+  base.midlight = QColor(colors::midlight);
+  base.dark = QColor(colors::dark);
+  base.mid = QColor(colors::mid);
+  base.shadow = QColor(colors::shadow);
+  base.brightText = QColor(colors::brightText);
+  base.link = QColor(colors::link);
+  base.highlight = QColor(colors::highlight);
+  base.disabledHighlight = QColor(colors::disabledHighlight);
+  return base;
 }
 }  // namespace
 
@@ -30,10 +32,10 @@ DarkColorScheme::DarkColorScheme()
     : StyleSheetColorScheme(darkColors(),
                             QString::fromUtf8(":/dark_scheme/stylesheet/stylesheet.qss"),
                             DEFAULT_ACCENT_COLOR) {
-  setColorParam("ThumbnailSequenceItemText", QColor("#DDDDDD"));
-  setColorParam("ThumbnailSequenceSelectionLeaderBackground", QColor("#7A7A7A"));
-  setColorParam("ThumbnailSequenceSelectionLeaderText", Qt::white);
-  setColorParam("OpenNewProjectBorder", QColor("#535353"));
-  setColorParam("ProcessingIndicationFade", QColor("#282828"));
-  setColorParam("FixDpiDialogErrorText", QColor("#F34941"));
+  setColorParam("ThumbnailSequenceItemText", QColor(colors::thumbnailItemText));
+  setColorParam("ThumbnailSequenceSelectionLeaderBackground", QColor(colors::thumbnailSelectionLeaderBackground));
+  setColorParam("ThumbnailSequenceSelectionLeaderText", QColor(colors::thumbnailSelectionLeaderText));
+  setColorParam("OpenNewProjectBorder", QColor(colors::openNewProjectBorder));
+  setColorParam("ProcessingIndicationFade", QColor(colors::processingIndicationFade));
+  setColorParam("FixDpiDialogErrorText", QColor(colors::fixDpiDialogErrorText));
 }

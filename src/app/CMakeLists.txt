@@ -5,10 +5,7 @@ set(target_name scantailor-ocr)
 
 set(resource_files resources.qrc)
 list_items_prepend(resource_files "${SCANTAILOR_RESOURCES_DIR}/")
-foreach(scheme light dark)
-  generate_color_scheme(${scheme} scheme_qrc)
-  list(APPEND resource_files "${scheme_qrc}")
-endforeach()
+list(APPEND resource_files ${color_scheme_qrc_files})
 
 set(gui_only_sources
     RelinkingModel.cpp RelinkingModel.h

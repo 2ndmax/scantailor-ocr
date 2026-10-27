@@ -330,6 +330,13 @@ set(APPLICATION_VERSION_PATCH "${CMAKE_MATCH_3}")
 set(SCANTAILOR_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/src/resources")
 set(SCANTAILOR_TRANSLATIONS_DIR "${CMAKE_SOURCE_DIR}/src/translations")
 
+# Before src/: the core includes the color headers, the application the resources.
+set(color_scheme_qrc_files "")
+foreach(scheme light dark)
+  generate_color_scheme(${scheme} scheme_qrc)
+  list(APPEND color_scheme_qrc_files "${scheme_qrc}")
+endforeach()
+
 configure_file(
     "${SCANTAILOR_RESOURCES_DIR}/unix/${target_name}.desktop.in"
     "${CMAKE_BINARY_DIR}/${target_name}.desktop"

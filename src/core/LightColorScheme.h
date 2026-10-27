@@ -5,11 +5,12 @@
 #define SCANTAILOR_CORE_LIGHTCOLORSCHEME_H_
 
 #include "StyleSheetColorScheme.h"
+#include "color_schemes/light_scheme_colors.h"
 
 class LightColorScheme : public StyleSheetColorScheme {
  public:
   /** The color of the borders of focused and hovered controls, unless the user chose another one. */
-  static constexpr const char* DEFAULT_ACCENT_COLOR = "#1e76e3";
+  static constexpr const char* DEFAULT_ACCENT_COLOR = light_scheme_colors::accent;
 
   LightColorScheme();
 };

@@ -1,8 +1,10 @@
-# The colors of the Light scheme for the shared style sheet and icons in template/.
-# Each {{role}} there becomes the color given here (cmake/ColorSchemes.cmake).
+# All colors of the Light scheme, read by cmake/ColorSchemes.cmake. Each {{role}} in the shared style
+# sheet and icons in template/ becomes the color given here; LightColorScheme reads its palette and
+# color parameters from the generated header light_scheme_colors.h.
 
-# Borders of hovered, focused and checked controls: the default accent color, which must be
-# DEFAULT_ACCENT_COLOR of the scheme class: a chosen accent color replaces exactly this value.
+# Borders of hovered, focused and checked controls, the selected thumbnail and the marks on
+# thumbnails: the default accent color (DEFAULT_ACCENT_COLOR). A chosen accent color replaces this
+# value wherever it is in the style sheet, so no other role may have it.
 accent = #1e76e3
 
 # Dock titles, tabs, status bar and table headers.
@@ -106,3 +108,63 @@ spinBoxArrowPressed = #303030
 
 # Border of tool tips.
 toolTipBorder = #000000
+
+# ---- Palette of the scheme (LightColorScheme), set in C++ ----
+
+# Background of windows and dialogs.
+window = #F0F0F0
+
+# Text of windows and controls.
+windowText = #303030
+
+# Text of disabled controls.
+disabledWindowText = #909090
+
+# Background of fields, lists and buttons.
+base = #FCFCFC
+
+# Background of disabled fields, lists and buttons.
+disabledBase = #FAFAFA
+
+# Background of tool tips.
+toolTipBase = #FFFFCD
+
+# Text of tool tips.
+toolTipText = #000000
+
+# Shades of frames and bevels that the Fusion style draws, from light to shadow.
+light = #ffffff
+midlight = #F0F0F0
+dark = #DADADA
+mid = #CCCCCC
+shadow = #BEBEBE
+
+# Text that has to stand out from its background.
+brightText = #F40000
+
+# Links.
+link = #0000FF
+
+# Selected items in lists and trees.
+highlight = #B5B5B5
+
+# Selected items in disabled lists and trees.
+disabledHighlight = #DFDFDF
+
+# ---- Colors of what the style sheet doesn't reach (color parameters), set in C++ ----
+
+# Names under the thumbnails.
+thumbnailItemText = #000000
+
+# Name under the thumbnail that leads a selection: background and text.
+thumbnailSelectionLeaderBackground = #4A4A4A
+thumbnailSelectionLeaderText = #ffffff
+
+# Border of the panel for creating or opening a project.
+openNewProjectBorder = #CCCCCC
+
+# Veil over the image view while a page is processed.
+processingIndicationFade = #939393
+
+# Invalid resolution in the "Fix DPI" dialog.
+fixDpiDialogErrorText = #FB0000
