@@ -33,7 +33,16 @@ void ZoneDragInteraction::onPaint(QPainter& painter, const InteractionState& int
 
   const QTransform toScreen(m_context.imageView().imageToWidget());
 
-  m_visualizer.drawSplines(painter, toScreen, m_context.zones());
+  for (const EditableZoneSet::Zone& zone : m_context.zones()) {
+    const EditableSpline::Ptr& spline = zone.spline();
+    if (spline != m_spline) {
+      m_visualizer.drawSpline(painter, toScreen, spline);
+      continue;
+    }
+    // The zone being dragged stays as strong as it was under the mouse.
+    m_visualizer.prepareForActiveSpline(painter, spline);
+    painter.drawPolygon(toScreen.map(spline->toPolygon()), Qt::WindingFill);
+  }
 }
 
 void ZoneDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) {
