@@ -22,21 +22,21 @@ using namespace select_content;
 
 BOOST_AUTO_TEST_SUITE(SelectContentApplyTestSuite)
 
-BOOST_AUTO_TEST_CASE(apply_content_box_auto_forces_recompute) {
+BOOST_AUTO_TEST_CASE(applied_pages_are_detected_again) {
   QPolygonF pageOutline;
   pageOutline << QPointF(0, 0) << QPointF(100, 0) << QPointF(100, 150) << QPointF(0, 150);
 
-  Dependencies currentDeps(pageOutline, MODE_AUTO, MODE_DISABLED, false);
+  Dependencies currentDeps(pageOutline, MODE_AUTO, MODE_AUTO, false);
 
-  Dependencies storedDepsWhenApplyingAuto(QPolygonF(), MODE_DISABLED, MODE_DISABLED, false);
+  // "Apply to ..." stores the target pages with empty dependencies.
+  const Dependencies storedDepsWhenApplying;
 
   bool needUpdateContentBox = false;
   bool needUpdatePageBox = false;
-  currentDeps.compatibleWith(storedDepsWhenApplyingAuto, &needUpdateContentBox, &needUpdatePageBox);
+  currentDeps.compatibleWith(storedDepsWhenApplying, &needUpdateContentBox, &needUpdatePageBox);
 
   BOOST_REQUIRE_MESSAGE(needUpdateContentBox,
-                        "When applying 'Content Box: Auto' we store deps with MODE_DISABLED so that "
-                        "Task::process recomputes content box for each target page.");
+                        "The empty page outline makes Task::process detect both boxes of each target page again.");
   BOOST_CHECK(needUpdatePageBox);
 }
 

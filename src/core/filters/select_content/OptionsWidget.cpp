@@ -249,6 +249,7 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
     return;
   }
 
+  // The empty dependencies make the task detect both boxes of each target page again.
   Params params(m_uiData.contentRect(), m_uiData.contentSizeMM(), m_uiData.pageRect(), Dependencies(),
                 m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(), m_uiData.isFineTuningCornersEnabled());
   // The detection settings go with the content box, as shown, also if the page has none of its own yet.
@@ -299,11 +300,6 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
         correctedContentRect.translate(newPageRect.x() - sourcePageRect.x(), newPageRect.y() - sourcePageRect.y());
         newParams.setContentRect(correctedContentRect);
       }
-    }
-
-    if (applyContentBox && newParams.contentDetectionMode() == MODE_AUTO) {
-      newParams.setDependencies(
-          Dependencies(QPolygonF(), MODE_DISABLED, newParams.pageDetectionMode(), newParams.isFineTuningEnabled()));
     }
 
     m_settings->setPageParams(pageId, newParams);
