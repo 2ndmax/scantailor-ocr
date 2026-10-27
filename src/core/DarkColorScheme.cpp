@@ -11,7 +11,7 @@ StyleSheetColorScheme::BaseColors darkColors() {
   colors.disabledWindowText = QColor("#989898");
   colors.base = QColor("#454545");
   colors.disabledBase = QColor("#4D4D4D");
-  colors.toolTipBase = QColor("#707070");
+  colors.toolTipBase = QColor("#424242");
   colors.toolTipText = colors.windowText;
   colors.light = QColor("#666666");
   colors.midlight = QColor("#535353");

@@ -608,8 +608,8 @@ QSlider::handle:disabled {
 }
 
 QToolTip {
-  color: palette(window-text);
-  background-color: #424242;
+  color: palette(tooltip-text);
+  background-color: palette(tooltip-base);
   border: 1px solid #383838;
   border-radius: 0px;
 }
