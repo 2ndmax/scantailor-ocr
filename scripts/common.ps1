@@ -14,18 +14,24 @@ $Root = (Resolve-Path "$PSScriptRoot\..").Path
 $Utf8 = New-Object Text.UTF8Encoding $false
 
 $vswhereDir = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer"
-$Vs = $null
-if (Test-Path "$vswhereDir\vswhere.exe") {
-    $Vs = & "$vswhereDir\vswhere.exe" -latest -products * `
-        -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+
+# Sets $Vs to the newest Visual Studio (or Build Tools) with the C++ tools, and the folders of its
+# CMake, Ninja and LLVM tools. Called again by the setup after installing Visual Studio.
+function Find-VisualStudio {
+    $script:Vs = $null
+    if (Test-Path "$vswhereDir\vswhere.exe") {
+        $script:Vs = & "$vswhereDir\vswhere.exe" -latest -products * `
+            -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    }
+    if ($script:Vs) {
+        $script:LlvmBin = "$script:Vs\VC\Tools\Llvm\x64\bin"
+        $script:CMakeBin = "$script:Vs\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin"
+        $script:NinjaBin = "$script:Vs\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja"
+        # vcvars64.bat calls vswhere itself and complains when it isn't on PATH.
+        $env:PATH = "$script:CMakeBin;$script:NinjaBin;$vswhereDir;$env:PATH"
+    }
 }
-if ($Vs) {
-    $LlvmBin = "$Vs\VC\Tools\Llvm\x64\bin"
-    $CMakeBin = "$Vs\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin"
-    $NinjaBin = "$Vs\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja"
-    # vcvars64.bat calls vswhere itself and complains when it isn't on PATH.
-    $env:PATH = "$CMakeBin;$NinjaBin;$vswhereDir;$env:PATH"
-}
+Find-VisualStudio
 
 function Get-VcpkgRoot([string]$VcpkgRoot) {
     if (-not $VcpkgRoot) { $VcpkgRoot = $env:VCPKG_ROOT }
@@ -57,11 +63,13 @@ function Add-LogLine([string]$Log, [string]$Text) {
 
 # Creates the log with the standard header lines plus run-specific ones.
 function New-Log([string]$Log, [string]$Title, [string[]]$Extra = @()) {
+    # Through cmd, so a missing Git (possible before the setup) or a ZIP download of the
+    # repository only leaves the lines empty.
     $lines = @(
         "# Run $Title"
         "# Start: $(Get-Stamp)"
-        "# Commit: $(git -C $Root rev-parse HEAD)"
-        "# Working tree: $((git -C $Root status --porcelain) -join '; ')"
+        "# Commit: $(cmd /c "git -C `"$Root`" rev-parse HEAD 2>nul")"
+        "# Working tree: $((cmd /c "git -C `"$Root`" status --porcelain 2>nul") -join '; ')"
     ) + $Extra + @('')
     New-Item -ItemType Directory -Force (Split-Path $Log) | Out-Null
     [IO.File]::WriteAllLines($Log, $lines, $Utf8)

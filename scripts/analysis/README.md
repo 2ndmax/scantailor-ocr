@@ -105,36 +105,31 @@ What to expect in the output:
 
 #### Setting up EDG for run 04
 
-Needed once, and again after updating EDG.  The example puts EDG in `D:\edgcpp`; SoftFloat goes
-next to it, into `D:\softfloat`.
+Needed once, and again for a newer EDG.  Run:
 
-1. Additional requirements:
-   - The Visual Studio component **".NET Framework 4.8.1 SDK"** (Visual Studio Installer →
-     "Modify" → "Individual components").  EDG links `mscoree.lib` from it for its C++/CLI
-     support.
-   - Python 3.6 or later.  The one vcpkg downloads to `D:\vcpkg\downloads\tools\python` is
-     enough; the script finds it.
-   - [Git for Windows](https://git-scm.com/download/win).
-2. Tell the scripts where EDG is.  In a command prompt (as for `VCPKG_ROOT` in BUILDING.md):
+    powershell -ExecutionPolicy Bypass -File scripts\setup\3-setup-edg.ps1
 
-       setx EDG_ROOT D:\edgcpp
+It asks for the folder that gets the checkouts `edgcpp` and `softfloat` (suggesting `D:\` when
+drive D: exists, so EDG goes to `D:\edgcpp`), then offers five steps in a menu; each can be run
+on its own, 0 runs all of them in order:
 
-   Open a new PowerShell or command prompt afterwards, which sees the variable.
-3. Run the setup:
+1. Requirements: Visual Studio with the C++ tools, the Visual Studio component
+   **".NET Framework 4.8.1 SDK"** (EDG links `mscoree.lib` from it for its C++/CLI support),
+   Python 3.6 or later (the one vcpkg downloads to `D:\vcpkg\downloads\tools\python` is enough)
+   and [Git for Windows](https://git-scm.com/download/win).
+2. Sources: clones EDG and [Berkeley SoftFloat 3](https://github.com/ucb-bar/berkeley-softfloat-3).
+   EDG either at the version the setup was tested with, or the newest one (`git pull` for an
+   existing checkout); SoftFloat at the commit EDG pins.
+3. Build: SoftFloat, which EDG needs on Windows for its floating-point arithmetic, with the
+   CMake file in `scripts\setup\edg-softfloat\` (SoftFloat only ships makefiles for GCC and
+   MinGW), then EDG with its preset `windows-msvc-release`: about ten minutes the first time,
+   a minute or two later on.
+4. `EDG_ROOT`: sets the variable for your user account, so `04-edg.ps1` finds EDG.
+5. Check: runs `cpfe.exe` on a small C++17 file in strict mode.
 
-       powershell -ExecutionPolicy Bypass -File scripts\setup\3-setup-edg.ps1
-
-   It clones EDG into `D:\edgcpp` and
-   [Berkeley SoftFloat 3](https://github.com/ucb-bar/berkeley-softfloat-3) into `D:\softfloat`,
-   at the commits written in the script (each only if its folder doesn't exist yet).  It builds
-   SoftFloat, which EDG needs on Windows for its floating-point arithmetic, with the CMake file
-   in `scripts\setup\edg-softfloat\`, as SoftFloat only ships makefiles for GCC and MinGW.  Then it builds EDG with its preset `windows-msvc-release` (about ten minutes)
-   and checks that `cpfe.exe` accepts a small C++17 file in strict mode.  Log:
-   `scripts\setup\logs\3-setup-edg.log`.
-
-The preset only chooses MSVC as the compiler that builds EDG and Windows x64 as the target
-(sizes of `long`, `wchar_t` and so on); how EDG checks is chosen when it runs.  For a newer EDG,
-run `git pull` in `D:\edgcpp` and the setup again.  Without `EDG_ROOT`, both scripts take
+The output also goes to `scripts\setup\logs\3-setup-edg.log`.  The preset only chooses MSVC as
+the compiler that builds EDG and Windows x64 as the target (sizes of `long`, `wchar_t` and so
+on); how EDG checks is chosen when it runs.  Without `EDG_ROOT`, `04-edg.ps1` takes
 `-EdgDir <folder>`.
 
 ### 05 – MSVC with C++20

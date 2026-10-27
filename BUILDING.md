@@ -17,6 +17,27 @@ git clone https://github.com/2ndmax/scantailor-ocr.git
 
 or by downloading the ZIP of this repository ("Code" → "Download ZIP") and unpacking it there.
 
+**The quick way: the setup script.** Steps 2 to 7 below can also be done by a script. Open a
+PowerShell window and run:
+
+```
+powershell -ExecutionPolicy Bypass -File D:\scantailor-ocr\scripts\setup\1-setup-windows.ps1
+```
+
+It asks for the vcpkg folder (suggesting `D:\vcpkg` when drive D: exists) and then offers four
+steps in a menu; each can be run on its own, 0 runs all of them in order:
+
+1. Visual Studio (step 2 below): checks for the C++ components; installs Visual Studio
+   Community or the Build Tools with winget when it is missing, or adds missing components with
+   the Visual Studio Installer, both into their standard folder.
+2. vcpkg (steps 3 and 4): gets vcpkg and installs the packages.
+3. `VCPKG_ROOT` (step 5): sets the variable for your user account.
+4. Build (steps 6 and 7): configures and builds; then offers to download the OCR languages German
+   and English and to run the tests.
+
+Each step skips what is already there, and asks before installing anything. The output also
+goes to `scripts\setup\logs\1-setup-windows.log`. The steps below describe the same by hand.
+
 **2. Install Visual Studio Community** (the free edition):
 <https://visualstudio.microsoft.com/vs/community/>
 In the installer pick the workload **"Desktop development with C++"**. Of its optional
@@ -43,7 +64,7 @@ which the setup script and the GitHub workflows use as well. `tesseract` is only
 text recognition in the PDF export (see the build options below).
 
 This compiles Qt and everything else from source and takes a while – plan for an hour or more
-and several gigabytes of disk space.
+and at least 35 GB of disk space for the vcpkg folder.
 
 **5. Tell the build where vcpkg is.** In the same command prompt:
 
@@ -155,7 +176,8 @@ They need, in addition to the steps above:
 * For the cppcheck run: [cppcheck](https://cppcheck.sourceforge.io/), installed to
   `C:\Program Files\Cppcheck` or on the `PATH`.
 * For the EDG run: the Visual Studio component **".NET Framework 4.8.1 SDK"**, and EDG set up
-  once in `D:\edgcpp` with `EDG_ROOT` pointing there, as described in the README of the scripts.
+  once with `scripts\setup\3-setup-edg.ps1` (e.g. in `D:\edgcpp`, with `EDG_ROOT` pointing
+  there), as described in the README of the scripts.
 * `VCPKG_ROOT` set as in step 5 (or `-VcpkgRoot <folder>` passed to the script).
 
 The code formatting is checked on GitHub for every push. To check it beforehand, run the
