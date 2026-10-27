@@ -29,7 +29,7 @@ QToolButton {
 
 QPushButton:disabled, QLineEdit:disabled, QListView:disabled, QToolButton:disabled {
   border: 1px solid {{disabledControlBorder}};
-  background-color: {{disabledControlBackground}};
+  background-color: {{disabledBackground}};
 }
 
 QPushButton:default, QToolButton:default {
@@ -52,7 +52,7 @@ QPushButton:checked, QToolButton:checked {
 
 QPushButton:checked:disabled, QToolButton:checked:disabled {
   border-color: {{accent}};
-  background-color: {{disabledControlBackground}};
+  background-color: {{disabledBackground}};
 }
 
 QPushButton:flat, QToolButton:flat {
@@ -97,7 +97,7 @@ QCheckBox::indicator:unchecked:pressed, QTreeView::indicator:unchecked:pressed, 
 
 QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled, QGroupBox::indicator:unchecked:disabled {
   border-color: {{disabledControlBorder}};
-  background-color: {{disabledControlBackground}};
+  background-color: {{disabledBackground}};
 }
 
 QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked, QGroupBox::indicator:checked,
@@ -181,7 +181,7 @@ QRadioButton::indicator:unchecked:pressed {
 
 QRadioButton::indicator:unchecked:disabled {
   border-color: {{disabledControlBorder}};
-  background-color: {{disabledControlBackground}};
+  background-color: {{disabledBackground}};
 }
 
 QRadioButton::indicator:checked,
@@ -305,7 +305,7 @@ QMenu::item {
 }
 
 QMenu::item:disabled {
-  background-color: {{disabledControlBackground}};
+  background-color: {{disabledBackground}};
   color: {{disabledText}};
 }
 
@@ -508,7 +508,7 @@ QComboBox:editable {
 
 QComboBox:disabled, QAbstractSpinBox:disabled {
   border: 1px solid {{disabledControlBorder}};
-  background-color: {{disabledControlBackground}};
+  background-color: {{disabledBackground}};
 }
 
 QComboBox:hover, QComboBox:active:focus, QAbstractSpinBox:active:focus {
@@ -637,7 +637,7 @@ QTreeView QHeaderView::section, QTableView QHeaderView::section {
 }
 
 QTreeView::item:selected:disabled, QTableView::item:selected:disabled {
-  background: {{selectedDisabledItemBackground}};
+  background: {{disabledSelectionBackground}};
 }
 
 QTreeView::branch {

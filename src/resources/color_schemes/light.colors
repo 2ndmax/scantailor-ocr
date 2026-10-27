@@ -16,13 +16,16 @@ controlBorder = #cccccc
 # Border of the default button.
 defaultButtonBorder = #4b4b4b
 
-# Background of disabled controls.
-disabledControlBackground = #fafafa
+# Background of disabled fields, lists, buttons and other controls (palette).
+disabledBackground = #fafafa
 
 # Borders of disabled controls.
 disabledControlBorder = #dedede
 
-# Disabled menu items and disabled icons.
+# Selected items of disabled lists, trees and tables (palette).
+disabledSelectionBackground = #dfdfdf
+
+# Text of disabled controls (palette), disabled menu items and disabled icons.
 disabledText = #909090
 
 # Borders of docks, tabs, trees and tables.
@@ -34,10 +37,7 @@ groupBoxBorder = #d1d1d1
 # Hovered tabs and dock buttons.
 hoverBackground = #ebebeb
 
-# Tree branches and the buttons of docks.
-iconForeground = #303030
-
-# Background of the image views.
+# Background of the image views, and the veil over them while a page is processed.
 imageViewBackground = #939393
 
 # Disabled check box or radio button that is checked.
@@ -85,9 +85,6 @@ scrollBarButtonPressed = #d9d9d9
 # Handle of scroll bars.
 scrollBarHandle = #bdbdbd
 
-# Selected items of disabled trees and tables.
-selectedDisabledItemBackground = #dfdfdf
-
 # Selected text in fields and lists.
 selectionBackground = #3399ff
 
@@ -106,6 +103,9 @@ spinBoxArrow = #585858
 # Pressed arrows of spin boxes and combo boxes.
 spinBoxArrowPressed = #303030
 
+# Text of windows and controls (palette), tree branches and the buttons of docks.
+text = #303030
+
 # Border of tool tips.
 toolTipBorder = #000000
 
@@ -114,17 +114,8 @@ toolTipBorder = #000000
 # Background of windows and dialogs.
 window = #F0F0F0
 
-# Text of windows and controls.
-windowText = #303030
-
-# Text of disabled controls.
-disabledWindowText = #909090
-
 # Background of fields, lists and buttons.
 base = #FCFCFC
-
-# Background of disabled fields, lists and buttons.
-disabledBase = #FAFAFA
 
 # Background of tool tips.
 toolTipBase = #FFFFCD
@@ -148,9 +139,6 @@ link = #0000FF
 # Selected items in lists and trees.
 highlight = #B5B5B5
 
-# Selected items in disabled lists and trees.
-disabledHighlight = #DFDFDF
-
 # ---- Colors of what the style sheet doesn't reach (color parameters), set in C++ ----
 
 # Names under the thumbnails.
@@ -162,9 +150,6 @@ thumbnailSelectionLeaderText = #ffffff
 
 # Border of the panel for creating or opening a project.
 openNewProjectBorder = #CCCCCC
-
-# Veil over the image view while a page is processed.
-processingIndicationFade = #939393
 
 # Invalid resolution in the "Fix DPI" dialog.
 fixDpiDialogErrorText = #FB0000

@@ -9,10 +9,10 @@ namespace {
 StyleSheetColorScheme::BaseColors darkColors() {
   StyleSheetColorScheme::BaseColors base;
   base.window = QColor(colors::window);
-  base.windowText = QColor(colors::windowText);
-  base.disabledWindowText = QColor(colors::disabledWindowText);
+  base.windowText = QColor(colors::text);
+  base.disabledWindowText = QColor(colors::disabledText);
   base.base = QColor(colors::base);
-  base.disabledBase = QColor(colors::disabledBase);
+  base.disabledBase = QColor(colors::disabledBackground);
   base.toolTipBase = QColor(colors::toolTipBase);
   base.toolTipText = QColor(colors::toolTipText);
   base.light = QColor(colors::light);
@@ -23,7 +23,7 @@ StyleSheetColorScheme::BaseColors darkColors() {
   base.brightText = QColor(colors::brightText);
   base.link = QColor(colors::link);
   base.highlight = QColor(colors::highlight);
-  base.disabledHighlight = QColor(colors::disabledHighlight);
+  base.disabledHighlight = QColor(colors::disabledSelectionBackground);
   return base;
 }
 }  // namespace
@@ -36,6 +36,6 @@ DarkColorScheme::DarkColorScheme()
   setColorParam("ThumbnailSequenceSelectionLeaderBackground", QColor(colors::thumbnailSelectionLeaderBackground));
   setColorParam("ThumbnailSequenceSelectionLeaderText", QColor(colors::thumbnailSelectionLeaderText));
   setColorParam("OpenNewProjectBorder", QColor(colors::openNewProjectBorder));
-  setColorParam("ProcessingIndicationFade", QColor(colors::processingIndicationFade));
+  setColorParam("ProcessingIndicationFade", QColor(colors::imageViewBackground));
   setColorParam("FixDpiDialogErrorText", QColor(colors::fixDpiDialogErrorText));
 }
