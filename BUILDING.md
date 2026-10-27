@@ -84,7 +84,7 @@ ctest --test-dir build --output-on-failure
 number of the release instead of `<x.y.z>`:
 
 ```
-powershell -ExecutionPolicy Bypass -File scripts\package-windows.ps1 -Version <x.y.z>
+powershell -ExecutionPolicy Bypass -File scripts\release\package-windows.ps1 -Version <x.y.z>
 ```
 
 The script collects the program, exactly the DLLs it needs (read from the import tables, so

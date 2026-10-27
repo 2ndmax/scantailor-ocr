@@ -14,7 +14,7 @@
 
   Run it in Windows PowerShell 5.1 or PowerShell 7 after a successful Release build:
 
-    powershell -ExecutionPolicy Bypass -File scripts\package-windows.ps1 -Version 1.0.0
+    powershell -ExecutionPolicy Bypass -File scripts\release\package-windows.ps1 -Version 1.0.0
 
 .PARAMETER Version
   The release version, e.g. "1.0.0". Becomes part of the folder and ZIP name.
@@ -55,7 +55,7 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = (Resolve-Path "$PSScriptRoot\..\..").Path
 if (-not $BuildDir) { $BuildDir = Join-Path $repoRoot "build" }
 $BuildDir = (Resolve-Path $BuildDir).Path
 if (-not $OutputDir) { $OutputDir = Join-Path $BuildDir "package" }

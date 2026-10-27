@@ -388,7 +388,7 @@ if (WIN32)
 
   # Install the DLLs of the dependencies. The list is not complete (Tesseract and
   # Leptonica, the TIFF codecs and the Qt plugins are missing); the Windows ZIP is made
-  # with scripts/package-windows.ps1, which collects everything.
+  # with scripts/release/package-windows.ps1, which collects everything.
   set(dep_libs
       JPEG::JPEG PNG::PNG ZLIB::ZLIB TIFF::TIFF ${OPENJPEG_TARGET}
       Qt::Core Qt::Gui Qt::Widgets Qt::Xml
