@@ -46,6 +46,12 @@ class BasicSplineVisualizer {
 
   virtual void prepareForSpline(QPainter& painter, const EditableSpline::Ptr& spline);
 
+  /** Like prepareForSpline(), for the zone being edited or under the mouse: one line level stronger. */
+  void prepareForActiveSpline(QPainter& painter, const EditableSpline::Ptr& spline);
+
+  /** The pen for the edges of the zone being edited or under the mouse. */
+  QPen activePen() const;
+
  protected:
   QRgb m_solidColor;
   QRgb m_highlightBrightColor;

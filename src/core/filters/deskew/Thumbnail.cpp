@@ -25,10 +25,7 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
                                   const QTransform& thumbToDisplay) {
   painter.setRenderHint(QPainter::Antialiasing, false);
 
-  QPen pen(OverlayStyle::primary(70));
-  pen.setWidth(1);
-  pen.setCosmetic(true);
-  painter.setPen(pen);
+  painter.setPen(OverlayStyle::pen(OverlayStyle::primary(70), OverlayStyle::Line::Thumbnail));
 
   const QRectF boundingRect(this->boundingRect());
 

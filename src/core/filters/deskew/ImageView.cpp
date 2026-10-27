@@ -114,9 +114,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
   const QPointF center(getImageRotationOrigin());
 
   // Draw the semi-transparent grid.
-  QPen pen(OverlayStyle::primary(90));
-  pen.setCosmetic(true);
-  pen.setWidth(1);
+  QPen pen(OverlayStyle::pen(OverlayStyle::primary(90), OverlayStyle::Line::Fine));
   painter.setPen(pen);
   QVector<QLineF> lines;
   for (double y = center.y(); (y -= m_cellSize) > contentArea.top();) {
@@ -144,7 +142,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
   const QRectF arcSquare(getRotationArcSquare());
 
   painter.setRenderHints(QPainter::Antialiasing, true);
-  pen.setWidthF(1.5);
+  pen.setWidthF(OverlayStyle::lineWidth(OverlayStyle::Line::Strong));
   painter.setPen(pen);
   painter.setBrush(Qt::NoBrush);
   painter.drawArc(arcSquare, qRound(16 * -m_maxRotationDeg), qRound(16 * 2 * m_maxRotationDeg));

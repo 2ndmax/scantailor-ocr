@@ -127,10 +127,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
   painter.setRenderHint(QPainter::Antialiasing, true);
   painter.setWorldTransform(QTransform());
 
-  QPen pen(OverlayStyle::primary());
-  pen.setCosmetic(true);
-  pen.setWidth(2);
-  painter.setPen(pen);
+  painter.setPen(OverlayStyle::pen(OverlayStyle::primary(), OverlayStyle::Line::Normal));
   painter.setBrush(Qt::NoBrush);
 
   const int numCutters = m_virtLayout.numCutters();

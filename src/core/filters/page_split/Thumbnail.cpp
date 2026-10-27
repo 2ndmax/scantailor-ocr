@@ -70,10 +70,7 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
 
   painter.setRenderHint(QPainter::Antialiasing, true);
 
-  QPen pen(OverlayStyle::primary());
-  pen.setWidth(1);
-  pen.setCosmetic(true);
-  painter.setPen(pen);
+  painter.setPen(OverlayStyle::pen(OverlayStyle::primary(), OverlayStyle::Line::Thumbnail));
 
   const auto drawCutter = [&](int idx) {
     const QLineF line(m_layout.inscribedCutterLine(idx));

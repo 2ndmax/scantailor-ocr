@@ -51,15 +51,21 @@ void ZoneDefaultInteraction::onPaint(QPainter& painter, const InteractionState& 
 
   for (const EditableZoneSet::Zone& zone : m_context.zones()) {
     const EditableSpline::Ptr& spline = zone.spline();
-    m_visualizer.prepareForSpline(painter, spline);
+    const bool nearVertex = !interaction.captured() && interaction.proximityLeader(m_vertexProximity)
+                            && (spline == m_nearestVertexSpline);
+    const bool nearSegment = !interaction.captured() && interaction.proximityLeader(m_segmentProximity)
+                             && (spline == m_nearestSegmentSpline);
+    if (nearVertex || nearSegment) {
+      m_visualizer.prepareForActiveSpline(painter, spline);
+    } else {
+      m_visualizer.prepareForSpline(painter, spline);
+    }
     QPolygonF points;
 
-    if (!interaction.captured() && interaction.proximityLeader(m_vertexProximity)
-        && (spline == m_nearestVertexSpline)) {
+    if (nearVertex) {
       points = BasicSplineVisualizer::screenPolylineSkipping(m_nearestVertex, toScreen);
       painter.drawPolyline(points);
-    } else if (!interaction.captured() && interaction.proximityLeader(m_segmentProximity)
-               && (spline == m_nearestSegmentSpline)) {
+    } else if (nearSegment) {
       SplineVertex::Ptr vertex(m_nearestSegment.prev);
       do {
         vertex = vertex->next(SplineVertex::LOOP);
@@ -72,12 +78,12 @@ void ZoneDefaultInteraction::onPaint(QPainter& painter, const InteractionState& 
   }
 
   if (interaction.proximityLeader(m_vertexProximity)) {
-    // The two adjacent edges in gradient red-to-orange, with the pen of the last spline drawn.
-    m_visualizer.drawHighlightedVertex(painter, toScreen, m_nearestVertex, painter.pen());
+    // The two adjacent edges in a gradient towards the highlight color.
+    m_visualizer.drawHighlightedVertex(painter, toScreen, m_nearestVertex, m_visualizer.activePen());
   } else if (interaction.proximityLeader(m_segmentProximity)) {
     const QLineF line(toScreen.map(m_nearestSegment.toLine()));
-    // Draw the highlighted edge in orange.
-    QPen pen(painter.pen());
+    // Draw the highlighted edge in the highlight color.
+    QPen pen(m_visualizer.activePen());
     pen.setColor(m_visualizer.highlightDarkColor());
     painter.setPen(pen);
     painter.drawLine(line);

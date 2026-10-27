@@ -32,10 +32,7 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
 
   // The page box is shown also on pages without content, as in the image view.
   if (m_pageRectEnabled && !m_pageRect.isNull()) {
-    QPen pen(OverlayStyle::secondary());
-    pen.setWidth(1);
-    pen.setCosmetic(true);
-    painter.setPen(pen);
+    painter.setPen(OverlayStyle::pen(OverlayStyle::secondary(), OverlayStyle::Line::Thumbnail));
 
     painter.setBrush(Qt::NoBrush);
 
@@ -43,10 +40,7 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
   }
 
   if (!m_contentRect.isNull()) {
-    QPen pen(OverlayStyle::primary());
-    pen.setWidth(1);
-    pen.setCosmetic(true);
-    painter.setPen(pen);
+    painter.setPen(OverlayStyle::pen(OverlayStyle::primary(), OverlayStyle::Line::Thumbnail));
 
     painter.setBrush(OverlayStyle::primary(50));
 

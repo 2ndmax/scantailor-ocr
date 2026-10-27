@@ -39,16 +39,12 @@ void ZoneVertexDragInteraction::onPaint(QPainter& painter, const InteractionStat
     // Draw the solid part of the spline.
     const QPolygonF points(BasicSplineVisualizer::screenPolylineSkipping(m_vertex, toScreen));
 
-    m_visualizer.prepareForSpline(painter, spline);
+    m_visualizer.prepareForActiveSpline(painter, spline);
     painter.drawPolyline(points);
   }
 
-  QPen gradientPen;
-  gradientPen.setCosmetic(true);
-  gradientPen.setWidthF(1.5);
-
   painter.setBrush(Qt::NoBrush);
-  m_visualizer.drawHighlightedVertex(painter, toScreen, m_vertex, gradientPen);
+  m_visualizer.drawHighlightedVertex(painter, toScreen, m_vertex, m_visualizer.activePen());
 }  // ZoneVertexDragInteraction::onPaint
 
 void ZoneVertexDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) {

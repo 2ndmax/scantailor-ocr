@@ -14,10 +14,7 @@ BasicSplineVisualizer::BasicSplineVisualizer()
     : m_solidColor(OverlayStyle::secondary().rgb()),
       m_highlightBrightColor(OverlayStyle::primary().rgb()),
       m_highlightDarkColor(OverlayStyle::primary().rgb()),
-      m_pen(m_solidColor) {
-  m_pen.setCosmetic(true);
-  m_pen.setWidthF(1.5);
-}
+      m_pen(OverlayStyle::pen(m_solidColor, OverlayStyle::Line::Fine)) {}
 
 void BasicSplineVisualizer::drawSplines(QPainter& painter, const QTransform& toScreen, const EditableZoneSet& zones) {
   for (const EditableZoneSet::Zone& zone : zones) {
@@ -79,4 +76,15 @@ void BasicSplineVisualizer::drawHighlightedVertex(QPainter& painter,
 void BasicSplineVisualizer::prepareForSpline(QPainter& painter, const EditableSpline::Ptr&) {
   painter.setPen(m_pen);
   painter.setBrush(Qt::NoBrush);
+}
+
+void BasicSplineVisualizer::prepareForActiveSpline(QPainter& painter, const EditableSpline::Ptr& spline) {
+  prepareForSpline(painter, spline);
+  QPen pen(painter.pen());
+  pen.setWidthF(OverlayStyle::lineWidth(OverlayStyle::Line::Normal));
+  painter.setPen(pen);
+}
+
+QPen BasicSplineVisualizer::activePen() const {
+  return OverlayStyle::pen(m_solidColor, OverlayStyle::Line::Normal);
 }

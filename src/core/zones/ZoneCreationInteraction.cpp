@@ -57,17 +57,13 @@ void ZoneCreationInteraction::onPaint(QPainter& painter, const InteractionState&
 
   m_visualizer.drawSplines(painter, toScreen, m_context.zones());
 
-  QPen solidLinePen(m_visualizer.solidColor());
-  solidLinePen.setCosmetic(true);
-  solidLinePen.setWidthF(1.5);
+  const QPen solidLinePen(m_visualizer.activePen());
 
   QLinearGradient gradient;  // From inactive to active point.
   gradient.setColorAt(0.0, m_visualizer.solidColor());
   gradient.setColorAt(1.0, m_visualizer.highlightDarkColor());
 
-  QPen gradientPen;
-  gradientPen.setCosmetic(true);
-  gradientPen.setWidthF(1.5);
+  QPen gradientPen(solidLinePen);  // gets the gradient as its brush below
 
   painter.setPen(solidLinePen);
   painter.setBrush(Qt::NoBrush);

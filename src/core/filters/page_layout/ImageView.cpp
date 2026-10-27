@@ -272,9 +272,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
     painter.drawPath(outerOutline);
   }
 
-  QPen pen(fgColor);
-  pen.setCosmetic(true);
-  pen.setWidthF(2.0);
+  QPen pen(OverlayStyle::pen(fgColor, OverlayStyle::Line::Normal));
   painter.setPen(pen);
   painter.setBrush(Qt::NoBrush);
 
@@ -294,10 +292,8 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
     if (!m_guides.empty()) {
       painter.setWorldTransform(QTransform());
 
-      QPen guidePen(OverlayStyle::secondary());
+      QPen guidePen(OverlayStyle::pen(OverlayStyle::secondary(), OverlayStyle::Line::Normal));
       guidePen.setStyle(Qt::DashLine);
-      guidePen.setCosmetic(true);
-      guidePen.setWidthF(2.0);
       painter.setPen(guidePen);
       painter.setBrush(Qt::NoBrush);
 

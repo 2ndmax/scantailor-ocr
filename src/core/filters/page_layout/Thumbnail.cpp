@@ -76,9 +76,7 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
     painter.fillPath(outerOutline, bgColor);
   }
 
-  QPen pen(fgColor);
-  pen.setCosmetic(true);
-  pen.setWidthF(1.0);
+  QPen pen(OverlayStyle::pen(fgColor, OverlayStyle::Line::Thumbnail));
   painter.setPen(pen);
   painter.setBrush(Qt::NoBrush);
 

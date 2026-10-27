@@ -165,12 +165,7 @@ void DewarpingView::onPaint(QPainter& painter, const InteractionState& interacti
   painter.setWorldTransform(imageToVirtual() * painter.worldTransform());
   painter.setBrush(Qt::NoBrush);
 
-  QPen gridPen;
-  gridPen.setColor(OverlayStyle::primary());
-  gridPen.setCosmetic(true);
-  gridPen.setWidthF(1.2);
-
-  painter.setPen(gridPen);
+  painter.setPen(OverlayStyle::pen(OverlayStyle::primary(), OverlayStyle::Line::Fine));
   painter.setBrush(Qt::NoBrush);
 
   const int numVertGridLines = 30;

@@ -207,10 +207,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
 
   if (m_pageRectEnabled) {
     // Draw the page bounding box.
-    QPen pen(OverlayStyle::secondary());
-    pen.setWidthF(2.0);
-    pen.setCosmetic(true);
-    painter.setPen(pen);
+    painter.setPen(OverlayStyle::pen(OverlayStyle::secondary(), OverlayStyle::Line::Normal));
 
     painter.setBrush(Qt::NoBrush);
 
@@ -222,10 +219,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
   }
 
   // Draw the content bounding box.
-  QPen pen(OverlayStyle::primary());
-  pen.setWidthF(1.0);
-  pen.setCosmetic(true);
-  painter.setPen(pen);
+  painter.setPen(OverlayStyle::pen(OverlayStyle::primary(), OverlayStyle::Line::Normal));
 
   painter.setBrush(OverlayStyle::primary(50));
 
