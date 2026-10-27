@@ -3,7 +3,7 @@
 
 #include "ImageView.h"
 
-#include <core/IconProvider.h>
+#include <core/OverlayColors.h>
 
 #include <QDebug>
 #include <QPainter>
@@ -31,7 +31,7 @@ ImageView::ImageView(const QImage& image,
       m_rightUnremoveButton(std::bind(&ImageView::rightPageCenter, this)),
       m_dragHandler(*this),
       m_zoomHandler(*this),
-      m_handlePixmap(IconProvider::getInstance().getIcon("aqua-sphere").pixmap(16, 16)),
+      m_handlePixmap(OverlayColors::handlePixmap()),
       m_virtLayout(layout),
       m_leftPageRemoved(leftHalfRemoved),
       m_rightPageRemoved(rightHalfRemoved) {
@@ -109,17 +109,17 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
 
   switch (m_virtLayout.type()) {
     case PageLayout::SINGLE_PAGE_UNCUT:
-      painter.setBrush(QColor(0, 0, 255, 50));
+      painter.setBrush(OverlayColors::primary(50));
       painter.drawRect(virtRect);
       return;  // No Split Line will be drawn.
     case PageLayout::SINGLE_PAGE_CUT:
-      painter.setBrush(QColor(0, 0, 255, 50));
+      painter.setBrush(OverlayColors::primary(50));
       painter.drawPolygon(m_virtLayout.singlePageOutline());
       break;
     case PageLayout::TWO_PAGES:
-      painter.setBrush(m_leftPageRemoved ? QColor(0, 0, 0, 80) : QColor(0, 0, 255, 50));
+      painter.setBrush(m_leftPageRemoved ? OverlayColors::removed() : OverlayColors::primary(50));
       painter.drawPolygon(m_virtLayout.leftPageOutline());
-      painter.setBrush(m_rightPageRemoved ? QColor(0, 0, 0, 80) : QColor(255, 0, 0, 50));
+      painter.setBrush(m_rightPageRemoved ? OverlayColors::removed() : OverlayColors::secondary(50));
       painter.drawPolygon(m_virtLayout.rightPageOutline());
       break;
   }
@@ -127,7 +127,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
   painter.setRenderHint(QPainter::Antialiasing, true);
   painter.setWorldTransform(QTransform());
 
-  QPen pen(QColor(0, 0, 255));
+  QPen pen(OverlayColors::primary());
   pen.setCosmetic(true);
   pen.setWidth(2);
   painter.setPen(pen);

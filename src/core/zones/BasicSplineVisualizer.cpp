@@ -8,9 +8,13 @@
 #include <QTransform>
 
 #include "EditableZoneSet.h"
+#include "OverlayColors.h"
 
 BasicSplineVisualizer::BasicSplineVisualizer()
-    : m_solidColor(0xcc1420), m_highlightBrightColor(0xfffe00), m_highlightDarkColor(0xffa90e), m_pen(m_solidColor) {
+    : m_solidColor(OverlayColors::secondary().rgb()),
+      m_highlightBrightColor(OverlayColors::primary().rgb()),
+      m_highlightDarkColor(OverlayColors::primary().rgb()),
+      m_pen(m_solidColor) {
   m_pen.setCosmetic(true);
   m_pen.setWidthF(1.5);
 }

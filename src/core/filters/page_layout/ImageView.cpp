@@ -5,6 +5,7 @@
 
 #include <ApplicationSettings.h>
 #include <NullTaskStatus.h>
+#include <OverlayColors.h>
 #include <PolygonUtils.h>
 #include <UnitsConverter.h>
 #include <imageproc/GrayImage.h>
@@ -247,11 +248,11 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
     // "Align with other pages" is turned off.
     // Different color is useful on a thumbnail list to
     // distinguish "safe" pages from potentially problematic ones.
-    bgColor = QColor(0x58, 0x7f, 0xf4, 70);
-    fgColor = QColor(0x00, 0x52, 0xff);
+    bgColor = OverlayColors::primary(70);
+    fgColor = OverlayColors::primary();
   } else {
-    bgColor = QColor(0xbb, 0x00, 0xff, 40);
-    fgColor = QColor(0xbe, 0x5b, 0xec);
+    bgColor = OverlayColors::secondary(40);
+    fgColor = OverlayColors::secondary();
   }
 
   QPainterPath outerOutline;
@@ -293,7 +294,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
     if (!m_guides.empty()) {
       painter.setWorldTransform(QTransform());
 
-      QPen guidePen(QColor(0x00, 0x9d, 0x9f));
+      QPen guidePen(OverlayColors::secondary());
       guidePen.setStyle(Qt::DashLine);
       guidePen.setCosmetic(true);
       guidePen.setWidthF(2.0);

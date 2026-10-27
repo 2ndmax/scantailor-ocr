@@ -5,6 +5,7 @@
 
 #include <Constants.h>
 #include <GrayImage.h>
+#include <OverlayColors.h>
 #include <Transform.h>
 
 #include <QPainter>
@@ -24,7 +25,7 @@
 #include "ZoneSet.h"
 
 namespace output {
-static const QRgb maskColor = 0xff587ff4;
+static const QRgb maskColor = OverlayColors::primary().rgba();
 
 using namespace imageproc;
 

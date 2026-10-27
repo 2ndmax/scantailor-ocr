@@ -3,6 +3,8 @@
 
 #include "Thumbnail.h"
 
+#include <OverlayColors.h>
+
 #include <QPainter>
 #include <utility>
 
@@ -30,7 +32,7 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
 
   // The page box is shown also on pages without content, as in the image view.
   if (m_pageRectEnabled && !m_pageRect.isNull()) {
-    QPen pen(QColor(0xff, 0x7f, 0x00));
+    QPen pen(OverlayColors::secondary());
     pen.setWidth(1);
     pen.setCosmetic(true);
     painter.setPen(pen);
@@ -41,12 +43,12 @@ void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDispl
   }
 
   if (!m_contentRect.isNull()) {
-    QPen pen(QColor(0x00, 0x00, 0xff));
+    QPen pen(OverlayColors::primary());
     pen.setWidth(1);
     pen.setCosmetic(true);
     painter.setPen(pen);
 
-    painter.setBrush(QColor(0x00, 0x00, 0xff, 50));
+    painter.setBrush(OverlayColors::primary(50));
 
     QRectF contentRect(virtToThumb().mapRect(m_contentRect));
 

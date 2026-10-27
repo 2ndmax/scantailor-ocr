@@ -5,7 +5,7 @@
 
 #include <Constants.h>
 #include <core/ApplicationSettings.h>
-#include <core/IconProvider.h>
+#include <core/OverlayColors.h>
 
 #include <QAction>
 #include <QPainter>
@@ -25,7 +25,7 @@ const int ImageView::m_cellSize = 20;
 
 ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const ImageTransformation& xform)
     : ImageViewBase(image, downscaledImage, ImagePresentation(xform.transform(), xform.resultingPreCropArea())),
-      m_handlePixmap(IconProvider::getInstance().getIcon("aqua-sphere").pixmap(16, 16)),
+      m_handlePixmap(OverlayColors::handlePixmap()),
       m_dragHandler(*this),
       m_zoomHandler(*this),
       m_xform(xform),
@@ -114,7 +114,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
   const QPointF center(getImageRotationOrigin());
 
   // Draw the semi-transparent grid.
-  QPen pen(QColor(0, 0, 0xd1, 90));
+  QPen pen(OverlayColors::primary(90));
   pen.setCosmetic(true);
   pen.setWidth(1);
   painter.setPen(pen);
@@ -134,7 +134,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
   painter.drawLines(lines);
 
   // Draw the horizontal and vertical line crossing at the center.
-  pen.setColor(QColor(0, 0, 0xd1));
+  pen.setColor(OverlayColors::primary());
   painter.setPen(pen);
   painter.setBrush(Qt::NoBrush);
   painter.drawLine(QPointF(contentArea.left() + 0.5, center.y()), QPointF(contentArea.right() - 0.5, center.y()));
