@@ -8,10 +8,10 @@
 accent = #0f64d2
 
 # Dock titles, tabs, status bar and table headers.
-barBackground = #424242
+barBackground = #404040
 
 # Borders of buttons, fields and check boxes.
-controlBorder = #666666
+controlBorder = #6b6b6b
 
 # Border of the default button.
 defaultButtonBorder = #939393
@@ -23,22 +23,22 @@ disabledBackground = #4d4d4d
 disabledControlBorder = #5e5e5e
 
 # Selected items of disabled lists, trees and tables (palette).
-disabledSelectionBackground = #5d5d5d
+disabledSelectionBackground = #5e5e5e
 
 # Text of disabled controls (palette), disabled menu items and disabled icons.
 disabledText = #989898
 
 # Borders of docks, tabs, trees and tables.
-frameBorder = #383838
+frameBorder = #333333
 
 # Border of group boxes.
-groupBoxBorder = #424242
+groupBoxBorder = #404040
 
 # Hovered tabs and dock buttons.
-hoverBackground = #4f4f4f
+hoverBackground = #4d4d4d
 
 # Background of the image views, and the veil over them while a page is processed.
-imageViewBackground = #282828
+imageViewBackground = #262626
 
 # Disabled check box or radio button that is checked.
 indicatorCheckedDisabledBackground = #707070
@@ -47,28 +47,28 @@ indicatorCheckedDisabledBackground = #707070
 indicatorCheckedPressedBackground = #868686
 
 # Check mark and radio dot.
-indicatorMark = #454545
+indicatorMark = #404040
 
 # Check mark and radio dot when disabled.
 indicatorMarkDisabled = #4d4d4d
 
 # Check mark and radio dot while pressed.
-indicatorMarkPressed = #363636
+indicatorMarkPressed = #333333
 
 # Pressed check box or radio button that is unchecked.
-indicatorUncheckedPressedBackground = #363636
+indicatorUncheckedPressedBackground = #333333
 
 # Border of selected and pressed menu bar items.
-menuBarItemBorder = #636363
+menuBarItemBorder = #6b6b6b
 
 # Selected menu bar item.
-menuBarItemSelectedBackground = #474747
+menuBarItemSelectedBackground = #404040
 
 # Checked marks in menus.
 menuIndicatorChecked = #d2d2d2
 
 # Pressed and checked buttons, menu bar line, menu separators.
-pressedBackground = #383838
+pressedBackground = #333333
 
 # Filled part of progress bars.
 progressBarChunk = #3399ff
@@ -77,13 +77,13 @@ progressBarChunk = #3399ff
 scrollBarArrow = #8c8c8c
 
 # Groove of scroll bars.
-scrollBarBackground = #494949
+scrollBarBackground = #404040
 
 # Pressed arrow buttons of scroll bars.
 scrollBarButtonPressed = #1a1a1a
 
 # Handle of scroll bars.
-scrollBarHandle = #696969
+scrollBarHandle = #6b6b6b
 
 # Selected text in fields and lists.
 selectionBackground = #3399ff
@@ -107,7 +107,7 @@ spinBoxArrowPressed = #8c8c8c
 text = #dddddd
 
 # Border of tool tips.
-toolTipBorder = #383838
+toolTipBorder = #333333
 
 # ---- Palette of the scheme (DarkColorScheme), set in C++ ----
 
@@ -115,16 +115,16 @@ toolTipBorder = #383838
 window = #535353
 
 # Background of fields, lists and buttons.
-base = #454545
+base = #404040
 
 # Background of tool tips.
-toolTipBase = #424242
+toolTipBase = #404040
 
 # Text of tool tips.
 toolTipText = #dddddd
 
 # Shades of frames and bevels that the Fusion style draws, from light to shadow.
-light = #666666
+light = #6b6b6b
 midlight = #535353
 dark = #404040
 mid = #333333
