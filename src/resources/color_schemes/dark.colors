@@ -92,19 +92,19 @@ selectionBackground = #3399ff
 sliderGroove = #757575
 
 # Handle of sliders.
-sliderHandle = #F0F0F0
+sliderHandle = #f0f0f0
 
 # Border of the slider handle.
 sliderHandleBorder = #212121
 
 # Arrows of spin boxes and combo boxes.
-spinBoxArrow = #C1C1C1
+spinBoxArrow = #c1c1c1
 
 # Pressed arrows of spin boxes and combo boxes.
-spinBoxArrowPressed = #8C8C8C
+spinBoxArrowPressed = #8c8c8c
 
 # Text of windows and controls (palette), tree branches and the buttons of docks.
-text = #DDDDDD
+text = #dddddd
 
 # Border of tool tips.
 toolTipBorder = #383838
@@ -121,7 +121,7 @@ base = #454545
 toolTipBase = #424242
 
 # Text of tool tips.
-toolTipText = #DDDDDD
+toolTipText = #dddddd
 
 # Shades of frames and bevels that the Fusion style draws, from light to shadow.
 light = #666666
@@ -131,25 +131,25 @@ mid = #333333
 shadow = #262626
 
 # Text that has to stand out from its background.
-brightText = #FC5248
+brightText = #fc5248
 
 # Links.
-link = #4F95FC
+link = #4f95fc
 
 # Selected items in lists and trees.
-highlight = #6B6B6B
+highlight = #6b6b6b
 
 # ---- Colors of what the style sheet doesn't reach (color parameters), set in C++ ----
 
 # Names under the thumbnails.
-thumbnailItemText = #DDDDDD
+thumbnailItemText = #dddddd
 
 # Name under the thumbnail that leads a selection: background and text.
-thumbnailSelectionLeaderBackground = #7A7A7A
+thumbnailSelectionLeaderBackground = #7a7a7a
 thumbnailSelectionLeaderText = #ffffff
 
 # Border of the panel for creating or opening a project.
 openNewProjectBorder = #535353
 
 # Invalid resolution in the "Fix DPI" dialog.
-fixDpiDialogErrorText = #F34941
+fixDpiDialogErrorText = #f34941

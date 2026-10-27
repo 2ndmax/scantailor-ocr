@@ -112,32 +112,32 @@ toolTipBorder = #000000
 # ---- Palette of the scheme (LightColorScheme), set in C++ ----
 
 # Background of windows and dialogs.
-window = #F0F0F0
+window = #f0f0f0
 
 # Background of fields, lists and buttons.
-base = #FCFCFC
+base = #fcfcfc
 
 # Background of tool tips.
-toolTipBase = #FFFFCD
+toolTipBase = #ffffcd
 
 # Text of tool tips.
 toolTipText = #000000
 
 # Shades of frames and bevels that the Fusion style draws, from light to shadow.
 light = #ffffff
-midlight = #F0F0F0
-dark = #DADADA
-mid = #CCCCCC
-shadow = #BEBEBE
+midlight = #f0f0f0
+dark = #dadada
+mid = #cccccc
+shadow = #bebebe
 
 # Text that has to stand out from its background.
-brightText = #F40000
+brightText = #f40000
 
 # Links.
-link = #0000FF
+link = #0000ff
 
 # Selected items in lists and trees.
-highlight = #B5B5B5
+highlight = #b5b5b5
 
 # ---- Colors of what the style sheet doesn't reach (color parameters), set in C++ ----
 
@@ -145,11 +145,11 @@ highlight = #B5B5B5
 thumbnailItemText = #000000
 
 # Name under the thumbnail that leads a selection: background and text.
-thumbnailSelectionLeaderBackground = #4A4A4A
+thumbnailSelectionLeaderBackground = #4a4a4a
 thumbnailSelectionLeaderText = #ffffff
 
 # Border of the panel for creating or opening a project.
-openNewProjectBorder = #CCCCCC
+openNewProjectBorder = #cccccc
 
 # Invalid resolution in the "Fix DPI" dialog.
-fixDpiDialogErrorText = #FB0000
+fixDpiDialogErrorText = #fb0000
