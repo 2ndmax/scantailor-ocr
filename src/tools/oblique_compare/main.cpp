@@ -10,11 +10,11 @@
 //        oblique_compare <output folder> --images=<folder> [--jobs=<n>]
 //
 // With --images, the real scans in the folder are measured as they are and with known shears added
-// (echtbilder.html, .txt, .csv), since their own shear is unknown.
+// (real_scans.html, .txt, .csv), since their own shear is unknown.
 //
 // The pages come from a fixed pseudo-random sequence (see TestPage.h): the same seed gives the
-// same pages. The output folder gets bericht.html (German, with images of the most notable cases
-// in bilder/), ergebnisse.csv (one row per page and method) and zusammenfassung.txt (the tables
+// same pages. The output folder gets report.html (with images of the most notable cases in
+// images/), results.csv (one row per page and method) and summary.txt (the tables
 // and the conclusions).
 
 #include <BinaryImage.h>
@@ -77,15 +77,15 @@ struct Method {
 
 const std::vector<Method>& methods() {
   static const std::vector<Method> METHODS
-      = {{QStringLiteral("Programm"),
+      = {{QStringLiteral("program"),
           [](const ScanInput& in) {
             return Finding{deskew::Task::findObliqueAngle(NullTaskStatus(), in.cleaned, in.deskewAngleDeg, 1.0),
                            std::nullopt};
           }},
-         {QStringLiteral("(c2) Kanten"), [](const ScanInput& in) { return edgeFit(in.cleaned, in.deskewAngleDeg); }},
-         {QStringLiteral("(d) Strichrichtung"),
+         {QStringLiteral("(c2) edges"), [](const ScanInput& in) { return edgeFit(in.cleaned, in.deskewAngleDeg); }},
+         {QStringLiteral("(d) stroke direction"),
           [](const ScanInput& in) { return strokeDirection(in.gray, in.deskewAngleDeg, in.dpi); }},
-         {QStringLiteral("(e) Kanten, sonst Strichrichtung"),
+         {QStringLiteral("(e) edges, else stroke direction"),
           [](const ScanInput& in) { return edgesThenStrokes(in.cleaned, in.gray, in.deskewAngleDeg, in.dpi); }}};
   return METHODS;
 }
@@ -159,24 +159,23 @@ PageResult measure(const PageSpec& spec, const Options& options) {
 }
 
 QString number(const double value, const int decimals = 2) {
-  return QString::number(value, 'f', decimals).replace(QLatin1Char('.'), QLatin1Char(','));
+  return QString::number(value, 'f', decimals);
 }
 
 QString angleText(const std::optional<double>& angle) {
-  return angle ? number(*angle) + QStringLiteral("°") : QStringLiteral("kein Winkel");
+  return angle ? number(*angle) + QStringLiteral("°") : QStringLiteral("no angle");
 }
 
 QString pageText(const PageSpec& s) {
-  return QStringLiteral("Seite %1 · %2 dpi · %3 · %4 · %5 · Störung: %6")
+  return QStringLiteral("page %1 · %2 dpi · %3 · %4 · %5 · disturbance: %6")
              .arg(s.index)
              .arg(s.dpi)
              .arg(toString(s.text), toString(s.layout), toString(s.alignment), toString(s.disturbance))
-         + ((s.keystone != 0) ? QStringLiteral(" · Trapez %1 %").arg(number(100 * s.keystone, 1)) : QString())
+         + ((s.keystone != 0) ? QStringLiteral(" · keystone %1 %").arg(number(100 * s.keystone, 1)) : QString())
          + QStringLiteral(" · %1 · %2")
-               .arg(s.serif ? QStringLiteral("Serifen") : QStringLiteral("serifenlos"), toString(s.italic))
-         + (s.headerFooter ? QStringLiteral(" · Kopf- und Fußzeile") : QString())
-         + (s.indents ? QStringLiteral(" · Einzüge") : QString())
-         + (s.lists ? QStringLiteral(" · Aufzählungen") : QString());
+               .arg(s.serif ? QStringLiteral("serif") : QStringLiteral("sans serif"), toString(s.italic))
+         + (s.headerFooter ? QStringLiteral(" · header and footer") : QString())
+         + (s.indents ? QStringLiteral(" · indents") : QString()) + (s.lists ? QStringLiteral(" · lists") : QString());
 }
 
 /** The direction in the scan of the upright vertical, for the given angles. */
@@ -222,14 +221,14 @@ std::vector<CaseImage> caseImages(const std::vector<PageResult>& results, const 
       const QImage image(angleImage(scannedPage(upright, r->spec, options.seed),
                                     vertical(r->spec.rotationDeg, r->spec.shearDeg),
                                     vertical(rotation, r->methods[m].shear.value_or(0.0))));
-      const QString file(QStringLiteral("bilder/m%1_%2.png").arg(m).arg(r->spec.index, 4, 10, QLatin1Char('0')));
+      const QString file(QStringLiteral("images/m%1_%2.png").arg(m).arg(r->spec.index, 4, 10, QLatin1Char('0')));
       if (!image.save(options.outDir + QLatin1Char('/') + file)) {
         std::cerr << "Cannot write " << qPrintable(file) << std::endl;
         continue;
       }
       const QString caption(pageText(r->spec)
-                            + QStringLiteral(": Scherung wahr %1, erkannt %2, verschoben %3 (Drehung wahr %4, "
-                                             "erkannt %5)")
+                            + QStringLiteral(": shear true %1, detected %2, shifted %3 (rotation true %4, "
+                                             "detected %5)")
                                   .arg(angleText(r->spec.shearDeg), angleText(r->methods[m].shear),
                                        angleText(r->methods[m].shearShifted), angleText(r->spec.rotationDeg),
                                        angleText(r->rotation)));
@@ -319,7 +318,7 @@ QImage comparisonImage(const QString& path, const RealPage& page) {
   const QImage gray(GrayImage(ImageLoader::load(path)).toQImage());
   const double rotation = page.asIs.rotation.value_or(0.0);
   std::vector<std::pair<QString, QImage>> panels;
-  panels.emplace_back(QStringLiteral("nur gedreht"), straightened(gray, rotation, 0.0));
+  panels.emplace_back(QStringLiteral("rotated only"), straightened(gray, rotation, 0.0));
   // The combination is one of the others; it is named in the caption.
   for (size_t m = 0; m + 1 < methods().size(); ++m) {
     const std::optional<double>& angle = page.asIs.findings[m].angle;
@@ -327,7 +326,7 @@ QImage comparisonImage(const QString& path, const RealPage& page) {
       panels.emplace_back(methods()[m].name + QStringLiteral(": ") + angleText(angle),
                           straightened(gray, rotation, *angle));
     } else {
-      panels.emplace_back(methods()[m].name + QStringLiteral(": kein Winkel"), QImage());
+      panels.emplace_back(methods()[m].name + QStringLiteral(": no angle"), QImage());
     }
   }
 
@@ -372,23 +371,23 @@ bool writeRealReport(const Options& options,
   QTextStream out(&text);
   QString csv;
   QTextStream csvOut(&csv);
-  csvOut << "datei;dpi;verfahren;zusatz;erkannt;erkannt_ohne_zusatz;fehler\n";
-  out << "Echtbilder: " << pages.size() << " Seiten aus " << options.imagesDir << "\n";
-  out << "Erkannt wie geliefert (Winkel, der die Seite gerade stellt; Drehung erkannt):\n";
+  csvOut << "file;dpi;method;added;detected;detected_without_added;error\n";
+  out << "Real scans: " << pages.size() << " pages from " << options.imagesDir << "\n";
+  out << "Detected as supplied (the angle that straightens the page; rotation detected):\n";
   for (const RealPage& page : pages) {
     out << "- " << page.name << " (" << page.size.width() << " x " << page.size.height() << ", " << page.dpi << " dpi"
-        << (page.dpiAssumed ? ", angenommen" : "") << "), Drehung " << angleText(page.asIs.rotation);
+        << (page.dpiAssumed ? ", assumed" : "") << "), rotation " << angleText(page.asIs.rotation);
     for (size_t m = 0; m < methods().size(); ++m) {
       const Finding& finding = page.asIs.findings[m];
       out << " | " << methods()[m].name << ": " << angleText(finding.angle);
       if (finding.confidence) {
-        out << " (Konfidenz " << number(*finding.confidence) << ")";
+        out << " (confidence " << number(*finding.confidence) << ")";
       }
     }
     out << "\n";
   }
-  out << "\nAufgeprägte Scherung (" << std::size(ADDED_SHEARS_DEG)
-      << " Winkel je Seite): Fehler = (erkannt mit Zusatz - erkannt ohne) - Zusatz\n";
+  out << "\nAdded shear (" << std::size(ADDED_SHEARS_DEG)
+      << " angles per page): error = (detected with added - detected without) - added\n";
   for (size_t m = 0; m < methods().size(); ++m) {
     double sum = 0;
     double worst = 0;
@@ -414,26 +413,26 @@ bool writeRealReport(const Options& options,
     }
     out << "- " << methods()[m].name << ": ";
     if (count > 0) {
-      out << "Fehler im Mittel " << number(sum / count) << "°, schlechtester " << number(worst) << "°";
+      out << "mean error " << number(sum / count) << "°, worst " << number(worst) << "°";
     } else {
-      out << "keine Werte";
+      out << "no values";
     }
-    out << "; ohne Winkel (vorher oder nachher) " << missing << " von " << (count + missing) << "\n";
+    out << "; no angle (before or after) " << missing << " of " << (count + missing) << "\n";
   }
 
   QString html;
   QTextStream htmlOut(&html);
-  htmlOut << "<!doctype html>\n<html lang=\"de\"><head><meta charset=\"utf-8\"><title>Scherung an Echtbildern"
+  htmlOut << "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Shear on Real Scans"
              "</title><style>body{font-family:sans-serif;margin:24px;color:#222;background:#fff}pre{font-size:13px;"
              "white-space:pre-wrap}figure{display:inline-block;margin:8px;vertical-align:top}figure img{border:1px "
-             "solid #ccc;max-width:100%}figcaption{font-size:13px}</style></head><body>\n<h1>Scherung an Echtbildern"
-             "</h1>\n<p>Linien: die Senkrechte nach dem erkannten Winkel; grau das Programm, blau (c2), orange (d), "
-             "rot (e). "
-             "Fehlt eine Farbe, hat das Verfahren keinen Winkel. Stehen die Linien parallel zu den senkrechten "
-             "Kanten des Texts, stimmt der Winkel.</p>\n<pre>"
+             "solid #ccc;max-width:100%}figcaption{font-size:13px}</style></head><body>\n<h1>Shear on Real Scans"
+             "</h1>\n<p>Lines: the vertical after the detected angle; gray the program, blue (c2), orange (d), "
+             "red (e). "
+             "A missing color means that the method found no angle. Where the lines run parallel to the vertical "
+             "edges of the text, the angle is right.</p>\n<pre>"
           << text.toHtmlEscaped() << "</pre>\n";
   for (size_t i = 0; i < pages.size(); ++i) {
-    const QString file(QStringLiteral("bilder/echt_%1.png").arg(i + 1));
+    const QString file(QStringLiteral("images/real_%1.png").arg(i + 1));
     if (!realPageImage(paths[i], pages[i]).save(options.outDir + QLatin1Char('/') + file)) {
       *error = QStringLiteral("Cannot write ") + file;
       return false;
@@ -441,25 +440,25 @@ bool writeRealReport(const Options& options,
     htmlOut << "<figure><img src=\"" << file << "\" alt=\"\"><figcaption>" << pages[i].name.toHtmlEscaped()
             << "</figcaption></figure>\n";
   }
-  htmlOut << "<h2>Vergleich je Verfahren</h2>\n<p>Jede Seite gedreht und mit dem Winkel des Verfahrens entschert. "
-             "Das blaue Raster ist senkrecht: Wo die linke und rechte Textkante und die Buchstabenstämme parallel "
-             "zum Raster laufen, stimmt der Winkel. Zum genauen Hinsehen das Bild in voller Größe öffnen.</p>\n";
+  htmlOut << "<h2>Comparison per Method</h2>\n<p>Each page rotated and unsheared with the angle of the method. "
+             "The blue grid is vertical: where the left and right text edges and the letter stems run parallel "
+             "to the grid, the angle is right. Open the image at full size for a close look.</p>\n";
   const int combined = static_cast<int>(methods().size()) - 1;
   for (size_t i = 0; i < pages.size(); ++i) {
-    const QString file(QStringLiteral("bilder/vergleich_%1.png").arg(i + 1));
+    const QString file(QStringLiteral("images/comparison_%1.png").arg(i + 1));
     if (!comparisonImage(paths[i], pages[i]).save(options.outDir + QLatin1Char('/') + file)) {
       *error = QStringLiteral("Cannot write ") + file;
       return false;
     }
     htmlOut << "<figure><a href=\"" << file << "\"><img src=\"" << file << "\" alt=\"\"></a><figcaption>"
-            << pages[i].name.toHtmlEscaped() << ": " << methods()[combined].name.toHtmlEscaped() << " ergibt "
+            << pages[i].name.toHtmlEscaped() << ": " << methods()[combined].name.toHtmlEscaped() << " gives "
             << angleText(pages[i].asIs.findings[combined].angle) << "</figcaption></figure>\n";
   }
   htmlOut << "</body></html>\n";
 
-  const std::pair<QString, const QString*> files[] = {{QStringLiteral("echtbilder.txt"), &text},
-                                                      {QStringLiteral("echtbilder.csv"), &csv},
-                                                      {QStringLiteral("echtbilder.html"), &html}};
+  const std::pair<QString, const QString*> files[] = {{QStringLiteral("real_scans.txt"), &text},
+                                                      {QStringLiteral("real_scans.csv"), &csv},
+                                                      {QStringLiteral("real_scans.html"), &html}};
   for (const auto& [name, content] : files) {
     QFile file(options.outDir + QLatin1Char('/') + name);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
@@ -507,7 +506,7 @@ int runRealImages(const Options& options) {
     std::cerr << qPrintable(error) << std::endl;
     return 1;
   }
-  std::cerr << "done: " << qPrintable(QDir(options.outDir).absolutePath()) << "/echtbilder.html" << std::endl;
+  std::cerr << "done: " << qPrintable(QDir(options.outDir).absolutePath()) << "/real_scans.html" << std::endl;
   return 0;
 }
 
@@ -552,7 +551,7 @@ int main(int argc, char** argv) {
               << std::endl;
     return 1;
   }
-  if (!QDir().mkpath(options.outDir + QStringLiteral("/bilder"))) {
+  if (!QDir().mkpath(options.outDir + QStringLiteral("/images"))) {
     std::cerr << "Cannot create " << qPrintable(options.outDir) << std::endl;
     return 1;
   }
@@ -560,7 +559,7 @@ int main(int argc, char** argv) {
     return runRealImages(options);
   }
   // Images of an earlier run would stay next to the new ones.
-  QDir images(options.outDir + QStringLiteral("/bilder"));
+  QDir images(options.outDir + QStringLiteral("/images"));
   for (const QString& file : images.entryList({QStringLiteral("m*_*.png")})) {
     images.remove(file);
   }
@@ -606,6 +605,6 @@ int main(int argc, char** argv) {
     return 1;
   }
   std::cerr << "done in " << timer.elapsed() / 1000 << " s: " << qPrintable(QDir(options.outDir).absolutePath())
-            << "/bericht.html" << std::endl;
+            << "/report.html" << std::endl;
   return 0;
 }

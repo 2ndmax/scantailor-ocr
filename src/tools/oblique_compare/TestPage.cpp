@@ -349,44 +349,44 @@ void setLine(QPainter& painter,
 QString toString(const TextAmount text) {
   switch (text) {
     case TextAmount::FULL_PAGE:
-      return QStringLiteral("volle Seite");
+      return QStringLiteral("full page");
     case TextAmount::HALF_PAGE:
-      return QStringLiteral("halbe Seite");
+      return QStringLiteral("half page");
     default:
-      return QStringLiteral("wenige Zeilen");
+      return QStringLiteral("few lines");
   }
 }
 
 QString toString(const Layout layout) {
   switch (layout) {
     case Layout::ONE_COLUMN:
-      return QStringLiteral("eine Spalte");
+      return QStringLiteral("one column");
     case Layout::TWO_COLUMNS:
-      return QStringLiteral("zwei Spalten");
+      return QStringLiteral("two columns");
     default:
-      return QStringLiteral("Text mit Bild");
+      return QStringLiteral("text with picture");
   }
 }
 
 QString toString(const Alignment alignment) {
   switch (alignment) {
     case Alignment::JUSTIFIED:
-      return QStringLiteral("Blocksatz");
+      return QStringLiteral("justified");
     case Alignment::RAGGED_RIGHT:
-      return QStringLiteral("Flattersatz");
+      return QStringLiteral("ragged right");
     default:
-      return QStringLiteral("zentriert");
+      return QStringLiteral("centered");
   }
 }
 
 QString toString(const Disturbance disturbance) {
   switch (disturbance) {
     case Disturbance::NONE:
-      return QStringLiteral("keine");
+      return QStringLiteral("none");
     case Disturbance::NOISE:
-      return QStringLiteral("Rauschen");
+      return QStringLiteral("noise");
     default:
-      return QStringLiteral("Unschärfe");
+      return QStringLiteral("blur");
   }
 }
 
@@ -395,20 +395,20 @@ QString toString(const ShearClass shearClass) {
     case ShearClass::NONE:
       return QStringLiteral("0°");
     case ShearClass::SMALL:
-      return QStringLiteral("0,1° bis 1°");
+      return QStringLiteral("0.1° to 1°");
     default:
-      return QStringLiteral("1° bis 4°");
+      return QStringLiteral("1° to 4°");
   }
 }
 
 QString toString(const Italic italic) {
   switch (italic) {
     case Italic::NONE:
-      return QStringLiteral("ohne Kursiv");
+      return QStringLiteral("no italics");
     case Italic::WORDS:
-      return QStringLiteral("kursive Wörter");
+      return QStringLiteral("italic words");
     default:
-      return QStringLiteral("ganz kursiv");
+      return QStringLiteral("all italic");
   }
 }
 

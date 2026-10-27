@@ -11,13 +11,13 @@
 
 namespace binarization_compare {
 namespace {
-// The page is in German, as for the person comparing the pages.
+// The page is in English, like the output of all developer tools.
 const char* const kIndexHtml = R"HTML(<!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Binarisierung im Vergleich</title>
+<title>Binarization Comparison</title>
 <style>
 :root { --bg: #f4f4f2; --panel: #fff; --text: #222; --muted: #666; --line: #d6d6d0;
   --ours: #2a6fb0; --experimental: #b0602a; --filter: #5a8a3a; --accent: #3399ff; }
@@ -51,15 +51,15 @@ main { display: grid; grid-template-columns: 300px 1fr; gap: 16px; padding: 16px
 </head>
 <body>
 <header>
-  <h1>Binarisierung im Vergleich</h1>
-  <label>Seite <select id="page"></select></label>
+  <h1>Binarization Comparison</h1>
+  <label>Page <select id="page"></select></label>
   <label>Zoom <select id="zoom">
     <option value="0.5">50 %</option><option value="1" selected>100 %</option>
     <option value="2">200 %</option><option value="3">300 %</option></select></label>
-  <label>Kachel <select id="tile">
-    <option value="360x260">klein</option><option value="480x340" selected>mittel</option>
-    <option value="640x460">groß</option></select></label>
-  <span class="hint">Übersicht anklicken oder Pfeiltasten: Ausschnitt verschieben. Kachel anklicken: ganzes Bild.</span>
+  <label>Tile <select id="tile">
+    <option value="360x260">small</option><option value="480x340" selected>medium</option>
+    <option value="640x460">large</option></select></label>
+  <span class="hint">Click the overview or press the arrow keys to move the view. Click a tile to see the whole image.</span>
 </header>
 <main>
   <div id="side">
@@ -71,8 +71,8 @@ main { display: grid; grid-template-columns: 300px 1fr; gap: 16px; padding: 16px
 </main>
 <script src="data.js"></script>
 <script>
-const GROUPS = { original: ["Original (Graustufen)", "#888"], ours: ["ScanTailor OCR", "var(--ours)"],
-  experimental: ["ScanTailor Experimental", "var(--experimental)"], filter: ["Filter (Graustufen)", "var(--filter)"] };
+const GROUPS = { original: ["Original (grayscale)", "#888"], ours: ["ScanTailor OCR", "var(--ours)"],
+  experimental: ["ScanTailor Experimental", "var(--experimental)"], filter: ["Filter (grayscale)", "var(--filter)"] };
 const store = {
   get(k, d) { try { const v = localStorage.getItem("bc_" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem("bc_" + k, JSON.stringify(v)); } catch (e) {} }
@@ -204,12 +204,12 @@ bool writeViewer(const QDir& outDir, const bool colors) {
   data.write(";\n");
   QString html = QString::fromUtf8(kIndexHtml);
   if (colors) {
-    html.replace(QStringLiteral("Binarisierung im Vergleich"), QStringLiteral("Farbiger Text im Vergleich"));
-    html.replace(QStringLiteral("Original (Graustufen)"), QStringLiteral("Original (Farbe)"));
+    html.replace(QStringLiteral("Binarization Comparison"), QStringLiteral("Colored Text Comparison"));
+    html.replace(QStringLiteral("Original (grayscale)"), QStringLiteral("Original (color)"));
     html.replace(QStringLiteral("\"ScanTailor Experimental\""),
-                 QStringLiteral("\"K-Means (eigener Code, Idee aus ScanTailor Experimental)\""));
-    html.replace(QStringLiteral("Filter (Graustufen)"),
-                 QStringLiteral("K-Means (Originalcode ScanTailor Experimental)"));
+                 QStringLiteral("\"K-Means (own code, idea from ScanTailor Experimental)\""));
+    html.replace(QStringLiteral("Filter (grayscale)"),
+                 QStringLiteral("K-Means (original code of ScanTailor Experimental)"));
   }
   index.write(html.toUtf8());
   return true;

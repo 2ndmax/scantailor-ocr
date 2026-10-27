@@ -172,9 +172,11 @@ oblique_compare <output folder> --images=<folder> [--jobs=<n>]
 - `--jobs`: pages measured at the same time (default half of the cores, at most 6). A 600 dpi
   page needs several hundred megabytes.
 
-The output folder (suggested: `ANALYSE/scherung/`, local only) gets `bericht.html` (German key
+The output folder (any folder outside the repository, e.g. `D:\oblique`) gets `report.html` (key
 figures per group of pages, conclusions and images of the pages with the largest remaining shear
-in `bilder/`), `ergebnisse.csv` (one row per page and method) and `zusammenfassung.txt`.
+in `images/`), `results.csv` (one row per page and method) and `summary.txt`. With `--images` it
+gets `real_scans.html`, `real_scans.txt` and `real_scans.csv` instead, with the images also in
+`images/`.
 
 ## Code analysis
 

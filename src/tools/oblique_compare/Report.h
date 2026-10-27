@@ -52,7 +52,7 @@ struct RunInfo {
   std::vector<QString> methods;
 };
 
-/** Writes bericht.html, ergebnisse.csv and zusammenfassung.txt into \p outDir. */
+/** Writes report.html, results.csv and summary.txt into \p outDir. */
 bool writeReport(const QString& outDir,
                  const std::vector<PageResult>& results,
                  const std::vector<CaseImage>& cases,
