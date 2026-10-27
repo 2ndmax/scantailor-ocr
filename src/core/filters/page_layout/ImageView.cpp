@@ -293,7 +293,8 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) 
       painter.setWorldTransform(QTransform());
 
       QPen guidePen(OverlayStyle::pen(OverlayStyle::secondary(), OverlayStyle::Line::Normal));
-      guidePen.setStyle(Qt::DashLine);
+      // Dotted, so that the guides are told apart from the dashed outer box of the same color.
+      guidePen.setStyle(Qt::DotLine);
       painter.setPen(guidePen);
       painter.setBrush(Qt::NoBrush);
 
