@@ -161,7 +161,16 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
   const double span = highest->y - lowest->y;
   const double tolerance = std::max(1.0, 0.08 * typicalHeight);
   const double maxTangent = std::tan((MAX_OBLIQUE_DEG + 1.0) * DEG2RAD);
+  // The points by x, so that only those near a proposed edge are tested: with all points for every
+  // pair, a table with many cells took seconds.
+  std::vector<int> byX(n);
+  for (int k = 0; k < n; ++k) {
+    byX[k] = k;
+  }
+  std::stable_sort(byX.begin(), byX.end(), [&](const int a, const int b) { return points[a].x < points[b].x; });
   double bestResidual = 0;
+  // The points of the edge being tested; kept between pairs to save allocations.
+  std::vector<int> members;
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
       const double dy = points[j].y - points[i].y;
@@ -172,18 +181,38 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
       if (std::abs(tangent) > maxTangent) {
         continue;
       }
-      std::vector<int> members;
-      double residual = 0;
-      for (int k = 0; k < n; ++k) {
-        const double r = std::abs(points[k].x - (points[i].x + tangent * (points[k].y - points[i].y)));
-        if (r <= tolerance) {
-          members.push_back(k);
-          residual += r;
+      const auto distance
+          = [&](const int k) { return std::abs(points[k].x - (points[i].x + tangent * (points[k].y - points[i].y))); };
+      // A point on the edge lies within the tolerance of where the edge is between the lowest and the
+      // highest point; one pixel more covers the rounding.
+      const double xAtLowest = points[i].x + tangent * (lowest->y - points[i].y);
+      const double xAtHighest = points[i].x + tangent * (highest->y - points[i].y);
+      const double fromX = std::min(xAtLowest, xAtHighest) - tolerance - 1.0;
+      const double toX = std::max(xAtLowest, xAtHighest) + tolerance + 1.0;
+      const auto nearFrom = std::lower_bound(byX.begin(), byX.end(), fromX,
+                                             [&](const int k, const double x) { return points[k].x < x; });
+      const auto nearTo
+          = std::upper_bound(nearFrom, byX.end(), toX, [&](const double x, const int k) { return x < points[k].x; });
+      // Fewer points near it than on the best edge so far: this edge cannot win.
+      if (static_cast<size_t>(nearTo - nearFrom) < edge.members.size()) {
+        continue;
+      }
+      members.clear();
+      for (auto it = nearFrom; it != nearTo; ++it) {
+        if (distance(*it) <= tolerance) {
+          members.push_back(*it);
         }
+      }
+      // In ascending order, as allEdges() needs them, and summed in that order, so that equal edges
+      // compare as before.
+      std::sort(members.begin(), members.end());
+      double residual = 0;
+      for (const int k : members) {
+        residual += distance(k);
       }
       if ((members.size() > edge.members.size())
           || ((members.size() == edge.members.size()) && (residual < bestResidual))) {
-        edge.members = std::move(members);
+        edge.members.swap(members);
         bestResidual = residual;
       }
     }
@@ -223,6 +252,7 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
   edge.valid = std::abs(degrees(edge.tangent / resolutionRatio)) <= MAX_OBLIQUE_DEG;
   return edge;
 }
+
 
 /** All edges in \p points, the strongest first: each edge found takes its points out. */
 std::vector<Edge> allEdges(std::vector<EdgePoint> points,
