@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   const QDir inDir(args[1]);
-  const QString outDir = args[2];
+  const QString& outDir = args[2];
   const bool noSplit = args.contains("--nosplit");
   QString only;            // Only files whose name contains this.
   int insetOverride = -1;  // Share of each edge left out, in percent.

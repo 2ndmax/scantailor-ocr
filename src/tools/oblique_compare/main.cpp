@@ -208,6 +208,7 @@ std::vector<CaseImage> caseImages(const std::vector<PageResult>& results, const 
   for (size_t m = 0; m < methods().size(); ++m) {
     const int method = static_cast<int>(m);
     std::vector<const PageResult*> sorted;
+    sorted.reserve(results.size());
     for (const PageResult& r : results) {
       sorted.push_back(&r);
     }
