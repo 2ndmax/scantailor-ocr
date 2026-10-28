@@ -137,13 +137,17 @@ void TextLineRefiner::calcBlurredGradient(Grid<float>& gradient, float hSigma, f
   const auto scaled = [downscale](const auto value) { return value * downscale; };
   const auto identity = [](const auto value) { return value; };
   const auto assign = [](auto& dst, const auto value) { dst = value; };
-  Grid<float> vertGrad(m_image.width(), m_image.height(), /*padding=*/0);
-  horizontalSobel<float>(m_image.width(), m_image.height(), m_image.data(), m_image.stride(), scaled, gradient.data(),
-                         gradient.stride(), assign, identity, gradient.data(), gradient.stride(), assign);
-  verticalSobel<float>(
-      m_image.width(), m_image.height(), m_image.data(), m_image.stride(), scaled, vertGrad.data(), vertGrad.stride(),
-      assign, identity, gradient.data(), gradient.stride(),
-      [this](float& dst, const float value) { dst = dst * m_unitDownVec[0] + value * m_unitDownVec[1]; });
+  // Read the size once: both passes must cover the same area, as the vertical one combines its
+  // result with what the horizontal one wrote into gradient.
+  const int width = m_image.width();
+  const int height = m_image.height();
+  Grid<float> vertGrad(width, height, /*padding=*/0);
+  horizontalSobel<float>(width, height, m_image.data(), m_image.stride(), scaled, gradient.data(), gradient.stride(),
+                         assign, identity, gradient.data(), gradient.stride(), assign);
+  verticalSobel<float>(width, height, m_image.data(), m_image.stride(), scaled, vertGrad.data(), vertGrad.stride(),
+                       assign, identity, gradient.data(), gradient.stride(), [this](float& dst, const float value) {
+                         dst = dst * m_unitDownVec[0] + value * m_unitDownVec[1];
+                       });
   Grid<float>().swap(vertGrad);  // Save memory.
   gaussBlurGeneric(m_image.size(), hSigma, vSigma, gradient.data(), gradient.stride(), identity, gradient.data(),
                    gradient.stride(), assign);

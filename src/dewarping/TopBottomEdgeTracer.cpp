@@ -45,13 +45,16 @@ struct TopBottomEdgeTracer::GridNode {
  public:
   static const uint32_t INVALID_HEAP_IDX = HEAP_IDX_MASK >> HEAP_IDX_SHIFT;
 
+  // The initializers (one per union) only give a freshly allocated node defined
+  // values; calcDirectionalDerivative() and the setupFor*() methods write every
+  // field before it's read.
   union {
-    float dirDeriv;  // Directional derivative.
-    float xGrad;     // x component of the gradient.
+    float dirDeriv = 0;  // Directional derivative.
+    float xGrad;         // x component of the gradient.
   };
 
   union {
-    float pathCost;
+    float pathCost = 0;
     float blurred;
     float yGrad;  // y component of the gradient.
   };
@@ -59,7 +62,7 @@ struct TopBottomEdgeTracer::GridNode {
   // Note: xGrad and yGrad are used to calculate the directional
   // derivative, which then gets stored in dirDeriv. Obviously,
   // pathCost gets overwritten, which is not a problem in our case.
-  uint32_t packedData;
+  uint32_t packedData = 0;
 
   float absDirDeriv() const { return std::fabs(dirDeriv); }
 
@@ -304,6 +307,9 @@ void TopBottomEdgeTracer::calcDirectionalDerivative(Grid<GridNode>& grid,
   }
 
   // Bottom border line.
+  // REVIEW-NOTE (2026-10): a grid with a negative height -> the read one row above
+  // (gridLine[-gridStride]) lies before the grid's buffer. Not fixed because the only grid is built
+  // in trace() from the size of an image, which is never negative.
   gridLine = grid.paddedData() + gridStride * (height + 1) + 1;
   for (int x = 0; x < width; ++x) {
     gridLine[0].setBothGradients(gridLine[-gridStride].xGrad);
@@ -340,6 +346,9 @@ void TopBottomEdgeTracer::horizontalSobelInPlace(Grid<GridNode>& grid) {
   const int gridStride = grid.stride();
 
   // Do a vertical pass.
+  // REVIEW-NOTE (2026-10): a grid with a padding below 1 -> pGrid[-gridStride] for x == -1 lies
+  // before the grid's buffer. Not fixed because the only grid is built in trace() with padding 1,
+  // as the assert above checks.
   for (int x = -1; x < width + 1; ++x) {
     GridNode* pGrid = grid.data() + x;
     float prev = pGrid[-gridStride].xGrad;
@@ -533,7 +542,9 @@ std::vector<QPoint> TopBottomEdgeTracer::locateBestPathEndpoints(const Grid<Grid
       }
     }
 
-    if (closestSqdist < minSqdist) {
+    // closestSqdist is below minSqdist only if a path was found; the null check
+    // just makes that visible to static analysis.
+    if (closestPath != nullptr && closestSqdist < minSqdist) {
       // That's too close.
       if (node->pathCost < closestPath->cost) {
         closestPath->pt = pt;
