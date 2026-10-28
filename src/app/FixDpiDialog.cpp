@@ -635,6 +635,9 @@ FixDpiDialog::FilterModel::FilterModel(TreeModel& delegate) : m_delegate(delegat
 void FixDpiDialog::FilterModel::setNeedFixingOnly(const bool needFixingOnly) {
   if (m_needFixingOnly != needFixingOnly) {
     m_needFixingOnly = needFixingOnly;
+    // REVIEW-NOTE (2026-10): Qt 6.10 and later mark invalidateFilter() as deprecated -> build warning.
+    // Not fixed because the replacement beginFilterChange()/endFilterChange() needs Qt 6.10, and the
+    // minimum is Qt 6.4 (Ubuntu 24.04). Switch when the minimum reaches Qt 6.10.
     invalidateFilter();
   }
 }
