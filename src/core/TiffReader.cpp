@@ -530,7 +530,7 @@ QImage TiffReader::readImage(QIODevice& device, const int pageNum) {
   if (!TIFFSetDirectory(tif.handle(), static_cast<uint16_t>(pageNum))) {
     // Counting the directories only follows their links, so a page whose directory
     // can't be read still counts.
-    if (pageNum >= TIFFNumberOfDirectories(tif.handle())) {
+    if (static_cast<tdir_t>(pageNum) >= TIFFNumberOfDirectories(tif.handle())) {
       ImageLoadErrorCapture::addError(
           QCoreApplication::translate("TiffReader", "Page %1 doesn't exist in this file.").arg(pageNum + 1));
     } else {

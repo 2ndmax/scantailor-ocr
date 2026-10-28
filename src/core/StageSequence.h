@@ -50,7 +50,7 @@ class StageSequence {
     };
 
     PageId page;
-    Kind kind;
+    Kind kind = PROCESSING_FAILED;
     /** Why, as the step that failed reports it; empty for OUTPUT_NOT_WRITTEN. */
     QStringList reasons;
   };

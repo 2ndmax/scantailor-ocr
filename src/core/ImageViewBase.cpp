@@ -196,7 +196,10 @@ ImageViewBase::ImageViewBase(const QImage& image,
     m_infoProvider.setMousePos(cursorPos);
   });
 
-  updatePhysSize();
+  // During construction a virtual call can only reach this class's version, so say so explicitly.
+  // The one override (page_layout::ImageView) updates the size again at the end of its constructor,
+  // via recalcBoxesAndFit().
+  ImageViewBase::updatePhysSize();
 
   updateWidgetTransformAndFixFocalPoint(CENTER_IF_FITS);
 

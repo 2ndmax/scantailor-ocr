@@ -72,7 +72,7 @@ ImageMetadataLoader::Status PngMetadataLoader::loadMetadata(QIODevice& ioDevice,
   }
 
   png_byte signature[8];
-  if (ioDevice.peek((char*) signature, 8) != 8) {
+  if (ioDevice.peek(reinterpret_cast<char*>(signature), 8) != 8) {
     return FORMAT_NOT_RECOGNIZED;
   }
 

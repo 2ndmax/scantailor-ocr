@@ -113,7 +113,7 @@ boolean JpegSourceManager::fillInputBuffer(j_decompress_ptr cinfo) {
 }
 
 boolean JpegSourceManager::fillInputBufferImpl() {
-  const qint64 bytesRead = m_device.read((char*) m_buf, sizeof(m_buf));
+  const qint64 bytesRead = m_device.read(reinterpret_cast<char*>(m_buf), sizeof(m_buf));
   if (bytesRead > 0) {
     bytes_in_buffer = bytesRead;
   } else {
