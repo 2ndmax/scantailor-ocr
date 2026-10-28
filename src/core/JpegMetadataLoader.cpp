@@ -291,6 +291,12 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
   JpegSourceManager srcMgr(ioDevice);
   JpegDecompressHandle cinfo(&errMgr);
 
+  // REVIEW-NOTE (2026-10): a libjpeg error longjmp()s back here -> destructors of objects in the
+  // frames jumped over are skipped, and locals changed after setjmp() are indeterminate.
+  // Not fixed because no such object exists: the frames jumped over (libjpeg, JpegSourceManager,
+  // errorExit, whose QString dies before longjmp()) hold none, nothing with a destructor is created
+  // here between setjmp() and the last libjpeg call, and cinfo is changed only through the pointer
+  // handed to libjpeg, so it is read from memory by its destructor, as in libjpeg's example.c.
   if (setjmp(errMgr.jmpBuf())) {
     // Returning from longjmp().
     return GENERIC_ERROR;

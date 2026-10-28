@@ -551,6 +551,12 @@ QByteArray PdfImageEncoder::encodeJpeg(const QImage& image, const int quality, i
   jpeg_compress_struct cinfo{};
   cinfo.err = &errorManager;
 
+  // REVIEW-NOTE (2026-10): a libjpeg error longjmp()s back here -> destructors of objects in the
+  // frames jumped over are skipped, and locals changed after setjmp() are indeterminate.
+  // Not fixed because no such object exists: src, out, errorManager and destination are created
+  // before setjmp(), the frames jumped over (libjpeg, JpegDestination, errorExit, whose QString dies
+  // before longjmp()) hold none, and cinfo and out are changed only through pointers handed to
+  // libjpeg, so they are read from memory after the jump, as in libjpeg's example.c.
   if (setjmp(errorManager.jmpBuf())) {
     jpeg_destroy_compress(&cinfo);
     return QByteArray();

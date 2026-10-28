@@ -82,6 +82,11 @@ ImageMetadataLoader::Status PngMetadataLoader::loadMetadata(QIODevice& ioDevice,
 
   PngHandle png;
 
+  // REVIEW-NOTE (2026-10): a libpng error longjmp()s back here -> destructors of objects in the
+  // frames jumped over are skipped, and locals changed after setjmp() are indeterminate.
+  // Not fixed because no such object exists: png is created before setjmp() and its two pointers
+  // never change afterwards, readFn and libpng hold no objects with destructors, and size and dpi
+  // are created only after png_read_info(), the last call that can longjmp().
   if (setjmp(png_jmpbuf(png.handle()))) {
     return GENERIC_ERROR;
   }
