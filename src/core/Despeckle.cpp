@@ -5,7 +5,6 @@
 
 #include <BinaryImage.h>
 #include <ConnectivityMap.h>
-#include <InfluenceMap.h>
 
 #include <QImage>
 #include <algorithm>
@@ -119,6 +118,111 @@ struct Component {
   bool isBig(const int bigSize) const { return (right - left + 1 >= bigSize) || (bottom - top + 1 >= bigSize); }
 };
 
+/**
+ * For every pixel, the nearest pixel of a component in a label map (its seed): the seed's label and
+ * the vector to it. Two passes over the image, each scanning every line both ways (8SSEDT after
+ * Danielsson): nearly exact; in rare configurations a pixel gets a seed a fraction of a pixel
+ * farther than the nearest one.
+ *
+ * REVIEW-NOTE (2026-10): the vectors are int16_t -> on pages over 32767 px wide or high with no
+ * component for that long, they overflow and distances become wrong. Not fixed because such pages
+ * are far beyond normal scans.
+ */
+class NearestSeedMap {
+ public:
+  struct Cell {
+    uint32_t label = 0;  // 0: no seed found
+    int16_t dx = 0;      // seed minus pixel
+    int16_t dy = 0;
+    uint32_t sq = std::numeric_limits<uint32_t>::max();  // dx * dx + dy * dy
+
+    uint32_t distSq() const { return sq; }
+  };
+
+  // A padding of one pixel around the image, without seeds, saves checks for the image borders.
+  explicit NearestSeedMap(const ConnectivityMap& seeds)
+      : m_width(seeds.size().width()),
+        m_height(seeds.size().height()),
+        m_stride(m_width + 2),
+        m_cells(size_t(m_stride) * (m_height + 2)) {
+    const uint32_t* line = seeds.data();
+    for (int y = 0; y < m_height; ++y, line += seeds.stride()) {
+      Cell* cells = origin() + size_t(y) * m_stride;
+      for (int x = 0; x < m_width; ++x) {
+        if (line[x] != 0) {
+          cells[x] = Cell{line[x], 0, 0, 0};
+        }
+      }
+    }
+    const int s = m_stride;
+    for (int y = 0; y < m_height; ++y) {
+      Cell* cells = origin() + size_t(y) * s;
+      for (int x = 0; x < m_width; ++x) {
+        Cell* cell = cells + x;
+        offer(cell, -1, -1, 0);
+        offer(cell, -s - 1, -1, -1);
+        offer(cell, -s, 0, -1);
+        offer(cell, -s + 1, 1, -1);
+      }
+      for (int x = m_width - 1; x >= 0; --x) {
+        offer(cells + x, 1, 1, 0);
+      }
+    }
+    for (int y = m_height - 1; y >= 0; --y) {
+      Cell* cells = origin() + size_t(y) * s;
+      for (int x = m_width - 1; x >= 0; --x) {
+        Cell* cell = cells + x;
+        offer(cell, 1, 1, 0);
+        offer(cell, s + 1, 1, 1);
+        offer(cell, s, 0, 1);
+        offer(cell, s - 1, -1, 1);
+      }
+      for (int x = 0; x < m_width; ++x) {
+        offer(cells + x, -1, -1, 0);
+      }
+    }
+  }
+
+  int width() const { return m_width; }
+
+  int height() const { return m_height; }
+
+  const Cell& at(const int x, const int y) const { return m_cells[size_t(y + 1) * m_stride + x + 1]; }
+
+  QImage visualized() const {
+    QImage image(m_width, m_height, QImage::Format_RGB32);
+    for (int y = 0; y < m_height; ++y) {
+      for (int x = 0; x < m_width; ++x) {
+        const uint32_t label = at(x, y).label;
+        image.setPixel(x, y, (label == 0) ? 0xffffffu : (0xff000000u | (label * 2654435761u >> 8)));
+      }
+    }
+    return image;
+  }
+
+ private:
+  Cell* origin() { return m_cells.data() + m_stride + 1; }
+
+  // A cell takes the seed of its neighbour at 'offset' (ox, oy pixels away) if that one is nearer.
+  static void offer(Cell* cell, const int offset, const int ox, const int oy) {
+    const Cell& from = cell[offset];
+    if (from.label == 0) {
+      return;
+    }
+    const int dx = from.dx + ox;
+    const int dy = from.dy + oy;
+    const auto sq = uint32_t(dx * dx) + uint32_t(dy * dy);
+    if (sq < cell->sq) {
+      *cell = Cell{from.label, int16_t(dx), int16_t(dy), sq};
+    }
+  }
+
+  int m_width;
+  int m_height;
+  int m_stride;
+  std::vector<Cell> m_cells;
+};
+
 class Despeckler {
  public:
   Despeckler(const Settings& settings, const TaskStatus& status, DebugImages* dbg)
@@ -229,30 +333,25 @@ void Despeckler::sortOutBigAndTiny() {
 
 // Neighbours are components whose Voronoi regions touch. The gap between them is the smallest
 // distance between the seeds (nearest component pixels) of two touching cells of their regions.
-//
-// REVIEW-NOTE (2026-10): InfluenceMap stores the vectors to the seeds as int16_t -> on pages over
-// 32767 px wide or high with no component for that long, they overflow and gaps become wrong.
-// Not fixed because such pages are far beyond normal scans.
 void Despeckler::findNeighbours() {
   std::unordered_map<uint64_t, uint32_t> gaps;  // (lesser label, greater label) -> squared gap
   {
-    const InfluenceMap imap(m_cmap);
+    const NearestSeedMap seeds(m_cmap);
     if (m_dbg) {
-      m_dbg->add(imap.visualized(), "voronoi");
+      m_dbg->add(seeds.visualized(), "voronoi");
     }
-    const int width = imap.size().width();
-    const int height = imap.size().height();
-    const InfluenceMap::Cell* line = imap.data();
-    for (int y = 0; y < height; ++y, line += imap.stride()) {
+    const int width = seeds.width();
+    const int height = seeds.height();
+    for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
-        const InfluenceMap::Cell& cell = line[x];
+        const NearestSeedMap::Cell& cell = seeds.at(x, y);
         // The right and the lower neighbour; the other two see this cell as theirs.
         const std::array<std::pair<int, int>, 2> offsets{{{1, 0}, {0, 1}}};
         for (const auto& [dx, dy] : offsets) {
           if ((x + dx >= width) || (y + dy >= height)) {
             continue;
           }
-          const InfluenceMap::Cell& other = line[dy * imap.stride() + x + dx];
+          const NearestSeedMap::Cell& other = seeds.at(x + dx, y + dy);
           if ((cell.label == other.label) || (cell.label == 0) || (other.label == 0)) {
             continue;
           }
@@ -261,8 +360,8 @@ void Despeckler::findNeighbours() {
           if (bothKept) {
             continue;
           }
-          const int64_t seedDx = int64_t(cell.vec.x) - (dx + other.vec.x);
-          const int64_t seedDy = int64_t(cell.vec.y) - (dy + other.vec.y);
+          const int64_t seedDx = int64_t(cell.dx) - (dx + other.dx);
+          const int64_t seedDy = int64_t(cell.dy) - (dy + other.dy);
           const auto gapSq
               = uint32_t(std::min<int64_t>(seedDx * seedDx + seedDy * seedDy, std::numeric_limits<uint32_t>::max()));
           const uint64_t key = (uint64_t(std::min(cell.label, other.label)) << 32) | std::max(cell.label, other.label);
@@ -363,17 +462,17 @@ bool Despeckler::keepNearestToKept(const bool onlyBig) {
   };
   std::vector<Nearest> nearest(m_components.size());
   {
-    const InfluenceMap imap(kept);
-    const InfluenceMap::Cell* cells = imap.data();
+    const NearestSeedMap seeds(kept);
     const uint32_t* labels = m_cmap.data();
-    for (int y = 0; y < imap.size().height(); ++y, cells += imap.stride(), labels += m_cmap.stride()) {
-      for (int x = 0; x < imap.size().width(); ++x) {
+    for (int y = 0; y < seeds.height(); ++y, labels += m_cmap.stride()) {
+      for (int x = 0; x < seeds.width(); ++x) {
         const uint32_t label = labels[x];
-        if ((label == 0) || (m_components[label].state != Component::CANDIDATE) || (cells[x].label == 0)) {
+        const NearestSeedMap::Cell& cell = seeds.at(x, y);
+        if ((label == 0) || (m_components[label].state != Component::CANDIDATE) || (cell.label == 0)) {
           continue;
         }
-        if (cells[x].distSq < nearest[label].distSq) {
-          nearest[label] = {cells[x].label, cells[x].distSq};
+        if (cell.distSq() < nearest[label].distSq) {
+          nearest[label] = {cell.label, cell.distSq()};
         }
       }
     }
