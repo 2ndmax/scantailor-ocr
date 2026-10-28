@@ -179,6 +179,19 @@ inside Qt at the startup of programs loading `Qt6Widgets.dll`.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\08-sanitizers.ps1 -Images D:\scans
 
+Two kinds of reports are known to be harmless; the code is not changed for them:
+
+- ASan `bad-free` in Qt's `qarraydata.cpp`: the startup error described above.
+  `Qt6Widgets.dll` allocated the memory before ASan hooked the allocator.
+- UBSan `insufficient-object-size` ("member call on address ... with insufficient space for an
+  object of type `QNonConstOverload<...>`") at `qOverload<...>(&Class::signal)` calls, e.g. in
+  `filters/output/OptionsWidget.cpp`, `filters/page_layout/OptionsWidget.cpp`,
+  `TiffCompressionPanel.cpp` and `qt_tests/tst_core_qt.cpp`.  `QOverload` (`qoverload.h`)
+  derives from the two empty bases `QConstOverload` and `QNonConstOverload`; in the MSVC ABI
+  the second empty base sits at offset 1 of the 1-byte object, so UBSan's size check for that
+  base fails (the reported address is odd).  Its `operator()` only returns the member-function
+  pointer it is given and never reads `*this`, so nothing invalid is accessed.
+
 ### 09 – Merging the results
 
 Reads the output of the runs (all that exist) and writes the distinct findings to

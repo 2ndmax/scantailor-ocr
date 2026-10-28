@@ -39,6 +39,9 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
 
   const QPointF center(boundingRect.center());
   QVector<QLineF> lines;
+  // REVIEW-NOTE (2026-10): the loops below count with a double -> rounding errors could shift
+  // the grid lines or change the number of steps. Not fixed because steps of 8 on
+  // thumbnail-sized coordinates are exact in double, and each loop ends after at most size / 8 steps.
   for (double y = center.y(); y > 0.0; y -= cellSize) {
     lines.push_back(QLineF(left, y, right, y));
   }
