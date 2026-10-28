@@ -704,6 +704,10 @@ QByteArray PdfImageEncoder::encodeJpeg2000(const QImage& image, const int qualit
   });
   const int runningEncodes = ++g_runningJp2Encodes;
 
+  // REVIEW-NOTE (2026-10): opj_cparameters_t holds three file name buffers of 4 KiB, so this
+  // function takes about 19 KB of stack -> a thread with a small stack could overflow. Not fixed
+  // because it isn't recursive and runs only in the std::thread workers of PdfExportJob::run() and
+  // in tests, which all have the 1 MB default stack.
   opj_cparameters_t parameters;
   opj_set_default_encoder_parameters(&parameters);
   parameters.tcp_numlayers = 1;
