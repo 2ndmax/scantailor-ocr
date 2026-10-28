@@ -127,6 +127,7 @@ std::vector<WidthProfile::Sample> WidthProfile::measure(const imageproc::GrayIma
   }
 
   std::vector<double> scales;
+  scales.reserve(samples.size());
   for (const Sample& sample : samples) {
     scales.push_back(sample.scale);
   }
