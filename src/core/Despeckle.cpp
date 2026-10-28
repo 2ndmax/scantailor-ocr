@@ -357,7 +357,7 @@ void voronoi(ConnectivityMap& cmap, std::vector<Distance>& dist) {
     for (int x = 1; x < width - 1; ++x) {
       if (cmapLine[x]) {
         thisSqdistLine[x] = 0;
-        assert(distLine[x] == Distance::zero());
+        assert(distLine[x].raw == 0);  // still the value dist was filled with
         continue;
       }
 
