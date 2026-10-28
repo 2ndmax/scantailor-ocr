@@ -11,7 +11,7 @@
 // every pixel labelled. Despeckles each page at the three levels and counts, per class, how many
 // noise components were removed and how many text components were lost.
 //
-// Pages: two fonts (serif, sans serif) at 8, 10 and 12 pt, rendered at 200, 300, 400 and 600 dpi.
+// Pages: two fonts (serif, sans serif) at 6, 8, 10, 12 and 14 pt, rendered at 200, 300, 400 and 600 dpi.
 // The fonts come from this machine, so compare results only between runs on the same machine.
 //
 // Writes bench.csv (one row per page and level) to 'outDir' and prints a summary. With 'images',

@@ -737,7 +737,7 @@ int bench(const QString& outDir, const bool images) {
   csv << ",noise px,noise px removed\n";
 
   const FontChoice fonts[] = {{"Times New Roman", "serif"}, {"Arial", "sans"}};
-  const int pointSizes[] = {8, 10, 12};
+  const int pointSizes[] = {6, 8, 10, 12, 14};
   const int resolutions[] = {200, 300, 400, 600};
 
   std::map<std::pair<int, int>, Stats> byLevelAndDpi;  // (level index, dpi)
