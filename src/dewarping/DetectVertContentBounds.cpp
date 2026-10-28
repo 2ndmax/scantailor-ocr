@@ -23,8 +23,6 @@ struct VertRange {
 
   VertRange() : top(-1), bottom(-1) {}
 
-  VertRange(int t, int b) : top(t), bottom(b) {}
-
   bool isValid() const { return top != -1; }
 };
 
@@ -69,8 +67,6 @@ class RansacAlgo {
   void buildAndAssessModel(const Segment& seedSegment);
 
   RansacModel& bestModel() { return m_bestModel; }
-
-  const RansacModel& bestModel() const { return m_bestModel; }
 
  private:
   const std::vector<Segment>& m_segments;
