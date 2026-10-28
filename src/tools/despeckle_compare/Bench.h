@@ -8,8 +8,9 @@
 
 // Benchmark of the despeckling on generated pages whose truth is known: German text with small
 // marks (dots above letters, punctuation, dot leaders, superscripts) and several kinds of noise,
-// every pixel labelled. Despeckles each page at the three levels and counts, per class, how many
-// noise components were removed and how many text components were lost.
+// every pixel labelled, thresholded with noise like a scan. Despeckles each page at the three levels
+// and counts, per class, how many noise components were removed and how many parts of glyphs
+// (letters, dots, punctuation) were lost.
 //
 // Pages: two fonts (serif, sans serif) at 6, 8, 10, 12 and 14 pt, rendered at 200, 300, 400 and 600 dpi.
 // The fonts come from this machine, so compare results only between runs on the same machine.

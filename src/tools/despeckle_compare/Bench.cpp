@@ -23,6 +23,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <random>
@@ -56,6 +57,10 @@ struct Layer {
   int width;
   int height;
   std::vector<uint8_t> cls;
+  // Optional: per pixel, the part of a glyph drawn there (a connected component of the glyph as
+  // rendered, e.g. the dot of an i), numbered over the page from 1; 0 = none.
+  std::vector<uint32_t> part;
+  uint32_t nextPart = 1;
 };
 
 enum class RunKind { Normal, Leader, Superscript };
@@ -64,10 +69,13 @@ struct GlyphPixel {
   int x;  // relative to the pen position on the baseline
   int y;
   uint8_t cls;
+  uint8_t ink;   // coverage by the glyph, 0-255
+  uint8_t part;  // index of the glyph's component
 };
 
 struct Glyph {
   int advance = 0;
+  int parts = 0;
   std::vector<GlyphPixel> pixels;
 };
 
@@ -89,7 +97,8 @@ uint8_t classify(const QChar c, const RunKind kind, const bool largestComponent)
   return kLetter;
 }
 
-// Renders single characters without antialiasing, split into classified components.
+// Renders single characters with antialiasing, split into classified components. Keeps the pixels
+// that may turn black when thresholded with noise (see kMinInk).
 class GlyphCache {
  public:
   explicit GlyphCache(const QFont& font) : m_font(font), m_metrics(font) {}
@@ -113,6 +122,15 @@ class GlyphCache {
   std::map<std::pair<char16_t, int>, Glyph> m_cache;
 };
 
+// The lowest ink that the noisy threshold may turn black: 128 - kPageShift - kPixelNoise.
+const int kPageShift = 20;
+const int kPixelNoise = 40;
+const int kMinInk = 128 - kPageShift - kPixelNoise;
+
+int inkAt(const QImage& image, const int x, const int y) {
+  return 255 - qGray(image.pixel(x, y));
+}
+
 Glyph GlyphCache::render(const QChar c, const RunKind kind) const {
   Glyph glyph;
   glyph.advance = m_metrics.horizontalAdvance(c);
@@ -133,7 +151,7 @@ Glyph GlyphCache::render(const QChar c, const RunKind kind) const {
   std::vector<std::vector<QPoint>> components;
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
-      if ((qGray(image.pixel(x, y)) >= 128) || (label[size_t(y) * w + x] >= 0)) {
+      if ((inkAt(image, x, y) < kMinInk) || (label[size_t(y) * w + x] >= 0)) {
         continue;
       }
       const int id = int(components.size());
@@ -149,7 +167,7 @@ Glyph GlyphCache::render(const QChar c, const RunKind kind) const {
             const int nx = p.x() + dx;
             const int ny = p.y() + dy;
             if ((nx < 0) || (ny < 0) || (nx >= w) || (ny >= h) || (label[size_t(ny) * w + nx] >= 0)
-                || (qGray(image.pixel(nx, ny)) >= 128)) {
+                || (inkAt(image, nx, ny) < kMinInk)) {
               continue;
             }
             label[size_t(ny) * w + nx] = id;
@@ -160,6 +178,7 @@ Glyph GlyphCache::render(const QChar c, const RunKind kind) const {
     }
   }
 
+  glyph.parts = int(components.size());
   size_t largest = 0;
   for (size_t i = 0; i < components.size(); ++i) {
     if (components[i].size() > components[largest].size()) {
@@ -169,7 +188,8 @@ Glyph GlyphCache::render(const QChar c, const RunKind kind) const {
   for (size_t i = 0; i < components.size(); ++i) {
     const uint8_t cls = classify(c, kind, i == largest);
     for (const QPoint& p : components[i]) {
-      glyph.pixels.push_back({p.x() - origin.x(), p.y() - origin.y(), cls});
+      glyph.pixels.push_back(
+          {p.x() - origin.x(), p.y() - origin.y(), cls, uint8_t(inkAt(image, p.x(), p.y())), uint8_t(i)});
     }
   }
   return glyph;
@@ -202,17 +222,22 @@ class Typesetter {
     return width;
   }
 
-  void draw(const Line& line, int x, const int baseline, Layer& layer) {
+  // Draws the pixels for which inked(ink) says they turn black.
+  void draw(const Line& line, int x, const int baseline, Layer& layer, const std::function<bool(int)>& inked) {
     for (const Run& run : line) {
       const int y = baseline - ((run.kind == RunKind::Superscript) ? m_raise : 0);
       for (const QChar c : run.text) {
         const Glyph& glyph = cache(run.kind).glyph(c, run.kind);
         for (const GlyphPixel& p : glyph.pixels) {
-          if (layer.contains(x + p.x, y + p.y)) {
+          if (layer.contains(x + p.x, y + p.y) && inked(p.ink)) {
             layer.at(x + p.x, y + p.y) = p.cls;
+            if (!layer.part.empty()) {
+              layer.part[size_t(y + p.y) * layer.width + x + p.x] = layer.nextPart + p.part;
+            }
           }
         }
         x += glyph.advance;
+        layer.nextPart += glyph.parts;
       }
     }
   }
@@ -512,7 +537,7 @@ class NoiseMaker {
 };
 
 struct Page {
-  Page(int w, int h) : text(w, h), noise(w, h) {}
+  Page(int w, int h) : text(w, h), noise(w, h) { text.part.assign(size_t(w) * h, 0); }
 
   Layer text;
   Layer noise;
@@ -526,20 +551,25 @@ Page makePage(const QFont& baseFont, const int pointSize, const int dpi, const u
   Page page(mmToPx(130, dpi), mmToPx(185, dpi));
   QFont font(baseFont);
   font.setPixelSize(int(std::lround(pointSize * dpi / 72.0)));
-  font.setStyleStrategy(QFont::NoAntialias);
   Typesetter typesetter(font);
 
   const int left = mmToPx(18, dpi);
   const int top = mmToPx(18, dpi);
   const int maxWidth = page.text.width - 2 * left;
   const int maxLines = (page.text.height - 2 * top) / typesetter.lineSpacing();
+  // Like a scan: the threshold varies a little over the page and from pixel to pixel, so that the
+  // edges are ragged and equal dots come out in different sizes.
+  std::mt19937 inkRng(seed ^ 0x5bd1e995u);
+  const int pageShift = std::uniform_int_distribution<int>(-kPageShift, kPageShift)(inkRng);
+  std::uniform_int_distribution<int> pixelNoise(-kPixelNoise, kPixelNoise);
+  const auto inked = [&](const int ink) { return ink + pageShift + pixelNoise(inkRng) >= 128; };
   const auto drawText = [&](Layer& layer, const int firstLine) {
     const std::vector<PageText> lines = composeText(typesetter, maxWidth, maxLines + firstLine);
     for (int i = 0; i < maxLines; ++i) {
       const PageText& line = lines[i + firstLine];
       const int baseline = top + typesetter.ascent() + i * typesetter.lineSpacing();
-      typesetter.draw(line.left, left, baseline, layer);
-      typesetter.draw(line.right, left + maxWidth - typesetter.width(line.right), baseline, layer);
+      typesetter.draw(line.left, left, baseline, layer, inked);
+      typesetter.draw(line.right, left + maxWidth - typesetter.width(line.right), baseline, layer, inked);
     }
   };
   drawText(page.text, 0);
@@ -613,9 +643,8 @@ struct Stats {
   }
 };
 
-// A component counts as text if any of its pixels is text; its class is the one of most of its
-// text pixels. Otherwise its class is the one of most of its noise pixels. The despeckling keeps or
-// removes whole components.
+// Counts the text lost by glyph parts and the noise removed by components of the page. A component
+// with any text pixel counts as text, any other one as noise of the kind of most of its pixels.
 Stats measure(const Page& page,
               const BinaryImage& input,
               const BinaryImage& output,
@@ -626,7 +655,6 @@ Stats measure(const Page& page,
   std::vector<std::array<int, kTextClasses>> textPixels(count);
   std::vector<std::array<int, kNoiseClasses>> noisePixels(count);
   std::vector<int> kept(count, 0);
-  std::vector<QPoint> where(count);
   const uint32_t* line = cmap.data();
   for (int y = 0; y < input.height(); ++y, line += cmap.stride()) {
     for (int x = 0; x < input.width(); ++x) {
@@ -636,7 +664,6 @@ Stats measure(const Page& page,
       }
       ++textPixels[label][page.text.at(x, y)];
       ++noisePixels[label][page.noise.at(x, y)];
-      where[label] = QPoint(x, y);
       if (output.getPixel(x, y) == BLACK) {
         ++kept[label];
       }
@@ -644,6 +671,47 @@ Stats measure(const Page& page,
   }
 
   Stats stats;
+
+  // Text by glyph parts: a part is lost when more than half of its pixels are. Thresholding may
+  // break a letter into pieces; losing a one-pixel splinter of it does not count as losing it.
+  struct Part {
+    int pixels = 0;
+    int removed = 0;
+    uint8_t cls = kNoText;
+    QPoint where;
+  };
+  std::vector<Part> parts(page.text.nextPart);
+  for (int y = 0; y < input.height(); ++y) {
+    for (int x = 0; x < input.width(); ++x) {
+      const uint32_t id = page.text.part[size_t(y) * page.text.width + x];
+      if ((id == 0) || (input.getPixel(x, y) != BLACK)) {
+        continue;
+      }
+      Part& part = parts[id];
+      ++part.pixels;
+      part.cls = page.text.at(x, y);
+      part.where = QPoint(x, y);
+      ++stats.textPixels;
+      if (output.getPixel(x, y) != BLACK) {
+        ++part.removed;
+        ++stats.textPixelsLost;
+      }
+    }
+  }
+  for (const Part& part : parts) {
+    if (part.pixels == 0) {
+      continue;
+    }
+    ++stats.textComponents[part.cls];
+    if (2 * part.removed > part.pixels) {
+      ++stats.textLost[part.cls];
+      if (lostText) {
+        lostText->push_back(part.where);
+      }
+    }
+  }
+
+  // Noise by components of the page; a component with any text pixel is text.
   std::vector<uint8_t> textClass(count, kNoText);
   for (size_t label = 1; label < count; ++label) {
     int size = 0;
@@ -657,15 +725,6 @@ Stats measure(const Page& page,
     const bool removed = kept[label] == 0;
     if (size > 0) {
       textClass[label] = uint8_t(best);
-      ++stats.textComponents[best];
-      stats.textPixels += size;
-      if (removed) {
-        ++stats.textLost[best];
-        stats.textPixelsLost += size;
-        if (lostText) {
-          lostText->push_back(where[label]);
-        }
-      }
       continue;
     }
     for (int c = 1; c < kNoiseClasses; ++c) {
