@@ -75,6 +75,18 @@ BOOST_AUTO_TEST_CASE(test_large_footprint_keeps_the_gray_level) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_footprint_beyond_two_million_pixels_keeps_the_gray_level) {
+  // The single output pixel covers 2000 x 2000 source pixels. In 1/32 pixel units that area is
+  // 4.1e9 and was computed in int before widening, which overflows above 2^21 source pixels.
+  const std::vector<QPointF> top{{0, 0}, {1000, 0}, {2000, 0}};
+  const std::vector<QPointF> bottom{{0, 2000}, {1000, 2000}, {2000, 2000}};
+  const CylindricalSurfaceDewarper dewarper(top, bottom, 2.0);
+  const QImage result = RasterDewarper::dewarp(uniformGray(QSize(2000, 2000), 200), QSize(1, 1), dewarper,
+                                               QRectF(0, 0, 1, 1), QColor(Qt::white));
+  BOOST_REQUIRE(result.size() == QSize(1, 1));
+  BOOST_TEST(std::abs(qGray(result.pixel(0, 0)) - 200) <= 1);
+}
+
 BOOST_AUTO_TEST_CASE(test_mid_line_outside_the_image) {
   // A mid line that misses the image can't be clipped; it was traversed as it was, reading the
   // distance map outside its memory.

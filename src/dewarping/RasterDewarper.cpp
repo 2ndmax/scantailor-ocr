@@ -174,7 +174,8 @@ void areaMapGeneratrix(const PixelType* const srcData,
     assert(topFraction + bottomFraction + (srcBottom - srcTop - 1) * 32
            == static_cast<unsigned>(src32Bottom - src32Top));
 
-    const MixingWeight srcArea = (src32Bottom - src32Top) * (src32Right - src32Left);
+    // Widen before multiplying: in int the product overflows above 2^21 source pixels.
+    const MixingWeight srcArea = MixingWeight(src32Bottom - src32Top) * (src32Right - src32Left);
     if (srcArea == 0) {
       *pDst = bgColor;
       pDst += dstStride;
