@@ -220,6 +220,12 @@ topic, not by version.
 * **Output cleanup:** removing pages, replacing a scan or switching a page between one and two
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
+* **New despeckling** (output and content detection): sizes in millimetres, exact gaps between
+  specks and text, and specks next to letters judged by their place in the line of text (on the
+  baseline, above a letter and so on). Dot leaders, i-dots, umlauts, commas and hyphens stay far
+  more often, more dust, specks next to letters and dirt at the page edges go. Results of existing
+  projects change; the stored slider values stay valid. Fixed: the "second chance" for specks
+  cut off from text by others never worked.
 * Fixed options overwritten by the display, a stale dewarping mode and stale thumbnails.
 * **Wiener denoiser** has a check box and its own heading "Enhancement". The sliders *Depth
   perception* and *Despeckle* show their value above them; *Depth perception* is part of the
