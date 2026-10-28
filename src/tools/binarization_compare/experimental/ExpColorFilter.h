@@ -19,6 +19,8 @@
 
 // Taken unchanged from ScanTailor Experimental (commit 80e1c57, imageproc/ColorFilter.h), only the
 // declarations of the K-means color reduction, put into the namespace imageproc::stexp.
+// Analyzer findings in this copy (dead stores, divisions the analyzer can't prove non-zero,
+// etc.) are kept on purpose, so that it stays comparable with the original.
 
 #pragma once
 

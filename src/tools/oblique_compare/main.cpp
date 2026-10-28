@@ -65,8 +65,8 @@ struct ScanInput {
   SkewFinder& skewFinder;
   const BinaryImage& cleaned;
   const QImage& gray;
-  double deskewAngleDeg;
-  int dpi;
+  double deskewAngleDeg = 0.0;
+  int dpi = 0;
 };
 
 /** An oblique method: the angle in the sense of deskew::Task::findObliqueAngle(), or nothing. */

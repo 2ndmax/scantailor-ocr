@@ -86,7 +86,7 @@ QColor verdictColor(Mode type) {
 struct Result {
   QString label;
   QImage thumb;
-  Mode type;
+  Mode type = Mode::BlackWhite;
 };
 
 const int SHEET_COLS = 6;

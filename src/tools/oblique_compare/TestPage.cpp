@@ -276,8 +276,8 @@ struct Paragraph {
 
 struct Word {
   QString text;
-  double width;
-  bool italic;
+  double width = 0.0;
+  bool italic = false;
 };
 
 /**
