@@ -567,9 +567,11 @@ void voronoi(ConnectivityMap& cmap, std::vector<Distance>& dist) {
 void voronoiSpecial(ConnectivityMap& cmap, std::vector<Distance>& dist, const Distance specialDistance) {
   const int height = cmap.size().height() + 2;
 
-  // Unlike voronoi(), the top to bottom pass stops before the bottom padding line. So the pass back
-  // starts one line higher: it leaves out the last image line and goes through the top padding
-  // line. Inherited from ScanTailor; kept as it is.
+  // REVIEW-NOTE (2026-10): unlike voronoi(), the top to bottom pass stops before the bottom padding
+  // line, so the pass back starts one line higher -> it leaves out the last image line (harmless)
+  // and writes labels into the top padding line, which voronoiDistances() then reads as neighbours
+  // of the first image line. Not fixed because it is inherited from ScanTailor and changes
+  // despeckling results; to be fixed together with the second-chance note in despeckleImpl().
   propagateDistances<true>(cmap, dist, height - 1, specialDistance);
 }
 
