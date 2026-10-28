@@ -107,6 +107,9 @@ BinaryImage::BinaryImage(const int width, const int height, SharedData* const da
 
 BinaryImage::BinaryImage(const BinaryImage& other)
     : m_data(other.m_data), m_width(other.m_width), m_height(other.m_height), m_wpl(other.m_wpl) {
+  // REVIEW-NOTE (2026-10): the analyzer cannot follow the QAtomicInt reference count and assumes another holder's
+  // unref() freed m_data -> it reports a use after free here. Not fixed because every BinaryImage holding m_data
+  // owns one reference, so the count stays above zero while 'other' exists.
   if (m_data) {
     m_data->ref();
   }
@@ -783,6 +786,9 @@ static inline uint32_t thresholdRgb32(const QRgb c, const int threshold) {
   return (sum < threshold * 32) ? 1 : 0;
 }
 
+// REVIEW-NOTE (2026-10): a width <= 0 makes lastWordIdx -1 -> fromRgb32, fromArgb32Premultiplied and fromRgb16
+// write before the start of the data (clang-analyzer ArrayBound). Not fixed because the callers pass a non-empty
+// rect inside the image, and BinaryImage dst(width, height) throws for width <= 0 before the write.
 BinaryImage BinaryImage::fromRgb32(const QImage& image, const QRect& rect, const int threshold) {
   const int width = rect.width();
   const int height = rect.height();

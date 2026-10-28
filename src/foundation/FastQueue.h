@@ -107,6 +107,9 @@ void FastQueue<T>::push(const T& t) {
 
   if (!chunk) {
     // Create a new chunk.
+    // REVIEW-NOTE (2026-10): a buffer smaller than sizeof(Chunk) -> placement new writes past its end
+    // (MSVC C6386). Not fixed because storageRequirement() is sizeof(Chunk) plus alignment padding plus the
+    // elements, so the buffer always holds the Chunk header.
     char* buf = new char[Chunk::storageRequirement(m_chunkCapacity)];
     chunk = new (buf) Chunk(m_chunkCapacity);
     m_chunkList.push_back(*chunk);

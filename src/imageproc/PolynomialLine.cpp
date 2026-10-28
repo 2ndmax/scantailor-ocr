@@ -33,6 +33,9 @@ void PolynomialLine::doLeastSquares(const VecT<double>& dataPoints, VecT<double>
   // The least squares equation is A^T*A*x = A^T*b
   // We will be building A^T*A and A^T*b incrementally.
   // This allows us not to build matrix A at all.
+  // REVIEW-NOTE (2026-10): uninitialized elements in AtA or Atb -> the += below would add to garbage
+  // (clang-analyzer uninitialized.Assign). Not fixed because the MatT(rows, cols) and VecT(size) constructors
+  // value-initialize their elements to 0.
   MatT<double> AtA(numTerms, numTerms);
   VecT<double> Atb(numTerms);
 

@@ -49,6 +49,9 @@ class StaticPool : public StaticPoolBase<T> {
   StaticPool() : StaticPoolBase<T>(m_buf, S) {}
 
  private:
+  // REVIEW-NOTE (2026-10): m_buf is not initialized in the constructor -> cppcheck uninitMemberVar. Not fixed
+  // because that is intended: alloc() documents POD elements as uninitialized, and the pool sits on hot paths
+  // (MatrixCalc) where zeroing the whole buffer would cost time; callers write before they read.
   T m_buf[S];
 };
 

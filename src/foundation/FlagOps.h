@@ -10,6 +10,10 @@
 
 // REVIEW-NOTE (2026-10): operator~ yields values outside the range of enums without a fixed underlying type ->
 // undefined behavior since C++17. Not fixed because no code applies ~ to these flags today.
+// REVIEW-NOTE (2026-10): an OR of several flags is not itself an enumerator -> clang-analyzer
+// optin.core.EnumCastOutOfRange warns at every user of this macro (FittableSpline::SampleFlags,
+// PolylineModelShape::Flags, ThumbnailSequence::SelectionFlags, ...). Not fixed because the value range of an enum
+// covers all bits of its largest enumerator, so &, | and ^ of its flags always stay inside it.
 #define DEFINE_FLAG_OPS(type)                    \
   inline type operator&(type lhs, type rhs) {    \
     return type(unsigned(lhs) & unsigned(rhs));  \

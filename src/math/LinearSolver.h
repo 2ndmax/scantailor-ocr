@@ -60,6 +60,8 @@ class LinearSolver {
  private:
   size_t m_rowsAB;
   size_t m_colsArowsX;
+  // REVIEW-NOTE (2026-10): no non-template member reads m_colsBX -> clang reports an unused private field.
+  // Not fixed because the solve() templates in this header read it.
   size_t m_colsBX;
 };
 
@@ -130,6 +132,9 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
       const T factor(*p2 * rPivot);
       *p2 = factor;  // Factor goes into L, zero goes into U.
       // Transform the rest of the row.
+      // REVIEW-NOTE (2026-10): an element of luData that was never written -> *p1 is garbage
+      // (clang-analyzer UndefinedBinaryOperatorResult). Not fixed because all m_rowsAB * m_colsArowsX elements
+      // are copied from A above, and p1 stays in the pivot row of the columns below m_colsArowsX.
       for (size_t col = i + 1; col < m_colsArowsX; ++col) {
         p1 += m_rowsAB;
         p2 += m_rowsAB;
@@ -143,6 +148,9 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
   // tbuffer += m_colsArowsX * m_colsBX;
   T* pYCol = yData;
   const T* pBCol = B;
+  // REVIEW-NOTE (2026-10): a physRow >= m_rowsAB -> pBCol[physRow] reads past the end of B (clang-analyzer
+  // ArrayBound, both loops below). Not fixed because perm starts as 0..m_rowsAB-1 and is only permuted by swaps,
+  // and B holds m_rowsAB rows per column (the rows of A and B, see the constructor).
   for (size_t yCol = 0; yCol < m_colsBX; ++yCol) {
     size_t virtRow = 0;
     for (; virtRow < m_colsArowsX; ++virtRow) {

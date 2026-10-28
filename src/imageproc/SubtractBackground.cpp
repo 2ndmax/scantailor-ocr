@@ -42,6 +42,8 @@ GrayImage reduce(const GrayImage& src, const int factor) {
           sum += line[x];
         }
       }
+      // REVIEW-NOTE (2026-10): an empty block would make count 0 -> division by zero. Not fixed because dst has
+      // ceil(w / factor) x ceil(h / factor) pixels, so x0 < w and y0 < h, and every block holds at least one pixel.
       const unsigned count = (y1 - y0) * (x1 - x0);
       dstLine[dx] = static_cast<uint8_t>((sum + count / 2) / count);
     }
@@ -91,6 +93,9 @@ GrayImage median(const GrayImage& src, const int radius) {
         below += hist[med];
         ++med;
       }
+      // REVIEW-NOTE (2026-10): med leaving 0..255 -> hist read out of bounds (MSVC C28020). Not fixed because
+      // below is 0 at med 0 and rank >= 1, and at med 255 below + hist[255] is the whole window, which is >= rank,
+      // so neither loop moves med out of range.
       while (below >= rank) {
         --med;
         below -= hist[med];
