@@ -13,14 +13,20 @@
 //     Also writes <name>_<level>_spots.png with enlarged crops around the changes and prints counts.
 //   despeckle_compare bench <output folder> [--images]
 //     Measures the despeckling on generated pages with known text and noise (see Bench.h).
+//   despeckle_compare content <input folder> [--dpi=200]
+//     Prints the content box that the content detection (which despeckles too) finds on each scan.
 
 #include <BinaryImage.h>
 #include <BinaryThreshold.h>
 #include <Despeckle.h>
 #include <Dpi.h>
+#include <FilterData.h>
 #include <Grayscale.h>
 #include <ImageLoader.h>
+#include <ImageTransformation.h>
 #include <NullTaskStatus.h>
+#include <filters/select_content/ContentBoxFinder.h>
+#include <filters/select_content/DetectionOptions.h>
 
 #include <QDir>
 #include <QGuiApplication>
@@ -107,6 +113,35 @@ int diff(const QString& beforeDir, const QString& afterDir, const QString& outDi
   }
   return 0;
 }
+
+// The content box detection uses the despeckling too: prints the box it finds on each scan.
+int content(const QString& inDir, const int dpi) {
+  const QStringList files = QDir(inDir).entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
+  for (const QString& file : files) {
+    const QImage image = ImageLoader::load(QDir(inDir).filePath(file));
+    if (image.isNull()) {
+      std::cerr << "cannot read " << file.toStdString() << "\n";
+      continue;
+    }
+    const ImageTransformation xform(QRectF(image.rect()), Dpi(dpi, dpi));
+    const FilterData data(FilterData(image), xform);
+    const QRect box = select_content::ContentBoxFinder::findContentBox(NullTaskStatus(), data, xform.resultingRect(),
+                                                                       select_content::DetectionOptions())
+                          .toRect();
+    std::cout << file.toStdString() << ": " << box.left() << "," << box.top() << " " << box.width() << "x"
+              << box.height() << std::endl;
+  }
+  return 0;
+}
+
+int dpiArgument(const QStringList& args) {
+  for (const QString& arg : args) {
+    if (arg.startsWith("--dpi=")) {
+      return arg.mid(6).toInt();
+    }
+  }
+  return 200;
+}
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -120,13 +155,10 @@ int main(int argc, char** argv) {
   QGuiApplication app(argc, argv);
   const QStringList args = app.arguments();
   if ((args.size() >= 4) && (args[1] == "run")) {
-    int dpi = 200;
-    for (const QString& arg : args.mid(4)) {
-      if (arg.startsWith("--dpi=")) {
-        dpi = arg.mid(6).toInt();
-      }
-    }
-    return run(args[2], args[3], dpi);
+    return run(args[2], args[3], dpiArgument(args.mid(4)));
+  }
+  if ((args.size() >= 3) && (args[1] == "content")) {
+    return content(args[2], dpiArgument(args.mid(3)));
   }
   if ((args.size() >= 3) && (args[1] == "bench")) {
     return bench(args[2], args.mid(3).contains("--images"));
@@ -136,6 +168,7 @@ int main(int argc, char** argv) {
   }
   std::cerr << "usage: despeckle_compare run <input folder> <output folder> [--dpi=200]\n"
                "       despeckle_compare diff <before folder> <after folder> <output folder>\n"
-               "       despeckle_compare bench <output folder> [--images]\n";
+               "       despeckle_compare bench <output folder> [--images]\n"
+               "       despeckle_compare content <input folder> [--dpi=200]\n";
   return 1;
 }

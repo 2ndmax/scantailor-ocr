@@ -17,7 +17,8 @@
 //
 // Writes bench.csv (one row per page and level) to 'outDir' and prints a summary. With 'images',
 // also writes, per page, the result at NORMAL in colour (black = text kept, blue = text lost,
-// red = noise kept, light gray = noise removed) and per level a sheet of crops around lost text.
+// red = noise kept, light gray = noise removed), per level a sheet of crops around lost text, and
+// the generated pages themselves to pages/.
 int bench(const QString& outDir, bool images);
 
 #endif  // SCANTAILOR_TOOLS_BENCH_H_

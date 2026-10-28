@@ -811,6 +811,10 @@ int bench(const QString& outDir, const bool images) {
         const Page page = makePage(font, pointSize, dpi, seed);
         const BinaryImage input = toBinary(page);
         const QString pageName = QStringLiteral("%1_%2pt_%3dpi").arg(choice.name).arg(pointSize).arg(dpi);
+        if (images) {
+          QDir(outDir).mkpath("pages");
+          input.toQImage().save(QDir(outDir).filePath("pages/" + pageName + ".png"));
+        }
         for (int level = 0; level < 3; ++level) {
           QElapsedTimer timer;
           timer.start();
