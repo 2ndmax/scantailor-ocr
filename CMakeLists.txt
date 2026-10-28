@@ -70,6 +70,10 @@ if (ENABLE_CODE_ANALYSIS)
     # Headers of the dependencies (Qt, Boost, libtiff, ...) are included as
     # external headers, whose warnings and analysis results are suppressed.
     add_compile_options(/W4 /analyze /analyze:external- /external:W0 /external:anglebrackets)
+    # Not reported, both are intended: C4324 (structure padded because of an alignment
+    # specifier: the aligned jmp_buf in the JPEG error managers) and C4250 (inheriting
+    # via dominance, as the output::OutputImage* classes do on purpose).
+    add_compile_options(/wd4324 /wd4250)
   elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion)
   endif()

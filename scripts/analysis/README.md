@@ -109,8 +109,8 @@ only some files, `-Suppress <numbers>` hides diagnostics, `-Remarks` adds EDG's 
 What to expect in the output:
 
 - **#161 "unrecognized #pragma"** at every `Q_OBJECT`: Qt's macro contains
-  `__pragma(warning(...))`, and EDG doesn't know MSVC's `warning` pragma.  Harmless; 09 counts
-  it as a bulk check, `-Suppress 161` hides it.
+  `__pragma(warning(...))`, and EDG doesn't know MSVC's `warning` pragma.  Harmless and hidden
+  by default (`-Suppress` defaults to 161; `-Suppress @()` shows it).
 - **#2422 in `QtCore\qrunnable.h`** (`constexpr QRunnable() noexcept = default` in a class with
   virtual functions): EDG rejects this in C++17, MSVC accepts it.  It is a finding in Qt; it makes
   the files that include the header fail (ninja exit code 2), but EDG checks them to the end.
@@ -185,7 +185,7 @@ Reads the output of the runs (all that exist) and writes the distinct findings t
 `findings.csv` (all of them) and `findings.md` (a summary per tool and check, then the findings
 by file and line).  A finding is one combination of tool, check, file and line; repeats are
 merged and the runs that reported them are listed.  Frequent, mostly harmless checks
-(unreferenced parameters, `size_t` conversions, hidden names, EDG's #161; see `-BulkChecks`) are
+(unreferenced parameters, `size_t` conversions, hidden names; see `-BulkChecks`) are
 only counted in `findings.md`.  Needs neither Visual Studio nor any of the tools.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-merge-findings.ps1

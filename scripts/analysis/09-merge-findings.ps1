@@ -31,8 +31,7 @@ param(
   [string[]] $BulkChecks = @(
     'C4100', '-Wunused-parameter',                  # unreferenced parameter
     'C4267',                                        # size_t to a smaller type
-    'C4456', 'C4457', 'C4458', 'C4459', 'C6246',    # a name hides another one
-    '#161-D'                                        # EDG: MSVC's "#pragma warning" (Q_OBJECT)
+    'C4456', 'C4457', 'C4458', 'C4459', 'C6246'     # a name hides another one
   ),
   [switch] $Yes
 )

@@ -33,7 +33,9 @@
   e.g. 'src\\core\\'. Default: all.
 
 .PARAMETER Suppress
-  Diagnostic numbers not to report, e.g. -Suppress 161 (passed as --diag_suppress).
+  Diagnostic numbers not to report (passed as --diag_suppress). Default: 161, "unrecognized
+  #pragma", which EDG reports for MSVC's "#pragma warning" in the Qt and Boost headers (Q_OBJECT)
+  hundreds of times. Passing -Suppress replaces the default; -Suppress @() reports everything.
 
 .PARAMETER Remarks
   Also report EDG's remarks (hints below warning level; many).
@@ -50,7 +52,7 @@
 param(
     [string]$EdgDir = '',
     [string]$Files = '',
-    [string[]]$Suppress = @(),
+    [string[]]$Suppress = @('161'),
     [switch]$Remarks,
     [string]$OutDir = '',
     [string]$BuildDir = '',
