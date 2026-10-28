@@ -297,6 +297,9 @@ bool readRasterRows(TIFF* tif,
           }
         }
       }
+      // REVIEW-NOTE (2026-10): p >= numPlanes -> planes[p] and planeRows[p] are out of bounds
+      // (cppcheck objectIndex, here and in the strip loop below). Not fixed because both vectors
+      // are created with numPlanes entries and the loop stops at numPlanes.
       for (uint32_t r = 0; r < rows; ++r) {
         for (int p = 0; p < numPlanes; ++p) {
           planeRows[p] = planes[p].data() + r * rowBytes;
