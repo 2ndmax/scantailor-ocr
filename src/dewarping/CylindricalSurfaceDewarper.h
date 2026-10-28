@@ -91,8 +91,8 @@ class CylindricalSurfaceDewarper {
 
   static double calcPlnStraightLineY(const std::vector<QPointF>& imgDirectrix1,
                                      const std::vector<QPointF>& imgDirectrix2,
-                                     HomographicTransform<2, double> pln2img,
-                                     HomographicTransform<2, double> img2pln);
+                                     const HomographicTransform<2, double>& pln2img,
+                                     const HomographicTransform<2, double>& img2pln);
 
   static HomographicTransform<2, double> fourPoint2DHomography(const std::array<std::pair<QPointF, QPointF>, 4>& pairs);
 

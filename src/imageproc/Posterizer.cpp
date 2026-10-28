@@ -152,8 +152,10 @@ void remapColorsInIndexedImage(QImage& image, const std::unordered_map<uint32_t,
   std::unordered_map<uint32_t, uint8_t> colorToIndexMap;
   uint8_t index = 0;
   for (const auto& srcAndDstColors : colorMap) {
-    if (colorToIndexMap.find(srcAndDstColors.second) == colorToIndexMap.end()) {
-      colorToIndexMap[srcAndDstColors.second] = index++;
+    // Each target color not seen before gets the next index.
+    const bool isNewColor = colorToIndexMap.try_emplace(srcAndDstColors.second, index).second;
+    if (isNewColor) {
+      ++index;
     }
   }
 

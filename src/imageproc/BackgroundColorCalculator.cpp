@@ -103,7 +103,7 @@ void RgbHistogram::fromRgbImage(const QImage& img, const BinaryImage& mask) {
   }
 }
 
-void grayHistToArray(int* rawHist, GrayscaleHistogram hist) {
+void grayHistToArray(int* rawHist, const GrayscaleHistogram& hist) {
   for (int i = 0; i < 256; ++i) {
     rawHist[i] = hist[i];
   }
