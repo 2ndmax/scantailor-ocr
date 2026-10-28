@@ -496,9 +496,7 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
 
   int const w = src.width();
   int const h = src.height();
-  unsigned char const* src_line = src.data();
   int const src_stride = src.stride();
-  unsigned char* gray_line = gray.data();
   int const gray_stride = gray.stride();
 
   unsigned int whcp, l, i, j, blsz, rsz;
@@ -520,7 +518,7 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
     rsz <<= 1;
   }
 
-  gray_line = gray.data();
+  unsigned char* gray_line = gray.data();
   immin = gray_line[0];
   immax = immin;
   for (int y = 0; y < h; y++) {
@@ -564,7 +562,7 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
     sensinv = sensitivity / sensdiv;
   }
 
-  src_line = src.data();
+  unsigned char const* src_line = src.data();
   gray_line = gray.data();
   for (l = 0; l < level; l++) {
     cnth = (h + blsz - 1) / blsz;
@@ -704,7 +702,6 @@ void grayRobustInPlace(GrayImage& src, int const radius, float const coef) {
       for (int x = 0; x < w; x++) {
         float const origin = src_line[x];
         float const mean = gmean_line[x];
-        float retval = origin;
         float const sc = mean - origin;
         if (mean + sc <= 0.0f) {
           // At twice the mean the formula below has a pole, beyond it it turns light pixels black,
@@ -714,7 +711,7 @@ void grayRobustInPlace(GrayImage& src, int const radius, float const coef) {
           continue;
         }
         float const robust = 255.0f - (mean + 255.0f) * sc / (mean + sc);
-        retval = coef * robust + (1.0f - coef) * origin + 0.5f;
+        float retval = coef * robust + (1.0f - coef) * origin + 0.5f;
         retval = (retval < 0.0f) ? 0.0f : (retval < 255.0f) ? retval : 255.0f;
         src_line[x] = (unsigned char) retval;
       }

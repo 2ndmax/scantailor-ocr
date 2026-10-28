@@ -36,13 +36,12 @@ void hShearFromTo(const BinaryImage& src,
     return;
   }
 
-  int shift2 = shift1;
   int y1 = 0;
   int y2 = 0;
   while (true) {
     ++y2;
     shift += shear;
-    shift2 = (int) std::floor(shift);
+    const auto shift2 = (int) std::floor(shift);
     if ((shift1 != shift2) || (y2 == height)) {
       const int blockHeight = y2 - y1;
       if (std::abs(shift1) >= width) {
@@ -106,13 +105,12 @@ void vShearFromTo(const BinaryImage& src,
     return;
   }
 
-  int shift2 = shift1;
   int x1 = 0;
   int x2 = 0;
   while (true) {
     ++x2;
     shift += shear;
-    shift2 = (int) std::floor(shift);
+    const auto shift2 = (int) std::floor(shift);
     if ((shift1 != shift2) || (x2 == width)) {
       const int blockWidth = x2 - x1;
       if (std::abs(shift1) >= height) {
