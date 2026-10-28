@@ -22,7 +22,9 @@ PropertySet::PropertySet(const QDomElement& el, const PropertyFactory& factory) 
     QDomElement propEl(node.toElement());
     std::shared_ptr<Property> prop = factory.construct(propEl);
     if (prop) {
-      m_props[typeid(*prop)] = prop;
+      // typeid of a named reference, so the dereference is not evaluated inside typeid.
+      const Property& propRef = *prop;
+      m_props[typeid(propRef)] = prop;
     }
   }
 }

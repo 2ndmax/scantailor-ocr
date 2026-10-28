@@ -410,7 +410,9 @@ BinaryImage binarizeWindow(const QImage& src,
   const int windowRightHalf = windowSize.width() - windowLeftHalf;
 
   const int areaFull = w * h;
-  assert(areaFull > 0);
+  if (areaFull <= 0) {
+    return BinaryImage();  // no pixels to average, same result as for a null image
+  }
   const uint64_t meanFull = sumFull / areaFull;
   double deviationMax = 0.0;
   double deviationMin = 256.0;

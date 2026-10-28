@@ -40,12 +40,13 @@ class FastQueue {
 
    public:
     explicit Chunk(size_t capacity) {
-      const uintptr_t p = (uintptr_t) (this + 1);
+      const uintptr_t p = reinterpret_cast<uintptr_t>(this + 1);
       const size_t alignment = alignof(T);
-      pBegin = (T*) (((p + alignment - 1) / alignment) * alignment);
+      pBegin = reinterpret_cast<T*>(((p + alignment - 1) / alignment) * alignment);
       pEnd = pBegin;
       pBufferEnd = pBegin + capacity;
-      assert(size_t((char*) pBufferEnd - (char*) this) <= storageRequirement(capacity));
+      assert(size_t(reinterpret_cast<char*>(pBufferEnd) - reinterpret_cast<char*>(this))
+             <= storageRequirement(capacity));
     }
 
     ~Chunk() {
@@ -65,7 +66,7 @@ class FastQueue {
   struct ChunkDisposer {
     void operator()(Chunk* chunk) {
       chunk->~Chunk();
-      delete[] (char*) chunk;
+      delete[] reinterpret_cast<char*>(chunk);
     }
   };
 

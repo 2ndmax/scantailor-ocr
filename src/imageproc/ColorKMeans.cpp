@@ -61,10 +61,10 @@ struct Palette {
 
 Palette findPalette(const QHash<QRgb, int>& counts, const int colors, const bool fixBlack) {
   struct Entry {
-    QRgb rgb;
-    int count;
-    Lab lab;
-    int group;
+    QRgb rgb = 0;
+    int count = 0;
+    Lab lab{};
+    int group = 0;
   };
   std::vector<Entry> entries;
   entries.reserve(counts.size());
