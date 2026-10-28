@@ -136,8 +136,6 @@ struct Component {
 
   void setAnchoredToBig() { numPixels |= ANCHORED_TO_BIG; }
 
-  uint32_t anchoredToSmall() const { return numPixels & ANCHORED_TO_SMALL; }
-
   void setAnchoredToSmall() { numPixels |= ANCHORED_TO_SMALL; }
 
   bool anchoredToSmallButNotBig() const { return (numPixels & TAG_MASK) == ANCHORED_TO_SMALL; }
@@ -227,16 +225,6 @@ struct Connection {
     } else {
       lesserLabel = lbl2;
       greaterLabel = lbl1;
-    }
-  }
-
-  bool operator<(const Connection& rhs) const {
-    if (lesserLabel < rhs.lesserLabel) {
-      return true;
-    } else if (lesserLabel > rhs.lesserLabel) {
-      return false;
-    } else {
-      return greaterLabel < rhs.greaterLabel;
     }
   }
 
