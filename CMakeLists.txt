@@ -97,7 +97,7 @@ st_set_default_build_type(Release)
 
 # Must be set before Boost (distribution packages and other chroot builds use -DBUILD_TESTS=OFF; issue #61).
 option(BUILD_TESTS "Build unit tests (math_tests, imageproc_tests, core_tests, foundation_tests, qt_tests)" ON)
-option(BUILD_DEV_TOOLS "Build developer tools (binarization_compare: binarization methods; color_detect: color mode detection on sample pages; split_compare: split line detection methods; oblique_compare: oblique detection on synthetic pages or real scans)" OFF)
+option(BUILD_DEV_TOOLS "Build developer tools (binarization_compare: binarization methods; color_detect: color mode detection on sample pages; despeckle_compare: despeckling before and after a change; split_compare: split line detection methods; oblique_compare: oblique detection on synthetic pages or real scans)" OFF)
 
 if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")

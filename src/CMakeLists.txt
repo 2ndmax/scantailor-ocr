@@ -23,6 +23,7 @@ endif()
 
 if (BUILD_DEV_TOOLS)
   add_subdirectory(tools/binarization_compare)
+  add_subdirectory(tools/despeckle_compare)
   add_subdirectory(tools/oblique_compare)
   add_subdirectory(tools/split_compare)
   # Needs the color mode detection, which comes with OCR (Leptonica).
