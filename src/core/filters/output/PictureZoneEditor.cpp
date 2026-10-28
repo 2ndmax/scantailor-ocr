@@ -122,7 +122,7 @@ PictureZoneEditor::~PictureZoneEditor() {
   m_settings->setDefaultPictureZoneProperties(zones().defaultProperties());
 }
 
-void PictureZoneEditor::onPaint(QPainter& painter, const InteractionState& interaction) {
+void PictureZoneEditor::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   painter.setWorldTransform(QTransform());
   painter.setRenderHint(QPainter::Antialiasing);
 

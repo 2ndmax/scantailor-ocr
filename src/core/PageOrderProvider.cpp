@@ -3,7 +3,7 @@
 
 #include "PageOrderProvider.h"
 
-PageOrderProvider::Comparator PageOrderProvider::snapshot(const std::vector<PageId>&) const {
+PageOrderProvider::Comparator PageOrderProvider::snapshot(const std::vector<PageId>& /*pages*/) const {
   return [this](const PageId& lhsPage, const bool lhsIncomplete, const PageId& rhsPage, const bool rhsIncomplete) {
     return precedes(lhsPage, lhsIncomplete, rhsPage, rhsIncomplete);
   };

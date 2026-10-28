@@ -18,7 +18,7 @@ tsize_t deviceWrite(thandle_t context, tdata_t data, tsize_t size) {
   return (tsize_t) dev->write(static_cast<char*>(data), size);
 }
 
-tsize_t noTransfer(thandle_t, tdata_t, tsize_t) {
+tsize_t noTransfer(thandle_t /*context*/, tdata_t /*data*/, tsize_t /*size*/) {
   // Not implemented for this access.
   return 0;
 }
@@ -42,7 +42,7 @@ toff_t deviceSeek(thandle_t context, toff_t offset, int whence) {
   return dev->pos();
 }
 
-int deviceClose(thandle_t) {
+int deviceClose(thandle_t /*context*/) {
   // Deliberately a no-op. libtiff calls this from TIFFClose(), but the device belongs to the
   // caller, who merely lends it to us and closes it; a QSaveFile must not be closed at all,
   // but committed.
@@ -54,12 +54,12 @@ toff_t deviceSize(thandle_t context) {
   return dev->size();
 }
 
-int deviceMap(thandle_t, tdata_t*, toff_t*) {
+int deviceMap(thandle_t /*context*/, tdata_t* /*base*/, toff_t* /*size*/) {
   // Not implemented.
   return 0;
 }
 
-void deviceUnmap(thandle_t, tdata_t, toff_t) {
+void deviceUnmap(thandle_t /*context*/, tdata_t /*base*/, toff_t /*size*/) {
   // Not implemented.
 }
 }  // namespace

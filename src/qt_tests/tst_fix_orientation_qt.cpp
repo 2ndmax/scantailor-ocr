@@ -51,15 +51,18 @@ QSpinBox* spinBox(const QWidget& widget, const char* name) {
 // Keeps the image widget that a filter result shows.
 class RecordingUi : public FilterUiInterface {
  public:
-  void setOptionsWidget(FilterOptionsWidget*, Ownership) override {}
+  void setOptionsWidget(FilterOptionsWidget* /*widget*/, Ownership /*ownership*/) override {}
 
-  void setImageWidget(QWidget* widget, const Ownership ownership, DebugImages*, bool) override {
+  void setImageWidget(QWidget* widget,
+                      const Ownership ownership,
+                      DebugImages* /*debugImages*/,
+                      bool /*overlay*/) override {
     if (ownership == TRANSFER_OWNERSHIP) {
       imageWidget.reset(widget);
     }
   }
 
-  void invalidateThumbnail(const PageId&) override {}
+  void invalidateThumbnail(const PageId& /*pageId*/) override {}
 
   void invalidateAllThumbnails() override {}
 

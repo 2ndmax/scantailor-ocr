@@ -107,7 +107,7 @@ void InteractiveXSpline::onProximityUpdate(const QPointF& screenMousePos, Intera
   interaction.updateProximity(m_curveProximity, proximity, -1);
 }
 
-void InteractiveXSpline::onMouseMoveEvent(QMouseEvent*, InteractionState& interaction) {
+void InteractiveXSpline::onMouseMoveEvent(QMouseEvent* /*event*/, InteractionState& interaction) {
   if (interaction.proximityLeader(m_curveProximity)) {
     // We need to redraw the highlighted point.
     interaction.setRedrawRequested(true);

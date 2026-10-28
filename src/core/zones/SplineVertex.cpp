@@ -102,7 +102,7 @@ const QPointF& SentinelSplineVertex::point() const {
   throw std::logic_error("Illegal call to SentinelSplineVertex::point()");
 }
 
-void SentinelSplineVertex::setPoint(const QPointF&) {
+void SentinelSplineVertex::setPoint(const QPointF& /*pt*/) {
   throw std::logic_error("Illegal call to SentinelSplineVertex::setPoint()");
 }
 
@@ -142,11 +142,11 @@ void SentinelSplineVertex::init() {
 RealSplineVertex::RealSplineVertex(const QPointF& pt, SplineVertex* prev, SplineVertex* next)
     : SplineVertex(prev, next), m_point(pt) {}
 
-SplineVertex::Ptr RealSplineVertex::thisOrPrevReal(Loop) {
+SplineVertex::Ptr RealSplineVertex::thisOrPrevReal(Loop /*loop*/) {
   return shared_from_this();
 }
 
-SplineVertex::Ptr RealSplineVertex::thisOrNextReal(Loop) {
+SplineVertex::Ptr RealSplineVertex::thisOrNextReal(Loop /*loop*/) {
   return shared_from_this();
 }
 

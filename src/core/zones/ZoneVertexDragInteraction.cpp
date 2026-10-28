@@ -22,7 +22,7 @@ ZoneVertexDragInteraction::ZoneVertexDragInteraction(ZoneInteractionContext& con
   checkProximity(interaction);
 }
 
-void ZoneVertexDragInteraction::onPaint(QPainter& painter, const InteractionState& interaction) {
+void ZoneVertexDragInteraction::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   painter.setWorldMatrixEnabled(false);
   painter.setRenderHint(QPainter::Antialiasing);
 
@@ -47,7 +47,7 @@ void ZoneVertexDragInteraction::onPaint(QPainter& painter, const InteractionStat
   m_visualizer.drawHighlightedVertex(painter, toScreen, m_vertex, m_visualizer.activePen());
 }  // ZoneVertexDragInteraction::onPaint
 
-void ZoneVertexDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) {
+void ZoneVertexDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   if (event->button() == Qt::LeftButton) {
     if ((m_vertex->point() == m_vertex->next(SplineVertex::LOOP)->point())
         || (m_vertex->point() == m_vertex->prev(SplineVertex::LOOP)->point())) {

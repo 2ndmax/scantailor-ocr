@@ -402,7 +402,7 @@ void ImageViewBase::ensureStatusTip(const QString& statusTip) {
   }
 }
 
-void ImageViewBase::paintEvent(QPaintEvent* event) {
+void ImageViewBase::paintEvent(QPaintEvent* /*event*/) {
   QPainter painter(viewport());
 
   // Fill the background as Qt::WA_OpaquePaintEvent attribute is enabled.

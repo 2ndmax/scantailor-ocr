@@ -680,7 +680,7 @@ void ProjectFilesDialog::FileList::remove(const QItemSelection& selection) {
   }
 }  // ProjectFilesDialog::FileList::remove
 
-int ProjectFilesDialog::FileList::rowCount(const QModelIndex&) const {
+int ProjectFilesDialog::FileList::rowCount(const QModelIndex& /*parent*/) const {
   return static_cast<int>(m_items.size());
 }
 

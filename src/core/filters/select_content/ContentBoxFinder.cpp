@@ -492,7 +492,7 @@ void ContentBoxFinder::trimContentBlocksInPlace(const imageproc::BinaryImage& co
 
 void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage& contentBlocks,
                                                          const int borderTolerance,
-                                                         DebugImages* dbg) {
+                                                         DebugImages* /*dbg*/) {
   // We could just do a seed fill from borders, but that
   // has the potential to remove too much. Instead, we
   // do something similar to a seed fill, but with a limited
@@ -613,7 +613,7 @@ void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage&
 void ContentBoxFinder::segmentGarbage(const imageproc::BinaryImage& garbage,
                                       imageproc::BinaryImage& horGarbage,
                                       imageproc::BinaryImage& vertGarbage,
-                                      DebugImages* dbg) {
+                                      DebugImages* /*dbg*/) {
   horGarbage = openBrick(garbage, QSize(200, 1), WHITE);
 
   QRect rect(garbage.rect());
@@ -1127,7 +1127,7 @@ QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
   }
 }  // ContentBoxFinder::trim
 
-void ContentBoxFinder::filterShadows(const TaskStatus& status,
+void ContentBoxFinder::filterShadows([[maybe_unused]] const TaskStatus& status,
                                      imageproc::BinaryImage& shadows,
                                      DebugImages* const dbg) {
   // The input image should only contain shadows from the edges

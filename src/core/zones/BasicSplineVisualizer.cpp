@@ -62,7 +62,7 @@ void BasicSplineVisualizer::drawHighlightedVertex(QPainter& painter,
   drawVertex(painter, pt, m_highlightBrightColor);
 }
 
-void BasicSplineVisualizer::prepareForSpline(QPainter& painter, const EditableSpline::Ptr&) {
+void BasicSplineVisualizer::prepareForSpline(QPainter& painter, const EditableSpline::Ptr& /*spline*/) {
   painter.setPen(m_pen);
   painter.setBrush(Qt::NoBrush);
 }

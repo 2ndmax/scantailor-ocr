@@ -115,7 +115,10 @@ SvgStyledIconEngine* SvgStyledIconEngine::clone() const {
   return new SvgStyledIconEngine(*this);
 }
 
-void SvgStyledIconEngine::addFile(const QString& fileName, const QSize&, QIcon::Mode, QIcon::State state) {
+void SvgStyledIconEngine::addFile(const QString& fileName,
+                                  const QSize& /*size*/,
+                                  QIcon::Mode /*mode*/,
+                                  QIcon::State state) {
   m_iconFilePathMap.insert(std::make_pair(state, fileName));
   // A new file can change what getIconFilePath() gives for any state.
   m_renderers.clear();

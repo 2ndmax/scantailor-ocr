@@ -198,7 +198,7 @@ void ImageView::removeContentBox() {
   emit manualContentRectSet(m_contentRect);
 }
 
-void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) {
+void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   if (m_contentRect.isNull() && !m_pageRectEnabled) {
     return;
   }
@@ -480,7 +480,7 @@ void ImageView::pageRectSetExternally(const QRectF& pageRect) {
   update();
 }
 
-void ImageView::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) {
+void ImageView::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   if (event->button() == Qt::LeftButton) {
     if (!m_contentRect.isEmpty() && !m_contentMask.isNull()) {
       correctContentBox(QPointF(0.5, 0.5) + event->pos(), event->modifiers());

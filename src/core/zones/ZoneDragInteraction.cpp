@@ -27,7 +27,7 @@ ZoneDragInteraction::ZoneDragInteraction(ZoneInteractionContext& context,
   interaction.capture(m_interaction);
 }
 
-void ZoneDragInteraction::onPaint(QPainter& painter, const InteractionState& interaction) {
+void ZoneDragInteraction::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   painter.setWorldMatrixEnabled(false);
   painter.setRenderHint(QPainter::Antialiasing);
 
@@ -45,7 +45,7 @@ void ZoneDragInteraction::onPaint(QPainter& painter, const InteractionState& int
   }
 }
 
-void ZoneDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) {
+void ZoneDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   if (event->button() == Qt::LeftButton) {
     if (m_isNewCopy && (m_largestShift < QApplication::startDragDistance())) {
       // A click on the zone with the copy keys only: the copy would lie exactly on the original, unseen.
@@ -58,7 +58,7 @@ void ZoneDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionSta
   }
 }
 
-void ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) {
+void ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   const QTransform toScreen(m_context.imageView().imageToWidget());
   const QTransform fromScreen(m_context.imageView().widgetToImage());
   const QPointF shift = (event->pos() + QPointF(0.5, 0.5)) - m_initialMousePos;

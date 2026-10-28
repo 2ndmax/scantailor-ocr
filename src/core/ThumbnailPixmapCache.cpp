@@ -896,6 +896,6 @@ ThumbnailPixmapCache::Impl::LoadResultEvent::~LoadResultEvent() = default;
 
 ThumbnailPixmapCache::Impl::BackgroundLoader::BackgroundLoader(Impl& owner) : m_owner(owner) {}
 
-void ThumbnailPixmapCache::Impl::BackgroundLoader::customEvent(QEvent*) {
+void ThumbnailPixmapCache::Impl::BackgroundLoader::customEvent(QEvent* /*event*/) {
   m_owner.backgroundProcessing();
 }

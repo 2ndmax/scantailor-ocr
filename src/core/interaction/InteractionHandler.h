@@ -59,25 +59,25 @@ class InteractionHandler
   void makeLastFollower(InteractionHandler& handler);
 
  protected:
-  virtual void onPaint(QPainter& painter, const InteractionState& interaction) {}
+  virtual void onPaint(QPainter& /*painter*/, const InteractionState& /*interaction*/) {}
 
-  virtual void onProximityUpdate(const QPointF& screenMousePos, InteractionState& interaction) {}
+  virtual void onProximityUpdate(const QPointF& /*screenMousePos*/, InteractionState& /*interaction*/) {}
 
-  virtual void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) {}
+  virtual void onKeyPressEvent(QKeyEvent* /*event*/, InteractionState& /*interaction*/) {}
 
-  virtual void onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) {}
+  virtual void onKeyReleaseEvent(QKeyEvent* /*event*/, InteractionState& /*interaction*/) {}
 
-  virtual void onMousePressEvent(QMouseEvent* event, InteractionState& interaction) {}
+  virtual void onMousePressEvent(QMouseEvent* /*event*/, InteractionState& /*interaction*/) {}
 
-  virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) {}
+  virtual void onMouseReleaseEvent(QMouseEvent* /*event*/, InteractionState& /*interaction*/) {}
 
-  virtual void onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) {}
+  virtual void onMouseDoubleClickEvent(QMouseEvent* /*event*/, InteractionState& /*interaction*/) {}
 
-  virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) {}
+  virtual void onMouseMoveEvent(QMouseEvent* /*event*/, InteractionState& /*interaction*/) {}
 
-  virtual void onWheelEvent(QWheelEvent* event, InteractionState& interaction) {}
+  virtual void onWheelEvent(QWheelEvent* /*event*/, InteractionState& /*interaction*/) {}
 
-  virtual void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction) {}
+  virtual void onContextMenuEvent(QContextMenuEvent* /*event*/, InteractionState& /*interaction*/) {}
 
   static bool defaultInteractionPermitter(const InteractionState& interaction);
 

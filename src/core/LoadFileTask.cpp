@@ -167,7 +167,7 @@ void LoadFileTask::ErrorResult::updateUI(FilterUiInterface* ui) {
         : ErrorWidget(text, fmt), m_relinkingDialogRequester(std::move(relinkingDialogRequester)) {}
 
    private:
-    void linkActivated(const QString&) override { (*m_relinkingDialogRequester)(); }
+    void linkActivated(const QString& /*link*/) override { (*m_relinkingDialogRequester)(); }
 
     std::shared_ptr<AbstractCommand<void>> m_relinkingDialogRequester;
   };

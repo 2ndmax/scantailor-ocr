@@ -108,7 +108,7 @@ SqDistApproximant PolylineModelShape::localSqDistApproximant(const QPointF& pt,
 
 SqDistApproximant PolylineModelShape::calcApproximant(const QPointF& pt,
                                                       const FittableSpline::SampleFlags sampleFlags,
-                                                      const Flags polylineFlags,
+                                                      const Flags /*polylineFlags*/,
                                                       const FrenetFrame& frenetFrame,
                                                       const double signedCurvature) const {
   // Without a tangent (a segment shorter than the minimum FrenetFrame accepts) the curve distance

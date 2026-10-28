@@ -25,7 +25,7 @@ class ErrorWidget : public QWidget {
   /**
    * \see QLabel::linkActivated()
    */
-  virtual void linkActivated(const QString& link) {}
+  virtual void linkActivated(const QString& /*link*/) {}
 
  private:
   std::unique_ptr<Ui::ErrorWidget> ui;

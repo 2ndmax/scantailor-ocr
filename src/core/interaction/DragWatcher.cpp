@@ -22,15 +22,15 @@ bool DragWatcher::haveSignificantDrag() const {
   return distScore + timeScore >= 1.0;
 }
 
-void DragWatcher::onMousePressEvent(QMouseEvent* event, InteractionState&) {
+void DragWatcher::onMousePressEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   updateState(event->pos());
 }
 
-void DragWatcher::onMouseMoveEvent(QMouseEvent* event, InteractionState&) {
+void DragWatcher::onMouseMoveEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   updateState(event->pos());
 }
 
-void DragWatcher::onMouseReleaseEvent(QMouseEvent*, InteractionState&) {
+void DragWatcher::onMouseReleaseEvent(QMouseEvent* /*event*/, InteractionState& /*interaction*/) {
   // The drag is over. Without this, the next press at the same place (tapping on a trackpad) would still be
   // judged by the old drag.
   m_dragInProgress = false;

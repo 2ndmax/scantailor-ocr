@@ -212,7 +212,7 @@ class RastLineFinder {
     friend class PriorityQueue<SearchSpace, OrderedSearchSpaces>;
 
    private:
-    void setIndex(SearchSpace& obj, size_t heapIdx) {}
+    void setIndex(SearchSpace& /*obj*/, size_t /*heapIdx*/) {}
 
     bool higherThan(const SearchSpace& lhs, const SearchSpace& rhs) const {
       return lhs.pointIdxs().size() > rhs.pointIdxs().size();

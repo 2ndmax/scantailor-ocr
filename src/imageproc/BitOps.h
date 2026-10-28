@@ -44,7 +44,7 @@ struct ReverseBytes {
 
 template <typename T, int TotalBytes, int Offset>
 struct ReverseBytes<T, TotalBytes, Offset, true> {
-  static T result(T) { return T(); }
+  static T result(T /*val*/) { return T(); }
 };
 
 template <typename T>
@@ -95,7 +95,7 @@ struct MostSignificantZeroes {
 
 template <typename T>
 struct MostSignificantZeroes<T, 0> {
-  static int reduce(T val, int count) { return count - 1; }
+  static int reduce(T /*val*/, int count) { return count - 1; }
 };
 
 
@@ -112,7 +112,7 @@ struct LeastSignificantZeroes {
 
 template <typename T>
 struct LeastSignificantZeroes<T, 0> {
-  static int reduce(T val, int count) { return count - 1; }
+  static int reduce(T /*val*/, int count) { return count - 1; }
 };
 }  // namespace detail
 

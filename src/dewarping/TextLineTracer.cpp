@@ -40,7 +40,7 @@ void TextLineTracer::trace(const GrayImage& input,
                            const Dpi& dpi,
                            const QRect& contentRect,
                            DistortionModelBuilder& output,
-                           const TaskStatus& status,
+                           const TaskStatus& /*status*/,
                            DebugImages* dbg) {
   GrayImage downscaled(downscale(input, dpi));
   if (dbg) {

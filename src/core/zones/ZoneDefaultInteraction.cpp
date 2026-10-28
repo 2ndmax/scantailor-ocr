@@ -234,7 +234,7 @@ void ZoneDefaultInteraction::onMouseReleaseEvent(QMouseEvent* event, Interaction
   event->accept();
 }
 
-void ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) {
+void ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   m_screenMousePos = event->pos() + QPointF(0.5, 0.5);
   m_context.imageView().update();
 }

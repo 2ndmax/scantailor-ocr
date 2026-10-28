@@ -186,10 +186,10 @@ bool Filter::hasOutputParams(const PageId& pageId) const {
   return m_settings->getOutputParams(pageId) != nullptr;
 }
 
-bool Filter::detectColorMode(const PageInfo& pageInfo,
-                             const GeometryCollector& geometry,
-                             const TaskStatus& status,
-                             ColorMode* detectedMode) {
+bool Filter::detectColorMode([[maybe_unused]] const PageInfo& pageInfo,
+                             [[maybe_unused]] const GeometryCollector& geometry,
+                             [[maybe_unused]] const TaskStatus& status,
+                             [[maybe_unused]] ColorMode* detectedMode) {
 #ifdef ENABLE_OCR
   const QImage source = ImageLoader::load(pageInfo.id().imageId());
   if (source.isNull()) {
@@ -232,10 +232,6 @@ bool Filter::detectColorMode(const PageInfo& pageInfo,
   }
   return true;
 #else
-  Q_UNUSED(pageInfo);
-  Q_UNUSED(geometry);
-  Q_UNUSED(status);
-  Q_UNUSED(detectedMode);
   return false;
 #endif
 }

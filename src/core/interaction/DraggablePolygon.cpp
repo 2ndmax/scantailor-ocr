@@ -22,6 +22,6 @@ void DraggablePolygon::dragInitiated(const QPointF& mousePos) {
   m_initialPolygonPos = polygonPosition();
 }
 
-void DraggablePolygon::dragContinuation(const QPointF& mousePos, Qt::KeyboardModifiers mask) {
+void DraggablePolygon::dragContinuation(const QPointF& mousePos, Qt::KeyboardModifiers /*mask*/) {
   polygonMoveRequest(m_initialPolygonPos.translated(mousePos - m_initialMousePos));
 }

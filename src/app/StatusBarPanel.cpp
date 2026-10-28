@@ -117,7 +117,7 @@ void StatusBarPanel::clear() {
   ui.zoneModeLine->setVisible(false);
 }
 
-void StatusBarPanel::onUnitsChanged(Units) {
+void StatusBarPanel::onUnitsChanged(Units /*units*/) {
   mousePosChanged();
   physSizeChanged();
 }

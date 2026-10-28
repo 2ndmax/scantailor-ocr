@@ -26,7 +26,9 @@ Thumbnail::Thumbnail(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   }
 }
 
-void Thumbnail::paintOverImage(QPainter& painter, const QTransform& imageToDisplay, const QTransform& thumbToDisplay) {
+void Thumbnail::paintOverImage(QPainter& painter,
+                               const QTransform& /*imageToDisplay*/,
+                               const QTransform& /*thumbToDisplay*/) {
   const QRectF pageRect(virtToThumb().mapRect(m_pageRect));
   painter.setRenderHint(QPainter::Antialiasing, false);
 

@@ -188,13 +188,13 @@ QImage scalePaletteImage(const QImage& image, const int width, const int height)
 }
 
 /** Recognizes the text of \p image, if requested, and adds it to the page as invisible text. */
-bool addTextLayer(const QImage& image,
-                  const QString& filePath,
-                  const QSizeF& perPoint,
+bool addTextLayer([[maybe_unused]] const QImage& image,
+                  [[maybe_unused]] const QString& filePath,
+                  [[maybe_unused]] const QSizeF& perPoint,
                   const PdfExportOptions& options,
-                  OcrEngine* ocrEngine,
-                  const std::atomic<bool>* cancel,
-                  PdfWriter::Page* result,
+                  [[maybe_unused]] OcrEngine* ocrEngine,
+                  [[maybe_unused]] const std::atomic<bool>* cancel,
+                  [[maybe_unused]] PdfWriter::Page* result,
                   QStringList* errors) {
   if (!options.ocr) {
     return true;
@@ -225,12 +225,6 @@ bool addTextLayer(const QImage& image,
   }
   return true;
 #else
-  Q_UNUSED(image);
-  Q_UNUSED(filePath);
-  Q_UNUSED(perPoint);
-  Q_UNUSED(ocrEngine);
-  Q_UNUSED(cancel);
-  Q_UNUSED(result);
   errors->push_back(PdfExportJob::tr("This version of the program was built without text recognition."));
   return false;
 #endif

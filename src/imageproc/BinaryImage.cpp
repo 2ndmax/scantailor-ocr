@@ -1057,7 +1057,7 @@ void BinaryImage::SharedData::unref() const {
   }
 }
 
-void* BinaryImage::SharedData::operator new(size_t, const NumWords numWords) {
+void* BinaryImage::SharedData::operator new(size_t /*size*/, const NumWords numWords) {
   // Note: offsetof() rather than pointer arithmetic on a null SharedData*,
   // which would be undefined behaviour.
   void* addr = malloc(offsetof(SharedData, m_data) + numWords.numWords * sizeof(uint32_t));
@@ -1067,7 +1067,7 @@ void* BinaryImage::SharedData::operator new(size_t, const NumWords numWords) {
   return addr;
 }
 
-void BinaryImage::SharedData::operator delete(void* addr, NumWords) {
+void BinaryImage::SharedData::operator delete(void* addr, NumWords /*numWords*/) {
   free(addr);
 }
 }  // namespace imageproc

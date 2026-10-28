@@ -121,7 +121,7 @@ void OptionsWidget::trimEnableToggled(const bool checked) {
   pushTrimFromControls();
 }
 
-void OptionsWidget::trimMarginsChanged(const int) {
+void OptionsWidget::trimMarginsChanged(const int /*value*/) {
   if (!trimEnabledCheck->isChecked()) {
     return;
   }

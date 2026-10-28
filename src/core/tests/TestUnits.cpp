@@ -83,7 +83,7 @@ namespace {
 class SelfDeletingListener : public UnitsListener {
  public:
   explicit SelfDeletingListener(int& calls) : m_calls(calls) {}
-  void onUnitsChanged(Units) override {
+  void onUnitsChanged(Units /*units*/) override {
     ++m_calls;
     delete this;
   }
@@ -95,7 +95,7 @@ class SelfDeletingListener : public UnitsListener {
 class CountingListener : public UnitsListener {
  public:
   explicit CountingListener(int& calls) : m_calls(calls) {}
-  void onUnitsChanged(Units) override { ++m_calls; }
+  void onUnitsChanged(Units /*units*/) override { ++m_calls; }
 
  private:
   int& m_calls;

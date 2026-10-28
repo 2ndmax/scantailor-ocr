@@ -133,7 +133,7 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
   /** param view Builds the tooltips when they are shown. */
   PageTileDelegate(const PdfExportView* view, QObject* parent) : QStyledItemDelegate(parent), m_view(view) {}
 
-  QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex&) const override {
+  QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& /*index*/) const override {
     const int lineHeight = option.fontMetrics.height();
     return QSize(TILE_WIDTH, TILE_MARGIN + headerHeight(option) + TILE_MARGIN + THUMBNAIL_SIZE.height() + TILE_MARGIN
                                  + lineHeight + TILE_MARGIN);

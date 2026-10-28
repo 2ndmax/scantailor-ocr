@@ -106,7 +106,7 @@ void ImageView::manualObliqueAngleSetExternally(const double degrees) {
   updateTransform(ImagePresentation(m_xform.transform(), m_xform.resultingPreCropArea()));
 }
 
-void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) {
+void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   painter.setWorldMatrixEnabled(false);
   painter.setRenderHints(QPainter::Antialiasing, false);
 

@@ -69,7 +69,7 @@ toff_t deviceSeek(thandle_t context, toff_t offset, int whence) {
   return static_cast<toff_t>(dev->pos());
 }
 
-int deviceClose(thandle_t) {
+int deviceClose(thandle_t /*context*/) {
   // The device belongs to the caller.
   return 0;
 }
@@ -78,11 +78,11 @@ toff_t deviceSize(thandle_t context) {
   return static_cast<toff_t>(static_cast<QIODevice*>(context)->size());
 }
 
-int deviceMap(thandle_t, tdata_t*, toff_t*) {
+int deviceMap(thandle_t /*context*/, tdata_t* /*base*/, toff_t* /*size*/) {
   return 0;
 }
 
-void deviceUnmap(thandle_t, tdata_t, toff_t) {}
+void deviceUnmap(thandle_t /*context*/, tdata_t /*base*/, toff_t /*size*/) {}
 
 TIFF* openTiff(QIODevice& device, const char* mode) {
   TiffReader::installMessageHandlers();
@@ -648,11 +648,11 @@ OPJ_BOOL jp2Seek(const OPJ_OFF_T pos, void* userData) {
   return OPJ_TRUE;
 }
 
-void jp2ErrorHandler(const char* msg, void*) {
+void jp2ErrorHandler(const char* msg, void* /*client_data*/) {
   ImageLoadErrorCapture::addError(QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg).trimmed());
 }
 
-void jp2SilentHandler(const char*, void*) {}
+void jp2SilentHandler(const char* /*msg*/, void* /*client_data*/) {}
 
 /**
  * The image quality (PSNR in dB) for a quality value like JPEG's. The values are chosen

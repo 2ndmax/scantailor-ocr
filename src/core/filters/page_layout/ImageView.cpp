@@ -241,7 +241,7 @@ void ImageView::aggregateHardSizeChanged() {
   updatePresentationTransform(FIT);
 }
 
-void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) {
+void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   QColor bgColor;
   QColor fgColor;
   if (m_alignment.isNull()) {
@@ -985,7 +985,7 @@ Proximity ImageView::rectProximity(const QRectF& box, const QPointF& mousePos) c
   return Proximity::fromSqDist(value);
 }
 
-void ImageView::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) {
+void ImageView::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   if (event->button() == Qt::LeftButton) {
     if (!m_alignment.isNull() && !m_guides.empty()) {
       attachContentToNearestGuide(QPointF(0.5, 0.5) + event->pos(), event->modifiers());

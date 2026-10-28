@@ -21,8 +21,8 @@ Thumbnail::Thumbnail(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
 }
 
 void Thumbnail::prePaintOverImage(QPainter& painter,
-                                  const QTransform& imageToDisplay,
-                                  const QTransform& thumbToDisplay) {
+                                  const QTransform& /*imageToDisplay*/,
+                                  const QTransform& /*thumbToDisplay*/) {
   painter.setRenderHint(QPainter::Antialiasing, false);
 
   painter.setPen(OverlayStyle::pen(OverlayStyle::primary(70), OverlayStyle::Line::Thumbnail));

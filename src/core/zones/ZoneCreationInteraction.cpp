@@ -49,7 +49,7 @@ ZoneCreationInteraction::ZoneCreationInteraction(ZoneInteractionContext& context
                    std::bind(&ZoneCreationInteraction::cancel, this));
 }
 
-void ZoneCreationInteraction::onPaint(QPainter& painter, const InteractionState& interaction) {
+void ZoneCreationInteraction::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   painter.setWorldMatrixEnabled(false);
   painter.setRenderHint(QPainter::Antialiasing);
 
@@ -111,7 +111,7 @@ void ZoneCreationInteraction::cancel() {
   delete this;
 }
 
-void ZoneCreationInteraction::onMousePressEvent(QMouseEvent* event, InteractionState& interaction) {
+void ZoneCreationInteraction::onMousePressEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   if (event->button() != Qt::LeftButton) {
     return;
   }
@@ -286,7 +286,7 @@ void ZoneCreationInteraction::updateStatusTip() {
   m_interaction.setInteractionStatusTip(tip);
 }
 
-bool ZoneCreationInteraction::isDragHandlerPermitted(const InteractionState&) const {
+bool ZoneCreationInteraction::isDragHandlerPermitted(const InteractionState& /*interaction*/) const {
   return !((currentZoneCreationMode() == ZoneCreationMode::LASSO) && m_leftMouseButtonPressed
            && (m_mouseButtonModifiers == Qt::NoModifier));
 }

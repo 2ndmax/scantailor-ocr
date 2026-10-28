@@ -620,7 +620,7 @@ PageLayout PageLayoutEstimator::processContentSpansSinglePage(const LayoutType l
   }
 }  // PageLayoutEstimator::processContentSpansSinglePage
 
-PageLayout PageLayoutEstimator::processContentSpansTwoPages(const LayoutType layoutType,
+PageLayout PageLayoutEstimator::processContentSpansTwoPages([[maybe_unused]] const LayoutType layoutType,
                                                             const std::deque<Span>& spans,
                                                             const int width,
                                                             const int height) {

@@ -116,7 +116,7 @@ bool CollapsibleGroupBox::isCollapsed() const {
   return m_collapsed;
 }
 
-void CollapsibleGroupBox::checkToggled(bool) {
+void CollapsibleGroupBox::checkToggled(bool /*checked*/) {
   m_collapseButton->setEnabled(true);
 }
 

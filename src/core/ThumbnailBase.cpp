@@ -59,7 +59,7 @@ QRectF ThumbnailBase::boundingRect() const {
   return m_boundingRect;
 }
 
-void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
+void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* /*option*/, QWidget* /*widget*/) {
   QPixmap pixmap;
 
   if (!m_completionHandler) {
@@ -210,7 +210,7 @@ class ThumbnailMark : public QGraphicsItem {
     return path;
   }
 
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override {
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* /*option*/, QWidget* /*widget*/) override {
     if (isShown()) {
       ThumbnailBase::drawMark(*painter, boundingRect(), m_mark);
     }

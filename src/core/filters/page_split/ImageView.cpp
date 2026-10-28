@@ -100,7 +100,7 @@ void ImageView::pageLayoutSetExternally(const PageLayout& layout) {
   update();
 }
 
-void ImageView::onPaint(QPainter& painter, const InteractionState& interaction) {
+void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   painter.setRenderHint(QPainter::Antialiasing, false);
   painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 

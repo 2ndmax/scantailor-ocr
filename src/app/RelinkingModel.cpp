@@ -137,7 +137,7 @@ int RelinkingModel::rowCount(const QModelIndex& parent) const {
   return 0;
 }
 
-int RelinkingModel::columnCount(const QModelIndex&) const {
+int RelinkingModel::columnCount(const QModelIndex& /*parent*/) const {
   return 2;
 }
 

@@ -761,7 +761,7 @@ void DefaultParamsDialog::autoMarginsToggled(const bool checked) {
   marginsWidget->setEnabled(!checked);
 }
 
-void DefaultParamsDialog::alignmentModeChanged(int) {
+void DefaultParamsDialog::alignmentModeChanged(int /*index*/) {
   updateAlignmentButtonsEnabled();
   updateAutoModeButtons();
 }
@@ -774,7 +774,7 @@ void DefaultParamsDialog::updateTargetSizeEnabled() {
   targetHeightSpinBox->setEnabled(own);
 }
 
-void DefaultParamsDialog::matchSizeModeChanged(int) {
+void DefaultParamsDialog::matchSizeModeChanged(int /*index*/) {
   updateAlignmentModeEnabled();
 }
 
@@ -1548,7 +1548,7 @@ void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {
   }
 }
 
-void DefaultParamsDialog::colorSegmentationToggled(bool) {
+void DefaultParamsDialog::colorSegmentationToggled(bool /*checked*/) {
   updateColorReductionControls();
 }
 

@@ -17,7 +17,7 @@
 namespace select_content {
 using namespace imageproc;
 
-QRectF PageFinder::findPageBox(const TaskStatus& status,
+QRectF PageFinder::findPageBox(const TaskStatus& /*status*/,
                                const FilterData& data,
                                bool fineTune,
                                const QSizeF& box,

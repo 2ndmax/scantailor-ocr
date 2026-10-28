@@ -201,7 +201,7 @@ void FixDpiDialog::needFixingOnlyToggled(const bool checked) {
   updateDpiFromSelection();
 }
 
-void FixDpiDialog::selectionChanged(const QItemSelection&) {
+void FixDpiDialog::selectionChanged(const QItemSelection& /*selected*/) {
   // The argument holds only the newly selected items, not the whole selection.
   updateDpiFromSelection();
 }
@@ -527,7 +527,7 @@ QString FixDpiDialog::TreeModel::dpiText(const ImageMetadata& metadata) {
   return text;
 }
 
-int FixDpiDialog::TreeModel::columnCount(const QModelIndex& parent) const {
+int FixDpiDialog::TreeModel::columnCount(const QModelIndex& /*parent*/) const {
   return 2;
 }
 

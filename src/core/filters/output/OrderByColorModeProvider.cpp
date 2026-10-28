@@ -27,7 +27,10 @@ bool OrderByColorModeProvider::compare(const ColorMode lhsMode,
   return lhsPage < rhsPage;
 }
 
-bool OrderByColorModeProvider::precedes(const PageId& lhsPage, const bool, const PageId& rhsPage, const bool) const {
+bool OrderByColorModeProvider::precedes(const PageId& lhsPage,
+                                        const bool /*lhsIncomplete*/,
+                                        const PageId& rhsPage,
+                                        const bool /*rhsIncomplete*/) const {
   return compare(colorModeOf(*m_settings, lhsPage), lhsPage, colorModeOf(*m_settings, rhsPage), rhsPage);
 }
 

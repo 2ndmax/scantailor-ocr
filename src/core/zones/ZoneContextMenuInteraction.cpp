@@ -130,7 +130,7 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(ZoneInteractionContext& c
 
 ZoneContextMenuInteraction::~ZoneContextMenuInteraction() = default;
 
-void ZoneContextMenuInteraction::onPaint(QPainter& painter, const InteractionState&) {
+void ZoneContextMenuInteraction::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
   painter.setWorldMatrixEnabled(false);
   painter.setRenderHint(QPainter::Antialiasing);
 

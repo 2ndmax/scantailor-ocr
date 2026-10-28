@@ -100,7 +100,7 @@ class DraggableObject {
   void setDragFinishedCallback(const DragFinishedCallback& callback) { m_dragFinishedCallback = callback; }
 
  private:
-  static void defaultPaint(QPainter&, const InteractionState&) {}
+  static void defaultPaint(QPainter& /*painter*/, const InteractionState& /*interaction*/) {}
 
   static Proximity defaultProximityThreshold(const InteractionState& interaction) {
     return interaction.proximityThreshold();
@@ -109,13 +109,13 @@ class DraggableObject {
   static int defaultProximityPriority() { return 0; }
 
   // Infinitely far away, so nothing is dragged.
-  static Proximity defaultProximity(const QPointF&) { return Proximity(); }
+  static Proximity defaultProximity(const QPointF& /*mousePos*/) { return Proximity(); }
 
-  static void defaultDragInitiated(const QPointF&) {}
+  static void defaultDragInitiated(const QPointF& /*mousePos*/) {}
 
-  static void defaultDragContinuation(const QPointF&, Qt::KeyboardModifiers) {}
+  static void defaultDragContinuation(const QPointF& /*mousePos*/, Qt::KeyboardModifiers /*mask*/) {}
 
-  static void defaultDragFinished(const QPointF&) {}
+  static void defaultDragFinished(const QPointF& /*mousePos*/) {}
 
   PaintCallback m_paintCallback;
   ProximityThresholdCallback m_proximityThresholdCallback;

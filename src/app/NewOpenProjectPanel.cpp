@@ -68,7 +68,7 @@ class RecentProjectEntry : public QWidget {
   }
 
  protected:
-  void paintEvent(QPaintEvent*) override {
+  void paintEvent(QPaintEvent* /*event*/) override {
     if (!underMouse() && !hasFocus()) {
       return;
     }
@@ -134,7 +134,7 @@ void NewOpenProjectPanel::addRecentProject(const QString& filePath) {
   recentProjectsGroup->layout()->addWidget(entry);
 }
 
-void NewOpenProjectPanel::paintEvent(QPaintEvent*) {
+void NewOpenProjectPanel::paintEvent(QPaintEvent* /*event*/) {
   // In fact Qt doesn't draw QWidget's background, unless
   // autoFillBackground property is set, so we can safely
   // draw our borders and shadows in the margins area.

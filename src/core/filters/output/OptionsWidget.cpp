@@ -1227,7 +1227,7 @@ void OptionsWidget::binarizationBoundChanged() {
   m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
-void OptionsWidget::bwForegroundToggled(bool) {
+void OptionsWidget::bwForegroundToggled(bool /*checked*/) {
   // Connected to clicked(), so the button is always checked here.
   m_splittingOptions.setSplittingMode(BLACK_AND_WHITE_FOREGROUND);
   updateOriginalBackgroundEnabled();
@@ -1235,7 +1235,7 @@ void OptionsWidget::bwForegroundToggled(bool) {
   emit reloadRequested();
 }
 
-void OptionsWidget::colorForegroundToggled(bool) {
+void OptionsWidget::colorForegroundToggled(bool /*checked*/) {
   // Connected to clicked(), so the button is always checked here.
   m_splittingOptions.setSplittingMode(COLOR_FOREGROUND);
   updateOriginalBackgroundEnabled();

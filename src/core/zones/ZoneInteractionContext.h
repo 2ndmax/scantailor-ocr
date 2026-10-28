@@ -131,7 +131,7 @@ class ZoneInteractionContext {
    */
   InteractionHandler* createStdContextMenuInteraction(InteractionState& interaction);
 
-  static void showPropertiesStub(const EditableZoneSet::Zone&) {}
+  static void showPropertiesStub(const EditableZoneSet::Zone& /*zone*/) {}
 
   ImageViewBase& m_imageView;
   EditableZoneSet& m_zones;

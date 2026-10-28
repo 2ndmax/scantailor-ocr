@@ -34,7 +34,7 @@ class AbstractFilter : public std::enable_shared_from_this<AbstractFilter> {
 
   virtual int selectedPageOrder() const { return -1; }
 
-  virtual void selectPageOrder(int option) {}
+  virtual void selectPageOrder(int /*option*/) {}
 
   virtual std::vector<PageOrderOption> pageOrderOptions() const { return std::vector<PageOrderOption>(); }
 

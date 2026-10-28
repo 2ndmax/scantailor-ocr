@@ -201,7 +201,7 @@ void OptionsWidget::updateContentDetectOptionsDisplay() {
   contentDetectOptions->setEnabled(m_uiData.contentDetectionMode() == MODE_AUTO);
 }
 
-void OptionsWidget::dimensionsChangedLocally(double) {
+void OptionsWidget::dimensionsChangedLocally(double /*value*/) {
   double widthSpinBoxValue = widthSpinBox->value();
   double heightSpinBoxValue = heightSpinBox->value();
   UnitsProvider::getInstance().convertTo(widthSpinBoxValue, heightSpinBoxValue, PIXELS, m_dpi);

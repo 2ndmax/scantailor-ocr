@@ -1721,7 +1721,9 @@ QRectF ThumbnailSequence::PlaceholderThumb::boundingRect() const {
   return QRectF(QPointF(0.0, 0.0), m_maxSize);
 }
 
-void ThumbnailSequence::PlaceholderThumb::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) {
+void ThumbnailSequence::PlaceholderThumb::paint(QPainter* /*painter*/,
+                                                const QStyleOptionGraphicsItem* /*option*/,
+                                                QWidget* /*widget*/) {
   // Only the mark, which is a child item.
 }
 
@@ -1752,7 +1754,7 @@ ThumbnailSequence::LabelGroup::LabelGroup(std::unique_ptr<QGraphicsSimpleTextIte
   }
 }
 
-void ThumbnailSequence::LabelGroup::updateAppearence(bool selected, bool selectionLeader) {
+void ThumbnailSequence::LabelGroup::updateAppearence(bool /*selected*/, bool selectionLeader) {
   m_normalLabel->setVisible(!selectionLeader);
   m_boldLabel->setVisible(selectionLeader);
 
@@ -1822,8 +1824,8 @@ QRectF ThumbnailSequence::CompositeItem::boundingRect() const {
 }
 
 void ThumbnailSequence::CompositeItem::paint(QPainter* painter,
-                                             const QStyleOptionGraphicsItem* option,
-                                             QWidget* widget) {
+                                             const QStyleOptionGraphicsItem* /*option*/,
+                                             QWidget* /*widget*/) {
   const QColor selectionLeaderBackgroundColor
       = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectionLeaderBackground");
   const QColor selectedItemBorderColor

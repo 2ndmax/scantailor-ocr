@@ -217,11 +217,11 @@ bool parseHeader(QIODevice& device, const Jp2Format format, HeaderInfo& info) {
 // REVIEW-NOTE (2026-10): with opj_codec_set_threads() OpenJPEG calls these callbacks from worker threads where no
 // thread_local ImageLoadErrorCapture is active -> their detail text is only logged.
 // Not fixed because the main thread still reports a generic error.
-void opjErrorHandler(const char* msg, void*) {
+void opjErrorHandler(const char* msg, void* /*client_data*/) {
   ImageLoadErrorCapture::addError(QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg));
 }
 
-void opjWarningHandler(const char* msg, void*) {
+void opjWarningHandler(const char* msg, void* /*client_data*/) {
   ImageLoadErrorCapture::addWarning(QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg));
 }
 
