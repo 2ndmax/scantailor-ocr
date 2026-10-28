@@ -974,14 +974,14 @@ void DefaultParamsDialog::setupOutputPanels() {
 
   // The PDF step gets a tab of its own, built like the other tabs: a scroll area with the panels
   // centered at the top, side by side.
-  auto* tab = new QWidget;
-  auto* tabLayout = new QVBoxLayout(tab);
+  auto* pdfTab = new QWidget;
+  auto* tabLayout = new QVBoxLayout(pdfTab);
   tabLayout->setContentsMargins(0, 9, 0, 3);
-  auto* scrollArea = new QScrollArea;
-  scrollArea->setWidgetResizable(true);
-  tabLayout->addWidget(scrollArea);
+  auto* pdfScrollArea = new QScrollArea;
+  pdfScrollArea->setWidgetResizable(true);
+  tabLayout->addWidget(pdfScrollArea);
   auto* contents = new QWidget;
-  scrollArea->setWidget(contents);
+  pdfScrollArea->setWidget(contents);
   auto* grid = new QGridLayout(contents);
   grid->setColumnStretch(0, 1);
   grid->setColumnStretch(3, 1);
@@ -994,12 +994,12 @@ void DefaultParamsDialog::setupOutputPanels() {
   grid->addWidget(newGroup(tr("Text Recognition (OCR)"), m_ocrPanel), 0, 2, Qt::AlignTop);
 #else
   // Without OCR, the panel only keeps the values of the profile.
-  m_ocrPanel->setParent(tab);
+  m_ocrPanel->setParent(pdfTab);
   m_ocrPanel->hide();
 #endif
 
   // After the Output tab, as the steps.
-  tabWidget->insertTab(tabWidget->indexOf(tab_6) + 1, tab, tr("Create PDF"));
+  tabWidget->insertTab(tabWidget->indexOf(tab_6) + 1, pdfTab, tr("Create PDF"));
 }
 
 std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {

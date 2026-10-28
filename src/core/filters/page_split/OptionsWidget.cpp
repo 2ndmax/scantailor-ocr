@@ -36,9 +36,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   auto* layoutModeGroup = new QButtonGroup(this);
   layoutModeGroup->addButton(layoutAutoBtn);
   layoutModeGroup->addButton(layoutManualBtn);
-  auto* pageOrderGroup = new QButtonGroup(this);
-  pageOrderGroup->addButton(leftFirstBtn);
-  pageOrderGroup->addButton(rightFirstBtn);
+  auto* pageOrderButtons = new QButtonGroup(this);
+  pageOrderButtons->addButton(leftFirstBtn);
+  pageOrderButtons->addButton(rightFirstBtn);
 
   detectionMethodBox->addItem(tr("Edges"), EDGES_DETECTION);
   detectionMethodBox->addItem(tr("Spine line"), SPINE_LINE_DETECTION);
