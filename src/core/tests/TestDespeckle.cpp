@@ -239,6 +239,46 @@ BOOST_AUTO_TEST_CASE(speck_inside_a_ring_is_removed) {
   BOOST_CHECK(result.getPixel(0, 0) == BLACK);
 }
 
+// A line of "letters" 7 x 14 px on the baseline y = 49, every 20 px, with marks in the gaps between
+// them: marks of text where they sit in text stay, specks elsewhere next to the letters go.
+BOOST_AUTO_TEST_CASE(marks_next_to_letters_stay_where_text_has_them) {
+  BinaryImage image(220, 70, WHITE);
+  for (int x = 10; x < 200; x += 20) {
+    if (x != 170) {  // a wide gap between words
+      image.fill(QRect(x, 36, 7, 14), BLACK);
+    }
+  }
+  image.fill(QRect(19, 48, 2, 2), BLACK);   // period on the baseline
+  image.fill(QRect(39, 41, 2, 2), BLACK);   // speck at mid-height
+  image.fill(QRect(59, 53, 2, 2), BLACK);   // speck below the baseline
+  image.fill(QRect(80, 41, 6, 2), BLACK);   // hyphen
+  image.fill(QRect(100, 40, 2, 2), BLACK);  // colon
+  image.fill(QRect(100, 47, 2, 2), BLACK);
+  image.fill(QRect(120, 48, 2, 5), BLACK);  // comma across the baseline
+  image.fill(QRect(152, 31, 2, 2), BLACK);  // dot above a letter
+  image.fill(QRect(172, 31, 2, 2), BLACK);  // speck above the gap between words
+  const BinaryImage result = despeckled(image);
+  BOOST_CHECK_MESSAGE(result.getPixel(19, 48) == BLACK, "period");
+  BOOST_CHECK_MESSAGE(result.getPixel(39, 41) == WHITE, "speck at mid-height");
+  BOOST_CHECK_MESSAGE(result.getPixel(59, 53) == WHITE, "speck below the baseline");
+  BOOST_CHECK_MESSAGE(result.getPixel(80, 41) == BLACK, "hyphen");
+  BOOST_CHECK_MESSAGE(result.getPixel(100, 40) == BLACK, "upper dot of the colon");
+  BOOST_CHECK_MESSAGE(result.getPixel(100, 47) == BLACK, "lower dot of the colon");
+  BOOST_CHECK_MESSAGE(result.getPixel(120, 48) == BLACK, "comma");
+  BOOST_CHECK_MESSAGE(result.getPixel(152, 31) == BLACK, "dot above a letter");
+  BOOST_CHECK_MESSAGE(result.getPixel(172, 31) == WHITE, "speck above a gap");
+}
+
+// Without a line of letters nearby (fewer than three), there is nothing to judge the position by:
+// the speck at mid-height beside a single letter stays.
+BOOST_AUTO_TEST_CASE(speck_beside_a_lone_letter_stays) {
+  BinaryImage image(60, 70, WHITE);
+  image.fill(QRect(10, 36, 7, 14), BLACK);
+  image.fill(QRect(30, 36, 7, 14), BLACK);
+  image.fill(QRect(19, 41, 2, 2), BLACK);
+  BOOST_CHECK(despeckled(image).getPixel(19, 41) == BLACK);
+}
+
 BOOST_AUTO_TEST_CASE(debug_images_show_the_steps) {
   BinaryImage image(30, 20, WHITE);
   image.fill(QRect(0, 0, 20, 20), BLACK);
@@ -261,18 +301,18 @@ BOOST_AUTO_TEST_CASE(results_are_unchanged) {
       {97,
        61,
        1,
-       {17881253642145317734ULL, 8956172799035862734ULL, 776708475556728212ULL, 17881253642145317734ULL,
+       {17881253642145317734ULL, 8956172799035862734ULL, 776708475556728212ULL, 18355458573948367603ULL,
         776708475556728212ULL}},
       {256,
        193,
        2,
-       {17258662720205811112ULL, 9507686487759242760ULL, 10685311043735323495ULL, 5497798018484983095ULL,
+       {4066094122314015042ULL, 9507686487759242760ULL, 10685311043735323495ULL, 5497798018484983095ULL,
         10685311043735323495ULL}},
       {400,
        300,
        3,
-       {11365299990972858452ULL, 18168882280203925951ULL, 10603863443824478450ULL, 15346444912387215636ULL,
-        10603863443824478450ULL}},
+       {2172329608748404732ULL, 18168882280203925951ULL, 10603863443824478450ULL, 1467042386336497495ULL,
+        11239362042837949490ULL}},
   };
   for (const Case& c : cases) {
     const BinaryImage image = speckledPage(c.width, c.height, c.seed);

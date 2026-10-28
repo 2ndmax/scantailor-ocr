@@ -7,6 +7,7 @@
 #include <ConnectivityMap.h>
 
 #include <QImage>
+#include <QRect>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -29,6 +30,9 @@
  *     between their nearest pixels, is at most reach(c) = min(k * sqrt(area(c)), maxReach), and
  *     area(n) >= minParentRatio * area(c). This spreads from the big components over neighbouring
  *     components, so chains such as dot leaders are kept as a whole.
+ * \li If n is a letter on a line of text, c must also sit where marks of text sit relative to that
+ *     line: on the baseline, above the letter, or the like (see sitsLikeAMark()). This removes
+ *     specks right next to letters, which are as near as any dot of an i.
  *
  * Neighbours are components whose Voronoi regions touch. A component that is cut off from kept ones
  * by others (e.g. by a row of specks) looks up the nearest pixel of a big and of any kept component
@@ -115,7 +119,11 @@ struct Component {
     bottom = std::max(bottom, y);
   }
 
-  bool isBig(const int bigSize) const { return (right - left + 1 >= bigSize) || (bottom - top + 1 >= bigSize); }
+  int width() const { return right - left + 1; }
+
+  int height() const { return bottom - top + 1; }
+
+  bool isBig(const int bigSize) const { return (width() >= bigSize) || (height() >= bigSize); }
 };
 
 /**
@@ -242,7 +250,25 @@ class Despeckler {
 
   void findNeighbours();
 
-  bool mayKeep(uint32_t label, uint32_t parent, uint64_t gapSq) const;
+  // The line of text a letter stands on: its baseline and x-height. xHeight == 0: unknown.
+  struct TextLine {
+    int baseline = 0;
+    int xHeight = 0;
+  };
+
+  bool isLetterLike(const Component& component) const;
+
+  void buildLetterGrid();
+
+  const TextLine& lineOf(uint32_t letter);
+
+  bool sitsLikeAMark(uint32_t label, uint32_t parent);
+
+  bool hasPixelsBelow(uint32_t letter, const Component& component, int depth) const;
+
+  bool hasDotBelow(uint32_t label, const TextLine& line) const;
+
+  bool mayKeep(uint32_t label, uint32_t parent, uint64_t gapSq);
 
   void keep(uint32_t label);
 
@@ -261,6 +287,13 @@ class Despeckler {
   std::vector<size_t> m_firstEdge;
   std::vector<Edge> m_edges;
   FastQueue<uint32_t> m_newlyKept;
+  // Letter-like components by the cell of a coarse grid their centre falls in.
+  int m_gridCell = 1;
+  int m_gridColumns = 0;
+  std::vector<std::vector<uint32_t>> m_letterGrid;
+  // Per letter-like component, once estimated.
+  std::vector<TextLine> m_lines;
+  std::vector<bool> m_lineEstimated;
 };
 
 void Despeckler::run(BinaryImage& image) {
@@ -272,6 +305,7 @@ void Despeckler::run(BinaryImage& image) {
 
   measureComponents();
   sortOutBigAndTiny();
+  buildLetterGrid();
   m_status.throwIfCancelled();
 
   findNeighbours();
@@ -397,7 +431,7 @@ void Despeckler::findNeighbours() {
 }
 
 // Whether a candidate may be kept for being near the kept component 'parent'.
-bool Despeckler::mayKeep(const uint32_t label, const uint32_t parent, const uint64_t gapSq) const {
+bool Despeckler::mayKeep(const uint32_t label, const uint32_t parent, const uint64_t gapSq) {
   const Component& component = m_components[label];
   const Component& parentComponent = m_components[parent];
   const double reach = std::min(m_settings.reachPerSqrtArea * std::sqrt(double(component.area)), m_settings.maxReach);
@@ -405,8 +439,182 @@ bool Despeckler::mayKeep(const uint32_t label, const uint32_t parent, const uint
     return false;
   }
   // Big components count as large enough for anything.
-  return parentComponent.isBig(m_settings.bigSize)
-         || (parentComponent.area >= m_settings.minParentRatio * component.area);
+  const bool largeEnoughParent = parentComponent.isBig(m_settings.bigSize)
+                                 || (parentComponent.area >= m_settings.minParentRatio * component.area);
+  return largeEnoughParent && sitsLikeAMark(label, parent);
+}
+
+// Letters as far as the line estimate goes: a component of about the height of letters, from the
+// x-height of small print up to a few big ones.
+bool Despeckler::isLetterLike(const Component& component) const {
+  const int bigSize = m_settings.bigSize;
+  return (component.state != Component::REMOVED) && (component.height() * 5 >= bigSize * 3)
+         && (component.height() <= 8 * bigSize) && (component.width() <= 8 * bigSize);
+}
+
+void Despeckler::buildLetterGrid() {
+  m_gridCell = std::max(1, 4 * m_settings.bigSize);
+  m_gridColumns = m_cmap.size().width() / m_gridCell + 1;
+  const int rows = m_cmap.size().height() / m_gridCell + 1;
+  m_letterGrid.assign(size_t(m_gridColumns) * rows, {});
+  for (uint32_t label = 1; label < m_components.size(); ++label) {
+    const Component& component = m_components[label];
+    if (isLetterLike(component)) {
+      const int column = (component.left + component.right) / 2 / m_gridCell;
+      const int row = (component.top + component.bottom) / 2 / m_gridCell;
+      m_letterGrid[size_t(row) * m_gridColumns + column].push_back(label);
+    }
+  }
+  m_lines.assign(m_components.size(), TextLine());
+  m_lineEstimated.assign(m_components.size(), false);
+}
+
+// The line a letter-like component stands on, from the letter-like components within about a
+// centimetre to the left and right and a few millimetres up and down: grouped by their bottoms, a
+// group of at least three with nearly the same bottom is a line. Its baseline is their median
+// bottom, its x-height a low percentile of their heights, as more letters have the x-height than
+// ascenders or descenders. The letter's line is the largest one whose baseline runs through the
+// letter or along its bottom (so a j or p finds it too).
+const Despeckler::TextLine& Despeckler::lineOf(const uint32_t letter) {
+  TextLine& result = m_lines[letter];
+  if (m_lineEstimated[letter]) {
+    return result;
+  }
+  m_lineEstimated[letter] = true;
+  const Component& anchor = m_components[letter];
+  if (!isLetterLike(anchor)) {
+    return result;
+  }
+
+  const int reachX = 10 * m_settings.bigSize;
+  const int reachY = 4 * m_settings.bigSize;
+  const QRect window(QPoint(anchor.left - reachX, anchor.top - reachY),
+                     QPoint(anchor.right + reachX, anchor.bottom + reachY));
+  const int rows = int(m_letterGrid.size()) / m_gridColumns;
+  std::vector<uint32_t> letters;
+  for (int row = std::max(0, window.top() / m_gridCell); row <= std::min(rows - 1, window.bottom() / m_gridCell);
+       ++row) {
+    for (int column = std::max(0, window.left() / m_gridCell);
+         column <= std::min(m_gridColumns - 1, window.right() / m_gridCell); ++column) {
+      for (const uint32_t label : m_letterGrid[size_t(row) * m_gridColumns + column]) {
+        const Component& other = m_components[label];
+        if (window.contains((other.left + other.right) / 2, (other.top + other.bottom) / 2)) {
+          letters.push_back(label);
+        }
+      }
+    }
+  }
+  if (letters.size() < 3) {
+    return result;
+  }
+
+  std::sort(letters.begin(), letters.end(),
+            [this](uint32_t a, uint32_t b) { return m_components[a].bottom < m_components[b].bottom; });
+  std::vector<int> heights;
+  for (const uint32_t label : letters) {
+    heights.push_back(m_components[label].height());
+  }
+  std::nth_element(heights.begin(), heights.begin() + heights.size() / 2, heights.end());
+  const int tolerance = std::max(1, heights[heights.size() / 2] / 5);
+
+  size_t bestSize = 0;
+  for (size_t first = 0; first < letters.size();) {
+    size_t end = first + 1;
+    while ((end < letters.size())
+           && (m_components[letters[end]].bottom - m_components[letters[first]].bottom <= tolerance)) {
+      ++end;
+    }
+    const size_t size = end - first;
+    const int baseline = m_components[letters[first + size / 2]].bottom;
+    if ((size >= 3) && (size > bestSize) && (anchor.top < baseline) && (baseline <= anchor.bottom + tolerance)) {
+      bestSize = size;
+      std::vector<int> lineHeights;
+      for (size_t i = first; i < end; ++i) {
+        lineHeights.push_back(m_components[letters[i]].height());
+      }
+      std::sort(lineHeights.begin(), lineHeights.end());
+      result.baseline = baseline;
+      result.xHeight = lineHeights[lineHeights.size() * 2 / 5];
+    }
+    first = end;
+  }
+  return result;
+}
+
+// Whether a small component sits where marks of the text sit next to the letter 'parent':
+// \li on the baseline (period, dot leader) or across it (comma, low quote);
+// \li above it, if wide (hyphen, dash) or over a dot on the baseline (colon, semicolon);
+// \li higher than mid-height, also above the letter or beside its upper part (dot of an i or j,
+//     umlaut, quote, superscript).
+// A speck at mid-height beside the letter, below its line or far above it does not. Without a line
+// (the parent is no letter, e.g. the dot before in a leader) or for a component of about the size
+// of a letter, there is nothing to judge by.
+bool Despeckler::sitsLikeAMark(const uint32_t label, const uint32_t parent) {
+  const TextLine& line = lineOf(parent);
+  const Component& component = m_components[label];
+  const double base = line.baseline;
+  const double xHeight = line.xHeight;
+  if ((xHeight == 0) || (component.height() >= 0.5 * xHeight)) {
+    return true;
+  }
+  if ((component.bottom > base + 0.6 * xHeight) || (component.top < base - 1.9 * xHeight)) {
+    return false;
+  }
+  const bool onBaseline = component.bottom <= base + 0.1 * xHeight + 1;
+  const bool acrossBaseline = component.top <= base + 1;
+  if (component.bottom >= base - 0.15 * xHeight - 1) {
+    return onBaseline || acrossBaseline;
+  }
+  if ((2 * component.width() >= 3 * component.height()) || hasDotBelow(label, line)) {
+    return true;
+  }
+  if (component.bottom > base - 0.55 * xHeight) {
+    return false;
+  }
+  // Above the letter: the letter itself, not just its bounding box, lies below (letters may touch,
+  // such as f and ä). Beside it: the letter does not reach higher.
+  const Component& letter = m_components[parent];
+  const int centre = (component.left + component.right) / 2;
+  const int margin = int(0.5 * xHeight) + component.width();
+  const bool beside = (centre >= letter.left - margin) && (centre <= letter.right + margin)
+                      && ((centre < letter.left) || (centre > letter.right)) && (letter.top > component.top);
+  return beside || hasPixelsBelow(parent, component, int(xHeight));
+}
+
+// Whether the component 'letter' has pixels right below 'component', at most 'depth' pixels down.
+// The columns are widened by the width of the component, as the dots of an ü sit about over the
+// stems, not exactly.
+bool Despeckler::hasPixelsBelow(const uint32_t letter, const Component& component, const int depth) const {
+  const int left = std::max(0, component.left - component.width());
+  const int right = std::min(m_cmap.size().width() - 1, component.right + component.width());
+  const int bottom = std::min(m_cmap.size().height() - 1, component.bottom + depth);
+  for (int y = component.bottom + 1; y <= bottom; ++y) {
+    const uint32_t* line = m_cmap.data() + size_t(y) * m_cmap.stride();
+    for (int x = left; x <= right; ++x) {
+      if (line[x] == letter) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// Whether a dot of a similar size sits on the baseline right below the component, as the lower dot
+// of a colon or the comma of a semicolon.
+bool Despeckler::hasDotBelow(const uint32_t label, const TextLine& line) const {
+  const Component& component = m_components[label];
+  for (size_t i = m_firstEdge[label]; i < m_firstEdge[label + 1]; ++i) {
+    const Component& other = m_components[m_edges[i].neighbour];
+    const bool similar = (other.area * 3 >= component.area) && (other.area <= 3 * component.area);
+    const bool below = (other.left <= component.right) && (other.right >= component.left)
+                       && (other.top > component.bottom) && (other.top - component.bottom <= line.xHeight);
+    const bool onBaseline
+        = (other.bottom >= line.baseline - 0.3 * line.xHeight) && (other.bottom <= line.baseline + 0.6 * line.xHeight);
+    if ((other.state != Component::REMOVED) && similar && below && onBaseline) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void Despeckler::keep(const uint32_t label) {
