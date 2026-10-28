@@ -101,7 +101,7 @@ QLineF SpineLineFinder::findSpine(const GrayImage& grayDownscaled,
       pageRows.push_back(y);
     }
   }
-  if (pageRows.size() < static_cast<size_t>(4 * kBands)) {
+  if (pageRows.size() < 4 * static_cast<size_t>(kBands)) {
     return QLineF();
   }
 

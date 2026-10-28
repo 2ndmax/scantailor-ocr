@@ -176,10 +176,10 @@ void OcrPanel::languageChanged(QListWidgetItem* item) {
 void OcrPanel::fillLanguageList(const QStringList& checked) {
   // Languages sorted by name, then the script models.
   struct Language {
-    bool isScript;
+    bool isScript = false;
     QString name;
     QString code;
-    bool missing;
+    bool missing = false;
   };
   std::vector<Language> languages;
   const std::map<QString, QString> installed = OcrLanguages::available();

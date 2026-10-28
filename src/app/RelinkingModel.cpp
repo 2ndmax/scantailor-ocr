@@ -117,7 +117,7 @@ QModelIndex RelinkingModel::index(const int row, const int column, const QModelI
     return createIndex(row, column, quintptr(0));
   }
   // A file node keeps (its folder node + 1) as the internal id.
-  return createIndex(row, column, quintptr(parent.row() + 1));
+  return createIndex(row, column, quintptr(parent.row()) + 1);
 }
 
 QModelIndex RelinkingModel::parent(const QModelIndex& child) const {
@@ -469,7 +469,7 @@ QModelIndex RelinkingModel::itemIndex(const int item, const int column) const {
   if (it.group < 0) {
     return QModelIndex();
   }
-  return createIndex(it.posInGroup, column, quintptr(it.group + 1));
+  return createIndex(it.posInGroup, column, quintptr(it.group) + 1);
 }
 
 void RelinkingModel::emitGroupChanged(const int group) {

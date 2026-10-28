@@ -46,7 +46,7 @@ ColorMode ColorParams::parseColorMode(const QString& str) {
 }
 
 QString ColorParams::formatColorMode(const ColorMode mode) {
-  const char* str = "";
+  const char* str = "";  // Fallback for values outside the enum.
   switch (mode) {
     case BLACK_AND_WHITE:
       str = "bw";

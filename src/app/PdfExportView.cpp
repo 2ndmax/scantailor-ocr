@@ -1243,7 +1243,7 @@ void PdfExportView::updateQualityPanel() {
     return;
   }
   // Color / grayscale, posterized, black and white: the pages for each TIFF compression, and in the PDF.
-  std::map<int, int> tiffCounts[3];
+  std::map<int, int> tiffCounts[3] = {};
   int pdfCounts[3] = {};
   int pages = 0;
   int tiffLossyPages = 0;

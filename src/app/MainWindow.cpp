@@ -532,7 +532,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* ev) {
     const auto* helpEvent = static_cast<QHelpEvent*>(ev);
     const QGraphicsItem* item = thumbView->itemAt(helpEvent->pos());
     const QString tip = item ? item->toolTip() : QString();
-    if (tip.isEmpty()) {
+    if (!item || tip.isEmpty()) {
       QToolTip::hideText();
     } else {
       const QRect rect = item->deviceTransform(thumbView->viewportTransform()).mapRect(item->boundingRect()).toRect();
