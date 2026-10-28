@@ -30,6 +30,8 @@
  *     between their nearest pixels, is at most reach(c) = min(k * sqrt(area(c)), maxReach), and
  *     area(n) >= minParentRatio * area(c). This spreads from the big components over neighbouring
  *     components, so chains such as dot leaders are kept as a whole.
+ * \li Next to a big component outside the area of the text lines and on no line itself, such as a
+ *     clump of dirt at the edge of the page, the reach is shorter.
  * \li If n is a letter on a line of text, c must also sit where marks of text sit relative to that
  *     line: on the baseline, above the letter, or the like (see sitsLikeAMark()). This removes
  *     specks right next to letters, which are as near as any dot of an i.
@@ -260,6 +262,10 @@ class Despeckler {
 
   void buildLetterGrid();
 
+  void findTextArea();
+
+  bool isOffText(uint32_t label);
+
   const TextLine& lineOf(uint32_t letter);
 
   bool sitsLikeAMark(uint32_t label, uint32_t parent);
@@ -294,6 +300,8 @@ class Despeckler {
   // Per letter-like component, once estimated.
   std::vector<TextLine> m_lines;
   std::vector<bool> m_lineEstimated;
+  // Where the lines of text are; empty if there are too few.
+  QRect m_textArea;
 };
 
 void Despeckler::run(BinaryImage& image) {
@@ -306,6 +314,7 @@ void Despeckler::run(BinaryImage& image) {
   measureComponents();
   sortOutBigAndTiny();
   buildLetterGrid();
+  findTextArea();
   m_status.throwIfCancelled();
 
   findNeighbours();
@@ -430,11 +439,26 @@ void Despeckler::findNeighbours() {
   }
 }
 
+// A big component outside the text and on no line of text, such as a clump of dirt at the edge of
+// the page, keeps specks only up to this part of the usual reach.
+const double kOffTextReach = 0.4;
+
+bool Despeckler::isOffText(const uint32_t label) {
+  const Component& component = m_components[label];
+  return component.isBig(m_settings.bigSize) && !m_textArea.isEmpty()
+         && !m_textArea.contains((component.left + component.right) / 2, (component.top + component.bottom) / 2)
+         && (lineOf(label).xHeight == 0);
+}
+
 // Whether a candidate may be kept for being near the kept component 'parent'.
 bool Despeckler::mayKeep(const uint32_t label, const uint32_t parent, const uint64_t gapSq) {
   const Component& component = m_components[label];
   const Component& parentComponent = m_components[parent];
-  const double reach = std::min(m_settings.reachPerSqrtArea * std::sqrt(double(component.area)), m_settings.maxReach);
+  double reachPerSqrtArea = m_settings.reachPerSqrtArea;
+  if (isOffText(parent)) {
+    reachPerSqrtArea *= kOffTextReach;
+  }
+  const double reach = std::min(reachPerSqrtArea * std::sqrt(double(component.area)), m_settings.maxReach);
   if (double(gapSq) > reach * reach) {
     return false;
   }
@@ -467,6 +491,35 @@ void Despeckler::buildLetterGrid() {
   }
   m_lines.assign(m_components.size(), TextLine());
   m_lineEstimated.assign(m_components.size(), false);
+}
+
+// The area of the lines of text: the letters on lines, without the outermost percent on each side
+// (a few specks may line up by chance), widened by a little.
+void Despeckler::findTextArea() {
+  std::vector<int> lefts;
+  std::vector<int> rights;
+  std::vector<int> tops;
+  std::vector<int> bottoms;
+  for (uint32_t label = 1; label < m_components.size(); ++label) {
+    const Component& component = m_components[label];
+    if (isLetterLike(component) && (lineOf(label).xHeight > 0)) {
+      lefts.push_back(component.left);
+      rights.push_back(component.right);
+      tops.push_back(component.top);
+      bottoms.push_back(component.bottom);
+    }
+  }
+  if (lefts.size() < 20) {
+    return;
+  }
+  const auto percentile = [](std::vector<int>& values, const double fraction) {
+    const auto nth = values.begin() + static_cast<ptrdiff_t>(fraction * (values.size() - 1));
+    std::nth_element(values.begin(), nth, values.end());
+    return *nth;
+  };
+  const int margin = 3 * m_settings.bigSize;
+  m_textArea = QRect(QPoint(percentile(lefts, 0.01) - margin, percentile(tops, 0.01) - margin),
+                     QPoint(percentile(rights, 0.99) + margin, percentile(bottoms, 0.99) + margin));
 }
 
 // The line a letter-like component stands on, from the letter-like components within about a

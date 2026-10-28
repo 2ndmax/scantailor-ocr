@@ -279,6 +279,24 @@ BOOST_AUTO_TEST_CASE(speck_beside_a_lone_letter_stays) {
   BOOST_CHECK(despeckled(image).getPixel(19, 41) == BLACK);
 }
 
+// Three lines of 10 letters on the left; at the right edge a clump of dirt, big enough to be kept,
+// outside the text and on no line. Specks of 3 x 3 px reach 24 px, next to such a clump only 9.6.
+BOOST_AUTO_TEST_CASE(clump_off_the_text_keeps_specks_only_close_by) {
+  BinaryImage image(500, 120, WHITE);
+  for (int baseline : {30, 60, 90}) {
+    for (int x = 20; x < 140; x += 12) {
+      image.fill(QRect(x, baseline - 13, 7, 14), BLACK);
+    }
+  }
+  image.fill(QRect(420, 50, 14, 14), BLACK);
+  image.fill(QRect(442, 55, 3, 3), BLACK);  // 9 px from the clump
+  image.fill(QRect(398, 55, 3, 3), BLACK);  // 20 px from the clump
+  const BinaryImage result = despeckled(image);
+  BOOST_CHECK(result.getPixel(420, 50) == BLACK);
+  BOOST_CHECK(result.getPixel(442, 55) == BLACK);
+  BOOST_CHECK(result.getPixel(398, 55) == WHITE);
+}
+
 BOOST_AUTO_TEST_CASE(debug_images_show_the_steps) {
   BinaryImage image(30, 20, WHITE);
   image.fill(QRect(0, 0, 20, 20), BLACK);
