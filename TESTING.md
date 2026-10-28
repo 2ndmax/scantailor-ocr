@@ -178,6 +178,39 @@ in `images/`), `results.csv` (one row per page and method) and `summary.txt`. Wi
 gets `real_scans.html`, `real_scans.txt` and `real_scans.csv` instead, with the images also in
 `images/`.
 
+### despeckle_compare
+
+Measures the despeckling (`Despeckle.cpp`) and compares it before and after a change. Run a
+command once with the old build and once with the new one, then compare.
+
+```bash
+despeckle_compare bench <output folder> [--images]
+despeckle_compare run <input folder> <output folder> [--dpi=200]
+despeckle_compare diff <before folder> <after folder> <output folder>
+despeckle_compare content <input folder> [--dpi=200]
+```
+
+- `bench`: 40 generated pages with known truth: German text in Times New Roman and Arial, 6 to
+  14 pt, at 200, 300, 400 and 600 dpi, with dots above letters, punctuation, dot leaders and
+  superscripts; noise of six kinds (salt, dust, fibres, border, specks next to letters,
+  show-through), every pixel labelled. The text is antialiased and thresholded with noise like a
+  scan. Each page is despeckled at the three levels; the summary gives, per level and
+  resolution, the noise removed by kind and the text lost by class. A glyph part (a letter body,
+  a dot) is lost when more than half of its pixels are. `bench.csv` has one row per page and level.
+  With `--images` also the result at NORMAL in colour (black text kept, blue text lost, red noise
+  kept, gray noise removed), crops around lost text per level, and the pages themselves in
+  `pages/`. The fonts come from the machine: compare runs on the same machine only.
+- `run`: binarizes real scans (Otsu) and despeckles them at the three levels; `diff` compares two
+  such runs: `<name>_<level>_diff.png` (red = removed only after the change, green = kept only
+  after it) and `_spots.png` with enlarged crops around the changes, plus pixel counts. Take the
+  real resolution for `--dpi`, not the one stored in the file.
+- `content`: prints the content box found on each scan. The content detection despeckles too
+  (NORMAL at 150 dpi), so a change of the despeckling may move it. Run it on the `pages/` of
+  `bench --images` (one folder per resolution) to see it on noisy pages.
+
+For a change of the despeckling: the text losses in `bench` must not rise, the `diff` images of
+real scans must show no lost text, and the content boxes must not get worse.
+
 ## Code analysis
 
 Besides the tests, the scripts in `scripts\analysis` check the code with several compilers and
