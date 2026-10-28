@@ -327,13 +327,14 @@ bool canBeAttachedTo(const Component& comp, const Component& target, uint32_t sq
 /*
  * Squared distance from a pixel to the seed of a neighbour, from the neighbour's vector and squared
  * distance: the vector gets one pixel longer, e.g. (x - 1)^2 = x^2 - 2x + 1 for the left neighbour.
+ * 2 * x, not x << 1: x is negative where the seed lies to the left, and shifting that is undefined.
  */
 inline uint32_t sqdistViaLeft(const uint32_t leftSqdist, const Distance left) {
-  return leftSqdist + 1 - (int(left.vec.x) << 1);
+  return leftSqdist + 1 - 2 * int(left.vec.x);
 }
 
 inline uint32_t sqdistViaRight(const uint32_t rightSqdist, const Distance right) {
-  return rightSqdist + 1 + (int(right.vec.x) << 1);
+  return rightSqdist + 1 + 2 * int(right.vec.x);
 }
 
 inline uint32_t sqdistViaTop(const uint32_t topSqdist, const Distance top) {
