@@ -10,9 +10,6 @@
 #>
 
 $LogDir = "$PSScriptRoot\logs"
-# Set by each script: $true when it runs with -Steps instead of the menu.
-$Unattended = $false
-$AssumeYes = $false
 
 # A suggestion for a folder on drive D: if that drive exists, else on C:.
 function Get-DefaultBase {
@@ -52,18 +49,6 @@ function Read-Folder([string]$Question, [string]$Default) {
         # A drive root keeps its backslash: "D:" alone would mean the current folder on D:.
         if ($answer.Length -gt 3) { $answer = $answer.TrimEnd('\') }
         return $answer
-    }
-}
-
-# A yes/no question; Enter takes $Default. Unattended: $Default, or yes with -Yes.
-function Read-YesNo([string]$Question, [bool]$Default) {
-    if ($Unattended) { return ($AssumeYes -or $Default) }
-    $hint = if ($Default) { '[Y/n]' } else { '[y/N]' }
-    while ($true) {
-        $typed = (Read-Host "$Question $hint").Trim().ToLowerInvariant()
-        if (-not $typed) { return $Default }
-        if ($typed -in 'y', 'yes', 'j', 'ja') { return $true }
-        if ($typed -in 'n', 'no', 'nein') { return $false }
     }
 }
 

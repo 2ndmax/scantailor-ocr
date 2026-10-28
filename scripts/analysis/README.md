@@ -39,7 +39,14 @@ and of 01.  09 reads whatever output exists.
 - vcpkg with the project's dependencies for `x64-windows`, in `VCPKG_ROOT` (or `-VcpkgRoot`).
 - For 03: cppcheck (on `PATH` or in `C:\Program Files\Cppcheck`, or `-Cppcheck <exe>`).
 - For 04: EDG, set up as described [below](#setting-up-edg-for-run-04).
-- For 07 and 08: the Visual Studio component "C++ Clang Compiler for Windows".
+- For 07 and 08: the Visual Studio component "C++ Clang Compiler for Windows"; for 08 also
+  "C++ AddressSanitizer" (it brings `stl_asan.lib`, which the MSVC standard library links
+  under ASan).
+
+Each run first says what it does and asks before it starts (`-Yes` starts it right away); a
+build directory left from an earlier run is offered for deletion. While it runs, the window
+shows the progress in one line (step, warnings and errors so far, time) and every error in
+full; the complete output goes to the log.
 
 Two setup scripts take care of all of this; each shows a menu of steps, 0 runs all of them:
 

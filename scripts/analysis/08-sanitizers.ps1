@@ -11,7 +11,8 @@
   with file:line, ASan as "ERROR: AddressSanitizer: ...", both with stack traces. The programs
   keep running after a report, so all findings of a program are collected.
 
-  Needs the Visual Studio component "C++ Clang Compiler for Windows".
+  Needs the Visual Studio components "C++ Clang Compiler for Windows" and "C++ AddressSanitizer"
+  (stl_asan.lib, which the MSVC standard library links under ASan).
 
   Why it is set up this way (each point cost a failed attempt):
   - The static UBSan runtime of clang on Windows is built for /MT and can't be linked with the
@@ -47,19 +48,28 @@
 
 .PARAMETER VcpkgRoot
   The vcpkg folder. Default: the VCPKG_ROOT environment variable.
+
+.PARAMETER Yes
+  Start without asking; a build directory left from an earlier run is deleted.
 #>
 param(
     [string]$Images = '',
     [switch]$SkipBuild,
     [string]$OutDir = '',
     [string]$BuildDir = '',
-    [string]$VcpkgRoot = ''
+    [string]$VcpkgRoot = '',
+    [switch]$Yes
 )
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-ubsan" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $clang = Get-ClangCl
+# Linked by the MSVC standard library under ASan; without it the build fails only when linking.
+if (-not (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\stl_asan.lib")) {
+    throw "stl_asan.lib not found: scripts\setup\2-setup-analysis.ps1 (step 1) adds the Visual Studio " +
+          "component 'C++ AddressSanitizer'."
+}
 
 # The clang runtime libraries, e.g. ...\Llvm\x64\lib\clang\22\lib\windows.
 $rtDir = Get-ChildItem "$LlvmBin\..\lib\clang" -Directory | Sort-Object { [int]$_.Name } |
@@ -78,6 +88,25 @@ $header = @(
     "# ASAN_OPTIONS: $asanOptions"
 )
 
+$intro = @(
+    'Builds everything with clang-cl and the sanitizers ASan and UBSan, which report memory errors'
+    'and undefined behaviour while the programs run, then runs all test programs with them.'
+)
+if ($SkipBuild) {
+    if (-not (Test-Path "$BuildDir\CMakeCache.txt")) { throw "$BuildDir holds no build: run without -SkipBuild first." }
+    $intro += 'With -SkipBuild the existing build is used.'
+} else {
+    $intro += 'The build takes longer than a normal build.'
+}
+if ($Images) { $intro += "Afterwards the dev tools process the scans in $Images." }
+else { $intro += 'The dev tools on real scans are skipped: pass -Images <folder> for them.' }
+$intro += "Build directory: $BuildDir"
+$freshDir = if ($SkipBuild) { '' } else { $BuildDir }
+if (-not (Confirm-Run 'Analysis run 08: sanitizers ASan and UBSan' $intro "$OutDir\08-ubsan-*.log" $freshDir)) {
+    Write-Host 'Not started.'
+    exit 1
+}
+
 # --- Build ---------------------------------------------------------------------------------------
 if (-not $SkipBuild) {
     $log = "$OutDir\08-ubsan-build.log"
@@ -94,7 +123,7 @@ if (-not $SkipBuild) {
         "-DCMAKE_C_COMPILER=`"$cc`" -DCMAKE_CXX_COMPILER=`"$cc`"")
     Add-LogLine $log "# End: $(Get-Stamp)"
     Remove-Item Env:CFLAGS, Env:CXXFLAGS, Env:LDFLAGS
-    if ($rc -ne 0) { exit $rc }
+    if ($rc -ne 0) { Write-RunEnd $rc @("Log: $log"); exit $rc }
 }
 
 $env:UBSAN_OPTIONS = $ubsanOptions
@@ -117,6 +146,8 @@ function Read-Shared([string]$Path) {
 }
 
 function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$TimeoutMin) {
+    $clock = [Diagnostics.Stopwatch]::StartNew()
+    Write-Host "Running $Exe ... " -NoNewline
     Add-LogLine $Log "`r`n# ===== $Exe $ArgLine"
     Add-LogLine $Log "# Start: $(Get-Stamp)"
     $tmpOut = "$BuildDir\run-stdout.txt"
@@ -133,10 +164,13 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
     }
     Add-LogLine $Log '# --- stdout'
     Add-LogLine $Log (Read-Shared $tmpOut)
+    $stderr = Read-Shared $tmpErr
     Add-LogLine $Log '# --- stderr (UBSan and ASan reports go here)'
-    Add-LogLine $Log (Read-Shared $tmpErr)
+    Add-LogLine $Log $stderr
     Add-LogLine $Log "# Exit code: $($p.ExitCode)"
     Add-LogLine $Log "# End: $(Get-Stamp)"
+    $reports = ([regex]::Matches($stderr, 'runtime error:|ERROR: AddressSanitizer')).Count
+    Write-Host ("exit code {0}, {1} sanitizer reports, {2:hh\:mm\:ss}" -f $p.ExitCode, $reports, $clock.Elapsed)
 }
 
 # --- a) Tests ------------------------------------------------------------------------------------
@@ -147,7 +181,8 @@ foreach ($t in 'foundation_tests.exe', 'math_tests.exe', 'imageproc_tests.exe', 
 }
 
 # --- b) Dev tools on real scans ------------------------------------------------------------------
-if (-not $Images) { exit 0 }
+if (-not $Images) { Write-RunEnd 0 @("Log: $log"); exit 0 }
+$testLog = $log
 $log = "$OutDir\08-ubsan-tools.log"
 $in = "$BuildDir\tool-input"
 $res = "$BuildDir\tool-output"
@@ -162,4 +197,5 @@ New-Log $log '08: UBSan + ASan, dev tools binarization_compare and color_detect 
 Invoke-Logged $log 'binarization_compare.exe' "`"$res\binarization`" `"$in`"" 120
 Invoke-Logged $log 'binarization_compare.exe' "--colors `"$res\binarization-colors`" `"$in`"" 120
 Invoke-Logged $log 'color_detect.exe' "`"$in`" `"$res\color_detect`" --zones" 120
+Write-RunEnd 0 @("Logs: $testLog", "      $log")
 exit 0

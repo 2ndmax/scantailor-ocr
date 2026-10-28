@@ -17,16 +17,29 @@
 
 .PARAMETER VcpkgRoot
   The vcpkg folder. Default: the VCPKG_ROOT environment variable.
+
+.PARAMETER Yes
+  Start without asking; a build directory left from an earlier run is deleted.
 #>
 param(
     [string]$OutDir = '',
     [string]$BuildDir = '',
-    [string]$VcpkgRoot = ''
+    [string]$VcpkgRoot = '',
+    [switch]$Yes
 )
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-zc-preprocessor" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 
-exit (Invoke-ConformanceRun '06' 'msvc-zc-preprocessor' 'MSVC with /Zc:preprocessor' '/Zc:preprocessor' `
-    '' $OutDir $BuildDir $VcpkgRoot)
+if (-not (Confirm-Run 'Analysis run 06: MSVC with /Zc:preprocessor' @(
+    'A full build of everything with /W4 like run 01, but with the standard-conforming'
+    'preprocessor /Zc:preprocessor and without /analyze, so its warnings can be compared with'
+    'those of run 01. It takes about as long as a normal build.'
+    "Build directory: $BuildDir"
+) "$OutDir\06-msvc-zc-preprocessor.log" $BuildDir)) { Write-Host 'Not started.'; exit 1 }
+
+$rc = Invoke-ConformanceRun '06' 'msvc-zc-preprocessor' 'MSVC with /Zc:preprocessor' '/Zc:preprocessor' `
+    '' $OutDir $BuildDir $VcpkgRoot
+Write-RunEnd $rc @("Log: $OutDir\06-msvc-zc-preprocessor.log")
+exit $rc

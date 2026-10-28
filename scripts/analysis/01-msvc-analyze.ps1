@@ -19,11 +19,15 @@
 
 .PARAMETER VcpkgRoot
   The vcpkg folder. Default: the VCPKG_ROOT environment variable.
+
+.PARAMETER Yes
+  Start without asking; a build directory left from an earlier run is deleted.
 #>
 param(
     [string]$OutDir = '',
     [string]$BuildDir = '',
-    [string]$VcpkgRoot = ''
+    [string]$VcpkgRoot = '',
+    [switch]$Yes
 )
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
@@ -31,6 +35,13 @@ if (-not $BuildDir) { $BuildDir = "$Root\build-analysis" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $log = "$OutDir\01-msvc-analyze.log"
 $sarif = "$OutDir\01-msvc-analyze-sarif"
+
+if (-not (Confirm-Run 'Analysis run 01: MSVC with /W4 and /analyze' @(
+    'A full build of everything (program, tests, dev tools) with the warning level /W4 and the'
+    'static code analysis of the compiler (/analyze). It takes considerably longer than a normal'
+    'build. Its build directory is used by the runs 02, 03 and 04 afterwards.'
+    "Build directory: $BuildDir"
+) $log $BuildDir)) { Write-Host 'Not started.'; exit 1 }
 
 # Picked up by CMake on the first configure and appended to the default flags.
 $env:CFLAGS = '/analyze:log:format:sarif'
@@ -47,4 +58,5 @@ if ($rc -eq 0) {
     robocopy $BuildDir $sarif *.sarif /S /NJH /NJS /NDL /NFL /NP | Out-Null
 }
 Add-LogLine $log "# End: $(Get-Stamp)"
+Write-RunEnd $rc @("Log: $log", "SARIF files: $sarif")
 exit $rc

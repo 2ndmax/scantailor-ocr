@@ -19,11 +19,15 @@
 
 .PARAMETER VcpkgRoot
   The vcpkg folder. Default: the VCPKG_ROOT environment variable.
+
+.PARAMETER Yes
+  Start without asking; a build directory left from an earlier run is deleted.
 #>
 param(
     [string]$OutDir = '',
     [string]$BuildDir = '',
-    [string]$VcpkgRoot = ''
+    [string]$VcpkgRoot = '',
+    [switch]$Yes
 )
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
@@ -31,6 +35,14 @@ if (-not $BuildDir) { $BuildDir = "$Root\build-clang-cl" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $clang = Get-ClangCl
 $log = "$OutDir\07-clang-cl.log"
+
+if (-not (Confirm-Run 'Analysis run 07: clang-cl' @(
+    'A full build of everything with clang-cl, the Clang compiler of Visual Studio, instead of'
+    'MSVC cl.exe, as a second compiler with its own warnings. It takes about as long as a'
+    'normal build.'
+    "Build directory: $BuildDir"
+) $log $BuildDir)) { Write-Host 'Not started.'; exit 1 }
+
 $env:CFLAGS = '/W4 /external:W0 /external:anglebrackets'
 $env:CXXFLAGS = $env:CFLAGS
 
@@ -47,4 +59,5 @@ if (Test-Path "$BuildDir\CMakeCache.txt") {
     Add-LogLine $log "# Tools from CMakeCache: $tools"
 }
 Add-LogLine $log "# End: $(Get-Stamp)"
+Write-RunEnd $rc @("Log: $log")
 exit $rc

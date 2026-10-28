@@ -18,11 +18,15 @@
 
 .PARAMETER VcpkgRoot
   The vcpkg folder. Default: the VCPKG_ROOT environment variable.
+
+.PARAMETER Yes
+  Start without asking; a build directory left from an earlier run is deleted.
 #>
 param(
     [string]$OutDir = '',
     [string]$BuildDir = '',
-    [string]$VcpkgRoot = ''
+    [string]$VcpkgRoot = '',
+    [switch]$Yes
 )
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
@@ -30,5 +34,14 @@ if (-not $BuildDir) { $BuildDir = "$Root\build-cxx20" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $include = "$PSScriptRoot\std-cxx20.cmake" -replace '\\', '/'
 
-exit (Invoke-ConformanceRun '05' 'msvc-cxx20' 'MSVC with /std:c++20 instead of C++17' '' `
-    "-DCMAKE_PROJECT_INCLUDE=$include" $OutDir $BuildDir $VcpkgRoot)
+if (-not (Confirm-Run 'Analysis run 05: MSVC with C++20' @(
+    'A full build of everything with /W4 like run 01, but in C++20 instead of C++17 and without'
+    '/analyze, so its warnings can be compared with those of run 01. It takes about as long as a'
+    'normal build.'
+    "Build directory: $BuildDir"
+) "$OutDir\05-msvc-cxx20.log" $BuildDir)) { Write-Host 'Not started.'; exit 1 }
+
+$rc = Invoke-ConformanceRun '05' 'msvc-cxx20' 'MSVC with /std:c++20 instead of C++17' '' `
+    "-DCMAKE_PROJECT_INCLUDE=$include" $OutDir $BuildDir $VcpkgRoot
+Write-RunEnd $rc @("Log: $OutDir\05-msvc-cxx20.log")
+exit $rc

@@ -50,11 +50,84 @@ function Get-VcpkgRoot([string]$VcpkgRoot) {
     return (Resolve-Path $VcpkgRoot).Path
 }
 
-# Runs a command line in the Visual Studio x64 developer environment, appending all output to $Log.
+# Set by the scripts: $true when they run without questions (-Steps in the setup, -Yes in the
+# analysis runs); $AssumeYes then answers every question with yes.
+$Unattended = $false
+$AssumeYes = $false
+
+# A yes/no question; Enter takes $Default. Unattended: $Default, or yes with $AssumeYes.
+function Read-YesNo([string]$Question, [bool]$Default) {
+    if ($Unattended) { return ($AssumeYes -or $Default) }
+    $hint = if ($Default) { '[Y/n]' } else { '[y/N]' }
+    while ($true) {
+        $typed = (Read-Host "$Question $hint").Trim().ToLowerInvariant()
+        if (-not $typed) { return $Default }
+        if ($typed -in 'y', 'yes', 'j', 'ja') { return $true }
+        if ($typed -in 'n', 'no', 'nein') { return $false }
+    }
+}
+
+# Runs a command line through cmd and appends all its output to $Log. The window shows the
+# progress instead, in one line updated in place: the step of ninja ("[12/345] File.cpp") or of
+# cppcheck ("12/345 files checked"), else $Activity, with the warnings and errors so far and the
+# time; errors are shown in full as well. Returns the exit code.
 # Code page 65001 makes the compilers write their (localized) messages as UTF-8, like the log header.
-function Invoke-VsLogged([string]$CommandLine, [string]$Log) {
-    cmd /c "chcp 65001 >nul && `"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine >> `"$Log`" 2>&1"
-    return $LASTEXITCODE
+function Invoke-Streamed([string]$CommandLine, [string]$Log, [string]$Activity = 'Running') {
+    $writer = New-Object IO.StreamWriter($Log, $true, $Utf8)
+    $writer.AutoFlush = $true
+    $oldEncoding = [Console]::OutputEncoding
+    # Without a console (e.g. in the ISE) the encoding can't be set; the log then may show
+    # umlauts wrongly, nothing else.
+    try { [Console]::OutputEncoding = $Utf8 } catch {}
+    $width = 120
+    try { $width = [math]::Max(40, $Host.UI.RawUI.WindowSize.Width) } catch {}
+    $blank = "`r" + (' ' * ($width - 1)) + "`r"
+    $clock = [Diagnostics.Stopwatch]::StartNew()
+    $shownAt = -1000
+    $step = $Activity
+    $warnings = 0
+    $errors = 0
+    try {
+        # ForEach-Object runs in this scope, so the counters below keep their values.
+        cmd /c "chcp 65001 >nul && $CommandLine 2>&1" | ForEach-Object {
+            $line = "$_"
+            $writer.WriteLine($line)
+            if ($line -match '^\[(\d+)/(\d+)\]\s+(.*)$' -or $line -match '^(\d+)/(\d+) files checked') {
+                # The file name alone, from e.g. "Building CXX object src\core\CMakeFiles\...\File.cpp.obj".
+                $item = if ($Matches[3]) { ($Matches[3] -split '\s+')[-1] -replace '^.*[\\/]', '' } else { '' }
+                $step = ('[{0}/{1}] {2}% {3}' -f $Matches[1], $Matches[2], [int](100 * $Matches[1] / $Matches[2]), ($item -replace '\.obj$', '')).TrimEnd()
+            }
+            # ninja's "FAILED:" line names the step of an error that is already counted.
+            if ($line -match ': (fatal )?error\b|^FAILED: |^CMake Error') {
+                if ($line -notmatch '^FAILED: ') { $errors++ }
+                Write-Host $blank -NoNewline
+                Write-Host $line -ForegroundColor Red
+                $shownAt = -1000
+            } elseif ($line -match ': warning\b') {
+                $warnings++
+            }
+            # At most a few updates a second: writing to the console is slow.
+            if ($clock.ElapsedMilliseconds - $shownAt -ge 300) {
+                $status = "{0} | {1} warnings, {2} errors | {3:hh\:mm\:ss}" -f $step, $warnings, $errors, $clock.Elapsed
+                Write-Host ("`r" + $status.PadRight($width - 1).Substring(0, $width - 1)) -NoNewline
+                $shownAt = $clock.ElapsedMilliseconds
+            }
+        }
+        $rc = $LASTEXITCODE
+    } finally {
+        $writer.Close()
+        try { [Console]::OutputEncoding = $oldEncoding } catch {}
+    }
+    $status = "{0} | {1} warnings, {2} errors | {3:hh\:mm\:ss}" -f $step, $warnings, $errors, $clock.Elapsed
+    Write-Host ("`r" + $status.PadRight($width - 1).Substring(0, $width - 1))
+    if ($rc -ne 0) { Write-Host "Exit code $rc; the details are in $Log" -ForegroundColor Red }
+    return $rc
+}
+
+# Runs a command line in the Visual Studio x64 developer environment, appending all output to $Log
+# and showing the progress (see Invoke-Streamed).
+function Invoke-VsLogged([string]$CommandLine, [string]$Log, [string]$Activity = 'Running') {
+    return (Invoke-Streamed "`"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine" $Log $Activity)
 }
 
 # The value of an environment variable inside the developer environment (e.g. INCLUDE).

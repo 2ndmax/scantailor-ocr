@@ -24,12 +24,16 @@
 
 .PARAMETER Only
   Check just this one source file (a trial run, no log).
+
+.PARAMETER Yes
+  Start without asking.
 #>
 param(
     [string]$OutDir = '',
     [string]$BuildDir = '',
     [string]$Cppcheck = '',
-    [string]$Only = ''
+    [string]$Only = '',
+    [switch]$Yes
 )
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
@@ -42,6 +46,14 @@ $dbDir = "$BuildDir\cppcheck-db"
 $cache = "$BuildDir\cppcheck-build"
 $log = "$OutDir\03-cppcheck.log"
 $xml = "$OutDir\03-cppcheck.xml"
+Assert-Run01 $BuildDir
+
+# A trial run with -Only is quick and asks nothing.
+if (-not $Only -and -not (Confirm-Run 'Analysis run 03: cppcheck' @(
+    'cppcheck checks every source file in src\ (without the tests) for errors, warnings and'
+    'performance and portability problems. It uses the build directory of run 01.'
+    "Build directory of run 01: $BuildDir"
+) $log)) { Write-Host 'Not started.'; exit 1 }
 
 $vcpkgInclude = '\s(-I|-external:I|/external:I)\s*' + [regex]::Escape((Get-VcpkgRoot '')) + '\S*'
 $sel = Get-FilteredCompileDb $BuildDir @('\s/analyze\S*', $vcpkgInclude)
@@ -77,8 +89,8 @@ New-Log $log '03: cppcheck, severities error + warning, performance, portability
     "# Command: `"$Cppcheck`" $($cargs -join ' ')"
 )
 $quoted = ($cargs | ForEach-Object { if ($_ -match ' ') { "`"$_`"" } else { $_ } }) -join ' '
-cmd /c "`"$Cppcheck`" $quoted >> `"$log`" 2>&1"
-$rc = $LASTEXITCODE
+$rc = Invoke-Streamed "`"$Cppcheck`" $quoted" $log 'cppcheck'
 Add-LogLine $log "`r`n# cppcheck exit code: $rc"
 Add-LogLine $log "# End: $(Get-Stamp)"
+Write-RunEnd $rc @("Results: $xml", "Log: $log")
 exit $rc

@@ -43,6 +43,9 @@
 
 .PARAMETER BuildDir
   The build directory of run 01. Default: build-analysis in the repository.
+
+.PARAMETER Yes
+  Start without asking.
 #>
 param(
     [string]$EdgDir = '',
@@ -50,7 +53,8 @@ param(
     [string[]]$Suppress = @(),
     [switch]$Remarks,
     [string]$OutDir = '',
-    [string]$BuildDir = ''
+    [string]$BuildDir = '',
+    [switch]$Yes
 )
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
@@ -61,6 +65,14 @@ $cpfe = "$EdgDir\build\msvc-release\bin\cpfe.exe"
 if (-not (Test-Path $cpfe)) { throw "$cpfe not found: run scripts\setup\3-setup-edg.ps1 first." }
 $run = "$BuildDir\edg-run"
 $log = "$OutDir\04-edg.log"
+Assert-Run01 $BuildDir
+
+if (-not (Confirm-Run 'Analysis run 04: EDG C++ front end' @(
+    'EDG, a third C++ front end besides MSVC and Clang, checks every source file in src\ (without'
+    'the tests) like a compiler, without generating code. It uses the build directory of run 01.'
+    "Build directory of run 01: $BuildDir"
+    "EDG: $EdgDir"
+) $log)) { Write-Host 'Not started.'; exit 1 }
 
 $sel = Get-FilteredCompileDb $BuildDir
 if ($Files) {
@@ -122,7 +134,18 @@ New-Log $log '04: EDG C++ front end, MSVC emulation with /permissive-' @(
     "# Per-file options and commands: $run\build.ninja"
     "# Build: ninja -C `"$run`" -k 0"
 )
-$rc = Invoke-VsLogged "ninja -C `"$run`" -k 0" $log
+$rc = Invoke-VsLogged "ninja -C `"$run`" -k 0" $log 'EDG'
 Add-LogLine $log "`r`n# Ninja exit code: $rc (non-zero if EDG reported an error in any file)"
 Add-LogLine $log "# End: $(Get-Stamp)"
+Write-RunEnd $rc @("Log: $log")
+if ($rc -ne 0) {
+    # The known error #2422 in Qt's qrunnable.h fails every file that includes it (see README),
+    # but EDG checks those files to the end.
+    $errors = @(Select-String -LiteralPath $log -Pattern ': error #' | ForEach-Object Line)
+    $known = @($errors | Where-Object { $_ -match 'qrunnable\.h.*error #2422' })
+    if ($errors.Count -and $known.Count -eq $errors.Count) {
+        Write-Host "All files were checked. The $($known.Count) errors are the known one in Qt's qrunnable.h" -ForegroundColor Yellow
+        Write-Host '(#2422, see "What to expect" in scripts\analysis\README.md); there are no others.' -ForegroundColor Yellow
+    }
+}
 exit $rc

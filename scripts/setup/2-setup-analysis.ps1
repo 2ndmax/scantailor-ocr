@@ -6,8 +6,9 @@
   Offers the tools in a menu; each step can be run on its own, 0 runs all of them in order, 9
   shows for every analysis run whether its tools are there:
     1. Visual Studio components, added with the Visual Studio Installer: "C++ Clang Compiler for
-       Windows" (clang-cl and the sanitizer runtime, runs 07 and 08) and the .NET Framework
-       4.8.1 SDK (run 04).
+       Windows" (clang-cl and the sanitizer runtime, runs 07 and 08), "C++ AddressSanitizer"
+       (stl_asan.lib, which the MSVC standard library asks for under ASan, run 08) and the .NET
+       Framework 4.8.1 SDK (run 04).
     2. cppcheck (run 03), installed with winget into its standard folder C:\Program Files\Cppcheck.
     3. EDG (run 04): starts 3-setup-edg.ps1.
   clang-tidy (run 02) comes with Visual Studio itself; the build itself is set up by
@@ -33,14 +34,19 @@ $log = "$LogDir\2-setup-analysis.log"
 New-Log $log 'setup 2: analysis tools' -KeepPrevious
 
 $ClangComponent = 'Microsoft.VisualStudio.Component.VC.Llvm.Clang'
+$AsanComponent = 'Microsoft.VisualStudio.Component.VC.ASAN'
 $NetSdkComponent = 'Microsoft.Net.Component.4.8.1.SDK'
 $CppcheckFolder = "$env:ProgramFiles\Cppcheck"
 
 function Test-ClangCl { return [bool]($Vs -and (Test-Path "$LlvmBin\clang-cl.exe")) }
-function Test-Sanitizers {
+function Test-ClangRuntime {
     return [bool]((Test-ClangCl) -and
         (Test-Path "$LlvmBin\..\lib\clang\*\lib\windows\clang_rt.asan_dynamic-x86_64.lib"))
 }
+# The MSVC standard library links stl_asan.lib when built with ASan; it comes with the
+# component "C++ AddressSanitizer", not with the Clang compiler.
+function Test-StlAsan { return [bool]($Vs -and (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\stl_asan.lib")) }
+function Test-Sanitizers { return ((Test-ClangRuntime) -and (Test-StlAsan)) }
 function Test-NetSdk {
     return [bool](Test-Path "${env:ProgramFiles(x86)}\Windows Kits\NETFXSDK\*\Lib\um\x64\mscoree.lib")
 }
@@ -64,7 +70,8 @@ $status = {
     if (-not (Get-Cpfe)) { $edgMissing += 'EDG (step 3)' }
     $edg = if ($edgMissing) { "missing: $($edgMissing -join ', ')" } else { "ready ($env:EDG_ROOT)" }
     $clang = if (Test-ClangCl) { 'ready' } else { 'missing: Visual Studio component "C++ Clang Compiler for Windows" (step 1)' }
-    $sanitizers = if (Test-Sanitizers) { 'ready' } else { $clang }
+    $sanitizers = if (Test-Sanitizers) { 'ready' } elseif (-not (Test-ClangRuntime)) { $clang } `
+                  else { 'missing: Visual Studio component "C++ AddressSanitizer" (step 1)' }
     $vcpkg = if ($env:VCPKG_ROOT -and (Test-Path $env:VCPKG_ROOT)) { "ready ($env:VCPKG_ROOT)" } `
              else { 'missing: VCPKG_ROOT (1-setup-windows.ps1, step 4)' }
     @(
@@ -83,7 +90,8 @@ $stepComponents = {
     $instance = Get-AnyVsInstance
     if (-not $instance) { Write-Host 'Visual Studio is missing: run 1-setup-windows.ps1 first.' -ForegroundColor Red; return $false }
     $missing = @()
-    if (-not (Test-Sanitizers)) { $missing += $ClangComponent }
+    if (-not (Test-ClangRuntime)) { $missing += $ClangComponent }
+    if (-not (Test-StlAsan)) { $missing += $AsanComponent }
     if (-not (Test-NetSdk)) { $missing += $NetSdkComponent }
     if (-not $missing.Count) { Write-Host 'The components are there.'; return $true }
     if (-not (Add-VsComponents $instance $missing $log)) { return $false }
@@ -126,7 +134,7 @@ $stepEdg = {
 }
 
 $menu = @(
-    @{ Title = 'Visual Studio components: Clang compiler (runs 07, 08), .NET Framework 4.8.1 SDK (run 04)'
+    @{ Title = 'Visual Studio components: Clang compiler (runs 07, 08), AddressSanitizer (run 08), .NET Framework 4.8.1 SDK (run 04)'
        Done = { (Test-Sanitizers) -and (Test-NetSdk) }; Run = $stepComponents }
     @{ Title = "cppcheck (run 03), into $CppcheckFolder"
        Done = { [bool](Find-Cppcheck) }; Run = $stepCppcheck }

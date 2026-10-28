@@ -19,10 +19,14 @@
 
 .PARAMETER BuildDir
   The build directory of run 01. Default: build-analysis in the repository.
+
+.PARAMETER Yes
+  Start without asking.
 #>
 param(
     [string]$OutDir = '',
-    [string]$BuildDir = ''
+    [string]$BuildDir = '',
+    [switch]$Yes
 )
 . "$PSScriptRoot\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
@@ -32,6 +36,13 @@ $dbDir = "$BuildDir\tidy-db"
 $run = "$BuildDir\tidy-run"
 $fixes = "$OutDir\02-clang-tidy-fixes"
 $log = "$OutDir\02-clang-tidy.log"
+Assert-Run01 $BuildDir
+
+if (-not (Confirm-Run 'Analysis run 02: clang-tidy' @(
+    'clang-tidy checks every source file in src\ (without the tests) with the checks in'
+    '.clang-tidy, several files at a time. It uses the build directory of run 01.'
+    "Build directory of run 01: $BuildDir"
+) $log)) { Write-Host 'Not started.'; exit 1 }
 
 $sel = Get-FilteredCompileDb $BuildDir @('\s/analyze\S*')
 Save-CompileDb $sel $dbDir
@@ -61,7 +72,8 @@ New-Log $log '02: clang-tidy, checks from .clang-tidy in the repository' (@(
     "# Per-file command: `"$tidy`" -p `"$dbDir`" --export-fixes=<yaml> <file>"
     "# Build: ninja -C `"$run`" -k 0"
 ))
-$rc = Invoke-VsLogged "ninja -C `"$run`" -k 0" $log
+$rc = Invoke-VsLogged "ninja -C `"$run`" -k 0" $log 'clang-tidy'
 Add-LogLine $log "`r`n# Ninja exit code: $rc (non-zero if any clang-tidy call failed)"
 Add-LogLine $log "# End: $(Get-Stamp)"
+Write-RunEnd $rc @("Log: $log", "Diagnostics as YAML: $fixes")
 exit $rc

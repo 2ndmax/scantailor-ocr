@@ -177,8 +177,9 @@ is described in [scripts/analysis/README.md](scripts/analysis/README.md).
 installs the missing ones. By hand, they need, in addition to the steps above:
 
 * For the clang-cl build and the sanitizers: the Visual Studio component
-  **"C++ Clang Compiler for Windows"** (Visual Studio Installer → "Modify" → "Individual
-  components"). clang-tidy and clang-format come with Visual Studio.
+  **"C++ Clang Compiler for Windows"**, for the sanitizers also **"C++ AddressSanitizer"**
+  (Visual Studio Installer → "Modify" → "Individual components"). clang-tidy and clang-format
+  come with Visual Studio.
 * For the cppcheck run: [cppcheck](https://cppcheck.sourceforge.io/), installed to
   `C:\Program Files\Cppcheck` or on the `PATH`.
 * For the EDG run: the Visual Studio component **".NET Framework 4.8.1 SDK"**, and EDG set up
