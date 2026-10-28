@@ -127,7 +127,8 @@ function Read-Lines([string] $name) {
 }
 
 # MSVC: file(line): warning C4xxx: text   and   file(line) : warning C6xxx: text
-$reMsvc = '^(?<file>[A-Za-z]:\\[^(]+)\((?<line>\d+)(,\d+)?\)\s?:\s+warning (?<code>C\d{4}):\s*(?<msg>.*)$'
+# Code analysis also has five-digit codes (C26xxx, C28xxx).
+$reMsvc = '^(?<file>[A-Za-z]:\\[^(]+)\((?<line>\d+)(,\d+)?\)\s?:\s+warning (?<code>C\d{4,5}):\s*(?<msg>.*)$'
 foreach ($run in @(@('01', '01-msvc-analyze.log'), @('05', '05-msvc-cxx20.log'),
                    @('06', '06-msvc-zc-preprocessor.log'))) {
   foreach ($l in Read-Lines $run[1]) {
