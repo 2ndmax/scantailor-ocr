@@ -2643,6 +2643,8 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
 
   std::vector<QPointF> topPolyline;
   std::vector<QPointF> bottomPolyline;
+  topPolyline.reserve(topPolyline0.size());
+  bottomPolyline.reserve(bottomPolyline0.size());
 
   for (auto i : topPolyline0) {
     topPolyline.push_back(transform.map(i));
@@ -2663,6 +2665,7 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
 
       if (topX < bottomX) {
         std::vector<QPointF> newBottomPolyline;
+        newBottomPolyline.reserve(bottomPolyline.size() + 1);
 
         const QPointF pt(topX, bottomPolyline.front().y());
 
@@ -2675,6 +2678,7 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
         distortionModel.setBottomCurve(Curve(newBottomPolyline));
       } else {
         std::vector<QPointF> newTopPolyline;
+        newTopPolyline.reserve(topPolyline.size() + 1);
 
         const QPointF pt(bottomX, topPolyline.front().y());
 
@@ -2696,6 +2700,7 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
 
       if (topX > bottomX) {
         std::vector<QPointF> newBottomPolyline;
+        newBottomPolyline.reserve(bottomPolyline.size() + 1);
 
         const QPointF pt(topX, bottomPolyline.back().y());
 
@@ -2708,6 +2713,7 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
         distortionModel.setBottomCurve(Curve(newBottomPolyline));
       } else {
         std::vector<QPointF> newTopPolyline;
+        newTopPolyline.reserve(topPolyline.size() + 1);
 
         const QPointF pt(bottomX, topPolyline.back().y());
 

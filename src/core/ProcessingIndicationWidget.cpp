@@ -17,10 +17,13 @@ static const double distinctionIncrease = 1.0 / 5.0;
 static const double distinctionDecrease = -1.0 / 3.0;
 
 ProcessingIndicationWidget::ProcessingIndicationWidget(QWidget* parent)
-    : QWidget(parent), m_animation(10), m_distinction(1.0), m_distinctionDelta(distinctionIncrease), m_timerId(0) {
-  m_headColor = ColorSchemeManager::instance().getColorParam("ProcessingIndicationHead");
-  m_tailColor = ColorSchemeManager::instance().getColorParam("ProcessingIndicationTail");
-}
+    : QWidget(parent),
+      m_animation(10),
+      m_headColor(ColorSchemeManager::instance().getColorParam("ProcessingIndicationHead")),
+      m_tailColor(ColorSchemeManager::instance().getColorParam("ProcessingIndicationTail")),
+      m_distinction(1.0),
+      m_distinctionDelta(distinctionIncrease),
+      m_timerId(0) {}
 
 void ProcessingIndicationWidget::resetAnimation() {
   m_distinction = 1.0;

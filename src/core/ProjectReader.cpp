@@ -347,6 +347,7 @@ std::vector<QString> ProjectReader::directories() const {
     return lhs.first < rhs.first;
   });
   std::vector<QString> dirs;
+  dirs.reserve(sorted.size());
   for (const auto& entry : sorted) {
     dirs.push_back(entry.second);
   }

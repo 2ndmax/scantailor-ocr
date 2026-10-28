@@ -107,6 +107,7 @@ TextLines textLines(const BinaryImage& image) {
     return result;
   }
   std::vector<int> heights;
+  heights.reserve(bands.size());
   for (const Band& band : bands) {
     heights.push_back(band.height());
   }

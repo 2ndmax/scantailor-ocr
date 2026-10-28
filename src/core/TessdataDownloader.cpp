@@ -157,7 +157,7 @@ void TessdataDownloader::listingFinished() {
       emit listReady(std::vector<TessdataFile>(), tr("GitHub sent an unexpected answer."));
       return;
     }
-    for (const QJsonValue& value : doc.array()) {
+    for (const QJsonValue value : doc.array()) {
       TessdataFile file;
       if (listedFile(value.toObject(), path, &file)) {
         m_listedFiles.push_back(file);
