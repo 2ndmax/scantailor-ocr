@@ -143,7 +143,7 @@ void jbig2enc_init(struct jbig2enc_ctx* ctx) {
 // -----------------------------------------------------------------------------
 // Emit a byte from the compressor by appending it to the output.
 // -----------------------------------------------------------------------------
-static void inline emit(struct jbig2enc_ctx* restrict ctx) {
+static void inline emit_byte(struct jbig2enc_ctx* restrict ctx) {
   ctx->output.push_back(ctx->b);
 }
 
@@ -163,7 +163,7 @@ static void byteout(struct jbig2enc_ctx* restrict ctx) {
 
 rblock:
   if (ctx->bp >= 0) {
-    emit(ctx);
+    emit_byte(ctx);
   }
   ctx->b = ctx->c >> 20;
   ctx->bp++;
@@ -173,7 +173,7 @@ rblock:
 
 lblock:
   if (ctx->bp >= 0) {
-    emit(ctx);
+    emit_byte(ctx);
   }
   ctx->b = ctx->c >> 19;
   ctx->bp++;
@@ -242,13 +242,13 @@ static void encode_final(struct jbig2enc_ctx* restrict ctx) {
   byteout(ctx);
   ctx->c <<= ctx->ct;
   byteout(ctx);
-  emit(ctx);
+  emit_byte(ctx);
   if (ctx->b != 0xff) {
     ctx->b = 0xff;
-    emit(ctx);
+    emit_byte(ctx);
   }
   ctx->b = 0xac;
-  emit(ctx);
+  emit_byte(ctx);
 }
 
 // see comments in .h file
@@ -283,7 +283,7 @@ void jbig2enc_bitimage(struct jbig2enc_ctx* restrict ctx,
     // No pixels: each row would still read its first word.
     return;
   }
-  const u32* restrict data = (u32*) idata;
+  const u32* restrict data = reinterpret_cast<const u32*>(idata);
   u8* const context = ctx->context;
   const unsigned words_per_row = (mx + 31) / 32;
   const unsigned bytes_per_row = words_per_row * 4;
@@ -300,6 +300,9 @@ void jbig2enc_bitimage(struct jbig2enc_ctx* restrict ctx,
     // up etc. The next bit to roll onto the context values are kept at the top
     // of these words.
     u32 w1, w2, w3;
+    // REVIEW-NOTE (2026-10): w3 = 0 is always overwritten by w3 = data[...] below before w3 is
+    // read -> a dead store without effect. Not fixed because it is upstream jbig2enc code, which is
+    // kept as close to the original as possible.
     w1 = w2 = w3 = 0;
 
     if (y >= 2)

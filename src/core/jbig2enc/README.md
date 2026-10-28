@@ -34,6 +34,13 @@ Changes made for ScanTailor OCR (2026):
   `__restrict__` (which the header used to define for MSVC). It includes
   `<cstdint>` instead of choosing between `<sys/types.h>` (Solaris) and
   `<stdint.h>`.
+* Changes for the static analysers (2026-10), none of them changes the coded
+  output: the members of `jbig2enc_ctx` have `{}` initializers (cppcheck
+  uninitMemberVarNoCtor); the static function `emit` is renamed to `emit_byte`,
+  because with `--library=qt` cppcheck takes `emit` for Qt's macro
+  (constStatement); the C-style cast of the image data in `jbig2enc_bitimage()`
+  is a `reinterpret_cast`. The dead store `w3 = 0` there is kept and marked with
+  a REVIEW-NOTE.
 * Formatted with the repository's `.clang-format` like all other code. Only the
   state table `ctbl` is excluded (`// clang-format off`), so that it keeps one
   line per state as in Table E.1 of the standard.

@@ -37,13 +37,13 @@
 // -----------------------------------------------------------------------------
 struct jbig2enc_ctx {
   // these are the current state of the arithmetic coder
-  uint32_t c;
-  uint16_t a;
-  uint8_t ct, b;
-  int bp;
+  uint32_t c{};
+  uint16_t a{};
+  uint8_t ct{}, b{};
+  int bp{};
 
-  std::vector<uint8_t> output;     // the coded bytes so far
-  uint8_t context[JBIG2_MAX_CTX];  // state machine context for encoding images
+  std::vector<uint8_t> output;       // the coded bytes so far
+  uint8_t context[JBIG2_MAX_CTX]{};  // state machine context for encoding images
 };
 
 // -----------------------------------------------------------------------------
