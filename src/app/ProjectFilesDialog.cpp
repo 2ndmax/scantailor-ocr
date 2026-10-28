@@ -225,6 +225,7 @@ void ProjectFilesDialog::chooseExistingImages(const QString& dir, const std::vec
 
   // None is chosen at first, so images are only added on purpose.
   std::vector<Item> items;
+  items.reserve(images.size());
   for (const QFileInfo& image : images) {
     items.emplace_back(image, Qt::ItemIsSelectable | Qt::ItemIsEnabled);
   }

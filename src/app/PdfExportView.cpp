@@ -589,6 +589,7 @@ bool PdfExportView::isRunning() const {
 
 std::set<PageId> PdfExportView::pagesToOutput() const {
   std::vector<PdfExportPage> pages;
+  pages.reserve(m_entries.size());
   for (const Entry& entry : m_entries) {
     pages.push_back(entry.page);
   }

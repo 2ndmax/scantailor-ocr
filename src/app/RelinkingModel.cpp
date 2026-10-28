@@ -263,6 +263,10 @@ void RelinkingModel::addPath(const RelinkablePath& path) {
   requestItemStatusUpdate(itemIdx);
 }
 
+// REVIEW-NOTE (2026-10): 'prefix' and 'replacement' are taken by value -> two QString copies per
+// relink action. Not fixed because the copies are cheap (shared data), and the function emits item
+// signals while it still uses both strings: a slot may change the caller's string (RelinkingDialog's
+// m_nodePath), which a const reference would then see.
 bool RelinkingModel::replacePrefix(const QString prefix,
                                    const QString replacement,
                                    const RelinkablePath::Type type,

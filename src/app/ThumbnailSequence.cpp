@@ -28,6 +28,7 @@
 #include <iterator>
 #include <memory>
 #include <optional>
+#include <utility>
 
 #include "ColorSchemeManager.h"
 #include "IncompleteThumbnail.h"
@@ -65,7 +66,9 @@ class ThumbnailSequence::GraphicsScene : public QGraphicsScene {
  public:
   using ContextMenuEventCallback = std::function<void(QGraphicsSceneContextMenuEvent*)>;
 
-  void setContextMenuEventCallback(ContextMenuEventCallback callback) { m_contextMenuEventCallback = callback; }
+  void setContextMenuEventCallback(ContextMenuEventCallback callback) {
+    m_contextMenuEventCallback = std::move(callback);
+  }
 
  protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override {

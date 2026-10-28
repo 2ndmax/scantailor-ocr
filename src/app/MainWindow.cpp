@@ -1091,7 +1091,7 @@ void MainWindow::pageContextMenuRequested(const PageInfo& pageInfo_, const QPoin
 
   // Selecting by pattern, relative to the page clicked. The pages can then be adjusted with
   // Ctrl and Shift, and "Apply to ..." offers them as the selected pages.
-  const PageId pageId = pageInfo.id();
+  const PageId& pageId = pageInfo.id();
   const PageSequence pages = allPages();
   const std::set<PageId> selection = m_thumbSequence->selectedItems();
   const bool pageSelected = selection.count(pageId) != 0;
