@@ -11,6 +11,8 @@
 //     For each result present in both folders, writes <name>_<level>_diff.png: black = kept by both,
 //     light gray = removed by both, red = removed only after the change, green = kept only after it.
 //     Also writes <name>_<level>_spots.png with enlarged crops around the changes and prints counts.
+//   despeckle_compare bench <output folder> [--images]
+//     Measures the despeckling on generated pages with known text and noise (see Bench.h).
 
 #include <BinaryImage.h>
 #include <BinaryThreshold.h>
@@ -20,25 +22,18 @@
 #include <ImageLoader.h>
 #include <NullTaskStatus.h>
 
-#include <QCoreApplication>
 #include <QDir>
+#include <QGuiApplication>
 #include <QImage>
-#include <QPainter>
-#include <algorithm>
 #include <iostream>
 #include <vector>
+
+#include "Bench.h"
+#include "SpotSheet.h"
 
 using namespace imageproc;
 
 namespace {
-struct LevelName {
-  Despeckle::Level level;
-  const char* name;
-};
-
-const LevelName kLevels[]
-    = {{Despeckle::CAUTIOUS, "cautious"}, {Despeckle::NORMAL, "normal"}, {Despeckle::AGGRESSIVE, "aggressive"}};
-
 int run(const QString& inDir, const QString& outDir, const int dpi) {
   QDir().mkpath(outDir);
   const QStringList files = QDir(inDir).entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
@@ -108,40 +103,21 @@ int diff(const QString& beforeDir, const QString& afterDir, const QString& outDi
     out.save(QDir(outDir).filePath(name + "_diff.png"));
     std::cout << name.toStdString() << ": newly removed " << newlyRemoved << " px, newly kept " << newlyKept << " px\n";
 
-    // Enlarged crops around the changes, one per 60x60 cell, at most 48.
-    const int cell = 60;
-    const int scale = 4;
-    std::vector<QPoint> spots;
-    for (const QPoint& p : changes) {
-      const QPoint key(p.x() / cell, p.y() / cell);
-      if (std::find(spots.begin(), spots.end(), key) == spots.end()) {
-        spots.push_back(key);
-      }
-    }
-    if (spots.empty()) {
-      continue;
-    }
-    const int count = std::min<int>(int(spots.size()), 48);
-    const int cols = 8;
-    const int rows = (count + cols - 1) / cols;
-    const int tile = cell * scale;
-    QImage sheet(cols * (tile + 4), rows * (tile + 4), QImage::Format_RGB32);
-    sheet.fill(qRgb(80, 80, 80));
-    QPainter painter(&sheet);
-    for (int i = 0; i < count; ++i) {
-      const QRect src(spots[i].x() * cell - cell / 2, spots[i].y() * cell - cell / 2, cell * 2, cell * 2);
-      const QImage crop = out.copy(src).scaled(tile, tile, Qt::KeepAspectRatio, Qt::FastTransformation);
-      painter.drawImage((i % cols) * (tile + 4), (i / cols) * (tile + 4), crop);
-    }
-    painter.end();
-    sheet.save(QDir(outDir).filePath(name + "_spots.png"));
+    saveSpotSheet(out, changes, QDir(outDir).filePath(name + "_spots.png"));
   }
   return 0;
 }
 }  // namespace
 
 int main(int argc, char** argv) {
-  QCoreApplication app(argc, argv);
+  // The benchmark renders text, which needs fonts and thus a GUI application, but no window.
+  // Elsewhere there may be no display; on Windows the offscreen platform finds no fonts.
+#ifndef Q_OS_WIN
+  if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
+    qputenv("QT_QPA_PLATFORM", "offscreen");
+  }
+#endif
+  QGuiApplication app(argc, argv);
   const QStringList args = app.arguments();
   if ((args.size() >= 4) && (args[1] == "run")) {
     int dpi = 200;
@@ -152,10 +128,14 @@ int main(int argc, char** argv) {
     }
     return run(args[2], args[3], dpi);
   }
+  if ((args.size() >= 3) && (args[1] == "bench")) {
+    return bench(args[2], args.mid(3).contains("--images"));
+  }
   if ((args.size() == 5) && (args[1] == "diff")) {
     return diff(args[2], args[3], args[4]);
   }
   std::cerr << "usage: despeckle_compare run <input folder> <output folder> [--dpi=200]\n"
-               "       despeckle_compare diff <before folder> <after folder> <output folder>\n";
+               "       despeckle_compare diff <before folder> <after folder> <output folder>\n"
+               "       despeckle_compare bench <output folder> [--images]\n";
   return 1;
 }
