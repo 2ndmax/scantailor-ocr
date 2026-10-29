@@ -3,7 +3,7 @@
   Merges the raw output of the analysis runs into one table of distinct findings.
 
 .DESCRIPTION
-  Reads the logs written by the run scripts in this folder (01-08) and collects every warning
+  Reads the logs written by the run scripts in this folder (01-09) and collects every warning
   or runtime report with its location. A finding is one combination of tool, check, file and
   line; repeats (a header reported once per including file, the same warning in the runs 01, 05
   and 06) are merged, and the runs that reported it are listed.
@@ -41,7 +41,7 @@ param(
 $Unattended = [bool]$Yes
 $AssumeYes = [bool]$Yes
 if (-not $AnalysisDir) { $AnalysisDir = Join-Path $PSScriptRoot 'results' }
-if (-not (Test-Path $AnalysisDir)) { throw "$AnalysisDir not found: run the analysis runs 01 to 08 first." }
+if (-not (Test-Path $AnalysisDir)) { throw "$AnalysisDir not found: run the analysis runs 01 to 09 first." }
 $AnalysisDir = (Resolve-Path $AnalysisDir).Path
 
 # The files read below, per run. "# End:" in a log means its run finished.
@@ -56,12 +56,13 @@ $inputs = @(
   @{ Run = '08'; What = 'sanitizers: build'; File = '08-ubsan-build.log' }
   @{ Run = '08'; What = 'sanitizers: tests'; File = '08-ubsan-tests.log' }
   @{ Run = '08'; What = 'sanitizers: dev tools (only with -Images)'; File = '08-ubsan-tools.log' }
+  @{ Run = '09'; What = 'fuzzing'; File = '09-fuzz.log' }
 )
 
 Write-Host ''
 Write-Host 'Analysis run 10: merge the findings' -ForegroundColor Cyan
 Write-Host ''
-Write-Host 'Reads the logs of the runs 01 to 08 and merges their warnings and runtime reports into one'
+Write-Host 'Reads the logs of the runs 01 to 09 and merges their warnings and runtime reports into one'
 Write-Host 'table: the same finding reported by several runs or for several including files counts'
 Write-Host 'once. Writes findings.csv (all findings, for Excel) and findings.md (a summary, then the'
 Write-Host 'findings by file and line).'
@@ -170,12 +171,28 @@ foreach ($l in Read-Lines '04-edg.log') {
   }
 }
 
-# Sanitizers: UBSan reports its location directly; for ASan the first stack frame
-# in the project's own code is taken (or the first frame at all, if there is none).
+# Sanitizers and fuzzing: UBSan reports its location directly; for ASan and libFuzzer (crash,
+# out-of-memory, timeout) the first stack frame in the project's own code is taken (or the first
+# frame at all, if there is none). Function names may contain spaces ("`anonymous namespace'::f").
 $reUbsan = '^(?<file>[A-Za-z]:\\.+?):(?<line>\d+):\d+: runtime error: (?<msg>.*)$'
-$reFrame = '^\s+#\d+ 0x[0-9a-f]+ in \S+ (?<file>[A-Za-z]:\\.+?):(?<line>\d+)'
-foreach ($name in @('08-ubsan-tests.log', '08-ubsan-tools.log')) {
-  $lines = Read-Lines $name
+$reFrame = '^\s+#\d+ 0x[0-9a-f]+ in .+? (?<file>[A-Za-z]:\\.+?):(?<line>\d+)'
+$reLibFuzzer = 'ERROR: libFuzzer: (?<msg>(?<type>out-of-memory|timeout|deadly signal|fuzz target exited|[\w-]+).*)$'
+# The first stack frame of the report starting at line $from, see above.
+function Find-Frame([string[]] $lines, [int] $from) {
+  $file = '(no stack frame)'; $line = 0
+  for ($j = $from + 1; $j -lt $lines.Count -and $j -le $from + 60; $j++) {
+    if ($lines[$j] -match $reFrame) {
+      if ($file -eq '(no stack frame)') { $file = $Matches.file; $line = $Matches.line }
+      if ((Get-RelPath $Matches.file) -like 'src/*') { return @($Matches.file, $Matches.line) }
+    } elseif (($lines[$j] -match '^\s*$' -and $file -ne '(no stack frame)') -or $lines[$j] -match '^# ') { break }
+  }
+  return @($file, $line)
+}
+foreach ($src in @(@('08', '08-ubsan-tests.log'), @('08', '08-ubsan-tools.log'), @('09', '09-fuzz.log'))) {
+  $run = $src[0]
+  $lines = Read-Lines $src[1]
+  # 09-fuzz.log: the input of a report, from the "# Finding: <target> <file>" line before it.
+  $fuzzInput = ''
   # The type of a report (shift-base, allocation-size-too-big ...) is in its SUMMARY line.
   function Get-SummaryType([int] $from, [string] $fallback) {
     for ($j = $from; $j -lt $lines.Count -and $j -le $from + 80; $j++) {
@@ -185,20 +202,21 @@ foreach ($name in @('08-ubsan-tests.log', '08-ubsan-tools.log')) {
   }
   for ($i = 0; $i -lt $lines.Count; $i++) {
     $l = $lines[$i]
-    if ($l -match $reUbsan) {
+    if ($l -match '^# Finding: \S+ (?<path>.*)$') {
+      $fuzzInput = " (input: $(Split-Path $Matches.path -Leaf))"
+    } elseif ($l -match $reUbsan) {
       $file = $Matches.file; $line = $Matches.line; $msg = $Matches.msg
-      Add-Finding 'UBSan' '08' (Get-SummaryType $i 'runtime error') $file $line $msg
+      Add-Finding 'UBSan' $run (Get-SummaryType $i 'runtime error') $file $line $msg
     } elseif ($l -match 'ERROR: AddressSanitizer: (?<msg>.*)$') {
-      $msg = $Matches.msg -replace '0x[0-9a-f]+', '0x...'
+      $msg = ($Matches.msg -replace '0x[0-9a-f]+', '0x...') + $fuzzInput
       $check = Get-SummaryType $i 'AddressSanitizer'
-      $file = '(no stack frame)'; $line = 0
-      for ($j = $i + 1; $j -lt $lines.Count -and $j -le $i + 60; $j++) {
-        if ($lines[$j] -match $reFrame) {
-          if ($file -eq '(no stack frame)') { $file = $Matches.file; $line = $Matches.line }
-          if ((Get-RelPath $Matches.file) -like 'src/*') { $file = $Matches.file; $line = $Matches.line; break }
-        } elseif ($lines[$j] -match '^\s*$' -and $file -ne '(no stack frame)') { break }
-      }
-      Add-Finding 'ASan' '08' $check $file $line $msg
+      $file, $line = Find-Frame $lines $i
+      Add-Finding 'ASan' $run $check $file $line $msg
+    } elseif ($l -match $reLibFuzzer) {
+      $msg = $Matches.msg + $fuzzInput
+      $check = $Matches.type
+      $file, $line = Find-Frame $lines $i
+      Add-Finding 'libFuzzer' $run $check $file $line $msg
     }
   }
 }

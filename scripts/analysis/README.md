@@ -27,9 +27,10 @@ The examples below assume the folders of [BUILDING.md](../../BUILDING.md): the r
 | 06 | `06-msvc-zc-preprocessor.ps1` | MSVC, `/W4`, **`/Zc:preprocessor`** | `build-zc-preprocessor` | `06-msvc-zc-preprocessor.log` |
 | 07 | `07-clang-cl.ps1` | **clang-cl** instead of cl.exe, `/W4` | `build-clang-cl` | `07-clang-cl.log` |
 | 08 | `08-sanitizers.ps1` | clang-cl with **UBSan + ASan**; runs the tests and the dev tools | `build-ubsan` | `08-ubsan-build.log`, `08-ubsan-tests.log`, `08-ubsan-tools.log` |
+| 09 | `09-fuzz.ps1` | MSVC with **libFuzzer + ASan**; runs the fuzz targets of `src/fuzz` | `build-fuzz` | `09-fuzz.log`, `09-fuzz-build.log`, `09-fuzz\<target>\` |
 | 10 | `10-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
 
-Order: 02, 03 and 04 need the build directory of 01.  05 to 08 are independent of each other
+Order: 02, 03 and 04 need the build directory of 01.  05 to 09 are independent of each other
 and of 01.  10 reads whatever output exists.
 
 ## Requirements
@@ -42,6 +43,8 @@ and of 01.  10 reads whatever output exists.
 - For 07 and 08: the Visual Studio component "C++ Clang Compiler for Windows"; for 08 also
   "C++ AddressSanitizer" (it brings `stl_asan.lib`, which the MSVC standard library links
   under ASan).
+- For 09: the Visual Studio component "C++ AddressSanitizer" (it brings libFuzzer and ASan of
+  MSVC); no Clang compiler.
 
 Each run first says what it does and asks before it starts (`-Yes` starts it right away); a
 build directory left from an earlier run is offered for deletion. While it runs, the window
@@ -191,6 +194,41 @@ Two kinds of reports are known to be harmless; the code is not changed for them:
   the second empty base sits at offset 1 of the 1-byte object, so UBSan's size check for that
   base fails (the reported address is odd).  Its `operator()` only returns the member-function
   pointer it is given and never reads `*this`, so nothing invalid is accessed.
+
+### 09 – Fuzzing
+
+Builds the fuzz targets of `src/fuzz` (`-DBUILD_FUZZERS=ON`: all of the project's code with
+AddressSanitizer and the coverage instrumentation of libFuzzer, without the program and the
+tests) and runs each of them for `-Minutes` (default 10).  A fuzz target feeds generated input
+to one part of the program and keeps the inputs that reach new code:
+
+| Target | Reads | Seeds in `src/fuzz/corpus` |
+|---|---|---|
+| `fuzz_image_metadata` | page sizes and resolutions of TIFF, JPEG, PNG, JPEG 2000 | `images` |
+| `fuzz_image_loader` | the pixels of those images, also as thumbnails | `images` |
+| `fuzz_project_reader` | project files, without the filter settings | `project`, `project.dict` |
+| `fuzz_filter_params` | the per-page settings of the filters | `filter_params`, `filter_params.dict` |
+
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Minutes 30
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Only fuzz_image_loader -SkipBuild
+
+Per target, `results\09-fuzz\<target>\` holds `corpus\` (the inputs found so far; the next run
+continues from them), `findings\` (the inputs that made the target fail: `crash-*`, `oom-*`,
+`timeout-*`) and `fuzz.log` (the output of the last run).  `09-fuzz.log` has a summary per
+target and runs every input in `findings\` once more, so its report is there for run 10; an
+input that no longer fails shows that it was fixed.  Delete `findings\` once its inputs are dealt
+with.  Unlike the other runs, an existing `build-fuzz` is built again instead of deleted, so a
+run after a fix starts within minutes.
+
+A single input is reproduced by running the target on it, e.g.
+
+    build-fuzz\fuzz_image_loader.exe -rss_limit_mb=2048 results\09-fuzz\fuzz_image_loader\findings\oom-...
+
+Limits: an input that takes longer than 20 seconds or more memory than `-RssLimitMb` (default
+2048 MB) counts as a finding.  The image targets skip pages over 16 megapixels: a few bytes can
+claim an image up to the size limit of the program, whose decoding takes gigabytes; such sizes
+are covered by the tests of the size limit.  Qt and the vcpkg libraries are DLLs and not
+instrumented: the fuzzer sees no coverage inside them and ASan checks no accesses there.
 
 ### 10 – Merging the results
 

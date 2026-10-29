@@ -170,7 +170,8 @@ make -j$(nproc)
 
 None of this is needed for a normal build. The numbered scripts in `scripts\analysis` run the
 compiler's static analysis, clang-tidy, cppcheck, the EDG C++ front end, builds with stricter
-MSVC switches, a clang-cl build and a build with sanitizers, and write their findings to
+MSVC switches, a clang-cl build, a build with sanitizers and fuzzing (a build with
+`-DBUILD_FUZZERS=ON` in its own build directory), and write their findings to
 `scripts\analysis\results`. What each run does, how to set it up and how to merge the results
 is described in [scripts/analysis/README.md](scripts/analysis/README.md).
 
@@ -181,6 +182,7 @@ installs the missing ones. By hand, they need, in addition to the steps above:
   **"C++ Clang Compiler for Windows"**, for the sanitizers also **"C++ AddressSanitizer"**
   (Visual Studio Installer → "Modify" → "Individual components"). clang-tidy and clang-format
   come with Visual Studio.
+* For fuzzing: only **"C++ AddressSanitizer"** (it brings libFuzzer for MSVC).
 * For the cppcheck run: [cppcheck](https://cppcheck.sourceforge.io/), installed to
   `C:\Program Files\Cppcheck` or on the `PATH`.
 * For the EDG run: the Visual Studio component **".NET Framework 4.8.1 SDK"**, and EDG set up

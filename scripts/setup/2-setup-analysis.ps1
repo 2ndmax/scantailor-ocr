@@ -7,7 +7,8 @@
   shows for every analysis run whether its tools are there:
     1. Visual Studio components, added with the Visual Studio Installer: "C++ Clang Compiler for
        Windows" (clang-cl and the sanitizer runtime, runs 07 and 08), "C++ AddressSanitizer"
-       (stl_asan.lib, which the MSVC standard library asks for under ASan, run 08) and the .NET
+       (stl_asan.lib, which the MSVC standard library asks for under ASan, run 08; libFuzzer and
+       ASan of MSVC, run 09) and the .NET
        Framework 4.8.1 SDK (run 04).
     2. cppcheck (run 03), installed with winget into its standard folder C:\Program Files\Cppcheck.
     3. EDG (run 04): starts 3-setup-edg.ps1.
@@ -46,6 +47,10 @@ function Test-ClangRuntime {
 # The MSVC standard library links stl_asan.lib when built with ASan; it comes with the
 # component "C++ AddressSanitizer", not with the Clang compiler.
 function Test-StlAsan { return [bool]($Vs -and (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\stl_asan.lib")) }
+# libFuzzer of MSVC (run 09), from the same component.
+function Test-MsvcFuzzer {
+    return [bool]($Vs -and (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\clang_rt.fuzzer_MD-x86_64.lib"))
+}
 function Test-Sanitizers { return ((Test-ClangRuntime) -and (Test-StlAsan)) }
 function Test-NetSdk {
     return [bool](Test-Path "${env:ProgramFiles(x86)}\Windows Kits\NETFXSDK\*\Lib\um\x64\mscoree.lib")
@@ -72,6 +77,8 @@ $status = {
     $clang = if (Test-ClangCl) { 'ready' } else { 'missing: Visual Studio component "C++ Clang Compiler for Windows" (step 1)' }
     $sanitizers = if (Test-Sanitizers) { 'ready' } elseif (-not (Test-ClangRuntime)) { $clang } `
                   else { 'missing: Visual Studio component "C++ AddressSanitizer" (step 1)' }
+    $fuzzing = if (-not $Vs) { "missing: $vsNote" } elseif (Test-MsvcFuzzer) { 'ready' } `
+               else { 'missing: Visual Studio component "C++ AddressSanitizer" (step 1)' }
     $vcpkg = if ($env:VCPKG_ROOT -and (Test-Path $env:VCPKG_ROOT)) { "ready ($env:VCPKG_ROOT)" } `
              else { 'missing: VCPKG_ROOT (1-setup-windows.ps1, step 4)' }
     @(
@@ -82,6 +89,7 @@ $status = {
         "  04          EDG               $edg"
         "  07          clang-cl          $clang"
         "  08          sanitizers        $sanitizers"
+        "  09          fuzzing           $fuzzing"
         "  all builds  vcpkg             $vcpkg"
     )
 }
@@ -134,7 +142,7 @@ $stepEdg = {
 }
 
 $menu = @(
-    @{ Title = 'Visual Studio components: Clang compiler (runs 07, 08), AddressSanitizer (run 08), .NET Framework 4.8.1 SDK (run 04)'
+    @{ Title = 'Visual Studio components: Clang compiler (runs 07, 08), AddressSanitizer (runs 08, 09), .NET Framework 4.8.1 SDK (run 04)'
        Done = { (Test-Sanitizers) -and (Test-NetSdk) }; Run = $stepComponents }
     @{ Title = "cppcheck (run 03), into $CppcheckFolder"
        Done = { [bool](Find-Cppcheck) }; Run = $stepCppcheck }
