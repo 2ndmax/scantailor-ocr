@@ -10,6 +10,7 @@ set(sources
     TestImageId.cpp
     TestImageTrim.cpp
     TestImageReaders.cpp
+    TestImageSizeLimit.cpp
     TestMargins.cpp
     TestPageId.cpp
     TestPageLayout.cpp
