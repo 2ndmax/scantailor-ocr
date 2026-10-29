@@ -219,6 +219,53 @@ BOOST_AUTO_TEST_CASE(reach_is_capped) {
   }
 }
 
+// The sizes are in millimetres, so in pixels they follow the resolution. The content detection
+// despeckles at 150 dpi, the output mostly at 600 dpi. At NORMAL the reach is capped at 3.5 mm:
+// 20.7 px at 150 dpi, 82.7 px at 600 dpi. The specks reach 8 * 5 = 40 px and 8 * 12 = 96 px
+// uncapped, and stay below the size kept for sure (1.016 mm: 6 and 24 px).
+BOOST_AUTO_TEST_CASE(reach_is_capped_in_millimetres_at_any_resolution) {
+  struct Case {
+    int dpi;
+    int block;
+    int speck;
+    int lastKeptGap;
+  };
+  for (const Case& c : {Case{150, 20, 5, 20}, Case{600, 30, 12, 82}}) {
+    for (const int gap : {c.lastKeptGap, c.lastKeptGap + 1}) {
+      BinaryImage image(c.block + gap + c.speck + 5, c.block, WHITE);
+      image.fill(QRect(0, 0, c.block, c.block), BLACK);
+      image.fill(QRect(c.block - 1 + gap, 0, c.speck, c.speck), BLACK);
+      const BinaryImage result = Despeckle::despeckle(image, Dpi(c.dpi, c.dpi), Despeckle::NORMAL, NullTaskStatus());
+      BOOST_CHECK_MESSAGE((result.getPixel(c.block - 1 + gap, 0) == BLACK) == (gap == c.lastKeptGap),
+                          c.dpi << " dpi, gap " << gap);
+    }
+  }
+}
+
+// Below 0.015 mm² a component is removed for sure, even right next to a letter: fewer than 1 px at
+// 150 dpi, so a single pixel stays there, and fewer than 8 px at 600 dpi.
+BOOST_AUTO_TEST_CASE(smallest_area_kept_follows_the_resolution) {
+  struct Case {
+    int dpi;
+    int block;
+    QSize removed;  // empty: none is removed
+    QSize kept;
+  };
+  for (const Case& c : {Case{150, 20, QSize(), QSize(1, 1)}, Case{600, 30, QSize(2, 3), QSize(2, 4)}}) {
+    BinaryImage image(c.block + 10, c.block, WHITE);
+    image.fill(QRect(0, 0, c.block, c.block), BLACK);
+    image.fill(QRect(QPoint(c.block + 2, 2), c.kept), BLACK);
+    if (!c.removed.isEmpty()) {
+      image.fill(QRect(QPoint(c.block + 2, 12), c.removed), BLACK);
+    }
+    const BinaryImage result = Despeckle::despeckle(image, Dpi(c.dpi, c.dpi), Despeckle::NORMAL, NullTaskStatus());
+    BOOST_CHECK_MESSAGE(result.getPixel(c.block + 2, 2) == BLACK, c.dpi << " dpi: kept speck");
+    if (!c.removed.isEmpty()) {
+      BOOST_CHECK_MESSAGE(result.getPixel(c.block + 2, 12) == WHITE, c.dpi << " dpi: removed speck");
+    }
+  }
+}
+
 // Kept dots keep components of similar size, not much larger ones. These are too far from the block
 // to be kept by it.
 BOOST_AUTO_TEST_CASE(small_component_keeps_only_similar_ones) {
