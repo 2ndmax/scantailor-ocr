@@ -77,13 +77,19 @@ BinaryImage speckledPage(int width, int height, uint32_t seed) {
   };
   BinaryImage image(width, height, WHITE);
   const int area = width * height;
+  // y before x, each in a statement of its own: the order of function arguments is up to the
+  // compiler, and the expected hashes below were recorded with y drawn first.
   for (int i = 0; i < area / 400; ++i) {
     const int w = 1 + next(next(4) == 0 ? 30 : 8);
     const int h = 1 + next(next(4) == 0 ? 30 : 8);
-    image.fill(QRect(next(width), next(height), w, h) & image.rect(), BLACK);
+    const int y = next(height);
+    const int x = next(width);
+    image.fill(QRect(x, y, w, h) & image.rect(), BLACK);
   }
   for (int i = 0; i < area / 150; ++i) {
-    image.setPixel(next(width), next(height), BLACK);
+    const int y = next(height);
+    const int x = next(width);
+    image.setPixel(x, y, BLACK);
   }
   return image;
 }
