@@ -140,27 +140,33 @@ struct Component {
  */
 class NearestSeedMap {
  public:
+  // 8 bytes, as there is one per pixel of the page: the squared distance is computed when needed.
   struct Cell {
     uint32_t label = 0;  // 0: no seed found
     int16_t dx = 0;      // seed minus pixel
     int16_t dy = 0;
-    uint32_t sq = std::numeric_limits<uint32_t>::max();  // dx * dx + dy * dy
 
-    uint32_t distSq() const { return sq; }
+    uint32_t distSq() const { return uint32_t(dx * dx) + uint32_t(dy * dy); }
+
+    // Without a seed, farther than any.
+    uint32_t distSqOrMax() const { return (label == 0) ? std::numeric_limits<uint32_t>::max() : distSq(); }
   };
 
-  // A padding of one pixel around the image, without seeds, saves checks for the image borders.
-  explicit NearestSeedMap(const ConnectivityMap& seeds)
-      : m_width(seeds.size().width()),
-        m_height(seeds.size().height()),
+  // The pixels of 'labels' whose label passes 'isSeed' are the seeds; taking them from the map
+  // directly saves a copy of it. A padding of one pixel around the image, without seeds, saves
+  // checks for the image borders.
+  template <typename IsSeed>
+  NearestSeedMap(const ConnectivityMap& labels, const IsSeed& isSeed)
+      : m_width(labels.size().width()),
+        m_height(labels.size().height()),
         m_stride(m_width + 2),
         m_cells(size_t(m_stride) * (m_height + 2)) {
-    const uint32_t* line = seeds.data();
-    for (int y = 0; y < m_height; ++y, line += seeds.stride()) {
+    const uint32_t* line = labels.data();
+    for (int y = 0; y < m_height; ++y, line += labels.stride()) {
       Cell* cells = origin() + size_t(y) * m_stride;
       for (int x = 0; x < m_width; ++x) {
-        if (line[x] != 0) {
-          cells[x] = Cell{line[x], 0, 0, 0};
+        if ((line[x] != 0) && isSeed(line[x])) {
+          cells[x] = Cell{line[x], 0, 0};
         }
       }
     }
@@ -169,26 +175,30 @@ class NearestSeedMap {
       Cell* cells = origin() + size_t(y) * s;
       for (int x = 0; x < m_width; ++x) {
         Cell* cell = cells + x;
-        offer(cell, -1, -1, 0);
-        offer(cell, -s - 1, -1, -1);
-        offer(cell, -s, 0, -1);
-        offer(cell, -s + 1, 1, -1);
+        uint32_t best = cell->distSqOrMax();
+        offer(cell, best, -1, -1, 0);
+        offer(cell, best, -s - 1, -1, -1);
+        offer(cell, best, -s, 0, -1);
+        offer(cell, best, -s + 1, 1, -1);
       }
       for (int x = m_width - 1; x >= 0; --x) {
-        offer(cells + x, 1, 1, 0);
+        uint32_t best = cells[x].distSqOrMax();
+        offer(cells + x, best, 1, 1, 0);
       }
     }
     for (int y = m_height - 1; y >= 0; --y) {
       Cell* cells = origin() + size_t(y) * s;
       for (int x = m_width - 1; x >= 0; --x) {
         Cell* cell = cells + x;
-        offer(cell, 1, 1, 0);
-        offer(cell, s + 1, 1, 1);
-        offer(cell, s, 0, 1);
-        offer(cell, s - 1, -1, 1);
+        uint32_t best = cell->distSqOrMax();
+        offer(cell, best, 1, 1, 0);
+        offer(cell, best, s + 1, 1, 1);
+        offer(cell, best, s, 0, 1);
+        offer(cell, best, s - 1, -1, 1);
       }
       for (int x = 0; x < m_width; ++x) {
-        offer(cells + x, -1, -1, 0);
+        uint32_t best = cells[x].distSqOrMax();
+        offer(cells + x, best, -1, -1, 0);
       }
     }
   }
@@ -214,7 +224,9 @@ class NearestSeedMap {
   Cell* origin() { return m_cells.data() + m_stride + 1; }
 
   // A cell takes the seed of its neighbour at 'offset' (ox, oy pixels away) if that one is nearer.
-  static void offer(Cell* cell, const int offset, const int ox, const int oy) {
+  // 'best' is the cell's squared distance, kept by the caller over the offers of one pixel, so that
+  // it isn't computed again for each.
+  static void offer(Cell* cell, uint32_t& best, const int offset, const int ox, const int oy) {
     const Cell& from = cell[offset];
     if (from.label == 0) {
       return;
@@ -222,8 +234,9 @@ class NearestSeedMap {
     const int dx = from.dx + ox;
     const int dy = from.dy + oy;
     const auto sq = uint32_t(dx * dx) + uint32_t(dy * dy);
-    if (sq < cell->sq) {
-      *cell = Cell{from.label, int16_t(dx), int16_t(dy), sq};
+    if (sq < best) {
+      *cell = Cell{from.label, int16_t(dx), int16_t(dy)};
+      best = sq;
     }
   }
 
@@ -379,7 +392,7 @@ void Despeckler::sortOutBigAndTiny() {
 void Despeckler::findNeighbours() {
   std::unordered_map<uint64_t, uint32_t> gaps;  // (lesser label, greater label) -> squared gap
   {
-    const NearestSeedMap seeds(m_cmap);
+    const NearestSeedMap seeds(m_cmap, [](uint32_t) { return true; });
     if (m_dbg) {
       m_dbg->add(seeds.visualized(), "voronoi");
     }
@@ -697,22 +710,10 @@ void Despeckler::spread() {
 // candidate, while a big one is a bit farther; and a dot of a leader may be cut off from the kept
 // dots next to it, with no big component in reach.
 bool Despeckler::keepNearestToKept(const bool onlyBig) {
-  bool anyCandidate = false;
-  ConnectivityMap kept(m_cmap);
-  uint32_t* line = kept.data();
-  for (int y = 0; y < kept.size().height(); ++y, line += kept.stride()) {
-    for (int x = 0; x < kept.size().width(); ++x) {
-      const uint32_t label = line[x];
-      if (label == 0) {
-        continue;
-      }
-      const Component& component = m_components[label];
-      anyCandidate |= component.state == Component::CANDIDATE;
-      if ((component.state != Component::KEPT) || (onlyBig && !component.isBig(m_settings.bigSize))) {
-        line[x] = 0;
-      }
-    }
-  }
+  // Every candidate still has its pixels in the map; only the removed ones left it.
+  const bool anyCandidate = std::any_of(m_components.begin() + 1, m_components.end(), [](const Component& component) {
+    return component.state == Component::CANDIDATE;
+  });
   if (!anyCandidate) {
     return false;
   }
@@ -723,7 +724,10 @@ bool Despeckler::keepNearestToKept(const bool onlyBig) {
   };
   std::vector<Nearest> nearest(m_components.size());
   {
-    const NearestSeedMap seeds(kept);
+    const NearestSeedMap seeds(m_cmap, [this, onlyBig](const uint32_t label) {
+      const Component& component = m_components[label];
+      return (component.state == Component::KEPT) && (!onlyBig || component.isBig(m_settings.bigSize));
+    });
     const uint32_t* labels = m_cmap.data();
     for (int y = 0; y < seeds.height(); ++y, labels += m_cmap.stride()) {
       for (int x = 0; x < seeds.width(); ++x) {
