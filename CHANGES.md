@@ -140,6 +140,11 @@ topic, not by version.
 * Faster thumbnails and metadata reading for JPEG files.
 * Fixed a leak in the JPEG metadata reader and a buffer bug in the PNG reader.
 * Large color JPEG or PNG scans (more than 256 MB decoded) load again; Qt 6 refused them.
+* **Fixed size limit for images:** at most 32767 pixels in width and height and 600 megapixels in
+  total (A0 at 600 DPI fits). Larger images, also damaged files that only claim such a size, are
+  refused before decoding with a message naming the size, when adding files, in the automatic
+  import and when loading a page. The Output step refuses a page whose output would be larger, e.g.
+  because of a high output resolution or a too low DPI of the image.
 
 ## Split Pages and page order
 
