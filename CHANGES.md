@@ -220,7 +220,8 @@ topic, not by version.
 * **Output cleanup:** removing pages, replacing a scan or switching a page between one and two
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
-* **New despeckling** (output and content detection): sizes in millimetres, exact gaps between
+* **New despeckling** (output, content detection, the content mask of the content and margins
+  steps, and the detection of white text on black): sizes in millimetres, exact gaps between
   specks and text, and specks next to letters judged by their place in the line of text (on the
   baseline, above a letter and so on). Dot leaders, i-dots, umlauts, commas and hyphens stay far
   more often, more dust, specks next to letters and dirt at the page edges go. Results of existing
