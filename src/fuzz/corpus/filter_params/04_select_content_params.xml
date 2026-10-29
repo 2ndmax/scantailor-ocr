@@ -1,0 +1,8 @@
+<params contentDetectionMode="auto" fineTuneCorners="0" pageDetectionMode="auto">
+ <content-rect height="0" width="0" x="0" y="0"/>
+ <page-rect height="0" width="0" x="0" y="0"/>
+ <dependencies>
+  <rotated-page-outline/>
+  <params contentDetectionMode="auto" fineTuneCorners="0" pageDetectionMode="auto"/>
+ </dependencies>
+</params>

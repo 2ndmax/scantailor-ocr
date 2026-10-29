@@ -7,8 +7,9 @@ function(add_fuzzer name)
   add_executable(${name} ${ARGN} FuzzSetup.cpp FuzzSetup.h)
   # Adds the libFuzzer runtime with its main(); the libraries only have the instrumentation.
   target_compile_options(${name} PRIVATE /fsanitize=fuzzer)
-  target_link_libraries(${name} PRIVATE core)
+  target_link_libraries(${name} PRIVATE core dewarping)
 endfunction()
 
 add_fuzzer(fuzz_image_metadata FuzzImageMetadata.cpp)
 add_fuzzer(fuzz_project_reader FuzzProjectReader.cpp)
+add_fuzzer(fuzz_filter_params FuzzFilterParams.cpp)

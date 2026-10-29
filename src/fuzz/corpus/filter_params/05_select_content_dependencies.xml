@@ -1,0 +1,4 @@
+<dependencies>
+ <rotated-page-outline/>
+ <params contentDetectionMode="auto" fineTuneCorners="0" pageDetectionMode="auto"/>
+</dependencies>

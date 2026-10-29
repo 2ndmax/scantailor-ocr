@@ -1,0 +1,14 @@
+<params blackOnWhite="1" depthPerception="2" despeckleLevel="1">
+ <picture-shape-options higherSearchSensitivity="0" pictureShape="free" sensitivity="100"/>
+ <dewarping-options mode="off" postDeskew="1" postDeskewAngle="0"/>
+ <dpi horizontal="0" vertical="0"/>
+ <color-params colorMode="bw">
+  <color-or-grayscale fillMargins="0" fillOffcut="0" fillOutsidePageBox="0" fillingColor="background" normalizeIlluminationColor="0" wienerCoef="0" wienerWinSize="5">
+   <posterization-options enabled="0" forceBlackAndWhite="0" level="4" normalizationEnabled="0"/>
+  </color-or-grayscale>
+  <bw binarizationMethod="otsu" morphologicalSmoothing="0" normalizeIlluminationBW="0" sauvolaCoef="0.34" savitzkyGolaySmoothing="0" thresholdAdj="0" windowSize="200" wolfCoef="0.3" wolfLowerBound="1" wolfUpperBound="254">
+   <color-segmenter-options blueThresholdAdjustment="0" enabled="0" greenThresholdAdjustment="0" noiseReduction="7" posterize="0" redThresholdAdjustment="0"/>
+  </bw>
+ </color-params>
+ <splitting originalBackground="0" splitOutput="0" splittingMode="bw"/>
+</params>
