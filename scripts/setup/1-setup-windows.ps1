@@ -279,27 +279,35 @@ function Get-Vcpkg {
     if (Get-Command git -ErrorAction SilentlyContinue) {
         return ((Invoke-Shown "git clone https://github.com/microsoft/vcpkg.git `"$VcpkgDir`"" $log) -eq 0)
     }
-    # Without Git: the ZIP of the repository, unpacked next to the folder and renamed.
+    # Without Git: the ZIP of the repository, unpacked into a folder of its own next to the vcpkg
+    # folder and moved from there. Next to it, so the move stays on the same drive; a folder of its
+    # own, so that no folder of the user is touched (one named vcpkg-master may hold a vcpkg
+    # unpacked by hand).
     $zip = "$env:TEMP\vcpkg-master.zip"
     $parent = Split-Path $VcpkgDir
     if (-not (Save-Download 'https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip' $zip)) { return $false }
     # A drive root such as D:\ always exists and cannot be created.
     if (-not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
-    Write-Host "Unpacking to $parent"
-    $unpacked = Join-Path $parent 'vcpkg-master'
-    # A leftover of an earlier attempt would block the rename below.
-    if (Test-Path -LiteralPath $unpacked) { Remove-Item -LiteralPath $unpacked -Recurse -Force }
+    $staging = Join-Path $parent ('vcpkg-unpack-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    New-Item -ItemType Directory -Path $staging | Out-Null
+    Write-Host "Unpacking to $staging"
     if (Get-Command tar.exe -ErrorAction SilentlyContinue) {
         # tar.exe (bsdtar, Windows 10 1803 and later) reads ZIP files and is far faster than Expand-Archive in PowerShell 5.1.
-        & tar.exe -xf $zip -C $parent
-        if ($LASTEXITCODE -ne 0) { Write-Host "Unpacking failed (tar exit code $LASTEXITCODE)." -ForegroundColor Red; return $false }
+        & tar.exe -xf $zip -C $staging
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Unpacking failed (tar exit code $LASTEXITCODE)." -ForegroundColor Red
+            Remove-Item -LiteralPath $staging -Recurse -Force
+            return $false
+        }
     } else {
         # The .NET class unpacks without the per-file overhead of Expand-Archive.
         Add-Type -AssemblyName System.IO.Compression.FileSystem
-        [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $parent)
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $staging)
     }
+    # The empty vcpkg folder (checked above) would block the move.
     if (Test-Path -LiteralPath $VcpkgDir) { Remove-Item -LiteralPath $VcpkgDir }
-    Rename-Item -LiteralPath $unpacked -NewName (Split-Path $VcpkgDir -Leaf)
+    Move-Item -LiteralPath (Join-Path $staging 'vcpkg-master') -Destination $VcpkgDir
+    Remove-Item -LiteralPath $staging
     Remove-Item -LiteralPath $zip
     return $true
 }
