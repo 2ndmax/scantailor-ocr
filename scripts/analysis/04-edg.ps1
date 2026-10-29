@@ -21,7 +21,7 @@
   With /permissive- emulated it checks as close to the standard as these headers allow.
 
   The files run in parallel through a generated ninja file, so the output stays grouped per
-  file. --no_wrap_diagnostics keeps every diagnostic on one line, for 09-merge-findings.ps1.
+  file. --no_wrap_diagnostics keeps every diagnostic on one line, for 10-merge-findings.ps1.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\04-edg.ps1
 

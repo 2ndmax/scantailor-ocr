@@ -2,7 +2,7 @@
 
 Scripts that run compilers and analysis tools over the code and store their **raw** output, for
 later evaluation.  Every script is one run, numbered in the order in which they are best run;
-`09-merge-findings.ps1` then merges the findings of all runs into one table.
+`10-merge-findings.ps1` then merges the findings of all runs into one table.
 
 Every log starts with `# ...` header lines (commit, tool versions, full command lines) and ends
 with the exit codes.  The output goes to `results\` in this folder (ignored by git); each script
@@ -27,10 +27,10 @@ The examples below assume the folders of [BUILDING.md](../../BUILDING.md): the r
 | 06 | `06-msvc-zc-preprocessor.ps1` | MSVC, `/W4`, **`/Zc:preprocessor`** | `build-zc-preprocessor` | `06-msvc-zc-preprocessor.log` |
 | 07 | `07-clang-cl.ps1` | **clang-cl** instead of cl.exe, `/W4` | `build-clang-cl` | `07-clang-cl.log` |
 | 08 | `08-sanitizers.ps1` | clang-cl with **UBSan + ASan**; runs the tests and the dev tools | `build-ubsan` | `08-ubsan-build.log`, `08-ubsan-tests.log`, `08-ubsan-tools.log` |
-| 09 | `09-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
+| 10 | `10-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
 
 Order: 02, 03 and 04 need the build directory of 01.  05 to 08 are independent of each other
-and of 01.  09 reads whatever output exists.
+and of 01.  10 reads whatever output exists.
 
 ## Requirements
 
@@ -192,7 +192,7 @@ Two kinds of reports are known to be harmless; the code is not changed for them:
   base fails (the reported address is odd).  Its `operator()` only returns the member-function
   pointer it is given and never reads `*this`, so nothing invalid is accessed.
 
-### 09 – Merging the results
+### 10 – Merging the results
 
 Reads the output of the runs (all that exist) and writes the distinct findings to
 `findings.csv` (all of them) and `findings.md` (a summary per tool and check, then the findings
@@ -201,10 +201,10 @@ merged and the runs that reported them are listed.  Frequent, mostly harmless ch
 (unreferenced parameters, `size_t` conversions, hidden names; see `-BulkChecks`) are
 only counted in `findings.md`.  Needs neither Visual Studio nor any of the tools.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-merge-findings.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\10-merge-findings.ps1
 
 ## Notes
 
 - `/permissive-`, `/Zc:__cplusplus` and `/utf-8` are set by the Qt 6 targets in every MSVC and
   clang-cl build.
-- A diagnostic in a header appears once per source file that includes it; 09 merges these.
+- A diagnostic in a header appears once per source file that includes it; 10 merges these.
