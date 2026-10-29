@@ -44,8 +44,9 @@ void drawOver(QImage& dst, const QRect& dstRect, const QImage& src, const QRect&
   }
 
   const int stripeBytes = srcRect.width() * depth / 8;
-  dstLine += dstBpl * dstRect.top() + dstRect.left() * depth / 8;
-  srcLine += srcBpl * srcRect.top() + srcRect.left() * depth / 8;
+  // In qsizetype: on 32 bit images over 2^29 pixels the byte offset exceeds int.
+  dstLine += static_cast<qsizetype>(dstBpl) * dstRect.top() + dstRect.left() * depth / 8;
+  srcLine += static_cast<qsizetype>(srcBpl) * srcRect.top() + srcRect.left() * depth / 8;
 
   for (int i = srcRect.height(); i > 0; --i) {
     memcpy(dstLine, srcLine, stripeBytes);
