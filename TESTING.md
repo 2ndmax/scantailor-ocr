@@ -34,11 +34,18 @@ without the offscreen plugin, `qt_tests` hangs without a message.
 ## Coverage by module
 
 ### core_tests
+A selection; every module has its own `Test<Module>.cpp` in [src/core/tests](src/core/tests).
 - **ContentSpanFinder**: detection of content spans.
 - **DeskewParams**: parameters of the deskew filter.
+- **Despeckle**: what the despeckling keeps and removes (reach, marks next to letters, dot leaders,
+  specks cut off by others) and its results on generated pages, pinned by hashes.
+- **ObliqueFinder**: the oblique angle from straight text edges, cancelling the search.
 - **ImageId** / **PageId**: identification of images and pages, ordering, sub-pages.
 - **Margins**: margins and XML serialization.
 - **PageRange**: page ranges and alternating selection.
+- **PdfWriter**: the PDF file (structure, PDF/A, text layer), its image encodings and the export job.
+- **ProjectFile**: reading and writing project files.
+- **RelinkedKeys**: relinking moves the settings of every filter to the new file names.
 - **SelectContentApply**: applying the content selection filter.
 - **SmartFilenameOrdering**: natural ordering of file names.
 - **Units**: conversion and representation of units (px, mm, cm, in).
