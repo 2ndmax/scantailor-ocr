@@ -11,3 +11,4 @@ function(add_fuzzer name)
 endfunction()
 
 add_fuzzer(fuzz_image_metadata FuzzImageMetadata.cpp)
+add_fuzzer(fuzz_project_reader FuzzProjectReader.cpp)

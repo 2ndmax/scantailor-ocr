@@ -1,0 +1,27 @@
+<project outputDirectory="out" version="4">
+  <directories>
+    <directory id="1" path="."/>
+  </directories>
+  <files>
+    <file dirId="1" id="2" name="scan.tif"/>
+    <file dirId="1" id="3" multiPage="1" name="book.tif"/>
+  </files>
+  <images>
+    <image fileId="2" fileImage="0" id="4" removed="L" subPages="2">
+      <size height="1000" width="1400"/>
+      <dpi horizontal="300" vertical="300"/>
+    </image>
+    <image fileId="3" fileImage="2" id="5" subPages="1">
+      <size height="1000" width="700"/>
+      <dpi horizontal="300" vertical="300"/>
+    </image>
+  </images>
+  <pages>
+    <page id="6" imageId="4" subPage="right"/>
+    <page id="7" imageId="5" selected="selected" subPage="single"/>
+  </pages>
+  <file-name-disambiguation>
+    <mapping file="2" label="1"/>
+  </file-name-disambiguation>
+  <filters/>
+</project>
