@@ -25,3 +25,16 @@ QString ImageSizeLimit::errorMessage(const qint64 width, const qint64 height) {
       .arg(MAX_SIDE)
       .arg(MAX_PIXELS / 1000000);
 }
+
+QString ImageSizeLimit::outputErrorMessage(const QSize& size) {
+  // The output size follows from the output resolution and the resolution of the image, which
+  // may be wrong (too low).
+  return QCoreApplication::translate("ImageSizeLimit",
+                                     "The output page would be too large (%1 × %2 pixels). Width and height may be at "
+                                     "most %3 pixels each, the area at most %4 megapixels. Lower the output "
+                                     "resolution, or check the DPI of the image.")
+      .arg(size.width())
+      .arg(size.height())
+      .arg(MAX_SIDE)
+      .arg(MAX_PIXELS / 1000000);
+}

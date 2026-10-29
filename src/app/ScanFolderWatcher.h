@@ -50,8 +50,11 @@ class ScanFolderWatcher : public QObject {
 
   void imageReady(const ImageFileInfo& file);
 
-  /** The image couldn't be loaded, not even after waiting for a while. */
-  void imageFailed(const QString& filePath);
+  /**
+   * The image couldn't be loaded, not even after waiting for a while. \p reasons are those of the
+   * last attempt; they may be empty.
+   */
+  void imageFailed(const QString& filePath, const QStringList& reasons);
 
  private slots:
 
@@ -67,6 +70,8 @@ class ScanFolderWatcher : public QObject {
     std::vector<ImageMetadata> metadata;
     // See ImageFileInfo::partialReads().
     QStringList partialReads;
+    // Why loading failed, if it did.
+    QStringList errors;
     bool ok = false;
   };
 

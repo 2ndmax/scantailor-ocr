@@ -1895,7 +1895,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>ImageLoader</name>
     <message>
-        <location filename="../core/ImageLoader.cpp" line="47"/>
+        <location filename="../core/ImageLoader.cpp" line="48"/>
         <location filename="../app/ProjectFilesDialog.cpp" line="754"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation>Das Dateiformat wird nicht unterstützt oder die Datei ist beschädigt.</translation>
@@ -1907,6 +1907,11 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <location filename="../core/ImageSizeLimit.cpp" line="20"/>
         <source>The image is too large (%1 × %2 pixels). Width and height may be at most %3 pixels each, the area at most %4 megapixels.</source>
         <translation>Das Bild ist zu groß (%1 × %2 Pixel). Breite und Höhe dürfen jeweils höchstens %3 Pixel betragen, die Fläche höchstens %4 Megapixel.</translation>
+    </message>
+    <message>
+        <location filename="../core/ImageSizeLimit.cpp" line="32"/>
+        <source>The output page would be too large (%1 × %2 pixels). Width and height may be at most %3 pixels each, the area at most %4 megapixels. Lower the output resolution, or check the DPI of the image.</source>
+        <translation>Die Ausgabeseite wäre zu groß (%1 × %2 Pixel). Breite und Höhe dürfen jeweils höchstens %3 Pixel betragen, die Fläche höchstens %4 Megapixel. Verringern Sie die Ausgabeauflösung, oder prüfen Sie die DPI-Werte des Bildes.</translation>
     </message>
 </context>
 <context>
@@ -1938,12 +1943,12 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>Jp2Reader</name>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="329"/>
+        <location filename="../core/Jp2Reader.cpp" line="330"/>
         <source>The image contains a component that could not be decoded.</source>
         <translation>Das Bild enthält eine Komponente, die nicht dekodiert werden konnte.</translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="681"/>
+        <location filename="../core/Jp2Reader.cpp" line="689"/>
         <source>The JPEG 2000 file header is damaged or incomplete.</source>
         <translation>Der Dateikopf der JPEG-2000-Datei ist beschädigt oder unvollständig.</translation>
     </message>
@@ -2170,7 +2175,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2961"/>
+        <location filename="../app/MainWindow.cpp" line="2964"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
@@ -2426,12 +2431,12 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen. Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2768"/>
+        <location filename="../app/MainWindow.cpp" line="2767"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2961"/>
+        <location filename="../app/MainWindow.cpp" line="2964"/>
         <source>Enter the page number:</source>
         <translation>Seitennummer:</translation>
     </message>
@@ -4467,43 +4472,43 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>TiffReader</name>
     <message>
-        <location filename="../core/TiffReader.cpp" line="193"/>
+        <location filename="../core/TiffReader.cpp" line="194"/>
         <source>The compression method &quot;%1&quot; is not supported by the libtiff library this program was built with.</source>
         <translation>Das Komprimierungsverfahren „%1“ wird von der libtiff-Bibliothek, mit der dieses Programm erstellt wurde, nicht unterstützt.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="247"/>
+        <location filename="../core/TiffReader.cpp" line="248"/>
         <source>Inconsistent image layout.</source>
         <translation>Widersprüchlicher Bildaufbau.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="272"/>
+        <location filename="../core/TiffReader.cpp" line="273"/>
         <source>Invalid tile layout.</source>
         <translation>Ungültige Kachelaufteilung.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="538"/>
+        <location filename="../core/TiffReader.cpp" line="539"/>
         <source>Page %1 doesn&apos;t exist in this file.</source>
         <translation>Seite %1 existiert in dieser Datei nicht.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="200"/>
+        <location filename="../core/TiffReader.cpp" line="201"/>
         <source>The image dimensions are missing or invalid.</source>
         <translation>Die Bildabmessungen fehlen oder sind ungültig.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="484"/>
-        <location filename="../core/TiffReader.cpp" line="541"/>
+        <location filename="../core/TiffReader.cpp" line="485"/>
+        <location filename="../core/TiffReader.cpp" line="542"/>
         <source>Page %1 of this file is damaged.</source>
         <translation>Seite %1 dieser Datei ist beschädigt.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="709"/>
+        <location filename="../core/TiffReader.cpp" line="714"/>
         <source>The color palette of the image is missing.</source>
         <translation>Die Farbpalette des Bildes fehlt.</translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="791"/>
+        <location filename="../core/TiffReader.cpp" line="796"/>
         <source>Unsupported sample format (%1 bits per sample, format %2).</source>
         <translation>Nicht unterstütztes Sample-Format (%1 Bit pro Sample, Format %2).</translation>
     </message>

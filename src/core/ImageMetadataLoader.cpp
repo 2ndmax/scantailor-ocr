@@ -6,8 +6,11 @@
 #include <QFile>
 #include <QIODevice>
 #include <QString>
+#include <vector>
 
+#include "ImageLoadErrors.h"
 #include "ImageMetadata.h"
+#include "ImageSizeLimit.h"
 #include "Jp2MetadataLoader.h"
 #include "JpegMetadataLoader.h"
 #include "PngMetadataLoader.h"
@@ -30,15 +33,34 @@ ImageMetadataLoader::StaticInit ImageMetadataLoader::m_staticInit;
 
 ImageMetadataLoader::Status ImageMetadataLoader::loadImpl(QIODevice& ioDevice,
                                                           const VirtualFunction<void, const ImageMetadata&>& out) {
-  auto it(m_sLoaders.begin());
-  const auto end(m_sLoaders.end());
-  for (; it != end; ++it) {
-    const Status status = (*it)->loadMetadata(ioDevice, out);
+  // The pages are passed on only once all of them turned out to be within the size limit: a file
+  // with a page that can't be loaded later is refused as a whole, while the user is still adding
+  // files. Taking only the other pages would number the pages differently from the file.
+  std::vector<ImageMetadata> pages;
+  auto collect = [&](const ImageMetadata& metadata) { pages.push_back(metadata); };
+  const ProxyFunction<decltype(collect), void, const ImageMetadata&> collectProxy(collect);
+
+  Status status = FORMAT_NOT_RECOGNIZED;
+  for (const auto& loader : m_sLoaders) {
+    status = loader->loadMetadata(ioDevice, collectProxy);
     if (status != FORMAT_NOT_RECOGNIZED) {
-      return status;
+      break;
     }
   }
-  return FORMAT_NOT_RECOGNIZED;
+  if (status != LOADED) {
+    return status;
+  }
+
+  for (const ImageMetadata& page : pages) {
+    if (ImageSizeLimit::exceeds(page.size())) {
+      ImageLoadErrorCapture::addError(ImageSizeLimit::errorMessage(page.size()));
+      return GENERIC_ERROR;
+    }
+  }
+  for (const ImageMetadata& page : pages) {
+    out(page);
+  }
+  return LOADED;
 }
 
 ImageMetadataLoader::Status ImageMetadataLoader::loadImpl(const QString& filePath,

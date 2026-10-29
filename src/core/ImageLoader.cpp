@@ -14,6 +14,7 @@
 
 #include "ImageId.h"
 #include "ImageLoadErrors.h"
+#include "ImageSizeLimit.h"
 #include "Jp2Reader.h"
 #include "TiffReader.h"
 
@@ -112,12 +113,18 @@ bool ImageLoader::readWithQt(QIODevice& ioDev,
   if (forcedFormat) {
     reader.setFormat(forcedFormat);
   }
+  // The size from the header, before decoding. A format that can't tell it is left to the
+  // allocation limit of QImageReader (see main.cpp).
+  const QSize fullSize = reader.size();
+  if (ImageSizeLimit::exceeds(fullSize)) {
+    errorString = ImageSizeLimit::errorMessage(fullSize);
+    return false;
+  }
   if (minSize.isValid() && !minSize.isEmpty() && (reader.format() == "jpeg")) {
     // libjpeg can decode directly at 1/2, 1/4 or 1/8 of the size, which is
     // much faster than decoding everything and scaling down afterwards.
     // The size refers to the image as stored, before applying the EXIF
     // orientation, so it has to be large enough in either orientation.
-    const QSize fullSize = reader.size();
     if (!fullSize.isEmpty()) {
       const double minDim = std::max(minSize.width(), minSize.height());
       const double factor = minDim / std::min(fullSize.width(), fullSize.height());

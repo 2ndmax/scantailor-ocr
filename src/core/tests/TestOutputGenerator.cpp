@@ -10,6 +10,7 @@
 #include <Dpi.h>
 #include <Dpm.h>
 #include <FilterData.h>
+#include <ImageSizeLimit.h>
 #include <ImageTransformation.h>
 #include <NullTaskStatus.h>
 #include <PageId.h>
@@ -34,6 +35,7 @@
 #include <boost/test/unit_test.hpp>
 #include <memory>
 #include <set>
+#include <stdexcept>
 #include <vector>
 
 namespace Tests {
@@ -109,7 +111,7 @@ struct Run {
   bool thinManualDewarping = false;
 };
 
-QImage process(const Run& run) {
+std::unique_ptr<OutputImage> generate(const Run& run) {
   const PageId pageId(ImageId(QStringLiteral("page.png")), PageId::SINGLE_PAGE);
   auto settings = std::make_shared<Settings>();
   Params params;
@@ -156,9 +158,12 @@ QImage process(const Run& run) {
     distortionModel.setBottomCurve(dewarping::Curve(std::vector<QPointF>{QPointF(100, 200), QPointF(100.3, 200)}));
     BOOST_REQUIRE(distortionModel.isValid());
   }
-  const std::unique_ptr<OutputImage> output
-      = generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(), nullptr,
-                          nullptr, nullptr, pageId, settings, /*takeOverBlackOnWhite=*/true);
+  return generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(), nullptr,
+                           nullptr, nullptr, pageId, settings, /*takeOverBlackOnWhite=*/true);
+}
+
+QImage process(const Run& run) {
+  const std::unique_ptr<OutputImage> output = generate(run);
   BOOST_REQUIRE(output && !output->isNull());
   return output->toImage().convertToFormat(QImage::Format_RGB32);
 }
@@ -291,6 +296,19 @@ BOOST_AUTO_TEST_CASE(post_scale_factor_scales_the_output) {
   const QImage output = process(run);
   BOOST_CHECK_LE(std::abs(output.width() - WIDTH * 3 / 2), 1);
   BOOST_CHECK_LE(std::abs(output.height() - HEIGHT * 3 / 2), 1);
+}
+
+BOOST_AUTO_TEST_CASE(output_over_the_size_limit_is_refused) {
+  // A thin strip, so that the output has few pixels in case it isn't refused.
+  Run run;
+  run.content = QRectF(0, 0, WIDTH, 2);
+  run.postScaleFactor = (ImageSizeLimit::MAX_SIDE + 100.0) / WIDTH;
+  try {
+    generate(run);
+    BOOST_ERROR("No exception for an output over the size limit");
+  } catch (const std::runtime_error& e) {
+    BOOST_CHECK(QString::fromUtf8(e.what()).contains(QString::number(ImageSizeLimit::MAX_SIDE)));
+  }
 }
 
 // In these two tests the content box is the text half only; the picture half lies in the margins.

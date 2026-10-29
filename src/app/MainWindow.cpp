@@ -2763,9 +2763,12 @@ void MainWindow::importDeferredScans() {
   }
 }
 
-void MainWindow::scanFailed(const QString& filePath) {
-  showImportWarning(
-      tr("The new image %1 can't be opened and is not imported.").arg(QDir::toNativeSeparators(filePath)));
+void MainWindow::scanFailed(const QString& filePath, const QStringList& reasons) {
+  QString text = tr("The new image %1 can't be opened and is not imported.").arg(QDir::toNativeSeparators(filePath));
+  if (!reasons.isEmpty()) {
+    text += QStringLiteral("\n\n") + reasons.join(QLatin1Char('\n'));
+  }
+  showImportWarning(text);
 }
 
 void MainWindow::removeFromProject(const std::set<PageId>& pages) {

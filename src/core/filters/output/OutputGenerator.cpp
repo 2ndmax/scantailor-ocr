@@ -68,6 +68,7 @@
 #include "FillColorProperty.h"
 #include "FilterData.h"
 #include "ForegroundType.h"
+#include "ImageSizeLimit.h"
 #include "OutputImageBuilder.h"
 #include "OutputProcessingParams.h"
 #include "Params.h"
@@ -349,6 +350,11 @@ void OutputGenerator::Processor::initParams() {
 
 void OutputGenerator::Processor::calcAreas() {
   m_targetSize = m_outRect.size().expandedTo(QSize(1, 1));
+  // The limit for images also holds for the output, as it is processed the same way. Without it,
+  // a high output resolution or a too low DPI of the image could make the output arbitrarily large.
+  if (ImageSizeLimit::exceeds(m_targetSize)) {
+    throw std::runtime_error(ImageSizeLimit::outputErrorMessage(m_targetSize).toStdString());
+  }
 
   if (m_renderParams.fillOutsidePageBox()) {
     m_preCropArea = QRectF(m_outRect);

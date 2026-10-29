@@ -39,6 +39,9 @@ class ScanFolderWatcher::LoadTask : public QRunnable {
     // A TIFF file, for instance, gets its directory at the end.
     result.ok = (status == ImageMetadataLoader::LOADED) && !result.metadata.empty()
                 && !ImageLoader::load(m_filePath, 0).isNull();
+    if (!result.ok) {
+      result.errors = errorCapture.messages();
+    }
     m_owner->addLoadResult(result);
   }
 
@@ -152,7 +155,7 @@ void ScanFolderWatcher::processLoadResults() {
       file.setPartialReads(result.partialReads);
       emit imageReady(file);
     } else if (m_tracker.loadFailed(result.filePath, m_clock.elapsed())) {
-      emit imageFailed(result.filePath);
+      emit imageFailed(result.filePath, result.errors);
     }
   }
   if (isWatching()) {

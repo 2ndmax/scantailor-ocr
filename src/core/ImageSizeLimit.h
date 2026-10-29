@@ -41,6 +41,9 @@ class ImageSizeLimit {
   static QString errorMessage(qint64 width, qint64 height);
 
   static QString errorMessage(const QSize& size) { return errorMessage(size.width(), size.height()); }
+
+  /** The message for the user about an output page of \p size pixels that is too large. */
+  static QString outputErrorMessage(const QSize& size);
 };
 
 

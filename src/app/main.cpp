@@ -6,6 +6,7 @@
 #include <core/ColorSchemeFactory.h>
 #include <core/ColorSchemeManager.h>
 #include <core/IconProvider.h>
+#include <core/ImageSizeLimit.h>
 #include <core/SettingsSetup.h>
 #include <core/StyledIconPack.h>
 
@@ -19,9 +20,11 @@
 int main(int argc, char* argv[]) {
   Application app(argc, argv);
 
-  // Qt 6 refuses to decode images needing more than 256 MB by default,
-  // which large colour scans (e.g. A3 at 600 dpi) easily exceed.
-  QImageReader::setAllocationLimit(0);
+  // Qt 6 refuses to decode images needing more than 256 MB by default, which large color scans
+  // (e.g. A3 at 600 dpi) easily exceed. The limit in MB fits the largest image allowed, decoded with
+  // 16 bit per channel (8 bytes per pixel). It only matters for formats that don't tell their size
+  // before decoding, as ImageLoader checks the size from the header first.
+  QImageReader::setAllocationLimit(static_cast<int>(ImageSizeLimit::MAX_PIXELS * 8 / (1024 * 1024)) + 1);
 
 #ifdef _WIN32
   // Get rid of all references to Qt's installation directory.

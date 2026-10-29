@@ -1882,7 +1882,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>ImageLoader</name>
     <message>
-        <location filename="../core/ImageLoader.cpp" line="47"/>
+        <location filename="../core/ImageLoader.cpp" line="48"/>
         <location filename="../app/ProjectFilesDialog.cpp" line="754"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation type="unfinished"></translation>
@@ -1893,6 +1893,11 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     <message>
         <location filename="../core/ImageSizeLimit.cpp" line="20"/>
         <source>The image is too large (%1 × %2 pixels). Width and height may be at most %3 pixels each, the area at most %4 megapixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/ImageSizeLimit.cpp" line="32"/>
+        <source>The output page would be too large (%1 × %2 pixels). Width and height may be at most %3 pixels each, the area at most %4 megapixels. Lower the output resolution, or check the DPI of the image.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1925,12 +1930,12 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>Jp2Reader</name>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="329"/>
+        <location filename="../core/Jp2Reader.cpp" line="330"/>
         <source>The image contains a component that could not be decoded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="681"/>
+        <location filename="../core/Jp2Reader.cpp" line="689"/>
         <source>The JPEG 2000 file header is damaged or incomplete.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2211,7 +2216,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2961"/>
+        <location filename="../app/MainWindow.cpp" line="2964"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2463,12 +2468,12 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2768"/>
+        <location filename="../app/MainWindow.cpp" line="2767"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2961"/>
+        <location filename="../app/MainWindow.cpp" line="2964"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4418,43 +4423,43 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>TiffReader</name>
     <message>
-        <location filename="../core/TiffReader.cpp" line="193"/>
+        <location filename="../core/TiffReader.cpp" line="194"/>
         <source>The compression method &quot;%1&quot; is not supported by the libtiff library this program was built with.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="247"/>
+        <location filename="../core/TiffReader.cpp" line="248"/>
         <source>Inconsistent image layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="272"/>
+        <location filename="../core/TiffReader.cpp" line="273"/>
         <source>Invalid tile layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="538"/>
+        <location filename="../core/TiffReader.cpp" line="539"/>
         <source>Page %1 doesn&apos;t exist in this file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="200"/>
+        <location filename="../core/TiffReader.cpp" line="201"/>
         <source>The image dimensions are missing or invalid.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="484"/>
-        <location filename="../core/TiffReader.cpp" line="541"/>
+        <location filename="../core/TiffReader.cpp" line="485"/>
+        <location filename="../core/TiffReader.cpp" line="542"/>
         <source>Page %1 of this file is damaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="709"/>
+        <location filename="../core/TiffReader.cpp" line="714"/>
         <source>The color palette of the image is missing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffReader.cpp" line="791"/>
+        <location filename="../core/TiffReader.cpp" line="796"/>
         <source>Unsupported sample format (%1 bits per sample, format %2).</source>
         <translation type="unfinished"></translation>
     </message>

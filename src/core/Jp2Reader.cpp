@@ -22,6 +22,7 @@
 #include "Dpm.h"
 #include "ImageLoadErrors.h"
 #include "ImageMetadata.h"
+#include "ImageSizeLimit.h"
 #include "ThreadBudget.h"
 
 namespace {
@@ -613,9 +614,16 @@ QImage decode(QIODevice& device,
   }
   ImagePtr image(rawImage);
 
+  // The size of the codestream, not that of the JP2 header, as OpenJPEG allocates by this one.
+  // Components with subsampling are scaled up to it by toQImage().
+  const int64_t fullWidth = static_cast<int64_t>(image->x1) - image->x0;
+  const int64_t fullHeight = static_cast<int64_t>(image->y1) - image->y0;
+  if (ImageSizeLimit::exceeds(fullWidth, fullHeight)) {
+    ImageLoadErrorCapture::addError(ImageSizeLimit::errorMessage(fullWidth, fullHeight));
+    return QImage();
+  }
+
   if (minSize.isValid() && !minSize.isEmpty()) {
-    const int64_t fullWidth = static_cast<int64_t>(image->x1) - image->x0;
-    const int64_t fullHeight = static_cast<int64_t>(image->y1) - image->y0;
     const int maxReduce = maxReduceFactor(codec.get(), static_cast<int>(image->numcomps));
     while ((reduce < maxReduce) && (((fullWidth + (int64_t(1) << (reduce + 1)) - 1) >> (reduce + 1)) >= minSize.width())
            && (((fullHeight + (int64_t(1) << (reduce + 1)) - 1) >> (reduce + 1)) >= minSize.height())) {

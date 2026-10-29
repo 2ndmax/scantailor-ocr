@@ -26,6 +26,7 @@
 #include "Dpm.h"
 #include "ImageLoadErrors.h"
 #include "ImageMetadata.h"
+#include "ImageSizeLimit.h"
 #include "TiffDevice.h"
 
 class TiffReader::TiffHeader {
@@ -547,6 +548,10 @@ QImage TiffReader::readImage(QIODevice& device, const int pageNum) {
   if ((info.width <= 0) || (info.height <= 0)) {
     // Missing or nonsensical ImageWidth / ImageLength tags.
     ImageLoadErrorCapture::addError(invalidDimensionsMessage());
+    return QImage();
+  }
+  if (ImageSizeLimit::exceeds(info.width, info.height)) {
+    ImageLoadErrorCapture::addError(ImageSizeLimit::errorMessage(info.width, info.height));
     return QImage();
   }
 

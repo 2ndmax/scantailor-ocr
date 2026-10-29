@@ -210,7 +210,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void scanReady(const ImageFileInfo& file);
 
-  void scanFailed(const QString& filePath);
+  void scanFailed(const QString& filePath, const QStringList& reasons);
 
  private:
   /** The shortcut actions for the steps, in the order of the step list. */

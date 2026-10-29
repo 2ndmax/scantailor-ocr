@@ -5,6 +5,7 @@
 #include <ImageLoader.h>
 #include <ImageMetadata.h>
 #include <ImageMetadataLoader.h>
+#include <ImageSizeLimit.h>
 #include <Jp2Reader.h>
 #include <TiffReader.h>
 #include <TiffWriter.h>
@@ -1261,6 +1262,112 @@ BOOST_AUTO_TEST_CASE(test_jp2_not_recognized) {
   QFile file(path);
   BOOST_REQUIRE(file.open(QIODevice::ReadOnly));
   BOOST_CHECK(!Jp2Reader::canRead(file));
+}
+
+namespace {
+// Loads the image the way pages and thumbnails are loaded and returns the messages.
+QStringList loadMessages(const QString& path, QImage& image, const QSize& minSize = QSize()) {
+  ImageLoadErrorCapture capture;
+  QFile file(path);
+  BOOST_REQUIRE(file.open(QIODevice::ReadOnly));
+  image = ImageLoader::load(file, 0, minSize);
+  return capture.messages();
+}
+
+QStringList metadataMessages(const QString& path, ImageMetadataLoader::Status& status) {
+  std::vector<ImageMetadata> pages;
+  return readTiffMetadata(path, pages, status);  // Works for all formats.
+}
+
+// Neither decoding nor reading the metadata accepts the image, and both say why.
+void checkRefusedAsTooLarge(const QString& path, const QSize& size) {
+  const QString expected = ImageSizeLimit::errorMessage(size);
+  QImage image;
+  BOOST_CHECK(loadMessages(path, image).contains(expected));
+  BOOST_CHECK(image.isNull());
+  BOOST_CHECK(loadMessages(path, image, QSize(100, 100)).contains(expected));
+  BOOST_CHECK(image.isNull());
+
+  ImageMetadataLoader::Status status;
+  BOOST_CHECK(metadataMessages(path, status).contains(expected));
+  BOOST_CHECK(status != ImageMetadataLoader::LOADED);
+}
+
+// Sizes over the limit whose pixels are still cheap to hold, should a check be missing.
+const QSize TOO_WIDE(ImageSizeLimit::MAX_SIDE + 1, 64);
+}  // namespace
+
+// The header claims a size over the limit; the file has far fewer pixels.
+BOOST_AUTO_TEST_CASE(test_tiff_over_size_limit_is_refused) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  TiffSpec spec;
+  spec.width = 8;
+  spec.height = 8;
+  spec.bitsPerSample = 1;
+  // 25000 x 25000 has more pixels than allowed, but both sides are allowed. As 1 bit image,
+  // its pixels need 78 MB.
+  for (const QSize& size : {TOO_WIDE, QSize(25000, 25000)}) {
+    BOOST_REQUIRE(ImageSizeLimit::exceeds(size));
+    const QString path = dir.filePath(QStringLiteral("too_large_%1.tif").arg(size.width()));
+    BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
+    QByteArray data = Tests::readFile(path);
+    BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGEWIDTH, size.width()));
+    BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGELENGTH, size.height()));
+    BOOST_REQUIRE(Tests::writeFile(path, data));
+    checkRefusedAsTooLarge(path, size);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_png_over_size_limit_is_refused) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("too_wide.png");
+  QImage image(TOO_WIDE, QImage::Format_Mono);
+  image.fill(0);
+  BOOST_REQUIRE(image.save(path, "PNG"));
+  checkRefusedAsTooLarge(path, TOO_WIDE);
+}
+
+BOOST_AUTO_TEST_CASE(test_jpeg_over_size_limit_is_refused) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("too_wide.jpg");
+  writeGrayJpeg(path, TOO_WIDE.width(), TOO_WIDE.height(), 300, 300, false);
+  checkRefusedAsTooLarge(path, TOO_WIDE);
+}
+
+BOOST_AUTO_TEST_CASE(test_jp2_over_size_limit_is_refused) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  for (const bool codestream : {false, true}) {
+    const QString path = dir.filePath(codestream ? "too_wide.j2k" : "too_wide.jp2");
+    BOOST_REQUIRE(writeJp2(path, TOO_WIDE.width(), TOO_WIDE.height(), 1, codestream));
+    checkRefusedAsTooLarge(path, TOO_WIDE);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_image_at_size_limit_is_accepted) {
+  // Only the metadata: decoding an image of this size would take too long and too much memory.
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("at_limit.tif");
+  TiffSpec spec;
+  spec.width = 8;
+  spec.height = 8;
+  spec.bitsPerSample = 1;
+  BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
+  QByteArray data = Tests::readFile(path);
+  BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGEWIDTH, 20000));
+  BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGELENGTH, 30000));
+  BOOST_REQUIRE(Tests::writeFile(path, data));
+
+  std::vector<ImageMetadata> pages;
+  ImageMetadataLoader::Status status;
+  readTiffMetadata(path, pages, status);
+  BOOST_CHECK(status == ImageMetadataLoader::LOADED);
+  BOOST_REQUIRE_EQUAL(pages.size(), 1u);
+  BOOST_CHECK(pages.front().size() == QSize(20000, 30000));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
