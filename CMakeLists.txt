@@ -99,6 +99,24 @@ st_set_default_build_type(Release)
 option(BUILD_TESTS "Build unit tests (math_tests, imageproc_tests, core_tests, foundation_tests, qt_tests)" ON)
 option(BUILD_DEV_TOOLS "Build developer tools (binarization_compare: binarization methods; color_detect: color mode detection on sample pages; despeckle_compare: despeckling before and after a change; split_compare: split line detection methods; oblique_compare: oblique detection on synthetic pages or real scans)" OFF)
 
+# Fuzz targets in src/fuzz, for a build directory of their own (see TESTING.md). All of the
+# project's code is built with AddressSanitizer and the coverage instrumentation libFuzzer
+# needs. MSVC can't link such code with uninstrumented code (LNK2038 annotate_vector ...), and
+# the instrumented code needs the libFuzzer runtime, so the program, the tests and the dev
+# tools are left out; the tests under sanitizers are scripts/analysis/08-sanitizers.ps1.
+option(BUILD_FUZZERS "Build the fuzz targets (src/fuzz) instead of the program, with AddressSanitizer. MSVC only." OFF)
+if (BUILD_FUZZERS)
+  if (NOT MSVC OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message(FATAL_ERROR "BUILD_FUZZERS needs MSVC (cl.exe).")
+  endif()
+  set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+  set(BUILD_DEV_TOOLS OFF CACHE BOOL "" FORCE)
+  add_compile_options(/fsanitize=address /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge
+                      /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div)
+  # ASan doesn't work with incremental linking.
+  add_link_options(/INCREMENTAL:NO)
+endif()
+
 if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 endif()
@@ -428,7 +446,14 @@ if (WIN32)
   copy_to_build_dir(${ADDITIONAL_RUNTIME_LIBS_DEBUG} CONFIGURATIONS Debug)
 
   # Generate the target that will actually do the copying.
-  generate_copy_to_build_dir_target(copy_to_build_dir ${target_name})
+  if (BUILD_FUZZERS)
+    # The fuzz targets also need the AddressSanitizer runtime, which comes with the compiler.
+    get_filename_component(compiler_dir "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    copy_to_build_dir("${compiler_dir}/clang_rt.asan_dynamic-x86_64.dll")
+    generate_copy_to_build_dir_target(copy_to_build_dir fuzz_image_metadata)
+  else()
+    generate_copy_to_build_dir_target(copy_to_build_dir ${target_name})
+  endif()
 
   install(PROGRAMS ${ADDITIONAL_RUNTIME_LIBS_RELEASE} TYPE BIN CONFIGURATIONS Release MinSizeRel RelWithDebInfo)
   install(PROGRAMS ${ADDITIONAL_RUNTIME_LIBS_DEBUG} TYPE BIN CONFIGURATIONS Debug)
