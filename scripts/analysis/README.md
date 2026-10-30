@@ -2,7 +2,7 @@
 
 Scripts that run compilers and analysis tools over the code and store their **raw** output, for
 later evaluation.  Every script is one run, numbered in the order in which they are best run;
-`10-merge-findings.ps1` then merges the findings of all runs into one table.
+`11-merge-findings.ps1` then merges the findings of all runs into one table.
 
 Every log starts with `# ...` header lines (commit, tool versions, full command lines) and ends
 with the exit codes.  The output goes to `results\` in this folder (ignored by git); each script
@@ -28,10 +28,10 @@ The examples below assume the folders of [BUILDING.md](../../BUILDING.md): the r
 | 07 | `07-clang-cl.ps1` | **clang-cl** instead of cl.exe, `/W4` | `build-clang-cl` | `07-clang-cl.log` |
 | 08 | `08-sanitizers.ps1` | clang-cl with **UBSan + ASan**; runs the tests and the dev tools | `build-ubsan` | `08-ubsan-build.log`, `08-ubsan-tests.log`, `08-ubsan-tools.log` |
 | 09 | `09-fuzz.ps1` | MSVC with **libFuzzer + ASan**; runs the fuzz targets of `src/fuzz` | `build-fuzz` | `09-fuzz.log`, `09-fuzz-build.log`, `09-fuzz\<target>\` |
-| 10 | `10-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
+| 11 | `11-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
 
 Order: 02, 03 and 04 need the build directory of 01.  05 to 09 are independent of each other
-and of 01.  10 reads whatever output exists.
+and of 01.  11 reads whatever output exists.
 
 ## Requirements
 
@@ -140,9 +140,9 @@ on its own, 0 runs all of them in order:
    EDG either at the version the setup was tested with, or the newest one (`git pull` for an
    existing checkout); SoftFloat at the commit EDG pins.
 3. Build: SoftFloat, which EDG needs on Windows for its floating-point arithmetic, with the
-   CMake file in `scripts\setup\edg-softfloat\` (SoftFloat only ships makefiles for GCC and
-   MinGW), then EDG with its preset `windows-msvc-release`: about ten minutes the first time,
-   a minute or two later on.
+   CMake file in `scripts\setup\support\edg-softfloat\` (SoftFloat only ships makefiles for
+   GCC and MinGW), then EDG with its preset `windows-msvc-release`: about ten minutes the
+   first time, a minute or two later on.
 4. `EDG_ROOT`: sets the variable for your user account, so `04-edg.ps1` finds EDG.
 5. Check: runs `cpfe.exe` on a small C++17 file in strict mode.
 
@@ -155,7 +155,7 @@ on); how EDG checks is chosen when it runs.  Without `EDG_ROOT`, `04-edg.ps1` ta
 
 A full MSVC build with `/W4` and C++20 instead of C++17, without `/analyze`, so its warnings can
 be compared with the C4xxx warnings of 01.  As the project sets `CMAKE_CXX_STANDARD 17` as a
-normal variable, C++20 is switched on through `std-cxx20.cmake`.
+normal variable, C++20 is switched on through `support\std-cxx20.cmake`.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\05-msvc-cxx20.ps1
 
@@ -228,7 +228,7 @@ long one; once the coverage (`ft` in the summary) hardly grows any more, longer 
 Per target, `results\09-fuzz\<target>\` holds `corpus\` (the inputs found so far; the next run
 continues from them), `findings\` (the inputs that made the target fail: `crash-*`, `oom-*`,
 `timeout-*`) and `fuzz.log` (the output of the last run).  `09-fuzz.log` has a summary per
-target and runs every input in `findings\` once more, so its report is there for run 10; an
+target and runs every input in `findings\` once more, so its report is there for run 11; an
 input that no longer fails shows that it was fixed.  Delete `findings\` once its inputs are dealt
 with.  Unlike the other runs, an existing `build-fuzz` is built again instead of deleted, so a
 run after a fix starts within minutes.
@@ -243,7 +243,7 @@ claim an image up to the size limit of the program, whose decoding takes gigabyt
 are covered by the tests of the size limit.  Qt and the vcpkg libraries are DLLs and not
 instrumented: the fuzzer sees no coverage inside them and ASan checks no accesses there.
 
-### 10 – Merging the results
+### 11 – Merging the results
 
 Reads the output of the runs (all that exist) and writes the distinct findings to
 `findings.csv` (all of them) and `findings.md` (a summary per tool and check, then the findings
@@ -252,10 +252,10 @@ merged and the runs that reported them are listed.  Frequent, mostly harmless ch
 (unreferenced parameters, `size_t` conversions, hidden names; see `-BulkChecks`) are
 only counted in `findings.md`.  Needs neither Visual Studio nor any of the tools.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\10-merge-findings.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\11-merge-findings.ps1
 
 ## Notes
 
 - `/permissive-`, `/Zc:__cplusplus` and `/utf-8` are set by the Qt 6 targets in every MSVC and
   clang-cl build.
-- A diagnostic in a header appears once per source file that includes it; 10 merges these.
+- A diagnostic in a header appears once per source file that includes it; 11 merges these.

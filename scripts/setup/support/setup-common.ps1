@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
   Helpers for the setup scripts in this folder: questions, the step menu and running commands
-  visibly. Dot-sourced after ..\common.ps1.
+  visibly. Dot-sourced after ..\..\support\common.ps1.
 
 .DESCRIPTION
   Every setup script shows its steps in a menu; 0 runs all of them in order. Given -Steps, a
@@ -9,7 +9,7 @@
   (-Yes answers yes instead), so it can be run unattended.
 #>
 
-$LogDir = "$PSScriptRoot\logs"
+$LogDir = "$(Split-Path $PSScriptRoot)\logs"
 
 # A suggestion for a folder on drive D: if that drive exists, else on C:.
 function Get-DefaultBase {

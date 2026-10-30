@@ -81,14 +81,14 @@ jobs:
           "count=$count" >> $env:GITHUB_OUTPUT
 
       # The release workflow (release.yml) and the CodeQL workflow (codeql.yml) use the
-      # cache saved here; all three read the package list from scripts/setup/vcpkg-packages.txt.
+      # cache saved here; all three read the package list from scripts/setup/support/vcpkg-packages.txt.
       # Drive C: of the runner is too small for vcpkg's intermediate files
       # (the first run failed with "No space left on device"). They go to
       # the temp folder on D: and are deleted after each package.
       - name: Install dependencies (vcpkg)
         shell: pwsh
         run: |
-          $packages = Get-Content scripts/setup/vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' }
+          $packages = Get-Content scripts/setup/support/vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' }
           & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install `
             --clean-after-build `
             "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `

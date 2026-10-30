@@ -3,16 +3,16 @@
   Helpers for the analysis runs in this folder. Dot-sourced by the run scripts.
 
 .DESCRIPTION
-  Loads the shared helpers of ..\common.ps1 (Visual Studio, vcpkg, logging) and adds the
+  Loads the shared helpers of ..\..\support\common.ps1 (Visual Studio, vcpkg, logging) and adds the
   configure, build and compile database helpers of the runs.
 #>
 
-. "$PSScriptRoot\..\common.ps1"
+. "$PSScriptRoot\..\..\support\common.ps1"
 if (-not $Vs) {
     throw 'No Visual Studio installation with the C++ tools found: scripts\setup\01-setup-windows.ps1 installs it.'
 }
 # All logs and results go here unless a script is given -OutDir (ignored by git).
-$ResultsDir = "$PSScriptRoot\results"
+$ResultsDir = "$(Split-Path $PSScriptRoot)\results"
 # The -Yes of the run scripts: start without asking.
 $Unattended = [bool]$Yes
 $AssumeYes = [bool]$Yes

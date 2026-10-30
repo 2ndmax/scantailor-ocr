@@ -10,7 +10,7 @@
 #>
 
 $ErrorActionPreference = 'Stop'
-$Root = (Resolve-Path "$PSScriptRoot\..").Path
+$Root = (Resolve-Path "$PSScriptRoot\..\..").Path
 $Utf8 = New-Object Text.UTF8Encoding $false
 
 $vswhereDir = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer"
@@ -44,7 +44,7 @@ function Find-Cppcheck {
 
 # The Linux of the GCC build in WSL and the packages it needs there.
 $WslDistro = 'Ubuntu-24.04'
-$UbuntuPackages = @(Get-Content "$Root\scripts\setup\ubuntu-packages.txt" |
+$UbuntuPackages = @(Get-Content "$Root\scripts\setup\support\ubuntu-packages.txt" |
     ForEach-Object { $_.Trim() } | Where-Object { $_ -and $_ -notmatch '^#' })
 
 # WSL itself, as "wsl --install" installs it. Not the wsl.exe in System32: before WSL is

@@ -11,8 +11,8 @@
     2. Sources: clones EDG (github.com/edgcpp/compiler) and Berkeley SoftFloat 3. EDG either at
        the version this setup was tested with, or the newest one; SoftFloat always at the commit
        EDG pins.
-    3. Build: SoftFloat as softfloat.lib with the CMake file in edg-softfloat\ (SoftFloat only
-       ships makefiles for GCC and MinGW), then EDG with its preset windows-msvc-release (about
+    3. Build: SoftFloat as softfloat.lib with the CMake file in support\edg-softfloat\ (SoftFloat
+       only ships makefiles for GCC and MinGW), then EDG with its preset windows-msvc-release (about
        ten minutes the first time). EDG finds SoftFloat through EDG_SOFTFLOAT_INCLUDE_PATH and
        EDG_SOFTFLOAT_LIB_PATH, which are set for the build only.
     4. EDG_ROOT: sets the variable for your user account; scripts\analysis\04-edg.ps1 reads it.
@@ -49,8 +49,8 @@ param(
     [string]$Python = '',
     [switch]$Yes
 )
-. "$PSScriptRoot\..\common.ps1"
-. "$PSScriptRoot\setup-common.ps1"
+. "$PSScriptRoot\..\support\common.ps1"
+. "$PSScriptRoot\support\setup-common.ps1"
 $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
 $log = "$LogDir\03-setup-edg.log"
@@ -234,7 +234,7 @@ $stepBuild = {
     if (-not $py) { Write-Host 'No Python 3 found; see step 1.' -ForegroundColor Red; return $false }
 
     # --fresh: the build directory may still name an older place of this script folder.
-    $sfConfigure = "cmake --fresh -S `"$PSScriptRoot\edg-softfloat`" -B `"$SoftFloatBuildDir`" -G Ninja " +
+    $sfConfigure = "cmake --fresh -S `"$PSScriptRoot\support\edg-softfloat`" -B `"$SoftFloatBuildDir`" -G Ninja " +
                    "-DCMAKE_BUILD_TYPE=Release -DSOFTFLOAT_DIR=`"$($SoftFloatDir -replace '\\', '/')`""
     if ((Invoke-Shown $sfConfigure $log -InVsEnv) -ne 0) { return $false }
     if ((Invoke-Shown "cmake --build `"$SoftFloatBuildDir`"" $log -InVsEnv) -ne 0) { return $false }

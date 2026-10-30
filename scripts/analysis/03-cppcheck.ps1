@@ -35,7 +35,7 @@ param(
     [string]$Only = '',
     [switch]$Yes
 )
-. "$PSScriptRoot\common.ps1"
+. "$PSScriptRoot\support\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-analysis" }
 if (-not $Cppcheck) { $Cppcheck = Find-Cppcheck }

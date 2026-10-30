@@ -60,7 +60,7 @@ param(
     [string]$VcpkgRoot = '',
     [switch]$Yes
 )
-. "$PSScriptRoot\common.ps1"
+. "$PSScriptRoot\support\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-ubsan" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot

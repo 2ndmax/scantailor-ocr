@@ -61,10 +61,10 @@ Unpack it to `D:\vcpkg`.
 ```
 cd /d D:\vcpkg
 bootstrap-vcpkg.bat
-powershell -NoProfile -Command "& .\vcpkg.exe install --recurse (Get-Content D:\scantailor-ocr\scripts\setup\vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' })"
+powershell -NoProfile -Command "& .\vcpkg.exe install --recurse (Get-Content D:\scantailor-ocr\scripts\setup\support\vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' })"
 ```
 
-The packages are listed in [scripts/setup/vcpkg-packages.txt](scripts/setup/vcpkg-packages.txt),
+The packages are listed in [scripts/setup/support/vcpkg-packages.txt](scripts/setup/support/vcpkg-packages.txt),
 which the setup script and the GitHub workflows use as well. `tesseract` is only needed for
 text recognition in the PDF export (see the build options below).
 

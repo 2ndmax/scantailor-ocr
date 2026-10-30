@@ -12,7 +12,7 @@
        Framework 4.8.1 SDK (run 04).
     2. cppcheck (run 03), installed with winget into its standard folder C:\Program Files\Cppcheck.
     3. EDG (run 04): starts 03-setup-edg.ps1.
-    4. WSL with Ubuntu and GCC (run 11): starts 04-setup-wsl-gcc.ps1.
+    4. WSL with Ubuntu and GCC (run 10): starts 04-setup-wsl-gcc.ps1.
   clang-tidy (run 02) comes with Visual Studio itself; the build itself is set up by
   01-setup-windows.ps1. The output also goes to logs\02-setup-analysis.log.
 
@@ -28,8 +28,8 @@ param(
     [int[]]$Steps = @(),
     [switch]$Yes
 )
-. "$PSScriptRoot\..\common.ps1"
-. "$PSScriptRoot\setup-common.ps1"
+. "$PSScriptRoot\..\support\common.ps1"
+. "$PSScriptRoot\support\setup-common.ps1"
 $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
 $log = "$LogDir\02-setup-analysis.log"
@@ -94,7 +94,7 @@ $status = {
         "  07          clang-cl          $clang"
         "  08          sanitizers        $sanitizers"
         "  09          fuzzing           $fuzzing"
-        "  11          GCC               $gcc"
+        "  10          GCC               $gcc"
         "  all builds  vcpkg             $vcpkg"
     )
 }
@@ -162,7 +162,7 @@ $menu = @(
        Done = { [bool](Find-Cppcheck) }; Run = $stepCppcheck }
     @{ Title = 'EDG (run 04): start 03-setup-edg.ps1'
        Done = { [bool](Get-Cpfe) }; Run = $stepEdg }
-    @{ Title = 'WSL with Ubuntu and GCC (run 11): start 04-setup-wsl-gcc.ps1'
+    @{ Title = 'WSL with Ubuntu and GCC (run 10): start 04-setup-wsl-gcc.ps1'
        Done = { Test-UbuntuPackages }; Run = $stepWslGcc }
 )
 $extra = @(

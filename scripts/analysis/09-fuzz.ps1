@@ -70,7 +70,7 @@ param(
     [string]$VcpkgRoot = '',
     [switch]$Yes
 )
-. "$PSScriptRoot\common.ps1"
+. "$PSScriptRoot\support\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-fuzz" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
@@ -285,7 +285,7 @@ foreach ($t in $targets) {
 }
 
 # --- Reports of all findings ---------------------------------------------------------------------
-# Each input in findings\ runs once more, so its report is in this log (for 10-merge-findings.ps1),
+# Each input in findings\ runs once more, so its report is in this log (for 11-merge-findings.ps1),
 # and one that no longer fails shows that it was fixed.
 $total = 0
 foreach ($t in $targets) {

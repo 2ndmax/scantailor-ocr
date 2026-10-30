@@ -55,12 +55,12 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ github.run_id }}
           restore-keys: vcpkg-${{ runner.os }}-
 
-      # The package list is shared with ci.yml (scripts/setup/vcpkg-packages.txt), so the
+      # The package list is shared with ci.yml (scripts/setup/support/vcpkg-packages.txt), so the
       # cached packages are used.
       - name: Install dependencies (vcpkg)
         shell: pwsh
         run: |
-          $packages = Get-Content scripts/setup/vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' }
+          $packages = Get-Content scripts/setup/support/vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' }
           & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install `
             --clean-after-build `
             "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `

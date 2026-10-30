@@ -11,7 +11,7 @@
     2. Git and GitHub CLI: installs what is missing with winget; then points out the Git
        settings and the GitHub sign-in that are still to do (it does not do them itself).
     3. vcpkg: gets it (git clone, or the ZIP without Git), builds it and installs the packages of
-       vcpkg-packages.txt (an hour or more the first time).
+       support\vcpkg-packages.txt (an hour or more the first time).
     4. VCPKG_ROOT: sets the variable for your user account.
     5. Build: configures and builds ScanTailor OCR in the build folder of the repository; then
        offers to download the OCR languages German and English and to run the tests.
@@ -33,8 +33,8 @@ param(
     [string]$VcpkgDir = '',
     [switch]$Yes
 )
-. "$PSScriptRoot\..\common.ps1"
-. "$PSScriptRoot\setup-common.ps1"
+. "$PSScriptRoot\..\support\common.ps1"
+. "$PSScriptRoot\support\setup-common.ps1"
 $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
 $log = "$LogDir\01-setup-windows.log"
@@ -322,8 +322,8 @@ $stepVcpkg = {
     if (-not (Test-Path "$VcpkgDir\vcpkg.exe")) {
         if ((Invoke-Shown "cd /d `"$VcpkgDir`" && bootstrap-vcpkg.bat -disableMetrics" $log) -ne 0) { return $false }
     }
-    $packages = @(Get-Content "$PSScriptRoot\vcpkg-packages.txt" | Where-Object { $_ -and $_ -notmatch '^#' })
-    Write-Host "Installs $($packages.Count) packages (list: scripts\setup\vcpkg-packages.txt). The first time,"
+    $packages = @(Get-Content "$PSScriptRoot\support\vcpkg-packages.txt" | Where-Object { $_ -and $_ -notmatch '^#' })
+    Write-Host "Installs $($packages.Count) packages (list: scripts\setup\support\vcpkg-packages.txt). The first time,"
     Write-Host "vcpkg compiles Qt and everything else from source: an hour or more and at least $VcpkgSizeGb GB."
     Write-Host 'Packages that are already installed are skipped.'
     if (-not (Read-YesNo 'Install the packages now?' $true)) { return $false }
