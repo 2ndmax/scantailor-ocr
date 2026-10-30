@@ -32,6 +32,9 @@ class BlackWhiteOptions {
  public:
   static constexpr double MIN_COLORED_DIMMING = -1.0;
   static constexpr double MAX_COLORED_DIMMING = 2.0;
+  // The smallest window size the options panel allows, and the default one.
+  static constexpr int MIN_WINDOW_SIZE = 3;
+  static constexpr int DEFAULT_WINDOW_SIZE = 200;
 
   class ColorSegmenterOptions {
    public:

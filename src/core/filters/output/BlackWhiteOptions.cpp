@@ -12,12 +12,22 @@
 using namespace foundation;
 
 namespace output {
+namespace {
+// A window size below the minimum (also a missing one) can't come from the program, and most
+// binarization methods refuse one of 0 or less, which fails the page.
+int windowSizeFromXml(const QString& value) {
+  bool ok = false;
+  const int size = value.toInt(&ok);
+  return (ok && (size >= BlackWhiteOptions::MIN_WINDOW_SIZE)) ? size : BlackWhiteOptions::DEFAULT_WINDOW_SIZE;
+}
+}  // namespace
+
 BlackWhiteOptions::BlackWhiteOptions()
     : m_thresholdAdjustment(0),
       m_savitzkyGolaySmoothingEnabled(true),
       m_morphologicalSmoothingEnabled(true),
       m_normalizeIllumination(true),
-      m_windowSize(200),
+      m_windowSize(DEFAULT_WINDOW_SIZE),
       m_sauvolaCoef(0.34),
       m_wolfLowerBound(1),
       m_wolfUpperBound(254),
@@ -30,7 +40,7 @@ BlackWhiteOptions::BlackWhiteOptions(const QDomElement& el)
       m_savitzkyGolaySmoothingEnabled(el.attribute("savitzkyGolaySmoothing") == "1"),
       m_morphologicalSmoothingEnabled(el.attribute("morphologicalSmoothing") == "1"),
       m_normalizeIllumination(el.attribute("normalizeIlluminationBW") == "1"),
-      m_windowSize(el.attribute("windowSize", "200").toInt()),
+      m_windowSize(windowSizeFromXml(el.attribute("windowSize"))),
       m_sauvolaCoef(el.attribute("sauvolaCoef", "0.34").toDouble()),
       m_wolfLowerBound(el.attribute("wolfLowerBound", "1").toInt()),
       m_wolfUpperBound(el.attribute("wolfUpperBound", "254").toInt()),

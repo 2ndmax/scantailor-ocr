@@ -109,6 +109,9 @@ struct Run {
   // A manual distortion model that is valid, but less than half a pixel wide, so that
   // its model domain is empty.
   bool thinManualDewarping = false;
+  BinarizationMethod binarization = T_OTSU;
+  // Values as read from a project file (attribute values); empty keeps the defaults of the test.
+  QString windowSizeAttribute;
 };
 
 std::unique_ptr<OutputImage> generate(const Run& run) {
@@ -129,6 +132,13 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
     segmenterOptions.setKMeansEnabled(true);
     segmenterOptions.setKMeansColors(run.kmeansColors);
     blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
+  }
+  blackWhiteOptions.setBinarizationMethod(run.binarization);
+  if (!run.windowSizeAttribute.isEmpty()) {
+    QDomDocument doc;
+    QDomElement el = blackWhiteOptions.toXml(doc, QStringLiteral("black-white-options"));
+    el.setAttribute(QStringLiteral("windowSize"), run.windowSizeAttribute);
+    blackWhiteOptions = BlackWhiteOptions(el);
   }
   colorParams.setBlackWhiteOptions(blackWhiteOptions);
   params.setColorParams(colorParams);
@@ -308,6 +318,28 @@ BOOST_AUTO_TEST_CASE(output_over_the_size_limit_is_refused) {
     BOOST_ERROR("No exception for an output over the size limit");
   } catch (const std::runtime_error& e) {
     BOOST_CHECK(QString::fromUtf8(e.what()).contains(QString::number(ImageSizeLimit::MAX_SIDE)));
+  }
+}
+
+// The options panel keeps the window size between 3 and 9999 pixels; a project file can hold any
+// value. Every method that uses a window has to process the page with it.
+BOOST_AUTO_TEST_CASE(window_size_out_of_range_in_project_file_is_processed) {
+  for (const BinarizationMethod method : {T_SAUVOLA, T_WOLF, T_FOX, T_WINDOW, T_BRADLEY, T_GRAD, T_EDGEPLUS, T_BLURDIV,
+                                          T_EDGEDIV, T_GATOS, T_NICK, T_SINGH, T_ROBUST, T_MULTISCALE}) {
+    for (const char* windowSize : {"0", "-5", "2000000000"}) {
+      BOOST_TEST_CONTEXT("binarization method " << static_cast<int>(method) << ", windowSize " << windowSize) {
+        Run run;
+        run.binarization = method;
+        run.windowSizeAttribute = QString::fromLatin1(windowSize);
+        try {
+          const QImage output = process(run);
+          BOOST_CHECK_EQUAL(output.width(), WIDTH);
+          BOOST_CHECK_EQUAL(output.height(), HEIGHT);
+        } catch (const std::exception& e) {
+          BOOST_ERROR("Exception: " << e.what());
+        }
+      }
+    }
   }
 }
 
