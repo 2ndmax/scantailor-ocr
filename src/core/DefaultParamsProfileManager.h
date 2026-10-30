@@ -13,6 +13,7 @@
 #include <memory>
 
 class DefaultParams;
+class QIODevice;
 
 class DefaultParamsProfileManager {
   DECLARE_NON_COPYABLE(DefaultParamsProfileManager)
@@ -26,6 +27,11 @@ class DefaultParamsProfileManager {
   std::list<QString> getProfileList() const;
 
   std::unique_ptr<DefaultParams> readProfile(const QString& name, LoadStatus* status = nullptr) const;
+
+  /**
+   * \brief Reads a profile from \p device, as readProfile() reads it from its file.
+   */
+  static std::unique_ptr<DefaultParams> readProfile(QIODevice& device, LoadStatus* status = nullptr);
 
   bool writeProfile(const DefaultParams& params, const QString& name) const;
 

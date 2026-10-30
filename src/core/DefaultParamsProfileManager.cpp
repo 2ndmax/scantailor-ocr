@@ -71,16 +71,19 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(const QS
     }
     return nullptr;
   }
+  return readProfile(profileFile, status);
+}
 
+std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(QIODevice& device, LoadStatus* status) {
   QDomDocument doc;
-  if (!doc.setContent(&profileFile)) {
+  if (!doc.setContent(&device)) {
     if (status) {
       *status = IO_ERROR;
     }
     return nullptr;
   }
 
-  profileFile.close();
+  device.close();
 
   const QDomElement profileElement(doc.documentElement());
   // Older versions are fine, the defaults fill in what they lack. Profiles are saved as PROJECT_VERSION,
