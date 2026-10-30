@@ -6034,22 +6034,47 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../core/filters/output/Task.cpp" line="554"/>
-        <source>Picture Zones</source>
+        <source>Shows the processed page as it will be saved. (Ctrl+1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/Task.cpp" line="555"/>
-        <source>Fill Zones</source>
+        <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/Task.cpp" line="556"/>
-        <source>Dewarping</source>
+        <source>Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/Task.cpp" line="557"/>
+        <source>Fill Zones</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="558"/>
+        <source>Fills areas of the output with a color you pick. (Ctrl+3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="559"/>
+        <source>Dewarping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="560"/>
+        <source>Shows the curves used to dewarp the page. In Manual mode, you place them yourself. (Ctrl+4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="561"/>
         <source>Despeckling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="562"/>
+        <source>Previews the removal of specks. (Ctrl+5)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

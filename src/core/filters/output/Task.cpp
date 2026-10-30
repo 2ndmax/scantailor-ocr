@@ -550,11 +550,16 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   auto tabWidget = std::make_unique<TabbedImageView>();
   tabWidget->setDocumentMode(true);
   tabWidget->setTabPosition(QTabWidget::East);
-  tabWidget->addTab(imageView.release(), tr("Output"), TAB_OUTPUT);
-  tabWidget->addTab(pictureZoneEditor.release(), tr("Picture Zones"), TAB_PICTURE_ZONES);
-  tabWidget->addTab(fillZoneEditor.release(), tr("Fill Zones"), TAB_FILL_ZONES);
-  tabWidget->addTab(dewarpingView.release(), tr("Dewarping"), TAB_DEWARPING);
-  tabWidget->addTab(despeckleView.release(), tr("Despeckling"), TAB_DESPECKLING);
+  tabWidget->addTab(imageView.release(), tr("Output"), TAB_OUTPUT,
+                    tr("Shows the processed page as it will be saved. (Ctrl+1)"));
+  tabWidget->addTab(pictureZoneEditor.release(), tr("Picture Zones"), TAB_PICTURE_ZONES,
+                    tr("Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)"));
+  tabWidget->addTab(fillZoneEditor.release(), tr("Fill Zones"), TAB_FILL_ZONES,
+                    tr("Fills areas of the output with a color you pick. (Ctrl+3)"));
+  tabWidget->addTab(dewarpingView.release(), tr("Dewarping"), TAB_DEWARPING,
+                    tr("Shows the curves used to dewarp the page. In Manual mode, you place them yourself. (Ctrl+4)"));
+  tabWidget->addTab(despeckleView.release(), tr("Despeckling"), TAB_DESPECKLING,
+                    tr("Previews the removal of specks. (Ctrl+5)"));
   tabWidget->setCurrentTab(optWidget->lastTab());
   tabWidget->setImageRectMap(std::move(tabImageRectMap));
 

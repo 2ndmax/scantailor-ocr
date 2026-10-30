@@ -30,8 +30,9 @@ TabbedImageView::TabbedImageView(QWidget* parent) : QTabWidget(parent), m_prevIm
   }
 }
 
-void TabbedImageView::addTab(QWidget* widget, const QString& label, ImageViewTab tab) {
-  QTabWidget::addTab(widget, label);
+void TabbedImageView::addTab(QWidget* widget, const QString& label, ImageViewTab tab, const QString& toolTip) {
+  const int index = QTabWidget::addTab(widget, label);
+  setTabToolTip(index, toolTip);
   m_registry[widget] = tab;
 
   if (auto* despeckleView = dynamic_cast<DespeckleView*>(widget)) {

@@ -6085,23 +6085,48 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../core/filters/output/Task.cpp" line="554"/>
+        <source>Shows the processed page as it will be saved. (Ctrl+1)</source>
+        <translation>Zeigt die bearbeitete Seite, wie sie gespeichert wird. (Strg+1)</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="555"/>
         <source>Picture Zones</source>
         <translation>Bildzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="555"/>
+        <location filename="../core/filters/output/Task.cpp" line="556"/>
+        <source>Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)</source>
+        <translation>Markiert die Bereiche der Seite, die als Bild behandelt werden. Nur im Modus „Gemischt“. (Strg+2)</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="557"/>
         <source>Fill Zones</source>
         <translation>Füllzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="556"/>
+        <location filename="../core/filters/output/Task.cpp" line="558"/>
+        <source>Fills areas of the output with a color you pick. (Ctrl+3)</source>
+        <translation>Füllt Bereiche der Ausgabe mit einer gewählten Farbe. (Strg+3)</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="559"/>
         <source>Dewarping</source>
         <translation>Entzerrung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="557"/>
+        <location filename="../core/filters/output/Task.cpp" line="560"/>
+        <source>Shows the curves used to dewarp the page. In Manual mode, you place them yourself. (Ctrl+4)</source>
+        <translation>Zeigt die Kurven, mit denen die Seite entzerrt wird. Im Modus „Manuell“ setzen Sie sie selbst. (Strg+4)</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="561"/>
         <source>Despeckling</source>
         <translation>Fleckenentfernung</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/Task.cpp" line="562"/>
+        <source>Previews the removal of specks. (Ctrl+5)</source>
+        <translation>Zeigt eine Vorschau der Fleckenentfernung. (Strg+5)</translation>
     </message>
 </context>
 <context>

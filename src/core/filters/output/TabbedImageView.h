@@ -24,7 +24,7 @@ class TabbedImageView : public QTabWidget {
  public:
   explicit TabbedImageView(QWidget* parent = nullptr);
 
-  void addTab(QWidget* widget, const QString& label, ImageViewTab tab);
+  void addTab(QWidget* widget, const QString& label, ImageViewTab tab, const QString& toolTip);
 
   void setImageRectMap(std::unique_ptr<TabImageRectMap> tabImageRectMap);
 
