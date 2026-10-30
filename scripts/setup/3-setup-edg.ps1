@@ -293,7 +293,7 @@ $menu = @(
     @{ Title = 'Set EDG_ROOT for your user account'
        Done = { [Environment]::GetEnvironmentVariable('EDG_ROOT', 'User') -eq $EdgDir }; Run = $stepEdgRoot }
     @{ Title = 'Check the front end with a small test file'
-       Done = { $false }; Run = $stepCheck }
+       Run = $stepCheck }
 )
 $ok = Invoke-StepMenu 'ScanTailor OCR - set up EDG for analysis run 04' {
     "Log:       $log"

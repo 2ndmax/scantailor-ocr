@@ -42,6 +42,45 @@ function Find-Cppcheck {
     return $null
 }
 
+# The Linux of the GCC build in WSL and the packages it needs there.
+$WslDistro = 'Ubuntu-24.04'
+$UbuntuPackages = @(Get-Content "$Root\scripts\setup\ubuntu-packages.txt" |
+    ForEach-Object { $_.Trim() } | Where-Object { $_ -and $_ -notmatch '^#' })
+
+# WSL itself, as "wsl --install" installs it. Not the wsl.exe in System32: before WSL is
+# installed that one is a stub, which may start the installation when called.
+$WslExe = "$env:ProgramFiles\WSL\wsl.exe"
+
+function Test-Wsl { return (Test-Path $WslExe) }
+
+# wsl.exe writes its own messages as UTF-16 unless WSL_UTF8 is set.
+$env:WSL_UTF8 = '1'
+
+# Runs WSL with $Arguments (one string, through cmd) and returns its exit code and output lines.
+# Without WSL: exit code 1 and no lines.
+function Get-WslOutput([string]$Arguments) {
+    if (-not (Test-Wsl)) { return @{ Code = 1; Lines = @() } }
+    $lines = @(cmd /c "`"$WslExe`" $Arguments 2>&1" | ForEach-Object { "$_".TrimEnd() } | Where-Object { $_ })
+    return @{ Code = $LASTEXITCODE; Lines = $lines }
+}
+
+function Test-WslDistro {
+    if (-not (Test-Wsl)) { return $false }
+    return ((Get-WslOutput '--list --quiet').Lines -contains $WslDistro)
+}
+
+# The packages of $UbuntuPackages not installed in $WslDistro (all of them without it). --exec
+# runs dpkg-query without a shell, which would otherwise replace ${Package} and ${Status}.
+function Get-MissingUbuntuPackages {
+    if (-not (Test-WslDistro)) { return $UbuntuPackages }
+    $result = Get-WslOutput ("-d $WslDistro -u root --exec dpkg-query -W " + '-f=${Package}:${Status}\n ' +
+                             ($UbuntuPackages -join ' '))
+    $installed = @($result.Lines | Where-Object { $_ -match ':install ok installed$' } | ForEach-Object { ($_ -split ':')[0] })
+    return @($UbuntuPackages | Where-Object { $installed -notcontains $_ })
+}
+
+function Test-UbuntuPackages { return (-not @(Get-MissingUbuntuPackages).Count) }
+
 function Get-VcpkgRoot([string]$VcpkgRoot) {
     if (-not $VcpkgRoot) { $VcpkgRoot = $env:VCPKG_ROOT }
     if (-not $VcpkgRoot -or -not (Test-Path $VcpkgRoot)) {

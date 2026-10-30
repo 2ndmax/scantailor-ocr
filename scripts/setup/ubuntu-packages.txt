@@ -1,0 +1,24 @@
+# The Ubuntu packages for the GCC build in WSL (Ubuntu 24.04), one per line. Installed by
+# scripts\setup\4-setup-wsl-gcc.ps1. The same as the Ubuntu job of the CI
+# (.github/workflows/ci.yml) installs, plus ninja-build, less libqt6opengl6-dev: in Ubuntu 24.04
+# that is only a name qt6-base-dev provides, never installed itself, so the setup would always
+# miss it.
+build-essential
+cmake
+ninja-build
+qt6-base-dev
+qt6-svg-dev
+qt6-tools-dev
+qt6-tools-dev-tools
+qt6-l10n-tools
+libgl-dev
+libboost-test-dev
+libboost-dev
+libjpeg-dev
+libpng-dev
+libtiff-dev
+zlib1g-dev
+libopenjp2-7-dev
+libtesseract-dev
+libleptonica-dev
+poppler-utils

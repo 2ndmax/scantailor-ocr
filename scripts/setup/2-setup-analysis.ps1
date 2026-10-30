@@ -12,6 +12,7 @@
        Framework 4.8.1 SDK (run 04).
     2. cppcheck (run 03), installed with winget into its standard folder C:\Program Files\Cppcheck.
     3. EDG (run 04): starts 3-setup-edg.ps1.
+    4. WSL with Ubuntu and GCC (run 11): starts 4-setup-wsl-gcc.ps1.
   clang-tidy (run 02) comes with Visual Studio itself; the build itself is set up by
   1-setup-windows.ps1. The output also goes to logs\2-setup-analysis.log.
 
@@ -79,6 +80,9 @@ $status = {
                   else { 'missing: Visual Studio component "C++ AddressSanitizer" (step 1)' }
     $fuzzing = if (-not $Vs) { "missing: $vsNote" } elseif (Test-MsvcFuzzer) { 'ready' } `
                else { 'missing: Visual Studio component "C++ AddressSanitizer" (step 1)' }
+    $gcc = if (Test-UbuntuPackages) { "ready (WSL, $WslDistro)" } `
+           elseif (Test-WslDistro) { "missing: the packages in $WslDistro (step 4)" } `
+           elseif (Test-Wsl) { "missing: $WslDistro in WSL (step 4)" } else { 'missing: WSL (step 4)' }
     $vcpkg = if ($env:VCPKG_ROOT -and (Test-Path $env:VCPKG_ROOT)) { "ready ($env:VCPKG_ROOT)" } `
              else { 'missing: VCPKG_ROOT (1-setup-windows.ps1, step 4)' }
     @(
@@ -90,6 +94,7 @@ $status = {
         "  07          clang-cl          $clang"
         "  08          sanitizers        $sanitizers"
         "  09          fuzzing           $fuzzing"
+        "  11          GCC               $gcc"
         "  all builds  vcpkg             $vcpkg"
     )
 }
@@ -141,6 +146,15 @@ $stepEdg = {
     return ($rc -eq 0 -and (Get-Cpfe))
 }
 
+$stepWslGcc = {
+    $wslSetup = "$PSScriptRoot\4-setup-wsl-gcc.ps1"
+    Add-LogLine $log "# $(Get-Stamp) $wslSetup"
+    if ($Unattended) { & $wslSetup -Steps 0 -Yes:$AssumeYes } else { & $wslSetup }
+    $rc = $LASTEXITCODE
+    Add-LogLine $log "# Exit code: $rc"
+    return ($rc -eq 0 -and (Test-UbuntuPackages))
+}
+
 $menu = @(
     @{ Title = 'Visual Studio components: Clang compiler (runs 07, 08), AddressSanitizer (runs 08, 09), .NET Framework 4.8.1 SDK (run 04)'
        Done = { (Test-Sanitizers) -and (Test-NetSdk) }; Run = $stepComponents }
@@ -148,6 +162,8 @@ $menu = @(
        Done = { [bool](Find-Cppcheck) }; Run = $stepCppcheck }
     @{ Title = 'EDG (run 04): start 3-setup-edg.ps1'
        Done = { [bool](Get-Cpfe) }; Run = $stepEdg }
+    @{ Title = 'WSL with Ubuntu and GCC (run 11): start 4-setup-wsl-gcc.ps1'
+       Done = { Test-UbuntuPackages }; Run = $stepWslGcc }
 )
 $extra = @(
     @{ Key = '9'; Title = 'Show which analysis runs are ready and what they still need'; Run = $status }
