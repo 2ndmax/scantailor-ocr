@@ -3,10 +3,11 @@
   Merges the raw output of the analysis runs into one table of distinct findings.
 
 .DESCRIPTION
-  Reads the logs written by the run scripts in this folder (01-09) and collects every warning
-  or runtime report with its location. A finding is one combination of tool, check, file and
-  line; repeats (a header reported once per including file, the same warning in the runs 01, 05
-  and 06) are merged, and the runs that reported it are listed.
+  Reads the logs written by the run scripts in this folder (01-10) and collects every
+  warning or runtime report with its location. A finding is one combination of tool, check, file
+  and line; repeats (a header reported once per including file, the same warning in the runs 01,
+  05 and 06) are merged, and the runs that reported it are listed. The paths of run 10 (WSL,
+  /mnt/c/...) count as the same files as the Windows paths of the other runs.
 
   Writes two files into the results folder:
     findings.csv  all findings, one per row (semicolon separated, UTF-8 with BOM for Excel)
@@ -41,7 +42,7 @@ param(
 $Unattended = [bool]$Yes
 $AssumeYes = [bool]$Yes
 if (-not $AnalysisDir) { $AnalysisDir = Join-Path $PSScriptRoot 'results' }
-if (-not (Test-Path $AnalysisDir)) { throw "$AnalysisDir not found: run the analysis runs 01 to 09 first." }
+if (-not (Test-Path $AnalysisDir)) { throw "$AnalysisDir not found: run the analysis runs 01 to 10 first." }
 $AnalysisDir = (Resolve-Path $AnalysisDir).Path
 
 # The files read below, per run. "# End:" in a log means its run finished.
@@ -57,15 +58,18 @@ $inputs = @(
   @{ Run = '08'; What = 'sanitizers: tests'; File = '08-ubsan-tests.log' }
   @{ Run = '08'; What = 'sanitizers: dev tools (only with -Images)'; File = '08-ubsan-tools.log' }
   @{ Run = '09'; What = 'fuzzing'; File = '09-fuzz.log' }
+  @{ Run = '10'; What = 'GCC: warnings'; File = '10-gcc-warnings.log' }
+  @{ Run = '10'; What = 'GCC: sanitizers build'; File = '10-gcc-sanitizers-build.log' }
+  @{ Run = '10'; What = 'GCC: tests with the sanitizers'; File = '10-gcc-tests.log' }
 )
 
 Write-Host ''
 Write-Host 'Analysis run 11: merge the findings' -ForegroundColor Cyan
 Write-Host ''
-Write-Host 'Reads the logs of the runs 01 to 09 and merges their warnings and runtime reports into one'
-Write-Host 'table: the same finding reported by several runs or for several including files counts'
-Write-Host 'once. Writes findings.csv (all findings, for Excel) and findings.md (a summary, then the'
-Write-Host 'findings by file and line).'
+Write-Host 'Reads the logs of the runs 01 to 10 and merges their warnings and runtime reports'
+Write-Host 'into one table: the same finding reported by several runs or for several including files'
+Write-Host 'counts once. Writes findings.csv (all findings, for Excel) and findings.md (a summary, then'
+Write-Host 'the findings by file and line).'
 Write-Host "Folder: $AnalysisDir"
 Write-Host ''
 $found = 0
@@ -94,9 +98,12 @@ $findings = @{}  # key -> finding
 $order = New-Object System.Collections.Generic.List[string]
 
 # Makes a path relative to the repository, with forward slashes. Paths outside it
-# (vcpkg, Windows SDK) are kept and marked as external.
+# (vcpkg, Windows SDK, the Linux system headers of run 10) are kept and marked as external.
+# A WSL path of a Windows drive (/mnt/c/...) is taken as that drive's path (C:\...).
 function Get-RelPath([string] $path) {
-  $p = $path.Trim() -replace '/', '\'
+  $p = $path.Trim()
+  if ($p -match '^/mnt/(?<drive>[a-z])/(?<rest>.*)$') { $p = "$($Matches.drive):\$($Matches.rest)" }
+  $p = $p -replace '/', '\'
   if ($p -match '^[A-Za-z]:\\') { $p = [IO.Path]::GetFullPath($p) }  # resolves "..\" in generated files
   if ($p.StartsWith($Root + '\', [StringComparison]::OrdinalIgnoreCase)) {
     return $p.Substring($Root.Length + 1) -replace '\\', '/'
@@ -151,6 +158,14 @@ foreach ($run in @(@('clang-tidy', '02', '02-clang-tidy.log'), @('clang-cl', '07
   }
 }
 
+# GCC (run 10, in WSL): /mnt/c/...:line:col: warning: text [-Wx]   or   [-Wx=]
+$reGcc = '^(?<file>/.+?):(?<line>\d+):\d+:\s+warning:\s+(?<msg>.*?)\s+\[(?<check>-W[^\]=]+)=?\]\s*$'
+foreach ($name in '10-gcc-warnings.log', '10-gcc-sanitizers-build.log') {
+  foreach ($l in Read-Lines $name) {
+    if ($l -match $reGcc) { Add-Finding 'GCC' '10' $Matches.check $Matches.file $Matches.line $Matches.msg }
+  }
+}
+
 # cppcheck: the first <location> of an error is its primary location.
 $xmlPath = Join-Path $AnalysisDir '03-cppcheck.xml'
 if (Test-Path $xmlPath) {
@@ -171,11 +186,13 @@ foreach ($l in Read-Lines '04-edg.log') {
   }
 }
 
-# Sanitizers and fuzzing: UBSan reports its location directly; for ASan and libFuzzer (crash,
+# Sanitizers and fuzzing: UBSan reports its location directly (inside a library header, the first
+# stack frame in the project's own code is taken instead); for ASan and libFuzzer (crash,
 # out-of-memory, timeout) the first stack frame in the project's own code is taken (or the first
 # frame at all, if there is none). Function names may contain spaces ("`anonymous namespace'::f").
-$reUbsan = '^(?<file>[A-Za-z]:\\.+?):(?<line>\d+):\d+: runtime error: (?<msg>.*)$'
-$reFrame = '^\s+#\d+ 0x[0-9a-f]+ in .+? (?<file>[A-Za-z]:\\.+?):(?<line>\d+)'
+# The paths are Windows paths, or Linux paths in run 10.
+$reUbsan = '^(?<file>(?:[A-Za-z]:\\|/).+?):(?<line>\d+):\d+: runtime error: (?<msg>.*)$'
+$reFrame = '^\s+#\d+ 0x[0-9a-f]+ in .+? (?<file>(?:[A-Za-z]:\\|/).+?):(?<line>\d+)'
 $reLibFuzzer = 'ERROR: libFuzzer: (?<msg>(?<type>out-of-memory|timeout|deadly signal|fuzz target exited|[\w-]+).*)$'
 # The first stack frame of the report starting at line $from, see above.
 function Find-Frame([string[]] $lines, [int] $from) {
@@ -188,9 +205,11 @@ function Find-Frame([string[]] $lines, [int] $from) {
   }
   return @($file, $line)
 }
-foreach ($src in @(@('08', '08-ubsan-tests.log'), @('08', '08-ubsan-tools.log'), @('09', '09-fuzz.log'))) {
+foreach ($src in @(@('08', '08-ubsan-tests.log'), @('08', '08-ubsan-tools.log'), @('09', '09-fuzz.log'),
+                   @('10', '10-gcc-tests.log'))) {
   $run = $src[0]
-  $lines = Read-Lines $src[1]
+  # ctest -V (run 10) puts "<test number>: " in front of every line of a test's output.
+  $lines = @(Read-Lines $src[1] | ForEach-Object { $_ -replace '^\d+: ', '' })
   # 09-fuzz.log: the input of a report, from the "# Finding: <target> <file>" line before it.
   $fuzzInput = ''
   # The type of a report (shift-base, allocation-size-too-big ...) is in its SUMMARY line.
@@ -206,6 +225,14 @@ foreach ($src in @(@('08', '08-ubsan-tests.log'), @('08', '08-ubsan-tools.log'),
       $fuzzInput = " (input: $(Split-Path $Matches.path -Leaf))"
     } elseif ($l -match $reUbsan) {
       $file = $Matches.file; $line = $Matches.line; $msg = $Matches.msg
+      # In a header of a library (Qt's qrect.h), the cause is the caller in the project's code.
+      if ((Get-RelPath $file) -notlike 'src/*') {
+        $frameFile, $frameLine = Find-Frame $lines $i
+        if ((Get-RelPath $frameFile) -like 'src/*') {
+          $msg += " (in $(Split-Path ($file -replace '/', '\') -Leaf):$line)"
+          $file = $frameFile; $line = $frameLine
+        }
+      }
       Add-Finding 'UBSan' $run (Get-SummaryType $i 'runtime error') $file $line $msg
     } elseif ($l -match 'ERROR: AddressSanitizer: (?<msg>.*)$') {
       $msg = ($Matches.msg -replace '0x[0-9a-f]+', '0x...') + $fuzzInput

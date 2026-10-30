@@ -8,7 +8,8 @@ Every log starts with `# ...` header lines (commit, tool versions, full command 
 with the exit codes.  The output goes to `results\` in this folder (ignored by git); each script
 takes `-OutDir` to change that.
 
-Windows only.  Run them in Windows PowerShell 5.1 or PowerShell 7, from anywhere:
+Windows only; run 10 builds in WSL, but is started from Windows like the others.  Run them in
+Windows PowerShell 5.1 or PowerShell 7, from anywhere:
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\<script>.ps1
 
@@ -28,10 +29,11 @@ The examples below assume the folders of [BUILDING.md](../../BUILDING.md): the r
 | 07 | `07-clang-cl.ps1` | **clang-cl** instead of cl.exe, `/W4` | `build-clang-cl` | `07-clang-cl.log` |
 | 08 | `08-sanitizers.ps1` | clang-cl with **UBSan + ASan**; runs the tests and the dev tools | `build-ubsan` | `08-ubsan-build.log`, `08-ubsan-tests.log`, `08-ubsan-tools.log` |
 | 09 | `09-fuzz.ps1` | MSVC with **libFuzzer + ASan**; runs the fuzz targets of `src/fuzz` | `build-fuzz` | `09-fuzz.log`, `09-fuzz-build.log`, `09-fuzz\<target>\` |
+| 10 | `10-gcc.ps1` | **GCC** in WSL: strict warnings, then **UBSan + ASan** and the checks of the standard library; runs the tests | `~/scantailor-ocr-build/gcc-*` in WSL | `10-gcc-warnings.log`, `10-gcc-sanitizers-build.log`, `10-gcc-tests.log` |
 | 11 | `11-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
 
-Order: 02, 03 and 04 need the build directory of 01.  05 to 09 are independent of each other
-and of 01.  11 reads whatever output exists.
+Order: 02, 03 and 04 need the build directory of 01.  05 to 10 are independent of each other
+and of 01.  11 reads whatever output exists, so it is best run last.
 
 ## Requirements
 
@@ -45,6 +47,8 @@ and of 01.  11 reads whatever output exists.
   under ASan).
 - For 09: the Visual Studio component "C++ AddressSanitizer" (it brings libFuzzer and ASan of
   MSVC); no Clang compiler.
+- For 10: WSL with Ubuntu 24.04, GCC and the project's packages there, set up with
+  `scriptssetup-setup-wsl-gcc.ps1`.
 
 Each run first says what it does and asks before it starts (`-Yes` starts it right away); a
 build directory left from an earlier run is offered for deletion. While it runs, the window
@@ -57,15 +61,16 @@ Two setup scripts take care of all of this; each shows a menu of steps, 0 runs a
   GitHub CLI, vcpkg and its packages, `VCPKG_ROOT` (see [BUILDING.md](../../BUILDING.md)).
 - `scripts\setup\02-setup-analysis.ps1` shows for every run whether its tools are there and
   installs the missing ones: the Clang compiler and the .NET Framework 4.8.1 SDK with the Visual
-  Studio Installer, cppcheck with winget (both into their standard folders), and EDG by starting
-  `03-setup-edg.ps1`.
+  Studio Installer, cppcheck with winget (both into their standard folders), EDG by starting
+  `03-setup-edg.ps1`, and WSL with Ubuntu and GCC by starting `04-setup-wsl-gcc.ps1`.
 
       powershell -ExecutionPolicy Bypass -File scripts\setup\02-setup-analysis.ps1
 
 The builds go into fresh directories next to `build`.  A script stops if its build directory
 already exists; delete it for a new run.  Keep build directories on a short path: with MSVC,
 the generated Qt files exceed the Windows limit of 260 characters in deep folders (errors
-C1083, C1258).
+C1083, C1258).  Run 10 builds in the Linux file system of WSL instead, which is much faster
+there than a folder on the Windows drives.
 
 ## The runs
 
@@ -242,6 +247,32 @@ Limits: an input that takes longer than 20 seconds or more memory than `-RssLimi
 claim an image up to the size limit of the program, whose decoding takes gigabytes; such sizes
 are covered by the tests of the size limit.  Qt and the vcpkg libraries are DLLs and not
 instrumented: the fuzzer sees no coverage inside them and ASan checks no accesses there.
+
+### 10 – GCC in WSL
+
+Builds the project twice with GCC in WSL (Ubuntu 24.04), from the sources in this repository:
+
+- with strict warnings: `ENABLE_CODE_ANALYSIS=ON` (`-Wall -Wextra -Wshadow -Wconversion`) and
+  the warnings only GCC has (`-Wnull-dereference`, `-Wduplicated-cond`,
+  `-Wduplicated-branches`, `-Wlogical-op`);
+- with UndefinedBehaviorSanitizer, AddressSanitizer and `-D_GLIBCXX_ASSERTIONS`, which makes the
+  GCC standard library check indexes and iterators; then all tests run with `ctest -V`.
+
+What it adds to the other runs: a second compiler with its own warnings, a second standard
+library (libstdc++ instead of the one of MSVC), and UBSan with all its checks, which MSVC lacks
+and which clang-cl has only in part on Windows.  It checks the Linux code paths, not the code
+under `#ifdef _WIN32`.  A failed check of the standard library stops its test program; ASan
+then reports the abort with a stack trace.
+
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\10-gcc.ps1
+
+The builds go to `~/scantailor-ocr-build/gcc-warnings` and `gcc-sanitizers` in WSL and are
+deleted first when left from an earlier run; `-SkipBuild` reuses the second one and only runs
+the tests.  The number of compile jobs at once follows the memory WSL has (one per 1.5 GB, by
+default WSL gets half of the memory of Windows): too many at once make Linux stop the build.
+Set up with `scripts\setup\04-setup-wsl-gcc.ps1` (WSL, Ubuntu, the packages of
+`scripts\setup\support\ubuntu-packages.txt`).  If Windows itself runs in a virtual machine, its host
+must allow nested virtualization for WSL 2.
 
 ### 11 – Merging the results
 

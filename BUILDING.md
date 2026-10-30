@@ -170,10 +170,10 @@ make -j$(nproc)
 
 None of this is needed for a normal build. The numbered scripts in `scripts\analysis` run the
 compiler's static analysis, clang-tidy, cppcheck, the EDG C++ front end, builds with stricter
-MSVC switches, a clang-cl build, a build with sanitizers and fuzzing (a build with
-`-DBUILD_FUZZERS=ON` in its own build directory), and write their findings to
-`scripts\analysis\results`. What each run does, how to set it up and how to merge the results
-is described in [scripts/analysis/README.md](scripts/analysis/README.md).
+MSVC switches, a clang-cl build, a build with sanitizers, fuzzing (a build with
+`-DBUILD_FUZZERS=ON` in its own build directory) and GCC builds in WSL, and write their
+findings to `scripts\analysis\results`. What each run does, how to set it up and how to merge
+the results is described in [scripts/analysis/README.md](scripts/analysis/README.md).
 
 `scripts\setup\02-setup-analysis.ps1` shows for every run whether its tools are there and
 installs the missing ones. By hand, they need, in addition to the steps above:
@@ -188,6 +188,8 @@ installs the missing ones. By hand, they need, in addition to the steps above:
 * For the EDG run: the Visual Studio component **".NET Framework 4.8.1 SDK"**, and EDG set up
   once with `scripts\setup\03-setup-edg.ps1` (e.g. in `D:\edgcpp`, with `EDG_ROOT` pointing
   there), as described in the README of the scripts.
+* For the GCC run: WSL with Ubuntu 24.04 and the packages of the Linux build below, set up with
+  `scripts\setup\04-setup-wsl-gcc.ps1` (needs administrator rights once, for WSL itself).
 * `VCPKG_ROOT` set as in step 5 (or `-VcpkgRoot <folder>` passed to the script).
 
 The code formatting is checked on GitHub for every push. To check it beforehand, run the

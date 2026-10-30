@@ -222,7 +222,8 @@ real scans must show no lost text, and the content boxes must not get worse.
 
 Besides the tests, the scripts in `scripts\analysis` check the code with several compilers and
 analysis tools (MSVC code analysis, clang-tidy, cppcheck, the EDG C++ front end, clang-cl,
-sanitizers, fuzzing of the image readers, the project and profile files, the processing of a page and the Output step) and merge their findings into
+sanitizers, fuzzing of the image readers, the project and profile files, the processing of a page and the Output step,
+GCC with UBSan in WSL) and merge their findings into
 one table. A bug found by fuzzing gets a regression test in `core_tests` like any other. They are numbered in the order in which
 they are best run; [scripts/analysis/README.md](scripts/analysis/README.md) describes each run,
 its setup and its output.

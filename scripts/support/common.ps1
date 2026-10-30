@@ -69,6 +69,12 @@ function Test-WslDistro {
     return ((Get-WslOutput '--list --quiet').Lines -contains $WslDistro)
 }
 
+# A Windows path as WSL sees it, e.g. C:\Users\x -> /mnt/c/Users/x.
+function ConvertTo-WslPath([string]$Path) {
+    $full = [IO.Path]::GetFullPath($Path)
+    return '/mnt/' + $full.Substring(0, 1).ToLowerInvariant() + ($full.Substring(2) -replace '\\', '/')
+}
+
 # The packages of $UbuntuPackages not installed in $WslDistro (all of them without it). --exec
 # runs dpkg-query without a shell, which would otherwise replace ${Package} and ${Status}.
 function Get-MissingUbuntuPackages {
