@@ -189,20 +189,34 @@ bool parseJp2Header(QIODevice& device, HeaderInfo& info) {
   return false;
 }
 
-bool parseJ2kHeader(QIODevice& device, HeaderInfo& info) {
+/**
+ * Reads the image size from the SIZ marker of the codestream starting at \p pos.
+ */
+bool readCodestreamSize(QIODevice& device, const qint64 pos, int64_t& width, int64_t& height) {
   // SOC (2), SIZ marker (2), Lsiz (2), Rsiz (2), Xsiz (4), Ysiz (4), XOsiz (4), YOsiz (4)
   unsigned char data[24];
-  if (!readAt(device, 0, data, sizeof(data))) {
+  if (!readAt(device, pos, data, sizeof(data)) || (std::memcmp(data, J2K_SIGNATURE, sizeof(J2K_SIGNATURE)) != 0)) {
     return false;
   }
   const uint32_t xSiz = readBe32(data + 8);
   const uint32_t ySiz = readBe32(data + 12);
   const uint32_t xOffset = readBe32(data + 16);
   const uint32_t yOffset = readBe32(data + 20);
-  if ((xSiz <= xOffset) || (ySiz <= yOffset) || (xSiz - xOffset > INT_MAX) || (ySiz - yOffset > INT_MAX)) {
+  if ((xSiz <= xOffset) || (ySiz <= yOffset)) {
     return false;
   }
-  info.size = QSize(static_cast<int>(xSiz - xOffset), static_cast<int>(ySiz - yOffset));
+  width = static_cast<int64_t>(xSiz) - xOffset;
+  height = static_cast<int64_t>(ySiz) - yOffset;
+  return true;
+}
+
+bool parseJ2kHeader(QIODevice& device, HeaderInfo& info) {
+  int64_t width = 0;
+  int64_t height = 0;
+  if (!readCodestreamSize(device, 0, width, height) || (width > INT_MAX) || (height > INT_MAX)) {
+    return false;
+  }
+  info.size = QSize(static_cast<int>(width), static_cast<int>(height));
   return true;
 }
 
