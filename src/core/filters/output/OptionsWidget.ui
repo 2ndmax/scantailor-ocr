@@ -36,6 +36,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout_3">
 <item>
 <widget class="QLabel" name="dpiLabel">
+<property name="buddy">
+ <cstring>dpiSelector</cstring>
+</property>
 <property name="text">
 <string>Resolution:</string>
 </property>
@@ -229,6 +232,9 @@
        <layout class="QHBoxLayout" name="colorDetectionMinColorLayout">
         <item>
          <widget class="QLabel" name="colorDetectionMinColorLabel">
+          <property name="buddy">
+           <cstring>colorDetectionMinColorSB</cstring>
+          </property>
           <property name="toolTip">
            <string>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</string>
           </property>
@@ -291,6 +297,9 @@
         </property>
         <item>
          <widget class="QLabel" name="colorDetectionMinPictureLabel">
+          <property name="buddy">
+           <cstring>colorDetectionMinPictureSB</cstring>
+          </property>
           <property name="toolTip">
            <string>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</string>
           </property>
@@ -733,6 +742,9 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="chromaRadiusLabel">
+                  <property name="buddy">
+                   <cstring>chromaRadius</cstring>
+                  </property>
                   <property name="text">
                    <string>Radius:</string>
                   </property>
@@ -754,6 +766,9 @@
                 </item>
                 <item row="1" column="1">
                  <widget class="QLabel" name="chromaGrayLimitLabel">
+                  <property name="buddy">
+                   <cstring>chromaGrayLimit</cstring>
+                  </property>
                   <property name="text">
                    <string>Gray limit:</string>
                   </property>
@@ -831,6 +846,9 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="subtractBgCoefLabel">
+                  <property name="buddy">
+                   <cstring>subtractBgCoef</cstring>
+                  </property>
                   <property name="text">
                    <string>Strength:</string>
                   </property>
@@ -854,6 +872,9 @@
                 </item>
                 <item row="1" column="1">
                  <widget class="QLabel" name="subtractBgRadiusLabel">
+                  <property name="buddy">
+                   <cstring>subtractBgRadius</cstring>
+                  </property>
                   <property name="text">
                    <string>Radius:</string>
                   </property>
@@ -944,6 +965,9 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="knnCoefLabel">
+                  <property name="buddy">
+                   <cstring>knnCoef</cstring>
+                  </property>
                   <property name="text">
                    <string>Strength:</string>
                   </property>
@@ -967,6 +991,9 @@
                 </item>
                 <item row="1" column="1">
                  <widget class="QLabel" name="knnRadiusLabel">
+                  <property name="buddy">
+                   <cstring>knnRadius</cstring>
+                  </property>
                   <property name="text">
                    <string>Radius:</string>
                   </property>
@@ -1047,6 +1074,9 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="wienerCoefLabel">
+                  <property name="buddy">
+                   <cstring>wienerCoef</cstring>
+                  </property>
                   <property name="text">
                    <string>Strength:</string>
                   </property>
@@ -1070,6 +1100,9 @@
                 </item>
                 <item row="1" column="1">
                  <widget class="QLabel" name="wienerWindowSizeLabel">
+                  <property name="buddy">
+                   <cstring>wienerWindowSize</cstring>
+                  </property>
                   <property name="text">
                    <string>Window size:</string>
                   </property>
@@ -1150,6 +1183,9 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="sharpenCoefLabel">
+                  <property name="buddy">
+                   <cstring>sharpenCoef</cstring>
+                  </property>
                   <property name="text">
                    <string>Strength:</string>
                   </property>
@@ -1173,6 +1209,9 @@
                 </item>
                 <item row="1" column="1">
                  <widget class="QLabel" name="sharpenRadiusLabel">
+                  <property name="buddy">
+                   <cstring>sharpenRadius</cstring>
+                  </property>
                   <property name="text">
                    <string>Radius:</string>
                   </property>
@@ -1299,6 +1338,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_23">
            <item>
             <widget class="QLabel" name="fillingColorLabel">
+             <property name="buddy">
+              <cstring>fillingColorBox</cstring>
+             </property>
              <property name="toolTip">
               <string>The color of the filled areas: the background color found on the page, white or black. In mixed mode, &quot;Background&quot; gives white.</string>
              </property>
@@ -1358,6 +1400,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_22">
            <item>
             <widget class="QLabel" name="thresholMethodLabel">
+             <property name="buddy">
+              <cstring>thresholdMethodBox</cstring>
+             </property>
              <property name="toolTip">
               <string>How the page is converted to black and white. Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</string>
              </property>
@@ -1401,6 +1446,9 @@
           <layout class="QGridLayout" name="allMethodsLayout">
            <item row="0" column="0">
             <widget class="QLabel" name="coloredDimmingLabel">
+             <property name="buddy">
+              <cstring>coloredDimmingSB</cstring>
+             </property>
              <property name="toolTip">
               <string>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear. The more saturated a color, the stronger the effect. 0 changes nothing.</string>
              </property>
@@ -1433,6 +1481,9 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="boundsLabel">
+             <property name="buddy">
+              <cstring>lowerBoundSB</cstring>
+             </property>
              <property name="toolTip">
               <string>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes. 1 and 254 leave the method alone.</string>
              </property>
@@ -1761,6 +1812,9 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="reduceNoiseLabel">
+                  <property name="buddy">
+                   <cstring>reduceNoiseSB</cstring>
+                  </property>
                   <property name="toolTip">
                    <string>Removes small color segments as noise. Higher values remove larger ones. Only with color segmentation.</string>
                   </property>
@@ -1823,6 +1877,9 @@
              </item>
              <item>
               <widget class="QLabel" name="colorReductionLabel">
+               <property name="buddy">
+                <cstring>colorReductionCB</cstring>
+               </property>
                <property name="toolTip">
                 <string>Reduces the colors to a few.
 Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
@@ -1893,6 +1950,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
              </item>
              <item row="0" column="2">
               <widget class="QLabel" name="kmeansColorsLabel">
+               <property name="buddy">
+                <cstring>kmeansColorsSB</cstring>
+               </property>
                <property name="toolTip">
                 <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
                </property>
@@ -1932,6 +1992,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
              </item>
              <item row="0" column="2">
               <widget class="QLabel" name="posterizeLevelLabel">
+               <property name="buddy">
+                <cstring>posterizeLevelSB</cstring>
+               </property>
                <property name="toolTip">
                 <string>Posterizing: how finely each color channel is divided. 4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</string>
                </property>
@@ -2077,6 +2140,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
             </property>
             <item>
              <widget class="QLabel" name="pictureShapeSensitivityLabel">
+              <property name="buddy">
+               <cstring>pictureShapeSensitivitySB</cstring>
+              </property>
               <property name="toolTip">
                <string>Trims the edges of the picture rectangles inward to the first row or column that the picture fills to at least this share. At 100 %, nothing is trimmed. Only for pictures found as rectangles.</string>
               </property>

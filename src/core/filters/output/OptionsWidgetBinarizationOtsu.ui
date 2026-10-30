@@ -39,6 +39,9 @@
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="otsuDeltaLabel">
+       <property name="buddy">
+        <cstring>otsuDelta</cstring>
+       </property>
        <property name="toolTip">
         <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</string>
        </property>

@@ -27,6 +27,9 @@
        <layout class="QHBoxLayout" name="sourceDpiLayout">
         <item>
          <widget class="QLabel" name="sourceDpiLabel">
+          <property name="buddy">
+           <cstring>sourceXDpi</cstring>
+          </property>
           <property name="toolTip">
            <string>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimeters or inches depend on it.</string>
           </property>
@@ -209,6 +212,9 @@
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
+            <property name="buddy">
+             <cstring>topMarginSpinBox</cstring>
+            </property>
             <property name="text">
              <string>Top:</string>
             </property>
@@ -216,6 +222,9 @@
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="label_4">
+            <property name="buddy">
+             <cstring>rightMarginSpinBox</cstring>
+            </property>
             <property name="text">
              <string>Right:</string>
             </property>
@@ -223,6 +232,9 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_3">
+            <property name="buddy">
+             <cstring>leftMarginSpinBox</cstring>
+            </property>
             <property name="text">
              <string>Left:</string>
             </property>
@@ -313,6 +325,9 @@
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_2">
+            <property name="buddy">
+             <cstring>bottomMarginSpinBox</cstring>
+            </property>
             <property name="text">
              <string>Bottom:</string>
             </property>
@@ -426,6 +441,9 @@
        <layout class="QHBoxLayout" name="matchSizeLayout">
         <item>
          <widget class="QLabel" name="matchSizeLabel">
+          <property name="buddy">
+           <cstring>matchSizeModeCB</cstring>
+          </property>
           <property name="toolTip">
            <string>Off: the page keeps its own size and is not part of the common size.
 Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
@@ -576,6 +594,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         </property>
         <item>
          <widget class="QLabel" name="targetSizeLabel">
+          <property name="buddy">
+           <cstring>targetWidthSpinBox</cstring>
+          </property>
           <property name="toolTip">
            <string>Width × height of the output pages, margins included.</string>
           </property>
@@ -636,6 +657,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
        <layout class="QGridLayout" name="scaleLimitsLayout">
         <item row="0" column="0">
          <widget class="QLabel" name="maxEnlargeLabel">
+          <property name="buddy">
+           <cstring>maxEnlargeSpinBox</cstring>
+          </property>
           <property name="toolTip">
            <string>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</string>
           </property>
@@ -668,6 +692,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="minReduceLabel">
+          <property name="buddy">
+           <cstring>minReduceSpinBox</cstring>
+          </property>
           <property name="toolTip">
            <string>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</string>
           </property>
@@ -786,6 +813,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
            <widget class="QLabel" name="hAlignmentModeLabel">
+            <property name="buddy">
+             <cstring>hAlignmentModeCB</cstring>
+            </property>
             <property name="text">
              <string>Horizontal mode:</string>
             </property>
@@ -793,6 +823,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="vAlignmentModeLabel">
+            <property name="buddy">
+             <cstring>vAlignmentModeCB</cstring>
+            </property>
             <property name="text">
              <string>Vertical mode:</string>
             </property>

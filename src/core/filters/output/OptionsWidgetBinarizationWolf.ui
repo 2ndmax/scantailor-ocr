@@ -39,6 +39,9 @@
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="wolfDeltaLabel">
+       <property name="buddy">
+        <cstring>wolfDelta</cstring>
+       </property>
        <property name="text">
         <string>Delta:</string>
        </property>
@@ -65,6 +68,9 @@
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="windowSizeLabel">
+       <property name="buddy">
+        <cstring>windowSize</cstring>
+       </property>
        <property name="text">
         <string>Window size:</string>
        </property>
@@ -88,6 +94,9 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="wolfCoefLabel">
+       <property name="buddy">
+        <cstring>wolfCoef</cstring>
+       </property>
        <property name="text">
         <string>Coef:</string>
        </property>

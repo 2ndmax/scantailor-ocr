@@ -90,6 +90,9 @@
       </item>
       <item>
        <widget class="QLabel" name="dpiLabel">
+        <property name="buddy">
+         <cstring>xDpi</cstring>
+        </property>
         <property name="enabled">
          <bool>false</bool>
         </property>

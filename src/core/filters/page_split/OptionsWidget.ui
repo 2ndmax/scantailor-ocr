@@ -275,6 +275,9 @@
           <layout class="QHBoxLayout" name="detectionMethodLayout">
            <item>
             <widget class="QLabel" name="detectionMethodLabel">
+             <property name="buddy">
+              <cstring>detectionMethodBox</cstring>
+             </property>
              <property name="toolTip">
               <string>How the split line is detected automatically. &quot;Edges&quot; takes the vertical line closest to the center, which can be the edge of a photo. &quot;Spine line&quot; looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, &quot;Edges&quot; is used.</string>
              </property>

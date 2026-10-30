@@ -548,6 +548,9 @@
                <layout class="QHBoxLayout" name="detectionMethodLayout">
                 <item>
                  <widget class="QLabel" name="detectionMethodLabel">
+                  <property name="buddy">
+                   <cstring>detectionMethodBox</cstring>
+                  </property>
                   <property name="toolTip">
                    <string>How the split line is detected automatically on new pages. &quot;Edges&quot; takes the vertical line closest to the center, which can be the edge of a photo. &quot;Spine line&quot; looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, &quot;Edges&quot; is used.</string>
                   </property>
@@ -805,6 +808,9 @@
                <layout class="QHBoxLayout" name="_7">
 <item>
 <widget class="QLabel" name="angleLabel">
+<property name="buddy">
+ <cstring>angleSpinBox</cstring>
+</property>
 <property name="text">
 <string>Angle:</string>
 </property>
@@ -842,6 +848,9 @@
                <layout class="QHBoxLayout" name="deskewDetectionLayout">
                 <item>
                  <widget class="QLabel" name="deskewDetectionLabel">
+                  <property name="buddy">
+                   <cstring>deskewDetectionCB</cstring>
+                  </property>
                   <property name="text">
                    <string>Detection:</string>
                   </property>
@@ -1145,6 +1154,9 @@
                      <layout class="QGridLayout" name="gridLayout_6">
                       <item row="0" column="0">
                        <widget class="QLabel" name="label">
+                        <property name="buddy">
+                         <cstring>widthSpinBox</cstring>
+                        </property>
                         <property name="text">
                          <string>Width:</string>
                         </property>
@@ -1165,6 +1177,9 @@
                       </item>
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_2">
+                        <property name="buddy">
+                         <cstring>heightSpinBox</cstring>
+                        </property>
                         <property name="text">
                          <string>Height:</string>
                         </property>
@@ -1283,6 +1298,9 @@
                      <layout class="QGridLayout" name="contentDetectOptionsGrid">
                       <item row="0" column="0">
                        <widget class="QLabel" name="fillFactorLabel">
+                        <property name="buddy">
+                         <cstring>fillFactorSpinBox</cstring>
+                        </property>
                         <property name="toolTip">
                          <string>The highest share of black pixels a line may have to count as text. Raise it for art books and photo pages: above 85 %, shadows are kept and pictures count as content; from 95 % on, the whole page box is the content box.</string>
                         </property>
@@ -1318,6 +1336,9 @@
                       </item>
                       <item row="1" column="0">
                        <widget class="QLabel" name="borderToleranceLabel">
+                        <property name="buddy">
+                         <cstring>borderToleranceSpinBox</cstring>
+                        </property>
                         <property name="toolTip">
                          <string>How much of the content touching the image border is kept. At 0 %, it is removed as before (scanner edges, shadows); raise it for pictures that reach the edge of the page.</string>
                         </property>
@@ -1533,6 +1554,9 @@
                      </item>
                      <item row="0" column="0">
                       <widget class="QLabel" name="label_3">
+                       <property name="buddy">
+                        <cstring>topMarginSpinBox</cstring>
+                       </property>
                        <property name="text">
                         <string>Top:</string>
                        </property>
@@ -1540,6 +1564,9 @@
                      </item>
                      <item row="3" column="0">
                       <widget class="QLabel" name="label_4">
+                       <property name="buddy">
+                        <cstring>rightMarginSpinBox</cstring>
+                       </property>
                        <property name="text">
                         <string>Right:</string>
                        </property>
@@ -1547,6 +1574,9 @@
                      </item>
                      <item row="2" column="0">
                       <widget class="QLabel" name="label_5">
+                       <property name="buddy">
+                        <cstring>leftMarginSpinBox</cstring>
+                       </property>
                        <property name="text">
                         <string>Left:</string>
                        </property>
@@ -1619,6 +1649,9 @@
                      </item>
                      <item row="1" column="0">
                       <widget class="QLabel" name="label_6">
+                       <property name="buddy">
+                        <cstring>bottomMarginSpinBox</cstring>
+                       </property>
                        <property name="text">
                         <string>Bottom:</string>
                        </property>
@@ -1671,6 +1704,9 @@
                <layout class="QHBoxLayout" name="matchSizeLayout">
                 <item>
                  <widget class="QLabel" name="matchSizeLabel">
+                  <property name="buddy">
+                   <cstring>matchSizeModeCB</cstring>
+                  </property>
                   <property name="toolTip">
                    <string>Off: the page keeps its own size and is not part of the common size.
 Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
@@ -1740,6 +1776,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                  </property>
                  <item>
                   <widget class="QLabel" name="targetSizeLabel">
+                   <property name="buddy">
+                    <cstring>targetWidthSpinBox</cstring>
+                   </property>
                    <property name="toolTip">
                     <string>Width × height of the output pages, margins included. Pixels refer to the output resolution.</string>
                    </property>
@@ -1794,6 +1833,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                 <layout class="QGridLayout" name="scaleLimitsLayout">
                  <item row="0" column="0">
                   <widget class="QLabel" name="maxEnlargeLabel">
+                   <property name="buddy">
+                    <cstring>maxEnlargeSpinBox</cstring>
+                   </property>
                    <property name="toolTip">
                     <string>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</string>
                    </property>
@@ -1823,6 +1865,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                  </item>
                  <item row="1" column="0">
                   <widget class="QLabel" name="minReduceLabel">
+                   <property name="buddy">
+                    <cstring>minReduceSpinBox</cstring>
+                   </property>
                    <property name="toolTip">
                     <string>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</string>
                    </property>
@@ -1924,6 +1969,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                  <layout class="QGridLayout" name="gridLayout_15">
                   <item row="0" column="0">
                    <widget class="QLabel" name="hAlignmentModeLabel">
+                    <property name="buddy">
+                     <cstring>hAlignmentModeCB</cstring>
+                    </property>
                     <property name="text">
                      <string>Horizontal mode:</string>
                     </property>
@@ -1931,6 +1979,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                   </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="vAlignmentModeLabel">
+                    <property name="buddy">
+                     <cstring>vAlignmentModeCB</cstring>
+                    </property>
                     <property name="text">
                      <string>Vertical mode:</string>
                     </property>
@@ -2620,6 +2671,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="0" column="1">
                        <widget class="QLabel" name="chromaRadiusLabel">
+                        <property name="buddy">
+                         <cstring>chromaRadius</cstring>
+                        </property>
                         <property name="text">
                          <string>Radius:</string>
                         </property>
@@ -2641,6 +2695,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="1" column="1">
                        <widget class="QLabel" name="chromaGrayLimitLabel">
+                        <property name="buddy">
+                         <cstring>chromaGrayLimit</cstring>
+                        </property>
                         <property name="text">
                          <string>Gray limit:</string>
                         </property>
@@ -2718,6 +2775,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="0" column="1">
                        <widget class="QLabel" name="subtractBgCoefLabel">
+                        <property name="buddy">
+                         <cstring>subtractBgCoef</cstring>
+                        </property>
                         <property name="text">
                          <string>Strength:</string>
                         </property>
@@ -2741,6 +2801,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="1" column="1">
                        <widget class="QLabel" name="subtractBgRadiusLabel">
+                        <property name="buddy">
+                         <cstring>subtractBgRadius</cstring>
+                        </property>
                         <property name="text">
                          <string>Radius:</string>
                         </property>
@@ -2831,6 +2894,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="0" column="1">
                        <widget class="QLabel" name="knnCoefLabel">
+                        <property name="buddy">
+                         <cstring>knnCoef</cstring>
+                        </property>
                         <property name="text">
                          <string>Strength:</string>
                         </property>
@@ -2854,6 +2920,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="1" column="1">
                        <widget class="QLabel" name="knnRadiusLabel">
+                        <property name="buddy">
+                         <cstring>knnRadius</cstring>
+                        </property>
                         <property name="text">
                          <string>Radius:</string>
                         </property>
@@ -2934,6 +3003,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="0" column="1">
                        <widget class="QLabel" name="wienerCoefLabel">
+                        <property name="buddy">
+                         <cstring>wienerCoef</cstring>
+                        </property>
                         <property name="text">
                          <string>Strength:</string>
                         </property>
@@ -2957,6 +3029,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="1" column="1">
                        <widget class="QLabel" name="wienerWindowSizeLabel">
+                        <property name="buddy">
+                         <cstring>wienerWindowSize</cstring>
+                        </property>
                         <property name="text">
                          <string>Window size:</string>
                         </property>
@@ -3037,6 +3112,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="0" column="1">
                        <widget class="QLabel" name="sharpenCoefLabel">
+                        <property name="buddy">
+                         <cstring>sharpenCoef</cstring>
+                        </property>
                         <property name="text">
                          <string>Strength:</string>
                         </property>
@@ -3060,6 +3138,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                       </item>
                       <item row="1" column="1">
                        <widget class="QLabel" name="sharpenRadiusLabel">
+                        <property name="buddy">
+                         <cstring>sharpenRadius</cstring>
+                        </property>
                         <property name="text">
                          <string>Radius:</string>
                         </property>
@@ -3265,6 +3346,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                         </property>
                         <item>
                          <widget class="QLabel" name="reduceNoiseLabel">
+                          <property name="buddy">
+                           <cstring>reduceNoiseSB</cstring>
+                          </property>
                           <property name="toolTip">
                            <string>Removes small color segments as noise. Higher values remove larger ones. Only with color segmentation.</string>
                           </property>
@@ -3334,6 +3418,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
              </item>
              <item>
               <widget class="QLabel" name="colorReductionLabel">
+               <property name="buddy">
+                <cstring>colorReductionCB</cstring>
+               </property>
                <property name="toolTip">
                 <string>Reduces the colors to a few.
 Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
@@ -3404,6 +3491,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
              </item>
              <item row="0" column="2">
               <widget class="QLabel" name="kmeansColorsLabel">
+               <property name="buddy">
+                <cstring>kmeansColorsSB</cstring>
+               </property>
                <property name="toolTip">
                 <string>The number of colors of the letters, found with K-means, a fixed black included.</string>
                </property>
@@ -3443,6 +3533,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
              </item>
              <item row="0" column="2">
               <widget class="QLabel" name="posterizeLevelLabel">
+               <property name="buddy">
+                <cstring>posterizeLevelSB</cstring>
+               </property>
                <property name="toolTip">
                 <string>Posterizing: how finely each color channel is divided. 4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</string>
                </property>
@@ -3571,6 +3664,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                       </property>
                       <item>
                        <widget class="QLabel" name="pictureShapeSensitivityLabel">
+                        <property name="buddy">
+                         <cstring>pictureShapeSensitivitySB</cstring>
+                        </property>
                         <property name="toolTip">
                          <string>Trims the edges of the picture rectangles inward to the first row or column that the picture fills to at least this share. At 100 %, nothing is trimmed. Only for pictures found as rectangles.</string>
                         </property>
@@ -3707,6 +3803,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                     <layout class="QHBoxLayout" name="horizontalLayout_23">
                      <item>
                       <widget class="QLabel" name="fillingColorLabel">
+                       <property name="buddy">
+                        <cstring>fillingColorBox</cstring>
+                       </property>
                        <property name="toolTip">
                         <string>The color of the filled areas: the background color found on the page, white or black. In mixed mode, &quot;Background&quot; gives white.</string>
                        </property>
@@ -3766,6 +3865,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                     <layout class="QHBoxLayout" name="horizontalLayout_22">
                      <item>
                       <widget class="QLabel" name="thresholMethodLabel">
+                       <property name="buddy">
+                        <cstring>thresholdMethodBox</cstring>
+                       </property>
                        <property name="toolTip">
                         <string>How the page is converted to black and white. Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</string>
                        </property>
@@ -3813,6 +3915,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                         <layout class="QGridLayout" name="otsuGrid">
                          <item row="0" column="0">
                           <widget class="QLabel" name="otsuDeltaLabel">
+                           <property name="buddy">
+                            <cstring>otsuDelta</cstring>
+                           </property>
                            <property name="toolTip">
                             <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</string>
                            </property>
@@ -3862,6 +3967,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                           <layout class="QGridLayout" name="gridLayout_11">
                            <item row="0" column="0">
                             <widget class="QLabel" name="sauvolaDeltaLabel">
+                             <property name="buddy">
+                              <cstring>sauvolaDelta</cstring>
+                             </property>
                              <property name="text">
                               <string>Delta:</string>
                              </property>
@@ -3885,6 +3993,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                            </item>
                            <item row="1" column="0">
                             <widget class="QLabel" name="windowSizeLabel">
+                             <property name="buddy">
+                              <cstring>sauvolaWindowSize</cstring>
+                             </property>
                              <property name="text">
                               <string>Window size:</string>
                              </property>
@@ -3908,6 +4019,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                            </item>
                            <item row="2" column="0">
                             <widget class="QLabel" name="sauvolaCoefLabel">
+                             <property name="buddy">
+                              <cstring>sauvolaCoef</cstring>
+                             </property>
                              <property name="text">
                               <string>Coef:</string>
                              </property>
@@ -3969,6 +4083,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                           <layout class="QGridLayout" name="gridLayout_12">
                            <item row="0" column="0">
                             <widget class="QLabel" name="wolfDeltaLabel">
+                             <property name="buddy">
+                              <cstring>wolfDelta</cstring>
+                             </property>
                              <property name="text">
                               <string>Delta:</string>
                              </property>
@@ -3992,6 +4109,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                            </item>
                            <item row="1" column="0">
                             <widget class="QLabel" name="windowSizeLabel_2">
+                             <property name="buddy">
+                              <cstring>wolfWindowSize</cstring>
+                             </property>
                              <property name="text">
                               <string>Window size:</string>
                              </property>
@@ -4015,6 +4135,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                            </item>
                            <item row="2" column="0">
                             <widget class="QLabel" name="wolfCoefLabel">
+                             <property name="buddy">
+                              <cstring>wolfCoef</cstring>
+                             </property>
                              <property name="text">
                               <string>Coef:</string>
                              </property>
@@ -4074,6 +4197,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
           <layout class="QGridLayout" name="allMethodsLayout">
            <item row="0" column="0">
             <widget class="QLabel" name="coloredDimmingLabel">
+             <property name="buddy">
+              <cstring>coloredDimmingSB</cstring>
+             </property>
              <property name="toolTip">
               <string>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear. The more saturated a color, the stronger the effect. 0 changes nothing.</string>
              </property>
@@ -4106,6 +4232,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="boundsLabel">
+             <property name="buddy">
+              <cstring>lowerBound</cstring>
+             </property>
              <property name="toolTip">
               <string>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes. 1 and 254 leave the method alone.</string>
              </property>
@@ -4246,6 +4375,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
        <layout class="QHBoxLayout" name="colorDetectionMinColorLayout">
         <item>
          <widget class="QLabel" name="colorDetectionMinColorLabel">
+          <property name="buddy">
+           <cstring>colorDetectionMinColorSB</cstring>
+          </property>
           <property name="toolTip">
            <string>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</string>
           </property>
@@ -4308,6 +4440,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         </property>
         <item>
          <widget class="QLabel" name="colorDetectionMinPictureLabel">
+          <property name="buddy">
+           <cstring>colorDetectionMinPictureSB</cstring>
+          </property>
           <property name="toolTip">
            <string>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</string>
           </property>
@@ -4367,6 +4502,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                <layout class="QHBoxLayout" name="horizontalLayout_7">
 <item>
 <widget class="QLabel" name="dpiLabel">
+<property name="buddy">
+ <cstring>dpiSelector</cstring>
+</property>
 <property name="text">
 <string>Resolution:</string>
 </property>

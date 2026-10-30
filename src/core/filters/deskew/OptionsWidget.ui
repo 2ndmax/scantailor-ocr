@@ -70,6 +70,9 @@
        <layout class="QHBoxLayout" name="angleLayout">
         <item>
          <widget class="QLabel" name="angleLabel">
+          <property name="buddy">
+           <cstring>angleSpinBox</cstring>
+          </property>
           <property name="text">
            <string>Angle:</string>
           </property>
@@ -107,6 +110,9 @@
        <layout class="QHBoxLayout" name="detectionLayout">
         <item>
          <widget class="QLabel" name="detectionLabel">
+          <property name="buddy">
+           <cstring>detectionComboBox</cstring>
+          </property>
           <property name="text">
            <string>Detection:</string>
           </property>
@@ -178,6 +184,9 @@
        <layout class="QHBoxLayout">
         <item>
          <widget class="QLabel" name="obliqueLabel">
+          <property name="buddy">
+           <cstring>obliqueSpinBox</cstring>
+          </property>
           <property name="text">
            <string>Angle:</string>
           </property>

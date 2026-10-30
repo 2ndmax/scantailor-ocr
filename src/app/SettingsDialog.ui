@@ -61,6 +61,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QLabel" name="colorSchemeLabel">
+              <property name="buddy">
+               <cstring>colorSchemeBox</cstring>
+              </property>
               <property name="text">
                <string>Color scheme:</string>
               </property>
@@ -129,6 +132,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
              <widget class="QLabel" name="languageLabel">
+              <property name="buddy">
+               <cstring>languageBox</cstring>
+              </property>
               <property name="text">
                <string>Language:</string>
               </property>
@@ -268,6 +274,9 @@
              <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
                <widget class="QLabel" name="thumbnailQualityLabel">
+                <property name="buddy">
+                 <cstring>thumbnailQualitySB</cstring>
+                </property>
                 <property name="text">
                  <string>Quality:</string>
                 </property>
@@ -311,6 +320,9 @@
              <layout class="QHBoxLayout" name="horizontalLayout_10">
               <item>
                <widget class="QLabel" name="thumbnailSizeLabel">
+                <property name="buddy">
+                 <cstring>thumbnailSizeSB</cstring>
+                </property>
                 <property name="text">
                  <string>Size:</string>
                 </property>
@@ -412,6 +424,9 @@
               <layout class="QGridLayout" name="gridLayout_2">
                <item row="0" column="0">
                 <widget class="QLabel" name="deskewDeviationLabel">
+                 <property name="buddy">
+                  <cstring>deskewDeviationCoefSB</cstring>
+                 </property>
                  <property name="text">
                   <string>Deskew:</string>
                  </property>
@@ -419,6 +434,9 @@
                </item>
                <item row="1" column="0">
                 <widget class="QLabel" name="selectContentDeviationLabel">
+                 <property name="buddy">
+                  <cstring>selectContentDeviationCoefSB</cstring>
+                 </property>
                  <property name="text">
                   <string>Select content:</string>
                  </property>
@@ -442,6 +460,9 @@
                </item>
                <item row="2" column="0">
                 <widget class="QLabel" name="marginsDeviationLabel">
+                 <property name="buddy">
+                  <cstring>marginsDeviationCoefSB</cstring>
+                 </property>
                  <property name="text">
                   <string>Margins:</string>
                  </property>

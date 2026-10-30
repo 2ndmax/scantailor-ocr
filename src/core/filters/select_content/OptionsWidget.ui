@@ -152,6 +152,9 @@
                 <layout class="QGridLayout" name="gridLayout_3">
                  <item row="0" column="0">
                   <widget class="QLabel" name="label">
+                   <property name="buddy">
+                    <cstring>widthSpinBox</cstring>
+                   </property>
                    <property name="text">
                     <string>Width:</string>
                    </property>
@@ -159,6 +162,9 @@
                  </item>
                  <item row="1" column="0">
                   <widget class="QLabel" name="label_2">
+                   <property name="buddy">
+                    <cstring>heightSpinBox</cstring>
+                   </property>
                    <property name="text">
                     <string>Height:</string>
                    </property>
@@ -312,6 +318,9 @@
              <layout class="QGridLayout" name="contentDetectOptionsGrid" columnstretch="0,0,1">
               <item row="0" column="0">
                <widget class="QLabel" name="fillFactorLabel">
+                <property name="buddy">
+                 <cstring>fillFactorSpinBox</cstring>
+                </property>
                 <property name="toolTip">
                  <string>The highest share of black pixels a line may have to count as text. Raise it for art books and photo pages: above 85 %, shadows are kept and pictures count as content; from 95 % on, the whole page box is the content box.</string>
                 </property>
@@ -347,6 +356,9 @@
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="borderToleranceLabel">
+                <property name="buddy">
+                 <cstring>borderToleranceSpinBox</cstring>
+                </property>
                 <property name="toolTip">
                  <string>How much of the content touching the image border is kept. At 0 %, it is removed as before (scanner edges, shadows); raise it for pictures that reach the edge of the page.</string>
                 </property>
