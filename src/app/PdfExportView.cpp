@@ -912,17 +912,18 @@ void PdfExportView::updateControls() {
     }
   }
   const int checked = checkedCount();
-  m_selectionLabel->setText(tr("%1 of %2 output pages selected").arg(checked).arg(available));
+  // Each statement is a sentence of its own.
+  m_selectionLabel->setText(tr("%1 of %2 output pages selected.").arg(checked).arg(available));
   const int missing = m_pageList->count() - available;
   if (missing > 0) {
-    m_selectionLabel->setText(m_selectionLabel->text() + QStringLiteral("  ")
-                              + tr("(%n page(s) not output yet)", nullptr, missing));
+    m_selectionLabel->setText(m_selectionLabel->text() + QLatin1Char(' ')
+                              + tr("%n page(s) not output yet.", nullptr, missing));
   }
   const int outdated = static_cast<int>(
       std::count_if(m_entries.begin(), m_entries.end(), [](const Entry& entry) { return entry.page.isOutdated(); }));
   if (outdated > 0) {
-    m_selectionLabel->setText(m_selectionLabel->text() + QStringLiteral("  ")
-                              + tr("(%n page(s) changed since the output)", nullptr, outdated));
+    m_selectionLabel->setText(m_selectionLabel->text() + QLatin1Char(' ')
+                              + tr("%n page(s) changed since the output.", nullptr, outdated));
   }
 
   m_outputMissingButton->setVisible((missing > 0) || (outdated > 0));
