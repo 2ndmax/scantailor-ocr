@@ -1,0 +1,38 @@
+<profile version="10">
+  <default-params units="mm">
+    <fix-orientation-params>
+      <imageRotation degrees="0"/>
+    </fix-orientation-params>
+    <deskew-params autoOblique="0" deskewAngleDeg="0" detection="content" mode="manual"/>
+    <page-split-params detectionMethod="spine-line" layoutType="single-uncut" pageOrder="LTR"/>
+    <select-content-params contentDetectEnabled="0" fineTuneCorners="0" pageDetectMode="disabled">
+      <pageRectSize height="297" width="210"/>
+      <detection borderTolerance="0" fillFactor="65" ignorePageBox="0"/>
+    </select-content-params>
+    <page-layout-params autoMargins="0">
+      <hardMargins bottom="0" left="0" right="0" top="0"/>
+      <alignment hor="center" null="1" vert="center"/>
+    </page-layout-params>
+    <output-params depthPerception="2" despeckleLevel="1">
+      <dpi horizontal="600" vertical="600"/>
+      <colorParams colorMode="colorOrGray">
+        <color-or-grayscale fillMargins="0" fillOffcut="1" fillOutsidePageBox="0" fillingColor="background" normalizeIlluminationColor="0" wienerCoef="0" wienerWinSize="5">
+          <posterization-options enabled="0" forceBlackAndWhite="1" level="4" normalizationEnabled="0"/>
+        </color-or-grayscale>
+        <bw binarizationMethod="otsu" morphologicalSmoothing="1" normalizeIlluminationBW="1" sauvolaCoef="0.34" savitzkyGolaySmoothing="1" thresholdAdj="0" windowSize="200" wolfCoef="0.3" wolfLowerBound="1" wolfUpperBound="254">
+          <color-segmenter-options blueThresholdAdjustment="0" enabled="0" greenThresholdAdjustment="0" noiseReduction="7" posterize="0" redThresholdAdjustment="0"/>
+        </bw>
+      </colorParams>
+      <splittingOptions originalBackground="0" splitOutput="0" splittingMode="bw"/>
+      <pictureShapeOptions higherSearchSensitivity="0" pictureShape="free" sensitivity="100"/>
+      <dewarpingOptions mode="off" postDeskew="1" postDeskewAngle="0"/>
+    </output-params>
+    <processing-options>
+      <tiff bw="4" color="5" jpegQuality="85" palette="5"/>
+      <color-detection minColor="3" minPicture="5" pictureZones="0"/>
+      <black-on-white detection="1" output="1"/>
+      <pdf backgroundScale="2" bitonalCompression="5" colorCompression="2" colorQuality="85" paletteCompression="1" paletteQuality="85" pdfA="1"/>
+      <ocr enabled="1" languages="deu+eng" pageLayout="0"/>
+    </processing-options>
+  </default-params>
+</profile>
