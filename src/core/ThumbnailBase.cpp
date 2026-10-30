@@ -11,6 +11,7 @@
 #include <QPainterPath>
 #include <QPixmapCache>
 #include <QStyleOptionGraphicsItem>
+#include <QtMath>
 #include <algorithm>
 #include <cmath>
 #include <utility>
@@ -179,6 +180,18 @@ void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* /*o
 }  // ThumbnailBase::paint
 
 namespace {
+QString markToolTip(const ThumbnailBase::Mark mark) {
+  switch (mark) {
+    case ThumbnailBase::INCOMPLETE_MARK:
+      return QCoreApplication::translate("ThumbnailBase", "This page is not processed in this step yet.");
+    case ThumbnailBase::DEVIANT_MARK:
+      return QCoreApplication::translate("ThumbnailBase", "This page deviates strongly from the others. Check it.");
+    case ThumbnailBase::OUTDATED_MARK:
+      break;  // Only drawn, never an item of a thumbnail.
+  }
+  return QString();
+}
+
 /**
  * A mark at the top right corner of a thumbnail. It ignores the scale of the thumbnail, so that
  * all marks are equally large on the screen, and has its own tooltip.
@@ -191,10 +204,7 @@ class ThumbnailMark : public QGraphicsItem {
     setFlag(ItemIgnoresTransformations);
     // At the right edge of the parent; ThumbnailSequence lines the marks of all thumbnails up.
     setPos(parent->boundingRect().topRight());
-    setToolTip(
-        (mark == ThumbnailBase::INCOMPLETE_MARK)
-            ? QCoreApplication::translate("ThumbnailBase", "This page is not processed in this step yet.")
-            : QCoreApplication::translate("ThumbnailBase", "This page deviates strongly from the others. Check it."));
+    setToolTip(markToolTip(mark));
   }
 
   int type() const override { return Type; }
@@ -284,6 +294,40 @@ void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark
     painter.setPen(pen);
     painter.setBrush(accent);
     painter.drawPath(glass);
+  } else if (mark == OUTDATED_MARK) {
+    // A circular arrow, clockwise: an arc open at the right, with an arrow head at its upper end.
+    const QPointF center = square.center();
+    const double radius = s * 0.26;
+    const double startAngle = -40;
+    const double sweep = -280;
+    const double endAngle = startAngle + sweep;
+    const double toRadians = qDegreesToRadians(1.0);
+    QPainterPath arc;
+    arc.moveTo(center.x() + radius * std::cos(startAngle * toRadians),
+               center.y() - radius * std::sin(startAngle * toRadians));
+    arc.arcTo(QRectF(center.x() - radius, center.y() - radius, 2 * radius, 2 * radius), startAngle, sweep);
+    QPen pen(accent);
+    pen.setWidthF(std::max(1.0, s * 0.09) + 1.0);
+    pen.setCapStyle(Qt::FlatCap);
+    painter.setPen(pen);
+    painter.setBrush(Qt::NoBrush);
+    painter.drawPath(arc);
+
+    // The arrow head at the end of the arc points along its direction of travel.
+    const QPointF end(center.x() + radius * std::cos(endAngle * toRadians),
+                      center.y() - radius * std::sin(endAngle * toRadians));
+    const QPointF direction(std::sin(endAngle * toRadians), std::cos(endAngle * toRadians));
+    const QPointF normal(-direction.y(), direction.x());
+    const double length = s * 0.24;
+    const double halfWidth = s * 0.15;
+    QPainterPath head;
+    head.moveTo(end + direction * length);
+    head.lineTo(end + normal * halfWidth);
+    head.lineTo(end - normal * halfWidth);
+    head.closeSubpath();
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(accent);
+    painter.drawPath(head);
   } else {
     // An exclamation mark: a bar and a dot.
     const double barWidth = s * 0.16;

@@ -1042,7 +1042,9 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing, cons
       painter.drawText(rect.adjusted(4, 4, -4, -4), Qt::AlignCenter | Qt::TextWordWrap, tr("Not output yet"));
     }
     if (missing || outdated) {
-      ThumbnailBase::drawMark(painter, ThumbnailBase::markRect(rect), ThumbnailBase::INCOMPLETE_MARK);
+      // A page not output yet waits (hourglass); one changed since the output needs to be output again.
+      const ThumbnailBase::Mark mark = missing ? ThumbnailBase::INCOMPLETE_MARK : ThumbnailBase::OUTDATED_MARK;
+      ThumbnailBase::drawMark(painter, ThumbnailBase::markRect(rect), mark);
     }
   } else {
     QPixmap scaled = thumbnail.scaled(size * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -1054,8 +1056,8 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing, cons
     const QRect rect = QRect(topLeft, scaledSize).adjusted(0, 0, -1, -1);
     painter.drawRect(rect);
     if (outdated) {
-      // The output file shows an older state of the page, as with the hourglass of the Output step.
-      ThumbnailBase::drawMark(painter, ThumbnailBase::markRect(rect), ThumbnailBase::INCOMPLETE_MARK);
+      // The output file shows an older state of the page.
+      ThumbnailBase::drawMark(painter, ThumbnailBase::markRect(rect), ThumbnailBase::OUTDATED_MARK);
     }
   }
   painter.end();

@@ -139,8 +139,8 @@ class PdfExportView : public QWidget {
 
   /**
    * A thumbnail, or a placeholder in the proportions of the pages if \p thumbnail is null.
-   * The placeholder of a page that isn't output yet says so. A page changed since the output
-   * gets the hourglass of the Output step.
+   * The placeholder of a page that isn't output yet says so and has the hourglass. A page changed
+   * since the output has a circular arrow.
    */
   QIcon makeIcon(const QPixmap& thumbnail, bool missing = false, bool outdated = false) const;
 

@@ -41,7 +41,9 @@ class ThumbnailBase : public QGraphicsItem {
   /** What a mark on a thumbnail says about the page. */
   enum Mark {
     INCOMPLETE_MARK,  ///< An hourglass in the accent color: not processed in this step yet.
-    DEVIANT_MARK      ///< An exclamation mark in the accent color: deviates strongly from the other pages.
+    DEVIANT_MARK,     ///< An exclamation mark in the accent color: deviates strongly from the other pages.
+    OUTDATED_MARK     ///< A circular arrow in the accent color: changed since the result shown here was made.
+                      ///< Only drawn with drawMark(), not an item of a thumbnail (the PDF view has its own tooltips).
   };
 
   /** The side of a mark, in pixels on the screen. */
