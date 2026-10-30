@@ -28,13 +28,17 @@
   - An input that needs more memory than -RssLimitMb in one piece counts as a finding; the
     report of a finding found with other limits may not come back with these.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Minutes 30
+  Without -Only and -Minutes, the script asks which targets to run and for how long; given on
+  the command line, the question is skipped:
+
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Only fuzz_image_loader -Minutes 5
 
 .PARAMETER Minutes
-  How long each target runs. Default: 10.
+  How long each target runs. Asked for when not given; with -Yes 10.
 
 .PARAMETER Only
-  Run only these targets, e.g. -Only fuzz_image_loader. Default: all.
+  Run only these targets, e.g. -Only fuzz_image_loader. Asked for when not given; with -Yes all.
 
 .PARAMETER RssLimitMb
   Memory limit of a run in MB; an input that needs more counts as a finding (oom-*). Default:
@@ -53,7 +57,7 @@
   The vcpkg folder. Default: the VCPKG_ROOT environment variable.
 
 .PARAMETER Yes
-  Start without asking.
+  Start without asking: all targets for 10 minutes each, unless -Only and -Minutes say otherwise.
 #>
 param(
     [int]$Minutes = 10,
@@ -80,15 +84,78 @@ $seeds = "$Root\src\fuzz\corpus"
 
 # The targets of src/fuzz/CMakeLists.txt with their seeds and dictionary.
 $targets = @(
-    @{ Name = 'fuzz_image_metadata'; Seeds = 'images'; Dict = '' }
-    @{ Name = 'fuzz_image_loader'; Seeds = 'images'; Dict = '' }
-    @{ Name = 'fuzz_project_reader'; Seeds = 'project'; Dict = 'project.dict' }
-    @{ Name = 'fuzz_filter_params'; Seeds = 'filter_params'; Dict = 'filter_params.dict' }
+    @{ Name = 'fuzz_image_metadata'; Title = 'image headers (metadata of TIFF, PNG, JPEG, JPEG 2000 ...)'
+       Seeds = 'images'; Dict = '' }
+    @{ Name = 'fuzz_image_loader'; Title = 'decoding images'; Seeds = 'images'; Dict = '' }
+    @{ Name = 'fuzz_project_reader'; Title = 'reading project files'; Seeds = 'project'; Dict = 'project.dict' }
+    @{ Name = 'fuzz_filter_params'; Title = 'filter settings in project files'; Seeds = 'filter_params'
+       Dict = 'filter_params.dict' }
 )
+# The choices offered for the time per target, and the one taken with Enter.
+$minuteChoices = @(5, 10, 30, 60)
+$defaultMinutes = 10
+
+# Asks which targets to run. Returns their numbers (1-based); Enter takes all.
+function Read-Targets {
+    Write-Host ''
+    Write-Host 'Which targets?'
+    Write-Host '  0  All targets'
+    for ($i = 0; $i -lt $targets.Count; $i++) {
+        $t = $targets[$i]
+        # What earlier runs left: the inputs found so far, and findings not yet dealt with.
+        $dir = "$fuzzDir\$($t.Name)"
+        $corpus = if (Test-Path "$dir\corpus") { @(Get-ChildItem "$dir\corpus" -File).Count } else { 0 }
+        $findings = if (Test-Path "$dir\findings") { @(Get-ChildItem "$dir\findings" -File).Count } else { 0 }
+        $state = if ($corpus) { "corpus $corpus inputs" } else { 'not run yet' }
+        if ($findings) { $state += ", $findings findings" }
+        Write-Host ("  {0}  {1}: {2}  [{3}]" -f ($i + 1), $t.Name, $t.Title, $state)
+    }
+    while ($true) {
+        $typed = (Read-Host 'Target(s), e.g. 0 or 2,4 [0]').Trim()
+        if (-not $typed) { $typed = '0' }
+        $numbers = @($typed -split '[,\s]+' | Where-Object { $_ -match '^\d+$' } | ForEach-Object { [int]$_ })
+        if ($numbers -contains 0) { return @(1..$targets.Count) }
+        if ($numbers.Count -and -not @($numbers | Where-Object { $_ -lt 1 -or $_ -gt $targets.Count }).Count) {
+            return @($numbers | Sort-Object -Unique)
+        }
+        Write-Host "Numbers from 0 to $($targets.Count), separated by commas." -ForegroundColor Yellow
+    }
+}
+
+# Asks how long each of $Count targets runs. Returns the minutes; Enter takes $defaultMinutes.
+function Read-Minutes([int]$Count) {
+    Write-Host ''
+    Write-Host 'How long per target?'
+    for ($i = 0; $i -lt $minuteChoices.Count; $i++) {
+        $m = $minuteChoices[$i]
+        Write-Host ("  {0}  {1} minutes (about {2} minutes in all)" -f ($i + 1), $m, ($m * $Count))
+    }
+    Write-Host ("  {0}  Other" -f ($minuteChoices.Count + 1))
+    while ($true) {
+        $typed = (Read-Host "Choice [$($minuteChoices.IndexOf($defaultMinutes) + 1)]").Trim()
+        if (-not $typed) { return $defaultMinutes }
+        $n = 0
+        if ([int]::TryParse($typed, [ref]$n) -and $n -ge 1 -and $n -le $minuteChoices.Count) { return $minuteChoices[$n - 1] }
+        if ($n -eq $minuteChoices.Count + 1) {
+            while ($true) {
+                $typed = (Read-Host 'Minutes per target').Trim()
+                if ([int]::TryParse($typed, [ref]$n) -and $n -ge 1) { return $n }
+            }
+        }
+    }
+}
+
 if ($Only) {
     $unknown = @($Only | Where-Object { $_ -notin $targets.Name })
     if ($unknown) { throw "Unknown fuzz target: $($unknown -join ', '). Known: $($targets.Name -join ', ')" }
     $targets = @($targets | Where-Object { $_.Name -in $Only })
+} elseif (-not $Unattended) {
+    Write-Host ''
+    Write-Host 'Analysis run 09: fuzzing with libFuzzer and ASan' -ForegroundColor Cyan
+    $targets = @(Read-Targets | ForEach-Object { $targets[$_ - 1] })
+}
+if (-not $PSBoundParameters.ContainsKey('Minutes') -and -not $Unattended) {
+    $Minutes = Read-Minutes $targets.Count
 }
 # A single input that runs longer than this is a finding (timeout-*).
 $timeoutSec = 20

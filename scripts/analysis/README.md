@@ -199,8 +199,8 @@ Two kinds of reports are known to be harmless; the code is not changed for them:
 
 Builds the fuzz targets of `src/fuzz` (`-DBUILD_FUZZERS=ON`: all of the project's code with
 AddressSanitizer and the coverage instrumentation of libFuzzer, without the program and the
-tests) and runs each of them for `-Minutes` (default 10).  A fuzz target feeds generated input
-to one part of the program and keeps the inputs that reach new code:
+tests) and runs the chosen ones.  A fuzz target feeds generated input to one part of the
+program and keeps the inputs that reach new code:
 
 | Target | Reads | Seeds in `src/fuzz/corpus` |
 |---|---|---|
@@ -209,8 +209,17 @@ to one part of the program and keeps the inputs that reach new code:
 | `fuzz_project_reader` | project files, without the filter settings | `project`, `project.dict` |
 | `fuzz_filter_params` | the per-page settings of the filters | `filter_params`, `filter_params.dict` |
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Minutes 30
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Only fuzz_image_loader -SkipBuild
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1
+
+Without parameters, the script asks which targets to run (each with the size of its corpus and
+its open findings) and for how long each (5, 10, 30 or 60 minutes, or another time; Enter takes
+10), shows the total time and asks before it starts.  `-Only` and `-Minutes` skip the
+respective question, `-Yes` both (then all targets, 10 minutes each):
+
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Only fuzz_image_loader -Minutes 5 -SkipBuild
+
+Each run adds to the corpus of the ones before, so several short runs find about as much as one
+long one; once the coverage (`ft` in the summary) hardly grows any more, longer runs rarely pay.
 
 Per target, `results\09-fuzz\<target>\` holds `corpus\` (the inputs found so far; the next run
 continues from them), `findings\` (the inputs that made the target fail: `crash-*`, `oom-*`,
