@@ -394,6 +394,9 @@
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QCheckBox" name="highlightDeviationCB">
+            <property name="toolTip">
+             <string>Marks the thumbnails of pages whose skew angle, content or margins deviate strongly from the others. The limits are set below.</string>
+            </property>
             <property name="text">
              <string>Highlight the thumbnails of pages with high deviation</string>
             </property>

@@ -3265,6 +3265,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                         </property>
                         <item>
                          <widget class="QLabel" name="reduceNoiseLabel">
+                          <property name="toolTip">
+                           <string>Removes small color segments as noise. Higher values remove larger ones. Only with color segmentation.</string>
+                          </property>
                           <property name="text">
                            <string>Reduce noise:</string>
                           </property>
@@ -3272,6 +3275,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                         </item>
                         <item>
                          <widget class="QSpinBox" name="reduceNoiseSB">
+                          <property name="toolTip">
+                           <string>Removes small color segments as noise. Higher values remove larger ones. Only with color segmentation.</string>
+                          </property>
                           <property name="maximum">
                            <number>999</number>
                           </property>
@@ -3565,6 +3571,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                       </property>
                       <item>
                        <widget class="QLabel" name="pictureShapeSensitivityLabel">
+                        <property name="toolTip">
+                         <string>Trims the edges of the picture rectangles inward to the first row or column that the picture fills to at least this share. At 100 %, nothing is trimmed. Only for pictures found as rectangles.</string>
+                        </property>
                         <property name="text">
                          <string>Sensitivity:</string>
                         </property>
@@ -3572,6 +3581,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                       </item>
                       <item>
                        <widget class="QSpinBox" name="pictureShapeSensitivitySB">
+<property name="toolTip">
+ <string>Trims the edges of the picture rectangles inward to the first row or column that the picture fills to at least this share. At 100 %, nothing is trimmed. Only for pictures found as rectangles.</string>
+</property>
 <property name="suffix">
 <string notr="true"> %</string>
 </property>
