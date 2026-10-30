@@ -189,13 +189,22 @@ bool parseJp2Header(QIODevice& device, HeaderInfo& info) {
   return false;
 }
 
+struct CodestreamInfo {
+  int64_t width = 0;
+  int64_t height = 0;
+  // 0 if the tile grid is invalid or the marker is truncated.
+  uint64_t numTiles = 0;
+  uint32_t numComps = 0;
+};
+
 /**
- * Reads the image size from the SIZ marker of the codestream starting at \p pos.
+ * Reads the SIZ marker of the codestream starting at \p pos.
  */
-bool readCodestreamSize(QIODevice& device, const qint64 pos, int64_t& width, int64_t& height) {
-  // SOC (2), SIZ marker (2), Lsiz (2), Rsiz (2), Xsiz (4), Ysiz (4), XOsiz (4), YOsiz (4)
-  unsigned char data[24];
-  if (!readAt(device, pos, data, sizeof(data)) || (std::memcmp(data, J2K_SIGNATURE, sizeof(J2K_SIGNATURE)) != 0)) {
+bool readCodestreamInfo(QIODevice& device, const qint64 pos, CodestreamInfo& info) {
+  // SOC (2), SIZ marker (2), Lsiz (2), Rsiz (2), Xsiz (4), Ysiz (4), XOsiz (4), YOsiz (4),
+  // XTsiz (4), YTsiz (4), XTOsiz (4), YTOsiz (4), Csiz (2)
+  unsigned char data[42];
+  if (!readAt(device, pos, data, 24) || (std::memcmp(data, J2K_SIGNATURE, sizeof(J2K_SIGNATURE)) != 0)) {
     return false;
   }
   const uint32_t xSiz = readBe32(data + 8);
@@ -205,18 +214,34 @@ bool readCodestreamSize(QIODevice& device, const qint64 pos, int64_t& width, int
   if ((xSiz <= xOffset) || (ySiz <= yOffset)) {
     return false;
   }
-  width = static_cast<int64_t>(xSiz) - xOffset;
-  height = static_cast<int64_t>(ySiz) - yOffset;
+  info.width = static_cast<int64_t>(xSiz) - xOffset;
+  info.height = static_cast<int64_t>(ySiz) - yOffset;
+
+  info.numTiles = 0;
+  info.numComps = 0;
+  if (!readAt(device, pos + 24, data + 24, sizeof(data) - 24)) {
+    // The size is all that is needed for the metadata.
+    return true;
+  }
+  const uint64_t tileWidth = readBe32(data + 24);
+  const uint64_t tileHeight = readBe32(data + 28);
+  const uint32_t tileXOffset = readBe32(data + 32);
+  const uint32_t tileYOffset = readBe32(data + 36);
+  if ((tileWidth > 0) && (tileHeight > 0) && (tileXOffset < xSiz) && (tileYOffset < ySiz)) {
+    // Both factors are below 2^32.
+    info.numTiles
+        = ((xSiz - tileXOffset + tileWidth - 1) / tileWidth) * ((ySiz - tileYOffset + tileHeight - 1) / tileHeight);
+  }
+  info.numComps = readBe16(data + 40);
   return true;
 }
 
 bool parseJ2kHeader(QIODevice& device, HeaderInfo& info) {
-  int64_t width = 0;
-  int64_t height = 0;
-  if (!readCodestreamSize(device, 0, width, height) || (width > INT_MAX) || (height > INT_MAX)) {
+  CodestreamInfo codestream;
+  if (!readCodestreamInfo(device, 0, codestream) || (codestream.width > INT_MAX) || (codestream.height > INT_MAX)) {
     return false;
   }
-  info.size = QSize(static_cast<int>(width), static_cast<int>(height));
+  info.size = QSize(static_cast<int>(codestream.width), static_cast<int>(codestream.height));
   return true;
 }
 
@@ -246,14 +271,15 @@ bool codestreamExceedsSizeLimit(QIODevice& device, const Jp2Format format) {
       }
     }
   }
-  int64_t width = 0;
-  int64_t height = 0;
-  if ((codestreamPos < 0) || !readCodestreamSize(device, codestreamPos, width, height)
-      || !ImageSizeLimit::exceeds(width, height)) {
+  CodestreamInfo info;
+  if ((codestreamPos < 0) || !readCodestreamInfo(device, codestreamPos, info)) {
     return false;
   }
-  ImageLoadErrorCapture::addError(ImageSizeLimit::errorMessage(width, height));
-  return true;
+  if (ImageSizeLimit::exceeds(info.width, info.height)) {
+    ImageLoadErrorCapture::addError(ImageSizeLimit::errorMessage(info.width, info.height));
+    return true;
+  }
+  return false;
 }
 
 /*================================ OpenJPEG ==================================*/
