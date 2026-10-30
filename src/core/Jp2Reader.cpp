@@ -252,13 +252,20 @@ bool parseHeader(QIODevice& device, const Jp2Format format, HeaderInfo& info) {
   return ok;
 }
 
+// OpenJPEG decodes every component, 4 bytes per pixel each. An image may hold as many
+// samples as one of the largest size with 4 components.
+constexpr int64_t MAX_SAMPLES = int64_t(ImageSizeLimit::MAX_PIXELS) * 4;
+// OpenJPEG allocates about 5.7 KB per tile and 1.1 KB per tile and component while reading the header.
+// Tiles of this size on average keep that well below the memory needed for decoding.
+constexpr int64_t MIN_AVERAGE_TILE_SIDE = 32;
+
 /**
- * Whether the codestream is known to exceed the size limit, which then is reported.
- * OpenJPEG allocates its parameters for every tile while reading the header, hundreds of
- * megabytes for a forged one, so this has to be checked before. A size that can't be read
- * here is left to OpenJPEG.
+ * Whether the codestream is known to exceed the limits on size, components and tiles,
+ * which then is reported. OpenJPEG allocates its parameters for every tile and component
+ * while reading the header, up to terabytes for a forged one, so this has to be checked
+ * before. What can't be read here is left to OpenJPEG.
  */
-bool codestreamExceedsSizeLimit(QIODevice& device, const Jp2Format format) {
+bool codestreamExceedsLimits(QIODevice& device, const Jp2Format format) {
   qint64 codestreamPos = 0;
   if (format == Jp2Format::JP2) {
     // The size of the codestream, not that of the JP2 header, as OpenJPEG allocates by this one.
@@ -277,6 +284,35 @@ bool codestreamExceedsSizeLimit(QIODevice& device, const Jp2Format format) {
   }
   if (ImageSizeLimit::exceeds(info.width, info.height)) {
     ImageLoadErrorCapture::addError(ImageSizeLimit::errorMessage(info.width, info.height));
+    return true;
+  }
+
+  // Within the size limit, the products below fit in 64 bits.
+  const int64_t numPixels = info.width * info.height;
+  const int64_t maxComps = std::max<int64_t>(1, MAX_SAMPLES / numPixels);
+  if (info.numComps > maxComps) {
+    ImageLoadErrorCapture::addError(
+        QCoreApplication::translate("Jp2Reader",
+                                    "The image has too many components (%1). At its size of %2 × %3 pixels, at "
+                                    "most %4 components are possible.")
+            .arg(info.numComps)
+            .arg(info.width)
+            .arg(info.height)
+            .arg(maxComps));
+    return true;
+  }
+
+  const int64_t maxTiles = ((info.width + MIN_AVERAGE_TILE_SIDE - 1) / MIN_AVERAGE_TILE_SIDE)
+                           * ((info.height + MIN_AVERAGE_TILE_SIDE - 1) / MIN_AVERAGE_TILE_SIDE);
+  if (info.numTiles > static_cast<uint64_t>(maxTiles)) {
+    ImageLoadErrorCapture::addError(
+        QCoreApplication::translate("Jp2Reader",
+                                    "The image is divided into too many tiles (%1). At its size of %2 × %3 "
+                                    "pixels, at most %4 tiles are possible.")
+            .arg(info.numTiles)
+            .arg(info.width)
+            .arg(info.height)
+            .arg(maxTiles));
     return true;
   }
   return false;
@@ -685,7 +721,7 @@ QImage decode(QIODevice& device,
 
   // The size of the codestream, not that of the JP2 header, as OpenJPEG allocates by this one.
   // Components with subsampling are scaled up to it by toQImage(). Checked again here for the
-  // codestreams codestreamExceedsSizeLimit() couldn't read.
+  // codestreams codestreamExceedsLimits() couldn't read.
   const int64_t fullWidth = static_cast<int64_t>(image->x1) - image->x0;
   const int64_t fullHeight = static_cast<int64_t>(image->y1) - image->y0;
   if (ImageSizeLimit::exceeds(fullWidth, fullHeight)) {
@@ -775,7 +811,7 @@ QImage Jp2Reader::readImage(QIODevice& device, const QSize& minSize) {
     return QImage();
   }
 
-  if (codestreamExceedsSizeLimit(device, format)) {
+  if (codestreamExceedsLimits(device, format)) {
     return QImage();
   }
   HeaderInfo info;

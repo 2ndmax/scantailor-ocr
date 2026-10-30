@@ -250,7 +250,13 @@ int grayAt(const QImage& image, const int x, const int y) {
   return qGray(image.pixel(x, y));
 }
 
-bool writeJp2(const QString& path, const int width, const int height, const int numComps, const bool codestream) {
+// tileSize 0 writes a single tile.
+bool writeJp2(const QString& path,
+              const int width,
+              const int height,
+              const int numComps,
+              const bool codestream,
+              const int tileSize = 0) {
   std::vector<opj_image_cmptparm_t> params(numComps);
   for (auto& p : params) {
     std::memset(&p, 0, sizeof(p));
@@ -283,6 +289,11 @@ bool writeJp2(const QString& path, const int width, const int height, const int 
   cparams.tcp_rates[0] = 0;  // Lossless.
   cparams.cp_disto_alloc = 1;
   cparams.numresolution = 4;
+  if (tileSize > 0) {
+    cparams.tile_size_on = OPJ_TRUE;
+    cparams.cp_tdx = tileSize;
+    cparams.cp_tdy = tileSize;
+  }
 
   opj_codec_t* codec = opj_create_compress(codestream ? OPJ_CODEC_J2K : OPJ_CODEC_JP2);
   bool ok = codec && opj_setup_encoder(codec, &cparams, image);
@@ -1394,6 +1405,97 @@ BOOST_AUTO_TEST_CASE(test_jp2_over_size_limit_is_refused_before_openjpeg) {
       BOOST_CHECK(messages.filter(QStringLiteral("OpenJPEG")).isEmpty());
     }
   }
+}
+
+namespace {
+// A codestream of just SOC and SIZ with one 8-bit component. Its fields are set by the tests.
+struct SizSpec {
+  uint32_t width = 0;
+  uint32_t height = 0;
+  uint32_t tileWidth = 0;
+  uint32_t tileHeight = 0;
+  uint16_t numComps = 1;  // Csiz; the length of the marker always fits one component.
+};
+
+QByteArray sizOnlyCodestream(const SizSpec& spec) {
+  QByteArray data;
+  auto put16 = [&](const uint16_t v) {
+    data.append(static_cast<char>(v >> 8));
+    data.append(static_cast<char>(v & 0xFF));
+  };
+  auto put32 = [&](const uint32_t v) {
+    put16(static_cast<uint16_t>(v >> 16));
+    put16(static_cast<uint16_t>(v & 0xFFFF));
+  };
+  put16(0xFF4F);  // SOC
+  put16(0xFF51);  // SIZ
+  put16(41);      // Lsiz: 38 + 3 bytes for one component
+  put16(0);       // Rsiz
+  put32(spec.width);
+  put32(spec.height);
+  put32(0);  // XOsiz
+  put32(0);  // YOsiz
+  put32(spec.tileWidth);
+  put32(spec.tileHeight);
+  put32(0);  // XTOsiz
+  put32(0);  // YTOsiz
+  put16(spec.numComps);
+  data.append("\x07\x01\x01", 3);  // Ssiz: 8 bits, XRsiz, YRsiz
+  return data;
+}
+
+// Loads the codestream and checks that it was refused with \p expected before OpenJPEG saw it.
+void checkRefusedBeforeOpenJpeg(const QByteArray& codestream, const QString& expected) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("forged.j2k");
+  BOOST_REQUIRE(Tests::writeFile(path, codestream));
+  QImage image;
+  const QStringList messages = loadMessages(path, image);
+  BOOST_CHECK(image.isNull());
+  BOOST_CHECK(messages.contains(expected));
+  BOOST_CHECK(messages.filter(QStringLiteral("OpenJPEG")).isEmpty());
+}
+}  // namespace
+
+// Within the size limit, OpenJPEG still allocates about 5.7 KB per tile and 1.1 KB per tile and
+// component while reading the header, and decoding keeps 4 bytes per pixel and component; a forged
+// header could ask for terabytes. These headers contain an error OpenJPEG stops at before
+// allocating, so its error shows that it was asked.
+BOOST_AUTO_TEST_CASE(test_jp2_too_many_components_are_refused_before_openjpeg) {
+  SizSpec spec;
+  spec.width = 20000;
+  spec.height = 20000;
+  spec.tileWidth = 20000;
+  spec.tileHeight = 20000;
+  spec.numComps = 7;  // More than the length of the marker holds.
+  BOOST_REQUIRE(!ImageSizeLimit::exceeds(QSize(20000, 20000)));
+  checkRefusedBeforeOpenJpeg(sizOnlyCodestream(spec),
+                             QStringLiteral("The image has too many components (7). At its size of 20000 × 20000 "
+                                            "pixels, at most 6 components are possible."));
+}
+
+BOOST_AUTO_TEST_CASE(test_jp2_too_many_tiles_are_refused_before_openjpeg) {
+  SizSpec spec;
+  spec.width = 300;
+  spec.height = 300;
+  spec.tileWidth = 1;  // 90000 tiles, more than OpenJPEG allows.
+  spec.tileHeight = 1;
+  checkRefusedBeforeOpenJpeg(sizOnlyCodestream(spec),
+                             QStringLiteral("The image is divided into too many tiles (90000). At its size of "
+                                            "300 × 300 pixels, at most 100 tiles are possible."));
+}
+
+// Tiles of 32 x 32 pixels, the smallest allowed on average, with partial tiles at the edges.
+BOOST_AUTO_TEST_CASE(test_jp2_small_tiles_are_accepted) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("small_tiles.j2k");
+  BOOST_REQUIRE(writeJp2(path, 70, 40, 3, true, 32));
+  QImage image;
+  const QStringList messages = loadMessages(path, image);
+  BOOST_CHECK_MESSAGE(!image.isNull(), messages.join('\n').toStdString());
+  BOOST_CHECK(image.size() == QSize(70, 40));
 }
 
 BOOST_AUTO_TEST_CASE(test_image_at_size_limit_is_accepted) {

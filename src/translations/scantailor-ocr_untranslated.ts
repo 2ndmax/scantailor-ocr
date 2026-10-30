@@ -1930,12 +1930,22 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>Jp2Reader</name>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="330"/>
+        <location filename="../core/Jp2Reader.cpp" line="295"/>
+        <source>The image has too many components (%1). At its size of %2 × %3 pixels, at most %4 components are possible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/Jp2Reader.cpp" line="309"/>
+        <source>The image is divided into too many tiles (%1). At its size of %2 × %3 pixels, at most %4 tiles are possible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/Jp2Reader.cpp" line="435"/>
         <source>The image contains a component that could not be decoded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="689"/>
+        <location filename="../core/Jp2Reader.cpp" line="795"/>
         <source>The JPEG 2000 file header is damaged or incomplete.</source>
         <translation type="unfinished"></translation>
     </message>

@@ -1943,12 +1943,22 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>Jp2Reader</name>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="330"/>
+        <location filename="../core/Jp2Reader.cpp" line="295"/>
+        <source>The image has too many components (%1). At its size of %2 × %3 pixels, at most %4 components are possible.</source>
+        <translation>Das Bild hat zu viele Komponenten (%1). Bei seiner Größe von %2 × %3 Pixeln sind höchstens %4 Komponenten möglich.</translation>
+    </message>
+    <message>
+        <location filename="../core/Jp2Reader.cpp" line="309"/>
+        <source>The image is divided into too many tiles (%1). At its size of %2 × %3 pixels, at most %4 tiles are possible.</source>
+        <translation>Das Bild ist in zu viele Kacheln aufgeteilt (%1). Bei seiner Größe von %2 × %3 Pixeln sind höchstens %4 Kacheln möglich.</translation>
+    </message>
+    <message>
+        <location filename="../core/Jp2Reader.cpp" line="435"/>
         <source>The image contains a component that could not be decoded.</source>
         <translation>Das Bild enthält eine Komponente, die nicht dekodiert werden konnte.</translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="689"/>
+        <location filename="../core/Jp2Reader.cpp" line="795"/>
         <source>The JPEG 2000 file header is damaged or incomplete.</source>
         <translation>Der Dateikopf der JPEG-2000-Datei ist beschädigt oder unvollständig.</translation>
     </message>
