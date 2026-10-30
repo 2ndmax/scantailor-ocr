@@ -24,12 +24,19 @@
      </property>
      <layout class="QHBoxLayout" name="outputLayout">
       <item>
-       <widget class="QLabel" name="outDirStatusLabel"/>
-      </item>
-      <item>
        <widget class="QLineEdit" name="outDirLine">
         <property name="toolTip">
          <string>Changes only where the project looks for the output folder. No files are moved.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="outDirStatusLabel">
+        <property name="minimumSize">
+         <size>
+          <width>12</width>
+          <height>12</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -101,12 +108,22 @@
       <item>
        <layout class="QHBoxLayout" name="nodePathLayout">
         <item>
-         <widget class="QLabel" name="nodeStatusLabel"/>
-        </item>
-        <item>
          <widget class="QLineEdit" name="nodePathLine">
           <property name="toolTip">
            <string>The path of the selected folder or file. Type a new one and press Enter.</string>
+          </property>
+          <property name="accessibleName">
+           <string>Path</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="nodeStatusLabel">
+          <property name="minimumSize">
+           <size>
+            <width>12</width>
+            <height>12</height>
+           </size>
           </property>
          </widget>
         </item>

@@ -3777,38 +3777,43 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <translation>Ausgabeordner</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.ui" line="32"/>
-        <location filename="../app/RelinkingDialog.ui" line="39"/>
+        <location filename="../app/RelinkingDialog.ui" line="29"/>
+        <location filename="../app/RelinkingDialog.ui" line="46"/>
         <source>Changes only where the project looks for the output folder. No files are moved.</source>
         <translation>Ändert nur, wo das Projekt den Ausgabeordner sucht. Es werden keine Dateien verschoben.</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.ui" line="42"/>
+        <location filename="../app/RelinkingDialog.ui" line="49"/>
         <source>Browse ...</source>
         <translation>Durchsuchen ...</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.ui" line="55"/>
+        <location filename="../app/RelinkingDialog.ui" line="62"/>
         <source>Images</source>
         <translation>Bilder</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.ui" line="79"/>
+        <location filename="../app/RelinkingDialog.ui" line="86"/>
         <source>Show missing only</source>
         <translation>Nur fehlende anzeigen</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.ui" line="109"/>
+        <location filename="../app/RelinkingDialog.ui" line="113"/>
         <source>The path of the selected folder or file. Type a new one and press Enter.</source>
         <translation>Der Pfad des ausgewählten Ordners oder der ausgewählten Datei. Geben Sie einen neuen ein und drücken Sie die Eingabetaste.</translation>
     </message>
     <message>
         <location filename="../app/RelinkingDialog.ui" line="116"/>
+        <source>Path</source>
+        <translation>Pfad</translation>
+    </message>
+    <message>
+        <location filename="../app/RelinkingDialog.ui" line="133"/>
         <source>Choose where the selected folder or file is now.</source>
         <translation>Auswählen, wo sich der ausgewählte Ordner oder die ausgewählte Datei jetzt befindet.</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.ui" line="119"/>
+        <location filename="../app/RelinkingDialog.ui" line="136"/>
         <source>Locate ...</source>
         <translation>Auswählen ...</translation>
     </message>
@@ -4041,22 +4046,22 @@ würden beide zu
         <translation>System</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="86"/>
+        <location filename="../app/SettingsDialog.cpp" line="87"/>
         <source>of %1</source>
         <translation>von %1</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="136"/>
+        <location filename="../app/SettingsDialog.cpp" line="137"/>
         <source>Accent Color</source>
         <translation>Akzentfarbe</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="172"/>
+        <location filename="../app/SettingsDialog.cpp" line="173"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="173"/>
+        <location filename="../app/SettingsDialog.cpp" line="174"/>
         <source>ScanTailor OCR needs to be restarted to apply the color scheme changes.</source>
         <translation>ScanTailor OCR muss neu gestartet werden, um die Änderungen am Farbschema zu übernehmen.</translation>
     </message>
