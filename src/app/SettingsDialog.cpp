@@ -51,7 +51,8 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   {
     auto* app = static_cast<Application*>(qApp);
     for (const QString& locale : app->getLanguagesList()) {
-      QString languageName = QLocale::languageToString(QLocale(locale).language());
+      // Each language in its own name, so it is findable even if the interface is in a language one cannot read.
+      QString languageName = QLocale(locale).nativeLanguageName();
       ui.languageBox->addItem(languageName, locale);
     }
     ui.languageBox->setCurrentIndex(ui.languageBox->findData(app->getCurrentLocale()));
