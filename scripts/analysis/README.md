@@ -210,6 +210,7 @@ program and keeps the inputs that reach new code:
 | `fuzz_filter_params` | the per-page settings of the filters | `filter_params`, `filter_params.dict` |
 | `fuzz_image_processing` | small pages built from the input, processed by binarization, despeckling, Deskew, Split Pages, Select Content, automatic dewarping and the color processing of the Output step | `processing` (generated: 96 x 72 pixel pages with lines of text, also curved) |
 | `fuzz_profile_reader` | profile files with the default parameters of new pages | `profile`, `profile.dict` |
+| `fuzz_page_output` | a whole page through the Output step (`OutputGenerator`), with the settings and zones of a project file; also checks that the output has the announced size, black and white output only black and white, and the layers of split output the size of the page | `page_output`, `page_output.dict` |
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1
 

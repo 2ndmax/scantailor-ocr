@@ -5,8 +5,9 @@
 .DESCRIPTION
   Builds the fuzz targets (-DBUILD_FUZZERS=ON, MSVC, RelWithDebInfo) and runs each of them for
   -Minutes. A fuzz target feeds generated input to one part of the program (image headers,
-  image decoding, project files, filter settings, the processing of a page, profile files) and
-  reports crashes, memory errors, inputs that take too long and inputs that take too much memory.
+  image decoding, project files, filter settings, the processing of a page, profile files, the
+  Output step on a whole page) and reports crashes, memory errors, inputs that take too long and
+  inputs that take too much memory.
 
   Per target, in <OutDir>\09-fuzz\<target>:
     corpus\     the inputs found so far; the next run continues from them. The seed files in
@@ -82,7 +83,12 @@ $fuzzDir = "$OutDir\09-fuzz"
 $log = "$OutDir\09-fuzz.log"
 $seeds = "$Root\src\fuzz\corpus"
 
-# The targets of src/fuzz/CMakeLists.txt with their seeds and dictionary.
+# Some inputs take seconds where the illumination normalization runs: it scales every page to about
+# 300 pixels, which the instrumentation slows down. With this, libFuzzer picks slow inputs less
+# often, which made fuzz_page_output test ten times as many inputs per minute.
+$slowInputs = '-entropic_scale_per_exec_time=1'
+
+# The targets of src/fuzz/CMakeLists.txt with their seeds, dictionary and further options.
 $targets = @(
     @{ Name = 'fuzz_image_metadata'; Title = 'image headers (metadata of TIFF, PNG, JPEG, JPEG 2000 ...)'
        Seeds = 'images'; Dict = '' }
@@ -91,9 +97,11 @@ $targets = @(
     @{ Name = 'fuzz_filter_params'; Title = 'filter settings in project files'; Seeds = 'filter_params'
        Dict = 'filter_params.dict' }
     @{ Name = 'fuzz_image_processing'; Title = 'processing a page (binarization, despeckling, deskew, split, content, dewarping, color)'
-       Seeds = 'processing'; Dict = '' }
+       Seeds = 'processing'; Dict = ''; Args = $slowInputs }
     @{ Name = 'fuzz_profile_reader'; Title = 'reading profile files (default parameters)'; Seeds = 'profile'
        Dict = 'profile.dict' }
+    @{ Name = 'fuzz_page_output'; Title = 'the Output step on a whole page, with plausibility checks'
+       Seeds = 'page_output'; Dict = 'page_output.dict'; Args = $slowInputs }
 )
 # The choices offered for the time per target, and the one taken with Enter.
 $minuteChoices = @(5, 10, 30, 60)
@@ -167,8 +175,9 @@ $fuzzArgs = "-rss_limit_mb=$RssLimitMb -timeout=$timeoutSec"
 
 $intro = @(
     'Builds the fuzz targets with MSVC and AddressSanitizer and runs each of them; they feed generated'
-    'input to the image readers, the project and profile file readers, the filter settings and the'
-    'processing of a page and report crashes, memory errors and inputs that need too much time or memory.'
+    'input to the image readers, the project and profile file readers, the filter settings, the'
+    'processing of a page and the Output step and report crashes, memory errors and inputs that need'
+    'too much time or memory.'
     "Targets: $($targets.Name -join ', ')"
     "Time: $Minutes minutes per target, about $($Minutes * $targets.Count) minutes in all."
 )
@@ -244,6 +253,7 @@ foreach ($t in $targets) {
     # The prefix ends in a backslash; doubled before the closing quote, so it doesn't escape it.
     $argLine = "$fuzzArgs -max_total_time=$($Minutes * 60) -print_final_stats=1 -artifact_prefix=`"$dir\findings\\`""
     if ($t.Dict) { $argLine += " -dict=`"$Root\src\fuzz\$($t.Dict)`"" }
+    if ($t.Args) { $argLine += " $($t.Args)" }
     # New inputs go into the first folder; the seeds are only read.
     $argLine += " `"$dir\corpus`" `"$seeds\$($t.Seeds)`""
 
