@@ -227,6 +227,35 @@ bool parseHeader(QIODevice& device, const Jp2Format format, HeaderInfo& info) {
   return ok;
 }
 
+/**
+ * Whether the codestream is known to exceed the size limit, which then is reported.
+ * OpenJPEG allocates its parameters for every tile while reading the header, hundreds of
+ * megabytes for a forged one, so this has to be checked before. A size that can't be read
+ * here is left to OpenJPEG.
+ */
+bool codestreamExceedsSizeLimit(QIODevice& device, const Jp2Format format) {
+  qint64 codestreamPos = 0;
+  if (format == Jp2Format::JP2) {
+    // The size of the codestream, not that of the JP2 header, as OpenJPEG allocates by this one.
+    codestreamPos = -1;
+    Box box;
+    for (qint64 pos = 0; readBox(device, pos, device.size(), box); pos = box.dataEnd) {
+      if (box.type == boxType("jp2c")) {
+        codestreamPos = box.dataPos;
+        break;
+      }
+    }
+  }
+  int64_t width = 0;
+  int64_t height = 0;
+  if ((codestreamPos < 0) || !readCodestreamSize(device, codestreamPos, width, height)
+      || !ImageSizeLimit::exceeds(width, height)) {
+    return false;
+  }
+  ImageLoadErrorCapture::addError(ImageSizeLimit::errorMessage(width, height));
+  return true;
+}
+
 /*================================ OpenJPEG ==================================*/
 
 // REVIEW-NOTE (2026-10): with opj_codec_set_threads() OpenJPEG calls these callbacks from worker threads where no
@@ -629,7 +658,8 @@ QImage decode(QIODevice& device,
   ImagePtr image(rawImage);
 
   // The size of the codestream, not that of the JP2 header, as OpenJPEG allocates by this one.
-  // Components with subsampling are scaled up to it by toQImage().
+  // Components with subsampling are scaled up to it by toQImage(). Checked again here for the
+  // codestreams codestreamExceedsSizeLimit() couldn't read.
   const int64_t fullWidth = static_cast<int64_t>(image->x1) - image->x0;
   const int64_t fullHeight = static_cast<int64_t>(image->y1) - image->y0;
   if (ImageSizeLimit::exceeds(fullWidth, fullHeight)) {
@@ -719,6 +749,9 @@ QImage Jp2Reader::readImage(QIODevice& device, const QSize& minSize) {
     return QImage();
   }
 
+  if (codestreamExceedsSizeLimit(device, format)) {
+    return QImage();
+  }
   HeaderInfo info;
   parseHeader(device, format, info);
 

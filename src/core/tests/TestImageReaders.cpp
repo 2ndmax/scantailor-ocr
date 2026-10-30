@@ -1347,6 +1347,55 @@ BOOST_AUTO_TEST_CASE(test_jp2_over_size_limit_is_refused) {
   }
 }
 
+// OpenJPEG allocates its parameters for every tile while reading the header, before Jp2Reader
+// knows the size: a 262-byte codestream from fuzzing claiming 16 x 393252 pixels in 32771 tiles
+// cost 186 MB. So the size has to be checked before OpenJPEG sees the header. These headers have
+// tiles of one pixel, more than OpenJPEG allows; its error shows that it was asked.
+BOOST_AUTO_TEST_CASE(test_jp2_over_size_limit_is_refused_before_openjpeg) {
+  const QSize size(16, 40000);
+  BOOST_REQUIRE(ImageSizeLimit::exceeds(size));
+  const unsigned char codestream[] = {
+      0xFF, 0x4F,              // SOC
+      0xFF, 0x51, 0x00, 0x29,  // SIZ, length 41
+      0x00, 0x00,              // Rsiz
+      0x00, 0x00, 0x00, 0x10,  // Xsiz: 16
+      0x00, 0x00, 0x9C, 0x40,  // Ysiz: 40000
+      0x00, 0x00, 0x00, 0x00,  // XOsiz
+      0x00, 0x00, 0x00, 0x00,  // YOsiz
+      0x00, 0x00, 0x00, 0x01,  // XTsiz: 1
+      0x00, 0x00, 0x00, 0x01,  // YTsiz: 1
+      0x00, 0x00, 0x00, 0x00,  // XTOsiz
+      0x00, 0x00, 0x00, 0x00,  // YTOsiz
+      0x00, 0x01,              // Csiz: 1 component
+      0x07, 0x01, 0x01,        // Ssiz: 8 bits, XRsiz, YRsiz
+  };
+
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString j2kPath = dir.filePath("forged.j2k");
+  BOOST_REQUIRE(Tests::writeFile(
+      j2kPath, QByteArray(reinterpret_cast<const char*>(codestream), static_cast<int>(sizeof(codestream)))));
+
+  // In a JP2 file, the codestream's size counts, not the one of the header box (16 x 16 here).
+  const QString jp2Path = dir.filePath("forged.jp2");
+  BOOST_REQUIRE(writeJp2(jp2Path, 16, 16, 1, false));
+  QByteArray jp2 = Tests::readFile(jp2Path);
+  const auto sizPos = jp2.indexOf(QByteArray(reinterpret_cast<const char*>(codestream), 4));
+  BOOST_REQUIRE(sizPos > 0);
+  jp2.replace(sizPos, 36, reinterpret_cast<const char*>(codestream), 36);  // Up to YTOsiz.
+  BOOST_REQUIRE(Tests::writeFile(jp2Path, jp2));
+
+  for (const QString& path : {j2kPath, jp2Path}) {
+    BOOST_TEST_CONTEXT(path.toStdString()) {
+      QImage image;
+      const QStringList messages = loadMessages(path, image);
+      BOOST_CHECK(image.isNull());
+      BOOST_CHECK(messages.contains(ImageSizeLimit::errorMessage(size)));
+      BOOST_CHECK(messages.filter(QStringLiteral("OpenJPEG")).isEmpty());
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_image_at_size_limit_is_accepted) {
   // Only the metadata: decoding an image of this size would take too long and too much memory.
   QTemporaryDir dir;
