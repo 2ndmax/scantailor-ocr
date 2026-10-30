@@ -280,7 +280,8 @@ Reads the output of the runs (all that exist) and writes the distinct findings t
 `findings.csv` (all of them) and `findings.md` (a summary per tool and check, then the findings
 by file and line).  A finding is one combination of tool, check, file and line; repeats are
 merged and the runs that reported them are listed.  Frequent, mostly harmless checks
-(unreferenced parameters, `size_t` conversions, hidden names; see `-BulkChecks`) are
+(unreferenced parameters, `size_t` conversions, GCC's `-Wconversion` and `-Wfloat-conversion`,
+hidden names; see `-BulkChecks`) are
 only counted in `findings.md`.  Needs neither Visual Studio nor any of the tools.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\11-merge-findings.ps1
