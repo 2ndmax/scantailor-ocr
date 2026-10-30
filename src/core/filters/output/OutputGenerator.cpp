@@ -85,10 +85,21 @@ using namespace imageproc;
 using namespace dewarping;
 
 namespace output {
+namespace {
+// Coordinates for which QRectF::toRect() can't overflow int. A huge output resolution in a
+// project file gives larger ones; cut to this range, the output still exceeds ImageSizeLimit by
+// far, so calcAreas() refuses it as before.
+const QRectF INT_SAFE_RANGE(-(1 << 29), -(1 << 29), 1 << 30, 1 << 30);
+
+QRect toRectInIntRange(const QRectF& rect) {
+  return rect.intersected(INT_SAFE_RANGE).toRect();
+}
+}  // namespace
+
 OutputGenerator::OutputGenerator(const ImageTransformation& xform, const QPolygonF& contentRectPhys)
     : m_xform(xform),
-      m_outRect(xform.resultingRect().toRect()),
-      m_contentRect(xform.transform().map(contentRectPhys).boundingRect().toRect()) {
+      m_outRect(toRectInIntRange(xform.resultingRect())),
+      m_contentRect(toRectInIntRange(xform.transform().map(contentRectPhys).boundingRect())) {
   assert(m_outRect.topLeft() == QPoint(0, 0));
 
   if (!m_contentRect.isEmpty()) {
