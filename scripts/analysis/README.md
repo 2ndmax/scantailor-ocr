@@ -216,8 +216,9 @@ program and keeps the inputs that reach new code:
 
 Without parameters, the script asks which targets to run (each with the size of its corpus and
 its open findings) and for how long each (5, 10, 30 or 60 minutes, or another time; Enter takes
-10), shows the total time and asks before it starts.  `-Only` and `-Minutes` skip the
-respective question, `-Yes` both (then all targets, 10 minutes each):
+10), shows the total time and asks before it starts; Q in either question ends the script.
+`-Only` and `-Minutes` skip the respective question, `-Yes` both (then all targets, 10 minutes
+each):
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Only fuzz_image_loader -Minutes 5 -SkipBuild
 

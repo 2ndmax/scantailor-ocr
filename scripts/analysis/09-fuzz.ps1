@@ -30,7 +30,7 @@
     report of a finding found with other limits may not come back with these.
 
   Without -Only and -Minutes, the script asks which targets to run and for how long; given on
-  the command line, the question is skipped:
+  the command line, the question is skipped (Q in either question ends the script):
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Only fuzz_image_loader -Minutes 5
@@ -107,6 +107,14 @@ $targets = @(
 $minuteChoices = @(5, 10, 30, 60)
 $defaultMinutes = 10
 
+# Q in either question: end the script before anything is built or run.
+function Test-Quit([string]$Typed) {
+    if ($Typed -match '^[qQ]$') {
+        Write-Host 'Not started.'
+        exit 1
+    }
+}
+
 # Asks which targets to run. Returns their numbers (1-based); Enter takes all.
 function Read-Targets {
     Write-Host ''
@@ -122,8 +130,10 @@ function Read-Targets {
         if ($findings) { $state += ", $findings findings" }
         Write-Host ("  {0}  {1}: {2}  [{3}]" -f ($i + 1), $t.Name, $t.Title, $state)
     }
+    Write-Host '  Q  Quit'
     while ($true) {
         $typed = (Read-Host 'Target(s), e.g. 0 or 2,4 [0]').Trim()
+        Test-Quit $typed
         if (-not $typed) { $typed = '0' }
         $numbers = @($typed -split '[,\s]+' | Where-Object { $_ -match '^\d+$' } | ForEach-Object { [int]$_ })
         if ($numbers -contains 0) { return @(1..$targets.Count) }
@@ -143,14 +153,17 @@ function Read-Minutes([int]$Count) {
         Write-Host ("  {0}  {1} minutes (about {2} minutes in all)" -f ($i + 1), $m, ($m * $Count))
     }
     Write-Host ("  {0}  Other" -f ($minuteChoices.Count + 1))
+    Write-Host '  Q  Quit'
     while ($true) {
         $typed = (Read-Host "Choice [$($minuteChoices.IndexOf($defaultMinutes) + 1)]").Trim()
+        Test-Quit $typed
         if (-not $typed) { return $defaultMinutes }
         $n = 0
         if ([int]::TryParse($typed, [ref]$n) -and $n -ge 1 -and $n -le $minuteChoices.Count) { return $minuteChoices[$n - 1] }
         if ($n -eq $minuteChoices.Count + 1) {
             while ($true) {
                 $typed = (Read-Host 'Minutes per target').Trim()
+                Test-Quit $typed
                 if ([int]::TryParse($typed, [ref]$n) -and $n -ge 1) { return $n }
             }
         }
