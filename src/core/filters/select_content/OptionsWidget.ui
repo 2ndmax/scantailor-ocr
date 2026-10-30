@@ -488,6 +488,12 @@
    <header location="global">SectionHeading.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>fineTuneBtn</tabstop>
+  <tabstop>widthSpinBox</tabstop>
+  <tabstop>heightSpinBox</tabstop>
+  <tabstop>contentDetectDisableBtn</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../resources/resources.qrc"/>
  </resources>

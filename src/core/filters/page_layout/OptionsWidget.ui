@@ -1266,6 +1266,16 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
    <header location="global">SectionHeading.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>autoMargins</tabstop>
+  <tabstop>topMarginSpinBox</tabstop>
+  <tabstop>bottomMarginSpinBox</tabstop>
+  <tabstop>topBottomLink</tabstop>
+  <tabstop>leftMarginSpinBox</tabstop>
+  <tabstop>rightMarginSpinBox</tabstop>
+  <tabstop>leftRightLink</tabstop>
+  <tabstop>applyMarginsBtn</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../resources/resources.qrc"/>
  </resources>

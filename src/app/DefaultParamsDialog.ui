@@ -4874,6 +4874,16 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
    <header location="global">SectionHeading.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>autoMargins</tabstop>
+  <tabstop>topMarginSpinBox</tabstop>
+  <tabstop>bottomMarginSpinBox</tabstop>
+  <tabstop>topBottomLink</tabstop>
+  <tabstop>leftMarginSpinBox</tabstop>
+  <tabstop>rightMarginSpinBox</tabstop>
+  <tabstop>leftRightLink</tabstop>
+  <tabstop>matchSizeModeCB</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>

@@ -574,6 +574,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>highlightDeviationCB</tabstop>
+  <tabstop>deskewDeviationCoefSB</tabstop>
+  <tabstop>deskewDeviationThresholdSB</tabstop>
+  <tabstop>selectContentDeviationCoefSB</tabstop>
+  <tabstop>selectContentDeviationThresholdSB</tabstop>
+  <tabstop>marginsDeviationCoefSB</tabstop>
+  <tabstop>marginsDeviationThresholdSB</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
