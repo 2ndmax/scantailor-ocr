@@ -20,8 +20,9 @@ QColor imageViewColor(const QPalette& palette) {
   return palette.window().color().darker(115);
 }
 
-/** The background of a tab that is not selected: a shade off the window, so it stands out from the panels beside it. */
-QColor tabColor(const QPalette& palette, const bool hovered) {
+/** A shade off the window color, to stand out from it: the tabs that are not selected and the grips between the panels.
+ */
+QColor offWindowColor(const QPalette& palette, const bool hovered) {
   const QColor window = palette.window().color();
   const bool darkWindow = window.lightnessF() < 0.5;
   if (darkWindow) {
@@ -148,7 +149,19 @@ void NativeColorScheme::loadStyleSheet() {
                               "  color: palette(highlighted-text);\n"
                               "  background-color: palette(highlight);\n"
                               "}")
-                          .arg(tabColor(palette, false).name(), tabColor(palette, true).name()));
+                          .arg(offWindowColor(palette, false).name(), offWindowColor(palette, true).name()));
+  // The grips between the panels, as in the Light and Dark schemes: a bar, in the accent color under the pointer.
+  m_styleSheet.append(QString("\n"
+                              "QMainWindow::separator {\n"
+                              "  background-color: %1;\n"
+                              "  width: 5px;\n"
+                              "  height: 5px;\n"
+                              "}\n"
+                              "\n"
+                              "QMainWindow::separator:hover {\n"
+                              "  background-color: palette(highlight);\n"
+                              "}")
+                          .arg(offWindowColor(palette, false).name()));
 }
 
 void NativeColorScheme::loadColorParams() {

@@ -337,6 +337,17 @@ QDockWidget > QWidget {
   border-bottom: none;
 }
 
+/* The grips between the panels: a bar that takes the accent color when the pointer is over it. */
+QMainWindow::separator {
+  background-color: {{bar}};
+  width: 5px;
+  height: 5px;
+}
+
+QMainWindow::separator:hover {
+  background-color: palette(highlight);
+}
+
 QDockWidget::close-button, QDockWidget::float-button {
   margin: 0px;
   padding: 0px;
