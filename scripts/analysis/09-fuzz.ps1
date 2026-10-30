@@ -5,8 +5,8 @@
 .DESCRIPTION
   Builds the fuzz targets (-DBUILD_FUZZERS=ON, MSVC, RelWithDebInfo) and runs each of them for
   -Minutes. A fuzz target feeds generated input to one part of the program (image headers,
-  image decoding, project files, filter settings) and reports crashes, memory errors, inputs
-  that take too long and inputs that take too much memory.
+  image decoding, project files, filter settings, the processing of a page) and reports crashes,
+  memory errors, inputs that take too long and inputs that take too much memory.
 
   Per target, in <OutDir>\09-fuzz\<target>:
     corpus\     the inputs found so far; the next run continues from them. The seed files in
@@ -90,6 +90,8 @@ $targets = @(
     @{ Name = 'fuzz_project_reader'; Title = 'reading project files'; Seeds = 'project'; Dict = 'project.dict' }
     @{ Name = 'fuzz_filter_params'; Title = 'filter settings in project files'; Seeds = 'filter_params'
        Dict = 'filter_params.dict' }
+    @{ Name = 'fuzz_image_processing'; Title = 'processing a page (binarization, despeckling, deskew, split, content)'
+       Seeds = 'processing'; Dict = '' }
 )
 # The choices offered for the time per target, and the one taken with Enter.
 $minuteChoices = @(5, 10, 30, 60)
@@ -163,8 +165,8 @@ $fuzzArgs = "-rss_limit_mb=$RssLimitMb -timeout=$timeoutSec"
 
 $intro = @(
     'Builds the fuzz targets with MSVC and AddressSanitizer and runs each of them; they feed generated'
-    'input to the image readers, the project file reader and the filter settings and report crashes,'
-    'memory errors and inputs that need too much time or memory.'
+    'input to the image readers, the project file reader, the filter settings and the processing of a'
+    'page and report crashes, memory errors and inputs that need too much time or memory.'
     "Targets: $($targets.Name -join ', ')"
     "Time: $Minutes minutes per target, about $($Minutes * $targets.Count) minutes in all."
 )
