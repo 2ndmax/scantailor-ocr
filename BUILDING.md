@@ -21,7 +21,7 @@ or by downloading the ZIP of this repository ("Code" → "Download ZIP") and unp
 PowerShell window and run:
 
 ```
-powershell -ExecutionPolicy Bypass -File D:\scantailor-ocr\scripts\setup\1-setup-windows.ps1
+powershell -ExecutionPolicy Bypass -File D:\scantailor-ocr\scripts\setup\01-setup-windows.ps1
 ```
 
 It offers five steps in a menu; each can be run on its own, 0 runs all of them in order:
@@ -39,8 +39,8 @@ It offers five steps in a menu; each can be run on its own, 0 runs all of them i
    and English and to run the tests.
 
 Each step skips what is already there, and asks before installing anything; it warns when the
-drive has too little free space. The output also goes to `scripts\setup\logs\1-setup-windows.log`,
-the one of the run before to `1-setup-windows.previous.log`. The steps below describe the same
+drive has too little free space. The output also goes to `scripts\setup\logs\01-setup-windows.log`,
+the one of the run before to `01-setup-windows.previous.log`. The steps below describe the same
 by hand.
 
 **2. Install Visual Studio Community** (the free edition):
@@ -175,7 +175,7 @@ MSVC switches, a clang-cl build, a build with sanitizers and fuzzing (a build wi
 `scripts\analysis\results`. What each run does, how to set it up and how to merge the results
 is described in [scripts/analysis/README.md](scripts/analysis/README.md).
 
-`scripts\setup\2-setup-analysis.ps1` shows for every run whether its tools are there and
+`scripts\setup\02-setup-analysis.ps1` shows for every run whether its tools are there and
 installs the missing ones. By hand, they need, in addition to the steps above:
 
 * For the clang-cl build and the sanitizers: the Visual Studio component
@@ -186,7 +186,7 @@ installs the missing ones. By hand, they need, in addition to the steps above:
 * For the cppcheck run: [cppcheck](https://cppcheck.sourceforge.io/), installed to
   `C:\Program Files\Cppcheck` or on the `PATH`.
 * For the EDG run: the Visual Studio component **".NET Framework 4.8.1 SDK"**, and EDG set up
-  once with `scripts\setup\3-setup-edg.ps1` (e.g. in `D:\edgcpp`, with `EDG_ROOT` pointing
+  once with `scripts\setup\03-setup-edg.ps1` (e.g. in `D:\edgcpp`, with `EDG_ROOT` pointing
   there), as described in the README of the scripts.
 * `VCPKG_ROOT` set as in step 5 (or `-VcpkgRoot <folder>` passed to the script).
 

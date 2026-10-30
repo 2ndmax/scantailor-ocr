@@ -15,9 +15,9 @@
     4. VCPKG_ROOT: sets the variable for your user account.
     5. Build: configures and builds ScanTailor OCR in the build folder of the repository; then
        offers to download the OCR languages German and English and to run the tests.
-  Each step skips what is already there. The output also goes to logs\1-setup-windows.log.
+  Each step skips what is already there. The output also goes to logs\01-setup-windows.log.
 
-    powershell -ExecutionPolicy Bypass -File scripts\setup\1-setup-windows.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\setup\01-setup-windows.ps1
 
 .PARAMETER Steps
   Run these steps without the menu (0 = all), taking the default answer of every question.
@@ -37,7 +37,7 @@ param(
 . "$PSScriptRoot\setup-common.ps1"
 $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
-$log = "$LogDir\1-setup-windows.log"
+$log = "$LogDir\01-setup-windows.log"
 $BuildDir = "$Root\build"
 
 # The components BUILDING.md asks for; the workload is added for the installer's dependencies.
@@ -190,7 +190,7 @@ $stepGit = {
     if ($missing.Count) {
         Write-Host "Missing: $(($missing | ForEach-Object { $_.Name }) -join ', ')"
         Write-Host 'Git is not needed for the build, but with it step 3 gets vcpkg with its history, so it'
-        Write-Host 'can be updated (without Git it comes as a ZIP); EDG (3-setup-edg.ps1) needs Git as well.'
+        Write-Host 'can be updated (without Git it comes as a ZIP); EDG (03-setup-edg.ps1) needs Git as well.'
         Write-Host 'gh is the command line for GitHub (pull requests, releases).'
         if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
             Write-Host 'winget (App Installer) is not available. Install them from https://git-scm.com/download/win' -ForegroundColor Yellow

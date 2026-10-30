@@ -67,7 +67,7 @@ $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $clang = Get-ClangCl
 # Linked by the MSVC standard library under ASan; without it the build fails only when linking.
 if (-not (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\stl_asan.lib")) {
-    throw "stl_asan.lib not found: scripts\setup\2-setup-analysis.ps1 (step 1) adds the Visual Studio " +
+    throw "stl_asan.lib not found: scripts\setup\02-setup-analysis.ps1 (step 1) adds the Visual Studio " +
           "component 'C++ AddressSanitizer'."
 }
 

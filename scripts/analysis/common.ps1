@@ -9,7 +9,7 @@
 
 . "$PSScriptRoot\..\common.ps1"
 if (-not $Vs) {
-    throw 'No Visual Studio installation with the C++ tools found: scripts\setup\1-setup-windows.ps1 installs it.'
+    throw 'No Visual Studio installation with the C++ tools found: scripts\setup\01-setup-windows.ps1 installs it.'
 }
 # All logs and results go here unless a script is given -OutDir (ignored by git).
 $ResultsDir = "$PSScriptRoot\results"
@@ -61,7 +61,7 @@ function Write-RunEnd([int]$Rc, [string[]]$Results) {
 function Get-ClangCl {
     $clang = "$LlvmBin\clang-cl.exe"
     if (-not (Test-Path $clang)) {
-        throw "clang-cl not found in $LlvmBin; scripts\setup\2-setup-analysis.ps1 adds the Visual Studio " +
+        throw "clang-cl not found in $LlvmBin; scripts\setup\02-setup-analysis.ps1 adds the Visual Studio " +
               "component 'C++ Clang Compiler for Windows'."
     }
     return $clang

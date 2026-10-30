@@ -15,9 +15,9 @@
        (the same as the Ubuntu job of the CI). apt-get runs as root, so no password is asked.
     4. Check: builds a small file with GCC, UBSan and ASan and runs it; UBSan must report the
        signed overflow in it.
-  The output also goes to logs\4-setup-wsl-gcc.log.
+  The output also goes to logs\04-setup-wsl-gcc.log.
 
-    powershell -ExecutionPolicy Bypass -File scripts\setup\4-setup-wsl-gcc.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\setup\04-setup-wsl-gcc.ps1
 
 .PARAMETER Steps
   Run these steps without the menu (0 = all), taking the default answer of every question.
@@ -39,8 +39,8 @@ param(
 . "$PSScriptRoot\setup-common.ps1"
 $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
-$log = "$LogDir\4-setup-wsl-gcc.log"
-$checkDir = "$LogDir\4-setup-wsl-gcc-check"
+$log = "$LogDir\04-setup-wsl-gcc.log"
+$checkDir = "$LogDir\04-setup-wsl-gcc-check"
 
 Write-Intro "ScanTailor OCR - set up WSL with $WslDistro and GCC" @(
     'This script installs the Windows Subsystem for Linux (WSL), Ubuntu in it, and GCC with the'

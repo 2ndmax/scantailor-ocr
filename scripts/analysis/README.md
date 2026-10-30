@@ -22,7 +22,7 @@ The examples below assume the folders of [BUILDING.md](../../BUILDING.md): the r
 | 01 | `01-msvc-analyze.ps1` | MSVC, C++17, `/W4 /analyze`, full build incl. tests and tools | `build-analysis` | `01-msvc-analyze.log`, `01-msvc-analyze-sarif\` |
 | 02 | `02-clang-tidy.ps1` | clang-tidy with `.clang-tidy` | uses `build-analysis` | `02-clang-tidy.log`, `02-clang-tidy-fixes\*.yaml` |
 | 03 | `03-cppcheck.ps1` | cppcheck: error, warning, performance, portability | uses `build-analysis` | `03-cppcheck.xml`, `03-cppcheck.log` |
-| 04 | `04-edg.ps1` | the EDG C++ front end (set up once with `setup\3-setup-edg.ps1`) | uses `build-analysis` | `04-edg.log` |
+| 04 | `04-edg.ps1` | the EDG C++ front end (set up once with `setup\03-setup-edg.ps1`) | uses `build-analysis` | `04-edg.log` |
 | 05 | `05-msvc-cxx20.ps1` | MSVC, `/W4`, **C++20** instead of C++17 | `build-cxx20` | `05-msvc-cxx20.log` |
 | 06 | `06-msvc-zc-preprocessor.ps1` | MSVC, `/W4`, **`/Zc:preprocessor`** | `build-zc-preprocessor` | `06-msvc-zc-preprocessor.log` |
 | 07 | `07-clang-cl.ps1` | **clang-cl** instead of cl.exe, `/W4` | `build-clang-cl` | `07-clang-cl.log` |
@@ -53,14 +53,14 @@ full; the complete output goes to the log.
 
 Two setup scripts take care of all of this; each shows a menu of steps, 0 runs all of them:
 
-- `scripts\setup\1-setup-windows.ps1` sets up the build itself: Visual Studio, Git and the
+- `scripts\setup\01-setup-windows.ps1` sets up the build itself: Visual Studio, Git and the
   GitHub CLI, vcpkg and its packages, `VCPKG_ROOT` (see [BUILDING.md](../../BUILDING.md)).
-- `scripts\setup\2-setup-analysis.ps1` shows for every run whether its tools are there and
+- `scripts\setup\02-setup-analysis.ps1` shows for every run whether its tools are there and
   installs the missing ones: the Clang compiler and the .NET Framework 4.8.1 SDK with the Visual
   Studio Installer, cppcheck with winget (both into their standard folders), and EDG by starting
-  `3-setup-edg.ps1`.
+  `03-setup-edg.ps1`.
 
-      powershell -ExecutionPolicy Bypass -File scripts\setup\2-setup-analysis.ps1
+      powershell -ExecutionPolicy Bypass -File scripts\setup\02-setup-analysis.ps1
 
 The builds go into fresh directories next to `build`.  A script stops if its build directory
 already exists; delete it for a new run.  Keep build directories on a short path: with MSVC,
@@ -126,7 +126,7 @@ What to expect in the output:
 
 Needed once, and again for a newer EDG.  Run:
 
-    powershell -ExecutionPolicy Bypass -File scripts\setup\3-setup-edg.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\setup\03-setup-edg.ps1
 
 It asks for the folder that gets the checkouts `edgcpp` and `softfloat` (suggesting `D:\` when
 drive D: exists, so EDG goes to `D:\edgcpp`), then offers five steps in a menu; each can be run
@@ -146,7 +146,7 @@ on its own, 0 runs all of them in order:
 4. `EDG_ROOT`: sets the variable for your user account, so `04-edg.ps1` finds EDG.
 5. Check: runs `cpfe.exe` on a small C++17 file in strict mode.
 
-The output also goes to `scripts\setup\logs\3-setup-edg.log`.  The preset only chooses MSVC as
+The output also goes to `scripts\setup\logs\03-setup-edg.log`.  The preset only chooses MSVC as
 the compiler that builds EDG and Windows x64 as the target (sizes of `long`, `wchar_t` and so
 on); how EDG checks is chosen when it runs.  Without `EDG_ROOT`, `04-edg.ps1` takes
 `-EdgDir <folder>`.

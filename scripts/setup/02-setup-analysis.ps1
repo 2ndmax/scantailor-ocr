@@ -11,12 +11,12 @@
        ASan of MSVC, run 09) and the .NET
        Framework 4.8.1 SDK (run 04).
     2. cppcheck (run 03), installed with winget into its standard folder C:\Program Files\Cppcheck.
-    3. EDG (run 04): starts 3-setup-edg.ps1.
-    4. WSL with Ubuntu and GCC (run 11): starts 4-setup-wsl-gcc.ps1.
+    3. EDG (run 04): starts 03-setup-edg.ps1.
+    4. WSL with Ubuntu and GCC (run 11): starts 04-setup-wsl-gcc.ps1.
   clang-tidy (run 02) comes with Visual Studio itself; the build itself is set up by
-  1-setup-windows.ps1. The output also goes to logs\2-setup-analysis.log.
+  01-setup-windows.ps1. The output also goes to logs\02-setup-analysis.log.
 
-    powershell -ExecutionPolicy Bypass -File scripts\setup\2-setup-analysis.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\setup\02-setup-analysis.ps1
 
 .PARAMETER Steps
   Run these steps without the menu (0 = all), taking the default answer of every question.
@@ -32,7 +32,7 @@ param(
 . "$PSScriptRoot\setup-common.ps1"
 $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
-$log = "$LogDir\2-setup-analysis.log"
+$log = "$LogDir\02-setup-analysis.log"
 New-Log $log 'setup 2: analysis tools' -KeepPrevious
 
 $ClangComponent = 'Microsoft.VisualStudio.Component.VC.Llvm.Clang'
@@ -66,7 +66,7 @@ function Get-Cpfe {
 
 # One line per run: ready, or what is missing.
 $status = {
-    $vsNote = 'Visual Studio with the C++ tools (1-setup-windows.ps1)'
+    $vsNote = 'Visual Studio with the C++ tools (01-setup-windows.ps1)'
     $msvc = if ($Vs) { 'ready' } else { "missing: $vsNote" }
     $tidy = if (-not $Vs) { "missing: $vsNote" } elseif (Test-Path "$LlvmBin\clang-tidy.exe") { 'ready' } `
             else { 'missing: clang-tidy in Visual Studio (update Visual Studio)' }
@@ -84,7 +84,7 @@ $status = {
            elseif (Test-WslDistro) { "missing: the packages in $WslDistro (step 4)" } `
            elseif (Test-Wsl) { "missing: $WslDistro in WSL (step 4)" } else { 'missing: WSL (step 4)' }
     $vcpkg = if ($env:VCPKG_ROOT -and (Test-Path $env:VCPKG_ROOT)) { "ready ($env:VCPKG_ROOT)" } `
-             else { 'missing: VCPKG_ROOT (1-setup-windows.ps1, step 4)' }
+             else { 'missing: VCPKG_ROOT (01-setup-windows.ps1, step 4)' }
     @(
         'Analysis runs and what they need:'
         "  01, 05, 06  MSVC              $msvc"
@@ -101,7 +101,7 @@ $status = {
 
 $stepComponents = {
     $instance = Get-AnyVsInstance
-    if (-not $instance) { Write-Host 'Visual Studio is missing: run 1-setup-windows.ps1 first.' -ForegroundColor Red; return $false }
+    if (-not $instance) { Write-Host 'Visual Studio is missing: run 01-setup-windows.ps1 first.' -ForegroundColor Red; return $false }
     $missing = @()
     if (-not (Test-ClangRuntime)) { $missing += $ClangComponent }
     if (-not (Test-StlAsan)) { $missing += $AsanComponent }
@@ -138,7 +138,7 @@ $stepCppcheck = {
 }
 
 $stepEdg = {
-    $edgSetup = "$PSScriptRoot\3-setup-edg.ps1"
+    $edgSetup = "$PSScriptRoot\03-setup-edg.ps1"
     Add-LogLine $log "# $(Get-Stamp) $edgSetup"
     if ($Unattended) { & $edgSetup -Steps 0 -Yes:$AssumeYes } else { & $edgSetup }
     $rc = $LASTEXITCODE
@@ -147,7 +147,7 @@ $stepEdg = {
 }
 
 $stepWslGcc = {
-    $wslSetup = "$PSScriptRoot\4-setup-wsl-gcc.ps1"
+    $wslSetup = "$PSScriptRoot\04-setup-wsl-gcc.ps1"
     Add-LogLine $log "# $(Get-Stamp) $wslSetup"
     if ($Unattended) { & $wslSetup -Steps 0 -Yes:$AssumeYes } else { & $wslSetup }
     $rc = $LASTEXITCODE
@@ -160,9 +160,9 @@ $menu = @(
        Done = { (Test-Sanitizers) -and (Test-NetSdk) }; Run = $stepComponents }
     @{ Title = "cppcheck (run 03), into $CppcheckFolder"
        Done = { [bool](Find-Cppcheck) }; Run = $stepCppcheck }
-    @{ Title = 'EDG (run 04): start 3-setup-edg.ps1'
+    @{ Title = 'EDG (run 04): start 03-setup-edg.ps1'
        Done = { [bool](Get-Cpfe) }; Run = $stepEdg }
-    @{ Title = 'WSL with Ubuntu and GCC (run 11): start 4-setup-wsl-gcc.ps1'
+    @{ Title = 'WSL with Ubuntu and GCC (run 11): start 04-setup-wsl-gcc.ps1'
        Done = { Test-UbuntuPackages }; Run = $stepWslGcc }
 )
 $extra = @(

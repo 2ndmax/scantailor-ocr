@@ -6,7 +6,7 @@
   EDG (edgcpp.org) parses and checks every file like a compiler, without generating code; it
   is a third C++ front end besides MSVC and Clang. Needs the build directory of run 01
   (01-msvc-analyze.ps1) for its compile_commands.json and the generated headers, and EDG built
-  by scripts\setup\3-setup-edg.ps1.
+  by scripts\setup\03-setup-edg.ps1.
 
   Each MSVC command of the compile database is translated into EDG options:
     -D, -I              -> passed on
@@ -26,7 +26,7 @@
     powershell -ExecutionPolicy Bypass -File scripts\analysis\04-edg.ps1
 
 .PARAMETER EdgDir
-  The EDG checkout built by scripts\setup\3-setup-edg.ps1. Default: the EDG_ROOT environment variable.
+  The EDG checkout built by scripts\setup\03-setup-edg.ps1. Default: the EDG_ROOT environment variable.
 
 .PARAMETER Files
   Only files whose path (relative to the repository) matches this regular expression,
@@ -64,7 +64,7 @@ if (-not $BuildDir) { $BuildDir = "$Root\build-analysis" }
 if (-not $EdgDir) { $EdgDir = $env:EDG_ROOT }
 if (-not $EdgDir) { throw 'EDG not found: pass -EdgDir or set EDG_ROOT.' }
 $cpfe = "$EdgDir\build\msvc-release\bin\cpfe.exe"
-if (-not (Test-Path $cpfe)) { throw "$cpfe not found: run scripts\setup\3-setup-edg.ps1 first." }
+if (-not (Test-Path $cpfe)) { throw "$cpfe not found: run scripts\setup\03-setup-edg.ps1 first." }
 $run = "$BuildDir\edg-run"
 $log = "$OutDir\04-edg.log"
 Assert-Run01 $BuildDir

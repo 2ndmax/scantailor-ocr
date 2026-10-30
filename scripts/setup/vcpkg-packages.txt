@@ -1,5 +1,5 @@
 # The vcpkg packages ScanTailor OCR needs on Windows (triplet x64-windows), one per line.
-# Read by scripts\setup\1-setup-windows.ps1, the command in BUILDING.md and the Windows jobs of
+# Read by scripts\setup\01-setup-windows.ps1, the command in BUILDING.md and the Windows jobs of
 # the CI, CodeQL and release workflows, so all of them build the same packages and the
 # workflows share the package cache of the CI.
 qtbase

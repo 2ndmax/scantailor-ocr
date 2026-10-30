@@ -76,7 +76,7 @@ if (-not $BuildDir) { $BuildDir = "$Root\build-fuzz" }
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 # Without it the build fails only when linking the first fuzz target.
 if (-not (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\clang_rt.fuzzer_MD-x86_64.lib")) {
-    throw "clang_rt.fuzzer_MD-x86_64.lib not found: scripts\setup\2-setup-analysis.ps1 (step 1) adds the " +
+    throw "clang_rt.fuzzer_MD-x86_64.lib not found: scripts\setup\02-setup-analysis.ps1 (step 1) adds the " +
           "Visual Studio component 'C++ AddressSanitizer'."
 }
 $fuzzDir = "$OutDir\09-fuzz"

@@ -17,9 +17,9 @@
        EDG_SOFTFLOAT_LIB_PATH, which are set for the build only.
     4. EDG_ROOT: sets the variable for your user account; scripts\analysis\04-edg.ps1 reads it.
     5. Check: runs cpfe.exe on a small C++17 file in strict standard mode.
-  The output also goes to logs\3-setup-edg.log.
+  The output also goes to logs\03-setup-edg.log.
 
-    powershell -ExecutionPolicy Bypass -File scripts\setup\3-setup-edg.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\setup\03-setup-edg.ps1
 
 .PARAMETER Steps
   Run these steps without the menu (0 = all), taking the default answer of every question.
@@ -53,7 +53,7 @@ param(
 . "$PSScriptRoot\setup-common.ps1"
 $Unattended = $Steps.Count -gt 0
 $AssumeYes = [bool]$Yes
-$log = "$LogDir\3-setup-edg.log"
+$log = "$LogDir\03-setup-edg.log"
 
 # The versions this setup was made and tested with (2026-10-27).
 $EdgUrl = 'https://github.com/edgcpp/compiler.git'
@@ -163,24 +163,24 @@ function Get-GitState([string]$Dir) {
 $stepRequirements = {
     $ok = $true
     if ($Vs) { Write-Host "Visual Studio: $Vs" }
-    else { Write-Host 'Visual Studio with the C++ tools is missing: run 1-setup-windows.ps1.' -ForegroundColor Red; $ok = $false }
+    else { Write-Host 'Visual Studio with the C++ tools is missing: run 01-setup-windows.ps1.' -ForegroundColor Red; $ok = $false }
     $mscoree = Find-Mscoree
     if ($mscoree) { Write-Host ".NET Framework SDK: $($mscoree.FullName)" }
     else {
-        Write-Host 'The .NET Framework 4.8.1 SDK is missing: 2-setup-analysis.ps1 adds it, or the' -ForegroundColor Red
+        Write-Host 'The .NET Framework 4.8.1 SDK is missing: 02-setup-analysis.ps1 adds it, or the' -ForegroundColor Red
         Write-Host 'Visual Studio Installer ("Modify" -> "Individual components").' -ForegroundColor Red
         $ok = $false
     }
     $py = Find-Python
     if ($py) { Write-Host "Python: $py" }
     else {
-        Write-Host 'No Python 3 found. vcpkg brings one along (1-setup-windows.ps1, step 3); else install' -ForegroundColor Red
+        Write-Host 'No Python 3 found. vcpkg brings one along (01-setup-windows.ps1, step 3); else install' -ForegroundColor Red
         Write-Host 'Python 3 or pass -Python <python.exe>.' -ForegroundColor Red
         $ok = $false
     }
     if (Get-Command git -ErrorAction SilentlyContinue) { Write-Host "Git: $((Get-Command git).Source)" }
     else {
-        Write-Host 'Git is missing: 1-setup-windows.ps1 installs it (step 2), or' -ForegroundColor Red
+        Write-Host 'Git is missing: 01-setup-windows.ps1 installs it (step 2), or' -ForegroundColor Red
         Write-Host 'https://git-scm.com/download/win' -ForegroundColor Red
         $ok = $false
     }
@@ -270,7 +270,7 @@ $stepCheck = {
     Confirm-EdgDir -EdgOnly
     if (-not (Test-Path $Cpfe)) { Write-Host 'EDG is not built; run step 3 first.' -ForegroundColor Red; return $false }
     # C++17 code that must pass in strict standard mode.
-    $checkDir = "$LogDir\3-setup-edg-check"
+    $checkDir = "$LogDir\03-setup-edg-check"
     New-Item -ItemType Directory -Force $checkDir | Out-Null
     $check = "$checkDir\check.cpp"
     [IO.File]::WriteAllText($check, (@(

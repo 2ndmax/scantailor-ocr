@@ -40,7 +40,7 @@ if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-analysis" }
 if (-not $Cppcheck) { $Cppcheck = Find-Cppcheck }
 if (-not $Cppcheck) {
-    throw 'cppcheck not found: scripts\setup\2-setup-analysis.ps1 installs it, or pass -Cppcheck <exe>.'
+    throw 'cppcheck not found: scripts\setup\02-setup-analysis.ps1 installs it, or pass -Cppcheck <exe>.'
 }
 $dbDir = "$BuildDir\cppcheck-db"
 $cache = "$BuildDir\cppcheck-build"
