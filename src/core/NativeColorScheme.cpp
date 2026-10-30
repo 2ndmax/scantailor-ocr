@@ -20,6 +20,16 @@ QColor imageViewColor(const QPalette& palette) {
   return palette.window().color().darker(115);
 }
 
+/** The background of a tab that is not selected: a shade off the window, so it stands out from the panels beside it. */
+QColor tabColor(const QPalette& palette, const bool hovered) {
+  const QColor window = palette.window().color();
+  const bool darkWindow = window.lightnessF() < 0.5;
+  if (darkWindow) {
+    return window.lighter(hovered ? 190 : 160);
+  }
+  return window.darker(hovered ? 120 : 110);
+}
+
 /**
  * The Windows 11 style puts the two arrows of a spin box next to each other, which makes each
  * spin box about 40 pixels wider than in the other color schemes, so rows of spin boxes don't
@@ -116,6 +126,29 @@ void NativeColorScheme::loadStyleSheet() {
                               "  background-attachment: scroll;\n"
                               "}")
                           .arg(imageViewColor(QPalette()).name()));
+  // The tabs of the output views, in the same shape as in the Light and Dark schemes (stylesheet.qss): separate
+  // buttons, the selected one filled with the accent color. The native style shows the selected tab only by a
+  // slight shade.
+  const QPalette palette;
+  m_styleSheet.append(QString("\n"
+                              "output--TabbedImageView > QTabBar::tab {\n"
+                              "  padding: 9px 3px 9px 3px;\n"
+                              "  min-height: 17px;\n"
+                              "  min-width: 17px;\n"
+                              "  margin: 2px 0px 2px 0px;\n"
+                              "  border: none;\n"
+                              "  background-color: %1;\n"
+                              "}\n"
+                              "\n"
+                              "output--TabbedImageView > QTabBar::tab:hover {\n"
+                              "  background-color: %2;\n"
+                              "}\n"
+                              "\n"
+                              "output--TabbedImageView > QTabBar::tab:selected {\n"
+                              "  color: palette(highlighted-text);\n"
+                              "  background-color: palette(highlight);\n"
+                              "}")
+                          .arg(tabColor(palette, false).name(), tabColor(palette, true).name()));
 }
 
 void NativeColorScheme::loadColorParams() {
