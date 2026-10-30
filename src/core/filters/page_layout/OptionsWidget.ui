@@ -185,13 +185,13 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>20</width>
+              <width>24</width>
               <height>36</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>20</width>
+              <width>24</width>
               <height>36</height>
              </size>
             </property>
@@ -257,13 +257,13 @@ QToolButton:pressed {
             </property>
             <property name="minimumSize">
              <size>
-              <width>20</width>
+              <width>24</width>
               <height>36</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>20</width>
+              <width>24</width>
               <height>36</height>
              </size>
             </property>
