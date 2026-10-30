@@ -90,7 +90,7 @@ $targets = @(
     @{ Name = 'fuzz_project_reader'; Title = 'reading project files'; Seeds = 'project'; Dict = 'project.dict' }
     @{ Name = 'fuzz_filter_params'; Title = 'filter settings in project files'; Seeds = 'filter_params'
        Dict = 'filter_params.dict' }
-    @{ Name = 'fuzz_image_processing'; Title = 'processing a page (binarization, despeckling, deskew, split, content)'
+    @{ Name = 'fuzz_image_processing'; Title = 'processing a page (binarization, despeckling, deskew, split, content, dewarping, color)'
        Seeds = 'processing'; Dict = '' }
 )
 # The choices offered for the time per target, and the one taken with Enter.

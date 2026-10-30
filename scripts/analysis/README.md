@@ -208,7 +208,7 @@ program and keeps the inputs that reach new code:
 | `fuzz_image_loader` | the pixels of those images, also as thumbnails | `images` |
 | `fuzz_project_reader` | project files, without the filter settings | `project`, `project.dict` |
 | `fuzz_filter_params` | the per-page settings of the filters | `filter_params`, `filter_params.dict` |
-| `fuzz_image_processing` | small pages built from the input, processed by binarization, despeckling, Deskew, Split Pages and Select Content | `processing` (generated: 96 x 72 pixel pages with lines of text) |
+| `fuzz_image_processing` | small pages built from the input, processed by binarization, despeckling, Deskew, Split Pages, Select Content, automatic dewarping and the color processing of the Output step | `processing` (generated: 96 x 72 pixel pages with lines of text, also curved) |
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1
 

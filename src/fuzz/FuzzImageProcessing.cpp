@@ -19,16 +19,34 @@
 // is left to the out-of-memory handler in the program; every other exception reaching the end is
 // a finding: the program survives it, but shows the page as failed with a technical message.
 
+#include <BackgroundColorCalculator.h>
 #include <BinaryImage.h>
+#include <ChromaDenoiser.h>
+#include <ColorKMeans.h>
+#include <ColorSegmenter.h>
+#include <ConnectivityMap.h>
+#include <CylindricalSurfaceDewarper.h>
 #include <Despeckle.h>
+#include <DistortionModel.h>
+#include <DistortionModelBuilder.h>
 #include <Dpi.h>
 #include <Dpm.h>
+#include <EstimateBackground.h>
 #include <FilterData.h>
 #include <Grayscale.h>
 #include <ImageTransformation.h>
+#include <KnnDenoiser.h>
 #include <NullTaskStatus.h>
 #include <OrthogonalRotation.h>
+#include <PolynomialSurface.h>
+#include <Posterizer.h>
+#include <RasterDewarper.h>
+#include <Sharpen.h>
 #include <SkewFinder.h>
+#include <SubtractBackground.h>
+#include <TextLineTracer.h>
+#include <TopBottomEdgeTracer.h>
+#include <WienerFilter.h>
 #include <imageproc/OrthogonalRotation.h>
 
 #include <QDomDocument>
@@ -42,6 +60,8 @@
 #include "filters/deskew/Task.h"
 #include "filters/output/BlackWhiteBinarization.h"
 #include "filters/output/BlackWhiteOptions.h"
+#include "filters/output/ColorCommonOptions.h"
+#include "filters/output/DepthPerception.h"
 #include "filters/page_split/PageLayout.h"
 #include "filters/page_split/PageLayoutEstimator.h"
 #include "filters/select_content/ContentBoxFinder.h"
@@ -199,6 +219,133 @@ void contentSelection(const Input& in) {
   (void) select_content::ContentBoxFinder::findContentBox(status, data, pageRect, select_content::DetectionOptions(el));
 }
 
+// 5: automatic dewarping, as OutputGenerator builds and applies the distortion model: the text
+// lines and the top and bottom edges of the content, the model, the dewarped page.
+void autoDewarping(const Input& in) {
+  const uint8_t* s = in.settings;
+  const NullTaskStatus status;
+  const GrayImage gray(in.image);
+  QRect contentRect = gray.rect();
+  if (s[0] & 1) {
+    // A content box anywhere in the page, also an empty one.
+    contentRect = QRect(s[1] * gray.width() / 256, s[2] * gray.height() / 256, s[3] * gray.width() / 256,
+                        s[4] * gray.height() / 256);
+  }
+  dewarping::DistortionModelBuilder modelBuilder(Vec2d(0, 1));
+  dewarping::TextLineTracer::trace(gray, in.dpi, contentRect, modelBuilder, status);
+  dewarping::TopBottomEdgeTracer::trace(gray, modelBuilder.verticalBounds(), modelBuilder, status);
+  const dewarping::DistortionModel model = modelBuilder.tryBuildModel();
+  if (!model.isValid()) {
+    return;
+  }
+  const output::DepthPerception depth(QString::number(s8(s[5]) / 8.0));
+  const dewarping::CylindricalSurfaceDewarper dewarper(model.topCurve().polyline(), model.bottomCurve().polyline(),
+                                                       depth.value(), model.widthCorrection());
+  const QRect modelDomain(model.modelDomain(dewarper, QTransform(), gray.rect()).toRect());
+  if (!modelDomain.isEmpty()) {
+    (void) dewarping::RasterDewarper::dewarp(in.image, in.image.size(), dewarper, modelDomain, Qt::white);
+  }
+}
+
+// 6: the color processing of the Output step, with its settings read as a project file stores them.
+void colorProcessing(const Input& in) {
+  const uint8_t* s = in.settings;
+  const NullTaskStatus status;
+  QDomDocument doc;
+  // The settings of the Color / Grayscale panel, shared by subgroups 0 and 1.
+  output::ColorCommonOptions commonDefaults;
+  QDomElement commonEl = commonDefaults.toXml(doc, QStringLiteral("color-common-options"));
+  // The settings of color segmentation, shared by subgroups 1 and 2.
+  output::BlackWhiteOptions bwDefaults;
+  QDomElement bwEl = bwDefaults.toXml(doc, QStringLiteral("black-white-options"));
+  QDomElement segmenterEl = bwEl.namedItem(QStringLiteral("color-segmenter-options")).toElement();
+  const QImage& image = in.image;
+  // As OutputGenerator decides whether the original has colors.
+  const bool colorOriginal = !image.allGray();
+  const BinaryImage text = output::binarizeBlackWhite(image, bwDefaults);
+
+  switch (s[0] % 4) {
+    case 0: {
+      // The enhancement filters, in the order of OutputGenerator::Processor::applyEnhancementFilters().
+      commonEl.setAttribute(QStringLiteral("chromaDenoise"), 1);
+      commonEl.setAttribute(QStringLiteral("chromaRadius"), s8(s[1]));
+      commonEl.setAttribute(QStringLiteral("chromaGrayLimit"), s8(s[2]));
+      commonEl.setAttribute(QStringLiteral("subtractBgRadius"), s8(s[1]));
+      commonEl.setAttribute(QStringLiteral("subtractBgCoef"), s[3] / 200.0);
+      commonEl.setAttribute(QStringLiteral("subtractBgWhite"), (s[0] & 4) ? 1 : 0);
+      commonEl.setAttribute(QStringLiteral("knnRadius"), s8(s[4]));
+      commonEl.setAttribute(QStringLiteral("knnCoef"), s[5] / 200.0);
+      commonEl.setAttribute(QStringLiteral("wienerWinSize"), s8(s[6]));
+      commonEl.setAttribute(QStringLiteral("wienerCoef"), s[5] / 200.0);
+      commonEl.setAttribute(QStringLiteral("sharpenRadius"), s8(s[4]));
+      commonEl.setAttribute(QStringLiteral("sharpenCoef"), s[7] / 80.0);
+      const output::ColorCommonOptions options(commonEl);
+      QImage enhanced(image);
+      if (options.chromaDenoise()) {
+        chromaDenoiseInPlace(enhanced, options.chromaRadius(), options.chromaGrayLimit());
+      }
+      subtractBackgroundColorInPlace(enhanced, options.subtractBackgroundRadius(), options.subtractBackgroundCoef(),
+                                     options.subtractBackgroundWhite());
+      knnDenoiseColorInPlace(enhanced, options.knnRadius(), options.knnCoef());
+      wienerColorFilterInPlace(enhanced, QSize(options.wienerWindowSize(), options.wienerWindowSize()),
+                               options.wienerCoef());
+      sharpenColorInPlace(enhanced, options.sharpenRadius(), options.sharpenCoef());
+      break;
+    }
+    case 1: {
+      // Color segmentation of the text, then posterizing, as OutputGenerator::Processor::colorText()
+      // does without K-means.
+      segmenterEl.setAttribute(QStringLiteral("noiseReduction"), s8(s[1]));
+      segmenterEl.setAttribute(QStringLiteral("redThresholdAdjustment"), s8(s[2]));
+      segmenterEl.setAttribute(QStringLiteral("greenThresholdAdjustment"), s8(s[3]));
+      segmenterEl.setAttribute(QStringLiteral("blueThresholdAdjustment"), s8(s[4]));
+      QDomElement posterizationEl = commonEl.namedItem(QStringLiteral("posterization-options")).toElement();
+      posterizationEl.setAttribute(QStringLiteral("level"), s8(s[5]));
+      posterizationEl.setAttribute(QStringLiteral("normalizationEnabled"), (s[6] & 1) ? 1 : 0);
+      posterizationEl.setAttribute(QStringLiteral("forceBlackAndWhite"), (s[6] & 2) ? 1 : 0);
+      const output::BlackWhiteOptions::ColorSegmenterOptions segmenterOptions(segmenterEl);
+      const ColorSegmenter segmenter(
+          in.dpi, segmenterOptions.getNoiseReduction(), segmenterOptions.getRedThresholdAdjustment(),
+          segmenterOptions.getGreenThresholdAdjustment(), segmenterOptions.getBlueThresholdAdjustment());
+      const QImage segmented
+          = colorOriginal ? segmenter.segment(text, image) : segmenter.segment(text, GrayImage(image)).toQImage();
+      const output::ColorCommonOptions::PosterizationOptions posterization(posterizationEl);
+      const QColor background = BackgroundColorCalculator::calcDominantBackgroundColor(image);
+      const Posterizer posterizer(posterization.getLevel(), posterization.isNormalizationEnabled(),
+                                  posterization.isForceBlackAndWhite(), 0, qRound(background.lightnessF() * 255));
+      (void) posterizer.posterize(segmented);
+      break;
+    }
+    case 2: {
+      // K-means colors for the text, as OutputGenerator::Processor::colorText() does with K-means.
+      segmenterEl.setAttribute(QStringLiteral("noiseReduction"), s8(s[1]));
+      segmenterEl.setAttribute(QStringLiteral("kmeans"), 1);
+      segmenterEl.setAttribute(QStringLiteral("kmeansColors"), s8(s[5]));
+      segmenterEl.setAttribute(QStringLiteral("kmeansBlackFixed"), (s[6] & 1) ? 1 : 0);
+      const output::BlackWhiteOptions::ColorSegmenterOptions options(segmenterEl);
+      const ConnectivityMap segments
+          = !colorOriginal ? ConnectivityMap(text, CONN8)
+                           : ColorSegmenter(in.dpi, options.getNoiseReduction(), options.getRedThresholdAdjustment(),
+                                            options.getGreenThresholdAdjustment(), options.getBlueThresholdAdjustment())
+                                 .segmentMap(text, image);
+      const int quarterInch = (in.dpi.horizontal() + in.dpi.vertical()) / 8;
+      (void) Posterizer::convertToIndexed(reduceTextColorsKMeans(
+          image, text, segments, options.getKMeansColors(), options.isKMeansBlackFixed(), quarterInch * quarterInch));
+      break;
+    }
+    default: {
+      // The background estimation of illumination normalization, in an area anywhere in the page.
+      const QRectF area(s[1] * image.width() / 256.0, s[2] * image.height() / 256.0, s[3] * image.width() / 256.0,
+                        s[4] * image.height() / 256.0);
+      const GrayImage gray(image);
+      const PolynomialSurface background = estimateBackground(gray, QPolygonF(area), status);
+      (void) background.render(gray.size());
+      (void) BackgroundColorCalculator::calcDominantBackgroundColor(image, QPolygonF(area));
+      break;
+    }
+  }
+}
+
 // The order is the group number of the seeds; append new groups at the end.
 void (*const groups[])(const Input&) = {
     binarization,      // 0
@@ -206,6 +353,8 @@ void (*const groups[])(const Input&) = {
     deskewing,         // 2
     pageSplitting,     // 3
     contentSelection,  // 4
+    autoDewarping,     // 5
+    colorProcessing,   // 6
 };
 }  // namespace
 
