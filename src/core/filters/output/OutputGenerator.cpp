@@ -812,7 +812,8 @@ const int MultiplyDeBruijnBitPosition2[32] = {0, 9,  1,  10, 13, 21, 2,  29, 11,
  * https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
  */
 inline int countConsecutiveZeroBitsTrailing(uint32_t v) {
-  return MultiplyDeBruijnBitPosition[((uint32_t) ((v & -signed(v)) * 0x077CB531U)) >> 27];
+  // 0u - v instead of -signed(v): the same bits, but defined also for v = 0x80000000.
+  return MultiplyDeBruijnBitPosition[((v & (0u - v)) * 0x077CB531U) >> 27];
 }
 
 /**
