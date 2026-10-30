@@ -561,7 +561,7 @@ void OptionsWidget::updateCommonSizeDisplay() {
       height = std::round(height * 10) / 10;
       break;
   }
-  commonSizeValue->setText(QString("%1 x %2 %3").arg(width).arg(height).arg(unitsToLocalizedString(units)));
+  commonSizeValue->setText(QStringLiteral(u"%1 × %2 %3").arg(width).arg(height).arg(unitsToLocalizedString(units)));
 }
 
 void OptionsWidget::updateMarginsDisplay() {

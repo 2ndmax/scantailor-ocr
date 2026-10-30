@@ -173,9 +173,9 @@ void StatusBarPanel::physSizeChanged() {
     // The resolution of the image shown: the source resolution, in Output the output resolution.
     const QString dpiText = (m_dpi.horizontal() == m_dpi.vertical())
                                 ? QString("%1 dpi").arg(m_dpi.horizontal())
-                                : QString("%1 x %2 dpi").arg(m_dpi.horizontal()).arg(m_dpi.vertical());
+                                : QStringLiteral(u"%1 × %2 dpi").arg(m_dpi.horizontal()).arg(m_dpi.vertical());
     ui.physSizeLabel->setText(
-        QString("%1 x %2 %3 / %4").arg(width).arg(height).arg(unitsToLocalizedString(units)).arg(dpiText));
+        QStringLiteral(u"%1 × %2 %3 / %4").arg(width).arg(height).arg(unitsToLocalizedString(units)).arg(dpiText));
     ui.physSizeLabel->setVisible(true);
   } else {
     clearAndHideLabel(ui.physSizeLabel);
