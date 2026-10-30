@@ -225,6 +225,16 @@ bool setTiffTag(QByteArray& data, const uint32_t ifd, const uint16_t tag, const 
   return false;
 }
 
+// Makes the first directory of a small file claim \p size. Its one strip then holds all rows, as
+// in a real file with one strip: with the rows per strip of the small image, libtiff 4.5 (Ubuntu
+// 24.04) refuses the directory, as the file is far too small for that many strips.
+bool claimTiffSize(QByteArray& data, const QSize& size) {
+  const uint32_t ifd = ifdOffset(data, 0);
+  return setTiffTag(data, ifd, TIFFTAG_IMAGEWIDTH, size.width())
+         && setTiffTag(data, ifd, TIFFTAG_IMAGELENGTH, size.height())
+         && setTiffTag(data, ifd, TIFFTAG_ROWSPERSTRIP, size.height());
+}
+
 QStringList readTiffMetadata(const QString& path,
                              std::vector<ImageMetadata>& pages,
                              ImageMetadataLoader::Status& status) {
@@ -1323,8 +1333,7 @@ BOOST_AUTO_TEST_CASE(test_tiff_over_size_limit_is_refused) {
     const QString path = dir.filePath(QStringLiteral("too_large_%1.tif").arg(size.width()));
     BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
     QByteArray data = Tests::readFile(path);
-    BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGEWIDTH, size.width()));
-    BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGELENGTH, size.height()));
+    BOOST_REQUIRE(claimTiffSize(data, size));
     BOOST_REQUIRE(Tests::writeFile(path, data));
     checkRefusedAsTooLarge(path, size);
   }
@@ -1509,8 +1518,7 @@ BOOST_AUTO_TEST_CASE(test_image_at_size_limit_is_accepted) {
   spec.bitsPerSample = 1;
   BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
   QByteArray data = Tests::readFile(path);
-  BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGEWIDTH, 20000));
-  BOOST_REQUIRE(setTiffTag(data, ifdOffset(data, 0), TIFFTAG_IMAGELENGTH, 30000));
+  BOOST_REQUIRE(claimTiffSize(data, QSize(20000, 30000)));
   BOOST_REQUIRE(Tests::writeFile(path, data));
 
   std::vector<ImageMetadata> pages;
