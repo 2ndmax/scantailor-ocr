@@ -112,13 +112,22 @@ struct Run {
   BinarizationMethod binarization = T_OTSU;
   // Values as read from a project file (attribute values); empty keeps the defaults of the test.
   QString windowSizeAttribute;
+  QString outputDpiAttribute;
 };
 
 std::unique_ptr<OutputImage> generate(const Run& run) {
   const PageId pageId(ImageId(QStringLiteral("page.png")), PageId::SINGLE_PAGE);
   auto settings = std::make_shared<Settings>();
+  Dpi outputDpi = DPI;
+  if (!run.outputDpiAttribute.isEmpty()) {
+    QDomDocument doc;
+    QDomElement el = doc.createElement(QStringLiteral("dpi"));
+    el.setAttribute(QStringLiteral("horizontal"), run.outputDpiAttribute);
+    el.setAttribute(QStringLiteral("vertical"), run.outputDpiAttribute);
+    outputDpi = Params::outputDpiFromXml(el);
+  }
   Params params;
-  params.setOutputDpi(DPI);
+  params.setOutputDpi(outputDpi);
   ColorParams colorParams;
   colorParams.setColorMode(run.mode);
   colorParams.setPhotoAdjustments(run.adjustments);
@@ -154,7 +163,7 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
 
   const FilterData data(syntheticPage(run.colored, run.strokeColor));
   ImageTransformation xform(data.xform());
-  xform.postScaleToDpi(DPI);
+  xform.postScaleToDpi(outputDpi);
   if (run.postScaleFactor != 1.0) {
     xform.setPostScaleFactor(run.postScaleFactor);
   }
@@ -338,6 +347,39 @@ BOOST_AUTO_TEST_CASE(window_size_out_of_range_in_project_file_is_processed) {
         } catch (const std::exception& e) {
           BOOST_ERROR("Exception: " << e.what());
         }
+      }
+    }
+  }
+}
+
+// The output resolution of a project file, outside of what the options panel allows: one below
+// its minimum gives the default resolution, a huge one makes the output too large.
+BOOST_AUTO_TEST_CASE(output_dpi_out_of_range_in_project_file) {
+  Run defaultRun;
+  defaultRun.outputDpiAttribute = QString::number(Params::DEFAULT_OUTPUT_DPI);
+  const QSize defaultSize = process(defaultRun).size();
+  for (const char* dpi : {"0", "-300", "1", "abc"}) {
+    BOOST_TEST_CONTEXT("dpi " << dpi) {
+      Run run;
+      run.outputDpiAttribute = QString::fromLatin1(dpi);
+      try {
+        const QImage output = process(run);
+        BOOST_CHECK_EQUAL(output.width(), defaultSize.width());
+        BOOST_CHECK_EQUAL(output.height(), defaultSize.height());
+      } catch (const std::exception& e) {
+        BOOST_ERROR("Exception: " << e.what());
+      }
+    }
+  }
+  for (const char* dpi : {"100000", "2000000000"}) {
+    BOOST_TEST_CONTEXT("dpi " << dpi) {
+      Run run;
+      run.outputDpiAttribute = QString::fromLatin1(dpi);
+      try {
+        generate(run);
+        BOOST_ERROR("No exception for an output over the size limit");
+      } catch (const std::runtime_error& e) {
+        BOOST_CHECK(QString::fromUtf8(e.what()).contains(QString::number(ImageSizeLimit::MAX_SIDE)));
       }
     }
   }

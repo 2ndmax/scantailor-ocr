@@ -3,6 +3,7 @@
 
 #include "DefaultParams.h"
 
+#include <filters/output/Params.h>
 #include <foundation/Utils.h>
 
 #include <cmath>
@@ -199,7 +200,7 @@ double despeckleLevelFromXml(const QDomElement& el) {
 }  // namespace
 
 DefaultParams::OutputParams::OutputParams(const QDomElement& el)
-    : m_dpi(el.namedItem("dpi").toElement()),
+    : m_dpi(output::Params::outputDpiFromXml(el.namedItem("dpi").toElement())),
       m_colorParams(el.namedItem("colorParams").toElement()),
       m_splittingOptions(el.namedItem("splittingOptions").toElement()),
       m_pictureShapeOptions(el.namedItem("pictureShapeOptions").toElement()),

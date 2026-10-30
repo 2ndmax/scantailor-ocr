@@ -39,6 +39,14 @@ double despeckleLevelFromXml(const QString& value) {
 }
 }  // namespace
 
+Dpi Params::outputDpiFromXml(const QDomElement& el) {
+  const Dpi dpi(el);
+  if ((dpi.horizontal() < MIN_OUTPUT_DPI) || (dpi.vertical() < MIN_OUTPUT_DPI)) {
+    return Dpi(DEFAULT_OUTPUT_DPI, DEFAULT_OUTPUT_DPI);
+  }
+  return dpi;
+}
+
 Params::Params() : m_dpi(600, 600), m_despeckleLevel(DEFAULT_DESPECKLE_LEVEL), m_blackOnWhite(true) {}
 
 Params::Params(const Dpi& dpi,
@@ -60,7 +68,7 @@ Params::Params(const Dpi& dpi,
       m_blackOnWhite(true) {}
 
 Params::Params(const QDomElement& el)
-    : m_dpi(el.namedItem("dpi").toElement()),
+    : m_dpi(outputDpiFromXml(el.namedItem("dpi").toElement())),
       m_colorParams(el.namedItem("color-params").toElement()),
       m_splittingOptions(el.namedItem("splitting").toElement()),
       m_pictureShapeOptions(el.namedItem("picture-shape-options").toElement()),

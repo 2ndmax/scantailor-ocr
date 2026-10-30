@@ -19,6 +19,17 @@ class QDomElement;
 namespace output {
 class Params {
  public:
+  // The smallest output resolution the options panel allows, and the default one.
+  static constexpr int MIN_OUTPUT_DPI = 72;
+  static constexpr int DEFAULT_OUTPUT_DPI = 600;
+
+  /**
+   * Reads the output resolution of a project file. One below MIN_OUTPUT_DPI (also a missing one)
+   * can't come from the program; the default is taken instead, as the output step derives sizes
+   * from it, which a negative resolution turns negative.
+   */
+  static Dpi outputDpiFromXml(const QDomElement& el);
+
   Params();
 
   Params(const Dpi& dpi,
