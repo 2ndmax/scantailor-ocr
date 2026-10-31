@@ -302,8 +302,10 @@ bool codestreamExceedsLimits(QIODevice& device, const Jp2Format format) {
     return true;
   }
 
-  const int64_t maxTiles = ((info.width + MIN_AVERAGE_TILE_SIDE - 1) / MIN_AVERAGE_TILE_SIDE)
-                           * ((info.height + MIN_AVERAGE_TILE_SIDE - 1) / MIN_AVERAGE_TILE_SIDE);
+  // One tile more per direction: the tile grid may start before the image, and a small image may
+  // have tiles smaller than the average, each giving a partial tile at both edges.
+  const int64_t maxTiles = ((info.width + MIN_AVERAGE_TILE_SIDE - 1) / MIN_AVERAGE_TILE_SIDE + 1)
+                           * ((info.height + MIN_AVERAGE_TILE_SIDE - 1) / MIN_AVERAGE_TILE_SIDE + 1);
   if (info.numTiles > static_cast<uint64_t>(maxTiles)) {
     ImageLoadErrorCapture::addError(
         QCoreApplication::translate("Jp2Reader",

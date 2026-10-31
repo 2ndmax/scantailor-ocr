@@ -260,18 +260,22 @@ int grayAt(const QImage& image, const int x, const int y) {
   return qGray(image.pixel(x, y));
 }
 
-// tileSize 0 writes a single tile.
+// tileSize 0 writes a single tile. imageOffset moves the image on the reference grid; the tile
+// grid stays at 0.
 bool writeJp2(const QString& path,
               const int width,
               const int height,
               const int numComps,
               const bool codestream,
-              const int tileSize = 0) {
+              const int tileSize = 0,
+              const int imageOffset = 0) {
   std::vector<opj_image_cmptparm_t> params(numComps);
   for (auto& p : params) {
     std::memset(&p, 0, sizeof(p));
     p.dx = 1;
     p.dy = 1;
+    p.x0 = imageOffset;
+    p.y0 = imageOffset;
     p.w = width;
     p.h = height;
     p.prec = 8;
@@ -281,10 +285,10 @@ bool writeJp2(const QString& path,
   if (!image) {
     return false;
   }
-  image->x0 = 0;
-  image->y0 = 0;
-  image->x1 = width;
-  image->y1 = height;
+  image->x0 = imageOffset;
+  image->y0 = imageOffset;
+  image->x1 = imageOffset + width;
+  image->y1 = imageOffset + height;
   for (int c = 0; c < numComps; ++c) {
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
@@ -1492,7 +1496,29 @@ BOOST_AUTO_TEST_CASE(test_jp2_too_many_tiles_are_refused_before_openjpeg) {
   spec.tileHeight = 1;
   checkRefusedBeforeOpenJpeg(sizOnlyCodestream(spec),
                              QStringLiteral("The image is divided into too many tiles (90000). At its size of "
-                                            "300 × 300 pixels, at most 100 tiles are possible."));
+                                            "300 × 300 pixels, at most 121 tiles are possible."));
+}
+
+// The tile grid may start before the image, and small images may have tiles smaller than 32 px:
+// both give one partial tile more per direction than the image size divided by 32.
+BOOST_AUTO_TEST_CASE(test_jp2_valid_tile_grids_beyond_the_average_are_accepted) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  struct Case {
+    const char* name;
+    int size;
+    int tileSize;
+    int imageOffset;
+  };
+  // 64 x 64 at offset 16 with tiles of 32: 3 x 3 tiles. 20 x 20 with tiles of 16: 2 x 2 tiles.
+  for (const Case& c : {Case{"offset.j2k", 64, 32, 16}, Case{"small.j2k", 20, 16, 0}}) {
+    const QString path = dir.filePath(QString::fromLatin1(c.name));
+    BOOST_REQUIRE(writeJp2(path, c.size, c.size, 1, true, c.tileSize, c.imageOffset));
+    QImage image;
+    const QStringList messages = loadMessages(path, image);
+    BOOST_CHECK_MESSAGE(!image.isNull(), c.name << ": " << messages.join('\n').toStdString());
+    BOOST_CHECK(image.size() == QSize(c.size, c.size));
+  }
 }
 
 // Tiles of 32 x 32 pixels, the smallest allowed on average, with partial tiles at the edges.
