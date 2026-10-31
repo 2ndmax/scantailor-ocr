@@ -55,6 +55,10 @@ $UbuntuPackages = @(Get-Content "$Root\scripts\setup\support\ubuntu-packages.txt
 
 # WSL itself, as "wsl --install" installs it. Not the wsl.exe in System32: before WSL is
 # installed that one is a stub, which may start the installation when called.
+# REVIEW-NOTE (2026-10): WSL counts as installed only if this file exists -> where WSL comes only
+# as a Store package (alias in WindowsApps) all scripts report "WSL missing" and step 1 of the
+# WSL setup offers to install it again. Not fixed because it works on the development machine,
+# the System32 stub must not be called to probe, and a second search location would be a guess.
 $WslExe = "$env:ProgramFiles\WSL\wsl.exe"
 
 function Test-Wsl { return (Test-Path $WslExe) }

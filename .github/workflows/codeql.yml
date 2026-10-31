@@ -21,7 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Same packages as the Linux build in ci.yml.
+      # The packages of the Linux build in ci.yml, without poppler-utils (the analysis runs no
+      # tests). Kept by hand, see the REVIEW-NOTE in scripts/setup/support/ubuntu-packages.txt.
       - name: Install dependencies
         run: |
           sudo apt-get update

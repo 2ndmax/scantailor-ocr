@@ -270,6 +270,10 @@ function Save-Download([string]$Url, [string]$OutFile) {
     return $ok
 }
 
+# REVIEW-NOTE (2026-10): the vcpkg ZIP/clone (master) and the OCR language files (tessdata_best,
+# branch main) are downloaded over HTTPS without a pinned commit or checksum -> a changed upstream
+# file is installed unchecked. Not fixed because this sets up the developer's own machine from the
+# projects' own GitHub repositories; release.yml pins and checks the language files it ships.
 function Get-Vcpkg {
     if (Test-Path "$VcpkgDir\bootstrap-vcpkg.bat") { return $true }
     if ((Test-Path $VcpkgDir) -and (Get-ChildItem $VcpkgDir -Force | Select-Object -First 1)) {
@@ -365,6 +369,7 @@ $stepBuild = {
     if ($languages -and (Read-YesNo 'Download the OCR languages German and English (about 24 MB)?' $true)) {
         New-Item -ItemType Directory -Force $tessdata | Out-Null
         foreach ($language in $languages) {
+            # Unpinned, see the REVIEW-NOTE at Get-Vcpkg.
             $url = "https://github.com/tesseract-ocr/tessdata_best/raw/main/$language.traineddata"
             if (-not (Save-Download $url "$tessdata\$language.traineddata")) { return $false }
         }

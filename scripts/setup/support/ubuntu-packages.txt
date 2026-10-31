@@ -3,6 +3,12 @@
 # (.github/workflows/ci.yml) installs, plus ninja-build and pkg-config (the GitHub runners have
 # it already; CMake finds Tesseract with it), less libqt6opengl6-dev: in Ubuntu 24.04 that is
 # only a name qt6-base-dev provides, never installed itself, so the setup would always miss it.
+# REVIEW-NOTE (2026-10): this list, the apt lists in ci.yml, codeql.yml and release.yml and the
+# command in BUILDING.md are kept by hand and differ (poppler-utils, qt6-base-dev-tools,
+# ninja-build, pkg-config) -> a package added to one place can be missing in another and shows
+# only as a failed CI job or a failed local GCC run. Not fixed because the differences are
+# harmless today, the lists serve different jobs, and a shared list would change CI and release,
+# which can't be tested locally.
 build-essential
 cmake
 ninja-build
