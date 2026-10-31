@@ -791,6 +791,15 @@ ImageMetadataLoader::Status Jp2Reader::readMetadata(QIODevice& device,
     return ImageMetadataLoader::FORMAT_NOT_RECOGNIZED;
   }
 
+  // The same limits as for decoding, so that a file is refused when added, not only when its page
+  // is loaded. In a JP2 file they apply to the codestream, whose size may differ from the header's.
+  const qint64 origPos = device.pos();
+  const bool exceedsLimits = codestreamExceedsLimits(device, format);
+  device.seek(origPos);
+  if (exceedsLimits) {
+    return ImageMetadataLoader::GENERIC_ERROR;
+  }
+
   HeaderInfo info;
   if (!parseHeader(device, format, info)) {
     ImageLoadErrorCapture::addError(

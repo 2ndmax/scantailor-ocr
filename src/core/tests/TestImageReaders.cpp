@@ -1416,6 +1416,11 @@ BOOST_AUTO_TEST_CASE(test_jp2_over_size_limit_is_refused_before_openjpeg) {
       BOOST_CHECK(image.isNull());
       BOOST_CHECK(messages.contains(ImageSizeLimit::errorMessage(size)));
       BOOST_CHECK(messages.filter(QStringLiteral("OpenJPEG")).isEmpty());
+
+      // Adding the file refuses it as well, by the size of the codestream.
+      ImageMetadataLoader::Status status;
+      BOOST_CHECK(metadataMessages(path, status).contains(ImageSizeLimit::errorMessage(size)));
+      BOOST_CHECK(status != ImageMetadataLoader::LOADED);
     }
   }
 }
@@ -1457,7 +1462,8 @@ QByteArray sizOnlyCodestream(const SizSpec& spec) {
   return data;
 }
 
-// Loads the codestream and checks that it was refused with \p expected before OpenJPEG saw it.
+// Loads the codestream and checks that it was refused with \p expected before OpenJPEG saw it,
+// and that reading its metadata refuses it as well.
 void checkRefusedBeforeOpenJpeg(const QByteArray& codestream, const QString& expected) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
@@ -1468,6 +1474,11 @@ void checkRefusedBeforeOpenJpeg(const QByteArray& codestream, const QString& exp
   BOOST_CHECK(image.isNull());
   BOOST_CHECK(messages.contains(expected));
   BOOST_CHECK(messages.filter(QStringLiteral("OpenJPEG")).isEmpty());
+
+  // Adding the file refuses it for the same reason.
+  ImageMetadataLoader::Status status;
+  BOOST_CHECK(metadataMessages(path, status).contains(expected));
+  BOOST_CHECK(status != ImageMetadataLoader::LOADED);
 }
 }  // namespace
 
