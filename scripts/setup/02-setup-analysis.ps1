@@ -6,14 +6,14 @@
   Offers the tools in a menu; each step can be run on its own, 0 runs all of them in order, 9
   shows for every analysis run whether its tools are there:
     1. Visual Studio components, added with the Visual Studio Installer: "C++ Clang Compiler for
-       Windows" (clang-cl and the sanitizer runtime, runs 07 and 08), "C++ AddressSanitizer"
-       (stl_asan.lib, which the MSVC standard library asks for under ASan, run 08; libFuzzer and
-       ASan of MSVC, run 09) and the .NET
+       Windows" (clang-cl and the sanitizer runtime, runs 07 and 09), "C++ AddressSanitizer"
+       (stl_asan.lib, which the MSVC standard library asks for under ASan, run 09; libFuzzer and
+       ASan of MSVC, run 10) and the .NET
        Framework 4.8.1 SDK (run 04).
     2. cppcheck (run 03), installed with winget into its standard folder C:\Program Files\Cppcheck.
     3. EDG (run 04): installs nothing itself, but starts the separate script 03-setup-edg.ps1
        with its own menu.
-    4. WSL with Ubuntu and GCC (run 10): installs nothing itself, but starts the separate script
+    4. WSL with Ubuntu and GCC (run 08): installs nothing itself, but starts the separate script
        04-setup-wsl-gcc.ps1 with its own menu.
   clang-tidy (run 02) comes with Visual Studio itself; the build itself is set up by
   01-setup-windows.ps1. The output also goes to logs\02-setup-analysis.log.
@@ -50,7 +50,7 @@ function Test-ClangRuntime {
 # The MSVC standard library links stl_asan.lib when built with ASan; it comes with the
 # component "C++ AddressSanitizer", not with the Clang compiler.
 function Test-StlAsan { return [bool]($Vs -and (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\stl_asan.lib")) }
-# libFuzzer of MSVC (run 09), from the same component.
+# libFuzzer of MSVC (run 10), from the same component.
 function Test-MsvcFuzzer {
     return [bool]($Vs -and (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\clang_rt.fuzzer_MD-x86_64.lib"))
 }
@@ -94,9 +94,9 @@ $status = {
         "  03          cppcheck          $cppcheck"
         "  04          EDG               $edg"
         "  07          clang-cl          $clang"
-        "  08          sanitizers        $sanitizers"
-        "  09          fuzzing           $fuzzing"
-        "  10          GCC               $gcc"
+        "  08          GCC               $gcc"
+        "  09          sanitizers        $sanitizers"
+        "  10          fuzzing           $fuzzing"
         "  all builds  vcpkg             $vcpkg"
     )
 }
@@ -160,13 +160,13 @@ $stepWslGcc = {
 }
 
 $menu = @(
-    @{ Title = 'Visual Studio components: Clang compiler (runs 07, 08), AddressSanitizer (runs 08, 09), .NET Framework 4.8.1 SDK (run 04)'
+    @{ Title = 'Visual Studio components: Clang compiler (runs 07, 09), AddressSanitizer (runs 09, 10), .NET Framework 4.8.1 SDK (run 04)'
        Done = { (Test-Sanitizers) -and (Test-NetSdk) }; Run = $stepComponents }
     @{ Title = "cppcheck (run 03), into $CppcheckFolder"
        Done = { [bool](Find-Cppcheck) }; Run = $stepCppcheck }
     @{ Title = 'EDG (run 04): opens the separate script 03-setup-edg.ps1'
        Done = { [bool](Get-Cpfe) }; Run = $stepEdg }
-    @{ Title = 'WSL with Ubuntu and GCC (run 10): opens the separate script 04-setup-wsl-gcc.ps1'
+    @{ Title = 'WSL with Ubuntu and GCC (run 08): opens the separate script 04-setup-wsl-gcc.ps1'
        Done = { Test-UbuntuPackages }; Run = $stepWslGcc }
 )
 $extra = @(

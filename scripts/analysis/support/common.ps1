@@ -57,7 +57,7 @@ function Write-RunEnd([int]$Rc, [string[]]$Results) {
     foreach ($result in $Results) { Write-Host "  $result" }
 }
 
-# clang-cl.exe of Visual Studio, for the runs 07 and 08.
+# clang-cl.exe of Visual Studio, for the runs 07 and 09.
 function Get-ClangCl {
     $clang = "$LlvmBin\clang-cl.exe"
     if (-not (Test-Path $clang)) {

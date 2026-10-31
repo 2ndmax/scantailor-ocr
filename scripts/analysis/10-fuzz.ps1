@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Run 09: fuzzing with libFuzzer and AddressSanitizer (the fuzz targets in src/fuzz).
+  Run 10: fuzzing with libFuzzer and AddressSanitizer (the fuzz targets in src/fuzz).
 
 .DESCRIPTION
   Builds the fuzz targets (-DBUILD_FUZZERS=ON, MSVC, RelWithDebInfo) and runs each of them for
@@ -9,12 +9,12 @@
   Output step on a whole page) and reports crashes, memory errors, inputs that take too long and
   inputs that take too much memory.
 
-  Per target, in <OutDir>\09-fuzz\<target>:
+  Per target, in <OutDir>\10-fuzz\<target>:
     corpus\     the inputs found so far; the next run continues from them. The seed files in
                 src\fuzz\corpus are read as well, but not changed.
     findings\   the inputs that made the target fail (crash-*, oom-*, timeout-*, leak-*).
     fuzz.log    the output of the last run.
-  09-fuzz.log holds a summary per target and the report of every input in findings\: each is
+  10-fuzz.log holds a summary per target and the report of every input in findings\: each is
   run once more, so a finding that has been fixed shows up without a report there. Delete
   findings\ once its inputs are dealt with.
 
@@ -32,8 +32,8 @@
   Without -Only and -Minutes, the script asks which targets to run and for how long; given on
   the command line, the question is skipped (Q in either question ends the script):
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\09-fuzz.ps1 -Only fuzz_image_loader -Minutes 5
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\10-fuzz.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\10-fuzz.ps1 -Only fuzz_image_loader -Minutes 5
 
 .PARAMETER Minutes
   How long each target runs. Asked for when not given; with -Yes 10.
@@ -79,8 +79,8 @@ if (-not (Test-Path "$Vs\VC\Tools\MSVC\*\lib\x64\clang_rt.fuzzer_MD-x86_64.lib")
     throw "clang_rt.fuzzer_MD-x86_64.lib not found: scripts\setup\02-setup-analysis.ps1 (step 1) adds the " +
           "Visual Studio component 'C++ AddressSanitizer'."
 }
-$fuzzDir = "$OutDir\09-fuzz"
-$log = "$OutDir\09-fuzz.log"
+$fuzzDir = "$OutDir\10-fuzz"
+$log = "$OutDir\10-fuzz.log"
 $seeds = "$Root\src\fuzz\corpus"
 
 # Some inputs take seconds where the illumination normalization runs: it scales every page to about
@@ -176,7 +176,7 @@ if ($Only) {
     $targets = @($targets | Where-Object { $_.Name -in $Only })
 } elseif (-not $Unattended) {
     Write-Host ''
-    Write-Host 'Analysis run 09: fuzzing with libFuzzer and ASan' -ForegroundColor Cyan
+    Write-Host 'Analysis run 10: fuzzing with libFuzzer and ASan' -ForegroundColor Cyan
     $targets = @(Read-Targets | ForEach-Object { $targets[$_ - 1] })
 }
 if (-not $PSBoundParameters.ContainsKey('Minutes') -and -not $Unattended) {
@@ -204,15 +204,15 @@ if ($SkipBuild) {
 }
 $intro += "Build directory: $BuildDir"
 $intro += "Corpora and findings: $fuzzDir"
-if (-not (Confirm-Run 'Analysis run 09: fuzzing with libFuzzer and ASan' $intro $log)) {
+if (-not (Confirm-Run 'Analysis run 10: fuzzing with libFuzzer and ASan' $intro $log)) {
     Write-Host 'Not started.'
     exit 1
 }
 
 # --- Build ---------------------------------------------------------------------------------------
 if (-not $SkipBuild) {
-    $buildLog = "$OutDir\09-fuzz-build.log"
-    New-Log $buildLog '09: fuzz targets, build with MSVC and ASan (RelWithDebInfo)' (@(
+    $buildLog = "$OutDir\10-fuzz-build.log"
+    New-Log $buildLog '10: fuzz targets, build with MSVC and ASan (RelWithDebInfo)' (@(
         "# Compiler: $(Get-ClVersion)"
         "# Build directory: $BuildDir"
     ) + (Get-ToolVersions))

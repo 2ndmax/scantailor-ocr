@@ -6,7 +6,7 @@
   Reads the logs written by the run scripts in this folder (01-10) and collects every
   warning or runtime report with its location. A finding is one combination of tool, check, file
   and line; repeats (a header reported once per including file, the same warning in the runs 01,
-  05 and 06) are merged, and the runs that reported it are listed. The paths of run 10 (WSL,
+  05 and 06) are merged, and the runs that reported it are listed. The paths of run 08 (WSL,
   /mnt/c/...) count as the same files as the Windows paths of the other runs.
 
   Writes two files into the results folder:
@@ -14,7 +14,7 @@
     findings.md   a summary per tool and check, then the findings grouped by file and line.
                   Checks listed in -BulkChecks are only counted there, not listed.
 
-  Not read: the failed setup attempts of run 08 (08-*-failed.log, 08-*-aborted.log).
+  Not read: the failed setup attempts of run 09 (09-*-failed.log, 09-*-aborted.log).
   Does not need Visual Studio or any of the tools.
 
   First shows which logs are there and which are missing (a missing run is skipped), then asks
@@ -56,13 +56,13 @@ $inputs = @(
   @{ Run = '05'; What = 'MSVC C++20'; File = '05-msvc-cxx20.log' }
   @{ Run = '06'; What = 'MSVC /Zc:preprocessor'; File = '06-msvc-zc-preprocessor.log' }
   @{ Run = '07'; What = 'clang-cl'; File = '07-clang-cl.log' }
-  @{ Run = '08'; What = 'sanitizers: build'; File = '08-ubsan-build.log' }
-  @{ Run = '08'; What = 'sanitizers: tests'; File = '08-ubsan-tests.log' }
-  @{ Run = '08'; What = 'sanitizers: dev tools (only with -Images)'; File = '08-ubsan-tools.log' }
-  @{ Run = '09'; What = 'fuzzing'; File = '09-fuzz.log' }
-  @{ Run = '10'; What = 'GCC: warnings'; File = '10-gcc-warnings.log' }
-  @{ Run = '10'; What = 'GCC: sanitizers build'; File = '10-gcc-sanitizers-build.log' }
-  @{ Run = '10'; What = 'GCC: tests with the sanitizers'; File = '10-gcc-tests.log' }
+  @{ Run = '08'; What = 'GCC: warnings'; File = '08-gcc-warnings.log' }
+  @{ Run = '08'; What = 'GCC: sanitizers build'; File = '08-gcc-sanitizers-build.log' }
+  @{ Run = '08'; What = 'GCC: tests with the sanitizers'; File = '08-gcc-tests.log' }
+  @{ Run = '09'; What = 'sanitizers: build'; File = '09-ubsan-build.log' }
+  @{ Run = '09'; What = 'sanitizers: tests'; File = '09-ubsan-tests.log' }
+  @{ Run = '09'; What = 'sanitizers: dev tools (only with -Images)'; File = '09-ubsan-tools.log' }
+  @{ Run = '10'; What = 'fuzzing'; File = '10-fuzz.log' }
 )
 
 Write-Host ''
@@ -100,7 +100,7 @@ $findings = @{}  # key -> finding
 $order = New-Object System.Collections.Generic.List[string]
 
 # Makes a path relative to the repository, with forward slashes. Paths outside it
-# (vcpkg, Windows SDK, the Linux system headers of run 10) are kept and marked as external.
+# (vcpkg, Windows SDK, the Linux system headers of run 08) are kept and marked as external.
 # A WSL path of a Windows drive (/mnt/c/...) is taken as that drive's path (C:\...).
 function Get-RelPath([string] $path) {
   $p = $path.Trim()
@@ -151,7 +151,7 @@ foreach ($run in @(@('01', '01-msvc-analyze.log'), @('05', '05-msvc-cxx20.log'),
 # Clang: file:line:col: warning: text [check]   or (clang-cl)   file(line,col): warning: text [-Wx]
 $reClang = '^(?<file>[A-Za-z]:\\.+?)(?::(?<line>\d+):\d+|\((?<line>\d+),\d+\)):\s+(?:warning|error):\s+(?<msg>.*?)\s+\[(?<check>[^\]]+)\]\s*$'
 foreach ($run in @(@('clang-tidy', '02', '02-clang-tidy.log'), @('clang-cl', '07', '07-clang-cl.log'),
-                   @('clang-cl', '08', '08-ubsan-build.log'))) {
+                   @('clang-cl', '09', '09-ubsan-build.log'))) {
   foreach ($l in Read-Lines $run[2]) {
     if ($l -match $reClang) {
       $check = ($Matches.check -split ',')[0]
@@ -160,11 +160,11 @@ foreach ($run in @(@('clang-tidy', '02', '02-clang-tidy.log'), @('clang-cl', '07
   }
 }
 
-# GCC (run 10, in WSL): /mnt/c/...:line:col: warning: text [-Wx]   or   [-Wx=]
+# GCC (run 08, in WSL): /mnt/c/...:line:col: warning: text [-Wx]   or   [-Wx=]
 $reGcc = '^(?<file>/.+?):(?<line>\d+):\d+:\s+warning:\s+(?<msg>.*?)\s+\[(?<check>-W[^\]=]+)=?\]\s*$'
-foreach ($name in '10-gcc-warnings.log', '10-gcc-sanitizers-build.log') {
+foreach ($name in '08-gcc-warnings.log', '08-gcc-sanitizers-build.log') {
   foreach ($l in Read-Lines $name) {
-    if ($l -match $reGcc) { Add-Finding 'GCC' '10' $Matches.check $Matches.file $Matches.line $Matches.msg }
+    if ($l -match $reGcc) { Add-Finding 'GCC' '08' $Matches.check $Matches.file $Matches.line $Matches.msg }
   }
 }
 
@@ -192,7 +192,7 @@ foreach ($l in Read-Lines '04-edg.log') {
 # stack frame in the project's own code is taken instead); for ASan and libFuzzer (crash,
 # out-of-memory, timeout) the first stack frame in the project's own code is taken (or the first
 # frame at all, if there is none). Function names may contain spaces ("`anonymous namespace'::f").
-# The paths are Windows paths, or Linux paths in run 10.
+# The paths are Windows paths, or Linux paths in run 08.
 $reUbsan = '^(?<file>(?:[A-Za-z]:\\|/).+?):(?<line>\d+):\d+: runtime error: (?<msg>.*)$'
 $reFrame = '^\s+#\d+ 0x[0-9a-f]+ in .+? (?<file>(?:[A-Za-z]:\\|/).+?):(?<line>\d+)'
 $reLibFuzzer = 'ERROR: libFuzzer: (?<msg>(?<type>out-of-memory|timeout|deadly signal|fuzz target exited|[\w-]+).*)$'
@@ -207,12 +207,12 @@ function Find-Frame([string[]] $lines, [int] $from) {
   }
   return @($file, $line)
 }
-foreach ($src in @(@('08', '08-ubsan-tests.log'), @('08', '08-ubsan-tools.log'), @('09', '09-fuzz.log'),
-                   @('10', '10-gcc-tests.log'))) {
+foreach ($src in @(@('08', '08-gcc-tests.log'), @('09', '09-ubsan-tests.log'), @('09', '09-ubsan-tools.log'),
+                   @('10', '10-fuzz.log'))) {
   $run = $src[0]
-  # ctest -V (run 10) puts "<test number>: " in front of every line of a test's output.
+  # ctest -V (run 08) puts "<test number>: " in front of every line of a test's output.
   $lines = @(Read-Lines $src[1] | ForEach-Object { $_ -replace '^\d+: ', '' })
-  # 09-fuzz.log: the input of a report, from the "# Finding: <target> <file>" line before it.
+  # 10-fuzz.log: the input of a report, from the "# Finding: <target> <file>" line before it.
   $fuzzInput = ''
   # The type of a report (shift-base, allocation-size-too-big ...) is in its SUMMARY line.
   function Get-SummaryType([int] $from, [string] $fallback) {

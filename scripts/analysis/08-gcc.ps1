@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Run 10: GCC in WSL (Ubuntu 24.04) - strict warnings, then UBSan, ASan and the checks of the
+  Run 08: GCC in WSL (Ubuntu 24.04) - strict warnings, then UBSan, ASan and the checks of the
   GCC standard library while all tests run.
 
 .DESCRIPTION
@@ -8,24 +8,24 @@
   (~/scantailor-ocr-build), from the sources in this repository (/mnt/c/...):
     a) warnings: -DENABLE_CODE_ANALYSIS=ON (-Wall -Wextra -Wshadow -Wconversion) plus warnings
        only GCC has (-Wnull-dereference, -Wduplicated-cond, -Wduplicated-branches,
-       -Wlogical-op)                                                    -> 10-gcc-warnings.log
+       -Wlogical-op)                                                    -> 08-gcc-warnings.log
     b) sanitizers: -fsanitize=address,undefined and -D_GLIBCXX_ASSERTIONS, which makes the
-       standard library check indexes and iterators              -> 10-gcc-sanitizers-build.log
-  and then runs all tests of build b) with ctest -V                    -> 10-gcc-tests.log
+       standard library check indexes and iterators              -> 08-gcc-sanitizers-build.log
+  and then runs all tests of build b) with ctest -V                    -> 08-gcc-tests.log
   Both builds are RelWithDebInfo: some of the warnings need the optimizer, and the reports
   get function names. The warnings come from a build of their own, as the sanitizers make GCC
   warn about code they add themselves; build b) has only the warnings of a normal build.
 
-  The reports are in 10-gcc-tests.log: UBSan as "runtime error: ..." with file:line, ASan as
+  The reports are in 08-gcc-tests.log: UBSan as "runtime error: ..." with file:line, ASan as
   "ERROR: AddressSanitizer: ...", both with stack traces; the tests keep running after them. A
   failed check of the standard library ("Assertion '...' failed.") stops its test program; ASan
   then reports the abort ("ABRT") with the stack trace.
   11-merge-findings.ps1 reads all three logs.
 
-  Linux code paths are checked here, not the Windows ones (#ifdef _WIN32); runs 01 to 08 check
+  Linux code paths are checked here, not the Windows ones (#ifdef _WIN32); runs 01 to 07 and 09 check
   those. Needs WSL with Ubuntu 24.04 and the packages of scripts\setup\04-setup-wsl-gcc.ps1.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\10-gcc.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\08-gcc.ps1
 
 .PARAMETER SkipBuild
   Reuse the build of part b) and only run the tests.
@@ -90,7 +90,7 @@ if ($SkipBuild) {
               "$([math]::Round($memKb / 1MB, 1)) GB memory in WSL)."
     $intro += "Build directories (in WSL, deleted first if left from an earlier run): $buildBase"
 }
-if (-not (Confirm-Run 'Analysis run 10: GCC in WSL' $intro "$OutDir\10-gcc-*.log")) {
+if (-not (Confirm-Run 'Analysis run 08: GCC in WSL' $intro "$OutDir\08-gcc-*.log")) {
     Write-Host 'Not started.'
     exit 1
 }
@@ -119,9 +119,9 @@ function Invoke-WslBuild([string]$Log, [string]$BuildDir, [string]$CxxFlags, [st
 # --- a) and b) Builds ----------------------------------------------------------------------------
 $logs = @()
 if (-not $SkipBuild) {
-    $log = "$OutDir\10-gcc-warnings.log"
+    $log = "$OutDir\08-gcc-warnings.log"
     $logs += $log
-    New-Log $log '10: GCC, strict warnings (RelWithDebInfo, ENABLE_CODE_ANALYSIS)' ($header + @(
+    New-Log $log '08: GCC, strict warnings (RelWithDebInfo, ENABLE_CODE_ANALYSIS)' ($header + @(
         "# Build directory: $warningsDir"
         "# CFLAGS/CXXFLAGS: $warningFlags"
     ))
@@ -130,9 +130,9 @@ if (-not $SkipBuild) {
     $rc = Invoke-WslBuild $log $warningsDir $warningFlags '-DENABLE_CODE_ANALYSIS=ON'
     if ($rc -ne 0) { Write-RunEnd $rc @("Log: $log"); exit $rc }
 
-    $log = "$OutDir\10-gcc-sanitizers-build.log"
+    $log = "$OutDir\08-gcc-sanitizers-build.log"
     $logs += $log
-    New-Log $log '10: GCC with UBSan, ASan and _GLIBCXX_ASSERTIONS (RelWithDebInfo)' ($header + @(
+    New-Log $log '08: GCC with UBSan, ASan and _GLIBCXX_ASSERTIONS (RelWithDebInfo)' ($header + @(
         "# Build directory: $sanitizersDir"
         "# CFLAGS/CXXFLAGS: $sanitizerFlags"
     ))
@@ -145,9 +145,9 @@ if (-not $SkipBuild) {
 # --- Tests ---------------------------------------------------------------------------------------
 # ctest -V shows the output of every test, also of the passing ones: the sanitizers report
 # without failing the test. ctest puts "<test number>: " in front of each line.
-$log = "$OutDir\10-gcc-tests.log"
+$log = "$OutDir\08-gcc-tests.log"
 $logs += $log
-New-Log $log '10: GCC with UBSan, ASan and _GLIBCXX_ASSERTIONS, all tests (ctest -V)' ($header + @(
+New-Log $log '08: GCC with UBSan, ASan and _GLIBCXX_ASSERTIONS, all tests (ctest -V)' ($header + @(
     "# Build directory: $sanitizersDir"
     "# UBSAN_OPTIONS: $ubsanOptions"
     "# ASAN_OPTIONS: $asanOptions"

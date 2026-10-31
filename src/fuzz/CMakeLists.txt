@@ -1,7 +1,7 @@
 # Fuzz targets for libFuzzer, built only with BUILD_FUZZERS (see the top-level CMakeLists.txt).
 # Each target is one program; FuzzSetup.cpp is compiled into every one of them, as it defines
 # LLVMFuzzerInitialize, which libFuzzer would not pull out of a static library.
-# The seed files are in corpus/, scripts/analysis/09-fuzz.ps1 runs the targets.
+# The seed files are in corpus/, scripts/analysis/10-fuzz.ps1 runs the targets.
 
 function(add_fuzzer name)
   add_executable(${name} ${ARGN} FuzzSetup.cpp FuzzSetup.h)

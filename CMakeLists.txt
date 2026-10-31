@@ -103,7 +103,7 @@ option(BUILD_DEV_TOOLS "Build developer tools (binarization_compare: binarizatio
 # project's code is built with AddressSanitizer and the coverage instrumentation libFuzzer
 # needs. MSVC can't link such code with uninstrumented code (LNK2038 annotate_vector ...), and
 # the instrumented code needs the libFuzzer runtime, so the program, the tests and the dev
-# tools are left out; the tests under sanitizers are scripts/analysis/08-sanitizers.ps1.
+# tools are left out; the tests under sanitizers are scripts/analysis/09-sanitizers.ps1.
 option(BUILD_FUZZERS "Build the fuzz targets (src/fuzz) instead of the program, with AddressSanitizer. MSVC only." OFF)
 if (BUILD_FUZZERS)
   if (NOT MSVC OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
