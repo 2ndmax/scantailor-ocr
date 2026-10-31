@@ -99,6 +99,22 @@ BOOST_AUTO_TEST_CASE(missing_output_attributes_get_defaults) {
   BOOST_CHECK_EQUAL(Params(empty).despeckleLevel(), 1.0);
 }
 
+// The options panel allows 2 to 255 posterization levels, and the posterizer refuses others, which
+// failed the page. A project file can hold any value; one outside gives the default.
+BOOST_AUTO_TEST_CASE(posterization_level_out_of_range_gives_the_default) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("posterization-options");
+  const int defaultLevel = ColorCommonOptions::PosterizationOptions().getLevel();
+  for (const char* level : {"0", "1", "256", "-5", "2000000000", "abc"}) {
+    el.setAttribute("level", level);
+    BOOST_CHECK_MESSAGE(ColorCommonOptions::PosterizationOptions(el).getLevel() == defaultLevel, "level " << level);
+  }
+  for (const int level : {2, 255}) {
+    el.setAttribute("level", level);
+    BOOST_CHECK_EQUAL(ColorCommonOptions::PosterizationOptions(el).getLevel(), level);
+  }
+}
+
 // ScanTailor stored the despeckle level as a word; the number is the same level on the slider.
 BOOST_AUTO_TEST_CASE(despeckle_level_as_word) {
   const std::vector<std::pair<QString, double>> cases

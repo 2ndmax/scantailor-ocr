@@ -6,6 +6,18 @@
 #include <QDomDocument>
 
 namespace output {
+namespace {
+constexpr int DEFAULT_POSTERIZATION_LEVEL = 4;
+
+// The posterizer takes 2 to 255 levels, as the options panel allows. Another value (also a
+// malformed one) can't come from the program, and the posterizer would refuse it and fail the page.
+int posterizationLevelFromXml(const QString& value) {
+  bool ok = false;
+  const int level = value.toInt(&ok);
+  return (ok && (level >= 2) && (level <= 255)) ? level : DEFAULT_POSTERIZATION_LEVEL;
+}
+}  // namespace
+
 ColorCommonOptions::ColorCommonOptions()
     : m_fillOffcut(true),
       m_fillOutsidePageBox(false),
@@ -166,11 +178,14 @@ QString ColorCommonOptions::formatFillingColor(FillingColor type) {
 /*=============================== ColorCommonOptions::PosterizationOptions ==================================*/
 
 ColorCommonOptions::PosterizationOptions::PosterizationOptions()
-    : m_isEnabled(false), m_level(4), m_isNormalizationEnabled(false), m_forceBlackAndWhite(true) {}
+    : m_isEnabled(false),
+      m_level(DEFAULT_POSTERIZATION_LEVEL),
+      m_isNormalizationEnabled(false),
+      m_forceBlackAndWhite(true) {}
 
 ColorCommonOptions::PosterizationOptions::PosterizationOptions(const QDomElement& el)
     : m_isEnabled(el.attribute("enabled") == "1"),
-      m_level(el.attribute("level", "4").toInt()),
+      m_level(posterizationLevelFromXml(el.attribute("level"))),
       m_isNormalizationEnabled(el.attribute("normalizationEnabled") == "1"),
       m_forceBlackAndWhite(el.attribute("forceBlackAndWhite") == "1") {}
 
