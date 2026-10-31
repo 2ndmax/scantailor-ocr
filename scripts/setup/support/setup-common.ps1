@@ -95,16 +95,26 @@ function Write-Step([string]$Text) {
 
 # Runs a command line through cmd (in the Visual Studio developer environment with -InVsEnv) and
 # shows its output while it runs; the output also goes to $Log. Returns the exit code.
+# Code page 65001 and a UTF-8 console encoding make the localized messages come out right: wsl.exe
+# writes UTF-8 (WSL_UTF8), which PowerShell would otherwise read as the OEM code page ("ÔÇ×", "├╝").
 function Invoke-Shown([string]$CommandLine, [string]$Log, [switch]$InVsEnv) {
     Add-LogLine $Log "`r`n# $(Get-Stamp) Command: $CommandLine"
     Write-Host "> $CommandLine" -ForegroundColor DarkGray
     $full = if ($InVsEnv) { "`"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine" } else { $CommandLine }
-    # cmd merges stderr into stdout itself, so PowerShell only sees plain output lines.
-    cmd /c "$full 2>&1" | ForEach-Object {
-        Write-Host $_
-        Add-LogLine $Log $_
+    $oldEncoding = [Console]::OutputEncoding
+    # Without a console (e.g. in the ISE) the encoding can't be set; the output then may show
+    # umlauts wrongly, nothing else.
+    try { [Console]::OutputEncoding = $Utf8 } catch {}
+    try {
+        # cmd merges stderr into stdout itself, so PowerShell only sees plain output lines.
+        cmd /c "chcp 65001 >nul && $full 2>&1" | ForEach-Object {
+            Write-Host $_
+            Add-LogLine $Log $_
+        }
+        $rc = $LASTEXITCODE
+    } finally {
+        try { [Console]::OutputEncoding = $oldEncoding } catch {}
     }
-    $rc = $LASTEXITCODE
     Add-LogLine $Log "# Exit code: $rc"
     return $rc
 }
