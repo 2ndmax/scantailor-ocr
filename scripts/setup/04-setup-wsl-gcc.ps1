@@ -161,7 +161,11 @@ $stepPackages = {
     if ((Invoke-Shown "$apt update <nul" $log) -ne 0) { return $false }
     if ((Invoke-Shown "$apt upgrade -y <nul" $log) -ne 0) { return $false }
     if ((Invoke-Shown "$apt install -y $($UbuntuPackages -join ' ') <nul" $log) -ne 0) { return $false }
-    if (-not (Test-UbuntuPackages)) { Write-Host 'Packages are still missing.' -ForegroundColor Red; return $false }
+    $missing = @(Get-MissingUbuntuPackages)
+    if ($missing.Count) {
+        Write-Host "Packages are still missing: $($missing -join ' ')" -ForegroundColor Red
+        return $false
+    }
     return $true
 }
 
