@@ -88,6 +88,11 @@ foreach ($in in $inputs) {
       $state += ', not finished (no "# End:" line)'
       $color = 'Yellow'
     }
+    $notRun = @(Select-String -LiteralPath $path -Pattern '^# NOT RUN:').Count
+    if ($notRun) {
+      $state += ", $notRun test program(s) not run"
+      $color = 'Yellow'
+    }
   }
   Write-Host ('  {0}  {1,-42} {2}' -f $in.Run, $in.What, $state) -ForegroundColor $color
 }
@@ -281,6 +286,17 @@ $own = @($all | Where-Object { $_.File -like 'src/*' })
 $ext = @($all | Where-Object { $_.File -notlike 'src/*' })
 [void]$md.AppendLine("Findings in ``src/``: **$($own.Count)**, of which $(@($own | Where-Object Bulk).Count) in bulk checks. Outside ``src/``: $($ext.Count).")
 [void]$md.AppendLine()
+# A test program that ran no tests has no findings either: that must not pass for a clean result.
+$notRunLines = @(foreach ($in in $inputs) {
+    $path = Join-Path $AnalysisDir $in.File
+    if (Test-Path -LiteralPath $path) {
+      Select-String -LiteralPath $path -Pattern '^# NOT RUN: (\S+)' | ForEach-Object { "Run $($in.Run): ``$($_.Matches[0].Groups[1].Value)``" }
+    }
+  })
+if ($notRunLines.Count) {
+  [void]$md.AppendLine("**Not run** (no test summary, so no findings from them): $($notRunLines -join ', ').")
+  [void]$md.AppendLine()
+}
 [void]$md.AppendLine('## Per tool and check')
 [void]$md.AppendLine()
 [void]$md.AppendLine('| Tool | Check | Findings | Bulk |')

@@ -29,7 +29,10 @@
   Known limitation: Qt6Widgets.dll allocates memory while it is loaded, before ASan has hooked
   the allocator, and ASan then reports freeing or growing that memory as an error inside Qt
   (core_tests, qt_tests) right at startup, with a stack trace only in Qt's DLL initialization.
-  This one report is no finding in the project's code; the programs run on after it.
+  This one report is no finding in the project's code. qt_tests runs on after it; core_tests may
+  stop right there (ASan "CHECK failed" in its stack depot) without running a single test. A test
+  program whose output holds no test summary is marked "# NOT RUN:" in the log, and
+  11-merge-findings.ps1 names it in findings.md.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-sanitizers.ps1 -Images D:\scans
 
@@ -145,7 +148,7 @@ function Read-Shared([string]$Path) {
     }
 }
 
-function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$TimeoutMin) {
+function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$TimeoutMin, [switch]$IsTest) {
     $clock = [Diagnostics.Stopwatch]::StartNew()
     Write-Host "Running $Exe ... " -NoNewline
     Add-LogLine $Log "`r`n# ===== $Exe $ArgLine"
@@ -162,22 +165,30 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
         $p.WaitForExit()
         Add-LogLine $Log "# TIMEOUT after $TimeoutMin minutes, process killed"
     }
+    $stdout = Read-Shared $tmpOut
     Add-LogLine $Log '# --- stdout'
-    Add-LogLine $Log (Read-Shared $tmpOut)
+    Add-LogLine $Log $stdout
     $stderr = Read-Shared $tmpErr
     Add-LogLine $Log '# --- stderr (UBSan and ASan reports go here)'
     Add-LogLine $Log $stderr
     Add-LogLine $Log "# Exit code: $($p.ExitCode)"
+    # Boost.Test ends with "*** No errors detected" or "*** N failure(s) ... detected", Qt Test with
+    # "Totals:". Without either, the program stopped before its tests, and its exit code alone
+    # doesn't show that.
+    $summary = '\*\*\* No errors detected|\*\*\* \d+ failures? (is|are) detected|^Totals:'
+    $ran = (-not $IsTest) -or ([regex]::IsMatch("$stdout`n$stderr", $summary, 'Multiline'))
+    if (-not $ran) { Add-LogLine $Log "# NOT RUN: $Exe printed no test summary; it stopped before or during its tests." }
     Add-LogLine $Log "# End: $(Get-Stamp)"
     $reports = ([regex]::Matches($stderr, 'runtime error:|ERROR: AddressSanitizer')).Count
     Write-Host ("exit code {0}, {1} sanitizer reports, {2:hh\:mm\:ss}" -f $p.ExitCode, $reports, $clock.Elapsed)
+    if (-not $ran) { Write-Host "  $Exe ran no tests (no test summary): see the log." -ForegroundColor Red }
 }
 
 # --- a) Tests ------------------------------------------------------------------------------------
 $log = "$OutDir\09-ubsan-tests.log"
 New-Log $log '09: UBSan + ASan, all test programs (QT_QPA_PLATFORM=offscreen)' $header
 foreach ($t in 'foundation_tests.exe', 'math_tests.exe', 'imageproc_tests.exe', 'core_tests.exe', 'qt_tests.exe') {
-    Invoke-Logged $log $t '' 60
+    Invoke-Logged $log $t '' 60 -IsTest
 }
 
 # --- b) Dev tools on real scans ------------------------------------------------------------------
