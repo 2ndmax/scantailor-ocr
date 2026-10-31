@@ -71,8 +71,13 @@ function Write-VirtualMachineNote {
     if ("$($system.Manufacturer) $($system.Model)" -notmatch 'Virtual Machine|VMware|VirtualBox|KVM|QEMU') { return }
     Write-Host 'Windows runs in a virtual machine. WSL 2 then needs nested virtualization, which the' -ForegroundColor Yellow
     Write-Host 'host must allow, else Ubuntu fails with HCS_E_HYPERV_NOT_INSTALLED. With Hyper-V, on' -ForegroundColor Yellow
-    Write-Host 'the host, with this virtual machine shut down, in PowerShell as administrator:' -ForegroundColor Yellow
-    Write-Host '  Set-VMProcessor -VMName <name of the virtual machine> -ExposeVirtualizationExtensions $true' -ForegroundColor Yellow
+    Write-Host 'the host, in PowerShell as administrator:' -ForegroundColor Yellow
+    Write-Host '  1. Get-VM must be known there. If it is not, enable the module (a restart may follow):' -ForegroundColor Yellow
+    Write-Host '       Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-Management-PowerShell' -ForegroundColor Yellow
+    Write-Host '  2. Shut this virtual machine down.' -ForegroundColor Yellow
+    Write-Host "  3. Set-VMProcessor -VMName 'MyVM' -ExposeVirtualizationExtensions `$true" -ForegroundColor Yellow
+    Write-Host "     ('MyVM' is the name that Get-VM lists for this virtual machine.)" -ForegroundColor Yellow
+    Write-Host '  4. Start the virtual machine again.' -ForegroundColor Yellow
 }
 
 $stepWsl = {
