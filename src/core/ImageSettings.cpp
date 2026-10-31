@@ -3,6 +3,7 @@
 
 #include "ImageSettings.h"
 
+#include "ProjectReader.h"
 #include "RelinkedKeys.h"
 #include "Utils.h"
 
@@ -30,6 +31,41 @@ BinaryThreshold readBwThreshold(const QDomElement& el) {
 void ImageSettings::clear() {
   QMutexLocker locker(&m_mutex);
   m_perPageParams.clear();
+}
+
+void ImageSettings::load(const ProjectReader& reader, const QDomElement& imageSettingsEl) {
+  clear();
+
+  const QString pageTagName("page");
+  QDomNode node(imageSettingsEl.firstChild());
+  for (; !node.isNull(); node = node.nextSibling()) {
+    if (!node.isElement()) {
+      continue;
+    }
+    if (node.nodeName() != pageTagName) {
+      continue;
+    }
+    const QDomElement el(node.toElement());
+
+    bool ok = true;
+    const int id = el.attribute("id").toInt(&ok);
+    if (!ok) {
+      continue;
+    }
+
+    const PageId pageId(reader.pageId(id));
+    if (pageId.isNull()) {
+      continue;
+    }
+
+    const QDomElement paramsEl(el.namedItem("image-params").toElement());
+    if (paramsEl.isNull()) {
+      continue;
+    }
+
+    const ImageSettings::PageParams params(paramsEl);
+    setPageParams(pageId, params);
+  }
 }
 
 void ImageSettings::performRelinking(const AbstractRelinker& relinker) {

@@ -16,6 +16,8 @@ class PageId;
 class Margins;
 class PageSequence;
 class AbstractRelinker;
+class ProjectReader;
+class QDomElement;
 class QSizeF;
 class QRectF;
 
@@ -38,6 +40,11 @@ class Settings {
    * \brief Removes all stored data.
    */
   void clear();
+
+  /**
+   * Replaces the settings with those of the project file's element of this filter.
+   */
+  void load(const ProjectReader& reader, const QDomElement& filterEl);
 
   void performRelinking(const AbstractRelinker& relinker);
 

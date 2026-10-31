@@ -111,54 +111,9 @@ void Filter::writePageSettings(QDomDocument& doc, QDomElement& filterEl, const P
 }
 
 void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
-  m_settings->clear();
-
   const QDomElement filterEl(filtersEl.namedItem("page-layout").toElement());
-
-  m_settings->setOutputSizeOptions(OutputSizeOptions(filterEl.namedItem("output-size").toElement()));
-
-  const QDomElement guidesEl = filterEl.namedItem("guides").toElement();
-  if (!guidesEl.isNull()) {
-    QDomNode node(guidesEl.firstChild());
-    for (; !node.isNull(); node = node.nextSibling()) {
-      if (!node.isElement() || (node.nodeName() != "guide")) {
-        continue;
-      }
-      m_settings->guides().emplace_back(node.toElement());
-    }
-  }
-
-  const QString pageTagName("page");
-  QDomNode node(filterEl.firstChild());
-  for (; !node.isNull(); node = node.nextSibling()) {
-    if (!node.isElement()) {
-      continue;
-    }
-    if (node.nodeName() != pageTagName) {
-      continue;
-    }
-    const QDomElement el(node.toElement());
-
-    bool ok = true;
-    const int id = el.attribute("id").toInt(&ok);
-    if (!ok) {
-      continue;
-    }
-
-    const PageId pageId(reader.pageId(id));
-    if (pageId.isNull()) {
-      continue;
-    }
-
-    const QDomElement paramsEl(el.namedItem("params").toElement());
-    if (paramsEl.isNull()) {
-      continue;
-    }
-
-    const Params params(paramsEl);
-    m_settings->setPageParams(pageId, params);
-  }
-}  // Filter::loadSettings
+  m_settings->load(reader, filterEl);
+}
 
 void Filter::setContentBox(const PageId& pageId, const ImageTransformation& xform, const QRectF& contentRect) {
   const QSizeF contentSizeMm(Utils::calcRectSizeMM(xform, contentRect));

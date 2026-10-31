@@ -81,46 +81,10 @@ QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc)
 }
 
 void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
-  m_settings->clear();
-
   const QDomElement filterEl(filtersEl.namedItem("deskew").toElement());
-  // Projects without a per-page detection method had one for the whole project.
-  const SkewDetection legacyDetection
-      = filterEl.attribute("algoContentBased", "1") != "0" ? DETECT_CONTENT : DETECT_TOP_EDGE;
-
-  const QString pageTagName("page");
-  QDomNode node(filterEl.firstChild());
-  for (; !node.isNull(); node = node.nextSibling()) {
-    if (!node.isElement()) {
-      continue;
-    }
-    if (node.nodeName() != pageTagName) {
-      continue;
-    }
-    const QDomElement el(node.toElement());
-
-    bool ok = true;
-    const int id = el.attribute("id").toInt(&ok);
-    if (!ok) {
-      continue;
-    }
-
-    const PageId pageId(reader.pageId(id));
-    if (pageId.isNull()) {
-      continue;
-    }
-
-    const QDomElement paramsEl(el.namedItem("params").toElement());
-    if (paramsEl.isNull()) {
-      continue;
-    }
-
-    const Params params(paramsEl, legacyDetection);
-    m_settings->setPageParams(pageId, params);
-  }
-
-  loadImageSettings(reader, filterEl.namedItem("image-settings").toElement());
-}  // Filter::loadSettings
+  m_settings->load(reader, filterEl);
+  m_imageSettings->load(reader, filterEl.namedItem("image-settings").toElement());
+}
 
 void Filter::writeParams(QDomDocument& doc, QDomElement& filterEl, const Params& params, int numericId) const {
   QDomElement pageEl(doc.createElement("page"));
@@ -189,40 +153,5 @@ void Filter::writeImageParams(QDomDocument& doc, QDomElement& filterEl, const Pa
   pageEl.appendChild(params->toXml(doc, "image-params"));
 
   filterEl.appendChild(pageEl);
-}
-
-void Filter::loadImageSettings(const ProjectReader& reader, const QDomElement& imageSettingsEl) {
-  m_imageSettings->clear();
-
-  const QString pageTagName("page");
-  QDomNode node(imageSettingsEl.firstChild());
-  for (; !node.isNull(); node = node.nextSibling()) {
-    if (!node.isElement()) {
-      continue;
-    }
-    if (node.nodeName() != pageTagName) {
-      continue;
-    }
-    const QDomElement el(node.toElement());
-
-    bool ok = true;
-    const int id = el.attribute("id").toInt(&ok);
-    if (!ok) {
-      continue;
-    }
-
-    const PageId pageId(reader.pageId(id));
-    if (pageId.isNull()) {
-      continue;
-    }
-
-    const QDomElement paramsEl(el.namedItem("image-params").toElement());
-    if (paramsEl.isNull()) {
-      continue;
-    }
-
-    const ImageSettings::PageParams params(paramsEl);
-    m_imageSettings->setPageParams(pageId, params);
-  }
 }
 }  // namespace deskew

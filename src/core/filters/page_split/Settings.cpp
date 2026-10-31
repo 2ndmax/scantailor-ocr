@@ -3,8 +3,10 @@
 
 #include "Settings.h"
 
+#include <QDomElement>
 #include <cassert>
 
+#include "ProjectReader.h"
 #include "RelinkedKeys.h"
 
 namespace page_split {
@@ -299,4 +301,52 @@ void Settings::UpdateAction::setParams(const Params& params) {
 void Settings::UpdateAction::clearParams() {
   m_paramsAction = CLEAR;
 }
+
+void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+  clear();
+
+  const QString defaultLayoutType(filterEl.attribute("defaultLayoutType"));
+  setLayoutTypeForAllPages(layoutTypeFromString(defaultLayoutType));
+
+  const QString imageTagName("image");
+  QDomNode node(filterEl.firstChild());
+  for (; !node.isNull(); node = node.nextSibling()) {
+    if (!node.isElement()) {
+      continue;
+    }
+    if (node.nodeName() != imageTagName) {
+      continue;
+    }
+    QDomElement el(node.toElement());
+
+    bool ok = true;
+    const int id = el.attribute("id").toInt(&ok);
+    if (!ok) {
+      continue;
+    }
+
+    const ImageId imageId(reader.imageId(id));
+    if (imageId.isNull()) {
+      continue;
+    }
+
+    Settings::UpdateAction update;
+
+    const QString layoutType(el.attribute("layoutType"));
+    if (!layoutType.isEmpty()) {
+      update.setLayoutType(layoutTypeFromString(layoutType));
+    }
+
+    QDomElement paramsEl(el.namedItem("params").toElement());
+    if (!paramsEl.isNull()) {
+      update.setParams(Params(paramsEl));
+    }
+
+    updatePage(imageId, update);
+    // Projects from before the detection methods have none; their pages keep Edges.
+    if (el.hasAttribute("detectionMethod")) {
+      setDetectionMethod(imageId, splitDetectionMethodFromString(el.attribute("detectionMethod")));
+    }
+  }
+}  // Settings::load
 }  // namespace page_split

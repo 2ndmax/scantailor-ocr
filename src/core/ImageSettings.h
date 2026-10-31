@@ -15,6 +15,7 @@
 #include "PageId.h"
 
 class AbstractRelinker;
+class ProjectReader;
 
 class ImageSettings {
   DECLARE_NON_COPYABLE(ImageSettings)
@@ -47,6 +48,11 @@ class ImageSettings {
   virtual ~ImageSettings() = default;
 
   void clear();
+
+  /**
+   * Replaces the settings with those of the project file's <image-settings> element of a filter.
+   */
+  void load(const ProjectReader& reader, const QDomElement& imageSettingsEl);
 
   void performRelinking(const AbstractRelinker& relinker);
 

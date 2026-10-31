@@ -3,9 +3,13 @@
 
 #include "Settings.h"
 
+#include <XmlUnmarshaller.h>
+
+#include <QDomElement>
 #include <iostream>
 
 #include "../../Utils.h"
+#include "ProjectReader.h"
 #include "RelinkedKeys.h"
 
 using namespace core;
@@ -96,4 +100,42 @@ const DeviationProvider<PageId>& Settings::deviationProvider() const {
   return m_deviationProvider;
 }
 
+
+void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+  clear();
+
+  setPageDetectionBox(XmlUnmarshaller::sizeF(filterEl.namedItem("page-detection-box").toElement()));
+  setPageDetectionTolerance(filterEl.attribute("pageDetectionTolerance", "0.1").toDouble());
+
+  const QString pageTagName("page");
+  QDomNode node(filterEl.firstChild());
+  for (; !node.isNull(); node = node.nextSibling()) {
+    if (!node.isElement()) {
+      continue;
+    }
+    if (node.nodeName() != pageTagName) {
+      continue;
+    }
+    const QDomElement el(node.toElement());
+
+    bool ok = true;
+    const int id = el.attribute("id").toInt(&ok);
+    if (!ok) {
+      continue;
+    }
+
+    const PageId pageId(reader.pageId(id));
+    if (pageId.isNull()) {
+      continue;
+    }
+
+    const QDomElement paramsEl(el.namedItem("params").toElement());
+    if (paramsEl.isNull()) {
+      continue;
+    }
+
+    const Params params(paramsEl);
+    setPageParams(pageId, params);
+  }
+}  // Settings::load
 }  // namespace select_content

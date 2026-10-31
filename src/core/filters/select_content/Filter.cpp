@@ -96,44 +96,9 @@ void Filter::writePageSettings(QDomDocument& doc, QDomElement& filterEl, const P
 }
 
 void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
-  m_settings->clear();
-
   const QDomElement filterEl(filtersEl.namedItem("select-content").toElement());
-
-  m_settings->setPageDetectionBox(XmlUnmarshaller::sizeF(filterEl.namedItem("page-detection-box").toElement()));
-  m_settings->setPageDetectionTolerance(filterEl.attribute("pageDetectionTolerance", "0.1").toDouble());
-
-  const QString pageTagName("page");
-  QDomNode node(filterEl.firstChild());
-  for (; !node.isNull(); node = node.nextSibling()) {
-    if (!node.isElement()) {
-      continue;
-    }
-    if (node.nodeName() != pageTagName) {
-      continue;
-    }
-    const QDomElement el(node.toElement());
-
-    bool ok = true;
-    const int id = el.attribute("id").toInt(&ok);
-    if (!ok) {
-      continue;
-    }
-
-    const PageId pageId(reader.pageId(id));
-    if (pageId.isNull()) {
-      continue;
-    }
-
-    const QDomElement paramsEl(el.namedItem("params").toElement());
-    if (paramsEl.isNull()) {
-      continue;
-    }
-
-    const Params params(paramsEl);
-    m_settings->setPageParams(pageId, params);
-  }
-}  // Filter::loadSettings
+  m_settings->load(reader, filterEl);
+}
 
 std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          std::shared_ptr<page_layout::Task> nextTask,

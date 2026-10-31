@@ -63,53 +63,9 @@ QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc)
 }
 
 void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
-  m_settings->clear();
-
   const QDomElement filterEl(filtersEl.namedItem("page-split").toElement());
-  const QString defaultLayoutType(filterEl.attribute("defaultLayoutType"));
-  m_settings->setLayoutTypeForAllPages(layoutTypeFromString(defaultLayoutType));
-
-  const QString imageTagName("image");
-  QDomNode node(filterEl.firstChild());
-  for (; !node.isNull(); node = node.nextSibling()) {
-    if (!node.isElement()) {
-      continue;
-    }
-    if (node.nodeName() != imageTagName) {
-      continue;
-    }
-    QDomElement el(node.toElement());
-
-    bool ok = true;
-    const int id = el.attribute("id").toInt(&ok);
-    if (!ok) {
-      continue;
-    }
-
-    const ImageId imageId(reader.imageId(id));
-    if (imageId.isNull()) {
-      continue;
-    }
-
-    Settings::UpdateAction update;
-
-    const QString layoutType(el.attribute("layoutType"));
-    if (!layoutType.isEmpty()) {
-      update.setLayoutType(layoutTypeFromString(layoutType));
-    }
-
-    QDomElement paramsEl(el.namedItem("params").toElement());
-    if (!paramsEl.isNull()) {
-      update.setParams(Params(paramsEl));
-    }
-
-    m_settings->updatePage(imageId, update);
-    // Projects from before the detection methods have none; their pages keep Edges.
-    if (el.hasAttribute("detectionMethod")) {
-      m_settings->setDetectionMethod(imageId, splitDetectionMethodFromString(el.attribute("detectionMethod")));
-    }
-  }
-}  // Filter::loadSettings
+  m_settings->load(reader, filterEl);
+}
 
 void Filter::pageOrientationUpdate(const ImageId& imageId, const OrthogonalRotation& orientation) {
   const Settings::Record record(m_settings->getPageRecord(imageId));

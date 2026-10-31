@@ -5,6 +5,7 @@
 
 #include <DeviationProvider.h>
 
+#include <QDomElement>
 #include <QMutex>
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multi_index/hashed_index.hpp>
@@ -20,6 +21,7 @@
 #include "PageId.h"
 #include "PageSequence.h"
 #include "Params.h"
+#include "ProjectReader.h"
 #include "RelinkedKeys.h"
 
 
@@ -635,4 +637,52 @@ std::vector<Guide>& Settings::Impl::guides() {
   // would race. Not fixed because all callers run in the GUI thread.
   return m_guides;
 }
+
+void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+  clear();
+
+  setOutputSizeOptions(OutputSizeOptions(filterEl.namedItem("output-size").toElement()));
+
+  const QDomElement guidesEl = filterEl.namedItem("guides").toElement();
+  if (!guidesEl.isNull()) {
+    QDomNode node(guidesEl.firstChild());
+    for (; !node.isNull(); node = node.nextSibling()) {
+      if (!node.isElement() || (node.nodeName() != "guide")) {
+        continue;
+      }
+      guides().emplace_back(node.toElement());
+    }
+  }
+
+  const QString pageTagName("page");
+  QDomNode node(filterEl.firstChild());
+  for (; !node.isNull(); node = node.nextSibling()) {
+    if (!node.isElement()) {
+      continue;
+    }
+    if (node.nodeName() != pageTagName) {
+      continue;
+    }
+    const QDomElement el(node.toElement());
+
+    bool ok = true;
+    const int id = el.attribute("id").toInt(&ok);
+    if (!ok) {
+      continue;
+    }
+
+    const PageId pageId(reader.pageId(id));
+    if (pageId.isNull()) {
+      continue;
+    }
+
+    const QDomElement paramsEl(el.namedItem("params").toElement());
+    if (paramsEl.isNull()) {
+      continue;
+    }
+
+    const Params params(paramsEl);
+    setPageParams(pageId, params);
+  }
+}  // Settings::load
 }  // namespace page_layout

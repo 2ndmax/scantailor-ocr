@@ -71,7 +71,6 @@ class Filter : public AbstractFilter {
 
   void writeImageParams(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
-  void loadImageSettings(const ProjectReader& reader, const QDomElement& imageSettingsEl);
 
   std::shared_ptr<Settings> m_settings;
   std::shared_ptr<ImageSettings> m_imageSettings;

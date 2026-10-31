@@ -17,6 +17,8 @@
 #include "Params.h"
 
 class AbstractRelinker;
+class ProjectReader;
+class QDomElement;
 
 namespace deskew {
 class Settings {
@@ -28,6 +30,11 @@ class Settings {
   virtual ~Settings();
 
   void clear();
+
+  /**
+   * Replaces the settings with those of the project file's element of this filter.
+   */
+  void load(const ProjectReader& reader, const QDomElement& filterEl);
 
   void performRelinking(const AbstractRelinker& relinker);
 

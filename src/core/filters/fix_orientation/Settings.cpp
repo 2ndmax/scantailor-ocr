@@ -3,7 +3,10 @@
 
 #include "Settings.h"
 
+#include <QDomElement>
+
 #include "../../Utils.h"
+#include "ProjectReader.h"
 #include "RelinkedKeys.h"
 
 using namespace core;
@@ -71,4 +74,48 @@ ImageTrim Settings::getTrim(const ImageId& imageId) const {
   }
   return ImageTrim();
 }
+
+void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+  clear();
+
+  const QString imageTagName("image");
+  QDomNode node(filterEl.firstChild());
+  for (; !node.isNull(); node = node.nextSibling()) {
+    if (!node.isElement()) {
+      continue;
+    }
+    if (node.nodeName() != imageTagName) {
+      continue;
+    }
+    QDomElement el(node.toElement());
+
+    bool ok = true;
+    const int id = el.attribute("id").toInt(&ok);
+    if (!ok) {
+      continue;
+    }
+
+    const ImageId imageId(reader.imageId(id));
+    if (imageId.isNull()) {
+      continue;
+    }
+
+    const QDomElement rotationEl(el.namedItem("rotation").toElement());
+    if (!rotationEl.isNull()) {
+      const OrthogonalRotation rotation(rotationEl);
+      applyRotation(imageId, rotation);
+    }
+
+    const QDomElement trimEl(el.namedItem("trim").toElement());
+    if (!trimEl.isNull()) {
+      ImageTrim trim;
+      trim.enabled = (trimEl.attribute("enabled", "0") != "0");
+      trim.left = trimEl.attribute("left", "0").toInt();
+      trim.right = trimEl.attribute("right", "0").toInt();
+      trim.top = trimEl.attribute("top", "0").toInt();
+      trim.bottom = trimEl.attribute("bottom", "0").toInt();
+      setTrim(imageId, trim);
+    }
+  }
+}  // Settings::load
 }  // namespace fix_orientation

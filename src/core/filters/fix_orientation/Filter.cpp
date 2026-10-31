@@ -57,52 +57,10 @@ QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc)
 }
 
 void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
-  m_settings->clear();
-
-  QDomElement filterEl(filtersEl.namedItem("fix-orientation").toElement());
-
-  const QString imageTagName("image");
-  QDomNode node(filterEl.firstChild());
-  for (; !node.isNull(); node = node.nextSibling()) {
-    if (!node.isElement()) {
-      continue;
-    }
-    if (node.nodeName() != imageTagName) {
-      continue;
-    }
-    QDomElement el(node.toElement());
-
-    bool ok = true;
-    const int id = el.attribute("id").toInt(&ok);
-    if (!ok) {
-      continue;
-    }
-
-    const ImageId imageId(reader.imageId(id));
-    if (imageId.isNull()) {
-      continue;
-    }
-
-    const QDomElement rotationEl(el.namedItem("rotation").toElement());
-    if (!rotationEl.isNull()) {
-      const OrthogonalRotation rotation(rotationEl);
-      m_settings->applyRotation(imageId, rotation);
-    }
-
-    const QDomElement trimEl(el.namedItem("trim").toElement());
-    if (!trimEl.isNull()) {
-      ImageTrim trim;
-      trim.enabled = (trimEl.attribute("enabled", "0") != "0");
-      trim.left = trimEl.attribute("left", "0").toInt();
-      trim.right = trimEl.attribute("right", "0").toInt();
-      trim.top = trimEl.attribute("top", "0").toInt();
-      trim.bottom = trimEl.attribute("bottom", "0").toInt();
-      m_settings->setTrim(imageId, trim);
-    }
-  }
-
-  loadImageSettings(reader, filterEl.namedItem("image-settings").toElement());
-}  // Filter::loadSettings
+  const QDomElement filterEl(filtersEl.namedItem("fix-orientation").toElement());
+  m_settings->load(reader, filterEl);
+  m_imageSettings->load(reader, filterEl.namedItem("image-settings").toElement());
+}
 
 std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          std::shared_ptr<page_split::Task> nextTask,
@@ -172,40 +130,5 @@ void Filter::writeImageParams(QDomDocument& doc, QDomElement& filterEl, const Pa
   pageEl.appendChild(params->toXml(doc, "image-params"));
 
   filterEl.appendChild(pageEl);
-}
-
-void Filter::loadImageSettings(const ProjectReader& reader, const QDomElement& imageSettingsEl) {
-  m_imageSettings->clear();
-
-  const QString pageTagName("page");
-  QDomNode node(imageSettingsEl.firstChild());
-  for (; !node.isNull(); node = node.nextSibling()) {
-    if (!node.isElement()) {
-      continue;
-    }
-    if (node.nodeName() != pageTagName) {
-      continue;
-    }
-    const QDomElement el(node.toElement());
-
-    bool ok = true;
-    const int id = el.attribute("id").toInt(&ok);
-    if (!ok) {
-      continue;
-    }
-
-    const PageId pageId(reader.pageId(id));
-    if (pageId.isNull()) {
-      continue;
-    }
-
-    const QDomElement paramsEl(el.namedItem("image-params").toElement());
-    if (paramsEl.isNull()) {
-      continue;
-    }
-
-    const ImageSettings::PageParams params(paramsEl);
-    m_imageSettings->setPageParams(pageId, params);
-  }
 }
 }  // namespace fix_orientation

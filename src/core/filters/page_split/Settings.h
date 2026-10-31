@@ -18,6 +18,8 @@
 #include "SplitDetectionMethod.h"
 
 class AbstractRelinker;
+class ProjectReader;
+class QDomElement;
 
 namespace page_split {
 class Settings {
@@ -116,6 +118,11 @@ class Settings {
    * \brief Reset all settings to their initial state.
    */
   void clear();
+
+  /**
+   * Replaces the settings with those of the project file's element of this filter.
+   */
+  void load(const ProjectReader& reader, const QDomElement& filterEl);
 
   void performRelinking(const AbstractRelinker& relinker);
 
