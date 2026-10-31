@@ -5,6 +5,7 @@
 
 #include <core/ApplicationSettings.h>
 #include <core/IconProvider.h>
+#include <filters/deskew/Params.h>
 #include <filters/output/BinarizationMethods.h>
 #include <filters/output/ColorParams.h>
 #include <filters/output/DewarpingOptions.h>
@@ -364,7 +365,8 @@ void DefaultParamsDialog::updateDeskewDisplay(const DefaultParams::DeskewParams&
     deskewManualBtn->setChecked(true);
   }
   angleSpinBox->setEnabled(mode == MODE_MANUAL);
-  angleSpinBox->setValue(params.getDeskewAngleDeg());
+  // With the sign the Deskew step shows, so that an angle reads the same in both.
+  angleSpinBox->setValue(deskew::degreesToSpinBox(params.getDeskewAngleDeg()));
   deskewDetectionLabel->setEnabled(mode == MODE_AUTO);
   deskewDetectionCB->setEnabled(mode == MODE_AUTO);
   deskewDetectionCB->setCurrentIndex(params.getDetection());
@@ -1019,7 +1021,8 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   pageSplitParams.setPageOrder(rightFirstBtn->isChecked() ? Qt::RightToLeft : Qt::LeftToRight);
   pageSplitParams.setDetectionMethod(static_cast<SplitDetectionMethod>(detectionMethodBox->currentData().toInt()));
 
-  DefaultParams::DeskewParams deskewParams(angleSpinBox->value(), deskewAutoBtn->isChecked() ? MODE_AUTO : MODE_MANUAL,
+  DefaultParams::DeskewParams deskewParams(deskew::spinBoxToDegrees(angleSpinBox->value()),
+                                           deskewAutoBtn->isChecked() ? MODE_AUTO : MODE_MANUAL,
                                            deskewObliqueAutoBtn->isChecked());
   deskewParams.setDetection(static_cast<deskew::SkewDetection>(deskewDetectionCB->currentIndex()));
 
