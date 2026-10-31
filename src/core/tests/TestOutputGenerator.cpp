@@ -113,6 +113,8 @@ struct Run {
   // Values as read from a project file (attribute values); empty keeps the defaults of the test.
   QString windowSizeAttribute;
   QString outputDpiAttribute;
+  // Gets the size the generator announces for the output, if set.
+  QSize* announcedSize = nullptr;
 };
 
 std::unique_ptr<OutputImage> generate(const Run& run) {
@@ -168,6 +170,9 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
     xform.setPostScaleFactor(run.postScaleFactor);
   }
   const OutputGenerator generator(xform, QPolygonF(run.content));
+  if (run.announcedSize) {
+    *run.announcedSize = generator.outputImageSize();
+  }
 
   ZoneSet pictureZones = run.withPictureZone ? pictureZone() : ZoneSet();
   const ZoneSet fillZones;
@@ -315,6 +320,18 @@ BOOST_AUTO_TEST_CASE(post_scale_factor_scales_the_output) {
   const QImage output = process(run);
   BOOST_CHECK_LE(std::abs(output.width() - WIDTH * 3 / 2), 1);
   BOOST_CHECK_LE(std::abs(output.height() - HEIGHT * 3 / 2), 1);
+}
+
+// A page that scales to less than half a pixel (e.g. a far too high DPI in the file header) still
+// gives an image of at least 1 x 1 pixel, and the generator announces that size.
+BOOST_AUTO_TEST_CASE(tiny_output_has_the_announced_size) {
+  Run run;
+  run.postScaleFactor = 0.001;  // 400 x 300 pixels scale to 0.4 x 0.3.
+  QSize announced;
+  run.announcedSize = &announced;
+  const QImage output = process(run);
+  BOOST_CHECK(!announced.isEmpty());
+  BOOST_CHECK(output.size() == announced);
 }
 
 BOOST_AUTO_TEST_CASE(output_over_the_size_limit_is_refused) {

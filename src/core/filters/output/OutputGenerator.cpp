@@ -94,6 +94,12 @@ const QRectF INT_SAFE_RANGE(-(1 << 29), -(1 << 29), 1 << 30, 1 << 30);
 QRect toRectInIntRange(const QRectF& rect) {
   return rect.intersected(INT_SAFE_RANGE).toRect();
 }
+
+// The size of the output image. At least 1 x 1 pixel, as there are no empty images, also for a
+// page that scales to less than half a pixel.
+QSize outputSizeOf(const QRect& outRect) {
+  return outRect.size().expandedTo(QSize(1, 1));
+}
 }  // namespace
 
 OutputGenerator::OutputGenerator(const ImageTransformation& xform, const QPolygonF& contentRectPhys)
@@ -112,7 +118,7 @@ OutputGenerator::OutputGenerator(const ImageTransformation& xform, const QPolygo
 }
 
 QSize OutputGenerator::outputImageSize() const {
-  return m_outRect.size();
+  return outputSizeOf(m_outRect);
 }
 
 class OutputGenerator::Processor {
@@ -361,7 +367,7 @@ void OutputGenerator::Processor::initParams() {
 }
 
 void OutputGenerator::Processor::calcAreas() {
-  m_targetSize = m_outRect.size().expandedTo(QSize(1, 1));
+  m_targetSize = outputSizeOf(m_outRect);
   // The limit for images also holds for the output, as it is processed the same way. Without it,
   // a high output resolution or a too low DPI of the image could make the output arbitrarily large.
   if (ImageSizeLimit::exceeds(m_targetSize)) {
