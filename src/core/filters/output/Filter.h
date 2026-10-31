@@ -10,11 +10,9 @@
 
 #include "AbstractFilter.h"
 #include "ColorParams.h"
-#include "FillZonePropFactory.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageView.h"
-#include "PictureZonePropFactory.h"
 #include "ProcessingOptions.h"
 #include "SafeDeletingQObjectPtr.h"
 
@@ -97,8 +95,6 @@ class Filter : public AbstractFilter {
 
   std::shared_ptr<Settings> m_settings;
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
-  PictureZonePropFactory m_pictureZonePropFactory;
-  FillZonePropFactory m_fillZonePropFactory;
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
   std::shared_ptr<ProcessingOptions> m_processingOptions;

@@ -36,7 +36,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <map>
 #include <new>
 
 #include "FuzzSetup.h"
@@ -51,6 +50,7 @@
 #include "filters/fix_orientation/Utils.h"
 #include "filters/output/OutputGenerator.h"
 #include "filters/output/Params.h"
+#include "filters/output/Settings.h"
 #include "filters/output/Utils.h"
 #include "filters/page_layout/Params.h"
 #include "filters/page_layout/Settings.h"
@@ -104,23 +104,6 @@ void checkGeometry(const ImageTransformation& xform, const char* rule) {
         rule);
 }
 
-// The output step's <params> of each page, as output::Filter::loadSettings() reads them. Only
-// the output resolution is used.
-std::map<PageId, output::Params> readOutputParams(const ProjectReader& reader, const QDomElement& filtersEl) {
-  std::map<PageId, output::Params> result;
-  const QDomElement filterEl = filtersEl.namedItem("output").toElement();
-  for (QDomElement el = filterEl.firstChildElement("page"); !el.isNull(); el = el.nextSiblingElement("page")) {
-    bool ok = true;
-    const int id = el.attribute("id").toInt(&ok);
-    const PageId pageId = ok ? reader.pageId(id) : PageId();
-    const QDomElement paramsEl = el.namedItem("params").toElement();
-    if (!pageId.isNull() && !paramsEl.isNull()) {
-      result.insert_or_assign(pageId, output::Params(paramsEl));
-    }
-  }
-  return result;
-}
-
 struct Steps {
   fix_orientation::Settings fixOrientation;
   ImageSettings fixOrientationImageSettings;
@@ -129,7 +112,8 @@ struct Steps {
   ImageSettings deskewImageSettings;
   select_content::Settings selectContent;
   page_layout::Settings pageLayout;
-  std::map<PageId, output::Params> output;
+  // Only the output resolution is used.
+  output::Settings output;
   DefaultParams defaults;
 };
 
@@ -152,8 +136,8 @@ void loadDefaultSettings(Steps& steps, const PageInfo& page) {
     steps.pageLayout.setPageParams(page.id(),
                                    page_layout::Utils::buildDefaultParams(page.metadata().dpi(), steps.defaults));
   }
-  if (steps.output.count(page.id()) == 0) {
-    steps.output.insert_or_assign(page.id(), output::Utils::buildDefaultParams(steps.defaults));
+  if (steps.output.isParamsNull(page.id())) {
+    steps.output.setParams(page.id(), output::Utils::buildDefaultParams(steps.defaults));
   }
 }
 
@@ -256,7 +240,7 @@ void processPage(Steps& steps, const PageInfo& page) {
   checkGeometry(xform, "Margins leaves a finite geometry");
 
   // As output::Task::process() up to the size of the output.
-  xform.postScaleToDpi(steps.output.at(page.id()).outputDpi());
+  xform.postScaleToDpi(steps.output.getParams(page.id()).outputDpi());
   checkGeometry(xform, "the output resolution leaves a finite geometry");
   check(xform.resultingRect().toRect().topLeft() == QPoint(0, 0), "the output starts at 0, 0");
   const output::OutputGenerator generator(xform, contentRectPhys);
@@ -286,7 +270,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   steps.deskewImageSettings.load(reader, deskewEl.namedItem("image-settings").toElement());
   steps.selectContent.load(reader, filtersEl.namedItem("select-content").toElement());
   steps.pageLayout.load(reader, filtersEl.namedItem("page-layout").toElement());
-  steps.output = readOutputParams(reader, filtersEl);
+  steps.output.load(reader, filtersEl.namedItem("output").toElement());
   if (const std::unique_ptr<DefaultParams> startValues = reader.readDefaultParams()) {
     steps.defaults = *startValues;
   }

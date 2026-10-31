@@ -23,6 +23,8 @@
 #include "ZoneSet.h"
 
 class AbstractRelinker;
+class ProjectReader;
+class QDomElement;
 
 namespace output {
 class Params;
@@ -36,6 +38,16 @@ class Settings {
   virtual ~Settings();
 
   void clear();
+
+  /**
+   * Replaces the settings with those of the project file's element of this filter.
+   */
+  void load(const ProjectReader& reader, const QDomElement& filterEl);
+
+  /**
+   * Adds the settings of one page from its <page> element in the project file.
+   */
+  void loadPage(const PageId& pageId, const QDomElement& pageEl);
 
   void performRelinking(const AbstractRelinker& relinker);
 

@@ -52,13 +52,10 @@
 #include <new>
 
 #include "FuzzSetup.h"
-#include "filters/output/FillZonePropFactory.h"
 #include "filters/output/OutputGenerator.h"
 #include "filters/output/OutputImageWithForeground.h"
 #include "filters/output/OutputImageWithOriginalBackground.h"
-#include "filters/output/OutputProcessingParams.h"
 #include "filters/output/Params.h"
-#include "filters/output/PictureZonePropFactory.h"
 #include "filters/output/RenderParams.h"
 #include "filters/output/Settings.h"
 #include "filters/output/Utils.h"
@@ -160,9 +157,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
     return 0;
   }
 
-  // The page as output::Filter::loadSettings() reads it.
-  const QDomElement pageEl = doc.documentElement();
-  output::Params params(pageEl.namedItem("params").toElement());
+  // The page as output::Filter::loadSettings() reads each one.
+  const PageId pageId(ImageId(QStringLiteral("page.png")));
+  auto settings = std::make_shared<output::Settings>();
+  settings->loadPage(pageId, doc.documentElement());
+  output::Params params = settings->getParams(pageId);
   if (!(data[4] & 32)) {
     output::ColorParams colorParams = params.colorParams();
     output::BlackWhiteOptions blackWhiteOptions = colorParams.blackWhiteOptions();
@@ -172,19 +171,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
     colorCommonOptions.setNormalizeIllumination(false);
     colorParams.setColorCommonOptions(colorCommonOptions);
     params.setColorParams(colorParams);
+    settings->setParams(pageId, params);
   }
   if ((params.outputDpi().horizontal() > MAX_OUTPUT_DPI) || (params.outputDpi().vertical() > MAX_OUTPUT_DPI)) {
     return 0;
   }
-  ZoneSet pictureZones(pageEl.namedItem("zones").toElement(), output::PictureZonePropFactory());
-  const ZoneSet fillZones(pageEl.namedItem("fill-zones").toElement(), output::FillZonePropFactory());
-  const PageId pageId(ImageId(QStringLiteral("page.png")));
-  auto settings = std::make_shared<output::Settings>();
-  settings->setParams(pageId, params);
-  const QDomElement processingEl = pageEl.namedItem("processing-params").toElement();
-  if (!processingEl.isNull()) {
-    settings->setOutputProcessingParams(pageId, output::OutputProcessingParams(processingEl));
-  }
+  ZoneSet pictureZones = settings->pictureZonesForPage(pageId);
+  const ZoneSet fillZones = settings->fillZonesForPage(pageId);
 
   // The geometry as the steps before build it: Split Pages the page box, Deskew the angle,
   // Margins the content box with its margins.

@@ -3,9 +3,14 @@
 
 #include "Settings.h"
 
+#include <QDomElement>
+
 #include "../../Utils.h"
 #include "FillColorProperty.h"
+#include "FillZonePropFactory.h"
 #include "PictureLayerProperty.h"
+#include "PictureZonePropFactory.h"
+#include "ProjectReader.h"
 #include "RelinkedKeys.h"
 
 using namespace core;
@@ -26,6 +31,64 @@ void Settings::clear() {
   m_perPagePictureZones.clear();
   m_perPageFillZones.clear();
   m_perPageOutputProcessingParams.clear();
+}
+
+void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+  clear();
+
+  const QString pageTagName("page");
+  QDomNode node(filterEl.firstChild());
+  for (; !node.isNull(); node = node.nextSibling()) {
+    if (!node.isElement()) {
+      continue;
+    }
+    if (node.nodeName() != pageTagName) {
+      continue;
+    }
+    const QDomElement el(node.toElement());
+
+    bool ok = true;
+    const int id = el.attribute("id").toInt(&ok);
+    if (!ok) {
+      continue;
+    }
+
+    const PageId pageId(reader.pageId(id));
+    if (pageId.isNull()) {
+      continue;
+    }
+    loadPage(pageId, el);
+  }
+}
+
+void Settings::loadPage(const PageId& pageId, const QDomElement& pageEl) {
+  const ZoneSet pictureZones(pageEl.namedItem("zones").toElement(), PictureZonePropFactory());
+  if (!pictureZones.empty()) {
+    setPictureZones(pageId, pictureZones);
+  }
+
+  const ZoneSet fillZones(pageEl.namedItem("fill-zones").toElement(), FillZonePropFactory());
+  if (!fillZones.empty()) {
+    setFillZones(pageId, fillZones);
+  }
+
+  const QDomElement paramsEl(pageEl.namedItem("params").toElement());
+  if (!paramsEl.isNull()) {
+    const Params params(paramsEl);
+    setParams(pageId, params);
+  }
+
+  const QDomElement outputProcessingParamsEl(pageEl.namedItem("processing-params").toElement());
+  if (!outputProcessingParamsEl.isNull()) {
+    const OutputProcessingParams outputProcessingParams(outputProcessingParamsEl);
+    setOutputProcessingParams(pageId, outputProcessingParams);
+  }
+
+  const QDomElement outputParamsEl(pageEl.namedItem("output-params").toElement());
+  if (!outputParamsEl.isNull()) {
+    const OutputParams outputParams(outputParamsEl);
+    setOutputParams(pageId, outputParams);
+  }
 }
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {
