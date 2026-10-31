@@ -269,6 +269,19 @@ BOOST_AUTO_TEST_CASE(params_angles_from_xml_are_limited) {
   BOOST_CHECK_EQUAL(valid.obliqueAngle(), -0.5);
 }
 
+// The start angle from a profile or <default-params> goes to every new page, so it is limited like
+// the angle of a page: before, a start angle of 1e300 turned new pages by an arbitrary angle.
+BOOST_AUTO_TEST_CASE(default_params_deskew_angle_from_xml_is_limited) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("deskew-params");
+  el.setAttribute("deskewAngleDeg", "nan");
+  BOOST_CHECK_EQUAL(DefaultParams::DeskewParams(el).getDeskewAngleDeg(), 0.0);
+  el.setAttribute("deskewAngleDeg", "1e300");
+  BOOST_CHECK_EQUAL(DefaultParams::DeskewParams(el).getDeskewAngleDeg(), 45.0);
+  el.setAttribute("deskewAngleDeg", "-2.5");
+  BOOST_CHECK_EQUAL(DefaultParams::DeskewParams(el).getDeskewAngleDeg(), -2.5);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(ImageTransformationObliqueTestSuite)

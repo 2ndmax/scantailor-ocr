@@ -3,6 +3,7 @@
 
 #include "DefaultParams.h"
 
+#include <filters/deskew/Params.h>
 #include <filters/output/Params.h>
 #include <foundation/Utils.h>
 
@@ -76,7 +77,8 @@ DefaultParams::DeskewParams::DeskewParams()
     : m_deskewAngleDeg(0.0), m_mode(MODE_AUTO), m_autoOblique(false), m_detection(deskew::DETECT_CONTENT) {}
 
 DefaultParams::DeskewParams::DeskewParams(const QDomElement& el)
-    : m_deskewAngleDeg(el.attribute("deskewAngleDeg").toDouble()),
+    // Goes to every new page, so it is limited like the angle of a page.
+    : m_deskewAngleDeg(deskew::angleFromXml(el, "deskewAngleDeg", deskew::MAX_DESKEW_ANGLE_DEG)),
       m_mode(stringToAutoManualMode(el.attribute("mode"))),
       m_autoOblique(el.attribute("autoOblique", "0") != "0"),
       m_detection(deskew::skewDetectionFromString(el.attribute("detection"), deskew::DETECT_CONTENT)) {}
