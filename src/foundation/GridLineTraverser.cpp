@@ -3,6 +3,8 @@
 
 #include "GridLineTraverser.h"
 
+#include <algorithm>
+
 #include "LineIntersectionScalar.h"
 
 GridLineTraverser::GridLineTraverser(const QLineF& line) {
@@ -22,6 +24,8 @@ GridLineTraverser::GridLineTraverser(const QLineF& line) {
     lineIntersectionScalar(line, QLineF(p2, QPoint(p2.x() + 1, p2.y())), s2);
   }
 
+  m_endpointsBox = QRect(QPoint(std::min(p1.x(), p2.x()), std::min(p1.y(), p2.y())),
+                         QPoint(std::max(p1.x(), p2.x()), std::max(p1.y(), p2.y())));
   m_dt = num_spans == 0 ? 0 : 1.0 / num_spans;
   m_line.setP1(line.pointAt(s1));
   m_line.setP2(line.pointAt(s2));
@@ -32,5 +36,10 @@ GridLineTraverser::GridLineTraverser(const QLineF& line) {
 QPoint GridLineTraverser::next() {
   const QPointF pt(m_line.pointAt(m_stopsDone * m_dt));
   ++m_stopsDone;
-  return pt.toPoint();
+  // m_line is extended to whole numbers in the major direction. That can move the other
+  // coordinate by up to half a pixel, which rounds onto the row or column past an end point,
+  // and so past the last one of a grid the line was clipped to.
+  const QPoint rounded = pt.toPoint();
+  return QPoint(std::clamp(rounded.x(), m_endpointsBox.left(), m_endpointsBox.right()),
+                std::clamp(rounded.y(), m_endpointsBox.top(), m_endpointsBox.bottom()));
 }

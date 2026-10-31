@@ -5,11 +5,13 @@
 #define SCANTAILOR_FOUNDATION_GRIDLINETRAVERSER_H_
 
 #include <QLineF>
+#include <QRect>
 
 /**
  * \brief Traverses a grid along a line segment.
  *
- * Think about drawing a line on an image.
+ * Think about drawing a line on an image. Every point lies within the rectangle spanned by the
+ * end points rounded to integers, so a line clipped to a grid only yields points of the grid.
  */
 class GridLineTraverser {
   // Member-wise copying is OK.
@@ -22,6 +24,7 @@ class GridLineTraverser {
 
  private:
   QLineF m_line;
+  QRect m_endpointsBox;
   double m_dt;
   int m_totalStops;
   int m_stopsDone;

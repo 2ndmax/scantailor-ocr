@@ -425,10 +425,6 @@ void TextLineTracer::findMidLineSeeds(const SEDM& sedm, QLineF midLine, std::vec
   GridLineTraverser traverser(midLine);
   while (traverser.hasNext()) {
     const QPoint pt(traverser.next());
-    if (!sedmRect.contains(pt)) {
-      // Rounding of the clipped end points can leave a point just outside.
-      continue;
-    }
     const int32_t level = sedmData[pt.y() * sedmStride + pt.x()];
     if ((level - prevLevel) * dir < 0) {
       // Direction changed.
