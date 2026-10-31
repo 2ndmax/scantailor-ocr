@@ -45,6 +45,17 @@ class ImageSizeLimit {
 
   /** The message for the user about an output page of \p size pixels that is too large. */
   static QString outputErrorMessage(const QSize& size);
+
+  /**
+   * Raises Qt's limit for decoding images to fit the largest image allowed. Every program that
+   * loads images calls it once at startup.
+   *
+   * Qt 6 refuses to decode images needing more than 256 MB by default, which large color scans
+   * (e.g. A3 at 600 dpi) easily exceed. The limit fits the largest image allowed, decoded with
+   * 16 bit per channel (8 bytes per pixel). It only matters for formats that don't tell their size
+   * before decoding, as ImageLoader checks the size from the header first.
+   */
+  static void applyQtAllocationLimit();
 };
 
 /**

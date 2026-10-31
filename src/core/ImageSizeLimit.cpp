@@ -4,6 +4,7 @@
 #include "ImageSizeLimit.h"
 
 #include <QCoreApplication>
+#include <QImageReader>
 
 bool ImageSizeLimit::exceeds(const qint64 width, const qint64 height) {
   if ((width <= 0) || (height <= 0)) {
@@ -41,3 +42,7 @@ QString ImageSizeLimit::outputErrorMessage(const QSize& size) {
 
 OutputTooLargeError::OutputTooLargeError(const QSize& size)
     : std::runtime_error(ImageSizeLimit::outputErrorMessage(size).toStdString()) {}
+
+void ImageSizeLimit::applyQtAllocationLimit() {
+  QImageReader::setAllocationLimit(static_cast<int>(MAX_PIXELS * 8 / (1024 * 1024)) + 1);
+}

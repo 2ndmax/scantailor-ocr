@@ -4,7 +4,6 @@
 #include "FuzzSetup.h"
 
 #include <QCoreApplication>
-#include <QImageReader>
 
 #include "ImageSizeLimit.h"
 
@@ -17,7 +16,7 @@ extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
   static QCoreApplication* const app = new QCoreApplication(*argc, *argv);
   (void) app;
   // As in the program's main().
-  QImageReader::setAllocationLimit(static_cast<int>(ImageSizeLimit::MAX_PIXELS * 8 / (1024 * 1024)) + 1);
+  ImageSizeLimit::applyQtAllocationLimit();
   qInstallMessageHandler(&dropMessage);
   return 0;
 }
