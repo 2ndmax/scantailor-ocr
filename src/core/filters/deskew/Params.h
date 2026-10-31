@@ -20,6 +20,10 @@ class QDomElement;
 
 namespace deskew {
 
+/** The ranges of the Deskew panel; angles read from a project file are kept within them. */
+inline constexpr double MAX_DESKEW_ANGLE_DEG = 45.0;
+inline constexpr double MAX_OBLIQUE_ANGLE_DEG = 5.0;
+
 /** Rotation (deskew) angle, auto/manual mode and how the angle is found in auto mode. */
 struct RotationParams {
   double angle = 0.0;

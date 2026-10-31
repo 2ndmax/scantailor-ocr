@@ -246,6 +246,29 @@ BOOST_AUTO_TEST_CASE(params_remeasure_when_any_angle_is_automatic) {
   BOOST_CHECK(!Params(1.0, 2.0, measuredOn, MODE_AUTO, MODE_AUTO).needsRemeasure(measuredOn));
 }
 
+// Angles from a damaged project file: NaN and infinity made the whole page geometry NaN, and
+// angles far beyond the Deskew panel (45 degrees, oblique 5 degrees) huge (found by
+// fuzz_project_geometry). They are read within the range of the panel.
+BOOST_AUTO_TEST_CASE(params_angles_from_xml_are_limited) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("deskew-params");
+  el.setAttribute("angle", "nan");
+  el.setAttribute("oblique", "inf");
+  const Params invalid(el);
+  BOOST_CHECK_EQUAL(invalid.deskewAngle(), 0.0);
+  BOOST_CHECK_EQUAL(invalid.obliqueAngle(), 0.0);
+  el.setAttribute("angle", "-100");
+  el.setAttribute("oblique", "89.9999");
+  const Params tooLarge(el);
+  BOOST_CHECK_EQUAL(tooLarge.deskewAngle(), -45.0);
+  BOOST_CHECK_EQUAL(tooLarge.obliqueAngle(), 5.0);
+  el.setAttribute("angle", "1.25");
+  el.setAttribute("oblique", "-0.5");
+  const Params valid(el);
+  BOOST_CHECK_EQUAL(valid.deskewAngle(), 1.25);
+  BOOST_CHECK_EQUAL(valid.obliqueAngle(), -0.5);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(ImageTransformationObliqueTestSuite)

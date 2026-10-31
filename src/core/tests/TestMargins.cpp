@@ -81,4 +81,20 @@ BOOST_AUTO_TEST_CASE(test_invalid_values_from_xml_become_zero) {
   BOOST_CHECK_EQUAL(m.bottom(), 0.0);
 }
 
+// Margins beyond the range of the Margins step (plus or minus 9999 mm) made the page so large that
+// its geometry became infinite (found by fuzz_project_geometry).
+BOOST_AUTO_TEST_CASE(test_huge_values_from_xml_are_limited) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("margins");
+  el.setAttribute("left", "1e308");
+  el.setAttribute("top", "-1e308");
+  el.setAttribute("right", "9999");
+  el.setAttribute("bottom", "-10000");
+  const Margins m(el);
+  BOOST_CHECK_EQUAL(m.left(), 9999.0);
+  BOOST_CHECK_EQUAL(m.top(), -9999.0);
+  BOOST_CHECK_EQUAL(m.right(), 9999.0);
+  BOOST_CHECK_EQUAL(m.bottom(), -9999.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

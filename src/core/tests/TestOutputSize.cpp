@@ -162,5 +162,23 @@ BOOST_AUTO_TEST_CASE(options_and_alignment_are_stored_only_when_used) {
   BOOST_CHECK(restored.isScaleToFit());
 }
 
+// A target size from a damaged project file: NaN passed the check for an empty size and became
+// the scale factor of the page (found by fuzz_project_geometry). It is read within the range of
+// the Margins step, 0 to 99999 mm.
+BOOST_AUTO_TEST_CASE(invalid_target_sizes_from_xml_are_limited) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("output-size");
+  el.setAttribute("ownTarget", "1");
+  el.setAttribute("width", "nan");
+  el.setAttribute("height", "1e308");
+  BOOST_CHECK(OutputSizeOptions(el).targetSizeMM() == QSizeF(0, 99999));
+  el.setAttribute("width", "-inf");
+  el.setAttribute("height", "-3");
+  BOOST_CHECK(OutputSizeOptions(el).targetSizeMM() == QSizeF(0, 0));
+  // An empty own target size means the common size, as for a page without one.
+  BOOST_CHECK_EQUAL(factor(scaling(), QSizeF(210, 297), OutputSizeOptions(el)),
+                    factor(scaling(), QSizeF(210, 297), OutputSizeOptions()));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

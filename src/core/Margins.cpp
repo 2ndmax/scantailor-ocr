@@ -8,16 +8,20 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>
+#include <algorithm>
 #include <cmath>
 
 using namespace foundation;
 
 namespace {
+// The range of the Margins step. Beyond it, the page would get so large that its geometry overflows.
+const double MAX_MARGIN_MM = 9999.0;
+
 // A damaged or hand-edited project file may hold anything. Negative margins are valid.
 double marginFromXml(const QDomElement& el, const QString& name) {
   bool ok = false;
   const double value = el.attribute(name).toDouble(&ok);
-  return (ok && std::isfinite(value)) ? value : 0.0;
+  return (ok && std::isfinite(value)) ? std::clamp(value, -MAX_MARGIN_MM, MAX_MARGIN_MM) : 0.0;
 }
 }  // namespace
 

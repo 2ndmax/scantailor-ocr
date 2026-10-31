@@ -50,10 +50,12 @@ QRect ImageTrim::toInnerRect(const QSize& imageSize) const {
     return QRect(0, 0, imageSize.width(), imageSize.height());
   }
 
-  int l = std::max(0, left);
-  int t = std::max(0, top);
-  int r = std::max(0, right);
-  int b = std::max(0, bottom);
+  // An edge beyond the image trims no more than the whole image; this also keeps the sums below
+  // from overflowing for the huge values a damaged project file may hold.
+  int l = std::clamp(left, 0, imageSize.width());
+  int t = std::clamp(top, 0, imageSize.height());
+  int r = std::clamp(right, 0, imageSize.width());
+  int b = std::clamp(bottom, 0, imageSize.height());
 
   if (l + r + kMinTrimInnerSide > imageSize.width()) {
     redistributeExcess(l, r, l + r + kMinTrimInnerSide - imageSize.width());

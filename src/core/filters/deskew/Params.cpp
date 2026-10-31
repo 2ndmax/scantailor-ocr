@@ -7,11 +7,20 @@
 #include <foundation/Utils.h>
 
 #include <QDomDocument>
+#include <algorithm>
+#include <cmath>
 
 using namespace foundation;
 
 namespace deskew {
 namespace {
+// A damaged or hand-edited project file may hold anything: NaN or an angle of 90 degrees would make
+// the geometry of the page NaN or huge.
+double angleFromXml(const QDomElement& el, const QString& name, const double maxDeg) {
+  const double value = el.attribute(name).toDouble();
+  return std::isfinite(value) ? std::clamp(value, -maxDeg, maxDeg) : 0.0;
+}
+
 
 AutoManualMode obliqueModeFromXml(const QDomElement& deskewEl) {
   if (deskewEl.hasAttribute("oblique-mode")) {
@@ -34,10 +43,10 @@ Params::Params(const double deskewAngleDeg,
     : m_rotation{deskewAngleDeg, deskewMode, detection}, m_oblique{obliqueDeg, obliqueMode}, m_deps(deps) {}
 
 Params::Params(const QDomElement& deskewEl, const SkewDetection legacyDetection)
-    : m_rotation{deskewEl.attribute("angle").toDouble(),
+    : m_rotation{angleFromXml(deskewEl, "angle", MAX_DESKEW_ANGLE_DEG),
                  deskewEl.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO,
                  skewDetectionFromString(deskewEl.attribute("detection"), legacyDetection)},
-      m_oblique{deskewEl.attribute("oblique").toDouble(), obliqueModeFromXml(deskewEl)},
+      m_oblique{angleFromXml(deskewEl, "oblique", MAX_OBLIQUE_ANGLE_DEG), obliqueModeFromXml(deskewEl)},
       m_deps(deskewEl.namedItem("dependencies").toElement()) {}
 
 Params::~Params() = default;

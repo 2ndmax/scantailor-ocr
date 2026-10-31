@@ -73,5 +73,23 @@ BOOST_AUTO_TEST_CASE(inner_rect_takes_the_excess_from_both_edges) {
   }
 }
 
+// Edges from a damaged project file can be as large as an int holds; adding them overflowed and
+// the rectangle ended up outside the image (found by fuzz_project_geometry).
+BOOST_AUTO_TEST_CASE(huge_edges_leave_the_rectangle_inside) {
+  const QSize size(2480, 3508);
+  for (const int left : {2147483647, 120, 0}) {
+    ImageTrim trim;
+    trim.enabled = true;
+    trim.left = left;
+    trim.right = 2147483647;
+    trim.top = 2147483647;
+    trim.bottom = 60;
+    const QRect inner = trim.toInnerRect(size);
+    BOOST_CHECK_MESSAGE(
+        QRect(QPoint(0, 0), size).contains(inner) && !inner.isEmpty(),
+        "left " << left << ": " << inner.x() << "," << inner.y() << " " << inner.width() << "x" << inner.height());
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

@@ -9,6 +9,21 @@
 #include <QPolygonF>
 #include <QRect>
 #include <QString>
+#include <algorithm>
+#include <cmath>
+
+namespace {
+// Far beyond any page: the longest image side is 32767 pixels, and no length in millimeters
+// comes near it either.
+const double MAX_COORDINATE = 1e7;
+
+// A damaged or hand-edited project file may hold "nan", "inf" or 1e308; geometry built from them
+// becomes NaN, and Qt's polygon clipping crashed on such huge coordinates.
+double coordinate(const QDomElement& el, const QString& name) {
+  const double value = el.attribute(name).toDouble();
+  return std::isfinite(value) ? std::clamp(value, -MAX_COORDINATE, MAX_COORDINATE) : 0.0;
+}
+}  // namespace
 
 QString XmlUnmarshaller::string(const QDomElement& el) {
   // QDom has already unescaped the text when reading the document.
@@ -22,14 +37,14 @@ QSize XmlUnmarshaller::size(const QDomElement& el) {
 }
 
 QSizeF XmlUnmarshaller::sizeF(const QDomElement& el) {
-  const double width = el.attribute("width").toDouble();
-  const double height = el.attribute("height").toDouble();
+  const double width = coordinate(el, "width");
+  const double height = coordinate(el, "height");
   return QSizeF(width, height);
 }
 
 QPointF XmlUnmarshaller::pointF(const QDomElement& el) {
-  const double x = el.attribute("x").toDouble();
-  const double y = el.attribute("y").toDouble();
+  const double x = coordinate(el, "x");
+  const double y = coordinate(el, "y");
   return QPointF(x, y);
 }
 
@@ -48,10 +63,10 @@ QRect XmlUnmarshaller::rect(const QDomElement& el) {
 }
 
 QRectF XmlUnmarshaller::rectF(const QDomElement& el) {
-  const double x = el.attribute("x").toDouble();
-  const double y = el.attribute("y").toDouble();
-  const double width = el.attribute("width").toDouble();
-  const double height = el.attribute("height").toDouble();
+  const double x = coordinate(el, "x");
+  const double y = coordinate(el, "y");
+  const double width = coordinate(el, "width");
+  const double height = coordinate(el, "height");
   return QRectF(x, y, width, height);
 }
 

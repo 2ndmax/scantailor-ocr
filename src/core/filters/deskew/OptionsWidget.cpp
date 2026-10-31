@@ -15,7 +15,7 @@
 #include "Settings.h"
 
 namespace deskew {
-const double OptionsWidget::MAX_ANGLE = 45.0;
+const double OptionsWidget::MAX_ANGLE = MAX_DESKEW_ANGLE_DEG;
 
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
                              std::shared_ptr<DefaultParams> defaultParams,

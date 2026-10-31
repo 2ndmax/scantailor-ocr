@@ -12,12 +12,23 @@
 #include "Margins.h"
 
 namespace page_layout {
+namespace {
+// The range of the target size in the Margins step. NaN from a damaged project file would pass
+// the check for an empty size and become the scale factor of the page.
+const double MAX_TARGET_SIZE_MM = 99999.0;
+
+double targetSizeFromXml(const QDomElement& el, const QString& name) {
+  const double value = el.attribute(name).toDouble();
+  return std::isfinite(value) ? std::clamp(value, 0.0, MAX_TARGET_SIZE_MM) : 0.0;
+}
+}  // namespace
+
 OutputSizeOptions::OutputSizeOptions(const QDomElement& el) {
   if (el.isNull()) {
     return;
   }
   m_ownTargetSize = el.attribute("ownTarget") == "1";
-  m_targetSizeMm = QSizeF(el.attribute("width").toDouble(), el.attribute("height").toDouble());
+  m_targetSizeMm = QSizeF(targetSizeFromXml(el, "width"), targetSizeFromXml(el, "height"));
   setMaxEnlargePercent(el.attribute("maxEnlarge", QString::number(DEFAULT_MAX_ENLARGE_PERCENT)).toInt());
   setMinReducePercent(el.attribute("minReduce", QString::number(DEFAULT_MIN_REDUCE_PERCENT)).toInt());
 }
