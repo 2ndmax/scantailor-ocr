@@ -40,6 +40,7 @@
 #include <OrthogonalRotation.h>
 #include <PolynomialSurface.h>
 #include <Posterizer.h>
+#include <ProcessingOptions.h>
 #include <RasterDewarper.h>
 #include <Sharpen.h>
 #include <SkewFinder.h>
@@ -48,6 +49,9 @@
 #include <TopBottomEdgeTracer.h>
 #include <WienerFilter.h>
 #include <imageproc/OrthogonalRotation.h>
+#ifdef ENABLE_OCR
+#include <ColorModeDetector.h>
+#endif
 
 #include <QDomDocument>
 #include <QImage>
@@ -340,21 +344,47 @@ void colorProcessing(const Input& in) {
       const GrayImage gray(image);
       const PolynomialSurface background = estimateBackground(gray, QPolygonF(area), status);
       (void) background.render(gray.size());
-      (void) BackgroundColorCalculator::calcDominantBackgroundColor(image, QPolygonF(area));
+      // It needs an area with a part of the image, which Split Pages ensures for every page
+      // (page_split::Utils::everyPageHasArea()); it throws otherwise.
+      if (!QPolygonF(area).intersected(QRectF(image.rect())).isEmpty()) {
+        (void) BackgroundColorCalculator::calcDominantBackgroundColor(image, QPolygonF(area));
+      }
       break;
     }
   }
 }
 
+// 7: the automatic color mode of the Output step, on the content area, with the options read as a
+// project file or profile stores them (<processing-options>). Without OCR the program has none.
+void colorModeDetection([[maybe_unused]] const Input& in) {
+#ifdef ENABLE_OCR
+  // As output::Filter skips smaller content areas.
+  if ((in.image.width() < 16) || (in.image.height() < 16)) {
+    return;
+  }
+  const uint8_t* s = in.settings;
+  QDomDocument doc;
+  QDomElement el = doc.createElement(QStringLiteral("processing-options"));
+  QDomElement colorEl = doc.createElement(QStringLiteral("color-detection"));
+  colorEl.setAttribute(QStringLiteral("minColor"), s8(s[0]));
+  colorEl.setAttribute(QStringLiteral("pictureZones"), (s[1] & 1) ? 1 : 0);
+  colorEl.setAttribute(QStringLiteral("minPicture"), s8(s[2]));
+  el.appendChild(colorEl);
+  const ProcessingOptions options(el, ProcessingOptions());
+  (void) ColorModeDetector::detect(in.image, options.colorDetection, NullTaskStatus());
+#endif
+}
+
 // The order is the group number of the seeds; append new groups at the end.
 void (*const groups[])(const Input&) = {
-    binarization,      // 0
-    despeckling,       // 1
-    deskewing,         // 2
-    pageSplitting,     // 3
-    contentSelection,  // 4
-    autoDewarping,     // 5
-    colorProcessing,   // 6
+    binarization,        // 0
+    despeckling,         // 1
+    deskewing,           // 2
+    pageSplitting,       // 3
+    contentSelection,    // 4
+    autoDewarping,       // 5
+    colorProcessing,     // 6
+    colorModeDetection,  // 7
 };
 }  // namespace
 

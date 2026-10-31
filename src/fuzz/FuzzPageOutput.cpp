@@ -29,8 +29,10 @@
 // Besides crashes and exceptions (other than std::bad_alloc), these count as findings, as the
 // program relies on them: the output has the size the generator announces, black and white
 // output has only black and white, and the layers of split output have the size of the page.
+// On a dewarped page, the zones are then mapped as the zone editors map them.
 
 #include <BinaryImage.h>
+#include <DewarpingPointMapper.h>
 #include <Dpi.h>
 #include <Dpm.h>
 #include <FilterData.h>
@@ -59,6 +61,7 @@
 #include "filters/output/PictureZonePropFactory.h"
 #include "filters/output/RenderParams.h"
 #include "filters/output/Settings.h"
+#include "filters/output/Utils.h"
 #include "filters/page_layout/Utils.h"
 #include "zones/ZoneSet.h"
 
@@ -242,6 +245,23 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   if (const auto* original = dynamic_cast<const output::OutputImageWithOriginalBackground*>(outputImage.get())) {
     checkLayer(original->getOriginalBackgroundImage(), outputSize,
                "the original background layer has the size of the page");
+  }
+
+  // As output::Task::UiUpdater maps the zones for the zone editors on a dewarped page: with the
+  // model the generator used or found and the angle it stored after dewarping.
+  const output::DewarpingOptions dewarpingOptions = settings->getParams(pageId).dewarpingOptions();
+  if ((dewarpingOptions.dewarpingMode() != output::OFF) && distortionModel.isValid()) {
+    const QRect outRect = outputXform.resultingRect().toRect();
+    const dewarping::DewarpingPointMapper mapper(distortionModel, params.depthPerception().value(),
+                                                 outputXform.transform(), outRect,
+                                                 output::Utils::rotate(dewarpingOptions.getPostDeskewAngle(), outRect));
+    for (const ZoneSet* zones : {static_cast<const ZoneSet*>(&pictureZones), &fillZones}) {
+      for (const Zone& zone : *zones) {
+        for (const QPointF& point : zone.spline().toPolygon()) {
+          (void) mapper.mapToWarpedSpace(mapper.mapToDewarpedSpace(point));
+        }
+      }
+    }
   }
   return 0;
 }
