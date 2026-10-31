@@ -165,6 +165,9 @@ make -j$(nproc)
   program then may not run on other computers.
 * `-DENABLE_CODE_ANALYSIS=ON` – extra warnings and static code analysis. Slow; best used in a
   separate build directory (see below).
+* `-DBUILD_FUZZERS=ON` – MSVC only: build the fuzz targets of `src/fuzz` with AddressSanitizer
+  *instead of* the program, the tests and the developer tools. Only in a build directory of its
+  own (see below and [TESTING.md](TESTING.md)).
 
 ## Optional: code analysis
 

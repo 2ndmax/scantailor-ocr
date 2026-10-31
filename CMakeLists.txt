@@ -99,9 +99,9 @@ st_set_default_build_type(Release)
 option(BUILD_TESTS "Build unit tests (math_tests, imageproc_tests, core_tests, foundation_tests, qt_tests)" ON)
 option(BUILD_DEV_TOOLS "Build developer tools (binarization_compare: binarization methods; color_detect: color mode detection on sample pages; despeckle_compare: despeckling before and after a change; split_compare: split line detection methods; oblique_compare: oblique detection on synthetic pages or real scans)" OFF)
 
-# Fuzz targets in src/fuzz, for a build directory of their own (see TESTING.md). All of the
-# project's code is built with AddressSanitizer and the coverage instrumentation libFuzzer
-# needs. MSVC can't link such code with uninstrumented code (LNK2038 annotate_vector ...), and
+# Fuzz targets in src/fuzz, for a build directory of their own (see TESTING.md and run 10 in
+# scripts/analysis/README.md). All of the project's code is built with AddressSanitizer and the
+# coverage instrumentation libFuzzer needs. MSVC can't link such code with uninstrumented code (LNK2038 annotate_vector ...), and
 # the instrumented code needs the libFuzzer runtime, so the program, the tests and the dev
 # tools are left out; the tests under sanitizers are scripts/analysis/09-sanitizers.ps1.
 option(BUILD_FUZZERS "Build the fuzz targets (src/fuzz) instead of the program, with AddressSanitizer. MSVC only." OFF)

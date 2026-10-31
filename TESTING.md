@@ -221,12 +221,24 @@ real scans must show no lost text, and the content boxes must not get worse.
 ## Code analysis
 
 Besides the tests, the scripts in `scripts\analysis` check the code with several compilers and
-analysis tools (MSVC code analysis, clang-tidy, cppcheck, the EDG C++ front end, clang-cl,
-sanitizers, fuzzing of the image readers, the project and profile files, the processing of a page and the Output step,
-GCC with UBSan in WSL) and merge their findings into
-one table. A bug found by fuzzing gets a regression test in `core_tests` like any other. They are numbered in the order in which
-they are best run; [scripts/analysis/README.md](scripts/analysis/README.md) describes each run,
-its setup and its output.
+analysis tools (MSVC code analysis, clang-tidy, cppcheck, the EDG C++ front end, clang-cl, GCC
+in WSL, sanitizers, fuzzing of the image readers, the project and profile files, the processing
+of a page and the Output step) and merge their findings into one table. The scripts are numbered
+in the order in which they are best run; [scripts/analysis/README.md](scripts/analysis/README.md)
+describes each run, its setup and its output.
+
+Fuzzing (run 10) builds the fuzz targets of `src/fuzz` with `-DBUILD_FUZZERS=ON` in a build
+directory of its own (`build-fuzz`; the option leaves out the program, the tests and the dev
+tools) and runs them for a chosen time, e.g. one target for one minute:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\analysis\10-fuzz.ps1 -Only fuzz_page_output -Minutes 1
+```
+
+Inputs that make a target fail go to `scripts\analysis\results\10-fuzz\<target>\findings`. A bug
+found by fuzzing gets a regression test in `core_tests` like any other, and its input is added to
+the seeds in `src/fuzz/corpus`. Fuzzing is not part of the CI: it needs minutes to hours per
+target.
 
 ## Disabling tests
 
