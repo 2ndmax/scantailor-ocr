@@ -819,6 +819,9 @@ const int MultiplyDeBruijnBitPosition2[32] = {0, 9,  1,  10, 13, 21, 2,  29, 11,
  */
 inline int countConsecutiveZeroBitsTrailing(uint32_t v) {
   // 0u - v instead of -signed(v): the same bits, but defined also for v = 0x80000000.
+  // REVIEW-NOTE (2026-10): no unit test for v = 0x80000000 -> a return to -signed(v) would go
+  // unnoticed with MSVC. Not fixed because only UBSan sees the difference: analysis run 09 with
+  // trimming_rect_picture_zones_stays_inside_the_area covers it.
   return MultiplyDeBruijnBitPosition[((v & (0u - v)) * 0x077CB531U) >> 27];
 }
 

@@ -45,6 +45,9 @@ void drawOver(QImage& dst, const QRect& dstRect, const QImage& src, const QRect&
 
   const int stripeBytes = srcRect.width() * depth / 8;
   // In qsizetype: on 32 bit images over 2^29 pixels the byte offset exceeds int.
+  // REVIEW-NOTE (2026-10): no regression test for these 64-bit offsets -> a return to int offsets
+  // would go unnoticed. Not fixed because a test needs a color image over 2^29 pixels (more than
+  // 2 GB), too much for a unit test.
   dstLine += static_cast<qsizetype>(dstBpl) * dstRect.top() + dstRect.left() * depth / 8;
   srcLine += static_cast<qsizetype>(srcBpl) * srcRect.top() + srcRect.left() * depth / 8;
 
