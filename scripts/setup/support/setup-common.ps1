@@ -107,11 +107,15 @@ function Invoke-Shown([string]$CommandLine, [string]$Log, [switch]$InVsEnv) {
     try { [Console]::OutputEncoding = $Utf8 } catch {}
     try {
         # cmd merges stderr into stdout itself, so PowerShell only sees plain output lines.
+        # While wsl.exe runs, a line feed in the console no longer returns the cursor to the first
+        # column, so each line would start where the one before ended (a staircase). The carriage
+        # return in front of every line, and one after the last, sets the column right.
         cmd /c "chcp 65001 >nul && $full 2>&1" | ForEach-Object {
-            Write-Host $_
+            Write-Host "`r$_"
             Add-LogLine $Log $_
         }
         $rc = $LASTEXITCODE
+        Write-Host "`r" -NoNewline
     } finally {
         try { [Console]::OutputEncoding = $oldEncoding } catch {}
     }
