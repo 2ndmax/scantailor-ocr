@@ -61,6 +61,8 @@
   Start without asking: all targets for 10 minutes each, unless -Only and -Minutes say otherwise.
 #>
 param(
+    # 0 would let libFuzzer run without end.
+    [ValidateRange(1, 1440)]
     [int]$Minutes = 10,
     [string[]]$Only = @(),
     [int]$RssLimitMb = 2048,
@@ -103,6 +105,9 @@ $targets = @(
     @{ Name = 'fuzz_page_output'; Title = 'the Output step on a whole page, with plausibility checks'
        Seeds = 'page_output'; Dict = 'page_output.dict'; Args = $slowInputs }
 )
+# The findings of all targets are reported, also of those not run this time: the log is written
+# anew, and 11-merge-findings.ps1 reads only this one.
+$allTargets = $targets
 # The choices offered for the time per target, and the one taken with Enter.
 $minuteChoices = @(5, 10, 30, 60)
 $defaultMinutes = 10
@@ -251,7 +256,7 @@ function Invoke-Fuzzer([string]$Exe, [string]$ArgLine, [string]$WorkDir, [string
     return $p.ExitCode
 }
 
-New-Log $log "09: fuzzing, $Minutes minutes per target" @(
+New-Log $log "10: fuzzing, $Minutes minutes per target" @(
     "# Compiler: $(Get-ClVersion)"
     "# Build directory: $BuildDir"
     "# Options: $fuzzArgs"
@@ -288,8 +293,9 @@ foreach ($t in $targets) {
 # Each input in findings\ runs once more, so its report is in this log (for 11-merge-findings.ps1),
 # and one that no longer fails shows that it was fixed.
 $total = 0
-foreach ($t in $targets) {
+foreach ($t in $allTargets) {
     $dir = "$fuzzDir\$($t.Name)"
+    if (-not (Test-Path "$dir\findings")) { continue }
     foreach ($f in Get-ChildItem "$dir\findings" -File | Sort-Object Name) {
         $total++
         Add-LogLine $log "`r`n# Finding: $($t.Name) $($f.FullName)"
