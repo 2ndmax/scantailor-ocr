@@ -45,6 +45,8 @@ class StageSequence {
       LOAD_FAILED,
       /** The image was loaded, but processing it failed with an unexpected error. */
       PROCESSING_FAILED,
+      /** The output page would exceed ImageSizeLimit with the current settings. */
+      OUTPUT_TOO_LARGE,
       /** The output file couldn't be written. */
       OUTPUT_NOT_WRITTEN
     };

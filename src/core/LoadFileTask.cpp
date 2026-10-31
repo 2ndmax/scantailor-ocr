@@ -21,6 +21,7 @@
 #include "FilterUiInterface.h"
 #include "ImageLoadErrors.h"
 #include "ImageLoader.h"
+#include "ImageSizeLimit.h"
 #include "ProjectPages.h"
 #include "ThumbnailPixmapCache.h"
 #include "filters/fix_orientation/Task.h"
@@ -30,11 +31,7 @@ using namespace imageproc;
 class LoadFileTask::ErrorResult : public FilterResult {
   Q_DECLARE_TR_FUNCTIONS(LoadFileTask)
  public:
-  /**
-   * \param processingFailed Whether the file was loaded, but processing it failed
-   *        with an unexpected error, rather than the file failing to load.
-   */
-  ErrorResult(const QString& filePath, const QStringList& reasons, bool processingFailed = false);
+  ErrorResult(const QString& filePath, const QStringList& reasons, Failure failure = Failure::LOAD);
 
   void updateUI(FilterUiInterface* ui) override;
 
@@ -42,13 +39,13 @@ class LoadFileTask::ErrorResult : public FilterResult {
 
   const QStringList& reasons() const { return m_reasons; }
 
-  bool processingFailed() const { return m_processingFailed; }
+  Failure failure() const { return m_failure; }
 
  private:
   QString m_filePath;
   QStringList m_reasons;
   bool m_fileExists;
-  bool m_processingFailed;
+  Failure m_failure;
 };
 
 
@@ -90,6 +87,9 @@ FilterResultPtr LoadFileTask::operator()() {
     return nullptr;
   } catch (const std::bad_alloc&) {
     throw;  // Handled by the out-of-memory handler of the thread pool.
+  } catch (const OutputTooLargeError& e) {
+    // The settings make the output page too large: the user can change them.
+    return processingFailed(QString::fromUtf8(e.what()), Failure::OUTPUT_TOO_LARGE);
   } catch (const std::exception& e) {
     // An unexpected error in one of the filters. Report it and show it in place of
     // the page, instead of letting it terminate the whole program.
@@ -99,20 +99,25 @@ FilterResultPtr LoadFileTask::operator()() {
   }
 }
 
-bool LoadFileTask::isFailure(const FilterResultPtr& result, QStringList* reasons, bool* processingFailed) {
+bool LoadFileTask::isFailure(const FilterResultPtr& result, QStringList* reasons, Failure* failure) {
   const auto* error = dynamic_cast<const ErrorResult*>(result.get());
   if (!error) {
     return false;
   }
   *reasons = error->reasons();
-  *processingFailed = error->processingFailed();
+  *failure = error->failure();
   return true;
 }
 
-FilterResultPtr LoadFileTask::processingFailed(const QString& reason) const {
+FilterResultPtr LoadFileTask::processingFailed(const QString& reason, const Failure failure) const {
   const QStringList reasons(reason);
-  ImageLoadErrorReporter::instance().reportProcessingFailure(m_imageId.filePath(), m_imageId.page(), reasons);
-  return std::make_shared<ErrorResult>(m_imageId.filePath(), reasons, true);
+  ImageLoadErrorReporter& reporter = ImageLoadErrorReporter::instance();
+  if (failure == Failure::OUTPUT_TOO_LARGE) {
+    reporter.reportOutputTooLarge(m_imageId.filePath(), m_imageId.page(), reasons);
+  } else {
+    reporter.reportProcessingFailure(m_imageId.filePath(), m_imageId.page(), reasons);
+  }
+  return std::make_shared<ErrorResult>(m_imageId.filePath(), reasons, failure);
 }
 
 void LoadFileTask::updateImageSizeIfChanged(const QImage& image) {
@@ -152,11 +157,11 @@ void LoadFileTask::convertToSupportedFormat(QImage& image) const {
 
 /*======================= LoadFileTask::ErrorResult ======================*/
 
-LoadFileTask::ErrorResult::ErrorResult(const QString& filePath, const QStringList& reasons, const bool processingFailed)
+LoadFileTask::ErrorResult::ErrorResult(const QString& filePath, const QStringList& reasons, const Failure failure)
     : m_filePath(QDir::toNativeSeparators(filePath)),
       m_reasons(reasons),
       m_fileExists(QFile::exists(filePath)),
-      m_processingFailed(processingFailed) {}
+      m_failure(failure) {}
 
 void LoadFileTask::ErrorResult::updateUI(FilterUiInterface* ui) {
   class ErrWidget : public ErrorWidget {
@@ -175,7 +180,12 @@ void LoadFileTask::ErrorResult::updateUI(FilterUiInterface* ui) {
 
   QString errMsg;
   Qt::TextFormat fmt = Qt::AutoText;
-  if (m_processingFailed) {
+  if (m_failure == Failure::OUTPUT_TOO_LARGE) {
+    // The reason says which setting to change; no request to report a program error.
+    errMsg = tr("This page cannot be processed with the current settings:\n%1").arg(m_filePath);
+    errMsg += QLatin1String("\n\n") + tr("Reason:") + QLatin1Char('\n') + m_reasons.join(QLatin1Char('\n'));
+    fmt = Qt::PlainText;
+  } else if (m_failure == Failure::PROCESSING) {
     errMsg = tr("This page could not be processed because of an unexpected error:\n%1").arg(m_filePath);
     if (!m_reasons.isEmpty()) {
       errMsg += QLatin1String("\n\n") + tr("Reason:") + QLatin1Char('\n') + m_reasons.join(QLatin1Char('\n'));

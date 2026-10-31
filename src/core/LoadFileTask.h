@@ -34,13 +34,23 @@ class LoadFileTask : public BackgroundTask {
 
   ~LoadFileTask() override;
 
+  /** Why a page couldn't be shown or output. */
+  enum class Failure {
+    /** The image file couldn't be loaded. */
+    LOAD,
+    /** The file was loaded, but processing it failed with an unexpected error. */
+    PROCESSING,
+    /** The output page would exceed ImageSizeLimit with the current settings. */
+    OUTPUT_TOO_LARGE
+  };
+
   FilterResultPtr operator()() override;
 
   /**
    * Whether \p result is that of a page that couldn't be loaded or processed. If so, \p reasons
-   * gets why, and \p processingFailed whether the file was loaded but processing it failed.
+   * gets why, and \p failure what went wrong.
    */
-  static bool isFailure(const FilterResultPtr& result, QStringList* reasons, bool* processingFailed);
+  static bool isFailure(const FilterResultPtr& result, QStringList* reasons, Failure* failure);
 
  private:
   class ErrorResult;
@@ -51,8 +61,11 @@ class LoadFileTask : public BackgroundTask {
 
   void convertToSupportedFormat(QImage& image) const;
 
-  /** Reports an unexpected processing error and returns a result showing it in place of the page. */
-  FilterResultPtr processingFailed(const QString& reason) const;
+  /**
+   * Reports a processing error (Failure::PROCESSING or Failure::OUTPUT_TOO_LARGE) and returns a
+   * result showing it in place of the page.
+   */
+  FilterResultPtr processingFailed(const QString& reason, Failure failure = Failure::PROCESSING) const;
 
   std::shared_ptr<ThumbnailPixmapCache> m_thumbnailCache;
   ImageId m_imageId;

@@ -91,3 +91,10 @@ void ImageLoadErrorReporter::reportProcessingFailure(const QString& filePath,
   qCritical().noquote() << "Failed to process" << filePath << "page" << page << ":" << messages.join("; ");
   emit pageProcessingFailed(filePath, page, messages);
 }
+
+void ImageLoadErrorReporter::reportOutputTooLarge(const QString& filePath,
+                                                  const int page,
+                                                  const QStringList& messages) {
+  qWarning().noquote() << "Output too large for" << filePath << "page" << page << ":" << messages.join("; ");
+  emit pageOutputTooLarge(filePath, page, messages);
+}

@@ -39,10 +39,12 @@ class ImageLoadErrorNotifier : public QObject {
 
   void onPageProcessingFailed(const QString& filePath, int page, const QStringList& messages);
 
+  void onPageOutputTooLarge(const QString& filePath, int page, const QStringList& messages);
+
   void showPending();
 
  private:
-  enum class Kind { LOAD, WRITE, PROCESSING };
+  enum class Kind { LOAD, WRITE, PROCESSING, OUTPUT_TOO_LARGE };
 
   struct Entry {
     QString filePath;

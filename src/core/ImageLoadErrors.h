@@ -103,6 +103,13 @@ class ImageLoadErrorReporter : public QObject {
    */
   void reportProcessingFailure(const QString& filePath, int page, const QStringList& messages);
 
+  /**
+   * \brief Reports a page whose output would be too large with the current settings.
+   *
+   * May be called from any thread. Not deduplicated, like processing failures.
+   */
+  void reportOutputTooLarge(const QString& filePath, int page, const QStringList& messages);
+
  signals:
   /**
    * Emitted from the thread calling report(). Receivers living in another
@@ -115,6 +122,9 @@ class ImageLoadErrorReporter : public QObject {
 
   /** Emitted from the thread calling reportProcessingFailure(). */
   void pageProcessingFailed(const QString& filePath, int page, const QStringList& messages);
+
+  /** Emitted from the thread calling reportOutputTooLarge(). */
+  void pageOutputTooLarge(const QString& filePath, int page, const QStringList& messages);
 
  private:
   ImageLoadErrorReporter() = default;

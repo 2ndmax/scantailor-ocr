@@ -365,7 +365,7 @@ void OutputGenerator::Processor::calcAreas() {
   // The limit for images also holds for the output, as it is processed the same way. Without it,
   // a high output resolution or a too low DPI of the image could make the output arbitrarily large.
   if (ImageSizeLimit::exceeds(m_targetSize)) {
-    throw std::runtime_error(ImageSizeLimit::outputErrorMessage(m_targetSize).toStdString());
+    throw OutputTooLargeError(m_targetSize);
   }
 
   if (m_renderParams.fillOutsidePageBox()) {

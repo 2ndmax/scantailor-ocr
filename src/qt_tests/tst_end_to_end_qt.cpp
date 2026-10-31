@@ -8,6 +8,7 @@
 #include <Dpm.h>
 #include <ImageFileInfo.h>
 #include <ImageMetadata.h>
+#include <ImageSizeLimit.h>
 #include <NullTaskStatus.h>
 #include <PageSelectionAccessor.h>
 #include <PageSequence.h>
@@ -443,6 +444,31 @@ void TestEndToEndQt::testMissingImageAfterEarlierRun() {
   QVERIFY(!result.output);
   QCOMPARE(result.failures.size(), size_t(1));
   QCOMPARE(result.failures[0].kind, StageSequence::PageFailure::LOAD_FAILED);
+}
+
+void TestEndToEndQt::testOutputTooLarge() {
+  // An output resolution that makes the pages exceed the size limit is a matter of the settings,
+  // not an unexpected error: processAll() says so, with the message naming what to change.
+  QTemporaryDir tempDir;
+  QVERIFY(tempDir.isValid());
+  const QDir dir(tempDir.path());
+  const std::vector<ImageFileInfo> files{saveScan(colorPage(), dir.absoluteFilePath("page.png"))};
+  QVERIFY(allSaved(files));
+
+  DefaultParams startValues;
+  DefaultParams::OutputParams outputParams = startValues.getOutputParams();
+  outputParams.setDpi(Dpi(100000, 100000));
+  startValues.setOutputParams(outputParams);
+
+  TestProject project(files, dir.absoluteFilePath("out"), startValues);
+  const StageSequence::ProcessAllResult result
+      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+  QVERIFY(!result.failures.empty());
+  for (const StageSequence::PageFailure& failure : result.failures) {
+    QCOMPARE(failure.kind, StageSequence::PageFailure::OUTPUT_TOO_LARGE);
+    QCOMPARE(failure.reasons.size(), qsizetype(1));
+    QVERIFY(failure.reasons[0].contains(QString::number(ImageSizeLimit::MAX_SIDE)));
+  }
 }
 
 void TestEndToEndQt::testCancelWithoutThumbnails() {

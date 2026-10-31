@@ -33,6 +33,8 @@ ImageLoadErrorNotifier::ImageLoadErrorNotifier(QWidget* parentWindow)
           &ImageLoadErrorNotifier::onImageWriteFailed, Qt::QueuedConnection);
   connect(&ImageLoadErrorReporter::instance(), &ImageLoadErrorReporter::pageProcessingFailed, this,
           &ImageLoadErrorNotifier::onPageProcessingFailed, Qt::QueuedConnection);
+  connect(&ImageLoadErrorReporter::instance(), &ImageLoadErrorReporter::pageOutputTooLarge, this,
+          &ImageLoadErrorNotifier::onPageOutputTooLarge, Qt::QueuedConnection);
 }
 
 ImageLoadErrorNotifier::~ImageLoadErrorNotifier() {
@@ -53,6 +55,12 @@ void ImageLoadErrorNotifier::onPageProcessingFailed(const QString& filePath,
                                                     const int page,
                                                     const QStringList& messages) {
   addEntry(Entry{filePath, page, messages, Kind::PROCESSING});
+}
+
+void ImageLoadErrorNotifier::onPageOutputTooLarge(const QString& filePath,
+                                                  const int page,
+                                                  const QStringList& messages) {
+  addEntry(Entry{filePath, page, messages, Kind::OUTPUT_TOO_LARGE});
 }
 
 void ImageLoadErrorNotifier::addEntry(Entry entry) {
@@ -133,6 +141,7 @@ void ImageLoadErrorNotifier::updateMessageBox() {
   const int numLoadFailures = countKind(Kind::LOAD);
   const int numWriteFailures = countKind(Kind::WRITE);
   const int numProcessingFailures = countKind(Kind::PROCESSING);
+  const int numTooLarge = countKind(Kind::OUTPUT_TOO_LARGE);
 
   QStringList headline;
   if (numLoadFailures > 0) {
@@ -144,6 +153,9 @@ void ImageLoadErrorNotifier::updateMessageBox() {
   if (numProcessingFailures > 0) {
     headline.push_back(
         tr("%n page(s) could not be processed because of an unexpected error.", "", numProcessingFailures));
+  }
+  if (numTooLarge > 0) {
+    headline.push_back(tr("%n page(s) would be too large with the current settings.", "", numTooLarge));
   }
   m_messageBox->setText(headline.join(QLatin1Char('\n')));
 

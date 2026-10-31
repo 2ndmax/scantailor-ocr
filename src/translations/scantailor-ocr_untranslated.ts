@@ -1794,44 +1794,44 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="271"/>
-        <location filename="../app/FixDpiDialog.cpp" line="597"/>
+        <location filename="../app/FixDpiDialog.cpp" line="276"/>
+        <location filename="../app/FixDpiDialog.cpp" line="604"/>
         <source>%1 of %2 need fixing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="347"/>
+        <location filename="../app/FixDpiDialog.cpp" line="352"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="351"/>
+        <location filename="../app/FixDpiDialog.cpp" line="356"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="355"/>
+        <location filename="../app/FixDpiDialog.cpp" line="361"/>
         <source>DPI is too small for this pixel size. Such a combination would probably lead to out-of-memory errors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="520"/>
+        <location filename="../app/FixDpiDialog.cpp" line="526"/>
         <source>undefined</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="522"/>
+        <location filename="../app/FixDpiDialog.cpp" line="528"/>
         <source>%1, too large</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="525"/>
+        <location filename="../app/FixDpiDialog.cpp" line="532"/>
         <source>%1, too small</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="619"/>
-        <location filename="../app/FixDpiDialog.cpp" line="625"/>
+        <location filename="../app/FixDpiDialog.cpp" line="626"/>
+        <location filename="../app/FixDpiDialog.cpp" line="632"/>
         <source>%1 (page %2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1839,58 +1839,65 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>ImageLoadErrorNotifier</name>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="82"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="90"/>
         <source>Problems with Image Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="86"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="94"/>
         <source>Don&apos;t show this message again in this session</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="108"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="116"/>
         <source>Unknown page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="113"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="121"/>
         <source>(page %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="116"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="124"/>
         <source>(writing)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="118"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="126"/>
         <source>(processing)</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="139"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="148"/>
         <source>%n image(s) could not be loaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="142"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="151"/>
         <source>%n output file(s) could not be written.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="146"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="155"/>
         <source>%n page(s) could not be processed because of an unexpected error.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="161"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="158"/>
+        <source>%n page(s) would be too large with the current settings.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="173"/>
         <source>... and %n more (see details).</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -1976,30 +1983,37 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="179"/>
+        <location filename="../core/LoadFileTask.cpp" line="189"/>
         <source>This page could not be processed because of an unexpected error:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="181"/>
+        <location filename="../core/LoadFileTask.cpp" line="186"/>
         <location filename="../core/LoadFileTask.cpp" line="191"/>
+        <location filename="../core/LoadFileTask.cpp" line="201"/>
         <source>Reason:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="184"/>
+        <location filename="../core/LoadFileTask.cpp" line="185"/>
+        <source>This page cannot be processed with the current settings:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/LoadFileTask.cpp" line="194"/>
         <source>Changing the settings of this page or of a previous step may help. Please report this error together with the steps that led to it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="189"/>
+        <location filename="../core/LoadFileTask.cpp" line="199"/>
         <source>The following file could not be loaded:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="195"/>
+        <location filename="../core/LoadFileTask.cpp" line="205"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use &lt;a href=&quot;#relink&quot;&gt;Relink&lt;/a&gt; to locate it.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4119,7 +4133,7 @@ would both become
 <context>
     <name>StageSequence</name>
     <message>
-        <location filename="../core/StageSequence.cpp" line="169"/>
+        <location filename="../core/StageSequence.cpp" line="183"/>
         <source>Out of memory.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6602,7 +6616,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="814"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="815"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation type="unfinished"></translation>
     </message>

@@ -1803,44 +1803,44 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Auf Auswahl anwenden</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="271"/>
-        <location filename="../app/FixDpiDialog.cpp" line="597"/>
+        <location filename="../app/FixDpiDialog.cpp" line="276"/>
+        <location filename="../app/FixDpiDialog.cpp" line="604"/>
         <source>%1 of %2 need fixing</source>
         <translation>%1 von %2 müssen korrigiert werden</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="347"/>
+        <location filename="../app/FixDpiDialog.cpp" line="352"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation>DPI ist zu groß und höchstwahrscheinlich falsch.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="351"/>
+        <location filename="../app/FixDpiDialog.cpp" line="356"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie damit keine brauchbaren Ergebnisse erhalten.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="355"/>
+        <location filename="../app/FixDpiDialog.cpp" line="361"/>
         <source>DPI is too small for this pixel size. Such a combination would probably lead to out-of-memory errors.</source>
         <translation>DPI ist zu klein für diese Pixelgröße. Eine solche Kombination würde wahrscheinlich zu Fehlern wegen zu wenig Arbeitsspeicher führen.</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="520"/>
+        <location filename="../app/FixDpiDialog.cpp" line="526"/>
         <source>undefined</source>
         <translation>nicht angegeben</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="522"/>
+        <location filename="../app/FixDpiDialog.cpp" line="528"/>
         <source>%1, too large</source>
         <translation>%1, zu groß</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="525"/>
+        <location filename="../app/FixDpiDialog.cpp" line="532"/>
         <source>%1, too small</source>
         <translation>%1, zu klein</translation>
     </message>
     <message>
-        <location filename="../app/FixDpiDialog.cpp" line="619"/>
-        <location filename="../app/FixDpiDialog.cpp" line="625"/>
+        <location filename="../app/FixDpiDialog.cpp" line="626"/>
+        <location filename="../app/FixDpiDialog.cpp" line="632"/>
         <source>%1 (page %2)</source>
         <translation>%1 (Seite %2)</translation>
     </message>
@@ -1848,27 +1848,27 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>ImageLoadErrorNotifier</name>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="82"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="90"/>
         <source>Problems with Image Files</source>
         <translation>Probleme mit Bilddateien</translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="116"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="124"/>
         <source>(writing)</source>
         <translation>(Schreiben)</translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="118"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="126"/>
         <source>(processing)</source>
         <translation>(Verarbeitung)</translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="108"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="116"/>
         <source>Unknown page</source>
         <translation>Unbekannte Seite</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="146"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="155"/>
         <source>%n page(s) could not be processed because of an unexpected error.</source>
         <translation>
             <numerusform>%n Seite konnte wegen eines unerwarteten Fehlers nicht verarbeitet werden.</numerusform>
@@ -1876,7 +1876,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="142"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="151"/>
         <source>%n output file(s) could not be written.</source>
         <translation>
             <numerusform>%n Ausgabedatei konnte nicht geschrieben werden.</numerusform>
@@ -1884,17 +1884,17 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         </translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="86"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="94"/>
         <source>Don&apos;t show this message again in this session</source>
         <translation>Diese Meldung in dieser Sitzung nicht mehr anzeigen</translation>
     </message>
     <message>
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="113"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="121"/>
         <source>(page %1)</source>
         <translation>(Seite %1)</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="139"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="148"/>
         <source>%n image(s) could not be loaded.</source>
         <translation>
             <numerusform>%n Bild konnte nicht geladen werden.</numerusform>
@@ -1902,7 +1902,15 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ImageLoadErrorNotifier.cpp" line="161"/>
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="158"/>
+        <source>%n page(s) would be too large with the current settings.</source>
+        <translation>
+            <numerusform>%n Seite wäre mit den aktuellen Einstellungen zu groß.</numerusform>
+            <numerusform>%n Seiten wären mit den aktuellen Einstellungen zu groß.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../app/ImageLoadErrorNotifier.cpp" line="173"/>
         <source>... and %n more (see details).</source>
         <translation>
             <numerusform>... und %n weiteres (siehe Details).</numerusform>
@@ -1984,25 +1992,26 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>LoadFileTask</name>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="181"/>
+        <location filename="../core/LoadFileTask.cpp" line="186"/>
         <location filename="../core/LoadFileTask.cpp" line="191"/>
+        <location filename="../core/LoadFileTask.cpp" line="201"/>
         <source>Reason:</source>
         <translation>Grund:</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="179"/>
+        <location filename="../core/LoadFileTask.cpp" line="189"/>
         <source>This page could not be processed because of an unexpected error:
 %1</source>
         <translation>Diese Seite konnte wegen eines unerwarteten Fehlers nicht verarbeitet werden:
 %1</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="184"/>
+        <location filename="../core/LoadFileTask.cpp" line="194"/>
         <source>Changing the settings of this page or of a previous step may help. Please report this error together with the steps that led to it.</source>
         <translation>Möglicherweise hilft es, die Einstellungen dieser Seite oder eines vorherigen Schritts zu ändern. Bitte melden Sie diesen Fehler zusammen mit den Schritten, die dazu geführt haben.</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="195"/>
+        <location filename="../core/LoadFileTask.cpp" line="205"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use &lt;a href=&quot;#relink&quot;&gt;Relink&lt;/a&gt; to locate it.</source>
         <translation>Die folgende Datei existiert nicht:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Verwenden Sie &lt;a href=&quot;#relink&quot;&gt;Neu verknüpfen&lt;/a&gt;, um sie zu finden.</translation>
     </message>
@@ -2012,7 +2021,14 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Unbekannter Fehler.</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="189"/>
+        <location filename="../core/LoadFileTask.cpp" line="185"/>
+        <source>This page cannot be processed with the current settings:
+%1</source>
+        <translation>Diese Seite lässt sich mit den aktuellen Einstellungen nicht verarbeiten:
+%1</translation>
+    </message>
+    <message>
+        <location filename="../core/LoadFileTask.cpp" line="199"/>
         <source>The following file could not be loaded:
 %1</source>
         <translation>Die folgende Datei konnte nicht geladen werden:
@@ -4165,7 +4181,7 @@ würden beide zu
 <context>
     <name>StageSequence</name>
     <message>
-        <location filename="../core/StageSequence.cpp" line="169"/>
+        <location filename="../core/StageSequence.cpp" line="183"/>
         <source>Out of memory.</source>
         <translation>Nicht genügend Arbeitsspeicher.</translation>
     </message>
@@ -6301,7 +6317,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>DPI ist zu klein. Selbst wenn der Wert korrekt ist, werden Sie damit keine brauchbaren Ergebnisse erhalten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="814"/>
+        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="815"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation>Ein extrem niedriger DPI-Wert. Er entspräche bei dieser Pixelgröße einem sehr großen Papierformat.</translation>
     </message>

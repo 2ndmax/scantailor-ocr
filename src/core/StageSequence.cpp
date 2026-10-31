@@ -141,6 +141,20 @@ BackgroundTaskPtr StageSequence::createTask(const PageInfo& page,
                                         thumbnailCache, pages, fixOrientationTask);
 }  // StageSequence::createTask
 
+namespace {
+StageSequence::PageFailure::Kind toPageFailureKind(const LoadFileTask::Failure failure) {
+  switch (failure) {
+    case LoadFileTask::Failure::LOAD:
+      return StageSequence::PageFailure::LOAD_FAILED;
+    case LoadFileTask::Failure::OUTPUT_TOO_LARGE:
+      return StageSequence::PageFailure::OUTPUT_TOO_LARGE;
+    case LoadFileTask::Failure::PROCESSING:
+      break;
+  }
+  return StageSequence::PageFailure::PROCESSING_FAILED;
+}
+}  // namespace
+
 StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
                                                           const OutputFileNameGenerator& outFileNameGen,
                                                           const ProgressCallback& progress) const {
@@ -170,11 +184,10 @@ StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<
           return false;
         }
         QStringList reasons;
-        bool processingFailed = false;
-        if (LoadFileTask::isFailure(taskResult, &reasons, &processingFailed)) {
+        LoadFileTask::Failure failure = LoadFileTask::Failure::LOAD;
+        if (LoadFileTask::isFailure(taskResult, &reasons, &failure)) {
           failedImages.insert(page.imageId());
-          result.failures.push_back(
-              {page.id(), processingFailed ? PageFailure::PROCESSING_FAILED : PageFailure::LOAD_FAILED, reasons});
+          result.failures.push_back({page.id(), toPageFailureKind(failure), reasons});
         } else if ((lastFilterIdx == m_outputFilterIdx) && !m_outputFilter->hasOutputParams(page.id())) {
           result.failures.push_back({page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}});
         }

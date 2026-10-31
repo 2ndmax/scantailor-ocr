@@ -7,6 +7,7 @@
 #include <QSize>
 #include <QString>
 #include <QtGlobal>
+#include <stdexcept>
 
 /**
  * \brief The largest image the program processes, the same for every place that checks it.
@@ -44,6 +45,17 @@ class ImageSizeLimit {
 
   /** The message for the user about an output page of \p size pixels that is too large. */
   static QString outputErrorMessage(const QSize& size);
+};
+
+/**
+ * \brief Thrown when an output page would exceed ImageSizeLimit.
+ *
+ * Not a program error: the output resolution or the DPI of the image make the page too large,
+ * and the user can change them. what() is outputErrorMessage().
+ */
+class OutputTooLargeError : public std::runtime_error {
+ public:
+  explicit OutputTooLargeError(const QSize& size);
 };
 
 

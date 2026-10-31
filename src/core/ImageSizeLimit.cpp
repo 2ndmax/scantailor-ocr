@@ -38,3 +38,6 @@ QString ImageSizeLimit::outputErrorMessage(const QSize& size) {
       .arg(MAX_SIDE)
       .arg(MAX_PIXELS / 1000000);
 }
+
+OutputTooLargeError::OutputTooLargeError(const QSize& size)
+    : std::runtime_error(ImageSizeLimit::outputErrorMessage(size).toStdString()) {}
