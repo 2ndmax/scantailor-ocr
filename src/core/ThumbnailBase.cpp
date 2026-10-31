@@ -265,12 +265,14 @@ void ThumbnailBase::drawMark(QPainter& painter, const QRectF& square, const Mark
   painter.setBrush(QColor(255, 255, 255, 230));
   // Square or rounded corners, as the buttons of the color scheme; a slight rounding keeps
   // a small square from looking frayed.
-  const double radius = ColorSchemeManager::instance().hasRoundedCorners() ? s * 0.2 : 1.0;
-  painter.drawRoundedRect(square, radius, radius);
+  const double cornerRadius = ColorSchemeManager::instance().hasRoundedCorners() ? s * 0.2 : 1.0;
+  painter.drawRoundedRect(square, cornerRadius, cornerRadius);
 
-  // Both marks are in the accent color, as the frame of the selected thumbnail; their shapes tell them apart.
+  // All three marks are in the accent color, as the frame of the selected thumbnail; their shapes
+  // tell them apart.
   // REVIEW-NOTE (2026-10): a light accent color on the white mark square (Dark's default #5ea8ff
-  // has 2.5:1, a chosen yellow far less) -> the hourglass and the exclamation mark are hard to see.
+  // has 2.5:1, a chosen yellow far less) -> the hourglass, the exclamation mark and the circular
+  // arrow are hard to see.
   // Not fixed because the marks are meant to be in the accent color the user chose.
   const QColor accent = ColorSchemeManager::instance().getColorParam("ThumbnailSequenceSelectedItemBorder");
   if (mark == INCOMPLETE_MARK) {
