@@ -263,7 +263,9 @@ New-Log $log "10: fuzzing, $Minutes minutes per target" @(
 )
 
 # --- Fuzzing -------------------------------------------------------------------------------------
+$targetNo = 0
 foreach ($t in $targets) {
+    $targetNo++
     $exe = "$BuildDir\$($t.Name).exe"
     if (-not (Test-Path $exe)) { throw "$exe not found: the build has no such target." }
     $dir = "$fuzzDir\$($t.Name)"
@@ -275,7 +277,7 @@ foreach ($t in $targets) {
     # New inputs go into the first folder; the seeds are only read.
     $argLine += " `"$dir\corpus`" `"$seeds\$($t.Seeds)`""
 
-    Write-Host "Fuzzing $($t.Name) for $Minutes minutes ... " -NoNewline
+    Write-Host "[$targetNo/$($targets.Count)] Fuzzing $($t.Name) for $Minutes minutes ... " -NoNewline
     $before = @(Get-ChildItem "$dir\findings" -File).Count
     $rc = Invoke-Fuzzer $exe $argLine $dir "$dir\fuzz.log" ($Minutes + 10)
     $out = [IO.File]::ReadAllText("$dir\fuzz.log")
