@@ -11,6 +11,11 @@
 // pages the program would not process (size above the limit, a resolution it asks to fix) are
 // skipped.
 //
+// Pages without settings of their own get the start values first, as StageSequence gives them to
+// new pages: those of the project (<default-params>), else the built-in ones. A project without
+// Margins settings stands for a new project started with these start values (a profile), so it
+// also takes their output size.
+//
 // Where a task would measure something on the image (no split line, no angle, no content box
 // stored), the stored values are taken as if they still matched, and missing ones are replaced
 // by the whole image and an angle of 0.
@@ -19,6 +24,7 @@
 // inside the image (ImageTrim::toInnerRect() promises it), Split Pages leaves the page a part of
 // the image (the estimators of Deskew throw otherwise), every step leaves a geometry of finite
 // numbers, and the output starts at 0, 0 (OutputGenerator asserts it).
+#include <DefaultParams.h>
 #include <ImageSizeLimit.h>
 #include <ImageTransformation.h>
 #include <PageId.h>
@@ -40,10 +46,12 @@
 #include "ProjectReader.h"
 #include "filters/deskew/Params.h"
 #include "filters/deskew/Settings.h"
+#include "filters/deskew/Utils.h"
 #include "filters/fix_orientation/Settings.h"
 #include "filters/fix_orientation/Utils.h"
 #include "filters/output/OutputGenerator.h"
 #include "filters/output/Params.h"
+#include "filters/output/Utils.h"
 #include "filters/page_layout/Params.h"
 #include "filters/page_layout/Settings.h"
 #include "filters/page_layout/Utils.h"
@@ -53,6 +61,7 @@
 #include "filters/page_split/Utils.h"
 #include "filters/select_content/Params.h"
 #include "filters/select_content/Settings.h"
+#include "filters/select_content/Utils.h"
 
 namespace {
 // More pages only repeat the work; a few are enough for the sizes that pages share in Margins.
@@ -121,7 +130,55 @@ struct Steps {
   select_content::Settings selectContent;
   page_layout::Settings pageLayout;
   std::map<PageId, output::Params> output;
+  DefaultParams defaults;
 };
+
+// As the loadDefaultSettings() of the filters: only pages without settings of their own get them.
+// Split Pages only takes the layout type from them, which matters only once a split line is found
+// on the image.
+void loadDefaultSettings(Steps& steps, const PageInfo& page) {
+  if (steps.fixOrientation.isRotationNull(page.imageId())) {
+    steps.fixOrientation.applyRotation(page.imageId(),
+                                       fix_orientation::Utils::getDefaultOrthogonalRotation(steps.defaults));
+  }
+  if (steps.deskew.isParamsNull(page.id())) {
+    steps.deskew.setPageParams(page.id(), deskew::Utils::buildDefaultParams(steps.defaults));
+  }
+  if (steps.selectContent.isParamsNull(page.id())) {
+    steps.selectContent.setPageParams(page.id(),
+                                      select_content::Utils::buildDefaultParams(page.metadata().dpi(), steps.defaults));
+  }
+  if (steps.pageLayout.isParamsNull(page.id())) {
+    steps.pageLayout.setPageParams(page.id(),
+                                   page_layout::Utils::buildDefaultParams(page.metadata().dpi(), steps.defaults));
+  }
+  if (steps.output.count(page.id()) == 0) {
+    steps.output.insert_or_assign(page.id(), output::Utils::buildDefaultParams(steps.defaults));
+  }
+}
+
+// As select_content::Task::process() without detection: a page box from the start values only has
+// a size and goes into the middle of the page; the content box is the page box.
+void selectContentBoxes(const select_content::Params& params,
+                        const ImageTransformation& xform,
+                        QRectF& pageRect,
+                        QRectF& contentRect) {
+  pageRect = params.pageRect();
+  contentRect = params.contentRect();
+  if (!params.dependencies().rotatedPageOutline().empty() || contentRect.isValid()) {
+    return;
+  }
+  if (params.pageDetectionMode() == MODE_MANUAL) {
+    pageRect.moveCenter(xform.resultingRect().center());
+  } else {
+    pageRect = xform.resultingRect();
+  }
+  if (!xform.resultingRect().intersected(pageRect).isValid()) {
+    pageRect = xform.resultingRect();
+  }
+  pageRect = pageRect.intersected(xform.resultingRect());
+  contentRect = pageRect;
+}
 
 // As page_split::Task::process() with stored parameters.
 void splitPage(const Steps& steps, const PageInfo& page, ImageTransformation& xform) {
@@ -150,6 +207,7 @@ void processPage(Steps& steps, const PageInfo& page) {
   if (imageSize.isEmpty() || ImageSizeLimit::exceeds(imageSize)) {
     return;
   }
+  loadDefaultSettings(steps, page);
   ImageTransformation xform(QRectF(QPointF(0, 0), imageSize), page.metadata().dpi());
 
   const fix_orientation::ImageTrim trim = steps.fixOrientation.getTrim(page.imageId());
@@ -175,8 +233,7 @@ void processPage(Steps& steps, const PageInfo& page) {
   QRectF pageRect = xform.resultingRect();
   QRectF contentRect = pageRect;
   if (const std::unique_ptr<select_content::Params> params = steps.selectContent.getPageParams(page.id())) {
-    pageRect = params->pageRect();
-    contentRect = params->contentRect();
+    selectContentBoxes(*params, xform, pageRect, contentRect);
   }
 
   // As page_layout::Task::process().
@@ -199,12 +256,7 @@ void processPage(Steps& steps, const PageInfo& page) {
   checkGeometry(xform, "Margins leaves a finite geometry");
 
   // As output::Task::process() up to the size of the output.
-  const auto outputParams = steps.output.find(page.id());
-  if (outputParams != steps.output.end()) {
-    xform.postScaleToDpi(outputParams->second.outputDpi());
-  } else {
-    xform.postScaleToDpi(output::Params().outputDpi());
-  }
+  xform.postScaleToDpi(steps.output.at(page.id()).outputDpi());
   checkGeometry(xform, "the output resolution leaves a finite geometry");
   check(xform.resultingRect().toRect().topLeft() == QPoint(0, 0), "the output starts at 0, 0");
   const output::OutputGenerator generator(xform, contentRectPhys);
@@ -235,6 +287,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   steps.selectContent.load(reader, filtersEl.namedItem("select-content").toElement());
   steps.pageLayout.load(reader, filtersEl.namedItem("page-layout").toElement());
   steps.output = readOutputParams(reader, filtersEl);
+  if (const std::unique_ptr<DefaultParams> startValues = reader.readDefaultParams()) {
+    steps.defaults = *startValues;
+  }
+  if (filtersEl.namedItem("page-layout").isNull()) {
+    steps.pageLayout.setOutputSizeOptions(page_layout::Utils::buildDefaultOutputSizeOptions(steps.defaults));
+  }
 
   const PageSequence pages = reader.pages()->toPageSequence(PAGE_VIEW);
   try {
