@@ -34,6 +34,14 @@ function Confirm-Run([string]$Title, [string[]]$Lines, [string]$Log, [string]$Bu
             Write-Host 'It holds no CMake build, so it is not deleted here: remove it yourself, or pass -BuildDir.' -ForegroundColor Red
             return $false
         }
+        # Without asking (-Yes) only a build directory of the runs is deleted: build-* in the project
+        # folder, the names the runs use by default. Never the normal build, nor one given by -BuildDir.
+        $fullDir = [IO.Path]::GetFullPath($BuildDir).TrimEnd('\')
+        $isRunDir = ((Split-Path $fullDir -Parent) -eq $Root) -and ((Split-Path $fullDir -Leaf) -like 'build-*')
+        if ($Unattended -and -not $isRunDir) {
+            Write-Host "With -Yes only a build-* folder in $Root is deleted: remove it yourself, or run without -Yes." -ForegroundColor Red
+            return $false
+        }
         if (-not (Read-YesNo 'Delete it and start the run?' $false)) { return $false }
         Remove-Item -LiteralPath $BuildDir -Recurse -Force
         Write-Host "Deleted $BuildDir."

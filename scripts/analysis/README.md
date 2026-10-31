@@ -66,8 +66,9 @@ Two setup scripts take care of all of this; each shows a menu of steps, 0 runs a
 
       powershell -ExecutionPolicy Bypass -File scripts\setup\02-setup-analysis.ps1
 
-The builds go into fresh directories next to `build`.  A script stops if its build directory
-already exists; delete it for a new run.  Keep build directories on a short path: with MSVC,
+The builds go into fresh directories next to `build`.  If its build directory is left from an
+earlier run, a script offers to delete it, but only a CMake build directory; with `-Yes` it
+deletes only a `build-*` folder in the project folder and stops otherwise.  Keep build directories on a short path: with MSVC,
 the generated Qt files exceed the Windows limit of 260 characters in deep folders (errors
 C1083, C1258).  Run 08 builds in the Linux file system of WSL instead, which is much faster
 there than a folder on the Windows drives.
