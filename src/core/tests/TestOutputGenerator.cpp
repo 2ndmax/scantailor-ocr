@@ -6,6 +6,7 @@
 // bytes, so they hold on every platform.
 
 #include <BinaryImage.h>
+#include <DefaultParams.h>
 #include <DistortionModel.h>
 #include <Dpi.h>
 #include <Dpm.h>
@@ -400,6 +401,41 @@ BOOST_AUTO_TEST_CASE(output_dpi_out_of_range_in_project_file) {
       }
     }
   }
+}
+
+// The edges of the fallbacks: the smallest value the options panel allows is kept, one below it
+// gives the default. The output resolution of the default parameters is read the same way.
+BOOST_AUTO_TEST_CASE(fallbacks_start_just_below_the_smallest_allowed_value) {
+  QDomDocument doc;
+  auto dpiElement = [&](const char* value) {
+    QDomElement el = doc.createElement(QStringLiteral("dpi"));
+    el.setAttribute(QStringLiteral("horizontal"), QString::fromLatin1(value));
+    el.setAttribute(QStringLiteral("vertical"), QString::fromLatin1(value));
+    return el;
+  };
+  BOOST_REQUIRE_EQUAL(Params::MIN_OUTPUT_DPI, 72);
+  BOOST_CHECK(Params::outputDpiFromXml(dpiElement("72")) == Dpi(72, 72));
+  BOOST_CHECK(Params::outputDpiFromXml(dpiElement("71"))
+              == Dpi(Params::DEFAULT_OUTPUT_DPI, Params::DEFAULT_OUTPUT_DPI));
+
+  for (const char* value : {"71", "0"}) {
+    BOOST_TEST_CONTEXT("default parameters, dpi " << value) {
+      QDomElement outputEl = doc.createElement(QStringLiteral("output-params"));
+      outputEl.appendChild(dpiElement(value));
+      const DefaultParams::OutputParams outputParams(outputEl);
+      BOOST_CHECK(outputParams.getDpi() == Dpi(Params::DEFAULT_OUTPUT_DPI, Params::DEFAULT_OUTPUT_DPI));
+    }
+  }
+  QDomElement outputEl = doc.createElement(QStringLiteral("output-params"));
+  outputEl.appendChild(dpiElement("72"));
+  BOOST_CHECK(DefaultParams::OutputParams(outputEl).getDpi() == Dpi(72, 72));
+
+  BOOST_REQUIRE_EQUAL(BlackWhiteOptions::MIN_WINDOW_SIZE, 3);
+  QDomElement optionsEl = BlackWhiteOptions().toXml(doc, QStringLiteral("black-white-options"));
+  optionsEl.setAttribute(QStringLiteral("windowSize"), QStringLiteral("3"));
+  BOOST_CHECK_EQUAL(BlackWhiteOptions(optionsEl).getWindowSize(), 3);
+  optionsEl.setAttribute(QStringLiteral("windowSize"), QStringLiteral("2"));
+  BOOST_CHECK_EQUAL(BlackWhiteOptions(optionsEl).getWindowSize(), BlackWhiteOptions::DEFAULT_WINDOW_SIZE);
 }
 
 // In these two tests the content box is the text half only; the picture half lies in the margins.

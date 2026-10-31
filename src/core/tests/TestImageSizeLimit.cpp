@@ -49,6 +49,14 @@ BOOST_AUTO_TEST_CASE(test_error_message_names_size_and_limits) {
   BOOST_CHECK(message.contains(QStringLiteral("600")));
 }
 
+BOOST_AUTO_TEST_CASE(test_output_error_message_names_size_and_limits) {
+  const QString message = ImageSizeLimit::outputErrorMessage(QSize(40000, 123));
+  BOOST_CHECK(message.contains(QStringLiteral("40000")));
+  BOOST_CHECK(message.contains(QStringLiteral("123")));
+  BOOST_CHECK(message.contains(QString::number(ImageSizeLimit::MAX_SIDE)));
+  BOOST_CHECK(message.contains(QString::number(ImageSizeLimit::MAX_PIXELS / 1000000)));
+}
+
 // The steps before Output scale a page to up to 300 DPI. A far too low DPI in the file header
 // would make that image exceed the limit, so the DPI must be fixed first, like an undefined one.
 BOOST_AUTO_TEST_CASE(test_dpi_too_small_to_process_must_be_fixed) {
