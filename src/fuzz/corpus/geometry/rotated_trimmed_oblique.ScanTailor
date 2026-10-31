@@ -1,0 +1,36 @@
+<project layoutDirection="LTR" outputDirectory="C:/fuzz/book/out" version="10">
+  <directories>
+    <directory id="1" path="C:/fuzz/book/scans"/>
+  </directories>
+  <files>
+    <file dirId="1" id="2" name="p001.tif"/>
+    <file dirId="1" id="5" name="p002.tif"/>
+  </files>
+  <images>
+    <image fileId="2" fileImage="0" id="3" subPages="1">
+      <size height="3508" width="2480"/>
+      <dpi horizontal="300" vertical="300"/>
+    </image>
+    <image fileId="5" fileImage="0" id="6" subPages="2">
+      <size height="3508" width="4960"/>
+      <dpi horizontal="300" vertical="300"/>
+    </image>
+  </images>
+  <pages>
+    <page id="4" imageId="3" subPage="single"/>
+    <page id="7" imageId="6" selected="selected" subPage="left"/>
+    <page id="8" imageId="6" subPage="right"/>
+  </pages>
+  <filters>
+    <fix-orientation>
+      <image id="3"><rotation degrees="90"/><trim enabled="1" left="100" right="120" top="50" bottom="60"/></image>
+      <image id="6"><rotation degrees="270"/><trim enabled="1" left="0" right="2000" top="0" bottom="0"/></image>
+      <image-settings><page id="4"><image-params bwThreshold="140" blackOnWhite="1"/></page></image-settings>
+    </fix-orientation>
+    <deskew algoContentBased="0">
+      <page id="4"><params angle="2.5" detection="top-edge" mode="manual" oblique="3.25" oblique-mode="manual"><dependencies><rotation degrees="90"/><page-outline/></dependencies></params></page>
+      <page id="8"><params angle="-0.4" detection="content" mode="auto" oblique="-1" oblique-mode="auto"><dependencies><rotation degrees="270"/><page-outline/></dependencies></params></page>
+      <image-settings><page id="8"><image-params bwThreshold="100" blackOnWhite="0"/></page></image-settings>
+    </deskew>
+  </filters>
+</project>

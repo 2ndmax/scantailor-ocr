@@ -1,0 +1,52 @@
+<project layoutDirection="LTR" outputDirectory="C:/fuzz/book/out" version="10">
+  <directories>
+    <directory id="1" path="C:/fuzz/book/scans"/>
+  </directories>
+  <files>
+    <file dirId="1" id="2" name="p001.tif"/>
+    <file dirId="1" id="5" name="p002.tif"/>
+  </files>
+  <images>
+    <image fileId="2" fileImage="0" id="3" subPages="1">
+      <size height="3508" width="2480"/>
+      <dpi horizontal="300" vertical="300"/>
+    </image>
+    <image fileId="5" fileImage="0" id="6" subPages="2">
+      <size height="3508" width="4960"/>
+      <dpi horizontal="300" vertical="300"/>
+    </image>
+  </images>
+  <pages>
+    <page id="4" imageId="3" subPage="single"/>
+    <page id="7" imageId="6" selected="selected" subPage="left"/>
+    <page id="8" imageId="6" subPage="right"/>
+  </pages>
+  <filters>
+    <fix-orientation>
+      <image id="3"><rotation degrees="0"/></image>
+      <image id="6"><rotation degrees="0"/></image>
+    </fix-orientation>
+    <page-split defaultLayoutType="auto-detect">
+      <image id="3" layoutType="single-uncut" detectionMethod="edges"><params mode="auto"><pages type="single-uncut"><outline><point x="0" y="0"/><point x="2480" y="0"/><point x="2480" y="3508"/><point x="0" y="3508"/></outline></pages><dependencies><rotation degrees="0"/><size width="2480" height="3508"/><layoutType>single-uncut</layoutType></dependencies></params></image>
+      <image id="6" layoutType="two-pages" detectionMethod="edges"><params mode="manual"><pages type="two-pages"><outline><point x="0" y="0"/><point x="4960" y="0"/><point x="4960" y="3508"/><point x="0" y="3508"/></outline><cutter1><p1 x="2470" y="0"/><p2 x="2490" y="3508"/></cutter1></pages><dependencies><rotation degrees="0"/><size width="4960" height="3508"/><layoutType>two-pages</layoutType></dependencies></params></image>
+    </page-split>
+    <deskew algoContentBased="1">
+      <page id="4"><params angle="0.75" detection="content" mode="auto" oblique="0" oblique-mode="auto"><dependencies><rotation degrees="0"/><page-outline/></dependencies></params></page>
+      <page id="7"><params angle="-1.5" detection="content" mode="manual" oblique="0" oblique-mode="auto"><dependencies><rotation degrees="0"/><page-outline/></dependencies></params></page>
+    </deskew>
+    <select-content pageDetectionTolerance="0.1">
+      <page-detection-box width="0" height="0"/>
+      <page id="4"><params contentDetectionMode="auto" fineTuneCorners="0" pageDetectionMode="disabled"><content-rect x="200" y="250" width="2080" height="3000"/><page-rect x="0" y="0" width="2480" height="3508"/><content-size-mm width="176" height="254"/><dependencies><rotated-page-outline/></dependencies></params></page>
+      <page id="7"><params contentDetectionMode="manual" fineTuneCorners="0" pageDetectionMode="disabled"><content-rect x="150" y="200" width="2100" height="3100"/><page-rect x="0" y="0" width="2480" height="3508"/><dependencies><rotated-page-outline/></dependencies></params></page>
+    </select-content>
+    <page-layout>
+      <output-size ownTarget="0" width="0" height="0" maxEnlarge="0" minReduce="0"/>
+      <page id="4"><params autoMargins="0"><hardMarginsMM bottom="5" left="10" right="10" top="5"/><pageRect x="0" y="0" width="2480" height="3508"/><contentRect x="200" y="250" width="2080" height="3000"/><contentSizeMM width="176" height="254"/><alignment hor="center" null="0" vert="center"/></params></page>
+      <page id="7"><params autoMargins="1"><hardMarginsMM bottom="5" left="10" right="10" top="5"/><alignment hor="left" null="0" vert="top"/></params></page>
+    </page-layout>
+    <output>
+      <page id="4"><params blackOnWhite="1" depthPerception="2" despeckleLevel="1"><dpi horizontal="600" vertical="600"/><color-params colorMode="bw"/></params></page>
+      <page id="8"><params><dpi horizontal="300" vertical="300"/></params></page>
+    </output>
+  </filters>
+</project>

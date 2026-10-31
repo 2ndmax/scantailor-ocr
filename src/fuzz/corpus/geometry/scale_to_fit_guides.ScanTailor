@@ -1,0 +1,34 @@
+<project layoutDirection="LTR" outputDirectory="C:/fuzz/book/out" version="10">
+  <directories>
+    <directory id="1" path="C:/fuzz/book/scans"/>
+  </directories>
+  <files>
+    <file dirId="1" id="2" name="p001.tif"/>
+    <file dirId="1" id="5" name="p002.tif"/>
+  </files>
+  <images>
+    <image fileId="2" fileImage="0" id="3" subPages="1">
+      <size height="3508" width="2480"/>
+      <dpi horizontal="300" vertical="300"/>
+    </image>
+    <image fileId="5" fileImage="0" id="6" subPages="2">
+      <size height="3508" width="4960"/>
+      <dpi horizontal="300" vertical="300"/>
+    </image>
+  </images>
+  <pages>
+    <page id="4" imageId="3" subPage="single"/>
+    <page id="7" imageId="6" selected="selected" subPage="left"/>
+    <page id="8" imageId="6" subPage="right"/>
+  </pages>
+  <filters>
+    <page-layout>
+      <output-size ownTarget="1" width="148" height="210" maxEnlarge="50" minReduce="50"/>
+      <guides><guide orientation="vertical" position="120.5"/><guide orientation="horizontal" position="-40"/></guides>
+      <page id="4"><params autoMargins="0"><hardMarginsMM bottom="10" left="15" right="15" top="10"/><pageRect x="0" y="0" width="2480" height="3508"/><contentRect x="300" y="300" width="1800" height="2800"/><contentSizeMM width="152" height="237"/><alignment hor="center" null="0" scale="1" vert="center"/></params></page>
+      <page id="7"><params autoMargins="0"><hardMarginsMM bottom="0" left="0" right="0" top="0"/><alignment hor="right" null="0" scale="1" vert="bottom"/></params></page>
+      <page id="8"><params autoMargins="0"><hardMarginsMM bottom="0" left="0" right="0" top="0"/><alignment hor="center" null="1" vert="center"/></params></page>
+    </page-layout>
+    <output><page id="7"><params><dpi horizontal="200" vertical="400"/></params></page></output>
+  </filters>
+</project>

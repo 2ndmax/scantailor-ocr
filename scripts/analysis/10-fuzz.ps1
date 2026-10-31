@@ -104,6 +104,8 @@ $targets = @(
        Dict = 'profile.dict' }
     @{ Name = 'fuzz_page_output'; Title = 'the Output step on a whole page, with plausibility checks'
        Seeds = 'page_output'; Dict = 'page_output.dict'; Args = $slowInputs }
+    @{ Name = 'fuzz_project_geometry'; Title = 'the page geometry of a project file (trim, split line, angles, boxes, margins), with plausibility checks'
+       Seeds = 'geometry'; Dict = 'geometry.dict' }
 )
 # The findings of all targets are reported, also of those not run this time: the log is written
 # anew, and 11-merge-findings.ps1 reads only this one.
