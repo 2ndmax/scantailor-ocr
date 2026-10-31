@@ -16,7 +16,8 @@
 // by the whole image and an angle of 0.
 //
 // Besides crashes, these count as findings, as the program relies on them: the trimmed image lies
-// inside the image (ImageTrim::toInnerRect() promises it), every step leaves a geometry of finite
+// inside the image (ImageTrim::toInnerRect() promises it), Split Pages leaves the page a part of
+// the image (the estimators of Deskew throw otherwise), every step leaves a geometry of finite
 // numbers, and the output starts at 0, 0 (OutputGenerator asserts it).
 #include <ImageSizeLimit.h>
 #include <ImageTransformation.h>
@@ -126,7 +127,8 @@ struct Steps {
 void splitPage(const Steps& steps, const PageInfo& page, ImageTransformation& xform) {
   const page_split::Settings::Record record = steps.pageSplit.getPageRecord(page.imageId());
   const page_split::Params* params = record.params();
-  if (!params) {
+  // Without a usable split line the task finds one on the image.
+  if (!params || !page_split::Utils::everyPageHasArea(params->pageLayout(), xform)) {
     return;
   }
   const page_split::Dependencies deps(xform.origRect().size().toSize(), xform.preRotation(), xform.origPreCropArea(),
@@ -140,8 +142,7 @@ void splitPage(const Steps& steps, const PageInfo& page, ImageTransformation& xf
   } else {
     return;
   }
-  const QPolygonF pagePoly(layout.pageOutline(page.id().subPage()).toPolygon());
-  xform.setPreCropArea(page_split::Utils::intersectPreCropWithPageOutline(pagePoly, xform.preCropArea()));
+  xform.setPreCropArea(page_split::Utils::pageArea(layout, page.id().subPage(), xform.preCropArea()));
 }
 
 void processPage(Steps& steps, const PageInfo& page) {
@@ -161,6 +162,9 @@ void processPage(Steps& steps, const PageInfo& page) {
 
   splitPage(steps, page, xform);
   checkGeometry(xform, "Split Pages leaves a finite geometry");
+  // As BlackOnWhiteEstimator and BackgroundColorCalculator check it; they throw otherwise.
+  check(!xform.origPreCropArea().intersected(xform.origRect()).isEmpty(),
+        "Split Pages leaves the page a part of the image");
 
   if (const std::unique_ptr<deskew::Params> params = steps.deskew.getPageParams(page.id())) {
     xform.setPostRotation(params->deskewAngle());

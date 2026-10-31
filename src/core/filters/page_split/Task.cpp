@@ -87,8 +87,11 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
     AutoManualMode splitLineMode = MODE_AUTO;
     PageLayout newLayout;
 
-    if (!params || !deps.compatibleWith(*params)) {
-      if (!params || (record.combinedLayoutType() == AUTO_LAYOUT_TYPE)) {
+    // A split line from a project file may leave a page only a sliver without area, on which the
+    // later steps fail; such a split line is found again, as if none had been stored.
+    const bool storedLayoutUsable = params && Utils::everyPageHasArea(params->pageLayout(), data.xform());
+    if (!storedLayoutUsable || !deps.compatibleWith(*params)) {
+      if (!storedLayoutUsable || (record.combinedLayoutType() == AUTO_LAYOUT_TYPE)) {
         newLayout = PageLayoutEstimator::estimatePageLayout(
             record.combinedLayoutType(), m_settings->detectionMethod(m_pageInfo.imageId()), data.grayImage(),
             data.xform(), data.bwThreshold(), m_dbg.get());
@@ -167,9 +170,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
     // REVIEW-NOTE (2026-10): if the sub-page no longer matches the layout type, pageOutline() is empty and the whole
     // image is passed on -> one run may process the full image for a page that is about to vanish. Not fixed because
     // the page list is corrected right after and a reschedule needs pipeline changes.
-    const QPolygonF pagePoly(layout.pageOutline(m_pageInfo.id().subPage()).toPolygon());
-    const QPolygonF merged(Utils::intersectPreCropWithPageOutline(pagePoly, newXform.preCropArea()));
-    newXform.setPreCropArea(merged);
+    newXform.setPreCropArea(Utils::pageArea(layout, m_pageInfo.id().subPage(), newXform.preCropArea()));
     return m_nextTask->process(status, FilterData(data, newXform));
   }
   return std::make_shared<UiUpdater>(m_filter, m_pages, std::move(m_dbg), data.origImage(), m_pageInfo, data.xform(),
