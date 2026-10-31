@@ -129,7 +129,7 @@ void NativeColorScheme::loadStyleSheet() {
                           .arg(imageViewColor(QPalette()).name()));
   // The tabs of the output views, in the same shape as in the Light and Dark schemes (stylesheet.qss): separate
   // buttons, the selected one filled with the accent color. The native style shows the selected tab only by a
-  // slight shade.
+  // slight shade. Unlike there, no border, and the colors come from the system palette; change both places.
   const QPalette palette;
   m_styleSheet.append(QString("\n"
                               "output--TabbedImageView > QTabBar::tab {\n"
@@ -150,7 +150,8 @@ void NativeColorScheme::loadStyleSheet() {
                               "  background-color: palette(highlight);\n"
                               "}")
                           .arg(offWindowColor(palette, false).name(), offWindowColor(palette, true).name()));
-  // The grips between the panels, as in the Light and Dark schemes: a bar, in the accent color under the pointer.
+  // The grips between the panels, as in the Light and Dark schemes (stylesheet.qss): a bar, in the accent color
+  // under the pointer. Change both places.
   m_styleSheet.append(QString("\n"
                               "QMainWindow::separator {\n"
                               "  background-color: %1;\n"

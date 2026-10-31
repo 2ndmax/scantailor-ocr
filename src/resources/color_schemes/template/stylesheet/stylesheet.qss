@@ -337,7 +337,9 @@ QDockWidget > QWidget {
   border-bottom: none;
 }
 
-/* The grips between the panels: a bar that takes the accent color when the pointer is over it. */
+/* The grips between the panels: a bar that takes the accent color when the pointer is over it.
+   NativeColorScheme.cpp sets the same rules for the System scheme, with the bar color from the
+   system palette: change both. */
 QMainWindow::separator {
   background-color: {{bar}};
   width: 5px;
@@ -484,7 +486,9 @@ output--TabbedImageView::tab-bar {
   top: 0px;
 }
 
-/* The tabs of the output views are separate buttons; the selected one is filled with the accent color. */
+/* The tabs of the output views are separate buttons; the selected one is filled with the accent color.
+   NativeColorScheme.cpp sets the same rules for the System scheme, without a border and with colors
+   from the system palette: change both. */
 output--TabbedImageView > QTabBar::tab {
   padding: 9px 3px 9px 3px;
   min-height: 17px;
