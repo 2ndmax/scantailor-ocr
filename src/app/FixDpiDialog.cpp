@@ -21,14 +21,18 @@ static const int DPI_ROLE = Qt::UserRole;
 static const int NOT_OK_DPI_ROLE = Qt::UserRole + 1;
 
 /**
- * The worse status of the two axes. An undefined resolution counts as worse than a doubtful one
- * (too small or too large), which still lets the pages be processed.
+ * The worse status of the two axes. A resolution that must be fixed (undefined, or too small to
+ * process) counts as worse than a doubtful one (too small or too large), which still lets the
+ * pages be processed.
  */
 static ImageMetadata::DpiStatus worseDpiStatus(const ImageMetadata& metadata) {
   const ImageMetadata::DpiStatus horizontal = metadata.horizontalDpiStatus();
   const ImageMetadata::DpiStatus vertical = metadata.verticalDpiStatus();
-  if ((horizontal == ImageMetadata::DPI_UNDEFINED) || (vertical == ImageMetadata::DPI_UNDEFINED)) {
-    return ImageMetadata::DPI_UNDEFINED;
+  for (const ImageMetadata::DpiStatus mustBeFixed :
+       {ImageMetadata::DPI_UNDEFINED, ImageMetadata::DPI_TOO_SMALL_TO_PROCESS}) {
+    if ((horizontal == mustBeFixed) || (vertical == mustBeFixed)) {
+      return mustBeFixed;
+    }
   }
   return (horizontal != ImageMetadata::DPI_OK) ? horizontal : vertical;
 }
@@ -43,6 +47,7 @@ static StateIcon::Color stateColor(const ImageMetadata& metadata) {
     case ImageMetadata::DPI_OK:
       return StateIcon::Green;
     case ImageMetadata::DPI_UNDEFINED:
+    case ImageMetadata::DPI_TOO_SMALL_TO_PROCESS:
       return StateIcon::Red;
     default:
       return StateIcon::Yellow;
@@ -351,6 +356,7 @@ void FixDpiDialog::decorateDpiInputField(QComboBox* field, ImageMetadata::DpiSta
           tr("DPI is too small. Even if it's correct, you are not going to get acceptable results with it."));
       break;
     case ImageMetadata::DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE:
+    case ImageMetadata::DPI_TOO_SMALL_TO_PROCESS:
       field->setToolTip(
           tr("DPI is too small for this pixel size. Such a combination would probably lead to out-of-"
              "memory errors."));
@@ -522,6 +528,7 @@ QString FixDpiDialog::TreeModel::dpiText(const ImageMetadata& metadata) {
       return FixDpiDialog::tr("%1, too large").arg(text);
     case ImageMetadata::DPI_TOO_SMALL:
     case ImageMetadata::DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE:
+    case ImageMetadata::DPI_TOO_SMALL_TO_PROCESS:
       return FixDpiDialog::tr("%1, too small").arg(text);
   }
   return text;

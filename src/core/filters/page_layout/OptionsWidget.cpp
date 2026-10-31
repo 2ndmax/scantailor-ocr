@@ -810,6 +810,7 @@ void OptionsWidget::decorateSourceDpiField(QComboBox* field, const ImageMetadata
           tr("DPI is too small. Even if it's correct, you are not going to get acceptable results with it."));
       break;
     case ImageMetadata::DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE:
+    case ImageMetadata::DPI_TOO_SMALL_TO_PROCESS:
       field->setToolTip(
           tr("An extremely low DPI value. That might correspond to a very large paper size for the pixel size in "
              "question."));

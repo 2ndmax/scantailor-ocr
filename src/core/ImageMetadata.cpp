@@ -5,7 +5,23 @@
 
 #include <Constants.h>
 
+#include "ImageSizeLimit.h"
+
 using namespace constants;
+
+namespace {
+// The highest resolution the steps before Output scale a page to (page split, content
+// detection, color mode detection). Output itself refuses a page that gets too large.
+constexpr qint64 PROCESSING_DPI = 300;
+
+qint64 sideAtProcessingDpi(int pixelSize, int dpi) {
+  if (dpi <= 1) {
+    // Undefined: that axis is reported as DPI_UNDEFINED, its scale is unknown.
+    return pixelSize;
+  }
+  return (pixelSize * PROCESSING_DPI + dpi - 1) / dpi;
+}
+}  // namespace
 
 bool ImageMetadata::operator==(const ImageMetadata& other) const {
   if (m_size != other.m_size) {
@@ -18,7 +34,14 @@ bool ImageMetadata::operator==(const ImageMetadata& other) const {
 }
 
 bool ImageMetadata::isDpiOK() const {
-  return horizontalDpiStatus() != DPI_UNDEFINED && verticalDpiStatus() != DPI_UNDEFINED;
+  const auto mustBeFixed
+      = [](const DpiStatus status) { return (status == DPI_UNDEFINED) || (status == DPI_TOO_SMALL_TO_PROCESS); };
+  return !mustBeFixed(horizontalDpiStatus()) && !mustBeFixed(verticalDpiStatus());
+}
+
+bool ImageMetadata::exceedsSizeLimitAtProcessingDpi() const {
+  return ImageSizeLimit::exceeds(sideAtProcessingDpi(m_size.width(), m_dpi.horizontal()),
+                                 sideAtProcessingDpi(m_size.height(), m_dpi.vertical()));
 }
 
 ImageMetadata::DpiStatus ImageMetadata::horizontalDpiStatus() const {
@@ -29,9 +52,15 @@ ImageMetadata::DpiStatus ImageMetadata::verticalDpiStatus() const {
   return dpiStatus(m_size.height(), m_dpi.vertical());
 }
 
-ImageMetadata::DpiStatus ImageMetadata::dpiStatus(int pixelSize, int dpi) {
+ImageMetadata::DpiStatus ImageMetadata::dpiStatus(int pixelSize, int dpi) const {
   if (dpi <= 1) {
     return DPI_UNDEFINED;
+  }
+
+  // A wrong, far too low DPI in a file header would make the processing steps scale the image
+  // up beyond what fits in memory. The axes scaled up (DPI below the processing DPI) carry it.
+  if ((dpi < PROCESSING_DPI) && exceedsSizeLimitAtProcessingDpi()) {
+    return DPI_TOO_SMALL_TO_PROCESS;
   }
 
   if (dpi < 150) {

@@ -11,7 +11,19 @@
 class ImageMetadata {
   // Member-wise copying is OK.
  public:
-  enum DpiStatus { DPI_OK, DPI_UNDEFINED, DPI_TOO_LARGE, DPI_TOO_SMALL, DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE };
+  /**
+   * DPI_UNDEFINED and DPI_TOO_SMALL_TO_PROCESS must be fixed before the pages can be processed,
+   * the others are only doubtful.
+   */
+  enum DpiStatus {
+    DPI_OK,
+    DPI_UNDEFINED,
+    DPI_TOO_LARGE,
+    DPI_TOO_SMALL,
+    DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE,
+    // Scaled to the resolution of the processing steps, the image would exceed ImageSizeLimit.
+    DPI_TOO_SMALL_TO_PROCESS
+  };
 
   ImageMetadata() = default;
 
@@ -36,7 +48,9 @@ class ImageMetadata {
   bool operator!=(const ImageMetadata& other) const { return !(*this == other); }
 
  private:
-  static DpiStatus dpiStatus(int pixelSize, int dpi);
+  DpiStatus dpiStatus(int pixelSize, int dpi) const;
+
+  bool exceedsSizeLimitAtProcessingDpi() const;
 
   QSize m_size;
   Dpi m_dpi;
