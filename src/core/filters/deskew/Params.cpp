@@ -13,15 +13,13 @@
 using namespace foundation;
 
 namespace deskew {
-namespace {
-// A damaged or hand-edited project file may hold anything: NaN or an angle of 90 degrees would make
-// the geometry of the page NaN or huge.
+// NaN or an angle of 90 degrees would make the geometry of the page NaN or huge.
 double angleFromXml(const QDomElement& el, const QString& name, const double maxDeg) {
   const double value = el.attribute(name).toDouble();
   return std::isfinite(value) ? std::clamp(value, -maxDeg, maxDeg) : 0.0;
 }
 
-
+namespace {
 AutoManualMode obliqueModeFromXml(const QDomElement& deskewEl) {
   if (deskewEl.hasAttribute("oblique-mode")) {
     return deskewEl.attribute("oblique-mode") == "manual" ? MODE_MANUAL : MODE_AUTO;

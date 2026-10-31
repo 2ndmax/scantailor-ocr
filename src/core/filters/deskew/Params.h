@@ -24,6 +24,12 @@ namespace deskew {
 inline constexpr double MAX_DESKEW_ANGLE_DEG = 45.0;
 inline constexpr double MAX_OBLIQUE_ANGLE_DEG = 5.0;
 
+/**
+ * The angle in the attribute \p name of \p el, within -\p maxDeg..\p maxDeg; NaN and infinity become 0.
+ * A damaged or hand-edited project file or profile may hold anything.
+ */
+double angleFromXml(const QDomElement& el, const QString& name, double maxDeg);
+
 /** Rotation (deskew) angle, auto/manual mode and how the angle is found in auto mode. */
 struct RotationParams {
   double angle = 0.0;
