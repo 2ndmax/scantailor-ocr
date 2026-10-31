@@ -143,8 +143,12 @@ topic, not by version.
 * **Fixed size limit for images:** at most 32767 pixels in width and height and 600 megapixels in
   total (A0 at 600 DPI fits). Larger images, also damaged files that only claim such a size, are
   refused before decoding with a message naming the size, when adding files, in the automatic
-  import and when loading a page. The Output step refuses a page whose output would be larger, e.g.
-  because of a high output resolution or a too low DPI of the image.
+  import and when loading a page. JPEG 2000 files are also refused when they have more components
+  or far more tiles than an image of their size can use (forged headers made OpenJPEG allocate
+  terabytes). An image whose DPI is so low that the processing steps would scale it beyond the
+  limit counts as having no DPI: the Fix DPI dialog asks for the right one. The Output step refuses
+  a page whose output would be larger, e.g. because of a high output resolution, with "This page
+  cannot be processed with the current settings" and what to change.
 
 ## Split Pages and page order
 
@@ -297,6 +301,12 @@ topic, not by version.
   collected, non-modal message. An unexpected error while processing a page shows the error on
   the page instead of ending the program, and batch processing continues. Output TIFF files are
   checked for complete writing. Malformed values in project files no longer black out a page.
+  An output resolution below 72 DPI or a window size below 3 pixels in a project file (or in a
+  saved profile) is replaced by the default (600 DPI, 200 pixels), as the options panel allows
+  no smaller values.
+* Fixed: the "Sensitivity" of rectangular picture zones measured the left and right edges against
+  the width instead of the height, so wide pictures were never trimmed at the sides. Automatic
+  picture zones of existing projects can change when their output is created again.
 * **Loss of changes on close fixed:** a change that kept the file size (e.g. a skew angle of 0.50
   to 0.75) closed the project without asking, and "Save" closed the project even when saving
   failed or was cancelled. Fixed page insertion next to split scans, the order of several
