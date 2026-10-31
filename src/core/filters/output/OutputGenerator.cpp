@@ -939,7 +939,8 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, int sensitivity) {
 
       const uint32_t* pdata = mask.data();
 
-      const auto criterium = (int) (area.width() * percent);
+      // A column is counted over the rows top to bottom, so its share is one of the height.
+      const auto columnCriterium = (int) ((bottom - top + 1) * percent);
       const auto criteriumWord = (int) (wordWidth * percent);
 
       // cut the dirty upper lines
@@ -987,7 +988,7 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, int sensitivity) {
           }
         }
 
-        if (mword > criterium) {
+        if (mword > columnCriterium) {
           area.setLeft(x);
           break;
         }
@@ -1002,7 +1003,7 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, int sensitivity) {
           }
         }
 
-        if (mword > criterium) {
+        if (mword > columnCriterium) {
           area.setRight(x);
           break;
         }

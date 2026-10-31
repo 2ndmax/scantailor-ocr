@@ -605,5 +605,32 @@ BOOST_AUTO_TEST_CASE(trimming_rect_picture_zones_stays_inside_the_area) {
   }
   BOOST_CHECK(found);
 }
+
+// The left and right edges are trimmed to the first column the picture fills to the given share
+// of the rectangle's height, whatever its shape. A short stub at the left of the picture is joined
+// into its rectangle and must be trimmed off.
+BOOST_AUTO_TEST_CASE(sensitivity_trims_the_sides_by_the_share_of_the_height) {
+  struct Case {
+    const char* name;
+    QSize maskSize;
+    QRect picture;
+    QRect stub;  // 20 % of the height for the wide picture, 30 % for the tall one.
+  };
+  const Case cases[] = {
+      {"wide", QSize(300, 100), QRect(40, 20, 200, 50), QRect(30, 20, 4, 10)},
+      {"tall", QSize(150, 260), QRect(40, 20, 50, 200), QRect(30, 20, 4, 60)},
+  };
+  for (const Case& c : cases) {
+    BOOST_TEST_CONTEXT(c.name) {
+      imageproc::BinaryImage mask(c.maskSize, imageproc::BLACK);
+      mask.fill(c.picture, imageproc::WHITE);
+      mask.fill(c.stub, imageproc::WHITE);
+      const std::vector<QRect> areas = findRectAreas(mask, 50);
+      BOOST_REQUIRE_EQUAL(areas.size(), 1u);
+      BOOST_CHECK_EQUAL(areas[0].left(), c.picture.left());
+      BOOST_CHECK_EQUAL(areas[0].right(), c.picture.right());
+    }
+  }
+}
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests
