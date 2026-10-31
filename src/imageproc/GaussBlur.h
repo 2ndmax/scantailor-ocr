@@ -6,6 +6,7 @@
 #define SCANTAILOR_IMAGEPROC_GAUSSBLUR_H_
 
 #include <QSize>
+#include <algorithm>
 #include <cstring>
 #include <iterator>
 #include <memory>
@@ -22,6 +23,8 @@ class GrayImage;
  * \param src The image to apply gaussian blur to.
  * \param hSigma The standard deviation in horizontal direction.
  * \param vSigma The standard deviation in vertical direction.
+ *        A sigma of 0 or below leaves that direction unblurred, one above
+ *        gauss_blur_impl::MAX_SIGMA blurs like MAX_SIGMA.
  * \return The blurred image.
  */
 GrayImage gaussBlur(const GrayImage& src, float hSigma, float vSigma);
@@ -32,6 +35,7 @@ GrayImage gaussBlur(const GrayImage& src, float hSigma, float vSigma);
  * \param size Data grid dimensions.
  * \param hSigma The standard deviation in horizontal direction.
  * \param vSigma The standard deviation in vertical direction.
+ *        Limits as in gaussBlur().
  * \param input A random access iterator (usually a pointer)
  *        to the beginning of input data.
  * \param inputStride The distance (in terms of iterator difference)
@@ -78,12 +82,26 @@ void gaussBlurGeneric(QSize size,
                       FloatWriter floatWriter);
 
 namespace gauss_blur_impl {
-void findIirConstants(float* nP, float* nM, float* dP, float* dM, float* bdP, float* bdM, float stdDev);
+// The filter is recursive and its coefficients nearly cancel out for a large sigma, so it is
+// computed in double: in float it went wrong from a sigma of about 30. Even in double it loses
+// precision above this sigma, where a page is blurred to an even area anyway.
+constexpr float MAX_SIGMA = 1000.0f;
+
+// A sigma of 0 or below (or NaN) divides by 0 in the coefficients; it means no blur.
+inline bool blursWith(const float sigma) {
+  return sigma > 0.0f;
+}
+
+inline double limitedSigma(const float sigma) {
+  return std::min(sigma, MAX_SIGMA);
+}
+
+void findIirConstants(double* nP, double* nM, double* dP, double* dM, double* bdP, double* bdM, double stdDev);
 
 template <typename Src1It, typename Src2It, typename DstIt, typename FloatWriter>
 void save(int numItems, Src1It src1, Src2It src2, DstIt dst, int dstStride, FloatWriter writer) {
   while (numItems-- != 0) {
-    writer(*dst, *src1 + *src2);
+    writer(*dst, static_cast<float>(*src1 + *src2));
     ++src1;
     ++src2;
     dst += dstStride;
@@ -120,50 +138,74 @@ void gaussBlurGeneric(const QSize size,
   // the vertical one is complete, so input and output may be the same image.
 
   // IIR parameters.
-  float nP[5], nM[5], dP[5], dM[5], bdP[5], bdM[5];
+  double nP[5], nM[5], dP[5], dM[5], bdP[5], bdM[5];
   // Vertical pass.
-  gauss_blur_impl::findIirConstants(nP, nM, dP, dM, bdP, bdM, vSigma);
-  parallelFor(width, [&](const int xBegin, const int xEnd) {
-    std::unique_ptr<float[]> valP(new float[height]);
-    std::unique_ptr<float[]> valM(new float[height]);
-    for (int x = xBegin; x < xEnd; ++x) {
-      memset(&valP[0], 0, height * sizeof(valP[0]));
-      memset(&valM[0], 0, height * sizeof(valM[0]));
-
-      SrcIt spP(input + x);
-      SrcIt spM(spP + (height - 1) * inputStride);
-      float* vp = &valP[0];
-      float* vm = &valM[0] + height - 1;
-      const float initialP = floatReader(spP[0]);
-      const float initialM = floatReader(spM[0]);
-
-      for (int y = 0; y < height; ++y) {
-        const int terms = y < 4 ? y : 4;
-        int i = 0;
-        int spOff = 0;
-        for (; i <= terms; ++i, spOff += inputStride) {
-          *vp += nP[i] * floatReader(spP[-spOff]) - dP[i] * vp[-i];
-          *vm += nM[i] * floatReader(spM[spOff]) - dM[i] * vm[i];
+  if (!gauss_blur_impl::blursWith(vSigma)) {
+    parallelFor(height, [&](const int yBegin, const int yEnd) {
+      for (int y = yBegin; y < yEnd; ++y) {
+        const SrcIt line(input + y * inputStride);
+        float* const intermediateLine = &intermediateImage[0] + static_cast<size_t>(y) * intermediateStride;
+        for (int x = 0; x < width; ++x) {
+          intermediateLine[x] = floatReader(line[x]);
         }
-        for (; i <= 4; ++i) {
-          *vp += (nP[i] - bdP[i]) * initialP;
-          *vm += (nM[i] - bdM[i]) * initialM;
-        }
-        spP += inputStride;
-        spM -= inputStride;
-        ++vp;
-        --vm;
       }
+    });
+  } else {
+    gauss_blur_impl::findIirConstants(nP, nM, dP, dM, bdP, bdM, gauss_blur_impl::limitedSigma(vSigma));
+    parallelFor(width, [&](const int xBegin, const int xEnd) {
+      std::unique_ptr<double[]> valP(new double[height]);
+      std::unique_ptr<double[]> valM(new double[height]);
+      for (int x = xBegin; x < xEnd; ++x) {
+        memset(&valP[0], 0, height * sizeof(valP[0]));
+        memset(&valM[0], 0, height * sizeof(valM[0]));
 
-      gauss_blur_impl::save(height, &valP[0], &valM[0], &intermediateImage[0] + x, intermediateStride,
-                            gauss_blur_impl::FloatToFloatWriter());
-    }
-  });
+        SrcIt spP(input + x);
+        SrcIt spM(spP + (height - 1) * inputStride);
+        double* vp = &valP[0];
+        double* vm = &valM[0] + height - 1;
+        const double initialP = floatReader(spP[0]);
+        const double initialM = floatReader(spM[0]);
+
+        for (int y = 0; y < height; ++y) {
+          const int terms = y < 4 ? y : 4;
+          int i = 0;
+          int spOff = 0;
+          for (; i <= terms; ++i, spOff += inputStride) {
+            *vp += nP[i] * floatReader(spP[-spOff]) - dP[i] * vp[-i];
+            *vm += nM[i] * floatReader(spM[spOff]) - dM[i] * vm[i];
+          }
+          for (; i <= 4; ++i) {
+            *vp += (nP[i] - bdP[i]) * initialP;
+            *vm += (nM[i] - bdM[i]) * initialM;
+          }
+          spP += inputStride;
+          spM -= inputStride;
+          ++vp;
+          --vm;
+        }
+
+        gauss_blur_impl::save(height, &valP[0], &valM[0], &intermediateImage[0] + x, intermediateStride,
+                              gauss_blur_impl::FloatToFloatWriter());
+      }
+    });
+  }
   // Horizontal pass.
-  gauss_blur_impl::findIirConstants(nP, nM, dP, dM, bdP, bdM, hSigma);
+  if (!gauss_blur_impl::blursWith(hSigma)) {
+    parallelFor(height, [&](const int yBegin, const int yEnd) {
+      for (int y = yBegin; y < yEnd; ++y) {
+        const float* intermediateLine = &intermediateImage[0] + static_cast<size_t>(y) * intermediateStride;
+        const DstIt line(output + y * outputStride);
+        for (int x = 0; x < width; ++x) {
+          floatWriter(line[x], intermediateLine[x]);
+        }
+      }
+    });
+    return;
+  }
+  gauss_blur_impl::findIirConstants(nP, nM, dP, dM, bdP, bdM, gauss_blur_impl::limitedSigma(hSigma));
   parallelFor(height, [&](const int yBegin, const int yEnd) {
-    std::unique_ptr<float[]> valP(new float[width]);
-    std::unique_ptr<float[]> valM(new float[width]);
+    std::unique_ptr<double[]> valP(new double[width]);
+    std::unique_ptr<double[]> valM(new double[width]);
     for (int y = yBegin; y < yEnd; ++y) {
       memset(&valP[0], 0, width * sizeof(valP[0]));
       memset(&valM[0], 0, width * sizeof(valM[0]));
@@ -171,10 +213,10 @@ void gaussBlurGeneric(const QSize size,
       const float* intermediateLine = &intermediateImage[0] + static_cast<size_t>(y) * intermediateStride;
       const float* spP = intermediateLine;
       const float* spM = intermediateLine + width - 1;
-      float* vp = &valP[0];
-      float* vm = &valM[0] + width - 1;
-      const float initialP = spP[0];
-      const float initialM = spM[0];
+      double* vp = &valP[0];
+      double* vm = &valM[0] + width - 1;
+      const double initialP = spP[0];
+      const double initialM = spM[0];
 
       for (int x = 0; x < width; ++x) {
         const int terms = x < 4 ? x : 4;

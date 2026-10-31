@@ -11,20 +11,20 @@
 
 namespace imageproc {
 namespace gauss_blur_impl {
-void findIirConstants(float* nP, float* nM, float* dP, float* dM, float* bdP, float* bdM, float stdDev) {
+void findIirConstants(double* nP, double* nM, double* dP, double* dM, double* bdP, double* bdM, double stdDev) {
   /*  The constants used in the implemenation of a casual sequence
    *  using a 4th order approximation of the gaussian operator
    */
 
-  const auto div = static_cast<float>(std::sqrt(2.0 * constants::PI) * stdDev);
-  const auto x0 = static_cast<float>(-1.783 / stdDev);
-  const auto x1 = static_cast<float>(-1.723 / stdDev);
-  const auto x2 = static_cast<float>(0.6318 / stdDev);
-  const auto x3 = static_cast<float>(1.997 / stdDev);
-  const auto x4 = static_cast<float>(1.6803 / div);
-  const auto x5 = static_cast<float>(3.735 / div);
-  const auto x6 = static_cast<float>(-0.6803 / div);
-  const auto x7 = static_cast<float>(-0.2598 / div);
+  const double div = std::sqrt(2.0 * constants::PI) * stdDev;
+  const double x0 = -1.783 / stdDev;
+  const double x1 = -1.723 / stdDev;
+  const double x2 = 0.6318 / stdDev;
+  const double x3 = 1.997 / stdDev;
+  const double x4 = 1.6803 / div;
+  const double x5 = 3.735 / div;
+  const double x6 = -0.6803 / div;
+  const double x7 = -0.2598 / div;
 
   nP[0] = x4 + x6;
   nP[1] = std::exp(x1) * (x7 * std::sin(x3) - (x6 + 2 * x4) * std::cos(x3))
@@ -53,9 +53,9 @@ void findIirConstants(float* nP, float* nM, float* dP, float* dM, float* bdP, fl
     nM[i] = nP[i] - dP[i] * nP[0];
   }
 
-  float sumNP = 0.0;
-  float sumNM = 0.0;
-  float sumD = 0.0;
+  double sumNP = 0.0;
+  double sumNM = 0.0;
+  double sumD = 0.0;
 
   for (int i = 0; i <= 4; i++) {
     sumNP += nP[i];
@@ -63,8 +63,8 @@ void findIirConstants(float* nP, float* nM, float* dP, float* dM, float* bdP, fl
     sumD += dP[i];
   }
 
-  const auto a = static_cast<float>(sumNP / (1.0 + sumD));
-  const auto b = static_cast<float>(sumNM / (1.0 + sumD));
+  const double a = sumNP / (1.0 + sumD);
+  const double b = sumNM / (1.0 + sumD);
 
   for (int i = 0; i <= 4; i++) {
     bdP[i] = dP[i] * a;

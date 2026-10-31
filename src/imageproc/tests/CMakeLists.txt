@@ -27,6 +27,7 @@ set(sources
     TestHoughLineDetector.cpp
     TestImageCombination.cpp
     TestExperimentalBinarization.cpp
+    TestGaussBlur.cpp
     Utils.cpp Utils.h)
 
 remove_definitions(-DBUILDING_IMAGEPROC)
