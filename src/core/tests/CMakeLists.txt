@@ -38,6 +38,7 @@ set(sources
     TestOutputSize.cpp
     TestPhotoAdjustments.cpp
     TestSelectContentApply.cpp
+    TestStageSequence.cpp
     TestSelectContentTask.cpp
     TestPageSplitTask.cpp
     TestSmartFilenameOrdering.cpp

@@ -31,10 +31,9 @@
 namespace output {
 Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions)
     : m_settings(std::make_shared<Settings>()),
+      m_pageSelectionAccessor(pageSelectionAccessor),
       m_selectedPageOrder(0),
       m_processingOptions(std::move(processingOptions)) {
-  m_optionsWidget.reset(new OptionsWidget(m_settings, m_processingOptions, pageSelectionAccessor));
-
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByCompleteness = std::make_shared<OrderByCompletenessProvider>();
   m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
@@ -61,8 +60,8 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
 }
 
 void Filter::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
-  m_optionsWidget->preUpdateUI(pageInfo.id());
-  ui->setOptionsWidget(m_optionsWidget.get(), ui->KEEP_OWNERSHIP);
+  optionsWidget()->preUpdateUI(pageInfo.id());
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
 }
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
@@ -101,6 +100,8 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          const OutputFileNameGenerator& outFileNameGen,
                                          const bool batch,
                                          const bool debug) {
+  // Not optionsWidget(): tasks are also created without a GUI and outside the GUI thread.
+  // Without a panel, the tab is the one a new panel starts with.
   ImageViewTab lastTab(TAB_OUTPUT);
   if (m_optionsWidget.get() != nullptr) {
     lastTab = m_optionsWidget->lastTab();
@@ -122,6 +123,9 @@ void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& 
 }
 
 OptionsWidget* Filter::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_settings, m_processingOptions, m_pageSelectionAccessor));
+  }
   return m_optionsWidget.get();
 }
 

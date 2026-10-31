@@ -9,11 +9,11 @@
 #include "AbstractFilter.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
+#include "PageSelectionAccessor.h"
 #include "PageView.h"
 #include "SafeDeletingQObjectPtr.h"
 
 class ImageId;
-class PageSelectionAccessor;
 class QString;
 class QDomDocument;
 class QDomElement;
@@ -62,6 +62,10 @@ class Filter : public AbstractFilter {
 
   std::shared_ptr<CacheDrivenTask> createCacheDrivenTask(std::shared_ptr<page_split::CacheDrivenTask> nextTask);
 
+  /**
+   * The options panel of this step. It is only created here, on first use from the GUI thread,
+   * so that the step also works without a GUI.
+   */
   OptionsWidget* optionsWidget();
 
  private:
@@ -74,6 +78,8 @@ class Filter : public AbstractFilter {
 
   std::shared_ptr<Settings> m_settings;
   std::shared_ptr<ImageSettings> m_imageSettings;
+  // For the options panel, which is created on first use.
+  PageSelectionAccessor m_pageSelectionAccessor;
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
 };
 }  // namespace fix_orientation

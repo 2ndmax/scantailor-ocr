@@ -24,9 +24,10 @@
 
 namespace page_layout {
 Filter::Filter(std::shared_ptr<ProjectPages> pages, const PageSelectionAccessor& pageSelectionAccessor)
-    : m_pages(std::move(pages)), m_settings(std::make_shared<Settings>()), m_selectedPageOrder(0) {
-  m_optionsWidget.reset(new OptionsWidget(m_settings, m_pages, pageSelectionAccessor));
-
+    : m_pages(std::move(pages)),
+      m_settings(std::make_shared<Settings>()),
+      m_pageSelectionAccessor(pageSelectionAccessor),
+      m_selectedPageOrder(0) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);
   const auto orderByHeight = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::HEIGHT);
@@ -71,8 +72,8 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
 void Filter::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
   const Margins marginsMm(m_settings->getHardMarginsMM(pageInfo.id()));
   const Alignment alignment(m_settings->getPageAlignment(pageInfo.id()));
-  m_optionsWidget->preUpdateUI(pageInfo, marginsMm, alignment);
-  ui->setOptionsWidget(m_optionsWidget.get(), ui->KEEP_OWNERSHIP);
+  optionsWidget()->preUpdateUI(pageInfo, marginsMm, alignment);
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
 }
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
@@ -153,6 +154,9 @@ void Filter::loadNewProjectSettings(const DefaultParams& defaults) {
 }
 
 OptionsWidget* Filter::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_settings, m_pages, m_pageSelectionAccessor));
+  }
   return m_optionsWidget.get();
 }
 }  // namespace page_layout

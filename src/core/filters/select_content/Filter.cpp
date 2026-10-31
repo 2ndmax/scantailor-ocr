@@ -25,9 +25,10 @@ using namespace foundation;
 
 namespace select_content {
 Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<DefaultParams> defaultParams)
-    : m_settings(std::make_shared<Settings>()), m_selectedPageOrder(0), m_defaultParams(std::move(defaultParams)) {
-  m_optionsWidget.reset(new OptionsWidget(m_settings, m_defaultParams, pageSelectionAccessor));
-
+    : m_settings(std::make_shared<Settings>()),
+      m_pageSelectionAccessor(pageSelectionAccessor),
+      m_selectedPageOrder(0),
+      m_defaultParams(std::move(defaultParams)) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);
   const auto orderByHeight = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::HEIGHT);
@@ -66,8 +67,8 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
 }
 
 void Filter::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
-  m_optionsWidget->preUpdateUI(pageInfo);
-  ui->setOptionsWidget(m_optionsWidget.get(), ui->KEEP_OWNERSHIP);
+  optionsWidget()->preUpdateUI(pageInfo);
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
 }
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
@@ -121,6 +122,9 @@ void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& 
 }
 
 OptionsWidget* Filter::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_settings, m_defaultParams, m_pageSelectionAccessor));
+  }
   return m_optionsWidget.get();
 }
 

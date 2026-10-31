@@ -24,11 +24,10 @@ Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor,
                std::shared_ptr<DefaultParams> defaultParams)
     : m_settings(std::make_shared<Settings>()),
       m_imageSettings(std::make_shared<ImageSettings>()),
+      m_pageSelectionAccessor(pageSelectionAccessor),
       m_selectedPageOrder(0),
       m_processingOptions(std::move(processingOptions)),
       m_defaultParams(std::move(defaultParams)) {
-  m_optionsWidget.reset(new OptionsWidget(m_settings, m_defaultParams, pageSelectionAccessor));
-
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByDeviation = std::make_shared<OrderByDeviationProvider>(m_settings->deviationProvider());
   m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
@@ -51,8 +50,8 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
 }
 
 void Filter::preUpdateUI(FilterUiInterface* const ui, const PageInfo& pageInfo) {
-  m_optionsWidget->preUpdateUI(pageInfo.id());
-  ui->setOptionsWidget(m_optionsWidget.get(), ui->KEEP_OWNERSHIP);
+  optionsWidget()->preUpdateUI(pageInfo.id());
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
 }
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
@@ -130,6 +129,9 @@ void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& 
 }
 
 OptionsWidget* Filter::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_settings, m_defaultParams, m_pageSelectionAccessor));
+  }
   return m_optionsWidget.get();
 }
 

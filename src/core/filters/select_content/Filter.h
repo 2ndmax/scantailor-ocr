@@ -13,11 +13,11 @@
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
+#include "PageSelectionAccessor.h"
 #include "PageView.h"
 #include "SafeDeletingQObjectPtr.h"
 #include "Settings.h"
 
-class PageSelectionAccessor;
 class QString;
 
 namespace page_layout {
@@ -67,6 +67,10 @@ class Filter : public AbstractFilter {
 
   std::shared_ptr<CacheDrivenTask> createCacheDrivenTask(std::shared_ptr<page_layout::CacheDrivenTask> nextTask);
 
+  /**
+   * The options panel of this step. It is only created here, on first use from the GUI thread,
+   * so that the step also works without a GUI.
+   */
   OptionsWidget* optionsWidget();
 
   /**
@@ -79,6 +83,8 @@ class Filter : public AbstractFilter {
 
 
   std::shared_ptr<Settings> m_settings;
+  // For the options panel, which is created on first use.
+  PageSelectionAccessor m_pageSelectionAccessor;
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
   std::vector<PageOrderOption> m_pageOrderOptions;
   int m_selectedPageOrder;
