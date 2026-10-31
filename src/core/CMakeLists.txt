@@ -90,6 +90,7 @@ set(common_sources
     AbstractFilter.h
     BeforeOrAfter.h
     FilterResult.h
+    BatchProcessingResult.h
     CompositeCacheDrivenTask.h
     ChangedStateItemDelegate.h
     PageOrderProvider.h PageOrderProvider.cpp

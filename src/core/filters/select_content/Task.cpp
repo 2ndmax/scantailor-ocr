@@ -8,6 +8,7 @@
 #include <iostream>
 #include <utility>
 
+#include "BatchProcessingResult.h"
 #include "ContentBoxFinder.h"
 #include "DebugImagesImpl.h"
 #include "Dpm.h"
@@ -31,8 +32,7 @@ class Task::UiUpdater : public FilterResult {
             const QImage& image,
             const ImageTransformation& xform,
             const ContentMask& contentMask,
-            const OptionsWidget::UiData& uiData,
-            bool batch);
+            const OptionsWidget::UiData& uiData);
 
   void updateUI(FilterUiInterface* ui) override;
 
@@ -47,7 +47,6 @@ class Task::UiUpdater : public FilterResult {
   ContentMask m_contentMask;
   ImageTransformation m_xform;
   OptionsWidget::UiData m_uiData;
-  bool m_batchProcessing;
 };
 
 
@@ -189,10 +188,11 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
 
   if (m_nextTask) {
     return m_nextTask->process(status, FilterData(data, data.xform()), uiData.pageRect(), uiData.contentRect());
+  } else if (m_batchProcessing) {
+    return std::make_shared<BatchProcessingResult>(m_filter, m_pageId);
   } else {
     return std::make_shared<UiUpdater>(m_filter, m_pageId, std::move(m_dbg), data.origImage(), data.xform(),
-                                       ContentMask(data.grayImageBlackOnWhite(), data.xform(), status), uiData,
-                                       m_batchProcessing);
+                                       ContentMask(data.grayImageBlackOnWhite(), data.xform(), status), uiData);
   }
 }  // Task::process
 
@@ -204,8 +204,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const QImage& image,
                            const ImageTransformation& xform,
                            const ContentMask& contentMask,
-                           const OptionsWidget::UiData& uiData,
-                           const bool batch)
+                           const OptionsWidget::UiData& uiData)
     : m_filter(std::move(filter)),
       m_pageId(pageId),
       m_dbg(std::move(dbg)),
@@ -213,16 +212,11 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
       m_downscaledImage(ImageView::createDownscaledImage(image)),
       m_contentMask(contentMask),
       m_xform(xform),
-      m_uiData(uiData),
-      m_batchProcessing(batch) {}
+      m_uiData(uiData) {}
 
 void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
   ui->invalidateThumbnail(m_pageId);
-
-  if (m_batchProcessing) {
-    return;
-  }
 
   OptionsWidget* const optWidget = m_filter->optionsWidget();
   optWidget->postUpdateUI(m_uiData);

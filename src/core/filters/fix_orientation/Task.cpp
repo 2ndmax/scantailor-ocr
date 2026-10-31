@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "BatchProcessingResult.h"
 #include "Dpm.h"
 #include "Filter.h"
 #include "FilterUiInterface.h"
@@ -25,8 +26,7 @@ class Task::UiUpdater : public FilterResult {
   UiUpdater(std::shared_ptr<Filter> filter,
             const QImage& image,
             const ImageId& imageId,
-            const ImageTransformation& xform,
-            bool batchProcessing);
+            const ImageTransformation& xform);
 
   void updateUI(FilterUiInterface* ui) override;
 
@@ -38,7 +38,6 @@ class Task::UiUpdater : public FilterResult {
   QImage m_downscaledImage;
   ImageId m_imageId;
   ImageTransformation m_xform;
-  bool m_batchProcessing;
 };
 
 
@@ -70,7 +69,10 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
   if (m_nextTask) {
     return m_nextTask->process(status, FilterData(data, xform));
   } else {
-    return std::make_shared<UiUpdater>(m_filter, data.origImage(), m_imageId, xform, m_batchProcessing);
+    if (m_batchProcessing) {
+      return std::make_shared<BatchProcessingResult>(m_filter, PageId(m_imageId));
+    }
+    return std::make_shared<UiUpdater>(m_filter, data.origImage(), m_imageId, xform);
   }
 }
 
@@ -93,22 +95,16 @@ void Task::updateFilterData(FilterData& data) {
 Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const QImage& image,
                            const ImageId& imageId,
-                           const ImageTransformation& xform,
-                           const bool batchProcessing)
+                           const ImageTransformation& xform)
     : m_filter(std::move(filter)),
       m_image(image),
       m_downscaledImage(ImageView::createDownscaledImage(image)),
       m_imageId(imageId),
-      m_xform(xform),
-      m_batchProcessing(batchProcessing) {}
+      m_xform(xform) {}
 
 void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
   ui->invalidateThumbnail(PageId(m_imageId));
-
-  if (m_batchProcessing) {
-    return;
-  }
 
   OptionsWidget* const optWidget = m_filter->optionsWidget();
   ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);

@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 
+#include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
 #include "DespeckleState.h"
 #include "DespeckleView.h"
@@ -61,7 +62,6 @@ class Task::UiUpdater : public FilterResult {
             const BinaryImage& pictureMask,
             const DespeckleState& despeckleState,
             const DespeckleVisualization& despeckleVisualization,
-            bool batch,
             bool debug);
 
   void updateUI(FilterUiInterface* ui) override;
@@ -83,7 +83,6 @@ class Task::UiUpdater : public FilterResult {
   BinaryImage m_pictureMask;
   DespeckleState m_despeckleState;
   DespeckleVisualization m_despeckleVisualization;
-  bool m_batchProcessing;
   bool m_debug;
 };
 
@@ -393,6 +392,10 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
     }
   }
 
+  if (m_batchProcessing) {
+    return std::make_shared<BatchProcessingResult>(m_filter, m_pageId);
+  }
+
   const DespeckleState despeckleState(outImg, specklesImg, params.despeckleLevel(), params.outputDpi());
 
   DespeckleVisualization despeckleVisualization;
@@ -404,7 +407,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
   }
   return std::make_shared<UiUpdater>(m_filter, m_settings, std::move(m_dbg), params, newXform,
                                      generator.outputContentRect(), m_pageId, data.origImage(), outImg, automaskImg,
-                                     despeckleState, despeckleVisualization, m_batchProcessing, m_debug);
+                                     despeckleState, despeckleVisualization, m_debug);
 }  // Task::process
 
 /**
@@ -446,7 +449,6 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const BinaryImage& pictureMask,
                            const DespeckleState& despeckleState,
                            const DespeckleVisualization& despeckleVisualization,
-                           const bool batch,
                            const bool debug)
     : m_filter(std::move(filter)),
       m_settings(std::move(settings)),
@@ -462,16 +464,11 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
       m_pictureMask(pictureMask),
       m_despeckleState(despeckleState),
       m_despeckleVisualization(despeckleVisualization),
-      m_batchProcessing(batch),
       m_debug(debug) {}
 
 void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
   ui->invalidateThumbnail(m_pageId);
-
-  if (m_batchProcessing) {
-    return;
-  }
 
   OptionsWidget* const optWidget = m_filter->optionsWidget();
   optWidget->postUpdateUI();

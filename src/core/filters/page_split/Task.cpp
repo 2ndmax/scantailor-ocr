@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
 #include "Dpm.h"
 #include "Filter.h"
@@ -33,8 +34,7 @@ class Task::UiUpdater : public FilterResult {
             const QImage& image,
             const PageInfo& pageInfo,
             const ImageTransformation& xform,
-            const OptionsWidget::UiData& uiData,
-            bool batchProcessing);
+            const OptionsWidget::UiData& uiData);
 
   void updateUI(FilterUiInterface* ui) override;
 
@@ -49,7 +49,6 @@ class Task::UiUpdater : public FilterResult {
   PageInfo m_pageInfo;
   ImageTransformation m_xform;
   OptionsWidget::UiData m_uiData;
-  bool m_batchProcessing;
 };
 
 
@@ -173,8 +172,11 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
     newXform.setPreCropArea(Utils::pageArea(layout, m_pageInfo.id().subPage(), newXform.preCropArea()));
     return m_nextTask->process(status, FilterData(data, newXform));
   }
+  if (m_batchProcessing) {
+    return std::make_shared<BatchProcessingResult>(m_filter, m_pageInfo.id());
+  }
   return std::make_shared<UiUpdater>(m_filter, m_pages, std::move(m_dbg), data.origImage(), m_pageInfo, data.xform(),
-                                     uiData, m_batchProcessing);
+                                     uiData);
 }  // Task::process
 
 void Task::recordPreCropArea(const Params& params, const QPolygonF& origPreCropArea) {
@@ -198,8 +200,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const QImage& image,
                            const PageInfo& pageInfo,
                            const ImageTransformation& xform,
-                           const OptionsWidget::UiData& uiData,
-                           const bool batchProcessing)
+                           const OptionsWidget::UiData& uiData)
     : m_filter(std::move(filter)),
       m_pages(std::move(pages)),
       m_dbg(std::move(dbgImg)),
@@ -207,16 +208,11 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
       m_downscaledImage(ImageView::createDownscaledImage(image)),
       m_pageInfo(pageInfo),
       m_xform(xform),
-      m_uiData(uiData),
-      m_batchProcessing(batchProcessing) {}
+      m_uiData(uiData) {}
 
 void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
   ui->invalidateThumbnail(m_pageInfo.id());
-
-  if (m_batchProcessing) {
-    return;
-  }
 
   OptionsWidget* const optWidget = m_filter->optionsWidget();
   optWidget->postUpdateUI(m_uiData);

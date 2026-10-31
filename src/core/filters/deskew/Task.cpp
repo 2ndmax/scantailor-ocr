@@ -19,6 +19,7 @@
 
 #include <utility>
 
+#include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
 #include "Dpm.h"
 #include "Filter.h"
@@ -40,8 +41,7 @@ class Task::UiUpdater : public FilterResult {
             const QImage& image,
             const PageId& pageId,
             const ImageTransformation& xform,
-            const OptionsWidget::UiData& uiData,
-            bool batchProcessing);
+            const OptionsWidget::UiData& uiData);
 
   void updateUI(FilterUiInterface* ui) override;
 
@@ -55,7 +55,6 @@ class Task::UiUpdater : public FilterResult {
   PageId m_pageId;
   ImageTransformation m_xform;
   OptionsWidget::UiData m_uiData;
-  bool m_batchProcessing;
 };
 
 
@@ -202,8 +201,10 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
   if (m_nextTask) {
     return m_nextTask->process(status, FilterData(data, newXform));
   } else {
-    return std::make_shared<UiUpdater>(m_filter, std::move(m_dbg), data.origImage(), m_pageId, newXform, uiData,
-                                       m_batchProcessing);
+    if (m_batchProcessing) {
+      return std::make_shared<BatchProcessingResult>(m_filter, m_pageId);
+    }
+    return std::make_shared<UiUpdater>(m_filter, std::move(m_dbg), data.origImage(), m_pageId, newXform, uiData);
   }
 }  // Task::process
 
@@ -303,24 +304,18 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const QImage& image,
                            const PageId& pageId,
                            const ImageTransformation& xform,
-                           const OptionsWidget::UiData& uiData,
-                           const bool batchProcessing)
+                           const OptionsWidget::UiData& uiData)
     : m_filter(std::move(filter)),
       m_dbg(std::move(dbgImg)),
       m_image(image),
       m_downscaledImage(ImageView::createDownscaledImage(image)),
       m_pageId(pageId),
       m_xform(xform),
-      m_uiData(uiData),
-      m_batchProcessing(batchProcessing) {}
+      m_uiData(uiData) {}
 
 void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
   ui->invalidateThumbnail(m_pageId);
-
-  if (m_batchProcessing) {
-    return;
-  }
 
   OptionsWidget* const optWidget = m_filter->optionsWidget();
   optWidget->postUpdateUI(m_uiData);

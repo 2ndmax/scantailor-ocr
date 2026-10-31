@@ -5,6 +5,7 @@
 
 #include <utility>
 
+#include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
 #include "Dpm.h"
 #include "Filter.h"
@@ -31,8 +32,7 @@ class Task::UiUpdater : public FilterResult {
             const ImageTransformation& xform,
             const ContentMask& contentMask,
             const QRectF& adaptedContentRect,
-            bool aggSizeChanged,
-            bool batch);
+            bool aggSizeChanged);
 
   void updateUI(FilterUiInterface* ui) override;
 
@@ -49,7 +49,6 @@ class Task::UiUpdater : public FilterResult {
   ImageTransformation m_xform;
   QRectF m_adaptedContentRect;
   bool m_aggSizeChanged;
-  bool m_batchProcessing;
 };
 
 
@@ -103,6 +102,11 @@ FilterResultPtr Task::process(const TaskStatus& status,
       newXform.setPostScaleFactor(scaleFactor);
     }
     return m_nextTask->process(status, FilterData(data, newXform), contentRectPhys);
+  } else if (m_batchProcessing) {
+    return std::make_shared<BatchProcessingResult>(m_filter, m_pageId,
+                                                   aggHardSizeBefore != aggHardSizeAfter
+                                                       ? BatchProcessingResult::ALL_THUMBNAILS
+                                                       : BatchProcessingResult::PAGE_THUMBNAIL);
   } else {
     const ContentMask contentMask(data.grayImageBlackOnWhite(), data.xform(), status);
     if (m_dbg) {
@@ -110,8 +114,7 @@ FilterResultPtr Task::process(const TaskStatus& status,
     }
 
     return std::make_shared<UiUpdater>(m_filter, m_settings, std::move(m_dbg), m_pageId, data.origImage(), data.xform(),
-                                       contentMask, adaptedContentRect, aggHardSizeBefore != aggHardSizeAfter,
-                                       m_batchProcessing);
+                                       contentMask, adaptedContentRect, aggHardSizeBefore != aggHardSizeAfter);
   }
 }
 
@@ -125,8 +128,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const ImageTransformation& xform,
                            const ContentMask& contentMask,
                            const QRectF& adaptedContentRect,
-                           const bool aggSizeChanged,
-                           const bool batch)
+                           const bool aggSizeChanged)
     : m_filter(std::move(filter)),
       m_settings(std::move(settings)),
       m_dbg(std::move(dbg)),
@@ -136,8 +138,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
       m_contentMask(contentMask),
       m_xform(xform),
       m_adaptedContentRect(adaptedContentRect),
-      m_aggSizeChanged(aggSizeChanged),
-      m_batchProcessing(batch) {}
+      m_aggSizeChanged(aggSizeChanged) {}
 
 void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
@@ -145,10 +146,6 @@ void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
     ui->invalidateAllThumbnails();
   } else {
     ui->invalidateThumbnail(m_pageId);
-  }
-
-  if (m_batchProcessing) {
-    return;
   }
 
   OptionsWidget* const optWidget = m_filter->optionsWidget();
