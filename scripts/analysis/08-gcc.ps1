@@ -48,8 +48,9 @@ if (-not (Test-UbuntuPackages)) {
 }
 
 $wslHome = (Get-WslOutput "-d $WslDistro --exec printenv HOME").Lines | Select-Object -First 1
-# The build directories are deleted with rm -rf before each build: never without a home folder.
-if ($wslHome -notmatch '^/home/\w|^/root$') { throw "No home folder found in $WslDistro (got '$wslHome')." }
+# The build directories are deleted with rm -rf before each build: only below a plain home folder
+# (a name without spaces or wildcards), never below an unexpected one.
+if ($wslHome -notmatch '^(/home/[A-Za-z0-9._-]+|/root)$') { throw "No home folder found in $WslDistro (got '$wslHome')." }
 $buildBase = "$wslHome/scantailor-ocr-build"
 $warningsDir = "$buildBase/gcc-warnings"
 $sanitizersDir = "$buildBase/gcc-sanitizers"
@@ -81,7 +82,7 @@ $intro = @(
     'sanitizers ASan and UBSan and the checks of the standard library, then runs all tests with them.'
 )
 if ($SkipBuild) {
-    if ((Get-WslOutput "-d $WslDistro --exec test -f $sanitizersDir/CMakeCache.txt").Code -ne 0) {
+    if ((Get-WslOutput "-d $WslDistro --exec test -f `"$sanitizersDir/CMakeCache.txt`"").Code -ne 0) {
         throw "$sanitizersDir holds no build: run without -SkipBuild first."
     }
     $intro += 'With -SkipBuild the existing build is used and only the tests run.'
@@ -98,12 +99,12 @@ New-Item -ItemType Directory -Force $OutDir | Out-Null
 
 # Configures and builds a fresh build directory in WSL; returns the exit code of the failing step or 0.
 function Invoke-WslBuild([string]$Log, [string]$BuildDir, [string]$CxxFlags, [string]$Extra, [string]$LdFlags = '') {
-    [void](Get-WslOutput "-d $WslDistro --exec rm -rf $BuildDir")
+    [void](Get-WslOutput "-d $WslDistro --exec rm -rf `"$BuildDir`"")
     $envVars = "env `"CFLAGS=$CxxFlags`" `"CXXFLAGS=$CxxFlags`""
     if ($LdFlags) { $envVars += " `"LDFLAGS=$LdFlags`"" }
-    $cfg = "$wsl $envVars cmake -S $source -B $BuildDir -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo " +
+    $cfg = "$wsl $envVars cmake -S `"$source`" -B `"$BuildDir`" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo " +
            "-DENABLE_OCR=ON -DBUILD_TESTS=ON -DBUILD_DEV_TOOLS=ON $Extra"
-    $build = "$wsl cmake --build $BuildDir -- -k 0 -j $jobs"
+    $build = "$wsl cmake --build `"$BuildDir`" -- -k 0 -j $jobs"
     Add-LogLine $Log "# Configure: $cfg`r`n"
     $rc = Invoke-Streamed $cfg $Log 'Configuring with CMake'
     Add-LogLine $Log "`r`n# Configure exit code: $rc"
@@ -155,7 +156,7 @@ New-Log $log '08: GCC with UBSan, ASan and _GLIBCXX_ASSERTIONS, all tests (ctest
 Write-Host ''
 Write-Host 'Tests with the sanitizers' -ForegroundColor Cyan
 # BOOST_TEST_COLOR_OUTPUT: without it, Boost.Test writes color codes into the log.
-$test = "$wsl env UBSAN_OPTIONS=$ubsanOptions ASAN_OPTIONS=$asanOptions BOOST_TEST_COLOR_OUTPUT=no ctest --test-dir $sanitizersDir -V --timeout 3600"
+$test = "$wsl env UBSAN_OPTIONS=$ubsanOptions ASAN_OPTIONS=$asanOptions BOOST_TEST_COLOR_OUTPUT=no ctest --test-dir `"$sanitizersDir`" -V --timeout 3600"
 Add-LogLine $log "# Tests: $test`r`n"
 $rc = Invoke-Streamed $test $log 'Running the tests'
 Add-LogLine $log "`r`n# Tests exit code: $rc (non-zero if any test failed)"
