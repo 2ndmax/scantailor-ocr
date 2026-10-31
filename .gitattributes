@@ -1,3 +1,4 @@
 # Fuzz inputs are bytes, not text: line endings in them must never be converted. Inputs without
 # a NUL byte would otherwise pass for text.
 src/fuzz/corpus/page_output/* binary
+src/fuzz/corpus/pdf_export/* binary

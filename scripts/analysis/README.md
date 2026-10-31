@@ -244,6 +244,7 @@ program and keeps the inputs that reach new code:
 | `fuzz_profile_reader` | profile files with the default parameters of new pages | `profile`, `profile.dict` |
 | `fuzz_page_output` | a whole page through the Output step (`OutputGenerator`), with the settings and zones of a project file; also checks that the output has the announced size, black and white output only black and white, and the layers of split output the size of the page | `page_output`, `page_output.dict` |
 | `fuzz_project_geometry` | the page geometry of a project file: the settings of Fix Orientation, Split Pages, Deskew, Select Content and Margins and the output resolution, as each step turns them into the geometry of a page, without an image; checks that the trim stays inside the image, every step leaves finite numbers and the output starts at 0, 0 | `geometry`, `geometry.dict` |
+| `fuzz_pdf_export` | the PDF export of a page: small images (1 bit, palette, grayscale, colour, also split output) written as TIFF files like the Output step writes them, stored with each compression and with a text layer; checks that every image can be stored, uncompressed and Deflate samples have the right length, palette indexes lie inside the palette, images lie on the page and the cross-reference table points at the objects | `pdf_export` (generated: one file per kind of image and compression) |
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\10-fuzz.ps1
 
