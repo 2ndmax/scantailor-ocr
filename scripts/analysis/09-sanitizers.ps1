@@ -29,10 +29,11 @@
   Known limitation: Qt6Widgets.dll allocates memory while it is loaded, before ASan has hooked
   the allocator, and ASan then reports freeing or growing that memory as an error inside Qt
   (core_tests, qt_tests) right at startup, with a stack trace only in Qt's DLL initialization.
-  This one report is no finding in the project's code. qt_tests runs on after it; core_tests may
-  stop right there (ASan "CHECK failed" in its stack depot) without running a single test. A test
-  program whose output holds no test summary is marked "# NOT RUN:" in the log, and
-  11-merge-findings.ps1 names it in findings.md.
+  This one report is no finding in the project's code. qt_tests runs on after it; core_tests
+  often fails to load ("bad-free", exit code 0xC0000142, or ASan "CHECK failed" in its stack
+  depot), by chance about two starts in three. A test program that printed nothing is therefore
+  started again, at most three times. One whose output still holds no test summary is marked
+  "# NOT RUN:" in the log, and 11-merge-findings.ps1 names it in findings.md.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-sanitizers.ps1 -Images D:\scans
 
@@ -148,7 +149,10 @@ function Read-Shared([string]$Path) {
     }
 }
 
-function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$TimeoutMin, [switch]$IsTest) {
+# $ResultDir: where the program writes its results instead of to stdout (Qt Test with -o); they
+# are taken as its output.
+function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$TimeoutMin, [switch]$IsTest,
+                       [string]$ResultDir = '') {
     $clock = [Diagnostics.Stopwatch]::StartNew()
     Write-Host "Running $Exe ... " -NoNewline
     Add-LogLine $Log "`r`n# ===== $Exe $ArgLine"
@@ -158,15 +162,37 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
     $sp = @{ FilePath = "$BuildDir\$Exe"; WorkingDirectory = $BuildDir; NoNewWindow = $true
              PassThru = $true; RedirectStandardOutput = $tmpOut; RedirectStandardError = $tmpErr }
     if ($ArgLine) { $sp.ArgumentList = $ArgLine }
-    $p = Start-Process @sp
-    $null = $p.Handle  # Without this, Windows PowerShell 5.1 doesn't report the exit code.
-    if (-not $p.WaitForExit($TimeoutMin * 60000)) {
-        $p.Kill()
-        $p.WaitForExit()
-        Add-LogLine $Log "# TIMEOUT after $TimeoutMin minutes, process killed"
+    # A test program that fails while loading its DLLs (the known report in Qt6Widgets'
+    # initialization, see above) has printed nothing yet. That depends on chance, so it is
+    # started again, at most three times in all. Of a failed start only ASan's summary is kept,
+    # the same each time.
+    $readOutput = {
+        $text = Read-Shared $tmpOut
+        if ($ResultDir -and (Test-Path $ResultDir)) {
+            foreach ($f in Get-ChildItem $ResultDir -File | Sort-Object Name) { $text += Read-Shared $f.FullName }
+        }
+        $text
     }
-    $stdout = Read-Shared $tmpOut
-    Add-LogLine $Log '# --- stdout'
+    $maxStarts = if ($IsTest) { 3 } else { 1 }
+    for ($start = 1; $true; $start++) {
+        if ($ResultDir) {
+            Remove-Item -Recurse -Force $ResultDir -ErrorAction SilentlyContinue
+            New-Item -ItemType Directory -Force $ResultDir | Out-Null
+        }
+        $p = Start-Process @sp
+        $null = $p.Handle  # Without this, Windows PowerShell 5.1 doesn't report the exit code.
+        if (-not $p.WaitForExit($TimeoutMin * 60000)) {
+            $p.Kill()
+            $p.WaitForExit()
+            Add-LogLine $Log "# TIMEOUT after $TimeoutMin minutes, process killed"
+        }
+        $startFailed = (& $readOutput).Trim().Length -eq 0
+        if (-not $startFailed -or ($start -ge $maxStarts)) { break }
+        $asanSummary = [regex]::Match((Read-Shared $tmpErr), 'SUMMARY: AddressSanitizer: .*|AddressSanitizer: CHECK failed[^\r\n]*').Value
+        Add-LogLine $Log "# Start $start of $maxStarts failed before any output (exit code $($p.ExitCode); $asanSummary); started again."
+    }
+    $stdout = & $readOutput
+    Add-LogLine $Log $(if ($ResultDir) { "# --- output (stdout and the files in $ResultDir)" } else { '# --- stdout' })
     Add-LogLine $Log $stdout
     $stderr = Read-Shared $tmpErr
     Add-LogLine $Log '# --- stderr (UBSan and ASan reports go here)'
@@ -187,9 +213,13 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
 # --- a) Tests ------------------------------------------------------------------------------------
 $log = "$OutDir\09-ubsan-tests.log"
 New-Log $log '09: UBSan + ASan, all test programs (QT_QPA_PLATFORM=offscreen)' $header
-foreach ($t in 'foundation_tests.exe', 'math_tests.exe', 'imageproc_tests.exe', 'core_tests.exe', 'qt_tests.exe') {
+foreach ($t in 'foundation_tests.exe', 'math_tests.exe', 'imageproc_tests.exe', 'core_tests.exe') {
     Invoke-Logged $log $t '' 60 -IsTest
 }
+# Qt Test writes nothing to stdout when the script runs without a console window; into files it
+# always does, one per test class.
+$qtResults = "$BuildDir\qt-results"
+Invoke-Logged $log 'qt_tests.exe' "-o `"$qtResults\qt_tests.txt,txt`"" 60 -IsTest -ResultDir $qtResults
 
 # --- b) Dev tools on real scans ------------------------------------------------------------------
 if (-not $Images) { Write-RunEnd 0 @("Log: $log"); exit 0 }
