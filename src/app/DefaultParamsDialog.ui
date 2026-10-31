@@ -4016,7 +4016,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                               <string>The dimensions of a pixel neighborhood to consider.</string>
                              </property>
                              <property name="minimum">
-                              <number>5</number>
+                              <number>3</number>
                              </property>
                              <property name="maximum">
                               <number>9999</number>
@@ -4132,7 +4132,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                               <string>The dimensions of a pixel neighborhood to consider.</string>
                              </property>
                              <property name="minimum">
-                              <number>5</number>
+                              <number>3</number>
                              </property>
                              <property name="maximum">
                               <number>9999</number>
