@@ -15,6 +15,12 @@ $Utf8 = New-Object Text.UTF8Encoding $false
 
 $vswhereDir = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer"
 
+# A window opened before step 4 of the setup set VCPKG_ROOT for the user account doesn't have it
+# (a process gets its environment once, at its start), so it is taken from the account here.
+if (-not $env:VCPKG_ROOT) {
+    $env:VCPKG_ROOT = [Environment]::GetEnvironmentVariable('VCPKG_ROOT', 'User')
+}
+
 # Sets $Vs to the newest Visual Studio (or Build Tools) with the C++ tools, and the folders of its
 # CMake, Ninja and LLVM tools. Called again by the setup after installing Visual Studio.
 function Find-VisualStudio {
