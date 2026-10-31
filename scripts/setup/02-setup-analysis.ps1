@@ -11,8 +11,10 @@
        ASan of MSVC, run 09) and the .NET
        Framework 4.8.1 SDK (run 04).
     2. cppcheck (run 03), installed with winget into its standard folder C:\Program Files\Cppcheck.
-    3. EDG (run 04): starts 03-setup-edg.ps1.
-    4. WSL with Ubuntu and GCC (run 10): starts 04-setup-wsl-gcc.ps1.
+    3. EDG (run 04): installs nothing itself, but starts the separate script 03-setup-edg.ps1
+       with its own menu.
+    4. WSL with Ubuntu and GCC (run 10): installs nothing itself, but starts the separate script
+       04-setup-wsl-gcc.ps1 with its own menu.
   clang-tidy (run 02) comes with Visual Studio itself; the build itself is set up by
   01-setup-windows.ps1. The output also goes to logs\02-setup-analysis.log.
 
@@ -139,6 +141,7 @@ $stepCppcheck = {
 
 $stepEdg = {
     $edgSetup = "$PSScriptRoot\03-setup-edg.ps1"
+    Write-Host 'Starts the separate script 03-setup-edg.ps1, which has its own menu and installs from there.'
     Add-LogLine $log "# $(Get-Stamp) $edgSetup"
     if ($Unattended) { & $edgSetup -Steps 0 -Yes:$AssumeYes } else { & $edgSetup }
     $rc = $LASTEXITCODE
@@ -148,6 +151,7 @@ $stepEdg = {
 
 $stepWslGcc = {
     $wslSetup = "$PSScriptRoot\04-setup-wsl-gcc.ps1"
+    Write-Host 'Starts the separate script 04-setup-wsl-gcc.ps1, which has its own menu and installs from there.'
     Add-LogLine $log "# $(Get-Stamp) $wslSetup"
     if ($Unattended) { & $wslSetup -Steps 0 -Yes:$AssumeYes } else { & $wslSetup }
     $rc = $LASTEXITCODE
@@ -160,9 +164,9 @@ $menu = @(
        Done = { (Test-Sanitizers) -and (Test-NetSdk) }; Run = $stepComponents }
     @{ Title = "cppcheck (run 03), into $CppcheckFolder"
        Done = { [bool](Find-Cppcheck) }; Run = $stepCppcheck }
-    @{ Title = 'EDG (run 04): start 03-setup-edg.ps1'
+    @{ Title = 'EDG (run 04): opens the separate script 03-setup-edg.ps1'
        Done = { [bool](Get-Cpfe) }; Run = $stepEdg }
-    @{ Title = 'WSL with Ubuntu and GCC (run 10): start 04-setup-wsl-gcc.ps1'
+    @{ Title = 'WSL with Ubuntu and GCC (run 10): opens the separate script 04-setup-wsl-gcc.ps1'
        Done = { Test-UbuntuPackages }; Run = $stepWslGcc }
 )
 $extra = @(
