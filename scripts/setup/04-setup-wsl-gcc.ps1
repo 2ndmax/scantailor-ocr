@@ -99,7 +99,8 @@ $stepWsl = {
     # The wsl.exe of System32: WSL itself does not exist yet.
     $process = Start-Process -FilePath 'wsl.exe' -ArgumentList '--install', '--no-distribution' -Verb RunAs -Wait -PassThru
     Add-LogLine $log "# Exit code: $($process.ExitCode)"
-    if ($process.ExitCode -ne 0) {
+    # 3010: installed, a restart of Windows is needed to finish, as with Visual Studio.
+    if ($process.ExitCode -notin 0, 3010) {
         Write-Host "The installation ended with exit code $($process.ExitCode)." -ForegroundColor Red
         return $false
     }

@@ -11,9 +11,11 @@
 
 $LogDir = "$(Split-Path $PSScriptRoot)\logs"
 
-# A suggestion for a folder on drive D: if that drive exists, else on C:.
+# A suggestion for a folder on drive D: if that drive is a ready hard disk, else on C:. A DVD,
+# a USB stick or a network drive D: is not suggested: unattended, the suggestion is taken as it is.
 function Get-DefaultBase {
-    if (Test-Path 'D:\') { return 'D:\' }
+    $d = New-Object System.IO.DriveInfo('D')
+    if ($d.IsReady -and ($d.DriveType -eq [System.IO.DriveType]::Fixed)) { return 'D:\' }
     return 'C:\'
 }
 
