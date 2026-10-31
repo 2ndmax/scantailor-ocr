@@ -30,6 +30,20 @@ inline constexpr double MAX_OBLIQUE_ANGLE_DEG = 5.0;
  */
 double angleFromXml(const QDomElement& el, const QString& name, double maxDeg);
 
+/**
+ * The angle as a spin box shows it: in a usual geometric way, with positive angles going
+ * counter-clockwise. Internally, angles go clockwise, because the Y axis points downwards in
+ * computer graphics.
+ */
+inline double degreesToSpinBox(const double degrees) {
+  return -degrees;
+}
+
+/** The internal angle of a value shown in a spin box; see degreesToSpinBox(). */
+inline double spinBoxToDegrees(const double sbValue) {
+  return -sbValue;
+}
+
 /** Rotation (deskew) angle, auto/manual mode and how the angle is found in auto mode. */
 struct RotationParams {
   double angle = 0.0;

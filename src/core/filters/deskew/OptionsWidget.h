@@ -122,10 +122,6 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void setupUiConnections();
 
-  static double spinBoxToDegrees(double sbValue);
-
-  static double degreesToSpinBox(double degrees);
-
   static const double MAX_ANGLE;
 
   std::shared_ptr<Settings> m_settings;

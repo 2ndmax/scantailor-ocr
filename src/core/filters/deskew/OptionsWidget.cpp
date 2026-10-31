@@ -279,19 +279,6 @@ void OptionsWidget::commitCurrentParams() {
   m_settings->setPageParams(m_pageId, params);
 }
 
-double OptionsWidget::spinBoxToDegrees(const double sbValue) {
-  // The spin box shows the angle in a usual geometric way,
-  // with positive angles going counter-clockwise.
-  // Internally, we operate with angles going clockwise,
-  // because the Y axis points downwards in computer graphics.
-  return -sbValue;
-}
-
-double OptionsWidget::degreesToSpinBox(const double degrees) {
-  // See above.
-  return -degrees;
-}
-
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
 void OptionsWidget::obliqueSpinBoxValueChanged(double value) {
