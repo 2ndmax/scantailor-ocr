@@ -11,6 +11,7 @@
 #include <SettingsSetup.h>
 #include <Translations.h>
 
+#include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QTextStream>
@@ -56,6 +57,12 @@ int main(int argc, char* argv[]) {
                          "project. Set up the project in ScanTailor OCR first."));
   const QCommandLineOption helpOption = parser.addHelpOption();
   const QCommandLineOption versionOption = parser.addVersionOption();
+  const QCommandLineOption pdfOption(
+      QStringLiteral("pdf"),
+      CommandLineRun::tr("Then creates the PDF <file> from all pages, with the PDF settings of the project, "
+                         "including the text recognition."),
+      CommandLineRun::tr("file"));
+  parser.addOption(pdfOption);
   parser.addPositionalArgument(CommandLineRun::tr("project"), CommandLineRun::tr("The project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
   // message box, while a script expects them in its output.
@@ -82,5 +89,6 @@ int main(int argc, char* argv[]) {
 
   CommandLineRun::Options options;
   options.projectFile = parser.positionalArguments().at(0);
+  options.pdfFile = parser.value(pdfOption);
   return CommandLineRun::run(options, out, err, cancelRequested);
 }

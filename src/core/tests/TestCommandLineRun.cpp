@@ -7,6 +7,7 @@
 #include <ImageId.h>
 #include <PageId.h>
 #include <PageSelectionAccessor.h>
+#include <ProcessingOptions.h>
 #include <ProjectPages.h>
 #include <ProjectReader.h>
 #include <ProjectSession.h>
@@ -25,10 +26,12 @@
 namespace {
 /**
  * A project of one scanned page, saved in \p dir as the app saves a new one, with its output
- * going to "out" there. With \p dpi 0, the page lacks its resolution. Returns the project file,
- * or an empty string if it couldn't be created.
+ * going to "out" there. With \p dpi 0, the page lacks its resolution. Its PDF gets the text
+ * recognition with \p ocrLanguages, none without; by default, a project would recognize German
+ * and English, which needn't be installed here. Returns the project file, or an empty string if
+ * it couldn't be created.
  */
-QString createProject(const QTemporaryDir& dir, const int dpi) {
+QString createProject(const QTemporaryDir& dir, const int dpi, const QStringList& ocrLanguages = QStringList()) {
   const std::vector<ImageFileInfo> files{Tests::saveTextPageScan(dir.filePath("page.png"), dpi)};
   if (files.front().imageInfo().empty()) {
     return QString();
@@ -38,6 +41,9 @@ QString createProject(const QTemporaryDir& dir, const int dpi) {
   const DefaultParams startValues;
   const ProjectSession session = ProjectSession::createNew(ProjectPages::createNew(files, startValues), outDir,
                                                            QString(), startValues, PageSelectionAccessor(nullptr));
+  ProcessingOptions::Pdf& pdf = session.stages->processingOptions()->pdf;
+  pdf.ocr = !ocrLanguages.isEmpty();
+  pdf.ocrLanguages = ocrLanguages;
   const QString projectFile = dir.filePath("project.ScanTailor");
   return session.write(projectFile) ? projectFile : QString();
 }
@@ -46,11 +52,13 @@ QString createProject(const QTemporaryDir& dir, const int dpi) {
 CommandLineRun::ExitCode run(const QString& projectFile,
                              QString* out,
                              QString* err,
+                             const QString& pdfFile = QString(),
                              const std::atomic<bool>& cancel = std::atomic<bool>(false)) {
   QTextStream outStream(out);
   QTextStream errStream(err);
   CommandLineRun::Options options;
   options.projectFile = projectFile;
+  options.pdfFile = pdfFile;
   return CommandLineRun::run(options, outStream, errStream, cancel);
 }
 }  // namespace
@@ -131,8 +139,55 @@ BOOST_AUTO_TEST_CASE(test_cancelled) {
   QString out;
   QString err;
   const std::atomic<bool> cancel(true);
-  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, cancel), CommandLineRun::CANCELLED);
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, QString(), cancel), CommandLineRun::CANCELLED);
   BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
 }
+
+BOOST_AUTO_TEST_CASE(test_creates_the_pdf) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  QString out;
+  QString err;
+  const QString pdfFile = dir.filePath("book.pdf");
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, pdfFile), CommandLineRun::SUCCESS);
+  BOOST_CHECK_MESSAGE(err.isEmpty(), err.toStdString());
+  BOOST_CHECK(Tests::readFile(pdfFile).startsWith("%PDF-"));
+}
+
+BOOST_AUTO_TEST_CASE(test_no_pdf_if_a_page_failed) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  // The image is gone, so the page can't be loaded.
+  BOOST_REQUIRE(QFile::remove(dir.filePath("page.png")));
+
+  QString out;
+  QString err;
+  const QString pdfFile = dir.filePath("book.pdf");
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, pdfFile), CommandLineRun::PAGES_FAILED);
+  BOOST_CHECK(err.contains(QDir::toNativeSeparators(dir.filePath("page.png"))));
+  BOOST_CHECK(!QFile::exists(pdfFile));
+}
+
+#ifdef ENABLE_OCR
+BOOST_AUTO_TEST_CASE(test_no_pdf_if_ocr_languages_are_missing) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  // A language that isn't installed anywhere.
+  const QString projectFile = createProject(dir, 300, QStringList{"zzy"});
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  QString out;
+  QString err;
+  const QString pdfFile = dir.filePath("book.pdf");
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, pdfFile), CommandLineRun::PDF_FAILED);
+  BOOST_CHECK(err.contains("zzy"));
+  BOOST_CHECK(!QFile::exists(pdfFile));
+}
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -4,12 +4,16 @@
 #include "CommandLineRun.h"
 
 #include <QDir>
+#include <QFileInfo>
 #include <QTextStream>
 #include <algorithm>
 
 #include "DefaultParams.h"
 #include "ImageFileInfo.h"
+#include "OcrLanguages.h"
 #include "PageSelectionAccessor.h"
+#include "PdfExportJob.h"
+#include "ProcessingOptions.h"
 #include "ProjectPages.h"
 #include "ProjectReader.h"
 #include "ProjectSession.h"
@@ -73,6 +77,107 @@ QStringList filesWithoutDpi(const ProjectPages& pages) {
   }
   return files;
 }
+
+/**
+ * Sets up the text recognition of the PDF as the project wants it. The app asks about languages
+ * that aren't installed and offers to download them; here, they end the export.
+ * Returns false after telling \p err why it can't be done.
+ */
+bool setUpOcr(const ProcessingOptions::Pdf& projectPdf, PdfExportOptions* options, QTextStream& err) {
+#ifdef ENABLE_OCR
+  if (!projectPdf.ocr) {
+    return true;
+  }
+  const QStringList missing = OcrLanguages::missing(projectPdf.ocrLanguages);
+  if (!missing.isEmpty()) {
+    QStringList names;
+    for (const QString& code : missing) {
+      names.push_back(OcrLanguages::displayName(code));
+    }
+    err << CommandLineRun::tr(
+               "The languages %1 of the project aren't installed on this computer. Download them in "
+               "ScanTailor OCR, in the PDF export with \"More languages\", or turn them off there.")
+               .arg(names.join(QStringLiteral(", ")))
+        << Qt::endl;
+    return false;
+  }
+  QString error;
+  switch (options->setUpOcr(projectPdf.ocrLanguages, projectPdf.ocrPageLayout, &error)) {
+    case PdfExportOptions::OcrSetup::DONE:
+      return true;
+    case PdfExportOptions::OcrSetup::NO_LANGUAGE:
+      err << CommandLineRun::tr(
+          "The project has text recognition turned on, but no language ticked. Tick one in "
+          "ScanTailor OCR, in the PDF export, or turn the text recognition off there.")
+          << Qt::endl;
+      return false;
+    case PdfExportOptions::OcrSetup::NOT_GATHERED:
+      err << CommandLineRun::tr(
+          "The files of the selected languages are in different folders, and they could not be "
+          "copied into one folder, which text recognition needs.")
+          << ' ' << error << Qt::endl;
+      return false;
+  }
+  return false;
+#else
+  // As in the app, which offers no text recognition then.
+  Q_UNUSED(projectPdf);
+  Q_UNUSED(options);
+  Q_UNUSED(err);
+  return true;
+#endif
+}
+
+/** Creates the PDF \p pdfFile from the output files, with the project's PDF settings. */
+CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
+                                   const ProjectSession& session,
+                                   QTextStream& out,
+                                   QTextStream& err,
+                                   const std::atomic<bool>& cancel) {
+  std::vector<PdfExportPage> pages = session.stages->pdfExportPages(*session.pages, session.outFileNameGen);
+  // Not expected after all pages were output, but the PDF would lack them or show an older state.
+  bool complete = true;
+  for (const PdfExportPage& page : pages) {
+    if ((page.kind() == PdfExportPage::MISSING) || page.isOutdated()) {
+      err << CommandLineRun::tr("%1: The output file is missing or outdated.").arg(pageName(page.pageId())) << Qt::endl;
+      complete = false;
+    }
+  }
+  if (!complete) {
+    return CommandLineRun::PDF_FAILED;
+  }
+
+  const ProcessingOptions::Pdf& projectPdf = session.stages->processingOptions()->pdf;
+  PdfExportOptions options = PdfExportOptions::fromProject(*session.stages->processingOptions());
+  options.threadCount = PdfExportJob::defaultThreadCount();
+  if (!setUpOcr(projectPdf, &options, err)) {
+    return CommandLineRun::PDF_FAILED;
+  }
+
+  PdfExportJob job(std::move(pages), pdfFile, options);
+  // run() emits it in this thread, so the lambda is called directly.
+  QObject::connect(&job, &PdfExportJob::progress, [&](const int pagesDone, const int pagesTotal) {
+    out << CommandLineRun::tr("PDF: %1 of %2").arg(pagesDone).arg(pagesTotal) << Qt::endl;
+    if (cancel) {
+      job.cancel();
+    }
+  });
+  job.run();
+
+  if (job.succeeded()) {
+    out << CommandLineRun::tr("The PDF was created: %1").arg(nativePath(pdfFile)) << Qt::endl;
+    return CommandLineRun::SUCCESS;
+  }
+  if (job.wasCancelled()) {
+    err << CommandLineRun::tr("Canceled. No PDF was written.") << Qt::endl;
+    return CommandLineRun::CANCELLED;
+  }
+  err << CommandLineRun::tr("The PDF could not be created.") << Qt::endl;
+  for (const QString& error : job.errors()) {
+    err << "  " << error << Qt::endl;
+  }
+  return CommandLineRun::PDF_FAILED;
+}
 }  // namespace
 
 CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
@@ -134,14 +239,21 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     err << tr("Canceled. The pages output so far keep their output files.") << Qt::endl;
     return CANCELLED;
   }
-  if (!processed.failures.empty()) {
-    err << tr("Pages that failed: %1").arg(processed.failures.size()) << Qt::endl;
-    return PAGES_FAILED;
-  }
-  if (!processed.output) {
-    err << tr("No page was output.") << Qt::endl;
+  if (!processed.failures.empty() || !processed.output) {
+    if (processed.failures.empty()) {
+      err << tr("No page was output.") << Qt::endl;
+    } else {
+      err << tr("Pages that failed: %1").arg(processed.failures.size()) << Qt::endl;
+    }
+    if (!options.pdfFile.isEmpty()) {
+      err << tr("No PDF was created, as not all pages were output.") << Qt::endl;
+    }
     return PAGES_FAILED;
   }
   out << tr("Done. The output is in %1").arg(nativePath(session.outFileNameGen.outDir())) << Qt::endl;
-  return SUCCESS;
+
+  if (options.pdfFile.isEmpty()) {
+    return SUCCESS;
+  }
+  return exportPdf(QFileInfo(options.pdfFile).absoluteFilePath(), session, out, err, cancel);
 }

@@ -36,12 +36,14 @@ class CommandLineRun {
 
   struct Options {
     QString projectFile;
+    /** Where the PDF goes, as the project's PDF settings make it; empty for no PDF. */
+    QString pdfFile;
   };
 
   /**
    * Runs the tool. The progress goes to \p out, errors go to \p err. Setting \p cancel stops
    * processing before the next page; the pages done so far keep their results, and the project
-   * is saved with them.
+   * is saved with them. The PDF is only created if all pages were output.
    */
   static ExitCode run(const Options& options, QTextStream& out, QTextStream& err, const std::atomic<bool>& cancel);
 };

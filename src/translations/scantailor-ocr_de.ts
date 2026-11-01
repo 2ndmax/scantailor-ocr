@@ -307,97 +307,152 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
 <context>
     <name>CommandLineRun</name>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="27"/>
+        <location filename="../core/CommandLineRun.cpp" line="31"/>
         <source>%1, page %2 of the file</source>
         <translation>%1, Seite %2 der Datei</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="33"/>
+        <location filename="../core/CommandLineRun.cpp" line="37"/>
         <source>%1, left page</source>
         <translation>%1, linke Seite</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="36"/>
+        <location filename="../core/CommandLineRun.cpp" line="40"/>
         <source>%1, right page</source>
         <translation>%1, rechte Seite</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="46"/>
+        <location filename="../core/CommandLineRun.cpp" line="50"/>
         <source>The image could not be loaded.</source>
         <translation>Das Bild konnte nicht geladen werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="49"/>
+        <location filename="../core/CommandLineRun.cpp" line="53"/>
         <source>The page could not be processed.</source>
         <translation>Die Seite konnte nicht verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="52"/>
+        <location filename="../core/CommandLineRun.cpp" line="56"/>
         <source>The output page would be too large with the current settings.</source>
         <translation>Die Ausgabeseite wäre mit den aktuellen Einstellungen zu groß.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="55"/>
+        <location filename="../core/CommandLineRun.cpp" line="59"/>
         <source>The output file could not be written.</source>
         <translation>Die Ausgabedatei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="91"/>
+        <location filename="../core/CommandLineRun.cpp" line="97"/>
+        <source>The languages %1 of the project aren&apos;t installed on this computer. Download them in ScanTailor OCR, in the PDF export with &quot;More languages&quot;, or turn them off there.</source>
+        <translation>Die Sprachen %1 des Projekts sind auf diesem Rechner nicht installiert. Laden Sie sie in ScanTailor OCR im PDF-Export über „Weitere Sprachen“ herunter, oder wählen Sie sie dort ab.</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="109"/>
+        <source>The project has text recognition turned on, but no language ticked. Tick one in ScanTailor OCR, in the PDF export, or turn the text recognition off there.</source>
+        <translation>Im Projekt ist die Texterkennung eingeschaltet, aber keine Sprache ausgewählt. Wählen Sie in ScanTailor OCR im PDF-Export eine aus, oder schalten Sie die Texterkennung dort aus.</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="115"/>
+        <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
+        <translation>Die Dateien der gewählten Sprachen liegen in verschiedenen Ordnern und konnten nicht in einen gemeinsamen Ordner kopiert werden, den die Texterkennung braucht.</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="142"/>
+        <source>%1: The output file is missing or outdated.</source>
+        <translation>%1: Die Ausgabedatei fehlt oder ist veraltet.</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="160"/>
+        <source>PDF: %1 of %2</source>
+        <translation>PDF: %1 von %2</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="168"/>
+        <source>The PDF was created: %1</source>
+        <translation>Die PDF-Datei wurde erstellt: %1</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="172"/>
+        <source>Canceled. No PDF was written.</source>
+        <translation>Abgebrochen. Es wurde keine PDF-Datei geschrieben.</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="175"/>
+        <source>The PDF could not be created.</source>
+        <translation>Die PDF-Datei konnte nicht erstellt werden.</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="196"/>
         <source>The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once in ScanTailor OCR and save it there, then it can be processed here.</source>
         <translation>Das Projekt wurde mit ScanTailor Advanced oder einer älteren Version von ScanTailor OCR gespeichert. Öffnen Sie es einmal in ScanTailor OCR und speichern Sie es dort, dann kann es hier verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="98"/>
+        <location filename="../core/CommandLineRun.cpp" line="203"/>
         <source>The project has no images.</source>
         <translation>Das Projekt enthält keine Bilder.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="103"/>
+        <location filename="../core/CommandLineRun.cpp" line="208"/>
         <source>The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, then the project can be processed here:</source>
         <translation>Bei diesen Bildern fehlt die Auflösung (DPI) oder sie ist unplausibel. Legen Sie sie einmal in ScanTailor OCR fest, dann kann das Projekt hier verarbeitet werden:</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="118"/>
+        <location filename="../core/CommandLineRun.cpp" line="223"/>
         <source>%1: %2 of %3</source>
         <translation>%1: %2 von %3</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="129"/>
+        <location filename="../core/CommandLineRun.cpp" line="234"/>
         <source>The project file could not be saved: %1</source>
         <translation>Die Projektdatei konnte nicht gespeichert werden: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="134"/>
+        <location filename="../core/CommandLineRun.cpp" line="239"/>
         <source>Canceled. The pages output so far keep their output files.</source>
         <translation>Abgebrochen. Die bisher ausgegebenen Seiten behalten ihre Ausgabedateien.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="138"/>
+        <location filename="../core/CommandLineRun.cpp" line="246"/>
         <source>Pages that failed: %1</source>
         <translation>Fehlgeschlagene Seiten: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="142"/>
+        <location filename="../core/CommandLineRun.cpp" line="244"/>
         <source>No page was output.</source>
         <translation>Es wurde keine Seite ausgegeben.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="145"/>
+        <location filename="../core/CommandLineRun.cpp" line="249"/>
+        <source>No PDF was created, as not all pages were output.</source>
+        <translation>Es wurde keine PDF-Datei erstellt, da nicht alle Seiten ausgegeben wurden.</translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="253"/>
         <source>Done. The output is in %1</source>
         <translation>Fertig. Die Ausgabe liegt in %1</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="55"/>
+        <location filename="../cli/main.cpp" line="56"/>
         <source>Processes all pages of a ScanTailor OCR project through all six steps and saves the project. Set up the project in ScanTailor OCR first.</source>
         <translation>Verarbeitet alle Seiten eines Projekts von ScanTailor OCR in allen sechs Schritten und speichert das Projekt. Richten Sie das Projekt zuvor in ScanTailor OCR ein.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="59"/>
+        <location filename="../cli/main.cpp" line="62"/>
+        <source>Then creates the PDF &lt;file&gt; from all pages, with the PDF settings of the project, including the text recognition.</source>
+        <translation>Erstellt danach die PDF-Datei &lt;datei&gt; aus allen Seiten, mit den PDF-Einstellungen des Projekts einschließlich der Texterkennung.</translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="64"/>
+        <source>file</source>
+        <translation>datei</translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="66"/>
         <source>project</source>
         <translation>projekt</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="59"/>
+        <location filename="../cli/main.cpp" line="66"/>
         <source>The project file.</source>
         <translation>Die Projektdatei.</translation>
     </message>
