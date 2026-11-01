@@ -31,8 +31,10 @@
   (core_tests, qt_tests) right at startup, with a stack trace only in Qt's DLL initialization.
   This one report is no finding in the project's code. qt_tests runs on after it; core_tests
   often fails to load ("bad-free", exit code 0xC0000142, or ASan "CHECK failed" in its stack
-  depot), by chance about two starts in three. A test program that printed nothing is therefore
-  started again, at most three times. One whose output still holds no test summary is marked
+  depot), by chance about two starts in three. A test program that printed nothing and failed
+  with one of these signs is therefore started again, at most three times; the reports of the
+  discarded starts stay in the log. A crash or a timeout is never retried, as it may be a
+  finding. A test program whose output still holds no test summary is marked
   "# NOT RUN:" in the log, and 11-merge-findings.ps1 names it in findings.md.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-sanitizers.ps1 -Images D:\scans
@@ -54,7 +56,8 @@
   The vcpkg folder. Default: the VCPKG_ROOT environment variable.
 
 .PARAMETER Yes
-  Start without asking; a build directory left from an earlier run is deleted.
+  Start without asking. A build directory left from an earlier run is deleted only if it is a
+  build-* folder in the project folder, as the runs name theirs; any other stops the run.
 #>
 param(
     [string]$Images = '',
@@ -164,8 +167,10 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
     if ($ArgLine) { $sp.ArgumentList = $ArgLine }
     # A test program that fails while loading its DLLs (the known report in Qt6Widgets'
     # initialization, see above) has printed nothing yet. That depends on chance, so it is
-    # started again, at most three times in all. Of a failed start only ASan's summary is kept,
-    # the same each time.
+    # started again, at most three times in all. Only these signs count: core_tests buffers its
+    # output, so a crash during the tests leaves no output either, and it must stay a finding.
+    # 0xC0000142 (-1073741502) is STATUS_DLL_INIT_FAILED.
+    $knownLoadError = 'SUMMARY: AddressSanitizer: bad-free \S*qarraydata\.cpp|AddressSanitizer: CHECK failed'
     $readOutput = {
         $text = Read-Shared $tmpOut
         if ($ResultDir -and (Test-Path $ResultDir)) {
@@ -181,15 +186,20 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
         }
         $p = Start-Process @sp
         $null = $p.Handle  # Without this, Windows PowerShell 5.1 doesn't report the exit code.
+        $timedOut = $false
         if (-not $p.WaitForExit($TimeoutMin * 60000)) {
             $p.Kill()
             $p.WaitForExit()
+            $timedOut = $true
             Add-LogLine $Log "# TIMEOUT after $TimeoutMin minutes, process killed"
         }
         $startFailed = (& $readOutput).Trim().Length -eq 0
-        if (-not $startFailed -or ($start -ge $maxStarts)) { break }
-        $asanSummary = [regex]::Match((Read-Shared $tmpErr), 'SUMMARY: AddressSanitizer: .*|AddressSanitizer: CHECK failed[^\r\n]*').Value
-        Add-LogLine $Log "# Start $start of $maxStarts failed before any output (exit code $($p.ExitCode); $asanSummary); started again."
+        if (-not $startFailed -or $timedOut -or ($start -ge $maxStarts)) { break }
+        $failedStderr = Read-Shared $tmpErr
+        $isLoadError = ($p.ExitCode -eq -1073741502) -or [regex]::IsMatch($failedStderr, $knownLoadError)
+        if (-not $isLoadError) { break }
+        Add-LogLine $Log "# Start $start of $maxStarts failed while loading (exit code $($p.ExitCode)); started again. Its stderr:"
+        Add-LogLine $Log $failedStderr
     }
     $stdout = & $readOutput
     Add-LogLine $Log $(if ($ResultDir) { "# --- output (stdout and the files in $ResultDir)" } else { '# --- stdout' })
