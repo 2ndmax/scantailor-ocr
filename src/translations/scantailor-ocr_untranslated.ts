@@ -92,12 +92,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="83"/>
+        <location filename="../core/Application.cpp" line="77"/>
         <source>Unexpected Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="84"/>
+        <location filename="../core/Application.cpp" line="78"/>
         <source>An unexpected error occurred:
 %1
 
@@ -1252,7 +1252,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="90"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="91"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1460,7 +1460,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4503"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1256"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1259"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1580,17 +1580,17 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="77"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="78"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
         <source>White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1598,41 +1598,41 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <location filename="../app/DefaultParamsDialog.ui" line="1071"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1259"/>
         <location filename="../app/DefaultParamsDialog.ui" line="4769"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="85"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="86"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="86"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="87"/>
         <source>Contour mask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="87"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="88"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="89"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="90"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="91"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="92"/>
         <source>K-means</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="147"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="75"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="148"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="63"/>
         <source>Minimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="155"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="78"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="156"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1454"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="66"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1642,103 +1642,103 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
         <source>Edges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="84"/>
         <source>Spine line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="146"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="72"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="147"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="60"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="973"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="975"/>
         <source>TIFF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="991"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="993"/>
         <source>PDF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="994"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="996"/>
         <source>Text Recognition (OCR)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1002"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1004"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1256"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1259"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1366"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1372"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1400"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1406"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1417"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1457"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1472"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1510"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1369"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1375"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1403"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1409"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1420"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1460"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1475"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1513"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1366"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1369"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1372"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1375"/>
         <source>Error loading the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1407"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1418"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1421"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1431"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1434"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1504"/>
         <source>Save Profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1432"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1435"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1502"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1505"/>
         <source>The changes to the profile &quot;%1&quot; haven&apos;t been saved. Without saving, they only apply until the program is closed. Save them in the profile?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1400"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1457"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1510"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1403"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1460"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1513"/>
         <source>Error saving the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1472"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1475"/>
         <source>Error deleting the profile.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1916,12 +1916,12 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>ImageSizeLimit</name>
     <message>
-        <location filename="../core/ImageSizeLimit.cpp" line="20"/>
+        <location filename="../core/ImageSizeLimit.cpp" line="21"/>
         <source>The image is too large (%1 × %2 pixels). Width and height may be at most %3 pixels each, the area at most %4 megapixels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ImageSizeLimit.cpp" line="32"/>
+        <location filename="../core/ImageSizeLimit.cpp" line="33"/>
         <source>The output page would be too large (%1 × %2 pixels). Width and height may be at most %3 pixels each, the area at most %4 megapixels. Lower the output resolution, or check the DPI of the image.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1960,17 +1960,17 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="309"/>
+        <location filename="../core/Jp2Reader.cpp" line="311"/>
         <source>The image is divided into too many tiles (%1). At its size of %2 × %3 pixels, at most %4 tiles are possible.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="435"/>
+        <location filename="../core/Jp2Reader.cpp" line="437"/>
         <source>The image contains a component that could not be decoded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Jp2Reader.cpp" line="795"/>
+        <location filename="../core/Jp2Reader.cpp" line="806"/>
         <source>The JPEG 2000 file header is damaged or incomplete.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2564,52 +2564,52 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>OcrLanguages</name>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="123"/>
+        <location filename="../core/OcrLanguages.cpp" line="134"/>
         <source>The folder %1 can&apos;t be written to.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="138"/>
+        <location filename="../core/OcrLanguages.cpp" line="149"/>
         <source>The language file of &quot;%1&quot; wasn&apos;t found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="150"/>
+        <location filename="../core/OcrLanguages.cpp" line="161"/>
         <source>Could not copy the language file of &quot;%1&quot; to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="166"/>
+        <location filename="../core/OcrLanguages.cpp" line="177"/>
         <source>Neither %1 nor %2 can be written to.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="184"/>
+        <location filename="../core/OcrLanguages.cpp" line="195"/>
         <source>%1 (script)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="194"/>
+        <location filename="../core/OcrLanguages.cpp" line="205"/>
         <source>Middle English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="195"/>
+        <location filename="../core/OcrLanguages.cpp" line="206"/>
         <source>Middle French</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="196"/>
+        <location filename="../core/OcrLanguages.cpp" line="207"/>
         <source>Ancient Greek</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="197"/>
+        <location filename="../core/OcrLanguages.cpp" line="208"/>
         <source>Kurmanji</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="198"/>
+        <location filename="../core/OcrLanguages.cpp" line="209"/>
         <source>German Fraktur (old model)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2961,68 +2961,68 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>PdfExportJob</name>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="40"/>
+        <location filename="../core/PdfExportJob.cpp" line="41"/>
         <source>Could not load %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="73"/>
+        <location filename="../core/PdfExportJob.cpp" line="74"/>
         <source>Could not compress %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="204"/>
+        <location filename="../core/PdfExportJob.cpp" line="205"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="211"/>
+        <location filename="../core/PdfExportJob.cpp" line="212"/>
         <source>Text recognition failed for %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="228"/>
+        <location filename="../core/PdfExportJob.cpp" line="229"/>
         <source>This version of the program was built without text recognition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="278"/>
+        <location filename="../core/PdfExportJob.cpp" line="299"/>
         <source>The output file %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="325"/>
+        <location filename="../core/PdfExportJob.cpp" line="346"/>
         <source>The split output files of %1 differ in size. Process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="377"/>
+        <location filename="../core/PdfExportJob.cpp" line="398"/>
         <source>No pages are selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="383"/>
+        <location filename="../core/PdfExportJob.cpp" line="404"/>
         <source>Could not create %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="457"/>
+        <location filename="../core/PdfExportJob.cpp" line="478"/>
         <source>Text recognition could not be started.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="238"/>
+        <location filename="../core/PdfExportJob.cpp" line="239"/>
         <source>Out of memory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="242"/>
+        <location filename="../core/PdfExportJob.cpp" line="243"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PdfExportJob.cpp" line="550"/>
-        <location filename="../core/PdfExportJob.cpp" line="556"/>
+        <location filename="../core/PdfExportJob.cpp" line="571"/>
+        <location filename="../core/PdfExportJob.cpp" line="577"/>
         <source>Could not write %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3050,7 +3050,7 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     <message>
         <location filename="../app/PdfExportView.cpp" line="389"/>
         <location filename="../app/PdfExportView.cpp" line="699"/>
-        <location filename="../app/PdfExportView.cpp" line="901"/>
+        <location filename="../app/PdfExportView.cpp" line="898"/>
         <source>Create PDF</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3237,183 +3237,183 @@ Without them, the text is only recognized with the other ticked languages.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="810"/>
+        <location filename="../app/PdfExportView.cpp" line="822"/>
         <source>Please tick at least one language for the text recognition, or turn it off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="817"/>
+        <location filename="../app/PdfExportView.cpp" line="811"/>
         <source>Copying language files ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="825"/>
+        <location filename="../app/PdfExportView.cpp" line="827"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="848"/>
+        <location filename="../app/PdfExportView.cpp" line="845"/>
         <source>Recognizing the text and creating the PDF ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="849"/>
+        <location filename="../app/PdfExportView.cpp" line="846"/>
         <source>Creating the PDF ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="859"/>
+        <location filename="../app/PdfExportView.cpp" line="856"/>
         <source>Canceling ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="884"/>
+        <location filename="../app/PdfExportView.cpp" line="881"/>
         <source>The PDF was created: %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="890"/>
+        <location filename="../app/PdfExportView.cpp" line="887"/>
         <source>Canceled. No PDF was written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="893"/>
-        <location filename="../app/PdfExportView.cpp" line="902"/>
+        <location filename="../app/PdfExportView.cpp" line="890"/>
+        <location filename="../app/PdfExportView.cpp" line="899"/>
         <source>The PDF could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="899"/>
+        <location filename="../app/PdfExportView.cpp" line="896"/>
         <source>... and %1 more.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1069"/>
+        <location filename="../app/PdfExportView.cpp" line="1066"/>
         <source>uncompressed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1122"/>
+        <location filename="../app/PdfExportView.cpp" line="1119"/>
         <source>In the output folder, the picture of this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1124"/>
+        <location filename="../app/PdfExportView.cpp" line="1121"/>
         <source>In the output folder, this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1127"/>
+        <location filename="../app/PdfExportView.cpp" line="1124"/>
         <source>The PDF compresses it with loss a second time (%1), so the losses add up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1128"/>
+        <location filename="../app/PdfExportView.cpp" line="1125"/>
         <source>The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than necessary.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1134"/>
+        <location filename="../app/PdfExportView.cpp" line="1131"/>
         <source>In the output folder, the text of this page is stored with lossy compression (%1). The PDF can&apos;t undo these losses.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1139"/>
+        <location filename="../app/PdfExportView.cpp" line="1136"/>
         <source>%1 converts the posterized picture of this page to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1144"/>
+        <location filename="../app/PdfExportView.cpp" line="1141"/>
         <source>Mixed page without split output. It is stored as a single image, so with %1 the text is less sharp and the PDF is larger. Enable &quot;Split output&quot; in the Output step and process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1157"/>
+        <location filename="../app/PdfExportView.cpp" line="1154"/>
         <source>Mixed page without split output. It is stored losslessly as a single image. With split output, the PDF is usually much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1169"/>
+        <location filename="../app/PdfExportView.cpp" line="1166"/>
         <source>Not output yet. Process the page in the Output step to include it in the PDF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1177"/>
-        <location filename="../app/PdfExportView.cpp" line="1181"/>
+        <location filename="../app/PdfExportView.cpp" line="1174"/>
+        <location filename="../app/PdfExportView.cpp" line="1178"/>
         <source>%1 (lossy)</source>
         <comment>tooltip</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1190"/>
+        <location filename="../app/PdfExportView.cpp" line="1187"/>
         <source>Black and white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1195"/>
+        <location filename="../app/PdfExportView.cpp" line="1192"/>
         <source>Mixed, split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1196"/>
-        <location filename="../app/PdfExportView.cpp" line="1198"/>
+        <location filename="../app/PdfExportView.cpp" line="1193"/>
+        <location filename="../app/PdfExportView.cpp" line="1195"/>
         <source>%1 (picture), %2 (text)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1202"/>
+        <location filename="../app/PdfExportView.cpp" line="1199"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1204"/>
+        <location filename="../app/PdfExportView.cpp" line="1201"/>
         <source>Color / grayscale, posterized</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1215"/>
+        <location filename="../app/PdfExportView.cpp" line="1212"/>
         <source>Changed since the output. The PDF would show the state of the last output. Process the page in the Output step to include the changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1219"/>
+        <location filename="../app/PdfExportView.cpp" line="1216"/>
         <source>Color mode: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1220"/>
+        <location filename="../app/PdfExportView.cpp" line="1217"/>
         <source>Compression TIFF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1221"/>
+        <location filename="../app/PdfExportView.cpp" line="1218"/>
         <source>Compression PDF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1288"/>
-        <location filename="../app/PdfExportView.cpp" line="1297"/>
+        <location filename="../app/PdfExportView.cpp" line="1285"/>
+        <location filename="../app/PdfExportView.cpp" line="1294"/>
         <source>%1 (lossy)</source>
         <comment>short</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1308"/>
+        <location filename="../app/PdfExportView.cpp" line="1305"/>
         <source>Stored with lossy compression: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1318"/>
+        <location filename="../app/PdfExportView.cpp" line="1315"/>
         <source>Compressed with loss twice: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1325"/>
+        <location filename="../app/PdfExportView.cpp" line="1322"/>
         <source>Posterized, converted to full color: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1206"/>
+        <location filename="../app/PdfExportView.cpp" line="1203"/>
         <source>Color / grayscale</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3428,41 +3428,41 @@ Without them, the text is only recognized with the other ticked languages.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="916"/>
+        <location filename="../app/PdfExportView.cpp" line="913"/>
         <source>%1 of %2 output pages selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/PdfExportView.cpp" line="920"/>
+        <location filename="../app/PdfExportView.cpp" line="917"/>
         <source>%n page(s) not output yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/PdfExportView.cpp" line="926"/>
+        <location filename="../app/PdfExportView.cpp" line="923"/>
         <source>%n page(s) changed since the output.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1310"/>
+        <location filename="../app/PdfExportView.cpp" line="1307"/>
         <source>The PDF can&apos;t undo these losses. A lossless method in the PDF keeps them and makes the file larger than necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output step and process the pages again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1320"/>
+        <location filename="../app/PdfExportView.cpp" line="1317"/>
         <source>The output files of these pages are stored with lossy compression, and the PDF compresses them with loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second loss.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1327"/>
+        <location filename="../app/PdfExportView.cpp" line="1324"/>
         <source>JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/PdfExportView.cpp" line="1043"/>
+        <location filename="../app/PdfExportView.cpp" line="1040"/>
         <source>Not output yet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3657,62 +3657,63 @@ You should remove them from the project.</source>
 <context>
     <name>ProjectOpeningContext</name>
     <message>
+        <location filename="../app/ProjectOpeningContext.cpp" line="33"/>
         <location filename="../app/ProjectOpeningContext.cpp" line="35"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="39"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="43"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="48"/>
-        <location filename="../app/ProjectOpeningContext.cpp" line="116"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="103"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="35"/>
-        <source>Unable to open the project file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="39"/>
-        <source>The project file is damaged.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="44"/>
-        <source>The project file is not compatible with the current application version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="48"/>
-        <source>Unable to interpret the project file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="91"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="78"/>
         <source>Project from an Older Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="92"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="79"/>
         <source>This project was saved by ScanTailor Advanced or an older version (project file version %2). ScanTailor OCR can open it, but processes some settings differently, so the results can differ. Settings that the project doesn&apos;t contain are taken from the profile &quot;%1&quot; of the default parameters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="98"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="85"/>
         <source>Once the project is saved, also automatically, ScanTailor Advanced can no longer open it. A backup copy keeps the original file usable there. It&apos;s saved next to the project as &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="103"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="90"/>
         <source>Create backup and open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="104"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="91"/>
         <source>Open without backup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ProjectOpeningContext.cpp" line="117"/>
+        <location filename="../app/ProjectOpeningContext.cpp" line="104"/>
         <source>The backup copy &quot;%1&quot; could not be created. The project was not opened.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectReader</name>
+    <message>
+        <location filename="../core/ProjectReader.cpp" line="103"/>
+        <source>Unable to open the project file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/ProjectReader.cpp" line="105"/>
+        <source>The project file is damaged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/ProjectReader.cpp" line="107"/>
+        <source>The project file is not compatible with the current application version.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/ProjectReader.cpp" line="109"/>
+        <source>Unable to interpret the project file.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4660,17 +4661,17 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>deskew::Filter</name>
     <message>
-        <location filename="../core/filters/deskew/Filter.cpp" line="34"/>
+        <location filename="../core/filters/deskew/Filter.cpp" line="33"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/Filter.cpp" line="35"/>
+        <location filename="../core/filters/deskew/Filter.cpp" line="34"/>
         <source>Order by decreasing deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/Filter.cpp" line="41"/>
+        <location filename="../core/filters/deskew/Filter.cpp" line="40"/>
         <source>Deskew</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4760,13 +4761,13 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="37"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="185"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="186"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="38"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="186"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="187"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4939,32 +4940,32 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>output::Filter</name>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="40"/>
+        <location filename="../core/filters/output/Filter.cpp" line="39"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="42"/>
+        <location filename="../core/filters/output/Filter.cpp" line="41"/>
         <source>Order by completeness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="43"/>
+        <location filename="../core/filters/output/Filter.cpp" line="42"/>
         <source>Processed pages first, then the pages not processed yet, each in natural order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="45"/>
+        <location filename="../core/filters/output/Filter.cpp" line="44"/>
         <source>Order by color mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="46"/>
+        <location filename="../core/filters/output/Filter.cpp" line="45"/>
         <source>Black and white first, then color / grayscale, then mixed, each in natural order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Filter.cpp" line="52"/>
+        <location filename="../core/filters/output/Filter.cpp" line="51"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6059,7 +6060,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="295"/>
+        <location filename="../core/filters/output/Task.cpp" line="294"/>
         <source>The split output layers could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6067,62 +6068,62 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="501"/>
+        <location filename="../core/filters/output/Task.cpp" line="498"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="542"/>
+        <location filename="../core/filters/output/Task.cpp" line="539"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="553"/>
+        <location filename="../core/filters/output/Task.cpp" line="550"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="554"/>
+        <location filename="../core/filters/output/Task.cpp" line="551"/>
         <source>Shows the processed page as it will be saved. (Ctrl+1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="555"/>
+        <location filename="../core/filters/output/Task.cpp" line="552"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="556"/>
+        <location filename="../core/filters/output/Task.cpp" line="553"/>
         <source>Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="557"/>
+        <location filename="../core/filters/output/Task.cpp" line="554"/>
         <source>Fill Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="558"/>
+        <location filename="../core/filters/output/Task.cpp" line="555"/>
         <source>Fills areas of the output with a color you pick. (Ctrl+3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="559"/>
+        <location filename="../core/filters/output/Task.cpp" line="556"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="560"/>
+        <location filename="../core/filters/output/Task.cpp" line="557"/>
         <source>Shows the curves used to dewarp the page. In Manual mode, you place them yourself. (Ctrl+4)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="561"/>
+        <location filename="../core/filters/output/Task.cpp" line="558"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="562"/>
+        <location filename="../core/filters/output/Task.cpp" line="559"/>
         <source>Previews the removal of specks. (Ctrl+5)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6158,27 +6159,27 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>page_layout::Filter</name>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="34"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="35"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="35"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="36"/>
         <source>Order by increasing width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="36"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="37"/>
         <source>Order by increasing height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="37"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="38"/>
         <source>Order by decreasing deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/Filter.cpp" line="43"/>
+        <location filename="../core/filters/page_layout/Filter.cpp" line="44"/>
         <source>Margins</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6624,22 +6625,22 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>page_split::Filter</name>
     <message>
-        <location filename="../core/filters/page_split/Filter.cpp" line="29"/>
+        <location filename="../core/filters/page_split/Filter.cpp" line="30"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/Filter.cpp" line="31"/>
+        <location filename="../core/filters/page_split/Filter.cpp" line="32"/>
         <source>Order by page type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/Filter.cpp" line="32"/>
+        <location filename="../core/filters/page_split/Filter.cpp" line="33"/>
         <source>One page first, then one page and a strip to cut off, then two pages, each in natural order. Pages not processed yet come last.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/Filter.cpp" line="39"/>
+        <location filename="../core/filters/page_split/Filter.cpp" line="40"/>
         <source>Split Pages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6840,27 +6841,27 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>select_content::Filter</name>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="35"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="36"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="36"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="37"/>
         <source>Order by increasing width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="37"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="38"/>
         <source>Order by increasing height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="38"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="39"/>
         <source>Order by decreasing deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/Filter.cpp" line="44"/>
+        <location filename="../core/filters/select_content/Filter.cpp" line="45"/>
         <source>Select Content</source>
         <translation type="unfinished"></translation>
     </message>

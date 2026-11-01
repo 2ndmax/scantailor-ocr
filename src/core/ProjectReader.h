@@ -4,6 +4,7 @@
 #ifndef SCANTAILOR_CORE_PROJECTREADER_H_
 #define SCANTAILOR_CORE_PROJECTREADER_H_
 
+#include <QCoreApplication>
 #include <QDomDocument>
 #include <QString>
 #include <Qt>
@@ -25,6 +26,8 @@ class AbstractFilter;
 class DefaultParams;
 
 class ProjectReader {
+  Q_DECLARE_TR_FUNCTIONS(ProjectReader)
+
  public:
   using FilterPtr = std::shared_ptr<AbstractFilter>;
 
@@ -43,6 +46,15 @@ class ProjectReader {
 
   /** Reads the project file \p projectFilePath. The caller tells the user what went wrong. */
   static FileResult readFile(const QString& projectFilePath);
+
+  /** What went wrong in readFile(), as a sentence for the user; empty for NONE. */
+  static QString errorMessage(FileError error);
+
+  /**
+   * Whether the project was saved by ScanTailor Advanced or an older version of this program,
+   * which process some settings differently.
+   */
+  bool isFromOlderVersion() const;
 
   void readFilterSettings(const std::vector<FilterPtr>& filters) const;
 

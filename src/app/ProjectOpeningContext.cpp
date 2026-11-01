@@ -15,7 +15,6 @@
 #include "FixDpiDialog.h"
 #include "ProjectFiles.h"
 #include "ProjectPages.h"
-#include "version.h"
 
 ProjectOpeningContext::ProjectOpeningContext(QWidget* parent, const QString& projectFile)
     : m_projectFile(projectFile), m_parent(parent) {}
@@ -27,26 +26,15 @@ ProjectOpeningContext::~ProjectOpeningContext() {
 
 void ProjectOpeningContext::proceed() {
   ProjectReader::FileResult result = ProjectReader::readFile(m_projectFile);
-  switch (result.error) {
-    case ProjectReader::FileError::NONE:
-      break;
-    case ProjectReader::FileError::CANNOT_OPEN:
-      deleteLater();
-      QMessageBox::warning(m_parent, tr("Error"), tr("Unable to open the project file."));
-      return;
-    case ProjectReader::FileError::DAMAGED:
-      deleteLater();
-      QMessageBox::warning(m_parent, tr("Error"), tr("The project file is damaged."));
-      return;
-    case ProjectReader::FileError::INCOMPATIBLE_VERSION:
-      deleteLater();
-      QMessageBox::warning(m_parent, tr("Error"),
-                           tr("The project file is not compatible with the current application version."));
-      return;
-    case ProjectReader::FileError::UNREADABLE:
-      deleteLater();
-      QMessageBox::critical(m_parent, tr("Error"), tr("Unable to interpret the project file."));
-      return;
+  if (result.error != ProjectReader::FileError::NONE) {
+    deleteLater();
+    const QString message = ProjectReader::errorMessage(result.error);
+    if (result.error == ProjectReader::FileError::UNREADABLE) {
+      QMessageBox::critical(m_parent, tr("Error"), message);
+    } else {
+      QMessageBox::warning(m_parent, tr("Error"), message);
+    }
+    return;
   }
   m_reader = std::move(result.reader);
 
@@ -82,8 +70,7 @@ QString profileDisplayName() {
 }  // namespace
 
 bool ProjectOpeningContext::confirmOlderVersion() {
-  const int version = m_reader->getVersion().toInt();
-  if ((version == PROJECT_VERSION) || m_projectFile.isEmpty()) {
+  if (!m_reader->isFromOlderVersion() || m_projectFile.isEmpty()) {
     return true;
   }
 
@@ -93,7 +80,7 @@ bool ProjectOpeningContext::confirmOlderVersion() {
                      "ScanTailor OCR can open it, but processes some settings differently, so the results can "
                      "differ. Settings that the project doesn't contain are taken from the profile \"%1\" of the "
                      "default parameters.")
-                          .arg(profileDisplayName(), QString::number(version))
+                          .arg(profileDisplayName(), QString::number(m_reader->getVersion().toInt()))
                       + "\n\n"
                       + tr("Once the project is saved, also automatically, ScanTailor Advanced can no longer open "
                            "it. A backup copy keeps the original file usable there. It's saved next to the project "

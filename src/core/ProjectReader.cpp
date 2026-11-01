@@ -95,6 +95,26 @@ ProjectReader::FileResult ProjectReader::readFile(const QString& projectFilePath
   return result;
 }
 
+QString ProjectReader::errorMessage(const FileError error) {
+  switch (error) {
+    case FileError::NONE:
+      break;
+    case FileError::CANNOT_OPEN:
+      return tr("Unable to open the project file.");
+    case FileError::DAMAGED:
+      return tr("The project file is damaged.");
+    case FileError::INCOMPATIBLE_VERSION:
+      return tr("The project file is not compatible with the current application version.");
+    case FileError::UNREADABLE:
+      return tr("Unable to interpret the project file.");
+  }
+  return QString();
+}
+
+bool ProjectReader::isFromOlderVersion() const {
+  return getVersion().toInt() != PROJECT_VERSION;
+}
+
 bool ProjectReader::isSupportedVersion(const QString& version) {
   if (version.isNull()) {
     return false;
