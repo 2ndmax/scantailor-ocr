@@ -430,6 +430,65 @@ ol {
   background: linear-gradient(180deg, #3aa2e4 0%, #1d7fc6 100%);
 }
 
+/* Between "How it works" and "Download", which end and start in this color */
+.section--cli {
+  padding-top: 24px;
+  background: #d2eefe;
+}
+
+/* ---------- Command line ---------- */
+
+/* Dark glass like the Windows 7 taskbar */
+.console {
+  max-width: 760px;
+  margin: 0 auto 40px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 48%, rgba(255, 255, 255, 0) 52%),
+    linear-gradient(180deg, #1c4a73 0%, var(--navy) 100%);
+  box-shadow: 0 14px 34px rgba(10, 50, 90, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.console__bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px 0;
+}
+
+.console__bar span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, #9fdcfb 30%, #2f9be3 100%);
+  opacity: 0.8;
+}
+
+.console__text {
+  margin: 0;
+  padding: 16px 24px 22px;
+  overflow-x: auto;
+  font-family: Consolas, "Cascadia Mono", "DejaVu Sans Mono", monospace;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #eaf6ff;
+}
+
+.console__prompt {
+  color: #8fe36a;
+}
+
+.cards--cli {
+  max-width: 1060px;
+}
+
+.card__text code {
+  font-family: Consolas, "Cascadia Mono", "DejaVu Sans Mono", monospace;
+  font-size: 0.95em;
+  color: var(--ink-strong);
+}
+
 /* ---------- Cards ---------- */
 
 .cards,
@@ -618,6 +677,13 @@ ol {
 
   .open {
     padding: 24px;
+  }
+
+  .console__text {
+    padding: 12px 16px 18px;
+    font-size: 15px;
+    /* Wrap at the spaces instead of scrolling sideways */
+    white-space: pre-wrap;
   }
 }
 

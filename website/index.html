@@ -22,6 +22,7 @@
       <ul class="nav__links">
         <li><a class="nav__link" href="#features">Features</a></li>
         <li><a class="nav__link" href="#how-it-works">How it works</a></li>
+        <li><a class="nav__link" href="#command-line">Command line</a></li>
         <li><a class="nav__link" href="#download">Download</a></li>
         <li><a class="button button--blue button--small" href="https://github.com/2ndmax/scantailor-ocr">GitHub</a></li>
       </ul>
@@ -41,7 +42,7 @@
             </a>
             <a class="button button--glass button--large" href="#features">See features</a>
           </div>
-          <p class="hero__note">For Windows and Linux · in English and German</p>
+          <p class="hero__note">For Windows and Linux · in English and German · with a command line tool</p>
         </div>
         <figure class="hero__shot glass">
           <img src="images/screenshot.webp" width="1600" height="940"
@@ -63,7 +64,7 @@
         <li class="card glass">
           <span class="orb"><img src="images/icons/pdf.svg" alt="" width="28" height="28"></span>
           <h3 class="card__title">Built-in PDF export</h3>
-          <p class="card__text">Lossless JBIG2 for black and white pages, text over a small JPEG picture for mixed pages. The result stays compact.</p>
+          <p class="card__text">Lossless JBIG2 for black and white pages, text over a small JPEG picture for mixed pages. The result stays compact and is saved as PDF/A-2b for archiving.</p>
         </li>
         <li class="card glass">
           <span class="orb"><img src="images/icons/ocr.svg" alt="" width="28" height="28"></span>
@@ -73,7 +74,7 @@
         <li class="card glass">
           <span class="orb"><img src="images/icons/book.svg" alt="" width="28" height="28"></span>
           <h3 class="card__title">Clean up every page</h3>
-          <p class="card__text">Split facing pages, deskew, straighten curved lines, detect the content and set even margins.</p>
+          <p class="card__text">Split facing pages, deskew and correct oblique pages, straighten curved lines, detect the content and set even margins.</p>
         </li>
         <li class="card glass">
           <span class="orb"><img src="images/icons/folder.svg" alt="" width="28" height="28"></span>
@@ -88,7 +89,7 @@
         <li class="card glass">
           <span class="orb"><img src="images/icons/filter.svg" alt="" width="28" height="28"></span>
           <h3 class="card__title">More filters and methods</h3>
-          <p class="card__text">Even out the background, denoise, sharpen, and five more binarization methods for difficult originals.</p>
+          <p class="card__text">Even out the background, denoise, sharpen, a despeckling that keeps punctuation next to letters, and five more binarization methods for difficult originals.</p>
         </li>
       </ul>
     </section>
@@ -118,10 +119,35 @@
       </ol>
     </section>
 
+    <section class="section section--cli" id="command-line">
+      <header class="section__header">
+        <h2 class="section__title">Also from the command line</h2>
+        <p class="section__lead">Set up a project once in the app, then let the command line tool do the work – in a script, overnight, without a window.</p>
+      </header>
+      <div class="console">
+        <div class="console__bar" aria-hidden="true"><span></span><span></span><span></span></div>
+        <pre class="console__text"><code><span class="console__prompt" aria-hidden="true">&gt; </span>scantailor-ocr-cli book.ScanTailor --pdf book.pdf</code></pre>
+      </div>
+      <ul class="cards cards--cli">
+        <li class="card glass">
+          <h3 class="card__title">All steps, then the PDF</h3>
+          <p class="card__text">Processes every page through all six steps like the batch processing, saves the project and, with <code>--pdf</code>, creates the PDF with the project's PDF and text recognition settings.</p>
+        </li>
+        <li class="card glass">
+          <h3 class="card__title">Asks nothing, risks nothing</h3>
+          <p class="card__text">Refuses what the app would ask about: older projects, images without DPI, moved projects, missing OCR languages. It downloads nothing and never overwrites the project or its images.</p>
+        </li>
+        <li class="card glass">
+          <h3 class="card__title">Stop at any time</h3>
+          <p class="card__text">Ctrl+C stops before the next page. Finished pages keep their output, and the project is saved with them.</p>
+        </li>
+      </ul>
+    </section>
+
     <section class="section section--download" id="download">
       <header class="section__header">
         <h2 class="section__title">Download now</h2>
-        <p class="section__lead">Ready to run, no installation needed on Windows</p>
+        <p class="section__lead">Ready to run, no installation needed on Windows. The command line tool is included in all three packages.</p>
       </header>
       <ul class="downloads">
         <li class="download glass">
@@ -168,6 +194,9 @@
         <span class="brand__name">ScanTailor OCR</span>
       </a>
       <ul class="site-footer__links">
+        <li><a href="https://github.com/2ndmax/scantailor-ocr">Source code</a></li>
+        <li><a href="https://github.com/2ndmax/scantailor-ocr/releases">Releases</a></li>
+        <li><a href="https://github.com/2ndmax/scantailor-ocr/blob/master/CHANGES.md">Changes</a></li>
         <li>GNU GPLv3</li>
       </ul>
     </div>
