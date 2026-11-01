@@ -6,8 +6,9 @@
   Builds the fuzz targets (-DBUILD_FUZZERS=ON, MSVC, RelWithDebInfo) and runs each of them for
   -Minutes. A fuzz target feeds generated input to one part of the program (image headers,
   image decoding, project files, filter settings, the processing of a page, profile files, the
-  Output step on a whole page) and reports crashes, memory errors, inputs that take too long and
-  inputs that take too much memory.
+  Output step on a whole page, the page geometry of a project file, the PDF export of a page)
+  and reports crashes, memory errors, inputs that take too long and inputs that take too much
+  memory.
 
   Per target, in <OutDir>\10-fuzz\<target>:
     corpus\     the inputs found so far; the next run continues from them. The seed files in
@@ -171,9 +172,10 @@ function Read-Minutes([int]$Count) {
         if ([int]::TryParse($typed, [ref]$n) -and $n -ge 1 -and $n -le $minuteChoices.Count) { return $minuteChoices[$n - 1] }
         if ($n -eq $minuteChoices.Count + 1) {
             while ($true) {
-                $typed = (Read-Host 'Minutes per target').Trim()
+                $typed = (Read-Host 'Minutes per target (1 to 1440)').Trim()
                 Test-Quit $typed
-                if ([int]::TryParse($typed, [ref]$n) -and $n -ge 1) { return $n }
+                # The range of -Minutes, which the result is assigned to.
+                if ([int]::TryParse($typed, [ref]$n) -and $n -ge 1 -and $n -le 1440) { return $n }
             }
         }
     }
@@ -198,8 +200,8 @@ $fuzzArgs = "-rss_limit_mb=$RssLimitMb -timeout=$timeoutSec"
 $intro = @(
     'Builds the fuzz targets with MSVC and AddressSanitizer and runs each of them; they feed generated'
     'input to the image readers, the project and profile file readers, the filter settings, the'
-    'processing of a page and the Output step and report crashes, memory errors and inputs that need'
-    'too much time or memory.'
+    'processing of a page, the Output step, the page geometry of a project and the PDF export and'
+    'report crashes, memory errors and inputs that need too much time or memory.'
     "Targets: $($targets.Name -join ', ')"
     "Time: $Minutes minutes per target, about $($Minutes * $targets.Count) minutes in all."
 )
