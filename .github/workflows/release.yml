@@ -187,7 +187,7 @@ jobs:
             libboost-test-dev libboost-dev \
             libjpeg-dev libpng-dev libtiff-dev zlib1g-dev libopenjp2-7-dev \
             libtesseract-dev libleptonica-dev \
-            qt6-translations-l10n file
+            qt6-translations-l10n file librsvg2-bin
 
       - name: Build and install to AppDir
         run: |
@@ -195,6 +195,11 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
           make -j$(nproc)
           make install DESTDIR=AppDir
+          # appimagetool makes .DirIcon only from a PNG or XPM icon, not from the SVG one.
+          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+          rsvg-convert -w 256 -h 256 ../src/resources/appicon.svg \
+            -o AppDir/usr/share/icons/hicolor/256x256/apps/scantailor-ocr.png
+          cp AppDir/usr/share/icons/hicolor/256x256/apps/scantailor-ocr.png AppDir/scantailor-ocr.png
 
       - name: Download linuxdeploy
         run: |
