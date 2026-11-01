@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <OcrLanguages.h>
+#include <PdfExportJob.h>
 #include <TessdataDownloader.h>
 
 #include <QDir>
@@ -159,6 +160,54 @@ BOOST_AUTO_TEST_CASE(test_gather_in_user_dir) {
 
   // A language that doesn't exist anywhere.
   BOOST_CHECK(OcrLanguages::gatherInUserDir(QStringList{"missing"}, &error).isEmpty());
+  BOOST_CHECK(!error.isEmpty());
+}
+
+BOOST_AUTO_TEST_CASE(test_missing_languages) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("aaa.traineddata"), "a"));
+  const TessdataPrefix prefix(dir.path());
+
+  BOOST_CHECK(OcrLanguages::missing(QStringList{"aaa", "zzy", "zzx"}) == (QStringList{"zzy", "zzx"}));
+  BOOST_CHECK(OcrLanguages::missing(QStringList{"aaa"}).isEmpty());
+}
+
+BOOST_AUTO_TEST_CASE(test_set_up_ocr) {
+  // Keep away from the real user folders.
+  const TestUserDir testUserDir;
+  const QString& userDir = testUserDir.path();
+  BOOST_REQUIRE(!userDir.isEmpty());
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("aaa.traineddata"), "a"));
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("bbb.traineddata"), "b"));
+  BOOST_REQUIRE(Tests::writeFile(OcrLanguages::filePath(userDir, "ccc"), "c"));
+  const TessdataPrefix prefix(dir.path());
+  QString error;
+
+  PdfExportOptions none;
+  BOOST_CHECK(none.setUpOcr(QStringList(), 1, &error) == PdfExportOptions::OcrSetup::NO_LANGUAGE);
+  BOOST_CHECK(!none.ocr);
+
+  // All in one folder.
+  PdfExportOptions together;
+  BOOST_CHECK(together.setUpOcr(QStringList{"aaa", "bbb"}, 1, &error) == PdfExportOptions::OcrSetup::DONE);
+  BOOST_CHECK(together.ocr);
+  BOOST_CHECK(QDir(together.ocrDataDir) == QDir(dir.path()));
+  BOOST_CHECK(together.ocrLanguages == "aaa+bbb");
+  BOOST_CHECK_EQUAL(together.ocrPageLayout, 1);
+
+  // Spread over two folders: copied into the user's folder.
+  PdfExportOptions spread;
+  BOOST_CHECK(spread.setUpOcr(QStringList{"aaa", "ccc"}, 0, &error) == PdfExportOptions::OcrSetup::DONE);
+  BOOST_CHECK(QDir(spread.ocrDataDir) == QDir(userDir));
+  BOOST_CHECK(QFile::exists(OcrLanguages::filePath(userDir, "aaa")));
+
+  // A language that doesn't exist can't be copied.
+  PdfExportOptions failed;
+  BOOST_CHECK(failed.setUpOcr(QStringList{"aaa", "zzy"}, 0, &error) == PdfExportOptions::OcrSetup::NOT_GATHERED);
+  BOOST_CHECK(!failed.ocr);
   BOOST_CHECK(!error.isEmpty());
 }
 

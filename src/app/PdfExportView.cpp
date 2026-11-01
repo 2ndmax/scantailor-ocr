@@ -805,33 +805,30 @@ void PdfExportView::startExport() {
       }
     }
     const QStringList languages = m_ocrPanel->checkedLanguages();
-    if (languages.isEmpty()) {
+    // Only copying the language files into one folder takes noticeable time.
+    const bool copying = !languages.isEmpty() && OcrLanguages::commonDir(languages).isEmpty();
+    if (copying) {
+      m_statusLabel->setText(tr("Copying language files ..."));
+      QApplication::setOverrideCursor(Qt::WaitCursor);
+    }
+    QString error;
+    const PdfExportOptions::OcrSetup setup = options.setUpOcr(languages, m_ocrPanel->pageLayout(), &error);
+    if (copying) {
+      QApplication::restoreOverrideCursor();
+      m_statusLabel->clear();
+    }
+    if (setup == PdfExportOptions::OcrSetup::NO_LANGUAGE) {
       QMessageBox::warning(this, title,
                            tr("Please tick at least one language for the text recognition, or turn it off."));
       return;
     }
-    QString dataDir = OcrLanguages::commonDir(languages);
-    if (dataDir.isEmpty()) {
-      // Tesseract needs all languages in one folder, so the missing ones are copied
-      // into the user's folder. That's only needed once.
-      m_statusLabel->setText(tr("Copying language files ..."));
-      QApplication::setOverrideCursor(Qt::WaitCursor);
-      QString error;
-      dataDir = OcrLanguages::gatherInUserDir(languages, &error);
-      QApplication::restoreOverrideCursor();
-      m_statusLabel->clear();
-      if (dataDir.isEmpty()) {
-        QMessageBox::warning(this, title,
-                             tr("The files of the selected languages are in different folders, and they could "
-                                "not be copied into one folder, which text recognition needs.")
-                                 + QStringLiteral("\n\n") + error);
-        return;
-      }
+    if (setup == PdfExportOptions::OcrSetup::NOT_GATHERED) {
+      QMessageBox::warning(this, title,
+                           tr("The files of the selected languages are in different folders, and they could "
+                              "not be copied into one folder, which text recognition needs.")
+                               + QStringLiteral("\n\n") + error);
+      return;
     }
-    options.ocr = true;
-    options.ocrDataDir = dataDir;
-    options.ocrLanguages = languages.join('+');
-    options.ocrPageLayout = m_ocrPanel->pageLayout();
   }
 #endif
 

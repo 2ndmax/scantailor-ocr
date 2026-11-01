@@ -97,6 +97,17 @@ QString OcrLanguages::filePath(const QString& dir, const QString& code) {
   return QDir(dir).filePath(code + kSuffix);
 }
 
+QStringList OcrLanguages::missing(const QStringList& codes) {
+  const std::map<QString, QString> installed = available();
+  QStringList result;
+  for (const QString& code : codes) {
+    if (installed.count(code) == 0) {
+      result.push_back(code);
+    }
+  }
+  return result;
+}
+
 QString OcrLanguages::commonDir(const QStringList& codes) {
   if (codes.isEmpty()) {
     return QString();

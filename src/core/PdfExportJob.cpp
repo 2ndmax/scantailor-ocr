@@ -20,6 +20,7 @@
 #include "ImageLoadErrors.h"
 #include "ImageLoader.h"
 #include "OcrEngine.h"
+#include "OcrLanguages.h"
 #include "PdfImageEncoder.h"
 #include "ProcessingOptions.h"
 #include "ThreadBudget.h"
@@ -255,6 +256,26 @@ PdfExportOptions PdfExportOptions::fromProject(const ProcessingOptions& options)
   result.bitonalCompression = pdf.bitonalCompression;
   result.pdfA = pdf.pdfA;
   return result;
+}
+
+PdfExportOptions::OcrSetup PdfExportOptions::setUpOcr(const QStringList& languages,
+                                                      const int pageLayout,
+                                                      QString* error) {
+  if (languages.isEmpty()) {
+    return OcrSetup::NO_LANGUAGE;
+  }
+  QString dataDir = OcrLanguages::commonDir(languages);
+  if (dataDir.isEmpty()) {
+    dataDir = OcrLanguages::gatherInUserDir(languages, error);
+    if (dataDir.isEmpty()) {
+      return OcrSetup::NOT_GATHERED;
+    }
+  }
+  ocr = true;
+  ocrDataDir = dataDir;
+  ocrLanguages = languages.join('+');
+  ocrPageLayout = pageLayout;
+  return OcrSetup::DONE;
 }
 
 PdfExportJob::PdfExportJob(std::vector<PdfExportPage> pages, const QString& outputFile, const PdfExportOptions& options)

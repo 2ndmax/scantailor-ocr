@@ -49,6 +49,26 @@ struct PdfExportOptions {
    * left at their defaults; they are up to the caller.
    */
   static PdfExportOptions fromProject(const ProcessingOptions& options);
+
+  /** The outcome of setUpOcr(). */
+  enum class OcrSetup {
+    DONE,
+    /** No language was given. */
+    NO_LANGUAGE,
+    /** The languages are in different folders and couldn't be copied into one. */
+    NOT_GATHERED
+  };
+
+  /**
+   * \brief Turns on the text recognition with \p languages and \p pageLayout.
+   *
+   * The languages must be installed (see OcrLanguages::missing()); which to do about missing
+   * ones is up to the caller. Tesseract needs all languages in one folder, so if they are spread
+   * over several, they are copied into the user's folder first, which is only needed once.
+   * Unless DONE is returned, the options are left unchanged; for NOT_GATHERED, \p error
+   * receives the reason.
+   */
+  OcrSetup setUpOcr(const QStringList& languages, int pageLayout, QString* error);
 };
 
 class OcrEngine;

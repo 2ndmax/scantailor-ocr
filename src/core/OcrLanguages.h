@@ -46,6 +46,9 @@ class OcrLanguages {
    */
   static QString commonDir(const QStringList& codes);
 
+  /** Those of the given languages that aren't available here, in their order. */
+  static QStringList missing(const QStringList& codes);
+
   /**
    * \brief Copies the files of the given languages that are missing there into userDir().
    *
