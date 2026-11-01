@@ -14,7 +14,7 @@ if (BUILD_TESTS)
     add_test(
         NAME ${name}
         COMMAND "${CMAKE_COMMAND}" "-DPROGRAM=$<TARGET_FILE:scantailor-ocr-cli>" "-DARGS=${ARGN}"
-                "-DEXPECTED=${expected}" -P "${CMAKE_CURRENT_SOURCE_DIR}/CheckExitCode.cmake")
+                "-DEXPECTED=${expected}" -P "${PROJECT_SOURCE_DIR}/cmake/CheckExitCode.cmake")
     set_unit_test_environment(${name})
   endfunction()
 
