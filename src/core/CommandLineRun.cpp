@@ -160,6 +160,12 @@ CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
                                    QTextStream& out,
                                    QTextStream& err,
                                    const std::atomic<bool>& cancel) {
+  // Ctrl+C during the last page of processing: that page was still output, but no PDF is wanted.
+  if (cancel) {
+    err << CommandLineRun::tr("Canceled. No PDF was written.") << Qt::endl;
+    return CommandLineRun::CANCELLED;
+  }
+
   std::vector<PdfExportPage> pages = session.stages->pdfExportPages(*session.pages, session.outFileNameGen);
   // Not expected after all pages were output, but the PDF would lack them or show an older state.
   bool complete = true;
@@ -181,6 +187,9 @@ CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
   }
 
   PdfExportJob job(std::move(pages), pdfFile, options);
+  // REVIEW-NOTE (2026-11): Ctrl+C while a PDF page is being recognized -> the tool only cancels the job after that
+  // page is written, so text recognition of the current page runs to its end. Not fixed because PdfExportJob only
+  // takes a cancel request through cancel(), and the delay is at most one page.
   // run() emits it in this thread, so the lambda is called directly.
   QObject::connect(&job, &PdfExportJob::progress, [&](const int pagesDone, const int pagesTotal) {
     out << CommandLineRun::tr("PDF: %1 of %2").arg(pagesDone).arg(pagesTotal) << Qt::endl;
