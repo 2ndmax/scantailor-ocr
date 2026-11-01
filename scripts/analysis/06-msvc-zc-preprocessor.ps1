@@ -19,7 +19,8 @@
   The vcpkg folder. Default: the VCPKG_ROOT environment variable.
 
 .PARAMETER Yes
-  Start without asking; a build directory left from an earlier run is deleted.
+  Start without asking. A build directory left from an earlier run is deleted only if it is a
+  build-* folder in the project folder, as the runs name theirs; any other stops the run.
 #>
 param(
     [string]$OutDir = '',
