@@ -3,9 +3,9 @@
   Builds the portable Windows ZIP of ScanTailor OCR from a finished build.
 
 .DESCRIPTION
-  Copies the program, exactly the DLLs it needs, the Qt plugins, the translations, the
-  OCR language files and the license texts into a new folder, test-starts a copy of it
-  with a minimal PATH and packs it into a ZIP.
+  Copies the program and the command line tool, exactly the DLLs they need, the Qt plugins,
+  the translations, the OCR language files and the license texts into a new folder,
+  test-starts a copy of both with a minimal PATH and packs it into a ZIP.
 
   Which DLLs are needed is determined from the import tables of the program and its
   plugins, so test libraries in the build folder (Qt6Test, Boost.Test) are left out.
@@ -60,6 +60,7 @@ if (-not $BuildDir) { $BuildDir = Join-Path $repoRoot "build" }
 $BuildDir = (Resolve-Path $BuildDir).Path
 if (-not $OutputDir) { $OutputDir = Join-Path $BuildDir "package" }
 $exeName = "scantailor-ocr.exe"
+$cliExeName = "scantailor-ocr-cli.exe"
 $packageName = "ScanTailor-OCR-$Version-win64"
 
 function Fail([string]$message) {
@@ -151,6 +152,8 @@ Step "Checking the inputs"
 
 $exePath = Join-Path $BuildDir $exeName
 if (-not (Test-Path $exePath)) { Fail "$exePath doesn't exist. Build the program first." }
+$cliExePath = Join-Path $BuildDir $cliExeName
+if (-not (Test-Path $cliExePath)) { Fail "$cliExePath doesn't exist. Build the program first." }
 if (-not $VcpkgRoot -or -not (Test-Path $VcpkgRoot)) { Fail "vcpkg not found. Pass -VcpkgRoot or set VCPKG_ROOT." }
 $vcpkgInstalled = Join-Path $VcpkgRoot "installed"
 $vcpkgInfo = Join-Path $vcpkgInstalled "vcpkg\info"
@@ -191,8 +194,9 @@ if (Test-Path $packageDir) { Remove-Item -Recurse -Force $packageDir }
 if (Test-Path $zipPath) { Remove-Item -Force $zipPath }
 New-Item -ItemType Directory -Force $packageDir | Out-Null
 
-# The program and the Qt plugins it needs.
+# The program, the command line tool and the Qt plugins they need.
 Copy-Item $exePath $packageDir
+Copy-Item $cliExePath $packageDir
 $pluginFiles = New-Object System.Collections.Generic.List[string]
 foreach ($group in @("platforms", "styles", "imageformats", "iconengines")) {
   $source = Join-Path $BuildDir $group
@@ -213,12 +217,13 @@ foreach ($name in @("qschannelbackend.dll", "qcertonlybackend.dll")) {
   $pluginFiles.Add((Join-Path $packageDir "tls\$name"))
 }
 
-# The DLLs from the build folder that the program and the plugins load, directly or indirectly.
+# The DLLs from the build folder that the programs and the plugins load, directly or indirectly.
 $available = @{}
 foreach ($dll in Get-ChildItem -Path $BuildDir -Filter "*.dll" -File) { $available[$dll.Name.ToLowerInvariant()] = $dll.FullName }
 $needed = @{}
 $queue = New-Object System.Collections.Generic.Queue[string]
 $queue.Enqueue($exePath)
+$queue.Enqueue($cliExePath)
 foreach ($plugin in $pluginFiles) { $queue.Enqueue($plugin) }
 while ($queue.Count -gt 0) {
   foreach ($import in Get-PeImports $queue.Dequeue()) {
@@ -320,7 +325,7 @@ $componentsHeader = @(
   "Third-party components shipped with ScanTailor OCR and their license texts.",
   "ScanTailor OCR itself is licensed under the GNU GPL v3, see LICENSE.txt.",
   "",
-  "scantailor-ocr.exe (JBIG2 coder from jbig2enc)  ->  licenses\jbig2enc.txt",
+  "scantailor-ocr.exe, scantailor-ocr-cli.exe (JBIG2 coder from jbig2enc)  ->  licenses\jbig2enc.txt",
   "tessdata\*.traineddata  ->  licenses\tessdata_best.txt",
   ""
 )
@@ -340,6 +345,25 @@ foreach ($dirName in @("config", "testdaten")) {
 }
 $fileCount = @(Get-ChildItem -Path $packageDir -Recurse -File).Count
 Write-Host "$fileCount files"
+
+# ---------------------------------------------------------------------------
+Step "Test-starting the command line tool with a minimal PATH"
+
+# A copy, because the tool, like the program, creates a "config" folder next to itself.
+# It ends right away, so it is always tested; a missing DLL makes it fail to start.
+$cliTestDir = Join-Path ([System.IO.Path]::GetTempPath()) ("stocr-clitest-" + [Guid]::NewGuid().ToString("N"))
+Copy-Item -Recurse $packageDir $cliTestDir
+$savedPath = $env:PATH
+try {
+  $env:PATH = Join-Path $env:SystemRoot "System32"
+  $cliOutput = (& (Join-Path $cliTestDir $cliExeName) --version | Out-String).Trim()
+  $cliExitCode = $LASTEXITCODE
+} finally {
+  $env:PATH = $savedPath
+  Remove-Item -Recurse -Force $cliTestDir -ErrorAction SilentlyContinue
+}
+if ($cliExitCode -ne 0) { Fail "The command line tool didn't start (exit code $cliExitCode)." }
+Write-Host "Started fine: $cliOutput"
 
 # ---------------------------------------------------------------------------
 if (-not $SkipStartTest) {
