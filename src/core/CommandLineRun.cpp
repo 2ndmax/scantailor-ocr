@@ -14,6 +14,7 @@
 #include "PageSelectionAccessor.h"
 #include "PdfExportJob.h"
 #include "ProcessingOptions.h"
+#include "ProjectFiles.h"
 #include "ProjectPages.h"
 #include "ProjectReader.h"
 #include "ProjectSession.h"
@@ -76,6 +77,31 @@ QStringList filesWithoutDpi(const ProjectPages& pages) {
     }
   }
   return files;
+}
+
+/**
+ * Whether the PDF would replace the project file or one of its images, e.g. after a typing error.
+ * A file that doesn't exist yet can't be one of them; QFileInfo compares existing files by their
+ * canonical path, so different spellings of the same file are found.
+ * If so, it tells \p err which file it is.
+ */
+bool pdfReplacesProjectFile(const QString& pdfFile,
+                            const QString& projectFile,
+                            const ProjectPages& pages,
+                            QTextStream& err) {
+  const QFileInfo pdf(pdfFile);
+  if (pdf == QFileInfo(projectFile)) {
+    err << CommandLineRun::tr("The PDF would replace the project file: %1").arg(nativePath(pdfFile)) << Qt::endl;
+    return true;
+  }
+  for (const ImageFileInfo& file : pages.toImageFileInfo()) {
+    if (pdf == file.fileInfo()) {
+      err << CommandLineRun::tr("The PDF would replace an image of the project: %1").arg(nativePath(pdfFile))
+          << Qt::endl;
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -214,10 +240,23 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     }
     return PROJECT_UNUSABLE;
   }
+  if (!options.pdfFile.isEmpty()
+      && pdfReplacesProjectFile(options.pdfFile, options.projectFile, *reader.pages(), err)) {
+    return USAGE_ERROR;
+  }
 
   // The fallback only fills in what projects of older versions lack, and those were refused above.
   const ProjectSession session = ProjectSession::load(reader, DefaultParams(), PageSelectionAccessor(nullptr));
   const StageSequence& stages = *session.stages;
+  // Loading has already recreated a deleted output folder if the project is where it was. Otherwise
+  // the output would go to a folder created anew in the old place, and the images may be missing.
+  if (project_files::needsRelinking(*session.pages, session.outFileNameGen.outDir())) {
+    err << tr(
+        "The output folder or some images of the project are missing, for example because the project was "
+        "moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.")
+        << Qt::endl;
+    return PROJECT_UNUSABLE;
+  }
 
   const StageSequence::ProgressCallback progress = [&](const int lastFilterIdx, const int done, const int total) {
     out << tr("%1: %2 of %3").arg(stages.filterAt(lastFilterIdx)->getName()).arg(done).arg(total) << Qt::endl;

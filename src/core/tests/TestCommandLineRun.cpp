@@ -15,6 +15,7 @@
 #include <filters/output/Settings.h>
 
 #include <QDir>
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QTemporaryDir>
 #include <QTextStream>
@@ -26,17 +27,20 @@
 namespace {
 /**
  * A project of one scanned page, saved in \p dir as the app saves a new one, with its output
- * going to "out" there. With \p dpi 0, the page lacks its resolution. Its PDF gets the text
+ * going to \p outDir there. With \p dpi 0, the page lacks its resolution. Its PDF gets the text
  * recognition with \p ocrLanguages, none without; by default, a project would recognize German
  * and English, which needn't be installed here. Returns the project file, or an empty string if
  * it couldn't be created.
  */
-QString createProject(const QTemporaryDir& dir, const int dpi, const QStringList& ocrLanguages = QStringList()) {
+QString createProject(const QTemporaryDir& dir,
+                      const int dpi,
+                      const QStringList& ocrLanguages = QStringList(),
+                      const QString& outDirName = QStringLiteral("out")) {
   const std::vector<ImageFileInfo> files{Tests::saveTextPageScan(dir.filePath("page.png"), dpi)};
   if (files.front().imageInfo().empty()) {
     return QString();
   }
-  const QString outDir = dir.filePath("out");
+  const QString outDir = dir.filePath(outDirName);
   QDir().mkpath(outDir);
   const DefaultParams startValues;
   const ProjectSession session = ProjectSession::createNew(ProjectPages::createNew(files, startValues), outDir,
@@ -130,6 +134,58 @@ BOOST_AUTO_TEST_CASE(test_images_without_dpi_are_named) {
   BOOST_CHECK(err.contains(QDir::toNativeSeparators(dir.filePath("page.png"))));
 }
 
+// The app would offer relinking for these; the tool must neither fail page by page nor create the
+// old output folder anew.
+BOOST_AUTO_TEST_CASE(test_project_that_needs_relinking_is_left_to_the_app) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300, QStringList(), "elsewhere/out");
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  // As if the project had been copied to a computer without the folder of the output folder.
+  BOOST_REQUIRE(QDir(dir.filePath("elsewhere")).removeRecursively());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(!err.isEmpty());
+  BOOST_CHECK(!QFileInfo::exists(dir.filePath("elsewhere")));
+
+  // The output folder is there, but the image is missing.
+  QTemporaryDir dir2;
+  BOOST_REQUIRE(dir2.isValid());
+  const QString projectFile2 = createProject(dir2, 300);
+  BOOST_REQUIRE(!projectFile2.isEmpty());
+  BOOST_REQUIRE(QFile::remove(dir2.filePath("page.png")));
+  err.clear();
+  BOOST_CHECK_EQUAL(run(projectFile2, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(!err.isEmpty());
+}
+
+// A typing error in --pdf must not destroy a file of the project.
+BOOST_AUTO_TEST_CASE(test_pdf_must_not_replace_the_project_or_an_image) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QByteArray project = Tests::readFile(projectFile);
+  const QByteArray image = Tests::readFile(dir.filePath("page.png"));
+
+  QString out;
+  QString err;
+  // Written differently, but the same file.
+  const QString imageAgain = QDir::toNativeSeparators(dir.path() + "/./page.png");
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, imageAgain), CommandLineRun::USAGE_ERROR);
+  BOOST_CHECK(!err.isEmpty());
+  BOOST_CHECK(Tests::readFile(dir.filePath("page.png")) == image);
+
+  err.clear();
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, projectFile), CommandLineRun::USAGE_ERROR);
+  BOOST_CHECK(!err.isEmpty());
+  BOOST_CHECK(Tests::readFile(projectFile) == project);
+  // Refused before processing.
+  BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
+}
+
 BOOST_AUTO_TEST_CASE(test_cancelled) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
@@ -162,8 +218,8 @@ BOOST_AUTO_TEST_CASE(test_no_pdf_if_a_page_failed) {
   BOOST_REQUIRE(dir.isValid());
   const QString projectFile = createProject(dir, 300);
   BOOST_REQUIRE(!projectFile.isEmpty());
-  // The image is gone, so the page can't be loaded.
-  BOOST_REQUIRE(QFile::remove(dir.filePath("page.png")));
+  // The image is broken, so the page can't be loaded. A missing image would refuse the project.
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath("page.png"), "not an image"));
 
   QString out;
   QString err;
