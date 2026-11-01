@@ -18,6 +18,7 @@
 
 #include <ColorModeDetector.h>
 #include <ImageLoader.h>
+#include <ImageSizeLimit.h>
 #include <NullTaskStatus.h>
 
 #include <QDir>
@@ -122,6 +123,7 @@ void writeSheet(const std::vector<Result>& results, const int sheetNo, const QSt
 
 int main(int argc, char** argv) {
   QGuiApplication app(argc, argv);  // QPainter needs fonts.
+  ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
   if (args.size() < 3) {
     std::cerr << "Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3] "

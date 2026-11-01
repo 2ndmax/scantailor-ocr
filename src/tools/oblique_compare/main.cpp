@@ -23,6 +23,7 @@
 #include <Dpm.h>
 #include <GrayImage.h>
 #include <ImageLoader.h>
+#include <ImageSizeLimit.h>
 #include <NullTaskStatus.h>
 #include <SkewFinder.h>
 #include <Transform.h>
@@ -543,6 +544,7 @@ bool parseOptions(const QStringList& args, Options& options) {
 
 int main(int argc, char** argv) {
   QGuiApplication app(argc, argv);
+  ImageSizeLimit::applyQtAllocationLimit();
   Options options;
   if (!parseOptions(app.arguments(), options)) {
     std::cerr << "Usage: oblique_compare <output folder> [--pages=<n>] [--seed=<n>] [--jobs=<n>]\n"

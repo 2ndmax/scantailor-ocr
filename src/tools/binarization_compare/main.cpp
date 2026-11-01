@@ -26,6 +26,7 @@
 #include "ColorMethods.h"
 #include "GrayImage.h"
 #include "ImageLoader.h"
+#include "ImageSizeLimit.h"
 #include "Methods.h"
 #include "Viewer.h"
 #include "tools/ToolImageDpi.h"
@@ -185,6 +186,7 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
 
 int main(int argc, char** argv) {
   QCoreApplication app(argc, argv);
+  ImageSizeLimit::applyQtAllocationLimit();
   QStringList args = app.arguments();
   if ((args.size() > 1) && (args[1] == QLatin1String("--colors"))) {
     gColors = true;

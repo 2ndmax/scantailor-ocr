@@ -23,6 +23,7 @@
 #include <FilterData.h>
 #include <Grayscale.h>
 #include <ImageLoader.h>
+#include <ImageSizeLimit.h>
 #include <ImageTransformation.h>
 #include <NullTaskStatus.h>
 #include <filters/select_content/ContentBoxFinder.h>
@@ -153,6 +154,7 @@ int main(int argc, char** argv) {
   }
 #endif
   QGuiApplication app(argc, argv);
+  ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
   if ((args.size() >= 4) && (args[1] == "run")) {
     return run(args[2], args[3], dpiArgument(args.mid(4)));

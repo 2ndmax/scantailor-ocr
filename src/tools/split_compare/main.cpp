@@ -25,6 +25,7 @@
 #include <GrayImage.h>
 #include <Grayscale.h>
 #include <ImageLoader.h>
+#include <ImageSizeLimit.h>
 #include <ImageTransformation.h>
 #include <OrthogonalRotation.h>
 
@@ -127,6 +128,7 @@ bool toOrthogonalRotation(const int degrees, OrthogonalRotation* rotation) {
 
 int main(int argc, char** argv) {
   QGuiApplication app(argc, argv);
+  ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
   if (args.size() < 3) {
     std::cerr << "Usage: split_compare <input folder> <output folder> [--rotate=<degrees>] [--only=<name part>]"
