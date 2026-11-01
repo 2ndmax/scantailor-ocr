@@ -40,6 +40,12 @@ bool allImagesExist(const ProjectPages& pages);
 bool isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QString& inputDir);
 
 /**
+ * Whether the project must be relinked before it can be processed: its output folder or one of
+ * its images is missing. The app offers relinking then; the command line tool refuses the project.
+ */
+bool needsRelinking(const ProjectPages& pages, const QString& outDir);
+
+/**
  * Where the backup copy of a project file from an older version goes: "Book_BACKUP.ScanTailor"
  * next to "Book.ScanTailor", numbered if that file already exists.
  */

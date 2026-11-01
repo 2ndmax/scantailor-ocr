@@ -85,6 +85,10 @@ bool isProjectInPlace(const ProjectPages& pages, const QString& outDir, const QS
   return true;
 }
 
+bool needsRelinking(const ProjectPages& pages, const QString& outDir) {
+  return !QDir(outDir).exists() || !allImagesExist(pages);
+}
+
 QString backupFilePath(const QString& projectFile) {
   const QFileInfo info(projectFile);
   const QString suffix = info.suffix().isEmpty() ? QString() : '.' + info.suffix();

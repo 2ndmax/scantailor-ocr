@@ -447,7 +447,7 @@ void MainWindow::switchToNewProject(const ProjectSession& project,
   updateMainArea();
 
   // Offer relinking right away, like fixing the DPI when adding images without it.
-  if (!QDir(m_outFileNameGen.outDir()).exists() || !project_files::allImagesExist(*m_pages)) {
+  if (project_files::needsRelinking(*m_pages, m_outFileNameGen.outDir())) {
     showRelinkingDialog();
   }
 }  // MainWindow::switchToNewProject

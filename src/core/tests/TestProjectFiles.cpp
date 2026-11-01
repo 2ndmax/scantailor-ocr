@@ -80,6 +80,26 @@ BOOST_AUTO_TEST_CASE(test_missing_image_means_project_was_moved) {
   BOOST_CHECK(!project_files::isProjectInPlace(moved, outDir, QString()));
 }
 
+// Relinking is needed as soon as the output folder or one image is missing.
+BOOST_AUTO_TEST_CASE(test_needs_relinking) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QDir root(dir.path());
+  const QString present = root.absoluteFilePath("present.png");
+  BOOST_REQUIRE(createFile(present));
+  const ImageMetadata metadata(QSize(2000, 3000), Dpi(300, 300));
+  const QString outDir = root.absoluteFilePath("out");
+  BOOST_REQUIRE(root.mkdir("out"));
+
+  const ProjectPages complete({ImageInfo(ImageId(present), metadata, 1, false, false)}, Qt::LeftToRight);
+  BOOST_CHECK(!project_files::needsRelinking(complete, outDir));
+  BOOST_CHECK(project_files::needsRelinking(complete, root.absoluteFilePath("gone")));
+
+  const ProjectPages moved({ImageInfo(ImageId(root.absoluteFilePath("missing.png")), metadata, 1, false, false)},
+                           Qt::LeftToRight);
+  BOOST_CHECK(project_files::needsRelinking(moved, outDir));
+}
+
 // Without images only the input folder tells whether the project is where it was.
 BOOST_AUTO_TEST_CASE(test_empty_project_is_in_place_with_its_input_folder) {
   QTemporaryDir dir;
