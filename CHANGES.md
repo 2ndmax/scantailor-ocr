@@ -325,6 +325,39 @@ topic, not by version.
   zone, thread-safety issues with settings and profiles, wrong rounding in Savitzky-Golay
   smoothing, light pixels in the Robust method, an endless loop in text line refinement, and
   fixes in splines, the Hough transform and the image scaling and palette functions.
+* Fixed: the Gaussian blur lost its precision from a blur radius of about 30 pixels and gave
+  wrong results from about 75. The Robust binarization blurs with half its window size, so it
+  was affected with its default window of 200; its output can change when created again. Above
+  a window of 2000 the blur no longer grows.
+* Fixed: a memory error (reading and writing past an image) in automatic dewarping at the last
+  row of some pages.
+* Fixed: the Default Parameters showed the start angle of *Deskew* with the opposite sign of the
+  Deskew panel. Saved profiles keep their meaning: a start angle saved as 2° now appears as −2°
+  and works as before. Their Sauvola and Wolf window starts at 3 px like the Output step's (a
+  profile with 3 or 4 became 5 when the dialog was confirmed).
+* Values in damaged or hand-edited project files and profiles are kept within what the program
+  handles: trims within the image, skew and oblique angles within the panel's 45° and 5° (NaN
+  becomes 0, also for the start angle of a profile), margins up to 9999 mm, target sizes up to
+  99999 mm, coordinates up to 10⁷ (NaN and infinity become 0), and a posterization level outside
+  2 to 255 becomes 4. A stored split line that leaves a page no area is found again on the image
+  instead of failing in *Output*.
+
+## Command line tool and batch processing
+
+* **New command line tool `scantailor-ocr-cli`**, in the Windows ZIP and the Linux packages:
+  `scantailor-ocr-cli <project> [--pdf <file>]` processes all pages of a project through all six
+  steps as the batch processing does, saves the project and, with `--pdf`, creates the PDF with
+  the PDF settings of the project, including the text recognition. The project is set up in the
+  app first: the tool refuses what the app would ask about, i.e. projects of older versions,
+  images without DPI, projects whose output folder or images are missing (relinking) and OCR
+  languages that aren't installed (it downloads nothing). It also refuses an empty `--pdf` and
+  one that names the project file or one of its images. Ctrl+C stops before the next page; the
+  pages done keep their output, and the project is saved with them. Exit codes: 0 done, 1 wrong
+  command line, 2 project unusable or not saved, 3 pages failed, 4 PDF failed, 5 canceled. The
+  messages use the language of the app.
+* Batch processing no longer prepares the view of each page it passes (downscaled images, the
+  content mask, the despeckle view of *Output*); it only updates the thumbnails, which saves time
+  and memory per page.
 
 ## Adopted from ScanTailor Experimental
 
@@ -435,5 +468,12 @@ ScanTailor Advanced.
   the PDF export as the program does and checks the results (split, skew angle, content box,
   output files and their compression, color mode, saving and loading, PDF). For this, the chain
   of the steps, creating and opening a project and the page list of the PDF export moved from
-  the main window into the core of the program, without a change in behavior; a command line
-  version can use them later. A new project reads the profile only once.
+  the main window into the core of the program, without a change in behavior; the command line
+  tool uses them. A new project reads the profile only once.
+* The steps read their settings from the project file without their options panels, which are
+  created on first use, so the core runs without a window. Tests for the command line tool
+  (`CommandLineRun` in `core_tests`, and `cli_*` tests that start the program).
+* **Fuzzing:** `-DBUILD_FUZZERS=ON` builds nine libFuzzer targets (image headers and decoding,
+  project and profile files, filter settings, the processing of a page, the Output step, the
+  page geometry of a project and the PDF export), and `scripts\analysis\10-fuzz.ps1` runs them.
+  The fixes above for damaged project files, the posterization level and dewarping came from it.

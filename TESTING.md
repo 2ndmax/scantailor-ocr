@@ -22,6 +22,10 @@ Or run each suite separately:
 ./qt_tests
 ```
 
+`ctest` also runs the `cli_*` tests: they start the command line tool `scantailor-ocr-cli` and
+check only its exit code for `--version`, `--help` and wrong command lines. What the tool does is
+tested in `core_tests` (**CommandLineRun**).
+
 On Windows, `qt_tests` writes nothing to the console; its results go to files with
 `qt_tests -o results.txt,txt`. Each test class writes a file of its own, with its name
 appended: `results_TestCoreQt.txt`, `results_TestUxQt.txt`, `results_TestDeskewQt.txt`,
@@ -35,6 +39,8 @@ without the offscreen plugin, `qt_tests` hangs without a message.
 
 ### core_tests
 A selection; every module has its own `Test<Module>.cpp` in [src/core/tests](src/core/tests).
+- **CommandLineRun**: the command line tool on a generated project: processing and saving, the
+  PDF, cancelling, and the projects and `--pdf` files it refuses, with their exit codes.
 - **ContentSpanFinder**: detection of content spans.
 - **DeskewParams**: parameters of the deskew filter.
 - **Despeckle**: what the despeckling keeps and removes (reach, marks next to letters, dot leaders,
@@ -223,7 +229,8 @@ real scans must show no lost text, and the content boxes must not get worse.
 Besides the tests, the scripts in `scripts\analysis` check the code with several compilers and
 analysis tools (MSVC code analysis, clang-tidy, cppcheck, the EDG C++ front end, clang-cl, GCC
 in WSL, sanitizers, fuzzing of the image readers, the project and profile files, the processing
-of a page and the Output step) and merge their findings into one table. The scripts are numbered
+of a page, the Output step, the page geometry of a project and the PDF export) and merge their
+findings into one table. The scripts are numbered
 in the order in which they are best run; [scripts/analysis/README.md](scripts/analysis/README.md)
 describes each run, its setup and its output.
 
