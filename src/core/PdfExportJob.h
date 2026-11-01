@@ -62,7 +62,7 @@ struct PdfExportOptions {
   /**
    * \brief Turns on the text recognition with \p languages and \p pageLayout.
    *
-   * The languages must be installed (see OcrLanguages::missing()); which to do about missing
+   * The languages must be installed (see OcrLanguages::missing()); what to do about missing
    * ones is up to the caller. Tesseract needs all languages in one folder, so if they are spread
    * over several, they are copied into the user's folder first, which is only needed once.
    * Unless DONE is returned, the options are left unchanged; for NOT_GATHERED, \p error

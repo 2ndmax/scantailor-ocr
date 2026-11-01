@@ -84,7 +84,10 @@ void gaussBlurGeneric(QSize size,
 namespace gauss_blur_impl {
 // The filter is recursive and its coefficients nearly cancel out for a large sigma, so it is
 // computed in double: in float it went wrong from a sigma of about 30. Even in double it loses
-// precision above this sigma, where a page is blurred to an even area anyway.
+// precision above this sigma.
+// REVIEW-NOTE (2026-11): Robust blurs with half the window size, and the options panel allows windows up to
+// 9999 -> every window above 2000 gives the same result as 2000. Not fixed because such windows are far beyond
+// any useful setting and the float filter before gave unusable results from sigma 75 on.
 constexpr float MAX_SIGMA = 1000.0f;
 
 // A sigma of 0 or below (or NaN) divides by 0 in the coefficients; it means no blur.

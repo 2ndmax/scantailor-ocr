@@ -14,7 +14,10 @@
 using namespace foundation;
 
 namespace {
-// The range of the Margins step. Beyond it, the page would get so large that its geometry overflows.
+// The largest margin in mm. Beyond it, the page would get so large that its geometry overflows.
+// REVIEW-NOTE (2026-11): the Margins panel allows 9999 in the selected unit, e.g. 9999 in = 253975 mm -> such a
+// margin is cut to 9999 mm when the project is opened again. Not fixed because margins beyond 10 m are no real
+// use, and a larger limit needs a new check against the geometry overflows this guards.
 const double MAX_MARGIN_MM = 9999.0;
 
 // A damaged or hand-edited project file may hold anything. Negative margins are valid.

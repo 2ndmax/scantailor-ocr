@@ -13,8 +13,11 @@
 
 namespace page_layout {
 namespace {
-// The range of the target size in the Margins step. NaN from a damaged project file would pass
+// The largest target size in mm. NaN from a damaged project file would pass
 // the check for an empty size and become the scale factor of the page.
+// REVIEW-NOTE (2026-11): the target size fields allow 99999 in the selected unit, e.g. 99999 cm = 999990 mm ->
+// such a size is cut to 99999 mm when the project is opened again. Not fixed because target sizes beyond 100 m
+// are no real use, and a larger limit needs a new check against the geometry overflows this guards.
 const double MAX_TARGET_SIZE_MM = 99999.0;
 
 double targetSizeFromXml(const QDomElement& el, const QString& name) {
