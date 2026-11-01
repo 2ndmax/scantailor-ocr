@@ -226,13 +226,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   if (size < HEADER_SIZE) {
     return 0;
   }
-  // Lives until the process ends; the files in it are written anew by each run.
-  static const QTemporaryDir* const dir = new QTemporaryDir();
-  const QString mainFile = dir->filePath("page.tif");
-  const QString foregroundFile = dir->filePath("foreground/page.tif");
-  const QString backgroundFile = dir->filePath("background/page.tif");
-  QDir().mkpath(dir->filePath("foreground"));
-  QDir().mkpath(dir->filePath("background"));
+  // The files in it are written anew by each run. As a static object, it is removed when libFuzzer
+  // ends the process with exit(), e.g. after -max_total_time; a crash leaves it behind.
+  static const QTemporaryDir dir;
+  const QString mainFile = dir.filePath("page.tif");
+  const QString foregroundFile = dir.filePath("foreground/page.tif");
+  const QString backgroundFile = dir.filePath("background/page.tif");
+  QDir().mkpath(dir.filePath("foreground"));
+  QDir().mkpath(dir.filePath("background"));
   QFile::remove(foregroundFile);
   QFile::remove(backgroundFile);
 
