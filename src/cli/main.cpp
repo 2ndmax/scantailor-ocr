@@ -30,6 +30,31 @@ std::atomic<bool> cancelRequested(false);
 void requestCancel(int) {
   cancelRequested = true;
 }
+
+#ifdef _WIN32
+/**
+ * Switches the console to UTF-8 while the tool runs. The code page belongs to the console window,
+ * not to the program, so older programs started there later would show umlauts wrong without
+ * switching back.
+ */
+class Utf8Console {
+ public:
+  Utf8Console() : m_previousCodePage(GetConsoleOutputCP()) { SetConsoleOutputCP(CP_UTF8); }
+
+  ~Utf8Console() {
+    // Zero means there was no console to switch.
+    if (m_previousCodePage != 0) {
+      SetConsoleOutputCP(m_previousCodePage);
+    }
+  }
+
+  Utf8Console(const Utf8Console&) = delete;
+  Utf8Console& operator=(const Utf8Console&) = delete;
+
+ private:
+  const UINT m_previousCodePage;
+};
+#endif
 }  // namespace
 
 int main(int argc, char* argv[]) {
@@ -38,8 +63,9 @@ int main(int argc, char* argv[]) {
 #ifdef _WIN32
   // As in the app: the Qt plugins are next to the program, not in Qt's installation directory.
   QCoreApplication::setLibraryPaths(QStringList(QCoreApplication::applicationDirPath()));
-  // The messages are written as UTF-8, which the console shows correctly only with this.
-  SetConsoleOutputCP(CP_UTF8);
+  // The messages are written as UTF-8, which the console shows correctly only with this. Declared
+  // before the streams, so they are flushed before the console is switched back.
+  const Utf8Console utf8Console;
 #endif
   QCoreApplication::setApplicationVersion(VERSION);
 
@@ -80,6 +106,11 @@ int main(int argc, char* argv[]) {
   }
   if (parser.positionalArguments().size() != 1) {
     err << parser.helpText();
+    return CommandLineRun::USAGE_ERROR;
+  }
+  // E.g. from an empty variable in a script, which expects a PDF.
+  if (parser.isSet(pdfOption) && parser.value(pdfOption).isEmpty()) {
+    err << CommandLineRun::tr("The file name after --pdf is empty.") << Qt::endl;
     return CommandLineRun::USAGE_ERROR;
   }
 

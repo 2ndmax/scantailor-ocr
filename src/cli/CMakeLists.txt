@@ -23,6 +23,9 @@ if (BUILD_TESTS)
   # CommandLineRun::USAGE_ERROR
   add_cli_test(cli_without_project 1)
   add_cli_test(cli_unknown_option 1 --unknown-option)
+  # "--pdf=" is how an empty value gets through the argument list. Without the check, the missing
+  # project would give exit code 2.
+  add_cli_test(cli_empty_pdf 1 --pdf= "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   # CommandLineRun::PROJECT_UNUSABLE
   add_cli_test(cli_missing_project 2 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
 endif()
