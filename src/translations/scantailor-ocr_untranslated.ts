@@ -300,6 +300,104 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     </message>
 </context>
 <context>
+    <name>CommandLineRun</name>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="27"/>
+        <source>%1, page %2 of the file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="33"/>
+        <source>%1, left page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="36"/>
+        <source>%1, right page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="46"/>
+        <source>The image could not be loaded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="49"/>
+        <source>The page could not be processed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="52"/>
+        <source>The output page would be too large with the current settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="55"/>
+        <source>The output file could not be written.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="91"/>
+        <source>The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once in ScanTailor OCR and save it there, then it can be processed here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="98"/>
+        <source>The project has no images.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="103"/>
+        <source>The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, then the project can be processed here:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="118"/>
+        <source>%1: %2 of %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="129"/>
+        <source>The project file could not be saved: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="134"/>
+        <source>Canceled. The pages output so far keep their output files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="138"/>
+        <source>Pages that failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="142"/>
+        <source>No page was output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="145"/>
+        <source>Done. The output is in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="55"/>
+        <source>Processes all pages of a ScanTailor OCR project through all six steps and saves the project. Set up the project in ScanTailor OCR first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="59"/>
+        <source>project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="59"/>
+        <source>The project file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DefaultParamsDialog</name>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="20"/>

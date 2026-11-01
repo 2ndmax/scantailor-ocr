@@ -19,6 +19,7 @@ if (BUILD_FUZZERS)
   add_subdirectory(fuzz)
 else()
   add_subdirectory(app)
+  add_subdirectory(cli)
 endif()
 
 if (BUILD_TESTS)
