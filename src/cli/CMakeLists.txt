@@ -6,9 +6,14 @@ install(TARGETS scantailor-ocr-cli RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 translation_sources(scantailor main.cpp)
 
 # What the tool does is tested in core_tests (CommandLineRun); these only check that the program
-# starts and reads its command line. It reads the settings as the app does: in the build folder,
-# the portable ones next to it if the build has a portable config folder, otherwise the user's.
-# They only set the language of the messages, which isn't checked.
+# starts and reads its command line. It sets up the settings as the app does: in the build folder,
+# the portable ones next to it if the build has a portable config folder, otherwise the user's,
+# taking over those of ScanTailor Advanced on the first start. They only set the language of the
+# messages, which isn't checked.
+# REVIEW-NOTE (2026-11): the tool sets up the settings like the app -> on a machine where ScanTailor OCR never
+# ran, these tests create the portable "config" folder and may copy the settings of ScanTailor Advanced into the
+# user's AppData, as the app's first start would. Not fixed because it happens once, changes nothing the app
+# wouldn't, and the tests only check exit codes.
 if (BUILD_TESTS)
   function(add_cli_test name expected)
     add_test(
