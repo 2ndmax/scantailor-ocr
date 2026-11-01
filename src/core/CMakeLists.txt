@@ -3,6 +3,7 @@ set(common_ui_files
 
 set(common_sources
     Application.cpp Application.h
+    Translations.cpp Translations.h
     BackgroundExecutor.cpp BackgroundExecutor.h
     PixmapRenderer.cpp PixmapRenderer.h
     BubbleAnimation.cpp BubbleAnimation.h

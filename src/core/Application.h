@@ -6,7 +6,8 @@
 
 #include <QApplication>
 #include <QTimer>
-#include <QtCore/QTranslator>
+
+#include "Translations.h"
 
 class Application : public QApplication {
   Q_OBJECT
@@ -34,18 +35,7 @@ class Application : public QApplication {
   /** Tells the user about an unexpected error that was caught in notify(). */
   void showUnexpectedError(const QString& reason);
 
-  void initTranslations();
-
-  /** The folders searched for the program's translations, as configured in TRANSLATION_DIRS. */
-  QStringList translationDirs() const;
-
-  /** Loads Qt's own translation (standard buttons, dialogs, context menus) for \p locale. */
-  void installQtLanguage(const QString& locale);
-
-  QTranslator m_translator;
-  QTranslator m_qtTranslator;
-  QString m_currentLocale;
-  std::map<QString, QString> m_translationsMap;
+  Translations m_translations;
 };
 
 
