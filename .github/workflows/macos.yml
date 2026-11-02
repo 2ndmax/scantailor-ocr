@@ -1,0 +1,89 @@
+# macOS: an analysis run on Apple Silicon, started by hand ("Run workflow"). It builds no
+# package. What it adds to the Linux and Windows builds: Apple Clang with libc++ (the only
+# standard library the code isn't built with elsewhere), ARM64, and AddressSanitizer with
+# UBSan without the Windows limits of analysis run 09 (the Qt start-up report, core_tests
+# failing to load).
+name: macOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test (${{ matrix.name }})
+    runs-on: macos-15
+    strategy:
+      # Both runs report their findings, even if the other one fails.
+      fail-fast: false
+      matrix:
+        include:
+          - name: Release, extra warnings
+            build_type: Release
+            cmake_flags: -DENABLE_CODE_ANALYSIS=ON
+            sanitizers: false
+          - name: ASan + UBSan
+            build_type: RelWithDebInfo
+            cmake_flags: >-
+              "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fsanitize-recover=address -fno-omit-frame-pointer"
+              "-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fsanitize-recover=address -fno-omit-frame-pointer"
+              "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined"
+              "-DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined"
+            sanitizers: true
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install dependencies (Homebrew)
+        run: |
+          brew update
+          brew install ninja pkgconf qt boost tesseract leptonica libtiff jpeg-turbo libpng openjpeg poppler
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            "-DCMAKE_PREFIX_PATH=$(brew --prefix)" ${{ matrix.cmake_flags }}
+
+      # The log is kept as an artifact; the number of warnings goes to the run summary.
+      - name: Build
+        run: |
+          set -o pipefail
+          cmake --build build --parallel 2>&1 | tee build.log
+          warnings=$(grep -c "warning:" build.log || true)
+          echo "Compiler warnings: $warnings" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run tests
+        if: ${{ !matrix.sanitizers }}
+        working-directory: build
+        # No display needed: CMake runs every test with QT_QPA_PLATFORM=offscreen outside Windows.
+        run: |
+          set -o pipefail
+          ctest -C ${{ matrix.build_type }} --output-on-failure 2>&1 | tee ../tests.log
+
+      # The programs keep running after an ASan or UBSan report, so the log holds all
+      # findings of a test program; the step fails if there is any report at all.
+      # LeakSanitizer doesn't exist on Apple Silicon.
+      - name: Run tests with sanitizers
+        if: ${{ matrix.sanitizers }}
+        working-directory: build
+        env:
+          ASAN_OPTIONS: halt_on_error=0:detect_leaks=0:print_summary=1
+          UBSAN_OPTIONS: print_stacktrace=1
+        run: |
+          set +e
+          ctest -C ${{ matrix.build_type }} -V > ../tests.log 2>&1
+          rc=$?
+          reports=$(grep -cE "runtime error:|ERROR: AddressSanitizer" ../tests.log)
+          echo "Sanitizer reports: $reports, ctest exit code: $rc" >> "$GITHUB_STEP_SUMMARY"
+          grep -E "runtime error:|ERROR: AddressSanitizer" ../tests.log | sort | uniq -c | sort -rn | head -50
+          if [ "$rc" -ne 0 ] || [ "$reports" -ne 0 ]; then exit 1; fi
+
+      - name: Upload logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-logs-${{ matrix.build_type }}
+          path: |
+            build.log
+            tests.log
