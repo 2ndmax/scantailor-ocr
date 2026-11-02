@@ -114,7 +114,7 @@ class ZoneContextMenuInteraction : public QObject, public InteractionHandler {
   std::unique_ptr<QMenu> m_menu;
   int m_highlightedZoneIdx;
   bool m_menuItemTriggered;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
   int m_extraDelaysDone;
 #endif
 };
