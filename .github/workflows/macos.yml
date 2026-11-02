@@ -1,9 +1,9 @@
-# macOS: an analysis run on Apple Silicon, started by hand ("Run workflow"). It builds no
-# package. What it adds to the Linux and Windows builds: Apple Clang with libc++ (the only
+# macOS: only an analysis build on Apple Silicon, started by hand ("Run workflow"). There is
+# no macOS version of ScanTailor OCR; this run builds no package. What it adds to the Linux and Windows builds: Apple Clang with libc++ (the only
 # standard library the code isn't built with elsewhere), ARM64, and AddressSanitizer with
 # UBSan without the Windows limits of analysis run 09 (the Qt start-up report, core_tests
 # failing to load).
-name: macOS
+name: macOS analysis (no package)
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and test (${{ matrix.name }})
+    name: Analysis build (${{ matrix.name }})
     runs-on: macos-15
     strategy:
       # Both runs report their findings, even if the other one fails.
