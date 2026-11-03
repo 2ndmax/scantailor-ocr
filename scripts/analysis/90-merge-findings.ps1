@@ -3,7 +3,7 @@
   Merges the raw output of the analysis runs into one table of distinct findings.
 
 .DESCRIPTION
-  Reads the logs written by the run scripts in this folder (01-10) and collects every
+  Reads the logs written by the run scripts in this folder (01-12) and collects every
   warning or runtime report with its location. A finding is one combination of tool, check, file
   and line; repeats (a header reported once per including file, the same warning in the runs 01,
   05 and 06) are merged, and the runs that reported it are listed. The paths of run 08 (WSL,
@@ -44,7 +44,7 @@ param(
 $Unattended = [bool]$Yes
 $AssumeYes = [bool]$Yes
 if (-not $AnalysisDir) { $AnalysisDir = Join-Path $PSScriptRoot 'results' }
-if (-not (Test-Path $AnalysisDir)) { throw "$AnalysisDir not found: run the analysis runs 01 to 10 first." }
+if (-not (Test-Path $AnalysisDir)) { throw "$AnalysisDir not found: run the analysis runs 01 to 12 first." }
 $AnalysisDir = (Resolve-Path $AnalysisDir).Path
 
 # The files read below, per run. "# End:" in a log means its run finished.
@@ -63,12 +63,16 @@ $inputs = @(
   @{ Run = '09'; What = 'sanitizers: tests'; File = '09-ubsan-tests.log' }
   @{ Run = '09'; What = 'sanitizers: dev tools (only with -Images)'; File = '09-ubsan-tools.log' }
   @{ Run = '10'; What = 'fuzzing'; File = '10-fuzz.log' }
+  @{ Run = '12'; What = 'Application Verifier: build'; File = '12-appverif-build.log' }
+  @{ Run = '12'; What = 'Application Verifier: tests'; File = '12-appverif-tests.log' }
+  @{ Run = '12'; What = 'Application Verifier: dev tools (only with -Images)'; File = '12-appverif-tools.log' }
+  @{ Run = '12'; What = 'Application Verifier: faults (only with -LowResource)'; File = '12-appverif-lowres.log' }
 )
 
 Write-Host ''
 Write-Host 'Analysis run 90: merge the findings' -ForegroundColor Cyan
 Write-Host ''
-Write-Host 'Reads the logs of the runs 01 to 10 and merges their warnings and runtime reports'
+Write-Host 'Reads the logs of the runs 01 to 12 and merges their warnings and runtime reports'
 Write-Host 'into one table: the same finding reported by several runs or for several including files'
 Write-Host 'counts once. Writes findings.csv (all findings, for Excel) and findings.md (a summary, then'
 Write-Host 'the findings by file and line).'
@@ -145,7 +149,7 @@ function Read-Lines([string] $name) {
 # Code analysis also has five-digit codes (C26xxx, C28xxx).
 $reMsvc = '^(?<file>[A-Za-z]:\\[^(]+)\((?<line>\d+)(,\d+)?\)\s?:\s+warning (?<code>C\d{4,5}):\s*(?<msg>.*)$'
 foreach ($run in @(@('01', '01-msvc-analyze.log'), @('05', '05-msvc-cxx20.log'),
-                   @('06', '06-msvc-zc-preprocessor.log'))) {
+                   @('06', '06-msvc-zc-preprocessor.log'), @('12', '12-appverif-build.log'))) {
   foreach ($l in Read-Lines $run[1]) {
     if ($l -match $reMsvc) {
       Add-Finding 'MSVC' $run[0] $Matches.code $Matches.file $Matches.line $Matches.msg
@@ -201,11 +205,12 @@ foreach ($l in Read-Lines '04-edg.log') {
 $reUbsan = '^(?<file>(?:[A-Za-z]:\\|/).+?):(?<line>\d+):\d+: runtime error: (?<msg>.*)$'
 $reFrame = '^\s+#\d+ 0x[0-9a-f]+ in .+? (?<file>(?:[A-Za-z]:\\|/).+?):(?<line>\d+)'
 $reLibFuzzer = 'ERROR: libFuzzer: (?<msg>(?<type>out-of-memory|timeout|deadly signal|fuzz target exited|[\w-]+).*)$'
-# The first stack frame of the report starting at line $from, see above.
-function Find-Frame([string[]] $lines, [int] $from) {
+# The first stack frame of the report starting at line $from, see above. $frameRe: the form of a
+# frame line, with the groups file and line.
+function Find-Frame([string[]] $lines, [int] $from, [string] $frameRe = $reFrame) {
   $file = '(no stack frame)'; $line = 0
-  for ($j = $from + 1; $j -lt $lines.Count -and $j -le $from + 60; $j++) {
-    if ($lines[$j] -match $reFrame) {
+  for ($j = $from + 1; $j -lt $lines.Count -and $j -le $from + 70; $j++) {
+    if ($lines[$j] -match $frameRe) {
       if ($file -eq '(no stack frame)') { $file = $Matches.file; $line = $Matches.line }
       if ((Get-RelPath $Matches.file) -like 'src/*') { return @($Matches.file, $Matches.line) }
     } elseif (($lines[$j] -match '^\s*$' -and $file -ne '(no stack frame)') -or $lines[$j] -match '^# ') { break }
@@ -251,6 +256,36 @@ foreach ($src in @(@('08', '08-gcc-tests.log'), @('09', '09-ubsan-tests.log'), @
       $check = $Matches.type
       $file, $line = Find-Frame $lines $i
       Add-Finding 'libFuzzer' $run $check $file $line $msg
+    }
+  }
+}
+
+# Application Verifier (run 12), from the output of cdb. A verifier stop prints
+#   VERIFIER STOP 0000000000000303: pid 0x1A2C: NULL handle passed as parameter. ...
+# and then the script's "# VERIFIER BREAK" with the stack of "kn"; any other stop of the debugger
+# (a crash) is "# DEBUGGER STOP", the event (".lastevent") and the stack. A frame line with a source
+# location ends in "[D:\path\file.cpp @ 123]". The first frame in the project's own code is taken.
+$reCdbFrame = '\[(?<file>[A-Za-z]:\\[^\]]+?) @ (?<line>\d+)\]\s*$'
+foreach ($name in '12-appverif-tests.log', '12-appverif-tools.log', '12-appverif-lowres.log') {
+  $lines = @(Read-Lines $name)
+  $stop = $null  # stop code and text of the last "VERIFIER STOP" line
+  for ($i = 0; $i -lt $lines.Count; $i++) {
+    $l = $lines[$i]
+    if ($l -match '^VERIFIER STOP (?<code>[0-9A-Fa-f]+): pid 0x[0-9A-Fa-f]+: (?<msg>.*)$') {
+      $stop = @(('0x{0:X}' -f [Convert]::ToInt64($Matches.code, 16)), $Matches.msg)
+    } elseif ($l -match '^# VERIFIER BREAK$') {
+      # A breakpoint without a verifier stop before it is an int 3 in the code.
+      $check, $msg = if ($stop) { "stop $($stop[0])", $stop[1] } else { 'breakpoint', 'breakpoint without a verifier stop' }
+      $file, $line = Find-Frame $lines $i $reCdbFrame
+      Add-Finding 'AppVerifier' '12' $check $file $line $msg
+      $stop = $null
+    } elseif ($l -match '^# DEBUGGER STOP$') {
+      $event = '(no event)'
+      for ($j = $i + 1; $j -lt $lines.Count -and $j -le $i + 5; $j++) {
+        if ($lines[$j] -match '^Last event: [0-9a-f.]+: (?<event>.*)$') { $event = $Matches.event -replace '0x[0-9a-fA-F]+', '0x...'; break }
+      }
+      $file, $line = Find-Frame $lines $i $reCdbFrame
+      Add-Finding 'AppVerifier' '12' 'crash' $file $line $event
     }
   }
 }
