@@ -191,12 +191,14 @@ $stepDebugger = {
     Write-Host 'The Visual Studio Installer installs the Windows SDK without the "Debugging Tools for Windows"'
     Write-Host "and cannot add them. This step opens the SDK's own setup to change the installation:"
     Write-Host "  $setup"
-    Write-Host 'There choose "Change", tick "Debugging Tools for Windows", leave the other ticks as they'
-    Write-Host 'are, and click "Change". The setup downloads them; Windows asks for administrator rights.'
+    Write-Host 'There tick "Debugging Tools for Windows", leave the other ticks as they are, and click'
+    Write-Host '"Change". The setup downloads them; Windows asks for administrator rights.'
     if (-not (Read-YesNo 'Open the setup now?' $true)) { return $false }
-    Add-LogLine $log "# $(Get-Stamp) $setup"
-    # Without arguments, the setup asks itself what to change; the script waits until it is closed.
-    $p = Start-Process -FilePath $setup -Wait -PassThru
+    Add-LogLine $log "# $(Get-Stamp) $setup /modify"
+    # /modify, as Windows itself passes for "Modify" in Settings > Apps. Without it, the setup takes
+    # the SDK as not installed and offers to install it anew or only to download it into a folder.
+    # The script waits until the setup is closed.
+    $p = Start-Process -FilePath $setup -ArgumentList '/modify' -Wait -PassThru
     Add-LogLine $log "# Exit code: $($p.ExitCode)"
     $found = Find-Cdb
     if (-not $found) { Write-Host 'cdb is still missing: tick "Debugging Tools for Windows" in the setup.' -ForegroundColor Red; return $false }
