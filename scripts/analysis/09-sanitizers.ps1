@@ -135,22 +135,8 @@ if (-not $SkipBuild) {
 
 $env:UBSAN_OPTIONS = $ubsanOptions
 $env:ASAN_OPTIONS = $asanOptions
-$env:QT_QPA_PLATFORM = 'offscreen'
 $env:PATH = "$rtDir;$env:PATH"
-Copy-Item "$VcpkgRoot\installed\x64-windows\Qt6\plugins\platforms\qoffscreen.dll" "$BuildDir\platforms" -Force
-
-# The redirect files may still be held open briefly after the process ends.
-function Read-Shared([string]$Path) {
-    for ($i = 0; ; $i++) {
-        try {
-            $fs = [IO.File]::Open($Path, 'Open', 'Read', 'ReadWrite')
-            try { return (New-Object IO.StreamReader($fs)).ReadToEnd() } finally { $fs.Dispose() }
-        } catch {
-            if ($i -ge 20) { return "<could not read $Path : $_>" }
-            Start-Sleep -Milliseconds 500
-        }
-    }
-}
+Enable-OffscreenQt $BuildDir $VcpkgRoot
 
 # $ResultDir: where the program writes its results instead of to stdout (Qt Test with -o); they
 # are taken as its output.
@@ -208,11 +194,7 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
     Add-LogLine $Log '# --- stderr (UBSan and ASan reports go here)'
     Add-LogLine $Log $stderr
     Add-LogLine $Log "# Exit code: $($p.ExitCode)"
-    # Boost.Test ends with "*** No errors detected" or "*** N failure(s) ... detected", Qt Test with
-    # "Totals:". Without either, the program stopped before its tests, and its exit code alone
-    # doesn't show that.
-    $summary = '\*\*\* No errors detected|\*\*\* \d+ failures? (is|are) detected|^Totals:'
-    $ran = (-not $IsTest) -or ([regex]::IsMatch("$stdout`n$stderr", $summary, 'Multiline'))
+    $ran = (-not $IsTest) -or (Test-TestSummary "$stdout`n$stderr")
     if (-not $ran) { Add-LogLine $Log "# NOT RUN: $Exe printed no test summary; it stopped before or during its tests." }
     Add-LogLine $Log "# End: $(Get-Stamp)"
     $reports = ([regex]::Matches($stderr, 'runtime error:|ERROR: AddressSanitizer')).Count
@@ -223,7 +205,7 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
 # --- a) Tests ------------------------------------------------------------------------------------
 $log = "$OutDir\09-ubsan-tests.log"
 New-Log $log '09: UBSan + ASan, all test programs (QT_QPA_PLATFORM=offscreen)' $header
-foreach ($t in 'foundation_tests.exe', 'math_tests.exe', 'imageproc_tests.exe', 'core_tests.exe') {
+foreach ($t in $BoostTestPrograms) {
     Invoke-Logged $log $t '' 60 -IsTest
 }
 # Qt Test writes nothing to stdout when the script runs without a console window; into files it
@@ -235,18 +217,8 @@ Invoke-Logged $log 'qt_tests.exe' "-o `"$qtResults\qt_tests.txt,txt`"" 60 -IsTes
 if (-not $Images) { Write-RunEnd 0 @("Log: $log"); exit 0 }
 $testLog = $log
 $log = "$OutDir\09-ubsan-tools.log"
-$in = "$BuildDir\tool-input"
-$res = "$BuildDir\tool-output"
-New-Item -ItemType Directory -Force $in, "$res\binarization", "$res\binarization-colors", "$res\color_detect" | Out-Null
-$imgs = Get-ChildItem $Images -File | Where-Object { $_.Extension -in '.tif', '.tiff', '.jp2' }
-foreach ($i in $imgs) { Copy-Item $i.FullName $in -Force }
-New-Log $log '09: UBSan + ASan, dev tools binarization_compare and color_detect on real scans' ($header + @(
-    "# Input: copies of $($imgs.Count) images from $Images (top level, tif/jp2) in $in`:"
-) + @($imgs | ForEach-Object { "#   $($_.Name) ($([int]($_.Length / 1KB)) KB)" }) + @(
-    "# Output images: $res (not part of this log)"
-))
-Invoke-Logged $log 'binarization_compare.exe' "`"$res\binarization`" `"$in`"" 120
-Invoke-Logged $log 'binarization_compare.exe' "--colors `"$res\binarization-colors`" `"$in`"" 120
-Invoke-Logged $log 'color_detect.exe' "`"$in`" `"$res\color_detect`" --zones" 120
+$tools = New-DevToolInput $Images $BuildDir
+New-Log $log '09: UBSan + ASan, dev tools binarization_compare and color_detect on real scans' ($header + $tools.Header)
+foreach ($c in $tools.Calls) { Invoke-Logged $log $c.Exe $c.Args 120 }
 Write-RunEnd 0 @("Logs: $testLog", "      $log")
 exit 0

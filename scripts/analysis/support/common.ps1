@@ -126,6 +126,60 @@ function Get-StdSwitches([string]$BuildDir) {
         Group-Object | ForEach-Object { "$($_.Name) x$($_.Count)" }) -join ', '
 }
 
+# --- Shared by the runs that start the test programs and dev tools (09, 12) -----------------------
+
+# The Boost.Test programs; qt_tests is started on its own, as it writes its results into files.
+$BoostTestPrograms = 'foundation_tests.exe', 'math_tests.exe', 'imageproc_tests.exe', 'core_tests.exe'
+
+# Only the "windows" Qt platform plugin is deployed to the build directory; the programs run
+# headless with "offscreen", so that plugin is copied from vcpkg.
+function Enable-OffscreenQt([string]$BuildDir, [string]$VcpkgRoot) {
+    $env:QT_QPA_PLATFORM = 'offscreen'
+    Copy-Item "$VcpkgRoot\installed\x64-windows\Qt6\plugins\platforms\qoffscreen.dll" "$BuildDir\platforms" -Force
+}
+
+# The redirect files may still be held open briefly after the process ends.
+function Read-Shared([string]$Path) {
+    for ($i = 0; ; $i++) {
+        try {
+            $fs = [IO.File]::Open($Path, 'Open', 'Read', 'ReadWrite')
+            try { return (New-Object IO.StreamReader($fs)).ReadToEnd() } finally { $fs.Dispose() }
+        } catch {
+            if ($i -ge 20) { return "<could not read $Path : $_>" }
+            Start-Sleep -Milliseconds 500
+        }
+    }
+}
+
+# Boost.Test ends with "*** No errors detected" or "*** N failure(s) ... detected", Qt Test with
+# "Totals:". Without either, the program stopped before its tests, and its exit code alone
+# doesn't show that.
+function Test-TestSummary([string]$Output) {
+    $summary = '\*\*\* No errors detected|\*\*\* \d+ failures? (is|are) detected|^Totals:'
+    return [regex]::IsMatch($Output, $summary, 'Multiline')
+}
+
+# Copies the scans of $Images (.tif, .tiff, .jp2, top level only) into the build directory for the
+# dev tools. Returns the log header lines that name them, and the dev tool calls (Exe, Args).
+function New-DevToolInput([string]$Images, [string]$BuildDir) {
+    $in = "$BuildDir\tool-input"
+    $res = "$BuildDir\tool-output"
+    New-Item -ItemType Directory -Force $in, "$res\binarization", "$res\binarization-colors", "$res\color_detect" | Out-Null
+    $imgs = Get-ChildItem $Images -File | Where-Object { $_.Extension -in '.tif', '.tiff', '.jp2' }
+    foreach ($i in $imgs) { Copy-Item $i.FullName $in -Force }
+    $header = @(
+        "# Input: copies of $($imgs.Count) images from $Images (top level, tif/jp2) in $in`:"
+    ) + @($imgs | ForEach-Object { "#   $($_.Name) ($([int]($_.Length / 1KB)) KB)" }) + @(
+        "# Output images: $res (not part of this log)"
+    )
+    $calls = @(
+        @{ Exe = 'binarization_compare.exe'; Args = "`"$res\binarization`" `"$in`"" }
+        @{ Exe = 'binarization_compare.exe'; Args = "--colors `"$res\binarization-colors`" `"$in`"" }
+        @{ Exe = 'color_detect.exe'; Args = "`"$in`" `"$res\color_detect`" --zones" }
+    )
+    return @{ Header = $header; Calls = $calls }
+}
+
 # The MSVC conformance runs 05 and 06: a full rebuild with /W4 (dependency headers external,
 # their warnings suppressed) like run 01, but without /analyze, so their warnings can be compared
 # with the C4xxx warnings of run 01. $Flags are added to /W4, $Extra to the configure arguments.
