@@ -20,7 +20,7 @@
   "ERROR: AddressSanitizer: ...", both with stack traces; the tests keep running after them. A
   failed check of the standard library ("Assertion '...' failed.") stops its test program; ASan
   then reports the abort ("ABRT") with the stack trace.
-  11-merge-findings.ps1 reads all three logs.
+  90-merge-findings.ps1 reads all three logs.
 
   Linux code paths are checked here, not the Windows ones (#ifdef _WIN32); runs 01 to 07 and 09 check
   those. Needs WSL with Ubuntu 24.04 and the packages of scripts\setup\04-setup-wsl-gcc.ps1.

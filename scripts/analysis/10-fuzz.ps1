@@ -111,7 +111,7 @@ $targets = @(
        Seeds = 'pdf_export'; Dict = '' }
 )
 # The findings of all targets are reported, also of those not run this time: the log is written
-# anew, and 11-merge-findings.ps1 reads only this one.
+# anew, and 90-merge-findings.ps1 reads only this one.
 $allTargets = $targets
 # The choices offered for the time per target, and the one taken with Enter.
 $minuteChoices = @(5, 10, 30, 60)
@@ -298,7 +298,7 @@ foreach ($t in $targets) {
 }
 
 # --- Reports of all findings ---------------------------------------------------------------------
-# Each input in findings\ runs once more, so its report is in this log (for 11-merge-findings.ps1),
+# Each input in findings\ runs once more, so its report is in this log (for 90-merge-findings.ps1),
 # and one that no longer fails shows that it was fixed.
 $total = 0
 foreach ($t in $allTargets) {

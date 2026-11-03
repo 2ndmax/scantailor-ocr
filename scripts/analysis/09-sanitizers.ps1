@@ -35,7 +35,7 @@
   with one of these signs is therefore started again, at most three times; the reports of the
   discarded starts stay in the log. A crash or a timeout is never retried, as it may be a
   finding. A test program whose output still holds no test summary is marked
-  "# NOT RUN:" in the log, and 11-merge-findings.ps1 names it in findings.md.
+  "# NOT RUN:" in the log, and 90-merge-findings.ps1 names it in findings.md.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-sanitizers.ps1 -Images D:\scans
 

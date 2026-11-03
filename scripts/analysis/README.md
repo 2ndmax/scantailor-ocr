@@ -2,7 +2,7 @@
 
 Scripts that run compilers and analysis tools over the code and store their **raw** output, for
 later evaluation.  Every script is one run, numbered in the order in which they are best run;
-`11-merge-findings.ps1` then merges the findings of all runs into one table.
+`90-merge-findings.ps1` then merges the findings of all runs into one table.
 
 Every log starts with `# ...` header lines (commit, tool versions, full command lines) and ends
 with the exit codes.  The output goes to `results\` in this folder (ignored by git); each script
@@ -30,10 +30,10 @@ The examples below assume the folders of [BUILDING.md](../../BUILDING.md): the r
 | 08 | `08-gcc.ps1` | **GCC** in WSL: strict warnings, then **UBSan + ASan** and the checks of the standard library; runs the tests | `~/scantailor-ocr-build/gcc-*` in WSL | `08-gcc-warnings.log`, `08-gcc-sanitizers-build.log`, `08-gcc-tests.log` |
 | 09 | `09-sanitizers.ps1` | clang-cl with **UBSan + ASan**; runs the tests and the dev tools | `build-ubsan` | `09-ubsan-build.log`, `09-ubsan-tests.log`, `09-ubsan-tools.log` |
 | 10 | `10-fuzz.ps1` | MSVC with **libFuzzer + ASan**; runs the fuzz targets of `src/fuzz` | `build-fuzz` | `10-fuzz.log`, `10-fuzz-build.log`, `10-fuzz\<target>\` |
-| 11 | `11-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
+| 90 | `90-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
 
 Order: 02, 03 and 04 need the build directory of 01.  05 to 10 are independent of each other
-and of 01.  11 reads whatever output exists, so it is best run last.
+and of 01.  90 reads whatever output exists, so it is best run last.
 
 ## Requirements
 
@@ -262,7 +262,7 @@ long one; once the coverage (`ft` in the summary) hardly grows any more, longer 
 Per target, `results\10-fuzz\<target>\` holds `corpus\` (the inputs found so far; the next run
 continues from them), `findings\` (the inputs that made the target fail: `crash-*`, `oom-*`,
 `timeout-*`) and `fuzz.log` (the output of the last run).  `10-fuzz.log` has a summary per
-target and runs every input in `findings\` once more, so its report is there for run 11; an
+target and runs every input in `findings\` once more, so its report is there for run 90; an
 input that no longer fails shows that it was fixed.  Delete `findings\` once its inputs are dealt
 with.  Unlike the other runs, an existing `build-fuzz` is built again instead of deleted, so a
 run after a fix starts within minutes.
@@ -277,7 +277,7 @@ claim an image up to the size limit of the program, whose decoding takes gigabyt
 are covered by the tests of the size limit.  Qt and the vcpkg libraries are DLLs and not
 instrumented: the fuzzer sees no coverage inside them and ASan checks no accesses there.
 
-### 11 – Merging the results
+### 90 – Merging the results
 
 Reads the output of the runs (all that exist) and writes the distinct findings to
 `findings.csv` (all of them) and `findings.md` (a summary per tool and check, then the findings
@@ -287,10 +287,10 @@ merged and the runs that reported them are listed.  Frequent, mostly harmless ch
 hidden names; see `-BulkChecks`) are
 only counted in `findings.md`.  Needs neither Visual Studio nor any of the tools.
 
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\11-merge-findings.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\90-merge-findings.ps1
 
 ## Notes
 
 - `/permissive-`, `/Zc:__cplusplus` and `/utf-8` are set by the Qt 6 targets in every MSVC and
   clang-cl build.
-- A diagnostic in a header appears once per source file that includes it; 11 merges these.
+- A diagnostic in a header appears once per source file that includes it; 90 merges these.
