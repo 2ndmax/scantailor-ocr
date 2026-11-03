@@ -76,23 +76,23 @@ $status = {
     $msvc = if ($Vs) { 'ready' } else { "missing: $vsNote" }
     $tidy = if (-not $Vs) { "missing: $vsNote" } elseif (Test-Path "$LlvmBin\clang-tidy.exe") { 'ready' } `
             else { 'missing: clang-tidy in Visual Studio (update Visual Studio)' }
-    $cppcheck = if (Find-Cppcheck) { "ready ($(Find-Cppcheck))" } else { 'missing: cppcheck (step 2)' }
+    $cppcheck = if (Find-Cppcheck) { 'ready' } else { 'missing: cppcheck (step 2)' }
     $edgMissing = @()
     if (-not (Test-NetSdk)) { $edgMissing += '.NET Framework 4.8.1 SDK (step 1)' }
     if (-not (Get-Cpfe)) { $edgMissing += 'EDG (step 3)' }
-    $edg = if ($edgMissing) { "missing: $($edgMissing -join ', ')" } else { "ready ($env:EDG_ROOT)" }
+    $edg = if ($edgMissing) { "missing: $($edgMissing -join ', ')" } else { 'ready' }
     $clang = if (Test-ClangCl) { 'ready' } else { 'missing: Visual Studio component "C++ Clang Compiler for Windows" (step 1)' }
     $sanitizers = if (Test-Sanitizers) { 'ready' } elseif (-not (Test-ClangRuntime)) { $clang } `
                   else { 'missing: Visual Studio component "C++ AddressSanitizer" (step 1)' }
     $fuzzing = if (-not $Vs) { "missing: $vsNote" } elseif (Test-MsvcFuzzer) { 'ready' } `
                else { 'missing: Visual Studio component "C++ AddressSanitizer" (step 1)' }
-    $gcc = if (Test-UbuntuPackages) { "ready (WSL, $WslDistro)" } `
+    $gcc = if (Test-UbuntuPackages) { 'ready' } `
            elseif (Test-WslDistro) { "missing: the packages in $WslDistro (step 4)" } `
            elseif (Test-Wsl) { "missing: $WslDistro in WSL (step 4)" } else { 'missing: WSL (step 4)' }
     $verifier = if (-not (Find-AppVerif)) { 'missing: Application Verifier (Windows SDK, feature "Application Verifier For Windows")' } `
                 elseif (Find-Cdb) { 'ready' } else { 'missing: cdb (step 5)' }
-    $vcpkg = if ($env:VCPKG_ROOT -and (Test-Path $env:VCPKG_ROOT)) { "ready ($env:VCPKG_ROOT)" } `
-             else { 'missing: VCPKG_ROOT (01-setup-windows.ps1, step 4)' }
+    $hasVcpkg = $env:VCPKG_ROOT -and (Test-Path $env:VCPKG_ROOT)
+    $vcpkg = if ($hasVcpkg) { 'ready' } else { 'missing: VCPKG_ROOT (01-setup-windows.ps1, step 4)' }
     @(
         'Analysis runs and what they need:'
         "  01, 05, 06  MSVC              $msvc"
@@ -105,7 +105,34 @@ $status = {
         "  10          fuzzing           $fuzzing"
         "  12          app verifier      $verifier"
         "  all builds  vcpkg             $vcpkg"
+        ''
+        'The tools, their versions and where they are:'
     )
+    # Each tool once, also when several runs use it. The version only where it costs no start of
+    # the tool: from the file's version resource, or from Visual Studio's own records. A missing
+    # tool shows "-"; the table above says which step adds it.
+    $tools = @(
+        @{ Name = 'Visual Studio'; Path = $Vs
+           Version = { & "$vswhereDir\vswhere.exe" -path $Vs -property catalog_productDisplayVersion } }
+        @{ Name = 'MSVC toolset'
+           Path = $(if ($Vs) { Get-ChildItem "$Vs\VC\Tools\MSVC" -Directory -ErrorAction SilentlyContinue |
+                              Sort-Object { [version]$_.Name } | Select-Object -Last 1 -ExpandProperty FullName })
+           Version = { Split-Path $path -Leaf } }
+        @{ Name = 'LLVM (clang-cl, clang-tidy)'; Path = $(if (Test-ClangCl) { $LlvmBin })
+           Version = { (Get-Item "$path\clang-cl.exe").VersionInfo.ProductVersion } }
+        @{ Name = 'cppcheck'; Path = (Find-Cppcheck); Version = { (Get-Item $path).VersionInfo.ProductVersion } }
+        @{ Name = 'EDG'; Path = $(if (Get-Cpfe) { $env:EDG_ROOT }) }
+        @{ Name = 'GCC'; Path = $(if (Test-UbuntuPackages) { "WSL, $WslDistro" }) }
+        @{ Name = 'cdb'; Path = (Find-Cdb); Version = { (Get-Item $path).VersionInfo.ProductVersion } }
+        @{ Name = 'Application Verifier'; Path = (Find-AppVerif); Version = { (Get-Item $path).VersionInfo.ProductVersion } }
+        @{ Name = 'vcpkg'; Path = $(if ($hasVcpkg) { $env:VCPKG_ROOT }) }
+    )
+    foreach ($t in $tools) {
+        $path = $t.Path
+        $version = if ($path -and $t.Version) { "$(& $t.Version)".Trim() } else { '' }
+        if (-not $path) { $path = '-' }
+        '  {0,-28} {1,-16} {2}' -f $t.Name, $version, $path
+    }
 }
 
 $stepComponents = {
