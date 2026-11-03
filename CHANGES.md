@@ -14,8 +14,8 @@ topic, not by version.
   Advanced are copied over once. The old files are kept.
 * **Project files are saved as version 10** (`.ScanTailor`). Versions 3 and 4, as written by
   ScanTailor Advanced 1.1 and 1.2 and by older versions of ScanTailor OCR, are still read.
-  ScanTailor Advanced therefore no longer opens projects saved by ScanTailor OCR (it would have opened them without
-  a warning and dropped the additional settings when saving).
+  ScanTailor Advanced therefore no longer opens projects saved by ScanTailor OCR (it would have
+  opened them without a warning and dropped the additional settings when saving).
 * Opening a project of version 3 or 4 asks first: it tells that some settings are processed
   differently, that missing settings come from the active profile and that ScanTailor Advanced
   can no longer open the project once it's saved, also automatically. It offers to make a backup
@@ -76,14 +76,18 @@ topic, not by version.
   **JPEG 2000**, Deflate or None; quality; resolution of the "Background layer" of split pages),
   *Posterized Pages* (Deflate, JPEG, JPEG 2000 or None) and *Black and White* (JBIG2, CCITT G4,
   Deflate or None). The options are stored in the project, saved when changed.
+* **PDF/A-2b** (on by default, in the panel under "Archiving", stored in the project and the
+  default parameters): the PDF follows the ISO standard for long-term archiving, with XMP
+  metadata and an sRGB color profile. Adobe Acrobat opens such files read-only at first.
 * **Quality warnings:** the panel **Quality** lists the compression of the ticked pages, in the
   output files (read from the TIFF files, so old files of other projects count correctly) and in
   the PDF, and marks lossy methods (JPEG; JPEG 2000 below quality 100). It warns about lossy
   TIFF files, about pages compressed with loss twice and about posterized pages that JPEG or
   JPEG 2000 converts to full color. Pages with such a problem, or with a problem of their files,
-  show a warning sign above the thumbnail, pages with only a note an information sign. The tooltip of a tile names the color mode, the
-  compression in the output folder and in the PDF, and the warnings; the file name shows its
-  full text. Pages not yet output say so in their placeholder.
+  show a warning sign above the thumbnail, pages with only a note an information sign. The
+  tooltip of a tile names the color mode, the compression in the output folder and in the PDF,
+  and the warnings; the file name shows its full text. Pages not yet output say so in their
+  placeholder.
 * **JPEG 2000** is encoded with [OpenJPEG](https://www.openjpeg.org/). The quality value is
   meant to look like the same JPEG value, 100 is lossless. It takes longer than JPEG, and some
   simple PDF programs can't show it.
@@ -174,6 +178,11 @@ topic, not by version.
   Switching oblique to *Auto* measures the page; the oblique finder reports no angle when the
   image has too little structure. Dragging a handle makes only its own angle manual. "Apply
   oblique automatically" is a master switch.
+* **New automatic oblique angle:** it is taken from the straight text edges (the starts and ends
+  of the lines of a column) when at least two of them agree. The former method was almost never
+  sure enough on ordinary text, so sheared pages stayed as they were. Pages with "Auto" get a new
+  angle when they are measured again; angles set by hand stay. Pages with a single straight edge
+  (ragged text in one column), centered text or only a few lines keep 0°.
 * **Fixed:** the oblique correction sheared by only half of the measured angle; it now shears by
   the whole angle (manual angles saved by older versions now shear twice as much). The deskew
   "Auto" button no longer loses its highlight.
@@ -413,9 +422,8 @@ ScanTailor Advanced.
   keeps its own; pages start with those of the default parameters, and **Apply to ...** with the
   content box takes them to other pages. Pages of older projects are not detected again because
   of this; they take the start values at their next detection. The defaults give the detection
-  as before. The
-  additional detection of photo plates relies on a macOS-only image analysis library and was
-  not adopted.
+  as before. The additional detection of photo plates relies on a macOS-only image analysis
+  library and was not adopted.
 * **Color mode detection** in *Output*: the color mode is chosen with three picture buttons
   instead of a list. The new group "Color Mode Detection" detects the color mode of chosen
   pages without creating output files. It was extended with "Color from" (a page counts as
@@ -444,36 +452,34 @@ ScanTailor Advanced.
 
 ## Build and tests
 
-* Qt 5 is no longer supported; the program needs Qt 6.4 or later. Windows is built with
-  MSVC and vcpkg using the Ninja generator (instructions in [BUILDING.md](BUILDING.md), the
-  README holds the overview). CMake checks which compression schemes libtiff supports.
-* Linux packages: .deb and AppImage, both with OCR. The Flatpak, the MXE cross-build script,
-  RPM packaging and upstream's second workflow were removed. A script creates the portable
-  Windows ZIP (`scripts\package-windows.ps1`).
-* The release workflow builds the Windows ZIP and the Linux packages and attaches them; the
-  shipped OCR languages (German, English) are checked against SHA-256. Started by hand, it
-  builds as a test without a release. CI runs all tests (offscreen on Linux) on Linux and
-  Windows, installs Tesseract, checks formatting with clang-format 22.1.3 and has a CodeQL
-  workflow, started by hand.
-* Static analysis: `-DENABLE_CODE_ANALYSIS=ON`, and scripts that run several compilers,
-  clang-tidy (with a `.clang-tidy`), cppcheck and sanitizers and merge their findings.
-* Optional developer tool `binarization_compare` (`-DBUILD_DEV_TOOLS=ON`): binarizes sample
-  pages with our methods and those of ScanTailor Experimental and writes a web page that shows
-  the results side by side. Its copy of ScanTailor Experimental code is in
-  `src/tools/binarization_compare/experimental`.
-* New tests for the image readers, the TIFF writer, the PDF export (structure, lossless G4 and
-  JBIG2 round trips, text layer, language files, checksums), the Output step, K-means, page
-  order and thumbnail files. The `update_translations` target works with Qt 6 again.
-* **End-to-end test:** creates a project from scans drawn in the test, runs all six steps and
-  the PDF export as the program does and checks the results (split, skew angle, content box,
-  output files and their compression, color mode, saving and loading, PDF). For this, the chain
-  of the steps, creating and opening a project and the page list of the PDF export moved from
-  the main window into the core of the program, without a change in behavior; the command line
-  tool uses them. A new project reads the profile only once.
-* The steps read their settings from the project file without their options panels, which are
-  created on first use, so the core runs without a window. Tests for the command line tool
-  (`CommandLineRun` in `core_tests`, and `cli_*` tests that start the program).
-* **Fuzzing:** `-DBUILD_FUZZERS=ON` builds nine libFuzzer targets (image headers and decoding,
-  project and profile files, filter settings, the processing of a page, the Output step, the
-  page geometry of a project and the PDF export), and `scripts\analysis\10-fuzz.ps1` runs them.
-  The fixes above for damaged project files, the posterization level and dewarping came from it.
+How to build, test and check the code is described in [BUILDING.md](BUILDING.md),
+[TESTING.md](TESTING.md) and [scripts/README.md](scripts/README.md); this section only lists
+what changed.
+
+* Qt 5 is no longer supported; the program needs Qt 6.4 or later. Windows is built with MSVC
+  and vcpkg using the Ninja generator. CMake checks which compression schemes libtiff supports.
+  The `update_translations` target works with Qt 6 again.
+* Packages: a portable Windows ZIP (made by `scripts\release\package-windows.ps1`), a .deb and
+  an AppImage, all with OCR. The Flatpak, the MXE cross-build script, RPM packaging and
+  upstream's second workflow were removed.
+* Workflows: the release workflow builds the packages and attaches them to the release, the
+  shipped OCR languages checked against SHA-256. CI builds and tests on Linux and Windows and
+  checks the formatting with clang-format. CodeQL and an analysis build on macOS were added.
+* Scripts in `scripts\setup` set up a Windows machine, from Visual Studio to the finished build
+  and the tools of the analysis. Scripts in `scripts\analysis` check the code with several
+  compilers, static analysis (also `-DENABLE_CODE_ANALYSIS=ON`), sanitizers and Application
+  Verifier and merge their findings.
+* **Fuzzing:** `-DBUILD_FUZZERS=ON` builds libFuzzer targets for the image readers, project and
+  profile files, the processing of a page, the Output step and the PDF export. The fixes above
+  for damaged project files, the posterization level and dewarping came from it.
+* Developer tools (`-DBUILD_DEV_TOOLS=ON`) measure binarization, color mode detection, split
+  line, oblique detection and despeckling. The copy of ScanTailor Experimental code that
+  `binarization_compare` compares with is in `src/tools/binarization_compare/experimental`.
+* New tests for the image readers, the TIFF writer, the PDF export, the Output step, the command
+  line tool and many more, and an **end-to-end test** that runs all six steps and the PDF export
+  on scans drawn in the test.
+* For the end-to-end test and the command line tool, the chain of the steps, creating and
+  opening a project and the page list of the PDF export moved from the main window into the core
+  of the program, without a change in behavior. The steps read their settings from the project
+  file without their options panels, which are created on first use, so the core runs without a
+  window. A new project reads the profile only once.
