@@ -1,17 +1,15 @@
 # Testing guide (ScanTailor OCR)
 
-## Running unit tests
+## Running the tests
 
-With the project configured with `BUILD_TESTS=ON` (the default):
+The tests are built by default (`BUILD_TESTS=ON`, see [BUILDING.md](BUILDING.md)). In the build
+directory:
 
 ```bash
-mkdir build && cd build
-cmake .. -DBUILD_TESTS=ON
-cmake --build .
 ctest --output-on-failure
 ```
 
-Or run each suite separately:
+Or run each test program on its own:
 
 ```bash
 ./core_tests --log_level=message
@@ -24,81 +22,29 @@ Or run each suite separately:
 
 `ctest` also runs the `cli_*` tests: they start the command line tool `scantailor-ocr-cli` and
 check only its exit code for `--version`, `--help` and wrong command lines. What the tool does is
-tested in `core_tests` (**CommandLineRun**).
+tested in `core_tests` (`TestCommandLineRun`).
 
 On Windows, `qt_tests` writes nothing to the console; its results go to files with
-`qt_tests -o results.txt,txt`. Each test class writes a file of its own, with its name
-appended: `results_TestCoreQt.txt`, `results_TestUxQt.txt`, `results_TestDeskewQt.txt`,
-`results_TestFixOrientationQt.txt`, `results_TestSelectContentQt.txt` and `results_TestEndToEndQt.txt`. Test functions named
-on the command line run only in the class that has them.
-Without a screen, as in the CI, set `QT_QPA_PLATFORM=offscreen` only together with
-`QT_PLUGIN_PATH` pointing to the Qt plugins of vcpkg (`installed\x64-windows\Qt6\plugins`):
+`qt_tests -o results.txt,txt`. Each test class writes a file of its own, with its name appended,
+e.g. `results_TestCoreQt.txt`. Test functions named on the command line run only in the class
+that has them. Without a screen, as in the CI, set `QT_QPA_PLATFORM=offscreen` only together
+with `QT_PLUGIN_PATH` pointing to the Qt plugins of vcpkg (`installed\x64-windows\Qt6\plugins`):
 without the offscreen plugin, `qt_tests` hangs without a message.
 
-## Coverage by module
+## The test programs
 
-### core_tests
-A selection; every module has its own `Test<Module>.cpp` in [src/core/tests](src/core/tests).
-- **CommandLineRun**: the command line tool on a generated project: processing and saving, the
-  PDF, cancelling, and the projects and `--pdf` files it refuses, with their exit codes.
-- **ContentSpanFinder**: detection of content spans.
-- **DeskewParams**: parameters of the deskew filter.
-- **Despeckle**: what the despeckling keeps and removes (reach, marks next to letters, dot leaders,
-  specks cut off by others) and its results on generated pages, pinned by hashes.
-- **ObliqueFinder**: the oblique angle from straight text edges, cancelling the search.
-- **ImageId** / **PageId**: identification of images and pages, ordering, sub-pages.
-- **Margins**: margins and XML serialization.
-- **PageRange**: page ranges and alternating selection.
-- **PdfWriter**: the PDF file (structure, PDF/A, text layer), its image encodings and the export job.
-- **ProjectFile**: reading and writing project files.
-- **RelinkedKeys**: relinking moves the settings of every filter to the new file names.
-- **SelectContentApply**: applying the content selection filter.
-- **SmartFilenameOrdering**: natural ordering of file names.
-- **Units**: conversion and representation of units (px, mm, cm, in).
+Every module has its own `Test<Module>.cpp` in the `tests` folder of its library.
 
-### foundation_tests
-- **Constants**: mathematical constants (PI, DPI/DPM conversions, degrees/radians).
-- **LineIntersectionScalar**: line intersection (scalars).
-- **Proximity**: point-to-point and point-to-segment distance.
-- **Utils**: locale-independent number-to-string conversion.
+| Program | Sources | Tests |
+|---|---|---|
+| `core_tests` | `src/core/tests` | the filters, image reading and writing, project files, the PDF export, the command line run (Boost.Test) |
+| `foundation_tests` | `src/foundation/tests` | constants, geometry helpers, number formatting |
+| `math_tests` | `src/math/tests` | automatic differentiation, functions, matrices, splines |
+| `imageproc_tests` | `src/imageproc/tests` | binary images, binarization, morphology, scaling, transforms |
+| `dewarping_tests` | `src/dewarping/tests` | the dewarping with invalid curves and grids |
+| `qt_tests` | `src/qt_tests` | widgets and steps of the user interface without opening windows, and the end-to-end test (Qt Test) |
 
-### math_tests
-- **Hessians** (adiff): automatic differentiation.
-- **LineBoundedByRect**: clipping a line to a rectangle.
-- **LinearFunction** / **QuadraticFunction**: linear and quadratic functions.
-- **MatrixCalc**: matrix operations.
-- **SidesOfLine**: which side of a line points lie on.
-- **SqDistApproximant**: squared distance approximation.
-- **XSpline**: sampling ends with NaN or huge coordinates; t outside [0, 1]; a single control point.
-
-### dewarping_tests
-- **Dewarping**: curves with NaN or infinity are invalid; dewarping with NaN grid points; large footprints keep the gray level.
-
-### imageproc_tests
-- **BinaryImage**, **Binarize**, **Morphology**, **RasterOp**, **Scale**, **Shear**, **Transform**, etc.
-- **Dpi**: resolution (DPI) and XML serialization.
-
-### qt_tests (Qt Test)
-- **Logic tests (TestCoreQt)**: Units, foundation::Utils, SmartFilenameOrdering.
-- **UX tests (TestUxQt)**:
-  - **testCollapsibleGroupBoxStateAndSignal**: project widget: collapsed/expanded state and the `collapsedStateChanged` signal.
-  - **testCollapsedStateIsLoadedForGroupDisabledAtStart**: a group that is disabled when first shown still gets its saved collapsed state.
-  - **testErrorWidgetShowsItsText**: an `ErrorWidget` passes its text and text format to its label (without showing a window).
-  - **testStyledIconFollowsPaletteColor**: styled icons keep their colored renderer, but take a new palette color.
-  - **testThumbnailDoesNotKeepThePreviousOne**: a thumbnail looks the same whichever was painted before it through the shared temporary pixmap.
-  - **testThumbnailBorderIsTheAccentColor**: the selected thumbnail and its marks take the scheme's or the chosen accent color.
-  - **testColorSchemesSetTheSameParameters**: Light, Dark and the native scheme set every color parameter.
-  - **testTextOnAccentHasTheHigherContrast**: text and marks on the accent color are light or dark, whichever has more contrast to it, also for a chosen accent color.
-  - **testNativeSchemeFollowsTheSameMeanings**: the native scheme takes its color parameters from the system palette by the same meanings as Light and Dark (accent, text on the accent).
-
-- **Deskew step (TestDeskewQt)**: automatic and manual oblique correction, applying it to other pages, the Apply button waiting for the page.
-- **Fix Orientation step (TestFixOrientationQt)**: saving a zero rotation, trim fields following the rotation and keeping their values on a page switch, the view following changes while loading.
-- **Select Content step (TestSelectContentQt)**: changed detection settings make the task detect the content box again, going back to those it was detected with does not, also for pages from before these settings.
-- **End-to-end test (TestEndToEndQt)**: see below.
-
-The UX tests use `QApplication` and can simulate interaction (clicks, keyboard) without opening windows; they serve as a basis for extending coverage to more widgets or dialogs.
-
-## End-to-end test (TestEndToEndQt)
+### End-to-end test (TestEndToEndQt)
 
 Runs the whole processing chain without the user interface, the way the application does,
 and checks properties of the result rather than pixels, so it holds across compilers and
@@ -131,34 +77,51 @@ files.
 Known limit: *Select Content* takes a smooth area without edges (such as a plain color
 gradient) for background, so the picture on the test page is made of tiles.
 
-## UI/UX tests and usage paths
+## Writing tests
 
-Apart from the widget-level tests and the end-to-end test of the processing chain in `qt_tests` (see above), there are currently no automated tests of the main window, the dialogs or usage flows through the user interface. To improve coverage of UX and usage paths, you can:
-
-1. **Qt Test**: Extend `qt_tests` (TestUxQt) to:
-   - Create more widgets and dialogs without showing a window.
-   - Simulate events (clicks, keyboard) and check the state.
-
-2. **Integration tests**: Extend TestEndToEndQt with more kinds of pages or settings, or open
-   existing sample projects and check the results on disk.
-
-3. **E2E tests**: Tools such as Squish or scripts that drive the graphical application (more costly to maintain).
-
-To measure code coverage with gcov/lcov (only with compilers that support it):
-
-```bash
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCMAKE_CXX_FLAGS="--coverage"
-cmake --build .
-ctest
-lcov --capture --directory . --output-file coverage.info
-lcov --remove coverage.info '/usr/*' --output-file coverage.info
-genhtml coverage.info --output-directory coverage_html
-```
+- A bug fix comes with a regression test where possible. The test must fail before the fix;
+  if it does not, the bug is not confirmed.
+- Tests must not depend on the machine: no user settings, no files outside the test's own
+  temporary directory, no image files in the repository (draw the pages in the test, as the
+  end-to-end test does).
+- A bug found by fuzzing gets a regression test in `core_tests` like any other, and its input
+  is added to the seeds in `src/fuzz/corpus`.
 
 ## Developer tools
 
-Built only with `-DBUILD_DEV_TOOLS=ON` (see [BUILDING.md](BUILDING.md)). They are measuring
-aids, not tests: they never fail, they write results for a person to judge.
+Built only with `-DBUILD_DEV_TOOLS=ON` (see [BUILDING.md](BUILDING.md)); the sources are in
+`src/tools`. They are measuring aids, not tests: they never fail, they write results for a
+person to judge. The top of each tool's `main.cpp` describes its options and output.
+
+### binarization_compare
+
+Binarizes sample pages with the program's methods and with those of ScanTailor Experimental and
+writes a web page to compare the results side by side; with `--colors`, colored text instead.
+Pages already in the output folder are only computed again when the image file changed.
+
+```bash
+binarization_compare [--colors] <output folder> <image file or folder>...
+```
+
+### color_detect
+
+Runs the color mode detection on a folder of scans and writes the verdicts with their evidence
+to a CSV file, plus contact sheets. Raw scans of two-page spreads are cut in half first, unless
+`--nosplit` is given.
+
+```bash
+color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3] [--minpicture=10] [--only=<name part>] [--inset=<percent>]
+```
+
+### split_compare
+
+Runs both methods of finding the split line of two-page spreads (Edges and Spine line) on a
+folder of scans and writes one image per scan with the lines each method found, plus a summary
+on stdout. With `--project`, only the files of the project, each with its rotation.
+
+```bash
+split_compare <input folder> <output folder> [--rotate=<0|90|180|270>] [--only=<name part>] [--project=<project file>]
+```
 
 ### oblique_compare
 
@@ -224,15 +187,11 @@ despeckle_compare content <input folder> [--dpi=200]
 For a change of the despeckling: the text losses in `bench` must not rise, the `diff` images of
 real scans must show no lost text, and the content boxes must not get worse.
 
-## Code analysis
+## Code analysis and fuzzing
 
-Besides the tests, the scripts in `scripts\analysis` check the code with several compilers and
-analysis tools (MSVC code analysis, clang-tidy, cppcheck, the EDG C++ front end, clang-cl, GCC
-in WSL, sanitizers, fuzzing of the image readers, the project and profile files, the processing
-of a page, the Output step, the page geometry of a project and the PDF export) and merge their
-findings into one table. The scripts are numbered
-in the order in which they are best run; [scripts/analysis/README.md](scripts/analysis/README.md)
-describes each run, its setup and its output.
+Besides the tests, the scripts in `scripts\analysis` check the code on Windows with several
+compilers, analysis tools, sanitizers and Application Verifier, and merge their findings into one
+table; [scripts/analysis/README.md](scripts/analysis/README.md) describes each run.
 
 Fuzzing (run 10) builds the fuzz targets of `src/fuzz` with `-DBUILD_FUZZERS=ON` in a build
 directory of its own (`build-fuzz`; the option leaves out the program, the tests and the dev
@@ -242,15 +201,5 @@ tools) and runs them for a chosen time, e.g. one target for one minute:
 powershell -ExecutionPolicy Bypass -File scripts\analysis\10-fuzz.ps1 -Only fuzz_page_output -Minutes 1
 ```
 
-Inputs that make a target fail go to `scripts\analysis\results\10-fuzz\<target>\findings`. A bug
-found by fuzzing gets a regression test in `core_tests` like any other, and its input is added to
-the seeds in `src/fuzz/corpus`. Fuzzing is not part of the CI: it needs minutes to hours per
-target.
-
-## Disabling tests
-
-In environments without Boost or without the test dependencies:
-
-```bash
-cmake .. -DBUILD_TESTS=OFF
-```
+Inputs that make a target fail go to `scripts\analysis\results\10-fuzz\<target>\findings`.
+Fuzzing is not part of the CI: it needs minutes to hours per target.
