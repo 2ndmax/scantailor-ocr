@@ -2,18 +2,13 @@
 
 Scripts that run compilers and analysis tools over the code and store their **raw** output, for
 later evaluation.  Every script is one run, numbered in the order in which they are best run;
-`90-merge-findings.ps1` then merges the findings of all runs into one table.
+`90-merge-findings.ps1` then merges the findings of all runs into one table.  (There is no run
+11: the merge was run 11 before it became 90.)
 
-Every log starts with `# ...` header lines (commit, tool versions, full command lines) and ends
-with the exit codes.  The output goes to `results\` in this folder (ignored by git); each script
-takes `-OutDir` to change that.
-
-Windows only; run 08 builds in WSL, but is started from Windows like the others.  Run them in
-Windows PowerShell 5.1 or PowerShell 7, from anywhere:
-
-    powershell -ExecutionPolicy Bypass -File scripts\analysis\<script>.ps1
-
-The examples below assume the folders of [BUILDING.md](../../BUILDING.md): the repository in
+The output goes to `results\` in this folder (ignored by git).  How the scripts are started,
+their common parameters and their logs are described in [the README of the scripts](../README.md).
+Windows only; run 08 builds in WSL, but is started from Windows like the others.  The examples
+below assume the folders of [BUILDING.md](../../BUILDING.md): the repository in
 `D:\scantailor-ocr`, vcpkg in `D:\vcpkg`.
 
 ## Overview
@@ -38,45 +33,42 @@ and of 01.  90 reads whatever output exists, so it is best run last.
 
 ## Requirements
 
-- Visual Studio with the C++ tools (found through `vswhere`); CMake, Ninja, clang-tidy and
-  clang-format come with it.
-- vcpkg with the project's dependencies for `x64-windows`, in `VCPKG_ROOT` (or `-VcpkgRoot`).
-- For 03: cppcheck (on `PATH` or in `C:\Program Files\Cppcheck`, or `-Cppcheck <exe>`).
-- For 04: EDG, set up as described [below](#setting-up-edg-for-run-04).
-- For 07 and 09: the Visual Studio component "C++ Clang Compiler for Windows"; for 09 also
-  "C++ AddressSanitizer" (it brings `stl_asan.lib`, which the MSVC standard library links
-  under ASan).
-- For 08: WSL with Ubuntu 24.04, GCC and the project's packages there, set up with
-  `scripts\setup\04-setup-wsl-gcc.ps1`.
-- For 10: the Visual Studio component "C++ AddressSanitizer" (it brings libFuzzer and ASan of
-  MSVC); no Clang compiler.
-- For 12: Application Verifier (comes with Windows 11) and the debugger `cdb.exe` of the
-  "Debugging Tools for Windows" of the Windows SDK; the run itself needs administrator rights.
+Every run needs Visual Studio with the C++ tools (found through `vswhere`; CMake, Ninja,
+clang-tidy and clang-format come with it) and vcpkg with the project's dependencies for
+`x64-windows`, both set up by `scripts\setup\01-setup-windows.ps1`.  What the runs need beyond
+that is set up by `scripts\setup\02-setup-analysis.ps1`; its step 9 shows for every run whether
+its tools are there.
 
-Each run first says what it does and asks before it starts (`-Yes` starts it right away); a
-build directory left from an earlier run is offered for deletion. While it runs, the window
-shows the progress in one line (step, warnings and errors so far, time) and every error in
-full; the complete output goes to the log.
+| Run | Needs in addition | Set up by `02-setup-analysis.ps1` |
+|---|---|---|
+| 03 | cppcheck (on `PATH`, in `C:\Program Files\Cppcheck`, or `-Cppcheck <exe>`) | step 2, with winget |
+| 04 | EDG and the Visual Studio component ".NET Framework 4.8.1 SDK" | step 1; step 3 starts `03-setup-edg.ps1` ([below](#setting-up-edg-for-run-04)) |
+| 07 | the Visual Studio component "C++ Clang Compiler for Windows" | step 1 |
+| 08 | WSL with Ubuntu 24.04, GCC and the project's packages | step 4 starts `04-setup-wsl-gcc.ps1` |
+| 09 | the Visual Studio components "C++ Clang Compiler for Windows" and "C++ AddressSanitizer" (it brings `stl_asan.lib`, which the MSVC standard library links under ASan) | step 1 |
+| 10 | the Visual Studio component "C++ AddressSanitizer" (it brings libFuzzer and ASan of MSVC); no Clang compiler | step 1 |
+| 12 | Application Verifier (comes with Windows 11), the debugger `cdb.exe` of the "Debugging Tools for Windows", administrator rights | step 5 opens the setup of the Windows SDK, where "Debugging Tools for Windows" is ticked by hand (the Visual Studio Installer cannot add it) |
 
-Two setup scripts take care of all of this; each shows a menu of steps, 0 runs all of them:
+Runs 01, 02, 05 and 06 need nothing beyond that; 90 needs neither Visual Studio nor any of the
+tools.
 
-- `scripts\setup\01-setup-windows.ps1` sets up the build itself: Visual Studio, Git and the
-  GitHub CLI, vcpkg and its packages, `VCPKG_ROOT` (see [BUILDING.md](../../BUILDING.md)).
-- `scripts\setup\02-setup-analysis.ps1` shows for every run whether its tools are there and
-  installs the missing ones: the Clang compiler and the .NET Framework 4.8.1 SDK with the Visual
-  Studio Installer, cppcheck with winget (both into their standard folders), EDG by starting
-  `03-setup-edg.ps1`, WSL with Ubuntu and GCC by starting `04-setup-wsl-gcc.ps1`, and the
-  debugger cdb by opening the setup of the Windows SDK, where "Debugging Tools for Windows" is
-  ticked by hand (the Visual Studio Installer cannot add it).
+    powershell -ExecutionPolicy Bypass -File scripts\setup\02-setup-analysis.ps1
 
-      powershell -ExecutionPolicy Bypass -File scripts\setup\02-setup-analysis.ps1
+## Running and build directories
+
+Each run first says what it does and asks before it starts.  While it runs, the window shows the
+progress in one line (step, warnings and errors so far, time) and every error in full; the
+complete output goes to the log.
 
 The builds go into fresh directories next to `build`.  If its build directory is left from an
 earlier run, a script offers to delete it, but only a CMake build directory; with `-Yes` it
-deletes only a `build-*` folder in the project folder and stops otherwise.  Keep build directories on a short path: with MSVC,
-the generated Qt files exceed the Windows limit of 260 characters in deep folders (errors
-C1083, C1258).  Run 08 builds in the Linux file system of WSL instead, which is much faster
-there than a folder on the Windows drives.
+deletes only a `build-*` folder in the project folder and stops otherwise.  Runs 08, 09, 10 and
+12 take `-SkipBuild`, which reuses the existing build and only runs the programs; run 10 never
+deletes its build directory (see there).
+
+Keep build directories on a short path: with MSVC, the generated Qt files exceed the Windows
+limit of 260 characters in deep folders (errors C1083, C1258).  Run 08 builds in the Linux file
+system of WSL instead, which is much faster there than a folder on the Windows drives.
 
 ## The runs
 
@@ -102,7 +94,7 @@ files that have any).
 cppcheck over the same files as 02, with the severities error, warning, performance and
 portability.  The vcpkg include paths are removed, so cppcheck doesn't analyse Boost and Qt; it
 knows their APIs from `--library=qt,boost`.  The findings are in `03-cppcheck.xml`; the log only
-holds the progress output.
+holds the progress output.  `-Only <file>` checks a single source file as a trial, without a log.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\03-cppcheck.ps1
 
@@ -135,32 +127,15 @@ What to expect in the output:
 
 #### Setting up EDG for run 04
 
-Needed once, and again for a newer EDG.  Run:
+Needed once, and again for a newer EDG:
 
     powershell -ExecutionPolicy Bypass -File scripts\setup\03-setup-edg.ps1
 
-It asks for the folder that gets the checkouts `edgcpp` and `softfloat` (suggesting `D:\` when
-drive D: exists, so EDG goes to `D:\edgcpp`), then offers five steps in a menu; each can be run
-on its own, 0 runs all of them in order:
-
-1. Requirements: Visual Studio with the C++ tools, the Visual Studio component
-   **".NET Framework 4.8.1 SDK"** (EDG links `mscoree.lib` from it for its C++/CLI support),
-   Python 3.6 or later (the one vcpkg downloads to `D:\vcpkg\downloads\tools\python` is enough)
-   and [Git for Windows](https://git-scm.com/download/win).
-2. Sources: clones EDG and [Berkeley SoftFloat 3](https://github.com/ucb-bar/berkeley-softfloat-3).
-   EDG either at the version the setup was tested with, or the newest one (`git pull` for an
-   existing checkout); SoftFloat at the commit EDG pins.
-3. Build: SoftFloat, which EDG needs on Windows for its floating-point arithmetic, with the
-   CMake file in `scripts\setup\support\edg-softfloat\` (SoftFloat only ships makefiles for
-   GCC and MinGW), then EDG with its preset `windows-msvc-release`: about ten minutes the
-   first time, a minute or two later on.
-4. `EDG_ROOT`: sets the variable for your user account, so `04-edg.ps1` finds EDG.
-5. Check: runs `cpfe.exe` on a small C++17 file in strict mode.
-
-The output also goes to `scripts\setup\logs\03-setup-edg.log`.  The preset only chooses MSVC as
-the compiler that builds EDG and Windows x64 as the target (sizes of `long`, `wchar_t` and so
-on); how EDG checks is chosen when it runs.  Without `EDG_ROOT`, `04-edg.ps1` takes
-`-EdgDir <folder>`.
+It checks the requirements (among them Python 3.6 or later; the one vcpkg downloads is enough),
+clones EDG and [Berkeley SoftFloat 3](https://github.com/ucb-bar/berkeley-softfloat-3), which
+EDG needs on Windows for its floating-point arithmetic, builds both (about ten minutes the first
+time), sets `EDG_ROOT` for your user account and checks the result.  The steps are described at
+the top of the script.  Without `EDG_ROOT`, `04-edg.ps1` takes `-EdgDir <folder>`.
 
 ### 05 – MSVC with C++20
 
@@ -207,8 +182,8 @@ deleted first when left from an earlier run; `-SkipBuild` reuses the second one 
 the tests.  The number of compile jobs at once follows the memory WSL has (one per 1.5 GB, by
 default WSL gets half of the memory of Windows): too many at once make Linux stop the build.
 Set up with `scripts\setup\04-setup-wsl-gcc.ps1` (WSL, Ubuntu, the packages of
-`scripts\setup\support\ubuntu-packages.txt`).  If Windows itself runs in a virtual machine, its host
-must allow nested virtualization for WSL 2.
+`scripts\setup\support\ubuntu-packages.txt`).  If Windows itself runs in a virtual machine, its
+host must allow nested virtualization for WSL 2.
 
 ### 09 – Sanitizers
 
@@ -218,6 +193,12 @@ the top of the script explain its unusual setup and a known limitation: ASan rep
 inside Qt at the startup of programs loading `Qt6Widgets.dll`.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\09-sanitizers.ps1 -Images D:\scans
+
+Because of that startup error, a test program that printed nothing and failed with one of its
+signs is started again, at most three times; the reports of the discarded starts stay in the
+log.  A crash or a timeout is never retried, as it may be a finding.  A test program whose output
+still holds no test summary is marked `# NOT RUN:` in the log, and run 90 names it in
+`findings.md`.
 
 Two kinds of reports are known to be harmless; the code is not changed for them:
 
@@ -247,9 +228,13 @@ program and keeps the inputs that reach new code:
 | `fuzz_filter_params` | the per-page settings of the filters | `filter_params`, `filter_params.dict` |
 | `fuzz_image_processing` | small pages built from the input, processed by binarization, despeckling, Deskew, Split Pages, Select Content, automatic dewarping, the color processing of the Output step and its automatic color mode (with OCR only) | `processing` (generated: 96 x 72 pixel pages with lines of text, also curved) |
 | `fuzz_profile_reader` | profile files with the default parameters of new pages | `profile`, `profile.dict` |
-| `fuzz_page_output` | a whole page through the Output step (`OutputGenerator`), with the settings and zones of a project file; also checks that the output has the announced size, black and white output only black and white, and the layers of split output the size of the page; on a dewarped page, maps the zones as the zone editors do | `page_output`, `page_output.dict` |
-| `fuzz_project_geometry` | the page geometry of a project file: the settings of Fix Orientation, Split Pages, Deskew, Select Content and Margins and the output resolution, including the start values that pages without settings of their own get, as each step turns them into the geometry of a page, without an image; checks that the trim stays inside the image, Split Pages leaves every page a part of the image, every step leaves finite numbers and the output starts at 0, 0 | `geometry`, `geometry.dict` |
-| `fuzz_pdf_export` | the PDF export of a page: small images (1 bit, palette, grayscale, colour, also split output) written as TIFF files like the Output step writes them, stored with each compression and with a text layer; checks that every image can be stored, uncompressed and Deflate samples have the right length, palette indexes lie inside the palette, images lie on the page and the cross-reference table points at the objects | `pdf_export` (generated: one file per kind of image and compression) |
+| `fuzz_page_output` | a whole page through the Output step (`OutputGenerator`), with the settings and zones of a project file | `page_output`, `page_output.dict` |
+| `fuzz_project_geometry` | the page geometry that the settings of a project file give, from Fix Orientation to the output resolution, without an image | `geometry`, `geometry.dict` |
+| `fuzz_pdf_export` | the PDF export of a page: small images of every kind, stored with each compression and with a text layer | `pdf_export` (generated: one file per kind of image and compression) |
+
+Besides crashes, some targets count broken promises of the code as findings, e.g. output of the
+wrong size or a PDF whose cross-reference table misses its objects.  The top of each target's
+source file in `src/fuzz` describes its input and what it checks.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\10-fuzz.ps1
 
@@ -313,15 +298,15 @@ Microsoft's symbol server (cached in `build-appverif\symbols`), unless `_NT_SYMB
 Reads the output of the runs (all that exist) and writes the distinct findings to
 `findings.csv` (all of them) and `findings.md` (a summary per tool and check, then the findings
 by file and line).  A finding is one combination of tool, check, file and line; repeats are
-merged and the runs that reported them are listed.  Frequent, mostly harmless checks
+merged (a diagnostic in a header appears once per source file that includes it) and the runs
+that reported them are listed.  Frequent, mostly harmless checks
 (unreferenced parameters, `size_t` conversions, GCC's `-Wconversion` and `-Wfloat-conversion`,
-hidden names; see `-BulkChecks`) are
-only counted in `findings.md`.  Needs neither Visual Studio nor any of the tools.
+hidden names; see `-BulkChecks`) are only counted in `findings.md`.  `-AnalysisDir` reads the
+output from another folder than `results\`.  Needs neither Visual Studio nor any of the tools.
 
     powershell -ExecutionPolicy Bypass -File scripts\analysis\90-merge-findings.ps1
 
 ## Notes
 
-- `/permissive-`, `/Zc:__cplusplus` and `/utf-8` are set by the Qt 6 targets in every MSVC and
-  clang-cl build.
-- A diagnostic in a header appears once per source file that includes it; 90 merges these.
+`/permissive-`, `/Zc:__cplusplus` and `/utf-8` are set by the Qt 6 targets in every MSVC and
+clang-cl build.
