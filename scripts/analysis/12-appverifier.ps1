@@ -226,7 +226,8 @@ function Invoke-Verified([string]$Log, [string]$Exe, [string]$ArgLine, [string]$
     $exit = [regex]::Match($stdout, 'Exit process [^,]*, code (?<code>[0-9a-fA-F]+)')
     $exitText = if ($exit.Success) { $exit.Groups['code'].Value } else { '(none: did not exit by itself)' }
     Add-LogLine $Log "# Exit code: $exitText"
-    $ran = (-not $IsTest) -or (Test-TestSummary $stdout)
+    # Boost.Test writes its summary to stderr.
+    $ran = (-not $IsTest) -or (Test-TestSummary "$stdout`n$stderr")
     if (-not $ran) { Add-LogLine $Log "# NOT RUN: $Exe printed no test summary; it stopped before or during its tests." }
     Add-LogLine $Log "# End: $(Get-Stamp)"
     $stops = ([regex]::Matches($stdout, '(?m)^# VERIFIER BREAK$')).Count
