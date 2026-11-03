@@ -74,11 +74,13 @@ Depends: ${DEPS}
 Recommends: tesseract-ocr-eng, tesseract-ocr-deu, qt6-translations-l10n
 Maintainer: ScanTailor OCR <https://github.com/2ndmax/scantailor-ocr>
 Description: Scanned page post-processing with searchable PDF export (OCR)
- ScanTailor OCR is based on ScanTailor Advanced 1.2.1. It cleans up scanned
- pages (page splitting, deskewing, content selection, margins, dewarping)
- and exports them as a compact, searchable PDF: text recognition with
- Tesseract and lossless JBIG2 for black and white pages.
-Homepage: https://github.com/2ndmax/scantailor-ocr
+ ScanTailor OCR cleans up scanned pages (page splitting, deskewing, content
+ selection, margins, dewarping) and exports them as a compact, searchable
+ PDF: text recognition with Tesseract, lossless JBIG2 for black and white
+ pages, optionally PDF/A-2b. The command line tool scantailor-ocr-cli
+ processes a project and creates its PDF without a window. ScanTailor OCR
+ started from ScanTailor Advanced 1.2.1.
+Homepage: https://www.ScanTailorOCR.eu
 Bugs: https://github.com/2ndmax/scantailor-ocr/issues
 EOF
 

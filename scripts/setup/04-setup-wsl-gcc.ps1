@@ -12,7 +12,7 @@
        Linux user name and password, which need not match the Windows ones. If Windows itself
        runs in a virtual machine, its host must allow nested virtualization.
     3. Packages: GCC, CMake, Ninja, Qt 6 and the libraries, as listed in support\ubuntu-packages.txt
-       (the same as the Ubuntu job of the CI). apt-get runs as root, so no password is asked.
+       (close to the Ubuntu job of the CI). apt-get runs as root, so no password is asked.
     4. Check: builds a small file with GCC, UBSan and ASan and runs it; UBSan must report the
        signed overflow in it.
   The output also goes to logs\04-setup-wsl-gcc.log.
