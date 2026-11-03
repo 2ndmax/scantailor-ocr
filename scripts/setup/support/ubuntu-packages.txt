@@ -1,10 +1,11 @@
-# The Ubuntu packages for the GCC build in WSL (Ubuntu 24.04), one per line. Installed by
-# scripts\setup\04-setup-wsl-gcc.ps1. The same as the Ubuntu job of the CI
+# The Ubuntu packages for building ScanTailor OCR (Ubuntu 24.04), one per line. Installed by
+# scripts\setup\04-setup-wsl-gcc.ps1 for the GCC build in WSL; the Linux build in BUILDING.md
+# reads this list, too. The same as the Ubuntu job of the CI
 # (.github/workflows/ci.yml) installs, plus ninja-build and pkg-config (the GitHub runners have
 # it already; CMake finds Tesseract with it), less libqt6opengl6-dev: in Ubuntu 24.04 that is
 # only a name qt6-base-dev provides, never installed itself, so the setup would always miss it.
-# REVIEW-NOTE (2026-10): this list, the apt lists in ci.yml, codeql.yml and release.yml and the
-# command in BUILDING.md are kept by hand and differ (poppler-utils, qt6-base-dev-tools,
+# REVIEW-NOTE (2026-10): this list and the apt lists in ci.yml, codeql.yml and release.yml are
+# kept by hand and differ (poppler-utils, qt6-base-dev-tools,
 # ninja-build, pkg-config) -> a package added to one place can be missing in another and shows
 # only as a failed CI job or a failed local GCC run. Not fixed because the differences are
 # harmless today, the lists serve different jobs, and a shared list would change CI and release,

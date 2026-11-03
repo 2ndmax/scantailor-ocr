@@ -89,8 +89,8 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="
 cmake --build build
 ```
 
-Ninja uses all processor cores by itself. The finished `scantailor-ocr.exe` and all needed DLLs
-end up in the `build` directory.
+Ninja uses all processor cores by itself. The finished program `scantailor-ocr.exe`, the
+command line tool `scantailor-ocr-cli.exe` and all needed DLLs end up in the `build` directory.
 For text recognition, download languages in the program (step "Create PDF" → "More languages ..."),
 or put the language files into `build\tessdata` by hand, e.g. for German and English
 (about 24 MB together):
@@ -131,17 +131,39 @@ cmake --fresh -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAI
 
 ## Linux (Debian / Ubuntu)
 
-Qt 6.4 or later is required (Ubuntu 24.04 or later):
+Ready-made packages, a `.deb` and an AppImage, are on the releases page. To build it yourself,
+Qt 6.4 or later is required (Ubuntu 24.04 or later). The packages for the build are listed in
+[scripts/setup/support/ubuntu-packages.txt](scripts/setup/support/ubuntu-packages.txt); from the
+repository folder:
 
 ```
-sudo apt install build-essential cmake \
-  qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libqt6opengl6-dev libgl-dev \
-  libboost-test-dev libboost-dev libjpeg-dev libpng-dev libtiff-dev zlib1g-dev libopenjp2-7-dev \
-  libtesseract-dev libleptonica-dev tesseract-ocr-deu tesseract-ocr-eng qt6-translations-l10n
+sudo apt install $(grep -v '^#' scripts/setup/support/ubuntu-packages.txt)
+sudo apt install tesseract-ocr-deu tesseract-ocr-eng qt6-translations-l10n
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j$(nproc)
+ctest --output-on-failure
 ```
+
+The second line is only needed to run the program: the OCR languages German and English and
+the translations of Qt's own dialogs. `poppler-utils` in the list is only used by a test of the
+JBIG2 compression, which is skipped without it.
+
+`sudo make install` installs the program and the command line tool `scantailor-ocr-cli` to
+`/usr/local`. To build a `.deb` package instead, run from the repository folder
+
+```
+./build-deb.sh
+```
+
+which builds in `build` (or the folder given as its argument) and writes
+`scantailor-ocr_<version>_<arch>.deb` to the repository folder; the releases are built the same
+way.
+
+## macOS
+
+There is no macOS version. The workflow `macos.yml` builds the code on macOS only to check it
+with another compiler and standard library; it is started by hand and builds no package.
 
 ## Build options
 
@@ -171,38 +193,18 @@ make -j$(nproc)
 
 ## Optional: code analysis
 
-None of this is needed for a normal build. The numbered scripts in `scripts\analysis` run the
-compiler's static analysis, clang-tidy, cppcheck, the EDG C++ front end, builds with stricter
-MSVC switches, a clang-cl build, a build with sanitizers, fuzzing (a build with
-`-DBUILD_FUZZERS=ON` in its own build directory), GCC builds in WSL and the tests under
-Application Verifier, and write their
-findings to `scripts\analysis\results`. What each run does, how to set it up and how to merge
-the results is described in [scripts/analysis/README.md](scripts/analysis/README.md).
-
+None of this is needed for a normal build. The numbered scripts in `scripts\analysis` check the
+code on Windows with several compilers and analysis tools, sanitizers, fuzzing, GCC in WSL and
+Application Verifier, and write their findings to `scripts\analysis\results`.
 `scripts\setup\02-setup-analysis.ps1` shows for every run whether its tools are there and
-installs the missing ones. By hand, they need, in addition to the steps above:
+installs the missing ones. An overview of all scripts is in [scripts/README.md](scripts/README.md);
+what each run does and needs is described in
+[scripts/analysis/README.md](scripts/analysis/README.md).
 
-* For the clang-cl build and the sanitizers: the Visual Studio component
-  **"C++ Clang Compiler for Windows"**, for the sanitizers also **"C++ AddressSanitizer"**
-  (Visual Studio Installer → "Modify" → "Individual components"). clang-tidy and clang-format
-  come with Visual Studio.
-* For fuzzing: only **"C++ AddressSanitizer"** (it brings libFuzzer for MSVC).
-* For the cppcheck run: [cppcheck](https://cppcheck.sourceforge.io/), installed to
-  `C:\Program Files\Cppcheck` or on the `PATH`.
-* For the EDG run: the Visual Studio component **".NET Framework 4.8.1 SDK"**, and EDG set up
-  once with `scripts\setup\03-setup-edg.ps1` (e.g. in `D:\edgcpp`, with `EDG_ROOT` pointing
-  there), as described in the README of the scripts.
-* For the GCC run: WSL with Ubuntu 24.04 and the packages of the Linux build below, set up with
-  `scripts\setup\04-setup-wsl-gcc.ps1` (needs administrator rights once, for WSL itself).
-* For the Application Verifier run: the debugger `cdb.exe` of the **"Debugging Tools for
-  Windows"**. The Visual Studio Installer installs the Windows SDK without them; add them with
-  the SDK's own setup (Settings → Apps → "Windows Software Development Kit" → "Modify" →
-  "Change"). Application Verifier itself comes with Windows 11.
-* `VCPKG_ROOT` set as in step 5 (or `-VcpkgRoot <folder>` passed to the script).
-
-The code formatting is checked on GitHub for every push. To check it beforehand, run the
-clang-format that comes with Visual Studio on the changed files, in the "Native Tools Command
-Prompt for VS x64":
+The code formatting is checked on GitHub for every push, with clang-format 22.1.3 and the
+repository's `.clang-format`. To check it beforehand, run the same version on the changed files.
+Visual Studio 2026 brings it along (another Visual Studio may bring another version, which
+formats differently); in the "Native Tools Command Prompt for VS x64":
 
 ```
 "%VCINSTALLDIR%Tools\Llvm\x64\bin\clang-format.exe" --dry-run -Werror src\path\to\file.cpp
