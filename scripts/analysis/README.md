@@ -49,6 +49,8 @@ and of 01.  90 reads whatever output exists, so it is best run last.
   `scripts\setup\04-setup-wsl-gcc.ps1`.
 - For 10: the Visual Studio component "C++ AddressSanitizer" (it brings libFuzzer and ASan of
   MSVC); no Clang compiler.
+- For 12: Application Verifier (comes with Windows 11) and the debugger `cdb.exe` of the
+  "Debugging Tools for Windows" of the Windows SDK; the run itself needs administrator rights.
 
 Each run first says what it does and asks before it starts (`-Yes` starts it right away); a
 build directory left from an earlier run is offered for deletion. While it runs, the window
@@ -62,7 +64,9 @@ Two setup scripts take care of all of this; each shows a menu of steps, 0 runs a
 - `scripts\setup\02-setup-analysis.ps1` shows for every run whether its tools are there and
   installs the missing ones: the Clang compiler and the .NET Framework 4.8.1 SDK with the Visual
   Studio Installer, cppcheck with winget (both into their standard folders), EDG by starting
-  `03-setup-edg.ps1`, and WSL with Ubuntu and GCC by starting `04-setup-wsl-gcc.ps1`.
+  `03-setup-edg.ps1`, WSL with Ubuntu and GCC by starting `04-setup-wsl-gcc.ps1`, and the
+  debugger cdb by opening the setup of the Windows SDK, where "Debugging Tools for Windows" is
+  ticked by hand (the Visual Studio Installer cannot add it).
 
       powershell -ExecutionPolicy Bypass -File scripts\setup\02-setup-analysis.ps1
 

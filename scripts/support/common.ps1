@@ -48,6 +48,20 @@ function Find-Cppcheck {
     return $null
 }
 
+# cdb.exe of the "Debugging Tools for Windows" of the Windows SDK (run 12), or $null.
+function Find-Cdb {
+    $cdb = "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x64\cdb.exe"
+    if (Test-Path $cdb) { return $cdb }
+    return $null
+}
+
+# Application Verifier (run 12): part of Windows 11, otherwise of the Windows SDK. $null if missing.
+function Find-AppVerif {
+    $appverif = "$env:SystemRoot\System32\appverif.exe"
+    if (Test-Path $appverif) { return $appverif }
+    return $null
+}
+
 # The Linux of the GCC build in WSL and the packages it needs there.
 $WslDistro = 'Ubuntu-24.04'
 $UbuntuPackages = @(Get-Content "$Root\scripts\setup\support\ubuntu-packages.txt" |

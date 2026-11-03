@@ -15,6 +15,10 @@
        with its own menu.
     4. WSL with Ubuntu and GCC (run 08): installs nothing itself, but starts the separate script
        04-setup-wsl-gcc.ps1 with its own menu.
+    5. The debugger cdb (run 12), from the "Debugging Tools for Windows" of the Windows SDK. The
+       Visual Studio Installer installs the SDK without them and cannot add them; the SDK's own
+       setup, kept in the Package Cache, can: this step opens it to change the installation.
+       Application Verifier itself comes with Windows 11.
   clang-tidy (run 02) comes with Visual Studio itself; the build itself is set up by
   01-setup-windows.ps1. The output also goes to logs\02-setup-analysis.log.
 
@@ -85,6 +89,8 @@ $status = {
     $gcc = if (Test-UbuntuPackages) { "ready (WSL, $WslDistro)" } `
            elseif (Test-WslDistro) { "missing: the packages in $WslDistro (step 4)" } `
            elseif (Test-Wsl) { "missing: $WslDistro in WSL (step 4)" } else { 'missing: WSL (step 4)' }
+    $verifier = if (-not (Find-AppVerif)) { 'missing: Application Verifier (Windows SDK, feature "Application Verifier For Windows")' } `
+                elseif (Find-Cdb) { 'ready' } else { 'missing: cdb (step 5)' }
     $vcpkg = if ($env:VCPKG_ROOT -and (Test-Path $env:VCPKG_ROOT)) { "ready ($env:VCPKG_ROOT)" } `
              else { 'missing: VCPKG_ROOT (01-setup-windows.ps1, step 4)' }
     @(
@@ -97,6 +103,7 @@ $status = {
         "  08          GCC               $gcc"
         "  09          sanitizers        $sanitizers"
         "  10          fuzzing           $fuzzing"
+        "  12          app verifier      $verifier"
         "  all builds  vcpkg             $vcpkg"
     )
 }
@@ -159,6 +166,44 @@ $stepWslGcc = {
     return ($rc -eq 0 -and (Test-UbuntuPackages))
 }
 
+# The setup of the newest installed Windows SDK, as Windows keeps it for changing the installation
+# (Settings > Apps), or $null.
+function Find-WindowsSdkSetup {
+    $keys = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
+    $sdk = Get-ItemProperty $keys -ErrorAction SilentlyContinue |
+        Where-Object { $_.DisplayName -like 'Windows Software Development Kit - Windows 10.*' -and
+                       $_.BundleCachePath -and (Test-Path $_.BundleCachePath) } |
+        Sort-Object { [version]$_.DisplayVersion } | Select-Object -Last 1
+    if ($sdk) { return $sdk.BundleCachePath }
+    return $null
+}
+
+$stepDebugger = {
+    $found = Find-Cdb
+    if ($found) { Write-Host "cdb: $found"; return $true }
+    $setup = Find-WindowsSdkSetup
+    if (-not $setup) {
+        Write-Host 'No installed Windows SDK found. 01-setup-windows.ps1 installs it with Visual Studio;' -ForegroundColor Yellow
+        Write-Host 'then run this step again.' -ForegroundColor Yellow
+        return $false
+    }
+    Write-Host 'The Visual Studio Installer installs the Windows SDK without the "Debugging Tools for Windows"'
+    Write-Host "and cannot add them. This step opens the SDK's own setup to change the installation:"
+    Write-Host "  $setup"
+    Write-Host 'There choose "Change", tick "Debugging Tools for Windows", leave the other ticks as they'
+    Write-Host 'are, and click "Change". The setup downloads them; Windows asks for administrator rights.'
+    if (-not (Read-YesNo 'Open the setup now?' $true)) { return $false }
+    Add-LogLine $log "# $(Get-Stamp) $setup"
+    # Without arguments, the setup asks itself what to change; the script waits until it is closed.
+    $p = Start-Process -FilePath $setup -Wait -PassThru
+    Add-LogLine $log "# Exit code: $($p.ExitCode)"
+    $found = Find-Cdb
+    if (-not $found) { Write-Host 'cdb is still missing: tick "Debugging Tools for Windows" in the setup.' -ForegroundColor Red; return $false }
+    Write-Host "cdb: $found"
+    return $true
+}
+
 $menu = @(
     @{ Title = 'Visual Studio components: Clang compiler (runs 07, 09), AddressSanitizer (runs 09, 10), .NET Framework 4.8.1 SDK (run 04)'
        Done = { (Test-Sanitizers) -and (Test-NetSdk) }; Run = $stepComponents }
@@ -168,6 +213,8 @@ $menu = @(
        Done = { [bool](Get-Cpfe) }; Run = $stepEdg }
     @{ Title = 'WSL with Ubuntu and GCC (run 08): opens the separate script 04-setup-wsl-gcc.ps1'
        Done = { Test-UbuntuPackages }; Run = $stepWslGcc }
+    @{ Title = 'Debugger cdb (run 12): opens the setup of the Windows SDK to add the "Debugging Tools for Windows"'
+       Done = { [bool](Find-Cdb) }; Run = $stepDebugger }
 )
 $extra = @(
     @{ Key = '9'; Title = 'Show which analysis runs are ready and what they still need'; Run = $status }

@@ -174,7 +174,8 @@ make -j$(nproc)
 None of this is needed for a normal build. The numbered scripts in `scripts\analysis` run the
 compiler's static analysis, clang-tidy, cppcheck, the EDG C++ front end, builds with stricter
 MSVC switches, a clang-cl build, a build with sanitizers, fuzzing (a build with
-`-DBUILD_FUZZERS=ON` in its own build directory) and GCC builds in WSL, and write their
+`-DBUILD_FUZZERS=ON` in its own build directory), GCC builds in WSL and the tests under
+Application Verifier, and write their
 findings to `scripts\analysis\results`. What each run does, how to set it up and how to merge
 the results is described in [scripts/analysis/README.md](scripts/analysis/README.md).
 
@@ -193,6 +194,10 @@ installs the missing ones. By hand, they need, in addition to the steps above:
   there), as described in the README of the scripts.
 * For the GCC run: WSL with Ubuntu 24.04 and the packages of the Linux build below, set up with
   `scripts\setup\04-setup-wsl-gcc.ps1` (needs administrator rights once, for WSL itself).
+* For the Application Verifier run: the debugger `cdb.exe` of the **"Debugging Tools for
+  Windows"**. The Visual Studio Installer installs the Windows SDK without them; add them with
+  the SDK's own setup (Settings → Apps → "Windows Software Development Kit" → "Modify" →
+  "Change"). Application Verifier itself comes with Windows 11.
 * `VCPKG_ROOT` set as in step 5 (or `-VcpkgRoot <folder>` passed to the script).
 
 The code formatting is checked on GitHub for every push. To check it beforehand, run the
