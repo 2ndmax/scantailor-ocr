@@ -30,9 +30,10 @@ The examples below assume the folders of [BUILDING.md](../../BUILDING.md): the r
 | 08 | `08-gcc.ps1` | **GCC** in WSL: strict warnings, then **UBSan + ASan** and the checks of the standard library; runs the tests | `~/scantailor-ocr-build/gcc-*` in WSL | `08-gcc-warnings.log`, `08-gcc-sanitizers-build.log`, `08-gcc-tests.log` |
 | 09 | `09-sanitizers.ps1` | clang-cl with **UBSan + ASan**; runs the tests and the dev tools | `build-ubsan` | `09-ubsan-build.log`, `09-ubsan-tests.log`, `09-ubsan-tools.log` |
 | 10 | `10-fuzz.ps1` | MSVC with **libFuzzer + ASan**; runs the fuzz targets of `src/fuzz` | `build-fuzz` | `10-fuzz.log`, `10-fuzz-build.log`, `10-fuzz\<target>\` |
+| 12 | `12-appverifier.ps1` | the tests under **Application Verifier** (runs as administrator) | `build-appverif` | `12-appverif-tests.log` (`-build`, `-tools`, `-lowres`), `12-appverif\<program>.xml` |
 | 90 | `90-merge-findings.ps1` | merges the findings of all runs | – | `findings.csv`, `findings.md` |
 
-Order: 02, 03 and 04 need the build directory of 01.  05 to 10 are independent of each other
+Order: 02, 03 and 04 need the build directory of 01.  05 to 12 are independent of each other
 and of 01.  90 reads whatever output exists, so it is best run last.
 
 ## Requirements
@@ -280,6 +281,32 @@ Limits: an input that takes longer than 20 seconds or more memory than `-RssLimi
 claim an image up to the size limit of the program, whose decoding takes gigabytes; such sizes
 are covered by the tests of the size limit.  Qt and the vcpkg libraries are DLLs and not
 instrumented: the fuzzer sees no coverage inside them and ASan checks no accesses there.
+
+### 12 – Application Verifier
+
+A full MSVC build (RelWithDebInfo, in `build-appverif`), then every test program runs under the
+debugger `cdb` with the "Basics" checks of Application Verifier: full page heap, handles, locks
+and SRW locks, memory, TLS, exceptions, thread pool, and leaks when a DLL is unloaded.  Unlike
+the sanitizers of run 09, they also check the DLLs not built here (Qt, Tesseract, Leptonica,
+libtiff ...), and they find misused handles and locks, which ASan does not.  Application Verifier
+and ASan exclude each other, hence the normal MSVC build.
+
+Application Verifier keeps its settings per program name in the registry, so the run needs a
+PowerShell **run as administrator**.  The script deletes the settings of every program it ran,
+also when it stops with an error; after an interrupted run, `-Reset` deletes them without running
+anything.  The tests take much longer than without the checks (full page heap).
+
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\12-appverifier.ps1 -Images D:\scans
+
+A verifier stop is written to the log with its stack (`# VERIFIER BREAK`), and the program goes
+on; any other stop of the debugger (a crash, an unhandled exception) is written with its stack
+(`# DEBUGGER STOP`) and ends the program.  The binary logs of Application Verifier are exported
+to `results\12-appverif\<program>.xml`.  `-Images` also runs the dev tools on real scans
+(`12-appverif-tools.log`).  `-LowResource` adds fault injection for the tests of the command
+line tool in `core_tests` (`12-appverif-lowres.log`): 2 % of the heap allocations and file
+operations fail at random, so failed tests are expected there and differ between runs; the
+findings are the verifier stops and crashes.  The stacks of Windows' own DLLs come from
+Microsoft's symbol server (cached in `build-appverif\symbols`), unless `_NT_SYMBOL_PATH` is set.
 
 ### 90 – Merging the results
 
