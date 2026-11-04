@@ -183,6 +183,7 @@ void OcrPanel::fillLanguageList(const QStringList& checked) {
   };
   std::vector<Language> languages;
   const std::map<QString, QString> installed = OcrLanguages::available();
+  languages.reserve(installed.size());
   for (const auto& entry : installed) {
     languages.push_back(
         {OcrLanguages::isScript(entry.first), OcrLanguages::displayName(entry.first), entry.first, false});

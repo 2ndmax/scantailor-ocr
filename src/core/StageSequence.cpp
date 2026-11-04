@@ -250,7 +250,7 @@ std::shared_ptr<CompositeCacheDrivenTask> StageSequence::createCacheDrivenTask(
 std::vector<PdfExportPage> StageSequence::pdfExportPages(const ProjectPages& pages,
                                                          const OutputFileNameGenerator& outFileNameGen) const {
   // The pages in project order, independent of how the thumbnails are sorted.
-  const QString outDir = outFileNameGen.outDir();
+  const QString& outDir = outFileNameGen.outDir();
   const QDir foregroundDir(output::Utils::foregroundDir(outDir));
   const QDir backgroundDir(output::Utils::backgroundDir(outDir));
   // The same check as for the hourglass of the Output step; no image is processed.

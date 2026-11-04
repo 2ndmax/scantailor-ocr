@@ -96,7 +96,7 @@ class PdfExportJob : public QObject {
 
   bool wasCancelled() const { return m_cancelled; }
 
-  QStringList errors() const { return m_errors; }
+  const QStringList& errors() const { return m_errors; }
 
   /** The thread limit from the settings (see ThreadBudget). */
   static int defaultThreadCount();

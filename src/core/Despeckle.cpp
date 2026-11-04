@@ -577,6 +577,7 @@ const Despeckler::TextLine& Despeckler::lineOf(const uint32_t letter) {
   std::sort(letters.begin(), letters.end(),
             [this](uint32_t a, uint32_t b) { return m_components[a].bottom < m_components[b].bottom; });
   std::vector<int> heights;
+  heights.reserve(letters.size());
   for (const uint32_t label : letters) {
     heights.push_back(m_components[label].height());
   }

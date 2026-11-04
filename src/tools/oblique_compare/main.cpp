@@ -487,6 +487,7 @@ int runRealImages(const Options& options) {
   std::vector<RealPage> pages(paths.size());
   std::atomic<int> next(0);
   std::vector<std::thread> workers;
+  workers.reserve(static_cast<size_t>(options.jobs));
   for (int j = 0; j < options.jobs; ++j) {
     workers.emplace_back([&]() {
       for (int i = next++; i < static_cast<int>(paths.size()); i = next++) {
@@ -576,6 +577,7 @@ int main(int argc, char** argv) {
   std::mutex outputMutex;
   int done = 0;
   std::vector<std::thread> workers;
+  workers.reserve(static_cast<size_t>(options.jobs));
   for (int j = 0; j < options.jobs; ++j) {
     workers.emplace_back([&]() {
       for (int i = nextPage++; i < options.pages; i = nextPage++) {
