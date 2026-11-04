@@ -64,6 +64,11 @@
         <translation>Lizenz</translation>
     </message>
     <message>
+        <location filename="../app/AboutDialog.ui" line="282"/>
+        <source>ScanTailor OCR is licensed under the GNU General Public License, version 3 (below). It contains the JBIG2 coder of jbig2enc and the font GlyphLessFont of Tesseract, both licensed under the Apache License, Version 2.0. The license texts come with the program.</source>
+        <translation>ScanTailor OCR steht unter der GNU General Public License, Version 3 (unten). Es enthält den JBIG2-Coder von jbig2enc und die Schrift GlyphLessFont von Tesseract, beide unter der Apache License, Version 2.0. Die Lizenztexte liegen dem Programm bei.</translation>
+    </message>
+    <message>
         <location filename="../app/AboutDialog.ui" line="134"/>
         <source>Lead Developer of original version</source>
         <translation>Hauptentwickler der ursprünglichen Version</translation>
@@ -2842,7 +2847,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Kreuzen Sie die Sprachen des Textes an. Mehrere Sprachen sind möglich.</translation>
     </message>
     <message>
-        <location filename="../app/OcrPanel.cpp" line="218"/>
+        <location filename="../app/OcrPanel.cpp" line="219"/>
         <source>The file of this language is missing on this computer. Download it with &quot;More languages&quot;. The language is kept in the project.</source>
         <translation>Die Datei dieser Sprache fehlt auf diesem Rechner. Laden Sie sie über „Weitere Sprachen“ herunter. Die Sprache bleibt im Projekt erhalten.</translation>
     </message>

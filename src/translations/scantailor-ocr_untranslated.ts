@@ -88,6 +88,11 @@
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../app/AboutDialog.ui" line="282"/>
+        <source>ScanTailor OCR is licensed under the GNU General Public License, version 3 (below). It contains the JBIG2 coder of jbig2enc and the font GlyphLessFont of Tesseract, both licensed under the Apache License, Version 2.0. The license texts come with the program.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Application</name>
@@ -2821,7 +2826,7 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/OcrPanel.cpp" line="218"/>
+        <location filename="../app/OcrPanel.cpp" line="219"/>
         <source>The file of this language is missing on this computer. Download it with &quot;More languages&quot;. The language is kept in the project.</source>
         <translation type="unfinished"></translation>
     </message>

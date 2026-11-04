@@ -469,6 +469,12 @@ if (UNIX)
   install(FILES "${SCANTAILOR_RESOURCES_DIR}/unix/mime/scantailor-project.xml"
       DESTINATION "share/mime/packages"
       RENAME "${target_name}-project.xml")
+  # The license texts; the Windows ZIP collects its own in scripts/release/package-windows.ps1.
+  install(FILES "${CMAKE_SOURCE_DIR}/LICENSE" "${SCANTAILOR_RESOURCES_DIR}/unix/NOTICE"
+      DESTINATION "share/doc/${target_name}")
+  install(FILES "${CMAKE_SOURCE_DIR}/src/core/jbig2enc/LICENSE"
+      DESTINATION "share/doc/${target_name}"
+      RENAME "LICENSE.Apache-2.0")
 endif()
 
 if (WIN32 AND MSVC)
