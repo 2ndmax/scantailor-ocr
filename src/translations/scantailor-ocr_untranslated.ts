@@ -14,83 +14,83 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="110"/>
+        <location filename="../app/AboutDialog.ui" line="120"/>
         <source>Authors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="134"/>
+        <location filename="../app/AboutDialog.ui" line="144"/>
         <source>Lead Developer of original version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="151"/>
+        <location filename="../app/AboutDialog.ui" line="161"/>
         <source>Lead Developer of Advanced version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="168"/>
+        <location filename="../app/AboutDialog.ui" line="178"/>
         <source>Developer of ScanTailor OCR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="175"/>
+        <location filename="../app/AboutDialog.ui" line="185"/>
         <source>2ndmax, with the help of Claude (Anthropic)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="185"/>
+        <location filename="../app/AboutDialog.ui" line="195"/>
         <source>Contributors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="200"/>
+        <location filename="../app/AboutDialog.ui" line="210"/>
         <source>U235 - Picture auto-detection algorithm.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="207"/>
+        <location filename="../app/AboutDialog.ui" line="217"/>
         <source>Robert B. - First generation dewarping algorithm.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="214"/>
+        <location filename="../app/AboutDialog.ui" line="224"/>
         <source>Andrey Bergman - System load adjustment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="221"/>
+        <location filename="../app/AboutDialog.ui" line="231"/>
         <source>Petr Kovář - ver. Enhanced</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="228"/>
+        <location filename="../app/AboutDialog.ui" line="238"/>
         <source>Vadim Kuznetsov - ver. Plus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="235"/>
+        <location filename="../app/AboutDialog.ui" line="245"/>
         <source>monday2000 - ver. Featured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="242"/>
+        <location filename="../app/AboutDialog.ui" line="252"/>
         <source>Alexander Trufanov - ver. Universal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="249"/>
+        <location filename="../app/AboutDialog.ui" line="259"/>
         <source>abandoned-industries - ver. Spectre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="276"/>
+        <location filename="../app/AboutDialog.ui" line="286"/>
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/AboutDialog.ui" line="282"/>
-        <source>ScanTailor OCR is licensed under the GNU General Public License, version 3 (below). It contains the JBIG2 coder of jbig2enc and the font GlyphLessFont of Tesseract, both licensed under the Apache License, Version 2.0. The license texts come with the program.</source>
+        <location filename="../app/AboutDialog.ui" line="43"/>
+        <source>ScanTailor OCR is licensed under the GNU General Public License, version 3 (see the License tab). It contains the JBIG2 coder of jbig2enc and the font GlyphLessFont of Tesseract, both licensed under the Apache License, Version 2.0. The license texts come with the program.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
