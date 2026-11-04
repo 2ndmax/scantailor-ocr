@@ -211,15 +211,25 @@ jobs:
       - name: Build AppImage
         env:
           VERSION: ${{ github.ref_name }}
-          DISABLE_COPYRIGHT_FILES_DEPLOYMENT: 1
         run: |
           cd build-appimage
           export QMAKE=/usr/bin/qmake6
+          # The bundled libraries come from Ubuntu; linuxdeploy copies their copyright files to
+          # usr/share/doc/<package>/. The LGPL v3 of Qt also asks for access to the source code.
+          cat > AppDir/usr/share/doc/scantailor-ocr/THIRD-PARTY <<EOF
+          The libraries in this AppImage (usr/lib) come from the packages of $(lsb_release -ds).
+          Their license texts are in usr/share/doc/<package>/copyright. Qt is licensed under the
+          GNU LGPL v3. The source code of every package, including Qt (qt6-base and others), is at
+          https://launchpad.net/ubuntu/+source/<package> .
+          EOF
           # Bundle Qt platform plugins (e.g. xcb) via linuxdeploy-plugin-qt; same-dir discovery.
           # The command line tool gets its libraries set up, too, so it runs after --appimage-extract;
           # the AppImage itself starts the app, as its desktop file says.
           ../linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt -e AppDir/usr/bin/scantailor-ocr \
             -e AppDir/usr/bin/scantailor-ocr-cli --output appimage
+          COPYRIGHTS=$(find AppDir/usr/share/doc -name copyright | wc -l)
+          echo "License files of bundled libraries: $COPYRIGHTS"
+          if [ "$COPYRIGHTS" -eq 0 ]; then echo "linuxdeploy copied no copyright files." >&2; exit 1; fi
           OUT=$(ls -1 *.AppImage 2>/dev/null | head -1)
           mv "$OUT" "../scantailor-ocr-${VERSION}-x86_64.AppImage"
 

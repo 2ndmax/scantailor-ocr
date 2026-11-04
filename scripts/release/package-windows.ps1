@@ -321,9 +321,24 @@ Version 2.0 (below). It was shortened to the parts for lossless generic region c
 "@
 Set-Content -Path (Join-Path $licensesDir "jbig2enc.txt") -Value ($jbig2Note + (Get-Content $jbig2License -Raw)) -Encoding UTF8
 
+# The LGPL v3 of Qt asks for access to the source code of the shipped version, including the
+# patches vcpkg applies; the vcpkg commit pins both.
+$qtSpdx = Join-Path $vcpkgInstalled "$Triplet\share\qtbase\vcpkg.spdx.json"
+if (-not (Test-Path $qtSpdx)) { Fail "$qtSpdx doesn't exist." }
+$qtVersion = ((Get-Content $qtSpdx -Raw | ConvertFrom-Json).packages | Where-Object { $_.name -eq "qtbase" } |
+  Select-Object -First 1).versionInfo
+if ($qtVersion -notmatch '^(\d+\.\d+)\.\d+$') { Fail "No Qt version found in $qtSpdx." }
+$qtMinor = $Matches[1]
+$vcpkgCommit = (& git -C $VcpkgRoot rev-parse HEAD 2>$null)
+if ($LASTEXITCODE -ne 0 -or $vcpkgCommit -notmatch '^[0-9a-f]{40}$') { Fail "$VcpkgRoot is not a git checkout of vcpkg." }
+
 $componentsHeader = @(
   "Third-party components shipped with ScanTailor OCR and their license texts.",
   "ScanTailor OCR itself is licensed under the GNU GPL v3, see LICENSE.txt.",
+  "",
+  "Qt $qtVersion is licensed under the GNU LGPL v3 (see licenses\qt*.txt). Its source code is at",
+  "https://download.qt.io/archive/qt/$qtMinor/$qtVersion/submodules/ . The libraries were built with",
+  "vcpkg; its build scripts and patches are at https://github.com/microsoft/vcpkg/tree/$vcpkgCommit/ports .",
   "",
   "scantailor-ocr.exe, scantailor-ocr-cli.exe (JBIG2 coder from jbig2enc)  ->  licenses\jbig2enc.txt",
   "tessdata\*.traineddata  ->  licenses\tessdata_best.txt",
