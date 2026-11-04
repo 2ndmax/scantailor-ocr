@@ -109,3 +109,9 @@ See [BUILDING.md](BUILDING.md) for building on Windows and Linux and the build o
 
 GNU GPLv3, see [LICENSE](LICENSE). This is a modified version of ScanTailor Advanced;
 the modifications are documented in [CHANGES.md](CHANGES.md) and in the commit history.
+
+Some parts are licensed under the Apache License 2.0: the JBIG2 coder taken from
+[jbig2enc](https://github.com/agl/jbig2enc) (see [src/core/jbig2enc](src/core/jbig2enc)) and
+Tesseract's GlyphLessFont. The release packages include these license texts and those of the
+libraries they bundle, such as Qt (GNU LGPL v3) and Tesseract: the Windows ZIP in its `licenses`
+folder, the .deb and the AppImage under `share/doc`.

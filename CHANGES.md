@@ -462,6 +462,8 @@ what changed.
 * Packages: a portable Windows ZIP (made by `scripts\release\package-windows.ps1`), a .deb and
   an AppImage, all with OCR. The Flatpak, the MXE cross-build script, RPM packaging and
   upstream's second workflow were removed.
+* All packages include the license texts of the parts under the Apache License 2.0 and of the
+  bundled libraries, and say where the source code of Qt is; the About window names these parts.
 * Workflows: the release workflow builds the packages and attaches them to the release, the
   shipped OCR languages checked against SHA-256. CI builds and tests on Linux and Windows and
   checks the formatting with clang-format. CodeQL and an analysis build on macOS were added.
