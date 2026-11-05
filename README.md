@@ -7,14 +7,15 @@ ScanTailor OCR cleans up scanned pages and turns them into a **compact, searchab
   **PDF/A-2b** for long-term archiving.
 * **Text recognition (OCR)** with Tesseract adds an invisible text layer, so the PDF can be
   searched and its text copied. More languages can be downloaded in the program.
-* A **command line tool**, `scantailor-ocr-cli`, processes a project and creates its PDF without
+* **Text formats** TXT, hOCR and ALTO for further processing, also without a PDF.
+* A **command line tool**, `scantailor-ocr-cli`, processes a project and exports it without
   opening a window.
 
 Website: [www.ScanTailorOCR.eu](https://www.ScanTailorOCR.eu)
 
 ## What's different from ScanTailor Advanced
 
-Besides the PDF export, the text recognition and the command line tool, among other things:
+Besides the export, the text recognition and the command line tool, among other things:
 
 * a new automatic oblique (shear) correction in *Deskew*, which takes the angle from the
   straight text edges, and evened-out letter widths after dewarping
@@ -112,6 +113,6 @@ the modifications are documented in [CHANGES.md](CHANGES.md) and in the commit h
 
 Some parts are licensed under the Apache License 2.0: the JBIG2 coder taken from
 [jbig2enc](https://github.com/agl/jbig2enc) (see [src/core/jbig2enc](src/core/jbig2enc)) and
-Tesseract's GlyphLessFont. The release packages include these license texts and those of the
+Tesseract's GlyphLessFont and the head of the hOCR and ALTO files. The release packages include these license texts and those of the
 libraries they bundle, such as Qt (GNU LGPL v3) and Tesseract: the Windows ZIP in its `licenses`
 folder, the .deb and the AppImage under `share/doc`.

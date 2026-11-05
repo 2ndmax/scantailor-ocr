@@ -22,13 +22,13 @@ topic, not by version.
   copy next to the project first (`Book_BACKUP.ScanTailor`).
 * Project files and profiles are written safely: the old file is replaced only when everything
   has been written, so a full disk or a crash no longer leaves a broken project.
-* **Settings for the whole project are stored in the project:** TIFF and PDF compression, text
-  recognition (languages, text layout), color mode detection and white on black detection. A
-  project can be reproduced on another computer, and each book can have its own settings. New
-  projects take them from the default parameters, older projects (also those of ScanTailor
-  Advanced) when they are first opened. Only "Open the PDF after creating it" stays a program
-  setting. Up to version 1.0.10 these were program settings; their values are not taken over,
-  so they start with the standard values and have to be set once in the default parameters.
+* **Settings for the whole project are stored in the project:** TIFF and PDF compression, the
+  export formats, text recognition (languages, text layout), color mode detection and white on
+  black detection. A project can be reproduced on another computer, and each book can have its
+  own settings. New projects take them from the default parameters, older projects (also those
+  of ScanTailor Advanced) when they are first opened. Up to version 1.0.10 these were program
+  settings; their values are not taken over, so they start with the standard values and have to
+  be set once in the default parameters.
 * **Each project keeps its start values,** a copy of the default parameters that pages added
   later start with. Changing the profile no longer changes an open project; after OK in the
   Default Parameters, a question offers to use the new values for the open project, too.
@@ -51,20 +51,32 @@ topic, not by version.
   progress bar (after a restart; not used by the native color scheme). "Deskew handle distance"
   sets how close the drag handles for rotation and oblique correction sit to the image center.
 
-## PDF export
+## Export (PDF, TXT, hOCR, ALTO)
 
-* **New step "7 Create PDF"** after "Output". It combines the existing output files of the
-  project into one PDF and doesn't process pages itself; pages not yet output are grayed out.
-  The page list, file and progress replace the page view, the options are on the left, the
+* **New step "7 Export"** after "Output". It writes the existing output files of the project
+  into the chosen formats and doesn't process pages itself; pages not yet output are grayed out.
+  The page list, target and progress replace the page view, the options are on the left, the
   thumbnails are hidden, and there is no batch button.
+* **Formats,** in any combination, also without a PDF (panel *Formats*): **PDF**, with PDF/A-2b
+  and the searchable text layer below it; **TXT**, one file with the pages separated by a page
+  break (form feed); **hOCR**, one file; **ALTO** (version 3), a folder with one file per page,
+  named by its place in the export and its image, e.g. `0001_scan_017.xml`. The text of each
+  page is recognized once, however many formats need it, and not at all if none does. The text
+  is Tesseract's, unchanged; hOCR and ALTO name the output file of the page as their image.
+* **Target:** a folder and a file name, to which each format adds its extension, next to the
+  project file by default. Beside them, the files that will be created, or what is wrong with
+  the folder or the name, while typing. After the export, the same place lists what was created
+  with its size, as links that open the files and the folder.
 * Pages are shown as tiles in project order with thumbnail and file name. Each can
   be ticked or unticked ("All" / "None"); ticked pages show their position in the PDF. The order
   is changed by drag and drop or with "Move forward" / "Move back". Ticks and order are kept
   while the project is open but not saved; new pages appear ticked after their predecessor.
-* While a PDF is created, the other steps and opening, creating or closing a project are
-  locked. The PDF is written to a temporary file first, so a failed or cancelled export never
-  leaves a broken file or damages an existing one. Replacing an existing PDF is always
-  confirmed. Several pages are prepared in parallel, with progress display and cancelling.
+* While an export runs, the other steps and opening, creating or closing a project are
+  locked. All files are written to temporary files first, so a failed or cancelled export never
+  leaves a broken file or damages an existing one. Replacing existing files is always confirmed
+  in one question that lists them all. An existing ALTO folder is only replaced if it holds
+  nothing but ALTO files of an export. Several pages are prepared in parallel, with progress
+  display and cancelling.
 * **Small files by default:**
   * Black and white pages: lossless **JBIG2**.
   * Mixed pages with split output: layers; only the picture area of the background is stored
@@ -76,7 +88,7 @@ topic, not by version.
   **JPEG 2000**, Deflate or None; quality; resolution of the "Background layer" of split pages),
   *Posterized Pages* (Deflate, JPEG, JPEG 2000 or None) and *Black and White* (JBIG2, CCITT G4,
   Deflate or None). The options are stored in the project, saved when changed.
-* **PDF/A-2b** (on by default, in the panel under "Archiving", stored in the project and the
+* **PDF/A-2b** (on by default, in the panel *Formats* below PDF, stored in the project and the
   default parameters): the PDF follows the ISO standard for long-term archiving, with XMP
   metadata and an sRGB color profile. Adobe Acrobat opens such files read-only at first.
 * **Quality warnings:** the panel **Quality** lists the compression of the ticked pages, in the
@@ -95,8 +107,10 @@ topic, not by version.
   same pixels. Only the lossless generic region coding is used, never the symbol mode that can
   swap similar characters. The arithmetic coder comes from
   [jbig2enc](https://github.com/agl/jbig2enc) (Apache License 2.0, see `src/core/jbig2enc`).
-* **Text recognition (OCR)** with [Tesseract](https://github.com/tesseract-ocr/tesseract) adds an
-  invisible text layer for searching, selecting and copying; the page images stay unchanged.
+* **Text recognition (OCR)** with [Tesseract](https://github.com/tesseract-ocr/tesseract) gives
+  the PDF a searchable text layer for searching, selecting and copying, the page images staying
+  unchanged, and the text of TXT, hOCR and ALTO. Its panel is grayed out while no format needs
+  it; while one does and no language is ticked, it shows a warning and "Export" is disabled.
   * Several languages can be ticked at once. The text layout can be detected automatically or
     set to a single column or block. Pages with split output are recognized on their
     foreground. Pages are recognized in parallel.
@@ -110,16 +124,23 @@ topic, not by version.
     complete. The system's proxy settings are used.
   * **OCR languages of the project that are missing on the computer** are listed ticked with a
     warning sign; unticking one removes it from the project. "More languages ..." ticks them
-    for download, with the installed languages grayed out, and creating the PDF asks whether to
+    for download, with the installed languages grayed out, and the export asks whether to
     download them first. If they are still missing after that, it asks whether to go on without
     them.
-  * The invisible text uses Tesseract's "GlyphLessFont" (Apache License 2.0), embedded once.
+  * The invisible text uses Tesseract's "GlyphLessFont" (Apache License 2.0), embedded once. The
+    head and the end of the hOCR and ALTO files are taken from Tesseract as well.
 
 ## New project and automatic import
 
 * The "Project Files" dialog has a third line, **Project File**, suggesting
   `<input folder>\<folder name>.ScanTailor`. An existing file is only overwritten after asking.
   After moving files to the other list, the next file is selected.
+* **New file and folder names are checked** against the rules of Windows, on all systems, as
+  projects and exports move between computers: the project file and the output folder of a new
+  project, a new output folder when relinking, and the name of an export. Refused are the
+  characters `\ / : * ? " < > |`, reserved names such as `CON`, `NUL` or `COM1` (also with an
+  extension) and a period or space at the end; the message names the reason. Existing files
+  and folders keep their names.
 * With **Import new scans automatically from input folder** ticked, a project may start without
   images. It opens with the processing steps instead of the start page.
 * Step 1 is called **Import**. Its panel **Automatic Import** watches a folder (e.g. the one a
@@ -276,8 +297,8 @@ topic, not by version.
   and Delta for Sauvola and Wolf. The window opens large enough to show every tab without
   scrolling, except *Output*. Fixed: wrong settings shown for Bradley, Grad, EdgePlus, BlurDiv
   and EdgeDiv; the Wolf upper bound not saved; the deskew angle limited to 0 to 99.99; profile
-  names are checked before saving. The tab *Create PDF* holds the PDF compression and the text
-  recognition, *Output* the TIFF compression, *Deskew* the white on black detection (moved from
+  names are checked before saving. The tab *Export* holds the formats, the text recognition and
+  the PDF compression, *Output* the TIFF compression, *Deskew* the white on black detection (moved from
   the settings). The profile "Custom" is kept like a saved profile; OK with unsaved changes to a
   profile asks whether to save them in the profile.
 * **Fix DPI of All Images** and **relinking** (opened when images of the project are missing)
@@ -354,16 +375,19 @@ topic, not by version.
 ## Command line tool and batch processing
 
 * **New command line tool `scantailor-ocr-cli`**, in the Windows ZIP and the Linux packages:
-  `scantailor-ocr-cli <project> [--pdf <file>]` processes all pages of a project through all six
-  steps as the batch processing does, saves the project and, with `--pdf`, creates the PDF with
-  the PDF settings of the project, including the text recognition. The project is set up in the
-  app first: the tool refuses what the app would ask about, i.e. projects of older versions,
-  images without DPI, projects whose output folder or images are missing (relinking) and OCR
-  languages that aren't installed (it downloads nothing). It also refuses an empty `--pdf` and
-  one that names the project file or one of its images. Ctrl+C stops before the next page; the
-  pages done keep their output, and the project is saved with them. Exit codes: 0 done, 1 wrong
-  command line, 2 project unusable or not saved, 3 pages failed, 4 PDF failed, 5 canceled. The
-  messages use the language of the app.
+  `scantailor-ocr-cli <project>` processes all pages of a project through all six steps as the
+  batch processing does and saves the project. Then it exports them with the settings of the
+  project if `--export` or one of `--export-folder <folder>`, `--export-name <name>` and
+  `--export-formats <list>` is given (e.g. `--export-formats pdf,txt,alto`); what isn't given
+  comes from the project: next to the project file, named like it, in the ticked formats. It
+  names the files before processing. The project is set up in the app first: the tool refuses
+  what the app would ask about, i.e. projects of older versions, images without DPI, projects
+  whose output folder or images are missing (relinking) and OCR languages that aren't installed
+  (it downloads nothing). It also refuses wrong export options, a missing folder, an invalid
+  name and an export that would replace the project file, one of its images or a folder holding
+  them. Ctrl+C stops before the next page; the pages done keep their output, and the project is
+  saved with them. Exit codes: 0 done, 1 wrong command line, 2 project unusable or not saved,
+  3 pages failed, 4 export failed, 5 canceled. The messages use the language of the app.
 * Batch processing no longer prepares the view of each page it passes (downscaled images, the
   content mask, the despeckle view of *Output*); it only updates the thumbnails, which saves time
   and memory per page.
@@ -458,7 +482,8 @@ what changed.
 
 * Qt 5 is no longer supported; the program needs Qt 6.4 or later. Windows is built with MSVC
   and vcpkg using the Ninja generator. CMake checks which compression schemes libtiff supports.
-  The `update_translations` target works with Qt 6 again.
+  The `update_translations` target works with Qt 6 again. Tesseract is required; there is no
+  build without text recognition.
 * Packages: a portable Windows ZIP (made by `scripts\release\package-windows.ps1`), a .deb and
   an AppImage, all with OCR. The Flatpak, the MXE cross-build script, RPM packaging and
   upstream's second workflow were removed.
@@ -477,8 +502,8 @@ what changed.
 * Developer tools (`-DBUILD_DEV_TOOLS=ON`) measure binarization, color mode detection, split
   line, oblique detection and despeckling. The copy of ScanTailor Experimental code that
   `binarization_compare` compares with is in `src/tools/binarization_compare/experimental`.
-* New tests for the image readers, the TIFF writer, the PDF export, the Output step, the command
-  line tool and many more, and an **end-to-end test** that runs all six steps and the PDF export
+* New tests for the image readers, the TIFF writer, the export in all formats, the Output step,
+  the command line tool and many more, and an **end-to-end test** that runs all six steps and the PDF export
   on scans drawn in the test.
 * For the end-to-end test and the command line tool, the chain of the steps, creating and
   opening a project and the page list of the PDF export moved from the main window into the core

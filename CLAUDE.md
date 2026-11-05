@@ -67,7 +67,7 @@ Details are written in one place only; the other files link to it.
 Commit messages are in English. The first line starts with a prefix (`feat:`,
 `fix:`, `refactor:`, `perf:`, `test:`, `docs:`, or the area such as
 `analysis:`, `setup:`, `website:`) and says what is true afterwards, e.g.
-`fix: the command line tool refuses an empty --pdf`. The body explains why.
+`fix: the command line tool refuses an empty --export-folder`. The body explains why.
 
 ## Formatting
 
