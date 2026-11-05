@@ -69,6 +69,12 @@ ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOpti
   blackOnWhiteDetection = boolAttribute(blackOnWhiteEl, "detection", fallback.blackOnWhiteDetection);
   blackOnWhiteAtOutput = boolAttribute(blackOnWhiteEl, "output", fallback.blackOnWhiteAtOutput);
 
+  const QDomElement formatsEl = el.namedItem("formats").toElement();
+  formats.pdf = boolAttribute(formatsEl, "pdf", fallback.formats.pdf);
+  formats.txt = boolAttribute(formatsEl, "txt", fallback.formats.txt);
+  formats.hocr = boolAttribute(formatsEl, "hocr", fallback.formats.hocr);
+  formats.alto = boolAttribute(formatsEl, "alto", fallback.formats.alto);
+
   const QDomElement pdfEl = el.namedItem("pdf").toElement();
   const Pdf& pdfFallback = fallback.pdf;
   pdf.colorCompression = pdfCompressionAttribute(pdfEl, "colorCompression", pdfFallback.colorCompression);
@@ -80,11 +86,16 @@ ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOpti
   pdf.pdfA = boolAttribute(pdfEl, "pdfA", pdfFallback.pdfA);
 
   const QDomElement ocrEl = el.namedItem("ocr").toElement();
-  pdf.ocr = boolAttribute(ocrEl, "enabled", pdfFallback.ocr);
+  // Projects and profiles of version 1.0.x stored the text layer as ocr/@enabled.
+  pdf.textLayer = boolAttribute(pdfEl, "textLayer", boolAttribute(ocrEl, "enabled", pdfFallback.textLayer));
   // Stored the way Tesseract expects them, e.g. "deu+eng".
   ocr.languages = ocrEl.hasAttribute("languages") ? ocrEl.attribute("languages").split('+', Qt::SkipEmptyParts)
                                                   : fallback.ocr.languages;
   ocr.pageLayout = intAttribute(ocrEl, "pageLayout", fallback.ocr.pageLayout, 0, 2);
+}
+
+bool ProcessingOptions::needsTextRecognition() const {
+  return (formats.pdf && pdf.textLayer) || formats.txt || formats.hocr || formats.alto;
 }
 
 QDomElement ProcessingOptions::toXml(QDomDocument& doc, const QString& name) const {
@@ -108,6 +119,13 @@ QDomElement ProcessingOptions::toXml(QDomDocument& doc, const QString& name) con
   blackOnWhiteEl.setAttribute("output", blackOnWhiteAtOutput ? "1" : "0");
   el.appendChild(blackOnWhiteEl);
 
+  QDomElement formatsEl = doc.createElement("formats");
+  formatsEl.setAttribute("pdf", formats.pdf ? "1" : "0");
+  formatsEl.setAttribute("txt", formats.txt ? "1" : "0");
+  formatsEl.setAttribute("hocr", formats.hocr ? "1" : "0");
+  formatsEl.setAttribute("alto", formats.alto ? "1" : "0");
+  el.appendChild(formatsEl);
+
   QDomElement pdfEl = doc.createElement("pdf");
   pdfEl.setAttribute("colorCompression", static_cast<int>(pdf.colorCompression));
   pdfEl.setAttribute("colorQuality", pdf.colorQuality);
@@ -116,10 +134,10 @@ QDomElement ProcessingOptions::toXml(QDomDocument& doc, const QString& name) con
   pdfEl.setAttribute("paletteQuality", pdf.paletteQuality);
   pdfEl.setAttribute("bitonalCompression", static_cast<int>(pdf.bitonalCompression));
   pdfEl.setAttribute("pdfA", pdf.pdfA ? "1" : "0");
+  pdfEl.setAttribute("textLayer", pdf.textLayer ? "1" : "0");
   el.appendChild(pdfEl);
 
   QDomElement ocrEl = doc.createElement("ocr");
-  ocrEl.setAttribute("enabled", pdf.ocr ? "1" : "0");
   ocrEl.setAttribute("languages", ocr.languages.join('+'));
   ocrEl.setAttribute("pageLayout", ocr.pageLayout);
   el.appendChild(ocrEl);

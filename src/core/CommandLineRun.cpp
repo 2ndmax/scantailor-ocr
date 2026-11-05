@@ -111,7 +111,7 @@ bool pdfReplacesProjectFile(const QString& pdfFile,
  */
 bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStream& err) {
 #ifdef ENABLE_OCR
-  if (!project.pdf.ocr) {
+  if (!project.pdf.textLayer) {
     return true;
   }
   const QStringList missing = OcrLanguages::missing(project.ocr.languages);

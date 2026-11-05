@@ -46,7 +46,7 @@ QString createProject(const QTemporaryDir& dir,
   const ProjectSession session = ProjectSession::createNew(ProjectPages::createNew(files, startValues), outDir,
                                                            QString(), startValues, PageSelectionAccessor(nullptr));
   ProcessingOptions& options = *session.stages->processingOptions();
-  options.pdf.ocr = !ocrLanguages.isEmpty();
+  options.pdf.textLayer = !ocrLanguages.isEmpty();
   options.ocr.languages = ocrLanguages;
   const QString projectFile = dir.filePath("project.ScanTailor");
   return session.write(projectFile) ? projectFile : QString();

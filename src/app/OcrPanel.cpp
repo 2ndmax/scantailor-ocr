@@ -103,14 +103,14 @@ OcrPanel::~OcrPanel() = default;
 void OcrPanel::setOptions(const ProcessingOptions::Pdf& pdf, const ProcessingOptions::Ocr& ocr) {
   const QSignalBlocker enabledBlocker(m_ocrEnabled);
   const QSignalBlocker layoutBlocker(m_pageLayout);
-  m_ocrEnabled->setChecked(pdf.ocr);
-  m_ocrOptions->setEnabled(pdf.ocr);
+  m_ocrEnabled->setChecked(pdf.textLayer);
+  m_ocrOptions->setEnabled(pdf.textLayer);
   fillLanguageList(ocr.languages);
   m_pageLayout->setCurrentIndex(std::max(0, m_pageLayout->findData(ocr.pageLayout)));
 }
 
 void OcrPanel::storeOptions(ProcessingOptions::Pdf& pdf, ProcessingOptions::Ocr& ocr) const {
-  pdf.ocr = m_ocrEnabled->isChecked();
+  pdf.textLayer = m_ocrEnabled->isChecked();
   ocr.languages = tickedLanguages(true);
   ocr.pageLayout = pageLayout();
 }

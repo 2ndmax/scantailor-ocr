@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   options.pdf.paletteQuality = 50;
   options.pdf.bitonalCompression = PdfCompression::CCITT_G4;
   options.pdf.pdfA = false;
-  options.pdf.ocr = false;
+  options.pdf.textLayer = false;
   options.ocr.languages = QStringList{"fra", "lat"};
   options.ocr.pageLayout = 2;
 
@@ -162,9 +162,128 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   BOOST_CHECK_EQUAL(read.pdf.paletteQuality, 50);
   BOOST_CHECK(read.pdf.bitonalCompression == PdfCompression::CCITT_G4);
   BOOST_CHECK(!read.pdf.pdfA);
-  BOOST_CHECK(!read.pdf.ocr);
+  BOOST_CHECK(!read.pdf.textLayer);
   BOOST_CHECK(read.ocr.languages == (QStringList{"fra", "lat"}));
   BOOST_CHECK_EQUAL(read.ocr.pageLayout, 2);
+}
+
+BOOST_AUTO_TEST_CASE(test_formats_and_text_layer_are_read_back) {
+  ProcessingOptions::Formats oneOfEach;
+  oneOfEach.pdf = false;
+  oneOfEach.txt = true;
+  oneOfEach.hocr = false;
+  oneOfEach.alto = true;
+  ProcessingOptions::Formats theOthers;
+  theOthers.pdf = true;
+  theOthers.txt = false;
+  theOthers.hocr = true;
+  theOthers.alto = false;
+
+  for (const ProcessingOptions::Formats& formats : {oneOfEach, theOthers}) {
+    for (const bool textLayer : {false, true}) {
+      ProcessingOptions options;
+      options.formats = formats;
+      options.pdf.textLayer = textLayer;
+
+      // The fallback holds the opposite values, so it can't show through.
+      ProcessingOptions fallback;
+      fallback.formats = (formats == oneOfEach) ? theOthers : oneOfEach;
+      fallback.pdf.textLayer = !textLayer;
+
+      QDomDocument doc;
+      const ProcessingOptions read(options.toXml(doc, "processing-options"), fallback);
+      BOOST_CHECK(read.formats == formats);
+      BOOST_CHECK_EQUAL(read.pdf.textLayer, textLayer);
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_new_files_store_the_text_layer_only_with_the_pdf) {
+  QDomDocument doc;
+  const QDomElement el = ProcessingOptions().toXml(doc, "processing-options");
+  const QDomElement ocrEl = el.namedItem("ocr").toElement();
+  BOOST_CHECK(!ocrEl.hasAttribute("enabled"));
+  BOOST_CHECK(ocrEl.hasAttribute("languages"));
+  BOOST_CHECK(ocrEl.hasAttribute("pageLayout"));
+  BOOST_CHECK(el.namedItem("pdf").toElement().hasAttribute("textLayer"));
+  BOOST_CHECK(!el.namedItem("formats").isNull());
+}
+
+BOOST_AUTO_TEST_CASE(test_text_layer_of_older_versions_is_read) {
+  const auto textLayerOf = [](const char* children, const bool fallbackValue) {
+    const QDomDocument doc
+        = parse(QStringLiteral("<processing-options>%1</processing-options>").arg(QString::fromLatin1(children)));
+    ProcessingOptions fallback;
+    fallback.pdf.textLayer = fallbackValue;
+    return ProcessingOptions(doc.documentElement(), fallback).pdf.textLayer;
+  };
+
+  // As written by version 1.0.x.
+  BOOST_CHECK(!textLayerOf("<pdf pdfA=\"1\"/><ocr enabled=\"0\" languages=\"deu\"/>", true));
+  BOOST_CHECK(textLayerOf("<pdf pdfA=\"1\"/><ocr enabled=\"1\" languages=\"deu\"/>", false));
+  // The new attribute wins.
+  BOOST_CHECK(textLayerOf("<pdf textLayer=\"1\"/><ocr enabled=\"0\"/>", false));
+  BOOST_CHECK(!textLayerOf("<pdf textLayer=\"0\"/><ocr enabled=\"1\"/>", true));
+  // Neither of them.
+  BOOST_CHECK(textLayerOf("", true));
+  BOOST_CHECK(!textLayerOf("", false));
+}
+
+BOOST_AUTO_TEST_CASE(test_projects_of_older_versions_create_a_pdf) {
+  const QDomDocument doc = parse(QStringLiteral(
+      "<processing-options><pdf pdfA=\"1\"/><ocr enabled=\"1\" languages=\"deu\"/></processing-options>"));
+  const ProcessingOptions read(doc.documentElement(), ProcessingOptions());
+  BOOST_CHECK(read.formats.pdf);
+  BOOST_CHECK(!read.formats.txt);
+  BOOST_CHECK(!read.formats.hocr);
+  BOOST_CHECK(!read.formats.alto);
+
+  // Without the element, the formats are those of the fallback, not fixed ones.
+  ProcessingOptions fallback;
+  fallback.formats.pdf = false;
+  fallback.formats.alto = true;
+  BOOST_CHECK(ProcessingOptions(doc.documentElement(), fallback).formats == fallback.formats);
+}
+
+BOOST_AUTO_TEST_CASE(test_profiles_store_formats_and_read_older_versions) {
+  ProcessingOptions options;
+  options.formats.pdf = false;
+  options.formats.hocr = true;
+  options.pdf.textLayer = false;
+  DefaultParams profile;
+  profile.setProcessingOptions(options);
+  QDomDocument doc;
+  const DefaultParams read(profile.toXml(doc, "profile"));
+  BOOST_CHECK(read.getProcessingOptions().formats == options.formats);
+  BOOST_CHECK(!read.getProcessingOptions().pdf.textLayer);
+
+  // A profile of version 1.0.x.
+  const QDomDocument oldDoc
+      = parse(QStringLiteral("<profile><processing-options><ocr enabled=\"0\"/></processing-options></profile>"));
+  const DefaultParams oldProfile(oldDoc.documentElement());
+  BOOST_CHECK(!oldProfile.getProcessingOptions().pdf.textLayer);
+  BOOST_CHECK(oldProfile.getProcessingOptions().formats == ProcessingOptions::Formats());
+}
+
+BOOST_AUTO_TEST_CASE(test_text_recognition_is_needed_if_a_format_uses_the_text) {
+  ProcessingOptions options;
+  options.formats.pdf = false;
+  options.pdf.textLayer = true;
+  BOOST_CHECK(!options.needsTextRecognition());  // Nothing chosen; the text layer belongs to the PDF.
+
+  options.formats.pdf = true;
+  BOOST_CHECK(options.needsTextRecognition());
+  options.pdf.textLayer = false;
+  BOOST_CHECK(!options.needsTextRecognition());
+
+  options.formats.txt = true;
+  BOOST_CHECK(options.needsTextRecognition());
+  options.formats.txt = false;
+  options.formats.hocr = true;
+  BOOST_CHECK(options.needsTextRecognition());
+  options.formats.hocr = false;
+  options.formats.alto = true;
+  BOOST_CHECK(options.needsTextRecognition());
 }
 
 BOOST_AUTO_TEST_CASE(test_start_values_are_stored_in_the_project) {

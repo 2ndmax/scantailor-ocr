@@ -23,6 +23,20 @@ class QString;
  * task takes a copy when it is created, so a running batch keeps the values it was started with.
  */
 struct ProcessingOptions {
+  /** Which files the export creates. */
+  struct Formats {
+    bool pdf = true;
+    bool txt = false;
+    bool hocr = false;
+    bool alto = false;
+
+    bool operator==(const Formats& other) const {
+      return (pdf == other.pdf) && (txt == other.txt) && (hocr == other.hocr) && (alto == other.alto);
+    }
+
+    bool operator!=(const Formats& other) const { return !(*this == other); }
+  };
+
   /** How the PDF is made, see ExportOptions. */
   struct Pdf {
     PdfCompression colorCompression = PdfCompression::JPEG;
@@ -37,13 +51,13 @@ struct ProcessingOptions {
     /** Write the PDF as PDF/A-2b. */
     bool pdfA = true;
     /** Add an invisible text layer. */
-    bool ocr = true;
+    bool textLayer = true;
 
     bool operator==(const Pdf& other) const {
       return (colorCompression == other.colorCompression) && (colorQuality == other.colorQuality)
              && (backgroundScale == other.backgroundScale) && (paletteCompression == other.paletteCompression)
              && (paletteQuality == other.paletteQuality) && (bitonalCompression == other.bitonalCompression)
-             && (pdfA == other.pdfA) && (ocr == other.ocr);
+             && (pdfA == other.pdfA) && (textLayer == other.textLayer);
     }
 
     bool operator!=(const Pdf& other) const { return !(*this == other); }
@@ -71,6 +85,7 @@ struct ProcessingOptions {
   bool blackOnWhiteDetection = true;
   /** Whether the output step takes over the detected background, unless it was set by hand. */
   bool blackOnWhiteAtOutput = true;
+  Formats formats;
   Pdf pdf;
   Ocr ocr;
 
@@ -78,6 +93,9 @@ struct ProcessingOptions {
 
   /** Values missing in the element (or the whole element) are taken from \p fallback. */
   ProcessingOptions(const QDomElement& el, const ProcessingOptions& fallback);
+
+  /** Whether any of the chosen files needs the text of the pages. */
+  bool needsTextRecognition() const;
 
   QDomElement toXml(QDomDocument& doc, const QString& name) const;
 };
