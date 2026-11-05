@@ -42,7 +42,7 @@
             </a>
             <a class="button button--glass button--large" href="#features">See features</a>
           </div>
-          <p class="hero__note">For Windows and Linux · in English and German · with a command line tool</p>
+          <p class="hero__note glass">For Windows and Linux · in English and German · with a command line tool</p>
         </div>
         <figure class="hero__shot glass">
           <img src="images/screenshot.webp" width="1600" height="940"
@@ -113,8 +113,8 @@
           <p class="card__text">Choose black and white, grayscale or color, add filters, even out the margins.</p>
         </li>
         <li class="step glass">
-          <h3 class="card__title">Create PDF</h3>
-          <p class="card__text">Recognize the text and save everything as a searchable PDF.</p>
+          <h3 class="card__title">Export</h3>
+          <p class="card__text">Recognize the text and save everything as a searchable PDF, or as TXT, hOCR or ALTO.</p>
         </li>
       </ol>
     </section>
@@ -126,16 +126,16 @@
       </header>
       <div class="console">
         <div class="console__bar" aria-hidden="true"><span></span><span></span><span></span></div>
-        <pre class="console__text"><code><span class="console__prompt" aria-hidden="true">&gt; </span>scantailor-ocr-cli book.ScanTailor --pdf book.pdf</code></pre>
+        <pre class="console__text"><code><span class="console__prompt" aria-hidden="true">&gt; </span>scantailor-ocr-cli book.ScanTailor --export</code></pre>
       </div>
       <ul class="cards cards--cli">
         <li class="card glass">
-          <h3 class="card__title">All steps, then the PDF</h3>
-          <p class="card__text">Processes every page through all six steps like the batch processing, saves the project and, with <code>--pdf</code>, creates the PDF with the project's PDF and text recognition settings.</p>
+          <h3 class="card__title">All steps, then the export</h3>
+          <p class="card__text">Processes every page through all six steps like the batch processing, saves the project and, with <code>--export</code>, exports the pages in the formats of the project, next to the project file or into <code>--export-folder</code>.</p>
         </li>
         <li class="card glass">
           <h3 class="card__title">Asks nothing, risks nothing</h3>
-          <p class="card__text">Refuses what the app would ask about: older projects, images without DPI, moved projects, missing OCR languages. It downloads nothing and never writes the PDF over the project or one of its images.</p>
+          <p class="card__text">Refuses what the app would ask about: older projects, images without DPI, moved projects, missing OCR languages. It downloads nothing and never lets the export replace the project or one of its images.</p>
         </li>
         <li class="card glass">
           <h3 class="card__title">Stop at any time</h3>

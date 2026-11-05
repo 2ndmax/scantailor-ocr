@@ -328,9 +328,14 @@ ol {
   text-shadow: 0 1px 6px rgba(0, 60, 120, 0.35);
 }
 
+/* On glass, like the badges: as plain light text, it was hard to read on the bright parts of the sky.
+   Rounded less than a pill, as the line wraps in narrower windows. */
 .hero__note {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 14px;
   font-size: 15px;
-  color: #e6f5ff;
+  color: #0b4a7d;
 }
 
 .actions {
