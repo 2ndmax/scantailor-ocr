@@ -955,7 +955,7 @@ BOOST_AUTO_TEST_CASE(test_export_job) {
   ExportOptions options;
   options.threadCount = 3;
   const QString pdfFile = dir.filePath("out.pdf");
-  ExportJob job(pages, pdfFile, options);
+  ExportJob job(pages, ExportPaths::forPdfFile(pdfFile), options);
   job.run();
   BOOST_REQUIRE(job.succeeded());
 
@@ -979,7 +979,7 @@ BOOST_AUTO_TEST_CASE(test_export_job) {
   pages.emplace_back(dir.filePath("missing.tif"), QString(), QString(), false);
   pages.back().analyze();
   const QString failedFile = dir.filePath("failed.pdf");
-  ExportJob failing(pages, failedFile, options);
+  ExportJob failing(pages, ExportPaths::forPdfFile(failedFile), options);
   failing.run();
   BOOST_CHECK(!failing.succeeded());
   BOOST_CHECK(!failing.errors().isEmpty());

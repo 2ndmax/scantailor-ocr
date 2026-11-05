@@ -27,6 +27,7 @@ set(sources
     TestProjectFile.cpp
     TestProjectFiles.cpp
     TestPathNames.cpp
+    TestExportFormats.cpp
     TestRecentProjects.cpp
     TestRelinkedKeys.cpp
     TestRenderParams.cpp

@@ -11,7 +11,7 @@
 #include "PageId.h"
 
 /**
- * \brief One page of the PDF export: its output files and how it will be stored.
+ * \brief One page of the export: its output files and how it will be stored in the PDF.
  */
 class ExportPage {
  public:

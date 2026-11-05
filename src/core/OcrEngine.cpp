@@ -73,12 +73,17 @@ bool OcrEngine::readDataFile(const char* utf8FileName, std::vector<char>* data) 
   return file.read(data->data(), file.size()) == file.size();
 }
 
+QString OcrEngine::tesseractVersion() {
+  return QString::fromUtf8(tesseract::TessBaseAPI::Version());
+}
+
 bool OcrEngine::recognize(const QImage& image,
                           const PageLayout layout,
+                          const OcrRequest& request,
                           const std::atomic<bool>* cancel,
-                          std::vector<OcrWord>* words,
+                          OcrPageResult* result,
                           QString* error) {
-  words->clear();
+  *result = OcrPageResult();
   if (!m_api) {
     if (error) {
       *error = QCoreApplication::translate("OcrEngine", "Text recognition isn't initialized.");
@@ -119,7 +124,38 @@ bool OcrEngine::recognize(const QImage& image,
     return false;
   }
 
-  const std::unique_ptr<tesseract::ResultIterator> it(m_api->GetIterator());
+  // These calls only read the result of Recognize(), so they must come before Clear().
+  // Taking ownership of what Tesseract allocated; null means it failed.
+  const auto takeText = [](char* text, QByteArray* target) {
+    const std::unique_ptr<char[]> owned(text);
+    if (owned) {
+      *target = QByteArray(owned.get());
+    }
+    return owned != nullptr;
+  };
+  bool textsDelivered = true;
+  if (request.text) {
+    textsDelivered = takeText(m_api->GetUTF8Text(), &result->texts.text) && textsDelivered;
+  }
+  if (request.hocr) {
+    m_api->SetInputName(request.imageName.toUtf8().constData());
+    // hOCR counts from 0 and adds 1 itself, so the IDs are unique in the file of all pages.
+    textsDelivered = takeText(m_api->GetHOCRText(request.position - 1), &result->texts.hocr) && textsDelivered;
+  }
+  if (request.alto) {
+    // ALTO takes the number as it is and leaves it out of the IDs if it is 0, so this counts from 1,
+    // like the number in the name of the file.
+    textsDelivered = takeText(m_api->GetAltoText(request.position), &result->texts.alto) && textsDelivered;
+  }
+  if (!textsDelivered) {
+    m_api->Clear();
+    if (error) {
+      *error = QCoreApplication::translate("OcrEngine", "Text recognition failed.");
+    }
+    return false;
+  }
+
+  const std::unique_ptr<tesseract::ResultIterator> it(request.words ? m_api->GetIterator() : nullptr);
   if (it) {
     QRect lineBox;
     bool haveBaseline = false;
@@ -159,7 +195,7 @@ bool OcrEngine::recognize(const QImage& image,
       word.baselineY = std::max(top + 1, std::min(baseline, bottom));
       word.lineTop = lineBox.isValid() ? std::min(lineBox.top(), top) : top;
       word.lastInLine = it->IsAtFinalElement(tesseract::RIL_TEXTLINE, tesseract::RIL_WORD);
-      words->push_back(word);
+      result->words.push_back(word);
     } while (it->Next(tesseract::RIL_WORD));
   }
 

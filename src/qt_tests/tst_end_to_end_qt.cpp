@@ -233,7 +233,7 @@ QByteArray exportPdf(const std::vector<ExportPage>& pages,
                      const QString& filePath,
                      const ExportOptions& options,
                      QStringList* errors = nullptr) {
-  ExportJob job(pages, filePath, options);
+  ExportJob job(pages, ExportPaths::forPdfFile(filePath), options);
   job.run();
   if (errors) {
     *errors = job.errors();

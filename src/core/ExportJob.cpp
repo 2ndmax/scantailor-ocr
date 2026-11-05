@@ -4,6 +4,7 @@
 #include "ExportJob.h"
 
 #include <QDir>
+#include <QFileInfo>
 #include <QImage>
 #include <QSaveFile>
 #include <algorithm>
@@ -21,6 +22,7 @@
 #include "ImageLoader.h"
 #include "OcrEngine.h"
 #include "OcrLanguages.h"
+#include "OcrTextOutputs.h"
 #include "PdfImageEncoder.h"
 #include "ProcessingOptions.h"
 #include "ThreadBudget.h"
@@ -188,16 +190,23 @@ QImage scalePaletteImage(const QImage& image, const int width, const int height)
   return scaled;
 }
 
-/** Recognizes the text of \p image, if requested, and adds it to the page as invisible text. */
-bool addTextLayer([[maybe_unused]] const QImage& image,
-                  [[maybe_unused]] const QString& filePath,
-                  [[maybe_unused]] const QSizeF& perPoint,
-                  const ExportOptions& options,
-                  [[maybe_unused]] OcrEngine* ocrEngine,
-                  [[maybe_unused]] const std::atomic<bool>* cancel,
-                  [[maybe_unused]] PdfWriter::Page* result,
-                  QStringList* errors) {
-  if (!options.ocr) {
+/**
+ * Recognizes the text of \p image, if a format needs it: the words go into the page as invisible
+ * text, the texts of the text formats into \p texts. \p page names the image, also if \p image is
+ * the foreground of split output, which has the same size and name as the output file.
+ */
+bool recognizeText([[maybe_unused]] const QImage& image,
+                   [[maybe_unused]] const QString& filePath,
+                   [[maybe_unused]] const ExportPage& page,
+                   [[maybe_unused]] const int position,
+                   [[maybe_unused]] const QSizeF& perPoint,
+                   const ExportOptions& options,
+                   [[maybe_unused]] OcrEngine* ocrEngine,
+                   [[maybe_unused]] const std::atomic<bool>* cancel,
+                   [[maybe_unused]] PdfWriter::Page* result,
+                   [[maybe_unused]] OcrPageTexts* texts,
+                   QStringList* errors) {
+  if (!options.runsTextRecognition()) {
     return true;
   }
 #ifdef ENABLE_OCR
@@ -205,13 +214,24 @@ bool addTextLayer([[maybe_unused]] const QImage& image,
     errors->push_back(ExportJob::tr("Text recognition isn't initialized."));
     return false;
   }
-  std::vector<OcrWord> words;
+  OcrRequest request;
+  request.words = options.addsTextLayer();
+  request.text = options.formats.txt;
+  request.hocr = options.formats.hocr;
+  request.alto = options.formats.alto;
+  request.imageName = QFileInfo(page.mainFile()).fileName();
+  request.position = position;
+  OcrPageResult recognized;
   QString error;
-  if (!ocrEngine->recognize(image, static_cast<OcrEngine::PageLayout>(options.ocrPageLayout), cancel, &words, &error)) {
+  if (!ocrEngine->recognize(image, static_cast<OcrEngine::PageLayout>(options.ocrPageLayout), request, cancel,
+                            &recognized, &error)) {
     errors->push_back(describeFailure(ExportJob::tr("Text recognition failed for %1."), filePath, QStringList(error)));
     return false;
   }
-  for (const OcrWord& ocrWord : words) {
+  if (texts) {
+    *texts = std::move(recognized.texts);
+  }
+  for (const OcrWord& ocrWord : recognized.words) {
     PdfWriter::Word word;
     // The space makes viewers separate the words when copying text.
     word.text = ocrWord.lastInLine ? ocrWord.text : ocrWord.text + ' ';
@@ -244,9 +264,28 @@ QString currentExceptionMessage() {
 }
 }  // namespace
 
+ExportPaths ExportPaths::fromBase(const QString& base) {
+  ExportPaths paths;
+  paths.pdf = base + QStringLiteral(".pdf");
+  paths.txt = base + QStringLiteral(".txt");
+  paths.hocr = base + QStringLiteral(".hocr");
+  paths.altoDir = base + QStringLiteral("_alto");
+  return paths;
+}
+
+ExportPaths ExportPaths::forPdfFile(const QString& pdfFile) {
+  const QString extension = QStringLiteral(".pdf");
+  ExportPaths paths
+      = fromBase(pdfFile.endsWith(extension, Qt::CaseInsensitive) ? pdfFile.chopped(extension.size()) : pdfFile);
+  paths.pdf = pdfFile;
+  return paths;
+}
+
 ExportOptions ExportOptions::fromProject(const ProcessingOptions& options) {
   const ProcessingOptions::Pdf& pdf = options.pdf;
   ExportOptions result;
+  result.formats = options.formats;
+  result.textLayer = pdf.textLayer;
   result.colorCompression = pdf.colorCompression;
   result.colorQuality = pdf.colorQuality;
   result.backgroundScale = pdf.backgroundScale;
@@ -275,8 +314,8 @@ ExportOptions::OcrSetup ExportOptions::setUpOcr(const QStringList& languages, co
   return OcrSetup::DONE;
 }
 
-ExportJob::ExportJob(std::vector<ExportPage> pages, const QString& outputFile, const ExportOptions& options)
-    : m_pages(std::move(pages)), m_outputFile(outputFile), m_options(options) {}
+ExportJob::ExportJob(std::vector<ExportPage> pages, const ExportPaths& paths, const ExportOptions& options)
+    : m_pages(std::move(pages)), m_paths(paths), m_options(options) {}
 
 int ExportJob::defaultThreadCount() {
   return ThreadBudget::maxThreads();
@@ -287,7 +326,9 @@ bool ExportJob::preparePage(const ExportPage& page,
                             PdfWriter::Page* result,
                             QStringList* errors,
                             OcrEngine* ocrEngine,
-                            const std::atomic<bool>* cancel) {
+                            const std::atomic<bool>* cancel,
+                            const int position,
+                            OcrPageTexts* texts) {
   result->images.clear();
   result->words.clear();
 
@@ -307,23 +348,26 @@ bool ExportJob::preparePage(const ExportPage& page,
       result->size = QSizeF(image.width() / perPoint.width(), image.height() / perPoint.height());
       const QRectF rect(QPointF(0, 0), result->size);
 
-      PdfWriter::Image pdfImage;
-      // The kind was determined from the file header; decide by the actual image to be safe.
-      bool ok;
-      if (PdfImageEncoder::isBitonal(image)) {
-        ok = makeBitonalImage(image, page.mainFile(), false, options.bitonalCompression, rect, &pdfImage, errors);
-      } else if (PdfImageEncoder::isPalette(image)) {
-        ok = makeColorImage(image, page.mainFile(), options.paletteCompression, options.paletteQuality, rect, &pdfImage,
-                            errors);
-      } else {
-        ok = makeColorImage(image, page.mainFile(), options.colorCompression, options.colorQuality, rect, &pdfImage,
-                            errors);
+      if (options.formats.pdf) {
+        PdfWriter::Image pdfImage;
+        // The kind was determined from the file header; decide by the actual image to be safe.
+        bool ok;
+        if (PdfImageEncoder::isBitonal(image)) {
+          ok = makeBitonalImage(image, page.mainFile(), false, options.bitonalCompression, rect, &pdfImage, errors);
+        } else if (PdfImageEncoder::isPalette(image)) {
+          ok = makeColorImage(image, page.mainFile(), options.paletteCompression, options.paletteQuality, rect,
+                              &pdfImage, errors);
+        } else {
+          ok = makeColorImage(image, page.mainFile(), options.colorCompression, options.colorQuality, rect, &pdfImage,
+                              errors);
+        }
+        if (!ok) {
+          return false;
+        }
+        result->images.push_back(std::move(pdfImage));
       }
-      if (!ok) {
-        return false;
-      }
-      result->images.push_back(std::move(pdfImage));
-      return addTextLayer(image, page.mainFile(), perPoint, options, ocrEngine, cancel, result, errors);
+      return recognizeText(image, page.mainFile(), page, position, perPoint, options, ocrEngine, cancel, result, texts,
+                           errors);
     }
     case ExportPage::MRC: {
       const QImage foreground = loadImage(page.foregroundFile(), errors);
@@ -333,7 +377,17 @@ bool ExportJob::preparePage(const ExportPage& page,
       const QSizeF perPoint = pixelsPerPoint(foreground);
       result->size = QSizeF(foreground.width() / perPoint.width(), foreground.height() / perPoint.height());
 
-      {
+      if (!options.formats.pdf) {
+        // Without a PDF the background isn't loaded, and so isn't compared below. The text formats
+        // name the output file for the coordinates of the foreground, so it must have the same size.
+        QSize mainSize;
+        if (!PdfImageEncoder::readTiffInfo(page.mainFile(), &mainSize, nullptr, nullptr, nullptr)
+            || (mainSize != foreground.size())) {
+          errors->push_back(describeFailure(tr("The split output files of %1 differ in size. Process the page again."),
+                                            page.mainFile(), QStringList()));
+          return false;
+        }
+      } else {
         QImage background = loadImage(page.backgroundFile(), errors);
         if (background.isNull()) {
           return false;
@@ -370,16 +424,19 @@ bool ExportJob::preparePage(const ExportPage& page,
           }
           result->images.push_back(std::move(pdfImage));
         }
-      }
+        background = QImage();  // Pages are large; it isn't needed while the mask is compressed.
 
-      PdfWriter::Image mask;
-      if (!makeBitonalImage(foreground, page.foregroundFile(), true, options.bitonalCompression,
-                            QRectF(QPointF(0, 0), result->size), &mask, errors)) {
-        return false;
+        PdfWriter::Image mask;
+        if (!makeBitonalImage(foreground, page.foregroundFile(), true, options.bitonalCompression,
+                              QRectF(QPointF(0, 0), result->size), &mask, errors)) {
+          return false;
+        }
+        result->images.push_back(std::move(mask));
       }
-      result->images.push_back(std::move(mask));
-      // The foreground holds only the text, without the pictures, which helps recognition.
-      return addTextLayer(foreground, page.foregroundFile(), perPoint, options, ocrEngine, cancel, result, errors);
+      // The foreground holds only the text, without the pictures, which helps recognition. So
+      // hOCR and ALTO have no picture areas for these pages, unlike for pages stored as one image.
+      return recognizeText(foreground, page.foregroundFile(), page, position, perPoint, options, ocrEngine, cancel,
+                           result, texts, errors);
     }
   }
   return false;
@@ -396,24 +453,58 @@ void ExportJob::run() {
     return;
   }
 
-  QSaveFile file(m_outputFile);
-  if (!file.open(QIODevice::WriteOnly)) {
-    m_errors.push_back(describeFailure(tr("Could not create %1."), m_outputFile, QStringList(file.errorString())));
+  const ProcessingOptions::Formats& formats = m_options.formats;
+  if (!formats.any()) {
+    m_errors.push_back(tr("No format is selected."));
+    return;
+  }
+  if (formats.hasTextFormat() && !m_options.ocr) {
+#ifdef ENABLE_OCR
+    m_errors.push_back(tr("Text recognition isn't initialized."));
+#else
+    m_errors.push_back(tr("This version of the program was built without text recognition."));
+#endif
     return;
   }
 
-  PdfWriter writer(file);
-  writer.setProducer(QStringLiteral("ScanTailor OCR"));
-  writer.setPdfA(m_options.pdfA);
-  bool ok = writer.begin();
+  std::unique_ptr<QSaveFile> file;
+  std::unique_ptr<PdfWriter> writer;
+  bool ok = true;
+  if (formats.pdf) {
+    file = std::make_unique<QSaveFile>(m_paths.pdf);
+    if (!file->open(QIODevice::WriteOnly)) {
+      m_errors.push_back(describeFailure(tr("Could not create %1."), m_paths.pdf, QStringList(file->errorString())));
+      return;
+    }
+    writer = std::make_unique<PdfWriter>(*file);
+    writer->setProducer(QStringLiteral("ScanTailor OCR"));
+    writer->setPdfA(m_options.pdfA);
+    ok = writer->begin();
+  }
+
+  OcrTextOutputs::Settings textSettings;
+  textSettings.txtFile = formats.txt ? m_paths.txt : QString();
+  textSettings.hocrFile = formats.hocr ? m_paths.hocr : QString();
+  textSettings.altoDir = formats.alto ? m_paths.altoDir : QString();
+  textSettings.pageCount = pageCount;
+#ifdef ENABLE_OCR
+  textSettings.tesseractVersion = OcrEngine::tesseractVersion();
+#endif
+  OcrTextOutputs textOutputs(textSettings);
+  QString textError;
+  if (!textOutputs.begin(&textError)) {
+    m_errors.push_back(textError);
+    return;
+  }
 
   struct Prepared {
     bool ok = false;
     PdfWriter::Page page;
+    OcrPageTexts texts;
     QStringList errors;
 
     qint64 bytes() const {
-      qint64 sum = 0;
+      qint64 sum = texts.bytes();
       for (const PdfWriter::Image& image : page.images) {
         sum += image.data.size();
       }
@@ -466,7 +557,7 @@ void ExportJob::run() {
       if (!m_cancelRequested) {
         try {
 #ifdef ENABLE_OCR
-          if (m_options.ocr && !ocrEngine && ocrInitError.isEmpty()) {
+          if (m_options.runsTextRecognition() && !ocrEngine && ocrInitError.isEmpty()) {
             auto newEngine = std::make_unique<OcrEngine>();
             if (newEngine->init(m_options.ocrDataDir, m_options.ocrLanguages, &ocrInitError)) {
               ocrEngine = std::move(newEngine);
@@ -480,7 +571,8 @@ void ExportJob::run() {
             item.ok = false;
             item.errors.push_back(ocrInitError);
           } else {
-            item.ok = preparePage(m_pages[index], m_options, &item.page, &item.errors, engine, &m_cancelRequested);
+            item.ok = preparePage(m_pages[index], m_options, &item.page, &item.errors, engine, &m_cancelRequested,
+                                  index + 1, &item.texts);
           }
         } catch (...) {
           // An exception escaping a std::thread would terminate the program.
@@ -532,7 +624,12 @@ void ExportJob::run() {
         ok = false;
         break;
       }
-      if (!writer.addPage(item.page)) {
+      if (writer && !writer->addPage(item.page)) {
+        ok = false;
+        break;
+      }
+      if (!textOutputs.addPage(QFileInfo(m_pages[nextToWrite - 1].mainFile()).fileName(), item.texts, &textError)) {
+        m_errors.push_back(textError);
         ok = false;
         break;
       }
@@ -552,25 +649,45 @@ void ExportJob::run() {
     thread.join();
   }
 
+  // Everything is written completely before the first existing file is replaced.
   if (ok && !m_cancelled) {
     try {
-      ok = writer.finish();
+      ok = !writer || writer->finish();
+      if (ok && !textOutputs.finish(&textError)) {
+        m_errors.push_back(textError);
+        ok = false;
+      }
     } catch (...) {
       m_errors.push_back(currentExceptionMessage());
       ok = false;
     }
   }
   if (ok && !m_cancelled) {
-    if (file.commit()) {
+    QStringList replaced;
+    if (file) {
+      if (!file->commit()) {
+        m_errors.push_back(describeFailure(tr("Could not write %1."), m_paths.pdf, QStringList(file->errorString())));
+        textOutputs.cancel();
+        return;
+      }
+      replaced.push_back(QDir::toNativeSeparators(m_paths.pdf));
+    }
+    if (textOutputs.commit(&replaced, &textError)) {
       m_succeeded = true;
       return;
     }
-    m_errors.push_back(describeFailure(tr("Could not write %1."), m_outputFile, QStringList(file.errorString())));
+    m_errors.push_back(textError);
+    if (!replaced.isEmpty()) {
+      m_errors.push_back(tr("These were already replaced: %1").arg(replaced.join(QStringLiteral(", "))));
+    }
     return;
   }
 
-  file.cancelWriting();
-  if (!m_cancelled && m_errors.isEmpty()) {
-    m_errors.push_back(describeFailure(tr("Could not write %1."), m_outputFile, QStringList(file.errorString())));
+  textOutputs.cancel();
+  if (file) {
+    file->cancelWriting();
+    if (!m_cancelled && m_errors.isEmpty()) {
+      m_errors.push_back(describeFailure(tr("Could not write %1."), m_paths.pdf, QStringList(file->errorString())));
+    }
   }
 }  // ExportJob::run

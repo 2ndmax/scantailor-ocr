@@ -111,7 +111,7 @@ bool pdfReplacesProjectFile(const QString& pdfFile,
  */
 bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStream& err) {
 #ifdef ENABLE_OCR
-  if (!project.pdf.textLayer) {
+  if (!project.needsTextRecognition()) {
     return true;
   }
   const QStringList missing = OcrLanguages::missing(project.ocr.languages);
@@ -147,7 +147,7 @@ bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStr
   return false;
 #else
   // As in the app, which offers no text recognition then.
-  Q_UNUSED(projectPdf);
+  Q_UNUSED(project);
   Q_UNUSED(options);
   Q_UNUSED(err);
   return true;
@@ -186,7 +186,7 @@ CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
     return CommandLineRun::PDF_FAILED;
   }
 
-  ExportJob job(std::move(pages), pdfFile, options);
+  ExportJob job(std::move(pages), ExportPaths::forPdfFile(pdfFile), options);
   // REVIEW-NOTE (2026-11): Ctrl+C while a PDF page is being recognized -> the tool only cancels the job after that
   // page is written, so text recognition of the current page runs to its end. Not fixed because ExportJob only
   // takes a cancel request through cancel(), and the delay is at most one page.

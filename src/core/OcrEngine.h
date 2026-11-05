@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "NonCopyable.h"
+#include "OcrTextOutputs.h"
 
 class QImage;
 
@@ -27,6 +28,25 @@ struct OcrWord {
   /** The top of the line the word belongs to. */
   int lineTop = 0;
   bool lastInLine = false;
+};
+
+/** What OcrEngine::recognize() is to deliver for a page. */
+struct OcrRequest {
+  /** The words with their places, for the text layer of the PDF. */
+  bool words = false;
+  bool text = false;
+  bool hocr = false;
+  bool alto = false;
+  /** The name of the image, as hOCR names it. */
+  QString imageName;
+  /** The place of the page in the export, from 1. */
+  int position = 1;
+};
+
+/** The result of OcrEngine::recognize(). Only the requested parts are filled. */
+struct OcrPageResult {
+  std::vector<OcrWord> words;
+  OcrPageTexts texts;
 };
 
 
@@ -56,7 +76,7 @@ class OcrEngine {
   bool init(const QString& tessdataDir, const QString& languages, QString* error);
 
   /**
-   * \brief Recognizes the text of an image.
+   * \brief Recognizes the text of an image, once, however many forms of it are requested.
    *
    * The resolution of the image (dots per meter) is passed on to Tesseract.
    *
@@ -64,9 +84,13 @@ class OcrEngine {
    */
   bool recognize(const QImage& image,
                  PageLayout layout,
+                 const OcrRequest& request,
                  const std::atomic<bool>* cancel,
-                 std::vector<OcrWord>* words,
+                 OcrPageResult* result,
                  QString* error);
+
+  /** The version of Tesseract. */
+  static QString tesseractVersion();
 
   /**
    * \brief Reads a language file for Tesseract (its FileReader).

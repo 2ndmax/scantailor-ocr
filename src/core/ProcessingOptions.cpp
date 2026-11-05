@@ -95,7 +95,7 @@ ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOpti
 }
 
 bool ProcessingOptions::needsTextRecognition() const {
-  return (formats.pdf && pdf.textLayer) || formats.txt || formats.hocr || formats.alto;
+  return formats.needsTextRecognition(pdf.textLayer);
 }
 
 QDomElement ProcessingOptions::toXml(QDomDocument& doc, const QString& name) const {

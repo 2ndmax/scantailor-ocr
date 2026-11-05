@@ -777,7 +777,7 @@ void ExportView::startExport() {
   options.threadCount = ExportJob::defaultThreadCount();
 
 #ifdef ENABLE_OCR
-  if (m_ocrPanel->isOcrEnabled()) {
+  if (m_processingOptions->needsTextRecognition()) {
     if (!m_ocrPanel->missingLanguages().isEmpty()) {
       const QMessageBox::StandardButton answer = QMessageBox::question(
           this, title,
@@ -833,7 +833,7 @@ void ExportView::startExport() {
 #endif
 
   const int pageCount = static_cast<int>(pages.size());
-  m_job = std::make_unique<ExportJob>(std::move(pages), path, options);
+  m_job = std::make_unique<ExportJob>(std::move(pages), ExportPaths::forPdfFile(path), options);
   connect(m_job.get(), &ExportJob::progress, this, &ExportView::exportProgress, Qt::QueuedConnection);
   ExportJob* job = m_job.get();
   m_thread = QThread::create([job]() { job->run(); });
@@ -842,8 +842,8 @@ void ExportView::startExport() {
   m_runningFile = path;
   m_progressBar->setRange(0, pageCount);
   m_progressBar->setValue(0);
-  m_statusLabel->setText(options.ocr ? tr("Recognizing the text and creating the PDF ...")
-                                     : tr("Creating the PDF ..."));
+  m_statusLabel->setText(options.runsTextRecognition() ? tr("Recognizing the text and creating the PDF ...")
+                                                       : tr("Creating the PDF ..."));
   setRunning(true);
   m_thread->start();
 }  // ExportView::startExport

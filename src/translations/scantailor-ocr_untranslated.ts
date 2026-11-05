@@ -1933,68 +1933,81 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>ExportJob</name>
     <message>
-        <location filename="../core/ExportJob.cpp" line="41"/>
+        <location filename="../core/ExportJob.cpp" line="43"/>
         <source>Could not load %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="74"/>
+        <location filename="../core/ExportJob.cpp" line="76"/>
         <source>Could not compress %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="205"/>
+        <location filename="../core/ExportJob.cpp" line="214"/>
+        <location filename="../core/ExportJob.cpp" line="463"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="211"/>
+        <location filename="../core/ExportJob.cpp" line="228"/>
         <source>Text recognition failed for %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="228"/>
+        <location filename="../core/ExportJob.cpp" line="248"/>
+        <location filename="../core/ExportJob.cpp" line="465"/>
         <source>This version of the program was built without text recognition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="296"/>
+        <location filename="../core/ExportJob.cpp" line="337"/>
         <source>The output file %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="343"/>
+        <location filename="../core/ExportJob.cpp" line="386"/>
+        <location filename="../core/ExportJob.cpp" line="397"/>
         <source>The split output files of %1 differ in size. Process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="395"/>
+        <location filename="../core/ExportJob.cpp" line="452"/>
         <source>No pages are selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="401"/>
+        <location filename="../core/ExportJob.cpp" line="458"/>
+        <source>No format is selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/ExportJob.cpp" line="476"/>
         <source>Could not create %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="475"/>
+        <location filename="../core/ExportJob.cpp" line="566"/>
         <source>Text recognition could not be started.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="238"/>
+        <location filename="../core/ExportJob.cpp" line="681"/>
+        <source>These were already replaced: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/ExportJob.cpp" line="258"/>
         <source>Out of memory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="242"/>
+        <location filename="../core/ExportJob.cpp" line="262"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="568"/>
-        <location filename="../core/ExportJob.cpp" line="574"/>
+        <location filename="../core/ExportJob.cpp" line="669"/>
+        <location filename="../core/ExportJob.cpp" line="690"/>
         <source>Could not write %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3239,17 +3252,18 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="84"/>
+        <location filename="../core/OcrEngine.cpp" line="89"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="116"/>
+        <location filename="../core/OcrEngine.cpp" line="121"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="117"/>
+        <location filename="../core/OcrEngine.cpp" line="122"/>
+        <location filename="../core/OcrEngine.cpp" line="153"/>
         <source>Text recognition failed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3372,6 +3386,29 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     <message>
         <location filename="../app/OcrPanel.cpp" line="88"/>
         <source>Text layout:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OcrTextOutputs</name>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="21"/>
+        <source>Could not create %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="25"/>
+        <source>Could not write %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="29"/>
+        <source>The folder %1 holds other files than ALTO files of an export, so it was not replaced. Move these files or choose another name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="36"/>
+        <source>Could not replace the folder %1. It may be in use.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

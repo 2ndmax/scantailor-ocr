@@ -1942,68 +1942,81 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>ExportJob</name>
     <message>
-        <location filename="../core/ExportJob.cpp" line="41"/>
+        <location filename="../core/ExportJob.cpp" line="43"/>
         <source>Could not load %1.</source>
         <translation>%1 konnte nicht geladen werden.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="74"/>
+        <location filename="../core/ExportJob.cpp" line="76"/>
         <source>Could not compress %1.</source>
         <translation>%1 konnte nicht komprimiert werden.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="205"/>
+        <location filename="../core/ExportJob.cpp" line="214"/>
+        <location filename="../core/ExportJob.cpp" line="463"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation>Die Texterkennung ist nicht initialisiert.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="211"/>
+        <location filename="../core/ExportJob.cpp" line="228"/>
         <source>Text recognition failed for %1.</source>
         <translation>Die Texterkennung ist für %1 fehlgeschlagen.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="228"/>
+        <location filename="../core/ExportJob.cpp" line="248"/>
+        <location filename="../core/ExportJob.cpp" line="465"/>
         <source>This version of the program was built without text recognition.</source>
         <translation>Diese Version des Programms wurde ohne Texterkennung gebaut.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="296"/>
+        <location filename="../core/ExportJob.cpp" line="337"/>
         <source>The output file %1 doesn&apos;t exist.</source>
         <translation>Die Ausgabedatei %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="343"/>
+        <location filename="../core/ExportJob.cpp" line="386"/>
+        <location filename="../core/ExportJob.cpp" line="397"/>
         <source>The split output files of %1 differ in size. Process the page again.</source>
         <translation>Die Dateien der geteilten Ausgabe von %1 haben unterschiedliche Größen. Verarbeiten Sie die Seite erneut.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="395"/>
+        <location filename="../core/ExportJob.cpp" line="452"/>
         <source>No pages are selected.</source>
         <translation>Es sind keine Seiten ausgewählt.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="401"/>
+        <location filename="../core/ExportJob.cpp" line="458"/>
+        <source>No format is selected.</source>
+        <translation>Es ist kein Format ausgewählt.</translation>
+    </message>
+    <message>
+        <location filename="../core/ExportJob.cpp" line="476"/>
         <source>Could not create %1.</source>
         <translation>%1 konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="475"/>
+        <location filename="../core/ExportJob.cpp" line="566"/>
         <source>Text recognition could not be started.</source>
         <translation>Die Texterkennung konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="238"/>
+        <location filename="../core/ExportJob.cpp" line="681"/>
+        <source>These were already replaced: %1</source>
+        <translation>Diese wurden bereits ersetzt: %1</translation>
+    </message>
+    <message>
+        <location filename="../core/ExportJob.cpp" line="258"/>
         <source>Out of memory.</source>
         <translation>Nicht genügend Arbeitsspeicher.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="242"/>
+        <location filename="../core/ExportJob.cpp" line="262"/>
         <source>Unknown error.</source>
         <translation>Unbekannter Fehler.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="568"/>
-        <location filename="../core/ExportJob.cpp" line="574"/>
+        <location filename="../core/ExportJob.cpp" line="669"/>
+        <location filename="../core/ExportJob.cpp" line="690"/>
         <source>Could not write %1.</source>
         <translation>%1 konnte nicht geschrieben werden.</translation>
     </message>
@@ -3270,17 +3283,18 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Die Sprachdateien „%1“ konnten nicht aus %2 geladen werden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="84"/>
+        <location filename="../core/OcrEngine.cpp" line="89"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation>Die Texterkennung ist nicht initialisiert.</translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="116"/>
+        <location filename="../core/OcrEngine.cpp" line="121"/>
         <source>Canceled.</source>
         <translation>Abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="117"/>
+        <location filename="../core/OcrEngine.cpp" line="122"/>
+        <location filename="../core/OcrEngine.cpp" line="153"/>
         <source>Text recognition failed.</source>
         <translation>Die Texterkennung ist fehlgeschlagen.</translation>
     </message>
@@ -3404,6 +3418,29 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <location filename="../app/OcrPanel.cpp" line="88"/>
         <source>Text layout:</source>
         <translation>Textanordnung:</translation>
+    </message>
+</context>
+<context>
+    <name>OcrTextOutputs</name>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="21"/>
+        <source>Could not create %1.</source>
+        <translation>%1 konnte nicht erstellt werden.</translation>
+    </message>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="25"/>
+        <source>Could not write %1.</source>
+        <translation>%1 konnte nicht geschrieben werden.</translation>
+    </message>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="29"/>
+        <source>The folder %1 holds other files than ALTO files of an export, so it was not replaced. Move these files or choose another name.</source>
+        <translation>Der Ordner %1 enthält andere Dateien als ALTO-Dateien eines Exports und wurde deshalb nicht ersetzt. Verschieben Sie diese Dateien, oder wählen Sie einen anderen Namen.</translation>
+    </message>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="36"/>
+        <source>Could not replace the folder %1. It may be in use.</source>
+        <translation>Der Ordner %1 konnte nicht ersetzt werden. Möglicherweise wird er gerade verwendet.</translation>
     </message>
 </context>
 <context>

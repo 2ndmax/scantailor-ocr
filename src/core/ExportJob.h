@@ -12,10 +12,27 @@
 #include "ExportPage.h"
 #include "PdfCompression.h"
 #include "PdfWriter.h"
+#include "ProcessingOptions.h"
 
-struct ProcessingOptions;
+struct OcrPageTexts;
+
+/** Where the formats of an export go. */
+struct ExportPaths {
+  QString pdf;
+  QString txt;
+  QString hocr;
+  QString altoDir;
+
+  /** The one rule for the names, e.g. "D:/Books/Book" gives Book.pdf, Book.txt, Book.hocr and Book_alto. */
+  static ExportPaths fromBase(const QString& base);
+
+  /** For callers that are given a PDF file: the other formats go beside it, under the same name. */
+  static ExportPaths forPdfFile(const QString& pdfFile);
+};
 
 struct ExportOptions {
+  /** Which files are created. */
+  ProcessingOptions::Formats formats;
   /** Grayscale and colour pages and the pictures of split pages: NONE, DEFLATE, JPEG or JPEG2000. */
   PdfCompression colorCompression = PdfCompression::JPEG;
   /** 1 to 100. */
@@ -35,7 +52,9 @@ struct ExportOptions {
   bool pdfA = false;
   /** The number of pages prepared in parallel. */
   int threadCount = 1;
-  /** Add an invisible text layer. Requires a build with ENABLE_OCR. */
+  /** Whether the PDF gets the recognized text as an invisible layer. Takes effect with ocr. */
+  bool textLayer = true;
+  /** The text recognition is set up (see setUpOcr()). Requires a build with ENABLE_OCR. */
   bool ocr = false;
   /** The folder with the language files (see OcrLanguages::commonDir()). */
   QString ocrDataDir;
@@ -45,10 +64,16 @@ struct ExportOptions {
   int ocrPageLayout = 0;
 
   /**
-   * The compression of the project. The number of threads and the text recognition are
-   * left at their defaults; they are up to the caller.
+   * The formats and the compression of the project. The number of threads and setting up the
+   * text recognition are up to the caller.
    */
   static ExportOptions fromProject(const ProcessingOptions& options);
+
+  /** Whether Tesseract runs: it is set up, and one of the chosen formats needs the text. */
+  bool runsTextRecognition() const { return ocr && formats.needsTextRecognition(textLayer); }
+
+  /** Whether the words of the pages are needed for the text layer of the PDF. */
+  bool addsTextLayer() const { return ocr && formats.pdf && textLayer; }
 
   /** The outcome of setUpOcr(). */
   enum class OcrSetup {
@@ -75,17 +100,17 @@ class OcrEngine;
 
 
 /**
- * \brief Builds a PDF from already existing output files.
+ * \brief Builds the chosen formats from already existing output files.
  *
  * run() blocks and is meant to be called from a worker thread. Several pages are
- * prepared (loaded and encoded) in parallel, while the PDF is written in page order.
- * The file is written to a temporary file first, so a failed or cancelled export
- * doesn't leave a partial PDF behind or damage an existing one.
+ * prepared (loaded, encoded and recognized) in parallel, while the files are written in page order.
+ * They are written to temporary files first, so a failed or cancelled export
+ * doesn't leave partial files behind or damage existing ones.
  */
 class ExportJob : public QObject {
   Q_OBJECT
  public:
-  ExportJob(std::vector<ExportPage> pages, const QString& outputFile, const ExportOptions& options);
+  ExportJob(std::vector<ExportPage> pages, const ExportPaths& paths, const ExportOptions& options);
 
   void run();
 
@@ -102,10 +127,13 @@ class ExportJob : public QObject {
   static int defaultThreadCount();
 
   /**
-   * \brief Loads and encodes the files of one page and recognizes its text.
+   * \brief Loads and encodes the files of one page, as far as the formats need it, and recognizes its text.
    *
-   * \param ocrEngine Used for the text layer if options.ocr is set. Must be initialized.
+   * \param result Stays without images if no PDF is created.
+   * \param ocrEngine Used if options.runsTextRecognition(). Must be initialized.
    * \param cancel If not null, text recognition stops as soon as it becomes true.
+   * \param position The place of the page in the export, from 1. Named in the hOCR and ALTO text.
+   * \param texts If not null, receives the text of the page in the text formats.
    * \return false on failure, in which case \p errors receives the reasons.
    */
   static bool preparePage(const ExportPage& page,
@@ -113,7 +141,9 @@ class ExportJob : public QObject {
                           PdfWriter::Page* result,
                           QStringList* errors,
                           OcrEngine* ocrEngine = nullptr,
-                          const std::atomic<bool>* cancel = nullptr);
+                          const std::atomic<bool>* cancel = nullptr,
+                          int position = 1,
+                          OcrPageTexts* texts = nullptr);
 
  signals:
   /** Emitted from the thread executing run() after each written page. */
@@ -121,7 +151,7 @@ class ExportJob : public QObject {
 
  private:
   std::vector<ExportPage> m_pages;
-  QString m_outputFile;
+  ExportPaths m_paths;
   ExportOptions m_options;
   std::atomic<bool> m_cancelRequested{false};
   bool m_succeeded = false;

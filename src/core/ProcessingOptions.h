@@ -30,6 +30,14 @@ struct ProcessingOptions {
     bool hocr = false;
     bool alto = false;
 
+    bool any() const { return pdf || hasTextFormat(); }
+
+    /** Whether a format made of nothing but the recognized text is chosen. */
+    bool hasTextFormat() const { return txt || hocr || alto; }
+
+    /** The one place that decides whether Tesseract has to run. */
+    bool needsTextRecognition(const bool textLayer) const { return (pdf && textLayer) || hasTextFormat(); }
+
     bool operator==(const Formats& other) const {
       return (pdf == other.pdf) && (txt == other.txt) && (hocr == other.hocr) && (alto == other.alto);
     }

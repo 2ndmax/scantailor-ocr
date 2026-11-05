@@ -140,6 +140,7 @@ set(common_sources
     jbig2enc/jbig2arith.cpp jbig2enc/jbig2arith.h
     ExportPage.cpp ExportPage.h
     ExportJob.cpp ExportJob.h
+    OcrTextOutputs.cpp OcrTextOutputs.h
     PdfPageOrder.cpp PdfPageOrder.h
     NewScanTracker.cpp NewScanTracker.h
     ScanInsertion.cpp ScanInsertion.h
