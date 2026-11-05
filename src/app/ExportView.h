@@ -153,8 +153,11 @@ class ExportView : public QWidget {
   /** Back to the preview of the files the export will create. */
   void showPreview();
 
-  /** Sets the preview, grey like a hint. */
-  void showPreviewText(const QString& text);
+  /** Sets the preview. */
+  void showPreviewText(const QString& text, Qt::TextFormat format = Qt::PlainText);
+
+  /** A heading with the items below it, one per line with a bullet. All are rich text already. */
+  static QString bulletList(const QString& heading, const QStringList& items);
 
   /** The ticked pages in their order, as indexes of m_entries. */
   std::vector<int> checkedEntries() const;

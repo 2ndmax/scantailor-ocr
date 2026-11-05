@@ -366,10 +366,12 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   pagesLayout->addLayout(listButtons);
   mainLayout->addWidget(pagesGroup, 1);
 
-  // Where the files go on the left: a folder and a name, to which each format adds its extension.
-  // On the right what the export will create, is doing or has done. The fields don't take the
-  // whole width of a wide window; a path and a name need far less.
-  auto* targetRow = new QHBoxLayout;
+  // In a group like the pages: on the left where the files go (a folder and a name, to which each
+  // format adds its extension) and the action, sharing one right edge; on the right what the export
+  // will create, is doing or has done. The left side doesn't take the whole width of a wide window;
+  // a path and a name need far less.
+  auto* exportGroup = new QGroupBox(tr("Export Files"));
+  auto* targetRow = new QHBoxLayout(exportGroup);
   auto* fields = new QWidget;
   fields->setMaximumWidth(640);
   auto* fieldsLayout = new QGridLayout(fields);
@@ -384,23 +386,8 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   m_nameEdit->setToolTip(tr("The name of the exported files, without extension. Each format adds its own."));
   fieldsLayout->addWidget(m_nameEdit, 1, 1);
   fieldsLayout->setColumnStretch(1, 1);
-  targetRow->addWidget(fields, 1);
-  targetRow->addSpacing(18);
-  m_statusLabel = new QLabel;
-  m_statusLabel->setWordWrap(true);
-  m_statusLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-  // After an export it holds links to the files, which the keyboard reaches as well.
-  m_statusLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse
-                                         | Qt::LinksAccessibleByKeyboard);
-  targetRow->addWidget(m_statusLabel, 1);
-  mainLayout->addLayout(targetRow);
-  connect(m_statusLabel, &QLabel::linkActivated, this,
-          [](const QString& link) { QDesktopServices::openUrl(QUrl(link)); });
-  connect(m_statusLabel, &QLabel::linkHovered, this, [](const QString& link) {
-    QToolTip::showText(QCursor::pos(), link.isEmpty() ? QString() : QDir::toNativeSeparators(QUrl(link).toLocalFile()));
-  });
 
-  // The action in one row: the progress and the button that starts it.
+  // The progress and the button that starts it, below the fields.
   auto* buttons = new QHBoxLayout;
   m_progressBar = new QProgressBar;
   m_progressBar->setRange(0, 1);
@@ -412,9 +399,29 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   m_cancelButton->setVisible(false);
   m_createButton = new AccentFrameButton(tr("Export"));
   m_createButton->setDefault(true);
+  // While an export runs, Cancel takes the place of Export, so the progress bar keeps its length.
+  const int buttonWidth = std::max(m_cancelButton->sizeHint().width(), m_createButton->sizeHint().width());
+  m_cancelButton->setFixedWidth(buttonWidth);
+  m_createButton->setFixedWidth(buttonWidth);
   buttons->addWidget(m_cancelButton);
   buttons->addWidget(m_createButton);
-  mainLayout->addLayout(buttons);
+  fieldsLayout->addLayout(buttons, 2, 0, 1, 3);
+
+  targetRow->addWidget(fields, 1);
+  targetRow->addSpacing(18);
+  m_statusLabel = new QLabel;
+  m_statusLabel->setWordWrap(true);
+  m_statusLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+  // After an export it holds links to the files, which the keyboard reaches as well.
+  m_statusLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse
+                                         | Qt::LinksAccessibleByKeyboard);
+  targetRow->addWidget(m_statusLabel, 1);
+  mainLayout->addWidget(exportGroup);
+  connect(m_statusLabel, &QLabel::linkActivated, this,
+          [](const QString& link) { QDesktopServices::openUrl(QUrl(link)); });
+  connect(m_statusLabel, &QLabel::linkHovered, this, [](const QString& link) {
+    QToolTip::showText(QCursor::pos(), link.isEmpty() ? QString() : QDir::toNativeSeparators(QUrl(link).toLocalFile()));
+  });
 
   m_optionsWidget.reset(createOptionsWidget());
 
@@ -965,17 +972,18 @@ void ExportView::showCreatedFiles() {
   };
   const auto fileLink = [&link](const QString& path) { return link(path, QFileInfo(path).fileName()); };
 
+  const auto fileWithSize = [&fileLink](const QString& path) {
+    return fileLink(path) + QStringLiteral(" (") + QLocale().formattedDataSize(QFileInfo(path).size()).toHtmlEscaped()
+           + QLatin1Char(')');
+  };
+
   QStringList created;
-  if (m_runningFormats.pdf) {
-    created.push_back(fileLink(m_runningPaths.pdf) + QStringLiteral(" (")
-                      + QLocale().formattedDataSize(QFileInfo(m_runningPaths.pdf).size()).toHtmlEscaped()
-                      + QLatin1Char(')'));
-  }
-  if (m_runningFormats.txt) {
-    created.push_back(fileLink(m_runningPaths.txt));
-  }
-  if (m_runningFormats.hocr) {
-    created.push_back(fileLink(m_runningPaths.hocr));
+  for (const auto& [chosen, file] :
+       {std::pair(m_runningFormats.pdf, m_runningPaths.pdf), std::pair(m_runningFormats.txt, m_runningPaths.txt),
+        std::pair(m_runningFormats.hocr, m_runningPaths.hocr)}) {
+    if (chosen) {
+      created.push_back(fileWithSize(file));
+    }
   }
   if (m_runningFormats.alto) {
     const int count = static_cast<int>(QDir(m_runningPaths.altoDir).entryList(QDir::Files).size());
@@ -984,16 +992,22 @@ void ExportView::showCreatedFiles() {
   }
   // The folder once at the start, as all files are in it.
   const QString folder = QFileInfo(m_runningPaths.pdf).absolutePath();
-  showStatus(tr("Created in %1: %2")
-                 .arg(link(folder, QDir::toNativeSeparators(folder)), created.join(QStringLiteral(" &middot; "))),
+  showStatus(bulletList(tr("Created in %1:").arg(link(folder, QDir::toNativeSeparators(folder))), created),
              Qt::RichText);
+}
+
+QString ExportView::bulletList(const QString& heading, const QStringList& items) {
+  QString html = heading;
+  for (const QString& item : items) {
+    html += QStringLiteral("<br>&bull;&nbsp;") + item;
+  }
+  return html;
 }
 
 void ExportView::showStatus(const QString& text, const Qt::TextFormat format) {
   m_showingStatus = true;
   // The result stands until what it is about changes.
   m_statusPages = checkedEntries();
-  m_statusLabel->setEnabled(true);
   m_statusLabel->setTextFormat(format);
   m_statusLabel->setText(text);
 }
@@ -1003,9 +1017,8 @@ void ExportView::showPreview() {
   updateControls();
 }
 
-void ExportView::showPreviewText(const QString& text) {
-  m_statusLabel->setEnabled(false);
-  m_statusLabel->setTextFormat(Qt::PlainText);
+void ExportView::showPreviewText(const QString& text, const Qt::TextFormat format) {
+  m_statusLabel->setTextFormat(format);
   m_statusLabel->setText(text);
 }
 
@@ -1057,7 +1070,6 @@ void ExportView::updateControls() {
   }
 
   // What the export creates, or what is wrong with the folder or the name, already while typing.
-  // Grey like a hint, as it only follows the fields and the formats.
   const ProcessingOptions::Formats& formats = m_processingOptions->formats;
   QString targetProblem;
   const QString base = exportBase(&targetProblem);
@@ -1073,13 +1085,14 @@ void ExportView::updateControls() {
     for (const auto& [chosen, file] :
          {std::pair(formats.pdf, paths.pdf), std::pair(formats.txt, paths.txt), std::pair(formats.hocr, paths.hocr)}) {
       if (chosen) {
-        names.push_back(QFileInfo(file).fileName());
+        names.push_back(QFileInfo(file).fileName().toHtmlEscaped());
       }
     }
     if (formats.alto) {
-      names.push_back(QFileInfo(paths.altoDir).fileName() + QDir::separator());
+      names.push_back((QFileInfo(paths.altoDir).fileName() + QDir::separator()).toHtmlEscaped());
     }
-    showPreviewText(tr("Will be created: %1").arg(names.join(QStringLiteral(", "))));
+    // The folder stands in the field beside it; the result names it, as the field may change.
+    showPreviewText(bulletList(tr("Will be created:"), names), Qt::RichText);
   }
 
   // The button tells why it can't be used.
@@ -1532,6 +1545,7 @@ void ExportView::setRunning(const bool running) {
   m_nameEdit->setEnabled(!running);
   m_browseButton->setEnabled(!running);
   m_optionsWidget->setEnabled(!running);
+  m_createButton->setVisible(!running);
   m_cancelButton->setVisible(running);
   m_cancelButton->setEnabled(running);
   updateControls();
