@@ -22,6 +22,7 @@
 #include "AutoImportPanel.h"
 #include "BackgroundTask.h"
 #include "BeforeOrAfter.h"
+#include "ExportView.h"
 #include "FilterResult.h"
 #include "FilterUiInterface.h"
 #include "ImageFileInfo.h"
@@ -31,7 +32,6 @@
 #include "PageId.h"
 #include "PageRange.h"
 #include "PageView.h"
-#include "PdfExportView.h"
 #include "ScanInsertion.h"
 #include "SelectedPage.h"
 #include "StatusBarPanel.h"
@@ -311,7 +311,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   void leavePdfStage();
 
   /** The pages of the project in project order, for the "Create PDF" step. */
-  std::vector<PdfExportView::Entry> pdfExportEntries() const;
+  std::vector<ExportView::Entry> pdfExportEntries() const;
 
   /** Next to the project file and named like it. */
   QString defaultPdfFile() const;
@@ -467,7 +467,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::unique_ptr<QWidget> m_batchProcessingWidget;
   std::unique_ptr<ProcessingIndicationWidget> m_processingIndicationWidget;
   /** The "Create PDF" step; created when it's first shown, kept while the project is open. */
-  std::unique_ptr<PdfExportView> m_pdfView;
+  std::unique_ptr<ExportView> m_pdfView;
   /** Whether the "Create PDF" step is shown. m_curFilter then still refers to the last filter. */
   bool m_pdfStage = false;
   /** Whether the PDF step is shown again when the current batch processing has finished. */

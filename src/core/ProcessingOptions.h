@@ -23,7 +23,7 @@ class QString;
  * task takes a copy when it is created, so a running batch keeps the values it was started with.
  */
 struct ProcessingOptions {
-  /** How the PDF is made, see PdfExportOptions. */
+  /** How the PDF is made, see ExportOptions. */
   struct Pdf {
     PdfCompression colorCompression = PdfCompression::JPEG;
     /** 10 to 100. */

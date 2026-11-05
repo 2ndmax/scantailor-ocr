@@ -1,7 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include "PdfExportView.h"
+#include "ExportView.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -48,12 +48,12 @@
 #include "ApplicationSettings.h"
 #include "CollapsibleGroupBox.h"
 #include "ColorSchemeManager.h"
+#include "ExportJob.h"
 #include "ImageId.h"
 #include "OcrEngine.h"
 #include "OcrLanguages.h"
 #include "OcrPanel.h"
 #include "PdfCompressionPanel.h"
-#include "PdfExportJob.h"
 #include "PdfPageOrder.h"
 #include "SectionHeading.h"
 #include "ThumbnailBase.h"
@@ -128,10 +128,10 @@ class AccentFrameButton : public QPushButton {
  * Draws a page of the list as a tile: tick, warning sign and position in the PDF on top, the
  * thumbnail in the middle, the file name below. The tooltip tells the rest.
  */
-class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
+class ExportView::PageTileDelegate : public QStyledItemDelegate {
  public:
   /** param view Builds the tooltips when they are shown. */
-  PageTileDelegate(const PdfExportView* view, QObject* parent) : QStyledItemDelegate(parent), m_view(view) {}
+  PageTileDelegate(const ExportView* view, QObject* parent) : QStyledItemDelegate(parent), m_view(view) {}
 
   QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& /*index*/) const override {
     const int lineHeight = option.fontMetrics.height();
@@ -288,12 +288,12 @@ class PdfExportView::PageTileDelegate : public QStyledItemDelegate {
     return QRect(QPoint(option.rect.left() + TILE_MARGIN, top), size);
   }
 
-  const PdfExportView* m_view;
+  const ExportView* m_view;
 };
 
-class PdfExportView::ThumbnailHandler : public ThumbnailPixmapCache::CompletionHandler {
+class ExportView::ThumbnailHandler : public ThumbnailPixmapCache::CompletionHandler {
  public:
-  ThumbnailHandler(PdfExportView* view, const int generation, const int entryIndex)
+  ThumbnailHandler(ExportView* view, const int generation, const int entryIndex)
       : m_view(view), m_generation(generation), m_entryIndex(entryIndex) {}
 
   void operator()(const ThumbnailLoadResult& result) override {
@@ -301,15 +301,15 @@ class PdfExportView::ThumbnailHandler : public ThumbnailPixmapCache::CompletionH
   }
 
  private:
-  PdfExportView* m_view;
+  ExportView* m_view;
   int m_generation;
   int m_entryIndex;
 };
 
 
-PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
-                             std::shared_ptr<ProcessingOptions> processingOptions,
-                             QWidget* parent)
+ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
+                       std::shared_ptr<ProcessingOptions> processingOptions,
+                       QWidget* parent)
     : QWidget(parent), m_thumbnailCache(std::move(thumbnailCache)), m_processingOptions(std::move(processingOptions)) {
   auto* mainLayout = new QVBoxLayout(this);
 
@@ -398,28 +398,28 @@ PdfExportView::PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCach
 
   m_optionsWidget.reset(createOptionsWidget());
 
-  connect(m_pageList, &QListWidget::itemChanged, this, &PdfExportView::updatePositions);
-  connect(m_pageList, &QListWidget::itemChanged, this, &PdfExportView::updateControls);
-  connect(m_pageList, &QListWidget::itemSelectionChanged, this, &PdfExportView::updateControls);
+  connect(m_pageList, &QListWidget::itemChanged, this, &ExportView::updatePositions);
+  connect(m_pageList, &QListWidget::itemChanged, this, &ExportView::updateControls);
+  connect(m_pageList, &QListWidget::itemSelectionChanged, this, &ExportView::updateControls);
   // Drag and drop as well as the buttons move items.
-  connect(m_pageList->model(), &QAbstractItemModel::rowsMoved, this, &PdfExportView::updatePositions);
-  connect(m_pageList->model(), &QAbstractItemModel::rowsInserted, this, &PdfExportView::updatePositions);
-  connect(m_pageList->model(), &QAbstractItemModel::rowsRemoved, this, &PdfExportView::updatePositions);
+  connect(m_pageList->model(), &QAbstractItemModel::rowsMoved, this, &ExportView::updatePositions);
+  connect(m_pageList->model(), &QAbstractItemModel::rowsInserted, this, &ExportView::updatePositions);
+  connect(m_pageList->model(), &QAbstractItemModel::rowsRemoved, this, &ExportView::updatePositions);
   connect(m_allButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Checked); });
   connect(m_noneButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Unchecked); });
-  connect(m_outputMissingButton, &QPushButton::clicked, this, &PdfExportView::outputMissingPagesRequested);
-  connect(m_forwardButton, &QPushButton::clicked, this, &PdfExportView::moveForward);
-  connect(m_backButton, &QPushButton::clicked, this, &PdfExportView::moveBack);
+  connect(m_outputMissingButton, &QPushButton::clicked, this, &ExportView::outputMissingPagesRequested);
+  connect(m_forwardButton, &QPushButton::clicked, this, &ExportView::moveForward);
+  connect(m_backButton, &QPushButton::clicked, this, &ExportView::moveBack);
   connect(m_fileEdit, &QLineEdit::textEdited, this, [this]() { m_fileChosen = true; });
-  connect(m_browseButton, &QPushButton::clicked, this, &PdfExportView::browse);
-  connect(m_createButton, &QPushButton::clicked, this, &PdfExportView::startExport);
-  connect(m_cancelButton, &QPushButton::clicked, this, &PdfExportView::cancelExport);
-  connect(m_openAfterCreation, &QCheckBox::toggled, this, &PdfExportView::saveSettings);
+  connect(m_browseButton, &QPushButton::clicked, this, &ExportView::browse);
+  connect(m_createButton, &QPushButton::clicked, this, &ExportView::startExport);
+  connect(m_cancelButton, &QPushButton::clicked, this, &ExportView::cancelExport);
+  connect(m_openAfterCreation, &QCheckBox::toggled, this, &ExportView::saveSettings);
 
   updateControls();
 }
 
-PdfExportView::~PdfExportView() {
+ExportView::~ExportView() {
   if (m_thread) {
     m_job->cancel();
     m_thread->wait();
@@ -427,7 +427,7 @@ PdfExportView::~PdfExportView() {
   }
 }
 
-QWidget* PdfExportView::createOptionsWidget() {
+QWidget* ExportView::createOptionsWidget() {
   auto* widget = new QWidget;
   // The default margins, as around the options of the other steps.
   auto* layout = new QVBoxLayout(widget);
@@ -445,7 +445,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_paletteQuality = m_compressionPanel->paletteQualityBox();
   m_bitonalCompression = m_compressionPanel->bitonalCompressionBox();
   layout->addWidget(compressionGroup);
-  connect(m_compressionPanel, &PdfCompressionPanel::compressionChanged, this, &PdfExportView::compressionChanged);
+  connect(m_compressionPanel, &PdfCompressionPanel::compressionChanged, this, &ExportView::compressionChanged);
 
 #ifdef ENABLE_OCR
   // Text recognition. Like the panels of the other steps, the check box that turns it on
@@ -457,7 +457,7 @@ QWidget* PdfExportView::createOptionsWidget() {
   m_ocrPanel->setOptions(m_processingOptions->pdf);
   ocrGroupLayout->addWidget(m_ocrPanel);
   layout->addWidget(ocrGroup);
-  connect(m_ocrPanel, &OcrPanel::optionsChanged, this, &PdfExportView::saveSettings);
+  connect(m_ocrPanel, &OcrPanel::optionsChanged, this, &ExportView::saveSettings);
 #endif
 
   // Quality: the compression of the ticked pages, in the output folder and in the PDF.
@@ -501,13 +501,13 @@ QWidget* PdfExportView::createOptionsWidget() {
 
   layout->addStretch(1);
   return widget;
-}  // PdfExportView::createOptionsWidget
+}  // ExportView::createOptionsWidget
 
-QWidget* PdfExportView::optionsWidget() const {
+QWidget* ExportView::optionsWidget() const {
   return m_optionsWidget.get();
 }
 
-void PdfExportView::setPages(std::vector<Entry> entries) {
+void ExportView::setPages(std::vector<Entry> entries) {
   if (m_thread) {
     return;
   }
@@ -547,14 +547,14 @@ void PdfExportView::setPages(std::vector<Entry> entries) {
     m_pageList->clear();
     for (const PdfPageOrder::Item& orderItem : order) {
       const int i = entryIndexes.value(orderItem.key);
-      const PdfExportPage& page = m_entries[i].page;
+      const ExportPage& page = m_entries[i].page;
       auto* item = new QListWidgetItem(m_pageList);
       item->setData(ENTRY_INDEX_ROLE, i);
       item->setData(KEY_ROLE, orderItem.key);
       item->setText(m_entries[i].label);
       // Kept for pages that aren't output yet, for when they are.
       item->setCheckState(orderItem.checked ? Qt::Checked : Qt::Unchecked);
-      if (page.kind() == PdfExportPage::MISSING) {
+      if (page.kind() == ExportPage::MISSING) {
         // Can't be ticked or selected; the placeholder shows the hourglass of pages not processed yet.
         item->setFlags(Qt::ItemIsEnabled);
         item->setIcon(makeIcon(QPixmap(), true));
@@ -570,33 +570,33 @@ void PdfExportView::setPages(std::vector<Entry> entries) {
   QTimer::singleShot(0, this, [this, scrollPos]() { m_pageList->verticalScrollBar()->setValue(scrollPos); });
 
   for (int i = 0; i < static_cast<int>(m_entries.size()); ++i) {
-    if (m_entries[i].page.kind() != PdfExportPage::MISSING) {
+    if (m_entries[i].page.kind() != ExportPage::MISSING) {
       requestThumbnail(m_generation, i);
     }
   }
   updateControls();
-}  // PdfExportView::setPages
+}  // ExportView::setPages
 
-void PdfExportView::setDefaultFile(const QString& file) {
+void ExportView::setDefaultFile(const QString& file) {
   if (!m_fileChosen) {
     m_fileEdit->setText(QDir::toNativeSeparators(file));
   }
 }
 
-bool PdfExportView::isRunning() const {
+bool ExportView::isRunning() const {
   return m_thread != nullptr;
 }
 
-std::set<PageId> PdfExportView::pagesToOutput() const {
-  std::vector<PdfExportPage> pages;
+std::set<PageId> ExportView::pagesToOutput() const {
+  std::vector<ExportPage> pages;
   pages.reserve(m_entries.size());
   for (const Entry& entry : m_entries) {
     pages.push_back(entry.page);
   }
-  return PdfExportPage::pagesToOutput(pages);
+  return ExportPage::pagesToOutput(pages);
 }
 
-void PdfExportView::cancelAndWait() {
+void ExportView::cancelAndWait() {
   if (!m_thread) {
     return;
   }
@@ -605,7 +605,7 @@ void PdfExportView::cancelAndWait() {
   exportFinished();
 }
 
-void PdfExportView::setAllChecked(const Qt::CheckState state) {
+void ExportView::setAllChecked(const Qt::CheckState state) {
   {
     // Numbered once at the end rather than for every page.
     const QSignalBlocker blocker(m_pageList);
@@ -620,7 +620,7 @@ void PdfExportView::setAllChecked(const Qt::CheckState state) {
   updateControls();
 }
 
-void PdfExportView::updatePositions() {
+void ExportView::updatePositions() {
   if (m_filling) {
     return;
   }
@@ -637,7 +637,7 @@ void PdfExportView::updatePositions() {
   }
 }
 
-void PdfExportView::moveForward() {
+void ExportView::moveForward() {
   std::vector<int> rows;
   for (QListWidgetItem* item : m_pageList->selectedItems()) {
     rows.push_back(m_pageList->row(item));
@@ -657,7 +657,7 @@ void PdfExportView::moveForward() {
   m_pageList->scrollToItem(m_pageList->item(rows.front() - 1));
 }
 
-void PdfExportView::moveBack() {
+void ExportView::moveBack() {
   std::vector<int> rows;
   for (QListWidgetItem* item : m_pageList->selectedItems()) {
     rows.push_back(m_pageList->row(item));
@@ -677,7 +677,7 @@ void PdfExportView::moveBack() {
   m_pageList->scrollToItem(m_pageList->item(rows.front() + 1));
 }
 
-void PdfExportView::browse() {
+void ExportView::browse() {
   QString path = QFileDialog::getSaveFileName(this, tr("Save PDF As"), m_fileEdit->text(), tr("PDF files (*.pdf)"));
   if (path.isEmpty()) {
     return;
@@ -692,7 +692,7 @@ void PdfExportView::browse() {
   m_fileChosen = true;
 }
 
-void PdfExportView::startExport() {
+void ExportView::startExport() {
   if (m_thread) {
     return;
   }
@@ -761,7 +761,7 @@ void PdfExportView::startExport() {
     }
   }
 
-  std::vector<PdfExportPage> pages;
+  std::vector<ExportPage> pages;
   for (int row = 0; row < m_pageList->count(); ++row) {
     const QListWidgetItem* item = m_pageList->item(row);
     if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
@@ -773,8 +773,8 @@ void PdfExportView::startExport() {
     return;
   }
 
-  PdfExportOptions options = PdfExportOptions::fromProject(*m_processingOptions);
-  options.threadCount = PdfExportJob::defaultThreadCount();
+  ExportOptions options = ExportOptions::fromProject(*m_processingOptions);
+  options.threadCount = ExportJob::defaultThreadCount();
 
 #ifdef ENABLE_OCR
   if (m_ocrPanel->isOcrEnabled()) {
@@ -812,17 +812,17 @@ void PdfExportView::startExport() {
       QApplication::setOverrideCursor(Qt::WaitCursor);
     }
     QString error;
-    const PdfExportOptions::OcrSetup setup = options.setUpOcr(languages, m_ocrPanel->pageLayout(), &error);
+    const ExportOptions::OcrSetup setup = options.setUpOcr(languages, m_ocrPanel->pageLayout(), &error);
     if (copying) {
       QApplication::restoreOverrideCursor();
       m_statusLabel->clear();
     }
-    if (setup == PdfExportOptions::OcrSetup::NO_LANGUAGE) {
+    if (setup == ExportOptions::OcrSetup::NO_LANGUAGE) {
       QMessageBox::warning(this, title,
                            tr("Please tick at least one language for the text recognition, or turn it off."));
       return;
     }
-    if (setup == PdfExportOptions::OcrSetup::NOT_GATHERED) {
+    if (setup == ExportOptions::OcrSetup::NOT_GATHERED) {
       QMessageBox::warning(this, title,
                            tr("The files of the selected languages are in different folders, and they could "
                               "not be copied into one folder, which text recognition needs.")
@@ -833,11 +833,11 @@ void PdfExportView::startExport() {
 #endif
 
   const int pageCount = static_cast<int>(pages.size());
-  m_job = std::make_unique<PdfExportJob>(std::move(pages), path, options);
-  connect(m_job.get(), &PdfExportJob::progress, this, &PdfExportView::exportProgress, Qt::QueuedConnection);
-  PdfExportJob* job = m_job.get();
+  m_job = std::make_unique<ExportJob>(std::move(pages), path, options);
+  connect(m_job.get(), &ExportJob::progress, this, &ExportView::exportProgress, Qt::QueuedConnection);
+  ExportJob* job = m_job.get();
   m_thread = QThread::create([job]() { job->run(); });
-  connect(m_thread, &QThread::finished, this, &PdfExportView::exportFinished);
+  connect(m_thread, &QThread::finished, this, &ExportView::exportFinished);
 
   m_runningFile = path;
   m_progressBar->setRange(0, pageCount);
@@ -846,9 +846,9 @@ void PdfExportView::startExport() {
                                      : tr("Creating the PDF ..."));
   setRunning(true);
   m_thread->start();
-}  // PdfExportView::startExport
+}  // ExportView::startExport
 
-void PdfExportView::cancelExport() {
+void ExportView::cancelExport() {
   if (!m_thread) {
     return;
   }
@@ -857,7 +857,7 @@ void PdfExportView::cancelExport() {
   m_cancelButton->setEnabled(false);
 }
 
-void PdfExportView::exportProgress(const int pagesDone, const int pagesTotal) {
+void ExportView::exportProgress(const int pagesDone, const int pagesTotal) {
   if (!m_thread) {
     return;
   }
@@ -865,14 +865,14 @@ void PdfExportView::exportProgress(const int pagesDone, const int pagesTotal) {
   m_progressBar->setValue(pagesDone);
 }
 
-void PdfExportView::exportFinished() {
+void ExportView::exportFinished() {
   if (!m_thread) {
     return;
   }
   m_thread->wait();
   delete m_thread;
   m_thread = nullptr;
-  const std::unique_ptr<PdfExportJob> job = std::move(m_job);
+  const std::unique_ptr<ExportJob> job = std::move(m_job);
   setRunning(false);
 
   const QString nativePath = QDir::toNativeSeparators(m_runningFile);
@@ -898,9 +898,9 @@ void PdfExportView::exportFinished() {
     QMessageBox::warning(this, tr("Create PDF"),
                          tr("The PDF could not be created.") + QStringLiteral("\n\n") + errors.join('\n'));
   }
-}  // PdfExportView::exportFinished
+}  // ExportView::exportFinished
 
-void PdfExportView::updateControls() {
+void ExportView::updateControls() {
   const bool running = (m_thread != nullptr);
   int available = 0;
   for (int row = 0; row < m_pageList->count(); ++row) {
@@ -933,7 +933,7 @@ void PdfExportView::updateControls() {
   updateQualityPanel();
 }
 
-void PdfExportView::saveSettings() {
+void ExportView::saveSettings() {
   // Only opening the PDF is a program setting; the rest belongs to the project.
   ApplicationSettings::getInstance().setPdfOpenAfterCreationEnabled(m_openAfterCreation->isChecked());
   const ProcessingOptions::Pdf before = m_processingOptions->pdf;
@@ -947,7 +947,7 @@ void PdfExportView::saveSettings() {
   }
 }
 
-void PdfExportView::requestThumbnail(const int generation, const int entryIndex) {
+void ExportView::requestThumbnail(const int generation, const int entryIndex) {
   if (!m_thumbnailCache || (generation != m_generation) || (entryIndex >= static_cast<int>(m_entries.size()))) {
     return;
   }
@@ -966,7 +966,7 @@ void PdfExportView::requestThumbnail(const int generation, const int entryIndex)
   }
 }
 
-void PdfExportView::thumbnailLoaded(const int generation, const int entryIndex, const ThumbnailLoadResult& result) {
+void ExportView::thumbnailLoaded(const int generation, const int entryIndex, const ThumbnailLoadResult& result) {
   if (generation != m_generation) {
     return;
   }
@@ -981,7 +981,7 @@ void PdfExportView::thumbnailLoaded(const int generation, const int entryIndex, 
   }
 }
 
-QListWidgetItem* PdfExportView::itemForEntry(const int entryIndex) const {
+QListWidgetItem* ExportView::itemForEntry(const int entryIndex) const {
   for (int row = 0; row < m_pageList->count(); ++row) {
     QListWidgetItem* item = m_pageList->item(row);
     if (item->data(ENTRY_INDEX_ROLE).toInt() == entryIndex) {
@@ -991,7 +991,7 @@ QListWidgetItem* PdfExportView::itemForEntry(const int entryIndex) const {
   return nullptr;
 }
 
-void PdfExportView::showThumbnail(const int entryIndex, const QPixmap& thumbnail) {
+void ExportView::showThumbnail(const int entryIndex, const QPixmap& thumbnail) {
   if (QListWidgetItem* item = itemForEntry(entryIndex)) {
     item->setIcon(makeIcon(thumbnail, false, m_entries[entryIndex].page.isOutdated()));
   }
@@ -1004,15 +1004,15 @@ void PdfExportView::showThumbnail(const int entryIndex, const QPixmap& thumbnail
     for (int i = 0; i < static_cast<int>(m_entries.size()); ++i) {
       if (!m_thumbnailShown[i]) {
         if (QListWidgetItem* item = itemForEntry(i)) {
-          const PdfExportPage& page = m_entries[i].page;
-          item->setIcon(makeIcon(QPixmap(), page.kind() == PdfExportPage::MISSING, page.isOutdated()));
+          const ExportPage& page = m_entries[i].page;
+          item->setIcon(makeIcon(QPixmap(), page.kind() == ExportPage::MISSING, page.isOutdated()));
         }
       }
     }
   }
 }
 
-QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing, const bool outdated) const {
+QIcon ExportView::makeIcon(const QPixmap& thumbnail, const bool missing, const bool outdated) const {
   // All icons have the same size, so that the texts line up.
   const QSize size = m_pageList->iconSize();
   // Painted in screen pixels, so that the icons stay sharp on scaled screens.
@@ -1062,41 +1062,41 @@ QIcon PdfExportView::makeIcon(const QPixmap& thumbnail, const bool missing, cons
   return QIcon(canvas);
 }
 
-QString PdfExportView::pdfMethodName(const QComboBox* box) const {
+QString ExportView::pdfMethodName(const QComboBox* box) const {
   return (box->currentData().toInt() == static_cast<int>(PdfCompression::NONE)) ? tr("uncompressed")
                                                                                 : box->currentText();
 }
 
-const QComboBox* PdfExportView::pictureCompressionBox(const PdfExportPage& page) const {
+const QComboBox* ExportView::pictureCompressionBox(const ExportPage& page) const {
   switch (page.kind()) {
-    case PdfExportPage::BITONAL:
+    case ExportPage::BITONAL:
       return m_bitonalCompression;
-    case PdfExportPage::PALETTE:
+    case ExportPage::PALETTE:
       return m_paletteCompression;
-    case PdfExportPage::MRC:
+    case ExportPage::MRC:
       return page.hasPalettePicture() ? m_paletteCompression : m_colorCompression;
     default:
       return m_colorCompression;
   }
 }
 
-const QSpinBox* PdfExportView::pictureQualityBox(const PdfExportPage& page) const {
+const QSpinBox* ExportView::pictureQualityBox(const ExportPage& page) const {
   return (pictureCompressionBox(page) == m_paletteCompression) ? m_paletteQuality : m_colorQuality;
 }
 
-PdfExportView::PageQuality PdfExportView::pageQuality(const PdfExportPage& page) const {
+ExportView::PageQuality ExportView::pageQuality(const ExportPage& page) const {
   PageQuality quality;
-  if (page.kind() == PdfExportPage::MISSING) {
+  if (page.kind() == ExportPage::MISSING) {
     return quality;
   }
   const QComboBox* box = pictureCompressionBox(page);
   quality.part = (box == m_colorCompression) ? 0 : (box == m_paletteCompression) ? 1 : 2;
   quality.fileProblem = !page.warning().isEmpty();
-  quality.tiffPictureLossy = PdfExportPage::isLossyTiffCompression(page.pictureCompression());
+  quality.tiffPictureLossy = ExportPage::isLossyTiffCompression(page.pictureCompression());
   quality.tiffTextLossy
-      = (page.kind() == PdfExportPage::MRC) && PdfExportPage::isLossyTiffCompression(page.textCompression());
+      = (page.kind() == ExportPage::MRC) && ExportPage::isLossyTiffCompression(page.textCompression());
   // The black and white methods of the PDF are all lossless.
-  if (page.kind() != PdfExportPage::BITONAL) {
+  if (page.kind() != ExportPage::BITONAL) {
     const auto compression = static_cast<PdfCompression>(box->currentData().toInt());
     quality.pdfLossy = isLossyPdfCompression(compression, pictureQualityBox(page)->value());
   }
@@ -1105,17 +1105,17 @@ PdfExportView::PageQuality PdfExportView::pageQuality(const PdfExportPage& page)
   return quality;
 }
 
-QStringList PdfExportView::pageWarnings(const PdfExportPage& page, const PageQuality& quality) const {
+QStringList ExportView::pageWarnings(const ExportPage& page, const PageQuality& quality) const {
   QStringList warnings;
   if (quality.fileProblem) {
     warnings.push_back(page.warning());
   }
   // Losses in the PDF alone are chosen in the PDF Compression panel and aren't warned about.
   if (quality.tiffPictureLossy) {
-    const QString tiffMethod = PdfExportPage::tiffCompressionName(page.pictureCompression());
+    const QString tiffMethod = ExportPage::tiffCompressionName(page.pictureCompression());
     const QString pdfMethod = pdfMethodName(pictureCompressionBox(page));
     const QString stored
-        = (page.kind() == PdfExportPage::MRC)
+        = (page.kind() == ExportPage::MRC)
               ? tr("In the output folder, the picture of this page is stored with lossy compression (%1).")
                     .arg(tiffMethod)
               : tr("In the output folder, this page is stored with lossy compression (%1).").arg(tiffMethod);
@@ -1130,7 +1130,7 @@ QStringList PdfExportView::pageWarnings(const PdfExportPage& page, const PageQua
   if (quality.tiffTextLossy) {
     warnings.push_back(tr("In the output folder, the text of this page is stored with lossy compression (%1). The "
                           "PDF can't undo these losses.")
-                           .arg(PdfExportPage::tiffCompressionName(page.textCompression())));
+                           .arg(ExportPage::tiffCompressionName(page.textCompression())));
   }
   if (quality.posterizedAsJpeg) {
     warnings.push_back(tr("%1 converts the posterized picture of this page to full color, which blurs the color "
@@ -1144,9 +1144,9 @@ QStringList PdfExportView::pageWarnings(const PdfExportPage& page, const PageQua
                            .arg(pdfMethodName(pictureCompressionBox(page))));
   }
   return warnings;
-}  // PdfExportView::pageWarnings
+}  // ExportView::pageWarnings
 
-QStringList PdfExportView::pageNotes(const PageQuality& quality) const {
+QStringList ExportView::pageNotes(const PageQuality& quality) const {
   QStringList notes;
   // Without losses, only the size of the PDF is at stake.
   if (quality.withoutSplitOutput && !quality.pdfLossy) {
@@ -1157,12 +1157,12 @@ QStringList PdfExportView::pageNotes(const PageQuality& quality) const {
   return notes;
 }
 
-QString PdfExportView::pageToolTip(const int entryIndex) const {
+QString ExportView::pageToolTip(const int entryIndex) const {
   if ((entryIndex < 0) || (entryIndex >= static_cast<int>(m_entries.size()))) {
     return QString();
   }
-  const PdfExportPage& page = m_entries[entryIndex].page;
-  if (page.kind() == PdfExportPage::MISSING) {
+  const ExportPage& page = m_entries[entryIndex].page;
+  if (page.kind() == ExportPage::MISSING) {
     return tr("Not output yet. Process the page in the Output step to include it in the PDF.");
   }
   const PageQuality quality = pageQuality(page);
@@ -1170,8 +1170,8 @@ QString PdfExportView::pageToolTip(const int entryIndex) const {
   const QStringList notes = pageNotes(quality);
   // A method, marked if it loses quality.
   auto tiffMethod = [](const int compression) {
-    const QString name = PdfExportPage::tiffCompressionName(compression);
-    return PdfExportPage::isLossyTiffCompression(compression) ? tr("%1 (lossy)", "tooltip").arg(name) : name;
+    const QString name = ExportPage::tiffCompressionName(compression);
+    return ExportPage::isLossyTiffCompression(compression) ? tr("%1 (lossy)", "tooltip").arg(name) : name;
   };
   auto pdfMethod = [this](const QComboBox* box, const bool lossy) {
     const QString name = pdfMethodName(box);
@@ -1183,12 +1183,12 @@ QString PdfExportView::pageToolTip(const int entryIndex) const {
   QString pdf;
   const QString picturePdf = pdfMethod(pictureCompressionBox(page), quality.pdfLossy);
   switch (page.kind()) {
-    case PdfExportPage::BITONAL:
+    case ExportPage::BITONAL:
       mode = tr("Black and white");
       tiff = tiffMethod(page.pictureCompression());
       pdf = pdfMethod(m_bitonalCompression, false);
       break;
-    case PdfExportPage::MRC:
+    case ExportPage::MRC:
       mode = tr("Mixed, split output");
       tiff = tr("%1 (picture), %2 (text)")
                  .arg(tiffMethod(page.pictureCompression()), tiffMethod(page.textCompression()));
@@ -1197,7 +1197,7 @@ QString PdfExportView::pageToolTip(const int entryIndex) const {
     default:
       if (page.isMixedMode()) {
         mode = tr("Mixed");
-      } else if (page.kind() == PdfExportPage::PALETTE) {
+      } else if (page.kind() == ExportPage::PALETTE) {
         mode = tr("Color / grayscale, posterized");
       } else {
         mode = tr("Color / grayscale");
@@ -1226,9 +1226,9 @@ QString PdfExportView::pageToolTip(const int entryIndex) const {
     lines.push_back(informationSign() + ' ' + note);
   }
   return lines.join('\n');
-}  // PdfExportView::pageToolTip
+}  // ExportView::pageToolTip
 
-void PdfExportView::updatePageSigns() {
+void ExportView::updatePageSigns() {
   // Not a change by the user.
   const QSignalBlocker blocker(m_pageList);
   for (int row = 0; row < m_pageList->count(); ++row) {
@@ -1239,7 +1239,7 @@ void PdfExportView::updatePageSigns() {
   m_pageList->viewport()->update();
 }
 
-void PdfExportView::updateQualityPanel() {
+void ExportView::updateQualityPanel() {
   if (!m_qualityLayout) {
     return;
   }
@@ -1255,11 +1255,11 @@ void PdfExportView::updateQualityPanel() {
     if (!item->flags().testFlag(Qt::ItemIsUserCheckable) || (item->checkState() != Qt::Checked)) {
       continue;
     }
-    const PdfExportPage& page = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page;
+    const ExportPage& page = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page;
     const PageQuality quality = pageQuality(page);
     ++tiffCounts[quality.part][page.pictureCompression()];
     ++pdfCounts[quality.part];
-    if (page.kind() == PdfExportPage::MRC) {
+    if (page.kind() == ExportPage::MRC) {
       ++tiffCounts[2][page.textCompression()];
       ++pdfCounts[2];
     }
@@ -1280,8 +1280,8 @@ void PdfExportView::updateQualityPanel() {
   for (int part = 0; part < 3; ++part) {
     QStringList methods;
     for (const auto& [compression, count] : tiffCounts[part]) {
-      QString method = PdfExportPage::tiffCompressionName(compression);
-      if (PdfExportPage::isLossyTiffCompression(compression)) {
+      QString method = ExportPage::tiffCompressionName(compression);
+      if (ExportPage::isLossyTiffCompression(compression)) {
         method = tr("%1 (lossy)", "short").arg(method);
       }
       methods.push_back(QStringLiteral(u"%1 × %2").arg(count).arg(method));
@@ -1327,15 +1327,15 @@ void PdfExportView::updateQualityPanel() {
   m_pdfWarning->setText(pdfWarnings.join('\n'));
   m_pdfWarning->setToolTip(pdfToolTips.join('\n'));
   m_qualityLayout->setRowVisible(m_pdfWarning, !pdfWarnings.isEmpty());
-}  // PdfExportView::updateQualityPanel
+}  // ExportView::updateQualityPanel
 
-void PdfExportView::compressionChanged() {
+void ExportView::compressionChanged() {
   saveSettings();
   updatePageSigns();
   updateQualityPanel();
 }
 
-int PdfExportView::checkedCount() const {
+int ExportView::checkedCount() const {
   int count = 0;
   for (int row = 0; row < m_pageList->count(); ++row) {
     const QListWidgetItem* item = m_pageList->item(row);
@@ -1346,7 +1346,7 @@ int PdfExportView::checkedCount() const {
   return count;
 }
 
-void PdfExportView::setRunning(const bool running) {
+void ExportView::setRunning(const bool running) {
   m_pageList->setEnabled(!running);
   m_allButton->setEnabled(!running);
   m_noneButton->setEnabled(!running);

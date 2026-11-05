@@ -1,21 +1,21 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#ifndef SCANTAILOR_CORE_PDFEXPORTJOB_H_
-#define SCANTAILOR_CORE_PDFEXPORTJOB_H_
+#ifndef SCANTAILOR_CORE_EXPORTJOB_H_
+#define SCANTAILOR_CORE_EXPORTJOB_H_
 
 #include <QObject>
 #include <QStringList>
 #include <atomic>
 #include <vector>
 
+#include "ExportPage.h"
 #include "PdfCompression.h"
-#include "PdfExportPage.h"
 #include "PdfWriter.h"
 
 struct ProcessingOptions;
 
-struct PdfExportOptions {
+struct ExportOptions {
   /** Grayscale and colour pages and the pictures of split pages: NONE, DEFLATE, JPEG or JPEG2000. */
   PdfCompression colorCompression = PdfCompression::JPEG;
   /** 1 to 100. */
@@ -48,7 +48,7 @@ struct PdfExportOptions {
    * The compression of the project. The number of threads and the text recognition are
    * left at their defaults; they are up to the caller.
    */
-  static PdfExportOptions fromProject(const ProcessingOptions& options);
+  static ExportOptions fromProject(const ProcessingOptions& options);
 
   /** The outcome of setUpOcr(). */
   enum class OcrSetup {
@@ -82,10 +82,10 @@ class OcrEngine;
  * The file is written to a temporary file first, so a failed or cancelled export
  * doesn't leave a partial PDF behind or damage an existing one.
  */
-class PdfExportJob : public QObject {
+class ExportJob : public QObject {
   Q_OBJECT
  public:
-  PdfExportJob(std::vector<PdfExportPage> pages, const QString& outputFile, const PdfExportOptions& options);
+  ExportJob(std::vector<ExportPage> pages, const QString& outputFile, const ExportOptions& options);
 
   void run();
 
@@ -108,8 +108,8 @@ class PdfExportJob : public QObject {
    * \param cancel If not null, text recognition stops as soon as it becomes true.
    * \return false on failure, in which case \p errors receives the reasons.
    */
-  static bool preparePage(const PdfExportPage& page,
-                          const PdfExportOptions& options,
+  static bool preparePage(const ExportPage& page,
+                          const ExportOptions& options,
                           PdfWriter::Page* result,
                           QStringList* errors,
                           OcrEngine* ocrEngine = nullptr,
@@ -120,9 +120,9 @@ class PdfExportJob : public QObject {
   void progress(int pagesDone, int pagesTotal);
 
  private:
-  std::vector<PdfExportPage> m_pages;
+  std::vector<ExportPage> m_pages;
   QString m_outputFile;
-  PdfExportOptions m_options;
+  ExportOptions m_options;
   std::atomic<bool> m_cancelRequested{false};
   bool m_succeeded = false;
   bool m_cancelled = false;
@@ -130,4 +130,4 @@ class PdfExportJob : public QObject {
 };
 
 
-#endif  // SCANTAILOR_CORE_PDFEXPORTJOB_H_
+#endif  // SCANTAILOR_CORE_EXPORTJOB_H_

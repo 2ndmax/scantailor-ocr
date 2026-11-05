@@ -247,15 +247,15 @@ std::shared_ptr<CompositeCacheDrivenTask> StageSequence::createCacheDrivenTask(
   return fixOrientationTask;
 }  // StageSequence::createCacheDrivenTask
 
-std::vector<PdfExportPage> StageSequence::pdfExportPages(const ProjectPages& pages,
-                                                         const OutputFileNameGenerator& outFileNameGen) const {
+std::vector<ExportPage> StageSequence::pdfExportPages(const ProjectPages& pages,
+                                                      const OutputFileNameGenerator& outFileNameGen) const {
   // The pages in project order, independent of how the thumbnails are sorted.
   const QString& outDir = outFileNameGen.outDir();
   const QDir foregroundDir(output::Utils::foregroundDir(outDir));
   const QDir backgroundDir(output::Utils::backgroundDir(outDir));
   // The same check as for the hourglass of the Output step; no image is processed.
   const std::shared_ptr<CompositeCacheDrivenTask> statusTask = createCacheDrivenTask(m_outputFilterIdx, outFileNameGen);
-  std::vector<PdfExportPage> result;
+  std::vector<ExportPage> result;
   for (const PageInfo& pageInfo : pages.toPageSequence(PAGE_VIEW)) {
     const PageId& pageId = pageInfo.id();
     const QString fileName = outFileNameGen.fileNameFor(pageId);
@@ -264,7 +264,7 @@ std::vector<PdfExportPage> StageSequence::pdfExportPages(const ProjectPages& pag
     result.back().setPageId(pageId);
     // Only the file headers are read, so this is quick even for many pages.
     result.back().analyze();
-    if (result.back().kind() != PdfExportPage::MISSING) {
+    if (result.back().kind() != ExportPage::MISSING) {
       output::OutputStatusCollector status;
       statusTask->process(pageInfo, &status);
       result.back().setOutdated(!status.isUpToDate());

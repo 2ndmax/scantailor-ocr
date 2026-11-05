@@ -9,10 +9,10 @@
 #include <algorithm>
 
 #include "DefaultParams.h"
+#include "ExportJob.h"
 #include "ImageFileInfo.h"
 #include "OcrLanguages.h"
 #include "PageSelectionAccessor.h"
-#include "PdfExportJob.h"
 #include "ProcessingOptions.h"
 #include "ProjectFiles.h"
 #include "ProjectPages.h"
@@ -109,7 +109,7 @@ bool pdfReplacesProjectFile(const QString& pdfFile,
  * that aren't installed and offers to download them; here, they end the export.
  * Returns false after telling \p err why it can't be done.
  */
-bool setUpOcr(const ProcessingOptions::Pdf& projectPdf, PdfExportOptions* options, QTextStream& err) {
+bool setUpOcr(const ProcessingOptions::Pdf& projectPdf, ExportOptions* options, QTextStream& err) {
 #ifdef ENABLE_OCR
   if (!projectPdf.ocr) {
     return true;
@@ -129,15 +129,15 @@ bool setUpOcr(const ProcessingOptions::Pdf& projectPdf, PdfExportOptions* option
   }
   QString error;
   switch (options->setUpOcr(projectPdf.ocrLanguages, projectPdf.ocrPageLayout, &error)) {
-    case PdfExportOptions::OcrSetup::DONE:
+    case ExportOptions::OcrSetup::DONE:
       return true;
-    case PdfExportOptions::OcrSetup::NO_LANGUAGE:
+    case ExportOptions::OcrSetup::NO_LANGUAGE:
       err << CommandLineRun::tr(
           "The project has text recognition turned on, but no language ticked. Tick one in "
           "ScanTailor OCR, in the PDF export, or turn the text recognition off there.")
           << Qt::endl;
       return false;
-    case PdfExportOptions::OcrSetup::NOT_GATHERED:
+    case ExportOptions::OcrSetup::NOT_GATHERED:
       err << CommandLineRun::tr(
           "The files of the selected languages are in different folders, and they could not be "
           "copied into one folder, which text recognition needs.")
@@ -166,11 +166,11 @@ CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
     return CommandLineRun::CANCELLED;
   }
 
-  std::vector<PdfExportPage> pages = session.stages->pdfExportPages(*session.pages, session.outFileNameGen);
+  std::vector<ExportPage> pages = session.stages->pdfExportPages(*session.pages, session.outFileNameGen);
   // Not expected after all pages were output, but the PDF would lack them or show an older state.
   bool complete = true;
-  for (const PdfExportPage& page : pages) {
-    if ((page.kind() == PdfExportPage::MISSING) || page.isOutdated()) {
+  for (const ExportPage& page : pages) {
+    if ((page.kind() == ExportPage::MISSING) || page.isOutdated()) {
       err << CommandLineRun::tr("%1: The output file is missing or outdated.").arg(pageName(page.pageId())) << Qt::endl;
       complete = false;
     }
@@ -180,18 +180,18 @@ CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
   }
 
   const ProcessingOptions::Pdf& projectPdf = session.stages->processingOptions()->pdf;
-  PdfExportOptions options = PdfExportOptions::fromProject(*session.stages->processingOptions());
-  options.threadCount = PdfExportJob::defaultThreadCount();
+  ExportOptions options = ExportOptions::fromProject(*session.stages->processingOptions());
+  options.threadCount = ExportJob::defaultThreadCount();
   if (!setUpOcr(projectPdf, &options, err)) {
     return CommandLineRun::PDF_FAILED;
   }
 
-  PdfExportJob job(std::move(pages), pdfFile, options);
+  ExportJob job(std::move(pages), pdfFile, options);
   // REVIEW-NOTE (2026-11): Ctrl+C while a PDF page is being recognized -> the tool only cancels the job after that
-  // page is written, so text recognition of the current page runs to its end. Not fixed because PdfExportJob only
+  // page is written, so text recognition of the current page runs to its end. Not fixed because ExportJob only
   // takes a cancel request through cancel(), and the delay is at most one page.
   // run() emits it in this thread, so the lambda is called directly.
-  QObject::connect(&job, &PdfExportJob::progress, [&](const int pagesDone, const int pagesTotal) {
+  QObject::connect(&job, &ExportJob::progress, [&](const int pagesDone, const int pagesTotal) {
     out << CommandLineRun::tr("PDF: %1 of %2").arg(pagesDone).arg(pagesTotal) << Qt::endl;
     if (cancel) {
       job.cancel();

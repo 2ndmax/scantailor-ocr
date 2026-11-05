@@ -1,7 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include "PdfExportJob.h"
+#include "ExportJob.h"
 
 #include <QDir>
 #include <QImage>
@@ -38,7 +38,7 @@ QImage loadImage(const QString& filePath, QStringList* errors) {
   ImageLoadErrorCapture capture;
   QImage image = ImageLoader::load(filePath);
   if (image.isNull()) {
-    errors->push_back(describeFailure(PdfExportJob::tr("Could not load %1."), filePath, capture.messages()));
+    errors->push_back(describeFailure(ExportJob::tr("Could not load %1."), filePath, capture.messages()));
   }
   return image;
 }
@@ -71,7 +71,7 @@ bool finishImage(const QImage& image,
   result->height = image.height();
   result->rect = rect;
   if (result->data.isEmpty()) {
-    errors->push_back(describeFailure(PdfExportJob::tr("Could not compress %1."), filePath, capture.messages()));
+    errors->push_back(describeFailure(ExportJob::tr("Could not compress %1."), filePath, capture.messages()));
     return false;
   }
   return true;
@@ -192,7 +192,7 @@ QImage scalePaletteImage(const QImage& image, const int width, const int height)
 bool addTextLayer([[maybe_unused]] const QImage& image,
                   [[maybe_unused]] const QString& filePath,
                   [[maybe_unused]] const QSizeF& perPoint,
-                  const PdfExportOptions& options,
+                  const ExportOptions& options,
                   [[maybe_unused]] OcrEngine* ocrEngine,
                   [[maybe_unused]] const std::atomic<bool>* cancel,
                   [[maybe_unused]] PdfWriter::Page* result,
@@ -202,14 +202,13 @@ bool addTextLayer([[maybe_unused]] const QImage& image,
   }
 #ifdef ENABLE_OCR
   if (!ocrEngine) {
-    errors->push_back(PdfExportJob::tr("Text recognition isn't initialized."));
+    errors->push_back(ExportJob::tr("Text recognition isn't initialized."));
     return false;
   }
   std::vector<OcrWord> words;
   QString error;
   if (!ocrEngine->recognize(image, static_cast<OcrEngine::PageLayout>(options.ocrPageLayout), cancel, &words, &error)) {
-    errors->push_back(
-        describeFailure(PdfExportJob::tr("Text recognition failed for %1."), filePath, QStringList(error)));
+    errors->push_back(describeFailure(ExportJob::tr("Text recognition failed for %1."), filePath, QStringList(error)));
     return false;
   }
   for (const OcrWord& ocrWord : words) {
@@ -226,7 +225,7 @@ bool addTextLayer([[maybe_unused]] const QImage& image,
   }
   return true;
 #else
-  errors->push_back(PdfExportJob::tr("This version of the program was built without text recognition."));
+  errors->push_back(ExportJob::tr("This version of the program was built without text recognition."));
   return false;
 #endif
 }
@@ -236,18 +235,18 @@ QString currentExceptionMessage() {
   try {
     throw;
   } catch (const std::bad_alloc&) {
-    return PdfExportJob::tr("Out of memory.");
+    return ExportJob::tr("Out of memory.");
   } catch (const std::exception& e) {
     return QString::fromLocal8Bit(e.what());
   } catch (...) {
-    return PdfExportJob::tr("Unknown error.");
+    return ExportJob::tr("Unknown error.");
   }
 }
 }  // namespace
 
-PdfExportOptions PdfExportOptions::fromProject(const ProcessingOptions& options) {
+ExportOptions ExportOptions::fromProject(const ProcessingOptions& options) {
   const ProcessingOptions::Pdf& pdf = options.pdf;
-  PdfExportOptions result;
+  ExportOptions result;
   result.colorCompression = pdf.colorCompression;
   result.colorQuality = pdf.colorQuality;
   result.backgroundScale = pdf.backgroundScale;
@@ -258,9 +257,7 @@ PdfExportOptions PdfExportOptions::fromProject(const ProcessingOptions& options)
   return result;
 }
 
-PdfExportOptions::OcrSetup PdfExportOptions::setUpOcr(const QStringList& languages,
-                                                      const int pageLayout,
-                                                      QString* error) {
+ExportOptions::OcrSetup ExportOptions::setUpOcr(const QStringList& languages, const int pageLayout, QString* error) {
   if (languages.isEmpty()) {
     return OcrSetup::NO_LANGUAGE;
   }
@@ -278,30 +275,30 @@ PdfExportOptions::OcrSetup PdfExportOptions::setUpOcr(const QStringList& languag
   return OcrSetup::DONE;
 }
 
-PdfExportJob::PdfExportJob(std::vector<PdfExportPage> pages, const QString& outputFile, const PdfExportOptions& options)
+ExportJob::ExportJob(std::vector<ExportPage> pages, const QString& outputFile, const ExportOptions& options)
     : m_pages(std::move(pages)), m_outputFile(outputFile), m_options(options) {}
 
-int PdfExportJob::defaultThreadCount() {
+int ExportJob::defaultThreadCount() {
   return ThreadBudget::maxThreads();
 }
 
-bool PdfExportJob::preparePage(const PdfExportPage& page,
-                               const PdfExportOptions& options,
-                               PdfWriter::Page* result,
-                               QStringList* errors,
-                               OcrEngine* ocrEngine,
-                               const std::atomic<bool>* cancel) {
+bool ExportJob::preparePage(const ExportPage& page,
+                            const ExportOptions& options,
+                            PdfWriter::Page* result,
+                            QStringList* errors,
+                            OcrEngine* ocrEngine,
+                            const std::atomic<bool>* cancel) {
   result->images.clear();
   result->words.clear();
 
   switch (page.kind()) {
-    case PdfExportPage::MISSING: {
+    case ExportPage::MISSING: {
       errors->push_back(describeFailure(tr("The output file %1 doesn't exist."), page.mainFile(), QStringList()));
       return false;
     }
-    case PdfExportPage::BITONAL:
-    case PdfExportPage::PALETTE:
-    case PdfExportPage::IMAGE: {
+    case ExportPage::BITONAL:
+    case ExportPage::PALETTE:
+    case ExportPage::IMAGE: {
       const QImage image = loadImage(page.mainFile(), errors);
       if (image.isNull()) {
         return false;
@@ -328,7 +325,7 @@ bool PdfExportJob::preparePage(const PdfExportPage& page,
       result->images.push_back(std::move(pdfImage));
       return addTextLayer(image, page.mainFile(), perPoint, options, ocrEngine, cancel, result, errors);
     }
-    case PdfExportPage::MRC: {
+    case ExportPage::MRC: {
       const QImage foreground = loadImage(page.foregroundFile(), errors);
       if (foreground.isNull()) {
         return false;
@@ -386,9 +383,9 @@ bool PdfExportJob::preparePage(const PdfExportPage& page,
     }
   }
   return false;
-}  // PdfExportJob::preparePage
+}  // ExportJob::preparePage
 
-void PdfExportJob::run() {
+void ExportJob::run() {
   m_succeeded = false;
   m_cancelled = false;
   m_errors.clear();
@@ -576,4 +573,4 @@ void PdfExportJob::run() {
   if (!m_cancelled && m_errors.isEmpty()) {
     m_errors.push_back(describeFailure(tr("Could not write %1."), m_outputFile, QStringList(file.errorString())));
   }
-}  // PdfExportJob::run
+}  // ExportJob::run

@@ -1618,16 +1618,16 @@ void MainWindow::enterPdfStage() {
   m_pdfStage = true;
   setPageNavigationEnabled(false);
   if (!m_pdfView) {
-    m_pdfView = std::make_unique<PdfExportView>(m_thumbnailCache, m_stages->processingOptions());
-    connect(m_pdfView.get(), &PdfExportView::runningChanged, this, &MainWindow::pdfExportRunningChanged);
-    connect(m_pdfView.get(), &PdfExportView::projectOptionsChanged, this, &MainWindow::updateAutoSaveTimer);
-    connect(m_pdfView.get(), &PdfExportView::outputMissingPagesRequested, this, &MainWindow::outputMissingPages);
+    m_pdfView = std::make_unique<ExportView>(m_thumbnailCache, m_stages->processingOptions());
+    connect(m_pdfView.get(), &ExportView::runningChanged, this, &MainWindow::pdfExportRunningChanged);
+    connect(m_pdfView.get(), &ExportView::projectOptionsChanged, this, &MainWindow::updateAutoSaveTimer);
+    connect(m_pdfView.get(), &ExportView::outputMissingPagesRequested, this, &MainWindow::outputMissingPages);
   }
   // The output files may have changed since the PDF step was last shown.
   m_pdfView->setDefaultFile(defaultPdfFile());
   // The files of the pages are analyzed meanwhile.
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  std::vector<PdfExportView::Entry> entries = pdfExportEntries();
+  std::vector<ExportView::Entry> entries = pdfExportEntries();
   QApplication::restoreOverrideCursor();
   m_pdfView->setPages(std::move(entries));
   updateMainArea();
@@ -1647,10 +1647,10 @@ void MainWindow::leavePdfStage() {
   QTimer::singleShot(0, this, [this]() { importDeferredScans(); });
 }
 
-std::vector<PdfExportView::Entry> MainWindow::pdfExportEntries() const {
-  std::vector<PdfExportView::Entry> entries;
-  for (PdfExportPage& page : m_stages->pdfExportPages(*m_pages, m_outFileNameGen)) {
-    PdfExportView::Entry entry;
+std::vector<ExportView::Entry> MainWindow::pdfExportEntries() const {
+  std::vector<ExportView::Entry> entries;
+  for (ExportPage& page : m_stages->pdfExportPages(*m_pages, m_outFileNameGen)) {
+    ExportView::Entry entry;
     entry.label = QFileInfo(page.mainFile()).fileName();
     entry.page = std::move(page);
     entries.push_back(std::move(entry));

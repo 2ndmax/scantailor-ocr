@@ -1,7 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include "PdfExportPage.h"
+#include "ExportPage.h"
 
 #include <tiff.h>
 
@@ -12,16 +12,16 @@
 
 #include "PdfImageEncoder.h"
 
-PdfExportPage::PdfExportPage(const QString& mainFile,
-                             const QString& foregroundFile,
-                             const QString& backgroundFile,
-                             const bool mixedMode)
+ExportPage::ExportPage(const QString& mainFile,
+                       const QString& foregroundFile,
+                       const QString& backgroundFile,
+                       const bool mixedMode)
     : m_mainFile(mainFile),
       m_foregroundFile(foregroundFile),
       m_backgroundFile(backgroundFile),
       m_mixedMode(mixedMode) {}
 
-void PdfExportPage::analyze() {
+void ExportPage::analyze() {
   m_kind = MISSING;
   m_palettePicture = false;
   m_pictureCompression = 0;
@@ -76,16 +76,16 @@ void PdfExportPage::analyze() {
   m_kind = mainPalette ? PALETTE : IMAGE;
   if (splitFilesExist) {
     m_warning = QCoreApplication::translate(
-        "PdfExportPage",
+        "ExportPage",
         "The split output files of this page don't match its output file (they are older, have a different size "
         "or a colored foreground). The page is stored as a single image. Process the page again to fix this.");
   } else {
     // How much this matters depends on the PDF compression, so the PDF step tells it.
     m_withoutSplitOutput = m_mixedMode;
   }
-}  // PdfExportPage::analyze
+}  // ExportPage::analyze
 
-bool PdfExportPage::isLossyTiffCompression(const int compression) {
+bool ExportPage::isLossyTiffCompression(const int compression) {
   switch (compression) {
     case COMPRESSION_NONE:
     case COMPRESSION_CCITTRLE:
@@ -105,10 +105,10 @@ bool PdfExportPage::isLossyTiffCompression(const int compression) {
   }
 }
 
-QString PdfExportPage::tiffCompressionName(const int compression) {
+QString ExportPage::tiffCompressionName(const int compression) {
   switch (compression) {
     case COMPRESSION_NONE:
-      return QCoreApplication::translate("PdfExportPage", "uncompressed");
+      return QCoreApplication::translate("ExportPage", "uncompressed");
     case COMPRESSION_LZW:
       return QStringLiteral("LZW");
     case COMPRESSION_ADOBE_DEFLATE:
@@ -131,13 +131,13 @@ QString PdfExportPage::tiffCompressionName(const int compression) {
     case COMPRESSION_ZSTD:
       return QStringLiteral("ZSTD");
     default:
-      return QCoreApplication::translate("PdfExportPage", "method %1").arg(compression);
+      return QCoreApplication::translate("ExportPage", "method %1").arg(compression);
   }
 }
 
-std::set<PageId> PdfExportPage::pagesToOutput(const std::vector<PdfExportPage>& pages) {
+std::set<PageId> ExportPage::pagesToOutput(const std::vector<ExportPage>& pages) {
   std::set<PageId> result;
-  for (const PdfExportPage& page : pages) {
+  for (const ExportPage& page : pages) {
     if ((page.kind() == MISSING) || page.isOutdated()) {
       result.insert(page.pageId());
     }

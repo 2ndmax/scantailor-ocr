@@ -1,6 +1,6 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
-// F8: the PDF export of a page, by PdfExportJob::preparePage() and PdfWriter. The input:
+// F8: the PDF export of a page, by ExportJob::preparePage() and PdfWriter. The input:
 //
 //   byte 0       bits 0-1: the compression of grayscale and colour images (none, Deflate, JPEG,
 //                JPEG 2000), bits 2-3: the same for palette images, bits 4-5: the compression of
@@ -45,9 +45,9 @@
 #include <cstdlib>
 #include <new>
 
+#include "ExportJob.h"
+#include "ExportPage.h"
 #include "FuzzSetup.h"
-#include "PdfExportJob.h"
-#include "PdfExportPage.h"
 #include "PdfImageEncoder.h"
 #include "PdfWriter.h"
 #include "TiffWriter.h"
@@ -237,7 +237,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   QFile::remove(foregroundFile);
   QFile::remove(backgroundFile);
 
-  PdfExportOptions options;
+  ExportOptions options;
   options.colorCompression = COLOR_COMPRESSIONS[data[0] & 3];
   options.paletteCompression = COLOR_COMPRESSIONS[(data[0] >> 2) & 3];
   options.bitonalCompression = BITONAL_COMPRESSIONS[(data[0] >> 4) & 3];
@@ -272,12 +272,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
     writeTiff(backgroundFile, image);
   }
 
-  PdfExportPage page(mainFile, foregroundFile, backgroundFile, splitOutput);
+  ExportPage page(mainFile, foregroundFile, backgroundFile, splitOutput);
   page.analyze();
   PdfWriter::Page pdfPage;
   QStringList errors;
   try {
-    check(PdfExportJob::preparePage(page, options, &pdfPage, &errors, nullptr, nullptr),
+    check(ExportJob::preparePage(page, options, &pdfPage, &errors, nullptr, nullptr),
           "every image the program wrote can be stored");
     for (const PdfWriter::Image& pdfImage : pdfPage.images) {
       checkImage(pdfImage, pdfPage.size);

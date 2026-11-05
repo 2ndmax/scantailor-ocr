@@ -1,11 +1,11 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <ExportJob.h>
+#include <ExportPage.h>
 #include <GlyphLessFont.h>
 #include <ImageLoadErrors.h>
 #include <Jp2Reader.h>
-#include <PdfExportJob.h>
-#include <PdfExportPage.h>
 #include <PdfImageEncoder.h>
 #include <PdfWriter.h>
 #include <TiffReader.h>
@@ -576,16 +576,16 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   BOOST_REQUIRE(TiffWriter::writeImage(bgFile, background));
   BOOST_REQUIRE(TiffWriter::writeImage(mainFile, background));
 
-  PdfExportPage page(mainFile, fgFile, bgFile, true);
+  ExportPage page(mainFile, fgFile, bgFile, true);
   page.analyze();
-  BOOST_REQUIRE_EQUAL(page.kind(), PdfExportPage::MRC);
+  BOOST_REQUIRE_EQUAL(page.kind(), ExportPage::MRC);
   BOOST_CHECK(page.warning().isEmpty());
 
-  PdfExportOptions options;
+  ExportOptions options;
   options.backgroundScale = 2;
   PdfWriter::Page result;
   QStringList errors;
-  BOOST_REQUIRE(PdfExportJob::preparePage(page, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
   BOOST_CHECK(std::abs(result.size.width() - 48.0) < 0.01);
   BOOST_CHECK(std::abs(result.size.height() - 72.0) < 0.01);
   BOOST_REQUIRE_EQUAL(result.images.size(), 2u);
@@ -606,7 +606,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   // The same with G4 instead of JBIG2.
   options.bitonalCompression = PdfCompression::CCITT_G4;
   PdfWriter::Page g4Result;
-  BOOST_REQUIRE(PdfExportJob::preparePage(page, options, &g4Result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(page, options, &g4Result, &errors));
   BOOST_REQUIRE_EQUAL(g4Result.images.size(), 2u);
   BOOST_CHECK(g4Result.images[1].encoding == PdfWriter::Image::Encoding::CCITT_G4);
   BOOST_CHECK(g4Result.images[1].isMask);
@@ -615,7 +615,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   BOOST_REQUIRE(TiffWriter::writeImage(bgFile, background.scaled(200, 300)));
   PdfWriter::Page staleResult;
   errors.clear();
-  BOOST_CHECK(!PdfExportJob::preparePage(page, options, &staleResult, &errors));
+  BOOST_CHECK(!ExportJob::preparePage(page, options, &staleResult, &errors));
   BOOST_CHECK_EQUAL(errors.size(), 1);
   BOOST_REQUIRE(TiffWriter::writeImage(bgFile, background));
 
@@ -624,14 +624,14 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   // Without the split files, the mixed page is stored as one image. The PDF step tells about it.
   QFile::remove(fgFile);
   page.analyze();
-  BOOST_CHECK_EQUAL(page.kind(), PdfExportPage::IMAGE);
+  BOOST_CHECK_EQUAL(page.kind(), ExportPage::IMAGE);
   BOOST_CHECK(page.warning().isEmpty());
   BOOST_CHECK(page.isWithoutSplitOutput());
 
   // A missing output file.
-  PdfExportPage missing(dir.filePath("none.tif"), fgFile, bgFile, false);
+  ExportPage missing(dir.filePath("none.tif"), fgFile, bgFile, false);
   missing.analyze();
-  BOOST_CHECK_EQUAL(missing.kind(), PdfExportPage::MISSING);
+  BOOST_CHECK_EQUAL(missing.kind(), ExportPage::MISSING);
 }
 
 BOOST_AUTO_TEST_CASE(test_pages_to_output) {
@@ -641,7 +641,7 @@ BOOST_AUTO_TEST_CASE(test_pages_to_output) {
   BOOST_REQUIRE(writeLosslessTiff(outputFile, makeGray(40, 30, 300)));
 
   const auto makePage = [](const QString& file, const PageId& pageId) {
-    PdfExportPage page(file, QString(), QString(), false);
+    ExportPage page(file, QString(), QString(), false);
     page.setPageId(pageId);
     page.analyze();
     return page;
@@ -649,15 +649,15 @@ BOOST_AUTO_TEST_CASE(test_pages_to_output) {
   const PageId done(ImageId("a.tif"), PageId::SINGLE_PAGE);
   const PageId missing(ImageId("b.tif"), PageId::LEFT_PAGE);
   const PageId outdated(ImageId("b.tif"), PageId::RIGHT_PAGE);
-  std::vector<PdfExportPage> pages{makePage(outputFile, done), makePage(dir.filePath("none.tif"), missing),
-                                   makePage(outputFile, outdated)};
+  std::vector<ExportPage> pages{makePage(outputFile, done), makePage(dir.filePath("none.tif"), missing),
+                                makePage(outputFile, outdated)};
   pages[2].setOutdated(true);
 
   // Found by their page, not by their place in the list.
-  BOOST_CHECK(PdfExportPage::pagesToOutput(pages) == std::set<PageId>({missing, outdated}));
+  BOOST_CHECK(ExportPage::pagesToOutput(pages) == std::set<PageId>({missing, outdated}));
   std::reverse(pages.begin(), pages.end());
-  BOOST_CHECK(PdfExportPage::pagesToOutput(pages) == std::set<PageId>({missing, outdated}));
-  BOOST_CHECK(PdfExportPage::pagesToOutput({}).empty());
+  BOOST_CHECK(ExportPage::pagesToOutput(pages) == std::set<PageId>({missing, outdated}));
+  BOOST_CHECK(ExportPage::pagesToOutput({}).empty());
 }
 
 BOOST_AUTO_TEST_CASE(test_raw_samples) {
@@ -727,7 +727,7 @@ BOOST_AUTO_TEST_CASE(test_deflate_round_trip) {
 BOOST_AUTO_TEST_CASE(test_prepare_lossless_pages) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
-  PdfExportOptions options;
+  ExportOptions options;
   PdfWriter::Page result;
   QStringList errors;
 
@@ -740,10 +740,10 @@ BOOST_AUTO_TEST_CASE(test_prepare_lossless_pages) {
   }
   const QString paletteFile = dir.filePath("palette.tif");
   BOOST_REQUIRE(writeLosslessTiff(paletteFile, posterized));
-  PdfExportPage palettePage(paletteFile, QString(), QString(), false);
+  ExportPage palettePage(paletteFile, QString(), QString(), false);
   palettePage.analyze();
-  BOOST_REQUIRE_EQUAL(palettePage.kind(), PdfExportPage::PALETTE);
-  BOOST_REQUIRE(PdfExportJob::preparePage(palettePage, options, &result, &errors));
+  BOOST_REQUIRE_EQUAL(palettePage.kind(), ExportPage::PALETTE);
+  BOOST_REQUIRE(ExportJob::preparePage(palettePage, options, &result, &errors));
   BOOST_REQUIRE_EQUAL(result.images.size(), 1u);
   const PdfWriter::Image paletteImage = result.images[0];
   BOOST_CHECK(paletteImage.encoding == PdfWriter::Image::Encoding::FLATE);
@@ -753,39 +753,39 @@ BOOST_AUTO_TEST_CASE(test_prepare_lossless_pages) {
 
   // With JPEG, it's converted to RGB.
   options.paletteCompression = PdfCompression::JPEG;
-  BOOST_REQUIRE(PdfExportJob::preparePage(palettePage, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(palettePage, options, &result, &errors));
   BOOST_CHECK(result.images[0].encoding == PdfWriter::Image::Encoding::JPEG);
   BOOST_CHECK_EQUAL(result.images[0].components, 3);
 
   // Grayscale with Deflate uses the predictors, uncompressed it's just the samples.
   const QString grayFile = dir.filePath("gray.tif");
   BOOST_REQUIRE(writeLosslessTiff(grayFile, makeGray(40, 30, 300)));
-  PdfExportPage grayPage(grayFile, QString(), QString(), false);
+  ExportPage grayPage(grayFile, QString(), QString(), false);
   grayPage.analyze();
-  BOOST_REQUIRE_EQUAL(grayPage.kind(), PdfExportPage::IMAGE);
+  BOOST_REQUIRE_EQUAL(grayPage.kind(), ExportPage::IMAGE);
   options.colorCompression = PdfCompression::DEFLATE;
-  BOOST_REQUIRE(PdfExportJob::preparePage(grayPage, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(grayPage, options, &result, &errors));
   const PdfWriter::Image grayImage = result.images[0];
   BOOST_CHECK(grayImage.encoding == PdfWriter::Image::Encoding::FLATE);
   BOOST_CHECK(grayImage.pngPredictors);
   BOOST_CHECK_EQUAL(grayImage.components, 1);
   options.colorCompression = PdfCompression::NONE;
-  BOOST_REQUIRE(PdfExportJob::preparePage(grayPage, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(grayPage, options, &result, &errors));
   BOOST_CHECK(result.images[0].encoding == PdfWriter::Image::Encoding::RAW);
   BOOST_CHECK_EQUAL(result.images[0].data.size(), 40 * 30);
 
   // Black and white with Deflate and uncompressed.
   const QString bitonalFile = dir.filePath("bitonal.tif");
   BOOST_REQUIRE(writeLosslessTiff(bitonalFile, makeBitonal(40, 30, 300)));
-  PdfExportPage bitonalPage(bitonalFile, QString(), QString(), false);
+  ExportPage bitonalPage(bitonalFile, QString(), QString(), false);
   bitonalPage.analyze();
   options.bitonalCompression = PdfCompression::DEFLATE;
-  BOOST_REQUIRE(PdfExportJob::preparePage(bitonalPage, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(bitonalPage, options, &result, &errors));
   const PdfWriter::Image bitonalImage = result.images[0];
   BOOST_CHECK(bitonalImage.encoding == PdfWriter::Image::Encoding::FLATE);
   BOOST_CHECK_EQUAL(bitonalImage.bitsPerComponent, 1);
   options.bitonalCompression = PdfCompression::NONE;
-  BOOST_REQUIRE(PdfExportJob::preparePage(bitonalPage, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(bitonalPage, options, &result, &errors));
   BOOST_CHECK(result.images[0].encoding == PdfWriter::Image::Encoding::RAW);
   BOOST_CHECK_EQUAL(result.images[0].data.size(), 5 * 30);
 
@@ -828,16 +828,16 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page_with_palette_picture) {
   BOOST_REQUIRE(writeLosslessTiff(bgFile, background));
   BOOST_REQUIRE(writeLosslessTiff(mainFile, background));
 
-  PdfExportPage page(mainFile, fgFile, bgFile, true);
+  ExportPage page(mainFile, fgFile, bgFile, true);
   page.analyze();
-  BOOST_REQUIRE_EQUAL(page.kind(), PdfExportPage::MRC);
+  BOOST_REQUIRE_EQUAL(page.kind(), ExportPage::MRC);
   BOOST_CHECK(page.hasPalettePicture());
 
-  PdfExportOptions options;
+  ExportOptions options;
   options.bitonalCompression = PdfCompression::DEFLATE;
   PdfWriter::Page result;
   QStringList errors;
-  BOOST_REQUIRE(PdfExportJob::preparePage(page, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
   BOOST_REQUIRE_EQUAL(result.images.size(), 2u);
 
   // The picture keeps its palette, at half resolution without new colours.
@@ -904,14 +904,14 @@ BOOST_AUTO_TEST_CASE(test_prepare_jpeg2000_page) {
   BOOST_REQUIRE(dir.isValid());
   const QString grayFile = dir.filePath("gray.tif");
   BOOST_REQUIRE(writeLosslessTiff(grayFile, makeGray(40, 30, 300)));
-  PdfExportPage page(grayFile, QString(), QString(), false);
+  ExportPage page(grayFile, QString(), QString(), false);
   page.analyze();
 
-  PdfExportOptions options;
+  ExportOptions options;
   options.colorCompression = PdfCompression::JPEG2000;
   PdfWriter::Page result;
   QStringList errors;
-  BOOST_REQUIRE(PdfExportJob::preparePage(page, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
   BOOST_REQUIRE_EQUAL(result.images.size(), 1u);
   BOOST_CHECK(result.images[0].encoding == PdfWriter::Image::Encoding::JPX);
   BOOST_CHECK_EQUAL(result.images[0].components, 1);
@@ -930,7 +930,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_jpeg2000_page) {
 
   // Without JPEG 2000, there is no version in the catalog.
   options.colorCompression = PdfCompression::JPEG;
-  BOOST_REQUIRE(PdfExportJob::preparePage(page, options, &result, &errors));
+  BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
   QBuffer jpegBuffer;
   BOOST_REQUIRE(jpegBuffer.open(QIODevice::WriteOnly));
   PdfWriter jpegWriter(jpegBuffer);
@@ -943,19 +943,19 @@ BOOST_AUTO_TEST_CASE(test_prepare_jpeg2000_page) {
 BOOST_AUTO_TEST_CASE(test_export_job) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
-  std::vector<PdfExportPage> pages;
+  std::vector<ExportPage> pages;
   for (int i = 0; i < 5; ++i) {
     const QString file = dir.filePath(QString("p%1.tif").arg(i));
     BOOST_REQUIRE(TiffWriter::writeImage(file, makeBitonal(200 + i, 300, 300)));
     pages.emplace_back(file, QString(), QString(), false);
     pages.back().analyze();
-    BOOST_REQUIRE_EQUAL(pages.back().kind(), PdfExportPage::BITONAL);
+    BOOST_REQUIRE_EQUAL(pages.back().kind(), ExportPage::BITONAL);
   }
 
-  PdfExportOptions options;
+  ExportOptions options;
   options.threadCount = 3;
   const QString pdfFile = dir.filePath("out.pdf");
-  PdfExportJob job(pages, pdfFile, options);
+  ExportJob job(pages, pdfFile, options);
   job.run();
   BOOST_REQUIRE(job.succeeded());
 
@@ -979,7 +979,7 @@ BOOST_AUTO_TEST_CASE(test_export_job) {
   pages.emplace_back(dir.filePath("missing.tif"), QString(), QString(), false);
   pages.back().analyze();
   const QString failedFile = dir.filePath("failed.pdf");
-  PdfExportJob failing(pages, failedFile, options);
+  ExportJob failing(pages, failedFile, options);
   failing.run();
   BOOST_CHECK(!failing.succeeded());
   BOOST_CHECK(!failing.errors().isEmpty());
@@ -998,18 +998,18 @@ BOOST_AUTO_TEST_CASE(test_lossy_compressions) {
   // The compression of the output file is read from the file.
   const QString lzwFile = dir.filePath("lzw.tif");
   BOOST_REQUIRE(write(lzwFile, makeGray(40, 30, 300), COMPRESSION_LZW));
-  PdfExportPage lzwPage(lzwFile, QString(), QString(), false);
+  ExportPage lzwPage(lzwFile, QString(), QString(), false);
   lzwPage.analyze();
   BOOST_CHECK_EQUAL(lzwPage.pictureCompression(), COMPRESSION_LZW);
-  BOOST_CHECK(!PdfExportPage::isLossyTiffCompression(lzwPage.pictureCompression()));
+  BOOST_CHECK(!ExportPage::isLossyTiffCompression(lzwPage.pictureCompression()));
 
   const QString jpegFile = dir.filePath("jpeg.tif");
   BOOST_REQUIRE(write(jpegFile, makeGray(40, 30, 300), COMPRESSION_JPEG));
-  PdfExportPage jpegPage(jpegFile, QString(), QString(), false);
+  ExportPage jpegPage(jpegFile, QString(), QString(), false);
   jpegPage.analyze();
-  BOOST_REQUIRE_EQUAL(jpegPage.kind(), PdfExportPage::IMAGE);
+  BOOST_REQUIRE_EQUAL(jpegPage.kind(), ExportPage::IMAGE);
   BOOST_CHECK_EQUAL(jpegPage.pictureCompression(), COMPRESSION_JPEG);
-  BOOST_CHECK(PdfExportPage::isLossyTiffCompression(jpegPage.pictureCompression()));
+  BOOST_CHECK(ExportPage::isLossyTiffCompression(jpegPage.pictureCompression()));
 
   // With split output, the picture is the background layer and the text the foreground layer.
   const QString mainFile = dir.filePath("page.tif");
@@ -1018,9 +1018,9 @@ BOOST_AUTO_TEST_CASE(test_lossy_compressions) {
   BOOST_REQUIRE(write(fgFile, makeBitonal(40, 30, 300), COMPRESSION_LZW));
   BOOST_REQUIRE(write(bgFile, makeGray(40, 30, 300), COMPRESSION_JPEG));
   BOOST_REQUIRE(write(mainFile, makeGray(40, 30, 300), COMPRESSION_LZW));
-  PdfExportPage splitPage(mainFile, fgFile, bgFile, true);
+  ExportPage splitPage(mainFile, fgFile, bgFile, true);
   splitPage.analyze();
-  BOOST_REQUIRE_EQUAL(splitPage.kind(), PdfExportPage::MRC);
+  BOOST_REQUIRE_EQUAL(splitPage.kind(), ExportPage::MRC);
   BOOST_CHECK_EQUAL(splitPage.pictureCompression(), COMPRESSION_JPEG);
   BOOST_CHECK_EQUAL(splitPage.textCompression(), COMPRESSION_CCITTFAX4);
   BOOST_CHECK(!splitPage.isWithoutSplitOutput());
@@ -1028,56 +1028,56 @@ BOOST_AUTO_TEST_CASE(test_lossy_compressions) {
   // Split output files that don't match: the page is a single image with the compression of its output file.
   const QString smallFgFile = dir.filePath("small_fg.tif");
   BOOST_REQUIRE(write(smallFgFile, makeBitonal(20, 15, 300), COMPRESSION_LZW));
-  PdfExportPage staleSplitPage(mainFile, smallFgFile, bgFile, true);
+  ExportPage staleSplitPage(mainFile, smallFgFile, bgFile, true);
   staleSplitPage.analyze();
-  BOOST_REQUIRE_EQUAL(staleSplitPage.kind(), PdfExportPage::IMAGE);
+  BOOST_REQUIRE_EQUAL(staleSplitPage.kind(), ExportPage::IMAGE);
   BOOST_CHECK_EQUAL(staleSplitPage.pictureCompression(), COMPRESSION_LZW);
   BOOST_CHECK(!staleSplitPage.warning().isEmpty());
   BOOST_CHECK(!staleSplitPage.isWithoutSplitOutput());
 
   // Only a mixed page without split output files is told so.
-  PdfExportPage mixedPage(mainFile, dir.filePath("none_fg.tif"), dir.filePath("none_bg.tif"), true);
+  ExportPage mixedPage(mainFile, dir.filePath("none_fg.tif"), dir.filePath("none_bg.tif"), true);
   mixedPage.analyze();
   BOOST_CHECK(mixedPage.isWithoutSplitOutput());
   BOOST_CHECK(mixedPage.warning().isEmpty());
-  PdfExportPage colorPage(mainFile, dir.filePath("none_fg.tif"), dir.filePath("none_bg.tif"), false);
+  ExportPage colorPage(mainFile, dir.filePath("none_fg.tif"), dir.filePath("none_bg.tif"), false);
   colorPage.analyze();
   BOOST_CHECK(!colorPage.isWithoutSplitOutput());
 
   // A black and white output file has no split output, whatever the color mode.
   const QString bitonalFile = dir.filePath("bitonal.tif");
   BOOST_REQUIRE(write(bitonalFile, makeBitonal(40, 30, 300), COMPRESSION_LZW));
-  PdfExportPage bitonalPage(bitonalFile, QString(), QString(), true);
+  ExportPage bitonalPage(bitonalFile, QString(), QString(), true);
   bitonalPage.analyze();
-  BOOST_REQUIRE_EQUAL(bitonalPage.kind(), PdfExportPage::BITONAL);
+  BOOST_REQUIRE_EQUAL(bitonalPage.kind(), ExportPage::BITONAL);
   BOOST_CHECK_EQUAL(bitonalPage.pictureCompression(), COMPRESSION_CCITTFAX4);
   BOOST_CHECK(!bitonalPage.isWithoutSplitOutput());
 
   // A page that isn't output yet has no compression.
-  PdfExportPage missingPage(dir.filePath("missing.tif"), QString(), QString(), true);
+  ExportPage missingPage(dir.filePath("missing.tif"), QString(), QString(), true);
   missingPage.analyze();
-  BOOST_CHECK_EQUAL(missingPage.kind(), PdfExportPage::MISSING);
+  BOOST_CHECK_EQUAL(missingPage.kind(), ExportPage::MISSING);
   BOOST_CHECK_EQUAL(missingPage.pictureCompression(), 0);
   BOOST_CHECK_EQUAL(missingPage.textCompression(), 0);
   BOOST_CHECK(!missingPage.isWithoutSplitOutput());
 
   // The names as in the TIFF Compression panel of the Output step.
-  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(COMPRESSION_OJPEG).toStdString(), "JPEG");
-  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(COMPRESSION_ADOBE_DEFLATE).toStdString(), "Deflate");
-  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(COMPRESSION_DEFLATE).toStdString(), "Deflate");
-  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(COMPRESSION_CCITTRLEW).toStdString(), "CCITT RLE");
-  BOOST_CHECK_EQUAL(PdfExportPage::tiffCompressionName(12345).toStdString(), "method 12345");
+  BOOST_CHECK_EQUAL(ExportPage::tiffCompressionName(COMPRESSION_OJPEG).toStdString(), "JPEG");
+  BOOST_CHECK_EQUAL(ExportPage::tiffCompressionName(COMPRESSION_ADOBE_DEFLATE).toStdString(), "Deflate");
+  BOOST_CHECK_EQUAL(ExportPage::tiffCompressionName(COMPRESSION_DEFLATE).toStdString(), "Deflate");
+  BOOST_CHECK_EQUAL(ExportPage::tiffCompressionName(COMPRESSION_CCITTRLEW).toStdString(), "CCITT RLE");
+  BOOST_CHECK_EQUAL(ExportPage::tiffCompressionName(12345).toStdString(), "method 12345");
 
   // The lossless methods.
   for (const int compression : {COMPRESSION_NONE, COMPRESSION_CCITTRLE, COMPRESSION_CCITTFAX3, COMPRESSION_PACKBITS,
                                 COMPRESSION_LZMA, COMPRESSION_ZSTD}) {
-    BOOST_CHECK(!PdfExportPage::isLossyTiffCompression(compression));
+    BOOST_CHECK(!ExportPage::isLossyTiffCompression(compression));
   }
 
   // Unknown methods count as lossy.
-  BOOST_CHECK(PdfExportPage::isLossyTiffCompression(COMPRESSION_OJPEG));
-  BOOST_CHECK(PdfExportPage::isLossyTiffCompression(12345));
-  BOOST_CHECK(!PdfExportPage::isLossyTiffCompression(COMPRESSION_ADOBE_DEFLATE));
+  BOOST_CHECK(ExportPage::isLossyTiffCompression(COMPRESSION_OJPEG));
+  BOOST_CHECK(ExportPage::isLossyTiffCompression(12345));
+  BOOST_CHECK(!ExportPage::isLossyTiffCompression(COMPRESSION_ADOBE_DEFLATE));
 
   // In the PDF, JPEG is lossy even at quality 100; JPEG 2000 is lossless there.
   BOOST_CHECK(isLossyPdfCompression(PdfCompression::JPEG, 100));

@@ -138,8 +138,8 @@ set(common_sources
     PdfCompression.h
     PdfImageEncoder.cpp PdfImageEncoder.h
     jbig2enc/jbig2arith.cpp jbig2enc/jbig2arith.h
-    PdfExportPage.cpp PdfExportPage.h
-    PdfExportJob.cpp PdfExportJob.h
+    ExportPage.cpp ExportPage.h
+    ExportJob.cpp ExportJob.h
     PdfPageOrder.cpp PdfPageOrder.h
     NewScanTracker.cpp NewScanTracker.h
     ScanInsertion.cpp ScanInsertion.h

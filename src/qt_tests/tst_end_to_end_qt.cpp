@@ -6,13 +6,13 @@
 #include <CompositeCacheDrivenTask.h>
 #include <DefaultParams.h>
 #include <Dpm.h>
+#include <ExportJob.h>
 #include <ImageFileInfo.h>
 #include <ImageMetadata.h>
 #include <ImageSizeLimit.h>
 #include <NullTaskStatus.h>
 #include <PageSelectionAccessor.h>
 #include <PageSequence.h>
-#include <PdfExportJob.h>
 #include <ProjectPages.h>
 #include <ProjectReader.h>
 #include <ProjectSession.h>
@@ -229,11 +229,11 @@ bool allSaved(const std::vector<ImageFileInfo>& files) {
 }
 
 // Exports the pages as the app does, in this thread. Returns the PDF, or nothing on failure.
-QByteArray exportPdf(const std::vector<PdfExportPage>& pages,
+QByteArray exportPdf(const std::vector<ExportPage>& pages,
                      const QString& filePath,
-                     const PdfExportOptions& options,
+                     const ExportOptions& options,
                      QStringList* errors = nullptr) {
-  PdfExportJob job(pages, filePath, options);
+  ExportJob job(pages, filePath, options);
   job.run();
   if (errors) {
     *errors = job.errors();
@@ -398,9 +398,9 @@ void TestEndToEndQt::testColorOutputCompression() {
 
   // In the PDF, a color page is compressed as the project says, by default as JPEG.
   QCOMPARE(project.stages->processingOptions()->pdf.colorCompression, PdfCompression::JPEG);
-  const QByteArray pdf = exportPdf(project.stages->pdfExportPages(*project.pages, project.outFileNameGen),
-                                   dir.absoluteFilePath("color.pdf"),
-                                   PdfExportOptions::fromProject(*project.stages->processingOptions()));
+  const QByteArray pdf
+      = exportPdf(project.stages->pdfExportPages(*project.pages, project.outFileNameGen),
+                  dir.absoluteFilePath("color.pdf"), ExportOptions::fromProject(*project.stages->processingOptions()));
   QVERIFY(isCompletePdf(pdf));
   QVERIFY(pdf.contains("/Filter /DCTDecode"));
 }
@@ -517,7 +517,7 @@ void TestEndToEndQt::testPdfExport() {
 
   // One page of the PDF for each page of the project, in the order of the project.
   const PageSequence pages = project.pages->toPageSequence(PAGE_VIEW);
-  const std::vector<PdfExportPage> pdfPages = project.stages->pdfExportPages(*project.pages, project.outFileNameGen);
+  const std::vector<ExportPage> pdfPages = project.stages->pdfExportPages(*project.pages, project.outFileNameGen);
   QCOMPARE(pdfPages.size(), pages.numPages());
   for (size_t i = 0; i < pdfPages.size(); ++i) {
     QCOMPARE(pdfPages[i].mainFile(), project.outFileNameGen.filePathFor(pages.pageAt(i).id()));
@@ -531,14 +531,14 @@ void TestEndToEndQt::testPdfExport() {
   const QString pdfFile = dir.absoluteFilePath("book.pdf");
   QElapsedTimer timer;
   timer.start();
-  QByteArray pdf = exportPdf(pdfPages, pdfFile, PdfExportOptions::fromProject(processingOptions));
+  QByteArray pdf = exportPdf(pdfPages, pdfFile, ExportOptions::fromProject(processingOptions));
   qInfo("PDF export of %d pages: %lld ms", static_cast<int>(pdfPages.size()), static_cast<long long>(timer.elapsed()));
   QVERIFY(isCompletePdf(pdf));
   QVERIFY(pdf.contains("/Count 4 "));
   QCOMPARE(pdf.count("/Filter /JBIG2Decode"), 4);
 
   processingOptions.pdf.bitonalCompression = PdfCompression::CCITT_G4;
-  pdf = exportPdf(pdfPages, pdfFile, PdfExportOptions::fromProject(processingOptions));
+  pdf = exportPdf(pdfPages, pdfFile, ExportOptions::fromProject(processingOptions));
   QVERIFY(isCompletePdf(pdf));
   QCOMPARE(pdf.count("/Filter /CCITTFaxDecode"), 4);
 
@@ -555,11 +555,11 @@ void TestEndToEndQt::testPdfExport() {
            qPrintable(mediaBox.captured(0)));
 
   // A missing output file makes the export fail with a message, and the PDF from before stays as it was.
-  std::vector<PdfExportPage> withMissingFile = pdfPages;
-  withMissingFile[1] = PdfExportPage(dir.absoluteFilePath("out/missing.tif"), QString(), QString(), false);
+  std::vector<ExportPage> withMissingFile = pdfPages;
+  withMissingFile[1] = ExportPage(dir.absoluteFilePath("out/missing.tif"), QString(), QString(), false);
   withMissingFile[1].analyze();
   QStringList errors;
-  QVERIFY(exportPdf(withMissingFile, pdfFile, PdfExportOptions::fromProject(processingOptions), &errors).isEmpty());
+  QVERIFY(exportPdf(withMissingFile, pdfFile, ExportOptions::fromProject(processingOptions), &errors).isEmpty());
   QVERIFY(!errors.isEmpty());
   QCOMPARE(readFile(pdfFile), pdf);
 
@@ -569,9 +569,9 @@ void TestEndToEndQt::testPdfExport() {
   const PageId& changedId = pages.pageAt(1).id();
   const Dpi dpi = outputSettings->getParams(changedId).outputDpi();
   outputSettings->setDpi(changedId, Dpi(dpi.horizontal() + 100, dpi.vertical() + 100));
-  const std::vector<PdfExportPage> afterChange = project.stages->pdfExportPages(*project.pages, project.outFileNameGen);
+  const std::vector<ExportPage> afterChange = project.stages->pdfExportPages(*project.pages, project.outFileNameGen);
   for (size_t i = 0; i < afterChange.size(); ++i) {
     QCOMPARE(afterChange[i].isOutdated(), i == 1);
-    QVERIFY(afterChange[i].kind() != PdfExportPage::MISSING);
+    QVERIFY(afterChange[i].kind() != ExportPage::MISSING);
   }
 }

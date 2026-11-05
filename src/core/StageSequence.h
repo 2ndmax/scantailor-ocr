@@ -11,9 +11,9 @@
 
 #include "AbstractFilter.h"
 #include "BackgroundTask.h"
+#include "ExportPage.h"
 #include "NonCopyable.h"
 #include "PageId.h"
-#include "PdfExportPage.h"
 #include "filters/deskew/Filter.h"
 #include "filters/fix_orientation/Filter.h"
 #include "filters/output/Filter.h"
@@ -136,11 +136,11 @@ class StageSequence {
 
   /**
    * The output files of the pages for the PDF export, in the order of the project.
-   * They are already analyzed (see PdfExportPage::analyze()), so they can be exported as they are,
-   * and pages whose output no longer matches their settings are marked (PdfExportPage::isOutdated()).
+   * They are already analyzed (see ExportPage::analyze()), so they can be exported as they are,
+   * and pages whose output no longer matches their settings are marked (ExportPage::isOutdated()).
    */
-  std::vector<PdfExportPage> pdfExportPages(const ProjectPages& pages,
-                                            const OutputFileNameGenerator& outFileNameGen) const;
+  std::vector<ExportPage> pdfExportPages(const ProjectPages& pages,
+                                         const OutputFileNameGenerator& outFileNameGen) const;
 
   /**
    * The settings of the project that apply to all its pages, shared with the steps that use them.

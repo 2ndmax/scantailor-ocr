@@ -1,8 +1,8 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <ExportJob.h>
 #include <OcrLanguages.h>
-#include <PdfExportJob.h>
 #include <TessdataDownloader.h>
 
 #include <QDir>
@@ -186,27 +186,27 @@ BOOST_AUTO_TEST_CASE(test_set_up_ocr) {
   const TessdataPrefix prefix(dir.path());
   QString error;
 
-  PdfExportOptions none;
-  BOOST_CHECK(none.setUpOcr(QStringList(), 1, &error) == PdfExportOptions::OcrSetup::NO_LANGUAGE);
+  ExportOptions none;
+  BOOST_CHECK(none.setUpOcr(QStringList(), 1, &error) == ExportOptions::OcrSetup::NO_LANGUAGE);
   BOOST_CHECK(!none.ocr);
 
   // All in one folder.
-  PdfExportOptions together;
-  BOOST_CHECK(together.setUpOcr(QStringList{"aaa", "bbb"}, 1, &error) == PdfExportOptions::OcrSetup::DONE);
+  ExportOptions together;
+  BOOST_CHECK(together.setUpOcr(QStringList{"aaa", "bbb"}, 1, &error) == ExportOptions::OcrSetup::DONE);
   BOOST_CHECK(together.ocr);
   BOOST_CHECK(QDir(together.ocrDataDir) == QDir(dir.path()));
   BOOST_CHECK(together.ocrLanguages == "aaa+bbb");
   BOOST_CHECK_EQUAL(together.ocrPageLayout, 1);
 
   // Spread over two folders: copied into the user's folder.
-  PdfExportOptions spread;
-  BOOST_CHECK(spread.setUpOcr(QStringList{"aaa", "ccc"}, 0, &error) == PdfExportOptions::OcrSetup::DONE);
+  ExportOptions spread;
+  BOOST_CHECK(spread.setUpOcr(QStringList{"aaa", "ccc"}, 0, &error) == ExportOptions::OcrSetup::DONE);
   BOOST_CHECK(QDir(spread.ocrDataDir) == QDir(userDir));
   BOOST_CHECK(QFile::exists(OcrLanguages::filePath(userDir, "aaa")));
 
   // A language that doesn't exist can't be copied.
-  PdfExportOptions failed;
-  BOOST_CHECK(failed.setUpOcr(QStringList{"aaa", "zzy"}, 0, &error) == PdfExportOptions::OcrSetup::NOT_GATHERED);
+  ExportOptions failed;
+  BOOST_CHECK(failed.setUpOcr(QStringList{"aaa", "zzy"}, 0, &error) == ExportOptions::OcrSetup::NOT_GATHERED);
   BOOST_CHECK(!failed.ocr);
   BOOST_CHECK(!error.isEmpty());
 }

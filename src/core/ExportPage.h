@@ -1,8 +1,8 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#ifndef SCANTAILOR_CORE_PDFEXPORTPAGE_H_
-#define SCANTAILOR_CORE_PDFEXPORTPAGE_H_
+#ifndef SCANTAILOR_CORE_EXPORTPAGE_H_
+#define SCANTAILOR_CORE_EXPORTPAGE_H_
 
 #include <QString>
 #include <set>
@@ -13,7 +13,7 @@
 /**
  * \brief One page of the PDF export: its output files and how it will be stored.
  */
-class PdfExportPage {
+class ExportPage {
  public:
   enum Kind {
     /** There is no output file yet. */
@@ -28,7 +28,7 @@ class PdfExportPage {
     PALETTE
   };
 
-  PdfExportPage() = default;
+  ExportPage() = default;
 
   /**
    * \param mainFile The output file of the page.
@@ -36,7 +36,7 @@ class PdfExportPage {
    * \param backgroundFile Where the split output puts the background layer of the page.
    * \param mixedMode Whether the page is set to the "Mixed" colour mode.
    */
-  PdfExportPage(const QString& mainFile, const QString& foregroundFile, const QString& backgroundFile, bool mixedMode);
+  ExportPage(const QString& mainFile, const QString& foregroundFile, const QString& backgroundFile, bool mixedMode);
 
   /**
    * \brief Inspects the files (only their headers) and decides how the page will be stored.
@@ -97,7 +97,7 @@ class PdfExportPage {
    * The project pages of \p pages that the Output step has to process (again), because their
    * output is missing or outdated.
    */
-  static std::set<PageId> pagesToOutput(const std::vector<PdfExportPage>& pages);
+  static std::set<PageId> pagesToOutput(const std::vector<ExportPage>& pages);
 
  private:
   QString m_mainFile;
@@ -115,4 +115,4 @@ class PdfExportPage {
 };
 
 
-#endif  // SCANTAILOR_CORE_PDFEXPORTPAGE_H_
+#endif  // SCANTAILOR_CORE_EXPORTPAGE_H_

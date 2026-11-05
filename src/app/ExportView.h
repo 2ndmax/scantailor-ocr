@@ -1,8 +1,8 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#ifndef SCANTAILOR_APP_PDFEXPORTVIEW_H_
-#define SCANTAILOR_APP_PDFEXPORTVIEW_H_
+#ifndef SCANTAILOR_APP_EXPORTVIEW_H_
+#define SCANTAILOR_APP_EXPORTVIEW_H_
 
 #include <QString>
 #include <QStringList>
@@ -11,7 +11,7 @@
 #include <set>
 #include <vector>
 
-#include "PdfExportPage.h"
+#include "ExportPage.h"
 #include "ThumbnailPixmapCache.h"
 
 class QCheckBox;
@@ -29,7 +29,7 @@ class QSpinBox;
 class QThread;
 class OcrPanel;
 class PdfCompressionPanel;
-class PdfExportJob;
+class ExportJob;
 class ThumbnailLoadResult;
 struct ProcessingOptions;
 
@@ -42,24 +42,24 @@ struct ProcessingOptions;
  * the project is open), but they aren't stored; the options are application settings, saved as
  * soon as they are changed.
  */
-class PdfExportView : public QWidget {
+class ExportView : public QWidget {
   Q_OBJECT
  public:
   struct Entry {
     /** Shown in the page list, e.g. "page_1L.tif". */
     QString label;
-    PdfExportPage page;
+    ExportPage page;
   };
 
   /**
    * \param thumbnailCache The cache that holds the thumbnails of the output files.
    * \param processingOptions The settings of the project, which hold those of the PDF.
    */
-  PdfExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
-                std::shared_ptr<ProcessingOptions> processingOptions,
-                QWidget* parent = nullptr);
+  ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
+             std::shared_ptr<ProcessingOptions> processingOptions,
+             QWidget* parent = nullptr);
 
-  ~PdfExportView() override;
+  ~ExportView() override;
 
   /** The options panel. It's owned by this view. */
   QWidget* optionsWidget() const;
@@ -148,15 +148,15 @@ class PdfExportView : public QWidget {
   QString pdfMethodName(const QComboBox* box) const;
 
   /** The compression box and quality field that apply to the picture of a page. */
-  const QComboBox* pictureCompressionBox(const PdfExportPage& page) const;
+  const QComboBox* pictureCompressionBox(const ExportPage& page) const;
 
-  const QSpinBox* pictureQualityBox(const PdfExportPage& page) const;
+  const QSpinBox* pictureQualityBox(const ExportPage& page) const;
 
   /** How a page loses quality with the compression currently chosen. */
   struct PageQuality {
     /** The compression that applies to the picture: 0 color / grayscale, 1 posterized, 2 black and white. */
     int part = 0;
-    /** Its files have a problem, see PdfExportPage::warning(). */
+    /** Its files have a problem, see ExportPage::warning(). */
     bool fileProblem = false;
     /** The output folder stores the picture with lossy compression. */
     bool tiffPictureLossy = false;
@@ -178,10 +178,10 @@ class PdfExportView : public QWidget {
     bool hasNotes() const { return withoutSplitOutput && !pdfLossy; }
   };
 
-  PageQuality pageQuality(const PdfExportPage& page) const;
+  PageQuality pageQuality(const ExportPage& page) const;
 
   /** What to warn about for a page: problems with its files and losses that may be unintended. */
-  QStringList pageWarnings(const PdfExportPage& page, const PageQuality& quality) const;
+  QStringList pageWarnings(const ExportPage& page, const PageQuality& quality) const;
 
   /** What is good to know about a page without being a problem. */
   QStringList pageNotes(const PageQuality& quality) const;
@@ -259,10 +259,10 @@ class PdfExportView : public QWidget {
   /** The file the user already confirmed to overwrite in the file dialog. */
   QString m_overwriteConfirmed;
 
-  std::unique_ptr<PdfExportJob> m_job;
+  std::unique_ptr<ExportJob> m_job;
   QThread* m_thread = nullptr;
   QString m_runningFile;
 };
 
 
-#endif  // SCANTAILOR_APP_PDFEXPORTVIEW_H_
+#endif  // SCANTAILOR_APP_EXPORTVIEW_H_
