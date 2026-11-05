@@ -85,18 +85,22 @@ int main(int argc, char* argv[]) {
   const QCommandLineOption versionOption = parser.addVersionOption();
   const QCommandLineOption exportOption(
       QStringLiteral("export"),
-      CommandLineRun::tr("Then exports all pages with the settings of the project into the existing <folder>. The "
-                         "files are named like the project file, e.g. Book.pdf, Book.txt, Book.hocr and the folder "
-                         "Book_alto."),
-      CommandLineRun::tr("folder"));
+      CommandLineRun::tr("Then exports all pages with the settings of the project, next to the project file and "
+                         "named like it, e.g. Book.pdf, Book.txt, Book.hocr and the folder Book_alto. Each "
+                         "--export-... option turns on the export as well and changes what it names."));
   parser.addOption(exportOption);
+  const QCommandLineOption folderOption(
+      QStringLiteral("export-folder"),
+      CommandLineRun::tr("The existing folder for the exported files instead of the folder of the project file."),
+      CommandLineRun::tr("folder"));
+  parser.addOption(folderOption);
   const QCommandLineOption nameOption(
-      QStringLiteral("name"),
+      QStringLiteral("export-name"),
       CommandLineRun::tr("The name of the exported files, without extension, instead of the name of the project file."),
       CommandLineRun::tr("name"));
   parser.addOption(nameOption);
   const QCommandLineOption formatsOption(
-      QStringLiteral("formats"),
+      QStringLiteral("export-formats"),
       CommandLineRun::tr("The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, "
                          "separated by commas or plus signs."),
       CommandLineRun::tr("list"));
@@ -127,8 +131,9 @@ int main(int argc, char* argv[]) {
 
   CommandLineRun::Options options;
   options.projectFile = parser.positionalArguments().at(0);
-  if (parser.isSet(exportOption)) {
-    options.exportDir = parser.value(exportOption);
+  options.exportRequested = parser.isSet(exportOption);
+  if (parser.isSet(folderOption)) {
+    options.exportDir = parser.value(folderOption);
   }
   if (parser.isSet(nameOption)) {
     options.exportName = parser.value(nameOption);

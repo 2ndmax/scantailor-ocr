@@ -73,7 +73,7 @@ CommandLineRun::ExitCode run(const QString& projectFile,
   return CommandLineRun::run(options, outStream, errStream, cancel);
 }
 
-/** Exports into the folder of \p file under its name, with --export and --name. */
+/** Exports into the folder of \p file under its name, with --export-folder and --export-name. */
 CommandLineRun::ExitCode runExport(const QString& projectFile,
                                    QString* out,
                                    QString* err,
@@ -220,8 +220,8 @@ BOOST_AUTO_TEST_CASE(test_wrong_export_options_are_refused_before_anything_else)
   };
   const QString folder = dir.path();
   BOOST_CHECK(refused(QString(), std::nullopt, std::nullopt));
-  BOOST_CHECK(refused(std::nullopt, QStringLiteral("pdf"), std::nullopt));
-  BOOST_CHECK(refused(std::nullopt, std::nullopt, QStringLiteral("book")));
+  BOOST_CHECK(refused(std::nullopt, QStringLiteral("doc"), std::nullopt));
+  BOOST_CHECK(refused(std::nullopt, std::nullopt, QStringLiteral("nul")));
   BOOST_CHECK(refused(folder, QString(), std::nullopt));
   BOOST_CHECK(refused(folder, QStringLiteral("doc"), std::nullopt));
   // No valid name.
@@ -235,6 +235,39 @@ BOOST_AUTO_TEST_CASE(test_wrong_export_options_are_refused_before_anything_else)
   BOOST_CHECK(refused(dir.filePath("page.png"), std::nullopt, std::nullopt));
   BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
   BOOST_CHECK(!QFile::exists(dir.filePath("project.pdf")));
+}
+
+BOOST_AUTO_TEST_CASE(test_every_export_option_turns_on_the_export_next_to_the_project) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString pdfFile = dir.filePath("project.pdf");
+
+  QString out;
+  QString err;
+  // Without any, only the processing.
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err), CommandLineRun::SUCCESS);
+  BOOST_CHECK(!QFile::exists(pdfFile));
+
+  // The switch alone: the formats of the project, next to the project file and named like it.
+  CommandLineRun::Options options;
+  options.projectFile = projectFile;
+  options.exportRequested = true;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK_MESSAGE(err.isEmpty(), err.toStdString());
+  BOOST_CHECK(QFile::exists(pdfFile));
+  BOOST_REQUIRE(QFile::remove(pdfFile));
+
+  // Each of the others turns it on as well, with the rest from the project.
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, QStringLiteral("pdf")), CommandLineRun::SUCCESS);
+  BOOST_CHECK(QFile::exists(pdfFile));
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, QStringLiteral("band1")),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(QFile::exists(dir.filePath("band1.pdf")));
 }
 
 BOOST_AUTO_TEST_CASE(test_exported_files_are_named_like_the_project_unless_a_name_is_given) {
@@ -322,7 +355,7 @@ BOOST_AUTO_TEST_CASE(test_project_without_a_format_needs_the_option) {
   QString out;
   QString err;
   BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book")), CommandLineRun::USAGE_ERROR);
-  BOOST_CHECK(err.contains(QStringLiteral("--formats")));
+  BOOST_CHECK(err.contains(QStringLiteral("--export-formats")));
   BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
 
   err.clear();

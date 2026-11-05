@@ -91,31 +91,26 @@ bool checkExportOptions(const CommandLineRun::Options& options,
                         QString* exportBase,
                         ProcessingOptions::Formats* formats,
                         QTextStream& err) {
-  if (!options.exportDir) {
-    if (options.formats) {
-      err << CommandLineRun::tr("--formats requires --export.") << Qt::endl;
-      return false;
-    }
-    if (options.exportName) {
-      err << CommandLineRun::tr("--name requires --export.") << Qt::endl;
-      return false;
-    }
+  if (!options.exports()) {
     return true;
   }
-  if (options.exportDir->isEmpty()) {
-    err << CommandLineRun::tr("The folder after --export is empty.") << Qt::endl;
+  if (options.exportDir && options.exportDir->isEmpty()) {
+    err << CommandLineRun::tr("The folder after --export-folder is empty.") << Qt::endl;
     return false;
   }
   if (options.formats && !CommandLineRun::parseFormats(*options.formats, formats)) {
-    err << CommandLineRun::tr("The list after --formats may only hold pdf, txt, hocr and alto: %1")
+    err << CommandLineRun::tr("The list after --export-formats may only hold pdf, txt, hocr and alto: %1")
                .arg(*options.formats)
         << Qt::endl;
     return false;
   }
 
-  const QString name = options.exportName ? ExportPaths::withoutFormatExtension(*options.exportName)
-                                          : QFileInfo(options.projectFile).completeBaseName();
-  const QString folder = QFileInfo(*options.exportDir).absoluteFilePath();
+  // As in the app: next to the project file and named like it.
+  const QFileInfo defaultBase(
+      project_files::defaultExportBase(QFileInfo(options.projectFile).absoluteFilePath(), QString()));
+  const QString name
+      = options.exportName ? ExportPaths::withoutFormatExtension(*options.exportName) : defaultBase.fileName();
+  const QString folder = options.exportDir ? QFileInfo(*options.exportDir).absoluteFilePath() : defaultBase.path();
   QString reason = path_names::invalidNameReason(name);
   if (reason.isEmpty()) {
     reason = path_names::invalidNewPathReason(folder);
@@ -364,7 +359,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       if (!formats.any()) {
         err << tr(
             "The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them "
-            "with --formats.")
+            "with --export-formats.")
             << Qt::endl;
         return USAGE_ERROR;
       }

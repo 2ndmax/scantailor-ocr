@@ -40,14 +40,22 @@ class CommandLineRun {
   struct Options {
     QString projectFile;
     /**
-     * The existing folder for the exported files. Not set for no export; a set but empty value is
-     * an error, e.g. from an empty variable in a script.
+     * Export with the settings of the project (--export). Each of the other export options
+     * (--export-folder, --export-name, --export-formats) turns it on as well.
+     */
+    bool exportRequested = false;
+    /**
+     * The existing folder for the exported files. Not set for the folder of the project file; a set
+     * but empty value is an error, e.g. from an empty variable in a script.
      */
     std::optional<QString> exportDir;
     /** The name of the exported files, see ExportPaths::fromBase(). Not set for the name of the project file. */
     std::optional<QString> exportName;
-    /** The formats as for parseFormats(). Not set for the formats of the project. Requires exportDir. */
+    /** The formats as for parseFormats(). Not set for the formats of the project. */
     std::optional<QString> formats;
+
+    /** Whether the pages are exported after processing. */
+    bool exports() const { return exportRequested || exportDir || exportName || formats; }
   };
 
   /**
