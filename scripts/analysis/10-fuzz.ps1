@@ -231,7 +231,7 @@ if (-not $SkipBuild) {
     if (-not (Test-Path "$BuildDir\CMakeCache.txt")) {
         $toolchain = "$VcpkgRoot\scripts\buildsystems\vcpkg.cmake" -replace '\\', '/'
         $cfg = "cmake -S `"$Root`" -B `"$BuildDir`" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo " +
-               "-DCMAKE_TOOLCHAIN_FILE=$toolchain -DVCPKG_TARGET_TRIPLET=x64-windows -DENABLE_OCR=ON " +
+               "-DCMAKE_TOOLCHAIN_FILE=$toolchain -DVCPKG_TARGET_TRIPLET=x64-windows " +
                '-DBUILD_FUZZERS=ON'
         Add-LogLine $buildLog "# Configure: $cfg`r`n"
         $rc = Invoke-VsLogged $cfg $buildLog 'Configuring with CMake'

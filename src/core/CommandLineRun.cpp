@@ -180,7 +180,6 @@ bool exportReplacesProjectFile(const ExportPaths& paths,
  * Returns false after telling \p err why it can't be done.
  */
 bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStream& err) {
-#ifdef ENABLE_OCR
   if (!options->formats.needsTextRecognition(options->textLayer)) {
     return true;
   }
@@ -215,13 +214,6 @@ bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStr
       return false;
   }
   return false;
-#else
-  // As in the app, which offers no text recognition then.
-  Q_UNUSED(project);
-  Q_UNUSED(options);
-  Q_UNUSED(err);
-  return true;
-#endif
 }
 
 /** Creates \p formats from the output files, with the project's settings. */

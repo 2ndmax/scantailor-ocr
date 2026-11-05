@@ -251,7 +251,7 @@ class ExportView : public QWidget {
   QLabel* m_tiffWarning = nullptr;
   QLabel* m_pdfWarning = nullptr;
   QCheckBox* m_openAfterCreation = nullptr;
-  /** The OCR options; null in builds without OCR. */
+  /** The OCR options. */
   OcrPanel* m_ocrPanel = nullptr;
 
   /** Set once the user has typed or chosen a file; setDefaultFile() doesn't replace it then. */

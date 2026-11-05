@@ -195,21 +195,20 @@ QImage scalePaletteImage(const QImage& image, const int width, const int height)
  * text, the texts of the text formats into \p texts. \p page names the image, also if \p image is
  * the foreground of split output, which has the same size and name as the output file.
  */
-bool recognizeText([[maybe_unused]] const QImage& image,
-                   [[maybe_unused]] const QString& filePath,
-                   [[maybe_unused]] const ExportPage& page,
-                   [[maybe_unused]] const int position,
-                   [[maybe_unused]] const QSizeF& perPoint,
+bool recognizeText(const QImage& image,
+                   const QString& filePath,
+                   const ExportPage& page,
+                   const int position,
+                   const QSizeF& perPoint,
                    const ExportOptions& options,
-                   [[maybe_unused]] OcrEngine* ocrEngine,
-                   [[maybe_unused]] const std::atomic<bool>* cancel,
-                   [[maybe_unused]] PdfWriter::Page* result,
-                   [[maybe_unused]] OcrPageTexts* texts,
+                   OcrEngine* ocrEngine,
+                   const std::atomic<bool>* cancel,
+                   PdfWriter::Page* result,
+                   OcrPageTexts* texts,
                    QStringList* errors) {
   if (!options.runsTextRecognition()) {
     return true;
   }
-#ifdef ENABLE_OCR
   if (!ocrEngine) {
     errors->push_back(ExportJob::tr("Text recognition isn't initialized."));
     return false;
@@ -244,10 +243,6 @@ bool recognizeText([[maybe_unused]] const QImage& image,
     result->words.push_back(std::move(word));
   }
   return true;
-#else
-  errors->push_back(ExportJob::tr("This version of the program was built without text recognition."));
-  return false;
-#endif
 }
 
 /** The message for the exception being handled, as the user sees it. Call only in a catch block. */
@@ -469,11 +464,7 @@ void ExportJob::run() {
     return;
   }
   if (formats.hasTextFormat() && !m_options.ocr) {
-#ifdef ENABLE_OCR
     m_errors.push_back(tr("Text recognition isn't initialized."));
-#else
-    m_errors.push_back(tr("This version of the program was built without text recognition."));
-#endif
     return;
   }
 
@@ -497,9 +488,7 @@ void ExportJob::run() {
   textSettings.hocrFile = formats.hocr ? m_paths.hocr : QString();
   textSettings.altoDir = formats.alto ? m_paths.altoDir : QString();
   textSettings.pageCount = pageCount;
-#ifdef ENABLE_OCR
   textSettings.tesseractVersion = OcrEngine::tesseractVersion();
-#endif
   OcrTextOutputs textOutputs(textSettings);
   QString textError;
   if (!textOutputs.begin(&textError)) {
@@ -540,10 +529,7 @@ void ExportJob::run() {
     // The pages prepared side by side share the threads of the image filters and decoders.
     const ThreadBudget::TaskScope taskScope;
     // Each thread has its own recognizer, created when it prepares its first page.
-#ifdef ENABLE_OCR
     std::unique_ptr<OcrEngine> ocrEngine;
-#endif
-    OcrEngine* engine = nullptr;
     QString ocrInitError;
 
     while (true) {
@@ -566,23 +552,20 @@ void ExportJob::run() {
       Prepared item;
       if (!m_cancelRequested) {
         try {
-#ifdef ENABLE_OCR
           if (m_options.runsTextRecognition() && !ocrEngine && ocrInitError.isEmpty()) {
             auto newEngine = std::make_unique<OcrEngine>();
             if (newEngine->init(m_options.ocrDataDir, m_options.ocrLanguages, &ocrInitError)) {
               ocrEngine = std::move(newEngine);
-              engine = ocrEngine.get();
             } else if (ocrInitError.isEmpty()) {
               ocrInitError = tr("Text recognition could not be started.");
             }
           }
-#endif
           if (!ocrInitError.isEmpty()) {
             item.ok = false;
             item.errors.push_back(ocrInitError);
           } else {
-            item.ok = preparePage(m_pages[index], m_options, &item.page, &item.errors, engine, &m_cancelRequested,
-                                  index + 1, &item.texts);
+            item.ok = preparePage(m_pages[index], m_options, &item.page, &item.errors, ocrEngine.get(),
+                                  &m_cancelRequested, index + 1, &item.texts);
           }
         } catch (...) {
           // An exception escaping a std::thread would terminate the program.

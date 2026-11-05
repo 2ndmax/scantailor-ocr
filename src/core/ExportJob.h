@@ -57,7 +57,7 @@ struct ExportOptions {
   int threadCount = 1;
   /** Whether the PDF gets the recognized text as an invisible layer. Takes effect with ocr. */
   bool textLayer = true;
-  /** The text recognition is set up (see setUpOcr()). Requires a build with ENABLE_OCR. */
+  /** The text recognition is set up (see setUpOcr()). */
   bool ocr = false;
   /** The folder with the language files (see OcrLanguages::commonDir()). */
   QString ocrDataDir;

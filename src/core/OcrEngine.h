@@ -54,7 +54,7 @@ struct OcrPageResult {
  * \brief Text recognition with Tesseract.
  *
  * An instance must only be used by one thread at a time. For parallel recognition,
- * each thread uses its own instance. Only available if built with ENABLE_OCR.
+ * each thread uses its own instance.
  */
 class OcrEngine {
   DECLARE_NON_COPYABLE(OcrEngine)

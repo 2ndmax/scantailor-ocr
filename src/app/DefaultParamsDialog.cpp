@@ -70,11 +70,6 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   deskewObliqueModeGroup->addButton(deskewObliqueAutoBtn);
   deskewObliqueModeGroup->addButton(deskewObliqueManualBtn);
 
-#ifndef ENABLE_OCR
-  // The color mode detection comes with OCR (Leptonica).
-  colorDetectionPanel->setVisible(false);
-#endif
-
   fillingColorBox->addItem(tr("Background"), FILL_BACKGROUND);
   fillingColorBox->addItem(tr("White"), FILL_WHITE);
   fillingColorBox->addItem(tr("Black"), FILL_BLACK);
@@ -992,13 +987,7 @@ void DefaultParamsDialog::setupOutputPanels() {
   m_pdfCompressionPanel = new PdfCompressionPanel;
   grid->addWidget(newGroup(tr("PDF Compression"), m_pdfCompressionPanel), 0, 1, Qt::AlignTop);
   m_ocrPanel = new OcrPanel;
-#ifdef ENABLE_OCR
   grid->addWidget(newGroup(tr("Text Recognition (OCR)"), m_ocrPanel), 0, 2, Qt::AlignTop);
-#else
-  // Without OCR, the panel only keeps the values of the profile.
-  m_ocrPanel->setParent(pdfTab);
-  m_ocrPanel->hide();
-#endif
 
   // After the Output tab, as the steps.
   tabWidget->insertTab(tabWidget->indexOf(tab_6) + 1, pdfTab, tr("Create PDF"));

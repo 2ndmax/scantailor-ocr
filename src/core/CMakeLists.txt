@@ -171,13 +171,9 @@ set_target_properties(core PROPERTIES AUTOUIC ON)
 
 translation_sources(scantailor ${common_sources} ${common_ui_files})
 
-if (TESSERACT_TARGET)
-  target_sources(core PRIVATE OcrEngine.cpp ColorModeDetector.cpp LeptonicaDetector.cpp WhiteBalance.cpp)
-  target_link_libraries(core PRIVATE ${TESSERACT_TARGET})
-  # Also seen by the application, which shows the OCR options only if this is defined.
-  target_compile_definitions(core PUBLIC ENABLE_OCR)
-  translation_sources(scantailor OcrEngine.cpp)
-endif()
+target_sources(core PRIVATE OcrEngine.cpp ColorModeDetector.cpp LeptonicaDetector.cpp WhiteBalance.cpp)
+target_link_libraries(core PRIVATE ${TESSERACT_TARGET})
+translation_sources(scantailor OcrEngine.cpp)
 
 add_subdirectory(interaction)
 add_subdirectory(zones)

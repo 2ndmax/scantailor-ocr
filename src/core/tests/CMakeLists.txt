@@ -52,11 +52,9 @@ set(sources
     TestWidthCorrection.cpp
     TestWidthProfile.cpp
     TestZone.cpp
-    TestUtils.cpp)
-# Text recognition and the color mode detection come with OCR (Tesseract, Leptonica).
-if (TESSERACT_TARGET)
-  list(APPEND sources TestColorModeDetector.cpp TestOcrEngine.cpp)
-endif()
+    TestUtils.cpp
+    TestColorModeDetector.cpp
+    TestOcrEngine.cpp)
 
 add_executable(core_tests ${sources})
 target_link_libraries(

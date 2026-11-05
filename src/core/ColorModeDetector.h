@@ -20,8 +20,6 @@ class TaskStatus;
  * - Color that lies only in pictures makes the page Mixed.
  * - Optionally, our picture zone detection as a second opinion finds pictures that the Spectre
  *   detection misses (light or small photos).
- *
- * Only available if built with ENABLE_OCR (Leptonica comes with Tesseract).
  */
 class ColorModeDetector {
  public:

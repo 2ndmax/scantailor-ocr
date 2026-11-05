@@ -87,10 +87,6 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   despeckleSlider->setMinimum(qRound(0.5 * 10));
   despeckleSlider->setMaximum(qRound(3.5 * 10));
 
-#ifndef ENABLE_OCR
-  // The color mode detection comes with OCR (Leptonica).
-  colorDetectionPanel->setVisible(false);
-#endif
 
   fillBinarizationMethodBox(thresholdMethodBox);
 

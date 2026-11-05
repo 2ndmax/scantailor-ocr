@@ -103,7 +103,7 @@ function Invoke-WslBuild([string]$Log, [string]$BuildDir, [string]$CxxFlags, [st
     $envVars = "env `"CFLAGS=$CxxFlags`" `"CXXFLAGS=$CxxFlags`""
     if ($LdFlags) { $envVars += " `"LDFLAGS=$LdFlags`"" }
     $cfg = "$wsl $envVars cmake -S `"$source`" -B `"$BuildDir`" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo " +
-           "-DENABLE_OCR=ON -DBUILD_TESTS=ON -DBUILD_DEV_TOOLS=ON $Extra"
+           "-DBUILD_TESTS=ON -DBUILD_DEV_TOOLS=ON $Extra"
     $build = "$wsl cmake --build `"$BuildDir`" -- -k 0 -j $jobs"
     Add-LogLine $Log "# Configure: $cfg`r`n"
     $rc = Invoke-Streamed $cfg $Log 'Configuring with CMake'

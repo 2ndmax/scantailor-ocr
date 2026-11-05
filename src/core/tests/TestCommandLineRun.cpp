@@ -471,7 +471,6 @@ BOOST_AUTO_TEST_CASE(test_no_pdf_if_a_page_failed) {
   BOOST_CHECK(!QFile::exists(pdfFile));
 }
 
-#ifdef ENABLE_OCR
 BOOST_AUTO_TEST_CASE(test_no_pdf_if_ocr_languages_are_missing) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
@@ -493,6 +492,5 @@ BOOST_AUTO_TEST_CASE(test_no_pdf_if_ocr_languages_are_missing) {
   BOOST_CHECK(err.contains("zzy"));
   BOOST_CHECK(!QFile::exists(dir.filePath("book.txt")));
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()

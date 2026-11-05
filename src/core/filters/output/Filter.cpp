@@ -3,13 +3,11 @@
 
 #include "Filter.h"
 
+#include <ColorModeDetector.h>
 #include <Dpm.h>
 #include <ImageLoader.h>
 #include <OrderByCompletenessProvider.h>
 #include <Transform.h>
-#ifdef ENABLE_OCR
-#include <ColorModeDetector.h>
-#endif
 
 #include <utility>
 
@@ -137,11 +135,10 @@ bool Filter::hasOutputParams(const PageId& pageId) const {
   return m_settings->getOutputParams(pageId) != nullptr;
 }
 
-bool Filter::detectColorMode([[maybe_unused]] const PageInfo& pageInfo,
-                             [[maybe_unused]] const GeometryCollector& geometry,
-                             [[maybe_unused]] const TaskStatus& status,
-                             [[maybe_unused]] ColorMode* detectedMode) {
-#ifdef ENABLE_OCR
+bool Filter::detectColorMode(const PageInfo& pageInfo,
+                             const GeometryCollector& geometry,
+                             const TaskStatus& status,
+                             ColorMode* detectedMode) {
   const QImage source = ImageLoader::load(pageInfo.id().imageId());
   if (source.isNull()) {
     return false;
@@ -182,9 +179,6 @@ bool Filter::detectColorMode([[maybe_unused]] const PageInfo& pageInfo,
     *detectedMode = mode;
   }
   return true;
-#else
-  return false;
-#endif
 }
 
 std::vector<PageOrderOption> Filter::pageOrderOptions() const {

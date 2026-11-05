@@ -202,33 +202,28 @@ endif()
 
 #================================= Tesseract =================================#
 
-# Text recognition (OCR) for the PDF export.
-option(ENABLE_OCR "Text recognition (OCR) for the PDF export, using Tesseract." ON)
-set(TESSERACT_TARGET "")
-if (ENABLE_OCR)
-  find_package(Tesseract CONFIG QUIET)
-  if (Tesseract_FOUND AND TARGET Tesseract::libtesseract)
-    set(TESSERACT_TARGET Tesseract::libtesseract)
-    message(STATUS "Found Tesseract: ${Tesseract_VERSION}")
-  else()
-    # Debian / Ubuntu ship no CMake config files for Tesseract, only pkg-config ones.
-    find_package(PkgConfig QUIET)
-    if (PKG_CONFIG_FOUND)
-      pkg_check_modules(TESSERACT QUIET IMPORTED_TARGET tesseract>=4.1 lept)
-    endif()
-    if (TESSERACT_FOUND)
-      set(TESSERACT_TARGET PkgConfig::TESSERACT)
-      message(STATUS "Found Tesseract (pkg-config): ${TESSERACT_tesseract_VERSION}")
-    else()
-      message(FATAL_ERROR
-          "Tesseract (4.1 or newer) is required for text recognition (OCR) in the PDF export.\n"
-          "With vcpkg: vcpkg install tesseract\n"
-          "On Debian / Ubuntu: apt install libtesseract-dev libleptonica-dev\n"
-          "To build without text recognition, configure with -DENABLE_OCR=OFF.")
-    endif()
-  endif()
+# Text recognition (OCR) in the export, and Leptonica, which comes with it, for the color mode
+# detection. Always required: the program is built around them.
+find_package(Tesseract CONFIG QUIET)
+if (Tesseract_FOUND AND TARGET Tesseract::libtesseract)
+  set(TESSERACT_TARGET Tesseract::libtesseract)
+  message(STATUS "Found Tesseract: ${Tesseract_VERSION}")
 else()
-  message(STATUS "Text recognition (OCR) is disabled.")
+  # Debian / Ubuntu ship no CMake config files for Tesseract, only pkg-config ones.
+  find_package(PkgConfig QUIET)
+  if (PKG_CONFIG_FOUND)
+    pkg_check_modules(TESSERACT QUIET IMPORTED_TARGET tesseract>=4.1 lept)
+  endif()
+  if (TESSERACT_FOUND)
+    set(TESSERACT_TARGET PkgConfig::TESSERACT)
+    message(STATUS "Found Tesseract (pkg-config): ${TESSERACT_tesseract_VERSION}")
+  else()
+    message(FATAL_ERROR
+        "Tesseract (4.1 or newer) is required.\n"
+        "With vcpkg: vcpkg install tesseract\n"
+        "On Debian / Ubuntu: apt install libtesseract-dev libleptonica-dev\n"
+        "With Homebrew: brew install tesseract leptonica")
+  endif()
 endif()
 
 #================================= Boost ================================#

@@ -81,7 +81,7 @@ class Filter : public AbstractFilter {
   /**
    * Detects the color mode of a page and sets it. The geometry comes from the steps before (see
    * GeometryCollector), so no image but the source is processed. Returns false if the source could
-   * not be loaded or the detection is not available (built without OCR).
+   * not be loaded.
    */
   bool detectColorMode(const PageInfo& pageInfo,
                        const GeometryCollector& geometry,

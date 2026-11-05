@@ -447,7 +447,6 @@ QWidget* ExportView::createOptionsWidget() {
   layout->addWidget(compressionGroup);
   connect(m_compressionPanel, &PdfCompressionPanel::compressionChanged, this, &ExportView::compressionChanged);
 
-#ifdef ENABLE_OCR
   // Text recognition. Like the panels of the other steps, the check box that turns it on
   // is the first entry, not part of the title.
   auto* ocrGroup = new CollapsibleGroupBox(tr("Text Recognition (OCR)"));
@@ -458,7 +457,6 @@ QWidget* ExportView::createOptionsWidget() {
   ocrGroupLayout->addWidget(m_ocrPanel);
   layout->addWidget(ocrGroup);
   connect(m_ocrPanel, &OcrPanel::optionsChanged, this, &ExportView::saveSettings);
-#endif
 
   // Quality: the compression of the ticked pages, in the output folder and in the PDF.
   auto* qualityGroup = new CollapsibleGroupBox(tr("Quality"));
@@ -776,7 +774,6 @@ void ExportView::startExport() {
   ExportOptions options = ExportOptions::fromProject(*m_processingOptions);
   options.threadCount = ExportJob::defaultThreadCount();
 
-#ifdef ENABLE_OCR
   if (m_processingOptions->needsTextRecognition()) {
     if (!m_ocrPanel->missingLanguages().isEmpty()) {
       const QMessageBox::StandardButton answer = QMessageBox::question(
@@ -830,7 +827,6 @@ void ExportView::startExport() {
       return;
     }
   }
-#endif
 
   const int pageCount = static_cast<int>(pages.size());
   m_job = std::make_unique<ExportJob>(std::move(pages), ExportPaths::forPdfFile(path), options);
@@ -939,9 +935,7 @@ void ExportView::saveSettings() {
   const ProcessingOptions::Pdf pdfBefore = m_processingOptions->pdf;
   const ProcessingOptions::Ocr ocrBefore = m_processingOptions->ocr;
   m_compressionPanel->storeOptions(m_processingOptions->pdf);
-#ifdef ENABLE_OCR
   m_ocrPanel->storeOptions(m_processingOptions->pdf, m_processingOptions->ocr);
-#endif
   if ((m_processingOptions->pdf != pdfBefore) || (m_processingOptions->ocr != ocrBefore)) {
     // The project changed, so it gets saved automatically like other changes.
     emit projectOptionsChanged();

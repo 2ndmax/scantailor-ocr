@@ -23,6 +23,7 @@
 #include <BinaryImage.h>
 #include <ChromaDenoiser.h>
 #include <ColorKMeans.h>
+#include <ColorModeDetector.h>
 #include <ColorSegmenter.h>
 #include <ConnectivityMap.h>
 #include <CylindricalSurfaceDewarper.h>
@@ -49,9 +50,6 @@
 #include <TopBottomEdgeTracer.h>
 #include <WienerFilter.h>
 #include <imageproc/OrthogonalRotation.h>
-#ifdef ENABLE_OCR
-#include <ColorModeDetector.h>
-#endif
 
 #include <QDomDocument>
 #include <QImage>
@@ -355,9 +353,8 @@ void colorProcessing(const Input& in) {
 }
 
 // 7: the automatic color mode of the Output step, on the content area, with the options read as a
-// project file or profile stores them (<processing-options>). Without OCR the program has none.
-void colorModeDetection([[maybe_unused]] const Input& in) {
-#ifdef ENABLE_OCR
+// project file or profile stores them (<processing-options>).
+void colorModeDetection(const Input& in) {
   // As output::Filter skips smaller content areas.
   if ((in.image.width() < 16) || (in.image.height() < 16)) {
     return;
@@ -372,7 +369,6 @@ void colorModeDetection([[maybe_unused]] const Input& in) {
   el.appendChild(colorEl);
   const ProcessingOptions options(el, ProcessingOptions());
   (void) ColorModeDetector::detect(in.image, options.colorDetection, NullTaskStatus());
-#endif
 }
 
 // The order is the group number of the seeds; append new groups at the end.

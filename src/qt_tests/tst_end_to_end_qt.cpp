@@ -339,7 +339,6 @@ void TestEndToEndQt::testAllSteps() {
                             .arg(output.darkShare * 100, 0, 'f', 1)));
   }
 
-#ifdef ENABLE_OCR
   // "Detect Color Mode" as in the app: the geometry comes from the steps before.
   const std::shared_ptr<CompositeCacheDrivenTask> geometryTask
       = project.stages->createCacheDrivenTask(project.stages->outputFilterIdx(), project.outFileNameGen);
@@ -356,7 +355,6 @@ void TestEndToEndQt::testAllSteps() {
   output::ColorMode pictureMode = output::BLACK_AND_WHITE;
   QVERIFY(detect(pages.pageAt(3), &pictureMode));
   QCOMPARE(pictureMode, output::MIXED);
-#endif
 
   // Saved and loaded again, the project is the same, without processing anything again.
   const QString firstFile = dir.absoluteFilePath("first.ScanTailor");
