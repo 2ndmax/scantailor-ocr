@@ -24,6 +24,13 @@ QString defaultProjectFile(const QString& inputDir);
 /** The output folder of a new project in \p inputDir. */
 QString defaultOutputDir(const QString& inputDir);
 
+/**
+ * Where an export goes unless chosen otherwise, as folder and name without extension (see
+ * ExportPaths::fromBase()): next to the project file and named like it. For an unsaved project
+ * (\p projectFile empty), next to the output folder and named like the folder containing it.
+ */
+QString defaultExportBase(const QString& projectFile, const QString& outputDir);
+
 /** Whether the file can be added to a project, judged by its extension. */
 bool isImportableImage(const QFileInfo& file);
 

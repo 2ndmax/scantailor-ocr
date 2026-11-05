@@ -37,6 +37,16 @@ QString defaultOutputDir(const QString& inputDir) {
   return QDir::cleanPath(QDir(inputDir).filePath("out"));
 }
 
+QString defaultExportBase(const QString& projectFile, const QString& outputDir) {
+  if (!projectFile.isEmpty()) {
+    const QFileInfo projectInfo(projectFile);
+    return QDir(projectInfo.absolutePath()).absoluteFilePath(projectInfo.completeBaseName());
+  }
+  const QDir parentDir = QFileInfo(outputDir).absoluteDir();
+  const QString name = parentDir.dirName().isEmpty() ? QStringLiteral("output") : parentDir.dirName();
+  return parentDir.absoluteFilePath(name);
+}
+
 bool isImportableImage(const QFileInfo& file) {
   static const QSet<QString> extensions{"png", "jpg", "jpeg", "tif", "tiff",
                                         // JPEG 2000: JP2 files, JPX / JPH files and raw codestreams.

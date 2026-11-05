@@ -1675,15 +1675,7 @@ void MainWindow::outputMissingPages() {
 }
 
 QString MainWindow::defaultPdfFile() const {
-  // Next to the project file and named like it. For an unsaved project,
-  // next to the output folder and named like the folder containing it.
-  if (!m_projectFile.isEmpty()) {
-    const QFileInfo projectInfo(m_projectFile);
-    return QDir(projectInfo.absolutePath()).absoluteFilePath(projectInfo.completeBaseName() + ".pdf");
-  }
-  const QDir parentDir = QFileInfo(m_outFileNameGen.outDir()).absoluteDir();
-  const QString name = parentDir.dirName().isEmpty() ? QStringLiteral("output") : parentDir.dirName();
-  return parentDir.absoluteFilePath(name + ".pdf");
+  return project_files::defaultExportBase(m_projectFile, m_outFileNameGen.outDir()) + QStringLiteral(".pdf");
 }
 
 void MainWindow::setPageNavigationEnabled(const bool enabled) {
