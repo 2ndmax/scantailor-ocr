@@ -17,6 +17,7 @@
 #include "OrthogonalRotation.h"
 #include "ui_DefaultParamsDialog.h"
 
+class ExportFormatsPanel;
 class OcrPanel;
 class PdfCompressionPanel;
 class TiffCompressionPanel;
@@ -149,8 +150,11 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   ProcessingOptions buildProcessingOptions() const;
 
-  /** The TIFF compression in the Output tab and the tab of the PDF step. */
+  /** The TIFF compression in the Output tab and the tab of the Export step. */
   void setupOutputPanels();
+
+  /** Greys out the panels of the Export tab that the formats don't use, as the step does. */
+  void updateExportPanels();
 
   void updateUnits(Units units);
 
@@ -221,8 +225,12 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   Units m_currentUnits;
   std::set<QString> m_reservedProfileNames;
   TiffCompressionPanel* m_tiffCompressionPanel = nullptr;
+  ExportFormatsPanel* m_exportFormatsPanel = nullptr;
   PdfCompressionPanel* m_pdfCompressionPanel = nullptr;
   OcrPanel* m_ocrPanel = nullptr;
+  // Greyed out while the formats of the profile don't use them, as in the Export step.
+  QWidget* m_ocrGroup = nullptr;
+  QWidget* m_pdfCompressionGroup = nullptr;
 
   ConnectionManager m_connectionManager;
 };

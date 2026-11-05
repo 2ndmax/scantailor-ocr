@@ -58,8 +58,6 @@ const int ApplicationSettings::MIN_DESKEW_HANDLE_DISTANCE = 30;
 const int ApplicationSettings::MAX_DESKEW_HANDLE_DISTANCE = 100;
 // The key of the former slider in the batch processing panel, so that its value is kept.
 const QString ApplicationSettings::PROCESSING_THREADS_KEY = "batch_processing_threads";
-const QString ApplicationSettings::PDF_OPEN_AFTER_CREATION_KEY = "pdf_open_after_creation";
-const bool ApplicationSettings::DEFAULT_PDF_OPEN_AFTER_CREATION = true;
 
 QString ApplicationSettings::getKey(const QString& keyName) {
   return ApplicationSettings::ROOT_KEY + '/' + keyName;
@@ -302,12 +300,4 @@ void ApplicationSettings::setProcessingThreads(const int threads) {
   const int value = qBound(1, threads, ThreadBudget::availableThreads());
   writeValue(getKey(PROCESSING_THREADS_KEY), value);
   ThreadBudget::setMaxThreads(value);
-}
-
-bool ApplicationSettings::isPdfOpenAfterCreationEnabled() const {
-  return readValue(getKey(PDF_OPEN_AFTER_CREATION_KEY), DEFAULT_PDF_OPEN_AFTER_CREATION).toBool();
-}
-
-void ApplicationSettings::setPdfOpenAfterCreationEnabled(const bool enabled) {
-  writeValue(getKey(PDF_OPEN_AFTER_CREATION_KEY), enabled);
 }

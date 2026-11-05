@@ -36,6 +36,7 @@
 
 #include "CollapsibleGroupBox.h"
 #include "DefaultParamsProvider.h"
+#include "ExportFormatsPanel.h"
 #include "OcrPanel.h"
 #include "PdfCompressionPanel.h"
 #include "TiffCompressionPanel.h"
@@ -935,10 +936,21 @@ void DefaultParamsDialog::updateProcessingDisplay(const ProcessingOptions& optio
   colorDetectionMinPictureLabel->setEnabled(colorDetectionZonesCB->isChecked());
   colorDetectionMinPictureSB->setEnabled(colorDetectionZonesCB->isChecked());
 
-  // The TIFF compression (Output tab) and the Create PDF tab.
+  // The TIFF compression (Output tab) and the Export tab.
   m_tiffCompressionPanel->setCompression(options.tiffCompression);
+  m_exportFormatsPanel->setOptions(options);
   m_pdfCompressionPanel->setOptions(options.pdf);
-  m_ocrPanel->setOptions(options.pdf, options.ocr);
+  m_ocrPanel->setOptions(options.ocr);
+  updateExportPanels();
+}
+
+void DefaultParamsDialog::updateExportPanels() {
+  ProcessingOptions options;
+  m_exportFormatsPanel->storeOptions(options);
+  const bool needsText = options.needsTextRecognition();
+  m_ocrGroup->setEnabled(needsText);
+  m_ocrPanel->setTextNeeded(needsText);
+  m_pdfCompressionGroup->setEnabled(options.formats.pdf);
 }
 
 ProcessingOptions DefaultParamsDialog::buildProcessingOptions() const {
@@ -950,7 +962,8 @@ ProcessingOptions DefaultParamsDialog::buildProcessingOptions() const {
   options.colorDetection.minPictureShare = colorDetectionMinPictureSB->value() / 100.0;
   options.tiffCompression = m_tiffCompressionPanel->compression();
   m_pdfCompressionPanel->storeOptions(options.pdf);
-  m_ocrPanel->storeOptions(options.pdf, options.ocr);
+  m_exportFormatsPanel->storeOptions(options);
+  m_ocrPanel->storeOptions(options.ocr);
   return options;
 }
 
@@ -969,8 +982,8 @@ void DefaultParamsDialog::setupOutputPanels() {
   verticalLayout_17->insertWidget(verticalLayout_17->indexOf(dewarpingPanel) + 1,
                                   newGroup(tr("TIFF Compression"), m_tiffCompressionPanel));
 
-  // The PDF step gets a tab of its own, built like the other tabs: a scroll area with the panels
-  // centered at the top, side by side.
+  // The Export step gets a tab of its own, built like the other tabs: a scroll area with the panels
+  // centered at the top, side by side, in the order of the step.
   auto* pdfTab = new QWidget;
   auto* tabLayout = new QVBoxLayout(pdfTab);
   tabLayout->setContentsMargins(0, 9, 0, 3);
@@ -981,16 +994,21 @@ void DefaultParamsDialog::setupOutputPanels() {
   pdfScrollArea->setWidget(contents);
   auto* grid = new QGridLayout(contents);
   grid->setColumnStretch(0, 1);
-  grid->setColumnStretch(3, 1);
+  grid->setColumnStretch(4, 1);
   grid->setRowStretch(1, 1);
 
-  m_pdfCompressionPanel = new PdfCompressionPanel;
-  grid->addWidget(newGroup(tr("PDF Compression"), m_pdfCompressionPanel), 0, 1, Qt::AlignTop);
+  m_exportFormatsPanel = new ExportFormatsPanel;
+  grid->addWidget(newGroup(tr("Formats"), m_exportFormatsPanel), 0, 1, Qt::AlignTop);
   m_ocrPanel = new OcrPanel;
-  grid->addWidget(newGroup(tr("Text Recognition (OCR)"), m_ocrPanel), 0, 2, Qt::AlignTop);
+  m_ocrGroup = newGroup(tr("Text Recognition (OCR)"), m_ocrPanel);
+  grid->addWidget(m_ocrGroup, 0, 2, Qt::AlignTop);
+  m_pdfCompressionPanel = new PdfCompressionPanel;
+  m_pdfCompressionGroup = newGroup(tr("PDF Compression"), m_pdfCompressionPanel);
+  grid->addWidget(m_pdfCompressionGroup, 0, 3, Qt::AlignTop);
+  connect(m_exportFormatsPanel, &ExportFormatsPanel::optionsChanged, this, &DefaultParamsDialog::updateExportPanels);
 
   // After the Output tab, as the steps.
-  tabWidget->insertTab(tabWidget->indexOf(tab_6) + 1, pdfTab, tr("Create PDF"));
+  tabWidget->insertTab(tabWidget->indexOf(tab_6) + 1, pdfTab, tr("Export"));
 }
 
 std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {

@@ -6,11 +6,13 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QCursor>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHash>
@@ -48,11 +50,13 @@
 #include "ApplicationSettings.h"
 #include "CollapsibleGroupBox.h"
 #include "ColorSchemeManager.h"
+#include "ExportFormatsPanel.h"
 #include "ExportJob.h"
 #include "ImageId.h"
 #include "OcrEngine.h"
 #include "OcrLanguages.h"
 #include "OcrPanel.h"
+#include "PathNames.h"
 #include "PdfCompressionPanel.h"
 #include "PdfPageOrder.h"
 #include "SectionHeading.h"
@@ -340,13 +344,13 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   m_noneButton = new QPushButton(tr("None"));
   m_forwardButton = new QPushButton(tr("Move forward"));
   m_backButton = new QPushButton(tr("Move back"));
-  m_allButton->setToolTip(tr("Include all output pages in the PDF."));
-  m_noneButton->setToolTip(tr("Exclude all pages from the PDF."));
+  m_allButton->setToolTip(tr("Include all output pages in the export."));
+  m_noneButton->setToolTip(tr("Exclude all pages from the export."));
   m_forwardButton->setToolTip(
-      tr("Move the selected pages one place towards the start of the PDF. Pages can also be moved with drag "
+      tr("Move the selected pages one place towards the start of the export. Pages can also be moved with drag "
          "and drop."));
   m_backButton->setToolTip(
-      tr("Move the selected pages one place towards the end of the PDF. Pages can also be moved with drag and "
+      tr("Move the selected pages one place towards the end of the export. Pages can also be moved with drag and "
          "drop."));
   // Shown only while pages are missing or changed since the output, next to the buttons that choose the pages.
   m_outputMissingButton = new QPushButton(tr("Output missing and changed pages"));
@@ -362,22 +366,42 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   pagesLayout->addLayout(listButtons);
   mainLayout->addWidget(pagesGroup, 1);
 
-  // Target file.
-  auto* fileLayout = new QHBoxLayout;
-  fileLayout->addWidget(new QLabel(tr("PDF file:")));
-  m_fileEdit = new QLineEdit;
-  fileLayout->addWidget(m_fileEdit, 1);
+  // Where the files go on the left: a folder and a name, to which each format adds its extension.
+  // On the right what the export will create, is doing or has done. The fields don't take the
+  // whole width of a wide window; a path and a name need far less.
+  auto* targetRow = new QHBoxLayout;
+  auto* fields = new QWidget;
+  fields->setMaximumWidth(640);
+  auto* fieldsLayout = new QGridLayout(fields);
+  fieldsLayout->setContentsMargins(0, 0, 0, 0);
+  fieldsLayout->addWidget(new QLabel(tr("Folder:")), 0, 0);
+  m_folderEdit = new QLineEdit;
+  fieldsLayout->addWidget(m_folderEdit, 0, 1);
   m_browseButton = new QPushButton(tr("Browse ..."));
-  fileLayout->addWidget(m_browseButton);
-  mainLayout->addLayout(fileLayout);
+  fieldsLayout->addWidget(m_browseButton, 0, 2);
+  fieldsLayout->addWidget(new QLabel(tr("File name:")), 1, 0);
+  m_nameEdit = new QLineEdit;
+  m_nameEdit->setToolTip(tr("The name of the exported files, without extension. Each format adds its own."));
+  fieldsLayout->addWidget(m_nameEdit, 1, 1);
+  fieldsLayout->setColumnStretch(1, 1);
+  targetRow->addWidget(fields, 1);
+  targetRow->addSpacing(18);
+  m_statusLabel = new QLabel;
+  m_statusLabel->setWordWrap(true);
+  m_statusLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+  // After an export it holds links to the files, which the keyboard reaches as well.
+  m_statusLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse
+                                         | Qt::LinksAccessibleByKeyboard);
+  targetRow->addWidget(m_statusLabel, 1);
+  mainLayout->addLayout(targetRow);
+  connect(m_statusLabel, &QLabel::linkActivated, this,
+          [](const QString& link) { QDesktopServices::openUrl(QUrl(link)); });
+  connect(m_statusLabel, &QLabel::linkHovered, this, [](const QString& link) {
+    QToolTip::showText(QCursor::pos(), link.isEmpty() ? QString() : QDir::toNativeSeparators(QUrl(link).toLocalFile()));
+  });
 
-  // The action in one row: what happens afterwards, the progress and the button that starts it.
+  // The action in one row: the progress and the button that starts it.
   auto* buttons = new QHBoxLayout;
-  // About what happens after creating, not about the content of the PDF, so next to the button.
-  m_openAfterCreation = new QCheckBox(tr("Open the PDF after creating it"));
-  m_openAfterCreation->setChecked(ApplicationSettings::getInstance().isPdfOpenAfterCreationEnabled());
-  buttons->addWidget(m_openAfterCreation);
-  buttons->addSpacing(12);
   m_progressBar = new QProgressBar;
   m_progressBar->setRange(0, 1);
   m_progressBar->setValue(0);
@@ -386,15 +410,11 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   buttons->addSpacing(12);
   m_cancelButton = new QPushButton(tr("Cancel"));
   m_cancelButton->setVisible(false);
-  m_createButton = new AccentFrameButton(tr("Create PDF"));
+  m_createButton = new AccentFrameButton(tr("Export"));
   m_createButton->setDefault(true);
   buttons->addWidget(m_cancelButton);
   buttons->addWidget(m_createButton);
   mainLayout->addLayout(buttons);
-  m_statusLabel = new QLabel;
-  m_statusLabel->setWordWrap(true);
-  m_statusLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  mainLayout->addWidget(m_statusLabel);
 
   m_optionsWidget.reset(createOptionsWidget());
 
@@ -403,6 +423,8 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   connect(m_pageList, &QListWidget::itemSelectionChanged, this, &ExportView::updateControls);
   // Drag and drop as well as the buttons move items.
   connect(m_pageList->model(), &QAbstractItemModel::rowsMoved, this, &ExportView::updatePositions);
+  // A new order makes the result of the last export outdated (see showStatus()).
+  connect(m_pageList->model(), &QAbstractItemModel::rowsMoved, this, &ExportView::updateControls);
   connect(m_pageList->model(), &QAbstractItemModel::rowsInserted, this, &ExportView::updatePositions);
   connect(m_pageList->model(), &QAbstractItemModel::rowsRemoved, this, &ExportView::updatePositions);
   connect(m_allButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Checked); });
@@ -410,13 +432,17 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   connect(m_outputMissingButton, &QPushButton::clicked, this, &ExportView::outputMissingPagesRequested);
   connect(m_forwardButton, &QPushButton::clicked, this, &ExportView::moveForward);
   connect(m_backButton, &QPushButton::clicked, this, &ExportView::moveBack);
-  connect(m_fileEdit, &QLineEdit::textEdited, this, [this]() { m_fileChosen = true; });
+  for (QLineEdit* edit : {m_folderEdit, m_nameEdit}) {
+    connect(edit, &QLineEdit::textEdited, this, [this]() {
+      m_fileChosen = true;
+      showPreview();
+    });
+  }
   connect(m_browseButton, &QPushButton::clicked, this, &ExportView::browse);
   connect(m_createButton, &QPushButton::clicked, this, &ExportView::startExport);
   connect(m_cancelButton, &QPushButton::clicked, this, &ExportView::cancelExport);
-  connect(m_openAfterCreation, &QCheckBox::toggled, this, &ExportView::saveSettings);
 
-  updateControls();
+  updateFormatDependents();
 }
 
 ExportView::~ExportView() {
@@ -433,6 +459,26 @@ QWidget* ExportView::createOptionsWidget() {
   auto* layout = new QVBoxLayout(widget);
 
   // Collapsible like the panels of the other steps; the object name keeps its collapsed state.
+  // First what is created, then how the text is recognized, then the panels of the PDF alone.
+  auto* formatsGroup = new CollapsibleGroupBox(tr("Formats"));
+  formatsGroup->setObjectName("exportFormatsPanel");
+  auto* formatsLayout = new QVBoxLayout(formatsGroup);
+  m_formatsPanel = new ExportFormatsPanel;
+  m_formatsPanel->setOptions(*m_processingOptions);
+  formatsLayout->addWidget(m_formatsPanel);
+  layout->addWidget(formatsGroup);
+  connect(m_formatsPanel, &ExportFormatsPanel::optionsChanged, this, &ExportView::saveSettings);
+
+  auto* ocrGroup = new CollapsibleGroupBox(tr("Text Recognition (OCR)"));
+  ocrGroup->setObjectName("pdfOcrPanel");
+  auto* ocrGroupLayout = new QVBoxLayout(ocrGroup);
+  m_ocrPanel = new OcrPanel;
+  m_ocrPanel->setOptions(m_processingOptions->ocr);
+  ocrGroupLayout->addWidget(m_ocrPanel);
+  layout->addWidget(ocrGroup);
+  m_ocrGroup = ocrGroup;
+  connect(m_ocrPanel, &OcrPanel::optionsChanged, this, &ExportView::saveSettings);
+
   auto* compressionGroup = new CollapsibleGroupBox(tr("PDF Compression"));
   compressionGroup->setObjectName("pdfCompressionPanel");
   auto* compressionLayout = new QVBoxLayout(compressionGroup);
@@ -445,18 +491,8 @@ QWidget* ExportView::createOptionsWidget() {
   m_paletteQuality = m_compressionPanel->paletteQualityBox();
   m_bitonalCompression = m_compressionPanel->bitonalCompressionBox();
   layout->addWidget(compressionGroup);
+  m_compressionGroup = compressionGroup;
   connect(m_compressionPanel, &PdfCompressionPanel::compressionChanged, this, &ExportView::compressionChanged);
-
-  // Text recognition. Like the panels of the other steps, the check box that turns it on
-  // is the first entry, not part of the title.
-  auto* ocrGroup = new CollapsibleGroupBox(tr("Text Recognition (OCR)"));
-  ocrGroup->setObjectName("pdfOcrPanel");
-  auto* ocrGroupLayout = new QVBoxLayout(ocrGroup);
-  m_ocrPanel = new OcrPanel;
-  m_ocrPanel->setOptions(m_processingOptions->pdf, m_processingOptions->ocr);
-  ocrGroupLayout->addWidget(m_ocrPanel);
-  layout->addWidget(ocrGroup);
-  connect(m_ocrPanel, &OcrPanel::optionsChanged, this, &ExportView::saveSettings);
 
   // Quality: the compression of the ticked pages, in the output folder and in the PDF.
   auto* qualityGroup = new CollapsibleGroupBox(tr("Quality"));
@@ -496,6 +532,7 @@ QWidget* ExportView::createOptionsWidget() {
              "count the pages; pages with split output count with their picture and with their text."),
           false, m_pdfQuality, &m_pdfNoPages, &m_pdfWarning);
   layout->addWidget(qualityGroup);
+  m_qualityGroup = qualityGroup;
 
   layout->addStretch(1);
   return widget;
@@ -575,9 +612,12 @@ void ExportView::setPages(std::vector<Entry> entries) {
   updateControls();
 }  // ExportView::setPages
 
-void ExportView::setDefaultFile(const QString& file) {
+void ExportView::setDefaultBase(const QString& base) {
   if (!m_fileChosen) {
-    m_fileEdit->setText(QDir::toNativeSeparators(file));
+    const QFileInfo info(base);
+    m_folderEdit->setText(QDir::toNativeSeparators(info.path()));
+    m_nameEdit->setText(info.fileName());
+    updateControls();
   }
 }
 
@@ -676,51 +716,78 @@ void ExportView::moveBack() {
 }
 
 void ExportView::browse() {
-  QString path = QFileDialog::getSaveFileName(this, tr("Save PDF As"), m_fileEdit->text(), tr("PDF files (*.pdf)"));
-  if (path.isEmpty()) {
+  const QString folder = QFileDialog::getExistingDirectory(this, tr("Choose Export Folder"), m_folderEdit->text());
+  if (folder.isEmpty()) {
     return;
   }
-  if (path.endsWith(".pdf", Qt::CaseInsensitive)) {
-    // The file dialog has already asked about replacing an existing file.
-    m_overwriteConfirmed = QDir::cleanPath(path);
-  } else {
-    path += ".pdf";
-  }
-  m_fileEdit->setText(QDir::toNativeSeparators(path));
+  m_folderEdit->setText(QDir::toNativeSeparators(folder));
   m_fileChosen = true;
+  showPreview();
+}
+
+QString ExportView::exportBase(QString* problem) const {
+  const QString folder = QDir::fromNativeSeparators(m_folderEdit->text().trimmed());
+  // An extension of a format, as someone may type it, is no part of the name.
+  const QString name = ExportPaths::withoutFormatExtension(m_nameEdit->text().trimmed());
+  if (folder.isEmpty()) {
+    *problem = tr("Choose the folder for the export.");
+    return QString();
+  }
+  if (QDir::isRelativePath(folder)) {
+    *problem = tr("Enter the complete path of the folder.");
+    return QString();
+  }
+  // Also for the existing folder: Windows calls "D:/Books." existing if "D:/Books" exists.
+  QString reason = path_names::invalidNameReason(name);
+  if (reason.isEmpty()) {
+    reason = path_names::invalidNewPathReason(folder);
+  }
+  if (!reason.isEmpty()) {
+    *problem = reason;
+    return QString();
+  }
+  if (!QFileInfo(folder).isDir()) {
+    *problem = tr("The folder %1 doesn't exist.").arg(QDir::toNativeSeparators(folder));
+    return QString();
+  }
+  return QDir(QDir::cleanPath(folder)).filePath(name);
+}
+
+QStringList ExportView::existingOutputs(const ExportPaths& paths, const ProcessingOptions::Formats& formats) const {
+  QStringList existing;
+  for (const auto& [chosen, file] :
+       {std::pair(formats.pdf, paths.pdf), std::pair(formats.txt, paths.txt), std::pair(formats.hocr, paths.hocr)}) {
+    if (chosen && QFileInfo::exists(file)) {
+      existing.push_back(QFileInfo(file).fileName());
+    }
+  }
+  if (formats.alto && QFileInfo::exists(paths.altoDir)) {
+    const int count = static_cast<int>(QDir(paths.altoDir).entryList(QDir::Files | QDir::Hidden).size());
+    existing.push_back(tr("%1 (folder with %n file(s))", nullptr, count).arg(QFileInfo(paths.altoDir).fileName()));
+  }
+  return existing;
 }
 
 void ExportView::startExport() {
   if (m_thread) {
     return;
   }
-  const QString title = tr("Create PDF");
+  const QString title = tr("Export");
 
-  QString path = QDir::fromNativeSeparators(m_fileEdit->text().trimmed());
-  if (path.isEmpty()) {
-    QMessageBox::warning(this, title, tr("Please enter the file name of the PDF."));
+  QString problem;
+  const QString base = exportBase(&problem);
+  if (base.isEmpty()) {
+    QMessageBox::warning(this, title, problem);
     return;
   }
-  if (!path.endsWith(".pdf", Qt::CaseInsensitive)) {
-    path += ".pdf";
-  }
-  const QFileInfo fileInfo(path);
-  if (fileInfo.isRelative()) {
-    QMessageBox::warning(this, title, tr("Please enter the complete path of the PDF, including the folder."));
+  const ExportPaths paths = ExportPaths::fromBase(base);
+  const ProcessingOptions::Formats formats = m_processingOptions->formats;
+  if (!formats.any()) {
+    QMessageBox::warning(this, title, tr("Tick at least one format."));
     return;
   }
-  path = QDir::cleanPath(fileInfo.absoluteFilePath());
-  m_fileEdit->setText(QDir::toNativeSeparators(path));
-  if (!fileInfo.absoluteDir().exists()) {
-    QMessageBox::warning(this, title,
-                         tr("The folder %1 doesn't exist.").arg(QDir::toNativeSeparators(fileInfo.absolutePath())));
-    return;
-  }
-  if (fileInfo.isDir()) {
-    QMessageBox::warning(this, title, tr("%1 is a folder.").arg(QDir::toNativeSeparators(path)));
-    return;
-  }
-  // Asked first: whoever goes back to output the pages creates the PDF later.
+
+  // Asked first: whoever goes back to output the pages exports later.
   int outdated = 0;
   for (int row = 0; row < m_pageList->count(); ++row) {
     const QListWidgetItem* item = m_pageList->item(row);
@@ -731,11 +798,11 @@ void ExportView::startExport() {
   }
   if (outdated > 0) {
     QMessageBox box(QMessageBox::Question, title,
-                    tr("%n selected page(s) changed since the output. The PDF would show the state of the last "
-                       "output.\n\nDo you want to create the PDF anyway? To include the changes, choose \"Back\" "
+                    tr("%n selected page(s) changed since the output. The export would show the state of the last "
+                       "output.\n\nDo you want to export anyway? To include the changes, choose \"Back\" "
                        "and then \"Output missing and changed pages\".",
                        nullptr, outdated));
-    QPushButton* createButton = box.addButton(tr("Create PDF anyway"), QMessageBox::AcceptRole);
+    QPushButton* createButton = box.addButton(tr("Export anyway"), QMessageBox::AcceptRole);
     QPushButton* backButton = box.addButton(tr("Back"), QMessageBox::RejectRole);
     box.setDefaultButton(backButton);
     box.setEscapeButton(backButton);
@@ -745,15 +812,15 @@ void ExportView::startExport() {
     }
   }
 
-  // The confirmation of the file dialog only counts for the PDF created right after it.
-  // Each further time an existing file is asked about again, even if this view created it:
-  // it may have been changed outside the program since.
-  const bool confirmedInDialog = (path == m_overwriteConfirmed);
-  m_overwriteConfirmed.clear();
-  if (fileInfo.exists() && !confirmedInDialog) {
-    const QMessageBox::StandardButton answer = QMessageBox::question(
-        this, title, tr("The file %1 already exists.\nDo you want to replace it?").arg(QDir::toNativeSeparators(path)),
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+  // Asked each time, even about files this view created: they may have been changed outside the
+  // program since.
+  const QStringList existing = existingOutputs(paths, formats);
+  if (!existing.isEmpty()) {
+    const QMessageBox::StandardButton answer
+        = QMessageBox::question(this, title,
+                                tr("These already exist in %1:\n\n%2\n\nDo you want to replace them?")
+                                    .arg(QDir::toNativeSeparators(QFileInfo(base).path()), existing.join('\n')),
+                                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (answer != QMessageBox::Yes) {
       return;
     }
@@ -767,7 +834,7 @@ void ExportView::startExport() {
     }
   }
   if (pages.empty()) {
-    QMessageBox::information(this, title, tr("Please tick the pages to include in the PDF."));
+    QMessageBox::information(this, title, tr("Please tick the pages to include in the export."));
     return;
   }
 
@@ -805,18 +872,18 @@ void ExportView::startExport() {
     // Only copying the language files into one folder takes noticeable time.
     const bool copying = !languages.isEmpty() && OcrLanguages::commonDir(languages).isEmpty();
     if (copying) {
-      m_statusLabel->setText(tr("Copying language files ..."));
+      showStatus(tr("Copying language files ..."));
       QApplication::setOverrideCursor(Qt::WaitCursor);
     }
     QString error;
     const ExportOptions::OcrSetup setup = options.setUpOcr(languages, m_ocrPanel->pageLayout(), &error);
     if (copying) {
       QApplication::restoreOverrideCursor();
-      m_statusLabel->clear();
+      showPreview();
     }
     if (setup == ExportOptions::OcrSetup::NO_LANGUAGE) {
-      QMessageBox::warning(this, title,
-                           tr("Please tick at least one language for the text recognition, or turn it off."));
+      // Missing languages that were not downloaded leave none.
+      QMessageBox::warning(this, title, tr("Please tick at least one installed language for the text recognition."));
       return;
     }
     if (setup == ExportOptions::OcrSetup::NOT_GATHERED) {
@@ -829,17 +896,17 @@ void ExportView::startExport() {
   }
 
   const int pageCount = static_cast<int>(pages.size());
-  m_job = std::make_unique<ExportJob>(std::move(pages), ExportPaths::forPdfFile(path), options);
+  m_job = std::make_unique<ExportJob>(std::move(pages), paths, options);
   connect(m_job.get(), &ExportJob::progress, this, &ExportView::exportProgress, Qt::QueuedConnection);
   ExportJob* job = m_job.get();
   m_thread = QThread::create([job]() { job->run(); });
   connect(m_thread, &QThread::finished, this, &ExportView::exportFinished);
 
-  m_runningFile = path;
+  m_runningPaths = paths;
+  m_runningFormats = formats;
   m_progressBar->setRange(0, pageCount);
   m_progressBar->setValue(0);
-  m_statusLabel->setText(options.runsTextRecognition() ? tr("Recognizing the text and creating the PDF ...")
-                                                       : tr("Creating the PDF ..."));
+  showStatus(options.runsTextRecognition() ? tr("Recognizing the text and exporting ...") : tr("Exporting ..."));
   setRunning(true);
   m_thread->start();
 }  // ExportView::startExport
@@ -849,7 +916,7 @@ void ExportView::cancelExport() {
     return;
   }
   m_job->cancel();
-  m_statusLabel->setText(tr("Canceling ..."));
+  showStatus(tr("Canceling ..."));
   m_cancelButton->setEnabled(false);
 }
 
@@ -871,19 +938,14 @@ void ExportView::exportFinished() {
   const std::unique_ptr<ExportJob> job = std::move(m_job);
   setRunning(false);
 
-  const QString nativePath = QDir::toNativeSeparators(m_runningFile);
   if (job->succeeded()) {
-    const QString size = QLocale().formattedDataSize(QFileInfo(m_runningFile).size());
-    m_statusLabel->setText(tr("The PDF was created: %1 (%2)").arg(nativePath, size));
-    if (m_openAfterCreation->isChecked()) {
-      QDesktopServices::openUrl(QUrl::fromLocalFile(m_runningFile));
-    }
+    showCreatedFiles();
   } else if (job->wasCancelled()) {
     m_progressBar->setValue(0);
-    m_statusLabel->setText(tr("Canceled. No PDF was written."));
+    showStatus(tr("Canceled. Nothing was exported."));
   } else {
     m_progressBar->setValue(0);
-    m_statusLabel->setText(tr("The PDF could not be created."));
+    showStatus(tr("The export failed."));
     QStringList errors = job->errors();
     const int maxShown = 20;
     if (errors.size() > maxShown) {
@@ -891,10 +953,72 @@ void ExportView::exportFinished() {
       errors = errors.mid(0, maxShown);
       errors.push_back(tr("... and %1 more.").arg(hidden));
     }
-    QMessageBox::warning(this, tr("Create PDF"),
-                         tr("The PDF could not be created.") + QStringLiteral("\n\n") + errors.join('\n'));
+    QMessageBox::warning(this, tr("Export"), tr("The export failed.") + QStringLiteral("\n\n") + errors.join('\n'));
   }
 }  // ExportView::exportFinished
+
+void ExportView::showCreatedFiles() {
+  // Opening a link opens the file with its program, or the folder in the file manager.
+  const auto link = [](const QString& path, const QString& text) {
+    return QStringLiteral("<a href=\"%1\">%2</a>")
+        .arg(QUrl::fromLocalFile(path).toString(QUrl::FullyEncoded).toHtmlEscaped(), text.toHtmlEscaped());
+  };
+  const auto fileLink = [&link](const QString& path) { return link(path, QFileInfo(path).fileName()); };
+
+  QStringList created;
+  if (m_runningFormats.pdf) {
+    created.push_back(fileLink(m_runningPaths.pdf) + QStringLiteral(" (")
+                      + QLocale().formattedDataSize(QFileInfo(m_runningPaths.pdf).size()).toHtmlEscaped()
+                      + QLatin1Char(')'));
+  }
+  if (m_runningFormats.txt) {
+    created.push_back(fileLink(m_runningPaths.txt));
+  }
+  if (m_runningFormats.hocr) {
+    created.push_back(fileLink(m_runningPaths.hocr));
+  }
+  if (m_runningFormats.alto) {
+    const int count = static_cast<int>(QDir(m_runningPaths.altoDir).entryList(QDir::Files).size());
+    created.push_back(fileLink(m_runningPaths.altoDir) + QStringLiteral(" (")
+                      + tr("%n file(s)", nullptr, count).toHtmlEscaped() + QLatin1Char(')'));
+  }
+  // The folder once at the start, as all files are in it.
+  const QString folder = QFileInfo(m_runningPaths.pdf).absolutePath();
+  showStatus(tr("Created in %1: %2")
+                 .arg(link(folder, QDir::toNativeSeparators(folder)), created.join(QStringLiteral(" &middot; "))),
+             Qt::RichText);
+}
+
+void ExportView::showStatus(const QString& text, const Qt::TextFormat format) {
+  m_showingStatus = true;
+  // The result stands until what it is about changes.
+  m_statusPages = checkedEntries();
+  m_statusLabel->setEnabled(true);
+  m_statusLabel->setTextFormat(format);
+  m_statusLabel->setText(text);
+}
+
+void ExportView::showPreview() {
+  m_showingStatus = false;
+  updateControls();
+}
+
+void ExportView::showPreviewText(const QString& text) {
+  m_statusLabel->setEnabled(false);
+  m_statusLabel->setTextFormat(Qt::PlainText);
+  m_statusLabel->setText(text);
+}
+
+std::vector<int> ExportView::checkedEntries() const {
+  std::vector<int> entries;
+  for (int row = 0; row < m_pageList->count(); ++row) {
+    const QListWidgetItem* item = m_pageList->item(row);
+    if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
+      entries.push_back(item->data(ENTRY_INDEX_ROLE).toInt());
+    }
+  }
+  return entries;
+}
 
 void ExportView::updateControls() {
   const bool running = (m_thread != nullptr);
@@ -925,21 +1049,80 @@ void ExportView::updateControls() {
   const bool hasSelection = !m_pageList->selectedItems().isEmpty();
   m_forwardButton->setEnabled(!running && hasSelection);
   m_backButton->setEnabled(!running && hasSelection);
-  m_createButton->setEnabled(!running && (checked > 0));
+
+  // A message or the result of the last export stands until the ticked pages or their order change;
+  // the fields and the options switch back themselves (showPreview()).
+  if (m_showingStatus && !running && (checkedEntries() != m_statusPages)) {
+    m_showingStatus = false;
+  }
+
+  // What the export creates, or what is wrong with the folder or the name, already while typing.
+  // Grey like a hint, as it only follows the fields and the formats.
+  const ProcessingOptions::Formats& formats = m_processingOptions->formats;
+  QString targetProblem;
+  const QString base = exportBase(&targetProblem);
+  if (m_showingStatus) {
+    // Left as it is.
+  } else if (!formats.any()) {
+    showPreviewText(QString());
+  } else if (base.isEmpty()) {
+    showPreviewText(warningSign() + ' ' + targetProblem);
+  } else {
+    const ExportPaths paths = ExportPaths::fromBase(base);
+    QStringList names;
+    for (const auto& [chosen, file] :
+         {std::pair(formats.pdf, paths.pdf), std::pair(formats.txt, paths.txt), std::pair(formats.hocr, paths.hocr)}) {
+      if (chosen) {
+        names.push_back(QFileInfo(file).fileName());
+      }
+    }
+    if (formats.alto) {
+      names.push_back(QFileInfo(paths.altoDir).fileName() + QDir::separator());
+    }
+    showPreviewText(tr("Will be created: %1").arg(names.join(QStringLiteral(", "))));
+  }
+
+  // The button tells why it can't be used.
+  QString blocked;
+  if (!formats.any()) {
+    blocked = tr("Tick at least one format.");
+  } else if (m_processingOptions->needsTextRecognition() && !m_ocrPanel->hasTickedLanguage()) {
+    blocked = tr("Tick at least one language for the text recognition.");
+  } else if (base.isEmpty()) {
+    blocked = targetProblem;
+  } else if (checked == 0) {
+    blocked = tr("Tick the pages to export.");
+  }
+  m_createButton->setEnabled(!running && blocked.isEmpty());
+  m_createButton->setToolTip(blocked.isEmpty() ? tr("Export the ticked pages in the chosen formats.") : blocked);
   updateQualityPanel();
 }
 
+void ExportView::updateFormatDependents() {
+  const bool needsText = m_processingOptions->needsTextRecognition();
+  m_ocrGroup->setEnabled(needsText);
+  m_ocrPanel->setTextNeeded(needsText);
+  m_compressionGroup->setEnabled(m_processingOptions->formats.pdf);
+  m_qualityGroup->setEnabled(m_processingOptions->formats.pdf);
+  updateControls();
+}
+
 void ExportView::saveSettings() {
-  // Only opening the PDF is a program setting; the rest belongs to the project.
-  ApplicationSettings::getInstance().setPdfOpenAfterCreationEnabled(m_openAfterCreation->isChecked());
+  // All of them belong to the project.
+  const ProcessingOptions::Formats formatsBefore = m_processingOptions->formats;
   const ProcessingOptions::Pdf pdfBefore = m_processingOptions->pdf;
   const ProcessingOptions::Ocr ocrBefore = m_processingOptions->ocr;
   m_compressionPanel->storeOptions(m_processingOptions->pdf);
-  m_ocrPanel->storeOptions(m_processingOptions->pdf, m_processingOptions->ocr);
-  if ((m_processingOptions->pdf != pdfBefore) || (m_processingOptions->ocr != ocrBefore)) {
+  m_formatsPanel->storeOptions(*m_processingOptions);
+  m_ocrPanel->storeOptions(m_processingOptions->ocr);
+  if ((m_processingOptions->formats != formatsBefore) || (m_processingOptions->pdf != pdfBefore)
+      || (m_processingOptions->ocr != ocrBefore)) {
     // The project changed, so it gets saved automatically like other changes.
     emit projectOptionsChanged();
+    // The result of the last export no longer matches what an export would create now.
+    m_showingStatus = false;
   }
+  updateFormatDependents();
 }
 
 void ExportView::requestThumbnail(const int generation, const int entryIndex) {
@@ -1158,7 +1341,7 @@ QString ExportView::pageToolTip(const int entryIndex) const {
   }
   const ExportPage& page = m_entries[entryIndex].page;
   if (page.kind() == ExportPage::MISSING) {
-    return tr("Not output yet. Process the page in the Output step to include it in the PDF.");
+    return tr("Not output yet. Process the page in the Output step to include it in the export.");
   }
   const PageQuality quality = pageQuality(page);
   const QStringList warnings = pageWarnings(page, quality);
@@ -1204,7 +1387,7 @@ QString ExportView::pageToolTip(const int entryIndex) const {
   QStringList lines;
   if (page.isOutdated()) {
     lines.push_back(
-        tr("Changed since the output. The PDF would show the state of the last output. Process the page in the "
+        tr("Changed since the output. The export would show the state of the last output. Process the page in the "
            "Output step to include the changes."));
     lines.push_back(QString());
   }
@@ -1345,7 +1528,8 @@ void ExportView::setRunning(const bool running) {
   m_pageList->setEnabled(!running);
   m_allButton->setEnabled(!running);
   m_noneButton->setEnabled(!running);
-  m_fileEdit->setEnabled(!running);
+  m_folderEdit->setEnabled(!running);
+  m_nameEdit->setEnabled(!running);
   m_browseButton->setEnabled(!running);
   m_optionsWidget->setEnabled(!running);
   m_cancelButton->setVisible(running);

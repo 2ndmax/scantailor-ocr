@@ -313,9 +313,6 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   /** The pages of the project in project order, for the "Create PDF" step. */
   std::vector<ExportView::Entry> pdfExportEntries() const;
 
-  /** Next to the project file and named like it. */
-  QString defaultPdfFile() const;
-
   /** The page navigation shortcuts act on the hidden thumbnails in the "Create PDF" step. */
   void setPageNavigationEnabled(bool enabled);
 

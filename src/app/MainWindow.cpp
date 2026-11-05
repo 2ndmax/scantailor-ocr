@@ -1624,7 +1624,7 @@ void MainWindow::enterPdfStage() {
     connect(m_pdfView.get(), &ExportView::outputMissingPagesRequested, this, &MainWindow::outputMissingPages);
   }
   // The output files may have changed since the PDF step was last shown.
-  m_pdfView->setDefaultFile(defaultPdfFile());
+  m_pdfView->setDefaultBase(project_files::defaultExportBase(m_projectFile, m_outFileNameGen.outDir()));
   // The files of the pages are analyzed meanwhile.
   QApplication::setOverrideCursor(Qt::WaitCursor);
   std::vector<ExportView::Entry> entries = pdfExportEntries();
@@ -1674,9 +1674,6 @@ void MainWindow::outputMissingPages() {
   m_returnToPdfAfterBatch = isBatchProcessingInProgress();
 }
 
-QString MainWindow::defaultPdfFile() const {
-  return project_files::defaultExportBase(m_projectFile, m_outFileNameGen.outDir()) + QStringLiteral(".pdf");
-}
 
 void MainWindow::setPageNavigationEnabled(const bool enabled) {
   for (QAction* action :
@@ -2093,7 +2090,7 @@ bool MainWindow::closeProjectInteractive() {
 
   if (m_pdfView && m_pdfView->isRunning()) {
     const QMessageBox::StandardButton answer
-        = QMessageBox::question(this, tr("Create PDF"), tr("A PDF is being created. Do you want to cancel it?"),
+        = QMessageBox::question(this, tr("Export"), tr("An export is running. Do you want to cancel it?"),
                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (answer != QMessageBox::Yes) {
       return false;
@@ -2635,7 +2632,7 @@ void MainWindow::changeAutoImportDirectory() {
 }
 
 bool MainWindow::canImportScansNow() const {
-  // In the "Create PDF" step the page list shown there would go stale (a replaced page even
+  // In the Export step the page list shown there would go stale (a replaced page even
   // loses its output files), so new scans wait until the step is left.
   // While a scan is imported or the question about canceling a multi-page selection is open, a nested
   // event loop runs; a scan imported in it would change the project before the first one is saved.

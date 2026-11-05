@@ -377,7 +377,7 @@ QVariant StageListView::Model::data(const QModelIndex& index, const int role) co
   if (role == Qt::DisplayRole) {
     if (index.column() == 0) {
       if (index.row() == pdfRow()) {
-        return StageListView::tr("Create PDF");
+        return StageListView::tr("Export");
       }
       return m_stages->filterAt(index.row())->getName();
     }

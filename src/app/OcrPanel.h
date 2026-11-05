@@ -9,15 +9,15 @@
 
 #include "ProcessingOptions.h"
 
-class QCheckBox;
 class QComboBox;
 class QLabel;
 class QListWidget;
 class QListWidgetItem;
 
 /**
- * The contents of the Text Recognition (OCR) panel: on or off, the languages and the text
- * layout. The PDF step and the default parameters put it into their group boxes.
+ * The contents of the Text Recognition (OCR) panel: the languages and the text layout. Whether
+ * the text is recognized at all follows from the formats (see ExportFormatsPanel). The Export
+ * step and the default parameters put it into their group boxes.
  */
 class OcrPanel : public QWidget {
   Q_OBJECT
@@ -26,13 +26,16 @@ class OcrPanel : public QWidget {
 
   ~OcrPanel() override;
 
-  /** Shows whether \p pdf has a text layer and the values of \p ocr. Doesn't emit optionsChanged(). */
-  void setOptions(const ProcessingOptions::Pdf& pdf, const ProcessingOptions::Ocr& ocr);
+  /** Shows the values of \p ocr. Doesn't emit optionsChanged(). */
+  void setOptions(const ProcessingOptions::Ocr& ocr);
 
-  /** Stores the text layer in \p pdf, its other fields are kept, and the values of \p ocr. */
-  void storeOptions(ProcessingOptions::Pdf& pdf, ProcessingOptions::Ocr& ocr) const;
+  void storeOptions(ProcessingOptions::Ocr& ocr) const;
 
-  bool isOcrEnabled() const;
+  /** Whether a chosen format needs the text; then a warning shows while no language is ticked. */
+  void setTextNeeded(bool needed);
+
+  /** Whether a language is ticked, also one whose file is missing on this computer. */
+  bool hasTickedLanguage() const;
 
   /** The codes of the ticked languages that are installed. */
   QStringList checkedLanguages() const;
@@ -73,12 +76,13 @@ class OcrPanel : public QWidget {
   /** Shows up to 8 languages; more can be scrolled. */
   void updateLanguageListHeight();
 
-  QCheckBox* m_ocrEnabled = nullptr;
-  /** Languages and text layout, greyed out while text recognition is off. */
-  QWidget* m_ocrOptions = nullptr;
+  void updateLanguageWarning();
+
   QListWidget* m_languageList = nullptr;
   QLabel* m_noLanguagesLabel = nullptr;
+  QLabel* m_noLanguageTickedLabel = nullptr;
   QComboBox* m_pageLayout = nullptr;
+  bool m_textNeeded = false;
 };
 
 #endif  // SCANTAILOR_APP_OCRPANEL_H_

@@ -11,10 +11,10 @@
 #include <set>
 #include <vector>
 
+#include "ExportJob.h"
 #include "ExportPage.h"
 #include "ThumbnailPixmapCache.h"
 
-class QCheckBox;
 class QComboBox;
 class QFormLayout;
 class QIcon;
@@ -29,14 +29,15 @@ class QSpinBox;
 class QThread;
 class OcrPanel;
 class PdfCompressionPanel;
-class ExportJob;
+class ExportFormatsPanel;
 class ThumbnailLoadResult;
 struct ProcessingOptions;
 
 /**
- * \brief The "Create PDF" step: picks, orders and combines the output files of the project into a PDF.
+ * \brief The Export step: picks and orders the output files of the project and writes them in the
+ * chosen formats (PDF, TXT, hOCR, ALTO).
  *
- * The view itself (page list, target file, progress) goes into the main area of the main window,
+ * The view itself (page list, target folder and name, progress) goes into the main area of the main window,
  * the options panel (optionsWidget()) into the options area on the left. Only already existing
  * output files are used. The page selection and order are kept as long as the view exists (while
  * the project is open), but they aren't stored; the options are application settings, saved as
@@ -72,8 +73,11 @@ class ExportView : public QWidget {
    */
   void setPages(std::vector<Entry> entries);
 
-  /** Sets the suggested PDF file, unless the user has chosen one. */
-  void setDefaultFile(const QString& file);
+  /**
+   * Sets the suggested folder and name, given as one path without extension (see
+   * project_files::defaultExportBase()), unless the user has chosen them.
+   */
+  void setDefaultBase(const QString& base);
 
   bool isRunning() const;
 
@@ -87,10 +91,10 @@ class ExportView : public QWidget {
   void cancelAndWait();
 
  signals:
-  /** Emitted when creating a PDF starts and when it has finished. */
+  /** Emitted when an export starts and when it has finished. */
   void runningChanged(bool running);
 
-  /** The PDF options of the project (compression, text recognition) were changed. */
+  /** The export options of the project (formats, compression, text recognition) were changed. */
   void projectOptionsChanged();
 
   /** The user wants the pages that aren't output yet to be processed in the Output step. */
@@ -116,7 +120,7 @@ class ExportView : public QWidget {
 
   void updateControls();
 
-  /** Stores the options in the project, and whether to open the PDF as an application setting. */
+  /** Stores the options in the project. */
   void saveSettings();
 
  private:
@@ -124,6 +128,36 @@ class ExportView : public QWidget {
   class PageTileDelegate;
 
   QWidget* createOptionsWidget();
+
+  /** Greys out the panels that the chosen formats don't use. */
+  void updateFormatDependents();
+
+  /**
+   * The folder and name of the exported files as one path without extension, see
+   * ExportPaths::fromBase(). Empty if the fields don't give a usable one; \p problem then says why.
+   */
+  QString exportBase(QString* problem) const;
+
+  /** The chosen outputs that exist already, as they are named in the question about replacing them. */
+  QStringList existingOutputs(const ExportPaths& paths, const ProcessingOptions::Formats& formats) const;
+
+  /** The status after a successful export, with links that open the files and the folder. */
+  void showCreatedFiles();
+
+  /**
+   * Shows a message in place of the preview of the files. It stands until the folder, the name, an
+   * option or the ticked pages change; then the preview comes back (showPreview()).
+   */
+  void showStatus(const QString& text, Qt::TextFormat format = Qt::PlainText);
+
+  /** Back to the preview of the files the export will create. */
+  void showPreview();
+
+  /** Sets the preview, grey like a hint. */
+  void showPreviewText(const QString& text);
+
+  /** The ticked pages in their order, as indexes of m_entries. */
+  std::vector<int> checkedEntries() const;
 
   /** Ticks or unticks all pages that are output. */
   void setAllChecked(Qt::CheckState state);
@@ -226,14 +260,27 @@ class ExportView : public QWidget {
   QPushButton* m_backButton = nullptr;
   /** Set while setPages() fills the list, so that the positions are only updated once. */
   bool m_filling = false;
-  QLineEdit* m_fileEdit = nullptr;
+  QLineEdit* m_folderEdit = nullptr;
+  QLineEdit* m_nameEdit = nullptr;
   QPushButton* m_browseButton = nullptr;
   QProgressBar* m_progressBar = nullptr;
+  /**
+   * Beside the folder and the name: which files the export will create or what is wrong with the
+   * fields (the preview), or else a message, such as the result of the last export.
+   */
   QLabel* m_statusLabel = nullptr;
+  bool m_showingStatus = false;
+  /** The ticked pages when the message was shown. */
+  std::vector<int> m_statusPages;
   QPushButton* m_createButton = nullptr;
   QPushButton* m_cancelButton = nullptr;
 
   std::unique_ptr<QWidget> m_optionsWidget;
+  ExportFormatsPanel* m_formatsPanel = nullptr;
+  // Greyed out while the formats don't use them.
+  QWidget* m_ocrGroup = nullptr;
+  QWidget* m_compressionGroup = nullptr;
+  QWidget* m_qualityGroup = nullptr;
   PdfCompressionPanel* m_compressionPanel = nullptr;
   // The fields of the compression panel, for the Quality panel.
   QComboBox* m_colorCompression = nullptr;
@@ -250,18 +297,17 @@ class ExportView : public QWidget {
   QLabel* m_pdfNoPages = nullptr;
   QLabel* m_tiffWarning = nullptr;
   QLabel* m_pdfWarning = nullptr;
-  QCheckBox* m_openAfterCreation = nullptr;
   /** The OCR options. */
   OcrPanel* m_ocrPanel = nullptr;
 
-  /** Set once the user has typed or chosen a file; setDefaultFile() doesn't replace it then. */
+  /** Set once the user has typed or chosen the folder or the name; setDefaultBase() doesn't replace them then. */
   bool m_fileChosen = false;
-  /** The file the user already confirmed to overwrite in the file dialog. */
-  QString m_overwriteConfirmed;
 
   std::unique_ptr<ExportJob> m_job;
   QThread* m_thread = nullptr;
-  QString m_runningFile;
+  /** Where the running export writes, and what. */
+  ExportPaths m_runningPaths;
+  ProcessingOptions::Formats m_runningFormats;
 };
 
 

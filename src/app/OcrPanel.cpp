@@ -3,7 +3,6 @@
 
 #include "OcrPanel.h"
 
-#include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
 #include <QFormLayout>
@@ -28,30 +27,19 @@ const int MAX_VISIBLE_LANGUAGES = 8;
 }  // namespace
 
 OcrPanel::OcrPanel(QWidget* parent) : QWidget(parent) {
-  auto* ocrGroupLayout = new QVBoxLayout(this);
-  ocrGroupLayout->setContentsMargins(0, 0, 0, 0);
-  m_ocrEnabled = new QCheckBox(tr("Recognize text"));
-  m_ocrEnabled->setToolTip(
-      tr("Adds an invisible text layer, so the text of the PDF can be searched, selected and copied. Text "
-         "recognition takes a few seconds per page."));
-  // The button shares the line of the check box, as in the Automatic Import panel. It stays
-  // usable while text recognition is off, so languages can be added first.
+  auto* ocrLayout = new QVBoxLayout(this);
+  ocrLayout->setContentsMargins(0, 0, 0, 0);
+  // The button shares the line of the heading of the list, as in the Automatic Import panel.
   auto* moreLanguagesButton = new QPushButton(tr("More languages ..."));
   moreLanguagesButton->setToolTip(tr("Download more languages from the internet."));
   moreLanguagesButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  auto* ocrEnabledRow = new QHBoxLayout;
-  ocrEnabledRow->addWidget(m_ocrEnabled, 1);
-  ocrEnabledRow->addWidget(moreLanguagesButton);
-  ocrGroupLayout->addLayout(ocrEnabledRow);
+  auto* languagesRow = new QHBoxLayout;
+  languagesRow->addWidget(new QLabel(tr("Languages:")), 1);
+  languagesRow->addWidget(moreLanguagesButton);
+  ocrLayout->addLayout(languagesRow);
   // Languages of the project that are missing here are ticked in the dialog already.
   connect(moreLanguagesButton, &QPushButton::clicked, this, [this]() { downloadLanguages(missingLanguages()); });
 
-  // Greyed out while text recognition is off, and indented below its check box.
-  m_ocrOptions = new QWidget;
-  auto* ocrLayout = new QVBoxLayout(m_ocrOptions);
-  ocrLayout->setContentsMargins(15, 0, 0, 0);
-  ocrGroupLayout->addWidget(m_ocrOptions);
-  ocrLayout->addWidget(new QLabel(tr("Languages:")));
   m_languageList = new QListWidget;
   m_languageList->setSelectionMode(QAbstractItemView::NoSelection);
   m_languageList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -70,6 +58,12 @@ OcrPanel::OcrPanel(QWidget* parent) : QWidget(parent) {
   m_noLanguagesLabel->setWordWrap(true);
   m_noLanguagesLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   ocrLayout->addWidget(m_noLanguagesLabel);
+
+  // The warning sign of the Quality panel; emoji fonts show it in color.
+  m_noLanguageTickedLabel = new QLabel(QString(QChar(0x26A0)) + ' ' + tr("Tick at least one language."));
+  m_noLanguageTickedLabel->setWordWrap(true);
+  m_noLanguageTickedLabel->setVisible(false);
+  ocrLayout->addWidget(m_noLanguageTickedLabel);
 
   auto* layoutRow = new QFormLayout;
   layoutRow->setRowWrapPolicy(QFormLayout::WrapLongRows);
@@ -90,33 +84,39 @@ OcrPanel::OcrPanel(QWidget* parent) : QWidget(parent) {
   layoutRow->addRow(textLayoutLabel, m_pageLayout);
   ocrLayout->addLayout(layoutRow);
 
-  setOptions(ProcessingOptions::Pdf(), ProcessingOptions::Ocr());
+  setOptions(ProcessingOptions::Ocr());
 
-  connect(m_ocrEnabled, &QCheckBox::toggled, m_ocrOptions, &QWidget::setEnabled);
-  connect(m_ocrEnabled, &QCheckBox::toggled, this, &OcrPanel::optionsChanged);
+  connect(this, &OcrPanel::optionsChanged, this, &OcrPanel::updateLanguageWarning);
   connect(m_languageList, &QListWidget::itemChanged, this, &OcrPanel::languageChanged);
   connect(m_pageLayout, qOverload<int>(&QComboBox::currentIndexChanged), this, &OcrPanel::optionsChanged);
 }
 
 OcrPanel::~OcrPanel() = default;
 
-void OcrPanel::setOptions(const ProcessingOptions::Pdf& pdf, const ProcessingOptions::Ocr& ocr) {
-  const QSignalBlocker enabledBlocker(m_ocrEnabled);
+void OcrPanel::setOptions(const ProcessingOptions::Ocr& ocr) {
   const QSignalBlocker layoutBlocker(m_pageLayout);
-  m_ocrEnabled->setChecked(pdf.textLayer);
-  m_ocrOptions->setEnabled(pdf.textLayer);
   fillLanguageList(ocr.languages);
   m_pageLayout->setCurrentIndex(std::max(0, m_pageLayout->findData(ocr.pageLayout)));
+  updateLanguageWarning();
 }
 
-void OcrPanel::storeOptions(ProcessingOptions::Pdf& pdf, ProcessingOptions::Ocr& ocr) const {
-  pdf.textLayer = m_ocrEnabled->isChecked();
+void OcrPanel::storeOptions(ProcessingOptions::Ocr& ocr) const {
   ocr.languages = tickedLanguages(true);
   ocr.pageLayout = pageLayout();
 }
 
-bool OcrPanel::isOcrEnabled() const {
-  return m_ocrEnabled->isChecked();
+void OcrPanel::setTextNeeded(const bool needed) {
+  m_textNeeded = needed;
+  updateLanguageWarning();
+}
+
+bool OcrPanel::hasTickedLanguage() const {
+  // A ticked language whose file is missing counts: the export offers to download it.
+  return !tickedLanguages(true).isEmpty();
+}
+
+void OcrPanel::updateLanguageWarning() {
+  m_noLanguageTickedLabel->setVisible(m_textNeeded && !hasTickedLanguage());
 }
 
 int OcrPanel::pageLayout() const {

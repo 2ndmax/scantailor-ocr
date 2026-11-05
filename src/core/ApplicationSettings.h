@@ -134,11 +134,6 @@ class ApplicationSettings {
 
   void setProcessingThreads(int threads);
 
-  /** PDF export: open the PDF in the default viewer once it's created. */
-  bool isPdfOpenAfterCreationEnabled() const;
-
-  void setPdfOpenAfterCreationEnabled(bool enabled);
-
  private:
   static inline QString getKey(const QString& keyName);
 
@@ -188,9 +183,6 @@ class ApplicationSettings {
   static const QString PAGE_LAYOUT_SHOW_MIDDLE_RECT_KEY;
   static const bool DEFAULT_PAGE_LAYOUT_SHOW_MIDDLE_RECT;
   static const int DEFAULT_DESKEW_HANDLE_DISTANCE;
-
-  static const QString PDF_OPEN_AFTER_CREATION_KEY;
-  static const bool DEFAULT_PDF_OPEN_AFTER_CREATION;
 
   QVariant readValue(const QString& key, const QVariant& defaultValue) const;
 
