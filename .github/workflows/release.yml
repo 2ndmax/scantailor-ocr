@@ -106,7 +106,8 @@ jobs:
           New-Item -ItemType Directory -Force build\tessdata | Out-Null
           foreach ($language in $expected.Keys) {
             $file = "build\tessdata\$language.traineddata"
-            Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/$env:TESSDATA_COMMIT/$language.traineddata" -OutFile $file
+            # GitHub sometimes answers with a server error such as 504; try again before failing.
+            Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/$env:TESSDATA_COMMIT/$language.traineddata" -OutFile $file -MaximumRetryCount 3 -RetryIntervalSec 15
             $hash = (Get-FileHash -Algorithm SHA256 $file).Hash.ToLowerInvariant()
             if ($hash -ne $expected[$language]) { throw "Checksum of $language.traineddata is wrong: $hash" }
             Write-Host "$language.traineddata OK"
@@ -203,9 +204,11 @@ jobs:
 
       - name: Download linuxdeploy
         run: |
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          # GitHub sometimes answers with a server error such as 504; try again before failing.
+          retry="--tries=4 --waitretry=15 --retry-on-http-error=429,500,502,503,504"
+          wget -q $retry https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage
-          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          wget -q $retry https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
 
       - name: Build AppImage
