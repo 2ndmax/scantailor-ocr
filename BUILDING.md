@@ -65,8 +65,8 @@ powershell -NoProfile -Command "& .\vcpkg.exe install --recurse (Get-Content D:\
 ```
 
 The packages are listed in [scripts/setup/support/vcpkg-packages.txt](scripts/setup/support/vcpkg-packages.txt),
-which the setup script and the GitHub workflows use as well. `tesseract` is only needed for
-text recognition in the PDF export (see the build options below).
+which the setup script and the GitHub workflows use as well. `tesseract` is needed for the
+text recognition and the color mode detection.
 
 This compiles Qt and everything else from source and takes a while – plan for an hour or more
 and at least 35 GB of disk space for the vcpkg folder.
@@ -167,9 +167,6 @@ with another compiler and standard library; it is started by hand and builds no 
 
 ## Build options
 
-* `-DENABLE_OCR=OFF` – build without text recognition, so Tesseract isn't needed. The PDF export
-  still works, without a text layer. With the default `ON`, configuring fails if Tesseract
-  (4.1 or newer) isn't found.
 * `-DBUILD_TESTS=OFF` – don't build the unit tests.
 * `-DBUILD_DEV_TOOLS=ON` – also build the developer tools `binarization_compare` (compares the
   binarization methods), `color_detect` (color mode detection on sample pages), `split_compare`
