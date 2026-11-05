@@ -943,7 +943,7 @@ void DefaultParamsDialog::updateProcessingDisplay(const ProcessingOptions& optio
   // The TIFF compression (Output tab) and the Create PDF tab.
   m_tiffCompressionPanel->setCompression(options.tiffCompression);
   m_pdfCompressionPanel->setOptions(options.pdf);
-  m_ocrPanel->setOptions(options.pdf);
+  m_ocrPanel->setOptions(options.pdf, options.ocr);
 }
 
 ProcessingOptions DefaultParamsDialog::buildProcessingOptions() const {
@@ -955,7 +955,7 @@ ProcessingOptions DefaultParamsDialog::buildProcessingOptions() const {
   options.colorDetection.minPictureShare = colorDetectionMinPictureSB->value() / 100.0;
   options.tiffCompression = m_tiffCompressionPanel->compression();
   m_pdfCompressionPanel->storeOptions(options.pdf);
-  m_ocrPanel->storeOptions(options.pdf);
+  m_ocrPanel->storeOptions(options.pdf, options.ocr);
   return options;
 }
 

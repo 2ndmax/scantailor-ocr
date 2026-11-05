@@ -109,12 +109,12 @@ bool pdfReplacesProjectFile(const QString& pdfFile,
  * that aren't installed and offers to download them; here, they end the export.
  * Returns false after telling \p err why it can't be done.
  */
-bool setUpOcr(const ProcessingOptions::Pdf& projectPdf, ExportOptions* options, QTextStream& err) {
+bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStream& err) {
 #ifdef ENABLE_OCR
-  if (!projectPdf.ocr) {
+  if (!project.pdf.ocr) {
     return true;
   }
-  const QStringList missing = OcrLanguages::missing(projectPdf.ocrLanguages);
+  const QStringList missing = OcrLanguages::missing(project.ocr.languages);
   if (!missing.isEmpty()) {
     QStringList names;
     for (const QString& code : missing) {
@@ -128,7 +128,7 @@ bool setUpOcr(const ProcessingOptions::Pdf& projectPdf, ExportOptions* options, 
     return false;
   }
   QString error;
-  switch (options->setUpOcr(projectPdf.ocrLanguages, projectPdf.ocrPageLayout, &error)) {
+  switch (options->setUpOcr(project.ocr.languages, project.ocr.pageLayout, &error)) {
     case ExportOptions::OcrSetup::DONE:
       return true;
     case ExportOptions::OcrSetup::NO_LANGUAGE:
@@ -179,10 +179,10 @@ CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
     return CommandLineRun::PDF_FAILED;
   }
 
-  const ProcessingOptions::Pdf& projectPdf = session.stages->processingOptions()->pdf;
-  ExportOptions options = ExportOptions::fromProject(*session.stages->processingOptions());
+  const ProcessingOptions& project = *session.stages->processingOptions();
+  ExportOptions options = ExportOptions::fromProject(project);
   options.threadCount = ExportJob::defaultThreadCount();
-  if (!setUpOcr(projectPdf, &options, err)) {
+  if (!setUpOcr(project, &options, err)) {
     return CommandLineRun::PDF_FAILED;
   }
 

@@ -26,11 +26,11 @@ class OcrPanel : public QWidget {
 
   ~OcrPanel() override;
 
-  /** Sets the text recognition fields of \p pdf. Doesn't emit optionsChanged(). */
-  void setOptions(const ProcessingOptions::Pdf& pdf);
+  /** Shows whether \p pdf has a text layer and the values of \p ocr. Doesn't emit optionsChanged(). */
+  void setOptions(const ProcessingOptions::Pdf& pdf, const ProcessingOptions::Ocr& ocr);
 
-  /** Stores the text recognition fields in \p pdf; the others are kept. */
-  void storeOptions(ProcessingOptions::Pdf& pdf) const;
+  /** Stores the text layer in \p pdf, its other fields are kept, and the values of \p ocr. */
+  void storeOptions(ProcessingOptions::Pdf& pdf, ProcessingOptions::Ocr& ocr) const;
 
   bool isOcrEnabled() const;
 

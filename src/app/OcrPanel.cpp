@@ -90,7 +90,7 @@ OcrPanel::OcrPanel(QWidget* parent) : QWidget(parent) {
   layoutRow->addRow(textLayoutLabel, m_pageLayout);
   ocrLayout->addLayout(layoutRow);
 
-  setOptions(ProcessingOptions::Pdf());
+  setOptions(ProcessingOptions::Pdf(), ProcessingOptions::Ocr());
 
   connect(m_ocrEnabled, &QCheckBox::toggled, m_ocrOptions, &QWidget::setEnabled);
   connect(m_ocrEnabled, &QCheckBox::toggled, this, &OcrPanel::optionsChanged);
@@ -100,19 +100,19 @@ OcrPanel::OcrPanel(QWidget* parent) : QWidget(parent) {
 
 OcrPanel::~OcrPanel() = default;
 
-void OcrPanel::setOptions(const ProcessingOptions::Pdf& pdf) {
+void OcrPanel::setOptions(const ProcessingOptions::Pdf& pdf, const ProcessingOptions::Ocr& ocr) {
   const QSignalBlocker enabledBlocker(m_ocrEnabled);
   const QSignalBlocker layoutBlocker(m_pageLayout);
   m_ocrEnabled->setChecked(pdf.ocr);
   m_ocrOptions->setEnabled(pdf.ocr);
-  fillLanguageList(pdf.ocrLanguages);
-  m_pageLayout->setCurrentIndex(std::max(0, m_pageLayout->findData(pdf.ocrPageLayout)));
+  fillLanguageList(ocr.languages);
+  m_pageLayout->setCurrentIndex(std::max(0, m_pageLayout->findData(ocr.pageLayout)));
 }
 
-void OcrPanel::storeOptions(ProcessingOptions::Pdf& pdf) const {
+void OcrPanel::storeOptions(ProcessingOptions::Pdf& pdf, ProcessingOptions::Ocr& ocr) const {
   pdf.ocr = m_ocrEnabled->isChecked();
-  pdf.ocrLanguages = tickedLanguages(true);
-  pdf.ocrPageLayout = pageLayout();
+  ocr.languages = tickedLanguages(true);
+  ocr.pageLayout = pageLayout();
 }
 
 bool OcrPanel::isOcrEnabled() const {

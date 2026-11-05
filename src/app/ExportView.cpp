@@ -454,7 +454,7 @@ QWidget* ExportView::createOptionsWidget() {
   ocrGroup->setObjectName("pdfOcrPanel");
   auto* ocrGroupLayout = new QVBoxLayout(ocrGroup);
   m_ocrPanel = new OcrPanel;
-  m_ocrPanel->setOptions(m_processingOptions->pdf);
+  m_ocrPanel->setOptions(m_processingOptions->pdf, m_processingOptions->ocr);
   ocrGroupLayout->addWidget(m_ocrPanel);
   layout->addWidget(ocrGroup);
   connect(m_ocrPanel, &OcrPanel::optionsChanged, this, &ExportView::saveSettings);
@@ -936,12 +936,13 @@ void ExportView::updateControls() {
 void ExportView::saveSettings() {
   // Only opening the PDF is a program setting; the rest belongs to the project.
   ApplicationSettings::getInstance().setPdfOpenAfterCreationEnabled(m_openAfterCreation->isChecked());
-  const ProcessingOptions::Pdf before = m_processingOptions->pdf;
+  const ProcessingOptions::Pdf pdfBefore = m_processingOptions->pdf;
+  const ProcessingOptions::Ocr ocrBefore = m_processingOptions->ocr;
   m_compressionPanel->storeOptions(m_processingOptions->pdf);
 #ifdef ENABLE_OCR
-  m_ocrPanel->storeOptions(m_processingOptions->pdf);
+  m_ocrPanel->storeOptions(m_processingOptions->pdf, m_processingOptions->ocr);
 #endif
-  if (m_processingOptions->pdf != before) {
+  if ((m_processingOptions->pdf != pdfBefore) || (m_processingOptions->ocr != ocrBefore)) {
     // The project changed, so it gets saved automatically like other changes.
     emit projectOptionsChanged();
   }

@@ -82,9 +82,9 @@ ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOpti
   const QDomElement ocrEl = el.namedItem("ocr").toElement();
   pdf.ocr = boolAttribute(ocrEl, "enabled", pdfFallback.ocr);
   // Stored the way Tesseract expects them, e.g. "deu+eng".
-  pdf.ocrLanguages = ocrEl.hasAttribute("languages") ? ocrEl.attribute("languages").split('+', Qt::SkipEmptyParts)
-                                                     : pdfFallback.ocrLanguages;
-  pdf.ocrPageLayout = intAttribute(ocrEl, "pageLayout", pdfFallback.ocrPageLayout, 0, 2);
+  ocr.languages = ocrEl.hasAttribute("languages") ? ocrEl.attribute("languages").split('+', Qt::SkipEmptyParts)
+                                                  : fallback.ocr.languages;
+  ocr.pageLayout = intAttribute(ocrEl, "pageLayout", fallback.ocr.pageLayout, 0, 2);
 }
 
 QDomElement ProcessingOptions::toXml(QDomDocument& doc, const QString& name) const {
@@ -120,8 +120,8 @@ QDomElement ProcessingOptions::toXml(QDomDocument& doc, const QString& name) con
 
   QDomElement ocrEl = doc.createElement("ocr");
   ocrEl.setAttribute("enabled", pdf.ocr ? "1" : "0");
-  ocrEl.setAttribute("languages", pdf.ocrLanguages.join('+'));
-  ocrEl.setAttribute("pageLayout", pdf.ocrPageLayout);
+  ocrEl.setAttribute("languages", ocr.languages.join('+'));
+  ocrEl.setAttribute("pageLayout", ocr.pageLayout);
   el.appendChild(ocrEl);
   return el;
 }

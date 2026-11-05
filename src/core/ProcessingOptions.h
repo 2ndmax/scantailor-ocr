@@ -38,20 +38,29 @@ struct ProcessingOptions {
     bool pdfA = true;
     /** Add an invisible text layer. */
     bool ocr = true;
-    /** Language codes, e.g. "deu" and "eng". */
-    QStringList ocrLanguages{QStringLiteral("deu"), QStringLiteral("eng")};
-    /** One of OcrEngine::PageLayout. */
-    int ocrPageLayout = 0;
 
     bool operator==(const Pdf& other) const {
       return (colorCompression == other.colorCompression) && (colorQuality == other.colorQuality)
              && (backgroundScale == other.backgroundScale) && (paletteCompression == other.paletteCompression)
              && (paletteQuality == other.paletteQuality) && (bitonalCompression == other.bitonalCompression)
-             && (pdfA == other.pdfA) && (ocr == other.ocr) && (ocrLanguages == other.ocrLanguages)
-             && (ocrPageLayout == other.ocrPageLayout);
+             && (pdfA == other.pdfA) && (ocr == other.ocr);
     }
 
     bool operator!=(const Pdf& other) const { return !(*this == other); }
+  };
+
+  /** How the text is recognized. */
+  struct Ocr {
+    /** Language codes, e.g. "deu" and "eng". */
+    QStringList languages{QStringLiteral("deu"), QStringLiteral("eng")};
+    /** One of OcrEngine::PageLayout. */
+    int pageLayout = 0;
+
+    bool operator==(const Ocr& other) const {
+      return (languages == other.languages) && (pageLayout == other.pageLayout);
+    }
+
+    bool operator!=(const Ocr& other) const { return !(*this == other); }
   };
 
   /** For the output files. */
@@ -63,6 +72,7 @@ struct ProcessingOptions {
   /** Whether the output step takes over the detected background, unless it was set by hand. */
   bool blackOnWhiteAtOutput = true;
   Pdf pdf;
+  Ocr ocr;
 
   ProcessingOptions() = default;
 

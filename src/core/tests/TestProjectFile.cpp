@@ -136,8 +136,8 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   options.pdf.bitonalCompression = PdfCompression::CCITT_G4;
   options.pdf.pdfA = false;
   options.pdf.ocr = false;
-  options.pdf.ocrLanguages = QStringList{"fra", "lat"};
-  options.pdf.ocrPageLayout = 2;
+  options.ocr.languages = QStringList{"fra", "lat"};
+  options.ocr.pageLayout = 2;
 
   auto pages = std::make_shared<ProjectPages>();
   const OutputFileNameGenerator outGen(std::make_shared<FileNameDisambiguator>(), tempDir.path(), Qt::LeftToRight);
@@ -163,8 +163,8 @@ BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   BOOST_CHECK(read.pdf.bitonalCompression == PdfCompression::CCITT_G4);
   BOOST_CHECK(!read.pdf.pdfA);
   BOOST_CHECK(!read.pdf.ocr);
-  BOOST_CHECK(read.pdf.ocrLanguages == (QStringList{"fra", "lat"}));
-  BOOST_CHECK_EQUAL(read.pdf.ocrPageLayout, 2);
+  BOOST_CHECK(read.ocr.languages == (QStringList{"fra", "lat"}));
+  BOOST_CHECK_EQUAL(read.ocr.pageLayout, 2);
 }
 
 BOOST_AUTO_TEST_CASE(test_start_values_are_stored_in_the_project) {
@@ -211,12 +211,12 @@ BOOST_AUTO_TEST_CASE(test_projects_without_processing_options_take_the_fallback)
   fallback.tiffCompression.color = COMPRESSION_JPEG;
   fallback.colorDetection.minColorShare = 0.1;
   fallback.blackOnWhiteAtOutput = false;
-  fallback.pdf.ocrLanguages = QStringList{"ita"};
+  fallback.ocr.languages = QStringList{"ita"};
   const ProcessingOptions read = reader.readProcessingOptions(fallback);
   BOOST_CHECK_EQUAL(read.tiffCompression.color, COMPRESSION_JPEG);
   BOOST_CHECK(read.colorDetection == fallback.colorDetection);
   BOOST_CHECK(!read.blackOnWhiteAtOutput);
-  BOOST_CHECK(read.pdf.ocrLanguages == QStringList{"ita"});
+  BOOST_CHECK(read.ocr.languages == QStringList{"ita"});
 }
 
 BOOST_AUTO_TEST_CASE(test_metadata_update_keeps_pages_of_multi_page_files) {
