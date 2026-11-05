@@ -83,12 +83,24 @@ int main(int argc, char* argv[]) {
                          "project. Set up the project in ScanTailor OCR first."));
   const QCommandLineOption helpOption = parser.addHelpOption();
   const QCommandLineOption versionOption = parser.addVersionOption();
-  const QCommandLineOption pdfOption(
-      QStringLiteral("pdf"),
-      CommandLineRun::tr("Then creates the PDF <file> from all pages, with the PDF settings of the project, "
-                         "including the text recognition."),
-      CommandLineRun::tr("file"));
-  parser.addOption(pdfOption);
+  const QCommandLineOption exportOption(
+      QStringLiteral("export"),
+      CommandLineRun::tr("Then exports all pages with the settings of the project into the existing <folder>. The "
+                         "files are named like the project file, e.g. Book.pdf, Book.txt, Book.hocr and the folder "
+                         "Book_alto."),
+      CommandLineRun::tr("folder"));
+  parser.addOption(exportOption);
+  const QCommandLineOption nameOption(
+      QStringLiteral("name"),
+      CommandLineRun::tr("The name of the exported files, without extension, instead of the name of the project file."),
+      CommandLineRun::tr("name"));
+  parser.addOption(nameOption);
+  const QCommandLineOption formatsOption(
+      QStringLiteral("formats"),
+      CommandLineRun::tr("The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, "
+                         "separated by commas or plus signs."),
+      CommandLineRun::tr("list"));
+  parser.addOption(formatsOption);
   parser.addPositionalArgument(CommandLineRun::tr("project"), CommandLineRun::tr("The project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
   // message box, while a script expects them in its output.
@@ -108,11 +120,6 @@ int main(int argc, char* argv[]) {
     err << parser.helpText();
     return CommandLineRun::USAGE_ERROR;
   }
-  // E.g. from an empty variable in a script, which expects a PDF.
-  if (parser.isSet(pdfOption) && parser.value(pdfOption).isEmpty()) {
-    err << CommandLineRun::tr("The file name after --pdf is empty.") << Qt::endl;
-    return CommandLineRun::USAGE_ERROR;
-  }
 
   // Ctrl+C stops before the next page, so no output file is left half-written.
   std::signal(SIGINT, requestCancel);
@@ -120,6 +127,14 @@ int main(int argc, char* argv[]) {
 
   CommandLineRun::Options options;
   options.projectFile = parser.positionalArguments().at(0);
-  options.pdfFile = parser.value(pdfOption);
+  if (parser.isSet(exportOption)) {
+    options.exportDir = parser.value(exportOption);
+  }
+  if (parser.isSet(nameOption)) {
+    options.exportName = parser.value(nameOption);
+  }
+  if (parser.isSet(formatsOption)) {
+    options.formats = parser.value(formatsOption);
+  }
   return CommandLineRun::run(options, out, err, cancelRequested);
 }

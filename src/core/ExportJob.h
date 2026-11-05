@@ -26,6 +26,9 @@ struct ExportPaths {
   /** The one rule for the names, e.g. "D:/Books/Book" gives Book.pdf, Book.txt, Book.hocr and Book_alto. */
   static ExportPaths fromBase(const QString& base);
 
+  /** Removes an extension of one of the formats, as someone may type: "Book.pdf" means the base "Book". */
+  static QString withoutFormatExtension(const QString& base);
+
   /** For callers that are given a PDF file: the other formats go beside it, under the same name. */
   static ExportPaths forPdfFile(const QString& pdfFile);
 };

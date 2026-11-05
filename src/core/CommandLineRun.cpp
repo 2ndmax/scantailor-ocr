@@ -5,14 +5,18 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QTextStream>
 #include <algorithm>
+#include <utility>
+#include <vector>
 
 #include "DefaultParams.h"
 #include "ExportJob.h"
 #include "ImageFileInfo.h"
 #include "OcrLanguages.h"
 #include "PageSelectionAccessor.h"
+#include "PathNames.h"
 #include "ProcessingOptions.h"
 #include "ProjectFiles.h"
 #include "ProjectPages.h"
@@ -80,38 +84,109 @@ QStringList filesWithoutDpi(const ProjectPages& pages) {
 }
 
 /**
- * Whether the PDF would replace the project file or one of its images, e.g. after a typing error.
+ * The checks of the command line that need no project content. Returns the absolute path and
+ * name of the exported files through \p exportBase, or false after telling \p err what is wrong.
+ */
+bool checkExportOptions(const CommandLineRun::Options& options,
+                        QString* exportBase,
+                        ProcessingOptions::Formats* formats,
+                        QTextStream& err) {
+  if (!options.exportDir) {
+    if (options.formats) {
+      err << CommandLineRun::tr("--formats requires --export.") << Qt::endl;
+      return false;
+    }
+    if (options.exportName) {
+      err << CommandLineRun::tr("--name requires --export.") << Qt::endl;
+      return false;
+    }
+    return true;
+  }
+  if (options.exportDir->isEmpty()) {
+    err << CommandLineRun::tr("The folder after --export is empty.") << Qt::endl;
+    return false;
+  }
+  if (options.formats && !CommandLineRun::parseFormats(*options.formats, formats)) {
+    err << CommandLineRun::tr("The list after --formats may only hold pdf, txt, hocr and alto: %1")
+               .arg(*options.formats)
+        << Qt::endl;
+    return false;
+  }
+
+  const QString name = options.exportName ? ExportPaths::withoutFormatExtension(*options.exportName)
+                                          : QFileInfo(options.projectFile).completeBaseName();
+  const QString folder = QFileInfo(*options.exportDir).absoluteFilePath();
+  QString reason = path_names::invalidNameReason(name);
+  if (reason.isEmpty()) {
+    reason = path_names::invalidNewPathReason(folder);
+  }
+  if (!reason.isEmpty()) {
+    err << reason << Qt::endl;
+    return false;
+  }
+  if (!QFileInfo(folder).isDir()) {
+    err << CommandLineRun::tr("The folder %1 doesn't exist.").arg(nativePath(folder)) << Qt::endl;
+    return false;
+  }
+  *exportBase = QDir(folder).filePath(name);
+  return true;
+}
+
+/** What the export of \p formats creates, for telling the user. */
+QString describeOutputs(const ExportPaths& paths, const ProcessingOptions::Formats& formats) {
+  QStringList outputs;
+  for (const auto& [chosen, path] : {std::pair(formats.pdf, paths.pdf), std::pair(formats.txt, paths.txt),
+                                     std::pair(formats.hocr, paths.hocr), std::pair(formats.alto, paths.altoDir)}) {
+    if (chosen) {
+      outputs.push_back(nativePath(path));
+    }
+  }
+  return outputs.join(QStringLiteral(", "));
+}
+
+/**
+ * Whether the export would replace the project file or one of its images, e.g. after a typing error.
  * A file that doesn't exist yet can't be one of them; QFileInfo compares existing files by their
  * canonical path, so different spellings of the same file are found.
  * If so, it tells \p err which file it is.
  */
-bool pdfReplacesProjectFile(const QString& pdfFile,
-                            const QString& projectFile,
-                            const ProjectPages& pages,
-                            QTextStream& err) {
-  const QFileInfo pdf(pdfFile);
-  if (pdf == QFileInfo(projectFile)) {
-    err << CommandLineRun::tr("The PDF would replace the project file: %1").arg(nativePath(pdfFile)) << Qt::endl;
-    return true;
-  }
-  for (const ImageFileInfo& file : pages.toImageFileInfo()) {
-    if (pdf == file.fileInfo()) {
-      err << CommandLineRun::tr("The PDF would replace an image of the project: %1").arg(nativePath(pdfFile))
-          << Qt::endl;
+bool exportReplacesProjectFile(const ExportPaths& paths,
+                               const ProcessingOptions::Formats& formats,
+                               const QString& projectFile,
+                               const ProjectPages& pages,
+                               QTextStream& err) {
+  const std::vector<ImageFileInfo> images = pages.toImageFileInfo();
+  const auto replaces = [&](const QString& path, const bool asFolderOfTheFile) {
+    const QFileInfo target(path);
+    const auto hits
+        = [&](const QFileInfo& file) { return target == (asFolderOfTheFile ? QFileInfo(file.absolutePath()) : file); };
+    if (hits(QFileInfo(projectFile))) {
+      err << CommandLineRun::tr("The export would replace the project file: %1").arg(nativePath(path)) << Qt::endl;
       return true;
     }
-  }
-  return false;
+    for (const ImageFileInfo& file : images) {
+      if (hits(file.fileInfo())) {
+        err << CommandLineRun::tr("The export would replace an image of the project: %1").arg(nativePath(path))
+            << Qt::endl;
+        return true;
+      }
+    }
+    return false;
+  };
+  return (formats.pdf && replaces(paths.pdf, false)) || (formats.txt && replaces(paths.txt, false))
+         || (formats.hocr && replaces(paths.hocr, false))
+         // The ALTO folder is replaced as a whole, with everything in it.
+         || (formats.alto && (replaces(paths.altoDir, false) || replaces(paths.altoDir, true)));
 }
 
 /**
- * Sets up the text recognition of the PDF as the project wants it. The app asks about languages
- * that aren't installed and offers to download them; here, they end the export.
+ * Sets up the text recognition as the formats need it. The app asks about languages that aren't
+ * installed and offers to download them; here, they end the export.
  * Returns false after telling \p err why it can't be done.
  */
 bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStream& err) {
 #ifdef ENABLE_OCR
-  if (!project.needsTextRecognition()) {
+  if (!options->formats.needsTextRecognition(options->textLayer)) {
     return true;
   }
   const QStringList missing = OcrLanguages::missing(project.ocr.languages);
@@ -122,7 +197,7 @@ bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStr
     }
     err << CommandLineRun::tr(
                "The languages %1 of the project aren't installed on this computer. Download them in "
-               "ScanTailor OCR, in the PDF export with \"More languages\", or turn them off there.")
+               "ScanTailor OCR, in the Export step with \"More languages\", or turn them off there.")
                .arg(names.join(QStringLiteral(", ")))
         << Qt::endl;
     return false;
@@ -133,8 +208,8 @@ bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStr
       return true;
     case ExportOptions::OcrSetup::NO_LANGUAGE:
       err << CommandLineRun::tr(
-          "The project has text recognition turned on, but no language ticked. Tick one in "
-          "ScanTailor OCR, in the PDF export, or turn the text recognition off there.")
+          "The export needs text recognition, but the project has no language ticked. Tick one in "
+          "ScanTailor OCR, in the Export step.")
           << Qt::endl;
       return false;
     case ExportOptions::OcrSetup::NOT_GATHERED:
@@ -154,20 +229,21 @@ bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStr
 #endif
 }
 
-/** Creates the PDF \p pdfFile from the output files, with the project's PDF settings. */
-CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
-                                   const ProjectSession& session,
-                                   QTextStream& out,
-                                   QTextStream& err,
-                                   const std::atomic<bool>& cancel) {
-  // Ctrl+C during the last page of processing: that page was still output, but no PDF is wanted.
+/** Creates \p formats from the output files, with the project's settings. */
+CommandLineRun::ExitCode exportFiles(const ExportPaths& paths,
+                                     const ProcessingOptions::Formats& formats,
+                                     const ProjectSession& session,
+                                     QTextStream& out,
+                                     QTextStream& err,
+                                     const std::atomic<bool>& cancel) {
+  // Ctrl+C during the last page of processing: that page was still output, but no export is wanted.
   if (cancel) {
-    err << CommandLineRun::tr("Canceled. No PDF was written.") << Qt::endl;
+    err << CommandLineRun::tr("Canceled. Nothing was exported.") << Qt::endl;
     return CommandLineRun::CANCELLED;
   }
 
   std::vector<ExportPage> pages = session.stages->pdfExportPages(*session.pages, session.outFileNameGen);
-  // Not expected after all pages were output, but the PDF would lack them or show an older state.
+  // Not expected after all pages were output, but the export would lack them or show an older state.
   bool complete = true;
   for (const ExportPage& page : pages) {
     if ((page.kind() == ExportPage::MISSING) || page.isOutdated()) {
@@ -176,23 +252,24 @@ CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
     }
   }
   if (!complete) {
-    return CommandLineRun::PDF_FAILED;
+    return CommandLineRun::EXPORT_FAILED;
   }
 
   const ProcessingOptions& project = *session.stages->processingOptions();
   ExportOptions options = ExportOptions::fromProject(project);
+  options.formats = formats;
   options.threadCount = ExportJob::defaultThreadCount();
   if (!setUpOcr(project, &options, err)) {
-    return CommandLineRun::PDF_FAILED;
+    return CommandLineRun::EXPORT_FAILED;
   }
 
-  ExportJob job(std::move(pages), ExportPaths::forPdfFile(pdfFile), options);
-  // REVIEW-NOTE (2026-11): Ctrl+C while a PDF page is being recognized -> the tool only cancels the job after that
+  ExportJob job(std::move(pages), paths, options);
+  // REVIEW-NOTE (2026-11): Ctrl+C while a page is being recognized -> the tool only cancels the job after that
   // page is written, so text recognition of the current page runs to its end. Not fixed because ExportJob only
   // takes a cancel request through cancel(), and the delay is at most one page.
   // run() emits it in this thread, so the lambda is called directly.
   QObject::connect(&job, &ExportJob::progress, [&](const int pagesDone, const int pagesTotal) {
-    out << CommandLineRun::tr("PDF: %1 of %2").arg(pagesDone).arg(pagesTotal) << Qt::endl;
+    out << CommandLineRun::tr("Export: %1 of %2").arg(pagesDone).arg(pagesTotal) << Qt::endl;
     if (cancel) {
       job.cancel();
     }
@@ -200,25 +277,54 @@ CommandLineRun::ExitCode exportPdf(const QString& pdfFile,
   job.run();
 
   if (job.succeeded()) {
-    out << CommandLineRun::tr("The PDF was created: %1").arg(nativePath(pdfFile)) << Qt::endl;
+    out << CommandLineRun::tr("Created: %1").arg(describeOutputs(paths, formats)) << Qt::endl;
     return CommandLineRun::SUCCESS;
   }
   if (job.wasCancelled()) {
-    err << CommandLineRun::tr("Canceled. No PDF was written.") << Qt::endl;
+    err << CommandLineRun::tr("Canceled. Nothing was exported.") << Qt::endl;
     return CommandLineRun::CANCELLED;
   }
-  err << CommandLineRun::tr("The PDF could not be created.") << Qt::endl;
+  err << CommandLineRun::tr("The export failed.") << Qt::endl;
   for (const QString& error : job.errors()) {
     err << "  " << error << Qt::endl;
   }
-  return CommandLineRun::PDF_FAILED;
+  return CommandLineRun::EXPORT_FAILED;
 }
 }  // namespace
+
+bool CommandLineRun::parseFormats(const QString& list, ProcessingOptions::Formats* formats) {
+  ProcessingOptions::Formats parsed;
+  parsed.pdf = false;
+  static const QRegularExpression separator(QStringLiteral("[,+]"));
+  for (const QString& name : list.split(separator)) {
+    const QString format = name.trimmed().toLower();
+    if (format == QLatin1String("pdf")) {
+      parsed.pdf = true;
+    } else if (format == QLatin1String("txt")) {
+      parsed.txt = true;
+    } else if (format == QLatin1String("hocr")) {
+      parsed.hocr = true;
+    } else if (format == QLatin1String("alto")) {
+      parsed.alto = true;
+    } else {
+      return false;
+    }
+  }
+  *formats = parsed;
+  return true;
+}
 
 CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
                                              QTextStream& out,
                                              QTextStream& err,
                                              const std::atomic<bool>& cancel) {
+  QString exportBase;
+  ProcessingOptions::Formats namedFormats;
+  if (!checkExportOptions(options, &exportBase, &namedFormats, err)) {
+    return USAGE_ERROR;
+  }
+  const bool exporting = !exportBase.isEmpty();
+
   const ProjectReader::FileResult read = ProjectReader::readFile(options.projectFile);
   if (read.error != ProjectReader::FileError::NONE) {
     err << nativePath(options.projectFile) << ": " << ProjectReader::errorMessage(read.error) << Qt::endl;
@@ -249,9 +355,26 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     }
     return PROJECT_UNUSABLE;
   }
-  if (!options.pdfFile.isEmpty()
-      && pdfReplacesProjectFile(options.pdfFile, options.projectFile, *reader.pages(), err)) {
-    return USAGE_ERROR;
+  ProcessingOptions::Formats formats = namedFormats;
+  ExportPaths exportPaths;
+  if (exporting) {
+    if (!options.formats) {
+      // The fallback doesn't matter: projects without these settings were refused above.
+      formats = reader.readProcessingOptions(ProcessingOptions()).formats;
+      if (!formats.any()) {
+        err << tr(
+            "The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them "
+            "with --formats.")
+            << Qt::endl;
+        return USAGE_ERROR;
+      }
+    }
+    exportPaths = ExportPaths::fromBase(exportBase);
+    if (exportReplacesProjectFile(exportPaths, formats, options.projectFile, *reader.pages(), err)) {
+      return USAGE_ERROR;
+    }
+    // Before the processing, which may take long: a wrong name is noticed right away.
+    out << tr("The export will create: %1").arg(describeOutputs(exportPaths, formats)) << Qt::endl;
   }
 
   // The fallback only fills in what projects of older versions lack, and those were refused above.
@@ -293,15 +416,15 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     } else {
       err << tr("Pages that failed: %1").arg(processed.failures.size()) << Qt::endl;
     }
-    if (!options.pdfFile.isEmpty()) {
-      err << tr("No PDF was created, as not all pages were output.") << Qt::endl;
+    if (exporting) {
+      err << tr("Nothing was exported, as not all pages were output.") << Qt::endl;
     }
     return PAGES_FAILED;
   }
   out << tr("Done. The output is in %1").arg(nativePath(session.outFileNameGen.outDir())) << Qt::endl;
 
-  if (options.pdfFile.isEmpty()) {
+  if (!exporting) {
     return SUCCESS;
   }
-  return exportPdf(QFileInfo(options.pdfFile).absoluteFilePath(), session, out, err, cancel);
+  return exportFiles(exportPaths, formats, session, out, err, cancel);
 }

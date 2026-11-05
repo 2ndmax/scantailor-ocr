@@ -273,6 +273,16 @@ ExportPaths ExportPaths::fromBase(const QString& base) {
   return paths;
 }
 
+QString ExportPaths::withoutFormatExtension(const QString& base) {
+  for (const QLatin1String extension :
+       {QLatin1String(".pdf"), QLatin1String(".txt"), QLatin1String(".hocr"), QLatin1String(".xml")}) {
+    if (base.endsWith(extension, Qt::CaseInsensitive)) {
+      return base.chopped(extension.size());
+    }
+  }
+  return base;
+}
+
 ExportPaths ExportPaths::forPdfFile(const QString& pdfFile) {
   const QString extension = QStringLiteral(".pdf");
   ExportPaths paths

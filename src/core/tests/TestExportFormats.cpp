@@ -310,6 +310,13 @@ BOOST_AUTO_TEST_CASE(test_paths_follow_one_rule) {
   BOOST_CHECK(upper.txt == "D:/Books/Book.txt");
   BOOST_CHECK(ExportPaths::forPdfFile("Book.dat").pdf == "Book.dat");
   BOOST_CHECK(ExportPaths::forPdfFile("Book.dat").txt == "Book.dat.txt");
+
+  BOOST_CHECK(ExportPaths::withoutFormatExtension("Book.pdf") == "Book");
+  BOOST_CHECK(ExportPaths::withoutFormatExtension("Book.HOCR") == "Book");
+  BOOST_CHECK(ExportPaths::withoutFormatExtension("Book.xml") == "Book");
+  BOOST_CHECK(ExportPaths::withoutFormatExtension("Book.txt") == "Book");
+  BOOST_CHECK(ExportPaths::withoutFormatExtension("Book.v2") == "Book.v2");
+  BOOST_CHECK(ExportPaths::withoutFormatExtension("Book") == "Book");
 }
 
 BOOST_AUTO_TEST_CASE(test_export_options_take_the_formats_of_the_project) {

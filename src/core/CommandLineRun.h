@@ -7,6 +7,9 @@
 #include <QCoreApplication>
 #include <QString>
 #include <atomic>
+#include <optional>
+
+#include "ProcessingOptions.h"
 
 class QTextStream;
 
@@ -28,24 +31,37 @@ class CommandLineRun {
     PROJECT_UNUSABLE = 2,
     /** Some pages couldn't be processed or output. */
     PAGES_FAILED = 3,
-    /** The PDF couldn't be created. */
-    PDF_FAILED = 4,
+    /** The export failed. */
+    EXPORT_FAILED = 4,
     /** Processing was cancelled. */
     CANCELLED = 5
   };
 
   struct Options {
     QString projectFile;
-    /** Where the PDF goes, as the project's PDF settings make it; empty for no PDF. */
-    QString pdfFile;
+    /**
+     * The existing folder for the exported files. Not set for no export; a set but empty value is
+     * an error, e.g. from an empty variable in a script.
+     */
+    std::optional<QString> exportDir;
+    /** The name of the exported files, see ExportPaths::fromBase(). Not set for the name of the project file. */
+    std::optional<QString> exportName;
+    /** The formats as for parseFormats(). Not set for the formats of the project. Requires exportDir. */
+    std::optional<QString> formats;
   };
 
   /**
    * Runs the tool. The progress goes to \p out, errors go to \p err. Setting \p cancel stops
    * processing before the next page; the pages done so far keep their results, and the project
-   * is saved with them. The PDF is only created if all pages were output.
+   * is saved with them. The export only runs if all pages were output.
    */
   static ExitCode run(const Options& options, QTextStream& out, QTextStream& err, const std::atomic<bool>& cancel);
+
+  /**
+   * Reads a list of the formats pdf, txt, hocr and alto, separated by commas or plus signs.
+   * Returns false for an empty list or anything else in it.
+   */
+  static bool parseFormats(const QString& list, ProcessingOptions::Formats* formats);
 };
 
 #endif  // SCANTAILOR_CORE_COMMANDLINERUN_H_

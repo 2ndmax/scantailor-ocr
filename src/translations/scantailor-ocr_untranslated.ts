@@ -307,143 +307,178 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
 <context>
     <name>CommandLineRun</name>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="32"/>
+        <location filename="../core/CommandLineRun.cpp" line="36"/>
         <source>%1, page %2 of the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="38"/>
+        <location filename="../core/CommandLineRun.cpp" line="42"/>
         <source>%1, left page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="41"/>
+        <location filename="../core/CommandLineRun.cpp" line="45"/>
         <source>%1, right page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="51"/>
+        <location filename="../core/CommandLineRun.cpp" line="55"/>
         <source>The image could not be loaded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="54"/>
+        <location filename="../core/CommandLineRun.cpp" line="58"/>
         <source>The page could not be processed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="57"/>
+        <location filename="../core/CommandLineRun.cpp" line="61"/>
         <source>The output page would be too large with the current settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="60"/>
+        <location filename="../core/CommandLineRun.cpp" line="64"/>
         <source>The output file could not be written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="94"/>
-        <source>The PDF would replace the project file: %1</source>
+        <location filename="../core/CommandLineRun.cpp" line="100"/>
+        <source>--name requires --export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="99"/>
-        <source>The PDF would replace an image of the project: %1</source>
+        <location filename="../core/CommandLineRun.cpp" line="106"/>
+        <source>The folder after --export is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="123"/>
-        <source>The languages %1 of the project aren&apos;t installed on this computer. Download them in ScanTailor OCR, in the PDF export with &quot;More languages&quot;, or turn them off there.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/CommandLineRun.cpp" line="135"/>
-        <source>The project has text recognition turned on, but no language ticked. Tick one in ScanTailor OCR, in the PDF export, or turn the text recognition off there.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/CommandLineRun.cpp" line="141"/>
+        <location filename="../core/CommandLineRun.cpp" line="216"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="174"/>
+        <location filename="../core/CommandLineRun.cpp" line="250"/>
         <source>%1: The output file is missing or outdated.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="195"/>
-        <source>PDF: %1 of %2</source>
+        <location filename="../core/CommandLineRun.cpp" line="96"/>
+        <source>--formats requires --export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="203"/>
-        <source>The PDF was created: %1</source>
+        <location filename="../core/CommandLineRun.cpp" line="110"/>
+        <source>The list after --formats may only hold pdf, txt, hocr and alto: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="165"/>
-        <location filename="../core/CommandLineRun.cpp" line="207"/>
-        <source>Canceled. No PDF was written.</source>
+        <location filename="../core/CommandLineRun.cpp" line="128"/>
+        <source>The folder %1 doesn&apos;t exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="164"/>
+        <source>The export would replace the project file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="169"/>
+        <source>The export would replace an image of the project: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="198"/>
+        <source>The languages %1 of the project aren&apos;t installed on this computer. Download them in ScanTailor OCR, in the Export step with &quot;More languages&quot;, or turn them off there.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/CommandLineRun.cpp" line="210"/>
-        <source>The PDF could not be created.</source>
+        <source>The export needs text recognition, but the project has no language ticked. Tick one in ScanTailor OCR, in the Export step.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="231"/>
-        <source>The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once in ScanTailor OCR and save it there, then it can be processed here.</source>
+        <location filename="../core/CommandLineRun.cpp" line="241"/>
+        <location filename="../core/CommandLineRun.cpp" line="284"/>
+        <source>Canceled. Nothing was exported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="238"/>
-        <source>The project has no images.</source>
+        <location filename="../core/CommandLineRun.cpp" line="272"/>
+        <source>Export: %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="243"/>
-        <source>The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, then the project can be processed here:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/CommandLineRun.cpp" line="263"/>
-        <source>The output folder or some images of the project are missing, for example because the project was moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/CommandLineRun.cpp" line="271"/>
-        <source>%1: %2 of %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/CommandLineRun.cpp" line="282"/>
-        <source>The project file could not be saved: %1</source>
+        <location filename="../core/CommandLineRun.cpp" line="280"/>
+        <source>Created: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/CommandLineRun.cpp" line="287"/>
+        <source>The export failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="337"/>
+        <source>The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once in ScanTailor OCR and save it there, then it can be processed here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="344"/>
+        <source>The project has no images.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="349"/>
+        <source>The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, then the project can be processed here:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="365"/>
+        <source>The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them with --formats.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="377"/>
+        <source>The export will create: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="386"/>
+        <source>The output folder or some images of the project are missing, for example because the project was moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="394"/>
+        <source>%1: %2 of %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="405"/>
+        <source>The project file could not be saved: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="410"/>
         <source>Canceled. The pages output so far keep their output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="294"/>
+        <location filename="../core/CommandLineRun.cpp" line="417"/>
         <source>Pages that failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="292"/>
+        <location filename="../core/CommandLineRun.cpp" line="420"/>
+        <source>Nothing was exported, as not all pages were output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/CommandLineRun.cpp" line="415"/>
         <source>No page was output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="297"/>
-        <source>No PDF was created, as not all pages were output.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/CommandLineRun.cpp" line="301"/>
+        <location filename="../core/CommandLineRun.cpp" line="424"/>
         <source>Done. The output is in %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -454,27 +489,42 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     </message>
     <message>
         <location filename="../cli/main.cpp" line="88"/>
-        <source>Then creates the PDF &lt;file&gt; from all pages, with the PDF settings of the project, including the text recognition.</source>
+        <source>Then exports all pages with the settings of the project into the existing &lt;folder&gt;. The files are named like the project file, e.g. Book.pdf, Book.txt, Book.hocr and the folder Book_alto.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="90"/>
-        <source>file</source>
+        <location filename="../cli/main.cpp" line="91"/>
+        <source>folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="92"/>
+        <location filename="../cli/main.cpp" line="95"/>
+        <source>The name of the exported files, without extension, instead of the name of the project file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="96"/>
+        <source>name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="100"/>
+        <source>The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, separated by commas or plus signs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="102"/>
+        <source>list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="104"/>
         <source>project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="92"/>
+        <location filename="../cli/main.cpp" line="104"/>
         <source>The project file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../cli/main.cpp" line="113"/>
-        <source>The file name after --pdf is empty.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1944,7 +1994,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../core/ExportJob.cpp" line="214"/>
-        <location filename="../core/ExportJob.cpp" line="463"/>
+        <location filename="../core/ExportJob.cpp" line="473"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1955,43 +2005,43 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../core/ExportJob.cpp" line="248"/>
-        <location filename="../core/ExportJob.cpp" line="465"/>
+        <location filename="../core/ExportJob.cpp" line="475"/>
         <source>This version of the program was built without text recognition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="337"/>
+        <location filename="../core/ExportJob.cpp" line="347"/>
         <source>The output file %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="386"/>
-        <location filename="../core/ExportJob.cpp" line="397"/>
+        <location filename="../core/ExportJob.cpp" line="396"/>
+        <location filename="../core/ExportJob.cpp" line="407"/>
         <source>The split output files of %1 differ in size. Process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="452"/>
+        <location filename="../core/ExportJob.cpp" line="462"/>
         <source>No pages are selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="458"/>
+        <location filename="../core/ExportJob.cpp" line="468"/>
         <source>No format is selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="476"/>
+        <location filename="../core/ExportJob.cpp" line="486"/>
         <source>Could not create %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="566"/>
+        <location filename="../core/ExportJob.cpp" line="576"/>
         <source>Text recognition could not be started.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="681"/>
+        <location filename="../core/ExportJob.cpp" line="691"/>
         <source>These were already replaced: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2006,8 +2056,8 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="669"/>
-        <location filename="../core/ExportJob.cpp" line="690"/>
+        <location filename="../core/ExportJob.cpp" line="679"/>
+        <location filename="../core/ExportJob.cpp" line="700"/>
         <source>Could not write %1.</source>
         <translation type="unfinished"></translation>
     </message>
