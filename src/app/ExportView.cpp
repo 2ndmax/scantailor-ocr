@@ -260,6 +260,13 @@ class ExportView::PageTileDelegate : public QStyledItemDelegate {
     if (event->type() != QEvent::ToolTip) {
       return QStyledItemDelegate::helpEvent(event, view, option, index);
     }
+    // The list may hand over the nearest tile for the background beside it; only the tile itself has a tooltip.
+    // REVIEW-NOTE (2026-11): no regression test -> qt_tests doesn't build the views of the app. Fixed after a hand
+    // test.
+    if (!option.rect.contains(event->pos())) {
+      QToolTip::hideText();
+      return true;
+    }
     const QString tip = nameRect(option).contains(event->pos())
                             ? index.data(Qt::DisplayRole).toString()
                             : m_view->pageToolTip(index.data(ENTRY_INDEX_ROLE).toInt());
