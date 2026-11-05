@@ -64,7 +64,7 @@ systems. No image files are stored in the repository: the scans are drawn in the
   it also checks the color mode detection (text page black and white, picture page mixed).
 - **testColorOutputCompression**: a color page is written with the TIFF compression set in the
   project (JPEG).
-- **testPdfExport**: `StageSequence::pdfExportPages` and `PdfExportOptions::fromProject` build
+- **testPdfExport**: `StageSequence::pdfExportPages` and `ExportOptions::fromProject` build
   the PDF of the test project (no OCR). Checked: complete file (every entry of the
   cross-reference table points at its object), 4 pages in project order, page size from pixels
   and resolution, black-and-white compression as set in the project (JBIG2 by default,
