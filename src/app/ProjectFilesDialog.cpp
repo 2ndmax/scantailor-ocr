@@ -20,6 +20,7 @@
 #include "ImageLoadErrors.h"
 #include "ImageMetadataLoader.h"
 #include "NonCopyable.h"
+#include "PathNames.h"
 #include "ProjectFiles.h"
 #include "ScanFolderWatcher.h"
 #include "SmartFilenameOrdering.h"
@@ -445,6 +446,12 @@ bool ProjectFilesDialog::checkProjectFile() {
     return false;
   }
 
+  const QString invalidNameReason = path_names::invalidNewPathReason(file);
+  if (!invalidNameReason.isEmpty()) {
+    QMessageBox::warning(this, tr("Error"), invalidNameReason);
+    return false;
+  }
+
   if (fileInfo.exists()) {
     return QMessageBox::question(this, tr("Overwrite File?"),
                                  tr("The project file %1 already exists. Overwrite it?")
@@ -503,13 +510,19 @@ void ProjectFilesDialog::onOK() {
     return;
   }
 
-  // When importing new scans, the project may start empty.
-  if ((m_inProjectFiles->count() == 0) && !isImportingNewScans()) {
-    QMessageBox::warning(this, tr("Error"), tr("No files in project!"));
-    return;
-  }
+  // Also for a folder that seems to exist: Windows calls "D:/Books." existing if "D:/Books" exists.
+  const auto folderNameIsValid = [this](const QDir& folder) {
+    const QString invalidNameReason = folder.isAbsolute() ? path_names::invalidNewPathReason(folder.path()) : QString();
+    if (!invalidNameReason.isEmpty()) {
+      QMessageBox::warning(this, tr("Error"), invalidNameReason);
+    }
+    return invalidNameReason.isEmpty();
+  };
 
   const QDir inpDir(inpDirLine->text());
+  if (!folderNameIsValid(inpDir)) {
+    return;
+  }
   if (!inpDir.isAbsolute() || !inpDir.exists()) {
     QMessageBox::warning(this, tr("Error"), tr("Input folder is not set or doesn't exist."));
     return;
@@ -518,6 +531,17 @@ void ProjectFilesDialog::onOK() {
   const QDir outDir(outDirLine->text());
   if (inpDir == outDir) {
     QMessageBox::warning(this, tr("Error"), tr("Input and output folders can't be the same."));
+    return;
+  }
+  if (!folderNameIsValid(outDir)) {
+    return;
+  }
+
+  // After the folders, because a wrong input folder is why the list is empty. Before the project
+  // file and the output folder, so nothing is asked or created for a project without files.
+  // When importing new scans, the project may start empty.
+  if ((m_inProjectFiles->count() == 0) && !isImportingNewScans()) {
+    QMessageBox::warning(this, tr("Error"), tr("No files in project!"));
     return;
   }
 

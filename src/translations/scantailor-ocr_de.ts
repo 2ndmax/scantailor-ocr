@@ -2101,7 +2101,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     <name>ImageLoader</name>
     <message>
         <location filename="../core/ImageLoader.cpp" line="48"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="754"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="778"/>
         <source>The file format is not supported, or the file is damaged.</source>
         <translation>Das Dateiformat wird nicht unterstützt oder die Datei ist beschädigt.</translation>
     </message>
@@ -3052,6 +3052,34 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
     </message>
 </context>
 <context>
+    <name>PathNames</name>
+    <message>
+        <location filename="../core/PathNames.cpp" line="44"/>
+        <source>The name is empty.</source>
+        <translation>Der Name ist leer.</translation>
+    </message>
+    <message>
+        <location filename="../core/PathNames.cpp" line="50"/>
+        <source>The name &quot;%1&quot; contains a control character.</source>
+        <translation>Der Name „%1“ enthält ein Steuerzeichen.</translation>
+    </message>
+    <message>
+        <location filename="../core/PathNames.cpp" line="53"/>
+        <source>The name &quot;%1&quot; contains the character &quot;%2&quot;.</source>
+        <translation>Der Name „%1“ enthält das Zeichen „%2“.</translation>
+    </message>
+    <message>
+        <location filename="../core/PathNames.cpp" line="60"/>
+        <source>The name &quot;%1&quot; ends with a period or a space.</source>
+        <translation>Der Name „%1“ endet mit einem Punkt oder Leerzeichen.</translation>
+    </message>
+    <message>
+        <location filename="../core/PathNames.cpp" line="64"/>
+        <source>The name &quot;%1&quot; is reserved on Windows.</source>
+        <translation>Der Name „%1“ ist unter Windows reserviert.</translation>
+    </message>
+</context>
+<context>
     <name>PdfCompressionPanel</name>
     <message>
         <location filename="../app/PdfCompressionPanel.cpp" line="48"/>
@@ -3694,7 +3722,7 @@ Ohne sie wird der Text nur mit den übrigen angekreuzten Sprachen erkannt.</tran
 <context>
     <name>ProjectFilesDialog</name>
     <message numerus="yes">
-        <location filename="../app/ProjectFilesDialog.cpp" line="622"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="646"/>
         <source>... and %n more.</source>
         <translation>
             <numerusform>... und %n weitere.</numerusform>
@@ -3708,7 +3736,7 @@ Ohne sie wird der Text nur mit den übrigen angekreuzten Sprachen erkannt.</tran
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="27"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="290"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="291"/>
         <source>Input Folder</source>
         <translation>Eingabeordner</translation>
     </message>
@@ -3721,13 +3749,13 @@ Ohne sie wird der Text nur mit den übrigen angekreuzten Sprachen erkannt.</tran
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="50"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="304"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="305"/>
         <source>Output Folder</source>
         <translation>Ausgabeordner</translation>
     </message>
     <message>
         <location filename="../app/ProjectFilesDialog.ui" line="69"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="327"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="328"/>
         <source>Project File</source>
         <translation>Projektdatei</translation>
     </message>
@@ -3780,92 +3808,95 @@ p, li { white-space: pre-wrap; }
         <translation>Dateien im Projekt</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="213"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="214"/>
         <source>Images Already in the Folder</source>
         <translation>Bilder, die schon im Ordner liegen</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="215"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="216"/>
         <source>These images are already in the folder %1, but not in the project. Move those that are to be added to the project to the right.</source>
         <translation>Diese Bilder liegen schon im Ordner %1, sind aber nicht im Projekt. Verschieben Sie die, die ins Projekt aufgenommen werden sollen, nach rechts.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="222"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="223"/>
         <source>Files to Add</source>
         <translation>Hinzuzufügende Dateien</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="328"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="329"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor-OCR-Projekte</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="444"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="508"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="514"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="520"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="541"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="547"/>
-        <location filename="../app/ProjectFilesDialog.cpp" line="625"/>
-        <location filename="../app/RelinkingDialog.cpp" line="199"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="445"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="451"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="517"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="527"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="533"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="544"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="565"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="571"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="649"/>
+        <location filename="../app/RelinkingDialog.cpp" line="194"/>
+        <location filename="../app/RelinkingDialog.cpp" line="206"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="444"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="445"/>
         <source>Project file is not set or its folder doesn&apos;t exist.</source>
         <translation>Die Projektdatei ist nicht festgelegt, oder ihr Ordner existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="449"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="456"/>
         <source>Overwrite File?</source>
         <translation>Datei überschreiben?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="450"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="457"/>
         <source>The project file %1 already exists. Overwrite it?</source>
         <translation>Die Projektdatei %1 existiert bereits. Soll sie überschrieben werden?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="508"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="544"/>
         <source>No files in project!</source>
         <translation>Keine Dateien im Projekt!</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="514"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="527"/>
         <source>Input folder is not set or doesn&apos;t exist.</source>
         <translation>Der Eingabeordner ist nicht festgelegt oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="520"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="533"/>
         <source>Input and output folders can&apos;t be the same.</source>
         <translation>Eingabe- und Ausgabeordner können nicht identisch sein.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="532"/>
-        <location filename="../app/RelinkingDialog.cpp" line="192"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="556"/>
+        <location filename="../app/RelinkingDialog.cpp" line="199"/>
         <source>Create Folder?</source>
         <translation>Ordner erstellen?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="532"/>
-        <location filename="../app/RelinkingDialog.cpp" line="193"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="556"/>
+        <location filename="../app/RelinkingDialog.cpp" line="200"/>
         <source>Output folder doesn&apos;t exist. Create it?</source>
         <translation>Der Ausgabeordner existiert nicht. Soll er erstellt werden?</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="541"/>
-        <location filename="../app/RelinkingDialog.cpp" line="200"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="565"/>
+        <location filename="../app/RelinkingDialog.cpp" line="207"/>
         <source>Unable to create output folder.</source>
         <translation>Der Ausgabeordner kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="547"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="571"/>
         <source>Output folder is not set or doesn&apos;t exist.</source>
         <translation>Der Ausgabeordner ist nicht festgelegt oder existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ProjectFilesDialog.cpp" line="626"/>
+        <location filename="../app/ProjectFilesDialog.cpp" line="650"/>
         <source>Some of the files failed to load.
 Either their format is not supported, or they are damaged.
 You should remove them from the project.</source>
@@ -3979,14 +4010,14 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
     <name>RelinkingDialog</name>
     <message>
         <location filename="../app/RelinkingDialog.ui" line="14"/>
-        <location filename="../app/RelinkingDialog.cpp" line="135"/>
-        <location filename="../app/RelinkingDialog.cpp" line="152"/>
+        <location filename="../app/RelinkingDialog.cpp" line="136"/>
+        <location filename="../app/RelinkingDialog.cpp" line="153"/>
         <source>Relink</source>
         <translation>Neu verknüpfen</translation>
     </message>
     <message>
         <location filename="../app/RelinkingDialog.ui" line="23"/>
-        <location filename="../app/RelinkingDialog.cpp" line="221"/>
+        <location filename="../app/RelinkingDialog.cpp" line="228"/>
         <source>Output Folder</source>
         <translation>Ausgabeordner</translation>
     </message>
@@ -4032,22 +4063,22 @@ Sie sollten sie aus dem Projekt entfernen.</translation>
         <translation>Auswählen ...</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="112"/>
+        <location filename="../app/RelinkingDialog.cpp" line="113"/>
         <source>Locate %1</source>
         <translation>%1 auswählen</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="137"/>
+        <location filename="../app/RelinkingDialog.cpp" line="138"/>
         <source>This change was not applied, because %1 is a file, not a folder.</source>
         <translation>Diese Änderung wurde nicht angewendet, weil %1 eine Datei und kein Ordner ist.</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="139"/>
+        <location filename="../app/RelinkingDialog.cpp" line="140"/>
         <source>This change was not applied, because %1 is a folder, not a file.</source>
         <translation>Diese Änderung wurde nicht angewendet, weil %1 ein Ordner und keine Datei ist.</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="144"/>
+        <location filename="../app/RelinkingDialog.cpp" line="145"/>
         <source>This change was not applied, because several images would then use the same file:
 
 %1
@@ -4064,7 +4095,7 @@ würden beide zu
 %3</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/RelinkingDialog.cpp" line="150"/>
+        <location filename="../app/RelinkingDialog.cpp" line="151"/>
         <source>%n file(s) would be shared in total.</source>
         <translation>
             <numerusform>%n Datei würde insgesamt mehrfach verwendet.</numerusform>
@@ -4072,22 +4103,22 @@ würden beide zu
         </translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="246"/>
+        <location filename="../app/RelinkingDialog.cpp" line="253"/>
         <source>Checking files ...</source>
         <translation>Dateien werden geprüft ...</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="250"/>
+        <location filename="../app/RelinkingDialog.cpp" line="257"/>
         <source>%1 of %2 missing</source>
         <translation>%1 von %2 fehlen</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="268"/>
+        <location filename="../app/RelinkingDialog.cpp" line="275"/>
         <source>The folder exists.</source>
         <translation>Der Ordner existiert.</translation>
     </message>
     <message>
-        <location filename="../app/RelinkingDialog.cpp" line="268"/>
+        <location filename="../app/RelinkingDialog.cpp" line="275"/>
         <source>The folder is missing.</source>
         <translation>Der Ordner fehlt.</translation>
     </message>

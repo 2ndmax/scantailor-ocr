@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <algorithm>
 
+#include "PathNames.h"
 #include "RelinkingSortingModel.h"
 
 namespace {
@@ -187,6 +188,12 @@ void RelinkingDialog::okClicked() {
   if (m_model.hasOutputDir()) {
     // Same questions as when creating a project, so their translations are shared.
     const QString outDir(m_model.outputDir());
+    // Not only for a folder that seems to be missing: Windows calls "D:/Books." existing if "D:/Books" exists.
+    const QString invalidNameReason = path_names::invalidNewPathReason(withRootSlash(outDir));
+    if (!invalidNameReason.isEmpty()) {
+      QMessageBox::warning(this, QCoreApplication::translate("ProjectFilesDialog", "Error"), invalidNameReason);
+      return;
+    }
     if (!isExistingDir(outDir)) {
       if (QMessageBox::question(
               this, QCoreApplication::translate("ProjectFilesDialog", "Create Folder?"),

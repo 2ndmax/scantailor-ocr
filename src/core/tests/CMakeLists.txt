@@ -26,6 +26,7 @@ set(sources
     TestPdfPageOrder.cpp
     TestProjectFile.cpp
     TestProjectFiles.cpp
+    TestPathNames.cpp
     TestRecentProjects.cpp
     TestRelinkedKeys.cpp
     TestRenderParams.cpp

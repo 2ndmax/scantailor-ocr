@@ -70,6 +70,7 @@ set(common_sources
     ProjectReader.cpp ProjectReader.h
     ProjectWriter.cpp ProjectWriter.h
     ProjectFiles.cpp ProjectFiles.h
+    PathNames.cpp PathNames.h
     ProjectSession.cpp ProjectSession.h
     SettingsSetup.cpp SettingsSetup.h
     AtomicFileOverwriter.cpp AtomicFileOverwriter.h
