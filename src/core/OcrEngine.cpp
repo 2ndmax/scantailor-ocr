@@ -131,7 +131,11 @@ bool OcrEngine::recognize(const QImage& image,
     textsDelivered = takeText(m_api->GetUTF8Text(), &result->texts.text) && textsDelivered;
   }
   if (request.hocr) {
-    m_api->SetInputName(request.imageName.toUtf8().constData());
+    // Tesseract puts the name into the title of the page and escapes only <>&"', so the characters XML doesn't
+    // allow at all are replaced here.
+    // REVIEW-NOTE (2026-11): no regression test -> the tests have no language data, and Tesseract can't
+    // recognize without one. xmlCharacters() itself is tested.
+    m_api->SetInputName(OcrTextOutputs::xmlCharacters(request.imageName).toUtf8().constData());
     // hOCR counts from 0 and adds 1 itself, so the IDs are unique in the file of all pages.
     textsDelivered = takeText(m_api->GetHOCRText(request.position - 1), &result->texts.hocr) && textsDelivered;
   }

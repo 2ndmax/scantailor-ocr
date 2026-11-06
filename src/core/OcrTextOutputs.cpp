@@ -213,9 +213,6 @@ bool OcrTextOutputs::begin(QString* error) {
   return true;
 }
 
-// REVIEW-NOTE (2026-11): an image name with a control character or U+FFFE/U+FFFF (possible on Linux and macOS)
-// -> the hOCR and ALTO files are no valid XML. Not fixed because Windows forbids such names and the import
-// doesn't create them.
 bool OcrTextOutputs::addPage(const QString& imageFile, const OcrPageTexts& texts, QString* error) {
   const int position = ++m_pagesAdded;
 
