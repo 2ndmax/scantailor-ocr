@@ -13,27 +13,21 @@
 #include <QImage>
 #include <algorithm>
 #include <cmath>
-#include <mutex>
 
 namespace {
 bool cancelRequested(void* cancelFlag, int /*words*/) {
   const auto* flag = static_cast<const std::atomic<bool>*>(cancelFlag);
   return flag && flag->load();
 }
-
-/** Several pages are recognized in parallel already, so Tesseract itself shouldn't spawn threads. */
-void limitTesseractThreads() {
-  static std::once_flag once;
-  std::call_once(once, [] {
-    // REVIEW-NOTE (2026-10): OMP_THREAD_LIMIT is set from a worker thread -> races with getenv() on POSIX and has
-    // no effect if OpenMP started earlier. Not fixed because Windows builds are unaffected; a future CLI must
-    // set the limit before starting threads as well.
-    if (qEnvironmentVariableIsEmpty("OMP_THREAD_LIMIT")) {
-      qputenv("OMP_THREAD_LIMIT", "1");
-    }
-  });
-}
 }  // namespace
+
+void OcrEngine::limitThreads() {
+  // REVIEW-NOTE (2026-11): no regression test -> the race with threads reading the environment can't be
+  // provoked reliably. Moved here from the first recognition, which ran on a worker thread.
+  if (qEnvironmentVariableIsEmpty("OMP_THREAD_LIMIT")) {
+    qputenv("OMP_THREAD_LIMIT", "1");
+  }
+}
 
 OcrEngine::OcrEngine() = default;
 
@@ -44,7 +38,6 @@ OcrEngine::~OcrEngine() {
 }
 
 bool OcrEngine::init(const QString& tessdataDir, const QString& languages, QString* error) {
-  limitTesseractThreads();
   m_api = std::make_unique<tesseract::TessBaseAPI>();
   // In UTF-8, for readDataFile(): Tesseract only joins the folder and the file names.
   const QByteArray dir = QDir::toNativeSeparators(tessdataDir).toUtf8();

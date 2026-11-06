@@ -8,6 +8,7 @@
 #include <ApplicationSettings.h>
 #include <CommandLineRun.h>
 #include <ImageSizeLimit.h>
+#include <OcrEngine.h>
 #include <SettingsSetup.h>
 #include <Translations.h>
 
@@ -61,6 +62,7 @@ class Utf8Console {
 }  // namespace
 
 int main(int argc, char* argv[]) {
+  OcrEngine::limitThreads();
   QCoreApplication app(argc, argv);
   ImageSizeLimit::applyQtAllocationLimit();
 #ifdef _WIN32

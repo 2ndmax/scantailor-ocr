@@ -93,6 +93,13 @@ class OcrEngine {
   static QString tesseractVersion();
 
   /**
+   * Keeps Tesseract from starting threads of its own, as the export recognizes several pages in
+   * parallel already. Call it first in main(), before any thread runs: on Linux and macOS, setting
+   * an environment variable races with threads reading it, and OpenMP reads it only when it starts.
+   */
+  static void limitThreads();
+
+  /**
    * \brief Reads a language file for Tesseract (its FileReader).
    *
    * Tesseract would open the files itself in the ANSI code page, which fails for folders with

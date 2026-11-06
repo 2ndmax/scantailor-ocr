@@ -7,6 +7,7 @@
 #include <core/ColorSchemeManager.h>
 #include <core/IconProvider.h>
 #include <core/ImageSizeLimit.h>
+#include <core/OcrEngine.h>
 #include <core/SettingsSetup.h>
 #include <core/StyledIconPack.h>
 
@@ -17,6 +18,7 @@
 #include "MainWindow.h"
 
 int main(int argc, char* argv[]) {
+  OcrEngine::limitThreads();
   Application app(argc, argv);
 
   ImageSizeLimit::applyQtAllocationLimit();
