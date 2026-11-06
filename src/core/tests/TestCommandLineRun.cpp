@@ -295,6 +295,37 @@ BOOST_AUTO_TEST_CASE(test_exported_files_are_named_like_the_project_unless_a_nam
   BOOST_CHECK(QFile::exists(target.filePath("band1.pdf")));
 }
 
+// The same rule as in the app: no spaces around the name, no extension of a format.
+BOOST_AUTO_TEST_CASE(test_default_name_follows_the_rule_of_the_app) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString created = createProject(dir, 300);
+  BOOST_REQUIRE(!created.isEmpty());
+  BOOST_REQUIRE(QDir(dir.path()).mkdir("target"));
+  const QDir target(dir.filePath("target"));
+
+  QString out;
+  QString err;
+  const QString withExtension = dir.filePath("Book.pdf.ScanTailor");
+  BOOST_REQUIRE(QFile::rename(created, withExtension));
+  BOOST_CHECK_EQUAL(run(withExtension, &out, &err, target.path()), CommandLineRun::SUCCESS);
+  BOOST_CHECK_MESSAGE(err.isEmpty(), err.toStdString());
+  BOOST_CHECK(target.entryList(QDir::Files) == QStringList{"Book.pdf"});
+
+  const QString withSpace = dir.filePath("Volume .ScanTailor");
+  BOOST_REQUIRE(QFile::rename(withExtension, withSpace));
+  err.clear();
+  BOOST_CHECK_EQUAL(run(withSpace, &out, &err, target.path()), CommandLineRun::SUCCESS);
+  BOOST_CHECK_MESSAGE(err.isEmpty(), err.toStdString());
+  BOOST_CHECK(target.exists("Volume.pdf"));
+  err.clear();
+
+  BOOST_CHECK_EQUAL(run(withSpace, &out, &err, target.path(), std::nullopt, QStringLiteral(" Part 2.pdf ")),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK_MESSAGE(err.isEmpty(), err.toStdString());
+  BOOST_CHECK(target.exists("Part 2.pdf"));
+}
+
 // A typing error in --export must not destroy a file of the project.
 BOOST_AUTO_TEST_CASE(test_export_must_not_replace_the_project_or_an_image) {
   QTemporaryDir dir;

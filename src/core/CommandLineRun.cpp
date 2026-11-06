@@ -108,8 +108,7 @@ bool checkExportOptions(const CommandLineRun::Options& options,
   // As in the app: next to the project file and named like it.
   const QFileInfo defaultBase(
       project_files::defaultExportBase(QFileInfo(options.projectFile).absoluteFilePath(), QString()));
-  const QString name
-      = options.exportName ? ExportPaths::withoutFormatExtension(*options.exportName) : defaultBase.fileName();
+  const QString name = ExportPaths::nameFromInput(options.exportName ? *options.exportName : defaultBase.fileName());
   const QString folder = options.exportDir ? QFileInfo(*options.exportDir).absoluteFilePath() : defaultBase.path();
   QString reason = path_names::invalidNameReason(name);
   if (reason.isEmpty()) {
