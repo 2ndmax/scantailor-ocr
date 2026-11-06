@@ -1160,9 +1160,13 @@ void ThumbnailSequence::Impl::insert(const PageInfo& newPage, BeforeOrAfter befo
   const QPointF posDelta(0.0, composite->boundingRect().height() + SPACING);
 
   const Item item(newPage, composite.get());
-  // REVIEW-NOTE (2026-10): ins.second is not checked -> inserting an existing PageId adds an orphan tile to the scene.
-  // Not fixed because all callers filter out pages already in the project.
   const std::pair<ItemsInOrder::iterator, bool> ins(m_itemsInOrder.insert(ordIt, item));
+  if (!ins.second) {
+    // REVIEW-NOTE (2026-11): no regression test -> qt_tests doesn't build the views of the app, and no caller
+    // inserts a page twice today.
+    // The page is there already. Its tile would be added to the scene without an item, and never removed.
+    return;
+  }
   composite->setItem(&*ins.first);
   m_graphicsScene.addItem(composite.release());
 
