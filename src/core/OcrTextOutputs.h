@@ -74,6 +74,9 @@ class OcrTextOutputs {
   /** \p text for the content of an XML element or attribute, in UTF-8. */
   static QByteArray xmlText(const QString& text);
 
+  /** \p text with the characters XML doesn't allow, not even escaped, replaced by U+FFFD; not escaped. */
+  static QString xmlCharacters(const QString& text);
+
  private:
   struct Files;
 
