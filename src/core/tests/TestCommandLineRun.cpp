@@ -154,6 +154,28 @@ BOOST_AUTO_TEST_CASE(test_project_of_an_older_version_is_left_to_the_app) {
   BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
 }
 
+// The project is opened without the images that can't be read. Saved by the tool, they would be gone
+// from the file without a word, so the project is left to the app, which offers a backup copy.
+BOOST_AUTO_TEST_CASE(test_project_with_a_damaged_image_is_left_to_the_app) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  // A second image whose file isn't in the project.
+  QString xml = QString::fromUtf8(Tests::readFile(projectFile));
+  BOOST_REQUIRE(xml.contains("</images>"));
+  xml.replace("</images>", "<image id=\"99\" subPages=\"1\" fileId=\"99\" fileImage=\"0\"/></images>");
+  const QByteArray damaged = xml.toUtf8();
+  BOOST_REQUIRE(Tests::writeFile(projectFile, damaged));
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains("1 image"));
+  BOOST_CHECK(Tests::readFile(projectFile) == damaged);
+  BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
+}
+
 BOOST_AUTO_TEST_CASE(test_images_without_dpi_are_named) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());

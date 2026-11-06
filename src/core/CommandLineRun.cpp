@@ -332,6 +332,15 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
         << Qt::endl;
     return PROJECT_UNUSABLE;
   }
+  // Saved here, the project would lose these images from the file without a word.
+  if (reader.numDamagedImages() > 0) {
+    err << tr(
+        "The project file is damaged: %n image(s) can't be read. Open the project in ScanTailor OCR, which "
+        "offers a backup copy, and save it there, then it can be processed here.",
+        nullptr, reader.numDamagedImages())
+        << Qt::endl;
+    return PROJECT_UNUSABLE;
+  }
   if (reader.pages()->numImages() == 0) {
     err << tr("The project has no images.") << Qt::endl;
     return PROJECT_UNUSABLE;

@@ -46,10 +46,11 @@ class ProjectOpeningContext : public QObject {
 
  private:
   /**
-   * For a project saved by ScanTailor Advanced: tells that saving it makes it unusable there and
+   * For a project saved by ScanTailor Advanced: tells that saving it makes it unusable there. For a
+   * project file with damaged images: tells that saving it removes them from the file. In both cases
    * offers to make a backup copy first. Returns false if the project is not to be opened.
    */
-  bool confirmOlderVersion();
+  bool confirmOpening();
 
   void showFixDpiDialog();
 

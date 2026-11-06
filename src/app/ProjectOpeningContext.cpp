@@ -9,6 +9,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QStringList>
 #include <cassert>
 
 #include "DefaultParamsProvider.h"
@@ -38,7 +39,7 @@ void ProjectOpeningContext::proceed() {
   }
   m_reader = std::move(result.reader);
 
-  if (!confirmOlderVersion()) {
+  if (!confirmOpening()) {
     deleteLater();
     return;
   }
@@ -69,24 +70,44 @@ QString profileDisplayName() {
 }
 }  // namespace
 
-bool ProjectOpeningContext::confirmOlderVersion() {
-  if (!m_reader->isFromOlderVersion() || m_projectFile.isEmpty()) {
+bool ProjectOpeningContext::confirmOpening() {
+  const bool olderVersion = m_reader->isFromOlderVersion();
+  const int numDamagedImages = m_reader->numDamagedImages();
+  if ((!olderVersion && (numDamagedImages == 0)) || m_projectFile.isEmpty()) {
     return true;
   }
 
+  // REVIEW-NOTE (2026-11): no regression test for the message on damaged images -> qt_tests doesn't build the
+  // dialogs of the app. Added after a hand test; the command line tool's refusal is tested.
+  // Both cases may apply to one file; one message then offers the one backup copy.
   const QString backupFile = project_files::backupFilePath(m_projectFile);
-  QMessageBox box(QMessageBox::Warning, tr("Project from an Older Version"),
-                  tr("This project was saved by ScanTailor Advanced or an older version (project file version %2). "
+  const QString backupName = QFileInfo(backupFile).fileName();
+  QStringList paragraphs;
+  if (olderVersion) {
+    paragraphs << tr("This project was saved by ScanTailor Advanced or an older version (project file version %2). "
                      "ScanTailor OCR can open it, but processes some settings differently, so the results can "
                      "differ. Settings that the project doesn't contain are taken from the profile \"%1\" of the "
                      "default parameters.")
-                          .arg(profileDisplayName(), QString::number(m_reader->getVersion().toInt()))
-                      + "\n\n"
-                      + tr("Once the project is saved, also automatically, ScanTailor Advanced can no longer open "
-                           "it. A backup copy keeps the original file usable there. It's saved next to the project "
-                           "as \"%1\".")
-                            .arg(QFileInfo(backupFile).fileName()),
-                  QMessageBox::NoButton, m_parent);
+                      .arg(profileDisplayName(), QString::number(m_reader->getVersion().toInt()));
+  }
+  if (numDamagedImages > 0) {
+    paragraphs << tr(
+        "The project file is damaged, for example because it was edited by hand. The project opens "
+        "without the %n image(s) that can't be read.",
+        nullptr, numDamagedImages);
+  }
+  if (olderVersion) {
+    paragraphs << tr("Once the project is saved, also automatically, ScanTailor Advanced can no longer open "
+                     "it. A backup copy keeps the original file usable there. It's saved next to the project "
+                     "as \"%1\".")
+                      .arg(backupName);
+  } else {
+    paragraphs << tr("Once the project is saved, also automatically, the original file is replaced. A backup copy "
+                     "keeps it. It's saved next to the project as \"%1\".")
+                      .arg(backupName);
+  }
+  QMessageBox box(QMessageBox::Warning, olderVersion ? tr("Project from an Older Version") : tr("Damaged Project File"),
+                  paragraphs.join("\n\n"), QMessageBox::NoButton, m_parent);
   QPushButton* backupButton = box.addButton(tr("Create backup and open"), QMessageBox::AcceptRole);
   QPushButton* openButton = box.addButton(tr("Open without backup"), QMessageBox::AcceptRole);
   box.addButton(QMessageBox::Cancel);

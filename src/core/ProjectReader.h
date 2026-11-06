@@ -69,6 +69,12 @@ class ProjectReader {
 
   bool success() const { return (m_pages != nullptr); }
 
+  /**
+   * The number of images in the file that can't be read, e.g. after it was edited by hand. pages() leaves them
+   * out, so saving the project removes them from the file.
+   */
+  int numDamagedImages() const { return m_numDamagedImages; }
+
   const QString& outputDirectory() const { return m_outDir; }
 
   const QString& getVersion() const { return m_version; }
@@ -137,6 +143,7 @@ class ProjectReader {
   PageMap m_pageMap;
   SelectedPage m_selectedPage;
   std::shared_ptr<ProjectPages> m_pages;
+  int m_numDamagedImages = 0;
   std::shared_ptr<FileNameDisambiguator> m_disambiguator;
 };
 

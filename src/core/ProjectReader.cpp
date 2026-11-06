@@ -292,6 +292,7 @@ void ProjectReader::processImages(const QDomElement& imagesEl, const Qt::LayoutD
   if (!images.empty() || numImageElements == 0) {
     m_pages = std::make_shared<ProjectPages>(images, layoutDirection);
   }
+  m_numDamagedImages = numImageElements - static_cast<int>(images.size());
 }  // ProjectReader::processImages
 
 ImageMetadata ProjectReader::processImageMetadata(const QDomElement& imageEl) {
