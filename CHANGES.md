@@ -20,6 +20,10 @@ topic, not by version.
   differently, that missing settings come from the active profile and that ScanTailor Advanced
   can no longer open the project once it's saved, also automatically. It offers to make a backup
   copy next to the project first (`Book_BACKUP.ScanTailor`).
+* A project file with damaged images (e.g. after editing it by hand) no longer loses them without
+  a word: opening it tells how many images can't be read and offers the same backup copy, as
+  saving removes them from the file. The command line tool refuses such a project instead of
+  saving it without these images.
 * Project files and profiles are written safely: the old file is replaced only when everything
   has been written, so a full disk or a crash no longer leaves a broken project.
 * **Settings for the whole project are stored in the project:** TIFF and PDF compression, the
