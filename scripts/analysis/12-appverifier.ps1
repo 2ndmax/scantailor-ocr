@@ -76,8 +76,6 @@ if (-not $appverif) {
     throw 'appverif.exe not found: it comes with Windows 11, otherwise with the Windows SDK ' +
           '(feature "Application Verifier For Windows").'
 }
-$cdb = Find-Cdb
-if (-not $cdb) { throw "cdb.exe not found: scripts\setup\02-setup-analysis.ps1 (step 5) adds it." }
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
     [Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
@@ -112,6 +110,10 @@ if ($Reset) {
     Write-Host "Deleted the Application Verifier settings of: $($allPrograms -join ', ')"
     exit 0
 }
+
+# Only the runs need the debugger: -Reset above must work without it.
+$cdb = Find-Cdb
+if (-not $cdb) { throw "cdb.exe not found: scripts\setup\02-setup-analysis.ps1 (step 5) adds it." }
 
 $VcpkgRoot = Get-VcpkgRoot $VcpkgRoot
 $symbolPath = if ($env:_NT_SYMBOL_PATH) { "$env:_NT_SYMBOL_PATH;$BuildDir" } `
@@ -229,7 +231,8 @@ function Invoke-Verified([string]$Log, [string]$Exe, [string]$ArgLine, [string]$
     # Boost.Test writes its summary to stderr.
     $ran = (-not $IsTest) -or (Test-TestSummary "$stdout`n$stderr")
     if (-not $ran) { Add-LogLine $Log "# NOT RUN: $Exe printed no test summary; it stopped before or during its tests." }
-    Add-LogLine $Log "# End: $(Get-Stamp)"
+    # Not "# End:": that line is written once, at the end of the run (run 90 checks it).
+    Add-LogLine $Log "# Program end: $(Get-Stamp)"
     $stops = ([regex]::Matches($stdout, '(?m)^# VERIFIER BREAK$')).Count
     $crashes = ([regex]::Matches($stdout, '(?m)^# DEBUGGER STOP$')).Count
     Write-Host ("exit code {0}, {1} verifier stops, {2} other stops, {3:hh\:mm\:ss}" -f $exitText, $stops, $crashes, $clock.Elapsed)
@@ -270,6 +273,7 @@ if ($LowResource) {
     Invoke-Verified $log 'core_tests.exe' '--run_test=CommandLineRunTestSuite' $lowres 120 -IsTest
 }
 
+foreach ($l in $logs) { Add-LogLine $l "# End: $(Get-Stamp)" }
 $results = @("Logs: $($logs[0])") + @($logs | Select-Object -Skip 1 | ForEach-Object { "      $_" }) + "XML:  $xmlDir"
 Write-RunEnd 0 $results
 exit 0

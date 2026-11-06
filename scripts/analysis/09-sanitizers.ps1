@@ -30,10 +30,10 @@
   the allocator, and ASan then reports freeing or growing that memory as an error inside Qt
   (core_tests, qt_tests) right at startup, with a stack trace only in Qt's DLL initialization.
   This one report is no finding in the project's code. qt_tests runs on after it; core_tests
-  often fails to load ("bad-free", exit code 0xC0000142, or ASan "CHECK failed" in its stack
-  depot), by chance about two starts in three. A test program that printed nothing and failed
-  with one of these signs is therefore started again, at most three times; the reports of the
-  discarded starts stay in the log. A crash or a timeout is never retried, as it may be a
+  often fails to load (exit code 0xC0000142, or ASan "CHECK failed" in its stack depot), by
+  chance about two starts in three. The report itself is no such sign, as every start prints it.
+  A test program that printed nothing and failed with one of these signs is therefore started
+  again, at most three times; the reports of the discarded starts stay in the log. A crash or a timeout is never retried, as it may be a
   finding. A test program whose output still holds no test summary is marked
   "# NOT RUN:" in the log, and 90-merge-findings.ps1 names it in findings.md.
 
@@ -155,8 +155,9 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
     # initialization, see above) has printed nothing yet. That depends on chance, so it is
     # started again, at most three times in all. Only these signs count: core_tests buffers its
     # output, so a crash during the tests leaves no output either, and it must stay a finding.
-    # 0xC0000142 (-1073741502) is STATUS_DLL_INIT_FAILED.
-    $knownLoadError = 'SUMMARY: AddressSanitizer: bad-free \S*qarraydata\.cpp|AddressSanitizer: CHECK failed'
+    # 0xC0000142 (-1073741502) is STATUS_DLL_INIT_FAILED. The bad-free in qarraydata.cpp is no
+    # such sign: with halt_on_error=0 it is also reported by runs that go on and pass.
+    $knownLoadError = 'AddressSanitizer: CHECK failed'
     $readOutput = {
         $text = Read-Shared $tmpOut
         if ($ResultDir -and (Test-Path $ResultDir)) {
@@ -196,7 +197,8 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
     Add-LogLine $Log "# Exit code: $($p.ExitCode)"
     $ran = (-not $IsTest) -or (Test-TestSummary "$stdout`n$stderr")
     if (-not $ran) { Add-LogLine $Log "# NOT RUN: $Exe printed no test summary; it stopped before or during its tests." }
-    Add-LogLine $Log "# End: $(Get-Stamp)"
+    # Not "# End:": that line is written once, at the end of the run (run 90 checks it).
+    Add-LogLine $Log "# Program end: $(Get-Stamp)"
     $reports = ([regex]::Matches($stderr, 'runtime error:|ERROR: AddressSanitizer')).Count
     Write-Host ("exit code {0}, {1} sanitizer reports, {2:hh\:mm\:ss}" -f $p.ExitCode, $reports, $clock.Elapsed)
     if (-not $ran) { Write-Host "  $Exe ran no tests (no test summary): see the log." -ForegroundColor Red }
@@ -214,11 +216,13 @@ $qtResults = "$BuildDir\qt-results"
 Invoke-Logged $log 'qt_tests.exe' "-o `"$qtResults\qt_tests.txt,txt`"" 60 -IsTest -ResultDir $qtResults
 
 # --- b) Dev tools on real scans ------------------------------------------------------------------
+Add-LogLine $log "# End: $(Get-Stamp)"
 if (-not $Images) { Write-RunEnd 0 @("Log: $log"); exit 0 }
 $testLog = $log
 $log = "$OutDir\09-ubsan-tools.log"
 $tools = New-DevToolInput $Images $BuildDir
 New-Log $log '09: UBSan + ASan, dev tools binarization_compare and color_detect on real scans' ($header + $tools.Header)
 foreach ($c in $tools.Calls) { Invoke-Logged $log $c.Exe $c.Args 120 }
+Add-LogLine $log "# End: $(Get-Stamp)"
 Write-RunEnd 0 @("Logs: $testLog", "      $log")
 exit 0
