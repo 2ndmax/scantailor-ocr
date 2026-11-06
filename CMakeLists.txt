@@ -231,9 +231,9 @@ endif()
 set(Boost_USE_MULTITHREADED ON)
 
 if (BUILD_TESTS)
-  find_package(Boost 1.60 COMPONENTS unit_test_framework REQUIRED)
+  find_package(Boost 1.70 COMPONENTS unit_test_framework REQUIRED)
 else()
-  find_package(Boost 1.60 REQUIRED)
+  find_package(Boost 1.70 REQUIRED)
 endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
