@@ -642,6 +642,16 @@ void ExportJob::run() {
     thread.join();
   }
 
+  // A cancel request can arrive after the last page left the queue: while that page is written, from its
+  // progress signal (the command line tool passes Ctrl+C on there), or during finish(). No file has been
+  // replaced yet, so it is still honored.
+  const auto takeLateCancelRequest = [&]() {
+    if (ok && m_cancelRequested) {
+      m_cancelled = true;
+    }
+  };
+  takeLateCancelRequest();
+
   // Everything is written completely before the first existing file is replaced.
   if (ok && !m_cancelled) {
     try {
@@ -655,6 +665,7 @@ void ExportJob::run() {
       ok = false;
     }
   }
+  takeLateCancelRequest();
   if (ok && !m_cancelled) {
     QStringList replaced;
     if (file) {

@@ -421,6 +421,28 @@ BOOST_AUTO_TEST_CASE(test_pdf_without_text_layer_starts_no_recognition) {
   BOOST_CHECK(readFile(paths.pdf).startsWith("%PDF"));
 }
 
+BOOST_AUTO_TEST_CASE(test_cancel_during_the_last_page_replaces_nothing) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const std::vector<ExportPage> pages{writeBitonalPage(dir.filePath("p1.tif")),
+                                      writeBitonalPage(dir.filePath("p2.tif"))};
+  ExportOptions options;
+  options.textLayer = false;
+  const ExportPaths paths = ExportPaths::fromBase(dir.filePath("book"));
+  BOOST_REQUIRE(writeFile(paths.pdf, "old pdf"));
+  ExportJob job(pages, paths, options);
+  // The command line tool passes Ctrl+C on like this, after the page is written.
+  QObject::connect(&job, &ExportJob::progress, [&job](const int pagesDone, const int pagesTotal) {
+    if (pagesDone == pagesTotal) {
+      job.cancel();
+    }
+  });
+  job.run();
+  BOOST_CHECK(!job.succeeded());
+  BOOST_CHECK(job.wasCancelled());
+  BOOST_CHECK(readFile(paths.pdf) == QByteArray("old pdf"));
+}
+
 BOOST_AUTO_TEST_CASE(test_without_pdf_a_page_is_loaded_but_not_encoded) {
   const QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
