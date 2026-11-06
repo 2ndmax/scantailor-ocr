@@ -111,6 +111,22 @@ BOOST_AUTO_TEST_CASE(test_empty_page_in_txt_keeps_its_form_feed) {
   BOOST_CHECK_EQUAL(replaced.size(), 1);
 }
 
+// File names on Linux and macOS may hold control characters, which XML 1.0 doesn't allow even escaped: the
+// hOCR and ALTO files became invalid. Such characters, U+FFFE, U+FFFF and lone surrogates become U+FFFD.
+BOOST_AUTO_TEST_CASE(test_xml_text_replaces_characters_xml_does_not_allow) {
+  QString text = QStringLiteral("a");
+  text += QChar(0x01);
+  text += QStringLiteral("b&");
+  text += QChar(0xFFFE);
+  text += QStringLiteral("c");
+  text += QChar(0xD800);
+  text += QStringLiteral("d\t");
+  text += QString::fromUtf8("\xC3\xA4\xF0\x9F\x98\x80");  // a-umlaut, an emoji (a surrogate pair)
+  const QByteArray replacement("\xEF\xBF\xBD");
+  BOOST_CHECK(OcrTextOutputs::xmlText(text)
+              == "a" + replacement + "b&amp;" + replacement + "c" + replacement + "d\t\xC3\xA4\xF0\x9F\x98\x80");
+}
+
 BOOST_AUTO_TEST_CASE(test_hocr_has_head_pages_and_end_and_escapes_the_title) {
   const QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());

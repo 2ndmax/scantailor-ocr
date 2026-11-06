@@ -291,7 +291,26 @@ void OcrTextOutputs::cancel() {
 }
 
 QByteArray OcrTextOutputs::xmlText(const QString& text) {
-  return text.toHtmlEscaped().toUtf8();
+  // XML 1.0 allows no control characters but tab, line feed and carriage return, not even escaped, nor U+FFFE,
+  // U+FFFF and lone surrogates. File names on Linux and macOS may hold them.
+  QString allowed;
+  allowed.reserve(text.size());
+  for (qsizetype i = 0; i < text.size(); ++i) {
+    const QChar c = text[i];
+    if (c.isHighSurrogate() && (i + 1 < text.size()) && text[i + 1].isLowSurrogate()) {
+      allowed += c;
+      allowed += text[++i];
+      continue;
+    }
+    const char16_t u = c.unicode();
+    const bool control = (u < 0x20) && (u != 0x09) && (u != 0x0A) && (u != 0x0D);  // but tab, LF, CR
+    if (control || c.isSurrogate() || (u == 0xFFFE) || (u == 0xFFFF)) {
+      allowed += QChar::ReplacementCharacter;
+    } else {
+      allowed += c;
+    }
+  }
+  return allowed.toHtmlEscaped().toUtf8();
 }
 
 QString OcrTextOutputs::altoFileName(const int position, const int pageCount, const QString& imageFile) {
