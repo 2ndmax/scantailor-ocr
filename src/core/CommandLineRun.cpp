@@ -118,7 +118,9 @@ bool checkExportOptions(const CommandLineRun::Options& options,
     err << reason << Qt::endl;
     return false;
   }
-  if (!QFileInfo(folder).isDir()) {
+  // Without --export-folder it is the folder of the project file. If that is missing, reading the project
+  // fails, which is told with the right exit code.
+  if (options.exportDir && !QFileInfo(folder).isDir()) {
     err << CommandLineRun::tr("The folder %1 doesn't exist.").arg(nativePath(folder)) << Qt::endl;
     return false;
   }
@@ -140,8 +142,9 @@ QString describeOutputs(const ExportPaths& paths, const ProcessingOptions::Forma
 
 /**
  * Whether the export would replace the project file or one of its images, e.g. after a typing error.
- * A file that doesn't exist yet can't be one of them; QFileInfo compares existing files by their
- * canonical path, so different spellings of the same file are found.
+ * QFileInfo compares existing files by their canonical path, so different spellings of the same file are
+ * found. Only files that exist are compared: QFileInfo takes two missing files as equal, and a missing
+ * image would make any export look like it replaced that image.
  * If so, it tells \p err which file it is.
  */
 bool exportReplacesProjectFile(const ExportPaths& paths,
@@ -152,8 +155,10 @@ bool exportReplacesProjectFile(const ExportPaths& paths,
   const std::vector<ImageFileInfo> images = pages.toImageFileInfo();
   const auto replaces = [&](const QString& path, const bool asFolderOfTheFile) {
     const QFileInfo target(path);
-    const auto hits
-        = [&](const QFileInfo& file) { return target == (asFolderOfTheFile ? QFileInfo(file.absolutePath()) : file); };
+    const auto hits = [&](const QFileInfo& file) {
+      const QFileInfo other = asFolderOfTheFile ? QFileInfo(file.absolutePath()) : file;
+      return target.exists() && other.exists() && (target == other);
+    };
     if (hits(QFileInfo(projectFile))) {
       err << CommandLineRun::tr("The export would replace the project file: %1").arg(nativePath(path)) << Qt::endl;
       return true;

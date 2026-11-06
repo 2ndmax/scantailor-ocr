@@ -270,6 +270,25 @@ BOOST_AUTO_TEST_CASE(test_every_export_option_turns_on_the_export_next_to_the_pr
   BOOST_CHECK(QFile::exists(dir.filePath("band1.pdf")));
 }
 
+// With --export too, a moved project is left to the app, and not refused for a wrong command line.
+BOOST_AUTO_TEST_CASE(test_moved_project_with_export_is_left_to_the_app) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  BOOST_REQUIRE(QFile::remove(dir.filePath("page.png")));
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, QStringLiteral("pdf")),
+                    CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK_MESSAGE(!err.contains(QStringLiteral("replace")), err.toStdString());
+
+  err.clear();
+  BOOST_CHECK_EQUAL(run(dir.filePath("missing/project.ScanTailor"), &out, &err, std::nullopt, QStringLiteral("pdf")),
+                    CommandLineRun::PROJECT_UNUSABLE);
+}
+
 BOOST_AUTO_TEST_CASE(test_exported_files_are_named_like_the_project_unless_a_name_is_given) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
