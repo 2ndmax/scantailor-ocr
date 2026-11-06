@@ -5,6 +5,8 @@
 
 #include <QDomDocument>
 
+#include "XmlUnmarshaller.h"
+
 namespace output {
 namespace {
 constexpr int DEFAULT_POSTERIZATION_LEVEL = 4;
@@ -45,18 +47,18 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
       m_normalizeIllumination(el.attribute("normalizeIlluminationColor") == "1"),
       // Absent in projects from other versions, which then keep color output.
       m_grayscaleOutput(el.attribute("grayscaleOutput") == "1"),
-      m_wienerCoef(el.attribute("wienerCoef").toDouble()),
+      m_wienerCoef(XmlUnmarshaller::number(el, "wienerCoef")),
       m_wienerWindowSize(el.attribute("wienerWinSize").toInt()),
       // Absent in projects from other versions, where the filter is then off.
-      m_subtractBackgroundCoef(el.attribute("subtractBgCoef").toDouble()),
+      m_subtractBackgroundCoef(XmlUnmarshaller::number(el, "subtractBgCoef")),
       m_subtractBackgroundRadius(el.attribute("subtractBgRadius").toInt()),
       m_subtractBackgroundWhite(el.attribute("subtractBgWhite") == "1"),
       m_chromaDenoise(el.attribute("chromaDenoise") == "1"),
       m_chromaRadius(el.attribute("chromaRadius").toInt()),
       m_chromaGrayLimit(el.attribute("chromaGrayLimit", "15").toInt()),
-      m_knnCoef(el.attribute("knnCoef").toDouble()),
+      m_knnCoef(XmlUnmarshaller::number(el, "knnCoef")),
       m_knnRadius(el.attribute("knnRadius").toInt()),
-      m_sharpenCoef(el.attribute("sharpenCoef").toDouble()),
+      m_sharpenCoef(XmlUnmarshaller::number(el, "sharpenCoef")),
       m_sharpenRadius(el.attribute("sharpenRadius").toInt()),
       m_fillingColor(parseFillingColor(el.attribute("fillingColor"))),
       m_posterizationOptions(el.namedItem("posterization-options").toElement()) {

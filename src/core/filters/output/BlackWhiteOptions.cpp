@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include "XmlUnmarshaller.h"
+
 using namespace foundation;
 
 namespace output {
@@ -41,11 +43,11 @@ BlackWhiteOptions::BlackWhiteOptions(const QDomElement& el)
       m_morphologicalSmoothingEnabled(el.attribute("morphologicalSmoothing") == "1"),
       m_normalizeIllumination(el.attribute("normalizeIlluminationBW") == "1"),
       m_windowSize(windowSizeFromXml(el.attribute("windowSize"))),
-      m_sauvolaCoef(el.attribute("sauvolaCoef", "0.34").toDouble()),
+      m_sauvolaCoef(XmlUnmarshaller::number(el, "sauvolaCoef", 0.34)),
       m_wolfLowerBound(el.attribute("wolfLowerBound", "1").toInt()),
       m_wolfUpperBound(el.attribute("wolfUpperBound", "254").toInt()),
-      m_wolfCoef(el.attribute("wolfCoef", "0.3").toDouble()),
-      m_coloredDimming(std::clamp(el.attribute("coloredDimming").toDouble(), MIN_COLORED_DIMMING, MAX_COLORED_DIMMING)),
+      m_wolfCoef(XmlUnmarshaller::number(el, "wolfCoef", 0.3)),
+      m_coloredDimming(XmlUnmarshaller::numberInRange(el, "coloredDimming", MIN_COLORED_DIMMING, MAX_COLORED_DIMMING)),
       m_binarizationMethod(parseBinarizationMethod(el.attribute("binarizationMethod"))),
       m_colorSegmenterOptions(el.namedItem("color-segmenter-options").toElement()) {}
 

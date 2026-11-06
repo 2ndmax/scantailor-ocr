@@ -7,6 +7,8 @@
 
 #include <cassert>
 
+#include "XmlUnmarshaller.h"
+
 using namespace foundation;
 
 namespace output {
@@ -16,7 +18,7 @@ DewarpingOptions::DewarpingOptions(DewarpingMode mode, bool needPostDeskew)
 DewarpingOptions::DewarpingOptions(const QDomElement& el)
     : m_mode(parseDewarpingMode(el.attribute("mode"))),
       m_needPostDeskew(el.attribute("postDeskew", "1") == "1"),
-      m_postDeskewAngle(el.attribute("postDeskewAngle").toDouble()),
+      m_postDeskewAngle(XmlUnmarshaller::number(el, "postDeskewAngle")),
       // Absent in projects from other versions, where it is then off.
       m_evenOutLetterWidths(el.attribute("evenOutLetterWidths") == "1") {}
 

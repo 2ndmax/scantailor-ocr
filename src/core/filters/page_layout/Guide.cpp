@@ -5,6 +5,8 @@
 
 #include <foundation/Utils.h>
 
+#include "XmlUnmarshaller.h"
+
 using namespace foundation;
 
 namespace page_layout {
@@ -29,7 +31,7 @@ Guide::operator QLineF() const {
 
 Guide::Guide(const QDomElement& el)
     : m_orientation(orientationFromString(el.attribute("orientation"))),
-      m_position(el.attribute("position").toDouble()) {}
+      m_position(XmlUnmarshaller::number(el, "position")) {}
 
 QDomElement Guide::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el = doc.createElement(name);

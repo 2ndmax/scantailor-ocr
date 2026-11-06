@@ -56,7 +56,7 @@ OutputImageParams::OutputImageParams(const QDomElement& el)
       m_distortionModel(el.namedItem("distortion-model").toElement()),
       m_depthPerception(el.attribute("depthPerception")),
       m_dewarpingOptions(el.namedItem("dewarping-options").toElement()),
-      m_despeckleLevel(el.attribute("despeckleLevel").toDouble()),
+      m_despeckleLevel(XmlUnmarshaller::number(el, "despeckleLevel")),
       m_outputProcessingParams(el.namedItem("processing-params").toElement()),
       m_blackOnWhite(el.attribute("blackOnWhite", "1") != "0") {}
 

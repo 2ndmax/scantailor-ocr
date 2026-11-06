@@ -13,6 +13,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "XmlUnmarshaller.h"
+
 using namespace imageproc;
 
 namespace output {
@@ -39,7 +41,7 @@ bool isWhiteInMask(const uint32_t* maskLine, const int x) {
 PhotoAdjustments::PhotoAdjustments(const QDomElement& el)
     : m_temperature(clampValue(el.attribute("temperature").toInt())),
       m_tint(clampValue(el.attribute("tint").toInt())),
-      m_exposure(std::clamp(el.attribute("exposure").toDouble(), MIN_EXPOSURE, MAX_EXPOSURE)),
+      m_exposure(XmlUnmarshaller::numberInRange(el, "exposure", MIN_EXPOSURE, MAX_EXPOSURE)),
       m_contrast(clampValue(el.attribute("contrast").toInt())),
       m_highlights(clampValue(el.attribute("highlights").toInt())),
       m_shadows(clampValue(el.attribute("shadows").toInt())),

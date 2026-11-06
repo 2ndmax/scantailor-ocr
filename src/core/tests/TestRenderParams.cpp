@@ -1,16 +1,23 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <ProjectReader.h>
 #include <filters/output/BlackWhiteOptions.h>
 #include <filters/output/ColorCommonOptions.h>
 #include <filters/output/ColorParams.h>
+#include <filters/output/DewarpingOptions.h>
+#include <filters/output/OutputImageParams.h>
 #include <filters/output/Params.h>
+#include <filters/output/PhotoAdjustments.h>
 #include <filters/output/PictureShapeOptions.h>
 #include <filters/output/RenderParams.h>
 #include <filters/output/SplittingOptions.h>
+#include <filters/page_layout/Guide.h>
+#include <filters/select_content/Settings.h>
 
 #include <QDomDocument>
 #include <boost/test/unit_test.hpp>
+#include <cmath>
 #include <utility>
 #include <vector>
 
@@ -124,6 +131,38 @@ BOOST_AUTO_TEST_CASE(despeckle_level_as_word) {
     QDomElement el = doc.createElement("params");
     el.setAttribute("despeckleLevel", value);
     BOOST_CHECK_MESSAGE(Params(el).despeckleLevel() == expected, value.toStdString());
+  }
+}
+
+// A damaged or hand-edited project file may hold "nan" or "inf". The range checks of the options let
+// NaN through, as does std::clamp(), and NaN strengths ended in undefined casts to bytes.
+BOOST_AUTO_TEST_CASE(non_finite_numbers_in_a_project_file_give_finite_values) {
+  for (const char* value : {"nan", "inf", "-inf"}) {
+    QDomDocument doc;
+    QDomElement el = doc.createElement("options");
+    for (const char* name :
+         {"wienerCoef", "subtractBgCoef", "knnCoef", "sharpenCoef", "sauvolaCoef", "wolfCoef", "coloredDimming",
+          "exposure", "postDeskewAngle", "despeckleLevel", "position", "pageDetectionTolerance"}) {
+      el.setAttribute(name, value);
+    }
+
+    const ColorCommonOptions colorCommon(el);
+    BOOST_CHECK_MESSAGE(std::isfinite(colorCommon.wienerCoef()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(colorCommon.subtractBackgroundCoef()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(colorCommon.knnCoef()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(colorCommon.sharpenCoef()), value);
+    const BlackWhiteOptions blackWhite(el);
+    BOOST_CHECK_MESSAGE(std::isfinite(blackWhite.getSauvolaCoef()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(blackWhite.getWolfCoef()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(blackWhite.getColoredDimming()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(PhotoAdjustments(el).exposure()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(DewarpingOptions(el).getPostDeskewAngle()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(OutputImageParams(el).despeckleLevel()), value);
+    BOOST_CHECK_MESSAGE(std::isfinite(page_layout::Guide(el).getPosition()), value);
+
+    select_content::Settings selectContent;
+    selectContent.load(ProjectReader(QDomDocument()), el);
+    BOOST_CHECK_MESSAGE(std::isfinite(selectContent.pageDetectionTolerance()), value);
   }
 }
 

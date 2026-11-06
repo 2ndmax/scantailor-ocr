@@ -105,7 +105,7 @@ void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
   clear();
 
   setPageDetectionBox(XmlUnmarshaller::sizeF(filterEl.namedItem("page-detection-box").toElement()));
-  setPageDetectionTolerance(filterEl.attribute("pageDetectionTolerance", "0.1").toDouble());
+  setPageDetectionTolerance(XmlUnmarshaller::number(filterEl, "pageDetectionTolerance", 0.1));
 
   const QString pageTagName("page");
   QDomNode node(filterEl.firstChild());
