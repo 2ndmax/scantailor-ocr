@@ -189,7 +189,10 @@ bool OcrTextOutputs::begin(QString* error) {
   if (!m_settings.altoDir.isEmpty()) {
     const QFileInfo existing(m_settings.altoDir);
     if (existing.exists() && !existing.isDir()) {
-      *error = couldNotCreate(m_settings.altoDir, QString());
+      *error = QCoreApplication::translate("OcrTextOutputs",
+                                           "There is a file named like the folder %1, so the folder could not be "
+                                           "created. Move the file or choose another name.")
+                   .arg(nativePath(m_settings.altoDir));
       return false;
     }
     if (existing.isDir() && !holdsOnlyAltoFiles(m_settings.altoDir)) {
@@ -210,6 +213,9 @@ bool OcrTextOutputs::begin(QString* error) {
   return true;
 }
 
+// REVIEW-NOTE (2026-11): an image name with a control character or U+FFFE/U+FFFF (possible on Linux and macOS)
+// -> the hOCR and ALTO files are no valid XML. Not fixed because Windows forbids such names and the import
+// doesn't create them.
 bool OcrTextOutputs::addPage(const QString& imageFile, const OcrPageTexts& texts, QString* error) {
   const int position = ++m_pagesAdded;
 

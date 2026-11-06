@@ -258,6 +258,9 @@ BOOST_AUTO_TEST_CASE(test_file_in_place_of_the_alto_folder_is_not_touched) {
   QString error;
   BOOST_CHECK(!writeOutputs(settings, {"new"}, &error));
   BOOST_CHECK(readFile(settings.altoDir) == QByteArray("mine"));
+  // The message tells why, and doesn't end in a space.
+  BOOST_CHECK(error.contains(QStringLiteral("file named like the folder")));
+  BOOST_CHECK(!error.endsWith(' '));
 }
 
 BOOST_AUTO_TEST_CASE(test_cancel_leaves_everything_as_it_was) {

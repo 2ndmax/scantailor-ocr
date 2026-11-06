@@ -357,173 +357,173 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <translation>Die Liste nach --export-formats darf nur pdf, txt, hocr und alto enthalten: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="210"/>
+        <location filename="../core/CommandLineRun.cpp" line="214"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation>Die Dateien der gewählten Sprachen liegen in verschiedenen Ordnern und konnten nicht in einen gemeinsamen Ordner kopiert werden, den die Texterkennung braucht.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="237"/>
+        <location filename="../core/CommandLineRun.cpp" line="241"/>
         <source>%1: The output file is missing or outdated.</source>
         <translation>%1: Die Ausgabedatei fehlt oder ist veraltet.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="123"/>
+        <location filename="../core/CommandLineRun.cpp" line="124"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="159"/>
+        <location filename="../core/CommandLineRun.cpp" line="163"/>
         <source>The export would replace the project file: %1</source>
         <translation>Der Export würde die Projektdatei ersetzen: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="164"/>
+        <location filename="../core/CommandLineRun.cpp" line="168"/>
         <source>The export would replace an image of the project: %1</source>
         <translation>Der Export würde ein Bild des Projekts ersetzen: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="192"/>
+        <location filename="../core/CommandLineRun.cpp" line="196"/>
         <source>The languages %1 of the project aren&apos;t installed on this computer. Download them in ScanTailor OCR, in the Export step with &quot;More languages&quot;, or turn them off there.</source>
         <translation>Die Sprachen %1 des Projekts sind auf diesem Computer nicht installiert. Laden Sie sie in ScanTailor OCR im Schritt „Exportieren“ über „Weitere Sprachen“ herunter, oder schalten Sie sie dort ab.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="204"/>
+        <location filename="../core/CommandLineRun.cpp" line="208"/>
         <source>The export needs text recognition, but the project has no language ticked. Tick one in ScanTailor OCR, in the Export step.</source>
         <translation>Der Export braucht die Texterkennung, im Projekt ist aber keine Sprache angehakt. Haken Sie in ScanTailor OCR im Schritt „Exportieren“ eine an.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="228"/>
-        <location filename="../core/CommandLineRun.cpp" line="271"/>
+        <location filename="../core/CommandLineRun.cpp" line="232"/>
+        <location filename="../core/CommandLineRun.cpp" line="276"/>
         <source>Canceled. Nothing was exported.</source>
         <translation>Abgebrochen. Es wurde nichts exportiert.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="259"/>
+        <location filename="../core/CommandLineRun.cpp" line="264"/>
         <source>Export: %1 of %2</source>
         <translation>Export: %1 von %2</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="267"/>
+        <location filename="../core/CommandLineRun.cpp" line="272"/>
         <source>Created: %1</source>
         <translation>Erstellt: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="274"/>
+        <location filename="../core/CommandLineRun.cpp" line="279"/>
         <source>The export failed.</source>
         <translation>Der Export ist fehlgeschlagen.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="324"/>
+        <location filename="../core/CommandLineRun.cpp" line="329"/>
         <source>The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once in ScanTailor OCR and save it there, then it can be processed here.</source>
         <translation>Das Projekt wurde mit ScanTailor Advanced oder einer älteren Version von ScanTailor OCR gespeichert. Öffnen Sie es einmal in ScanTailor OCR und speichern Sie es dort, dann kann es hier verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="331"/>
+        <location filename="../core/CommandLineRun.cpp" line="336"/>
         <source>The project has no images.</source>
         <translation>Das Projekt enthält keine Bilder.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="336"/>
+        <location filename="../core/CommandLineRun.cpp" line="341"/>
         <source>The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, then the project can be processed here:</source>
         <translation>Bei diesen Bildern fehlt die Auflösung (DPI) oder sie ist unplausibel. Legen Sie sie einmal in ScanTailor OCR fest, dann kann das Projekt hier verarbeitet werden:</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="352"/>
+        <location filename="../core/CommandLineRun.cpp" line="358"/>
         <source>The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them with --export-formats.</source>
         <translation>Im Projekt ist kein Format angehakt. Haken Sie in ScanTailor OCR im Schritt „Exportieren“ eines an, oder nennen Sie die Formate mit --export-formats.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="364"/>
+        <location filename="../core/CommandLineRun.cpp" line="373"/>
         <source>The export will create: %1</source>
         <translation>Der Export erstellt: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="373"/>
+        <location filename="../core/CommandLineRun.cpp" line="382"/>
         <source>The output folder or some images of the project are missing, for example because the project was moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.</source>
         <translation>Der Ausgabeordner oder einige Bilder des Projekts fehlen, zum Beispiel weil das Projekt verschoben wurde. Öffnen Sie es in ScanTailor OCR, verknüpfen Sie es dort neu und speichern Sie es, dann kann es hier verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="381"/>
+        <location filename="../core/CommandLineRun.cpp" line="390"/>
         <source>%1: %2 of %3</source>
         <translation>%1: %2 von %3</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="392"/>
+        <location filename="../core/CommandLineRun.cpp" line="401"/>
         <source>The project file could not be saved: %1</source>
         <translation>Die Projektdatei konnte nicht gespeichert werden: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="397"/>
+        <location filename="../core/CommandLineRun.cpp" line="406"/>
         <source>Canceled. The pages output so far keep their output files.</source>
         <translation>Abgebrochen. Die bisher ausgegebenen Seiten behalten ihre Ausgabedateien.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="404"/>
+        <location filename="../core/CommandLineRun.cpp" line="413"/>
         <source>Pages that failed: %1</source>
         <translation>Fehlgeschlagene Seiten: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="407"/>
+        <location filename="../core/CommandLineRun.cpp" line="416"/>
         <source>Nothing was exported, as not all pages were output.</source>
         <translation>Es wurde nichts exportiert, weil nicht alle Seiten ausgegeben wurden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="402"/>
+        <location filename="../core/CommandLineRun.cpp" line="411"/>
         <source>No page was output.</source>
         <translation>Es wurde keine Seite ausgegeben.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="411"/>
+        <location filename="../core/CommandLineRun.cpp" line="420"/>
         <source>Done. The output is in %1</source>
         <translation>Fertig. Die Ausgabe liegt in %1</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="82"/>
+        <location filename="../cli/main.cpp" line="85"/>
         <source>Processes all pages of a ScanTailor OCR project through all six steps and saves the project. Set up the project in ScanTailor OCR first.</source>
         <translation>Verarbeitet alle Seiten eines Projekts von ScanTailor OCR in allen sechs Schritten und speichert das Projekt. Richten Sie das Projekt zuvor in ScanTailor OCR ein.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="88"/>
+        <location filename="../cli/main.cpp" line="91"/>
         <source>Then exports all pages with the settings of the project, next to the project file and named like it, e.g. Book.pdf, Book.txt, Book.hocr and the folder Book_alto. Each --export-... option turns on the export as well and changes what it names.</source>
         <translation>Exportiert danach alle Seiten mit den Einstellungen des Projekts, neben die Projektdatei und benannt wie sie, z. B. Buch.pdf, Buch.txt, Buch.hocr und der Ordner Buch_alto. Auch jede Option --export-... schaltet den Export ein und ändert, was sie nennt.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="94"/>
+        <location filename="../cli/main.cpp" line="97"/>
         <source>The existing folder for the exported files instead of the folder of the project file.</source>
         <translation>Der vorhandene Ordner für die exportierten Dateien, statt des Ordners der Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="95"/>
+        <location filename="../cli/main.cpp" line="98"/>
         <source>folder</source>
         <translation>Ordner</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="99"/>
+        <location filename="../cli/main.cpp" line="102"/>
         <source>The name of the exported files, without extension, instead of the name of the project file.</source>
         <translation>Der Name der exportierten Dateien ohne Endung, statt des Namens der Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="100"/>
+        <location filename="../cli/main.cpp" line="103"/>
         <source>name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="104"/>
+        <location filename="../cli/main.cpp" line="107"/>
         <source>The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, separated by commas or plus signs.</source>
         <translation>Die Formate, die statt der im Projekt angehakten exportiert werden: pdf, txt, hocr und alto, getrennt durch Kommas oder Pluszeichen.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="106"/>
+        <location filename="../cli/main.cpp" line="109"/>
         <source>list</source>
         <translation>Liste</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="108"/>
+        <location filename="../cli/main.cpp" line="111"/>
         <source>project</source>
         <translation>projekt</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="108"/>
+        <location filename="../cli/main.cpp" line="111"/>
         <source>The project file.</source>
         <translation>Die Projektdatei.</translation>
     </message>
@@ -1663,7 +1663,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4503"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1266"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1267"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -1844,7 +1844,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.cpp" line="152"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1461"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1462"/>
         <location filename="../app/ProjectOpeningContext.cpp" line="66"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
@@ -1876,82 +1876,82 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>TIFF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1001"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1002"/>
         <source>Formats</source>
         <translation>Formate</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1006"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1007"/>
         <source>PDF Compression</source>
         <translation>PDF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1003"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1004"/>
         <source>Text Recognition (OCR)</source>
         <translation>Texterkennung (OCR)</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1266"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1267"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1376"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1382"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1416"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1427"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1467"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1482"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1520"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1377"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1383"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1417"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1428"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1468"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1483"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1521"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1382"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1383"/>
         <source>Error loading the profile.</source>
         <translation>Fehler beim Laden des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1417"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1418"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Dieser Name wird bereits für ein Standardprofil verwendet. Bitte geben Sie einen anderen Namen ein.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1428"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1429"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation>Bitte geben Sie einen Namen ein, der keines der Zeichen \ / : * ? &quot; &lt; &gt; | enthält und nicht mit einem Punkt beginnt.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1441"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1511"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1442"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1512"/>
         <source>Save Profile</source>
         <translation>Profil speichern</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1442"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1443"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation>Ein Profil mit dem Namen „%1“ existiert bereits. Ersetzen?</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1512"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1513"/>
         <source>The changes to the profile &quot;%1&quot; haven&apos;t been saved. Without saving, they only apply until the program is closed. Save them in the profile?</source>
         <translation>Die Änderungen am Profil „%1“ sind nicht gespeichert. Ohne Speichern gelten sie nur bis zum Beenden des Programms. Möchten Sie sie im Profil speichern?</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1410"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1467"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1520"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1468"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1521"/>
         <source>Error saving the profile.</source>
         <translation>Fehler beim Speichern des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1011"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1012"/>
         <source>Export</source>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1482"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1483"/>
         <source>Error deleting the profile.</source>
         <translation>Fehler beim Löschen des Profils.</translation>
     </message>
@@ -1976,7 +1976,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1376"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1377"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Die Profildatei ist nicht mit der aktuellen Anwendungsversion kompatibel. Entfernen?</translation>
     </message>
@@ -2051,7 +2051,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../core/ExportJob.cpp" line="213"/>
-        <location filename="../core/ExportJob.cpp" line="467"/>
+        <location filename="../core/ExportJob.cpp" line="471"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation>Die Texterkennung ist nicht initialisiert.</translation>
     </message>
@@ -2061,38 +2061,38 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Die Texterkennung ist für %1 fehlgeschlagen.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="342"/>
+        <location filename="../core/ExportJob.cpp" line="346"/>
         <source>The output file %1 doesn&apos;t exist.</source>
         <translation>Die Ausgabedatei %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="391"/>
-        <location filename="../core/ExportJob.cpp" line="402"/>
+        <location filename="../core/ExportJob.cpp" line="395"/>
+        <location filename="../core/ExportJob.cpp" line="406"/>
         <source>The split output files of %1 differ in size. Process the page again.</source>
         <translation>Die Dateien der geteilten Ausgabe von %1 haben unterschiedliche Größen. Verarbeiten Sie die Seite erneut.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="457"/>
+        <location filename="../core/ExportJob.cpp" line="461"/>
         <source>No pages are selected.</source>
         <translation>Es sind keine Seiten ausgewählt.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="463"/>
+        <location filename="../core/ExportJob.cpp" line="467"/>
         <source>No format is selected.</source>
         <translation>Es ist kein Format ausgewählt.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="477"/>
+        <location filename="../core/ExportJob.cpp" line="481"/>
         <source>Could not create %1.</source>
         <translation>%1 konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="560"/>
+        <location filename="../core/ExportJob.cpp" line="564"/>
         <source>Text recognition could not be started.</source>
         <translation>Die Texterkennung konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="674"/>
+        <location filename="../core/ExportJob.cpp" line="689"/>
         <source>These were already replaced: %1</source>
         <translation>Diese wurden bereits ersetzt: %1</translation>
     </message>
@@ -2107,8 +2107,8 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Unbekannter Fehler.</translation>
     </message>
     <message>
-        <location filename="../core/ExportJob.cpp" line="662"/>
-        <location filename="../core/ExportJob.cpp" line="683"/>
+        <location filename="../core/ExportJob.cpp" line="677"/>
+        <location filename="../core/ExportJob.cpp" line="698"/>
         <source>Could not write %1.</source>
         <translation>%1 konnte nicht geschrieben werden.</translation>
     </message>
@@ -2134,129 +2134,129 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
 <context>
     <name>ExportView</name>
     <message>
-        <location filename="../app/ExportView.cpp" line="321"/>
+        <location filename="../app/ExportView.cpp" line="327"/>
         <source>Pages</source>
         <translation>Seiten</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="343"/>
+        <location filename="../app/ExportView.cpp" line="349"/>
         <source>All</source>
         <translation>Alle</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="344"/>
+        <location filename="../app/ExportView.cpp" line="350"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="489"/>
+        <location filename="../app/ExportView.cpp" line="495"/>
         <source>PDF Compression</source>
         <translation>PDF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="479"/>
+        <location filename="../app/ExportView.cpp" line="485"/>
         <source>Text Recognition (OCR)</source>
         <translation>Texterkennung (OCR)</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="382"/>
+        <location filename="../app/ExportView.cpp" line="388"/>
         <source>Browse ...</source>
         <translation>Durchsuchen ...</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="532"/>
+        <location filename="../app/ExportView.cpp" line="538"/>
         <source>Source Files (TIFF)</source>
         <translation>Quelldateien (TIFF)</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="533"/>
+        <location filename="../app/ExportView.cpp" line="539"/>
         <source>The compression of the TIFF files in the output folder that the selected pages are made from, as set in the TIFF Compression panel of the Output step when the pages were processed. The numbers count the pages; pages with split output count with their picture and with their text.</source>
         <translation>Die Komprimierung der TIFF-Dateien im Ausgabeordner, aus denen die ausgewählten Seiten entstehen, wie sie beim Verarbeiten der Seiten in der Gruppe „TIFF-Komprimierung“ im Schritt „Ausgabe“ eingestellt war. Die Zahlen zählen die Seiten; Seiten mit geteilter Ausgabe zählen mit ihrem Bild und mit ihrem Text.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="538"/>
+        <location filename="../app/ExportView.cpp" line="544"/>
         <source>How the selected pages are compressed in the PDF, as set in the PDF Compression panel. The numbers count the pages; pages with split output count with their picture and with their text.</source>
         <translation>Wie die ausgewählten Seiten im PDF komprimiert werden, wie in der Gruppe „PDF-Komprimierung“ eingestellt. Die Zahlen zählen die Seiten; Seiten mit geteilter Ausgabe zählen mit ihrem Bild und mit ihrem Text.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="345"/>
+        <location filename="../app/ExportView.cpp" line="351"/>
         <source>Move forward</source>
         <translation>Nach vorn</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="346"/>
+        <location filename="../app/ExportView.cpp" line="352"/>
         <source>Move back</source>
         <translation>Nach hinten</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="356"/>
+        <location filename="../app/ExportView.cpp" line="362"/>
         <source>Output missing and changed pages</source>
         <translation>Fehlende und geänderte Seiten ausgeben</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="358"/>
+        <location filename="../app/ExportView.cpp" line="364"/>
         <source>Process the pages not output yet or changed since the output in the Output step, then come back here.</source>
         <translation>Noch nicht ausgegebene und seit der Ausgabe geänderte Seiten im Schritt „Ausgabe“ verarbeiten und danach hierher zurückkehren.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="379"/>
+        <location filename="../app/ExportView.cpp" line="385"/>
         <source>Folder:</source>
         <translation>Ordner:</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="386"/>
+        <location filename="../app/ExportView.cpp" line="392"/>
         <source>The name of the exported files, without extension. Each format adds its own.</source>
         <translation>Der Name der exportierten Dateien ohne Endung. Jedes Format fügt seine eigene an.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="384"/>
+        <location filename="../app/ExportView.cpp" line="390"/>
         <source>File name:</source>
         <translation>Dateiname:</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="400"/>
-        <location filename="../app/ExportView.cpp" line="782"/>
-        <location filename="../app/ExportView.cpp" line="963"/>
+        <location filename="../app/ExportView.cpp" line="406"/>
+        <location filename="../app/ExportView.cpp" line="788"/>
+        <location filename="../app/ExportView.cpp" line="969"/>
         <source>Export</source>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="470"/>
+        <location filename="../app/ExportView.cpp" line="476"/>
         <source>Formats</source>
         <translation>Formate</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="505"/>
+        <location filename="../app/ExportView.cpp" line="511"/>
         <source>Quality</source>
         <translation>Qualität</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="511"/>
+        <location filename="../app/ExportView.cpp" line="517"/>
         <source>Color / grayscale:</source>
         <translation>Farbe / Graustufen:</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="511"/>
+        <location filename="../app/ExportView.cpp" line="517"/>
         <source>Posterized:</source>
         <translation>Tontrennung:</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="511"/>
+        <location filename="../app/ExportView.cpp" line="517"/>
         <source>Black and white:</source>
         <translation>Schwarz-Weiß:</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="518"/>
+        <location filename="../app/ExportView.cpp" line="524"/>
         <source>No pages selected.</source>
         <translation>Keine Seiten ausgewählt.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="757"/>
+        <location filename="../app/ExportView.cpp" line="763"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="855"/>
+        <location filename="../app/ExportView.cpp" line="861"/>
         <source>The languages %1 of the project aren&apos;t installed on this computer. Download them now?
 
 Without them, the text is only recognized with the other ticked languages.</source>
@@ -2265,102 +2265,102 @@ Without them, the text is only recognized with the other ticked languages.</sour
 Ohne sie wird der Text nur mit den übrigen angekreuzten Sprachen erkannt.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="868"/>
+        <location filename="../app/ExportView.cpp" line="874"/>
         <source>The languages %1 still aren&apos;t installed. Recognize the text with the other ticked languages only?</source>
         <translation>Die Sprachen %1 sind weiterhin nicht installiert. Möchten Sie den Text nur mit den übrigen angekreuzten Sprachen erkennen?</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="882"/>
+        <location filename="../app/ExportView.cpp" line="888"/>
         <source>Copying language files ...</source>
         <translation>Sprachdateien werden kopiert ...</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="898"/>
+        <location filename="../app/ExportView.cpp" line="904"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation>Die Dateien der gewählten Sprachen liegen in verschiedenen Ordnern und konnten nicht in einen gemeinsamen Ordner kopiert werden, den die Texterkennung braucht.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="926"/>
+        <location filename="../app/ExportView.cpp" line="932"/>
         <source>Canceling ...</source>
         <translation>Wird abgebrochen ...</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="961"/>
+        <location filename="../app/ExportView.cpp" line="967"/>
         <source>... and %1 more.</source>
         <translation>... und %1 weitere.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="995"/>
+        <location filename="../app/ExportView.cpp" line="1001"/>
         <source>Created in %1:</source>
         <translation>Erstellt in %1:</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1257"/>
+        <location filename="../app/ExportView.cpp" line="1263"/>
         <source>uncompressed</source>
         <translation>unkomprimiert</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1310"/>
+        <location filename="../app/ExportView.cpp" line="1316"/>
         <source>In the output folder, the picture of this page is stored with lossy compression (%1).</source>
         <translation>Im Ausgabeordner ist das Bild dieser Seite verlustbehaftet komprimiert gespeichert (%1).</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1312"/>
+        <location filename="../app/ExportView.cpp" line="1318"/>
         <source>In the output folder, this page is stored with lossy compression (%1).</source>
         <translation>Im Ausgabeordner ist diese Seite verlustbehaftet komprimiert gespeichert (%1).</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1315"/>
+        <location filename="../app/ExportView.cpp" line="1321"/>
         <source>The PDF compresses it with loss a second time (%1), so the losses add up.</source>
         <translation>Das PDF komprimiert sie ein zweites Mal verlustbehaftet (%1), sodass sich die Verluste addieren.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1316"/>
+        <location filename="../app/ExportView.cpp" line="1322"/>
         <source>The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than necessary.</source>
         <translation>Das PDF speichert sie verlustfrei (%1). Das erhält die Verluste und macht die Datei größer als nötig.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1322"/>
+        <location filename="../app/ExportView.cpp" line="1328"/>
         <source>In the output folder, the text of this page is stored with lossy compression (%1). The PDF can&apos;t undo these losses.</source>
         <translation>Im Ausgabeordner ist der Text dieser Seite verlustbehaftet komprimiert gespeichert (%1). Das PDF kann diese Verluste nicht rückgängig machen.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1327"/>
+        <location filename="../app/ExportView.cpp" line="1333"/>
         <source>%1 converts the posterized picture of this page to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation>%1 wandelt das Bild mit Tontrennung dieser Seite in Vollfarbe um. Dadurch verschwimmen die Farbflächen, und die Datei wird oft größer. Deflate erhält die Farben exakt.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1332"/>
+        <location filename="../app/ExportView.cpp" line="1338"/>
         <source>Mixed page without split output. It is stored as a single image, so with %1 the text is less sharp and the PDF is larger. Enable &quot;Split output&quot; in the Output step and process the page again.</source>
         <translation>Gemischte Seite ohne geteilte Ausgabe. Sie wird als ein Bild gespeichert, dadurch wird die Schrift mit %1 unschärfer und das PDF größer. Aktivieren Sie im Schritt „Ausgabe“ „Geteilte Ausgabe“ und verarbeiten Sie die Seite erneut.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1345"/>
+        <location filename="../app/ExportView.cpp" line="1351"/>
         <source>Mixed page without split output. It is stored losslessly as a single image. With split output, the PDF is usually much smaller.</source>
         <translation>Gemischte Seite ohne geteilte Ausgabe. Sie wird verlustfrei als ein Bild gespeichert. Mit geteilter Ausgabe wird das PDF meist deutlich kleiner.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="726"/>
+        <location filename="../app/ExportView.cpp" line="732"/>
         <source>Choose Export Folder</source>
         <translation>Exportordner wählen</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="373"/>
+        <location filename="../app/ExportView.cpp" line="379"/>
         <source>Export Files</source>
         <translation>Exportdateien</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="740"/>
+        <location filename="../app/ExportView.cpp" line="746"/>
         <source>Choose the folder for the export.</source>
         <translation>Wählen Sie den Ordner für den Export.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="744"/>
+        <location filename="../app/ExportView.cpp" line="750"/>
         <source>Enter the complete path of the folder.</source>
         <translation>Geben Sie den vollständigen Pfad des Ordners ein.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="773"/>
+        <location filename="../app/ExportView.cpp" line="779"/>
         <source>%1 (folder with %n file(s))</source>
         <translation>
             <numerusform>%1 (Ordner mit %n Datei)</numerusform>
@@ -2368,13 +2368,13 @@ Ohne sie wird der Text nur mit den übrigen angekreuzten Sprachen erkannt.</tran
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="793"/>
-        <location filename="../app/ExportView.cpp" line="1101"/>
+        <location filename="../app/ExportView.cpp" line="799"/>
+        <location filename="../app/ExportView.cpp" line="1107"/>
         <source>Tick at least one format.</source>
         <translation>Haken Sie mindestens ein Format an.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="808"/>
+        <location filename="../app/ExportView.cpp" line="814"/>
         <source>%n selected page(s) changed since the output. The export would show the state of the last output.
 
 Do you want to export anyway? To include the changes, choose &quot;Back&quot; and then &quot;Output missing and changed pages&quot;.</source>
@@ -2388,12 +2388,12 @@ Möchten Sie trotzdem exportieren? Um die Änderungen zu übernehmen, wählen Si
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="812"/>
+        <location filename="../app/ExportView.cpp" line="818"/>
         <source>Export anyway</source>
         <translation>Trotzdem exportieren</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="828"/>
+        <location filename="../app/ExportView.cpp" line="834"/>
         <source>These already exist in %1:
 
 %2
@@ -2406,38 +2406,38 @@ Do you want to replace them?</source>
 Möchten Sie sie ersetzen?</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="844"/>
+        <location filename="../app/ExportView.cpp" line="850"/>
         <source>Please tick the pages to include in the export.</source>
         <translation>Bitte haken Sie die Seiten an, die exportiert werden sollen.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="893"/>
+        <location filename="../app/ExportView.cpp" line="899"/>
         <source>Please tick at least one installed language for the text recognition.</source>
         <translation>Bitte haken Sie mindestens eine installierte Sprache für die Texterkennung an.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="916"/>
+        <location filename="../app/ExportView.cpp" line="922"/>
         <source>Recognizing the text and exporting ...</source>
         <translation>Text wird erkannt und exportiert ...</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="916"/>
+        <location filename="../app/ExportView.cpp" line="922"/>
         <source>Exporting ...</source>
         <translation>Wird exportiert ...</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="952"/>
+        <location filename="../app/ExportView.cpp" line="958"/>
         <source>Canceled. Nothing was exported.</source>
         <translation>Abgebrochen. Es wurde nichts exportiert.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="955"/>
-        <location filename="../app/ExportView.cpp" line="963"/>
+        <location filename="../app/ExportView.cpp" line="961"/>
+        <location filename="../app/ExportView.cpp" line="969"/>
         <source>The export failed.</source>
         <translation>Der Export ist fehlgeschlagen.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="991"/>
+        <location filename="../app/ExportView.cpp" line="997"/>
         <source>%n file(s)</source>
         <translation>
             <numerusform>%n Datei</numerusform>
@@ -2445,122 +2445,122 @@ Möchten Sie sie ersetzen?</translation>
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1095"/>
+        <location filename="../app/ExportView.cpp" line="1101"/>
         <source>Will be created:</source>
         <translation>Wird erstellt:</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1103"/>
+        <location filename="../app/ExportView.cpp" line="1109"/>
         <source>Tick at least one language for the text recognition.</source>
         <translation>Haken Sie mindestens eine Sprache für die Texterkennung an.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1107"/>
+        <location filename="../app/ExportView.cpp" line="1113"/>
         <source>Tick the pages to export.</source>
         <translation>Haken Sie die Seiten an, die exportiert werden sollen.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1110"/>
+        <location filename="../app/ExportView.cpp" line="1116"/>
         <source>Export the ticked pages in the chosen formats.</source>
         <translation>Die angehakten Seiten in den gewählten Formaten exportieren.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1357"/>
+        <location filename="../app/ExportView.cpp" line="1363"/>
         <source>Not output yet. Process the page in the Output step to include it in the export.</source>
         <translation>Noch nicht ausgegeben. Verarbeiten Sie die Seite im Schritt „Ausgabe“, um sie in den Export aufzunehmen.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1365"/>
-        <location filename="../app/ExportView.cpp" line="1369"/>
+        <location filename="../app/ExportView.cpp" line="1371"/>
+        <location filename="../app/ExportView.cpp" line="1375"/>
         <source>%1 (lossy)</source>
         <comment>tooltip</comment>
         <translation>%1 (verlustbehaftet)</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1378"/>
+        <location filename="../app/ExportView.cpp" line="1384"/>
         <source>Black and white</source>
         <translation>Schwarz-Weiß</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1383"/>
+        <location filename="../app/ExportView.cpp" line="1389"/>
         <source>Mixed, split output</source>
         <translation>Gemischt, geteilte Ausgabe</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1384"/>
-        <location filename="../app/ExportView.cpp" line="1386"/>
+        <location filename="../app/ExportView.cpp" line="1390"/>
+        <location filename="../app/ExportView.cpp" line="1392"/>
         <source>%1 (picture), %2 (text)</source>
         <translation>%1 (Bild), %2 (Text)</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1390"/>
+        <location filename="../app/ExportView.cpp" line="1396"/>
         <source>Mixed</source>
         <translation>Gemischt</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1392"/>
+        <location filename="../app/ExportView.cpp" line="1398"/>
         <source>Color / grayscale, posterized</source>
         <translation>Farbe / Graustufen, Tontrennung</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1403"/>
+        <location filename="../app/ExportView.cpp" line="1409"/>
         <source>Changed since the output. The export would show the state of the last output. Process the page in the Output step to include the changes.</source>
         <translation>Seit der Ausgabe geändert. Der Export würde den Stand der letzten Ausgabe zeigen. Verarbeiten Sie die Seite im Schritt „Ausgabe“, um die Änderungen zu übernehmen.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1407"/>
+        <location filename="../app/ExportView.cpp" line="1413"/>
         <source>Color mode: %1</source>
         <translation>Farbmodus: %1</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1408"/>
+        <location filename="../app/ExportView.cpp" line="1414"/>
         <source>Compression TIFF: %1</source>
         <translation>Komprimierung TIFF: %1</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1409"/>
+        <location filename="../app/ExportView.cpp" line="1415"/>
         <source>Compression PDF: %1</source>
         <translation>Komprimierung PDF: %1</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1476"/>
-        <location filename="../app/ExportView.cpp" line="1485"/>
+        <location filename="../app/ExportView.cpp" line="1482"/>
+        <location filename="../app/ExportView.cpp" line="1491"/>
         <source>%1 (lossy)</source>
         <comment>short</comment>
         <translation>%1 (mit Verlust)</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1496"/>
+        <location filename="../app/ExportView.cpp" line="1502"/>
         <source>Stored with lossy compression: %1</source>
         <translation>Verlustbehaftet gespeichert: %1</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1506"/>
+        <location filename="../app/ExportView.cpp" line="1512"/>
         <source>Compressed with loss twice: %1</source>
         <translation>Zweifach verlustbehaftet: %1</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1513"/>
+        <location filename="../app/ExportView.cpp" line="1519"/>
         <source>Posterized, converted to full color: %1</source>
         <translation>Tontrennung, in Vollfarbe umgewandelt: %1</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1394"/>
+        <location filename="../app/ExportView.cpp" line="1400"/>
         <source>Color / grayscale</source>
         <translation>Farbe / Graustufen</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="813"/>
+        <location filename="../app/ExportView.cpp" line="819"/>
         <source>Back</source>
         <translation>Zurück</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1046"/>
+        <location filename="../app/ExportView.cpp" line="1052"/>
         <source>%1 of %2 output pages selected.</source>
         <translation>%1 von %2 ausgegebenen Seiten ausgewählt.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="1050"/>
+        <location filename="../app/ExportView.cpp" line="1056"/>
         <source>%n page(s) not output yet.</source>
         <translation>
             <numerusform>%n Seite noch nicht ausgegeben.</numerusform>
@@ -2568,7 +2568,7 @@ Möchten Sie sie ersetzen?</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="1056"/>
+        <location filename="../app/ExportView.cpp" line="1062"/>
         <source>%n page(s) changed since the output.</source>
         <translation>
             <numerusform>%n Seite seit der Ausgabe geändert.</numerusform>
@@ -2576,47 +2576,47 @@ Möchten Sie sie ersetzen?</translation>
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1498"/>
+        <location filename="../app/ExportView.cpp" line="1504"/>
         <source>The PDF can&apos;t undo these losses. A lossless method in the PDF keeps them and makes the file larger than necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output step and process the pages again.</source>
         <translation>Das PDF kann diese Verluste nicht rückgängig machen. Eine verlustfreie Methode im PDF erhält sie und macht die Datei größer als nötig. Um die Verluste zu vermeiden, wählen Sie in der Gruppe „TIFF-Komprimierung“ im Schritt „Ausgabe“ eine verlustfreie Methode und verarbeiten die Seiten erneut.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1508"/>
+        <location filename="../app/ExportView.cpp" line="1514"/>
         <source>The output files of these pages are stored with lossy compression, and the PDF compresses them with loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second loss.</source>
         <translation>Die Ausgabedateien dieser Seiten sind verlustbehaftet komprimiert gespeichert, und das PDF komprimiert sie ein zweites Mal verlustbehaftet, sodass sich die Verluste addieren. Deflate oder JPEG 2000 mit Qualität 100 vermeidet den zweiten Verlust.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1515"/>
+        <location filename="../app/ExportView.cpp" line="1521"/>
         <source>JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation>JPEG und JPEG 2000 wandeln Bilder mit Tontrennung in Vollfarbe um. Dadurch verschwimmen die Farbflächen, und die Datei wird oft größer. Deflate erhält die Farben exakt.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1231"/>
+        <location filename="../app/ExportView.cpp" line="1237"/>
         <source>Not output yet</source>
         <translation>Noch nicht ausgegeben</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="347"/>
+        <location filename="../app/ExportView.cpp" line="353"/>
         <source>Include all output pages in the export.</source>
         <translation>Alle ausgegebenen Seiten in den Export aufnehmen.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="348"/>
+        <location filename="../app/ExportView.cpp" line="354"/>
         <source>Exclude all pages from the export.</source>
         <translation>Alle Seiten aus dem Export herausnehmen.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="350"/>
+        <location filename="../app/ExportView.cpp" line="356"/>
         <source>Move the selected pages one place towards the start of the export. Pages can also be moved with drag and drop.</source>
         <translation>Die ausgewählten Seiten um eine Stelle zum Anfang des Exports verschieben. Seiten lassen sich auch durch Ziehen und Ablegen verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="353"/>
+        <location filename="../app/ExportView.cpp" line="359"/>
         <source>Move the selected pages one place towards the end of the export. Pages can also be moved with drag and drop.</source>
         <translation>Die ausgewählten Seiten um eine Stelle zum Ende des Exports verschieben. Seiten lassen sich auch durch Ziehen und Ablegen verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="398"/>
+        <location filename="../app/ExportView.cpp" line="404"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
@@ -3581,6 +3581,11 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <location filename="../core/OcrTextOutputs.cpp" line="36"/>
         <source>Could not replace the folder %1. It may be in use.</source>
         <translation>Der Ordner %1 konnte nicht ersetzt werden. Möglicherweise wird er gerade verwendet.</translation>
+    </message>
+    <message>
+        <location filename="../core/OcrTextOutputs.cpp" line="192"/>
+        <source>There is a file named like the folder %1, so the folder could not be created. Move the file or choose another name.</source>
+        <translation>Es gibt eine Datei mit dem Namen des Ordners %1, deshalb konnte der Ordner nicht erstellt werden. Verschieben Sie die Datei, oder wählen Sie einen anderen Namen.</translation>
     </message>
 </context>
 <context>
