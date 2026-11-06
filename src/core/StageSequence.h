@@ -135,7 +135,7 @@ class StageSequence {
                                                                   const OutputFileNameGenerator& outFileNameGen) const;
 
   /**
-   * The output files of the pages for the PDF export, in the order of the project.
+   * The output files of the pages for the export, in the order of the project.
    * They are already analyzed (see ExportPage::analyze()), so they can be exported as they are,
    * and pages whose output no longer matches their settings are marked (ExportPage::isOutdated()).
    */

@@ -69,7 +69,7 @@ class ExportView : public QWidget {
    * Sets the pages of the project, in project order, already analyzed (see
    * StageSequence::pdfExportPages()). Pages that were shown before keep their place
    * and their tick (see PdfPageOrder).
-   * Ignored while a PDF is being created.
+   * Ignored while an export runs.
    */
   void setPages(std::vector<Entry> entries);
 
@@ -105,7 +105,7 @@ class ExportView : public QWidget {
 
   void moveBack();
 
-  /** Numbers the ticked pages in their order in the PDF. */
+  /** Numbers the ticked pages in their order in the export. */
   void updatePositions();
 
   void browse();

@@ -29,7 +29,7 @@ class PdfCompressionPanel : public QWidget {
   /** Stores the compression fields in \p pdf; the others are kept. */
   void storeOptions(ProcessingOptions::Pdf& pdf) const;
 
-  // The fields, for the Quality panel of the PDF step.
+  // The fields, for the Quality panel of the Export step.
   QComboBox* colorCompressionBox() const { return m_colorCompression; }
 
   QSpinBox* colorQualityBox() const { return m_colorQuality; }

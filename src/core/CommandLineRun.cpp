@@ -351,13 +351,17 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   ExportPaths exportPaths;
   if (exporting) {
     if (!options.formats) {
-      // The fallback doesn't matter: projects without these settings were refused above.
+      // REVIEW-NOTE (2026-11): a 1.0.x project has no <formats> -> PDF only here, the default profile's formats in
+      // the app. Not fixed because no such projects are in use.
       formats = reader.readProcessingOptions(ProcessingOptions()).formats;
       if (!formats.any()) {
         err << tr(
             "The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them "
             "with --export-formats.")
             << Qt::endl;
+        // REVIEW-NOTE (2026-11): a project with no format ticked, exported without --export-formats -> exit code 1
+        // (wrong command line) although the command line itself is correct. Not fixed because the message names
+        // --export-formats as the remedy and scripts usually only test for "not 0".
         return USAGE_ERROR;
       }
     }

@@ -15,8 +15,9 @@ class QTextStream;
 
 /**
  * What the command line tool does: it opens a project, processes all its pages through all
- * six steps and saves the project. It runs in the calling thread and needs only a
- * QCoreApplication, so it can be tested without the tool itself.
+ * six steps and saves the project. With one of the export options it then exports the pages
+ * in the chosen formats, as the Export step of the app does. It runs in the calling thread and
+ * needs only a QCoreApplication, so it can be tested without the tool itself.
  */
 class CommandLineRun {
   Q_DECLARE_TR_FUNCTIONS(CommandLineRun)

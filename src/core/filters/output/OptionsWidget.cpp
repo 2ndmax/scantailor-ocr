@@ -182,7 +182,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
 OptionsWidget::~OptionsWidget() = default;
 
 void OptionsWidget::setupTiffCompressionPanel() {
-  // Built like the compression panel of the PDF step. Unlike the other panels of this
+  // Built like the compression panel of the Export step. Unlike the other panels of this
   // step, it applies to all pages, so there is no "Apply to ..." button.
   auto* group = new CollapsibleGroupBox(tr("TIFF Compression"));
   group->setObjectName("tiffCompressionPanel");

@@ -35,7 +35,8 @@ function Confirm-Run([string]$Title, [string[]]$Lines, [string]$Log, [string]$Bu
             return $false
         }
         # Without asking (-Yes) only a build directory of the runs is deleted: build-* in the project
-        # folder, the names the runs use by default. Never the normal build, nor one given by -BuildDir.
+        # folder, the names the runs use by default, also when -BuildDir names one. Never the normal
+        # build, nor any other folder given by -BuildDir.
         $fullDir = [IO.Path]::GetFullPath($BuildDir).TrimEnd('\')
         $isRunDir = ((Split-Path $fullDir -Parent) -eq $Root) -and ((Split-Path $fullDir -Leaf) -like 'build-*')
         if ($Unattended -and -not $isRunDir) {

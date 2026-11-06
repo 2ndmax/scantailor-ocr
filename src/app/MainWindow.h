@@ -168,7 +168,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void pdfExportRunningChanged(bool running);
 
-  /** Processes the pages not output yet in the Output step and comes back to the PDF step. */
+  /** Processes the pages not output yet in the Output step and comes back to the Export step. */
   void outputMissingPages();
 
   // Both return true if the project was saved.
@@ -301,19 +301,19 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void updateMainArea();
 
-  /** Shows the "Create PDF" step instead of the current filter. */
+  /** Shows the Export step instead of the current filter. */
   void enterPdfStage();
 
   /** Starts batch processing of the given pages, or of all pages for nullptr. */
   void startBatchProcessingOf(const std::set<PageId>* pages);
 
-  /** Removes the "Create PDF" step from the main area and the options area. */
+  /** Removes the Export step from the main area and the options area. */
   void leavePdfStage();
 
-  /** The pages of the project in project order, for the "Create PDF" step. */
+  /** The pages of the project in project order, for the Export step. */
   std::vector<ExportView::Entry> pdfExportEntries() const;
 
-  /** The page navigation shortcuts act on the hidden thumbnails in the "Create PDF" step. */
+  /** The page navigation shortcuts act on the hidden thumbnails in the Export step. */
   void setPageNavigationEnabled(bool enabled);
 
   bool checkReadyForOutput(const PageId* ignore = nullptr) const;
@@ -401,7 +401,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   void importDeferredScans();
 
   /**
-   * Whether scans can be added right now: no batch processing, no PDF step, no other scan being imported
+   * Whether scans can be added right now: no batch processing, no Export step, no other scan being imported
    * and no open question about canceling a multi-page selection.
    */
   bool canImportScansNow() const;
@@ -463,11 +463,11 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::unique_ptr<PageOrientationPropagator> m_pageOrientationPropagator;
   std::unique_ptr<QWidget> m_batchProcessingWidget;
   std::unique_ptr<ProcessingIndicationWidget> m_processingIndicationWidget;
-  /** The "Create PDF" step; created when it's first shown, kept while the project is open. */
+  /** The Export step; created when it's first shown, kept while the project is open. */
   std::unique_ptr<ExportView> m_pdfView;
-  /** Whether the "Create PDF" step is shown. m_curFilter then still refers to the last filter. */
+  /** Whether the Export step is shown. m_curFilter then still refers to the last filter. */
   bool m_pdfStage = false;
-  /** Whether the PDF step is shown again when the current batch processing has finished. */
+  /** Whether the Export step is shown again when the current batch processing has finished. */
   bool m_returnToPdfAfterBatch = false;
   /** The "Automatic import" panel above the options of the first step; owned by the options area. */
   AutoImportPanel* m_autoImportPanel = nullptr;

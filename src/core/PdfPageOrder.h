@@ -8,7 +8,7 @@
 #include <vector>
 
 /**
- * \brief The order and the ticks of the pages in the "Create PDF" step.
+ * \brief The order and the ticks of the pages in the Export step.
  *
  * They are kept while the project is open, but the pages of the project may change in
  * between: pages can be added, removed or renamed (e.g. split into a left and a right page).

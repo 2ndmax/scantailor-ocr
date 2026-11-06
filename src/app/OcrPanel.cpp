@@ -207,7 +207,7 @@ void OcrPanel::fillLanguageList(const QStringList& checked) {
     const QSignalBlocker blocker(m_languageList);
     m_languageList->clear();
     for (const Language& language : languages) {
-      // The warning sign of the PDF step; emoji fonts show it in color.
+      // The warning sign of the Export step; emoji fonts show it in color.
       const QString text = language.missing ? (QString(QChar(0x26A0)) + ' ' + language.name) : language.name;
       auto* item = new QListWidgetItem(text, m_languageList);
       item->setData(Qt::UserRole, language.code);

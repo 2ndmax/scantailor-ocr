@@ -80,7 +80,7 @@ void ExportPage::analyze() {
         "The split output files of this page don't match its output file (they are older, have a different size "
         "or a colored foreground). The page is stored as a single image. Process the page again to fix this.");
   } else {
-    // How much this matters depends on the PDF compression, so the PDF step tells it.
+    // How much this matters depends on the PDF compression, so the Export step tells it.
     m_withoutSplitOutput = m_mixedMode;
   }
 }  // ExportPage::analyze

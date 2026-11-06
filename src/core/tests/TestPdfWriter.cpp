@@ -621,7 +621,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
 
   BOOST_CHECK(!page.isWithoutSplitOutput());
 
-  // Without the split files, the mixed page is stored as one image. The PDF step tells about it.
+  // Without the split files, the mixed page is stored as one image. The Export step tells about it.
   QFile::remove(fgFile);
   page.analyze();
   BOOST_CHECK_EQUAL(page.kind(), ExportPage::IMAGE);

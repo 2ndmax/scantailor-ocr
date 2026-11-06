@@ -28,7 +28,7 @@ void selectData(QComboBox* box, const int value, const int defaultValue) {
 TiffCompressionPanel::TiffCompressionPanel(QWidget* parent) : QWidget(parent) {
   auto* layout = new QFormLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
-  // The lists keep their width instead of filling a widened panel, as in the PDF step.
+  // The lists keep their width instead of filling a widened panel, as in the Export step.
   layout->setRowWrapPolicy(QFormLayout::DontWrapRows);
   layout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 

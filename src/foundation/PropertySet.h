@@ -25,6 +25,9 @@ class PropertySet {
    */
   PropertySet(const PropertySet& other);
 
+  // REVIEW-NOTE (2026-11): the defaulted move constructor is not noexcept -> std::vector<PropertySet> copies
+  // instead of moving when it grows. Not fixed because MSVC's std::unordered_map allocates in its move
+  // constructor, so a forced noexcept would call std::terminate on bad_alloc.
   PropertySet(PropertySet&& other) = default;
 
   PropertySet(const QDomElement& el, const PropertyFactory& factory);

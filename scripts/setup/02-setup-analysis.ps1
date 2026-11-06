@@ -222,6 +222,9 @@ $stepDebugger = {
     Write-Host '"Change". The setup downloads them; Windows asks for administrator rights.'
     if (-not (Read-YesNo 'Open the setup now?' $true)) { return $false }
     Add-LogLine $log "# $(Get-Stamp) $setup /modify"
+    # REVIEW-NOTE (2026-11): step 5 started with -Steps (unattended) opens the SDK setup and waits until it is
+    # closed -> the script hangs without a person at the desktop. Not fixed because the step needs ticks set by
+    # hand anyway.
     # /modify, as Windows itself passes for "Modify" in Settings > Apps. Without it, the setup takes
     # the SDK as not installed and offers to install it anew or only to download it into a folder.
     # The script waits until the setup is closed.

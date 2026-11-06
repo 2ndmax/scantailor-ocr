@@ -36,6 +36,9 @@ class ProcessingTaskQueue {
    * It may return a null PageInfo, meaning not to change whatever
    * selection we currently have.
    */
+  // REVIEW-NOTE (2026-11): returns m_selectedPage by value -> one PageInfo copy per call. Not fixed because
+  // m_selectedPage changes whenever a task finishes, and a reference held by the caller would then see
+  // another page.
   PageInfo selectedPage() const;
 
   bool allProcessed() const;

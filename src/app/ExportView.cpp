@@ -47,7 +47,6 @@
 #include <utility>
 
 #include "Application.h"
-#include "ApplicationSettings.h"
 #include "CollapsibleGroupBox.h"
 #include "ColorSchemeManager.h"
 #include "ExportFormatsPanel.h"

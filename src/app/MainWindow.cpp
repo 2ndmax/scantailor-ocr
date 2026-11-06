@@ -1361,7 +1361,7 @@ void MainWindow::stopBatchProcessing(MainAreaAction mainArea) {
 
   m_batchQueue->cancelAndClear();
   m_batchQueue.reset();
-  // Only a batch that has finished goes back to the PDF step; see filterResult().
+  // Only a batch that has finished goes back to the Export step; see filterResult().
   m_returnToPdfAfterBatch = false;
 
   filterList->setBatchProcessingInProgress(false);
@@ -1462,7 +1462,7 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
         goFirstPage();
       }
       if (returnToPdf) {
-        // Started from the PDF step to output the missing pages.
+        // Started from the Export step to output the missing pages.
         filterList->selectRow(filterList->pdfRow());
       }
       return;
@@ -1623,7 +1623,7 @@ void MainWindow::enterPdfStage() {
     connect(m_pdfView.get(), &ExportView::projectOptionsChanged, this, &MainWindow::updateAutoSaveTimer);
     connect(m_pdfView.get(), &ExportView::outputMissingPagesRequested, this, &MainWindow::outputMissingPages);
   }
-  // The output files may have changed since the PDF step was last shown.
+  // The output files may have changed since the Export step was last shown.
   m_pdfView->setDefaultBase(project_files::defaultExportBase(m_projectFile, m_outFileNameGen.outDir()));
   // The files of the pages are analyzed meanwhile.
   QApplication::setOverrideCursor(Qt::WaitCursor);
