@@ -45,7 +45,7 @@ topic, not by version.
   translated as well. Translations work again (the renamed program had stopped finding them),
   and the system language is picked on the first start also when only the language matches
   (`de` for `de_DE`).
-* Settings: "Processor threads" in the group "Performance" is one limit for all parallel work
+* Program settings: "Processor threads" on the tab "Performance" is one limit for all parallel work
   (batch processing, PDF export, image filters, JPEG 2000); default: all threads but two.
   "Accent color" replaces the blue of hovered and focused controls, selected thumbnails and the
   progress bar (after a restart; not used by the native color scheme). "Deskew handle distance"
@@ -275,6 +275,12 @@ topic, not by version.
 
 ## Options panels, dialogs and windows
 
+* **Menu bar:** *Project* (formerly "File", with "Exit ScanTailor OCR" so it isn't mistaken for
+  "Close Project"), *Tools* (Fix DPI, Relink), *Settings* (Program Settings, Default Parameters)
+  and *Help*. The **Program Settings** (formerly "Settings") have the tabs *General* (language
+  and units, project, editing), *Appearance* (colors, thumbnails, deviation) and *Performance*;
+  the units moved there from the submenu *Tools > Units*. The thumbnail buttons follow a change
+  made there at once.
 * **One layout for all steps:** each panel holds what its **Apply to ...** button applies;
   parts are divided by bold headings, **Apply to ...** is the last line, and check boxes,
   fields and dependent settings are aligned the same way everywhere, also in the default
