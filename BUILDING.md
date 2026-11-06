@@ -91,7 +91,7 @@ cmake --build build
 
 Ninja uses all processor cores by itself. The finished program `scantailor-ocr.exe`, the
 command line tool `scantailor-ocr-cli.exe` and all needed DLLs end up in the `build` directory.
-For text recognition, download languages in the program (step "Create PDF" → "More languages ..."),
+For text recognition, download languages in the program (step "Export" → "More languages ..."),
 or put the language files into `build\tessdata` by hand, e.g. for German and English
 (about 24 MB together):
 

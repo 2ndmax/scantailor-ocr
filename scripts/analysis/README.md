@@ -226,7 +226,7 @@ program and keeps the inputs that reach new code:
 | `fuzz_image_loader` | the pixels of those images, also as thumbnails | `images` |
 | `fuzz_project_reader` | project files, without the filter settings | `project`, `project.dict` |
 | `fuzz_filter_params` | the per-page settings of the filters | `filter_params`, `filter_params.dict` |
-| `fuzz_image_processing` | small pages built from the input, processed by binarization, despeckling, Deskew, Split Pages, Select Content, automatic dewarping, the color processing of the Output step and its automatic color mode (with OCR only) | `processing` (generated: 96 x 72 pixel pages with lines of text, also curved) |
+| `fuzz_image_processing` | small pages built from the input, processed by binarization, despeckling, Deskew, Split Pages, Select Content, automatic dewarping, the color processing of the Output step and its automatic color mode | `processing` (generated: 96 x 72 pixel pages with lines of text, also curved) |
 | `fuzz_profile_reader` | profile files with the default parameters of new pages | `profile`, `profile.dict` |
 | `fuzz_page_output` | a whole page through the Output step (`OutputGenerator`), with the settings and zones of a project file | `page_output`, `page_output.dict` |
 | `fuzz_project_geometry` | the page geometry that the settings of a project file give, from Fix Orientation to the output resolution, without an image | `geometry`, `geometry.dict` |
@@ -292,6 +292,10 @@ line tool in `core_tests` (`12-appverif-lowres.log`): 2 % of the heap allocation
 operations fail at random, so failed tests are expected there and differ between runs; the
 findings are the verifier stops and crashes.  The stacks of Windows' own DLLs come from
 Microsoft's symbol server (cached in `build-appverif\symbols`), unless `_NT_SYMBOL_PATH` is set.
+A program that timed out or ended with an exit code other than 0 is named by run 90 under
+"Timed out or failed" in `findings.md`, as it may hold a finding without a verifier stop.  The
+`# End:` line is written once, when the whole run has finished; without it, run 90 shows the log
+as not finished.
 
 ### 90 – Merging the results
 

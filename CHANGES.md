@@ -151,7 +151,7 @@ topic, not by version.
   `<anchor name>_<scan name>.tif`. **Replace selected page:** the next scan takes
   the place of the selected page(s), its settings and output files are dropped, and the old
   image is moved to a folder `replaced`.
-* Scans arriving during batch processing or PDF creation are added afterwards. Scans without DPI
+* Scans arriving during batch processing or an export are added afterwards. Scans without DPI
   are added and counted; their DPI can be set with *Tools > Fix DPI of All Images*.
 
 ## Image import
@@ -388,6 +388,7 @@ topic, not by version.
   them. Ctrl+C stops before the next page; the pages done keep their output, and the project is
   saved with them. Exit codes: 0 done, 1 wrong command line, 2 project unusable or not saved,
   3 pages failed, 4 export failed, 5 canceled. The messages use the language of the app.
+  The option `--pdf <file>` of versions 1.0.11 and 1.0.12 is replaced by these export options.
 * Batch processing no longer prepares the view of each page it passes (downscaled images, the
   content mask, the despeckle view of *Output*); it only updates the thumbnails, which saves time
   and memory per page.
@@ -506,7 +507,7 @@ what changed.
   the command line tool and many more, and an **end-to-end test** that runs all six steps and the PDF export
   on scans drawn in the test.
 * For the end-to-end test and the command line tool, the chain of the steps, creating and
-  opening a project and the page list of the PDF export moved from the main window into the core
+  opening a project and the page list of the export moved from the main window into the core
   of the program, without a change in behavior. The steps read their settings from the project
   file without their options panels, which are created on first use, so the core runs without a
   window. A new project reads the profile only once.

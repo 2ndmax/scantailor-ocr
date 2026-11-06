@@ -18,7 +18,7 @@ They run in Windows PowerShell 5.1 or PowerShell 7, from any folder:
 | Script | Sets up | Needed for |
 |---|---|---|
 | `01-setup-windows.ps1` | Visual Studio, Git and the GitHub CLI, vcpkg and its packages, `VCPKG_ROOT`, the first build | the build |
-| `02-setup-analysis.ps1` | the tools of the analysis runs; shows which are missing and starts 03 and 04 when needed | the analysis runs |
+| `02-setup-analysis.ps1` | the tools of the analysis runs, including the debugger cdb of run 12 (step 5); shows which are missing and starts 03 and 04 when needed | the analysis runs |
 | `03-setup-edg.ps1` | the EDG C++ front end, with `EDG_ROOT` | analysis run 04 |
 | `04-setup-wsl-gcc.ps1` | WSL with Ubuntu 24.04, GCC and the project's packages | analysis run 08 |
 

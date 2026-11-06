@@ -37,7 +37,7 @@ Every module has its own `Test<Module>.cpp` in the `tests` folder of its library
 
 | Program | Sources | Tests |
 |---|---|---|
-| `core_tests` | `src/core/tests` | the filters, image reading and writing, project files, the PDF export, the command line run (Boost.Test) |
+| `core_tests` | `src/core/tests` | the filters, image reading and writing, project files, the export in all formats, the command line run (Boost.Test) |
 | `foundation_tests` | `src/foundation/tests` | constants, geometry helpers, number formatting |
 | `math_tests` | `src/math/tests` | automatic differentiation, functions, matrices, splines |
 | `imageproc_tests` | `src/imageproc/tests` | binary images, binarization, morphology, scaling, transforms |
@@ -60,8 +60,8 @@ systems. No image files are stored in the repository: the scans are drawn in the
   is found within 0.2°, the content box matches the text block within 10 %, every page is
   output with the resolution of the default parameters, black-and-white output uses CCITT G4,
   every output page has 10 to 25 % dark pixels (neither empty nor with the dark border of the
-  scan), and saving, loading and saving the project again gives the same file. With OCR enabled
-  it also checks the color mode detection (text page black and white, picture page mixed).
+  scan), and saving, loading and saving the project again gives the same file. It also
+  checks the color mode detection (text page black and white, picture page mixed).
 - **testColorOutputCompression**: a color page is written with the TIFF compression set in the
   project (JPEG).
 - **testPdfExport**: `StageSequence::pdfExportPages` and `ExportOptions::fromProject` build
