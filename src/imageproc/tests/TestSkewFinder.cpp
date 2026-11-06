@@ -12,6 +12,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdlib>
+#include <stdexcept>
 
 namespace imageproc {
 namespace tests {
@@ -64,6 +65,16 @@ BOOST_AUTO_TEST_CASE(test_negative_detection) {
   skewFinder.setFineReduction(0);
   const Skew skew(skewFinder.findSkew(BinaryImage(image)));
   BOOST_CHECK(skew.confidence() < Skew::GOOD_CONFIDENCE);
+}
+
+// A DPI of 0 on both axes gives 0 / 0. NaN passed the check "ratio <= 0", and the shear built from it
+// ended in an undefined cast to int.
+BOOST_AUTO_TEST_CASE(test_non_finite_resolution_ratio_is_refused) {
+  SkewFinder skewFinder;
+  for (const double ratio : {std::nan(""), HUGE_VAL, 0.0, -1.0}) {
+    BOOST_CHECK_THROW(skewFinder.setResolutionRatio(ratio), std::invalid_argument);
+  }
+  BOOST_CHECK_NO_THROW(skewFinder.setResolutionRatio(0.5));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

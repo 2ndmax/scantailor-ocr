@@ -71,7 +71,8 @@ void SkewFinder::setFineReduction(const int reduction) {
 }
 
 void SkewFinder::setResolutionRatio(const double ratio) {
-  if (ratio <= 0.0) {
+  // NaN comes from a DPI of 0 / 0 and passes "ratio <= 0".
+  if (!std::isfinite(ratio) || (ratio <= 0.0)) {
     throw std::invalid_argument("SkewFinder: resolution ratio is invalid");
   }
   m_resolutionRatio = ratio;
