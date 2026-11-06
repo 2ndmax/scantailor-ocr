@@ -33,10 +33,14 @@ BOOST_AUTO_TEST_CASE(test_new_project_is_named_like_its_folder) {
 }
 
 BOOST_AUTO_TEST_CASE(test_export_goes_next_to_the_project_file) {
-  BOOST_CHECK(project_files::defaultExportBase("C:/Scans/Buch.ScanTailor", "C:/Scans/out") == "C:/Scans/Buch");
-  BOOST_CHECK(project_files::defaultExportBase("C:/Scans/Band.1.ScanTailor", "C:/Scans/out") == "C:/Scans/Band.1");
+  // An absolute path on every system: "C:/Scans" would be relative on Linux and macOS.
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString scans = dir.path();
+  BOOST_CHECK(project_files::defaultExportBase(scans + "/Buch.ScanTailor", scans + "/out") == scans + "/Buch");
+  BOOST_CHECK(project_files::defaultExportBase(scans + "/Band.1.ScanTailor", scans + "/out") == scans + "/Band.1");
   // Unsaved: next to the output folder, named like the folder containing it.
-  BOOST_CHECK(project_files::defaultExportBase(QString(), "C:/Scans/Buch/out") == "C:/Scans/Buch/Buch");
+  BOOST_CHECK(project_files::defaultExportBase(QString(), scans + "/Buch/out") == scans + "/Buch/Buch");
 }
 
 #ifdef Q_OS_WIN
