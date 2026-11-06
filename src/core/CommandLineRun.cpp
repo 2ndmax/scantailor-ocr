@@ -360,8 +360,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   ExportPaths exportPaths;
   if (exporting) {
     if (!options.formats) {
-      // REVIEW-NOTE (2026-11): a 1.0.x project has no <formats> -> PDF only here, the default profile's formats in
-      // the app. Not fixed because no such projects are in use.
+      // REVIEW-NOTE (2026-11): a project saved by 1.0.10 to 1.0.12 has no <formats> -> PDF only here, the default
+      // profile's formats in the app. Not fixed because no such projects are in use.
       formats = reader.readProcessingOptions(ProcessingOptions()).formats;
       if (!formats.any()) {
         err << tr(
