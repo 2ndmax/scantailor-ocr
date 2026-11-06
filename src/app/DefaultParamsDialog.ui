@@ -78,7 +78,7 @@
      <item>
       <widget class="QLabel" name="label_7">
        <property name="toolTip">
-        <string>The unit of the length fields. Change it in the Tools menu, under Units.</string>
+        <string>The unit of the length fields. Change it in the Program Settings, on the General tab.</string>
        </property>
        <property name="text">
         <string>Units:</string>
@@ -88,7 +88,7 @@
      <item>
       <widget class="QLabel" name="unitsLabel">
        <property name="toolTip">
-        <string>The unit of the length fields. Change it in the Tools menu, under Units.</string>
+        <string>The unit of the length fields. Change it in the Program Settings, on the General tab.</string>
        </property>
        <property name="minimumSize">
         <size>

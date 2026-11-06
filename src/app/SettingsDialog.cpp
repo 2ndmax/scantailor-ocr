@@ -6,6 +6,8 @@
 #include <color_schemes/dark_scheme_colors.h>
 #include <color_schemes/light_scheme_colors.h>
 #include <core/ApplicationSettings.h>
+#include <core/Units.h>
+#include <core/UnitsProvider.h>
 
 #include <QColorDialog>
 #include <QPainter>
@@ -59,6 +61,12 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
     ui.languageBox->setEnabled(ui.languageBox->count() > 1);
   }
 
+  ui.unitsBox->addItem(tr("Pixels"), unitsToString(PIXELS));
+  ui.unitsBox->addItem(tr("Millimeters"), unitsToString(MILLIMETRES));
+  ui.unitsBox->addItem(tr("Centimeters"), unitsToString(CENTIMETRES));
+  ui.unitsBox->addItem(tr("Inches"), unitsToString(INCHES));
+  ui.unitsBox->setCurrentIndex(ui.unitsBox->findData(unitsToString(UnitsProvider::getInstance().getUnits())));
+
   ui.highlightDeviationCB->setChecked(settings.isHighlightDeviationEnabled());
 
   ui.deskewDeviationCoefSB->setValue(settings.getDeskewDeviationCoef());
@@ -103,6 +111,11 @@ void SettingsDialog::commitChanges() {
   settings.setAccentColor(m_accentColor);
 
   settings.setLanguage(ui.languageBox->currentData().toString());
+
+  const Units units = unitsFromString(ui.unitsBox->currentData().toString());
+  settings.setUnits(unitsToString(units));
+  // Tells the open views and the status bar, which show lengths in these units.
+  UnitsProvider::getInstance().setUnits(units);
 
   settings.setDeskewDeviationCoef(ui.deskewDeviationCoefSB->value());
   settings.setDeskewDeviationThreshold(ui.deskewDeviationThresholdSB->value());

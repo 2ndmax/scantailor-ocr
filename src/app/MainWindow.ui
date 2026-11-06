@@ -60,32 +60,25 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuDebug">
+   <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
     </property>
-    <widget class="QMenu" name="menuUnits">
-     <property name="title">
-      <string>Units</string>
-     </property>
-     <addaction name="actionPixels"/>
-     <addaction name="actionMilimeters"/>
-     <addaction name="actionCentimetres"/>
-     <addaction name="actionInches"/>
-    </widget>
     <addaction name="actionFixDpi"/>
     <addaction name="actionRelinking"/>
     <addaction name="separator"/>
     <addaction name="actionDebug"/>
-    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
     <addaction name="actionSettings"/>
     <addaction name="actionDefaults"/>
-    <addaction name="separator"/>
-    <addaction name="menuUnits"/>
    </widget>
-   <widget class="QMenu" name="menuFile">
+   <widget class="QMenu" name="menuProject">
     <property name="title">
-     <string>File</string>
+     <string>Project</string>
     </property>
     <addaction name="actionNewProject"/>
     <addaction name="actionOpenProject"/>
@@ -103,8 +96,9 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuDebug"/>
+   <addaction name="menuProject"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuSettings"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -1191,7 +1185,7 @@ QToolButton:pressed {
   </action>
   <action name="actionQuit">
    <property name="text">
-    <string>Quit</string>
+    <string>Exit ScanTailor OCR</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Q</string>
@@ -1202,7 +1196,7 @@ QToolButton:pressed {
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Settings ...</string>
+    <string>Program Settings ...</string>
    </property>
    <property name="shortcut">
     <string notr="true"/>
@@ -1342,65 +1336,6 @@ QToolButton:pressed {
    </property>
    <property name="shortcut">
     <string notr="true">P</string>
-   </property>
-   <property name="autoRepeat">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="actionPixels">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Pixels</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true"/>
-   </property>
-   <property name="autoRepeat">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="actionMilimeters">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Millimeters</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true"/>
-   </property>
-   <property name="autoRepeat">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="actionInches">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Inches</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true"/>
-   </property>
-   <property name="autoRepeat">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="actionCentimetres">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Centimeters</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true"/>
    </property>
    <property name="autoRepeat">
     <bool>false</bool>

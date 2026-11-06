@@ -496,7 +496,6 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   bool m_closing;
   QTimer m_autoSaveTimer;
   StatusBarPanel* m_statusBarPanel;
-  QActionGroup* m_unitsMenuActionGroup;
   QTimer m_maxLogicalThumbSizeUpdater;
   QTimer m_sceneItemsPosUpdater;
 };

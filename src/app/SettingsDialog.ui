@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Settings</string>
+   <string>Program Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -145,6 +145,40 @@
             </item>
             <item>
              <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>1</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_units">
+            <item>
+             <widget class="QLabel" name="unitsLabel">
+              <property name="buddy">
+               <cstring>unitsBox</cstring>
+              </property>
+              <property name="text">
+               <string>Units:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="unitsBox">
+              <property name="toolTip">
+               <string>The unit of the length fields, for example in Margins and in the Default Parameters, and of the mouse position and page size in the status bar.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_units">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>

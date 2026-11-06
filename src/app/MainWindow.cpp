@@ -6,7 +6,6 @@
 #include <core/ApplicationSettings.h>
 #include <core/IconProvider.h>
 
-#include <QActionGroup>
 #include <QApplication>
 #include <QDir>
 #include <QFileDialog>
@@ -79,7 +78,6 @@
 #include "StageSequence.h"
 #include "TabbedDebugImages.h"
 #include "ThumbnailFactory.h"
-#include "UnitsProvider.h"
 #include "Utils.h"
 #include "WorkerThreadPool.h"
 #include "config.h"
@@ -168,49 +166,6 @@ MainWindow::MainWindow()
       m_statusBarPanel->updatePage(pageSequence.pageNo(pageInfo.id()) + 1, pageSequence.numPages(), pageInfo.id());
     } else {
       m_statusBarPanel->clear();
-    }
-  });
-
-  m_unitsMenuActionGroup = new QActionGroup(this);
-  for (QAction* action : menuUnits->actions()) {
-    m_unitsMenuActionGroup->addAction(action);
-  }
-  switch (unitsFromString(settings.getUnits())) {
-    case PIXELS:
-      actionPixels->setChecked(true);
-      break;
-    case MILLIMETRES:
-      actionMilimeters->setChecked(true);
-      break;
-    case CENTIMETRES:
-      actionCentimetres->setChecked(true);
-      break;
-    case INCHES:
-      actionInches->setChecked(true);
-      break;
-  }
-  connect(actionPixels, &QAction::toggled, [&settings](bool checked) {
-    if (checked) {
-      UnitsProvider::getInstance().setUnits(PIXELS);
-      settings.setUnits(unitsToString(PIXELS));
-    }
-  });
-  connect(actionMilimeters, &QAction::toggled, [&settings](bool checked) {
-    if (checked) {
-      UnitsProvider::getInstance().setUnits(MILLIMETRES);
-      settings.setUnits(unitsToString(MILLIMETRES));
-    }
-  });
-  connect(actionCentimetres, &QAction::toggled, [&settings](bool checked) {
-    if (checked) {
-      UnitsProvider::getInstance().setUnits(CENTIMETRES);
-      settings.setUnits(unitsToString(CENTIMETRES));
-    }
-  });
-  connect(actionInches, &QAction::toggled, [&settings](bool checked) {
-    if (checked) {
-      UnitsProvider::getInstance().setUnits(INCHES);
-      settings.setUnits(unitsToString(INCHES));
     }
   });
 
