@@ -205,10 +205,14 @@ jobs:
       - name: Download linuxdeploy
         run: |
           # GitHub sometimes answers with a server error such as 504; try again before failing.
-          retry="--tries=4 --waitretry=15 --retry-on-http-error=429,500,502,503,504"
-          wget -q $retry https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          # curl waits the full 15 s before each new try (wget's --waitretry only waits 1, 2, 3 s),
+          # and -f keeps an error page from being saved as the file.
+          retry="-fsSL --retry 3 --retry-delay 15 --retry-all-errors"
+          curl $retry -o linuxdeploy-x86_64.AppImage \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage
-          wget -q $retry https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          curl $retry -o linuxdeploy-plugin-qt-x86_64.AppImage \
+            https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
 
       - name: Build AppImage
