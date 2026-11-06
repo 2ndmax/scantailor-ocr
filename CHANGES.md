@@ -193,8 +193,10 @@ topic, not by version.
 ## Deskew and Import options
 
 * *Import*: "Rotate" and "Crop scan (trim)" are one panel, **Rotate and Trim**. The trim values
-  are named *Top*, *Bottom*, *Left* and *Right* and refer to the rotated view. A rotation of 0 is
-  kept when the project is reopened.
+  are named *Top*, *Bottom*, *Left* and *Right* and refer to the rotated view. They are shown in
+  the unit of the program settings, converted with the resolution of the image, and saved in
+  pixels as before; "Apply to ..." keeps the length on pages of another resolution. A rotation
+  of 0 is kept when the project is reopened.
 * *Deskew*: the oblique (shear) correction has **Auto / Manual buttons** like the rotation.
   Switching oblique to *Auto* measures the page; the oblique finder reports no angle when the
   image has too little structure. Dragging a handle makes only its own angle manual. "Apply

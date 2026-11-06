@@ -6,6 +6,7 @@
 
 #include <QRect>
 
+#include "Dpi.h"
 #include "OrthogonalRotation.h"
 
 namespace fix_orientation {
@@ -30,6 +31,13 @@ struct ImageTrim {
 
   /** The inverse of rotated(): the edges of the source image. */
   ImageTrim unrotated(const OrthogonalRotation& rotation) const;
+
+  /**
+   * The same lengths for an image of resolution \p to instead of \p from, rounded to whole pixels.
+   * Both resolutions must belong to the same orientation as the edges. Unchanged if either is
+   * unknown.
+   */
+  ImageTrim rescaled(const Dpi& from, const Dpi& to) const;
 };
 
 }  // namespace fix_orientation

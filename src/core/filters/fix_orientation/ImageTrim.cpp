@@ -4,10 +4,17 @@
 #include "ImageTrim.h"
 
 #include <algorithm>
+#include <climits>
+#include <cmath>
 
 namespace fix_orientation {
 
 namespace {
+
+// Clamped, because a damaged project file may hold edges as large as an int holds.
+int scaledEdge(const int edge, const double factor) {
+  return static_cast<int>(std::clamp(std::round(edge * factor), 0.0, static_cast<double>(INT_MAX)));
+}
 
 // Takes \p excess off the two (non-negative) edges, half from each where possible. What one
 // edge can't give up is taken from the other one; neither edge drops below zero.
@@ -43,6 +50,20 @@ ImageTrim ImageTrim::rotated(const OrthogonalRotation& rotation) const {
 
 ImageTrim ImageTrim::unrotated(const OrthogonalRotation& rotation) const {
   return rotatedClockwise(*this, (4 - rotation.toDegrees() / 90) % 4);
+}
+
+ImageTrim ImageTrim::rescaled(const Dpi& from, const Dpi& to) const {
+  if (from.isNull() || to.isNull()) {
+    return *this;
+  }
+  const double horizontalFactor = static_cast<double>(to.horizontal()) / from.horizontal();
+  const double verticalFactor = static_cast<double>(to.vertical()) / from.vertical();
+  ImageTrim result(*this);
+  result.left = scaledEdge(left, horizontalFactor);
+  result.right = scaledEdge(right, horizontalFactor);
+  result.top = scaledEdge(top, verticalFactor);
+  result.bottom = scaledEdge(bottom, verticalFactor);
+  return result;
 }
 
 QRect ImageTrim::toInnerRect(const QSize& imageSize) const {

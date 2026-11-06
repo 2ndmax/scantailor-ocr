@@ -183,12 +183,9 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QSpinBox" name="trimTopSpin">
+           <widget class="QDoubleSpinBox" name="trimTopSpin">
             <property name="keyboardTracking">
              <bool>false</bool>
-            </property>
-            <property name="suffix">
-             <string notr="true"> px</string>
             </property>
            </widget>
           </item>
@@ -203,12 +200,9 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QSpinBox" name="trimBottomSpin">
+           <widget class="QDoubleSpinBox" name="trimBottomSpin">
             <property name="keyboardTracking">
              <bool>false</bool>
-            </property>
-            <property name="suffix">
-             <string notr="true"> px</string>
             </property>
            </widget>
           </item>
@@ -223,12 +217,9 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QSpinBox" name="trimLeftSpin">
+           <widget class="QDoubleSpinBox" name="trimLeftSpin">
             <property name="keyboardTracking">
              <bool>false</bool>
-            </property>
-            <property name="suffix">
-             <string notr="true"> px</string>
             </property>
            </widget>
           </item>
@@ -243,12 +234,9 @@
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QSpinBox" name="trimRightSpin">
+           <widget class="QDoubleSpinBox" name="trimRightSpin">
             <property name="keyboardTracking">
              <bool>false</bool>
-            </property>
-            <property name="suffix">
-             <string notr="true"> px</string>
             </property>
            </widget>
           </item>

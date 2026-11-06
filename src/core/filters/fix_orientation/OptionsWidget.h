@@ -14,12 +14,14 @@
 #include "PageId.h"
 #include "PageInfo.h"
 #include "PageSelectionAccessor.h"
+#include "Units.h"
+#include "UnitsListener.h"
 #include "ui_OptionsWidget.h"
 
 namespace fix_orientation {
 class Settings;
 
-class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
+class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private Ui::OptionsWidget {
   Q_OBJECT
  public:
   OptionsWidget(std::shared_ptr<Settings> settings, const PageSelectionAccessor& pageSelectionAccessor);
@@ -32,6 +34,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   /** The trim of the current page, in source image pixels. */
   ImageTrim trim() const;
+
+  void onUnitsChanged(Units units) override;
 
  signals:
 
@@ -50,7 +54,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void trimEnableToggled(bool checked);
 
-  void trimMarginsChanged(int value);
+  void trimMarginsChanged(double value);
 
  private:
   void setRotation(const OrthogonalRotation& rotation);
@@ -70,11 +74,26 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   // The edges refer to the view, not to the source image.
   ImageTrim currentTrimFromControls() const;
 
+  // The resolution of the image as seen in the view: a quarter turn swaps its two directions.
+  Dpi viewDpi() const;
+
+  // The unit of the trim fields: pixels if the image has no resolution to convert with.
+  Units fieldUnits() const;
+
+  // A trim edge of \p pixels in the unit of the fields, and back, rounded to whole pixels.
+  double pixelsToField(int pixels, Qt::Orientation direction) const;
+  int fieldToPixels(double value, Qt::Orientation direction) const;
+
+  void setTrimFieldMaximum(QDoubleSpinBox* spinBox, int pixels, Qt::Orientation direction);
+
   std::shared_ptr<Settings> m_settings;
   PageSelectionAccessor m_pageSelectionAccessor;
   PageId m_pageId;
   QSize m_imagePixelSize;
+  Dpi m_imageDpi;
   OrthogonalRotation m_rotation;
+  // The trim in the fields, in pixels of the view. The fields may show rounded values.
+  ImageTrim m_viewTrim;
 
   ConnectionManager m_connectionManager;
 };

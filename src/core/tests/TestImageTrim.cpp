@@ -91,5 +91,37 @@ BOOST_AUTO_TEST_CASE(huge_edges_leave_the_rectangle_inside) {
   }
 }
 
+// "Apply to ..." keeps the length of a trim on a page of another resolution: 30 px at 300 dpi
+// are 2.54 mm, which are 60 px at 600 dpi. Each direction uses its own resolution.
+BOOST_AUTO_TEST_CASE(rescaled_keeps_the_length_for_another_resolution) {
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.left = 30;
+  trim.right = 15;
+  trim.top = 10;
+  trim.bottom = 1;
+  const ImageTrim scaled = trim.rescaled(Dpi(300, 200), Dpi(600, 300));
+  BOOST_CHECK(scaled.enabled);
+  BOOST_CHECK_EQUAL(scaled.left, 60);
+  BOOST_CHECK_EQUAL(scaled.right, 30);
+  BOOST_CHECK_EQUAL(scaled.top, 15);
+  BOOST_CHECK_EQUAL(scaled.bottom, 2);  // 1.5 rounds up
+}
+
+BOOST_AUTO_TEST_CASE(rescaled_keeps_the_pixels_without_a_resolution) {
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.left = 30;
+  BOOST_CHECK_EQUAL(trim.rescaled(Dpi(), Dpi(600, 600)).left, 30);
+  BOOST_CHECK_EQUAL(trim.rescaled(Dpi(300, 300), Dpi()).left, 30);
+}
+
+BOOST_AUTO_TEST_CASE(rescaled_huge_edges_stay_positive) {
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.left = 2147483647;
+  BOOST_CHECK_EQUAL(trim.rescaled(Dpi(100, 100), Dpi(1200, 1200)).left, 2147483647);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

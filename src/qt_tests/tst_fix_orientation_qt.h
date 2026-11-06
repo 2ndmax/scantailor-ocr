@@ -14,6 +14,10 @@ class TestFixOrientationQt : public QObject {
   void testTrimFieldsKeepValuesOnPageSwitch();
   void testTrimFieldsShowWhatIsComputed();
   void testViewFollowsChangesDuringLoading();
+  void testTrimFieldsShowTheUnits();
+  void testTrimFieldsKeepTheOtherEdges();
+  void testTrimFieldsFollowAUnitChange();
+  void testTrimFieldsShowPixelsWithoutResolution();
 };
 
 #endif

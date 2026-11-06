@@ -9,6 +9,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <map>
 #include <utility>
 
 #include "../../Utils.h"
@@ -16,6 +18,8 @@
 #include "Filter.h"
 #include "ProjectPages.h"
 #include "Settings.h"
+#include "UnitsConverter.h"
+#include "UnitsProvider.h"
 
 namespace fix_orientation {
 
@@ -24,10 +28,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
       m_pageSelectionAccessor(pageSelectionAccessor),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
-  // The trim fields are as wide as "9999 px".
-  for (QSpinBox* spinBox : {trimTopSpin, trimBottomSpin, trimLeftSpin, trimRightSpin}) {
-    core::Utils::setNumberFieldWidth(spinBox, 9999);
-  }
+  onUnitsChanged(UnitsProvider::getInstance().getUnits());
   setupIcons();
 
   setupUiConnections();
@@ -40,8 +41,44 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const OrthogonalRotati
 
   m_pageId = pageInfo.id();
   m_imagePixelSize = pageInfo.metadata().size();
+  m_imageDpi = pageInfo.metadata().dpi();
   m_rotation = rotation;
   setRotationPixmap();
+  // An image without a resolution shows pixels, so the format may change with the page.
+  onUnitsChanged(UnitsProvider::getInstance().getUnits());
+}
+
+void OptionsWidget::onUnitsChanged(const Units /*units*/) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  const Units units = fieldUnits();
+  int decimals;
+  double step;
+  double widestValue;
+  switch (units) {
+    case PIXELS:
+      decimals = 0;
+      step = 1.0;
+      widestValue = 9999;
+      break;
+    case MILLIMETRES:
+      decimals = 1;
+      step = 1.0;
+      widestValue = 999.9;
+      break;
+    default:
+      decimals = 2;
+      step = 0.01;
+      widestValue = 99.99;
+      break;
+  }
+  const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
+  for (QDoubleSpinBox* spinBox : {trimTopSpin, trimBottomSpin, trimLeftSpin, trimRightSpin}) {
+    spinBox->setDecimals(decimals);
+    spinBox->setSingleStep(step);
+    spinBox->setSuffix(unitSuffix);
+    core::Utils::setNumberFieldWidth(spinBox, widestValue);
+  }
   pullTrimToControls();
 }
 
@@ -83,8 +120,24 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyRot
   if (applyTrim) {
     // The fields refer to the view, so each page gets them turned back by its own rotation.
     const ImageTrim viewTrim(currentTrimFromControls());
+    // A length the fields show in mm, cm or inches stays that length on a page of another
+    // resolution. Pixels stay pixels.
+    std::map<ImageId, Dpi> pageDpis;
+    if (fieldUnits() != PIXELS) {
+      const PageSequence allPages(m_pageSelectionAccessor.allPages());
+      for (size_t i = 0; i < allPages.numPages(); ++i) {
+        const PageInfo& info = allPages.pageAt(i);
+        pageDpis[info.imageId()] = info.metadata().dpi();
+      }
+    }
     for (const PageId& page : pages) {
-      m_settings->setTrim(page.imageId(), viewTrim.unrotated(m_settings->getRotationFor(page.imageId())));
+      const OrthogonalRotation pageRotation(m_settings->getRotationFor(page.imageId()));
+      ImageTrim pageTrim(viewTrim);
+      const auto dpiIt = pageDpis.find(page.imageId());
+      if (dpiIt != pageDpis.end()) {
+        pageTrim = viewTrim.rescaled(viewDpi(), Dpi(pageRotation.rotate(dpiIt->second.toSize())));
+      }
+      m_settings->setTrim(page.imageId(), pageTrim.unrotated(pageRotation));
     }
   }
 
@@ -121,24 +174,69 @@ void OptionsWidget::trimEnableToggled(const bool checked) {
   pushTrimFromControls();
 }
 
-void OptionsWidget::trimMarginsChanged(const int /*value*/) {
+void OptionsWidget::trimMarginsChanged(const double value) {
   if (!trimEnabledCheck->isChecked()) {
     return;
   }
-  updateTrimMaximums();
+  // Only the changed edge is converted back. Converting all four fields would move the others by
+  // a pixel when the shown value is rounded, e.g. 30 px at 600 dpi are shown as 1.3 mm.
+  const QSize viewSize(m_rotation.rotate(m_imagePixelSize));
+  const int maxHorizontal = std::max(0, viewSize.width() - kMinTrimInnerSide);
+  const int maxVertical = std::max(0, viewSize.height() - kMinTrimInnerSide);
+  const QObject* const field = sender();
+  if (field == trimLeftSpin) {
+    m_viewTrim.left
+        = std::clamp(fieldToPixels(value, Qt::Horizontal), 0, std::max(0, maxHorizontal - m_viewTrim.right));
+  } else if (field == trimRightSpin) {
+    m_viewTrim.right
+        = std::clamp(fieldToPixels(value, Qt::Horizontal), 0, std::max(0, maxHorizontal - m_viewTrim.left));
+  } else if (field == trimTopSpin) {
+    m_viewTrim.top = std::clamp(fieldToPixels(value, Qt::Vertical), 0, std::max(0, maxVertical - m_viewTrim.bottom));
+  } else if (field == trimBottomSpin) {
+    m_viewTrim.bottom = std::clamp(fieldToPixels(value, Qt::Vertical), 0, std::max(0, maxVertical - m_viewTrim.top));
+  }
+  {
+    auto block = m_connectionManager.getScopedBlock();
+    updateTrimMaximums();
+  }
   pushTrimFromControls();
 }
 
+Dpi OptionsWidget::viewDpi() const {
+  return Dpi(m_rotation.rotate(m_imageDpi.toSize()));
+}
+
+Units OptionsWidget::fieldUnits() const {
+  return m_imageDpi.isNull() ? PIXELS : UnitsProvider::getInstance().getUnits();
+}
+
+double OptionsWidget::pixelsToField(const int pixels, const Qt::Orientation direction) const {
+  double horizontal = pixels;
+  double vertical = pixels;
+  UnitsConverter(viewDpi()).convert(horizontal, vertical, PIXELS, fieldUnits());
+  return (direction == Qt::Horizontal) ? horizontal : vertical;
+}
+
+int OptionsWidget::fieldToPixels(const double value, const Qt::Orientation direction) const {
+  double horizontal = value;
+  double vertical = value;
+  UnitsConverter(viewDpi()).convert(horizontal, vertical, fieldUnits(), PIXELS);
+  return static_cast<int>(std::lround((direction == Qt::Horizontal) ? horizontal : vertical));
+}
+
+void OptionsWidget::setTrimFieldMaximum(QDoubleSpinBox* spinBox, const int pixels, const Qt::Orientation direction) {
+  spinBox->setMaximum(pixelsToField(std::max(0, pixels), direction));
+}
 
 void OptionsWidget::updateTrimMaximums() {
   const QSize viewSize(m_rotation.rotate(m_imagePixelSize));
   const int maxHorizontal = std::max(0, viewSize.width() - kMinTrimInnerSide);
   const int maxVertical = std::max(0, viewSize.height() - kMinTrimInnerSide);
 
-  trimLeftSpin->setMaximum(std::max(0, maxHorizontal - trimRightSpin->value()));
-  trimRightSpin->setMaximum(std::max(0, maxHorizontal - trimLeftSpin->value()));
-  trimTopSpin->setMaximum(std::max(0, maxVertical - trimBottomSpin->value()));
-  trimBottomSpin->setMaximum(std::max(0, maxVertical - trimTopSpin->value()));
+  setTrimFieldMaximum(trimLeftSpin, maxHorizontal - m_viewTrim.right, Qt::Horizontal);
+  setTrimFieldMaximum(trimRightSpin, maxHorizontal - m_viewTrim.left, Qt::Horizontal);
+  setTrimFieldMaximum(trimTopSpin, maxVertical - m_viewTrim.bottom, Qt::Vertical);
+  setTrimFieldMaximum(trimBottomSpin, maxVertical - m_viewTrim.top, Qt::Vertical);
 }
 
 void OptionsWidget::pullTrimToControls() {
@@ -153,17 +251,14 @@ void OptionsWidget::pullTrimToControls() {
     trim.right = viewSize.width() - inner.left() - inner.width();
     trim.bottom = viewSize.height() - inner.top() - inner.height();
   }
+  m_viewTrim = trim;
   trimEnabledCheck->setChecked(trim.enabled);
-  // Each maximum depends on the opposite field, so the values are set against the full ranges.
-  for (QSpinBox* spinBox : {trimLeftSpin, trimRightSpin, trimTopSpin, trimBottomSpin}) {
-    spinBox->setValue(0);
-  }
+  // The maximums come from the pixels, so they never cut the values of the page shown before.
   updateTrimMaximums();
-  trimLeftSpin->setValue(trim.left);
-  trimRightSpin->setValue(trim.right);
-  trimTopSpin->setValue(trim.top);
-  trimBottomSpin->setValue(trim.bottom);
-  updateTrimMaximums();
+  trimLeftSpin->setValue(pixelsToField(trim.left, Qt::Horizontal));
+  trimRightSpin->setValue(pixelsToField(trim.right, Qt::Horizontal));
+  trimTopSpin->setValue(pixelsToField(trim.top, Qt::Vertical));
+  trimBottomSpin->setValue(pixelsToField(trim.bottom, Qt::Vertical));
   trimFieldsWidget->setEnabled(trim.enabled);
 }
 
@@ -180,10 +275,10 @@ ImageTrim OptionsWidget::currentTrimFromControls() const {
   if (!trim.enabled) {
     return trim;
   }
-  trim.left = trimLeftSpin->value();
-  trim.right = trimRightSpin->value();
-  trim.top = trimTopSpin->value();
-  trim.bottom = trimBottomSpin->value();
+  trim.left = m_viewTrim.left;
+  trim.right = m_viewTrim.right;
+  trim.top = m_viewTrim.top;
+  trim.bottom = m_viewTrim.bottom;
   return trim;
 }
 
@@ -215,10 +310,10 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(rotateRightBtn, &QAbstractButton::clicked, this, &OptionsWidget::rotateRight);
   CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyToDialog);
   CONNECT(trimEnabledCheck, &QAbstractButton::toggled, this, &OptionsWidget::trimEnableToggled);
-  CONNECT(trimLeftSpin, &QSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
-  CONNECT(trimRightSpin, &QSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
-  CONNECT(trimTopSpin, &QSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
-  CONNECT(trimBottomSpin, &QSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
+  CONNECT(trimLeftSpin, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
+  CONNECT(trimRightSpin, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
+  CONNECT(trimTopSpin, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
+  CONNECT(trimBottomSpin, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
 }
 
 #undef CONNECT

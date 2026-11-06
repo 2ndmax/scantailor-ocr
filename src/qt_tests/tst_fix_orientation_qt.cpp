@@ -12,6 +12,7 @@
 #include <PageOrientationCollector.h>
 #include <PageSelectionAccessor.h>
 #include <ProjectReader.h>
+#include <UnitsProvider.h>
 #include <filters/fix_orientation/CacheDrivenTask.h>
 #include <filters/fix_orientation/Filter.h>
 #include <filters/fix_orientation/OptionsWidget.h>
@@ -32,9 +33,25 @@
 using namespace fix_orientation;
 
 namespace {
-PageInfo pageInfo(const ImageId& imageId, const QSize& size) {
-  return PageInfo(PageId(imageId), ImageMetadata(size, Dpi(300, 300)), 1, false, false);
+PageInfo pageInfo(const ImageId& imageId, const QSize& size, const Dpi& dpi = Dpi(300, 300)) {
+  return PageInfo(PageId(imageId), ImageMetadata(size, dpi), 1, false, false);
 }
+
+// Sets the unit of the length fields for one test and restores the previous one.
+class ScopedUnits {
+ public:
+  explicit ScopedUnits(const Units units) : m_previous(UnitsProvider::getInstance().getUnits()) {
+    UnitsProvider::getInstance().setUnits(units);
+  }
+
+  ~ScopedUnits() { UnitsProvider::getInstance().setUnits(m_previous); }
+
+  ScopedUnits(const ScopedUnits&) = delete;
+  ScopedUnits& operator=(const ScopedUnits&) = delete;
+
+ private:
+  const Units m_previous;
+};
 
 OrthogonalRotation quarterTurns(const int count) {
   OrthogonalRotation rotation;
@@ -44,8 +61,8 @@ OrthogonalRotation quarterTurns(const int count) {
   return rotation;
 }
 
-QSpinBox* spinBox(const QWidget& widget, const char* name) {
-  return widget.findChild<QSpinBox*>(name);
+QDoubleSpinBox* spinBox(const QWidget& widget, const char* name) {
+  return widget.findChild<QDoubleSpinBox*>(name);
 }
 
 // Keeps the image widget that a filter result shows.
@@ -100,6 +117,7 @@ void TestFixOrientationQt::testZeroRotationIsSaved() {
 }
 
 void TestFixOrientationQt::testTrimFieldsFollowRotation() {
+  const ScopedUnits pixelUnits(PIXELS);
   // The trim fields refer to the view; the trim is saved for the source image.
   auto settings = std::make_shared<Settings>();
   const ImageId image("page.png");
@@ -111,9 +129,9 @@ void TestFixOrientationQt::testTrimFieldsFollowRotation() {
   OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
   // A quarter turn clockwise shows the left edge at the top.
   widget.preUpdateUI(pageInfo(image, QSize(400, 300)), quarterTurns(1));
-  QSpinBox* const top = spinBox(widget, "trimTopSpin");
-  QSpinBox* const left = spinBox(widget, "trimLeftSpin");
-  QSpinBox* const right = spinBox(widget, "trimRightSpin");
+  QDoubleSpinBox* const top = spinBox(widget, "trimTopSpin");
+  QDoubleSpinBox* const left = spinBox(widget, "trimLeftSpin");
+  QDoubleSpinBox* const right = spinBox(widget, "trimRightSpin");
   QVERIFY(top != nullptr);
   QVERIFY(left != nullptr);
   QVERIFY(right != nullptr);
@@ -130,6 +148,7 @@ void TestFixOrientationQt::testTrimFieldsFollowRotation() {
 }
 
 void TestFixOrientationQt::testTrimFieldsKeepValuesOnPageSwitch() {
+  const ScopedUnits pixelUnits(PIXELS);
   // The maximum of a field depends on the opposite field. Those of the previous page must not cut
   // the values of the next one.
   auto settings = std::make_shared<Settings>();
@@ -147,8 +166,8 @@ void TestFixOrientationQt::testTrimFieldsKeepValuesOnPageSwitch() {
   OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
   widget.preUpdateUI(pageInfo(first, QSize(4000, 3000)), OrthogonalRotation());
   widget.preUpdateUI(pageInfo(second, QSize(4000, 3000)), OrthogonalRotation());
-  QSpinBox* const right = spinBox(widget, "trimRightSpin");
-  QSpinBox* const top = spinBox(widget, "trimTopSpin");
+  QDoubleSpinBox* const right = spinBox(widget, "trimRightSpin");
+  QDoubleSpinBox* const top = spinBox(widget, "trimTopSpin");
   QVERIFY(right != nullptr);
   QVERIFY(top != nullptr);
   QCOMPARE(right->value(), 1500);
@@ -159,6 +178,7 @@ void TestFixOrientationQt::testTrimFieldsKeepValuesOnPageSwitch() {
 }
 
 void TestFixOrientationQt::testTrimFieldsShowWhatIsComputed() {
+  const ScopedUnits pixelUnits(PIXELS);
   // A trim that does not fit the image, e.g. after the image was replaced by a smaller one: the fields
   // show the values that are used (ImageTrim::toInnerRect() redistributes them), not cut ones.
   auto settings = std::make_shared<Settings>();
@@ -171,8 +191,8 @@ void TestFixOrientationQt::testTrimFieldsShowWhatIsComputed() {
 
   OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
   widget.preUpdateUI(pageInfo(image, QSize(400, 300)), OrthogonalRotation());
-  QSpinBox* const left = spinBox(widget, "trimLeftSpin");
-  QSpinBox* const right = spinBox(widget, "trimRightSpin");
+  QDoubleSpinBox* const left = spinBox(widget, "trimLeftSpin");
+  QDoubleSpinBox* const right = spinBox(widget, "trimRightSpin");
   QVERIFY(left != nullptr);
   QVERIFY(right != nullptr);
   const QRect inner = trim.toInnerRect(QSize(400, 300));
@@ -182,6 +202,7 @@ void TestFixOrientationQt::testTrimFieldsShowWhatIsComputed() {
 }
 
 void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
+  const ScopedUnits pixelUnits(PIXELS);
   // Rotating a page while it is processed must not be undone when it is shown, and the view must
   // show the rotation and the trim.
   auto filter = std::make_shared<Filter>(PageSelectionAccessor(nullptr));
@@ -199,7 +220,7 @@ void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
   QVERIFY(widget != nullptr);
   auto* const rotateRight = widget->findChild<QAbstractButton*>("rotateRightBtn");
   auto* const trimEnabled = widget->findChild<QCheckBox*>("trimEnabledCheck");
-  QSpinBox* const top = spinBox(*widget, "trimTopSpin");
+  QDoubleSpinBox* const top = spinBox(*widget, "trimTopSpin");
   QVERIFY(rotateRight != nullptr);
   QVERIFY(trimEnabled != nullptr);
   QVERIFY(top != nullptr);
@@ -217,4 +238,87 @@ void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
   trimEnabled->setChecked(true);
   top->setValue(10);
   QCOMPARE(view->virtualDisplayRect().size(), QSizeF(300, 390));
+}
+
+void TestFixOrientationQt::testTrimFieldsShowTheUnits() {
+  // The trim fields show the unit of the program settings, converted with the resolution of the
+  // image; the trim is still saved in pixels.
+  const ScopedUnits millimeters(MILLIMETRES);
+  auto settings = std::make_shared<Settings>();
+  const ImageId image("page.png");
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.left = 300;
+  settings->setTrim(image, trim);
+
+  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(pageInfo(image, QSize(4000, 3000)), OrthogonalRotation());
+  QDoubleSpinBox* const left = spinBox(widget, "trimLeftSpin");
+  QDoubleSpinBox* const right = spinBox(widget, "trimRightSpin");
+  QVERIFY(left != nullptr);
+  QVERIFY(right != nullptr);
+  QVERIFY(left->suffix().endsWith("mm"));
+  QCOMPARE(left->value(), 25.4);  // 300 px at 300 dpi
+
+  right->setValue(50.8);
+  QCOMPARE(settings->getTrim(image).right, 600);
+  QCOMPARE(settings->getTrim(image).left, 300);
+}
+
+void TestFixOrientationQt::testTrimFieldsKeepTheOtherEdges() {
+  // A field shows a rounded value: 30 px at 600 dpi are 1.27 mm, shown as 1.3 mm. Changing another
+  // field must not convert that rounded value back (it would give 31 px).
+  const ScopedUnits millimeters(MILLIMETRES);
+  auto settings = std::make_shared<Settings>();
+  const ImageId image("page.png");
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.left = 30;
+  settings->setTrim(image, trim);
+
+  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(pageInfo(image, QSize(4000, 3000), Dpi(600, 600)), OrthogonalRotation());
+  QDoubleSpinBox* const top = spinBox(widget, "trimTopSpin");
+  QVERIFY(top != nullptr);
+  top->setValue(10.0);
+  QCOMPARE(settings->getTrim(image).left, 30);
+  QCOMPARE(settings->getTrim(image).top, 236);  // 10 mm at 600 dpi are 236.2 px
+}
+
+void TestFixOrientationQt::testTrimFieldsFollowAUnitChange() {
+  const ScopedUnits pixelUnits(PIXELS);
+  auto settings = std::make_shared<Settings>();
+  const ImageId image("page.png");
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.top = 600;
+  settings->setTrim(image, trim);
+
+  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(pageInfo(image, QSize(4000, 3000)), OrthogonalRotation());
+  QDoubleSpinBox* const top = spinBox(widget, "trimTopSpin");
+  QVERIFY(top != nullptr);
+  QCOMPARE(top->value(), 600.0);
+
+  UnitsProvider::getInstance().setUnits(INCHES);
+  QCOMPARE(top->value(), 2.0);
+  QCOMPARE(settings->getTrim(image).top, 600);
+}
+
+void TestFixOrientationQt::testTrimFieldsShowPixelsWithoutResolution() {
+  // Without a resolution there is nothing to convert with.
+  const ScopedUnits millimeters(MILLIMETRES);
+  auto settings = std::make_shared<Settings>();
+  const ImageId image("page.png");
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.left = 40;
+  settings->setTrim(image, trim);
+
+  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(pageInfo(image, QSize(400, 300), Dpi()), OrthogonalRotation());
+  QDoubleSpinBox* const left = spinBox(widget, "trimLeftSpin");
+  QVERIFY(left != nullptr);
+  QVERIFY(left->suffix().endsWith("px"));
+  QCOMPARE(left->value(), 40.0);
 }
