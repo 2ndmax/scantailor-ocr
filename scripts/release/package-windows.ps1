@@ -305,6 +305,9 @@ Apache License, Version 2.0 (see tesseract.txt).
 
 The program contains the font "GlyphLessFont" (pdf.ttf) of Tesseract, also licensed under the
 Apache License, Version 2.0.
+
+The program also contains the head and the end of the hOCR and ALTO files of Tesseract, also
+licensed under the Apache License, Version 2.0.
 "@
 Set-Content -Path (Join-Path $licensesDir "tessdata_best.txt") -Value $tessdataNote -Encoding UTF8
 
@@ -341,6 +344,7 @@ $componentsHeader = @(
   "vcpkg; its build scripts and patches are at https://github.com/microsoft/vcpkg/tree/$vcpkgCommit/ports .",
   "",
   "scantailor-ocr.exe, scantailor-ocr-cli.exe (JBIG2 coder from jbig2enc)  ->  licenses\jbig2enc.txt",
+  "scantailor-ocr.exe, scantailor-ocr-cli.exe (GlyphLessFont, head and end of the hOCR and ALTO files of Tesseract)  ->  licenses\tessdata_best.txt",
   "tessdata\*.traineddata  ->  licenses\tessdata_best.txt",
   ""
 )

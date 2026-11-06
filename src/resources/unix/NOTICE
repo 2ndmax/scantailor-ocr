@@ -1,8 +1,10 @@
 ScanTailor OCR is licensed under the GNU General Public License, version 3 (see LICENSE).
 
-It contains two parts licensed under the Apache License, Version 2.0 (see LICENSE.Apache-2.0):
+It contains three parts licensed under the Apache License, Version 2.0 (see LICENSE.Apache-2.0):
 
 - The JBIG2 arithmetic coder of jbig2enc, https://github.com/agl/jbig2enc,
   Copyright 2006 Google Inc., Author: Adam Langley.
   It was shortened to the parts for lossless generic region coding.
 - The font "GlyphLessFont" (pdf.ttf) of Tesseract, https://github.com/tesseract-ocr/tesseract.
+- The head and the end of the hOCR and ALTO files, taken from Tesseract 5.5.3,
+  src/api/hocrrenderer.cpp and src/api/altorenderer.cpp.

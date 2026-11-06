@@ -10,7 +10,7 @@
     </message>
     <message>
         <location filename="../app/AboutDialog.ui" line="33"/>
-        <source>ScanTailor OCR is an interactive post-processing tool for scanned pages. It performs operations such as page splitting, skew correction, adding/removing margins, and others. You give it raw scans, and you get pages ready to be printed, or a searchable PDF with text recognition (OCR) made from them. ScanTailor OCR is based on ScanTailor Advanced 1.2.1.</source>
+        <source>ScanTailor OCR is an interactive post-processing tool for scanned pages. It performs operations such as page splitting, skew correction, adding/removing margins, and others. You give it raw scans, and you get pages ready to be printed. From these it exports a searchable PDF with text recognition (OCR) and the recognized text as TXT, hOCR or ALTO files. ScanTailor OCR is based on ScanTailor Advanced 1.2.1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -90,7 +90,7 @@
     </message>
     <message>
         <location filename="../app/AboutDialog.ui" line="43"/>
-        <source>ScanTailor OCR is licensed under the GNU General Public License, version 3 (see the License tab). It contains the JBIG2 coder of jbig2enc and the font GlyphLessFont of Tesseract, both licensed under the Apache License, Version 2.0. The license texts come with the program.</source>
+        <source>ScanTailor OCR is licensed under the GNU General Public License, version 3 (see the License tab). It contains three parts licensed under the Apache License, Version 2.0: the JBIG2 coder of jbig2enc, and the font GlyphLessFont and the head and end of the hOCR and ALTO files of Tesseract. The license texts come with the program.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
