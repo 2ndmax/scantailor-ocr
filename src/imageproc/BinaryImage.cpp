@@ -478,6 +478,7 @@ QRect BinaryImage::contentBoundingBox(const BWColor contentColor) const {
 }  // BinaryImage::contentBoundingBox
 
 void BinaryImage::setPixel(int x, int y, BWColor color) {
+  assert(x >= 0 && x < m_width && y >= 0 && y < m_height);
   uint32_t* const line = this->data() + m_wpl * y;
   const uint32_t mask = uint32_t(0x80000000) >> (x & 31);
   if (color == WHITE) {
