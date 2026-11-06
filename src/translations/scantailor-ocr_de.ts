@@ -435,7 +435,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     <message>
         <location filename="../core/CommandLineRun.cpp" line="364"/>
         <source>The export will create: %1</source>
-        <translation>Der Export wird erstellen: %1</translation>
+        <translation>Der Export erstellt: %1</translation>
     </message>
     <message>
         <location filename="../core/CommandLineRun.cpp" line="373"/>
