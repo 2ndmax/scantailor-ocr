@@ -278,6 +278,10 @@ QString ExportPaths::withoutFormatExtension(const QString& base) {
   return base;
 }
 
+QString ExportPaths::nameFromInput(const QString& typed) {
+  return withoutFormatExtension(typed.trimmed());
+}
+
 ExportPaths ExportPaths::forPdfFile(const QString& pdfFile) {
   const QString extension = QStringLiteral(".pdf");
   ExportPaths paths

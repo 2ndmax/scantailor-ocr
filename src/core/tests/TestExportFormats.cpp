@@ -317,6 +317,8 @@ BOOST_AUTO_TEST_CASE(test_paths_follow_one_rule) {
   BOOST_CHECK(ExportPaths::withoutFormatExtension("Book.txt") == "Book");
   BOOST_CHECK(ExportPaths::withoutFormatExtension("Book.v2") == "Book.v2");
   BOOST_CHECK(ExportPaths::withoutFormatExtension("Book") == "Book");
+  BOOST_CHECK(ExportPaths::nameFromInput(" Book.pdf ") == "Book");
+  BOOST_CHECK(ExportPaths::nameFromInput("Book.pdf.txt") == "Book.pdf");
 }
 
 BOOST_AUTO_TEST_CASE(test_export_options_take_the_formats_of_the_project) {

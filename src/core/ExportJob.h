@@ -29,6 +29,12 @@ struct ExportPaths {
   /** Removes an extension of one of the formats, as someone may type: "Book.pdf" means the base "Book". */
   static QString withoutFormatExtension(const QString& base);
 
+  /**
+   * The name of an export as it is typed, or as it comes from the project file: without spaces around it and
+   * without an extension of one of the formats. The app and the command line tool use this one rule.
+   */
+  static QString nameFromInput(const QString& typed);
+
   /** For callers that are given a PDF file: the other formats go beside it, under the same name. */
   static ExportPaths forPdfFile(const QString& pdfFile);
 };

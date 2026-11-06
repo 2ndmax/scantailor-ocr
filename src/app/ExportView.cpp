@@ -742,7 +742,7 @@ void ExportView::browse() {
 QString ExportView::exportBase(QString* problem) const {
   const QString folder = QDir::fromNativeSeparators(m_folderEdit->text().trimmed());
   // An extension of a format, as someone may type it, is no part of the name.
-  const QString name = ExportPaths::withoutFormatExtension(m_nameEdit->text().trimmed());
+  const QString name = ExportPaths::nameFromInput(m_nameEdit->text());
   if (folder.isEmpty()) {
     *problem = tr("Choose the folder for the export.");
     return QString();
