@@ -27,8 +27,11 @@
 namespace {
 std::atomic<bool> cancelRequested(false);
 
-void requestCancel(int) {
+void requestCancel(const int signalNumber) {
   cancelRequested = true;
+  // Windows (and other systems) reset the handler before calling it. Without this, a second Ctrl+C
+  // would end the tool at once, leaving temporary files and the changed code page behind.
+  std::signal(signalNumber, requestCancel);
 }
 
 #ifdef _WIN32
