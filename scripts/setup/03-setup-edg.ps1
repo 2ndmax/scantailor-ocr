@@ -12,9 +12,9 @@
        the version this setup was tested with, or the newest one; SoftFloat always at the commit
        EDG pins.
     3. Build: SoftFloat as softfloat.lib with the CMake file in support\edg-softfloat\ (SoftFloat
-       only ships makefiles for GCC and MinGW), then EDG with its preset windows-msvc-release (about
-       ten minutes the first time). EDG finds SoftFloat through EDG_SOFTFLOAT_INCLUDE_PATH and
-       EDG_SOFTFLOAT_LIB_PATH, which are set for the build only.
+       only ships makefiles for GCC and MinGW), then EDG with its preset windows-msvc-release.
+       EDG finds SoftFloat through EDG_SOFTFLOAT_INCLUDE_PATH and EDG_SOFTFLOAT_LIB_PATH, which
+       are set for the build only.
     4. EDG_ROOT: sets the variable for your user account; scripts\analysis\04-edg.ps1 reads it.
     5. Check: runs cpfe.exe on a small C++17 file in strict standard mode.
   The output also goes to logs\03-setup-edg.log.
@@ -288,7 +288,7 @@ $menu = @(
        Done = { $Vs -and (Find-Mscoree) -and (Get-Command git -ErrorAction SilentlyContinue) }; Run = $stepRequirements }
     @{ Title = 'Get EDG and SoftFloat'
        Done = { (Test-Path $EdgDir) -and (Test-Path $SoftFloatDir) }; Run = $stepSources }
-    @{ Title = 'Build SoftFloat and EDG (about ten minutes the first time)'
+    @{ Title = 'Build SoftFloat and EDG'
        Done = { Test-Path $Cpfe }; Run = $stepBuild }
     @{ Title = 'Set EDG_ROOT for your user account'
        Done = { [Environment]::GetEnvironmentVariable('EDG_ROOT', 'User') -eq $EdgDir }; Run = $stepEdgRoot }

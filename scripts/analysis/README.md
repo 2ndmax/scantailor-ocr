@@ -133,8 +133,8 @@ Needed once, and again for a newer EDG:
 
 It checks the requirements (among them Python 3.6 or later; the one vcpkg downloads is enough),
 clones EDG and [Berkeley SoftFloat 3](https://github.com/ucb-bar/berkeley-softfloat-3), which
-EDG needs on Windows for its floating-point arithmetic, builds both (about ten minutes the first
-time), sets `EDG_ROOT` for your user account and checks the result.  The steps are described at
+EDG needs on Windows for its floating-point arithmetic, builds both, sets `EDG_ROOT` for your
+user account and checks the result.  The steps are described at
 the top of the script.  Without `EDG_ROOT`, `04-edg.ps1` takes `-EdgDir <folder>`.
 
 ### 05 – MSVC with C++20
