@@ -169,8 +169,7 @@ MainWindow::MainWindow()
     }
   });
 
-  thumbColumnViewBtn->setChecked(settings.isSingleColumnThumbnailDisplayEnabled());
-  deviationHighlightingBtn->setChecked(settings.isHighlightDeviationEnabled());
+  updateThumbnailButtons();
 
   addAction(actionFirstPage);
   addAction(actionLastPage);
@@ -1821,6 +1820,10 @@ void MainWindow::onSettingsChanged() {
   }
 
   updateThumbnailViewMode();
+  // Both settings can also be changed in the Program Settings, not only with these buttons.
+  // REVIEW-NOTE (2026-11): the buttons showed the state of the program start until a restart.
+  // No regression test because the tests don't create a MainWindow.
+  updateThumbnailButtons();
 
   const QSizeF maxLogicalThumbSize = settings.getMaxLogicalThumbnailSize();
   if (m_maxLogicalThumbSize != maxLogicalThumbSize) {
@@ -2922,6 +2925,13 @@ void MainWindow::updateThumbnailViewMode() {
   if (m_thumbSequence->getViewMode() != viewMode) {
     m_thumbSequence->setViewMode(viewMode);
   }
+}
+
+void MainWindow::updateThumbnailButtons() {
+  const ApplicationSettings& settings = ApplicationSettings::getInstance();
+  // setChecked() doesn't emit clicked(), so this doesn't write the settings back.
+  thumbColumnViewBtn->setChecked(settings.isSingleColumnThumbnailDisplayEnabled());
+  deviationHighlightingBtn->setChecked(settings.isHighlightDeviationEnabled());
 }
 
 void MainWindow::updateAutoSaveTimer() {
