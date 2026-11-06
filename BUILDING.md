@@ -180,7 +180,7 @@ with another compiler and standard library; it is started by hand and builds no 
   folder next to the program (default `ON`).
 * `-DDEVELOPER_VERSION=ON` – enable the internal debug features (default: `ON` for Debug
   builds, `OFF` otherwise).
-* `-DNATIVE_ARCH=ON` – GCC and Clang only: optimize for the CPU of the build machine. The
+* `-DNATIVE_ARCH=ON` – GCC only: optimize for the CPU of the build machine. The
   program then may not run on other computers.
 * `-DENABLE_CODE_ANALYSIS=ON` – extra warnings and static code analysis. Slow; best used in a
   separate build directory (see below).
