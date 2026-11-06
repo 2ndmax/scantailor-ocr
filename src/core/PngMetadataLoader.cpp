@@ -96,6 +96,8 @@ ImageMetadataLoader::Status PngMetadataLoader::loadMetadata(QIODevice& ioDevice,
 
   QSize size;
   Dpi dpi;
+  // png_read_info() refuses sides over 2^31 - 1 (the PNG limit, and libpng's default limit is 1,000,000), so they
+  // fit in int.
   size.setWidth(png_get_image_width(png.handle(), png.info()));
   size.setHeight(png_get_image_height(png.handle(), png.info()));
   png_uint_32 resX, res_y;

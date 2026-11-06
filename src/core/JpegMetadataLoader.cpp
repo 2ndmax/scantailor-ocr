@@ -317,6 +317,7 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
   // The size and the resolution are known from the header. jpeg_start_decompress() isn't
   // needed for them, and would take memory for the whole image with progressive files.
 
+  // JPEG stores the sides in 16 bits, so they fit in int.
   QSize size(cinfo->image_width, cinfo->image_height);
   Dpi dpi;
   if (cinfo->density_unit == 1) {

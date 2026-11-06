@@ -52,6 +52,8 @@ void wienerFilterInPlace(GrayImage& image, QSize const& window_size, double cons
   int const h = image.height();
   double const noise_variance = noise_sigma * noise_sigma;
 
+  // The sums may overflow on large pages, which is harmless: a window's sum is the difference of four of them, and
+  // unsigned arithmetic gives it exactly as long as the window's own sum fits in 32 bits.
   IntegralImage<uint32_t> integral_image(w, h);
   IntegralImage<uint64_t> integral_sqimage(w, h);
 

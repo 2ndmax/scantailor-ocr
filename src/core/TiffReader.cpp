@@ -477,6 +477,7 @@ ImageMetadataLoader::Status TiffReader::readMetadata(QIODevice& device,
     if (TIFFLastDirectory(tif.handle())) {
       break;
     }
+    // A directory chain that loops back also ends here: libtiff detects it and returns 0.
     if (!TIFFReadDirectory(tif.handle())) {
       // Another page is announced but its directory can't be read, so neither it nor any
       // page after it is reachable. The pages so far are taken over, and the caller is told

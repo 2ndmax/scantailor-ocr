@@ -19,6 +19,7 @@
 #include "DebugImages.h"
 #include "Dpi.h"
 #include "FastQueue.h"
+#include "ImageSizeLimit.h"
 #include "TaskStatus.h"
 
 /**
@@ -134,11 +135,12 @@ struct Component {
  * Danielsson): nearly exact; in rare configurations a pixel gets a seed a fraction of a pixel
  * farther than the nearest one.
  *
- * REVIEW-NOTE (2026-10): the vectors are int16_t -> on pages over 32767 px wide or high with no
- * component for that long, they overflow and distances become wrong. Not fixed because such pages
- * are far beyond normal scans.
+ * The vectors fit in int16_t: pages are at most ImageSizeLimit::MAX_SIDE pixels wide and high, so a
+ * seed is at most MAX_SIDE - 1 pixels away.
  */
 class NearestSeedMap {
+  static_assert(ImageSizeLimit::MAX_SIDE - 1 <= std::numeric_limits<int16_t>::max(), "the vectors need a larger type");
+
  public:
   // 8 bytes, as there is one per pixel of the page: the squared distance is computed when needed.
   struct Cell {
