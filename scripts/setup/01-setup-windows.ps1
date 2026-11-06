@@ -179,12 +179,6 @@ function Get-MissingGitTools {
     return @($GitTools | Where-Object { -not (Get-Command $_.Command -ErrorAction SilentlyContinue) })
 }
 
-# Reloads PATH from the registry, so what winget has just installed is found in this window too.
-function Update-Path {
-    $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
-                [Environment]::GetEnvironmentVariable('Path', 'User')
-}
-
 $stepGit = {
     $missing = @(Get-MissingGitTools)
     if ($missing.Count) {

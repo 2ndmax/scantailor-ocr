@@ -182,3 +182,15 @@ function Invoke-StepMenu([string]$Title, [object]$Info, [object[]]$Steps, [int[]
         [void](& $runSteps $numbers)
     }
 }
+
+# Adds the PATH entries from the registry that this window does not have yet. A window keeps the
+# PATH it was opened with, so a tool installed since then (Git by 01-setup-windows.ps1, say)
+# would count as missing. The window's own entries stay, e.g. those of a Developer PowerShell.
+function Update-Path {
+    $have = @($env:Path -split ';' | Where-Object { $_ } | ForEach-Object { $_.TrimEnd('\') })
+    $new = @(foreach ($scope in 'Machine', 'User') {
+            [Environment]::GetEnvironmentVariable('Path', $scope) -split ';' | Where-Object { $_ }
+        }) | Where-Object { $have -notcontains $_.TrimEnd('\') } | Select-Object -Unique
+    if ($new) { $env:Path = (@($env:Path.TrimEnd(';')) + $new) -join ';' }
+}
+Update-Path
