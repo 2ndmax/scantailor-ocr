@@ -195,9 +195,7 @@ DefaultParams::OutputParams::OutputParams() : m_dpi(600, 600), m_despeckleLevel(
 namespace {
 double despeckleLevelFromXml(const QDomElement& el) {
   // A malformed value would become 0.0 and silently switch despeckling off.
-  bool ok = false;
-  const double level = el.attribute("despeckleLevel").toDouble(&ok);
-  return (ok && std::isfinite(level)) ? level : 1.0;
+  return XmlUnmarshaller::number(el, "despeckleLevel", 1.0);
 }
 }  // namespace
 

@@ -10,13 +10,14 @@
 #include <algorithm>
 #include <cmath>
 
+#include "XmlUnmarshaller.h"
+
 using namespace foundation;
 
 namespace deskew {
 // NaN or an angle of 90 degrees would make the geometry of the page NaN or huge.
 double angleFromXml(const QDomElement& el, const QString& name, const double maxDeg) {
-  const double value = el.attribute(name).toDouble();
-  return std::isfinite(value) ? std::clamp(value, -maxDeg, maxDeg) : 0.0;
+  return XmlUnmarshaller::numberInRange(el, name, -maxDeg, maxDeg);
 }
 
 namespace {

@@ -10,6 +10,7 @@
 
 #include "Alignment.h"
 #include "Margins.h"
+#include "XmlUnmarshaller.h"
 
 namespace page_layout {
 namespace {
@@ -21,8 +22,7 @@ namespace {
 const double MAX_TARGET_SIZE_MM = 99999.0;
 
 double targetSizeFromXml(const QDomElement& el, const QString& name) {
-  const double value = el.attribute(name).toDouble();
-  return std::isfinite(value) ? std::clamp(value, 0.0, MAX_TARGET_SIZE_MM) : 0.0;
+  return XmlUnmarshaller::numberInRange(el, name, 0.0, MAX_TARGET_SIZE_MM);
 }
 }  // namespace
 

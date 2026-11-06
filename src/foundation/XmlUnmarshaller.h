@@ -16,6 +16,20 @@ class QPolygonF;
 
 class XmlUnmarshaller {
  public:
+  /**
+   * The attribute \p name as a number, or \p fallback if it is missing, isn't a number or isn't finite.
+   * A damaged or hand-edited project file may hold "nan" or "inf", which a range check like
+   * "value < 0 || value > 1" lets through, as does std::clamp().
+   */
+  static double number(const QDomElement& el, const QString& name, double fallback = 0.0);
+
+  /** As number(), limited to [\p min, \p max]; the fallback is limited as well. */
+  static double numberInRange(const QDomElement& el,
+                              const QString& name,
+                              double min,
+                              double max,
+                              double fallback = 0.0);
+
   static QString string(const QDomElement& el);
 
   static QSize size(const QDomElement& el);

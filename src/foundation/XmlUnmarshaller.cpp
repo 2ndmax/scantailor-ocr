@@ -20,10 +20,23 @@ const double MAX_COORDINATE = 1e7;
 // A damaged or hand-edited project file may hold "nan", "inf" or 1e308; geometry built from them
 // becomes NaN, and Qt's polygon clipping crashed on such huge coordinates.
 double coordinate(const QDomElement& el, const QString& name) {
-  const double value = el.attribute(name).toDouble();
-  return std::isfinite(value) ? std::clamp(value, -MAX_COORDINATE, MAX_COORDINATE) : 0.0;
+  return XmlUnmarshaller::numberInRange(el, name, -MAX_COORDINATE, MAX_COORDINATE);
 }
 }  // namespace
+
+double XmlUnmarshaller::number(const QDomElement& el, const QString& name, const double fallback) {
+  bool ok = false;
+  const double value = el.attribute(name).toDouble(&ok);
+  return (ok && std::isfinite(value)) ? value : fallback;
+}
+
+double XmlUnmarshaller::numberInRange(const QDomElement& el,
+                                      const QString& name,
+                                      const double min,
+                                      const double max,
+                                      const double fallback) {
+  return std::clamp(number(el, name, fallback), min, max);
+}
 
 QString XmlUnmarshaller::string(const QDomElement& el) {
   // QDom has already unescaped the text when reading the document.
