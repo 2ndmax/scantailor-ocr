@@ -983,7 +983,8 @@ void DefaultParamsDialog::setupOutputPanels() {
                                   newGroup(tr("TIFF Compression"), m_tiffCompressionPanel));
 
   // The Export step gets a tab of its own, built like the other tabs: a scroll area with the panels
-  // centered at the top, side by side, in the order of the step.
+  // centered at the top. Two columns: the formats with the text recognition below them, and the PDF
+  // compression beside them.
   auto* pdfTab = new QWidget;
   auto* tabLayout = new QVBoxLayout(pdfTab);
   tabLayout->setContentsMargins(0, 9, 0, 3);
@@ -994,17 +995,17 @@ void DefaultParamsDialog::setupOutputPanels() {
   pdfScrollArea->setWidget(contents);
   auto* grid = new QGridLayout(contents);
   grid->setColumnStretch(0, 1);
-  grid->setColumnStretch(4, 1);
-  grid->setRowStretch(1, 1);
+  grid->setColumnStretch(3, 1);
+  grid->setRowStretch(2, 1);
 
   m_exportFormatsPanel = new ExportFormatsPanel;
   grid->addWidget(newGroup(tr("Formats"), m_exportFormatsPanel), 0, 1, Qt::AlignTop);
   m_ocrPanel = new OcrPanel;
   m_ocrGroup = newGroup(tr("Text Recognition (OCR)"), m_ocrPanel);
-  grid->addWidget(m_ocrGroup, 0, 2, Qt::AlignTop);
+  grid->addWidget(m_ocrGroup, 1, 1, Qt::AlignTop);
   m_pdfCompressionPanel = new PdfCompressionPanel;
   m_pdfCompressionGroup = newGroup(tr("PDF Compression"), m_pdfCompressionPanel);
-  grid->addWidget(m_pdfCompressionGroup, 0, 3, Qt::AlignTop);
+  grid->addWidget(m_pdfCompressionGroup, 0, 2, 2, 1, Qt::AlignTop);
   connect(m_exportFormatsPanel, &ExportFormatsPanel::optionsChanged, this, &DefaultParamsDialog::updateExportPanels);
 
   // After the Output tab, as the steps.
