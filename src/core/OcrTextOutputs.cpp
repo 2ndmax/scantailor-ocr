@@ -55,11 +55,11 @@ QByteArray hocrHead(const QString& title, const QString& tesseractVersion) {
          "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n"
          " <head>\n"
          "  <title>"
-         + title.toHtmlEscaped().toUtf8()
+         + OcrTextOutputs::xmlText(title)
          + "</title>\n"
            "  <meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\"/>\n"
            "  <meta name='ocr-system' content='tesseract "
-         + tesseractVersion.toHtmlEscaped().toUtf8()
+         + OcrTextOutputs::xmlText(tesseractVersion)
          + "' />\n"
            "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par ocr_line ocrx_word ocrp_dir ocrp_lang "
            "ocrp_wconf'/>\n"
@@ -80,7 +80,7 @@ QByteArray altoHead(const QString& imageFile, const QString& tesseractVersion) {
          "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
          "\t\t<sourceImageInformation>\n"
          "\t\t\t<fileName>"
-         + imageFile.toHtmlEscaped().toUtf8()
+         + OcrTextOutputs::xmlText(imageFile)
          + "</fileName>\n"
            "\t\t</sourceImageInformation>\n"
            "\t\t<OCRProcessing ID=\"OCR_0\">\n"
@@ -88,7 +88,7 @@ QByteArray altoHead(const QString& imageFile, const QString& tesseractVersion) {
            "\t\t\t\t<processingSoftware>\n"
            "\t\t\t\t\t<softwareName>Tesseract</softwareName>\n"
            "\t\t\t\t\t<softwareVersion>"
-         + tesseractVersion.toHtmlEscaped().toUtf8()
+         + OcrTextOutputs::xmlText(tesseractVersion)
          + "</softwareVersion>\n"
            "\t\t\t\t</processingSoftware>\n"
            "\t\t\t</ocrProcessingStep>\n"
@@ -288,6 +288,10 @@ void OcrTextOutputs::cancel() {
     m_files->hocr->cancelWriting();
   }
   m_files->altoDir.reset();
+}
+
+QByteArray OcrTextOutputs::xmlText(const QString& text) {
+  return text.toHtmlEscaped().toUtf8();
 }
 
 QString OcrTextOutputs::altoFileName(const int position, const int pageCount, const QString& imageFile) {

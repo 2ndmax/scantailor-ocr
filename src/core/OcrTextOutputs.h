@@ -71,6 +71,9 @@ class OcrTextOutputs {
   /** The name of the ALTO file of a page, e.g. "0001_scan_017.xml". \p position counts from 1. */
   static QString altoFileName(int position, int pageCount, const QString& imageFile);
 
+  /** \p text for the content of an XML element or attribute, in UTF-8. */
+  static QByteArray xmlText(const QString& text);
+
  private:
   struct Files;
 
