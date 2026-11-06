@@ -423,6 +423,56 @@ BOOST_AUTO_TEST_CASE(test_pdf_without_text_layer_starts_no_recognition) {
   BOOST_CHECK(readFile(paths.pdf).startsWith("%PDF"));
 }
 
+// The export fails after it has written a page, so a job writing straight into the file would have changed it.
+BOOST_AUTO_TEST_CASE(test_existing_file_is_replaced_only_after_success) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const std::vector<ExportPage> pages{writeBitonalPage(dir.filePath("p1.tif")),
+                                      writeBitonalPage(dir.filePath("p2.tif"))};
+  BOOST_REQUIRE(QFile::remove(dir.filePath("p2.tif")));
+  ExportOptions options;
+  options.textLayer = false;
+  const ExportPaths paths = ExportPaths::fromBase(dir.filePath("book"));
+  BOOST_REQUIRE(writeFile(paths.pdf, "old pdf"));
+  int pagesWritten = 0;
+  {
+    ExportJob job(pages, paths, options);
+    QObject::connect(&job, &ExportJob::progress,
+                     [&pagesWritten](const int pagesDone, int) { pagesWritten = pagesDone; });
+    job.run();
+    BOOST_CHECK(!job.succeeded());
+    BOOST_CHECK(!job.wasCancelled());
+    BOOST_CHECK(!job.errors().isEmpty());
+  }
+  BOOST_CHECK_EQUAL(pagesWritten, 1);
+  BOOST_CHECK(readFile(paths.pdf) == QByteArray("old pdf"));
+  BOOST_CHECK(namesIn(dir.path()) == (QStringList{"book.pdf", "p1.tif"}));
+
+  // After a successful export it is replaced.
+  const std::vector<ExportPage> goodPages{pages.front()};
+  ExportJob job(goodPages, paths, options);
+  job.run();
+  BOOST_CHECK(job.succeeded());
+  BOOST_CHECK(readFile(paths.pdf).startsWith("%PDF"));
+}
+
+// The text formats have no recognition here, so OcrTextOutputs stands in for the export.
+BOOST_AUTO_TEST_CASE(test_existing_text_files_are_replaced_after_success) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  OcrTextOutputs::Settings settings;
+  settings.txtFile = dir.filePath("book.txt");
+  settings.hocrFile = dir.filePath("book.hocr");
+  settings.pageCount = 1;
+  BOOST_REQUIRE(writeFile(settings.txtFile, "old text"));
+  BOOST_REQUIRE(writeFile(settings.hocrFile, "old hocr"));
+  QString error;
+  BOOST_REQUIRE_MESSAGE(writeOutputs(settings, {"new"}, &error), error.toStdString());
+  BOOST_CHECK(readFile(settings.txtFile).contains("text of new"));
+  BOOST_CHECK(readFile(settings.hocrFile).contains("<div class='ocr_page'>new</div>"));
+  BOOST_CHECK(namesIn(dir.path()) == (QStringList{"book.hocr", "book.txt"}));
+}
+
 BOOST_AUTO_TEST_CASE(test_cancel_during_the_last_page_replaces_nothing) {
   const QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
