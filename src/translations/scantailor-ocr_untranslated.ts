@@ -4256,122 +4256,157 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="33"/>
-        <source>User Interface</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="39"/>
+        <location filename="../app/SettingsDialog.ui" line="602"/>
         <source>Accelerate user interface with OpenGL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="46"/>
+        <location filename="../app/SettingsDialog.ui" line="609"/>
         <source>Device: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="53"/>
+        <location filename="../app/SettingsDialog.ui" line="91"/>
         <source>Saves the project without asking one minute after you worked on it, for example changed settings, processed pages or selected another page. A new project is auto-saved only after it has been saved once.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="68"/>
+        <location filename="../app/SettingsDialog.ui" line="198"/>
         <source>Color scheme:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="95"/>
+        <location filename="../app/SettingsDialog.ui" line="208"/>
         <source>Accent color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="109"/>
+        <location filename="../app/SettingsDialog.ui" line="222"/>
         <source>Use the accent color of the color scheme.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="112"/>
+        <location filename="../app/SettingsDialog.ui" line="225"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="139"/>
+        <location filename="../app/SettingsDialog.ui" line="42"/>
         <source>Language:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="169"/>
+        <location filename="../app/SettingsDialog.ui" line="33"/>
+        <source>Language and Units</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="55"/>
         <source>Units:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="176"/>
+        <location filename="../app/SettingsDialog.ui" line="62"/>
         <source>The unit of the length fields, for example in Margins and in the Default Parameters, and of the mouse position and page size in the status bar.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="200"/>
+        <location filename="../app/SettingsDialog.ui" line="85"/>
+        <source>Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="104"/>
+        <source>Editing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="112"/>
         <source>Deskew handle distance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="210"/>
+        <location filename="../app/SettingsDialog.ui" line="122"/>
         <source>How far the drag handles for rotation and oblique correction are placed from the image center, in percent of the largest possible distance. Smaller values move them away from the edge of the view, but make the angle react more strongly to the mouse.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="213"/>
+        <location filename="../app/SettingsDialog.ui" line="125"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="253"/>
-        <source>Performance</source>
+        <location filename="../app/SettingsDialog.ui" line="183"/>
+        <source>Appearance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="189"/>
+        <source>Colors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="259"/>
+        <source>Display size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="266"/>
+        <source>The width of a thumbnail in the list. The default value is 250 px.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="288"/>
+        <source>Image resolution:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="295"/>
+        <source>The pixel size of the image a thumbnail is drawn from. Higher values are sharper, but take more memory and time. The default value is 200 px.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="360"/>
+        <source>Multiplier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="370"/>
+        <source>Minimum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="541"/>
+        <source>Performance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="553"/>
         <source>Processor threads:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="302"/>
+        <location filename="../app/SettingsDialog.ui" line="596"/>
+        <source>Display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.ui" line="248"/>
         <source>Thumbnails</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="315"/>
-        <source>Quality:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="322"/>
-        <source>The pixel size of the thumbnail image. The default value is 200.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="361"/>
-        <source>Size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="368"/>
-        <source>The thumbnail size in the view. The default value is 250.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="401"/>
+        <location filename="../app/SettingsDialog.ui" line="329"/>
         <source>Single column thumbnail display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="432"/>
+        <location filename="../app/SettingsDialog.ui" line="547"/>
         <source>Processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="56"/>
+        <location filename="../app/SettingsDialog.ui" line="94"/>
         <source>Auto-save the open project</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4381,66 +4416,63 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="102"/>
+        <location filename="../app/SettingsDialog.ui" line="215"/>
         <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="269"/>
+        <location filename="../app/SettingsDialog.ui" line="563"/>
         <source>The maximum number of processor threads that ScanTailor OCR uses at the same time: for the batch processing, the PDF export, the image filters and JPEG 2000. Fewer threads leave room for other programs, more threads finish sooner. A change applies from the next page and the next export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="408"/>
+        <location filename="../app/SettingsDialog.ui" line="159"/>
         <source>Ask before canceling a multi-page selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="438"/>
+        <location filename="../app/SettingsDialog.ui" line="339"/>
         <source>Deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="444"/>
+        <location filename="../app/SettingsDialog.ui" line="345"/>
         <source>Marks the thumbnails of pages whose skew angle, content or margins deviate strongly from the others. The limits are set below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="447"/>
+        <location filename="../app/SettingsDialog.ui" line="348"/>
         <source>Highlight the thumbnails of pages with high deviation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="454"/>
-        <source>Parameters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="465"/>
+        <location filename="../app/SettingsDialog.ui" line="380"/>
         <source>Deskew:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="475"/>
+        <location filename="../app/SettingsDialog.ui" line="422"/>
         <source>Select content:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="482"/>
-        <location filename="../app/SettingsDialog.ui" line="508"/>
-        <location filename="../app/SettingsDialog.ui" line="556"/>
+        <location filename="../app/SettingsDialog.ui" line="357"/>
+        <location filename="../app/SettingsDialog.ui" line="387"/>
+        <location filename="../app/SettingsDialog.ui" line="429"/>
+        <location filename="../app/SettingsDialog.ui" line="474"/>
         <source>Deviation multiplier: a higher value means lower sensitivity.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="501"/>
+        <location filename="../app/SettingsDialog.ui" line="467"/>
         <source>Margins:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.ui" line="524"/>
-        <location filename="../app/SettingsDialog.ui" line="540"/>
-        <location filename="../app/SettingsDialog.ui" line="572"/>
+        <location filename="../app/SettingsDialog.ui" line="367"/>
+        <location filename="../app/SettingsDialog.ui" line="403"/>
+        <location filename="../app/SettingsDialog.ui" line="445"/>
+        <location filename="../app/SettingsDialog.ui" line="490"/>
         <source>The minimum deviation to be highlighted.</source>
         <translation type="unfinished"></translation>
     </message>

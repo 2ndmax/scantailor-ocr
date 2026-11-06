@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>337</width>
-    <height>442</height>
+    <width>380</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,31 +22,69 @@
      <property name="documentMode">
       <bool>true</bool>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="generalTab">
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <layout class="QVBoxLayout" name="generalTabLayout">
        <item>
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="languageGroup">
          <property name="title">
-          <string>User Interface</string>
+          <string>Language and Units</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QCheckBox" name="enableOpenglCb">
+         <layout class="QGridLayout" name="languageGroupLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="languageLabel">
+            <property name="buddy">
+             <cstring>languageBox</cstring>
+            </property>
             <property name="text">
-             <string>Accelerate user interface with OpenGL</string>
+             <string>Language:</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QLabel" name="openglDeviceLabel">
+          <item row="0" column="1">
+           <widget class="QComboBox" name="languageBox"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="unitsLabel">
+            <property name="buddy">
+             <cstring>unitsBox</cstring>
+            </property>
             <property name="text">
-             <string>Device: %1</string>
+             <string>Units:</string>
             </property>
            </widget>
           </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="unitsBox">
+            <property name="toolTip">
+             <string>The unit of the length fields, for example in Margins and in the Default Parameters, and of the mouse position and page size in the status bar.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <spacer name="languageGroupSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>1</width>
+              <height>1</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="projectGroup">
+         <property name="title">
+          <string>Project</string>
+         </property>
+         <layout class="QVBoxLayout" name="projectGroupLayout">
           <item>
            <widget class="QCheckBox" name="autoSaveProjectCB">
             <property name="toolTip">
@@ -57,143 +95,17 @@
             </property>
            </widget>
           </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="editingGroup">
+         <property name="title">
+          <string>Editing</string>
+         </property>
+         <layout class="QVBoxLayout" name="editingGroupLayout">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QLabel" name="colorSchemeLabel">
-              <property name="buddy">
-               <cstring>colorSchemeBox</cstring>
-              </property>
-              <property name="text">
-               <string>Color scheme:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="colorSchemeBox"/>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>1</width>
-                <height>1</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="accentColorLayout">
-            <item>
-             <widget class="QLabel" name="accentColorLabel">
-              <property name="text">
-               <string>Accent color:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="accentColorButton">
-              <property name="toolTip">
-               <string>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="accentColorDefaultButton">
-              <property name="toolTip">
-               <string>Use the accent color of the color scheme.</string>
-              </property>
-              <property name="text">
-               <string>Default</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="accentColorSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>1</width>
-                <height>1</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QLabel" name="languageLabel">
-              <property name="buddy">
-               <cstring>languageBox</cstring>
-              </property>
-              <property name="text">
-               <string>Language:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="languageBox"/>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>1</width>
-                <height>1</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_units">
-            <item>
-             <widget class="QLabel" name="unitsLabel">
-              <property name="buddy">
-               <cstring>unitsBox</cstring>
-              </property>
-              <property name="text">
-               <string>Units:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="unitsBox">
-              <property name="toolTip">
-               <string>The unit of the length fields, for example in Margins and in the Default Parameters, and of the mouse position and page size in the status bar.</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_units">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>1</width>
-                <height>1</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_deskewHandles">
+           <layout class="QHBoxLayout" name="deskewHandlesLayout">
             <item>
              <widget class="QLabel" name="deskewHandleDistanceLabel">
               <property name="text">
@@ -227,7 +139,372 @@
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_deskewHandles">
+             <spacer name="deskewHandlesSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>1</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cancelingSelectionQuestionCB">
+            <property name="text">
+             <string>Ask before canceling a multi-page selection</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="generalTabSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="appearanceTab">
+      <attribute name="title">
+       <string>Appearance</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="appearanceTabLayout">
+       <item>
+        <widget class="QGroupBox" name="colorsGroup">
+         <property name="title">
+          <string>Colors</string>
+         </property>
+         <layout class="QGridLayout" name="colorsGroupLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="colorSchemeLabel">
+            <property name="buddy">
+             <cstring>colorSchemeBox</cstring>
+            </property>
+            <property name="text">
+             <string>Color scheme:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="colorSchemeBox"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="accentColorLabel">
+            <property name="text">
+             <string>Accent color:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="accentColorButton">
+            <property name="toolTip">
+             <string>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="accentColorDefaultButton">
+            <property name="toolTip">
+             <string>Use the accent color of the color scheme.</string>
+            </property>
+            <property name="text">
+             <string>Default</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <spacer name="colorsGroupSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>1</width>
+              <height>1</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="thumbnailsGroup">
+         <property name="title">
+          <string>Thumbnails</string>
+         </property>
+         <layout class="QVBoxLayout" name="thumbnailsGroupLayout">
+          <item>
+           <layout class="QGridLayout" name="thumbnailSizesLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="thumbnailSizeLabel">
+              <property name="buddy">
+               <cstring>thumbnailSizeSB</cstring>
+              </property>
+              <property name="text">
+               <string>Display size:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="thumbnailSizeSB">
+              <property name="toolTip">
+               <string>The width of a thumbnail in the list. The default value is 250 px.</string>
+              </property>
+              <property name="suffix">
+               <string notr="true"> px</string>
+              </property>
+              <property name="minimum">
+               <number>100</number>
+              </property>
+              <property name="maximum">
+               <number>2000</number>
+              </property>
+              <property name="singleStep">
+               <number>25</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="thumbnailQualityLabel">
+              <property name="buddy">
+               <cstring>thumbnailQualitySB</cstring>
+              </property>
+              <property name="text">
+               <string>Image resolution:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="thumbnailQualitySB">
+              <property name="toolTip">
+               <string>The pixel size of the image a thumbnail is drawn from. Higher values are sharper, but take more memory and time. The default value is 200 px.</string>
+              </property>
+              <property name="suffix">
+               <string notr="true"> px</string>
+              </property>
+              <property name="minimum">
+               <number>100</number>
+              </property>
+              <property name="maximum">
+               <number>1500</number>
+              </property>
+              <property name="singleStep">
+               <number>25</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <spacer name="thumbnailSizesSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>1</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="singleColumnThumbnailsCB">
+            <property name="text">
+             <string>Single column thumbnail display</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="deviationGroup">
+         <property name="title">
+          <string>Deviation</string>
+         </property>
+         <layout class="QVBoxLayout" name="deviationGroupLayout">
+          <item>
+           <widget class="QCheckBox" name="highlightDeviationCB">
+            <property name="toolTip">
+             <string>Marks the thumbnails of pages whose skew angle, content or margins deviate strongly from the others. The limits are set below.</string>
+            </property>
+            <property name="text">
+             <string>Highlight the thumbnails of pages with high deviation</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="deviationParamsLayout">
+            <item row="0" column="1">
+             <widget class="QLabel" name="deviationCoefHeader">
+              <property name="toolTip">
+               <string>Deviation multiplier: a higher value means lower sensitivity.</string>
+              </property>
+              <property name="text">
+               <string>Multiplier</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="deviationThresholdHeader">
+              <property name="toolTip">
+               <string>The minimum deviation to be highlighted.</string>
+              </property>
+              <property name="text">
+               <string>Minimum</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="deskewDeviationLabel">
+              <property name="buddy">
+               <cstring>deskewDeviationCoefSB</cstring>
+              </property>
+              <property name="text">
+               <string>Deskew:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBox" name="deskewDeviationCoefSB">
+              <property name="toolTip">
+               <string>Deviation multiplier: a higher value means lower sensitivity.</string>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>9.990000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.050000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QDoubleSpinBox" name="deskewDeviationThresholdSB">
+              <property name="toolTip">
+               <string>The minimum deviation to be highlighted.</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <double>999.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="selectContentDeviationLabel">
+              <property name="buddy">
+               <cstring>selectContentDeviationCoefSB</cstring>
+              </property>
+              <property name="text">
+               <string>Select content:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="selectContentDeviationCoefSB">
+              <property name="toolTip">
+               <string>Deviation multiplier: a higher value means lower sensitivity.</string>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>9.990000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.050000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QDoubleSpinBox" name="selectContentDeviationThresholdSB">
+              <property name="toolTip">
+               <string>The minimum deviation to be highlighted.</string>
+              </property>
+              <property name="suffix">
+               <string notr="true"> %</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <double>999.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="marginsDeviationLabel">
+              <property name="buddy">
+               <cstring>marginsDeviationCoefSB</cstring>
+              </property>
+              <property name="text">
+               <string>Margins:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="marginsDeviationCoefSB">
+              <property name="toolTip">
+               <string>Deviation multiplier: a higher value means lower sensitivity.</string>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>9.990000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.050000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QDoubleSpinBox" name="marginsDeviationThresholdSB">
+              <property name="toolTip">
+               <string>The minimum deviation to be highlighted.</string>
+              </property>
+              <property name="suffix">
+               <string notr="true"> %</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <double>999.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <spacer name="deviationParamsSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -242,17 +519,34 @@
            </layout>
           </item>
          </layout>
-         <zorder>enableOpenglCb</zorder>
-         <zorder>autoSaveProjectCB</zorder>
-         <zorder>openglDeviceLabel</zorder>
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="performanceGroup">
-         <property name="title">
-          <string>Performance</string>
+        <spacer name="appearanceTabSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_processingThreads">
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="performanceTab">
+      <attribute name="title">
+       <string>Performance</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="performanceTabLayout">
+       <item>
+        <widget class="QGroupBox" name="processingGroup">
+         <property name="title">
+          <string>Processing</string>
+         </property>
+         <layout class="QHBoxLayout" name="processingThreadsLayout">
           <item>
            <widget class="QLabel" name="processingThreadsLabel">
             <property name="text">
@@ -281,7 +575,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_processingThreads">
+           <spacer name="processingThreadsSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -297,115 +591,25 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="thumbnailsParams">
+        <widget class="QGroupBox" name="displayGroup">
          <property name="title">
-          <string>Thumbnails</string>
+          <string>Display</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_7">
+         <layout class="QVBoxLayout" name="displayGroupLayout">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_8">
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QLabel" name="thumbnailQualityLabel">
-                <property name="buddy">
-                 <cstring>thumbnailQualitySB</cstring>
-                </property>
-                <property name="text">
-                 <string>Quality:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="thumbnailQualitySB">
-                <property name="toolTip">
-                 <string>The pixel size of the thumbnail image. The default value is 200.</string>
-                </property>
-                <property name="minimum">
-                 <number>100</number>
-                </property>
-                <property name="maximum">
-                 <number>1500</number>
-                </property>
-                <property name="singleStep">
-                 <number>25</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>18</width>
-                <height>1</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_10">
-              <item>
-               <widget class="QLabel" name="thumbnailSizeLabel">
-                <property name="buddy">
-                 <cstring>thumbnailSizeSB</cstring>
-                </property>
-                <property name="text">
-                 <string>Size:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="thumbnailSizeSB">
-                <property name="toolTip">
-                 <string>The thumbnail size in the view. The default value is 250.</string>
-                </property>
-                <property name="minimum">
-                 <number>100</number>
-                </property>
-                <property name="maximum">
-                 <number>2000</number>
-                </property>
-                <property name="singleStep">
-                 <number>25</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>1</width>
-                <height>1</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="singleColumnThumbnailsCB">
+           <widget class="QCheckBox" name="enableOpenglCb">
             <property name="text">
-             <string>Single column thumbnail display</string>
+             <string>Accelerate user interface with OpenGL</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cancelingSelectionQuestionCB">
+           <widget class="QLabel" name="openglDeviceLabel">
             <property name="text">
-             <string>Ask before canceling a multi-page selection</string>
+             <string>Device: %1</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -413,198 +617,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Processing</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <widget class="QGroupBox" name="groupBox_3">
-         <property name="title">
-          <string>Deviation</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QCheckBox" name="highlightDeviationCB">
-            <property name="toolTip">
-             <string>Marks the thumbnails of pages whose skew angle, content or margins deviate strongly from the others. The limits are set below.</string>
-            </property>
-            <property name="text">
-             <string>Highlight the thumbnails of pages with high deviation</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="deviationParams">
-            <property name="title">
-             <string>Parameters</string>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <item>
-              <layout class="QGridLayout" name="gridLayout_2">
-               <item row="0" column="0">
-                <widget class="QLabel" name="deskewDeviationLabel">
-                 <property name="buddy">
-                  <cstring>deskewDeviationCoefSB</cstring>
-                 </property>
-                 <property name="text">
-                  <string>Deskew:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="selectContentDeviationLabel">
-                 <property name="buddy">
-                  <cstring>selectContentDeviationCoefSB</cstring>
-                 </property>
-                 <property name="text">
-                  <string>Select content:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QDoubleSpinBox" name="selectContentDeviationCoefSB">
-                 <property name="toolTip">
-                  <string>Deviation multiplier: a higher value means lower sensitivity.</string>
-                 </property>
-                 <property name="minimum">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>9.990000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.050000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="marginsDeviationLabel">
-                 <property name="buddy">
-                  <cstring>marginsDeviationCoefSB</cstring>
-                 </property>
-                 <property name="text">
-                  <string>Margins:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QDoubleSpinBox" name="deskewDeviationCoefSB">
-                 <property name="toolTip">
-                  <string>Deviation multiplier: a higher value means lower sensitivity.</string>
-                 </property>
-                 <property name="minimum">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>9.990000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.050000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <widget class="QDoubleSpinBox" name="deskewDeviationThresholdSB">
-                 <property name="toolTip">
-                  <string>The minimum deviation to be highlighted.</string>
-                 </property>
-                 <property name="decimals">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <double>999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QDoubleSpinBox" name="selectContentDeviationThresholdSB">
-                 <property name="toolTip">
-                  <string>The minimum deviation to be highlighted.</string>
-                 </property>
-                 <property name="decimals">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <double>999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QDoubleSpinBox" name="marginsDeviationCoefSB">
-                 <property name="toolTip">
-                  <string>Deviation multiplier: a higher value means lower sensitivity.</string>
-                 </property>
-                 <property name="minimum">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>9.990000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.050000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="2">
-                <widget class="QDoubleSpinBox" name="marginsDeviationThresholdSB">
-                 <property name="toolTip">
-                  <string>The minimum deviation to be highlighted.</string>
-                 </property>
-                 <property name="decimals">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <double>999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>1</width>
-                 <height>1</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
+        <spacer name="performanceTabSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -633,6 +646,17 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>languageBox</tabstop>
+  <tabstop>unitsBox</tabstop>
+  <tabstop>autoSaveProjectCB</tabstop>
+  <tabstop>deskewHandleDistanceSB</tabstop>
+  <tabstop>cancelingSelectionQuestionCB</tabstop>
+  <tabstop>colorSchemeBox</tabstop>
+  <tabstop>accentColorButton</tabstop>
+  <tabstop>accentColorDefaultButton</tabstop>
+  <tabstop>thumbnailSizeSB</tabstop>
+  <tabstop>thumbnailQualitySB</tabstop>
+  <tabstop>singleColumnThumbnailsCB</tabstop>
   <tabstop>highlightDeviationCB</tabstop>
   <tabstop>deskewDeviationCoefSB</tabstop>
   <tabstop>deskewDeviationThresholdSB</tabstop>
@@ -640,6 +664,8 @@
   <tabstop>selectContentDeviationThresholdSB</tabstop>
   <tabstop>marginsDeviationCoefSB</tabstop>
   <tabstop>marginsDeviationThresholdSB</tabstop>
+  <tabstop>processingThreadsSB</tabstop>
+  <tabstop>enableOpenglCb</tabstop>
  </tabstops>
  <resources/>
  <connections>
