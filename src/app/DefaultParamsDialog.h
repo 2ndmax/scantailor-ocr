@@ -182,6 +182,9 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void setTabWidgetsEnabled(bool enabled);
 
+  // Fixed profiles (Default, Minimal) show a hint in place of Save and Delete.
+  void setProfileReadOnly(bool readOnly);
+
   void setupIcons();
 
   void fitToContents();

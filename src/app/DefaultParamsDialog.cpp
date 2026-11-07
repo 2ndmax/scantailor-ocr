@@ -1336,7 +1336,7 @@ void DefaultParamsDialog::profileChanged(const int index) {
     profileCB->setFocus();
     profileSaveButton->setEnabled(true);
     profileDeleteButton->setEnabled(false);
-    setTabWidgetsEnabled(true);
+    setProfileReadOnly(false);
 
     // Custom is kept in a profile file of its own; otherwise it starts from the values shown.
     if (DefaultParamsProvider::getInstance().getProfileName() == "Custom") {
@@ -1347,16 +1347,12 @@ void DefaultParamsDialog::profileChanged(const int index) {
       updateUnits(UnitsProvider::getInstance().getUnits());
     }
   } else if (profileCB->currentData().toString() == "Default") {
-    profileSaveButton->setEnabled(false);
-    profileDeleteButton->setEnabled(false);
-    setTabWidgetsEnabled(false);
+    setProfileReadOnly(true);
 
     std::unique_ptr<DefaultParams> defaultProfile = m_profileManager.createDefaultProfile();
     loadParams(*defaultProfile);
   } else if (profileCB->currentData().toString() == "Minimal") {
-    profileSaveButton->setEnabled(false);
-    profileDeleteButton->setEnabled(false);
-    setTabWidgetsEnabled(false);
+    setProfileReadOnly(true);
 
     std::unique_ptr<DefaultParams> minimalProfile = m_profileManager.createMinimalProfile();
     loadParams(*minimalProfile);
@@ -1368,7 +1364,7 @@ void DefaultParamsDialog::profileChanged(const int index) {
     if (loadStatus == DefaultParamsProfileManager::SUCCESS) {
       profileSaveButton->setEnabled(true);
       profileDeleteButton->setEnabled(true);
-      setTabWidgetsEnabled(true);
+      setProfileReadOnly(false);
 
       loadParams(*profile);
     } else {
@@ -1386,9 +1382,7 @@ void DefaultParamsDialog::profileChanged(const int index) {
       profileCB->removeItem(index);
       m_customProfileItemIdx--;
 
-      profileSaveButton->setEnabled(false);
-      profileDeleteButton->setEnabled(false);
-      setTabWidgetsEnabled(false);
+      setProfileReadOnly(true);
 
       std::unique_ptr<DefaultParams> defaultProfile = m_profileManager.createDefaultProfile();
       loadParams(*defaultProfile);
@@ -1539,6 +1533,13 @@ bool DefaultParamsDialog::isSavedInProfile(const DefaultParams& params, const QS
   QDomDocument stored;
   stored.appendChild(saved->toXml(stored, "profile"));
   return shown.toString() == stored.toString();
+}
+
+void DefaultParamsDialog::setProfileReadOnly(const bool readOnly) {
+  profileSaveButton->setVisible(!readOnly);
+  profileDeleteButton->setVisible(!readOnly);
+  readOnlyProfileHint->setVisible(readOnly);
+  setTabWidgetsEnabled(!readOnly);
 }
 
 void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {
