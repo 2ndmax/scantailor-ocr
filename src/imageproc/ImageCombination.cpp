@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include "BinaryImage.h"
 
@@ -150,18 +151,11 @@ void mergePalettes(QVector<uint32_t>& mixedPalette, const QVector<uint32_t>& pal
   }
 }
 
-template <>
-void combineImagesColor<uint8_t, uint8_t>(QImage& mixedImage, const QImage& foreground) {
-  auto* mixedLine = mixedImage.bits();
-  const int mixedStride = mixedImage.bytesPerLine();
-  const auto* foregroundLine = foreground.bits();
-  const int foregroundStride = foreground.bytesPerLine();
-  const int width = mixedImage.width();
-  const int height = mixedImage.height();
-  const auto msb = uint32_t(0x00ffffff);
-
+// Adds the foreground colors to the palette of the 8-bit mixedImage and returns, for each foreground
+// index, the index of its color in the mixed palette. The palette holds 256 colors at most; a color
+// that no longer fits gets index 0.
+std::vector<uint8_t> mergeForegroundPalette(QImage& mixedImage, const QVector<uint32_t>& foregroundPalette) {
   QVector<uint32_t> mixedPalette = mixedImage.colorTable();
-  const QVector<uint32_t> foregroundPalette = foreground.colorTable();
   if (mixedPalette.size() < 256) {
     mergePalettes(mixedPalette, foregroundPalette);
     if (mixedPalette.size() > 256) {
@@ -175,11 +169,34 @@ void combineImagesColor<uint8_t, uint8_t>(QImage& mixedImage, const QImage& fore
     colorToIndex[mixedPalette[i]] = static_cast<uint8_t>(i);
   }
 
+  std::vector<uint8_t> toMixedIndex(256, 0);
+  for (int i = 0; i < foregroundPalette.size() && i < 256; ++i) {
+    const auto it = colorToIndex.find(foregroundPalette[i]);
+    if (it != colorToIndex.end()) {
+      toMixedIndex[i] = it->second;
+    }
+  }
+  return toMixedIndex;
+}
+
+template <>
+void combineImagesColor<uint8_t, uint8_t>(QImage& mixedImage, const QImage& foreground) {
+  auto* mixedLine = mixedImage.bits();
+  const int mixedStride = mixedImage.bytesPerLine();
+  const auto* foregroundLine = foreground.bits();
+  const int foregroundStride = foreground.bytesPerLine();
+  const int width = mixedImage.width();
+  const int height = mixedImage.height();
+  const auto msb = uint32_t(0x00ffffff);
+
+  const QVector<uint32_t> foregroundPalette = foreground.colorTable();
+  const std::vector<uint8_t> toMixedIndex = mergeForegroundPalette(mixedImage, foregroundPalette);
+
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       uint32_t color = foregroundPalette[foregroundLine[x]];
       if ((color & msb) != msb) {
-        mixedLine[x] = colorToIndex[color];
+        mixedLine[x] = toMixedIndex[foregroundLine[x]];
       }
     }
     mixedLine += mixedStride;
@@ -253,26 +270,13 @@ void combineImagesColor<uint8_t, uint8_t>(QImage& mixedImage, const QImage& fore
   const int height = mixedImage.height();
   const uint32_t msb = uint32_t(1) << 31;
 
-  QVector<uint32_t> mixedPalette = mixedImage.colorTable();
   const QVector<uint32_t> foregroundPalette = foreground.colorTable();
-  if (mixedPalette.size() < 256) {
-    mergePalettes(mixedPalette, foregroundPalette);
-    if (mixedPalette.size() > 256) {
-      mixedPalette.resize(256);
-    }
-    mixedImage.setColorTable(mixedPalette);
-  }
-
-  std::unordered_map<uint32_t, uint8_t> colorToIndex;
-  for (int i = 0; i < mixedPalette.size(); ++i) {
-    colorToIndex[mixedPalette[i]] = static_cast<uint8_t>(i);
-  }
+  const std::vector<uint8_t> toMixedIndex = mergeForegroundPalette(mixedImage, foregroundPalette);
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       if (maskLine[x >> 5] & (msb >> (x & 31))) {
-        uint32_t color = foregroundPalette[foregroundLine[x]];
-        mixedLine[x] = colorToIndex[color];
+        mixedLine[x] = toMixedIndex[foregroundLine[x]];
       }
     }
     mixedLine += mixedStride;
