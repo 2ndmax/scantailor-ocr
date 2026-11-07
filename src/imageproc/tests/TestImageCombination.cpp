@@ -47,6 +47,27 @@ BOOST_AUTO_TEST_CASE(test_gray_foreground_with_own_palette) {
   BOOST_CHECK_EQUAL(qGray(mixed.pixel(2, 0)), 100);
 }
 
+BOOST_AUTO_TEST_CASE(test_color_beyond_full_palette_gets_nearest_color) {
+  // The gray palette of the mixed image is already full, so the red of the foreground can't be added.
+  static const int mixedData[] = {100, 100};
+  QImage mixed(makeGrayImage(mixedData, 2, 1));
+
+  QImage foreground(2, 1, QImage::Format_Indexed8);
+  foreground.setColorTable({qRgb(255, 255, 255), qRgb(200, 0, 0)});
+  foreground.setPixel(0, 0, 1);
+  foreground.setPixel(1, 0, 1);
+  BinaryImage mask(2, 1, WHITE);
+  mask.setPixel(1, 0, BLACK);
+
+  QImage masked(mixed);
+  combineImages(mixed, foreground);
+  combineImages(masked, foreground, mask);
+
+  // The gray nearest to (200, 0, 0) is 67, not black.
+  BOOST_CHECK_EQUAL(mixed.pixel(0, 0), qRgb(67, 67, 67));
+  BOOST_CHECK_EQUAL(masked.pixel(1, 0), qRgb(67, 67, 67));
+}
+
 BOOST_AUTO_TEST_CASE(test_mask_size_is_checked) {
   static const int mixedData[] = {100, 100, 100, 100};
   QImage mixed(makeGrayImage(mixedData, 4, 1));

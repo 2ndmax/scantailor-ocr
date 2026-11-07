@@ -5,6 +5,7 @@
 #include "ImageCombination.h"
 
 #include <QImage>
+#include <limits>
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
@@ -151,9 +152,25 @@ void mergePalettes(QVector<uint32_t>& mixedPalette, const QVector<uint32_t>& pal
   }
 }
 
+int nearestPaletteIndex(const QVector<uint32_t>& palette, const uint32_t color) {
+  int nearest = 0;
+  int nearestDistance = std::numeric_limits<int>::max();
+  for (int i = 0; i < palette.size(); ++i) {
+    const int dr = qRed(palette[i]) - qRed(color);
+    const int dg = qGreen(palette[i]) - qGreen(color);
+    const int db = qBlue(palette[i]) - qBlue(color);
+    const int distance = dr * dr + dg * dg + db * db;
+    if (distance < nearestDistance) {
+      nearest = i;
+      nearestDistance = distance;
+    }
+  }
+  return nearest;
+}
+
 // Adds the foreground colors to the palette of the 8-bit mixedImage and returns, for each foreground
-// index, the index of its color in the mixed palette. The palette holds 256 colors at most; a color
-// that no longer fits gets index 0.
+// index, the index of its color in the mixed palette. The palette holds 256 colors at most, so a color
+// that no longer fits gets the nearest color already in it.
 std::vector<uint8_t> mergeForegroundPalette(QImage& mixedImage, const QVector<uint32_t>& foregroundPalette) {
   QVector<uint32_t> mixedPalette = mixedImage.colorTable();
   if (mixedPalette.size() < 256) {
@@ -172,9 +189,9 @@ std::vector<uint8_t> mergeForegroundPalette(QImage& mixedImage, const QVector<ui
   std::vector<uint8_t> toMixedIndex(256, 0);
   for (int i = 0; i < foregroundPalette.size() && i < 256; ++i) {
     const auto it = colorToIndex.find(foregroundPalette[i]);
-    if (it != colorToIndex.end()) {
-      toMixedIndex[i] = it->second;
-    }
+    toMixedIndex[i] = (it != colorToIndex.end())
+                          ? it->second
+                          : static_cast<uint8_t>(nearestPaletteIndex(mixedPalette, foregroundPalette[i]));
   }
   return toMixedIndex;
 }
