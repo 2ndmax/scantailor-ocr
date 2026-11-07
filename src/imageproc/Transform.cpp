@@ -60,6 +60,9 @@ static void transformGeneric(const StorageUnit* const srcData,
 
   QTransform invXform;
   invXform.translate(dstRect.x(), dstRect.y());
+  // REVIEW-NOTE (2026-11): a singular xform -> inverted() returns the identity and the image is copied
+  // untransformed. Not fixed because the callers pass the ImageTransformation of a page (rotation,
+  // cropping, scaling) or its inverse, which are always invertible.
   invXform *= xform.inverted();
   invXform *= QTransform().scale(32.0, 32.0);
 

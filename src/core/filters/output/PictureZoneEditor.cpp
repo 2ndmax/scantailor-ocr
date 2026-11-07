@@ -288,6 +288,7 @@ std::shared_ptr<AbstractCommand<void>> PictureZoneEditor::MaskTransformTask::ope
     return nullptr;
   }
 
+  // Limited to the target size, so the mask is never larger than the image shown.
   const QRect targetRect(
       m_xform.map(QRectF(m_origMask.rect())).boundingRect().toRect().intersected(QRect(QPoint(0, 0), m_targetSize)));
 

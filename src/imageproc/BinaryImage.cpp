@@ -1064,6 +1064,9 @@ void BinaryImage::SharedData::unref() const {
   }
 }
 
+// The size can't wrap around on the 64-bit platforms we build for: numWords is at most
+// INT_MAX * (INT_MAX / 32 + 1), so the byte count stays below 2^60; a size that large makes
+// malloc() fail, which throws.
 void* BinaryImage::SharedData::operator new(size_t /*size*/, const NumWords numWords) {
   // Note: offsetof() rather than pointer arithmetic on a null SharedData*,
   // which would be undefined behaviour.

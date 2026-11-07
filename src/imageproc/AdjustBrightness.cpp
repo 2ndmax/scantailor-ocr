@@ -33,6 +33,8 @@ void adjustBrightness(QImage& rgbImage, const QImage& brightness, const double w
   const int width = rgbImage.width();
   const int height = rgbImage.height();
 
+  // wr + wb == 1, wb == 1 or wr == 1 would divide by zero below. The callers pass only the fixed
+  // weights of adjustBrightnessYUV() and adjustBrightnessGrayscale(), far from these values.
   const double wg = 1.0 - wr - wb;
   const double wu = (1.0 - wb);
   const double wv = (1.0 - wr);

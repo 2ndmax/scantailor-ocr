@@ -54,6 +54,7 @@ void expandImpl(BinaryImage& dst, const BinaryImage& src, const int xscale, cons
     const uint32_t* firstDstLine = dstLine;
     dstLine += dstWpl;
     for (int line = 1; line < yscale; ++line, dstLine += dstWpl) {
+      // dstWpl * 4 fits in int: a line of at most INT_MAX pixels has fewer than 2^26 words.
       memcpy(dstLine, firstDstLine, dstWpl * 4);
     }
   }

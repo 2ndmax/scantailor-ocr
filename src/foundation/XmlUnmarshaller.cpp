@@ -43,6 +43,8 @@ QString XmlUnmarshaller::string(const QDomElement& el) {
   return el.text();
 }
 
+// size() and rect() take any int, also negative ones: what range is valid depends on the setting,
+// so each reader checks its own values (with number() or its own checks).
 QSize XmlUnmarshaller::size(const QDomElement& el) {
   const int width = el.attribute("width").toInt();
   const int height = el.attribute("height").toInt();

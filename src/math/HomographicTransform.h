@@ -68,6 +68,9 @@ typename HomographicTransformBase<N, T>::Vec HomographicTransformBase<N, T>::ope
   VecNT<N + 1, T> hdst;
   (mc(m_mat, static_cast<int>(N + 1), static_cast<int>(N + 1)) * mc(hsrc, static_cast<int>(N + 1), 1)).write(hdst);
   VecNT<N, T> res(&hdst[0]);
+  // REVIEW-NOTE (2026-11): a degenerate homography or a point on its horizon line -> hdst[N] is 0 and the
+  // result inf/NaN (no crash, floating point). Not fixed because the only user, CylindricalSurfaceDewarper,
+  // builds it from a distortion model that DistortionModel::isValid() has accepted.
   res /= hdst[N];
   return res;
 }

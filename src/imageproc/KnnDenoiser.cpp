@@ -31,7 +31,8 @@ void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
   uint8_t* const data = image.data();
   const int stride = image.stride();
 
-  // Sums can exceed 32 bits, but the wrap-around cancels out in the window sums.
+  // Sums can exceed 32 bits, but the wrap-around cancels out in the window sums as long as a window's
+  // own sum fits: 255 * (2 * radius + 1)^2 < 2^32, true for any radius below 2000.
   IntegralImage<uint32_t> integral(w, h);
   for (int y = 0; y < h; ++y) {
     integral.beginRow();

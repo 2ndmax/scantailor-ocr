@@ -64,6 +64,7 @@ template <typename T, size_t alignment_in_units>
 AlignedArray<T, alignment_in_units>::AlignedArray(size_t size) {
   const size_t a = (alignment_in_units > 1) ? alignment_in_units : 1;
   const size_t am1 = a - 1;
+  // size + am1 can't wrap around: callers pass element counts of images or kernels, far below SIZE_MAX.
   m_storage = new T[size + am1];
   // uintptr_t(m_storage) is a multiple of sizeof(T) (see the static_assert
   // above), so dividing by sizeof(T) gives the element index of the storage

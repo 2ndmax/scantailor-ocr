@@ -45,6 +45,7 @@ int main(int argc, char* argv[]) {
 
   auto* mainWnd = new MainWindow();
   mainWnd->setAttribute(Qt::WA_DeleteOnClose);
+  // Without the setting (first start), the window opens maximized on purpose.
   if (settings.value("mainWindow/maximized") == false) {
     mainWnd->show();
   } else {

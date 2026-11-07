@@ -14,6 +14,7 @@ void ArcLengthMapper::addSample(double x, double fx) {
   if (!m_samples.empty()) {
     const double dx = x - m_samples.back().x;
     const double dy = fx - m_prevFX;
+    // The only caller (CylindricalSurfaceDewarper) skips samples that don't increase x.
     assert(dx > 0);
     arcLen = m_samples.back().arcLen + std::sqrt(dx * dx + dy * dy);
   }

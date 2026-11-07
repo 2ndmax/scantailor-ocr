@@ -41,6 +41,9 @@ QPointF DewarpingPointMapper::mapToDewarpedSpace(const QPointF& warpedPt) const 
 }
 
 QPointF DewarpingPointMapper::mapToWarpedSpace(const QPointF& dewarpedPt) const {
+  // REVIEW-NOTE (2026-11): a singular m_postTransform -> inverted() returns the identity and the point is
+  // mapped from the wrong space. Not fixed because m_postTransform is the ImageTransformation of the page
+  // (rotation, cropping, scaling to the output resolution), which is always invertible.
   QPointF dewarpedPtM = m_postTransform.inverted().map(dewarpedPt);
 
   const double crvX = (dewarpedPtM.x() - m_modelDomainLeft) * m_modelXScaleToNormalized;

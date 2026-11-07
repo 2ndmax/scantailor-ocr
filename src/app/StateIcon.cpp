@@ -8,6 +8,9 @@
 #include <array>
 
 QPixmap StateIcon::pixmap(const Color color) {
+  // REVIEW-NOTE (2026-11): the window moves to a screen with another scale factor -> the icons keep the
+  // device pixel ratio of the first call and look slightly blurred or sharp. Not fixed because these are
+  // 12 px status dots, which Qt scales acceptably.
   static const std::array<QPixmap, 4> icons{create(Green), create(Yellow), create(Red), create(None)};
   return icons[color];
 }

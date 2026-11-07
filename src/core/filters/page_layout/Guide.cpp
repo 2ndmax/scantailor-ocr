@@ -17,6 +17,7 @@ Guide::Guide(const QLineF& line)
     : m_orientation(lineOrientation(line)), m_position((m_orientation == Qt::Horizontal) ? line.y1() : line.x1()) {}
 
 Qt::Orientation Guide::lineOrientation(const QLineF& line) {
+  // A line of length 0 gives NaN, and the comparison below then picks Qt::Vertical: a defined result.
   const double angleCos = std::abs((line.p2().x() - line.p1().x()) / line.length());
   return (angleCos > (1.0 / std::sqrt(2))) ? Qt::Horizontal : Qt::Vertical;
 }

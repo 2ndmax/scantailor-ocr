@@ -105,6 +105,8 @@ class MatT {
 template <typename T>
 MatT<T>::MatT() : m_rows(0), m_cols(0) {}
 
+// rows * cols can't wrap around in size_t: the matrices are small equation systems or a few rows
+// per image column, far below SIZE_MAX, so no overflow check is done here.
 template <typename T>
 MatT<T>::MatT(size_t rows, size_t cols)
     : m_rows(rows),

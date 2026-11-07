@@ -86,6 +86,7 @@ void ColorPickupInteraction::takeColor() {
   const int xCenter = width / 2;
   const int yCenter = height / 2;
   const int sqdistThreshold = xCenter * yCenter;
+  // The image was converted to Format_RGB32 above: 4 bytes per pixel, lines aligned to 4 bytes.
   const uint32_t* line = (uint32_t*) image.bits();
   const int stride = image.bytesPerLine() / 4;
 

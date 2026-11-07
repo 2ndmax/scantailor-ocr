@@ -184,6 +184,8 @@ Function<2> operator*(double scalar, const Function<2>& f) {
   return res;
 }
 
+// Like a plain division, den.value == 0 gives inf/NaN; keeping the denominator away from 0 is the
+// caller's job.
 Function<2> operator/(const Function<2>& num, const Function<2>& den) {
   const size_t p = num.firstDerivs.size();
   assert(num.secondDerivs.size() == p);

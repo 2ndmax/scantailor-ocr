@@ -359,6 +359,9 @@ BinaryImage HoughLineDetector::buildEqualMap(const std::vector<unsigned>& src1,
 
 /*=============================== HoughLine ================================*/
 
+// pointAtY() divides by the x of the normal, pointAtX() by its y: like the slope of a line, the
+// result is inf for a line parallel to the given axis. VertLineFinder, the only caller, asks
+// pointAtY() of near-vertical lines only.
 QPointF HoughLine::pointAtY(const double y) const {
   double x = (m_distance - y * m_normUnitVector.y()) / m_normUnitVector.x();
   return QPointF(x, y);

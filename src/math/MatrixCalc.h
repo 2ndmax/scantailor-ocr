@@ -29,6 +29,7 @@ class AbstractAllocator {
 };
 
 
+// A pool that runs out throws std::runtime_error (StaticPoolBase::alloc()); it never returns null.
 template <typename T, size_t TSize, size_t PSize>
 class StaticPoolAllocator : public AbstractAllocator<T> {
  public:

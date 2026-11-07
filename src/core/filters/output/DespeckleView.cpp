@@ -251,6 +251,7 @@ void DespeckleView::DespeckleResult::operator()() {
   }
 
   if (DespeckleView* owner = m_owner) {
+    // The debug images are only lent for this call; this result keeps owning them.
     owner->despeckleDone(m_despeckleState, m_visualization, m_dbg.get());
   }
 }

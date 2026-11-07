@@ -18,6 +18,7 @@ void DebugImagesImpl::add(const QImage& image,
     return;
   }
 
+  // From here on aremFile deletes the file, also when the write below fails.
   AutoRemovingFile aremFile(file.fileName());
   file.setAutoRemove(false);
 

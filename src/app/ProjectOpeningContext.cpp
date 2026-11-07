@@ -120,6 +120,7 @@ bool ProjectOpeningContext::confirmOpening() {
   if (box.clickedButton() != backupButton) {
     return false;
   }
+  // backupFilePath() chose a name that isn't taken yet, so QFile::copy() doesn't meet an existing file.
   if (!QFile::copy(m_projectFile, backupFile)) {
     QMessageBox::warning(m_parent, tr("Error"),
                          tr("The backup copy \"%1\" could not be created. The project was not opened.")

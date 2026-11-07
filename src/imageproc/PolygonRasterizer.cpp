@@ -221,6 +221,8 @@ PolygonRasterizer::Rasterizer::Rasterizer(const QRect& imageRect,
   path2.addPolygon(PolygonUtils::round(poly));
   path2.closeSubpath();
 
+  // Clipping to imageRect keeps every x the fill functions get within [0, width], so they index
+  // the line (and memset() it) without a check of their own.
   m_fillPoly = path1.intersected(path2).toFillPolygon();
 
   if (invert) {
