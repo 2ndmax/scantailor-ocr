@@ -14,6 +14,7 @@
 #include <QGuiApplication>
 #include <QSettings>
 #include <QStringList>
+#include <QTimer>
 
 #include "MainWindow.h"
 
