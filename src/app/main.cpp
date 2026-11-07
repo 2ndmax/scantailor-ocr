@@ -12,8 +12,10 @@
 #include <core/StyledIconPack.h>
 
 #include <QGuiApplication>
+#include <QPalette>
 #include <QSettings>
 #include <QStringList>
+#include <QStyleHints>
 #include <QTimer>
 
 #include "MainWindow.h"
@@ -39,6 +41,13 @@ int main(int argc, char* argv[]) {
   {
     std::unique_ptr<ColorScheme> scheme
         = ColorSchemeFactory().create(ApplicationSettings::getInstance().getColorScheme());
+    // The title bars are drawn by the system, which colors them after the system's light or dark mode,
+    // not after the app. The Light and Dark schemes tell it their own; System keeps the system's.
+    // Set before the scheme, so that a palette Qt derives from the new mode can't replace the scheme's.
+    if (const QPalette* palette = scheme->getPalette()) {
+      const bool darkScheme = palette->color(QPalette::Window).lightness() < 128;
+      QGuiApplication::styleHints()->setColorScheme(darkScheme ? Qt::ColorScheme::Dark : Qt::ColorScheme::Light);
+    }
     ColorSchemeManager::instance().setColorScheme(*scheme);
   }
   IconProvider::getInstance().setIconPack(StyledIconPack::createDefault());
