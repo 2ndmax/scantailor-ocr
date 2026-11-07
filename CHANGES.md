@@ -24,6 +24,8 @@ topic, not by version.
   a word: opening it tells how many images can't be read and offers the same backup copy, as
   saving removes them from the file. The command line tool refuses such a project instead of
   saving it without these images.
+* A number written as "nan" or "inf" in a damaged or hand-edited project file gives the default
+  value of that setting, instead of being passed on to the image filters.
 * Project files and profiles are written safely: the old file is replaced only when everything
   has been written, so a full disk or a crash no longer leaves a broken project.
 * **Settings for the whole project are stored in the project:** TIFF and PDF compression, the
@@ -67,6 +69,8 @@ topic, not by version.
   named by its place in the export and its image, e.g. `0001_scan_017.xml`. The text of each
   page is recognized once, however many formats need it, and not at all if none does. The text
   is Tesseract's, unchanged; hOCR and ALTO name the output file of the page as their image.
+  Control characters in file or image names (possible on Linux and macOS) are replaced, so the
+  hOCR and ALTO files stay valid XML.
 * **Target:** a folder and a file name, to which each format adds its extension, next to the
   project file by default. Beside them, the files that will be created, or what is wrong with
   the folder or the name, while typing. After the export, the same place lists what was created
@@ -115,6 +119,9 @@ topic, not by version.
   the PDF a searchable text layer for searching, selecting and copying, the page images staying
   unchanged, and the text of TXT, hOCR and ALTO. Its panel is grayed out while no format needs
   it; while one does and no language is ticked, it shows a warning and "Export" is disabled.
+  Several pages are recognized in parallel; Tesseract itself is limited to one thread per page
+  from the program start, so it doesn't start threads of its own on top (this also holds on
+  Linux, where the limit was set too late before).
   * Several languages can be ticked at once. The text layout can be detected automatically or
     set to a single column or block. Pages with split output are recognized on their
     foreground. Pages are recognized in parallel.
