@@ -349,7 +349,13 @@ GrayImage buildGrayImage(const ConnectivityMap& segmentsMap, const GrayImage& gr
       imgLine += imgStride;
     }
 
+    // REVIEW-NOTE (2026-11): a label without pixels (a gap below maxLabel()) -> 0 / 0 and a NaN cast to
+    // uint8_t. Guarded below; no test, because the gray path labels a fresh ConnectivityMap, whose
+    // labels have no gaps, so no input reaches the guard today.
     for (uint32_t label = 1; label <= segmentsMap.maxLabel(); label++) {
+      if (components[label].size == 0) {
+        continue;  // No pixel has this label, so its color is never read.
+      }
       colorMap[label] = static_cast<uint8_t>(std::round(double(graySumMap[label]) / components[label].size));
     }
   }
