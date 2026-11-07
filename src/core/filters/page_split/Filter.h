@@ -51,7 +51,7 @@ class Filter : public AbstractFilter {
 
   void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) override;
 
-  QDomElement saveSettings(const ProjectWriter& wirter, QDomDocument& doc) const override;
+  QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const override;
 
   void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
 
