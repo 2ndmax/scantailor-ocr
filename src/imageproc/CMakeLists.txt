@@ -54,7 +54,6 @@ set(sources
     SeedFillGeneric.cpp SeedFillGeneric.h
     FindPeaksGeneric.h
     ColorMixer.h
-    ColorForId.h
     BackgroundColorCalculator.cpp BackgroundColorCalculator.h
     BadAllocIfNull.cpp BadAllocIfNull.h
     ColorSegmenter.cpp ColorSegmenter.h
