@@ -10,6 +10,8 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QStyle>
+#include <QStyleOptionFocusRect>
 #include <QVBoxLayout>
 #include <functional>
 #include <utility>
@@ -21,7 +23,8 @@
 namespace {
 // One entry of the recent projects list: the project name and, below it,
 // its folder in smaller grey text. The whole entry is highlighted when
-// hovered or focused and opens the project on click, Enter or Space.
+// hovered, framed when focused by keyboard, and opens the project on click,
+// Enter or Space.
 class RecentProjectEntry : public QWidget {
  public:
   RecentProjectEntry(const QString& filePath, const QFont& baseFont, std::function<void()> activate, QWidget* parent)
@@ -69,14 +72,19 @@ class RecentProjectEntry : public QWidget {
 
  protected:
   void paintEvent(QPaintEvent* /*event*/) override {
-    if (!underMouse() && !hasFocus()) {
-      return;
-    }
-    // A neutral grey in every colour scheme, unlike the native highlight colour.
-    QColor color(palette().color(QPalette::WindowText));
-    color.setAlpha(40);
     QPainter painter(this);
-    painter.fillRect(rect(), color);
+    if (underMouse()) {
+      // A neutral grey in every colour scheme, unlike the native highlight colour.
+      QColor color(palette().color(QPalette::WindowText));
+      color.setAlpha(40);
+      painter.fillRect(rect(), color);
+    }
+    if (hasFocus()) {
+      // The style's focus frame, as on the buttons: drawn only while the focus is moved by keyboard.
+      QStyleOptionFocusRect option;
+      option.initFrom(this);
+      style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
+    }
   }
 
   void mouseReleaseEvent(QMouseEvent* event) override {
@@ -150,8 +158,9 @@ void NewOpenProjectPanel::paintEvent(QPaintEvent* /*event*/) {
   QPainter painter(this);
 
   // The panel sits on the image area, which is mid grey in the light scheme. Dark text with
-  // ClearType fringes is hard to read there, so the panel gets the window background.
-  painter.fillRect(exceptMargins, palette().window());
+  // ClearType fringes is hard to read there, so the panel gets the window background, the margins
+  // included: the line then runs inside the panel, as a frame around its contents.
+  painter.fillRect(widgetRect, palette().window());
 
   painter.setPen(QPen(ColorSchemeManager::instance().getColorParam("OpenNewProjectBorder"), border));
 

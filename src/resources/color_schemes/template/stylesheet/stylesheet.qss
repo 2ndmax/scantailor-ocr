@@ -251,10 +251,13 @@ QGraphicsView {
   margin: 1px 1px 1px 1px;
 }
 
+/* The recent projects on the start panel: a list under a heading on a dividing line, without a frame
+   of its own, as the panel has one. The System scheme has the same rule (NativeColorScheme); change
+   both places. */
 QGroupBox#recentProjectsGroup {
   background-color: transparent;
-  border: 1px solid palette(highlight);
-  border-radius: 0px;
+  border: none;
+  border-top: 1px solid {{border}};
   margin-top: 0.75em;  /* half the title height: the line runs through the middle of the title */
   padding-top: 0.5em;
   color: palette(window-text);

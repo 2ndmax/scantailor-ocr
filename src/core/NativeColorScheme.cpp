@@ -163,6 +163,26 @@ void NativeColorScheme::loadStyleSheet() {
                               "  background-color: palette(highlight);\n"
                               "}")
                           .arg(offWindowColor(palette, false).name()));
+  // The recent projects on the start panel, as in the Light and Dark schemes (stylesheet.qss): a list under a
+  // heading on a dividing line, without a frame of its own. The line has the border color of the scheme
+  // (palette(mid)). Change both places.
+  m_styleSheet.append(
+      QString("\n"
+              "QGroupBox#recentProjectsGroup {\n"
+              "  background-color: transparent;\n"
+              "  border: none;\n"
+              "  border-top: 1px solid palette(mid);\n"
+              "  margin-top: 0.75em;\n"
+              "  padding-top: 0.5em;\n"
+              "  color: palette(window-text);\n"
+              "}\n"
+              "\n"
+              "QGroupBox#recentProjectsGroup::title {\n"
+              "  subcontrol-origin: margin;\n"
+              "  subcontrol-position: top center;\n"
+              "  padding: 0px 4px 0px 4px;\n"
+              "  background-color: palette(window);\n"
+              "}"));
 }
 
 void NativeColorScheme::loadColorParams() {
