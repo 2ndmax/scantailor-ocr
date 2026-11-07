@@ -39,9 +39,18 @@ add the guard instead.
 ## Tests
 
 - A bug fix comes with a regression test where possible. The test must fail
-  before the fix; if it does not, the bug is not confirmed and nothing is changed.
-- A fix without a regression test gets a REVIEW-NOTE at the fixed spot saying
-  why no test is possible.
+  before the fix; if it does not, the suspected bug is not confirmed and
+  nothing is changed.
+- Exception: code that is wrong on reading alone (it contradicts its own
+  purpose, comment or name, or has undefined behavior) is fixed even when no
+  test can reach it. A test is still added where one is possible. Without one,
+  the spot is marked with
+  `// Fixed without a test: <what was wrong>; <why no test reaches it>.`
+  If the fix changes behavior a user can see, it needs a hand test, bundled
+  with the other hand tests of the same work. A missing guard for a case that
+  cannot occur is not wrong code; it gets a REVIEW-NOTE instead.
+- Any other fix without a regression test gets a REVIEW-NOTE at the fixed spot
+  saying why no test is possible.
 - A bug found by fuzzing also adds its input to the seeds in `src/fuzz/corpus`.
 - Tests must not depend on the machine: no user settings, no files outside the
   test's own temporary directory, no image files in the repository (draw the
