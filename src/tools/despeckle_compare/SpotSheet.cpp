@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "SpotSheet.h"
+#include "tools/ToolImageSave.h"
 
 #include <QImage>
 #include <QPainter>
@@ -36,5 +37,5 @@ void saveSpotSheet(const QImage& image, const std::vector<QPoint>& points, const
     painter.drawImage((i % cols) * (tile + 4), (i / cols) * (tile + 4), crop);
   }
   painter.end();
-  sheet.save(path);
+  tools::saveImage(sheet, path);
 }

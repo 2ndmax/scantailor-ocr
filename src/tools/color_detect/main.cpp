@@ -30,6 +30,8 @@
 #include <iostream>
 #include <vector>
 
+#include "tools/ToolImageSave.h"
+
 namespace {
 using Mode = ColorModeDetector::Mode;
 
@@ -117,7 +119,18 @@ void writeSheet(const std::vector<Result>& results, const int sheetNo, const QSt
     p.drawImage(cell.left() + (CELL_WIDTH - r.thumb.width()) / 2, cell.top() + 30, r.thumb);
   }
   p.end();
-  sheet.save(QStringLiteral("%1/sheet_%2.png").arg(outDir).arg(sheetNo, 2, 10, QChar('0')));
+  tools::saveImage(sheet, QStringLiteral("%1/sheet_%2.png").arg(outDir).arg(sheetNo, 2, 10, QChar('0')));
+}
+
+// Reads a share given in percent (0 to 100) as a fraction. Returns false for anything else.
+bool readPercent(const QString& value, double& fraction) {
+  bool ok = false;
+  const double percent = value.toDouble(&ok);
+  if (!ok || (percent < 0) || (percent > 100)) {
+    return false;
+  }
+  fraction = percent / 100;
+  return true;
 }
 }  // namespace
 
@@ -150,11 +163,13 @@ int main(int argc, char** argv) {
         return 1;
       }
     }
-    if (arg.startsWith("--minpicture=")) {
-      options.minPictureShare = arg.mid(13).toDouble() / 100;
+    if (arg.startsWith("--minpicture=") && !readPercent(arg.mid(13), options.minPictureShare)) {
+      std::cerr << "--minpicture must be a number from 0 to 100\n";
+      return 1;
     }
-    if (arg.startsWith("--mincolor=")) {
-      options.minColorShare = arg.mid(11).toDouble() / 100;
+    if (arg.startsWith("--mincolor=") && !readPercent(arg.mid(11), options.minColorShare)) {
+      std::cerr << "--mincolor must be a number from 0 to 100\n";
+      return 1;
     }
   }
   QDir().mkpath(outDir);
@@ -204,6 +219,11 @@ int main(int argc, char** argv) {
       const int inset = (insetOverride >= 0) ? insetOverride : (noSplit ? 3 : 8);
       const QImage content = part.copy(part.rect().adjusted(part.width() * inset / 100, part.height() * inset / 100,
                                                             -part.width() * inset / 100, -part.height() * inset / 100));
+      if (content.isNull()) {
+        // A scan only a pixel or two wide (or nearly all dark border) leaves no content to analyze.
+        std::cerr << name.toStdString() << " " << partName.toStdString() << ": no content left, skipped\n";
+        continue;
+      }
       ColorModeDetector::Evidence ev;
       const Mode mode = ColorModeDetector::detect(content, options, status, &ev);
       csv << name << ';' << partName << ';' << ColorModeDetector::modeToString(mode) << ';' << ev.reason << ';'

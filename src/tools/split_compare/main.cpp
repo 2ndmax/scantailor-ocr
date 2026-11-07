@@ -16,9 +16,9 @@
 // each column (black) and the score of the spine search (magenta, 0 to 1).
 //
 // The summary lists per scan the split line of each method (x at the middle row, in pixels of the
-// rotated scan), the score of the best spine line and the best score more than 25 px (at 100 dpi)
-// away from it, which shows how clear the decision was. A score below SpineLineFinder::MIN_SCORE
-// counts as no spine.
+// rotated scan, "-" if it finds none), the score of the best spine line and the best score more
+// than 25 px (at 100 dpi) away from it, which shows how clear the decision was. A score below
+// SpineLineFinder::MIN_SCORE counts as no spine.
 
 #include <BinaryThreshold.h>
 #include <Dpi.h>
@@ -39,6 +39,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <string>
 #include <vector>
 
 #include "filters/page_split/PageLayout.h"
@@ -46,12 +47,23 @@
 #include "filters/page_split/SpineLineFinder.h"
 #include "filters/page_split/VertLineFinder.h"
 #include "tools/ToolImageDpi.h"
+#include "tools/ToolImageSave.h"
 
 using namespace page_split;
 
 namespace {
 double xAtMiddle(const QLineF& line) {
   return 0.5 * (line.p1().x() + line.p2().x());
+}
+
+// The split line of a layout. A method that finds no split returns a layout without cutters.
+bool hasSplitLine(const PageLayout& layout) {
+  return layout.numCutters() > 0;
+}
+
+// The x of the split line for the summary, "-" if the method found none.
+std::string splitX(const PageLayout& layout) {
+  return hasSplitLine(layout) ? std::to_string(std::lround(xAtMiddle(layout.cutterLine(0)))) : std::string("-");
 }
 
 // The mean darkness of each column, the darkest of 3 pixels per row.
@@ -202,6 +214,7 @@ int main(int argc, char** argv) {
     std::vector<double> profile;
     double score = 0.0;
     SpineLineFinder::findSpine(gray100, outToDs, virtualRect, nullptr, &profile, &score);
+    // An empty profile is fine: max_element() then returns end(), bestX is 0 and second stays 0.
     const auto bestIt = std::max_element(profile.begin(), profile.end());
     const double bestX = static_cast<double>(bestIt - profile.begin());
     double second = 0.0;
@@ -211,8 +224,8 @@ int main(int argc, char** argv) {
       }
     }
 
-    std::cout << file.toStdString() << ";" << virtualRect.width() << ";" << std::lround(xAtMiddle(edges.cutterLine(0)))
-              << ";" << std::lround(xAtMiddle(spine.cutterLine(0))) << ";" << score << ";" << second << ";";
+    std::cout << file.toStdString() << ";" << virtualRect.width() << ";" << splitX(edges) << ";" << splitX(spine) << ";"
+              << score << ";" << second << ";";
     for (const QLineF& line : lines) {
       std::cout << std::lround(xAtMiddle(line)) << " ";
     }
@@ -242,10 +255,14 @@ int main(int argc, char** argv) {
     for (const QLineF& line : lines) {
       painter.drawLine(toDs(line));
     }
-    painter.setPen(QPen(QColor(255, 0, 0, 200), 3.0));
-    painter.drawLine(toDs(edges.cutterLine(0)));
-    painter.setPen(QPen(QColor(0, 200, 0, 200), 2.0));
-    painter.drawLine(toDs(spine.cutterLine(0)));
+    if (hasSplitLine(edges)) {
+      painter.setPen(QPen(QColor(255, 0, 0, 200), 3.0));
+      painter.drawLine(toDs(edges.cutterLine(0)));
+    }
+    if (hasSplitLine(spine)) {
+      painter.setPen(QPen(QColor(0, 200, 0, 200), 2.0));
+      painter.drawLine(toDs(spine.cutterLine(0)));
+    }
 
     const int plotTop = base.height();
     painter.fillRect(0, plotTop, visual.width(), plotHeight, QColor(245, 245, 245));
@@ -269,7 +286,7 @@ int main(int argc, char** argv) {
 
     QString outName = file;
     outName.truncate(outName.lastIndexOf('.'));
-    visual.save(outDir.filePath(outName + ".png"));
+    tools::saveImage(visual, outDir.filePath(outName + ".png"));
   }
   return 0;
 }

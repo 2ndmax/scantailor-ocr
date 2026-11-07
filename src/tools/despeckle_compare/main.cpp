@@ -37,6 +37,7 @@
 
 #include "Bench.h"
 #include "SpotSheet.h"
+#include "tools/ToolImageSave.h"
 
 using namespace imageproc;
 
@@ -53,10 +54,10 @@ int run(const QString& inDir, const QString& outDir, const int dpi) {
     const QString base = QDir(outDir).filePath(QFileInfo(file).completeBaseName());
     const QImage gray = toGrayscale(image);
     const BinaryImage binary(gray, BinaryThreshold::otsuThreshold(gray));
-    binary.toQImage().save(base + "_bin.png");
+    tools::saveImage(binary.toQImage(), base + "_bin.png");
     for (const LevelName& level : kLevels) {
       const BinaryImage result = Despeckle::despeckle(binary, Dpi(dpi, dpi), level.level, NullTaskStatus());
-      result.toQImage().save(base + "_" + level.name + ".png");
+      tools::saveImage(result.toQImage(), base + "_" + level.name + ".png");
     }
     std::cout << file.toStdString() << " done" << std::endl;
   }
@@ -107,7 +108,7 @@ int diff(const QString& beforeDir, const QString& afterDir, const QString& outDi
         }
       }
     }
-    out.save(QDir(outDir).filePath(name + "_diff.png"));
+    tools::saveImage(out, QDir(outDir).filePath(name + "_diff.png"));
     std::cout << name.toStdString() << ": newly removed " << newlyRemoved << " px, newly kept " << newlyKept << " px\n";
 
     saveSpotSheet(out, changes, QDir(outDir).filePath(name + "_spots.png"));

@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "SpotSheet.h"
+#include "tools/ToolImageSave.h"
 
 using namespace imageproc;
 
@@ -69,8 +70,8 @@ struct GlyphPixel {
   int x;  // relative to the pen position on the baseline
   int y;
   uint8_t cls;
-  uint8_t ink;   // coverage by the glyph, 0-255
-  uint8_t part;  // index of the glyph's component
+  uint8_t ink;    // coverage by the glyph, 0-255
+  uint32_t part;  // index of the glyph's component
 };
 
 struct Glyph {
@@ -189,7 +190,7 @@ Glyph GlyphCache::render(const QChar c, const RunKind kind) const {
     const uint8_t cls = classify(c, kind, i == largest);
     for (const QPoint& p : components[i]) {
       glyph.pixels.push_back(
-          {p.x() - origin.x(), p.y() - origin.y(), cls, uint8_t(inkAt(image, p.x(), p.y())), uint8_t(i)});
+          {p.x() - origin.x(), p.y() - origin.y(), cls, uint8_t(inkAt(image, p.x(), p.y())), uint32_t(i)});
     }
   }
   return glyph;
@@ -813,7 +814,7 @@ int bench(const QString& outDir, const bool images) {
         const QString pageName = QStringLiteral("%1_%2pt_%3dpi").arg(choice.name).arg(pointSize).arg(dpi);
         if (images) {
           QDir(outDir).mkpath("pages");
-          input.toQImage().save(QDir(outDir).filePath("pages/" + pageName + ".png"));
+          tools::saveImage(input.toQImage(), QDir(outDir).filePath("pages/" + pageName + ".png"));
         }
         for (int level = 0; level < 3; ++level) {
           QElapsedTimer timer;
@@ -843,7 +844,7 @@ int bench(const QString& outDir, const bool images) {
           if (images) {
             const QString base = QDir(outDir).filePath(pageName + "_" + kLevels[level].name);
             if (kLevels[level].level == Despeckle::NORMAL) {
-              picture.save(base + ".png");
+              tools::saveImage(picture, base + ".png");
             }
             saveSpotSheet(picture, lostText, base + "_lost.png");
           }
