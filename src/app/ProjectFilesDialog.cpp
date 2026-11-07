@@ -205,6 +205,13 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
   connect(addToProjectBtn, &QAbstractButton::clicked, this, &ProjectFilesDialog::addToProject);
   connect(removeFromProjectBtn, &QAbstractButton::clicked, this, &ProjectFilesDialog::removeFromProject);
   connect(buttonBox, &QDialogButtonBox::accepted, this, &ProjectFilesDialog::onOK);
+
+  // Loading local files takes a fraction of a second; the bar is shown only if it lasts longer,
+  // e.g. on a network drive, so it never flashes up.
+  progressBar->hide();
+  m_showProgressTimer.setSingleShot(true);
+  m_showProgressTimer.setInterval(500);
+  connect(&m_showProgressTimer, &QTimer::timeout, progressBar, &QWidget::show);
 }
 
 ProjectFilesDialog::~ProjectFilesDialog() = default;
@@ -596,6 +603,7 @@ void ProjectFilesDialog::startLoadingMetadata() {
   offProjectList->clearSelection();
   inProjectList->clearSelection();
   m_loadTimerId = startTimer(0);
+  m_showProgressTimer.start();
   m_metadataLoadFailed = false;
 }
 
@@ -620,6 +628,8 @@ void ProjectFilesDialog::timerEvent(QTimerEvent* event) {
 
 void ProjectFilesDialog::finishLoadingMetadata() {
   killTimer(m_loadTimerId);
+  m_showProgressTimer.stop();
+  progressBar->hide();
 
   setInputsEnabled(true);
 

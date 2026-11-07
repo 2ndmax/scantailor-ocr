@@ -7,6 +7,7 @@
 #include <QDialog>
 #include <QFileInfo>
 #include <QString>
+#include <QTimer>
 #include <memory>
 #include <vector>
 
@@ -89,6 +90,8 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
   std::unique_ptr<FileList> m_inProjectFiles;
   std::unique_ptr<SortedFileList> m_inProjectFilesSorted;
   int m_loadTimerId;
+  // Shows the progress bar only when loading takes long enough to need it.
+  QTimer m_showProgressTimer;
   bool m_metadataLoadFailed;
   bool m_autoOutDir;
   bool m_autoProjectFile;
