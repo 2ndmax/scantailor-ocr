@@ -1273,7 +1273,7 @@ QToolButton:pressed {
   </action>
   <action name="actionSwitchFilter2">
    <property name="text">
-    <string notr="true">Switch filter to orientation</string>
+    <string notr="true">Switch filter to split pages</string>
    </property>
    <property name="toolTip">
     <string notr="true">Switch filter to split pages</string>
@@ -1287,7 +1287,7 @@ QToolButton:pressed {
   </action>
   <action name="actionSwitchFilter3">
    <property name="text">
-    <string notr="true">Switch filter to orientation</string>
+    <string notr="true">Switch filter to deskew</string>
    </property>
    <property name="toolTip">
     <string notr="true">Switch filter to deskew</string>
@@ -1301,7 +1301,7 @@ QToolButton:pressed {
   </action>
   <action name="actionSwitchFilter4">
    <property name="text">
-    <string notr="true">Switch filter to orientation</string>
+    <string notr="true">Switch filter to select content</string>
    </property>
    <property name="toolTip">
     <string notr="true">Switch filter to select content</string>
@@ -1315,7 +1315,7 @@ QToolButton:pressed {
   </action>
   <action name="actionSwitchFilter5">
    <property name="text">
-    <string notr="true">Switch filter to orientation</string>
+    <string notr="true">Switch filter to margins</string>
    </property>
    <property name="toolTip">
     <string notr="true">Switch filter to margins</string>
@@ -1329,7 +1329,7 @@ QToolButton:pressed {
   </action>
   <action name="actionSwitchFilter6">
    <property name="text">
-    <string notr="true">Switch filter to orientation</string>
+    <string notr="true">Switch filter to output</string>
    </property>
    <property name="toolTip">
     <string notr="true">Switch filter to output</string>
