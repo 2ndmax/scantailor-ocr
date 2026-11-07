@@ -120,6 +120,9 @@
         </item>
         <item>
          <widget class="QLabel" name="rotationIndicator">
+          <property name="toolTip">
+           <string>Shows where the top edge of the original image points after the rotation.</string>
+          </property>
           <property name="text">
            <string/>
           </property>
