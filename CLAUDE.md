@@ -32,9 +32,29 @@ When a review finding is deliberately not fixed, the spot is marked with a comme
 Example: `// REVIEW-NOTE (2026-10): images wider than 65535 px make 'scale' zero
 -> division by zero. Not fixed because input width is limited by ImageLoader.`
 
-Future reviews treat a spot with a REVIEW-NOTE as settled as long as the code
-below it is unchanged. If a one-line guard costs no more than the comment,
-add the guard instead.
+Future reviews treat a spot with a REVIEW-NOTE or an explaining comment as
+settled as long as the code below it is unchanged. If a one-line guard costs
+no more than the comment, add the guard instead.
+
+## Working through a review
+
+1. Check every finding against the current code before acting on it; the
+   review's severity and its claims are not taken over unchecked.
+2. Sort each finding into one of these groups and handle it accordingly:
+   - Settled: the spot has a REVIEW-NOTE or explaining comment and the code
+     below it is unchanged -> nothing to do.
+   - False alarm: the claimed problem cannot happen -> a one-line comment at
+     the spot saying why, if the code invites the same misreading again.
+   - Not reachable today: the problem would need inputs or callers that don't
+     exist -> REVIEW-NOTE (or the one-line guard, see above).
+   - Suspected bug: a claim about what some input does -> regression test
+     first (see Tests); no failing test, no change.
+   - Wrong on reading alone -> fix (see the exception under Tests).
+   - Changes what users see, or a design question -> decided by the maintainer
+     before anything is built.
+3. Commits: one per fix, refactorings apart from the fix, all comments and
+   REVIEW-NOTEs of a review in one closing `docs:` commit.
+4. Hand tests of all fixes of a review are done once, together, at the end.
 
 ## Tests
 
