@@ -14,9 +14,11 @@
 
 #include <QCoreApplication>
 #include <QDomDocument>
+#include <QHelpEvent>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QLocale>
+#include <QMouseEvent>
 #include <QRegularExpression>
 #include <QScreen>
 #include <QScrollArea>
@@ -24,6 +26,7 @@
 #include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QStyle>
+#include <QWheelEvent>
 #include <QWindow>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QMessageBox>
@@ -31,6 +34,8 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <functional>
+#include <iterator>
 #include <memory>
 #include <vector>
 
@@ -47,6 +52,59 @@ using namespace core;
 using namespace page_split;
 using namespace output;
 using namespace page_layout;
+
+namespace {
+// Lies over the settings of a tab while a fixed profile is shown. The settings keep their look, so
+// what the profile chose stays readable, but the mouse reaches this cover instead of them. The
+// wheel still scrolls the tab, and tool tips still show.
+class ReadOnlyCover : public QWidget {
+ public:
+  ReadOnlyCover(QWidget* covered, std::function<void()> onClick) : QWidget(covered), m_onClick(std::move(onClick)) {
+    covered->installEventFilter(this);
+    setGeometry(covered->rect());
+    hide();
+  }
+
+ protected:
+  bool eventFilter(QObject* watched, QEvent* event) override {
+    if ((watched == parentWidget()) && (event->type() == QEvent::Resize)) {
+      setGeometry(parentWidget()->rect());
+    }
+    return false;
+  }
+
+  bool event(QEvent* event) override {
+    if (event->type() == QEvent::ToolTip) {
+      showToolTipOfSettingBelow(static_cast<QHelpEvent*>(event));
+      return true;
+    }
+    return QWidget::event(event);
+  }
+
+  // Double clicks arrive here too.
+  void mousePressEvent(QMouseEvent* /*event*/) override { m_onClick(); }
+
+  // Ignored, the wheel goes on to the scroll area below.
+  void wheelEvent(QWheelEvent* event) override { event->ignore(); }
+
+ private:
+  void showToolTipOfSettingBelow(const QHelpEvent* event) {
+    // childAt() passes over widgets transparent for the mouse, so the cover is made so for a moment.
+    setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    QWidget* widget = parentWidget()->childAt(mapToParent(event->pos()));
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    for (; widget && (widget != parentWidget()); widget = widget->parentWidget()) {
+      if (!widget->toolTip().isEmpty()) {
+        QToolTip::showText(event->globalPos(), widget->toolTip(), widget);
+        return;
+      }
+    }
+    QToolTip::hideText();
+  }
+
+  std::function<void()> m_onClick;
+};
+}  // namespace
 
 DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
     : QDialog(parent),
@@ -188,6 +246,10 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
 
   despeckleSlider->setMinimum(qRound(1.0 * 10));
   despeckleSlider->setMaximum(qRound(3.0 * 10));
+
+  setupReadOnlyCovers();
+  m_hintBlinkTimer.setSingleShot(true);
+  connect(&m_hintBlinkTimer, &QTimer::timeout, this, &DefaultParamsDialog::advanceHintBlink);
 
   const int index = profileCB->findData(DefaultParamsProvider::getInstance().getProfileName());
   if (index != -1) {
@@ -1539,24 +1601,69 @@ void DefaultParamsDialog::setProfileReadOnly(const bool readOnly) {
   profileSaveButton->setVisible(!readOnly);
   profileDeleteButton->setVisible(!readOnly);
   readOnlyProfileHint->setVisible(readOnly);
-  setTabWidgetsEnabled(!readOnly);
+  if (!readOnly) {
+    m_hintBlinkTimer.stop();
+    readOnlyProfileHint->setStyleSheet(QString());
+  }
+
+  for (QWidget* cover : m_readOnlyCovers) {
+    cover->setVisible(readOnly);
+    cover->raise();
+  }
+  // The covers keep the mouse away; without focus the keyboard can't change the settings either.
+  if (readOnly) {
+    for (QWidget* settings : m_settingsAreas) {
+      for (QWidget* widget : settings->findChildren<QWidget*>()) {
+        if (widget->focusPolicy() != Qt::NoFocus) {
+          m_focusPoliciesBeforeReadOnly.emplace_back(widget, widget->focusPolicy());
+          widget->setFocusPolicy(Qt::NoFocus);
+        }
+      }
+    }
+  } else {
+    for (const auto& [widget, policy] : m_focusPoliciesBeforeReadOnly) {
+      if (widget) {
+        widget->setFocusPolicy(policy);
+      }
+    }
+    m_focusPoliciesBeforeReadOnly.clear();
+  }
 }
 
-void DefaultParamsDialog::setTabWidgetsEnabled(const bool enabled) {
+void DefaultParamsDialog::setupReadOnlyCovers() {
   for (int i = 0; i < tabWidget->count(); i++) {
-    QWidget* widget = tabWidget->widget(i);
-    // Only the contents of the scroll areas are disabled, so the settings of a fixed profile
-    // can still be scrolled through.
-    const QList<QScrollArea*> areas = widget->findChildren<QScrollArea*>();
+    QWidget* page = tabWidget->widget(i);
+    // On tabs with scroll areas the covers lie on their viewports and stay in place while the
+    // settings scroll beneath them.
+    const QList<QScrollArea*> areas = page->findChildren<QScrollArea*>();
     if (areas.isEmpty()) {
-      widget->setEnabled(enabled);
+      m_settingsAreas.push_back(page);
+      m_readOnlyCovers.push_back(new ReadOnlyCover(page, [this]() { highlightReadOnlyHint(); }));
       continue;
     }
     for (QScrollArea* area : areas) {
       if (area->widget()) {
-        area->widget()->setEnabled(enabled);
+        m_settingsAreas.push_back(area->widget());
+        m_readOnlyCovers.push_back(new ReadOnlyCover(area->viewport(), [this]() { highlightReadOnlyHint(); }));
       }
     }
+  }
+}
+
+void DefaultParamsDialog::highlightReadOnlyHint() {
+  m_hintBlinkStep = 0;
+  advanceHintBlink();
+}
+
+void DefaultParamsDialog::advanceHintBlink() {
+  // The hint blinks twice in the accent color: accent, plain, accent, plain (milliseconds).
+  static constexpr int kPhaseDurations[] = {500, 250, 500};
+  const int phases = static_cast<int>(std::size(kPhaseDurations));
+  const bool accent = (m_hintBlinkStep < phases) && (m_hintBlinkStep % 2 == 0);
+  readOnlyProfileHint->setStyleSheet(accent ? QStringLiteral("color: palette(highlight);") : QString());
+  if (m_hintBlinkStep < phases) {
+    m_hintBlinkTimer.start(kPhaseDurations[m_hintBlinkStep]);
+    ++m_hintBlinkStep;
   }
 }
 

@@ -7,10 +7,14 @@
 #include <core/ConnectionManager.h>
 
 #include <QButtonGroup>
+#include <QPointer>
+#include <QTimer>
 #include <QWidget>
 #include <list>
 #include <set>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "DefaultParams.h"
 #include "DefaultParamsProfileManager.h"
@@ -180,10 +184,15 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   bool isProfileNameReserved(const QString& name);
 
-  void setTabWidgetsEnabled(bool enabled);
-
-  // Fixed profiles (Default, Minimal) show a hint in place of Save and Delete.
+  // Fixed profiles (Default, Minimal) show a hint in place of Save and Delete. Their settings keep
+  // their look but can't be changed; a click on one makes the hint blink.
   void setProfileReadOnly(bool readOnly);
+
+  void setupReadOnlyCovers();
+
+  void highlightReadOnlyHint();
+
+  void advanceHintBlink();
 
   void setupIcons();
 
@@ -234,6 +243,13 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   // Greyed out while the formats of the profile don't use them, as in the Export step.
   QWidget* m_ocrGroup = nullptr;
   QWidget* m_pdfCompressionGroup = nullptr;
+  // The widgets holding the settings of the tabs, and the covers over them for fixed profiles.
+  std::vector<QWidget*> m_settingsAreas;
+  std::vector<QWidget*> m_readOnlyCovers;
+  // The settings taken out of the keyboard focus chain while a fixed profile is shown.
+  std::vector<std::pair<QPointer<QWidget>, Qt::FocusPolicy>> m_focusPoliciesBeforeReadOnly;
+  QTimer m_hintBlinkTimer;
+  int m_hintBlinkStep = 0;
 
   ConnectionManager m_connectionManager;
 };
