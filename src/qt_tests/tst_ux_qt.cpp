@@ -245,7 +245,7 @@ void TestUxQt::testNativeSchemeFollowsTheSameMeanings() {
 }
 
 void TestUxQt::testFocusFrameOnlyForKeyboardFocus() {
-  // The focus frame of Light and Dark is dashed in the accent color, on the border of a button and
+  // The focus frame of Light and Dark is dashed in the accent color, inside the border of a button and
   // around the content of other widgets; a focus from a mouse click shows none.
   const FocusFrameStyle style(QStyleFactory::create("Fusion"));
   QPalette palette;
@@ -281,11 +281,11 @@ void TestUxQt::testFocusFrameOnlyForKeyboardFocus() {
   QCOMPARE(drawFocusFrame(button, QStyle::State_None), blank);
   QCOMPARE(drawFocusFrame(checkBox, QStyle::State_None), blank);
 
-  // On the button's border: dashes of the accent color with gaps of the button color.
+  // Two pixels inside the button's border, which stays untouched for the button's own marks.
   const QImage buttonFrame = drawFocusFrame(button, QStyle::State_KeyboardFocusChange);
-  QVERIFY(countInRow(buttonFrame, 0, Qt::red) > 0);
-  QVERIFY(countInRow(buttonFrame, 0, Qt::blue) > 0);
-  QCOMPARE(countInRow(buttonFrame, 5, Qt::red), 0);
+  QCOMPARE(countInRow(buttonFrame, 0, Qt::white), 40);
+  QCOMPARE(countInRow(buttonFrame, 1, Qt::white), 40);
+  QVERIFY(countInRow(buttonFrame, 2, Qt::red) > 0);
 
   // Around the content of the check box, with gaps that leave the background.
   const QImage checkBoxFrame = drawFocusFrame(checkBox, QStyle::State_KeyboardFocusChange);

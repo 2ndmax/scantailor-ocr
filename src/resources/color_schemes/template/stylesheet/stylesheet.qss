@@ -37,7 +37,7 @@ QPushButton:default, QToolButton:default {
 }
 
 /* Each state of a button has one mark: under the mouse its background, pressed a darker one, checked
-   the accent border. Keyboard focus is drawn by FocusFrameStyle as a dashed border. */
+   the accent border. Keyboard focus is drawn by FocusFrameStyle as a dashed frame inside the border. */
 QPushButton:hover, QToolButton:hover {
   background-color: {{hover}};
 }

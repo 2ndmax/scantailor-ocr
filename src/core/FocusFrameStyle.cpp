@@ -24,15 +24,12 @@ void FocusFrameStyle::drawPrimitive(const PrimitiveElement element,
     return;
   }
 
-  // On buttons the frame replaces their border, so its gaps cover the border underneath.
-  const bool onBorder = qobject_cast<const QPushButton*>(widget) || qobject_cast<const QToolButton*>(widget);
-  const QRect frame = (onBorder ? widget->rect() : option->rect).adjusted(0, 0, -1, -1);
+  // On buttons the frame runs just inside their border, which stays free for its own marks: the
+  // accent border of a checked button, the wider accent frame of the Export button (2 px).
+  const bool button = qobject_cast<const QPushButton*>(widget) || qobject_cast<const QToolButton*>(widget);
+  const QRect frame = (button ? widget->rect().adjusted(2, 2, -2, -2) : option->rect).adjusted(0, 0, -1, -1);
   painter->save();
   painter->setBrush(Qt::NoBrush);
-  if (onBorder) {
-    painter->setPen(QPen(option->palette.color(QPalette::Button), 1));
-    painter->drawRect(frame);
-  }
   QPen dashes(option->palette.color(QPalette::Highlight), 1);
   dashes.setDashPattern({2, 2});
   painter->setPen(dashes);

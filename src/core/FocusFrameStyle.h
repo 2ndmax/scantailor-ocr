@@ -11,7 +11,7 @@
  *
  * Fusion marks keyboard focus with a tinted rectangle around the content, which on the buttons of
  * the style sheet covers only their middle. This style draws a dashed frame in the accent color
- * instead: on the border of push and tool buttons, around the content of other widgets. Like
+ * instead: just inside the border of push and tool buttons, around the content of other widgets. Like
  * Fusion, it draws nothing when the focus came from a mouse click.
  */
 class FocusFrameStyle : public QProxyStyle {
