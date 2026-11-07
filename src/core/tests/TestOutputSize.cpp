@@ -180,5 +180,15 @@ BOOST_AUTO_TEST_CASE(invalid_target_sizes_from_xml_are_limited) {
                     factor(scaling(), QSizeF(210, 297), OutputSizeOptions()));
 }
 
+BOOST_AUTO_TEST_CASE(margins_keep_a_closed_polygon_closed) {
+  QPolygonF poly(QRectF(0, 0, 100, 150));  // Five points, the last one repeats the first.
+  BOOST_REQUIRE_EQUAL(poly.size(), 5);
+
+  Utils::extendPolyRectWithMargins(poly, MARGINS_MM);
+
+  BOOST_CHECK(poly.isClosed());
+  BOOST_CHECK(poly[0] == QPointF(-10, -10));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

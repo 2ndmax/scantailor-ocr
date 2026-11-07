@@ -63,8 +63,8 @@ void Utils::extendPolyRectWithMargins(QPolygonF& polyRect, const Margins& margin
 
   if (polyRect.size() > 4) {
     assert(polyRect.size() == 5);
-    // This polygon is closed.
-    polyRect[4] = polyRect[3];
+    // This polygon is closed: its last point repeats the first.
+    polyRect[4] = polyRect[0];
   }
 }
 
