@@ -53,8 +53,9 @@ topic, not by version.
   (`de` for `de_DE`).
 * Program settings: "Processor threads" on the tab "Performance" is one limit for all parallel work
   (batch processing, PDF export, image filters, JPEG 2000); default: all threads but two.
-  "Accent color" replaces the blue of hovered and focused controls, selected thumbnails and the
-  progress bar (after a restart; not used by the native color scheme). "Deskew handle distance"
+  "Accent color" replaces the blue of checked and pressed buttons, focused fields, the keyboard
+  focus frame, selected thumbnails and the progress bar (after a restart; not used by the native
+  color scheme). "Deskew handle distance"
   sets how close the drag handles for rotation and oblique correction sit to the image center.
 
 ## Export (PDF, TXT, hOCR, ALTO)
@@ -145,7 +146,8 @@ topic, not by version.
 
 * The "Project Files" dialog has a third line, **Project File**, suggesting
   `<input folder>\<folder name>.ScanTailor`. An existing file is only overwritten after asking.
-  After moving files to the other list, the next file is selected.
+  After moving files to the other list, the next file is selected. Its progress bar appears only
+  when reading the image files takes longer than half a second.
 * **New file and folder names are checked** against the rules of Windows, on all systems, as
   projects and exports move between computers: the project file and the output folder of a new
   project, a new output folder when relinking, and the name of an export. Refused are the
@@ -207,7 +209,8 @@ topic, not by version.
   are named *Top*, *Bottom*, *Left* and *Right* and refer to the rotated view. They are shown in
   the unit of the program settings, converted with the resolution of the image, and saved in
   pixels as before; "Apply to ..." keeps the length on pages of another resolution. A rotation
-  of 0 is kept when the project is reopened.
+  of 0 is kept when the project is reopened. The arrow below the rotation buttons has a tooltip:
+  it shows where the top edge of the original image points after the rotation.
 * *Deskew*: the oblique (shear) correction has **Auto / Manual buttons** like the rotation.
   Switching oblique to *Auto* measures the page; the oblique finder reports no angle when the
   image has too little structure. Dragging a handle makes only its own angle manual. "Apply
@@ -319,7 +322,9 @@ topic, not by version.
   names are checked before saving. The tab *Export* holds the formats, the text recognition and
   the PDF compression, *Output* the TIFF compression, *Deskew* the white on black detection (moved from
   the settings). The profile "Custom" is kept like a saved profile; OK with unsaved changes to a
-  profile asks whether to save them in the profile.
+  profile asks whether to save them in the profile. The fixed profiles "Default" and "Minimal"
+  say "Read-only profile" in place of Save and Delete; their settings stay readable but can't be
+  changed, and a click on one makes the hint blink.
 * **Fix DPI of All Images** and **relinking** (opened when images of the project are missing)
   use folder trees:
   * *Fix DPI*: one tree of folders and images with their resolution and traffic light icons
@@ -337,8 +342,12 @@ topic, not by version.
   stronger fill. The context menu has a submenu "Select" to select pages by pattern (all, this
   and following, odd, even, every other). "Every other selected page" works the same in all
   steps, and "Apply to ..." windows open with "Selected pages" when several pages are selected.
-* **Start page:** buttons instead of links, recent projects listed with their folder below
-  and the full path as tooltip.
+* **Start page:** buttons instead of links, recent projects listed under a heading on a line,
+  with their folder below and the full path as tooltip.
+* **Light and Dark color schemes:** each state of a button has one mark: a lighter background
+  under the mouse, a darker one while pressed, an accent border when checked. Keyboard focus is
+  a dashed accent frame just inside the border, shown only when the focus was moved by keyboard.
+  The title bars of the windows follow the scheme.
 * Status bar: file names up to 50 characters, and the image size is followed by its
   resolution, so a wrong source DPI is visible in every step. Number fields are sized from a
   sample value. Pixmaps (batch animation, thumbnails, PDF page icons) are sharp on scaled
