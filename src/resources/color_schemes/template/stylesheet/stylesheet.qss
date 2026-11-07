@@ -36,18 +36,23 @@ QPushButton:default, QToolButton:default {
   border-color: {{text}};
 }
 
-QPushButton:hover, QToolButton:hover, QPushButton:active:focus, QToolButton:active:focus, QLineEdit:active:focus {
+/* Each state of a button has one mark: under the mouse its background, pressed a darker one, checked
+   the accent border. Keyboard focus is drawn by FocusFrameStyle as a dashed border. */
+QPushButton:hover, QToolButton:hover {
+  background-color: {{hover}};
+}
+
+QLineEdit:active:focus {
   border-color: palette(highlight);
 }
 
-QPushButton:pressed, QToolButton:pressed, QPushButton:checked:active:focus, QToolButton:checked:active:focus {
+QPushButton:pressed, QToolButton:pressed {
   border-color: palette(highlight);
   background-color: {{pressed}};
 }
 
 QPushButton:checked, QToolButton:checked {
   border-color: palette(highlight);
-  background-color: {{pressed}};
 }
 
 QPushButton:checked:disabled, QToolButton:checked:disabled {

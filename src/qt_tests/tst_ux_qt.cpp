@@ -7,6 +7,7 @@
 #include <CollapsibleGroupBox.h>
 #include <Dpi.h>
 #include <ErrorWidget.h>
+#include <FocusFrameStyle.h>
 #include <ImageId.h>
 #include <ImageTransformation.h>
 #include <NativeColorScheme.h>
@@ -17,6 +18,7 @@
 #include <color_schemes/dark_scheme_colors.h>
 #include <color_schemes/light_scheme_colors.h>
 
+#include <QCheckBox>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QGuiApplication>
@@ -24,9 +26,12 @@
 #include <QLabel>
 #include <QList>
 #include <QPainter>
+#include <QPushButton>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QStringList>
+#include <QStyleFactory>
+#include <QStyleOptionFocusRect>
 #include <QTemporaryDir>
 #include <QThread>
 #include <QtTest/QtTest>
@@ -237,4 +242,54 @@ void TestUxQt::testNativeSchemeFollowsTheSameMeanings() {
   QCOMPARE(params.at("StageListTail"), palette.color(QPalette::Highlight));
   const bool darkWindow = palette.color(QPalette::Window).lightnessF() < 0.5;
   QCOMPARE(params.at("ErrorText"), QColor(darkWindow ? dark_scheme_colors::error : light_scheme_colors::error));
+}
+
+void TestUxQt::testFocusFrameOnlyForKeyboardFocus() {
+  // The focus frame of Light and Dark is dashed in the accent color, on the border of a button and
+  // around the content of other widgets; a focus from a mouse click shows none.
+  const FocusFrameStyle style(QStyleFactory::create("Fusion"));
+  QPalette palette;
+  palette.setColor(QPalette::Highlight, Qt::red);
+  palette.setColor(QPalette::Button, Qt::blue);
+  QPushButton button;
+  QCheckBox checkBox;
+  button.resize(40, 20);
+  checkBox.resize(40, 20);
+
+  const auto drawFocusFrame = [&](const QWidget& widget, const QStyle::State state) {
+    QStyleOptionFocusRect option;
+    option.palette = palette;
+    option.state = QStyle::State_Enabled | QStyle::State_HasFocus | state;
+    option.rect = QRect(5, 5, 30, 10);  // the content, as the widgets give it
+    QImage image(40, 20, QImage::Format_RGB32);
+    image.fill(Qt::white);
+    QPainter painter(&image);
+    style.drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, &widget);
+    painter.end();
+    return image;
+  };
+  const auto countInRow = [](const QImage& image, const int y, const QColor& color) {
+    int count = 0;
+    for (int x = 0; x < image.width(); ++x) {
+      count += (image.pixelColor(x, y) == color) ? 1 : 0;
+    }
+    return count;
+  };
+
+  QImage blank(40, 20, QImage::Format_RGB32);
+  blank.fill(Qt::white);
+  QCOMPARE(drawFocusFrame(button, QStyle::State_None), blank);
+  QCOMPARE(drawFocusFrame(checkBox, QStyle::State_None), blank);
+
+  // On the button's border: dashes of the accent color with gaps of the button color.
+  const QImage buttonFrame = drawFocusFrame(button, QStyle::State_KeyboardFocusChange);
+  QVERIFY(countInRow(buttonFrame, 0, Qt::red) > 0);
+  QVERIFY(countInRow(buttonFrame, 0, Qt::blue) > 0);
+  QCOMPARE(countInRow(buttonFrame, 5, Qt::red), 0);
+
+  // Around the content of the check box, with gaps that leave the background.
+  const QImage checkBoxFrame = drawFocusFrame(checkBox, QStyle::State_KeyboardFocusChange);
+  QCOMPARE(countInRow(checkBoxFrame, 0, Qt::white), 40);
+  QVERIFY(countInRow(checkBoxFrame, 5, Qt::red) > 0);
+  QCOMPARE(countInRow(checkBoxFrame, 5, Qt::blue), 0);
 }

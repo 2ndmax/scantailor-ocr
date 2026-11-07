@@ -82,6 +82,7 @@ set(common_sources
     Margins.cpp Margins.h
     ColorScheme.h
     StyleSheetColorScheme.cpp StyleSheetColorScheme.h
+    FocusFrameStyle.cpp FocusFrameStyle.h
     NativeColorScheme.cpp NativeColorScheme.h
     ColorSchemeManager.cpp ColorSchemeManager.h
     PageRange.cpp PageRange.h

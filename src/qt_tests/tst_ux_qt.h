@@ -18,6 +18,7 @@ class TestUxQt : public QObject {
   void testColorSchemesSetTheSameParameters();
   void testTextOnAccentHasTheHigherContrast();
   void testNativeSchemeFollowsTheSameMeanings();
+  void testFocusFrameOnlyForKeyboardFocus();
 };
 
 #endif

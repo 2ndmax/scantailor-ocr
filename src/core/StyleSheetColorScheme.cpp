@@ -10,6 +10,7 @@
 #include <cmath>
 
 #include "ApplicationSettings.h"
+#include "FocusFrameStyle.h"
 #include "Utils.h"
 
 using namespace core;
@@ -62,7 +63,7 @@ const ColorScheme::ColorParams* StyleSheetColorScheme::getColorParams() const {
 }
 
 QStyle* StyleSheetColorScheme::getStyle() const {
-  return QStyleFactory::create("Fusion");
+  return new FocusFrameStyle(QStyleFactory::create("Fusion"));
 }
 
 void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& accent, const QColor& onAccent) {
