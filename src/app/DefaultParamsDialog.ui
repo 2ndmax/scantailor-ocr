@@ -94,7 +94,7 @@
      <item>
       <widget class="QLabel" name="label_7">
        <property name="toolTip">
-        <string>The unit of the length fields. Change it in the Program Settings, on the General tab.</string>
+        <string>The unit of the length fields. It follows the Program Settings, on the General tab. With pixels set there, a profile keeps its own unit, as the size of a pixel depends on the page. A profile saved in pixels stays in pixels.</string>
        </property>
        <property name="text">
         <string>Units:</string>
@@ -104,7 +104,7 @@
      <item>
       <widget class="QLabel" name="unitsLabel">
        <property name="toolTip">
-        <string>The unit of the length fields. Change it in the Program Settings, on the General tab.</string>
+        <string>The unit of the length fields. It follows the Program Settings, on the General tab. With pixels set there, a profile keeps its own unit, as the size of a pixel depends on the page. A profile saved in pixels stays in pixels.</string>
        </property>
        <property name="minimumSize">
         <size>

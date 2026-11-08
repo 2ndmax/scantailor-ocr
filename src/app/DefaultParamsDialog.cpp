@@ -956,8 +956,19 @@ void DefaultParamsDialog::colorForegroundToggled(bool checked) {
   originalBackgroundCB->setEnabled(!checked);
 }
 
-void DefaultParamsDialog::loadParams(const DefaultParams& params) {
+namespace {
+QString paramsAsXml(const DefaultParams& params) {
+  QDomDocument doc;
+  doc.appendChild(params.toXml(doc, "profile"));
+  return doc.toString();
+}
+}  // namespace
+
+void DefaultParamsDialog::loadParams(const DefaultParams& stored) {
   auto block = m_connectionManager.getScopedBlock();
+
+  const DefaultParams params
+      = stored.inUnits(DefaultParams::displayUnits(stored.getUnits(), UnitsProvider::getInstance().getUnits()));
 
   // must be done before updating the displays in order to set the precise of the spin boxes
   updateUnits(params.getUnits());
@@ -969,6 +980,9 @@ void DefaultParamsDialog::loadParams(const DefaultParams& params) {
   updatePageLayoutDisplay(params.getPageLayoutParams());
   updateOutputDisplay(params.getOutputParams());
   updateProcessingDisplay(params.getProcessingOptions());
+
+  m_loadedParams = std::make_unique<DefaultParams>(stored);
+  m_shownAfterLoad = paramsAsXml(*buildParams());
 }
 
 void DefaultParamsDialog::updateProcessingDisplay(const ProcessingOptions& options) {
@@ -1381,7 +1395,9 @@ void DefaultParamsDialog::profileChanged(const int index) {
     } else if (std::unique_ptr<DefaultParams> custom = m_profileManager.readProfile("Custom")) {
       loadParams(*custom);
     } else {
-      updateUnits(UnitsProvider::getInstance().getUnits());
+      // The dialog is part of the application, which the tests don't reach; the conversion is tested
+      // in TestUnits.
+      loadParams(*currentParams());
     }
   } else if (profileCB->currentData().toString() == "Default") {
     setProfileReadOnly(true);
@@ -1438,7 +1454,7 @@ void DefaultParamsDialog::profileSavePressed() {
         && ((text.compare(profileCB->itemText(m_customProfileItemIdx), Qt::CaseInsensitive) == 0)
             || (text.compare("Custom", Qt::CaseInsensitive) == 0));
   if (customUnderItsName) {
-    if (!m_profileManager.writeProfile(*buildParams(), "Custom")) {
+    if (!m_profileManager.writeProfile(*currentParams(), "Custom")) {
       QMessageBox::critical(this, tr("Error"), tr("Error saving the profile."));
     }
     return;
@@ -1479,7 +1495,7 @@ void DefaultParamsDialog::profileSavePressed() {
   }
 
   const QString fileName = (existingIdx != -1) ? profileCB->itemData(existingIdx).toString() : profileCB->currentText();
-  if (m_profileManager.writeProfile(*buildParams(), fileName)) {
+  if (m_profileManager.writeProfile(*currentParams(), fileName)) {
     if (existingIdx != -1) {
       // The existing entry shows the profile now, Custom keeps its name.
       profileCB->setCurrentIndex(existingIdx);
@@ -1535,7 +1551,7 @@ bool DefaultParamsDialog::commitChanges() {
   } else if (profile == "Minimal") {
     params = m_profileManager.createMinimalProfile();
   } else {
-    params = buildParams();
+    params = currentParams();
     // OK alone applies the values only until the program is closed, for all editable profiles alike.
     if (!isSavedInProfile(*params, profile)) {
       const QString name = (profile == "Custom") ? profileCB->itemText(m_customProfileItemIdx) : profile;
@@ -1559,17 +1575,22 @@ bool DefaultParamsDialog::commitChanges() {
   return true;
 }
 
+std::unique_ptr<DefaultParams> DefaultParamsDialog::currentParams() const {
+  std::unique_ptr<DefaultParams> shown = buildParams();
+  // Unchanged since loading: the exact lengths, not those rounded to the decimals of the fields.
+  if (m_loadedParams && (paramsAsXml(*shown) == m_shownAfterLoad)) {
+    return std::make_unique<DefaultParams>(*m_loadedParams);
+  }
+  return shown;
+}
+
 bool DefaultParamsDialog::isSavedInProfile(const DefaultParams& params, const QString& profile) const {
   const std::unique_ptr<DefaultParams> saved = m_profileManager.readProfile(profile);
   if (!saved) {
     return false;
   }
   // Compared as they would be written.
-  QDomDocument shown;
-  shown.appendChild(params.toXml(shown, "profile"));
-  QDomDocument stored;
-  stored.appendChild(saved->toXml(stored, "profile"));
-  return shown.toString() == stored.toString();
+  return paramsAsXml(params) == paramsAsXml(*saved);
 }
 
 void DefaultParamsDialog::setProfileReadOnly(const bool readOnly) {

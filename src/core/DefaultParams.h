@@ -284,6 +284,17 @@ class DefaultParams {
 
   void setUnits(Units units);
 
+  /**
+   * The unit in which a profile in \p profileUnits is shown when the program is set to
+   * \p programUnits. Lengths in pixels depend on the resolution of a page, so a profile in pixels
+   * stays in pixels, and with the program set to pixels a profile keeps its own unit.
+   */
+  static Units displayUnits(Units profileUnits, Units programUnits);
+
+  /** This profile with its lengths in \p units. Neither its units nor \p units may be pixels, unless equal. */
+  DefaultParams inUnits(Units units) const;
+
+
   /** The settings that apply to a whole project; new projects start with them. */
   const ProcessingOptions& getProcessingOptions() const { return m_processingOptions; }
 

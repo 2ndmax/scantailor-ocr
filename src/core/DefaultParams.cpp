@@ -9,6 +9,8 @@
 
 #include <cmath>
 
+#include "Dpi.h"
+#include "UnitsConverter.h"
 #include "XmlMarshaller.h"
 #include "XmlUnmarshaller.h"
 
@@ -55,6 +57,44 @@ QDomElement DefaultParams::toXml(QDomDocument& doc, const QString& name) const {
 }
 
 DefaultParams::DefaultParams() : m_units(MILLIMETRES) {}
+
+Units DefaultParams::displayUnits(const Units profileUnits, const Units programUnits) {
+  return ((profileUnits == PIXELS) || (programUnits == PIXELS)) ? profileUnits : programUnits;
+}
+
+DefaultParams DefaultParams::inUnits(const Units units) const {
+  DefaultParams converted(*this);
+  if (units == m_units) {
+    return converted;
+  }
+
+  // Millimeters, centimeters and inches convert without a resolution.
+  const UnitsConverter converter((Dpi()));
+  const auto convert = [&](QSizeF size) {
+    double width = size.width();
+    double height = size.height();
+    converter.convert(width, height, m_units, units);
+    return QSizeF(width, height);
+  };
+
+  SelectContentParams selectContentParams(m_selectContentParams);
+  selectContentParams.setPageRectSize(convert(selectContentParams.getPageRectSize()));
+  converted.setSelectContentParams(selectContentParams);
+
+  PageLayoutParams pageLayoutParams(m_pageLayoutParams);
+  const Margins& margins = pageLayoutParams.getHardMargins();
+  const QSizeF leftTop = convert(QSizeF(margins.left(), margins.top()));
+  const QSizeF rightBottom = convert(QSizeF(margins.right(), margins.bottom()));
+  pageLayoutParams.setHardMargins(
+      Margins(leftTop.width(), leftTop.height(), rightBottom.width(), rightBottom.height()));
+  page_layout::OutputSizeOptions outputSizeOptions(pageLayoutParams.getOutputSizeOptions());
+  outputSizeOptions.setTargetSizeMM(convert(outputSizeOptions.targetSizeMM()));
+  pageLayoutParams.setOutputSizeOptions(outputSizeOptions);
+  converted.setPageLayoutParams(pageLayoutParams);
+
+  converted.setUnits(units);
+  return converted;
+}
 
 DefaultParams::FixOrientationParams::FixOrientationParams(const OrthogonalRotation& imageRotation)
     : m_imageRotation(imageRotation) {}

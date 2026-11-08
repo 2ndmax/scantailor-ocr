@@ -178,9 +178,12 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void setLinkButtonLinked(QToolButton* button, bool linked);
 
-  void loadParams(const DefaultParams& params);
+  void loadParams(const DefaultParams& stored);
 
   std::unique_ptr<DefaultParams> buildParams() const;
+
+  /** The profile to use or to save: as loaded while nothing was changed, else from the fields. */
+  std::unique_ptr<DefaultParams> currentParams() const;
 
   bool isProfileNameReserved(const QString& name);
 
@@ -235,6 +238,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   bool m_pagePosterize = false;
   int m_customProfileItemIdx;
   Units m_currentUnits;
+  std::unique_ptr<DefaultParams> m_loadedParams;
+  QString m_shownAfterLoad;
   std::set<QString> m_reservedProfileNames;
   TiffCompressionPanel* m_tiffCompressionPanel = nullptr;
   ExportFormatsPanel* m_exportFormatsPanel = nullptr;

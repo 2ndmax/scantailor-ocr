@@ -354,6 +354,8 @@ topic, not by version.
   screens. The native color scheme on Windows 11 places number field arrows above each other.
 * Length fields in pixels (content and page boxes, margins, output size, Default Parameters) show
   and take whole pixels.
+* Default Parameters show profiles in the unit of the Program Settings; switching to Custom
+  converts the values instead of reinterpreting them.
 
 ## Error reporting and fixes
 
