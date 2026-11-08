@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   BOOST_CHECK(page.warning().isEmpty());
 
   ExportOptions options;
-  options.backgroundScale = 2;
+  options.pdf.backgroundScale = 2;
   PdfWriter::Page result;
   QStringList errors;
   BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
@@ -604,7 +604,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   BOOST_CHECK_EQUAL(text.width, 400);
 
   // The same with G4 instead of JBIG2.
-  options.bitonalCompression = PdfCompression::CCITT_G4;
+  options.pdf.bitonalCompression = PdfCompression::CCITT_G4;
   PdfWriter::Page g4Result;
   BOOST_REQUIRE(ExportJob::preparePage(page, options, &g4Result, &errors));
   BOOST_REQUIRE_EQUAL(g4Result.images.size(), 2u);
@@ -752,7 +752,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_lossless_pages) {
   BOOST_CHECK(!paletteImage.pngPredictors);
 
   // With JPEG, it's converted to RGB.
-  options.paletteCompression = PdfCompression::JPEG;
+  options.pdf.paletteCompression = PdfCompression::JPEG;
   BOOST_REQUIRE(ExportJob::preparePage(palettePage, options, &result, &errors));
   BOOST_CHECK(result.images[0].encoding == PdfWriter::Image::Encoding::JPEG);
   BOOST_CHECK_EQUAL(result.images[0].components, 3);
@@ -763,13 +763,13 @@ BOOST_AUTO_TEST_CASE(test_prepare_lossless_pages) {
   ExportPage grayPage(grayFile, QString(), QString(), false);
   grayPage.analyze();
   BOOST_REQUIRE_EQUAL(grayPage.kind(), ExportPage::IMAGE);
-  options.colorCompression = PdfCompression::DEFLATE;
+  options.pdf.colorCompression = PdfCompression::DEFLATE;
   BOOST_REQUIRE(ExportJob::preparePage(grayPage, options, &result, &errors));
   const PdfWriter::Image grayImage = result.images[0];
   BOOST_CHECK(grayImage.encoding == PdfWriter::Image::Encoding::FLATE);
   BOOST_CHECK(grayImage.pngPredictors);
   BOOST_CHECK_EQUAL(grayImage.components, 1);
-  options.colorCompression = PdfCompression::NONE;
+  options.pdf.colorCompression = PdfCompression::NONE;
   BOOST_REQUIRE(ExportJob::preparePage(grayPage, options, &result, &errors));
   BOOST_CHECK(result.images[0].encoding == PdfWriter::Image::Encoding::RAW);
   BOOST_CHECK_EQUAL(result.images[0].data.size(), 40 * 30);
@@ -779,12 +779,12 @@ BOOST_AUTO_TEST_CASE(test_prepare_lossless_pages) {
   BOOST_REQUIRE(writeLosslessTiff(bitonalFile, makeBitonal(40, 30, 300)));
   ExportPage bitonalPage(bitonalFile, QString(), QString(), false);
   bitonalPage.analyze();
-  options.bitonalCompression = PdfCompression::DEFLATE;
+  options.pdf.bitonalCompression = PdfCompression::DEFLATE;
   BOOST_REQUIRE(ExportJob::preparePage(bitonalPage, options, &result, &errors));
   const PdfWriter::Image bitonalImage = result.images[0];
   BOOST_CHECK(bitonalImage.encoding == PdfWriter::Image::Encoding::FLATE);
   BOOST_CHECK_EQUAL(bitonalImage.bitsPerComponent, 1);
-  options.bitonalCompression = PdfCompression::NONE;
+  options.pdf.bitonalCompression = PdfCompression::NONE;
   BOOST_REQUIRE(ExportJob::preparePage(bitonalPage, options, &result, &errors));
   BOOST_CHECK(result.images[0].encoding == PdfWriter::Image::Encoding::RAW);
   BOOST_CHECK_EQUAL(result.images[0].data.size(), 5 * 30);
@@ -834,7 +834,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page_with_palette_picture) {
   BOOST_CHECK(page.hasPalettePicture());
 
   ExportOptions options;
-  options.bitonalCompression = PdfCompression::DEFLATE;
+  options.pdf.bitonalCompression = PdfCompression::DEFLATE;
   PdfWriter::Page result;
   QStringList errors;
   BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
@@ -908,7 +908,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_jpeg2000_page) {
   page.analyze();
 
   ExportOptions options;
-  options.colorCompression = PdfCompression::JPEG2000;
+  options.pdf.colorCompression = PdfCompression::JPEG2000;
   PdfWriter::Page result;
   QStringList errors;
   BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
@@ -929,7 +929,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_jpeg2000_page) {
   BOOST_CHECK(pdf.contains("/Version /1.5 >>"));
 
   // Without JPEG 2000, there is no version in the catalog.
-  options.colorCompression = PdfCompression::JPEG;
+  options.pdf.colorCompression = PdfCompression::JPEG;
   BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
   QBuffer jpegBuffer;
   BOOST_REQUIRE(jpegBuffer.open(QIODevice::WriteOnly));

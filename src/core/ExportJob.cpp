@@ -291,17 +291,9 @@ ExportPaths ExportPaths::forPdfFile(const QString& pdfFile) {
 }
 
 ExportOptions ExportOptions::fromProject(const ProcessingOptions& options) {
-  const ProcessingOptions::Pdf& pdf = options.pdf;
   ExportOptions result;
   result.formats = options.formats;
-  result.textLayer = pdf.textLayer;
-  result.colorCompression = pdf.colorCompression;
-  result.colorQuality = pdf.colorQuality;
-  result.backgroundScale = pdf.backgroundScale;
-  result.paletteCompression = pdf.paletteCompression;
-  result.paletteQuality = pdf.paletteQuality;
-  result.bitonalCompression = pdf.bitonalCompression;
-  result.pdfA = pdf.pdfA;
+  result.pdf = options.pdf;
   return result;
 }
 
@@ -362,13 +354,13 @@ bool ExportJob::preparePage(const ExportPage& page,
         // The kind was determined from the file header; decide by the actual image to be safe.
         bool ok;
         if (PdfImageEncoder::isBitonal(image)) {
-          ok = makeBitonalImage(image, page.mainFile(), false, options.bitonalCompression, rect, &pdfImage, errors);
+          ok = makeBitonalImage(image, page.mainFile(), false, options.pdf.bitonalCompression, rect, &pdfImage, errors);
         } else if (PdfImageEncoder::isPalette(image)) {
-          ok = makeColorImage(image, page.mainFile(), options.paletteCompression, options.paletteQuality, rect,
+          ok = makeColorImage(image, page.mainFile(), options.pdf.paletteCompression, options.pdf.paletteQuality, rect,
                               &pdfImage, errors);
         } else {
-          ok = makeColorImage(image, page.mainFile(), options.colorCompression, options.colorQuality, rect, &pdfImage,
-                              errors);
+          ok = makeColorImage(image, page.mainFile(), options.pdf.colorCompression, options.pdf.colorQuality, rect,
+                              &pdfImage, errors);
         }
         if (!ok) {
           return false;
@@ -417,7 +409,7 @@ bool ExportJob::preparePage(const ExportPage& page,
           if (!palette) {
             part = part.convertToFormat(part.isGrayscale() ? QImage::Format_Grayscale8 : QImage::Format_RGB32);
           }
-          const int scale = std::max(1, options.backgroundScale);
+          const int scale = std::max(1, options.pdf.backgroundScale);
           if (scale > 1) {
             const int width = std::max(1, static_cast<int>(std::ceil(part.width() / static_cast<double>(scale))));
             const int height = std::max(1, static_cast<int>(std::ceil(part.height() / static_cast<double>(scale))));
@@ -425,8 +417,8 @@ bool ExportJob::preparePage(const ExportPage& page,
                            : part.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
           }
           PdfWriter::Image pdfImage;
-          const PdfCompression compression = palette ? options.paletteCompression : options.colorCompression;
-          const int quality = palette ? options.paletteQuality : options.colorQuality;
+          const PdfCompression compression = palette ? options.pdf.paletteCompression : options.pdf.colorCompression;
+          const int quality = palette ? options.pdf.paletteQuality : options.pdf.colorQuality;
           if (!makeColorImage(part, page.backgroundFile(), compression, quality, toPoints(QRectF(content), perPoint),
                               &pdfImage, errors)) {
             return false;
@@ -436,7 +428,7 @@ bool ExportJob::preparePage(const ExportPage& page,
         background = QImage();  // Pages are large; it isn't needed while the mask is compressed.
 
         PdfWriter::Image mask;
-        if (!makeBitonalImage(foreground, page.foregroundFile(), true, options.bitonalCompression,
+        if (!makeBitonalImage(foreground, page.foregroundFile(), true, options.pdf.bitonalCompression,
                               QRectF(QPointF(0, 0), result->size), &mask, errors)) {
           return false;
         }
@@ -483,7 +475,7 @@ void ExportJob::run() {
     }
     writer = std::make_unique<PdfWriter>(*file);
     writer->setProducer(QStringLiteral("ScanTailor OCR"));
-    writer->setPdfA(m_options.pdfA);
+    writer->setPdfA(m_options.pdf.pdfA);
     ok = writer->begin();
   }
 

@@ -238,17 +238,17 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   QFile::remove(backgroundFile);
 
   ExportOptions options;
-  options.colorCompression = COLOR_COMPRESSIONS[data[0] & 3];
-  options.paletteCompression = COLOR_COMPRESSIONS[(data[0] >> 2) & 3];
-  options.bitonalCompression = BITONAL_COMPRESSIONS[(data[0] >> 4) & 3];
-  options.pdfA = (data[0] & 64) != 0;
+  options.pdf.colorCompression = COLOR_COMPRESSIONS[data[0] & 3];
+  options.pdf.paletteCompression = COLOR_COMPRESSIONS[(data[0] >> 2) & 3];
+  options.pdf.bitonalCompression = BITONAL_COMPRESSIONS[(data[0] >> 4) & 3];
+  options.pdf.pdfA = (data[0] & 64) != 0;
   const bool splitOutput = (data[0] & 128) != 0;
   const auto kind = static_cast<ImageKind>(data[1] & 3);
   const QSize imageSize(data[2] % 160 + 1, data[3] % 160 + 1);
   const int dpi = (data[4] << 8) | data[5];
-  options.colorQuality = data[6] % 100 + 1;
-  options.paletteQuality = options.colorQuality;
-  options.backgroundScale = data[7];
+  options.pdf.colorQuality = data[6] % 100 + 1;
+  options.pdf.paletteQuality = options.pdf.colorQuality;
+  options.pdf.backgroundScale = data[7];
   const int colorCount = data[8] + 1;
 
   Reader in(data + HEADER_SIZE, size - HEADER_SIZE);
@@ -288,7 +288,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
     buffer.open(QIODevice::WriteOnly);
     PdfWriter writer(buffer);
     writer.setProducer(QStringLiteral("ScanTailor OCR"));
-    writer.setPdfA(options.pdfA);
+    writer.setPdfA(options.pdf.pdfA);
     check(writer.begin() && writer.addPage(pdfPage) && writer.finish(), "the PDF can be written");
     checkCrossReferences(buffer.data());
   } catch (const std::bad_alloc&) {

@@ -45,20 +45,23 @@ struct ProcessingOptions {
     bool operator!=(const Formats& other) const { return !(*this == other); }
   };
 
-  /** How the PDF is made, see ExportOptions. */
+  /** How the PDF is made. */
   struct Pdf {
+    /** Grayscale and colour pages and the pictures of split pages: NONE, DEFLATE, JPEG or JPEG2000. */
     PdfCompression colorCompression = PdfCompression::JPEG;
     /** 10 to 100. */
     int colorQuality = 85;
-    /** 1, 2 or 3. */
+    /** The background of split pages is stored at 1 / backgroundScale of the output resolution: 1, 2 or 3. */
     int backgroundScale = 2;
+    /** Posterized colour pages and pictures of split pages (see PdfImageEncoder::isPalette()): the same methods. */
     PdfCompression paletteCompression = PdfCompression::DEFLATE;
     /** 10 to 100. */
     int paletteQuality = 85;
+    /** Black and white pages and the text of split pages: NONE, DEFLATE, CCITT_G4 or JBIG2. */
     PdfCompression bitonalCompression = PdfCompression::JBIG2;
     /** Write the PDF as PDF/A-2b. */
     bool pdfA = true;
-    /** Add an invisible text layer. */
+    /** Add the recognized text as an invisible layer. Takes effect with text recognition. */
     bool textLayer = true;
 
     bool operator==(const Pdf& other) const {

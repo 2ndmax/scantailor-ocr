@@ -347,14 +347,14 @@ BOOST_AUTO_TEST_CASE(test_export_options_take_the_formats_of_the_project) {
   project.pdf.textLayer = false;
   const ExportOptions options = ExportOptions::fromProject(project);
   BOOST_CHECK(options.formats == project.formats);
-  BOOST_CHECK(!options.textLayer);
+  BOOST_CHECK(!options.pdf.textLayer);
   // Setting up the text recognition stays up to the caller.
   BOOST_CHECK(!options.runsTextRecognition());
 }
 
 BOOST_AUTO_TEST_CASE(test_tesseract_runs_only_if_a_format_needs_it) {
   ExportOptions options;
-  options.textLayer = false;
+  options.pdf.textLayer = false;
   BOOST_CHECK(!options.runsTextRecognition());
   options.ocr = true;
   BOOST_CHECK(!options.runsTextRecognition());  // Only a PDF without text layer.
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE(test_tesseract_runs_only_if_a_format_needs_it) {
   BOOST_CHECK(options.runsTextRecognition());
   BOOST_CHECK(!options.addsTextLayer());
   options.formats.txt = false;
-  options.textLayer = true;
+  options.pdf.textLayer = true;
   BOOST_CHECK(options.runsTextRecognition());
   BOOST_CHECK(options.addsTextLayer());
   options.formats.pdf = false;
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(test_pdf_without_text_layer_starts_no_recognition) {
   const std::vector<ExportPage> pages{writeBitonalPage(dir.filePath("p.tif"))};
   // The language can't be loaded, so starting Tesseract would make the export fail.
   ExportOptions options = optionsWithMissingLanguage(dataDir.path());
-  options.textLayer = false;
+  options.pdf.textLayer = false;
   const ExportPaths paths = ExportPaths::fromBase(dir.filePath("book"));
   ExportJob job(pages, paths, options);
   job.run();
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(test_existing_file_is_replaced_only_after_success) {
                                       writeBitonalPage(dir.filePath("p2.tif"))};
   BOOST_REQUIRE(QFile::remove(dir.filePath("p2.tif")));
   ExportOptions options;
-  options.textLayer = false;
+  options.pdf.textLayer = false;
   const ExportPaths paths = ExportPaths::fromBase(dir.filePath("book"));
   BOOST_REQUIRE(writeFile(paths.pdf, "old pdf"));
   int pagesWritten = 0;
@@ -498,7 +498,7 @@ BOOST_AUTO_TEST_CASE(test_cancel_during_the_last_page_replaces_nothing) {
   const std::vector<ExportPage> pages{writeBitonalPage(dir.filePath("p1.tif")),
                                       writeBitonalPage(dir.filePath("p2.tif"))};
   ExportOptions options;
-  options.textLayer = false;
+  options.pdf.textLayer = false;
   const ExportPaths paths = ExportPaths::fromBase(dir.filePath("book"));
   BOOST_REQUIRE(writeFile(paths.pdf, "old pdf"));
   ExportJob job(pages, paths, options);

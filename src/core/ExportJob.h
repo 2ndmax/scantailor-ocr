@@ -42,27 +42,10 @@ struct ExportPaths {
 struct ExportOptions {
   /** Which files are created. */
   ProcessingOptions::Formats formats;
-  /** Grayscale and colour pages and the pictures of split pages: NONE, DEFLATE, JPEG or JPEG2000. */
-  PdfCompression colorCompression = PdfCompression::JPEG;
-  /** 1 to 100. */
-  int colorQuality = 85;
-  /** The background of split pages is stored at 1 / backgroundScale of the output resolution. */
-  int backgroundScale = 2;
-  /**
-   * Posterized colour pages and pictures of split pages (see PdfImageEncoder::isPalette()):
-   * NONE, DEFLATE, JPEG or JPEG2000.
-   */
-  PdfCompression paletteCompression = PdfCompression::DEFLATE;
-  /** 1 to 100. */
-  int paletteQuality = 85;
-  /** Black and white pages and the text of split pages: NONE, DEFLATE, CCITT_G4 or JBIG2. */
-  PdfCompression bitonalCompression = PdfCompression::JBIG2;
-  /** Write the PDF as PDF/A-2b. */
-  bool pdfA = false;
+  /** How the PDF is made. */
+  ProcessingOptions::Pdf pdf;
   /** The number of pages prepared in parallel. */
   int threadCount = 1;
-  /** Whether the PDF gets the recognized text as an invisible layer. Takes effect with ocr. */
-  bool textLayer = true;
   /** The text recognition is set up (see setUpOcr()). */
   bool ocr = false;
   /** The folder with the language files (see OcrLanguages::commonDir()). */
@@ -79,10 +62,10 @@ struct ExportOptions {
   static ExportOptions fromProject(const ProcessingOptions& options);
 
   /** Whether Tesseract runs: it is set up, and one of the chosen formats needs the text. */
-  bool runsTextRecognition() const { return ocr && formats.needsTextRecognition(textLayer); }
+  bool runsTextRecognition() const { return ocr && formats.needsTextRecognition(pdf.textLayer); }
 
   /** Whether the words of the pages are needed for the text layer of the PDF. */
-  bool addsTextLayer() const { return ocr && formats.pdf && textLayer; }
+  bool addsTextLayer() const { return ocr && formats.pdf && pdf.textLayer; }
 
   /** The outcome of setUpOcr(). */
   enum class OcrSetup {

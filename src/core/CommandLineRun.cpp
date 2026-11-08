@@ -184,7 +184,7 @@ bool exportReplacesProjectFile(const ExportPaths& paths,
  * Returns false after telling \p err why it can't be done.
  */
 bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStream& err) {
-  if (!options->formats.needsTextRecognition(options->textLayer)) {
+  if (!options->formats.needsTextRecognition(options->pdf.textLayer)) {
     return true;
   }
   const QStringList missing = OcrLanguages::missing(project.ocr.languages);
