@@ -28,6 +28,20 @@ int windowSizeFromXml(const QDomElement& el, const QString& name, const int fall
   return (size >= BlackWhiteOptions::MIN_WINDOW_SIZE) ? size : fallback;
 }
 
+// Far beyond what the fields allow (delta up to 100, strength up to 9.99), so that no file made by a
+// program loses its value. A larger one overflows the threshold or doesn't fit a float.
+constexpr double LARGEST_PLAUSIBLE_DELTA_OR_STRENGTH = 1000.0;
+
+int deltaFromXml(const QDomElement& el, const QString& name, const int fallback) {
+  const int delta = intFromXml(el, name, fallback);
+  return (std::abs(static_cast<double>(delta)) <= LARGEST_PLAUSIBLE_DELTA_OR_STRENGTH) ? delta : fallback;
+}
+
+double strengthFromXml(const QDomElement& el, const QString& name, const double fallback) {
+  const double strength = XmlUnmarshaller::number(el, name, fallback);
+  return (std::abs(strength) <= LARGEST_PLAUSIBLE_DELTA_OR_STRENGTH) ? strength : fallback;
+}
+
 // Files of ScanTailor Advanced have two strengths: one for these methods, one for all others.
 bool hasStrengthInWolfCoefAttribute(const BinarizationMethod method) {
   return (method == T_WOLF) || (method == T_FOX) || (method == T_WINDOW) || (method == T_GRAD);
@@ -37,15 +51,14 @@ bool hasStrengthInWolfCoefAttribute(const BinarizationMethod method) {
 // the method set for the page.
 BlackWhiteOptions::MethodValues valuesFromAttributes(const QDomElement& el, const BinarizationMethod method) {
   const BlackWhiteOptions::MethodValues defaults = BlackWhiteOptions::defaultValues(method);
-  return {
-      intFromXml(el, "thresholdAdj", defaults.thresholdAdjustment),
-      XmlUnmarshaller::number(el, hasStrengthInWolfCoefAttribute(method) ? "wolfCoef" : "sauvolaCoef", defaults.coef),
-      windowSizeFromXml(el, "windowSize", defaults.windowSize)};
+  return {deltaFromXml(el, "thresholdAdj", defaults.thresholdAdjustment),
+          strengthFromXml(el, hasStrengthInWolfCoefAttribute(method) ? "wolfCoef" : "sauvolaCoef", defaults.coef),
+          windowSizeFromXml(el, "windowSize", defaults.windowSize)};
 }
 
 BlackWhiteOptions::MethodValues valuesFromMethodElement(const QDomElement& el, const BinarizationMethod method) {
   const BlackWhiteOptions::MethodValues defaults = BlackWhiteOptions::defaultValues(method);
-  return {intFromXml(el, "delta", defaults.thresholdAdjustment), XmlUnmarshaller::number(el, "coef", defaults.coef),
+  return {deltaFromXml(el, "delta", defaults.thresholdAdjustment), strengthFromXml(el, "coef", defaults.coef),
           windowSizeFromXml(el, "window", defaults.windowSize)};
 }
 }  // namespace

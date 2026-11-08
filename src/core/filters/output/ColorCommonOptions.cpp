@@ -10,6 +10,7 @@
 namespace output {
 namespace {
 constexpr int DEFAULT_POSTERIZATION_LEVEL = 4;
+constexpr double MIN_KNN_COEF_WHEN_ON = 0.01;
 
 // The posterizer takes 2 to 255 levels, as the options panel allows. Another value (also a
 // malformed one) can't come from the program, and the posterizer would refuse it and fail the page.
@@ -62,34 +63,37 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
       m_sharpenRadius(el.attribute("sharpenRadius").toInt()),
       m_fillingColor(parseFillingColor(el.attribute("fillingColor"))),
       m_posterizationOptions(el.namedItem("posterization-options").toElement()) {
+  // The upper limits of the radii are those of their fields. A larger radius can't come from the
+  // program, and a huge one makes the filter run practically forever or overflows its arithmetic.
   if (m_wienerCoef < 0.0 || m_wienerCoef > 1.0) {
     m_wienerCoef = 0.0;
   }
-  if (m_wienerWindowSize < 3) {
+  if (m_wienerWindowSize < 3 || m_wienerWindowSize > 99) {
     m_wienerWindowSize = 5;
   }
   if (m_subtractBackgroundCoef < 0.0 || m_subtractBackgroundCoef > 1.0) {
     m_subtractBackgroundCoef = 0.0;
   }
-  if (m_subtractBackgroundRadius < 1) {
+  if (m_subtractBackgroundRadius < 1 || m_subtractBackgroundRadius > 300) {
     m_subtractBackgroundRadius = 45;
   }
-  if (m_chromaRadius < 1) {
+  if (m_chromaRadius < 1 || m_chromaRadius > 10) {
     m_chromaRadius = 3;
   }
   if (m_chromaGrayLimit < 0) {
     m_chromaGrayLimit = 15;
   }
-  if (m_knnCoef < 0.0 || m_knnCoef > 1.0) {
+  // 0.01 is the smallest strength of the field, and a tiny one makes the weights of the filter infinite.
+  if (m_knnCoef < MIN_KNN_COEF_WHEN_ON || m_knnCoef > 1.0) {
     m_knnCoef = 0.0;
   }
-  if (m_knnRadius < 1) {
+  if (m_knnRadius < 1 || m_knnRadius > 20) {
     m_knnRadius = 7;
   }
   if (m_sharpenCoef < 0.0 || m_sharpenCoef > 3.0) {
     m_sharpenCoef = 0.0;
   }
-  if (m_sharpenRadius < 1) {
+  if (m_sharpenRadius < 1 || m_sharpenRadius > 10) {
     m_sharpenRadius = 2;
   }
 }

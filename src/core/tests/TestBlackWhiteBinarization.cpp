@@ -252,6 +252,31 @@ BOOST_AUTO_TEST_CASE(test_missing_or_invalid_values_give_the_default_of_the_meth
   BOOST_CHECK_EQUAL(BlackWhiteOptions(el).values().windowSize, BlackWhiteOptions::MIN_WINDOW_SIZE);
 }
 
+// Far outside the fields: such a delta overflowed "threshold + delta", such a strength did not fit a float.
+BOOST_AUTO_TEST_CASE(test_delta_and_strength_far_outside_their_fields_give_the_default) {
+  const BlackWhiteOptions::MethodValues defaults = BlackWhiteOptions::defaultValues(T_SAUVOLA);
+
+  QDomDocument doc;
+  QDomElement attributes = doc.createElement(QStringLiteral("bw"));
+  attributes.setAttribute(QStringLiteral("binarizationMethod"), QStringLiteral("sauvola"));
+  attributes.setAttribute(QStringLiteral("thresholdAdj"), 2147483647);
+  attributes.setAttribute(QStringLiteral("sauvolaCoef"), QStringLiteral("1e300"));
+  BOOST_CHECK(BlackWhiteOptions(attributes).values(T_SAUVOLA) == defaults);
+
+  QDomElement el = doc.createElement(QStringLiteral("bw"));
+  QDomElement method = doc.createElement(QStringLiteral("method"));
+  method.setAttribute(QStringLiteral("name"), QStringLiteral("sauvola"));
+  method.setAttribute(QStringLiteral("delta"), -2147483647);
+  method.setAttribute(QStringLiteral("coef"), QStringLiteral("-1e300"));
+  el.appendChild(method);
+  BOOST_CHECK(BlackWhiteOptions(el).values(T_SAUVOLA) == defaults);
+
+  method.setAttribute(QStringLiteral("delta"), 100);
+  method.setAttribute(QStringLiteral("coef"), QStringLiteral("9.99"));
+  BOOST_CHECK_EQUAL(BlackWhiteOptions(el).values(T_SAUVOLA).thresholdAdjustment, 100);
+  BOOST_CHECK_EQUAL(BlackWhiteOptions(el).values(T_SAUVOLA).coef, 9.99);
+}
+
 BOOST_AUTO_TEST_CASE(test_an_unknown_method_name_changes_nothing) {
   QDomDocument doc;
   QDomElement el = doc.createElement(QStringLiteral("bw"));

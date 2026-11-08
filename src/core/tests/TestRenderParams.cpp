@@ -166,5 +166,47 @@ BOOST_AUTO_TEST_CASE(non_finite_numbers_in_a_project_file_give_finite_values) {
   }
 }
 
+// The fields end at these radii, so a larger one is damaged or hand-edited. A huge one made the
+// filter run practically forever or overflowed its int arithmetic.
+BOOST_AUTO_TEST_CASE(filter_radius_above_its_field_gives_the_default) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("options");
+  const ColorCommonOptions defaults;
+  for (const char* radius : {"100000000", "2147483647"}) {
+    for (const char* name : {"wienerWinSize", "subtractBgRadius", "chromaRadius", "knnRadius", "sharpenRadius"}) {
+      el.setAttribute(name, radius);
+    }
+    const ColorCommonOptions options(el);
+    BOOST_CHECK_EQUAL(options.wienerWindowSize(), defaults.wienerWindowSize());
+    BOOST_CHECK_EQUAL(options.subtractBackgroundRadius(), defaults.subtractBackgroundRadius());
+    BOOST_CHECK_EQUAL(options.chromaRadius(), defaults.chromaRadius());
+    BOOST_CHECK_EQUAL(options.knnRadius(), defaults.knnRadius());
+    BOOST_CHECK_EQUAL(options.sharpenRadius(), defaults.sharpenRadius());
+  }
+
+  el.setAttribute("wienerWinSize", 99);
+  el.setAttribute("subtractBgRadius", 300);
+  el.setAttribute("chromaRadius", 10);
+  el.setAttribute("knnRadius", 20);
+  el.setAttribute("sharpenRadius", 10);
+  const ColorCommonOptions largest(el);
+  BOOST_CHECK_EQUAL(largest.wienerWindowSize(), 99);
+  BOOST_CHECK_EQUAL(largest.subtractBackgroundRadius(), 300);
+  BOOST_CHECK_EQUAL(largest.chromaRadius(), 10);
+  BOOST_CHECK_EQUAL(largest.knnRadius(), 20);
+  BOOST_CHECK_EQUAL(largest.sharpenRadius(), 10);
+}
+
+// A strength just above 0 makes the weight of the denoiser infinite, which ends in NaN.
+BOOST_AUTO_TEST_CASE(knn_strength_below_its_field_turns_the_filter_off) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement("options");
+  el.setAttribute("knnCoef", "1e-30");
+  BOOST_CHECK_EQUAL(ColorCommonOptions(el).knnCoef(), 0.0);
+
+  el.setAttribute("knnCoef", "0.01");
+  BOOST_CHECK_EQUAL(ColorCommonOptions(el).knnCoef(), 0.01);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests
