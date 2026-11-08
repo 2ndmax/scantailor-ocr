@@ -29,6 +29,7 @@
 #include <QPainter>
 #include <QSignalSpy>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QString>
 #include <QtTest/QtTest>
 #include <memory>
@@ -127,6 +128,43 @@ void TestCoreQt::testOutputDisplayKeepsColorEqualization() {
   QVERIFY(colorCB != nullptr);
   QVERIFY(!colorCB->isChecked());
   QVERIFY(!colorCB->isEnabled());
+}
+
+void TestCoreQt::testOutputStrengthFieldSetsTheValueItsMethodReads() {
+  // The field for the strength of the method shown changes what the method reads, the other value
+  // stays.
+  for (const output::BinarizationMethod method : {output::T_SAUVOLA, output::T_WOLF}) {
+    auto settings = std::make_shared<output::Settings>();
+    const PageId page(ImageId("page.png"));
+    output::ColorParams colorParams;
+    colorParams.setColorMode(output::BLACK_AND_WHITE);
+    output::BlackWhiteOptions blackWhiteOptions(colorParams.blackWhiteOptions());
+    blackWhiteOptions.setBinarizationMethod(method);
+    blackWhiteOptions.setSauvolaCoef(0.11);
+    blackWhiteOptions.setWolfCoef(0.22);
+    colorParams.setBlackWhiteOptions(blackWhiteOptions);
+    settings->setColorParams(page, colorParams);
+
+    output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+    widget.preUpdateUI(page);
+
+    auto* methodPanels = widget.findChild<QStackedWidget*>("binarizationOptions");
+    QVERIFY(methodPanels != nullptr);
+    QCOMPARE(methodPanels->currentIndex(), static_cast<int>(method));
+    QDoubleSpinBox* strengthField = nullptr;
+    for (QDoubleSpinBox* field : methodPanels->currentWidget()->findChildren<QDoubleSpinBox*>()) {
+      if (field->objectName().endsWith("coef", Qt::CaseInsensitive)) {
+        strengthField = field;
+      }
+    }
+    QVERIFY(strengthField != nullptr);
+
+    strengthField->setValue(0.5);
+
+    const output::BlackWhiteOptions result = settings->getParams(page).colorParams().blackWhiteOptions();
+    QCOMPARE(result.getSauvolaCoef(), method == output::T_WOLF ? 0.11 : 0.5);
+    QCOMPARE(result.getWolfCoef(), method == output::T_WOLF ? 0.5 : 0.22);
+  }
 }
 
 void TestCoreQt::testOutputDpiChangeUpdatesDewarpingMode() {
