@@ -3,6 +3,8 @@
 
 #include "tst_select_content_qt.h"
 
+#include "length_field_checks.h"
+
 #include <DefaultParams.h>
 #include <Dpi.h>
 #include <ImageMetadata.h>
@@ -82,6 +84,23 @@ void TestSelectContentQt::testChangedDetectionOptionsDetectAgain() {
   QVERIFY(contentBoxDetectedAgain(*panel.settings));
   panel.fillFactor()->setValue(70);
   QVERIFY(!contentBoxDetectedAgain(*panel.settings));
+}
+
+void TestSelectContentQt::testSizeFieldsSetDecimalsStepAndUnit() {
+  const struct {
+    Units units;
+    int decimals;
+    double step;
+  } formats[] = {{PIXELS, 1, 1.0}, {MILLIMETRES, 1, 1.0}, {CENTIMETRES, 2, 0.01}, {INCHES, 2, 0.01}};
+  Panel panel{OptionsWidget::UiData()};
+  for (const auto& format : formats) {
+    const ScopedUnits scopedUnits(format.units);
+    for (const char* name : {"widthSpinBox", "heightSpinBox"}) {
+      QVERIFY2(
+          lengthFieldShows(panel.widget.findChild<QDoubleSpinBox*>(name), format.units, format.decimals, format.step),
+          name);
+    }
+  }
 }
 
 void TestSelectContentQt::testOldPagesDetectAgainOnlyWithOtherOptions() {

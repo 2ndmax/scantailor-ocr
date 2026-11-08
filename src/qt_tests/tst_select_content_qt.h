@@ -11,6 +11,7 @@ class TestSelectContentQt : public QObject {
  private slots:
   void testChangedDetectionOptionsDetectAgain();
   void testOldPagesDetectAgainOnlyWithOtherOptions();
+  void testSizeFieldsSetDecimalsStepAndUnit();
 };
 
 #endif

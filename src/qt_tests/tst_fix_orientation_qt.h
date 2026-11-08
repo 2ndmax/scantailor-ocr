@@ -18,6 +18,7 @@ class TestFixOrientationQt : public QObject {
   void testTrimFieldsKeepTheOtherEdges();
   void testTrimFieldsFollowAUnitChange();
   void testTrimFieldsShowPixelsWithoutResolution();
+  void testTrimFieldsSetDecimalsStepAndUnit();
 };
 
 #endif

@@ -28,6 +28,7 @@
 #include <memory>
 #include <vector>
 
+#include "length_field_checks.h"
 #include "tst_project_xml.h"
 
 using namespace fix_orientation;
@@ -36,22 +37,6 @@ namespace {
 PageInfo pageInfo(const ImageId& imageId, const QSize& size, const Dpi& dpi = Dpi(300, 300)) {
   return PageInfo(PageId(imageId), ImageMetadata(size, dpi), 1, false, false);
 }
-
-// Sets the unit of the length fields for one test and restores the previous one.
-class ScopedUnits {
- public:
-  explicit ScopedUnits(const Units units) : m_previous(UnitsProvider::getInstance().getUnits()) {
-    UnitsProvider::getInstance().setUnits(units);
-  }
-
-  ~ScopedUnits() { UnitsProvider::getInstance().setUnits(m_previous); }
-
-  ScopedUnits(const ScopedUnits&) = delete;
-  ScopedUnits& operator=(const ScopedUnits&) = delete;
-
- private:
-  const Units m_previous;
-};
 
 OrthogonalRotation quarterTurns(const int count) {
   OrthogonalRotation rotation;
@@ -263,6 +248,23 @@ void TestFixOrientationQt::testTrimFieldsShowTheUnits() {
   right->setValue(50.8);
   QCOMPARE(settings->getTrim(image).right, 600);
   QCOMPARE(settings->getTrim(image).left, 300);
+}
+
+void TestFixOrientationQt::testTrimFieldsSetDecimalsStepAndUnit() {
+  const struct {
+    Units units;
+    int decimals;
+    double step;
+  } formats[] = {{PIXELS, 0, 1.0}, {MILLIMETRES, 1, 1.0}, {CENTIMETRES, 2, 0.01}, {INCHES, 2, 0.01}};
+  auto settings = std::make_shared<Settings>();
+  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(pageInfo(ImageId("page.png"), QSize(400, 300)), quarterTurns(0));
+  for (const auto& format : formats) {
+    const ScopedUnits scopedUnits(format.units);
+    for (const char* name : {"trimTopSpin", "trimBottomSpin", "trimLeftSpin", "trimRightSpin"}) {
+      QVERIFY2(lengthFieldShows(spinBox(widget, name), format.units, format.decimals, format.step), name);
+    }
+  }
 }
 
 void TestFixOrientationQt::testTrimFieldsKeepTheOtherEdges() {

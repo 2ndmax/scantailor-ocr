@@ -4,6 +4,7 @@ set(sources
     tst_deskew_qt.cpp
     tst_end_to_end_qt.cpp
     tst_fix_orientation_qt.cpp
+    tst_page_layout_qt.cpp
     tst_select_content_qt.cpp
     tst_ux_qt.cpp)
 
@@ -16,6 +17,9 @@ target_include_directories(qt_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMA
 # names in each filter, so each test file only gets the directory of its filter.
 set_source_files_properties(tst_core_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
                                                        "$<TARGET_PROPERTY:output,BINARY_DIR>/output_autogen/include")
+set_source_files_properties(
+  tst_page_layout_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
+                         "$<TARGET_PROPERTY:page_layout,BINARY_DIR>/page_layout_autogen/include")
 set_source_files_properties(tst_deskew_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
                                                          "$<TARGET_PROPERTY:deskew,BINARY_DIR>/deskew_autogen/include")
 set_source_files_properties(
