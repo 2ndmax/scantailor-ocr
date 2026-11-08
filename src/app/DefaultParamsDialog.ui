@@ -4051,9 +4051,6 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                            </item>
                            <item row="2" column="1">
                             <widget class="QDoubleSpinBox" name="sauvolaCoef">
-                             <property name="toolTip">
-                              <string>Default value is 0.34.</string>
-                             </property>
                              <property name="minimum">
                               <double>0.010000000000000</double>
                              </property>
@@ -4167,9 +4164,6 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                            </item>
                            <item row="2" column="1">
                             <widget class="QDoubleSpinBox" name="wolfCoef">
-                             <property name="toolTip">
-                              <string>Default value is 0.3.</string>
-                             </property>
                              <property name="minimum">
                               <double>0.010000000000000</double>
                              </property>

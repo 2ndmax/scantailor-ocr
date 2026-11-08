@@ -17,8 +17,7 @@ OptionsWidgetBinarizationLocal::OptionsWidgetBinarizationLocal(std::shared_ptr<S
       m_method(method),
       m_connectionManager(std::bind(&OptionsWidgetBinarizationLocal::setupUiConnections, this)) {
   setupUi(this);
-  coef->setToolTip(usesWolfCoefficient(m_method) ? tr("Default value is 0.3.") : tr("Default value is 0.34."));
-  // As the other fields in the step "Output": "999 px" and "-100".
+  coef->setToolTip(binarizationCoefToolTip(m_method));
   core::Utils::setNumberFieldWidth(windowSize, 999);
   for (QDoubleSpinBox* spinBox : {delta, coef}) {
     core::Utils::setNumberFieldWidth(spinBox, -100, 0);

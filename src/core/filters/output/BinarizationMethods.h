@@ -7,6 +7,7 @@
 #include "BlackWhiteOptions.h"
 
 class QComboBox;
+class QString;
 
 namespace output {
 /**
@@ -28,6 +29,12 @@ bool needsOwnBinarizationDefaults(BinarizationMethod from, BinarizationMethod to
  * getSauvolaCoef(). Decides both what the method reads and what its options panel edits.
  */
 bool usesWolfCoefficient(BinarizationMethod method);
+
+/** The strength a method starts with. */
+double defaultBinarizationCoef(BinarizationMethod method);
+
+/** The tooltip of the strength field of \p method, naming its default. */
+QString binarizationCoefToolTip(BinarizationMethod method);
 
 /** Applies the window size and strength defaults of the options' method. */
 void applyBinarizationDefaults(BlackWhiteOptions& options);

@@ -17,6 +17,7 @@ class TestCoreQt : public QObject {
   void testPageSplitKeepsLayoutTypeWithoutParams();
   void testOutputDisplayKeepsColorEqualization();
   void testOutputStrengthFieldSetsTheValueItsMethodReads();
+  void testOutputStrengthToolTipNamesTheDefaultOfItsMethod();
   void testOutputDpiChangeUpdatesDewarpingMode();
   void testOutputPageSwitchDropsDelayedReload();
   void testOutputPageSwitchRedoesPreviousThumbnail();

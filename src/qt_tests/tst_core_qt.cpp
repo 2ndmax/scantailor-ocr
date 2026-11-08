@@ -167,6 +167,35 @@ void TestCoreQt::testOutputStrengthFieldSetsTheValueItsMethodReads() {
   }
 }
 
+void TestCoreQt::testOutputStrengthToolTipNamesTheDefaultOfItsMethod() {
+  auto settings = std::make_shared<output::Settings>();
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  auto* methodPanels = widget.findChild<QStackedWidget*>("binarizationOptions");
+  QVERIFY(methodPanels != nullptr);
+
+  const struct {
+    output::BinarizationMethod method;
+    double defaultValue;
+  } methods[]
+      = {{output::T_SAUVOLA, 0.34}, {output::T_WOLF, 0.3},      {output::T_FOX, 0.3},       {output::T_WINDOW, 0.3},
+         {output::T_BRADLEY, 0.34}, {output::T_GRAD, 0.3},      {output::T_EDGEPLUS, 0.34}, {output::T_BLURDIV, 0.34},
+         {output::T_EDGEDIV, 0.34}, {output::T_GATOS, 0.2},     {output::T_NICK, 0.1},      {output::T_SINGH, 0.3},
+         {output::T_ROBUST, 0.2},   {output::T_MULTISCALE, 0.2}};
+  for (const auto& entry : methods) {
+    QWidget* const panel = methodPanels->widget(static_cast<int>(entry.method));
+    QVERIFY(panel != nullptr);
+    QDoubleSpinBox* strengthField = nullptr;
+    for (QDoubleSpinBox* field : panel->findChildren<QDoubleSpinBox*>()) {
+      if (field->objectName().endsWith("coef", Qt::CaseInsensitive)) {
+        strengthField = field;
+      }
+    }
+    QVERIFY(strengthField != nullptr);
+    QCOMPARE(strengthField->toolTip(),
+             QString("Strength of the method. Default value is %1.").arg(QLocale().toString(entry.defaultValue)));
+  }
+}
+
 void TestCoreQt::testOutputDpiChangeUpdatesDewarpingMode() {
   // A new resolution turns automatic dewarping with curves into manual; a later dewarping change
   // on the same page must keep that.

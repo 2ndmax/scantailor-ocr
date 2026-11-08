@@ -889,6 +889,8 @@ void DefaultParamsDialog::thresholdMethodChanged(const int idx) {
     sauvolaCoef->setValue(defaults.getSauvolaCoef());
   }
   m_binarizationMethod = method;
+  sauvolaCoef->setToolTip(binarizationCoefToolTip(method));
+  wolfCoef->setToolTip(binarizationCoefToolTip(method));
 
   // The methods share three pages of settings, as in the Output step.
   if (method == T_OTSU) {
