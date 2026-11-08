@@ -37,6 +37,7 @@ set(sources
     TestOcrLanguages.cpp
     TestOutputFileNames.cpp
     TestOutputGenerator.cpp
+    TestBlackWhiteBinarization.cpp
     TestOutputSize.cpp
     TestPhotoAdjustments.cpp
     TestSelectContentApply.cpp
