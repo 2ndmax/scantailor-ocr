@@ -46,10 +46,9 @@ GrayImage grayMapMean(GrayImage const& src, int const radius) {
     unsigned char* gray_line = gray.data();
     int const gray_stride = gray.stride();
 
-    GrayWindowMeans const windows(src.data(), src.stride(), w, h);
+    GrayWindowMeans const windows(src.data(), src.stride(), w, h, LocalWindow::ofRadius(radius));
 
     windows.forEachPixel(
-        LocalWindow::ofRadius(radius),
         [&](int const x, double mean) {
           mean += 0.5;
           mean = (mean < 0.0) ? 0.0 : ((mean < 255.0) ? mean : 255.0);
@@ -76,10 +75,9 @@ GrayImage grayMapDeviation(GrayImage const& src, int const radius) {
     unsigned char* gray_line = gray.data();
     int const gray_stride = gray.stride();
 
-    GrayWindowDeviations const windows(src.data(), src.stride(), w, h);
+    GrayWindowDeviations const windows(src.data(), src.stride(), w, h, LocalWindow::ofRadius(radius));
 
     windows.forEachPixel(
-        LocalWindow::ofRadius(radius),
         [&](int const x, double /*mean*/, double deviation) {
           deviation += 0.5;
           deviation = (deviation < 0.0) ? 0.0 : ((deviation < 255.0) ? deviation : 255.0);
@@ -193,10 +191,9 @@ GrayImage grayNiblackMap(GrayImage const& src, int const radius, float const k, 
     unsigned char* gmean_line = gmean.data();
     int const gmean_stride = gmean.stride();
 
-    GrayWindowDeviations const windows(src.data(), src.stride(), w, h);
+    GrayWindowDeviations const windows(src.data(), src.stride(), w, h, LocalWindow::ofRadius(radius));
 
     windows.forEachPixel(
-        LocalWindow::ofRadius(radius),
         [&](int const x, double const mean, double const deviation) {
           double const shift = deviation - delta;
           double threshold = mean - k * shift;
@@ -299,10 +296,9 @@ GrayImage grayNickMap(GrayImage const& src, int const radius, float const k, int
     unsigned char* gmean_line = gmean.data();
     int const gmean_stride = gmean.stride();
 
-    GrayWindowDeviations const windows(src.data(), src.stride(), w, h);
+    GrayWindowDeviations const windows(src.data(), src.stride(), w, h, LocalWindow::ofRadius(radius));
 
     windows.forEachPixel(
-        LocalWindow::ofRadius(radius),
         [&](int const x, double const mean, double const deviation) {
           double const circle = sqrt(deviation * deviation + cnick * mean * mean);
           double threshold = mean - k * circle;

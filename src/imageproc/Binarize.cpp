@@ -62,7 +62,7 @@ BinaryImage binarizeSauvola(const QImage& src, const QSize windowSize, const dou
   const uint8_t* grayLine = gray.bits();
   const int grayBpl = gray.bytesPerLine();
 
-  const GrayWindowDeviations windows(grayLine, grayBpl, w, h);
+  const GrayWindowDeviations windows(grayLine, grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
   BinaryImage bwImg(w, h);
   uint32_t* bwLine = bwImg.data();
@@ -70,7 +70,6 @@ BinaryImage binarizeSauvola(const QImage& src, const QSize windowSize, const dou
 
   const double frac_d = (double) delta / 128.0;
   windows.forEachPixel(
-      LocalWindow::ofSize(windowSize),
       [&](const int x, const double mean, const double deviation) {
         const double frac_s = deviation / 128.0;
 
@@ -128,11 +127,10 @@ BinaryImage binarizeWolf(const QImage& src,
   {
     // The integral images (12 bytes per pixel) are freed at the end of this
     // block, before the binary image is allocated.
-    const GrayWindowDeviations windows(grayLine, grayBpl, w, h);
+    const GrayWindowDeviations windows(grayLine, grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
     size_t pixelIndex = 0;
     windows.forEachPixel(
-        LocalWindow::ofSize(windowSize),
         [&](const int /*x*/, const double mean, const double deviation) {
           maxDeviation = std::max(maxDeviation, deviation);
           means[pixelIndex] = (float) mean;
@@ -198,14 +196,12 @@ BinaryImage binarizeFox(const QImage& src,
   const uint8_t* grayLine = gray.bits();
   const int grayBpl = gray.bytesPerLine();
 
-  const GrayWindowMeans windows(grayLine, grayBpl, w, h);
+  const GrayWindowMeans windows(grayLine, grayBpl, w, h, LocalWindow::ofSize(windowSize));
   const uint32_t minGrayLevel = minGrayLevelOf(gray);
-  const LocalWindow window = LocalWindow::ofSize(windowSize);
 
   double maxDeviation = 0.0;
 
   windows.forEachPixel(
-      window,
       [&](const int x, const double mean) {
         const double di = (double) grayLine[x] - mean;
         const double deviation = di / (256.0 - di);
@@ -222,7 +218,6 @@ BinaryImage binarizeFox(const QImage& src,
   const double frac_d = (double) delta / 128.0;
   grayLine = gray.bits();
   windows.forEachPixel(
-      window,
       [&](const int x, const double mean) {
         const double di = (double) grayLine[x] - mean;
         const double deviation = di / (256.0 - di);
@@ -277,8 +272,7 @@ BinaryImage binarizeWindow(const QImage& src,
   const uint8_t* grayLine = gray.bits();
   const int grayBpl = gray.bytesPerLine();
 
-  const GrayWindowDeviations windows(grayLine, grayBpl, w, h);
-  const LocalWindow window = LocalWindow::ofSize(windowSize);
+  const GrayWindowDeviations windows(grayLine, grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
   // The sum of the whole image doesn't fit the 32 bits of the integral image above about 16.8
   // million pixels; window sums do, as unsigned arithmetic wraps around.
@@ -300,7 +294,6 @@ BinaryImage binarizeWindow(const QImage& src,
   const double coefw = k * 3.0;  // translate from Wolf to Window coef.
 
   windows.forEachPixel(
-      window,
       [&](const int /*x*/, const double /*mean*/, const double deviation) {
         deviationMax = (deviation > deviationMax) ? deviation : deviationMax;
         deviationMin = (deviation < deviationMin) ? deviation : deviationMin;
@@ -315,7 +308,6 @@ BinaryImage binarizeWindow(const QImage& src,
 
   grayLine = gray.bits();
   windows.forEachPixel(
-      window,
       [&](const int x, const double mean, const double deviation) {
         const double md = (mean + 1.0 - delta) / (meanFull + deviation + 1.0);
         const double kdm = (meanFull + meanFull + 1.0) / (deviation + 1.0);
@@ -356,14 +348,13 @@ BinaryImage binarizeBradley(const QImage& src, const QSize windowSize, const dou
   const uint8_t* grayLine = gray.bits();
   const int grayBpl = gray.bytesPerLine();
 
-  const GrayWindowMeans windows(grayLine, grayBpl, w, h);
+  const GrayWindowMeans windows(grayLine, grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
   BinaryImage bwImg(w, h);
   uint32_t* bwLine = bwImg.data();
   const int bwWpl = bwImg.wordsPerLine();
 
   windows.forEachPixel(
-      LocalWindow::ofSize(windowSize),
       [&](const int x, const double mean) {
         const double threshold = (k < 1.0) ? (mean * (1.0 - k)) : 0;
         setBlackPixel(bwLine, x, int(grayLine[x]) < (threshold + delta));
@@ -411,10 +402,9 @@ BinaryImage binarizeGrad(const QImage& src,
   uint8_t* gmeanLine = gmean.bits();
   const int gmeanBpl = gmean.bytesPerLine();
 
-  const GrayWindowMeans windows(grayLine, grayBpl, w, h);
+  const GrayWindowMeans windows(grayLine, grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
   windows.forEachPixel(
-      LocalWindow::ofSize(windowSize),
       [&](const int x, const double windowMean) {
         const double mean = windowMean + 0.5 + delta;
         const int imean = (int) ((mean < 0.0) ? 0.0 : (mean < 255.0) ? mean : 255.0);
@@ -493,11 +483,10 @@ BinaryImage binarizeEdgeDiv(const QImage& src,
   const int grayBpl = gray.bytesPerLine();
 
   // The window sums come from the original image; the loop below replaces its pixels one by one.
-  const GrayWindowMeans windows(gray.constBits(), grayBpl, w, h);
+  const GrayWindowMeans windows(gray.constBits(), grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
   uint8_t* grayLine = gray.bits();
   windows.forEachPixel(
-      LocalWindow::ofSize(windowSize),
       [&](const int x, const double mean) {
         const double origin = grayLine[x];
         double retval = origin;

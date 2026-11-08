@@ -80,8 +80,12 @@ void forEachWindow(const LocalWindow& window, const int w, const int h, Visit vi
  */
 class GrayWindowMeans {
  public:
-  GrayWindowMeans(const uint8_t* grayLine, const int bytesPerLine, const int width, const int height)
-      : m_width(width), m_height(height), m_sums(width, height) {
+  GrayWindowMeans(const uint8_t* grayLine,
+                  const int bytesPerLine,
+                  const int width,
+                  const int height,
+                  const LocalWindow& window)
+      : m_window(window), m_width(width), m_height(height), m_sums(width, height) {
     for (int y = 0; y < height; ++y) {
       m_sums.pushRow([&](const int x) -> uint32_t { return grayLine[x]; });
       grayLine += bytesPerLine;
@@ -92,9 +96,9 @@ class GrayWindowMeans {
    * Calls formula(x, mean) for every pixel, row by row, and endOfRow() after each row.
    */
   template <typename Formula, typename EndOfRow>
-  void forEachPixel(const LocalWindow& window, Formula formula, EndOfRow endOfRow) const {
+  void forEachPixel(Formula formula, EndOfRow endOfRow) const {
     local_window_detail::forEachWindow(
-        window, m_width, m_height,
+        m_window, m_width, m_height,
         [&](const int x, const QRect& rect, const int area) {
           const double windowSum = m_sums.sum(rect);
           const double rArea = 1.0 / area;
@@ -104,6 +108,7 @@ class GrayWindowMeans {
   }
 
  private:
+  LocalWindow m_window;
   int m_width;
   int m_height;
   IntegralImage<uint32_t> m_sums;
@@ -116,8 +121,12 @@ class GrayWindowMeans {
  */
 class GrayWindowDeviations {
  public:
-  GrayWindowDeviations(const uint8_t* grayLine, const int bytesPerLine, const int width, const int height)
-      : m_width(width), m_height(height), m_sums(width, height), m_squareSums(width, height) {
+  GrayWindowDeviations(const uint8_t* grayLine,
+                       const int bytesPerLine,
+                       const int width,
+                       const int height,
+                       const LocalWindow& window)
+      : m_window(window), m_width(width), m_height(height), m_sums(width, height), m_squareSums(width, height) {
     for (int y = 0; y < height; ++y) {
       m_sums.pushRow([&](const int x) -> uint32_t { return grayLine[x]; });
       m_squareSums.pushRow([&](const int x) -> uint64_t {
@@ -132,9 +141,9 @@ class GrayWindowDeviations {
    * Calls formula(x, mean, deviation) for every pixel, row by row, and endOfRow() after each row.
    */
   template <typename Formula, typename EndOfRow>
-  void forEachPixel(const LocalWindow& window, Formula formula, EndOfRow endOfRow) const {
+  void forEachPixel(Formula formula, EndOfRow endOfRow) const {
     local_window_detail::forEachWindow(
-        window, m_width, m_height,
+        m_window, m_width, m_height,
         [&](const int x, const QRect& rect, const int area) {
           const double windowSum = m_sums.sum(rect);
           const double windowSquareSum = m_squareSums.sum(rect);
@@ -148,6 +157,7 @@ class GrayWindowDeviations {
   }
 
  private:
+  LocalWindow m_window;
   int m_width;
   int m_height;
   IntegralImage<uint32_t> m_sums;
