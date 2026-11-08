@@ -10,6 +10,8 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <limits>
+#include <optional>
 
 #include "IntegralImage.h"
 
@@ -43,6 +45,13 @@ class LocalWindow {
 
   int bottom(const int y, const int imageHeight) const { return std::min(imageHeight, y + m_toBottom); }  // exclusive
 
+  /** The most pixels the window can cover in an image of this size. */
+  int64_t largestArea(const int imageWidth, const int imageHeight) const {
+    const int64_t width = std::min<int64_t>(imageWidth, int64_t(m_toLeft) + m_toRight);
+    const int64_t height = std::min<int64_t>(imageHeight, int64_t(m_toTop) + m_toBottom);
+    return width * height;
+  }
+
  private:
   LocalWindow(const int toLeft, const int toRight, const int toTop, const int toBottom)
       : m_toLeft(toLeft), m_toRight(toRight), m_toTop(toTop), m_toBottom(toBottom) {}
@@ -70,6 +79,48 @@ void forEachWindow(const LocalWindow& window, const int w, const int h, Visit vi
     endOfRow();
   }
 }
+
+/**
+ * \brief The sums of the gray levels of an image, for the windows of one LocalWindow.
+ *
+ * The sum of a window is right as long as it fits, even when the sum of the whole image wraps around.
+ * So 32 bits do for all but absurdly large windows, and 64 bits, which would double the memory taken
+ * for every page, are used only for those. The sum of a window is the same number either way.
+ */
+class GrayLevelSums {
+ public:
+  GrayLevelSums(const LocalWindow& window, const int width, const int height) {
+    if (window.largestArea(width, height) > MAX_AREA_FOR_32_BITS) {
+      m_sums64.emplace(width, height);
+    } else {
+      m_sums32.emplace(width, height);
+    }
+  }
+
+  void pushRow(const uint8_t* grayLine) {
+    if (m_sums64) {
+      pushRowTo(*m_sums64, grayLine);
+    } else {
+      pushRowTo(*m_sums32, grayLine);
+    }
+  }
+
+  double sum(const QRect& rect) const {
+    return m_sums64 ? static_cast<double>(m_sums64->sum(rect)) : static_cast<double>(m_sums32->sum(rect));
+  }
+
+ private:
+  // The most white pixels whose sum still fits 32 bits.
+  static constexpr int64_t MAX_AREA_FOR_32_BITS = std::numeric_limits<uint32_t>::max() / 255;
+
+  template <typename Sum>
+  static void pushRowTo(IntegralImage<Sum>& sums, const uint8_t* grayLine) {
+    sums.pushRow([&](const int x) -> uint32_t { return grayLine[x]; });
+  }
+
+  std::optional<IntegralImage<uint32_t>> m_sums32;
+  std::optional<IntegralImage<uint64_t>> m_sums64;
+};
 }  // namespace local_window_detail
 
 /**
@@ -85,9 +136,9 @@ class GrayWindowMeans {
                   const int width,
                   const int height,
                   const LocalWindow& window)
-      : m_window(window), m_width(width), m_height(height), m_sums(width, height) {
+      : m_window(window), m_width(width), m_height(height), m_sums(window, width, height) {
     for (int y = 0; y < height; ++y) {
-      m_sums.pushRow([&](const int x) -> uint32_t { return grayLine[x]; });
+      m_sums.pushRow(grayLine);
       grayLine += bytesPerLine;
     }
   }
@@ -111,7 +162,7 @@ class GrayWindowMeans {
   LocalWindow m_window;
   int m_width;
   int m_height;
-  IntegralImage<uint32_t> m_sums;
+  local_window_detail::GrayLevelSums m_sums;
 };
 
 /**
@@ -126,9 +177,9 @@ class GrayWindowDeviations {
                        const int width,
                        const int height,
                        const LocalWindow& window)
-      : m_window(window), m_width(width), m_height(height), m_sums(width, height), m_squareSums(width, height) {
+      : m_window(window), m_width(width), m_height(height), m_sums(window, width, height), m_squareSums(width, height) {
     for (int y = 0; y < height; ++y) {
-      m_sums.pushRow([&](const int x) -> uint32_t { return grayLine[x]; });
+      m_sums.pushRow(grayLine);
       m_squareSums.pushRow([&](const int x) -> uint64_t {
         const uint32_t pixel = grayLine[x];
         return pixel * pixel;
@@ -160,7 +211,7 @@ class GrayWindowDeviations {
   LocalWindow m_window;
   int m_width;
   int m_height;
-  IntegralImage<uint32_t> m_sums;
+  local_window_detail::GrayLevelSums m_sums;
   IntegralImage<uint64_t> m_squareSums;
 };
 
