@@ -15,7 +15,6 @@
 
 #include <QRect>
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -24,6 +23,7 @@
 #include "GaussBlur.h"
 #include "GrayImage.h"
 #include "IntegralImage.h"
+#include "LocalWindow.h"
 
 namespace imageproc {
 namespace experimental {
@@ -43,44 +43,19 @@ GrayImage grayMapMean(GrayImage const& src, int const radius) {
   if (radius > 0) {
     int const w = src.width();
     int const h = src.height();
-    unsigned char const* src_line = src.data();
-    int const src_stride = src.stride();
     unsigned char* gray_line = gray.data();
     int const gray_stride = gray.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    GrayWindowMeans const windows(src.data(), src.stride(), w, h);
 
-    for (int y = 0; y < h; y++) {
-      integral_image.beginRow();
-      for (int x = 0; x < w; x++) {
-        uint32_t const pixel = src_line[x];
-        integral_image.push(pixel);
-      }
-      src_line += src_stride;
-    }
-
-    for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
-
-      for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
-        assert(area > 0);  // because windowSize > 0 and w > 0 and h > 0
-
-        QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-
-        double const r_area = 1.0 / area;
-        double mean = window_sum * r_area;
-
-        mean += 0.5;
-        mean = (mean < 0.0) ? 0.0 : ((mean < 255.0) ? mean : 255.0);
-        gray_line[x] = (unsigned char) mean;
-      }
-      gray_line += gray_stride;
-    }
+    windows.forEachPixel(
+        LocalWindow::ofRadius(radius),
+        [&](int const x, double mean) {
+          mean += 0.5;
+          mean = (mean < 0.0) ? 0.0 : ((mean < 255.0) ? mean : 255.0);
+          gray_line[x] = (unsigned char) mean;
+        },
+        [&] { gray_line += gray_stride; });
   }
 
   return gray;
@@ -98,55 +73,19 @@ GrayImage grayMapDeviation(GrayImage const& src, int const radius) {
   if (radius > 0) {
     int const w = src.width();
     int const h = src.height();
-    unsigned char const* src_line = src.data();
-    int const src_stride = src.stride();
     unsigned char* gray_line = gray.data();
     int const gray_stride = gray.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
-    IntegralImage<uint64_t> integral_sqimage(w, h);
+    GrayWindowDeviations const windows(src.data(), src.stride(), w, h);
 
-    uint32_t gray_min = 255;
-
-    for (int y = 0; y < h; y++) {
-      integral_image.beginRow();
-      integral_sqimage.beginRow();
-      for (int x = 0; x < w; x++) {
-        uint32_t const pixel = src_line[x];
-        integral_image.push(pixel);
-        integral_sqimage.push(pixel * pixel);
-        gray_min = std::min(gray_min, pixel);
-      }
-      src_line += src_stride;
-    }
-
-    for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
-
-      for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
-        assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
-
-        QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
-
-        double const r_area = 1.0 / area;
-        double const mean = window_sum * r_area;
-        double const sqmean = window_sqsum * r_area;
-
-        double const variance = sqmean - mean * mean;
-        double deviation = sqrt(fabs(variance));
-
-        deviation += 0.5;
-        deviation = (deviation < 0.0) ? 0.0 : ((deviation < 255.0) ? deviation : 255.0);
-        gray_line[x] = (unsigned char) deviation;
-      }
-      gray_line += gray_stride;
-    }
+    windows.forEachPixel(
+        LocalWindow::ofRadius(radius),
+        [&](int const x, double /*mean*/, double deviation) {
+          deviation += 0.5;
+          deviation = (deviation < 0.0) ? 0.0 : ((deviation < 255.0) ? deviation : 255.0);
+          gray_line[x] = (unsigned char) deviation;
+        },
+        [&] { gray_line += gray_stride; });
   }
 
   return gray;
@@ -251,54 +190,21 @@ GrayImage grayNiblackMap(GrayImage const& src, int const radius, float const k, 
     int const w = src.width();
     int const h = src.height();
 
-    unsigned char const* src_line = src.data();
-    int const src_stride = src.stride();
     unsigned char* gmean_line = gmean.data();
     int const gmean_stride = gmean.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
-    IntegralImage<uint64_t> integral_sqimage(w, h);
+    GrayWindowDeviations const windows(src.data(), src.stride(), w, h);
 
-    for (int y = 0; y < h; y++) {
-      integral_image.beginRow();
-      integral_sqimage.beginRow();
-      for (int x = 0; x < w; x++) {
-        uint32_t const pixel = src_line[x];
-        integral_image.push(pixel);
-        integral_sqimage.push(pixel * pixel);
-      }
-      src_line += src_stride;
-    }
+    windows.forEachPixel(
+        LocalWindow::ofRadius(radius),
+        [&](int const x, double const mean, double const deviation) {
+          double const shift = deviation - delta;
+          double threshold = mean - k * shift;
 
-    for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
-
-      for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
-        assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
-
-        QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
-
-        double const r_area = 1.0 / area;
-        double const mean = window_sum * r_area;
-        double const sqmean = window_sqsum * r_area;
-
-        double const variance = sqmean - mean * mean;
-        double const deviation = sqrt(fabs(variance));
-
-        double const shift = deviation - delta;
-        double threshold = mean - k * shift;
-
-        threshold = (threshold < 0.0) ? 0.0 : ((threshold < 255.0) ? threshold : 255.0);
-        gmean_line[x] = (unsigned char) threshold;
-      }
-      gmean_line += gmean_stride;
-    }
+          threshold = (threshold < 0.0) ? 0.0 : ((threshold < 255.0) ? threshold : 255.0);
+          gmean_line[x] = (unsigned char) threshold;
+        },
+        [&] { gmean_line += gmean_stride; });
   }
 
   return gmean;
@@ -390,54 +296,21 @@ GrayImage grayNickMap(GrayImage const& src, int const radius, float const k, int
     int const w = src.width();
     int const h = src.height();
 
-    unsigned char const* src_line = src.data();
-    int const src_stride = src.stride();
     unsigned char* gmean_line = gmean.data();
     int const gmean_stride = gmean.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
-    IntegralImage<uint64_t> integral_sqimage(w, h);
+    GrayWindowDeviations const windows(src.data(), src.stride(), w, h);
 
-    for (int y = 0; y < h; y++) {
-      integral_image.beginRow();
-      integral_sqimage.beginRow();
-      for (int x = 0; x < w; x++) {
-        uint32_t const pixel = src_line[x];
-        integral_image.push(pixel);
-        integral_sqimage.push(pixel * pixel);
-      }
-      src_line += src_stride;
-    }
+    windows.forEachPixel(
+        LocalWindow::ofRadius(radius),
+        [&](int const x, double const mean, double const deviation) {
+          double const circle = sqrt(deviation * deviation + cnick * mean * mean);
+          double threshold = mean - k * circle;
 
-    for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
-
-      for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
-        assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
-
-        QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
-
-        double const r_area = 1.0 / area;
-        double const mean = window_sum * r_area;
-        double const sqmean = window_sqsum * r_area;
-
-        double const variance = sqmean - mean * mean;
-        double const deviation = sqrt(fabs(variance));
-
-        double const circle = sqrt(deviation * deviation + cnick * mean * mean);
-        double threshold = mean - k * circle;
-
-        threshold = (threshold < 0.0) ? 0.0 : ((threshold < 255.0) ? threshold : 255.0);
-        gmean_line[x] = (unsigned char) threshold;
-      }
-      gmean_line += gmean_stride;
-    }
+          threshold = (threshold < 0.0) ? 0.0 : ((threshold < 255.0) ? threshold : 255.0);
+          gmean_line[x] = (unsigned char) threshold;
+        },
+        [&] { gmean_line += gmean_stride; });
   }
 
   return gmean;
@@ -721,25 +594,6 @@ void grayRobustInPlace(GrayImage& src, int const radius, float const coef) {
   }
 }  // grayRobustInPlace
 
-static inline bool binaryGetBW(uint32_t const* bw_line, unsigned int x) {
-  static uint32_t const msb = uint32_t(1) << 31;
-  uint32_t const mask = msb >> (x & 31);
-
-  return (bw_line[x >> 5] & mask);
-}
-
-static inline void binarySetBW(uint32_t* bw_line, unsigned int x, bool black) {
-  static uint32_t const msb = uint32_t(1) << 31;
-  uint32_t const mask = msb >> (x & 31);
-  if (black) {
-    // black
-    bw_line[x >> 5] |= mask;
-  } else {
-    // white
-    bw_line[x >> 5] &= ~mask;
-  }
-}
-
 BinaryImage binarizeUse(GrayImage const& src, unsigned int const threshold) {
   if (src.isNull()) {
     return BinaryImage();
@@ -760,7 +614,7 @@ BinaryImage binarizeUse(GrayImage const& src, unsigned int const threshold) {
 
   for (unsigned int y = 0; y < h; y++) {
     for (unsigned int x = 0; x < w; x++) {
-      binarySetBW(bw_line, x, (src_line[x] < threshold));
+      setBlackPixel(bw_line, x, (src_line[x] < threshold));
     }
     src_line += src_stride;
     bw_line += bw_stride;
@@ -802,9 +656,9 @@ BinaryImage binarizeFromMap(GrayImage const& src,
 
   for (unsigned int y = 0; y < h; y++) {
     for (unsigned int x = 0; x < w; x++) {
-      binarySetBW(bw_line, x,
-                  (src_line[x] < bound_lower
-                   || (src_line[x] <= bound_upper && ((int) src_line[x] < ((int) threshold_line[x] + delta)))));
+      setBlackPixel(bw_line, x,
+                    (src_line[x] < bound_lower
+                     || (src_line[x] <= bound_upper && ((int) src_line[x] < ((int) threshold_line[x] + delta)))));
     }
     src_line += src_stride;
     threshold_line += threshold_stride;
@@ -915,7 +769,7 @@ GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int 
   unsigned int const h2 = h + h;
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
-      if (binaryGetBW(niblack_line, x)) {
+      if (isBlackPixel(niblack_line, x)) {
         uint32_t niblack_sum_bg = 0;
         unsigned int wss = 0;
         QRect window;
