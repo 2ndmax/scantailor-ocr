@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "ImageId.h"
+#include "ImageInfo.h"
 #include "OutputFileNameGenerator.h"
 #include "PageId.h"
 #include "PageSequence.h"
@@ -84,12 +85,8 @@ class ProjectWriter {
     File(const QString& path, int numericId) : path(path), numericId(numericId) {}
   };
 
-  struct Image {
-    ImageId id;
+  struct Image : ImageInfo {
     int numericId;
-    int numSubPages;
-    bool leftHalfRemoved;
-    bool rightHalfRemoved;
 
     Image(const PageInfo& pageInfo, int numericId);
   };
@@ -121,7 +118,8 @@ class ProjectWriter {
   using Images = boost::multi_index::multi_index_container<
       Image,
       boost::multi_index::indexed_by<
-          boost::multi_index::hashed_unique<boost::multi_index::member<Image, ImageId, &Image::id>, std::hash<ImageId>>,
+          boost::multi_index::hashed_unique<boost::multi_index::member<ImageInfo, ImageId, &ImageInfo::id>,
+                                            std::hash<ImageId>>,
           boost::multi_index::sequenced<boost::multi_index::tag<Sequenced>>>>;
 
   using Pages = boost::multi_index::multi_index_container<

@@ -8,37 +8,23 @@
 #include "ImageMetadata.h"
 
 /**
- * This class stores the same information about an image as ProjectPages does,
- * and is used for adding images to ProjectPages objects. Beyond that,
- * ProjectPages doesn't operate with ImageInfo objects, but with PageInfo ones.
+ * What a project knows about one image. Used for adding images to ProjectPages objects; beyond
+ * that, ProjectPages keeps its own descriptions derived from this and hands out PageInfo objects.
  */
-class ImageInfo {
-  // Member-wise copying is OK.
- public:
+struct ImageInfo {
   ImageInfo();
 
   ImageInfo(const ImageId& id,
             const ImageMetadata& metadata,
             int numSubPages,
-            bool leftPageRemoved,
-            bool rightPageRemoved);
+            bool leftHalfRemoved,
+            bool rightHalfRemoved);
 
-  const ImageId& id() const { return m_id; }
-
-  const ImageMetadata& metadata() const { return m_metadata; }
-
-  int numSubPages() const { return m_numSubPages; }
-
-  bool leftHalfRemoved() const { return m_leftHalfRemoved; }
-
-  bool rightHalfRemoved() const { return m_rightHalfRemoved; }
-
- private:
-  ImageId m_id;
-  ImageMetadata m_metadata;
-  int m_numSubPages;        // 1 or 2
-  bool m_leftHalfRemoved;   // Both can't be true, and if one is true,
-  bool m_rightHalfRemoved;  // then m_numSubPages is 1.
+  ImageId id;
+  ImageMetadata metadata;
+  int numSubPages;        // 1 or 2
+  bool leftHalfRemoved;   // Both can't be true, and if one is true,
+  bool rightHalfRemoved;  // then numSubPages is 1.
 };
 
 

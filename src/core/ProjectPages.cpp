@@ -101,11 +101,10 @@ PageSequence ProjectPages::toPageSequence(const PageView view) const {
     const auto numImages = static_cast<int>(m_images.size());
     for (int i = 0; i < numImages; ++i) {
       const ImageDesc& image = m_images[i];
-      assert(image.numLogicalPages >= 1 && image.numLogicalPages <= 2);
-      for (int j = 0; j < image.numLogicalPages; ++j) {
+      assert(image.numSubPages >= 1 && image.numSubPages <= 2);
+      for (int j = 0; j < image.numSubPages; ++j) {
         const PageId id(image.id, image.logicalPageToSubPage(j, m_subPagesInOrder));
-        pages.append(
-            PageInfo(id, image.metadata, image.numLogicalPages, image.leftHalfRemoved, image.rightHalfRemoved));
+        pages.append(PageInfo(id, image.metadata, image.numSubPages, image.leftHalfRemoved, image.rightHalfRemoved));
       }
     }
   } else {
@@ -117,7 +116,7 @@ PageSequence ProjectPages::toPageSequence(const PageView view) const {
     for (int i = 0; i < numImages; ++i) {
       const ImageDesc& image = m_images[i];
       const PageId id(image.id, PageId::SINGLE_PAGE);
-      pages.append(PageInfo(id, image.metadata, image.numLogicalPages, image.leftHalfRemoved, image.rightHalfRemoved));
+      pages.append(PageInfo(id, image.metadata, image.numSubPages, image.leftHalfRemoved, image.rightHalfRemoved));
     }
   }
   return pages;
@@ -430,7 +429,7 @@ std::vector<PageInfo> ProjectPages::insertImageImpl(const ImageInfo& newImage,
   m_images.insert(it, imageDesc);
   modified = true;
 
-  PageInfo pageInfoTempl(PageId(newImage.id(), PageId::SINGLE_PAGE), imageDesc.metadata, imageDesc.numLogicalPages,
+  PageInfo pageInfoTempl(PageId(newImage.id, PageId::SINGLE_PAGE), imageDesc.metadata, imageDesc.numSubPages,
                          imageDesc.leftHalfRemoved, imageDesc.rightHalfRemoved);
 
   if (view == IMAGE_VIEW) {
@@ -438,8 +437,8 @@ std::vector<PageInfo> ProjectPages::insertImageImpl(const ImageInfo& newImage,
   } else {
     // The same pages as toPageSequence() has: the remaining half is the left or right one, not
     // the first or second in the reading order.
-    for (int i = 0; i < imageDesc.numLogicalPages; ++i) {
-      pageInfoTempl.setId(PageId(newImage.id(), imageDesc.logicalPageToSubPage(i, m_subPagesInOrder)));
+    for (int i = 0; i < imageDesc.numSubPages; ++i) {
+      pageInfoTempl.setId(PageId(newImage.id, imageDesc.logicalPageToSubPage(i, m_subPagesInOrder)));
       logicalPages.push_back(pageInfoTempl);
     }
   }
@@ -457,13 +456,13 @@ void ProjectPages::removePagesImpl(const std::set<PageId>& toRemove, bool& modif
     ImageDesc image(m_images[i]);
 
     if (toRemove.find(PageId(image.id, PageId::SINGLE_PAGE)) != toRemoveEnd) {
-      image.numLogicalPages = 0;
+      image.numSubPages = 0;
       modified = true;
     } else {
       // A half counts only if the image shows it: a selection from before the layout changed can
       // name a half of a single page, or one already removed, and must not remove the whole image.
       const auto showsHalf = [&image, this](const PageId::SubPage half) {
-        for (int i = 0; i < image.numLogicalPages; ++i) {
+        for (int i = 0; i < image.numSubPages; ++i) {
           if (image.logicalPageToSubPage(i, m_subPagesInOrder) == half) {
             return true;
           }
@@ -472,17 +471,17 @@ void ProjectPages::removePagesImpl(const std::set<PageId>& toRemove, bool& modif
       };
       if (showsHalf(PageId::LEFT_PAGE) && (toRemove.find(PageId(image.id, PageId::LEFT_PAGE)) != toRemoveEnd)) {
         image.leftHalfRemoved = true;
-        --image.numLogicalPages;
+        --image.numSubPages;
         modified = true;
       }
       if (showsHalf(PageId::RIGHT_PAGE) && (toRemove.find(PageId(image.id, PageId::RIGHT_PAGE)) != toRemoveEnd)) {
         image.rightHalfRemoved = true;
-        --image.numLogicalPages;
+        --image.numSubPages;
         modified = true;
       }
     }
 
-    if (image.numLogicalPages > 0) {
+    if (image.numSubPages > 0) {
       newImages.push_back(image);
     }
   }
@@ -508,7 +507,7 @@ PageInfo ProjectPages::unremovePageImpl(const PageId& pageId, bool& modified) {
 
   ImageDesc& image = *it;
 
-  if (image.numLogicalPages != 1) {
+  if (image.numSubPages != 1) {
     return PageInfo();
   }
 
@@ -520,31 +519,26 @@ PageInfo ProjectPages::unremovePageImpl(const PageId& pageId, bool& modified) {
     return PageInfo();
   }
 
-  image.numLogicalPages = 2;
+  image.numSubPages = 2;
   modified = true;
-  return PageInfo(pageId, image.metadata, image.numLogicalPages, image.leftHalfRemoved, image.rightHalfRemoved);
+  return PageInfo(pageId, image.metadata, image.numSubPages, image.leftHalfRemoved, image.rightHalfRemoved);
 }  // ProjectPages::unremovePageImpl
 
 /*========================= ProjectPages::ImageDesc ======================*/
 
-ProjectPages::ImageDesc::ImageDesc(const ImageInfo& imageInfo)
-    : id(imageInfo.id()),
-      metadata(imageInfo.metadata()),
-      numLogicalPages(imageInfo.numSubPages()),
-      leftHalfRemoved(imageInfo.leftHalfRemoved()),
-      rightHalfRemoved(imageInfo.rightHalfRemoved()) {}
+ProjectPages::ImageDesc::ImageDesc(const ImageInfo& imageInfo) : ImageInfo(imageInfo) {}
 
 ProjectPages::ImageDesc::ImageDesc(const ImageId& id, const ImageMetadata& metadata, const Pages pages)
-    : id(id), metadata(metadata), leftHalfRemoved(false), rightHalfRemoved(false) {
+    : ImageInfo(id, metadata, 0, false, false) {
   switch (pages) {
     case ONE_PAGE:
-      numLogicalPages = 1;
+      numSubPages = 1;
       break;
     case TWO_PAGES:
-      numLogicalPages = 2;
+      numSubPages = 2;
       break;
     case AUTO_PAGES:
-      numLogicalPages = adviseNumberOfLogicalPages(metadata, OrthogonalRotation());
+      numSubPages = adviseNumberOfLogicalPages(metadata, OrthogonalRotation());
       break;
   }
 }
@@ -555,18 +549,18 @@ bool ProjectPages::ImageDesc::setNumLogicalPages(int wanted) {
     // by treating it like none are removed.
     --wanted;
   }
-  if (wanted == numLogicalPages) {
+  if (wanted == numSubPages) {
     return false;
   }
-  numLogicalPages = wanted;
+  numSubPages = wanted;
   return true;
 }
 
 bool ProjectPages::ImageDesc::enforceRules() {
-  if (numLogicalPages == 2) {
+  if (numSubPages == 2) {
     leftHalfRemoved = false;
     rightHalfRemoved = false;
-  } else if (numLogicalPages != 1) {
+  } else if (numSubPages != 1) {
     return false;
   } else if (leftHalfRemoved && rightHalfRemoved) {
     leftHalfRemoved = false;
@@ -577,10 +571,10 @@ bool ProjectPages::ImageDesc::enforceRules() {
 
 PageId::SubPage ProjectPages::ImageDesc::logicalPageToSubPage(const int logicalPage,
                                                               const PageId::SubPage* subPagesInOrder) const {
-  assert(numLogicalPages >= 1 && numLogicalPages <= 2);
-  assert(logicalPage >= 0 && logicalPage < numLogicalPages);
+  assert(numSubPages >= 1 && numSubPages <= 2);
+  assert(logicalPage >= 0 && logicalPage < numSubPages);
 
-  if (numLogicalPages == 1) {
+  if (numSubPages == 1) {
     if (leftHalfRemoved && !rightHalfRemoved) {
       return PageId::RIGHT_PAGE;
     } else if (rightHalfRemoved && !leftHalfRemoved) {

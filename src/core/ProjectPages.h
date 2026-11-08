@@ -15,6 +15,7 @@
 
 #include "BeforeOrAfter.h"
 #include "ImageId.h"
+#include "ImageInfo.h"
 #include "ImageMetadata.h"
 #include "NonCopyable.h"
 #include "PageId.h"
@@ -24,7 +25,6 @@
 
 class DefaultParams;
 class ImageFileInfo;
-class ImageInfo;
 class OrthogonalRotation;
 class PageSequence;
 class RelinkablePath;
@@ -136,13 +136,8 @@ class ProjectPages : public QObject {
   void layoutDirectionChanged(Qt::LayoutDirection dir);
 
  private:
-  struct ImageDesc {
-    ImageId id;
-    ImageMetadata metadata;
-    int numLogicalPages;    // 1 or 2
-    bool leftHalfRemoved;   // Both can't be true, and if one is true,
-    bool rightHalfRemoved;  // then numLogicalPages is 1.
-
+  // The rules on the fields are at ImageInfo.
+  struct ImageDesc : ImageInfo {
     explicit ImageDesc(const ImageInfo& imageInfo);
 
     ImageDesc(const ImageId& id, const ImageMetadata& metadata, Pages pages);

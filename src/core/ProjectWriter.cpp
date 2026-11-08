@@ -284,8 +284,5 @@ void ProjectWriter::enumPagesImpl(const VirtualFunction<void, const PageId&, int
 /*======================== ProjectWriter::Image =========================*/
 
 ProjectWriter::Image::Image(const PageInfo& page, int numericId)
-    : id(page.imageId()),
-      numericId(numericId),
-      numSubPages(page.imageSubPages()),
-      leftHalfRemoved(page.leftHalfRemoved()),
-      rightHalfRemoved(page.rightHalfRemoved()) {}
+    : ImageInfo(page.imageId(), page.metadata(), page.imageSubPages(), page.leftHalfRemoved(), page.rightHalfRemoved()),
+      numericId(numericId) {}

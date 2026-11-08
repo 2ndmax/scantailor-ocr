@@ -341,11 +341,11 @@ void ProjectReader::processPages(const QDomElement& pagesEl) {
     }
 
     const ImageInfo image(getImageInfo(imageId));
-    if (image.id().filePath().isEmpty()) {
+    if (image.id.filePath().isEmpty()) {
       continue;
     }
 
-    const PageId pageId(image.id(), subPage);
+    const PageId pageId(image.id, subPage);
     m_pageMap.insert(PageMap::value_type(id, pageId));
 
     if (el.attribute("selected") == "selected") {
@@ -403,7 +403,7 @@ ImageInfo ProjectReader::getImageInfo(int id) const {
 ImageId ProjectReader::imageId(const int numericId) const {
   auto it(m_imageMap.find(numericId));
   if (it != m_imageMap.end()) {
-    return it->second.id();
+    return it->second.id;
   }
   return ImageId();
 }
