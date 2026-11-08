@@ -393,94 +393,94 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     </message>
     <message>
         <location filename="../core/CommandLineRun.cpp" line="232"/>
-        <location filename="../core/CommandLineRun.cpp" line="276"/>
+        <location filename="../core/CommandLineRun.cpp" line="277"/>
         <source>Canceled. Nothing was exported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="264"/>
+        <location filename="../core/CommandLineRun.cpp" line="265"/>
         <source>Export: %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="272"/>
+        <location filename="../core/CommandLineRun.cpp" line="273"/>
         <source>Created: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="279"/>
+        <location filename="../core/CommandLineRun.cpp" line="280"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="329"/>
+        <location filename="../core/CommandLineRun.cpp" line="330"/>
         <source>The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once in ScanTailor OCR and save it there, then it can be processed here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="337"/>
+        <location filename="../core/CommandLineRun.cpp" line="338"/>
         <source>The project file is damaged: %n image(s) can&apos;t be read. Open the project in ScanTailor OCR, which offers a backup copy, and save it there, then it can be processed here.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="345"/>
+        <location filename="../core/CommandLineRun.cpp" line="346"/>
         <source>The project has no images.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="350"/>
+        <location filename="../core/CommandLineRun.cpp" line="351"/>
         <source>The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, then the project can be processed here:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="367"/>
+        <location filename="../core/CommandLineRun.cpp" line="368"/>
         <source>The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them with --export-formats.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="382"/>
+        <location filename="../core/CommandLineRun.cpp" line="383"/>
         <source>The export will create: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="391"/>
+        <location filename="../core/CommandLineRun.cpp" line="393"/>
         <source>The output folder or some images of the project are missing, for example because the project was moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="399"/>
+        <location filename="../core/CommandLineRun.cpp" line="401"/>
         <source>%1: %2 of %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="410"/>
+        <location filename="../core/CommandLineRun.cpp" line="412"/>
         <source>The project file could not be saved: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="415"/>
+        <location filename="../core/CommandLineRun.cpp" line="417"/>
         <source>Canceled. The pages output so far keep their output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="422"/>
+        <location filename="../core/CommandLineRun.cpp" line="424"/>
         <source>Pages that failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="425"/>
+        <location filename="../core/CommandLineRun.cpp" line="427"/>
         <source>Nothing was exported, as not all pages were output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="420"/>
+        <location filename="../core/CommandLineRun.cpp" line="422"/>
         <source>No page was output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="429"/>
+        <location filename="../core/CommandLineRun.cpp" line="431"/>
         <source>Done. The output is in %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2169,7 +2169,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     <message>
         <location filename="../app/ExportView.cpp" line="406"/>
         <location filename="../app/ExportView.cpp" line="788"/>
-        <location filename="../app/ExportView.cpp" line="969"/>
+        <location filename="../app/ExportView.cpp" line="971"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2251,67 +2251,67 @@ Without them, the text is only recognized with the other ticked languages.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="904"/>
+        <location filename="../app/ExportView.cpp" line="906"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="932"/>
+        <location filename="../app/ExportView.cpp" line="934"/>
         <source>Canceling ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="967"/>
+        <location filename="../app/ExportView.cpp" line="969"/>
         <source>... and %1 more.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1001"/>
+        <location filename="../app/ExportView.cpp" line="1003"/>
         <source>Created in %1:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1263"/>
+        <location filename="../app/ExportView.cpp" line="1265"/>
         <source>uncompressed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1316"/>
+        <location filename="../app/ExportView.cpp" line="1318"/>
         <source>In the output folder, the picture of this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1318"/>
+        <location filename="../app/ExportView.cpp" line="1320"/>
         <source>In the output folder, this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1321"/>
+        <location filename="../app/ExportView.cpp" line="1323"/>
         <source>The PDF compresses it with loss a second time (%1), so the losses add up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1322"/>
+        <location filename="../app/ExportView.cpp" line="1324"/>
         <source>The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than necessary.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1328"/>
+        <location filename="../app/ExportView.cpp" line="1330"/>
         <source>In the output folder, the text of this page is stored with lossy compression (%1). The PDF can&apos;t undo these losses.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1333"/>
+        <location filename="../app/ExportView.cpp" line="1335"/>
         <source>%1 converts the posterized picture of this page to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1338"/>
+        <location filename="../app/ExportView.cpp" line="1340"/>
         <source>Mixed page without split output. It is stored as a single image, so with %1 the text is less sharp and the PDF is larger. Enable &quot;Split output&quot; in the Output step and process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1351"/>
+        <location filename="../app/ExportView.cpp" line="1353"/>
         <source>Mixed page without split output. It is stored losslessly as a single image. With split output, the PDF is usually much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2344,7 +2344,7 @@ Without them, the text is only recognized with the other ticked languages.</sour
     </message>
     <message>
         <location filename="../app/ExportView.cpp" line="799"/>
-        <location filename="../app/ExportView.cpp" line="1107"/>
+        <location filename="../app/ExportView.cpp" line="1109"/>
         <source>Tick at least one format.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2377,135 +2377,135 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="899"/>
+        <location filename="../app/ExportView.cpp" line="901"/>
         <source>Please tick at least one installed language for the text recognition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="922"/>
+        <location filename="../app/ExportView.cpp" line="924"/>
         <source>Recognizing the text and exporting ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="922"/>
+        <location filename="../app/ExportView.cpp" line="924"/>
         <source>Exporting ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="958"/>
+        <location filename="../app/ExportView.cpp" line="960"/>
         <source>Canceled. Nothing was exported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="961"/>
-        <location filename="../app/ExportView.cpp" line="969"/>
+        <location filename="../app/ExportView.cpp" line="963"/>
+        <location filename="../app/ExportView.cpp" line="971"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="997"/>
+        <location filename="../app/ExportView.cpp" line="999"/>
         <source>%n file(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1101"/>
+        <location filename="../app/ExportView.cpp" line="1103"/>
         <source>Will be created:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1109"/>
+        <location filename="../app/ExportView.cpp" line="1111"/>
         <source>Tick at least one language for the text recognition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1113"/>
+        <location filename="../app/ExportView.cpp" line="1115"/>
         <source>Tick the pages to export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1116"/>
+        <location filename="../app/ExportView.cpp" line="1118"/>
         <source>Export the ticked pages in the chosen formats.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1363"/>
+        <location filename="../app/ExportView.cpp" line="1365"/>
         <source>Not output yet. Process the page in the Output step to include it in the export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1371"/>
-        <location filename="../app/ExportView.cpp" line="1375"/>
+        <location filename="../app/ExportView.cpp" line="1373"/>
+        <location filename="../app/ExportView.cpp" line="1377"/>
         <source>%1 (lossy)</source>
         <comment>tooltip</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1384"/>
+        <location filename="../app/ExportView.cpp" line="1386"/>
         <source>Black and white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1389"/>
+        <location filename="../app/ExportView.cpp" line="1391"/>
         <source>Mixed, split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1390"/>
         <location filename="../app/ExportView.cpp" line="1392"/>
+        <location filename="../app/ExportView.cpp" line="1394"/>
         <source>%1 (picture), %2 (text)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1396"/>
+        <location filename="../app/ExportView.cpp" line="1398"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1398"/>
+        <location filename="../app/ExportView.cpp" line="1400"/>
         <source>Color / grayscale, posterized</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1413"/>
+        <location filename="../app/ExportView.cpp" line="1415"/>
         <source>Color mode: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1414"/>
+        <location filename="../app/ExportView.cpp" line="1416"/>
         <source>Compression TIFF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1415"/>
+        <location filename="../app/ExportView.cpp" line="1417"/>
         <source>Compression PDF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1482"/>
-        <location filename="../app/ExportView.cpp" line="1491"/>
+        <location filename="../app/ExportView.cpp" line="1484"/>
+        <location filename="../app/ExportView.cpp" line="1493"/>
         <source>%1 (lossy)</source>
         <comment>short</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1502"/>
+        <location filename="../app/ExportView.cpp" line="1504"/>
         <source>Stored with lossy compression: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1512"/>
+        <location filename="../app/ExportView.cpp" line="1514"/>
         <source>Compressed with loss twice: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1519"/>
+        <location filename="../app/ExportView.cpp" line="1521"/>
         <source>Posterized, converted to full color: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1400"/>
+        <location filename="../app/ExportView.cpp" line="1402"/>
         <source>Color / grayscale</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2515,46 +2515,46 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1052"/>
+        <location filename="../app/ExportView.cpp" line="1054"/>
         <source>%1 of %2 output pages selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="1056"/>
+        <location filename="../app/ExportView.cpp" line="1058"/>
         <source>%n page(s) not output yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="1062"/>
+        <location filename="../app/ExportView.cpp" line="1064"/>
         <source>%n page(s) changed since the output.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1409"/>
+        <location filename="../app/ExportView.cpp" line="1411"/>
         <source>Changed since the output. The export would show the state of the last output. Process the page in the Output step to include the changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1504"/>
+        <location filename="../app/ExportView.cpp" line="1506"/>
         <source>The PDF can&apos;t undo these losses. A lossless method in the PDF keeps them and makes the file larger than necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output step and process the pages again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1514"/>
+        <location filename="../app/ExportView.cpp" line="1516"/>
         <source>The output files of these pages are stored with lossy compression, and the PDF compresses them with loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second loss.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1521"/>
+        <location filename="../app/ExportView.cpp" line="1523"/>
         <source>JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1237"/>
+        <location filename="../app/ExportView.cpp" line="1239"/>
         <source>Not output yet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3369,23 +3369,23 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>OcrEngine</name>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="51"/>
+        <location filename="../core/OcrEngine.cpp" line="54"/>
         <source>Could not load the language files &quot;%1&quot; from %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="82"/>
+        <location filename="../core/OcrEngine.cpp" line="85"/>
         <source>Text recognition isn&apos;t initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="114"/>
+        <location filename="../core/OcrEngine.cpp" line="117"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="115"/>
-        <location filename="../core/OcrEngine.cpp" line="150"/>
+        <location filename="../core/OcrEngine.cpp" line="118"/>
+        <location filename="../core/OcrEngine.cpp" line="153"/>
         <source>Text recognition failed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3529,7 +3529,7 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/OcrTextOutputs.cpp" line="192"/>
+        <location filename="../core/OcrTextOutputs.cpp" line="194"/>
         <source>There is a file named like the folder %1, so the folder could not be created. Move the file or choose another name.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4365,6 +4365,11 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../app/SettingsDialog.ui" line="215"/>
+        <source>The color of the borders of checked buttons and focused fields, of the keyboard focus frame, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../app/SettingsDialog.ui" line="259"/>
         <source>Display size:</source>
         <translation type="unfinished"></translation>
@@ -4432,11 +4437,6 @@ would both become
     <message>
         <location filename="../app/SettingsDialog.ui" line="14"/>
         <source>Program Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.ui" line="215"/>
-        <source>The color of the borders of hovered and focused controls, of the selected thumbnails and of the progress bar. Takes effect after a restart. Not used by the color scheme &quot;System&quot;, which takes the colors of the system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5510,6 +5510,11 @@ Without an internet connection, the installed languages can still be used. Langu
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="143"/>
+        <source>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing. Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection in the Output step&quot; are turned on in the Default Parameters. A change made here by hand takes precedence over the detection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="146"/>
         <source>Dark content on a light background</source>
         <translation type="unfinished"></translation>
@@ -6052,11 +6057,6 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="102"/>
         <source>Applies the output resolution of this page to other pages.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="143"/>
-        <source>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing. Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection in the Output step&quot; are turned on in the settings. A change made here by hand takes precedence over the detection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
