@@ -20,6 +20,7 @@ set(sources
     Transform.cpp Transform.h
     Morphology.cpp Morphology.h
     IntegralImage.h
+    LocalWindow.h
     Binarize.cpp Binarize.h
     PolygonUtils.cpp PolygonUtils.h
     PolygonRasterizer.cpp PolygonRasterizer.h

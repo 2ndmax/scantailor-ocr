@@ -53,6 +53,15 @@ class IntegralImage {
   void push(T val);
 
   /**
+   * \brief Starts a new row and pushes all its values, value(i) for i in 0 .. width - 1.
+   *
+   * The same as beginRow() and push() for each value. The state is kept in local variables here, so
+   * filling a large image from inside another object stays as fast as from a local integral image.
+   */
+  template <typename ValueOfColumn>
+  void pushRow(ValueOfColumn value);
+
+  /**
    * \brief Calculate the sum of values in the given rectangle.
    *
    * \note If the rectangle exceeds the image area, the behaviour is
@@ -126,6 +135,26 @@ void IntegralImage<T>::beginRow() {
   *m_cur = T();
   ++m_cur;
   ++m_above;
+}
+
+template <typename T>
+template <typename ValueOfColumn>
+void IntegralImage<T>::pushRow(ValueOfColumn value) {
+  beginRow();
+
+  T lineSum = T();
+  T* cur = m_cur;
+  const T* above = m_above;
+  const int columns = m_width - 1;  // The first column is fake.
+  for (int column = 0; column < columns; ++column) {
+    lineSum += value(column);
+    *cur = *above + lineSum;
+    ++cur;
+    ++above;
+  }
+  m_cur = cur;
+  m_above += columns;
+  m_lineSum = lineSum;
 }
 
 template <typename T>
