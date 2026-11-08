@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "BinarizationMethods.h"
 #include "XmlUnmarshaller.h"
 
 using namespace foundation;
@@ -68,6 +69,19 @@ QDomElement BlackWhiteOptions::toXml(QDomDocument& doc, const QString& name) con
   el.setAttribute("binarizationMethod", formatBinarizationMethod(m_binarizationMethod));
   el.appendChild(m_colorSegmenterOptions.toXml(doc, "color-segmenter-options"));
   return el;
+}
+
+BlackWhiteOptions::MethodValues BlackWhiteOptions::values(const BinarizationMethod method) const {
+  return {m_thresholdAdjustment, usesWolfCoefficient(method) ? m_wolfCoef : m_sauvolaCoef, m_windowSize,
+          m_wolfLowerBound, m_wolfUpperBound};
+}
+
+void BlackWhiteOptions::setValues(const BinarizationMethod method, const MethodValues& values) {
+  m_thresholdAdjustment = values.thresholdAdjustment;
+  (usesWolfCoefficient(method) ? m_wolfCoef : m_sauvolaCoef) = values.coef;
+  m_windowSize = values.windowSize;
+  m_wolfLowerBound = values.lowerBound;
+  m_wolfUpperBound = values.upperBound;
 }
 
 bool BlackWhiteOptions::operator==(const BlackWhiteOptions& other) const {

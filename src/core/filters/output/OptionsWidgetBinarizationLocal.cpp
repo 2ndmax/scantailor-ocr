@@ -42,7 +42,9 @@ void OptionsWidgetBinarizationLocal::updateUi(const PageId& pageId) {
 void OptionsWidgetBinarizationLocal::deltaChanged(double value) {
   m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  opt.setThresholdAdjustment(value);
+  BlackWhiteOptions::MethodValues values = opt.values(m_method);
+  values.thresholdAdjustment = static_cast<int>(value);
+  opt.setValues(m_method, values);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   emit colorParamsChanged();
@@ -53,7 +55,9 @@ void OptionsWidgetBinarizationLocal::deltaChanged(double value) {
 void OptionsWidgetBinarizationLocal::windowSizeChanged(int value) {
   m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  opt.setWindowSize(value);
+  BlackWhiteOptions::MethodValues values = opt.values(m_method);
+  values.windowSize = value;
+  opt.setValues(m_method, values);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   emit colorParamsChanged();
@@ -64,11 +68,9 @@ void OptionsWidgetBinarizationLocal::windowSizeChanged(int value) {
 void OptionsWidgetBinarizationLocal::coefChanged(double value) {
   m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  if (usesWolfCoefficient(m_method)) {
-    opt.setWolfCoef(value);
-  } else {
-    opt.setSauvolaCoef(value);
-  }
+  BlackWhiteOptions::MethodValues values = opt.values(m_method);
+  values.coef = value;
+  opt.setValues(m_method, values);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   emit colorParamsChanged();
@@ -77,10 +79,10 @@ void OptionsWidgetBinarizationLocal::coefChanged(double value) {
 }
 
 void OptionsWidgetBinarizationLocal::updateView() {
-  BlackWhiteOptions blackWhiteOptions = m_colorParams.blackWhiteOptions();
-  delta->setValue(blackWhiteOptions.thresholdAdjustment());
-  windowSize->setValue(blackWhiteOptions.getWindowSize());
-  coef->setValue(usesWolfCoefficient(m_method) ? blackWhiteOptions.getWolfCoef() : blackWhiteOptions.getSauvolaCoef());
+  const BlackWhiteOptions::MethodValues values = m_colorParams.blackWhiteOptions().values(m_method);
+  delta->setValue(values.thresholdAdjustment);
+  windowSize->setValue(values.windowSize);
+  coef->setValue(values.coef);
 }
 
 void OptionsWidgetBinarizationLocal::sendStateChanged() {

@@ -18,7 +18,7 @@ using namespace imageproc;
 
 namespace output {
 BinaryThreshold adjustedThreshold(const BinaryThreshold threshold, const BlackWhiteOptions& options) {
-  const int adjusted = threshold + options.thresholdAdjustment();
+  const int adjusted = threshold + options.values().thresholdAdjustment;
 
   // Hard-bounding threshold values is necessary for example
   // if all the content went into the picture mask.
@@ -33,13 +33,13 @@ BinaryImage binarizeBlackWhite(const QImage& image, const BlackWhiteOptions& bla
   const BinarizationMethod binarizationMethod = blackWhiteOptions.getBinarizationMethod();
 
   // Otsu has no strength or window of its own and ignores these.
-  const double thresholdCoef
-      = usesWolfCoefficient(binarizationMethod) ? blackWhiteOptions.getWolfCoef() : blackWhiteOptions.getSauvolaCoef();
-  const int thresholdDelta = blackWhiteOptions.thresholdAdjustment();
-  const int windowLength = blackWhiteOptions.getWindowSize();
+  const BlackWhiteOptions::MethodValues values = blackWhiteOptions.values();
+  const double thresholdCoef = values.coef;
+  const int thresholdDelta = values.thresholdAdjustment;
+  const int windowLength = values.windowSize;
   const QSize windowSize(windowLength, windowLength);
-  const int lowerBound = blackWhiteOptions.getWolfLowerBound();
-  const int upperBound = blackWhiteOptions.getWolfUpperBound();
+  const int lowerBound = values.lowerBound;
+  const int upperBound = values.upperBound;
   const auto lowerByte = static_cast<unsigned char>(lowerBound);
   const auto upperByte = static_cast<unsigned char>(upperBound);
 

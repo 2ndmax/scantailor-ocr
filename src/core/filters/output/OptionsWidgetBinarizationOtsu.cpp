@@ -34,7 +34,9 @@ void OptionsWidgetBinarizationOtsu::updateUi(const PageId& pageId) {
 void OptionsWidgetBinarizationOtsu::otsuDeltaChanged(double value) {
   m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  opt.setThresholdAdjustment(static_cast<int>(value));
+  BlackWhiteOptions::MethodValues values = opt.values(T_OTSU);
+  values.thresholdAdjustment = static_cast<int>(value);
+  opt.setValues(T_OTSU, values);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   emit colorParamsChanged();
@@ -43,7 +45,7 @@ void OptionsWidgetBinarizationOtsu::otsuDeltaChanged(double value) {
 }
 
 void OptionsWidgetBinarizationOtsu::updateView() {
-  otsuDelta->setValue(m_colorParams.blackWhiteOptions().thresholdAdjustment());
+  otsuDelta->setValue(m_colorParams.blackWhiteOptions().values(T_OTSU).thresholdAdjustment);
 }
 
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))

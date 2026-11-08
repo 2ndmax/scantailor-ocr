@@ -1004,8 +1004,8 @@ void OptionsWidget::updateColorsDisplay() {
   morphologicalSmoothingCB->setChecked(blackWhiteOptions.isMorphologicalSmoothingEnabled());
   morphologicalSmoothingCB->setEnabled(thresholdOptionsVisible);
   coloredDimmingSB->setValue(blackWhiteOptions.getColoredDimming());
-  lowerBoundSB->setValue(blackWhiteOptions.getWolfLowerBound());
-  upperBoundSB->setValue(blackWhiteOptions.getWolfUpperBound());
+  lowerBoundSB->setValue(blackWhiteOptions.values().lowerBound);
+  upperBoundSB->setValue(blackWhiteOptions.values().upperBound);
 
   pictureShapeOptions->setEnabled(pictureShapeVisible);
   thresholdOptions->setEnabled(thresholdOptionsVisible);
@@ -1190,8 +1190,10 @@ void OptionsWidget::coloredDimmingChanged(const double value) {
 
 void OptionsWidget::binarizationBoundChanged() {
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  opt.setWolfLowerBound(lowerBoundSB->value());
-  opt.setWolfUpperBound(upperBoundSB->value());
+  BlackWhiteOptions::MethodValues values = opt.values();
+  values.lowerBound = lowerBoundSB->value();
+  values.upperBound = upperBoundSB->value();
+  opt.setValues(opt.getBinarizationMethod(), values);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   m_delayedReloadRequest.start(RELOAD_DELAY_MS);

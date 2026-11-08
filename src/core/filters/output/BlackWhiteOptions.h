@@ -114,6 +114,23 @@ class BlackWhiteOptions {
 
   bool operator!=(const BlackWhiteOptions& other) const;
 
+  /// What the threshold calculation of a binarization method is given. Otsu uses no window and no
+  /// strength.
+  struct MethodValues {
+    int thresholdAdjustment;
+    double coef;
+    int windowSize;
+    int lowerBound;
+    int upperBound;
+  };
+
+  MethodValues values(BinarizationMethod method) const;
+
+  void setValues(BinarizationMethod method, const MethodValues& values);
+
+  /// The values of the method set for the page.
+  MethodValues values() const { return values(m_binarizationMethod); }
+
   int thresholdAdjustment() const;
 
   void setThresholdAdjustment(int val);
