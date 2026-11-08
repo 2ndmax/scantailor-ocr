@@ -44,10 +44,13 @@ int main(int argc, char* argv[]) {
     // The title bars are drawn by the system, which colors them after the system's light or dark mode,
     // not after the app. The Light and Dark schemes tell it their own; System keeps the system's.
     // Set before the scheme, so that a palette Qt derives from the new mode can't replace the scheme's.
+    // Qt offers this only from 6.8 on; with an older Qt the title bars stay with the system's mode.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     if (const QPalette* palette = scheme->getPalette()) {
       const bool darkScheme = palette->color(QPalette::Window).lightness() < 128;
       QGuiApplication::styleHints()->setColorScheme(darkScheme ? Qt::ColorScheme::Dark : Qt::ColorScheme::Light);
     }
+#endif
     ColorSchemeManager::instance().setColorScheme(*scheme);
   }
   IconProvider::getInstance().setIconPack(StyledIconPack::createDefault());
