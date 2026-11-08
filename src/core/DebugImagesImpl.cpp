@@ -18,15 +18,17 @@ void DebugImagesImpl::add(const QImage& image,
     return;
   }
 
-  // From here on aremFile deletes the file, also when the write below fails.
-  AutoRemovingFile aremFile(file.fileName());
-  file.setAutoRemove(false);
-
   QImageWriter writer(&file, "png");
   writer.setCompression(2);  // Trade space for speed.
   if (!writer.write(image)) {
+    // Removed by QTemporaryFile, which closes it first. Windows can't delete a file that is still
+    // open, and close() of a QTemporaryFile leaves it open.
     return;
   }
+
+  // From here on aremFile deletes the file.
+  AutoRemovingFile aremFile(file.fileName());
+  file.setAutoRemove(false);
 
   m_sequence.push_back(std::make_shared<Item>(aremFile, label, imageViewFactory));
 }

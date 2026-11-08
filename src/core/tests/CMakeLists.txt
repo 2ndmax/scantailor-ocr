@@ -1,6 +1,7 @@
 set(sources
     main.cpp
     TestContentSpanFinder.cpp
+    TestDebugImages.cpp
     TestDeskewParams.cpp
     TestDeskewTask.cpp
     TestDespeckle.cpp
