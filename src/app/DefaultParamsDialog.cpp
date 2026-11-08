@@ -891,28 +891,12 @@ void DefaultParamsDialog::thresholdMethodChanged(const int idx) {
   m_binarizationMethod = method;
 
   // The methods share three pages of settings, as in the Output step.
-  switch (method) {
-    case T_SAUVOLA:
-    case T_BRADLEY:
-    case T_EDGEPLUS:
-    case T_BLURDIV:
-    case T_EDGEDIV:
-    case T_GATOS:
-    case T_NICK:
-    case T_SINGH:
-    case T_ROBUST:
-    case T_MULTISCALE:
-      binarizationOptions->setCurrentWidget(page_2);
-      break;
-    case T_WOLF:
-    case T_FOX:
-    case T_WINDOW:
-    case T_GRAD:
-      binarizationOptions->setCurrentWidget(page_3);
-      break;
-    default:
-      binarizationOptions->setCurrentWidget(page);
-      break;
+  if (method == T_OTSU) {
+    binarizationOptions->setCurrentWidget(page);
+  } else if (usesWolfCoefficient(method)) {
+    binarizationOptions->setCurrentWidget(page_3);
+  } else {
+    binarizationOptions->setCurrentWidget(page_2);
   }
 }
 
@@ -1185,12 +1169,9 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   blackWhiteOptions.setBinarizationMethod(binarizationMethod);
   blackWhiteOptions.setThresholdAdjustment(static_cast<int>(otsuDelta->value()));
   blackWhiteOptions.setSauvolaCoef(sauvolaCoef->value());
-  if (binarizationMethod == T_SAUVOLA || binarizationMethod == T_BRADLEY || binarizationMethod == T_EDGEPLUS
-      || binarizationMethod == T_BLURDIV || binarizationMethod == T_EDGEDIV || binarizationMethod >= T_GATOS) {
-    blackWhiteOptions.setWindowSize(sauvolaWindowSize->value());
-  } else if (binarizationMethod == T_WOLF || binarizationMethod == T_FOX || binarizationMethod == T_WINDOW
-             || binarizationMethod == T_GRAD) {
-    blackWhiteOptions.setWindowSize(wolfWindowSize->value());
+  if (binarizationMethod != T_OTSU) {
+    blackWhiteOptions.setWindowSize(usesWolfCoefficient(binarizationMethod) ? wolfWindowSize->value()
+                                                                            : sauvolaWindowSize->value());
   }
   blackWhiteOptions.setWolfCoef(wolfCoef->value());
   blackWhiteOptions.setWolfUpperBound(upperBound->value());

@@ -82,6 +82,30 @@ bool needsOwnBinarizationDefaults(const BinarizationMethod from, const Binarizat
   return (from != to) && (isFromExperimental(from) || isFromExperimental(to));
 }
 
+bool usesWolfCoefficient(const BinarizationMethod method) {
+  // Without a default, so that the compiler asks about a method added later.
+  switch (method) {
+    case T_WOLF:
+    case T_FOX:
+    case T_WINDOW:
+    case T_GRAD:
+      return true;
+    case T_OTSU:
+    case T_SAUVOLA:
+    case T_BRADLEY:
+    case T_EDGEPLUS:
+    case T_BLURDIV:
+    case T_EDGEDIV:
+    case T_GATOS:
+    case T_NICK:
+    case T_SINGH:
+    case T_ROBUST:
+    case T_MULTISCALE:
+      return false;
+  }
+  return false;
+}
+
 void applyBinarizationDefaults(BlackWhiteOptions& options) {
   // As set by ScanTailor Experimental when choosing the method, with its radius doubled.
   int windowSize = 200;

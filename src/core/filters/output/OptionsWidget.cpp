@@ -94,38 +94,17 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   fillingColorBox->addItem(tr("White"), FILL_WHITE);
   fillingColorBox->addItem(tr("Black"), FILL_BLACK);
 
-  QPointer<OptionsWidgetBinarization> otsuOptionsWidgetBinarization = new OptionsWidgetBinarizationOtsu(m_settings);
-  QPointer<OptionsWidgetBinarization> sauvolaOptionsWidgetBinarization
-      = new OptionsWidgetBinarizationSauvola(m_settings);
-  QPointer<OptionsWidgetBinarization> wolfOptionsWidgetBinarization = new OptionsWidgetBinarizationWolf(m_settings);
-  QPointer<OptionsWidgetBinarization> foxOptionsWidgetBinarization = new OptionsWidgetBinarizationWolf(m_settings);
-  QPointer<OptionsWidgetBinarization> windowOptionsWidgetBinarization = new OptionsWidgetBinarizationWolf(m_settings);
-  QPointer<OptionsWidgetBinarization> bradleyOptionsWidgetBinarization
-      = new OptionsWidgetBinarizationSauvola(m_settings);
-  QPointer<OptionsWidgetBinarization> gradOptionsWidgetBinarization = new OptionsWidgetBinarizationWolf(m_settings);
-  QPointer<OptionsWidgetBinarization> edgeplusOptionsWidgetBinarization
-      = new OptionsWidgetBinarizationSauvola(m_settings);
-  QPointer<OptionsWidgetBinarization> blurdivOptionsWidgetBinarization
-      = new OptionsWidgetBinarizationSauvola(m_settings);
-  QPointer<OptionsWidgetBinarization> edgedivOptionsWidgetBinarization
-      = new OptionsWidgetBinarizationSauvola(m_settings);
-
   while (binarizationOptions->count() != 0) {
     binarizationOptions->removeWidget(binarizationOptions->widget(0));
   }
-  addOptionsWidgetBinarization(otsuOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(sauvolaOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(wolfOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(foxOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(windowOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(bradleyOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(gradOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(edgeplusOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(blurdivOptionsWidgetBinarization);
-  addOptionsWidgetBinarization(edgedivOptionsWidgetBinarization);
-  // The methods from ScanTailor Experimental have a window size and strength, as Sauvola.
-  for (int i = T_GATOS; i <= T_MULTISCALE; ++i) {
-    addOptionsWidgetBinarization(new OptionsWidgetBinarizationSauvola(m_settings));
+  addOptionsWidgetBinarization(new OptionsWidgetBinarizationOtsu(m_settings));
+  // One panel per method, in the order of BinarizationMethod.
+  for (int i = T_SAUVOLA; i <= T_MULTISCALE; ++i) {
+    if (usesWolfCoefficient(static_cast<BinarizationMethod>(i))) {
+      addOptionsWidgetBinarization(new OptionsWidgetBinarizationWolf(m_settings));
+    } else {
+      addOptionsWidgetBinarization(new OptionsWidgetBinarizationSauvola(m_settings));
+    }
   }
   // "Colored" and "Bounds" apply to all methods and line up with the fields of the method shown.
   QList<QGridLayout*> binarizationGrids = binarizationOptions->findChildren<QGridLayout*>();

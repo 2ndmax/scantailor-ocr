@@ -23,6 +23,12 @@ void fillBinarizationMethodBox(QComboBox* box);
  */
 bool needsOwnBinarizationDefaults(BinarizationMethod from, BinarizationMethod to);
 
+/**
+ * Whether \p method takes its strength from BlackWhiteOptions::getWolfCoef() rather than from
+ * getSauvolaCoef(). Decides both what the method reads and what its options panel edits.
+ */
+bool usesWolfCoefficient(BinarizationMethod method);
+
 /** Applies the window size and strength defaults of the options' method. */
 void applyBinarizationDefaults(BlackWhiteOptions& options);
 }  // namespace output
