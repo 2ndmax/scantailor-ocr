@@ -207,7 +207,8 @@ jobs:
           # GitHub sometimes answers with a server error such as 504; try again before failing.
           # curl waits the full 15 s before each new try (wget's --waitretry only waits 1, 2, 3 s),
           # and -f keeps an error page from being saved as the file.
-          retry="-fsSL --retry 3 --retry-delay 15 --retry-all-errors"
+          # A hanging connection must end as well; without a limit it would take the 6 hours of the job.
+          retry="-fsSL --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 15 --retry-all-errors"
           curl $retry -o linuxdeploy-x86_64.AppImage \
             https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage
