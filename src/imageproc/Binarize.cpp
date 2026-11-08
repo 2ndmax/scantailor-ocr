@@ -480,12 +480,13 @@ BinaryImage binarizeEdgeDiv(const QImage& src,
   const int w = gray.width();
   const int h = gray.height();
 
+  // bits() may make a copy of the pixels with another line length, so it goes first.
+  uint8_t* grayLine = gray.bits();
   const int grayBpl = gray.bytesPerLine();
 
   // The window sums come from the original image; the loop below replaces its pixels one by one.
   const GrayWindowMeans windows(gray.constBits(), grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
-  uint8_t* grayLine = gray.bits();
   windows.forEachPixel(
       [&](const int x, const double mean) {
         const double origin = grayLine[x];
