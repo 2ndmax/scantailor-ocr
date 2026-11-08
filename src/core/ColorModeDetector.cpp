@@ -31,17 +31,6 @@ const int TEXT_GRAY = 110;      // Darker pixels count as text (or picture).
 const double MIN_TEXT = 0.002;  // Share of text pixels beside pictures for a caption.
 const double MAX_TEXT = 0.4;    // More is a dark page, not text.
 
-struct PictureMeasurement {
-  double share = 0;
-  double largest = 0;
-  double largestMean = 0;
-  double largestStdDev = 0;
-  double largestDark = 0;
-  double colorInPictures = 0;
-  double colorOutside = 0;
-  double textOutside = 0;
-};
-
 // A pixel counts as colored when its channels differ clearly (not gray) and it is not nearly black.
 bool isColored(const QRgb rgb) {
   const int r = qRed(rgb);
@@ -52,8 +41,8 @@ bool isColored(const QRgb rgb) {
   return (mx - mn >= 40) && (mx >= 60);
 }
 
-PictureMeasurement measurePictures(const QImage& content, const TaskStatus& status) {
-  PictureMeasurement result;
+// Sets the values of ev that belong to the picture areas.
+void measurePictures(const QImage& content, const TaskStatus& status, ColorModeDetector::Evidence& ev) {
   // detectPictures() and the thresholds above expect 300 dpi, so lower resolutions are scaled up
   // as well (otherwise its morphology spans twice the distance at 150 dpi and dense text merges
   // into "pictures"). Each axis on its own, for scans with unequal resolutions. The upscaling is
@@ -74,7 +63,7 @@ PictureMeasurement measurePictures(const QImage& content, const TaskStatus& stat
   status.throwIfCancelled();
 
   const double total = double(pictureMask.width()) * pictureMask.height();
-  result.share = pictureMask.countBlackPixels() / total;
+  ev.pictureShare = pictureMask.countBlackPixels() / total;
 
   const ConnectivityMap cmap(pictureMask, CONN8);
   std::vector<int> areas(cmap.maxLabel() + 1, 0);
@@ -86,8 +75,8 @@ PictureMeasurement measurePictures(const QImage& content, const TaskStatus& stat
   }
   uint32_t largestLabel = 0;
   for (size_t label = 1; label < areas.size(); ++label) {
-    if (areas[label] / total > result.largest) {
-      result.largest = areas[label] / total;
+    if (areas[label] / total > ev.largestPicture) {
+      ev.largestPicture = areas[label] / total;
       largestLabel = static_cast<uint32_t>(label);
     }
   }
@@ -113,9 +102,9 @@ PictureMeasurement measurePictures(const QImage& content, const TaskStatus& stat
       }
     }
     if (count > 0) {
-      result.largestMean = sum / count;
-      result.largestStdDev = std::sqrt(std::max(0.0, sumSq / count - result.largestMean * result.largestMean));
-      result.largestDark = double(dark) / count;
+      ev.largestPictureMean = sum / count;
+      ev.largestPictureStdDev = std::sqrt(std::max(0.0, sumSq / count - ev.largestPictureMean * ev.largestPictureMean));
+      ev.largestPictureDark = double(dark) / count;
     }
   }
 
@@ -133,7 +122,7 @@ PictureMeasurement measurePictures(const QImage& content, const TaskStatus& stat
         }
       }
     }
-    result.textOutside = text / total;
+    ev.textOutside = text / total;
   }
 
   if (!content.allGray()) {
@@ -152,10 +141,10 @@ PictureMeasurement measurePictures(const QImage& content, const TaskStatus& stat
         }
       }
     }
-    result.colorInPictures = inPictures / total;
-    result.colorOutside = outside / total;
+    ev.colorInPictures = inPictures / total;
+    ev.colorOutside = outside / total;
   }
-  return result;
+  ev.picturesMeasured = true;
 }
 
 ColorModeDetector::Mode toMode(const LeptonicaDetector::ColorType type) {
@@ -188,26 +177,16 @@ ColorModeDetector::Mode ColorModeDetector::detect(const QImage& content,
   float darkRatio = ev.spectre.darkRatio;
   ev.reason = QStringLiteral("spectre");
 
-  PictureMeasurement pictures;
   auto ensurePictures = [&]() {
     if (!ev.picturesMeasured) {
-      pictures = measurePictures(content, status);
-      ev.picturesMeasured = true;
-      ev.pictureShare = pictures.share;
-      ev.largestPicture = pictures.largest;
-      ev.largestPictureMean = pictures.largestMean;
-      ev.largestPictureStdDev = pictures.largestStdDev;
-      ev.largestPictureDark = pictures.largestDark;
-      ev.colorInPictures = pictures.colorInPictures;
-      ev.colorOutside = pictures.colorOutside;
-      ev.textOutside = pictures.textOutside;
+      measurePictures(content, status, ev);
     }
   };
 
   if (mode == Mode::Color) {
     ensurePictures();
-    if (pictures.colorOutside < options.minColorShare) {
-      if (pictures.colorInPictures >= MIN_COLOR_IN_PICTURES) {
+    if (ev.colorOutside < options.minColorShare) {
+      if (ev.colorInPictures >= MIN_COLOR_IN_PICTURES) {
         mode = Mode::Mixed;
         ev.reason = QStringLiteral("color_only_in_pictures");
       } else {
@@ -224,7 +203,7 @@ ColorModeDetector::Mode ColorModeDetector::detect(const QImage& content,
   if (mode == Mode::Grayscale) {
     // A picture with text beside it, such as a caption: the text should be black and white.
     ensurePictures();
-    if ((pictures.textOutside >= MIN_TEXT) && (pictures.textOutside < MAX_TEXT)) {
+    if ((ev.textOutside >= MIN_TEXT) && (ev.textOutside < MAX_TEXT)) {
       mode = Mode::Mixed;
       ev.reason += QStringLiteral("+text_beside_picture");
     }
@@ -232,8 +211,8 @@ ColorModeDetector::Mode ColorModeDetector::detect(const QImage& content,
 
   if (options.usePictureZones && (mode == Mode::BlackWhite)) {
     ensurePictures();
-    const bool pictureLike = (pictures.largestDark >= MIN_PICTURE_DARK) || (pictures.largestStdDev < MAX_EVEN_STDDEV);
-    if ((pictures.largest >= options.minPictureShare) && (pictures.largest < MAX_PICTURE) && pictureLike
+    const bool pictureLike = (ev.largestPictureDark >= MIN_PICTURE_DARK) || (ev.largestPictureStdDev < MAX_EVEN_STDDEV);
+    if ((ev.largestPicture >= options.minPictureShare) && (ev.largestPicture < MAX_PICTURE) && pictureLike
         && (darkRatio >= MIN_DARK)) {
       mode = Mode::Mixed;
       ev.reason += QStringLiteral("+picture_zone");
