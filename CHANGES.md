@@ -396,6 +396,7 @@ topic, not by version.
   wrong results from about 75. The Robust binarization blurs with half its window size, so it
   was affected with its default window of 200; its output can change when created again. Above
   a window of 2000 the blur no longer grows.
+* Fixed: a very large binarization window no longer turns dark print white on large pages.
 * Fixed: a memory error (reading and writing past an image) in automatic dewarping at the last
   row of some pages.
 * Fixed: the Default Parameters showed the start angle of *Deskew* with the opposite sign of the
