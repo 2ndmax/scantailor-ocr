@@ -111,8 +111,7 @@ const Expected kExpected[] = {
 // clang-format on
 }  // namespace
 
-// Holds what each method makes of the options, bit by bit. The two strengths differ from their
-// defaults and from each other, so that a method reading the wrong one shows up.
+// Holds what each method makes of the options, bit by bit.
 BOOST_AUTO_TEST_CASE(test_every_method_reads_its_own_settings) {
   const QImage pages[] = {makeTextPage(), makeNoisePage()};
 
@@ -121,12 +120,11 @@ BOOST_AUTO_TEST_CASE(test_every_method_reads_its_own_settings) {
       BOOST_TEST_CONTEXT("method " << static_cast<int>(expected.method) << ", bounds " << boundsIndex) {
         BlackWhiteOptions options;
         options.setBinarizationMethod(expected.method);
-        options.setWindowSize(31);
-        options.setSauvolaCoef(0.41);
-        options.setWolfCoef(0.17);
-        options.setThresholdAdjustment(7);
-        options.setWolfLowerBound(kBounds[boundsIndex].lower);
-        options.setWolfUpperBound(kBounds[boundsIndex].upper);
+        const bool strengthOfWolf = (expected.method == T_WOLF) || (expected.method == T_FOX)
+                                    || (expected.method == T_WINDOW) || (expected.method == T_GRAD);
+        options.setValues(expected.method, {7, strengthOfWolf ? 0.17 : 0.41, 31});
+        options.setLowerBound(kBounds[boundsIndex].lower);
+        options.setUpperBound(kBounds[boundsIndex].upper);
 
         Checksum checksum;
         for (const QImage& page : pages) {
@@ -171,6 +169,98 @@ BOOST_AUTO_TEST_CASE(test_a_file_with_the_values_as_attributes_gives_the_same_re
       }
     }
   }
+}
+
+namespace {
+const BlackWhiteOptions::MethodValues kChangedValues{3, 0.27, 120};
+
+int methodElementCount(const QDomElement& el) {
+  int count = 0;
+  for (QDomElement method = el.firstChildElement(QStringLiteral("method")); !method.isNull();
+       method = method.nextSiblingElement(QStringLiteral("method"))) {
+    ++count;
+  }
+  return count;
+}
+}  // namespace
+
+BOOST_AUTO_TEST_CASE(test_each_method_keeps_its_values_when_another_is_chosen) {
+  BlackWhiteOptions options;
+  options.setBinarizationMethod(T_GATOS);
+  options.setValues(T_GATOS, kChangedValues);
+
+  options.setBinarizationMethod(T_WOLF);
+  BOOST_CHECK(options.values() == BlackWhiteOptions::defaultValues(T_WOLF));
+
+  options.setBinarizationMethod(T_GATOS);
+  BOOST_CHECK(options.values() == kChangedValues);
+}
+
+BOOST_AUTO_TEST_CASE(test_the_values_of_all_methods_survive_the_file) {
+  BlackWhiteOptions options;
+  options.setBinarizationMethod(T_ROBUST);
+  options.setValues(T_GATOS, kChangedValues);
+  options.setValues(
+      T_OTSU, {5, BlackWhiteOptions::defaultValues(T_OTSU).coef, BlackWhiteOptions::defaultValues(T_OTSU).windowSize});
+  options.setLowerBound(11);
+  options.setUpperBound(240);
+
+  QDomDocument doc;
+  const QDomElement el = options.toXml(doc, QStringLiteral("bw"));
+
+  BOOST_CHECK(BlackWhiteOptions(el) == options);
+  // The method of the page and those that differ from their defaults.
+  BOOST_CHECK_EQUAL(methodElementCount(el), 3);
+}
+
+BOOST_AUTO_TEST_CASE(test_values_in_attributes_count_for_the_method_of_the_page_only) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement(QStringLiteral("bw"));
+  el.setAttribute(QStringLiteral("binarizationMethod"), QStringLiteral("sauvola"));
+  el.setAttribute(QStringLiteral("windowSize"), 31);
+  el.setAttribute(QStringLiteral("sauvolaCoef"), QStringLiteral("0.41"));
+  el.setAttribute(QStringLiteral("wolfCoef"), QStringLiteral("0.17"));
+  el.setAttribute(QStringLiteral("thresholdAdj"), 7);
+  el.setAttribute(QStringLiteral("wolfLowerBound"), 20);
+  el.setAttribute(QStringLiteral("wolfUpperBound"), 200);
+
+  const BlackWhiteOptions options(el);
+
+  BOOST_CHECK(options.values(T_SAUVOLA) == (BlackWhiteOptions::MethodValues{7, 0.41, 31}));
+  BOOST_CHECK_EQUAL(options.getLowerBound(), 20);
+  BOOST_CHECK_EQUAL(options.getUpperBound(), 200);
+  BOOST_CHECK(options.values(T_WOLF) == BlackWhiteOptions::defaultValues(T_WOLF));
+  BOOST_CHECK(options.values(T_OTSU) == BlackWhiteOptions::defaultValues(T_OTSU));
+}
+
+BOOST_AUTO_TEST_CASE(test_missing_or_invalid_values_give_the_default_of_the_method) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement(QStringLiteral("bw"));
+  el.setAttribute(QStringLiteral("binarizationMethod"), QStringLiteral("robust"));
+  BOOST_CHECK(BlackWhiteOptions(el).values() == BlackWhiteOptions::defaultValues(T_ROBUST));
+
+  QDomElement method = doc.createElement(QStringLiteral("method"));
+  method.setAttribute(QStringLiteral("name"), QStringLiteral("robust"));
+  el.appendChild(method);
+  BOOST_CHECK(BlackWhiteOptions(el).values() == BlackWhiteOptions::defaultValues(T_ROBUST));
+
+  method.setAttribute(QStringLiteral("window"), 2);
+  method.setAttribute(QStringLiteral("coef"), QStringLiteral("nan"));
+  BOOST_CHECK(BlackWhiteOptions(el).values() == BlackWhiteOptions::defaultValues(T_ROBUST));
+
+  method.setAttribute(QStringLiteral("window"), BlackWhiteOptions::MIN_WINDOW_SIZE);
+  BOOST_CHECK_EQUAL(BlackWhiteOptions(el).values().windowSize, BlackWhiteOptions::MIN_WINDOW_SIZE);
+}
+
+BOOST_AUTO_TEST_CASE(test_an_unknown_method_name_changes_nothing) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement(QStringLiteral("bw"));
+  QDomElement method = doc.createElement(QStringLiteral("method"));
+  method.setAttribute(QStringLiteral("name"), QStringLiteral("no such method"));
+  method.setAttribute(QStringLiteral("delta"), 9);
+  el.appendChild(method);
+
+  BOOST_CHECK(BlackWhiteOptions(el).values(T_OTSU) == BlackWhiteOptions::defaultValues(T_OTSU));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -93,11 +93,9 @@ BOOST_AUTO_TEST_CASE(missing_output_attributes_get_defaults) {
   const QDomElement empty = doc.createElement("options");
   const BlackWhiteOptions defaults;
   const BlackWhiteOptions bw(empty);
-  BOOST_CHECK_EQUAL(bw.getWindowSize(), defaults.getWindowSize());
-  BOOST_CHECK_EQUAL(bw.getSauvolaCoef(), defaults.getSauvolaCoef());
-  BOOST_CHECK_EQUAL(bw.getWolfLowerBound(), defaults.getWolfLowerBound());
-  BOOST_CHECK_EQUAL(bw.getWolfUpperBound(), defaults.getWolfUpperBound());
-  BOOST_CHECK_EQUAL(bw.getWolfCoef(), defaults.getWolfCoef());
+  BOOST_CHECK(bw.values() == defaults.values());
+  BOOST_CHECK_EQUAL(bw.getLowerBound(), defaults.getLowerBound());
+  BOOST_CHECK_EQUAL(bw.getUpperBound(), defaults.getUpperBound());
   BOOST_CHECK_EQUAL(BlackWhiteOptions::ColorSegmenterOptions(empty).getNoiseReduction(),
                     BlackWhiteOptions::ColorSegmenterOptions().getNoiseReduction());
   BOOST_CHECK_EQUAL(PictureShapeOptions(empty).getSensitivity(), PictureShapeOptions().getSensitivity());
@@ -152,9 +150,11 @@ BOOST_AUTO_TEST_CASE(non_finite_numbers_in_a_project_file_give_finite_values) {
     BOOST_CHECK_MESSAGE(std::isfinite(colorCommon.knnCoef()), value);
     BOOST_CHECK_MESSAGE(std::isfinite(colorCommon.sharpenCoef()), value);
     const BlackWhiteOptions blackWhite(el);
-    BOOST_CHECK_MESSAGE(std::isfinite(blackWhite.getSauvolaCoef()), value);
-    BOOST_CHECK_MESSAGE(std::isfinite(blackWhite.getWolfCoef()), value);
     BOOST_CHECK_MESSAGE(std::isfinite(blackWhite.getColoredDimming()), value);
+    for (const char* method : {"sauvola", "wolf"}) {
+      el.setAttribute("binarizationMethod", method);
+      BOOST_CHECK_MESSAGE(std::isfinite(BlackWhiteOptions(el).values().coef), value);
+    }
     BOOST_CHECK_MESSAGE(std::isfinite(PhotoAdjustments(el).exposure()), value);
     BOOST_CHECK_MESSAGE(std::isfinite(DewarpingOptions(el).getPostDeskewAngle()), value);
     BOOST_CHECK_MESSAGE(std::isfinite(OutputImageParams(el).despeckleLevel()), value);

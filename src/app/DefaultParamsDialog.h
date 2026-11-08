@@ -89,11 +89,13 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void colorForegroundToggled(bool checked);
 
-  void thresholdDeltaChanged(double value);
-
   void colorSegmentationToggled(bool checked);
 
   void updateColorReductionControls();
+
+  output::BlackWhiteOptions::MethodValues methodValuesInFields() const;
+
+  void showMethodValues();
 
   void colorReductionChanged(int index);
 
@@ -232,6 +234,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   bool m_colorNormalizeIllumination = false;
   // The binarization method shown, to know which one the selector switches from.
   int m_binarizationMethod = 0;
+  // The values of all binarization methods; those of the method shown are current only in the fields.
+  output::BlackWhiteOptions m_methodValues;
   // "Reduce colors" of the text (0 none, 1 posterize, 2 K-means) and of whole color pages, kept
   // apart, as the list shows the one of the chosen color mode.
   int m_textColorReduction = 0;

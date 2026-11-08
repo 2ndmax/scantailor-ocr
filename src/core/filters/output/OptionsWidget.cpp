@@ -101,7 +101,6 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   for (int i = T_SAUVOLA; i <= T_MULTISCALE; ++i) {
     addOptionsWidgetBinarization(new OptionsWidgetBinarizationLocal(m_settings, static_cast<BinarizationMethod>(i)));
   }
-  // "Colored" and "Bounds" apply to all methods and line up with the fields of the method shown.
   QList<QGridLayout*> binarizationGrids = binarizationOptions->findChildren<QGridLayout*>();
   binarizationGrids.append(allMethodsLayout);
   core::Utils::alignLabelColumns(binarizationGrids);
@@ -112,7 +111,6 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   // the enhancement filters below their check boxes (a 15 px indent column plus the spacing).
   const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
   binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
-  allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
   // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further. The list
   // has its own row, so that its width doesn't move the fields of the settings.
   colorReductionChoiceLayout->setSpacing(segmenterReductionLayout->horizontalSpacing());
@@ -287,17 +285,9 @@ void OptionsWidget::colorDetectionButtonClicked() {
 void OptionsWidget::thresholdMethodChanged(int idx) {
   const BinarizationMethod method = (BinarizationMethod) thresholdMethodBox->itemData(idx).toInt();
   BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
-  const bool ownDefaults = needsOwnBinarizationDefaults(blackWhiteOptions.getBinarizationMethod(), method);
   blackWhiteOptions.setBinarizationMethod(method);
-  if (ownDefaults) {
-    applyBinarizationDefaults(blackWhiteOptions);
-  }
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  if (ownDefaults) {
-    // Show the new window size and strength.
-    updateBinarizationWidgets();
-  }
 
   emit reloadRequested();
 }
@@ -1004,8 +994,8 @@ void OptionsWidget::updateColorsDisplay() {
   morphologicalSmoothingCB->setChecked(blackWhiteOptions.isMorphologicalSmoothingEnabled());
   morphologicalSmoothingCB->setEnabled(thresholdOptionsVisible);
   coloredDimmingSB->setValue(blackWhiteOptions.getColoredDimming());
-  lowerBoundSB->setValue(blackWhiteOptions.values().lowerBound);
-  upperBoundSB->setValue(blackWhiteOptions.values().upperBound);
+  lowerBoundSB->setValue(blackWhiteOptions.getLowerBound());
+  upperBoundSB->setValue(blackWhiteOptions.getUpperBound());
 
   pictureShapeOptions->setEnabled(pictureShapeVisible);
   thresholdOptions->setEnabled(thresholdOptionsVisible);
@@ -1190,10 +1180,8 @@ void OptionsWidget::coloredDimmingChanged(const double value) {
 
 void OptionsWidget::binarizationBoundChanged() {
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  BlackWhiteOptions::MethodValues values = opt.values();
-  values.lowerBound = lowerBoundSB->value();
-  values.upperBound = upperBoundSB->value();
-  opt.setValues(opt.getBinarizationMethod(), values);
+  opt.setLowerBound(lowerBoundSB->value());
+  opt.setUpperBound(upperBoundSB->value());
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   m_delayedReloadRequest.start(RELOAD_DELAY_MS);

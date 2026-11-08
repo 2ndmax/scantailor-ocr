@@ -17,26 +17,7 @@ namespace output {
  */
 void fillBinarizationMethodBox(QComboBox* box);
 
-/**
- * The methods taken from ScanTailor Experimental need a different window size and strength
- * than the others, which share theirs. When switching to or from one of them, the window size
- * and strength are set to the defaults of the new method.
- */
-bool needsOwnBinarizationDefaults(BinarizationMethod from, BinarizationMethod to);
-
-/**
- * Whether \p method takes its strength from BlackWhiteOptions::getWolfCoef() rather than from
- * getSauvolaCoef(). Decides both what the method reads and what its options panel edits.
- */
-bool usesWolfCoefficient(BinarizationMethod method);
-
-/** The strength a method starts with. */
-double defaultBinarizationCoef(BinarizationMethod method);
-
 /** The tooltip of the strength field of \p method, naming its default. */
 QString binarizationCoefToolTip(BinarizationMethod method);
-
-/** Applies the window size and strength defaults of the options' method. */
-void applyBinarizationDefaults(BlackWhiteOptions& options);
 }  // namespace output
 #endif  // SCANTAILOR_OUTPUT_BINARIZATIONMETHODS_H_

@@ -140,8 +140,13 @@ void TestCoreQt::testOutputStrengthFieldSetsTheValueItsMethodReads() {
     colorParams.setColorMode(output::BLACK_AND_WHITE);
     output::BlackWhiteOptions blackWhiteOptions(colorParams.blackWhiteOptions());
     blackWhiteOptions.setBinarizationMethod(method);
-    blackWhiteOptions.setSauvolaCoef(0.11);
-    blackWhiteOptions.setWolfCoef(0.22);
+    auto setStrength = [&](const output::BinarizationMethod ofMethod, const double strength) {
+      output::BlackWhiteOptions::MethodValues values = blackWhiteOptions.values(ofMethod);
+      values.coef = strength;
+      blackWhiteOptions.setValues(ofMethod, values);
+    };
+    setStrength(output::T_SAUVOLA, 0.11);
+    setStrength(output::T_WOLF, 0.22);
     colorParams.setBlackWhiteOptions(blackWhiteOptions);
     settings->setColorParams(page, colorParams);
 
@@ -162,9 +167,48 @@ void TestCoreQt::testOutputStrengthFieldSetsTheValueItsMethodReads() {
     strengthField->setValue(0.5);
 
     const output::BlackWhiteOptions result = settings->getParams(page).colorParams().blackWhiteOptions();
-    QCOMPARE(result.getSauvolaCoef(), method == output::T_WOLF ? 0.11 : 0.5);
-    QCOMPARE(result.getWolfCoef(), method == output::T_WOLF ? 0.5 : 0.22);
+    QCOMPARE(result.values(output::T_SAUVOLA).coef, method == output::T_WOLF ? 0.11 : 0.5);
+    QCOMPARE(result.values(output::T_WOLF).coef, method == output::T_WOLF ? 0.5 : 0.22);
   }
+}
+
+void TestCoreQt::testOutputMethodKeepsItsValuesWhenAnotherIsChosen() {
+  auto settings = std::make_shared<output::Settings>();
+  const PageId page(ImageId("page.png"));
+  output::ColorParams colorParams;
+  colorParams.setColorMode(output::BLACK_AND_WHITE);
+  output::BlackWhiteOptions blackWhiteOptions(colorParams.blackWhiteOptions());
+  blackWhiteOptions.setBinarizationMethod(output::T_GATOS);
+  blackWhiteOptions.setValues(output::T_GATOS, {3, 0.25, 120});
+  blackWhiteOptions.setLowerBound(10);
+  colorParams.setBlackWhiteOptions(blackWhiteOptions);
+  settings->setColorParams(page, colorParams);
+
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(page);
+
+  auto* methodBox = widget.findChild<QComboBox*>("thresholdMethodBox");
+  auto* methodPanels = widget.findChild<QStackedWidget*>("binarizationOptions");
+  auto* lowerBound = widget.findChild<QSpinBox*>("lowerBoundSB");
+  QVERIFY(methodBox != nullptr);
+  QVERIFY(methodPanels != nullptr);
+  QVERIFY(lowerBound != nullptr);
+
+  methodBox->setCurrentIndex(static_cast<int>(output::T_WOLF));
+  auto* wolfWindowSize = methodPanels->widget(static_cast<int>(output::T_WOLF))->findChild<QSpinBox*>("windowSize");
+  QVERIFY(wolfWindowSize != nullptr);
+  QCOMPARE(wolfWindowSize->value(), output::BlackWhiteOptions::defaultValues(output::T_WOLF).windowSize);
+  wolfWindowSize->setValue(77);
+  // The bounds are the same for all methods.
+  QCOMPARE(lowerBound->value(), 10);
+
+  methodBox->setCurrentIndex(static_cast<int>(output::T_GATOS));
+  const output::BlackWhiteOptions result = settings->getParams(page).colorParams().blackWhiteOptions();
+  QCOMPARE(result.getBinarizationMethod(), output::T_GATOS);
+  QCOMPARE(result.values().coef, 0.25);
+  QCOMPARE(result.values().windowSize, 120);
+  QCOMPARE(result.values(output::T_WOLF).windowSize, 77);
+  QCOMPARE(result.getLowerBound(), 10);
 }
 
 void TestCoreQt::testOutputStrengthToolTipNamesTheDefaultOfItsMethod() {

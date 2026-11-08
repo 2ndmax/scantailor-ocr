@@ -4,6 +4,8 @@
 #ifndef SCANTAILOR_OUTPUT_BLACKWHITEOPTIONS_H_
 #define SCANTAILOR_OUTPUT_BLACKWHITEOPTIONS_H_
 
+#include <array>
+
 class QString;
 class QDomDocument;
 class QDomElement;
@@ -35,6 +37,7 @@ class BlackWhiteOptions {
   // The smallest window size the options panel allows, and the default one.
   static constexpr int MIN_WINDOW_SIZE = 3;
   static constexpr int DEFAULT_WINDOW_SIZE = 200;
+  static constexpr int METHOD_COUNT = T_MULTISCALE + 1;
 
   class ColorSegmenterOptions {
    public:
@@ -114,15 +117,19 @@ class BlackWhiteOptions {
 
   bool operator!=(const BlackWhiteOptions& other) const;
 
-  /// What the threshold calculation of a binarization method is given. Otsu uses no window and no
-  /// strength.
+  /// What the threshold calculation of a binarization method is given. Each method keeps its own, so
+  /// that switching to another method and back loses nothing. Otsu uses no window and no strength.
   struct MethodValues {
     int thresholdAdjustment;
     double coef;
     int windowSize;
-    int lowerBound;
-    int upperBound;
+
+    bool operator==(const MethodValues& other) const;
+
+    bool operator!=(const MethodValues& other) const;
   };
+
+  static MethodValues defaultValues(BinarizationMethod method);
 
   MethodValues values(BinarizationMethod method) const;
 
@@ -130,10 +137,6 @@ class BlackWhiteOptions {
 
   /// The values of the method set for the page.
   MethodValues values() const { return values(m_binarizationMethod); }
-
-  int thresholdAdjustment() const;
-
-  void setThresholdAdjustment(int val);
 
   bool normalizeIllumination() const;
 
@@ -147,27 +150,16 @@ class BlackWhiteOptions {
 
   void setMorphologicalSmoothingEnabled(bool morphologicalSmoothingEnabled);
 
-  int getWindowSize() const;
 
-  void setWindowSize(int windowSize);
+  /// The bounds work the same with every binarization method: darker pixels are always black, lighter
+  /// ones always white.
+  int getLowerBound() const { return m_lowerBound; }
 
-  double getSauvolaCoef() const;
+  void setLowerBound(int lowerBound) { m_lowerBound = lowerBound; }
 
-  void setSauvolaCoef(double sauvolaCoef);
+  int getUpperBound() const { return m_upperBound; }
 
-  int getWolfLowerBound() const;
-
-  /// The bounds apply to all binarization methods: darker pixels are always black, lighter ones always
-  /// white. They keep their old names, as they were first used by the Wolf method.
-  void setWolfLowerBound(int wolfLowerBound);
-
-  int getWolfUpperBound() const;
-
-  void setWolfUpperBound(int wolfUpperBound);
-
-  double getWolfCoef() const;
-
-  void setWolfCoef(double wolfCoef);
+  void setUpperBound(int upperBound) { m_upperBound = upperBound; }
 
   /// Colored pixels are darkened (positive, up to 2) or lightened towards white (negative, down to -1)
   /// before binarization, the more the more saturated they are. 0 changes nothing.
@@ -188,16 +180,14 @@ class BlackWhiteOptions {
 
   static QString formatBinarizationMethod(BinarizationMethod type);
 
+  void setAllValuesToDefaults();
 
-  int m_thresholdAdjustment;
   bool m_savitzkyGolaySmoothingEnabled;
   bool m_morphologicalSmoothingEnabled;
   bool m_normalizeIllumination;
-  int m_windowSize;
-  double m_sauvolaCoef;
-  int m_wolfLowerBound;
-  int m_wolfUpperBound;
-  double m_wolfCoef;
+  std::array<MethodValues, METHOD_COUNT> m_values;
+  int m_lowerBound;
+  int m_upperBound;
   double m_coloredDimming;
   BinarizationMethod m_binarizationMethod;
   ColorSegmenterOptions m_colorSegmenterOptions;
@@ -220,60 +210,12 @@ inline void BlackWhiteOptions::setMorphologicalSmoothingEnabled(bool morphologic
   BlackWhiteOptions::m_morphologicalSmoothingEnabled = morphologicalSmoothingEnabled;
 }
 
-inline int BlackWhiteOptions::getWindowSize() const {
-  return m_windowSize;
-}
-
-inline void BlackWhiteOptions::setWindowSize(int windowSize) {
-  BlackWhiteOptions::m_windowSize = windowSize;
-}
-
-inline double BlackWhiteOptions::getSauvolaCoef() const {
-  return m_sauvolaCoef;
-}
-
-inline void BlackWhiteOptions::setSauvolaCoef(double sauvolaCoef) {
-  BlackWhiteOptions::m_sauvolaCoef = sauvolaCoef;
-}
-
-inline int BlackWhiteOptions::getWolfLowerBound() const {
-  return m_wolfLowerBound;
-}
-
-inline void BlackWhiteOptions::setWolfLowerBound(int wolfLowerBound) {
-  BlackWhiteOptions::m_wolfLowerBound = wolfLowerBound;
-}
-
-inline int BlackWhiteOptions::getWolfUpperBound() const {
-  return m_wolfUpperBound;
-}
-
-inline void BlackWhiteOptions::setWolfUpperBound(int wolfUpperBound) {
-  BlackWhiteOptions::m_wolfUpperBound = wolfUpperBound;
-}
-
-inline double BlackWhiteOptions::getWolfCoef() const {
-  return m_wolfCoef;
-}
-
-inline void BlackWhiteOptions::setWolfCoef(double wolfCoef) {
-  BlackWhiteOptions::m_wolfCoef = wolfCoef;
-}
-
 inline BinarizationMethod BlackWhiteOptions::getBinarizationMethod() const {
   return m_binarizationMethod;
 }
 
 inline void BlackWhiteOptions::setBinarizationMethod(BinarizationMethod binarizationMethod) {
   BlackWhiteOptions::m_binarizationMethod = binarizationMethod;
-}
-
-inline int BlackWhiteOptions::thresholdAdjustment() const {
-  return m_thresholdAdjustment;
-}
-
-inline void BlackWhiteOptions::setThresholdAdjustment(int val) {
-  m_thresholdAdjustment = val;
 }
 
 inline bool BlackWhiteOptions::normalizeIllumination() const {

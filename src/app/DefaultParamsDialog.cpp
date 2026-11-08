@@ -151,7 +151,6 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   }
   dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
   Utils::setDpiFieldWidth(dpiSelector);
-  // "Colored" and "Bounds" apply to all methods and line up with the fields of the method shown.
   QList<QGridLayout*> binarizationGrids = binarizationOptions->findChildren<QGridLayout*>();
   binarizationGrids.append(allMethodsLayout);
   Utils::alignLabelColumns(binarizationGrids);
@@ -162,7 +161,6 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   // the enhancement filters below their check boxes (a 15 px indent column plus the spacing).
   const int methodIndent = 15 + chromaOptionsLayout->horizontalSpacing();
   binarizationOptions->setContentsMargins(methodIndent, 0, 0, 0);
-  allMethodsLayout->setContentsMargins(methodIndent, 0, 0, 0);
   // "Reduce colors" starts where "Reduce noise" starts, its settings one indent further. The list
   // has its own row, so that its width doesn't move the fields of the settings.
   colorReductionChoiceLayout->setSpacing(segmenterChannelsLayout->horizontalSpacing());
@@ -177,14 +175,14 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
     Utils::setNumberFieldWidth(spinBox, 100);
   }
   // Pixel fields of the filters are as wide as "999 px", fields without a unit as "-100".
-  for (QSpinBox* spinBox : {chromaRadius, subtractBgRadius, knnRadius, wienerWindowSize, sharpenRadius,
-                            sauvolaWindowSize, wolfWindowSize}) {
+  for (QSpinBox* spinBox :
+       {chromaRadius, subtractBgRadius, knnRadius, wienerWindowSize, sharpenRadius, methodWindowSize}) {
     Utils::setNumberFieldWidth(spinBox, 999);
   }
   for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{
-           chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, otsuDelta, sauvolaDelta, sauvolaCoef,
-           wolfDelta, lowerBound, upperBound, coloredDimmingSB, wolfCoef, redAdjustmentSB, greenAdjustmentSB,
-           blueAdjustmentSB, reduceNoiseSB, kmeansColorsSB, posterizeLevelSB}) {
+           chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, otsuDelta, methodDelta, methodCoef,
+           lowerBound, upperBound, coloredDimmingSB, redAdjustmentSB, greenAdjustmentSB, blueAdjustmentSB,
+           reduceNoiseSB, kmeansColorsSB, posterizeLevelSB}) {
     Utils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
@@ -602,16 +600,11 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
 
   thresholdMethodBox->setCurrentIndex(thresholdMethodBox->findData(blackWhiteOptions.getBinarizationMethod()));
   m_binarizationMethod = blackWhiteOptions.getBinarizationMethod();
-  for (QDoubleSpinBox* delta : {otsuDelta, sauvolaDelta, wolfDelta}) {
-    delta->setValue(blackWhiteOptions.thresholdAdjustment());
-  }
-  sauvolaWindowSize->setValue(blackWhiteOptions.getWindowSize());
-  wolfWindowSize->setValue(blackWhiteOptions.getWindowSize());
-  sauvolaCoef->setValue(blackWhiteOptions.getSauvolaCoef());
-  lowerBound->setValue(blackWhiteOptions.getWolfLowerBound());
-  upperBound->setValue(blackWhiteOptions.getWolfUpperBound());
+  m_methodValues = blackWhiteOptions;
+  showMethodValues();
+  lowerBound->setValue(blackWhiteOptions.getLowerBound());
+  upperBound->setValue(blackWhiteOptions.getUpperBound());
   coloredDimmingSB->setValue(blackWhiteOptions.getColoredDimming());
-  wolfCoef->setValue(blackWhiteOptions.getWolfCoef());
 
   const PictureShapeOptions& shapeOptions = params.getPictureShapeOptions();
   pictureShapeSelector->setCurrentIndex(pictureShapeSelector->findData(shapeOptions.getPictureShape()));
@@ -702,9 +695,6 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(splittingCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::splittingToggled);
   CONNECT(bwForegroundRB, &QAbstractButton::clicked, this, &DefaultParamsDialog::bwForegroundToggled);
   CONNECT(colorForegroundRB, &QAbstractButton::clicked, this, &DefaultParamsDialog::colorForegroundToggled);
-  CONNECT(otsuDelta, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::thresholdDeltaChanged);
-  CONNECT(sauvolaDelta, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::thresholdDeltaChanged);
-  CONNECT(wolfDelta, &QDoubleSpinBox::valueChanged, this, &DefaultParamsDialog::thresholdDeltaChanged);
   CONNECT(dpiSelector, &QComboBox::activated, this, &DefaultParamsDialog::dpiSelectionChanged);
   CONNECT(dpiSelector->lineEdit(), &QLineEdit::editingFinished, this, &DefaultParamsDialog::dpiSelectionChanged);
   CONNECT(fillOffcutCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOffcutToggled);
@@ -880,26 +870,28 @@ void DefaultParamsDialog::colorModeChanged(const ColorMode colorMode) {
 
 void DefaultParamsDialog::thresholdMethodChanged(const int idx) {
   const auto method = static_cast<BinarizationMethod>(thresholdMethodBox->itemData(idx).toInt());
-  if (needsOwnBinarizationDefaults(static_cast<BinarizationMethod>(m_binarizationMethod), method)) {
-    BlackWhiteOptions defaults;
-    defaults.setBinarizationMethod(method);
-    applyBinarizationDefaults(defaults);
-    sauvolaWindowSize->setValue(defaults.getWindowSize());
-    wolfWindowSize->setValue(defaults.getWindowSize());
-    sauvolaCoef->setValue(defaults.getSauvolaCoef());
-  }
+  // The fields show one method at a time; the values of the others wait here.
+  m_methodValues.setValues(static_cast<BinarizationMethod>(m_binarizationMethod), methodValuesInFields());
   m_binarizationMethod = method;
-  sauvolaCoef->setToolTip(binarizationCoefToolTip(method));
-  wolfCoef->setToolTip(binarizationCoefToolTip(method));
+  showMethodValues();
+  methodCoef->setToolTip(binarizationCoefToolTip(method));
 
-  // The methods share three pages of settings, as in the Output step.
-  if (method == T_OTSU) {
-    binarizationOptions->setCurrentWidget(page);
-  } else if (usesWolfCoefficient(method)) {
-    binarizationOptions->setCurrentWidget(page_3);
-  } else {
-    binarizationOptions->setCurrentWidget(page_2);
-  }
+  // Otsu has no window and no strength, all other methods have the same fields.
+  binarizationOptions->setCurrentWidget((method == T_OTSU) ? page : page_2);
+}
+
+BlackWhiteOptions::MethodValues DefaultParamsDialog::methodValuesInFields() const {
+  const QDoubleSpinBox* const delta = (m_binarizationMethod == T_OTSU) ? otsuDelta : methodDelta;
+  return {static_cast<int>(delta->value()), methodCoef->value(), methodWindowSize->value()};
+}
+
+void DefaultParamsDialog::showMethodValues() {
+  const BlackWhiteOptions::MethodValues values
+      = m_methodValues.values(static_cast<BinarizationMethod>(m_binarizationMethod));
+  otsuDelta->setValue(values.thresholdAdjustment);
+  methodDelta->setValue(values.thresholdAdjustment);
+  methodWindowSize->setValue(values.windowSize);
+  methodCoef->setValue(values.coef);
 }
 
 void DefaultParamsDialog::pictureShapeChanged(const int idx) {
@@ -1183,15 +1175,13 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   blackWhiteOptions.setMorphologicalSmoothingEnabled(morphologicalSmoothingCB->isChecked());
   BinarizationMethod binarizationMethod = static_cast<BinarizationMethod>(thresholdMethodBox->currentData().toInt());
   blackWhiteOptions.setBinarizationMethod(binarizationMethod);
-  blackWhiteOptions.setThresholdAdjustment(static_cast<int>(otsuDelta->value()));
-  blackWhiteOptions.setSauvolaCoef(sauvolaCoef->value());
-  if (binarizationMethod != T_OTSU) {
-    blackWhiteOptions.setWindowSize(usesWolfCoefficient(binarizationMethod) ? wolfWindowSize->value()
-                                                                            : sauvolaWindowSize->value());
+  for (int i = 0; i < BlackWhiteOptions::METHOD_COUNT; ++i) {
+    const auto method = static_cast<BinarizationMethod>(i);
+    blackWhiteOptions.setValues(
+        method, (method == binarizationMethod) ? methodValuesInFields() : m_methodValues.values(method));
   }
-  blackWhiteOptions.setWolfCoef(wolfCoef->value());
-  blackWhiteOptions.setWolfUpperBound(upperBound->value());
-  blackWhiteOptions.setWolfLowerBound(lowerBound->value());
+  blackWhiteOptions.setLowerBound(lowerBound->value());
+  blackWhiteOptions.setUpperBound(upperBound->value());
   blackWhiteOptions.setColoredDimming(coloredDimmingSB->value());
   BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
   segmenterOptions.setEnabled(colorSegmentationCB->isChecked());
@@ -1296,15 +1286,6 @@ void DefaultParamsDialog::vertMarginsChanged(double val) {
   }
 }
 
-void DefaultParamsDialog::thresholdDeltaChanged(const double value) {
-  // "Delta" is the same value for all methods, as in the Output step.
-  for (QDoubleSpinBox* delta : {otsuDelta, sauvolaDelta, wolfDelta}) {
-    if (delta != sender()) {
-      const QSignalBlocker blocker(delta);
-      delta->setValue(value);
-    }
-  }
-}
 
 void DefaultParamsDialog::dpiSelectionChanged() {
   // The message box takes the focus, which finishes the editing a second time.

@@ -160,12 +160,25 @@ void binarization(const Input& in) {
   options.setBinarizationMethod(static_cast<output::BinarizationMethod>(s[0] % (output::T_MULTISCALE + 1)));
   QDomDocument doc;
   QDomElement el = options.toXml(doc, QStringLiteral("black-white-options"));
-  el.setAttribute(QStringLiteral("windowSize"), static_cast<int16_t>(read16(s + 1)));
-  el.setAttribute(QStringLiteral("sauvolaCoef"), s8(s[3]) / 50.0);
-  el.setAttribute(QStringLiteral("thresholdAdj"), s8(s[4]));
-  el.setAttribute(QStringLiteral("wolfLowerBound"), s[5]);
-  el.setAttribute(QStringLiteral("wolfUpperBound"), s[6]);
-  el.setAttribute(QStringLiteral("wolfCoef"), s8(s[7]) / 50.0);
+  if (s[0] < 128) {
+    QDomElement methodEl = el.firstChildElement(QStringLiteral("method"));
+    methodEl.setAttribute(QStringLiteral("window"), static_cast<int16_t>(read16(s + 1)));
+    methodEl.setAttribute(QStringLiteral("coef"), s8(s[3]) / 50.0);
+    methodEl.setAttribute(QStringLiteral("delta"), s8(s[4]));
+    el.setAttribute(QStringLiteral("lowerBound"), s[5]);
+    el.setAttribute(QStringLiteral("upperBound"), s[6]);
+  } else {
+    // As in the project files of ScanTailor Advanced.
+    el.removeChild(el.firstChildElement(QStringLiteral("method")));
+    el.removeAttribute(QStringLiteral("lowerBound"));
+    el.removeAttribute(QStringLiteral("upperBound"));
+    el.setAttribute(QStringLiteral("windowSize"), static_cast<int16_t>(read16(s + 1)));
+    el.setAttribute(QStringLiteral("sauvolaCoef"), s8(s[3]) / 50.0);
+    el.setAttribute(QStringLiteral("thresholdAdj"), s8(s[4]));
+    el.setAttribute(QStringLiteral("wolfLowerBound"), s[5]);
+    el.setAttribute(QStringLiteral("wolfUpperBound"), s[6]);
+    el.setAttribute(QStringLiteral("wolfCoef"), s8(s[7]) / 50.0);
+  }
   (void) output::binarizeBlackWhite(in.image, output::BlackWhiteOptions(el));
 }
 

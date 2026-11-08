@@ -28,6 +28,10 @@ topic, not by version.
   value of that setting, instead of being passed on to the image filters.
 * Project files and profiles are written safely: the old file is replaced only when everything
   has been written, so a full disk or a crash no longer leaves a broken project.
+* Each binarization method keeps its own delta, strength and window size, for every page and in
+  the profiles. Switching to another method and back no longer loses or carries over values.
+  Project files store them per method; in a project of ScanTailor Advanced, the saved values count
+  for the method set on the page, all others start with their defaults.
 * **Settings for the whole project are stored in the project:** TIFF and PDF compression, the
   export formats, text recognition (languages, text layout), color mode detection and white on
   black detection. A project can be reproduced on another computer, and each book can have its

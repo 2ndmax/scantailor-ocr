@@ -11,7 +11,6 @@
 
 #include <QImage>
 
-#include "BinarizationMethods.h"
 #include "BlackWhiteOptions.h"
 
 using namespace imageproc;
@@ -38,8 +37,8 @@ BinaryImage binarizeBlackWhite(const QImage& image, const BlackWhiteOptions& bla
   const int thresholdDelta = values.thresholdAdjustment;
   const int windowLength = values.windowSize;
   const QSize windowSize(windowLength, windowLength);
-  const int lowerBound = values.lowerBound;
-  const int upperBound = values.upperBound;
+  const int lowerBound = blackWhiteOptions.getLowerBound();
+  const int upperBound = blackWhiteOptions.getUpperBound();
   const auto lowerByte = static_cast<unsigned char>(lowerBound);
   const auto upperByte = static_cast<unsigned char>(upperBound);
 

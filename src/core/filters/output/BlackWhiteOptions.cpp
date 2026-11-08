@@ -9,88 +9,177 @@
 #include <algorithm>
 #include <cmath>
 
-#include "BinarizationMethods.h"
 #include "XmlUnmarshaller.h"
 
 using namespace foundation;
 
 namespace output {
 namespace {
+int intFromXml(const QDomElement& el, const QString& name, const int fallback) {
+  bool ok = false;
+  const int value = el.attribute(name).toInt(&ok);
+  return ok ? value : fallback;
+}
+
 // A window size below the minimum (also a missing one) can't come from the program, and most
 // binarization methods refuse one of 0 or less, which fails the page.
-int windowSizeFromXml(const QString& value) {
-  bool ok = false;
-  const int size = value.toInt(&ok);
-  return (ok && (size >= BlackWhiteOptions::MIN_WINDOW_SIZE)) ? size : BlackWhiteOptions::DEFAULT_WINDOW_SIZE;
+int windowSizeFromXml(const QDomElement& el, const QString& name, const int fallback) {
+  const int size = intFromXml(el, name, fallback);
+  return (size >= BlackWhiteOptions::MIN_WINDOW_SIZE) ? size : fallback;
+}
+
+// Files of ScanTailor Advanced have two strengths: one for these methods, one for all others.
+bool hasStrengthInWolfCoefAttribute(const BinarizationMethod method) {
+  return (method == T_WOLF) || (method == T_FOX) || (method == T_WINDOW) || (method == T_GRAD);
+}
+
+// Files of ScanTailor Advanced hold one set of values as attributes of the element. They count for
+// the method set for the page.
+BlackWhiteOptions::MethodValues valuesFromAttributes(const QDomElement& el, const BinarizationMethod method) {
+  const BlackWhiteOptions::MethodValues defaults = BlackWhiteOptions::defaultValues(method);
+  return {
+      intFromXml(el, "thresholdAdj", defaults.thresholdAdjustment),
+      XmlUnmarshaller::number(el, hasStrengthInWolfCoefAttribute(method) ? "wolfCoef" : "sauvolaCoef", defaults.coef),
+      windowSizeFromXml(el, "windowSize", defaults.windowSize)};
+}
+
+BlackWhiteOptions::MethodValues valuesFromMethodElement(const QDomElement& el, const BinarizationMethod method) {
+  const BlackWhiteOptions::MethodValues defaults = BlackWhiteOptions::defaultValues(method);
+  return {intFromXml(el, "delta", defaults.thresholdAdjustment), XmlUnmarshaller::number(el, "coef", defaults.coef),
+          windowSizeFromXml(el, "window", defaults.windowSize)};
 }
 }  // namespace
 
+BlackWhiteOptions::MethodValues BlackWhiteOptions::defaultValues(const BinarizationMethod method) {
+  MethodValues values{0, 0.34, DEFAULT_WINDOW_SIZE};
+  // Without a default, so that the compiler asks about a method added later.
+  switch (method) {
+    case T_OTSU:
+    case T_SAUVOLA:
+    case T_BRADLEY:
+    case T_EDGEPLUS:
+    case T_BLURDIV:
+    case T_EDGEDIV:
+      break;
+    case T_WOLF:
+    case T_FOX:
+    case T_WINDOW:
+    case T_GRAD:
+      values.coef = 0.3;
+      break;
+    // The methods below as set by ScanTailor Experimental when choosing them, with its radius doubled.
+    case T_GATOS:
+      values.coef = 0.2;
+      break;
+    case T_NICK:
+      values.coef = 0.1;
+      break;
+    case T_SINGH:
+      values.coef = 0.3;
+      break;
+    case T_ROBUST:
+    case T_MULTISCALE:
+      values.coef = 0.2;
+      values.windowSize = 40;
+      break;
+  }
+  return values;
+}
+
 BlackWhiteOptions::BlackWhiteOptions()
-    : m_thresholdAdjustment(0),
-      m_savitzkyGolaySmoothingEnabled(true),
+    : m_savitzkyGolaySmoothingEnabled(true),
       m_morphologicalSmoothingEnabled(true),
       m_normalizeIllumination(true),
-      m_windowSize(DEFAULT_WINDOW_SIZE),
-      m_sauvolaCoef(0.34),
-      m_wolfLowerBound(1),
-      m_wolfUpperBound(254),
-      m_wolfCoef(0.3),
+      m_lowerBound(1),
+      m_upperBound(254),
       m_coloredDimming(0.0),
-      m_binarizationMethod(T_OTSU) {}
+      m_binarizationMethod(T_OTSU) {
+  setAllValuesToDefaults();
+}
 
 BlackWhiteOptions::BlackWhiteOptions(const QDomElement& el)
-    : m_thresholdAdjustment(el.attribute("thresholdAdj").toInt()),
-      m_savitzkyGolaySmoothingEnabled(el.attribute("savitzkyGolaySmoothing") == "1"),
+    : m_savitzkyGolaySmoothingEnabled(el.attribute("savitzkyGolaySmoothing") == "1"),
       m_morphologicalSmoothingEnabled(el.attribute("morphologicalSmoothing") == "1"),
       m_normalizeIllumination(el.attribute("normalizeIlluminationBW") == "1"),
-      m_windowSize(windowSizeFromXml(el.attribute("windowSize"))),
-      m_sauvolaCoef(XmlUnmarshaller::number(el, "sauvolaCoef", 0.34)),
-      m_wolfLowerBound(el.attribute("wolfLowerBound", "1").toInt()),
-      m_wolfUpperBound(el.attribute("wolfUpperBound", "254").toInt()),
-      m_wolfCoef(XmlUnmarshaller::number(el, "wolfCoef", 0.3)),
+      // Files of ScanTailor Advanced name them after the method that used them first.
+      m_lowerBound(intFromXml(el, "lowerBound", intFromXml(el, "wolfLowerBound", 1))),
+      m_upperBound(intFromXml(el, "upperBound", intFromXml(el, "wolfUpperBound", 254))),
       m_coloredDimming(XmlUnmarshaller::numberInRange(el, "coloredDimming", MIN_COLORED_DIMMING, MAX_COLORED_DIMMING)),
       m_binarizationMethod(parseBinarizationMethod(el.attribute("binarizationMethod"))),
-      m_colorSegmenterOptions(el.namedItem("color-segmenter-options").toElement()) {}
+      m_colorSegmenterOptions(el.namedItem("color-segmenter-options").toElement()) {
+  setAllValuesToDefaults();
+
+  QDomElement methodEl = el.firstChildElement("method");
+  if (methodEl.isNull()) {
+    setValues(m_binarizationMethod, valuesFromAttributes(el, m_binarizationMethod));
+  }
+  for (; !methodEl.isNull(); methodEl = methodEl.nextSiblingElement("method")) {
+    const QString methodName = methodEl.attribute("name");
+    const BinarizationMethod method = parseBinarizationMethod(methodName);
+    // An unknown name reads as Otsu, whose values it must not replace.
+    if ((method != T_OTSU) || (methodName == formatBinarizationMethod(T_OTSU))) {
+      setValues(method, valuesFromMethodElement(methodEl, method));
+    }
+  }
+}
+
+void BlackWhiteOptions::setAllValuesToDefaults() {
+  for (int i = 0; i < METHOD_COUNT; ++i) {
+    m_values[i] = defaultValues(static_cast<BinarizationMethod>(i));
+  }
+}
 
 QDomElement BlackWhiteOptions::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
-  el.setAttribute("thresholdAdj", m_thresholdAdjustment);
   el.setAttribute("savitzkyGolaySmoothing", m_savitzkyGolaySmoothingEnabled ? "1" : "0");
   el.setAttribute("morphologicalSmoothing", m_morphologicalSmoothingEnabled ? "1" : "0");
   el.setAttribute("normalizeIlluminationBW", m_normalizeIllumination ? "1" : "0");
-  el.setAttribute("windowSize", m_windowSize);
-  el.setAttribute("sauvolaCoef", Utils::doubleToString(m_sauvolaCoef));
-  el.setAttribute("wolfLowerBound", m_wolfLowerBound);
-  el.setAttribute("wolfUpperBound", m_wolfUpperBound);
-  el.setAttribute("wolfCoef", Utils::doubleToString(m_wolfCoef));
+  el.setAttribute("lowerBound", m_lowerBound);
+  el.setAttribute("upperBound", m_upperBound);
   if (m_coloredDimming != 0.0) {
     el.setAttribute("coloredDimming", Utils::doubleToString(m_coloredDimming));
   }
   el.setAttribute("binarizationMethod", formatBinarizationMethod(m_binarizationMethod));
+  for (int i = 0; i < METHOD_COUNT; ++i) {
+    const auto method = static_cast<BinarizationMethod>(i);
+    // The method of the page is always written, so that its result doesn't follow a later change of
+    // a default. The others only when they differ, as a project has many pages.
+    if ((method == m_binarizationMethod) || (m_values[i] != defaultValues(method))) {
+      QDomElement methodEl(doc.createElement("method"));
+      methodEl.setAttribute("name", formatBinarizationMethod(method));
+      methodEl.setAttribute("delta", m_values[i].thresholdAdjustment);
+      if (method != T_OTSU) {
+        methodEl.setAttribute("coef", Utils::doubleToString(m_values[i].coef));
+        methodEl.setAttribute("window", m_values[i].windowSize);
+      }
+      el.appendChild(methodEl);
+    }
+  }
   el.appendChild(m_colorSegmenterOptions.toXml(doc, "color-segmenter-options"));
   return el;
 }
 
 BlackWhiteOptions::MethodValues BlackWhiteOptions::values(const BinarizationMethod method) const {
-  return {m_thresholdAdjustment, usesWolfCoefficient(method) ? m_wolfCoef : m_sauvolaCoef, m_windowSize,
-          m_wolfLowerBound, m_wolfUpperBound};
+  return m_values[method];
 }
 
 void BlackWhiteOptions::setValues(const BinarizationMethod method, const MethodValues& values) {
-  m_thresholdAdjustment = values.thresholdAdjustment;
-  (usesWolfCoefficient(method) ? m_wolfCoef : m_sauvolaCoef) = values.coef;
-  m_windowSize = values.windowSize;
-  m_wolfLowerBound = values.lowerBound;
-  m_wolfUpperBound = values.upperBound;
+  m_values[method] = values;
+}
+
+bool BlackWhiteOptions::MethodValues::operator==(const MethodValues& other) const {
+  return (thresholdAdjustment == other.thresholdAdjustment) && (coef == other.coef) && (windowSize == other.windowSize);
+}
+
+bool BlackWhiteOptions::MethodValues::operator!=(const MethodValues& other) const {
+  return !(*this == other);
 }
 
 bool BlackWhiteOptions::operator==(const BlackWhiteOptions& other) const {
-  return (m_thresholdAdjustment == other.m_thresholdAdjustment)
-         && (m_savitzkyGolaySmoothingEnabled == other.m_savitzkyGolaySmoothingEnabled)
+  return (m_savitzkyGolaySmoothingEnabled == other.m_savitzkyGolaySmoothingEnabled)
          && (m_morphologicalSmoothingEnabled == other.m_morphologicalSmoothingEnabled)
-         && (m_normalizeIllumination == other.m_normalizeIllumination) && (m_windowSize == other.m_windowSize)
-         && (m_sauvolaCoef == other.m_sauvolaCoef) && (m_wolfLowerBound == other.m_wolfLowerBound)
-         && (m_wolfUpperBound == other.m_wolfUpperBound) && (m_wolfCoef == other.m_wolfCoef)
+         && (m_normalizeIllumination == other.m_normalizeIllumination) && (m_values == other.m_values)
+         && (m_lowerBound == other.m_lowerBound) && (m_upperBound == other.m_upperBound)
          && (m_coloredDimming == other.m_coloredDimming) && (m_binarizationMethod == other.m_binarizationMethod)
          && (m_colorSegmenterOptions == other.m_colorSegmenterOptions);
 }

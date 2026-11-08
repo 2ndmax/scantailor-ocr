@@ -136,8 +136,9 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   colorParams.setPhotoAdjustments(run.adjustments);
   BlackWhiteOptions blackWhiteOptions = colorParams.blackWhiteOptions();
   blackWhiteOptions.setColoredDimming(run.coloredDimming);
-  blackWhiteOptions.setWolfLowerBound(run.lowerBound);
-  blackWhiteOptions.setWolfUpperBound(run.upperBound);
+  blackWhiteOptions.setBinarizationMethod(run.binarization);
+  blackWhiteOptions.setLowerBound(run.lowerBound);
+  blackWhiteOptions.setUpperBound(run.upperBound);
   if (run.kmeansColors > 0) {
     BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
     segmenterOptions.setEnabled(true);
@@ -145,11 +146,11 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
     segmenterOptions.setKMeansColors(run.kmeansColors);
     blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
   }
-  blackWhiteOptions.setBinarizationMethod(run.binarization);
   if (!run.windowSizeAttribute.isEmpty()) {
     QDomDocument doc;
     QDomElement el = blackWhiteOptions.toXml(doc, QStringLiteral("black-white-options"));
-    el.setAttribute(QStringLiteral("windowSize"), run.windowSizeAttribute);
+    QDomElement methodEl = el.firstChildElement(QStringLiteral("method"));
+    methodEl.setAttribute(QStringLiteral("window"), run.windowSizeAttribute);
     blackWhiteOptions = BlackWhiteOptions(el);
   }
   colorParams.setBlackWhiteOptions(blackWhiteOptions);
@@ -431,11 +432,14 @@ BOOST_AUTO_TEST_CASE(fallbacks_start_just_below_the_smallest_allowed_value) {
   BOOST_CHECK(DefaultParams::OutputParams(outputEl).getDpi() == Dpi(72, 72));
 
   BOOST_REQUIRE_EQUAL(BlackWhiteOptions::MIN_WINDOW_SIZE, 3);
-  QDomElement optionsEl = BlackWhiteOptions().toXml(doc, QStringLiteral("black-white-options"));
-  optionsEl.setAttribute(QStringLiteral("windowSize"), QStringLiteral("3"));
-  BOOST_CHECK_EQUAL(BlackWhiteOptions(optionsEl).getWindowSize(), 3);
-  optionsEl.setAttribute(QStringLiteral("windowSize"), QStringLiteral("2"));
-  BOOST_CHECK_EQUAL(BlackWhiteOptions(optionsEl).getWindowSize(), BlackWhiteOptions::DEFAULT_WINDOW_SIZE);
+  BlackWhiteOptions sauvola;
+  sauvola.setBinarizationMethod(T_SAUVOLA);
+  QDomElement optionsEl = sauvola.toXml(doc, QStringLiteral("black-white-options"));
+  QDomElement methodEl = optionsEl.firstChildElement(QStringLiteral("method"));
+  methodEl.setAttribute(QStringLiteral("window"), QStringLiteral("3"));
+  BOOST_CHECK_EQUAL(BlackWhiteOptions(optionsEl).values().windowSize, 3);
+  methodEl.setAttribute(QStringLiteral("window"), QStringLiteral("2"));
+  BOOST_CHECK_EQUAL(BlackWhiteOptions(optionsEl).values().windowSize, BlackWhiteOptions::DEFAULT_WINDOW_SIZE);
 }
 
 // In these two tests the content box is the text half only; the picture half lies in the margins.

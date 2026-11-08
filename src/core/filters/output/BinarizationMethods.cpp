@@ -65,10 +65,6 @@ const MethodInfo kMethods[] = {
                        "Combines thresholds over several window sizes. For pages with "
                        "text of very different sizes.")},
 };
-
-bool isFromExperimental(const BinarizationMethod method) {
-  return method >= T_GATOS;
-}
 }  // namespace
 
 void fillBinarizationMethodBox(QComboBox* box) {
@@ -79,62 +75,8 @@ void fillBinarizationMethodBox(QComboBox* box) {
   }
 }
 
-bool needsOwnBinarizationDefaults(const BinarizationMethod from, const BinarizationMethod to) {
-  return (from != to) && (isFromExperimental(from) || isFromExperimental(to));
-}
-
-bool usesWolfCoefficient(const BinarizationMethod method) {
-  // Without a default, so that the compiler asks about a method added later.
-  switch (method) {
-    case T_WOLF:
-    case T_FOX:
-    case T_WINDOW:
-    case T_GRAD:
-      return true;
-    case T_OTSU:
-    case T_SAUVOLA:
-    case T_BRADLEY:
-    case T_EDGEPLUS:
-    case T_BLURDIV:
-    case T_EDGEDIV:
-    case T_GATOS:
-    case T_NICK:
-    case T_SINGH:
-    case T_ROBUST:
-    case T_MULTISCALE:
-      return false;
-  }
-  return false;
-}
-
-double defaultBinarizationCoef(const BinarizationMethod method) {
-  // As set by ScanTailor Experimental when choosing the method.
-  switch (method) {
-    case T_GATOS:
-      return 0.2;
-    case T_NICK:
-      return 0.1;
-    case T_SINGH:
-      return 0.3;
-    case T_ROBUST:
-    case T_MULTISCALE:
-      return 0.2;
-    default:
-      return usesWolfCoefficient(method) ? BlackWhiteOptions().getWolfCoef() : BlackWhiteOptions().getSauvolaCoef();
-  }
-}
-
 QString binarizationCoefToolTip(const BinarizationMethod method) {
   return QCoreApplication::translate("BinarizationMethods", "Strength of the method. Default value is %1.")
-      .arg(QLocale().toString(defaultBinarizationCoef(method)));
-}
-
-void applyBinarizationDefaults(BlackWhiteOptions& options) {
-  const BinarizationMethod method = options.getBinarizationMethod();
-  // As set by ScanTailor Experimental when choosing the method, with its radius doubled.
-  options.setWindowSize(((method == T_ROBUST) || (method == T_MULTISCALE)) ? 40 : 200);
-  // The Wolf family has a value of its own, which stays.
-  options.setSauvolaCoef(usesWolfCoefficient(method) ? BlackWhiteOptions().getSauvolaCoef()
-                                                     : defaultBinarizationCoef(method));
+      .arg(QLocale().toString(BlackWhiteOptions::defaultValues(method).coef));
 }
 }  // namespace output
