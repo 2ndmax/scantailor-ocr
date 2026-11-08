@@ -81,12 +81,14 @@ Write-Host ''
 # The programs of a run-12 log that timed out or ended with an exit code other than 0, e.g.
 # "core_tests.exe (timeout)". Such a program may have printed its test summary before it hung or
 # failed, so "# NOT RUN:" doesn't catch it, and it leaves no verifier stop either.
+# Failed tests are expected in the log of -LowResource, so there only a timeout counts.
 function Get-AbnormalEnds([string] $path) {
+  $exitCodeCounts = (Split-Path -Leaf $path) -ne '12-appverif-lowres.log'
   $exe = '?'
   foreach ($l in Get-Content -LiteralPath $path) {
     if ($l -match '^# ===== (?<exe>\S+)') { $exe = $Matches.exe }
     elseif ($l -match '^# TIMEOUT') { "$exe (timeout)" }
-    elseif ($l -match '^# Exit code: (?<code>[0-9a-fA-F]+)\s*$' -and $Matches.code -notmatch '^0+$') {
+    elseif ($exitCodeCounts -and $l -match '^# Exit code: (?<code>[0-9a-fA-F]+)\s*$' -and $Matches.code -notmatch '^0+$') {
       "$exe (exit code $($Matches.code))"
     }
   }
@@ -351,6 +353,17 @@ $notRunLines = @(foreach ($in in $inputs) {
   })
 if ($notRunLines.Count) {
   [void]$md.AppendLine("**Not run** (no test summary, so no findings from them): $($notRunLines -join ', ').")
+  [void]$md.AppendLine()
+}
+# A stopped run leaves no "# End:" line, and the programs it never started are named nowhere else.
+$notFinishedLines = @(foreach ($in in ($inputs | Where-Object { $_.File -like '*.log' })) {
+    $path = Join-Path $AnalysisDir $in.File
+    if ((Test-Path -LiteralPath $path) -and -not (Select-String -LiteralPath $path -Pattern '^# End:' -Quiet)) {
+      "Run $($in.Run): ``$($in.File)``"
+    }
+  })
+if ($notFinishedLines.Count) {
+  [void]$md.AppendLine("**Not finished** (no ``# End:`` line, so the run was stopped and its findings are incomplete): $($notFinishedLines -join ', ').")
   [void]$md.AppendLine()
 }
 $abnormalLines = @(foreach ($in in ($inputs | Where-Object { $_.Run -eq '12' })) {
