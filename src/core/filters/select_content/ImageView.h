@@ -6,6 +6,7 @@
 
 #include <core/ContentMask.h>
 #include <interaction/DraggablePolygon.h>
+#include <interaction/RectHandleGeometry.h>
 
 #include <QRectF>
 #include <QSizeF>
@@ -59,7 +60,7 @@ class ImageView : public ImageViewBase, private InteractionHandler {
   void removeContentBox();
 
  private:
-  enum Edge { LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8 };
+  enum Edge { LEFT = RECT_LEFT, RIGHT = RECT_RIGHT, TOP = RECT_TOP, BOTTOM = RECT_BOTTOM };
 
   void onPaint(QPainter& painter, const InteractionState& interaction) override;
 

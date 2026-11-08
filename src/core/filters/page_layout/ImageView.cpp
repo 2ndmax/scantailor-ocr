@@ -307,48 +307,11 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction
 }  // ImageView::onPaint
 
 Proximity ImageView::cornerProximity(const int edgeMask, const QRectF* box, const QPointF& mousePos) const {
-  const QRectF r(virtualToWidget().mapRect(*box));
-  QPointF pt;
-
-  if (edgeMask & TOP) {
-    pt.setY(r.top());
-  } else if (edgeMask & BOTTOM) {
-    pt.setY(r.bottom());
-  }
-
-  if (edgeMask & LEFT) {
-    pt.setX(r.left());
-  } else if (edgeMask & RIGHT) {
-    pt.setX(r.right());
-  }
-  return Proximity(pt, mousePos);
+  return Proximity(rectCorner(virtualToWidget().mapRect(*box), edgeMask), mousePos);
 }
 
 Proximity ImageView::edgeProximity(const int edgeMask, const QRectF* box, const QPointF& mousePos) const {
-  const QRectF r(virtualToWidget().mapRect(*box));
-  QLineF line;
-
-  switch (edgeMask) {
-    case TOP:
-      line.setP1(r.topLeft());
-      line.setP2(r.topRight());
-      break;
-    case BOTTOM:
-      line.setP1(r.bottomLeft());
-      line.setP2(r.bottomRight());
-      break;
-    case LEFT:
-      line.setP1(r.topLeft());
-      line.setP2(r.bottomLeft());
-      break;
-    case RIGHT:
-      line.setP1(r.topRight());
-      line.setP2(r.bottomRight());
-      break;
-    default:
-      assert(!"Unreachable");
-  }
-  return Proximity::pointAndLineSegment(mousePos, line);
+  return Proximity::pointAndLineSegment(mousePos, rectEdge(virtualToWidget().mapRect(*box), edgeMask));
 }
 
 void ImageView::dragInitiated(const QPointF& mousePos) {

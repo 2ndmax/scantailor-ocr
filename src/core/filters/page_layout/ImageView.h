@@ -6,6 +6,7 @@
 
 #include <core/ContentMask.h>
 #include <interaction/DraggableLineSegment.h>
+#include <interaction/RectHandleGeometry.h>
 
 #include <QMenu>
 #include <QPoint>
@@ -71,7 +72,7 @@ class ImageView : public ImageViewBase, private InteractionHandler {
   void updatePhysSize() override;
 
  private:
-  enum Edge { LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8 };
+  enum Edge { LEFT = RECT_LEFT, RIGHT = RECT_RIGHT, TOP = RECT_TOP, BOTTOM = RECT_BOTTOM };
 
   enum FitMode { FIT, DONT_FIT };
 

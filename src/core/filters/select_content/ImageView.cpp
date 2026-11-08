@@ -241,39 +241,11 @@ void ImageView::onContextMenuEvent(QContextMenuEvent* event, InteractionState& i
 }
 
 QPointF ImageView::contentRectCornerPosition(int edgeMask) const {
-  const QRectF rect(virtualToWidget().mapRect(m_contentRect));
-  QPointF pt;
-
-  if (edgeMask & TOP) {
-    pt.setY(rect.top());
-  } else if (edgeMask & BOTTOM) {
-    pt.setY(rect.bottom());
-  }
-
-  if (edgeMask & LEFT) {
-    pt.setX(rect.left());
-  } else if (edgeMask & RIGHT) {
-    pt.setX(rect.right());
-  }
-  return pt;
+  return rectCorner(virtualToWidget().mapRect(m_contentRect), edgeMask);
 }
 
 void ImageView::contentRectCornerMoveRequest(int edgeMask, const QPointF& pos) {
-  QRectF r(virtualToWidget().mapRect(m_contentRect));
-  const qreal minw = m_minBoxSize.width();
-  const qreal minh = m_minBoxSize.height();
-
-  if (edgeMask & TOP) {
-    r.setTop(std::min(pos.y(), r.bottom() - minh));
-  } else if (edgeMask & BOTTOM) {
-    r.setBottom(std::max(pos.y(), r.top() + minh));
-  }
-
-  if (edgeMask & LEFT) {
-    r.setLeft(std::min(pos.x(), r.right() - minw));
-  } else if (edgeMask & RIGHT) {
-    r.setRight(std::max(pos.x(), r.left() + minw));
-  }
+  QRectF r(resizeRectByEdges(virtualToWidget().mapRect(m_contentRect), edgeMask, pos, m_minBoxSize));
 
   forceInsideImage(r, edgeMask);
   m_contentRect = widgetToVirtual().mapRect(r);
@@ -284,17 +256,7 @@ void ImageView::contentRectCornerMoveRequest(int edgeMask, const QPointF& pos) {
 }
 
 QLineF ImageView::contentRectEdgePosition(int edge) const {
-  const QRectF rect(virtualToWidget().mapRect(m_contentRect));
-
-  if (edge == TOP) {
-    return QLineF(rect.topLeft(), rect.topRight());
-  } else if (edge == BOTTOM) {
-    return QLineF(rect.bottomLeft(), rect.bottomRight());
-  } else if (edge == LEFT) {
-    return QLineF(rect.topLeft(), rect.bottomLeft());
-  } else {
-    return QLineF(rect.topRight(), rect.bottomRight());
-  }
+  return rectEdge(virtualToWidget().mapRect(m_contentRect), edge);
 }
 
 void ImageView::contentRectEdgeMoveRequest(int edge, const QLineF& line) {
@@ -310,41 +272,12 @@ void ImageView::contentRectDragFinished() {
 }
 
 QPointF ImageView::pageRectCornerPosition(int edgeMask) const {
-  const QRectF rect(virtualToWidget().mapRect(m_pageRect));
-  QPointF pt;
-
-  if (edgeMask & TOP) {
-    pt.setY(rect.top());
-  } else if (edgeMask & BOTTOM) {
-    pt.setY(rect.bottom());
-  }
-
-  if (edgeMask & LEFT) {
-    pt.setX(rect.left());
-  } else if (edgeMask & RIGHT) {
-    pt.setX(rect.right());
-  }
-  return pt;
+  return rectCorner(virtualToWidget().mapRect(m_pageRect), edgeMask);
 }
 
 void ImageView::pageRectCornerMoveRequest(int edgeMask, const QPointF& pos) {
-  QRectF r(virtualToWidget().mapRect(m_pageRect));
-  const qreal minw = m_minBoxSize.width();
-  const qreal minh = m_minBoxSize.height();
-
-  if (edgeMask & TOP) {
-    r.setTop(std::min(pos.y(), r.bottom() - minh));
-  } else if (edgeMask & BOTTOM) {
-    r.setBottom(std::max(pos.y(), r.top() + minh));
-  }
-
-  if (edgeMask & LEFT) {
-    r.setLeft(std::min(pos.x(), r.right() - minw));
-  } else if (edgeMask & RIGHT) {
-    r.setRight(std::max(pos.x(), r.left() + minw));
-  }
-
-  m_pageRect = widgetToVirtual().mapRect(r);
+  m_pageRect = widgetToVirtual().mapRect(
+      resizeRectByEdges(virtualToWidget().mapRect(m_pageRect), edgeMask, pos, m_minBoxSize));
   forcePageRectDescribeContent();
 
   update();
@@ -352,17 +285,7 @@ void ImageView::pageRectCornerMoveRequest(int edgeMask, const QPointF& pos) {
 }
 
 QLineF ImageView::pageRectEdgePosition(int edge) const {
-  const QRectF rect(virtualToWidget().mapRect(m_pageRect));
-
-  if (edge == TOP) {
-    return QLineF(rect.topLeft(), rect.topRight());
-  } else if (edge == BOTTOM) {
-    return QLineF(rect.bottomLeft(), rect.bottomRight());
-  } else if (edge == LEFT) {
-    return QLineF(rect.topLeft(), rect.bottomLeft());
-  } else {
-    return QLineF(rect.topRight(), rect.bottomRight());
-  }
+  return rectEdge(virtualToWidget().mapRect(m_pageRect), edge);
 }
 
 void ImageView::pageRectEdgeMoveRequest(int edge, const QLineF& line) {
