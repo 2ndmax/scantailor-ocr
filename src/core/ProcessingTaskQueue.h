@@ -12,6 +12,7 @@
 #include "PageId.h"
 #include "PageInfo.h"
 
+// Used on the GUI thread only, so it has no lock.
 class ProcessingTaskQueue {
   DECLARE_NON_COPYABLE(ProcessingTaskQueue)
 

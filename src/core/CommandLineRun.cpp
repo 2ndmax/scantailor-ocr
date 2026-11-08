@@ -256,9 +256,10 @@ CommandLineRun::ExitCode exportFiles(const ExportPaths& paths,
 
   ExportJob job(std::move(pages), paths, options);
   // REVIEW-NOTE (2026-11): Ctrl+C while a page is being recognized -> the tool only cancels the job after that
-  // page is written, so text recognition of the current page runs to its end. Not fixed because ExportJob only
-  // takes a cancel request through cancel(), and the delay is at most one page: a request after the last page
-  // still stops the job before any file is replaced.
+  // page is written, so text recognition of the current page runs to its end. Ctrl+C after the progress signal of
+  // the last page -> the job is not told any more, the files are replaced and the exit code is 0. Not fixed because
+  // ExportJob only takes a cancel request through cancel(), the first delay is at most one page and the second gap
+  // lasts milliseconds.
   // run() emits it in this thread, so the lambda is called directly.
   QObject::connect(&job, &ExportJob::progress, [&](const int pagesDone, const int pagesTotal) {
     out << CommandLineRun::tr("Export: %1 of %2").arg(pagesDone).arg(pagesTotal) << Qt::endl;
@@ -382,7 +383,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     out << tr("The export will create: %1").arg(describeOutputs(exportPaths, formats)) << Qt::endl;
   }
 
-  // The fallback only fills in what projects of older versions lack, and those were refused above.
+  // The fallback only fills in what the project file lacks: the formats of a project saved by 1.0.10 to 1.0.12
+  // (see the note above). Projects of still older versions were refused above.
   const ProjectSession session = ProjectSession::load(reader, DefaultParams(), PageSelectionAccessor(nullptr));
   const StageSequence& stages = *session.stages;
   // Loading has already recreated a deleted output folder if the project is where it was. Otherwise

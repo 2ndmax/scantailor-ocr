@@ -1587,6 +1587,9 @@ void DefaultParamsDialog::setProfileReadOnly(const bool readOnly) {
     cover->setVisible(readOnly);
     cover->raise();
   }
+  // REVIEW-NOTE (2026-11): a text with a mnemonic ('&') on a setting of a fixed profile -> Alt+key clicks that
+  // button although it has no focus and lies under the cover. Not fixed because no text in these tabs or in the
+  // translation has a mnemonic today.
   // The covers keep the mouse away; without focus the keyboard can't change the settings either.
   if (readOnly) {
     for (QWidget* settings : m_settingsAreas) {

@@ -142,6 +142,8 @@ void ProjectPages::listRelinkablePaths(const VirtualFunction<void, const Relinka
 }
 
 void ProjectPages::performRelinking(const AbstractRelinker& relinker) {
+  // REVIEW-NOTE (2026-11): the relinker is called while the mutex is held -> a relinker calling back into this
+  // object would deadlock. Not fixed because the only relinker just looks up a table.
   QMutexLocker locker(&m_mutex);
 
   for (ImageDesc& image : m_images) {

@@ -129,6 +129,8 @@ GrayImage PolynomialSurface::render(const QSize& size) const {
   const double xscale = calcScale(width);
   const double yscale = calcScale(height);
 
+  // REVIEW-NOTE (2026-11): numCoeffs * height is an int product -> it would overflow for a height above
+  // 39 million. Not fixed because ImageSizeLimit keeps both sides at 32767 or less and numCoeffs is at most 54.
   AlignedArray<float, 4> vertMatrix(numCoeffs * height);
   float* out = &vertMatrix[0];
   for (int y = 0; y < height; ++y) {
@@ -143,6 +145,8 @@ GrayImage PolynomialSurface::render(const QSize& size) const {
     }
   }
 
+  // REVIEW-NOTE (2026-11): numCoeffs * width is an int product -> it would overflow for a width above
+  // 39 million. Not fixed because ImageSizeLimit keeps both sides at 32767 or less and numCoeffs is at most 54.
   AlignedArray<float, 4> horMatrix(numCoeffs * width);
   out = &horMatrix[0];
   for (int x = 0; x < width; ++x) {

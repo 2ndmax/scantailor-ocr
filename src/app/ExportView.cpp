@@ -889,6 +889,8 @@ void ExportView::startExport() {
       QApplication::setOverrideCursor(Qt::WaitCursor);
     }
     QString error;
+    // REVIEW-NOTE (2026-11): copying the language files and waiting for the export thread run on the GUI thread
+    // -> the window doesn't respond for a moment. Not fixed because it is short and shown by a wait cursor.
     const ExportOptions::OcrSetup setup = options.setUpOcr(languages, m_ocrPanel->pageLayout(), &error);
     if (copying) {
       QApplication::restoreOverrideCursor();

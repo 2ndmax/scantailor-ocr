@@ -193,6 +193,7 @@ StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<
         }
       }
       ++done;
+      // A cancel after the last page changes nothing: all pages are done, so the result counts as complete.
       const bool lastPage = (lastFilterIdx == m_outputFilterIdx) && (done == total);
       if (progress && !progress(lastFilterIdx, done, total) && !lastPage) {
         result.cancelled = true;

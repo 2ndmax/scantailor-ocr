@@ -274,8 +274,8 @@ BinaryImage binarizeWindow(const QImage& src,
 
   const GrayWindowDeviations windows(grayLine, grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
-  // The sum of the whole image doesn't fit the 32 bits of the integral image above about 16.8
-  // million pixels; window sums do, as unsigned arithmetic wraps around.
+  // The sum of the whole image can exceed 32 bits above about 16.8 million pixels. The sums of the
+  // windows are safe: GrayLevelSums uses 64 bits for a window where that could happen.
   uint64_t sumFull = 0;
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {

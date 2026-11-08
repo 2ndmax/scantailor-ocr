@@ -22,6 +22,9 @@ bool cancelRequested(void* cancelFlag, int /*words*/) {
 }  // namespace
 
 void OcrEngine::limitThreads() {
+  // REVIEW-NOTE (2026-11): libgomp reads OMP_THREAD_LIMIT when the library is loaded, before main() -> on Linux
+  // the limit has no effect and Tesseract's OpenMP threads run beside the export's. Not fixed because it only costs
+  // speed and setting it in time would need the program to restart itself.
   // REVIEW-NOTE (2026-11): no regression test -> the race with threads reading the environment can't be
   // provoked reliably. Moved here from the first recognition, which ran on a worker thread.
   if (qEnvironmentVariableIsEmpty("OMP_THREAD_LIMIT")) {

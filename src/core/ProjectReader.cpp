@@ -124,6 +124,7 @@ bool ProjectReader::isSupportedVersion(const QString& version) {
          || (number == PROJECT_VERSION_UPSTREAM_OLD);
 }
 
+// Absolute paths are valid: the output folder may be on another drive, so they aren't restricted to the project folder.
 QString ProjectReader::resolvePath(const QString& path) const {
   if (path.isEmpty()) {
     return path;

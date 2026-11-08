@@ -43,8 +43,9 @@ QString XmlUnmarshaller::string(const QDomElement& el) {
   return el.text();
 }
 
-// size() and rect() take any int, also negative ones: what range is valid depends on the setting,
-// so each reader checks its own values (with number() or its own checks).
+// size() and rect() take any int, also negative ones, without a check: OutputImageParams and
+// page_split::Dependencies only compare the value with a freshly computed one, and ProjectReader keeps
+// it as image metadata, where a missing size is QSize() (-1, -1) anyway.
 QSize XmlUnmarshaller::size(const QDomElement& el) {
   const int width = el.attribute("width").toInt();
   const int height = el.attribute("height").toInt();

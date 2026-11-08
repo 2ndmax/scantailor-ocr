@@ -153,6 +153,8 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
   // Allocate a 16-byte aligned temporary storage.
   // That may help the compiler to emit efficient SSE code.
   const int tempStride = (width - shift + 3) & ~3;
+  // REVIEW-NOTE (2026-11): tempStride * height is an int product -> it would overflow for images above
+  // 2^31 pixels. Not fixed because ImageSizeLimit keeps both sides at 32767 or less.
   AlignedArray<float, 4> tempArray(tempStride * height);
   // Horizontal pass.
   srcLine = srcData - shift;
