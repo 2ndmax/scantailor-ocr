@@ -79,19 +79,18 @@ gradient) for background, so the picture on the test page is made of tiles.
 
 ## Writing tests
 
-- A bug fix comes with a regression test where possible. The test must fail before the fix;
-  if it does not, the bug is not confirmed.
+- When a bug fix needs a regression test, and what happens with a bug found by fuzzing: see
+  "Tests" in [CLAUDE.md](CLAUDE.md).
 - Tests must not depend on the machine: no user settings, no files outside the test's own
   temporary directory, no image files in the repository (draw the pages in the test, as the
   end-to-end test does).
-- A bug found by fuzzing gets a regression test in `core_tests` like any other, and its input
-  is added to the seeds in `src/fuzz/corpus`.
 
 ## Developer tools
 
 Built only with `-DBUILD_DEV_TOOLS=ON` (see [BUILDING.md](BUILDING.md)); the sources are in
-`src/tools`. They are measuring aids, not tests: they never fail, they write results for a
-person to judge. The top of each tool's `main.cpp` describes its options and output.
+`src/tools`. They are measuring aids, not tests: they never fail a test, they write results
+for a person to judge. An invalid option or an image that can't be saved gives an exit code
+other than 0. The top of each tool's `main.cpp` describes its options and output.
 
 ### binarization_compare
 
