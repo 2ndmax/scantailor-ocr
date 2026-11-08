@@ -4,6 +4,7 @@
 #include <BinaryImage.h>
 #include <GrayImage.h>
 
+#include <QDomDocument>
 #include <QImage>
 #include <QSize>
 #include <array>
@@ -85,26 +86,27 @@ const Bounds kBounds[] = {{1, 254}, {110, 150}};
 
 struct Expected {
   BinarizationMethod method;
+  const char* name;
   std::array<uint32_t, 2> perBounds;
 };
 
 // clang-format off
 const Expected kExpected[] = {
-    {T_OTSU,       {0x78E6121F, 0x78E6121F}},
-    {T_SAUVOLA,    {0xF6FFD737, 0x958F595D}},
-    {T_WOLF,       {0x35A8DCFE, 0x35A8DCFE}},
-    {T_FOX,        {0xFADE9E9A, 0xFADE9E9A}},
-    {T_WINDOW,     {0xBB990AE0, 0x29841C04}},
-    {T_BRADLEY,    {0xE8265BCE, 0x820C697E}},
-    {T_GRAD,       {0x3FFAB14A, 0x3FFAB14A}},
-    {T_EDGEPLUS,   {0x6F1F93BD, 0x8268CC5D}},
-    {T_BLURDIV,    {0x4D337BC2, 0x4D337BC2}},
-    {T_EDGEDIV,    {0xA009F31C, 0xA009F31C}},
-    {T_GATOS,      {0xA6D42B77, 0x820C697E}},
-    {T_NICK,       {0x3F68A2A7, 0x820C697E}},
-    {T_SINGH,      {0xCFFCA85C, 0x820C697E}},
-    {T_ROBUST,     {0x9147A855, 0x5DF85575}},
-    {T_MULTISCALE, {0xD0BC37A7, 0xD0BC37A7}},
+    {T_OTSU,       "otsu",       {0x78E6121F, 0x78E6121F}},
+    {T_SAUVOLA,    "sauvola",    {0xF6FFD737, 0x958F595D}},
+    {T_WOLF,       "wolf",       {0x35A8DCFE, 0x35A8DCFE}},
+    {T_FOX,        "fox",        {0xFADE9E9A, 0xFADE9E9A}},
+    {T_WINDOW,     "window",     {0xBB990AE0, 0x29841C04}},
+    {T_BRADLEY,    "bradley",    {0xE8265BCE, 0x820C697E}},
+    {T_GRAD,       "grad",       {0x3FFAB14A, 0x3FFAB14A}},
+    {T_EDGEPLUS,   "edgeplus",   {0x6F1F93BD, 0x8268CC5D}},
+    {T_BLURDIV,    "blurdiv",    {0x4D337BC2, 0x4D337BC2}},
+    {T_EDGEDIV,    "edgediv",    {0xA009F31C, 0xA009F31C}},
+    {T_GATOS,      "gatos",      {0xA6D42B77, 0x820C697E}},
+    {T_NICK,       "nick",       {0x3F68A2A7, 0x820C697E}},
+    {T_SINGH,      "singh",      {0xCFFCA85C, 0x820C697E}},
+    {T_ROBUST,     "robust",     {0x9147A855, 0x5DF85575}},
+    {T_MULTISCALE, "multiscale", {0xD0BC37A7, 0xD0BC37A7}},
 };
 // clang-format on
 }  // namespace
@@ -131,6 +133,37 @@ BOOST_AUTO_TEST_CASE(test_every_method_reads_its_own_settings) {
           const BinaryImage result = binarizeBlackWhite(page, options);
           BOOST_CHECK_EQUAL(result.size().width(), page.width());
           checksum.add(result);
+        }
+        if (kChecksumsApply) {
+          BOOST_CHECK_EQUAL(checksum.value(), expected.perBounds[boundsIndex]);
+        }
+      }
+    }
+  }
+}
+
+// A project file of ScanTailor Advanced holds the values as attributes of one element. The page has
+// to come out as its method makes it with these values, so the checksums are the ones above.
+BOOST_AUTO_TEST_CASE(test_a_file_with_the_values_as_attributes_gives_the_same_result) {
+  const QImage pages[] = {makeTextPage(), makeNoisePage()};
+
+  for (const Expected& expected : kExpected) {
+    for (size_t boundsIndex = 0; boundsIndex < expected.perBounds.size(); ++boundsIndex) {
+      BOOST_TEST_CONTEXT("method " << expected.name << ", bounds " << boundsIndex) {
+        QDomDocument doc;
+        QDomElement el = doc.createElement(QStringLiteral("bw"));
+        el.setAttribute(QStringLiteral("binarizationMethod"), QString::fromLatin1(expected.name));
+        el.setAttribute(QStringLiteral("windowSize"), 31);
+        el.setAttribute(QStringLiteral("sauvolaCoef"), QStringLiteral("0.41"));
+        el.setAttribute(QStringLiteral("wolfCoef"), QStringLiteral("0.17"));
+        el.setAttribute(QStringLiteral("thresholdAdj"), 7);
+        el.setAttribute(QStringLiteral("wolfLowerBound"), kBounds[boundsIndex].lower);
+        el.setAttribute(QStringLiteral("wolfUpperBound"), kBounds[boundsIndex].upper);
+        const BlackWhiteOptions options(el);
+
+        Checksum checksum;
+        for (const QImage& page : pages) {
+          checksum.add(binarizeBlackWhite(page, options));
         }
         if (kChecksumsApply) {
           BOOST_CHECK_EQUAL(checksum.value(), expected.perBounds[boundsIndex]);
