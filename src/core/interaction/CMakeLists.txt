@@ -9,7 +9,8 @@ set(sources
     DragWatcher.cpp DragWatcher.h
     ZoomHandler.cpp ZoomHandler.h
     InteractiveXSpline.cpp InteractiveXSpline.h
-    DraggablePolygon.cpp DraggablePolygon.h)
+    DraggablePolygon.cpp DraggablePolygon.h
+    RectHandleGeometry.h)
 
 add_library(interaction STATIC ${sources})
 target_link_libraries(interaction PUBLIC core)

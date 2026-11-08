@@ -29,6 +29,7 @@ set(sources
     TestPathNames.cpp
     TestExportFormats.cpp
     TestRecentProjects.cpp
+    TestRectHandleGeometry.cpp
     TestRelinkedKeys.cpp
     TestRenderParams.cpp
     TestScanInsertion.cpp
