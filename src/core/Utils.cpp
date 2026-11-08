@@ -186,6 +186,18 @@ void Utils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValu
   field->setFixedWidth(textFieldWidth(field, field->findChild<QLineEdit*>(), text) + overhead);
 }
 
+void Utils::setUpLengthField(QDoubleSpinBox* field,
+                             const Units units,
+                             const double widestValue,
+                             const bool wholePixels) {
+  const bool fineSteps = (units == CENTIMETRES) || (units == INCHES);
+  const int coarseDecimals = ((units == PIXELS) && wholePixels) ? 0 : 1;
+  field->setDecimals(fineSteps ? 2 : coarseDecimals);
+  field->setSingleStep(fineSteps ? 0.01 : 1.0);
+  field->setSuffix(QChar(' ') + unitsToLocalizedString(units));
+  setNumberFieldWidth(field, widestValue);
+}
+
 void Utils::alignLabelColumns(const QList<QGridLayout*>& grids, const int column) {
   int width = 0;
   for (const QGridLayout* grid : grids) {

@@ -171,53 +171,16 @@ void OptionsWidget::marginsSetExternally(const Margins& marginsMm) {
 void OptionsWidget::onUnitsChanged(Units units) {
   auto block = m_connectionManager.getScopedBlock();
 
-  int decimals;
-  double step;
   // The values the fields show well: sizes with three digits before the decimal point and one
   // after, in pixels one more, as an A4 page at 300 dpi has 3508 pixels; margins up to 99.9 mm
   // (9.99 cm or in). Larger values still fit.
-  double widestMargin;
-  double widestSize;
-  switch (units) {
-    case PIXELS:
-      decimals = 1;
-      step = 1.0;
-      widestMargin = 999.9;
-      widestSize = 9999.9;
-      break;
-    case MILLIMETRES:
-      decimals = 1;
-      step = 1.0;
-      widestMargin = 99.9;
-      widestSize = 999.9;
-      break;
-    default:
-      decimals = 2;
-      step = 0.01;
-      widestMargin = 9.99;
-      widestSize = 99.99;
-      break;
-  }
-
-  topMarginSpinBox->setDecimals(decimals);
-  topMarginSpinBox->setSingleStep(step);
-  bottomMarginSpinBox->setDecimals(decimals);
-  bottomMarginSpinBox->setSingleStep(step);
-  leftMarginSpinBox->setDecimals(decimals);
-  leftMarginSpinBox->setSingleStep(step);
-  rightMarginSpinBox->setDecimals(decimals);
-  rightMarginSpinBox->setSingleStep(step);
-  // The unit is shown in the fields.
-  const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
+  const double widestMargin = (units == PIXELS) ? 999.9 : (units == MILLIMETRES) ? 99.9 : 9.99;
+  const double widestSize = (units == PIXELS) ? 9999.9 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
-    spinBox->setSuffix(unitSuffix);
-    core::Utils::setNumberFieldWidth(spinBox, widestMargin);
+    core::Utils::setUpLengthField(spinBox, units, widestMargin, false);
   }
   for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
-    spinBox->setDecimals(decimals);
-    spinBox->setSingleStep(step);
-    spinBox->setSuffix(unitSuffix);
-    core::Utils::setNumberFieldWidth(spinBox, widestSize);
+    core::Utils::setUpLengthField(spinBox, units, widestSize, false);
   }
 
   updateMarginsDisplay();

@@ -321,32 +321,10 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
 void OptionsWidget::onUnitsChanged(Units units) {
   auto block = m_connectionManager.getScopedBlock();
 
-  int decimals;
-  double step;
-  switch (units) {
-    case PIXELS:
-    case MILLIMETRES:
-      decimals = 1;
-      step = 1.0;
-      break;
-    default:
-      decimals = 2;
-      step = 0.01;
-      break;
-  }
-
-  widthSpinBox->setDecimals(decimals);
-  widthSpinBox->setSingleStep(step);
-  heightSpinBox->setDecimals(decimals);
-  heightSpinBox->setSingleStep(step);
-  // The unit is shown in the fields.
-  const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
-  widthSpinBox->setSuffix(unitSuffix);
-  heightSpinBox->setSuffix(unitSuffix);
   // As the size fields in the step "Margins": three digits before the decimal point, in pixels four.
-  const double widestSize = (units == PIXELS) ? 9999.9 : (decimals == 1) ? 999.9 : 99.99;
+  const double widestSize = (units == PIXELS) ? 9999.9 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox}) {
-    core::Utils::setNumberFieldWidth(spinBox, widestSize);
+    core::Utils::setUpLengthField(spinBox, units, widestSize, false);
   }
 
   updatePageRectSize(m_uiData.pageRect().size());

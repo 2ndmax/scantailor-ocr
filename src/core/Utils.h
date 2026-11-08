@@ -12,8 +12,10 @@
 #include <unordered_map>
 
 #include "ThumbnailPixmapCache.h"
+#include "Units.h"
 
 class QAbstractSpinBox;
+class QDoubleSpinBox;
 class QGridLayout;
 class QComboBox;
 
@@ -69,6 +71,11 @@ class Utils {
   /// same value and so the same width. With decimals given, the value is written with them instead,
   /// so fields with different decimals can get the same width.
   static void setNumberFieldWidth(QAbstractSpinBox* field, double widestValue, int decimals = -1);
+
+  /// Sets up a spin box for a length in the given units: decimals, step, the unit in the field and,
+  /// from \p widestValue, the width. With \p wholePixels, a field in pixels has no decimals.
+  static void setUpLengthField(QDoubleSpinBox* field, Units units, double widestValue, bool wholePixels);
+
 
   /// Gives the label columns of the grids the same width and the grids the same spacing, so that
   /// the labels and fields of grids shown below each other line up.

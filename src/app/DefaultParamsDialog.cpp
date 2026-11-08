@@ -1227,24 +1227,16 @@ void DefaultParamsDialog::updateUnits(const Units units) {
   m_currentUnits = units;
   unitsLabel->setText(unitsToLocalizedString(units));
 
-  // Sizes, margins and target sizes alike; the unit is shown in the fields.
-  const bool coarse = (units == PIXELS) || (units == MILLIMETRES);
-  const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
-  for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox, topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox,
-                                  rightMarginSpinBox, targetWidthSpinBox, targetHeightSpinBox}) {
-    spinBox->setDecimals(coarse ? 1 : 2);
-    spinBox->setSingleStep(coarse ? 1.0 : 0.01);
-    spinBox->setSuffix(unitSuffix);
-  }
-  // As in the side bars: sizes with three digits before the decimal point, in pixels four; margins
-  // up to 99.9 mm (9.99 cm or in).
+  // Sizes, margins and target sizes alike; the unit is shown in the fields. As in the side bars:
+  // sizes with three digits before the decimal point, in pixels four; margins up to 99.9 mm
+  // (9.99 cm or in).
   const double widestMargin = (units == PIXELS) ? 999.9 : (units == MILLIMETRES) ? 99.9 : 9.99;
-  const double widestSize = (units == PIXELS) ? 9999.9 : coarse ? 999.9 : 99.99;
+  const double widestSize = (units == PIXELS) ? 9999.9 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
-    Utils::setNumberFieldWidth(spinBox, widestMargin);
+    Utils::setUpLengthField(spinBox, units, widestMargin, false);
   }
   for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox, targetWidthSpinBox, targetHeightSpinBox}) {
-    Utils::setNumberFieldWidth(spinBox, widestSize);
+    Utils::setUpLengthField(spinBox, units, widestSize, false);
   }
 }
 

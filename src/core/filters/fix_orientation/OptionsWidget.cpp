@@ -52,32 +52,10 @@ void OptionsWidget::onUnitsChanged(const Units /*units*/) {
   auto block = m_connectionManager.getScopedBlock();
 
   const Units units = fieldUnits();
-  int decimals;
-  double step;
-  double widestValue;
-  switch (units) {
-    case PIXELS:
-      decimals = 0;
-      step = 1.0;
-      widestValue = 9999;
-      break;
-    case MILLIMETRES:
-      decimals = 1;
-      step = 1.0;
-      widestValue = 999.9;
-      break;
-    default:
-      decimals = 2;
-      step = 0.01;
-      widestValue = 99.99;
-      break;
-  }
-  const QString unitSuffix = QChar(' ') + unitsToLocalizedString(units);
+  // The widest value the field shows well.
+  const double widestValue = (units == PIXELS) ? 9999 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {trimTopSpin, trimBottomSpin, trimLeftSpin, trimRightSpin}) {
-    spinBox->setDecimals(decimals);
-    spinBox->setSingleStep(step);
-    spinBox->setSuffix(unitSuffix);
-    core::Utils::setNumberFieldWidth(spinBox, widestValue);
+    core::Utils::setUpLengthField(spinBox, units, widestValue, true);
   }
   pullTrimToControls();
 }
