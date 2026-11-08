@@ -389,6 +389,9 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
    * Renames the new scan \p file to \p newName in its folder, retrying a few times in case the
    * scanning program still has it open. Returns the renamed file, or \p file if that fails.
    */
+  /** Renames a file that another program may still hold open, with a few attempts. */
+  static bool renameRetrying(const QString& from, const QString& to);
+
   ImageFileInfo renameScan(const ImageFileInfo& file, const QString& newName);
 
   /** Moves an image replaced by a new scan into the folder "replaced" next to it. */

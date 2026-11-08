@@ -2447,6 +2447,19 @@ QSet<QString> MainWindow::projectImagePathKeys() const {
   return keys;
 }
 
+// REVIEW-NOTE (2026-10): if renaming fails, the window waits here -> up to 0.5 s without response.
+// Not fixed because it happens rarely and retrying with a timer would split the import into steps.
+// No test: waiting for a locked file can't be checked without the test depending on the machine.
+bool MainWindow::renameRetrying(const QString& from, const QString& to) {
+  for (int attempt = 0; attempt < 5; ++attempt) {
+    if (QFile::rename(from, to)) {
+      return true;
+    }
+    QThread::msleep(100);
+  }
+  return false;
+}
+
 ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& newName) {
   const QString oldPath = file.fileInfo().absoluteFilePath();
   const QString newPath = file.fileInfo().absoluteDir().absoluteFilePath(newName);
@@ -2454,15 +2467,10 @@ ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& n
     // Don't take the renamed file for another new scan.
     m_scanWatcher->ignore(newPath);
     // The scanning program may not have closed the file yet.
-    // REVIEW-NOTE (2026-10): if renaming fails, the window waits here -> up to 0.5 s without response.
-    // Not fixed because it happens rarely and retrying with a timer would split the import into steps.
-    for (int attempt = 0; attempt < 5; ++attempt) {
-      if (QFile::rename(oldPath, newPath)) {
-        ImageFileInfo renamed(QFileInfo(newPath), file.imageInfo());
-        renamed.setPartialReads(file.partialReads());
-        return renamed;
-      }
-      QThread::msleep(100);
+    if (renameRetrying(oldPath, newPath)) {
+      ImageFileInfo renamed(QFileInfo(newPath), file.imageInfo());
+      renamed.setPartialReads(file.partialReads());
+      return renamed;
     }
   }
 
@@ -2483,15 +2491,9 @@ void MainWindow::moveReplacedImage(const QString& filePath) {
   const QString dir = scan_insertion::replacedDir(filePath);
   const QString target
       = scan_insertion::replacedFilePath(filePath, [](const QString& path) { return QFileInfo::exists(path); });
-  if (QDir().mkpath(dir)) {
-    // A background task may still be reading the image.
-    // REVIEW-NOTE (2026-10): as in renameScan(), up to 0.5 s without response if moving fails.
-    for (int attempt = 0; attempt < 5; ++attempt) {
-      if (QFile::rename(filePath, target)) {
-        return;
-      }
-      QThread::msleep(100);
-    }
+  // A background task may still be reading the image.
+  if (QDir().mkpath(dir) && renameRetrying(filePath, target)) {
+    return;
   }
   showImportWarning(tr("The replaced image %1 couldn't be moved to %2.")
                         .arg(QDir::toNativeSeparators(filePath), QDir::toNativeSeparators(dir)));
