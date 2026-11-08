@@ -55,7 +55,7 @@ void OptionsWidget::onUnitsChanged(const Units /*units*/) {
   // The widest value the field shows well.
   const double widestValue = (units == PIXELS) ? 9999 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {trimTopSpin, trimBottomSpin, trimLeftSpin, trimRightSpin}) {
-    core::Utils::setUpLengthField(spinBox, units, widestValue, true);
+    core::Utils::setUpLengthField(spinBox, units, widestValue);
   }
   pullTrimToControls();
 }

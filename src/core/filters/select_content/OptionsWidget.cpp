@@ -322,9 +322,9 @@ void OptionsWidget::onUnitsChanged(Units units) {
   auto block = m_connectionManager.getScopedBlock();
 
   // As the size fields in the step "Margins": three digits before the decimal point, in pixels four.
-  const double widestSize = (units == PIXELS) ? 9999.9 : (units == MILLIMETRES) ? 999.9 : 99.99;
+  const double widestSize = (units == PIXELS) ? 9999 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox}) {
-    core::Utils::setUpLengthField(spinBox, units, widestSize, false);
+    core::Utils::setUpLengthField(spinBox, units, widestSize);
   }
 
   updatePageRectSize(m_uiData.pageRect().size());

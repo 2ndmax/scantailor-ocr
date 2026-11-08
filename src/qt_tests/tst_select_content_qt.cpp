@@ -91,7 +91,7 @@ void TestSelectContentQt::testSizeFieldsSetDecimalsStepAndUnit() {
     Units units;
     int decimals;
     double step;
-  } formats[] = {{PIXELS, 1, 1.0}, {MILLIMETRES, 1, 1.0}, {CENTIMETRES, 2, 0.01}, {INCHES, 2, 0.01}};
+  } formats[] = {{PIXELS, 0, 1.0}, {MILLIMETRES, 1, 1.0}, {CENTIMETRES, 2, 0.01}, {INCHES, 2, 0.01}};
   Panel panel{OptionsWidget::UiData()};
   for (const auto& format : formats) {
     const ScopedUnits scopedUnits(format.units);

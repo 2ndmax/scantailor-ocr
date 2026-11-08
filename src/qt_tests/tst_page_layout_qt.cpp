@@ -20,7 +20,7 @@ void TestPageLayoutQt::testLengthFieldsSetDecimalsStepAndUnit() {
     Units units;
     int decimals;
     double step;
-  } formats[] = {{PIXELS, 1, 1.0}, {MILLIMETRES, 1, 1.0}, {CENTIMETRES, 2, 0.01}, {INCHES, 2, 0.01}};
+  } formats[] = {{PIXELS, 0, 1.0}, {MILLIMETRES, 1, 1.0}, {CENTIMETRES, 2, 0.01}, {INCHES, 2, 0.01}};
   auto pages = std::make_shared<ProjectPages>(std::vector<ImageInfo>(), Qt::LeftToRight);
   page_layout::OptionsWidget widget(std::make_shared<page_layout::Settings>(), pages, PageSelectionAccessor(nullptr));
   for (const auto& format : formats) {

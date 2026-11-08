@@ -172,15 +172,15 @@ void OptionsWidget::onUnitsChanged(Units units) {
   auto block = m_connectionManager.getScopedBlock();
 
   // The values the fields show well: sizes with three digits before the decimal point and one
-  // after, in pixels one more, as an A4 page at 300 dpi has 3508 pixels; margins up to 99.9 mm
+  // after, in pixels four digits, as an A4 page at 300 dpi has 3508 pixels; margins up to 99.9 mm
   // (9.99 cm or in). Larger values still fit.
-  const double widestMargin = (units == PIXELS) ? 999.9 : (units == MILLIMETRES) ? 99.9 : 9.99;
-  const double widestSize = (units == PIXELS) ? 9999.9 : (units == MILLIMETRES) ? 999.9 : 99.99;
+  const double widestMargin = (units == PIXELS) ? 999 : (units == MILLIMETRES) ? 99.9 : 9.99;
+  const double widestSize = (units == PIXELS) ? 9999 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
-    core::Utils::setUpLengthField(spinBox, units, widestMargin, false);
+    core::Utils::setUpLengthField(spinBox, units, widestMargin);
   }
   for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
-    core::Utils::setUpLengthField(spinBox, units, widestSize, false);
+    core::Utils::setUpLengthField(spinBox, units, widestSize);
   }
 
   updateMarginsDisplay();

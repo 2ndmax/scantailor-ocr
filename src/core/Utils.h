@@ -73,8 +73,8 @@ class Utils {
   static void setNumberFieldWidth(QAbstractSpinBox* field, double widestValue, int decimals = -1);
 
   /// Sets up a spin box for a length in the given units: decimals, step, the unit in the field and,
-  /// from \p widestValue, the width. With \p wholePixels, a field in pixels has no decimals.
-  static void setUpLengthField(QDoubleSpinBox* field, Units units, double widestValue, bool wholePixels);
+  /// from \p widestValue, the width. A field in pixels shows whole pixels.
+  static void setUpLengthField(QDoubleSpinBox* field, Units units, double widestValue);
 
 
   /// Gives the label columns of the grids the same width and the grids the same spacing, so that

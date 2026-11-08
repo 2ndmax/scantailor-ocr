@@ -352,6 +352,8 @@ topic, not by version.
   resolution, so a wrong source DPI is visible in every step. Number fields are sized from a
   sample value. Pixmaps (batch animation, thumbnails, PDF page icons) are sharp on scaled
   screens. The native color scheme on Windows 11 places number field arrows above each other.
+* Length fields in pixels (content and page boxes, margins, output size, Default Parameters) show
+  and take whole pixels.
 
 ## Error reporting and fixes
 
