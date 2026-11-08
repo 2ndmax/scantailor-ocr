@@ -35,7 +35,7 @@ GrayImage reduce(const GrayImage& src, const int factor) {
     for (int dx = 0; dx < dst.width(); ++dx) {
       const int x0 = dx * factor;
       const int x1 = std::min(x0 + factor, w);
-      unsigned sum = 0;
+      uint64_t sum = 0;
       for (int y = y0; y < y1; ++y) {
         const uint8_t* line = srcData + y * srcStride;
         for (int x = x0; x < x1; ++x) {
