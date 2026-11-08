@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QSaveFile>
 #include <QStringList>
 #include <QThread>
 #include <boost/multi_index/hashed_index.hpp>
@@ -19,7 +20,6 @@
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index_container.hpp>
 
-#include "AtomicFileOverwriter.h"
 #include "ImageId.h"
 #include "ImageLoader.h"
 #include "OutOfMemoryHandler.h"
@@ -607,13 +607,12 @@ QImage ThumbnailPixmapCache::Impl::loadSaveThumbnail(const ImageId& imageId,
 }
 
 bool ThumbnailPixmapCache::Impl::writeThumbnailFile(const QImage& thumbnail, const QString& thumbFilePath) {
-  AtomicFileOverwriter overwriter;
-  QIODevice* iodev = overwriter.startWriting(thumbFilePath);
-  if (iodev && thumbnail.save(iodev, "PNG")) {
-    return overwriter.commit();
-  }
-  overwriter.abort();
-  return false;
+  // REVIEW-NOTE (2026-10): if the program dies between open() and commit(), the temporary file
+  // stays next to the target. Not fixed because it only leaves clutter in the cache folder.
+  QSaveFile file(thumbFilePath);
+  // When left without commit(), QSaveFile removes the temporary file; commit() flushes the data and
+  // reports a failure such as a full disk.
+  return file.open(QIODevice::WriteOnly) && thumbnail.save(&file, "PNG") && file.commit();
 }
 
 QString ThumbnailPixmapCache::Impl::getThumbFilePath(const ImageId& imageId,

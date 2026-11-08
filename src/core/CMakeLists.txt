@@ -73,7 +73,6 @@ set(common_sources
     PathNames.cpp PathNames.h
     ProjectSession.cpp ProjectSession.h
     SettingsSetup.cpp SettingsSetup.h
-    AtomicFileOverwriter.cpp AtomicFileOverwriter.h
     EstimateBackground.cpp EstimateBackground.h
     Despeckle.cpp Despeckle.h
     FileNameDisambiguator.cpp FileNameDisambiguator.h
