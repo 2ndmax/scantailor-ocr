@@ -101,7 +101,9 @@ const char ALTO_END[] = "\t</Layout>\n</alto>\n";
 
 /** Whether the folder holds nothing but files named like the ALTO files of an export, so nothing else gets lost. */
 bool holdsOnlyAltoFiles(const QString& dir) {
-  static const QRegularExpression altoFileName(QStringLiteral("^[0-9]{4,}_.*\\.xml$"));
+  // A name of an image can hold a line break outside Windows, and "." doesn't match one by default.
+  static const QRegularExpression altoFileName(QStringLiteral("^[0-9]{4,}_.*\\.xml$"),
+                                               QRegularExpression::DotMatchesEverythingOption);
   const QFileInfoList entries
       = QDir(dir).entryInfoList(QDir::AllEntries | QDir::Hidden | QDir::System | QDir::NoDotAndDotDot);
   return std::all_of(entries.cbegin(), entries.cend(), [](const QFileInfo& entry) {

@@ -238,6 +238,26 @@ BOOST_AUTO_TEST_CASE(test_existing_alto_folder_is_replaced_completely) {
   BOOST_CHECK(namesIn(dir.path()) == QStringList{"book_alto"});
 }
 
+#ifndef Q_OS_WIN  // A file name can't hold a line break on Windows.
+// The second export didn't recognize the ALTO file of the first one and refused the folder.
+BOOST_AUTO_TEST_CASE(test_alto_file_with_a_line_break_in_its_name_is_replaced_by_a_new_export) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  OcrTextOutputs::Settings settings;
+  settings.altoDir = dir.filePath("alto");
+  settings.pageCount = 1;
+  for (int run = 0; run < 2; ++run) {
+    OcrTextOutputs outputs(settings);
+    QString error;
+    BOOST_REQUIRE(outputs.begin(&error));
+    BOOST_REQUIRE(outputs.addPage("line\nbreak.tif", OcrPageTexts(), &error));
+    QStringList replaced;
+    BOOST_REQUIRE_MESSAGE(outputs.finish(&error) && outputs.commit(&replaced, &error), error.toStdString());
+  }
+  BOOST_CHECK(namesIn(settings.altoDir) == QStringList{"0001_line\nbreak.xml"});
+}
+#endif
+
 BOOST_AUTO_TEST_CASE(test_folder_with_foreign_files_is_not_touched) {
   const QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
