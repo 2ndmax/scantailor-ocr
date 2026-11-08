@@ -1609,13 +1609,13 @@ void DefaultParamsDialog::setProfileReadOnly(const bool readOnly) {
 
 void DefaultParamsDialog::setupReadOnlyCovers() {
   for (int i = 0; i < tabWidget->count(); i++) {
-    QWidget* page = tabWidget->widget(i);
+    QWidget* tabPage = tabWidget->widget(i);
     // On tabs with scroll areas the covers lie on their viewports and stay in place while the
     // settings scroll beneath them.
-    const QList<QScrollArea*> areas = page->findChildren<QScrollArea*>();
+    const QList<QScrollArea*> areas = tabPage->findChildren<QScrollArea*>();
     if (areas.isEmpty()) {
-      m_settingsAreas.push_back(page);
-      m_readOnlyCovers.push_back(new ReadOnlyCover(page, [this]() { highlightReadOnlyHint(); }));
+      m_settingsAreas.push_back(tabPage);
+      m_readOnlyCovers.push_back(new ReadOnlyCover(tabPage, [this]() { highlightReadOnlyHint(); }));
       continue;
     }
     for (QScrollArea* area : areas) {
