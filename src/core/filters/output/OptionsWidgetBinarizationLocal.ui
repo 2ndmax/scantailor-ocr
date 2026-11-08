@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>output::OptionsWidgetBinarizationSauvola</class>
- <widget class="QWidget" name="output::OptionsWidgetBinarizationSauvola">
+ <class>output::OptionsWidgetBinarizationLocal</class>
+ <widget class="QWidget" name="output::OptionsWidgetBinarizationLocal">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -38,9 +38,9 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="sauvolaDeltaLabel">
+      <widget class="QLabel" name="deltaLabel">
        <property name="buddy">
-        <cstring>sauvolaDelta</cstring>
+        <cstring>delta</cstring>
        </property>
        <property name="text">
         <string>Delta:</string>
@@ -48,7 +48,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QDoubleSpinBox" name="sauvolaDelta">
+      <widget class="QDoubleSpinBox" name="delta">
        <property name="toolTip">
         <string>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</string>
        </property>
@@ -93,9 +93,9 @@
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="sauvolaCoefLabel">
+      <widget class="QLabel" name="coefLabel">
        <property name="buddy">
-        <cstring>sauvolaCoef</cstring>
+        <cstring>coef</cstring>
        </property>
        <property name="text">
         <string>Coef:</string>
@@ -103,10 +103,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QDoubleSpinBox" name="sauvolaCoef">
-       <property name="toolTip">
-        <string>Default value is 0.34.</string>
-       </property>
+      <widget class="QDoubleSpinBox" name="coef">
        <property name="minimum">
         <double>0.010000000000000</double>
        </property>

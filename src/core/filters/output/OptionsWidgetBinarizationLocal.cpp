@@ -1,22 +1,26 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include "OptionsWidgetBinarizationSauvola.h"
+#include "OptionsWidgetBinarizationLocal.h"
 
 #include <utility>
 
 #include "../../Utils.h"
+#include "BinarizationMethods.h"
 
 
 namespace output {
 
-OptionsWidgetBinarizationSauvola::OptionsWidgetBinarizationSauvola(std::shared_ptr<Settings> settings)
+OptionsWidgetBinarizationLocal::OptionsWidgetBinarizationLocal(std::shared_ptr<Settings> settings,
+                                                               const BinarizationMethod method)
     : m_settings(std::move(settings)),
-      m_connectionManager(std::bind(&OptionsWidgetBinarizationSauvola::setupUiConnections, this)) {
+      m_method(method),
+      m_connectionManager(std::bind(&OptionsWidgetBinarizationLocal::setupUiConnections, this)) {
   setupUi(this);
+  coef->setToolTip(usesWolfCoefficient(m_method) ? tr("Default value is 0.3.") : tr("Default value is 0.34."));
   // As the other fields in the step "Output": "999 px" and "-100".
   core::Utils::setNumberFieldWidth(windowSize, 999);
-  for (QDoubleSpinBox* spinBox : {sauvolaDelta, sauvolaCoef}) {
+  for (QDoubleSpinBox* spinBox : {delta, coef}) {
     core::Utils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
@@ -25,7 +29,7 @@ OptionsWidgetBinarizationSauvola::OptionsWidgetBinarizationSauvola(std::shared_p
   setupUiConnections();
 }
 
-void OptionsWidgetBinarizationSauvola::updateUi(const PageId& pageId) {
+void OptionsWidgetBinarizationLocal::updateUi(const PageId& pageId) {
   auto block = m_connectionManager.getScopedBlock();
 
   const Params params(m_settings->getParams(pageId));
@@ -36,7 +40,7 @@ void OptionsWidgetBinarizationSauvola::updateUi(const PageId& pageId) {
   updateView();
 }
 
-void OptionsWidgetBinarizationSauvola::sauvolaDeltaChanged(double value) {
+void OptionsWidgetBinarizationLocal::deltaChanged(double value) {
   m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setThresholdAdjustment(value);
@@ -47,7 +51,7 @@ void OptionsWidgetBinarizationSauvola::sauvolaDeltaChanged(double value) {
   m_delayedStateChanger.start(750);
 }
 
-void OptionsWidgetBinarizationSauvola::windowSizeChanged(int value) {
+void OptionsWidgetBinarizationLocal::windowSizeChanged(int value) {
   m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
   opt.setWindowSize(value);
@@ -58,10 +62,14 @@ void OptionsWidgetBinarizationSauvola::windowSizeChanged(int value) {
   m_delayedStateChanger.start(750);
 }
 
-void OptionsWidgetBinarizationSauvola::sauvolaCoefChanged(double value) {
+void OptionsWidgetBinarizationLocal::coefChanged(double value) {
   m_colorParams = m_settings->getParams(m_pageId).colorParams();
   BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-  opt.setSauvolaCoef(value);
+  if (usesWolfCoefficient(m_method)) {
+    opt.setWolfCoef(value);
+  } else {
+    opt.setSauvolaCoef(value);
+  }
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
   emit colorParamsChanged();
@@ -69,24 +77,24 @@ void OptionsWidgetBinarizationSauvola::sauvolaCoefChanged(double value) {
   m_delayedStateChanger.start(750);
 }
 
-void OptionsWidgetBinarizationSauvola::updateView() {
+void OptionsWidgetBinarizationLocal::updateView() {
   BlackWhiteOptions blackWhiteOptions = m_colorParams.blackWhiteOptions();
-  sauvolaDelta->setValue(blackWhiteOptions.thresholdAdjustment());
+  delta->setValue(blackWhiteOptions.thresholdAdjustment());
   windowSize->setValue(blackWhiteOptions.getWindowSize());
-  sauvolaCoef->setValue(blackWhiteOptions.getSauvolaCoef());
+  coef->setValue(usesWolfCoefficient(m_method) ? blackWhiteOptions.getWolfCoef() : blackWhiteOptions.getSauvolaCoef());
 }
 
-void OptionsWidgetBinarizationSauvola::sendStateChanged() {
+void OptionsWidgetBinarizationLocal::sendStateChanged() {
   emit stateChanged();
 }
 
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
-void OptionsWidgetBinarizationSauvola::setupUiConnections() {
-  CONNECT(sauvolaDelta, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationSauvola::sauvolaDeltaChanged);
-  CONNECT(windowSize, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationSauvola::windowSizeChanged);
-  CONNECT(sauvolaCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationSauvola::sauvolaCoefChanged);
-  CONNECT(&m_delayedStateChanger, &QTimer::timeout, this, &OptionsWidgetBinarizationSauvola::sendStateChanged);
+void OptionsWidgetBinarizationLocal::setupUiConnections() {
+  CONNECT(delta, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationLocal::deltaChanged);
+  CONNECT(windowSize, &QSpinBox::valueChanged, this, &OptionsWidgetBinarizationLocal::windowSizeChanged);
+  CONNECT(coef, &QDoubleSpinBox::valueChanged, this, &OptionsWidgetBinarizationLocal::coefChanged);
+  CONNECT(&m_delayedStateChanger, &QTimer::timeout, this, &OptionsWidgetBinarizationLocal::sendStateChanged);
 }
 
 #undef CONNECT

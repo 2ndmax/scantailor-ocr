@@ -4,8 +4,7 @@ set(ui_files
     ApplyColorsDialog.ui
     OptionsWidget.ui
     OptionsWidgetBinarizationOtsu.ui
-    OptionsWidgetBinarizationSauvola.ui
-    OptionsWidgetBinarizationWolf.ui
+    OptionsWidgetBinarizationLocal.ui
     PictureZonePropDialog.ui)
 
 set(sources
@@ -56,8 +55,7 @@ set(sources
     DepthPerception.cpp DepthPerception.h
     SplittingOptions.cpp SplittingOptions.h
     OptionsWidgetBinarizationOtsu.cpp OptionsWidgetBinarizationOtsu.h
-    OptionsWidgetBinarizationSauvola.cpp OptionsWidgetBinarizationSauvola.h 
-    OptionsWidgetBinarizationWolf.cpp OptionsWidgetBinarizationWolf.h 
+    OptionsWidgetBinarizationLocal.cpp OptionsWidgetBinarizationLocal.h 
     OptionsWidgetBinarization.h 
     PictureShapeOptions.cpp PictureShapeOptions.h 
     OutputProcessingParams.cpp OutputProcessingParams.h

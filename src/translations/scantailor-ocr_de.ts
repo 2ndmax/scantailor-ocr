@@ -875,7 +875,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <translation>Rauschreduzierung:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="87"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="145"/>
         <source>Posterize</source>
         <translation>Tontrennung</translation>
     </message>
@@ -1676,7 +1676,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4519"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1267"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1310"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -1806,17 +1806,17 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Gemischt</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="74"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="132"/>
         <source>Background</source>
         <translation>Hintergrund</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="75"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="133"/>
         <source>White</source>
         <translation>Weiß</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="76"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="134"/>
         <source>Black</source>
         <translation>Schwarz</translation>
     </message>
@@ -1824,40 +1824,40 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <location filename="../app/DefaultParamsDialog.ui" line="1087"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1275"/>
         <location filename="../app/DefaultParamsDialog.ui" line="4785"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="82"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="140"/>
         <source>Off</source>
         <translation>Aus</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="83"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
         <source>Contour mask</source>
         <translation>Konturmaske</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="84"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
         <source>Rectangle</source>
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="86"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="144"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="88"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="146"/>
         <source>K-means</source>
         <translation>K-Means</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="144"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="202"/>
         <location filename="../app/ProjectOpeningContext.cpp" line="64"/>
         <source>Minimal</source>
         <translation>Minimal</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="152"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1456"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="210"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1499"/>
         <location filename="../app/ProjectOpeningContext.cpp" line="67"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
@@ -1868,103 +1868,103 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Randbereich</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="79"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="137"/>
         <source>Edges</source>
         <translation>Kanten</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="80"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="138"/>
         <source>Spine line</source>
         <translation>Bundlinie</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="201"/>
         <location filename="../app/ProjectOpeningContext.cpp" line="61"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="983"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1029"/>
         <source>TIFF Compression</source>
         <translation>TIFF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1002"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1048"/>
         <source>Formats</source>
         <translation>Formate</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1007"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1053"/>
         <source>PDF Compression</source>
         <translation>PDF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1004"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1050"/>
         <source>Text Recognition (OCR)</source>
         <translation>Texterkennung (OCR)</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1267"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1310"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1373"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1379"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1405"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1411"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1416"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="1422"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1462"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1477"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1515"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1448"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1454"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1465"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1505"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1520"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1558"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1379"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1422"/>
         <source>Error loading the profile.</source>
         <translation>Fehler beim Laden des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1412"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1455"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation>Dieser Name wird bereits für ein Standardprofil verwendet. Bitte geben Sie einen anderen Namen ein.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1423"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1466"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation>Bitte geben Sie einen Namen ein, der keines der Zeichen \ / : * ? &quot; &lt; &gt; | enthält und nicht mit einem Punkt beginnt.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1436"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1506"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1479"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1549"/>
         <source>Save Profile</source>
         <translation>Profil speichern</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1437"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1480"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation>Ein Profil mit dem Namen „%1“ existiert bereits. Ersetzen?</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1507"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1550"/>
         <source>The changes to the profile &quot;%1&quot; haven&apos;t been saved. Without saving, they only apply until the program is closed. Save them in the profile?</source>
         <translation>Die Änderungen am Profil „%1“ sind nicht gespeichert. Ohne Speichern gelten sie nur bis zum Beenden des Programms. Möchten Sie sie im Profil speichern?</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1405"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1462"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1515"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1448"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1505"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1558"/>
         <source>Error saving the profile.</source>
         <translation>Fehler beim Speichern des Profils.</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1012"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1058"/>
         <source>Export</source>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1477"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1520"/>
         <source>Error deleting the profile.</source>
         <translation>Fehler beim Löschen des Profils.</translation>
     </message>
@@ -1989,7 +1989,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1373"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1416"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation>Die Profildatei ist nicht mit der aktuellen Anwendungsversion kompatibel. Entfernen?</translation>
     </message>
@@ -5204,7 +5204,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <name>deskew::OptionsWidget</name>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="37"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="182"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="240"/>
         <source>Content</source>
         <translation>Inhalt</translation>
     </message>
@@ -5278,7 +5278,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="38"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="183"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="241"/>
         <source>Top page edge</source>
         <translation>Obere Seitenkante</translation>
     </message>
@@ -5507,174 +5507,174 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>Gemischt</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="93"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="92"/>
         <source>Background</source>
         <translation>Hintergrund</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="94"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="93"/>
         <source>White</source>
         <translation>Weiß</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="94"/>
         <source>Black</source>
         <translation>Schwarz</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="149"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="123"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="151"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="125"/>
         <source>K-means</source>
         <translation>K-Means</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="154"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="128"/>
         <source>Contour mask</source>
         <translation>Konturmaske</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="155"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="129"/>
         <source>Rectangle</source>
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="187"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="161"/>
         <source>TIFF Compression</source>
         <translation>TIFF-Komprimierung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="190"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="164"/>
         <source>Compression of the TIFF files in the output folder. Applies to the whole project. The PDF is compressed separately, so this doesn&apos;t change it. After a change, the output is created again: the current page right away, the other pages during the next batch processing.</source>
         <translation>Komprimierung der TIFF-Dateien im Ausgabeordner. Gilt für das ganze Projekt. Das PDF wird eigenständig komprimiert und ändert sich dadurch nicht. Nach einer Änderung wird die Ausgabe neu erzeugt: die aktuelle Seite sofort, die übrigen Seiten bei der nächsten Stapelverarbeitung.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="307"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="281"/>
         <source>Detect Color Mode</source>
         <translation>Farbmodus erkennen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="546"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="520"/>
         <source>Temperature:</source>
         <translation>Temperatur:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="547"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="521"/>
         <source>Positive values make the pictures warmer (more yellow), negative values cooler (more blue).</source>
         <translation>Positive Werte machen die Bilder wärmer (gelblicher), negative kühler (bläulicher).</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="548"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="522"/>
         <source>Tint:</source>
         <translation>Tönung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="548"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="522"/>
         <source>Positive values add magenta, negative values green.</source>
         <translation>Positive Werte fügen Magenta hinzu, negative Grün.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="549"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="523"/>
         <source>Exposure:</source>
         <translation>Belichtung:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="549"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="523"/>
         <source>Brightens or darkens the pictures as a whole, in stops (EV).</source>
         <translation>Hellt die Bilder insgesamt auf oder dunkelt sie ab, in Blendenstufen (EV).</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="550"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="524"/>
         <source>Contrast:</source>
         <translation>Kontrast:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="550"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="524"/>
         <source>Positive values spread the tones apart, negative values bring them closer together, around the middle gray.</source>
         <translation>Positive Werte ziehen die Tonwerte auseinander, negative rücken sie zusammen, jeweils um das mittlere Grau.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="552"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="526"/>
         <source>Highlights:</source>
         <translation>Lichter:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="552"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="526"/>
         <source>Positive values brighten the bright parts, negative values darken them.</source>
         <translation>Positive Werte hellen die hellen Bereiche auf, negative dunkeln sie ab.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="553"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="527"/>
         <source>Shadows:</source>
         <translation>Tiefen:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="553"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="527"/>
         <source>Positive values brighten the dark parts, negative values darken them.</source>
         <translation>Positive Werte hellen die dunklen Bereiche auf, negative dunkeln sie ab.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="554"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="528"/>
         <source>Whites:</source>
         <translation>Weiß:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="554"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="528"/>
         <source>Positive values make the brightest tones whiter, negative values duller.</source>
         <translation>Positive Werte machen die hellsten Töne weißer, negative stumpfer.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="555"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="529"/>
         <source>Blacks:</source>
         <translation>Schwarz:</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="555"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="529"/>
         <source>Positive values make the darkest tones lighter, negative values deeper.</source>
         <translation>Positive Werte machen die dunkelsten Töne heller, negative tiefer.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="715"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="689"/>
         <source>Apply Photo Adjustments</source>
         <translation>Fotoanpassungen anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1768"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1742"/>
         <source>Apply Content</source>
         <translation>Inhalt anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="462"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="436"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation>Die Auflösung muss zwischen 72 und 1200 DPI liegen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="476"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="450"/>
         <source>Apply Output Resolution</source>
         <translation>Ausgabeauflösung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="733"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="707"/>
         <source>Apply Splitting</source>
         <translation>Aufteilung anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="830"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="804"/>
         <source>Apply Dewarping</source>
         <translation>Entzerrung anwenden</translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2480"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="153"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="127"/>
         <source>Off</source>
         <translation>Aus</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="796"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="770"/>
         <source>Apply Despeckling</source>
         <translation>Fleckenentfernung anwenden</translation>
     </message>
@@ -5685,7 +5685,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="462"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="436"/>
         <source>Output Resolution</source>
         <translation>Ausgabeauflösung</translation>
     </message>
@@ -6046,7 +6046,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <translation>Festes Schwarz</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="150"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="124"/>
         <source>Posterize</source>
         <translation>Tontrennung</translation>
     </message>
@@ -6256,7 +6256,7 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2546"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1171"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1145"/>
         <source>Post deskew</source>
         <translation>Nachträglich geraderichten</translation>
     </message>
@@ -6450,6 +6450,44 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
     </message>
 </context>
 <context>
+    <name>output::OptionsWidgetBinarizationLocal</name>
+    <message>
+        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="46"/>
+        <source>Delta:</source>
+        <translation>Delta:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="53"/>
+        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
+        <translation>Verschiebt den Schwellwert: Positive Werte machen die Schrift dicker und dunkler, negative dünner und heller. 0 behält den Schwellwert bei, den das Verfahren berechnet.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="75"/>
+        <source>Window size:</source>
+        <translation>Fenstergröße:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="85"/>
+        <source>The dimensions of a pixel neighborhood to consider.</source>
+        <translation>Die Größe der Pixelumgebung, die berücksichtigt werden soll.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="101"/>
+        <source>Coef:</source>
+        <translation>Koeffizient:</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.cpp" line="20"/>
+        <source>Default value is 0.3.</source>
+        <translation>Standardwert ist 0,3.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.cpp" line="20"/>
+        <source>Default value is 0.34.</source>
+        <translation>Standardwert ist 0,34.</translation>
+    </message>
+</context>
+<context>
     <name>output::OptionsWidgetBinarizationOtsu</name>
     <message>
         <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="46"/>
@@ -6461,72 +6499,6 @@ Keine: Jeder Buchstabe behält seine eigene Durchschnittsfarbe. Tontrennung: fes
         <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="49"/>
         <source>Delta:</source>
         <translation>Delta:</translation>
-    </message>
-</context>
-<context>
-    <name>output::OptionsWidgetBinarizationSauvola</name>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="46"/>
-        <source>Delta:</source>
-        <translation>Delta:</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="53"/>
-        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
-        <translation>Verschiebt den Schwellwert: Positive Werte machen die Schrift dicker und dunkler, negative dünner und heller. 0 behält den Schwellwert bei, den das Verfahren berechnet.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="75"/>
-        <source>Window size:</source>
-        <translation>Fenstergröße:</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="85"/>
-        <source>The dimensions of a pixel neighborhood to consider.</source>
-        <translation>Die Größe der Pixelumgebung, die berücksichtigt werden soll.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="101"/>
-        <source>Coef:</source>
-        <translation>Koeffizient:</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationSauvola.ui" line="108"/>
-        <source>Default value is 0.34.</source>
-        <translation>Standardwert ist 0,34.</translation>
-    </message>
-</context>
-<context>
-    <name>output::OptionsWidgetBinarizationWolf</name>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="46"/>
-        <source>Delta:</source>
-        <translation>Delta:</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="53"/>
-        <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
-        <translation>Verschiebt den Schwellwert: Positive Werte machen die Schrift dicker und dunkler, negative dünner und heller. 0 behält den Schwellwert bei, den das Verfahren berechnet.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="75"/>
-        <source>Window size:</source>
-        <translation>Fenstergröße:</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="85"/>
-        <source>The dimensions of a pixel neighborhood to consider.</source>
-        <translation>Die Größe der Pixelumgebung, die berücksichtigt werden soll.</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="101"/>
-        <source>Coef:</source>
-        <translation>Koeffizient:</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationWolf.ui" line="108"/>
-        <source>Default value is 0.3.</source>
-        <translation>Standardwert ist 0,3.</translation>
     </message>
 </context>
 <context>

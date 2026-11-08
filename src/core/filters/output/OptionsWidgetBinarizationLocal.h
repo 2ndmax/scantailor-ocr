@@ -1,8 +1,8 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#ifndef SCANTAILOR_OUTPUT_WOLFBINARIZATIONOPTIONSWIDGET_H_
-#define SCANTAILOR_OUTPUT_WOLFBINARIZATIONOPTIONSWIDGET_H_
+#ifndef SCANTAILOR_OUTPUT_LOCALBINARIZATIONOPTIONSWIDGET_H_
+#define SCANTAILOR_OUTPUT_LOCALBINARIZATIONOPTIONSWIDGET_H_
 
 #include <core/ConnectionManager.h>
 
@@ -10,28 +10,30 @@
 #include <list>
 #include <memory>
 
+#include "BlackWhiteOptions.h"
 #include "ColorParams.h"
 #include "OptionsWidgetBinarization.h"
 #include "Settings.h"
-#include "ui_OptionsWidgetBinarizationWolf.h"
+#include "ui_OptionsWidgetBinarizationLocal.h"
 
 namespace output {
-class OptionsWidgetBinarizationWolf : public OptionsWidgetBinarization, private Ui::OptionsWidgetBinarizationWolf {
+// The settings of a method with a local window: all methods except Otsu.
+class OptionsWidgetBinarizationLocal : public OptionsWidgetBinarization, private Ui::OptionsWidgetBinarizationLocal {
   Q_OBJECT
  public:
-  explicit OptionsWidgetBinarizationWolf(std::shared_ptr<Settings> settings);
+  OptionsWidgetBinarizationLocal(std::shared_ptr<Settings> settings, BinarizationMethod method);
 
-  ~OptionsWidgetBinarizationWolf() override = default;
+  ~OptionsWidgetBinarizationLocal() override = default;
 
   void updateUi(const PageId& m_pageId) override;
 
  private slots:
 
-  void wolfDeltaChanged(double value);
+  void deltaChanged(double value);
 
   void windowSizeChanged(int value);
 
-  void wolfCoefChanged(double value);
+  void coefChanged(double value);
 
   void sendStateChanged();
 
@@ -41,6 +43,7 @@ class OptionsWidgetBinarizationWolf : public OptionsWidgetBinarization, private 
   void setupUiConnections();
 
   std::shared_ptr<Settings> m_settings;
+  BinarizationMethod m_method;
   PageId m_pageId;
   ColorParams m_colorParams;
   QTimer m_delayedStateChanger;
@@ -51,4 +54,4 @@ class OptionsWidgetBinarizationWolf : public OptionsWidgetBinarization, private 
 }  // namespace output
 
 
-#endif  // SCANTAILOR_OUTPUT_WOLFBINARIZATIONOPTIONSWIDGET_H_
+#endif  // SCANTAILOR_OUTPUT_LOCALBINARIZATIONOPTIONSWIDGET_H_

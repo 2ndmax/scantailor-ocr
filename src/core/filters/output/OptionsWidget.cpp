@@ -28,9 +28,8 @@
 #include "ApplyColorsDialog.h"
 #include "BinarizationMethods.h"
 #include "FillZoneComparator.h"
+#include "OptionsWidgetBinarizationLocal.h"
 #include "OptionsWidgetBinarizationOtsu.h"
-#include "OptionsWidgetBinarizationSauvola.h"
-#include "OptionsWidgetBinarizationWolf.h"
 #include "PictureZoneComparator.h"
 
 using namespace core;
@@ -100,11 +99,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   addOptionsWidgetBinarization(new OptionsWidgetBinarizationOtsu(m_settings));
   // One panel per method, in the order of BinarizationMethod.
   for (int i = T_SAUVOLA; i <= T_MULTISCALE; ++i) {
-    if (usesWolfCoefficient(static_cast<BinarizationMethod>(i))) {
-      addOptionsWidgetBinarization(new OptionsWidgetBinarizationWolf(m_settings));
-    } else {
-      addOptionsWidgetBinarization(new OptionsWidgetBinarizationSauvola(m_settings));
-    }
+    addOptionsWidgetBinarization(new OptionsWidgetBinarizationLocal(m_settings, static_cast<BinarizationMethod>(i)));
   }
   // "Colored" and "Bounds" apply to all methods and line up with the fields of the method shown.
   QList<QGridLayout*> binarizationGrids = binarizationOptions->findChildren<QGridLayout*>();
