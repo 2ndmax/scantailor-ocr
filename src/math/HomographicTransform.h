@@ -55,6 +55,8 @@ class HomographicTransform<1, T> : public HomographicTransformBase<1, T> {
 
 template <size_t N, typename T>
 HomographicTransform<N, T> HomographicTransformBase<N, T>::inv() const {
+  // Mat::inv() takes n^2 values for the identity, n^2 for the result of solve() and n * 2n for its
+  // work space, 4 n^2 with n = N + 1; solve() also takes N + 1 values for the row permutation.
   StaticMatrixCalc<T, 4 * (N + 1) * (N + 1), N + 1> mc;
   Mat invMat;
   mc(m_mat, static_cast<int>(N + 1), static_cast<int>(N + 1)).inv().write(invMat);
