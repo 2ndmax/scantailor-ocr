@@ -47,7 +47,6 @@ QLineEdit:active:focus {
 }
 
 QPushButton:pressed, QToolButton:pressed {
-  border-color: palette(highlight);
   background-color: {{pressed}};
 }
 

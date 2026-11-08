@@ -57,7 +57,7 @@ topic, not by version.
   (`de` for `de_DE`).
 * Program settings: "Processor threads" on the tab "Performance" is one limit for all parallel work
   (batch processing, PDF export, image filters, JPEG 2000); default: all threads but two.
-  "Accent color" replaces the blue of checked and pressed buttons, focused fields, the keyboard
+  "Accent color" replaces the blue of checked buttons, focused fields, the keyboard
   focus frame, selected thumbnails and the progress bar (after a restart; not used by the native
   color scheme). "Deskew handle distance"
   sets how close the drag handles for rotation and oblique correction sit to the image center.

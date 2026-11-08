@@ -33,7 +33,7 @@ darkTextOnAccent = #262626
 # Error messages.
 error = #d40000
 
-# Borders of checked and pressed buttons and of fields in focus or under the mouse, the dashed
+# Borders of checked buttons and of fields in focus or under the mouse, the dashed
 # keyboard focus frame, selected text and items, checked boxes, progress, the selected thumbnail.
 # The style sheet takes it from the palette (palette(highlight)), and so does a chosen accent color.
 accent = #1d73df
@@ -45,7 +45,7 @@ link = #0f64d2
 hover = #d9d9d9
 
 # Pressed buttons, an open menu, a pressed unchecked box.
-pressed = #cccccc
+pressed = #b8b8b8
 
 # Selected items of lists and trees that are disabled or in an inactive window.
 inactiveSelection = #d9d9d9
