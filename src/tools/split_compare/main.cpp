@@ -288,5 +288,5 @@ int main(int argc, char** argv) {
     outName.truncate(outName.lastIndexOf('.'));
     tools::saveImage(visual, outDir.filePath(outName + ".png"));
   }
-  return 0;
+  return tools::exitCodeOfSaves();
 }

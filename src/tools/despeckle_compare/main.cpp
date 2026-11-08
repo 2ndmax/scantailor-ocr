@@ -61,7 +61,7 @@ int run(const QString& inDir, const QString& outDir, const int dpi) {
     }
     std::cout << file.toStdString() << " done" << std::endl;
   }
-  return 0;
+  return tools::exitCodeOfSaves();
 }
 
 bool isBlack(const QImage& image, int x, int y) {
@@ -113,7 +113,7 @@ int diff(const QString& beforeDir, const QString& afterDir, const QString& outDi
 
     saveSpotSheet(out, changes, QDir(outDir).filePath(name + "_spots.png"));
   }
-  return 0;
+  return tools::exitCodeOfSaves();
 }
 
 // The content box detection uses the despeckling too: prints the box it finds on each scan.
@@ -136,13 +136,20 @@ int content(const QString& inDir, const int dpi) {
   return 0;
 }
 
-int dpiArgument(const QStringList& args) {
+// Sets *dpi from the option --dpi=, or to 200 without one. A value that is no positive number is refused.
+bool readDpiArgument(const QStringList& args, int* dpi) {
+  *dpi = 200;
   for (const QString& arg : args) {
     if (arg.startsWith("--dpi=")) {
-      return arg.mid(6).toInt();
+      bool ok = false;
+      *dpi = arg.mid(6).toInt(&ok);
+      if (!ok || (*dpi <= 0)) {
+        std::cerr << "--dpi must be a positive number\n";
+        return false;
+      }
     }
   }
-  return 200;
+  return true;
 }
 }  // namespace
 
@@ -158,10 +165,12 @@ int main(int argc, char** argv) {
   ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
   if ((args.size() >= 4) && (args[1] == "run")) {
-    return run(args[2], args[3], dpiArgument(args.mid(4)));
+    int dpi = 0;
+    return readDpiArgument(args.mid(4), &dpi) ? run(args[2], args[3], dpi) : 1;
   }
   if ((args.size() >= 3) && (args[1] == "content")) {
-    return content(args[2], dpiArgument(args.mid(3)));
+    int dpi = 0;
+    return readDpiArgument(args.mid(3), &dpi) ? content(args[2], dpi) : 1;
   }
   if ((args.size() >= 3) && (args[1] == "bench")) {
     return bench(args[2], args.mid(3).contains("--images"));

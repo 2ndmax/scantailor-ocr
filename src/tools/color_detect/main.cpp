@@ -250,5 +250,5 @@ int main(int argc, char** argv) {
   if (!results.empty()) {
     writeSheet(results, ++sheetNo, outDir);
   }
-  return 0;
+  return tools::exitCodeOfSaves();
 }

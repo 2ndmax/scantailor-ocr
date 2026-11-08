@@ -895,5 +895,5 @@ int bench(const QString& outDir, const bool images) {
     }
     std::cout << row.toStdString() << "\n";
   }
-  return 0;
+  return tools::exitCodeOfSaves();
 }
