@@ -212,9 +212,9 @@ topic, not by version.
 * *Import*: "Rotate" and "Crop scan (trim)" are one panel, **Rotate and Trim**. The trim values
   are named *Top*, *Bottom*, *Left* and *Right* and refer to the rotated view. They are shown in
   the unit of the program settings, converted with the resolution of the image, and saved in
-  pixels as before; "Apply to ..." keeps the length on pages of another resolution. A rotation
-  of 0 is kept when the project is reopened. The arrow below the rotation buttons has a tooltip:
-  it shows where the top edge of the original image points after the rotation.
+  pixels as before; "Apply to ..." keeps the length on pages of another resolution unless the
+  unit is pixels. A rotation of 0 is kept when the project is reopened. The arrow below the
+  rotation buttons has a tooltip: it shows where the top edge of the original image points after the rotation.
 * *Deskew*: the oblique (shear) correction has **Auto / Manual buttons** like the rotation.
   Switching oblique to *Auto* measures the page; the oblique finder reports no angle when the
   image has too little structure. Dragging a handle makes only its own angle manual. "Apply
@@ -358,7 +358,8 @@ topic, not by version.
   screens. The native color scheme on Windows 11 places number field arrows above each other.
 * Length fields in pixels (content and page boxes, margins, output size, Default Parameters) show
   and take whole pixels.
-* Default Parameters show profiles in the unit of the Program Settings; switching to Custom
+* Default Parameters show profiles in the unit of the Program Settings, except that a profile in
+  pixels stays in pixels; switching to Custom
   converts the values instead of reinterpreting them.
 
 ## Error reporting and fixes
@@ -422,8 +423,9 @@ topic, not by version.
   (it downloads nothing). It also refuses wrong export options, a missing folder, an invalid
   name and an export that would replace the project file, one of its images or a folder holding
   them. Ctrl+C stops before the next page; the pages done keep their output, and the project is
-  saved with them. Exit codes: 0 done, 1 wrong command line, 2 project unusable or not saved,
-  3 pages failed, 4 export failed, 5 canceled. The messages use the language of the app.
+  saved with them. A second Ctrl+C no longer ends the command line tool at once. Exit codes:
+  0 done, 1 wrong command line, 2 project unusable or not saved, 3 pages failed, 4 export failed,
+  5 canceled. The messages use the language of the app.
   The option `--pdf <file>` of versions 1.0.11 and 1.0.12 is replaced by these export options.
 * Batch processing no longer prepares the view of each page it passes (downscaled images, the
   content mask, the despeckle view of *Output*); it only updates the thumbnails, which saves time
