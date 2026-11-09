@@ -4702,7 +4702,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                 <item>
                  <widget class="QWidget" name="depthPerceptionPanel" native="true">
                   <property name="toolTip">
-                   <string>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with Trapezoid.</string>
+                   <string>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with &quot;Trapezoid&quot;.</string>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_29">
                    <property name="leftMargin">

@@ -435,52 +435,52 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="368"/>
+        <location filename="../core/CommandLineRun.cpp" line="369"/>
         <source>The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them with --export-formats.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="383"/>
+        <location filename="../core/CommandLineRun.cpp" line="384"/>
         <source>The export will create: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="393"/>
+        <location filename="../core/CommandLineRun.cpp" line="394"/>
         <source>The output folder or some images of the project are missing, for example because the project was moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="401"/>
+        <location filename="../core/CommandLineRun.cpp" line="402"/>
         <source>%1: %2 of %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="412"/>
+        <location filename="../core/CommandLineRun.cpp" line="413"/>
         <source>The project file could not be saved: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="417"/>
+        <location filename="../core/CommandLineRun.cpp" line="418"/>
         <source>Canceled. The pages output so far keep their output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="424"/>
+        <location filename="../core/CommandLineRun.cpp" line="425"/>
         <source>Pages that failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="427"/>
+        <location filename="../core/CommandLineRun.cpp" line="428"/>
         <source>Nothing was exported, as not all pages were output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="422"/>
+        <location filename="../core/CommandLineRun.cpp" line="423"/>
         <source>No page was output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="431"/>
+        <location filename="../core/CommandLineRun.cpp" line="432"/>
         <source>Done. The output is in %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1380,12 +1380,17 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4782"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4705"/>
+        <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with &quot;Trapezoid&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="4789"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4785"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4792"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1527,12 +1532,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4698"/>
-        <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with Trapezoid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4716"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4723"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1770,12 +1770,12 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4688"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4695"/>
         <source>Straightens the page once more after dewarping. Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4691"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4698"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2194,8 +2194,8 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/ExportView.cpp" line="406"/>
-        <location filename="../app/ExportView.cpp" line="788"/>
-        <location filename="../app/ExportView.cpp" line="971"/>
+        <location filename="../app/ExportView.cpp" line="791"/>
+        <location filename="../app/ExportView.cpp" line="974"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2255,94 +2255,94 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="763"/>
+        <location filename="../app/ExportView.cpp" line="766"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="861"/>
+        <location filename="../app/ExportView.cpp" line="864"/>
         <source>The languages %1 of the project aren&apos;t installed on this computer. Download them now?
 
 Without them, the text is only recognized with the other ticked languages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="874"/>
+        <location filename="../app/ExportView.cpp" line="877"/>
         <source>The languages %1 still aren&apos;t installed. Recognize the text with the other ticked languages only?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="888"/>
+        <location filename="../app/ExportView.cpp" line="891"/>
         <source>Copying language files ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="906"/>
+        <location filename="../app/ExportView.cpp" line="909"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="934"/>
+        <location filename="../app/ExportView.cpp" line="937"/>
         <source>Canceling ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="969"/>
+        <location filename="../app/ExportView.cpp" line="972"/>
         <source>... and %1 more.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1003"/>
+        <location filename="../app/ExportView.cpp" line="1006"/>
         <source>Created in %1:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1265"/>
+        <location filename="../app/ExportView.cpp" line="1268"/>
         <source>uncompressed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1318"/>
+        <location filename="../app/ExportView.cpp" line="1321"/>
         <source>In the output folder, the picture of this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1320"/>
+        <location filename="../app/ExportView.cpp" line="1323"/>
         <source>In the output folder, this page is stored with lossy compression (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1323"/>
+        <location filename="../app/ExportView.cpp" line="1326"/>
         <source>The PDF compresses it with loss a second time (%1), so the losses add up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1324"/>
+        <location filename="../app/ExportView.cpp" line="1327"/>
         <source>The PDF stores it losslessly (%1), which keeps the losses and makes the file larger than necessary.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1330"/>
+        <location filename="../app/ExportView.cpp" line="1333"/>
         <source>In the output folder, the text of this page is stored with lossy compression (%1). The PDF can&apos;t undo these losses.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1335"/>
+        <location filename="../app/ExportView.cpp" line="1338"/>
         <source>%1 converts the posterized picture of this page to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1340"/>
+        <location filename="../app/ExportView.cpp" line="1343"/>
         <source>Mixed page without split output. It is stored as a single image, so with %1 the text is less sharp and the PDF is larger. Enable &quot;Split output&quot; in the Output step and process the page again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1353"/>
+        <location filename="../app/ExportView.cpp" line="1356"/>
         <source>Mixed page without split output. It is stored losslessly as a single image. With split output, the PDF is usually much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="732"/>
+        <location filename="../app/ExportView.cpp" line="735"/>
         <source>Choose Export Folder</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2352,30 +2352,30 @@ Without them, the text is only recognized with the other ticked languages.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="746"/>
+        <location filename="../app/ExportView.cpp" line="749"/>
         <source>Choose the folder for the export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="750"/>
+        <location filename="../app/ExportView.cpp" line="753"/>
         <source>Enter the complete path of the folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="779"/>
+        <location filename="../app/ExportView.cpp" line="782"/>
         <source>%1 (folder with %n file(s))</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="799"/>
-        <location filename="../app/ExportView.cpp" line="1109"/>
+        <location filename="../app/ExportView.cpp" line="802"/>
+        <location filename="../app/ExportView.cpp" line="1112"/>
         <source>Tick at least one format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="814"/>
+        <location filename="../app/ExportView.cpp" line="817"/>
         <source>%n selected page(s) changed since the output. The export would show the state of the last output.
 
 Do you want to export anyway? To include the changes, choose &quot;Back&quot; and then &quot;Output missing and changed pages&quot;.</source>
@@ -2384,12 +2384,12 @@ Do you want to export anyway? To include the changes, choose &quot;Back&quot; an
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="818"/>
+        <location filename="../app/ExportView.cpp" line="821"/>
         <source>Export anyway</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="834"/>
+        <location filename="../app/ExportView.cpp" line="837"/>
         <source>These already exist in %1:
 
 %2
@@ -2398,189 +2398,189 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="850"/>
+        <location filename="../app/ExportView.cpp" line="853"/>
         <source>Please tick the pages to include in the export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="901"/>
+        <location filename="../app/ExportView.cpp" line="904"/>
         <source>Please tick at least one installed language for the text recognition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="924"/>
+        <location filename="../app/ExportView.cpp" line="927"/>
         <source>Recognizing the text and exporting ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="924"/>
+        <location filename="../app/ExportView.cpp" line="927"/>
         <source>Exporting ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="960"/>
+        <location filename="../app/ExportView.cpp" line="963"/>
         <source>Canceled. Nothing was exported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="963"/>
-        <location filename="../app/ExportView.cpp" line="971"/>
+        <location filename="../app/ExportView.cpp" line="966"/>
+        <location filename="../app/ExportView.cpp" line="974"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="999"/>
+        <location filename="../app/ExportView.cpp" line="1002"/>
         <source>%n file(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1103"/>
+        <location filename="../app/ExportView.cpp" line="1106"/>
         <source>Will be created:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1111"/>
+        <location filename="../app/ExportView.cpp" line="1114"/>
         <source>Tick at least one language for the text recognition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1115"/>
+        <location filename="../app/ExportView.cpp" line="1118"/>
         <source>Tick the pages to export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1118"/>
+        <location filename="../app/ExportView.cpp" line="1121"/>
         <source>Export the ticked pages in the chosen formats.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1365"/>
+        <location filename="../app/ExportView.cpp" line="1368"/>
         <source>Not output yet. Process the page in the Output step to include it in the export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1373"/>
-        <location filename="../app/ExportView.cpp" line="1377"/>
+        <location filename="../app/ExportView.cpp" line="1376"/>
+        <location filename="../app/ExportView.cpp" line="1380"/>
         <source>%1 (lossy)</source>
         <comment>tooltip</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1386"/>
+        <location filename="../app/ExportView.cpp" line="1389"/>
         <source>Black and white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1391"/>
+        <location filename="../app/ExportView.cpp" line="1394"/>
         <source>Mixed, split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1392"/>
-        <location filename="../app/ExportView.cpp" line="1394"/>
+        <location filename="../app/ExportView.cpp" line="1395"/>
+        <location filename="../app/ExportView.cpp" line="1397"/>
         <source>%1 (picture), %2 (text)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1398"/>
+        <location filename="../app/ExportView.cpp" line="1401"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1400"/>
+        <location filename="../app/ExportView.cpp" line="1403"/>
         <source>Color / grayscale, posterized</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1415"/>
+        <location filename="../app/ExportView.cpp" line="1418"/>
         <source>Color mode: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1416"/>
+        <location filename="../app/ExportView.cpp" line="1419"/>
         <source>Compression TIFF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1417"/>
+        <location filename="../app/ExportView.cpp" line="1420"/>
         <source>Compression PDF: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1484"/>
-        <location filename="../app/ExportView.cpp" line="1493"/>
+        <location filename="../app/ExportView.cpp" line="1487"/>
+        <location filename="../app/ExportView.cpp" line="1496"/>
         <source>%1 (lossy)</source>
         <comment>short</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1504"/>
+        <location filename="../app/ExportView.cpp" line="1507"/>
         <source>Stored with lossy compression: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1514"/>
+        <location filename="../app/ExportView.cpp" line="1517"/>
         <source>Compressed with loss twice: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1521"/>
+        <location filename="../app/ExportView.cpp" line="1524"/>
         <source>Posterized, converted to full color: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1402"/>
+        <location filename="../app/ExportView.cpp" line="1405"/>
         <source>Color / grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="819"/>
+        <location filename="../app/ExportView.cpp" line="822"/>
         <source>Back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1054"/>
+        <location filename="../app/ExportView.cpp" line="1057"/>
         <source>%1 of %2 output pages selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="1058"/>
+        <location filename="../app/ExportView.cpp" line="1061"/>
         <source>%n page(s) not output yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/ExportView.cpp" line="1064"/>
+        <location filename="../app/ExportView.cpp" line="1067"/>
         <source>%n page(s) changed since the output.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1411"/>
+        <location filename="../app/ExportView.cpp" line="1414"/>
         <source>Changed since the output. The export would show the state of the last output. Process the page in the Output step to include the changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1506"/>
+        <location filename="../app/ExportView.cpp" line="1509"/>
         <source>The PDF can&apos;t undo these losses. A lossless method in the PDF keeps them and makes the file larger than necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output step and process the pages again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1516"/>
+        <location filename="../app/ExportView.cpp" line="1519"/>
         <source>The output files of these pages are stored with lossy compression, and the PDF compresses them with loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second loss.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1523"/>
+        <location filename="../app/ExportView.cpp" line="1526"/>
         <source>JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often makes the file larger. Deflate keeps the colors exactly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/ExportView.cpp" line="1239"/>
+        <location filename="../app/ExportView.cpp" line="1242"/>
         <source>Not output yet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5945,52 +5945,62 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2668"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2529"/>
+        <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with &quot;Trapezoid&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2647"/>
+        <source>Applies dewarping on or off, the method, &quot;Post deskew&quot;, &quot;Even out letter widths&quot; and the depth perception of this page to other pages.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2675"/>
         <source>Adjusts the pictures after processing, like a photo editor. In mixed mode only the picture zones are changed, the text stays black and white. Not used in black and white mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2671"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2678"/>
         <source>Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2692"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2699"/>
         <source>Color Balance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2709"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2716"/>
         <source>Tone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2726"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2733"/>
         <source>Keep white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2757"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2764"/>
         <source>Applies the photo adjustments of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2801"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2808"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2816"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2823"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2819"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2826"/>
         <source>Black and white foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2856"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2863"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6000,34 +6010,29 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2512"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2519"/>
         <source>Straightens the page once more after dewarping. Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2515"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1150"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2522"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1151"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2540"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2547"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2606"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2613"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2609"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2616"/>
         <source>Even out letter widths</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2640"/>
-        <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6035,9 +6040,9 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <location filename="../core/filters/output/OptionsWidget.ui" line="197"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2249"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2438"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2643"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2760"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2912"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2650"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2767"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2919"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6134,47 +6139,42 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2502"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2509"/>
         <source>Not dewarped: too few lines of text found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2522"/>
-        <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with Trapezoid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2723"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2730"/>
         <source>Color / grayscale mode only: pure white stays white, such as a background made white. The margins are never changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2788"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2795"/>
         <source>Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2804"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2811"/>
         <source>Split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2844"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2851"/>
         <source>Save the original background of the foreground layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2847"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2854"/>
         <source>Original background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2859"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2866"/>
         <source>Color foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2909"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2916"/>
         <source>Applies the splitting settings of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6245,7 +6245,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1748"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1749"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6285,102 +6285,102 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="508"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="509"/>
         <source>Temperature:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="509"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="510"/>
         <source>Positive values make the pictures warmer (more yellow), negative values cooler (more blue).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="510"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="511"/>
         <source>Tint:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="510"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="511"/>
         <source>Positive values add magenta, negative values green.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="511"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
         <source>Exposure:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="511"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
         <source>Brightens or darkens the pictures as a whole, in stops (EV).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="513"/>
         <source>Contrast:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="513"/>
         <source>Positive values spread the tones apart, negative values bring them closer together, around the middle gray.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="514"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
         <source>Highlights:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="514"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
         <source>Positive values brighten the bright parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="516"/>
         <source>Shadows:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="516"/>
         <source>Positive values brighten the dark parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="516"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
         <source>Whites:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="516"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
         <source>Positive values make the brightest tones whiter, negative values duller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="518"/>
         <source>Blacks:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="518"/>
         <source>Positive values make the darkest tones lighter, negative values deeper.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="677"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="678"/>
         <source>Apply Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="695"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="696"/>
         <source>Apply Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="758"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="759"/>
         <source>Apply Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="800"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="801"/>
         <source>Apply Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
