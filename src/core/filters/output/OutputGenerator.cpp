@@ -1170,11 +1170,6 @@ void drawPoint(QImage& image, const QPointF& pt) {
   }
 }
 
-inline float vertBorderSkewAngle(const QPointF& top, const QPointF& bottom) {
-  return static_cast<float>(
-      std::abs(std::atan((bottom.x() - top.x()) / (bottom.y() - top.y())) * 180.0 / constants::PI));
-}
-
 QImage smoothToGrayscale(const QImage& src, const Dpi& dpi) {
   const int minDpi = std::min(dpi.horizontal(), dpi.vertical());
   int window;
@@ -2563,104 +2558,6 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
   if (!distortionModel.isValid()) {
     m_dewarpingOptions.setNoModelFound(true);
     setupTrivialDistortionModel(distortionModel);
-  }
-
-  BinaryImage bwImage(m_inputGrayImage, BinaryThreshold(64));
-
-  QTransform transform = m_xform.preRotation().transform(bwImage.size());
-  QTransform invTransform = transform.inverted();
-
-  int degrees = m_xform.preRotation().toDegrees();
-  bwImage = orthogonalRotation(bwImage, degrees);
-
-  const std::vector<QPointF>& topPolyline0 = distortionModel.topCurve().polyline();
-  const std::vector<QPointF>& bottomPolyline0 = distortionModel.bottomCurve().polyline();
-
-  std::vector<QPointF> topPolyline;
-  std::vector<QPointF> bottomPolyline;
-  topPolyline.reserve(topPolyline0.size());
-  bottomPolyline.reserve(bottomPolyline0.size());
-
-  for (auto i : topPolyline0) {
-    topPolyline.push_back(transform.map(i));
-  }
-
-  for (auto i : bottomPolyline0) {
-    bottomPolyline.push_back(transform.map(i));
-  }
-
-  float maxAngle = 2.75;
-
-  if ((m_pageId.subPage() == PageId::SINGLE_PAGE) || (m_pageId.subPage() == PageId::LEFT_PAGE)) {
-    float vertSkewAngleLeft = vertBorderSkewAngle(topPolyline.front(), bottomPolyline.front());
-
-    if (vertSkewAngleLeft > maxAngle) {
-      auto topX = static_cast<float>(topPolyline.front().x());
-      auto bottomX = static_cast<float>(bottomPolyline.front().x());
-
-      if (topX < bottomX) {
-        std::vector<QPointF> newBottomPolyline;
-        newBottomPolyline.reserve(bottomPolyline.size() + 1);
-
-        const QPointF pt(topX, bottomPolyline.front().y());
-
-        newBottomPolyline.push_back(invTransform.map(pt));
-
-        for (auto i : bottomPolyline) {
-          newBottomPolyline.push_back(invTransform.map(i));
-        }
-
-        distortionModel.setBottomCurve(Curve(newBottomPolyline));
-      } else {
-        std::vector<QPointF> newTopPolyline;
-        newTopPolyline.reserve(topPolyline.size() + 1);
-
-        const QPointF pt(bottomX, topPolyline.front().y());
-
-        newTopPolyline.push_back(invTransform.map(pt));
-
-        for (auto i : topPolyline) {
-          newTopPolyline.push_back(invTransform.map(i));
-        }
-
-        distortionModel.setTopCurve(Curve(newTopPolyline));
-      }
-    }
-  } else {
-    float vertSkewAngleRight = vertBorderSkewAngle(topPolyline.back(), bottomPolyline.back());
-
-    if (vertSkewAngleRight > maxAngle) {
-      auto topX = static_cast<float>(topPolyline.back().x());
-      auto bottomX = static_cast<float>(bottomPolyline.back().x());
-
-      if (topX > bottomX) {
-        std::vector<QPointF> newBottomPolyline;
-        newBottomPolyline.reserve(bottomPolyline.size() + 1);
-
-        const QPointF pt(topX, bottomPolyline.back().y());
-
-        for (auto i : bottomPolyline) {
-          newBottomPolyline.push_back(invTransform.map(i));
-        }
-
-        newBottomPolyline.push_back(invTransform.map(pt));
-
-        distortionModel.setBottomCurve(Curve(newBottomPolyline));
-      } else {
-        std::vector<QPointF> newTopPolyline;
-        newTopPolyline.reserve(topPolyline.size() + 1);
-
-        const QPointF pt(bottomX, topPolyline.back().y());
-
-        for (auto i : topPolyline) {
-          newTopPolyline.push_back(invTransform.map(i));
-        }
-
-        newTopPolyline.push_back(invTransform.map(pt));
-
-        distortionModel.setTopCurve(Curve(newTopPolyline));
-      }
-    }
   }
   return distortionModel;
 }

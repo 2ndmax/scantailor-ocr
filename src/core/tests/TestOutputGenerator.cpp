@@ -762,6 +762,18 @@ void drawWords(QPainter& painter, const int left, const int right, const int y) 
   painter.fillRect(right - letterWidth, y, letterWidth, letterHeight, Qt::black);
 }
 
+double edgeTiltInDegrees(const QPointF& top, const QPointF& bottom) {
+  return std::atan2(bottom.x() - top.x(), bottom.y() - top.y()) * 180.0 / constants::PI;
+}
+
+double leftEdgeTilt(const dewarping::DistortionModel& model) {
+  return edgeTiltInDegrees(model.topCurve().polyline().front(), model.bottomCurve().polyline().front());
+}
+
+double rightEdgeTilt(const dewarping::DistortionModel& model) {
+  return edgeTiltInDegrees(model.topCurve().polyline().back(), model.bottomCurve().polyline().back());
+}
+
 bool closeTo(const QPointF& a, const QPointF& b) {
   const double tolerance = 3.0;
   return (std::abs(a.x() - b.x()) < tolerance) && (std::abs(a.y() - b.y()) < tolerance);
@@ -810,6 +822,60 @@ BOOST_AUTO_TEST_CASE(test_filling_the_margins_doesnt_decide_how_a_page_is_dewarp
     BOOST_TEST(filledNoModel == unfilledNoModel);
     BOOST_TEST(sameModel(filledModel, unfilledModel));
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_both_edges_of_a_tilted_text_block_keep_their_tilt) {
+  // Horizontal lines whose ends all lie on edges tilted by 3.5 degrees: within what the tracer accepts.
+  const double shiftPerRow = std::tan(3.5 * constants::PI / 180.0);
+  QImage page = whiteA4Page();
+  {
+    QPainter painter(&page);
+    for (int line = 0; line < 40; ++line) {
+      const int y = 300 + line * 70;
+      const int shift = static_cast<int>(std::lround((y - 300) * shiftPerRow));
+      drawWords(painter, TEXT_LEFT + shift, TEXT_RIGHT + shift - 200, y);
+    }
+  }
+  Run run;
+  run.page = page;
+  run.content = QRectF(QPointF(-200, -200), A4_PAGE_SIZE + QSize(400, 400));
+  run.dewarpingMode = AUTO;
+  bool noModelFound = true;
+  dewarping::DistortionModel model;
+  run.noModelFound = &noModelFound;
+  run.resultingModel = &model;
+  generate(run);
+
+  BOOST_REQUIRE(!noModelFound);
+  BOOST_TEST(std::abs(leftEdgeTilt(model) - rightEdgeTilt(model)) < 1.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_both_edges_of_a_crookedly_scanned_page_keep_their_tilt) {
+  // Upright text, scanned 3 degrees crooked and turned back by Deskew. In the scan both edges are tilted alike.
+  const double scanAngle = 3.0;
+  QImage page = whiteA4Page();
+  {
+    QPainter painter(&page);
+    painter.translate(A4_PAGE_SIZE.width() / 2.0, A4_PAGE_SIZE.height() / 2.0);
+    painter.rotate(scanAngle);
+    painter.translate(-A4_PAGE_SIZE.width() / 2.0, -A4_PAGE_SIZE.height() / 2.0);
+    for (int line = 0; line < 40; ++line) {
+      drawWords(painter, TEXT_LEFT, TEXT_RIGHT, 300 + line * 70);
+    }
+  }
+  Run run;
+  run.page = page;
+  run.content = QRectF(QPointF(-200, -200), A4_PAGE_SIZE + QSize(400, 400));
+  run.dewarpingMode = AUTO;
+  run.postRotation = -scanAngle;
+  bool noModelFound = true;
+  dewarping::DistortionModel model;
+  run.noModelFound = &noModelFound;
+  run.resultingModel = &model;
+  generate(run);
+
+  BOOST_REQUIRE(!noModelFound);
+  BOOST_TEST(std::abs(leftEdgeTilt(model) - rightEdgeTilt(model)) < 1.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
