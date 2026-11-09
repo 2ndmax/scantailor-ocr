@@ -353,7 +353,7 @@ topic, not by version.
   steps, and "Apply to ..." windows open with "Selected pages" when several pages are selected.
 * **Start page:** buttons instead of links, recent projects listed under a heading on a line,
   with their folder below and the full path as tooltip.
-* **Light and Dark color schemes:** each state of a button has one mark: a lighter background
+* **Light and Dark color schemes:** each state of a button has one mark: a background of its own
   under the mouse, a darker one while pressed, an accent border when checked. Keyboard focus is
   a dashed accent frame just inside the border, shown only when the focus was moved by keyboard.
   The title bars of the windows follow the scheme.
@@ -364,7 +364,7 @@ topic, not by version.
 * Length fields in pixels (content and page boxes, margins, output size, Default Parameters) show
   and take whole pixels.
 * Default Parameters show profiles in the unit of the Program Settings, except that a profile in
-  pixels stays in pixels; switching to Custom
+  pixels stays in pixels and, with the Program Settings in pixels, a profile keeps its own unit; switching to Custom
   converts the values instead of reinterpreting them.
 
 ## Error reporting and fixes
@@ -412,7 +412,8 @@ topic, not by version.
   handles: trims within the image, skew and oblique angles within the panel's 45° and 5° (NaN
   becomes 0, also for the start angle of a profile), margins up to 9999 mm, target sizes up to
   99999 mm, coordinates up to 10⁷ (NaN and infinity become 0), and a posterization level outside
-  2 to 255 becomes 4. A stored split line that leaves a page no area is found again on the image
+  2 to 255 becomes 4. Filter radii above their field and binarization deltas and strengths far
+  outside it give the default. A stored split line that leaves a page no area is found again on the image
   instead of failing in *Output*.
 
 ## Command line tool and batch processing
