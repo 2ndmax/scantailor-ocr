@@ -70,6 +70,8 @@
 "polyline"
 "postDeskew"
 "postDeskewAngle"
+"trapezoid"
+"noModelFound"
 "posterization-options"
 "posterize"
 "processing-params"

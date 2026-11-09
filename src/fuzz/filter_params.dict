@@ -157,6 +157,8 @@
 "position"
 "postDeskew"
 "postDeskewAngle"
+"trapezoid"
+"noModelFound"
 "posterization-options"
 "posterize"
 "preCropArea"
