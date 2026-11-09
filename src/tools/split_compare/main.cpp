@@ -39,6 +39,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -85,13 +86,13 @@ std::vector<double> columnDarkness(const imageproc::GrayImage& gray) {
 // The rotation set in the Fix Orientation step for each file of a project, by the file's canonical
 // path: files of the same name in different folders get their own rotation, and files outside the
 // project none.
-std::map<QString, int> rotationsFromProject(const QString& projectPath) {
+std::optional<std::map<QString, int>> rotationsFromProject(const QString& projectPath) {
   std::map<QString, int> rotations;
   QFile file(projectPath);
   QDomDocument doc;
   if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file)) {
     std::cerr << "Cannot read " << projectPath.toStdString() << "\n";
-    return rotations;
+    return std::nullopt;
   }
   const QDomElement root = doc.documentElement();
   // The project stores folders relative to its own folder where possible.
@@ -172,7 +173,11 @@ int main(int argc, char** argv) {
   QStringList files = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"}, QDir::Files, QDir::Name);
   std::map<QString, int> projectRotations;
   if (!projectPath.isEmpty()) {
-    projectRotations = rotationsFromProject(projectPath);
+    const std::optional<std::map<QString, int>> rotations = rotationsFromProject(projectPath);
+    if (!rotations) {
+      return 1;
+    }
+    projectRotations = *rotations;
     files.erase(std::remove_if(files.begin(), files.end(),
                                [&](const QString& file) { return projectRotations.count(canonicalPath(file)) == 0; }),
                 files.end());

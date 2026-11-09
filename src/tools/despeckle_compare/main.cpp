@@ -43,6 +43,10 @@ using namespace imageproc;
 
 namespace {
 int run(const QString& inDir, const QString& outDir, const int dpi) {
+  if (!QDir(inDir).exists()) {
+    std::cerr << "input folder not found: " << inDir.toStdString() << "\n";
+    return 1;
+  }
   QDir().mkpath(outDir);
   const QStringList files = QDir(inDir).entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
   for (const QString& file : files) {
