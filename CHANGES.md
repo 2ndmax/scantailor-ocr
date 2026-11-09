@@ -404,6 +404,9 @@ topic, not by version.
 * Fixed: a very large binarization window no longer turns dark print white on large pages.
 * Fixed: a memory error (reading and writing past an image) in automatic dewarping at the last
   row of some pages.
+* Fixed: the result of *Auto* and *Trapezoid* dewarping no longer depends on *Fill margins*;
+  *Auto* no longer stands only one edge of the text upright; *Even out letter widths* leaves a
+  page reported as not dewarped alone, and a changed resolution leaves such a page on its method.
 * Fixed: the Default Parameters showed the start angle of *Deskew* with the opposite sign of the
   Deskew panel. Saved profiles keep their meaning: a start angle saved as 2° now appears as −2°
   and works as before. Their Sauvola and Wolf window starts at 3 px like the Output step's (a
