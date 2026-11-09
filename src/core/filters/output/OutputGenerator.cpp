@@ -282,6 +282,8 @@ class OutputGenerator::Processor {
   QSize m_targetSize;
   QRect m_workingBoundingRect;
   QRect m_contentRectInWorkingCs;
+  QRect m_tracingRectInWorkingCs;
+  QRect m_contentBoxInTracingCs;
   QPolygonF m_contentAreaInWorkingCs;
   QPolygonF m_outCropAreaInWorkingCs;
   QPolygonF m_preCropAreaInOriginalCs;
@@ -412,6 +414,19 @@ void OutputGenerator::Processor::calcAreas() {
                               .boundingRect()
                               .toRect();
   m_contentRectInWorkingCs = m_croppedContentRect.translated(-m_workingBoundingRect.topLeft());
+  // Whether and how a page is dewarped must not depend on "Fill margins". So the text lines are always traced in
+  // the content box and its margin, which is the working area when the margins are filled. Without a content box
+  // there is only the whole page to trace.
+  const QRect contentBox = m_preCropArea.intersected(QRectF(m_contentRect)).boundingRect().toRect();
+  const QRect tracedBox = contentBox.isEmpty() ? m_croppedContentRect : contentBox;
+  const QRect tracingRect
+      = m_preCropArea
+            .intersected(QRectF(tracedBox.adjusted(-contentMargin, -contentMargin, contentMargin, contentMargin)))
+            .boundingRect()
+            .toRect()
+        & m_workingBoundingRect;
+  m_tracingRectInWorkingCs = tracingRect.translated(-m_workingBoundingRect.topLeft());
+  m_contentBoxInTracingCs = tracedBox.translated(-tracingRect.topLeft());
   m_contentAreaInWorkingCs = m_croppedContentArea.translated(-m_workingBoundingRect.topLeft());
   m_outCropAreaInWorkingCs = m_outCropArea.translated(-m_workingBoundingRect.topLeft());
   m_preCropAreaInOriginalCs = m_xform.transformBack().map(m_preCropArea);
@@ -1636,13 +1651,17 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
     m_status.throwIfCancelled();
   }
 
+  const auto pageToTrace = [&] { return GrayImage(warpedGrayOutput.toQImage().copy(m_tracingRectInWorkingCs)); };
+  const QTransform tracingToOrig
+      = QTransform::fromTranslate(m_tracingRectInWorkingCs.left(), m_tracingRectInWorkingCs.top()) * workingToOrig;
+
   m_dewarpingOptions.setNoModelFound(false);
   if (m_dewarpingOptions.dewarpingMode() == AUTO) {
-    distortionModel = buildAutoDistortionModel(warpedGrayOutput, workingToOrig);
+    distortionModel = buildAutoDistortionModel(pageToTrace(), tracingToOrig);
   } else if (m_dewarpingOptions.dewarpingMode() == MARGINAL) {
     distortionModel = buildMarginalDistortionModel();
   } else if (m_dewarpingOptions.dewarpingMode() == TRAPEZOID) {
-    distortionModel = buildTrapezoidDistortionModel(warpedGrayOutput, workingToOrig);
+    distortionModel = buildTrapezoidDistortionModel(pageToTrace(), tracingToOrig);
   }
   warpedGrayOutput = GrayImage();  // Save memory.
 
@@ -2512,7 +2531,7 @@ QImage OutputGenerator::Processor::transformToWorkingCs(bool normalize) const {
 DistortionModel OutputGenerator::Processor::buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput,
                                                                           const QTransform& toOriginal) {
   DistortionModel distortionModel
-      = TextLineTracer::traceTrapezoid(warpedGrayOutput, m_dpi, m_contentRectInWorkingCs, m_dbg);
+      = TextLineTracer::traceTrapezoid(warpedGrayOutput, m_dpi, m_contentBoxInTracingCs, m_dbg);
   if (!distortionModel.isValid()) {
     m_dewarpingOptions.setNoModelFound(true);
     setupTrivialDistortionModel(distortionModel);
@@ -2535,7 +2554,7 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
                                                                      const QTransform& toOriginal) {
   DistortionModelBuilder modelBuilder(Vec2d(0, 1));
 
-  TextLineTracer::trace(warpedGrayOutput, m_dpi, m_contentRectInWorkingCs, modelBuilder, m_status, m_dbg);
+  TextLineTracer::trace(warpedGrayOutput, m_dpi, m_contentBoxInTracingCs, modelBuilder, m_status, m_dbg);
   modelBuilder.transform(toOriginal);
 
   TopBottomEdgeTracer::trace(m_inputGrayImage, modelBuilder.verticalBounds(), modelBuilder, m_status, m_dbg);

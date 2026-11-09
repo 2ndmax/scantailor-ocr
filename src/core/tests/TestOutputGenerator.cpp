@@ -6,6 +6,7 @@
 // bytes, so they hold on every platform.
 
 #include <BinaryImage.h>
+#include <Constants.h>
 #include <DefaultParams.h>
 #include <DistortionModel.h>
 #include <Dpi.h>
@@ -32,9 +33,12 @@
 
 #include <QDomDocument>
 #include <QImage>
+#include <QPainter>
 #include <QPolygonF>
 #include <boost/test/unit_test.hpp>
+#include <cmath>
 #include <memory>
+#include <optional>
 #include <set>
 #include <stdexcept>
 #include <vector>
@@ -112,6 +116,14 @@ struct Run {
   bool thinManualDewarping = false;
   bool trapezoidDewarping = false;
   bool blankPage = false;
+  // Replaces the synthetic page, if set.
+  QImage page;
+  std::optional<DewarpingMode> dewarpingMode;
+  bool evenOutLetterWidths = false;
+  bool fillMargins = true;
+  double postRotation = 0.0;
+  // Gets the distortion model after the processing, if set.
+  dewarping::DistortionModel* resultingModel = nullptr;
   // Gets whether the dewarping found no model, if set.
   bool* noModelFound = nullptr;
   BinarizationMethod binarization = T_OTSU;
@@ -170,14 +182,25 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   if (run.trapezoidDewarping) {
     params.setDewarpingOptions(DewarpingOptions(TRAPEZOID));
   }
+  if (run.dewarpingMode) {
+    DewarpingOptions dewarpingOptions(*run.dewarpingMode);
+    dewarpingOptions.setEvenOutLetterWidths(run.evenOutLetterWidths);
+    params.setDewarpingOptions(dewarpingOptions);
+  }
+  ColorCommonOptions colorCommonOptions = params.colorParams().colorCommonOptions();
+  colorCommonOptions.setFillMargins(run.fillMargins);
+  ColorParams colorParamsWithMargins = params.colorParams();
+  colorParamsWithMargins.setColorCommonOptions(colorCommonOptions);
+  params.setColorParams(colorParamsWithMargins);
   settings->setParams(pageId, params);
 
-  QImage page = syntheticPage(run.colored, run.strokeColor);
+  QImage page = run.page.isNull() ? syntheticPage(run.colored, run.strokeColor) : run.page;
   if (run.blankPage) {
     page.fill(Qt::white);
   }
   const FilterData data(page);
   ImageTransformation xform(data.xform());
+  xform.setPostRotation(run.postRotation);
   xform.postScaleToDpi(outputDpi);
   if (run.postScaleFactor != 1.0) {
     xform.setPostScaleFactor(run.postScaleFactor);
@@ -200,6 +223,9 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
                           nullptr, nullptr, pageId, settings, /*takeOverBlackOnWhite=*/true);
   if (run.noModelFound) {
     *run.noModelFound = settings->getParams(pageId).dewarpingOptions().noModelFound();
+  }
+  if (run.resultingModel) {
+    *run.resultingModel = distortionModel;
   }
   return output;
 }
@@ -697,6 +723,93 @@ BOOST_AUTO_TEST_CASE(test_trapezoid_dewarping_of_a_page_without_lines_reports_no
   const std::unique_ptr<OutputImage> output = generate(run);
   BOOST_REQUIRE(output && !output->isNull());
   BOOST_TEST(noModelFound);
+}
+
+namespace {
+const QSize A4_PAGE_SIZE(2480, 3508);
+const int TEXT_LEFT = 300;
+const int TEXT_RIGHT = 2180;
+
+QImage whiteA4Page() {
+  QImage page(A4_PAGE_SIZE, QImage::Format_RGB32);
+  page.fill(Qt::white);
+  const Dpm dpm(DPI);
+  page.setDotsPerMeterX(dpm.horizontal());
+  page.setDotsPerMeterY(dpm.vertical());
+  return page;
+}
+
+/**
+ * Draws a line of dark letters, grouped into words of pseudo-random length, from \p left to exactly \p right.
+ */
+void drawWords(QPainter& painter, const int left, const int right, const int y) {
+  const int letterWidth = 14;
+  const int letterHeight = 32;
+  const int gapBetweenLetters = 8;
+  const int gapBetweenWords = 24;
+  unsigned int random = 12345 + static_cast<unsigned int>(y);
+  int lettersLeftInWord = 5;
+  int x = left;
+  while (x + letterWidth < right) {
+    painter.fillRect(x, y, letterWidth, letterHeight, Qt::black);
+    x += letterWidth + gapBetweenLetters;
+    if (--lettersLeftInWord == 0) {
+      random = random * 1103515245 + 12345;
+      lettersLeftInWord = 3 + (random >> 16) % 7;
+      x += gapBetweenWords;
+    }
+  }
+  painter.fillRect(right - letterWidth, y, letterWidth, letterHeight, Qt::black);
+}
+
+bool closeTo(const QPointF& a, const QPointF& b) {
+  const double tolerance = 3.0;
+  return (std::abs(a.x() - b.x()) < tolerance) && (std::abs(a.y() - b.y()) < tolerance);
+}
+
+bool sameModel(const dewarping::DistortionModel& a, const dewarping::DistortionModel& b) {
+  return closeTo(a.topCurve().polyline().front(), b.topCurve().polyline().front())
+         && closeTo(a.topCurve().polyline().back(), b.topCurve().polyline().back())
+         && closeTo(a.bottomCurve().polyline().front(), b.bottomCurve().polyline().front())
+         && closeTo(a.bottomCurve().polyline().back(), b.bottomCurve().polyline().back());
+}
+}  // namespace
+
+BOOST_AUTO_TEST_CASE(test_filling_the_margins_doesnt_decide_how_a_page_is_dewarped) {
+  // A block of text and, far below it, a short footnote, inside a content box drawn by hand.
+  QImage page = whiteA4Page();
+  {
+    QPainter painter(&page);
+    for (int line = 0; line < 18; ++line) {
+      drawWords(painter, TEXT_LEFT, TEXT_RIGHT, 400 + line * 70);
+    }
+    drawWords(painter, TEXT_LEFT, TEXT_LEFT + 700, 3150);
+    drawWords(painter, TEXT_LEFT, TEXT_LEFT + 700, 3236);
+  }
+
+  for (const DewarpingMode mode : {AUTO, TRAPEZOID}) {
+    Run run;
+    run.page = page;
+    run.content = QRectF(260, 384, 1960, 2860);
+    run.dewarpingMode = mode;
+
+    dewarping::DistortionModel filledModel;
+    bool filledNoModel = false;
+    run.fillMargins = true;
+    run.resultingModel = &filledModel;
+    run.noModelFound = &filledNoModel;
+    generate(run);
+
+    dewarping::DistortionModel unfilledModel;
+    bool unfilledNoModel = false;
+    run.fillMargins = false;
+    run.resultingModel = &unfilledModel;
+    run.noModelFound = &unfilledNoModel;
+    generate(run);
+
+    BOOST_TEST(filledNoModel == unfilledNoModel);
+    BOOST_TEST(sameModel(filledModel, unfilledModel));
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
