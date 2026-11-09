@@ -366,6 +366,8 @@ topic, not by version.
 * Default Parameters show profiles in the unit of the Program Settings, except that a profile in
   pixels stays in pixels and, with the Program Settings in pixels, a profile keeps its own unit; switching to Custom
   converts the values instead of reinterpreting them.
+* Lists, number fields and sliders change by the mouse wheel only after they were clicked;
+  otherwise the wheel scrolls the panel, so scrolling no longer changes settings by accident.
 
 ## Error reporting and fixes
 
