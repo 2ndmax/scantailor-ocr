@@ -826,8 +826,7 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
       // PS: the static original <-> dewarped mappings are constructed
       // in Task::UiUpdater::updateUI(). Look for "new DewarpingPointMapper" there.
       // The automatic modes have to find the curves anew, so they reload on the Dewarping tab, too.
-      const bool automaticMode = (opt.dewarpingMode() == AUTO) || (opt.dewarpingMode() == MARGINAL);
-      if (automaticMode || (m_lastTab != TAB_DEWARPING)) {
+      if (opt.findsCurvesItself() || (m_lastTab != TAB_DEWARPING)) {
         // Switch to the Output tab after reloading.
         m_lastTab = TAB_OUTPUT;
         // These depend on the value of m_lastTab.
@@ -922,7 +921,7 @@ void OptionsWidget::reloadIfNecessary() {
                 // Not reloaded on the Dewarping tab in the manual mode, see dewarpingChanged().
                 || (savedDewarpingOptions.needPostDeskew() != dewarpingOptions.needPostDeskew());
   // The automatic modes find the curves anew, so a changed model doesn't count there.
-  const bool sameAutomaticMode = (savedMode == mode) && ((mode == AUTO) || (mode == MARGINAL));
+  const bool sameAutomaticMode = (savedMode == mode) && dewarpingOptions.findsCurvesItself();
   if (!reload && !sameAutomaticMode) {
     reload = !savedDistortionModel.matches(params.distortionModel()) || ((savedMode == OFF) != (mode == OFF));
   }

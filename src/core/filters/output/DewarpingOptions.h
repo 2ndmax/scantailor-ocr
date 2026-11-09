@@ -26,6 +26,9 @@ class DewarpingOptions {
 
   void setDewarpingMode(DewarpingMode mode);
 
+  /** Whether the method finds the curves itself, each time the page is processed. */
+  bool findsCurvesItself() const { return (m_mode == AUTO) || (m_mode == MARGINAL); }
+
   bool needPostDeskew() const;
 
   void setPostDeskew(bool postDeskew);

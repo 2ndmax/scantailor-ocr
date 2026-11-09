@@ -1254,7 +1254,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processImpl(ZoneSet& pi
   m_outsideBackgroundColor = BackgroundColorCalculator::calcDominantBackgroundColor(
       m_colorOriginal ? m_inputOrigImage : m_inputGrayImage, m_outCropAreaInOriginalCs);
 
-  if ((m_dewarpingOptions.dewarpingMode() == AUTO) || (m_dewarpingOptions.dewarpingMode() == MARGINAL)
+  if (m_dewarpingOptions.findsCurvesItself()
       || ((m_dewarpingOptions.dewarpingMode() == MANUAL) && distortionModel.isValid())) {
     return processWithDewarping(pictureZones, fillZones, distortionModel, depthPerception, autoPictureMask,
                                 specklesImage);

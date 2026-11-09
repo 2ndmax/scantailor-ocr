@@ -270,7 +270,7 @@ void DewarpingView::curveModified(int curveIdx) {
 }
 
 void DewarpingView::dragFinished() {
-  if ((m_dewarpingOptions.dewarpingMode() == AUTO) || (m_dewarpingOptions.dewarpingMode() == MARGINAL)) {
+  if (m_dewarpingOptions.findsCurvesItself()) {
     m_dewarpingOptions.setDewarpingMode(MANUAL);
   }
   emit distortionModelChanged(m_distortionModel);

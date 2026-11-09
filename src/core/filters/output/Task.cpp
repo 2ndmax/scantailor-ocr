@@ -268,8 +268,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
       const bool widthCorrectionChanged
           = (dewarpingMode == MANUAL)
             && !distortionModel.widthCorrection().matches(params.distortionModel().widthCorrection());
-      if (((dewarpingMode == AUTO) || (dewarpingMode == MARGINAL) || widthCorrectionChanged)
-          && distortionModel.isValid()) {
+      if ((params.dewarpingOptions().findsCurvesItself() || widthCorrectionChanged) && distortionModel.isValid()) {
         // A new distortion model was generated.
         // We need to save it to be able to modify it manually.
         // Only this field: writing back all of params would undo changes the user made to the

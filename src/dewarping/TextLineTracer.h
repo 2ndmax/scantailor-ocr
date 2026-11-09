@@ -49,6 +49,14 @@ class TextLineTracer {
   // Lets dewarping_tests call the private helpers.
   friend struct TextLineTracerTestAccess;
 
+  struct TracedPage;
+
+  /** Everything up to the traced lines of the page. The methods differ in what they make of those. */
+  static TracedPage traceTextLines(const imageproc::GrayImage& input,
+                                   const Dpi& dpi,
+                                   const QRect& contentRect,
+                                   DebugImages* dbg);
+
   static imageproc::GrayImage downscale(const imageproc::GrayImage& input, const Dpi& dpi);
 
   static void sanitizeBinaryImage(imageproc::BinaryImage& image, const QRect& contentRect);

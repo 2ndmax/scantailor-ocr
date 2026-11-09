@@ -18,8 +18,10 @@
 #include <Sobel.h>
 
 #include <QPainter>
+#include <QTransform>
 #include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <limits>
 
 #include "AvgUnitVector.h"
@@ -51,15 +53,35 @@ const double kMinShareOfTextHeight = 0.5;      // Of the height of the rows of t
 // A row counts as text if its ink spans this share of the width of the text, unlike a page number.
 const double kMinTextRowWidthShare = 0.4;
 
-struct EdgeDirection {
-  double slope = 0;  // dx / dy
-  int agreeingEnds = 0;
+struct LineEnds {
+  std::vector<QPointF> left;
+  std::vector<QPointF> right;
 };
 
-/** The direction most of the line ends agree on, tried through each pair of them. */
-EdgeDirection dominantEdgeDirection(const std::vector<QPointF>& ends) {
+LineEnds lineEndsOf(const std::list<std::vector<QPointF>>& polylines) {
+  LineEnds ends;
+  for (const std::vector<QPointF>& polyline : polylines) {
+    const bool leftToRight = polyline.front().x() < polyline.back().x();
+    ends.left.push_back(leftToRight ? polyline.front() : polyline.back());
+    ends.right.push_back(leftToRight ? polyline.back() : polyline.front());
+  }
+  return ends;
+}
+
+struct EdgeDirection {
+  double slope = 0;  // dx / dy
+  std::vector<QPointF> agreeingEnds;
+};
+
+/** The direction most of the line ends agree on, tried through each pair of them, with the ends that agree. */
+EdgeDirection mostAgreedEdgeDirection(const std::vector<QPointF>& ends) {
   const double maxSlope = std::tan(kMaxEdgeSlopeDegrees * constants::DEG2RAD);
-  EdgeDirection best;
+  const auto agrees = [](const QPointF& pt, const QPointF& anchor, const double slope) {
+    return std::fabs(pt.x() - (anchor.x() + slope * (pt.y() - anchor.y()))) <= kLineEndTolerance;
+  };
+  double bestSlope = 0;
+  QPointF bestAnchor;
+  int mostAgreeing = 0;
   for (size_t i = 0; i < ends.size(); ++i) {
     for (size_t j = i + 1; j < ends.size(); ++j) {
       const double dy = ends[j].y() - ends[i].y();
@@ -70,16 +92,29 @@ EdgeDirection dominantEdgeDirection(const std::vector<QPointF>& ends) {
       if (std::fabs(slope) > maxSlope) {
         continue;
       }
-      const auto agreeingEnds = static_cast<int>(std::count_if(ends.begin(), ends.end(), [&](const QPointF& pt) {
-        return std::fabs(pt.x() - (ends[i].x() + slope * (pt.y() - ends[i].y()))) <= kLineEndTolerance;
-      }));
-      const bool sameButStraighter = (agreeingEnds == best.agreeingEnds) && (std::fabs(slope) < std::fabs(best.slope));
-      if ((agreeingEnds > best.agreeingEnds) || sameButStraighter) {
-        best.slope = slope;
-        best.agreeingEnds = agreeingEnds;
+      const auto agreeing = static_cast<int>(
+          std::count_if(ends.begin(), ends.end(), [&](const QPointF& pt) { return agrees(pt, ends[i], slope); }));
+      const bool sameButStraighter = (agreeing == mostAgreeing) && (std::fabs(slope) < std::fabs(bestSlope));
+      if ((agreeing > mostAgreeing) || sameButStraighter) {
+        bestSlope = slope;
+        bestAnchor = ends[i];
+        mostAgreeing = agreeing;
       }
     }
   }
+
+  EdgeDirection best;
+  best.slope = bestSlope;
+  if (mostAgreeing > 0) {
+    std::copy_if(ends.begin(), ends.end(), std::back_inserter(best.agreeingEnds),
+                 [&](const QPointF& pt) { return agrees(pt, bestAnchor, bestSlope); });
+  }
+  return best;
+}
+
+/** As mostAgreedEdgeDirection(), but a tilt that may just be measuring noise counts as none. */
+EdgeDirection dominantEdgeDirection(const std::vector<QPointF>& ends) {
+  EdgeDirection best = mostAgreedEdgeDirection(ends);
 
   // A tilt the tolerance alone can explain over the height of the lines is noise. Extrapolated over the
   // page, it would visibly stretch the part of the page below a short block of text.
@@ -145,14 +180,10 @@ bool fitBoundsToTextLines(const std::list<std::vector<QPointF>>& polylines,
     return false;
   }
 
-  std::vector<QPointF> leftEnds;
-  std::vector<QPointF> rightEnds;
+  const LineEnds ends = lineEndsOf(polylines);
   double firstLineY = std::numeric_limits<double>::max();
   double lastLineY = -std::numeric_limits<double>::max();
   for (const std::vector<QPointF>& polyline : polylines) {
-    const bool leftToRight = polyline.front().x() < polyline.back().x();
-    leftEnds.push_back(leftToRight ? polyline.front() : polyline.back());
-    rightEnds.push_back(leftToRight ? polyline.back() : polyline.front());
     double sumY = 0;
     for (const QPointF& pt : polyline) {
       sumY += pt.y();
@@ -166,18 +197,18 @@ bool fitBoundsToTextLines(const std::list<std::vector<QPointF>>& polylines,
     return false;
   }
 
-  const EdgeDirection left = dominantEdgeDirection(leftEnds);
-  const EdgeDirection right = dominantEdgeDirection(rightEnds);
+  const EdgeDirection left = dominantEdgeDirection(ends.left);
+  const EdgeDirection right = dominantEdgeDirection(ends.right);
   // Ragged line ends may not agree on anything. Then the other edge, or else the deskewed vertical, tells the slope.
   const int minAgreeingEnds = std::max(4, numLines / 4);
-  const bool leftReliable = left.agreeingEnds >= minAgreeingEnds;
-  const bool rightReliable = right.agreeingEnds >= minAgreeingEnds;
+  const bool leftReliable = static_cast<int>(left.agreeingEnds.size()) >= minAgreeingEnds;
+  const bool rightReliable = static_cast<int>(right.agreeingEnds.size()) >= minAgreeingEnds;
   const double fallbackSlope = leftReliable ? left.slope : (rightReliable ? right.slope : 0.0);
 
   const QLineF leftEdge
-      = edgeThroughOutermostEnd(leftEnds, leftReliable ? left.slope : fallbackSlope, -1.0, binarized.height());
+      = edgeThroughOutermostEnd(ends.left, leftReliable ? left.slope : fallbackSlope, -1.0, binarized.height());
   const QLineF rightEdge
-      = edgeThroughOutermostEnd(rightEnds, rightReliable ? right.slope : fallbackSlope, 1.0, binarized.height());
+      = edgeThroughOutermostEnd(ends.right, rightReliable ? right.slope : fallbackSlope, 1.0, binarized.height());
 
   const double textWidth = 0.5 * ((rightEdge.x1() - leftEdge.x1()) + (rightEdge.x2() - leftEdge.x2()));
   const std::pair<int, int> textRows = verticalRangeOfWideRows(binarized, kMinTextRowWidthShare * textWidth);
@@ -192,12 +223,47 @@ bool fitBoundsToTextLines(const std::list<std::vector<QPointF>>& polylines,
 }
 }  // namespace
 
+struct TextLineTracer::TracedPage {
+  std::list<std::vector<QPointF>> polylines;  // In the coordinates of the downscaled page, as all members here.
+  std::pair<QLineF, QLineF> vertBounds;
+  BinaryImage binarized;
+  QRect contentRect;
+  QTransform toOrig;  // From the downscaled page to the input.
+};
+
 void TextLineTracer::trace(const GrayImage& input,
                            const Dpi& dpi,
                            const QRect& contentRect,
                            DistortionModelBuilder& output,
                            const TaskStatus& /*status*/,
                            DebugImages* dbg) {
+  TracedPage page = traceTextLines(input, dpi, contentRect, dbg);
+
+  if (!fitBoundsToTextLines(page.polylines, page.binarized, page.contentRect, page.vertBounds)) {
+    return;  // Without bounds and curves no model gets built, and the page is left as it is.
+  }
+  if (dbg) {
+    dbg->add(visualizeVerticalBounds(page.binarized.toQImage(), page.vertBounds), "vertBounds_from_lines");
+  }
+
+  // Transform back to original coordinates and output.
+
+  page.vertBounds.first = page.toOrig.map(page.vertBounds.first);
+  page.vertBounds.second = page.toOrig.map(page.vertBounds.second);
+  output.setVerticalBounds(page.vertBounds.first, page.vertBounds.second);
+
+  for (std::vector<QPointF>& polyline : page.polylines) {
+    for (QPointF& pt : polyline) {
+      pt = page.toOrig.map(pt);
+    }
+    output.addHorizontalCurve(polyline);
+  }
+}  // TextLineTracer::trace
+
+TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input,
+                                                          const Dpi& dpi,
+                                                          const QRect& contentRect,
+                                                          DebugImages* dbg) {
   GrayImage downscaled(downscale(input, dpi));
   if (dbg) {
     dbg->add(downscaled, "downscaled");
@@ -253,26 +319,8 @@ void TextLineTracer::trace(const GrayImage& input,
     dbg->add(visualizePolylines(downscaled, polylines), "filtered2");
   }
 
-  if (!fitBoundsToTextLines(polylines, binarized, downscaledContentRect, vertBounds)) {
-    return;  // Without bounds and curves no model gets built, and the page is left as it is.
-  }
-  if (dbg) {
-    dbg->add(visualizeVerticalBounds(binarized.toQImage(), vertBounds), "vertBounds_from_lines");
-  }
-
-  // Transform back to original coordinates and output.
-
-  vertBounds.first = toOrig.map(vertBounds.first);
-  vertBounds.second = toOrig.map(vertBounds.second);
-  output.setVerticalBounds(vertBounds.first, vertBounds.second);
-
-  for (std::vector<QPointF>& polyline : polylines) {
-    for (QPointF& pt : polyline) {
-      pt = toOrig.map(pt);
-    }
-    output.addHorizontalCurve(polyline);
-  }
-}  // TextLineTracer::trace
+  return {std::move(polylines), vertBounds, binarized, downscaledContentRect, toOrig};
+}  // TextLineTracer::traceTextLines
 
 GrayImage TextLineTracer::downscale(const GrayImage& input, const Dpi& dpi) {
   // Downscale to 200 DPI.
