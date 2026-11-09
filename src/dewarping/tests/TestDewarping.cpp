@@ -211,10 +211,23 @@ BOOST_AUTO_TEST_CASE(test_indented_block_does_not_tilt_the_left_edge) {
   BOOST_TEST(std::fabs(xAtY(leftEdge, 1400) - kTextLeft) < kLineEndOffset);
 }
 
-BOOST_AUTO_TEST_CASE(test_too_few_lines_give_no_model) {
+// The content box is as tight as the lines, so that only the number of lines can refuse them.
+DistortionModelBuilder traceLinesInTightBox(const int lineCount) {
   QImage page = blankPage();
-  drawTextLines(page, 2, 100);
-  BOOST_TEST(!traceLines(page).tryBuildModel().isValid());
+  const int firstY = 700;
+  drawTextLines(page, lineCount, firstY);
+  const QRect tightBox(0, firstY - 10, kPageSize.width(), (lineCount - 1) * kLineStep + 36);
+  DistortionModelBuilder builder(Vec2d(0, 1));
+  TextLineTracer::trace(imageproc::GrayImage(page), Dpi(200, 200), tightBox, builder, NoCancelStatus());
+  return builder;
+}
+
+BOOST_AUTO_TEST_CASE(test_too_few_lines_give_no_model) {
+  BOOST_TEST(!traceLinesInTightBox(2).tryBuildModel().isValid());
+}
+
+BOOST_AUTO_TEST_CASE(test_three_lines_are_enough_for_a_model) {
+  BOOST_TEST(traceLinesInTightBox(3).tryBuildModel().isValid());
 }
 
 BOOST_AUTO_TEST_CASE(test_short_text_block_gives_no_model) {
