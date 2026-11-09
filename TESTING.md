@@ -41,7 +41,7 @@ Every module has its own `Test<Module>.cpp` in the `tests` folder of its library
 | `foundation_tests` | `src/foundation/tests` | constants, geometry helpers, number formatting |
 | `math_tests` | `src/math/tests` | automatic differentiation, functions, matrices, splines |
 | `imageproc_tests` | `src/imageproc/tests` | binary images, binarization, morphology, scaling, transforms |
-| `dewarping_tests` | `src/dewarping/tests` | the dewarping with invalid curves and grids |
+| `dewarping_tests` | `src/dewarping/tests` | the dewarping with invalid curves and grids, the tracing of text lines on drawn pages |
 | `qt_tests` | `src/qt_tests` | widgets and steps of the user interface without opening windows, and the end-to-end test (Qt Test) |
 
 ### End-to-end test (TestEndToEndQt)

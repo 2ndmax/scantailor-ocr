@@ -275,7 +275,9 @@ topic, not by version.
   edges not parallel to the text no longer win); an endless loop for short text lines, a
   RANSAC bias of the content bounds and zones off by up to a pixel on dewarped pages are fixed.
   Changing the output resolution no longer turns automatic dewarping off, and the filling color
-  "Black" is no longer ignored with dewarping.
+  "Black" is no longer ignored with dewarping. Automatic dewarping is no longer misled by page
+  numbers or indented text, and leaves a page undewarped when it finds too few text lines to
+  rely on.
 * **Output cleanup:** removing pages, replacing a scan or switching a page between one and two
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
