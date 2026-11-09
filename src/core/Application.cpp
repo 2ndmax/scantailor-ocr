@@ -3,9 +3,13 @@
 
 #include "Application.h"
 
+#include <QAbstractSpinBox>
+#include <QComboBox>
 #include <QDebug>
 #include <QFontMetrics>
+#include <QLineEdit>
 #include <QMessageBox>
+#include <QSlider>
 #include <QTextDocument>
 #include <QTimer>
 #include <QToolTip>
@@ -46,8 +50,29 @@ QString Application::wrapToolTip(const QString& tip) {
       .arg(tip.toHtmlEscaped().replace('\n', "<br>"));
 }
 
+QWidget* Application::wheelReceiverInsteadOf(QObject* receiver) {
+  auto* widget = qobject_cast<QWidget*>(receiver);
+  if (!widget) {
+    return nullptr;
+  }
+  // The wheel reaches the line edit inside an editable list or a number field first.
+  QWidget* control = qobject_cast<QLineEdit*>(widget) ? widget->parentWidget() : widget;
+  const bool changesByWheel = qobject_cast<QComboBox*>(control) || qobject_cast<QAbstractSpinBox*>(control)
+                              || qobject_cast<QSlider*>(control);
+  if (!changesByWheel || control->hasFocus()) {
+    return nullptr;
+  }
+  return control->parentWidget();
+}
+
 bool Application::notify(QObject* receiver, QEvent* e) {
   try {
+    // Has to be decided here: inside QApplication::notify() the wheel would first give the control the focus.
+    if (e->type() == QEvent::Wheel) {
+      if (QWidget* insteadOfReceiver = wheelReceiverInsteadOf(receiver)) {
+        return QApplication::notify(insteadOfReceiver, e);
+      }
+    }
     return QApplication::notify(receiver, e);
   } catch (const std::bad_alloc&) {
     OutOfMemoryHandler::instance().handleOutOfMemorySituation();

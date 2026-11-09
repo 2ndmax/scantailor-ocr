@@ -3,6 +3,7 @@
 
 #include "tst_ux_qt.h"
 
+#include <Application.h>
 #include <ApplicationSettings.h>
 #include <CollapsibleGroupBox.h>
 #include <Dpi.h>
@@ -19,16 +20,22 @@
 #include <color_schemes/light_scheme_colors.h>
 
 #include <QCheckBox>
+#include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QLabel>
+#include <QLineEdit>
 #include <QList>
 #include <QPainter>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QSlider>
+#include <QSpinBox>
 #include <QStringList>
 #include <QStyleFactory>
 #include <QStyleOptionFocusRect>
@@ -292,4 +299,46 @@ void TestUxQt::testFocusFrameOnlyForKeyboardFocus() {
   QCOMPARE(countInRow(checkBoxFrame, 0, Qt::white), 40);
   QVERIFY(countInRow(checkBoxFrame, 5, Qt::red) > 0);
   QCOMPARE(countInRow(checkBoxFrame, 5, Qt::blue), 0);
+}
+
+namespace {
+struct PanelWithControls {
+  QWidget panel;
+  QComboBox* list = new QComboBox(&panel);
+  QSpinBox* numberField = new QSpinBox(&panel);
+  QDoubleSpinBox* decimalField = new QDoubleSpinBox(&panel);
+  QSlider* slider = new QSlider(Qt::Horizontal, &panel);
+  QScrollBar* scrollBar = new QScrollBar(Qt::Vertical, &panel);
+  QPushButton* button = new QPushButton(&panel);
+};
+}  // namespace
+
+void TestUxQt::testWheelGoesPastControlsThatWereNotClicked() {
+  PanelWithControls controls;
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), &controls.panel);
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.numberField), &controls.panel);
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.decimalField), &controls.panel);
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.slider), &controls.panel);
+
+  // Inside a number field the line edit gets the wheel first.
+  auto* lineEdit = controls.numberField->findChild<QLineEdit*>();
+  QVERIFY(lineEdit != nullptr);
+  QCOMPARE(Application::wheelReceiverInsteadOf(lineEdit), &controls.panel);
+
+  // A scroll bar is for scrolling, and other widgets have nothing to change.
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.scrollBar), static_cast<QWidget*>(nullptr));
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.button), static_cast<QWidget*>(nullptr));
+  QCOMPARE(Application::wheelReceiverInsteadOf(&controls.panel), static_cast<QWidget*>(nullptr));
+}
+
+void TestUxQt::testWheelStaysWithAClickedControl() {
+  PanelWithControls controls;
+  controls.panel.show();
+  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+
+  for (QWidget* control : std::vector<QWidget*>{controls.list, controls.numberField, controls.slider}) {
+    control->setFocus();
+    QVERIFY(control->hasFocus());
+    QCOMPARE(Application::wheelReceiverInsteadOf(control), static_cast<QWidget*>(nullptr));
+  }
 }

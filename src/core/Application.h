@@ -25,6 +25,13 @@ class Application : public QApplication {
    */
   static QString wrapToolTip(const QString& tip);
 
+  /**
+   * The widget that gets a wheel event instead of \p receiver, or nullptr if \p receiver keeps it.
+   * A list, number field or slider changes by the wheel only after it was clicked; otherwise the
+   * wheel scrolls what holds it, so that scrolling a panel doesn't change settings on the way.
+   */
+  static QWidget* wheelReceiverInsteadOf(QObject* receiver);
+
   const QString& getCurrentLocale() const;
 
   void installLanguage(const QString& locale);

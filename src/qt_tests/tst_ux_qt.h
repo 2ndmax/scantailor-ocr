@@ -19,6 +19,8 @@ class TestUxQt : public QObject {
   void testTextOnAccentHasTheHigherContrast();
   void testNativeSchemeFollowsTheSameMeanings();
   void testFocusFrameOnlyForKeyboardFocus();
+  void testWheelGoesPastControlsThatWereNotClicked();
+  void testWheelStaysWithAClickedControl();
 };
 
 #endif
