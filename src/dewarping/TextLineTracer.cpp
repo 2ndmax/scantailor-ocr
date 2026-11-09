@@ -18,6 +18,7 @@
 #include <Sobel.h>
 
 #include <QPainter>
+#include <algorithm>
 #include <cmath>
 #include <limits>
 
@@ -36,6 +37,161 @@
 using namespace imageproc;
 
 namespace dewarping {
+namespace {
+// Lengths are in pixels at the 200 DPI the tracing works at.
+const double kLineEndTolerance = 3.0;      // How far a line end may be from a straight edge and still agree with it.
+const double kMinHeightForEdgeSlope = 30;  // Two line ends closer than this say nothing about the slope of an edge.
+const double kMaxEdgeSlopeDegrees = 4.0;  // The page is already deskewed, so a steeper edge is not an edge of the text.
+
+// The model is extrapolated beyond the traced lines, and errors grow with the distance. So it needs at least:
+const int kMinTextLines = 3;
+const double kMinShareOfContentHeight = 0.25;  // Of the height of the page content, which includes page numbers.
+const double kMinShareOfTextHeight = 0.5;      // Of the height of the rows of text, traced or not.
+
+// A row counts as text if its ink spans this share of the width of the text, unlike a page number.
+const double kMinTextRowWidthShare = 0.4;
+
+struct EdgeDirection {
+  double slope = 0;  // dx / dy
+  int agreeingEnds = 0;
+};
+
+/** The direction most of the line ends agree on, tried through each pair of them. */
+EdgeDirection dominantEdgeDirection(const std::vector<QPointF>& ends) {
+  const double maxSlope = std::tan(kMaxEdgeSlopeDegrees * constants::DEG2RAD);
+  EdgeDirection best;
+  for (size_t i = 0; i < ends.size(); ++i) {
+    for (size_t j = i + 1; j < ends.size(); ++j) {
+      const double dy = ends[j].y() - ends[i].y();
+      if (std::fabs(dy) < kMinHeightForEdgeSlope) {
+        continue;
+      }
+      const double slope = (ends[j].x() - ends[i].x()) / dy;
+      if (std::fabs(slope) > maxSlope) {
+        continue;
+      }
+      const auto agreeingEnds = static_cast<int>(std::count_if(ends.begin(), ends.end(), [&](const QPointF& pt) {
+        return std::fabs(pt.x() - (ends[i].x() + slope * (pt.y() - ends[i].y()))) <= kLineEndTolerance;
+      }));
+      const bool sameButStraighter = (agreeingEnds == best.agreeingEnds) && (std::fabs(slope) < std::fabs(best.slope));
+      if ((agreeingEnds > best.agreeingEnds) || sameButStraighter) {
+        best.slope = slope;
+        best.agreeingEnds = agreeingEnds;
+      }
+    }
+  }
+
+  // A tilt the tolerance alone can explain over the height of the lines is noise. Extrapolated over the
+  // page, it would visibly stretch the part of the page below a short block of text.
+  const auto [top, bottom] = std::minmax_element(
+      ends.begin(), ends.end(), [](const QPointF& lhs, const QPointF& rhs) { return lhs.y() < rhs.y(); });
+  const double height = bottom->y() - top->y();
+  if ((height > 0) && (std::fabs(best.slope) < 2.0 * kLineEndTolerance / height)) {
+    best.slope = 0;
+  }
+  return best;
+}
+
+/**
+ * A line with the given slope through the outermost line end, as long as the image is high.
+ * \p outwards is -1 for the left edge and 1 for the right one.
+ */
+QLineF edgeThroughOutermostEnd(const std::vector<QPointF>& ends,
+                               const double slope,
+                               const double outwards,
+                               const int imageHeight) {
+  double outermost = -std::numeric_limits<double>::max();
+  for (const QPointF& end : ends) {
+    outermost = std::max(outermost, outwards * (end.x() - slope * end.y()));
+  }
+  // One pixel outside of the text, as detectVertContentBounds() does.
+  const double xAtTop = outwards * outermost + outwards;
+  return QLineF(QPointF(xAtTop, 0), QPointF(xAtTop + slope * imageHeight, imageHeight));
+}
+
+/** The first and the last row whose ink spans at least \p minWidth pixels, or -1 for both if there is none. */
+std::pair<int, int> verticalRangeOfWideRows(const BinaryImage& image, const double minWidth) {
+  std::pair<int, int> range(-1, -1);
+  const uint32_t* line = image.data();
+  const uint32_t msb = uint32_t(1) << 31;
+  for (int y = 0; y < image.height(); ++y, line += image.wordsPerLine()) {
+    int first = -1;
+    int last = -1;
+    for (int x = 0; x < image.width(); ++x) {
+      if (line[x >> 5] & (msb >> (x & 31))) {
+        first = (first < 0) ? x : first;
+        last = x;
+      }
+    }
+    if ((first >= 0) && (last - first >= minWidth)) {
+      range.first = (range.first < 0) ? y : range.first;
+      range.second = y;
+    }
+  }
+  return range;
+}
+
+/**
+ * Replaces \p bounds, which come from all the content of the page, by edges through the ends of the text lines,
+ * so that page numbers and indented blocks don't tilt them. Returns false, leaving \p bounds alone, if the lines
+ * are too little to build a dewarping model on.
+ */
+bool fitBoundsToTextLines(const std::list<std::vector<QPointF>>& polylines,
+                          const BinaryImage& binarized,
+                          const QRect& contentRect,
+                          std::pair<QLineF, QLineF>& bounds) {
+  const auto numLines = static_cast<int>(polylines.size());
+  if (numLines < kMinTextLines) {
+    return false;
+  }
+
+  std::vector<QPointF> leftEnds;
+  std::vector<QPointF> rightEnds;
+  double firstLineY = std::numeric_limits<double>::max();
+  double lastLineY = -std::numeric_limits<double>::max();
+  for (const std::vector<QPointF>& polyline : polylines) {
+    const bool leftToRight = polyline.front().x() < polyline.back().x();
+    leftEnds.push_back(leftToRight ? polyline.front() : polyline.back());
+    rightEnds.push_back(leftToRight ? polyline.back() : polyline.front());
+    double sumY = 0;
+    for (const QPointF& pt : polyline) {
+      sumY += pt.y();
+    }
+    const double lineY = sumY / polyline.size();
+    firstLineY = std::min(firstLineY, lineY);
+    lastLineY = std::max(lastLineY, lineY);
+  }
+  const double lineSpan = lastLineY - firstLineY;
+  if (lineSpan < kMinShareOfContentHeight * contentRect.height()) {
+    return false;
+  }
+
+  const EdgeDirection left = dominantEdgeDirection(leftEnds);
+  const EdgeDirection right = dominantEdgeDirection(rightEnds);
+  // Ragged line ends may not agree on anything. Then the other edge, or else the deskewed vertical, tells the slope.
+  const int minAgreeingEnds = std::max(4, numLines / 4);
+  const bool leftReliable = left.agreeingEnds >= minAgreeingEnds;
+  const bool rightReliable = right.agreeingEnds >= minAgreeingEnds;
+  const double fallbackSlope = leftReliable ? left.slope : (rightReliable ? right.slope : 0.0);
+
+  const QLineF leftEdge
+      = edgeThroughOutermostEnd(leftEnds, leftReliable ? left.slope : fallbackSlope, -1.0, binarized.height());
+  const QLineF rightEdge
+      = edgeThroughOutermostEnd(rightEnds, rightReliable ? right.slope : fallbackSlope, 1.0, binarized.height());
+
+  const double textWidth = 0.5 * ((rightEdge.x1() - leftEdge.x1()) + (rightEdge.x2() - leftEdge.x2()));
+  const std::pair<int, int> textRows = verticalRangeOfWideRows(binarized, kMinTextRowWidthShare * textWidth);
+  const int textHeight = textRows.second - textRows.first;
+  if ((textHeight <= 0) || (lineSpan < kMinShareOfTextHeight * textHeight)) {
+    return false;
+  }
+
+  bounds.first = leftEdge;
+  bounds.second = rightEdge;
+  return true;
+}
+}  // namespace
+
 void TextLineTracer::trace(const GrayImage& input,
                            const Dpi& dpi,
                            const QRect& contentRect,
@@ -97,6 +253,12 @@ void TextLineTracer::trace(const GrayImage& input,
     dbg->add(visualizePolylines(downscaled, polylines), "filtered2");
   }
 
+  if (!fitBoundsToTextLines(polylines, binarized, downscaledContentRect, vertBounds)) {
+    return;  // Without bounds and curves no model gets built, and the page is left as it is.
+  }
+  if (dbg) {
+    dbg->add(visualizeVerticalBounds(binarized.toQImage(), vertBounds), "vertBounds_from_lines");
+  }
 
   // Transform back to original coordinates and output.
 

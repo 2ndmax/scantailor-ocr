@@ -34,6 +34,10 @@ class DistortionModelBuilder;
 
 class TextLineTracer {
  public:
+  /**
+   * Finds the text lines of the page and gives them and the vertical bounds of the text to \p output.
+   * If the lines are too few or cover too little of the page, it gives neither, so no model can be built.
+   */
   static void trace(const imageproc::GrayImage& input,
                     const Dpi& dpi,
                     const QRect& contentRect,
