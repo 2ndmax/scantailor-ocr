@@ -457,10 +457,11 @@ void OptionsWidget::dpiChanged(const std::set<PageId>& pages, const Dpi& dpi) {
   for (const PageId& pageId : pages) {
     Params params(m_settings->getParams(pageId));
     // Keeps the curves found automatically, so they are not searched again at the new resolution.
-    // Without curves found yet, "Manual" would mean no dewarping at all, so the page stays on
-    // "Auto".
+    // Without curves found yet, "Manual" would mean no dewarping at all, so the page stays on its
+    // method. A method that found nothing stores a flat stand-in, which is valid but no curves found.
     const DewarpingMode mode = params.dewarpingOptions().dewarpingMode();
-    if (((mode == AUTO) || (mode == TRAPEZOID)) && params.distortionModel().isValid()) {
+    const bool curvesFound = params.distortionModel().isValid() && !params.dewarpingOptions().noModelFound();
+    if (((mode == AUTO) || (mode == TRAPEZOID)) && curvesFound) {
       DewarpingOptions opt(params.dewarpingOptions());
       opt.setDewarpingMode(MANUAL);
       m_settings->setDewarpingOptions(pageId, opt);

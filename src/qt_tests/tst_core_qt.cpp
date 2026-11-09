@@ -268,6 +268,32 @@ void TestCoreQt::testOutputDpiChangeUpdatesDewarpingMode() {
   QCOMPARE(settings->getParams(page).dewarpingOptions().dewarpingMode(), output::MANUAL);
 }
 
+void TestCoreQt::testOutputDpiChangeKeepsTheMethodOfAPageWithoutAModel() {
+  // A method that found nothing stores a flat stand-in model, which is valid but no curves found.
+  for (const output::DewarpingMode mode : {output::AUTO, output::TRAPEZOID}) {
+    auto settings = std::make_shared<output::Settings>();
+    const PageId page(ImageId("page.png"));
+    dewarping::DistortionModel flatStandIn;
+    flatStandIn.setTopCurve(dewarping::Curve(std::vector<QPointF>{QPointF(0, 0), QPointF(100, 0)}));
+    flatStandIn.setBottomCurve(dewarping::Curve(std::vector<QPointF>{QPointF(0, 100), QPointF(100, 100)}));
+    QVERIFY(flatStandIn.isValid());
+    settings->setDistortionModel(page, flatStandIn);
+    output::DewarpingOptions options(mode);
+    options.setNoModelFound(true);
+    settings->setDewarpingOptions(page, options);
+
+    output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+    widget.preUpdateUI(page);
+
+    auto* dpiSelector = widget.findChild<QComboBox*>("dpiSelector");
+    QVERIFY(dpiSelector != nullptr);
+    dpiSelector->setEditText("300");
+    emit dpiSelector->lineEdit()->editingFinished();
+    QCOMPARE(settings->getParams(page).outputDpi(), Dpi(300, 300));
+    QCOMPARE(settings->getParams(page).dewarpingOptions().dewarpingMode(), mode);
+  }
+}
+
 void TestCoreQt::testOutputDewarpingCheckBoxAndMethodList() {
   auto settings = std::make_shared<output::Settings>();
   const PageId page(ImageId("page.png"));
