@@ -246,7 +246,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
     specklesImg = BinaryImage();
 
     // OutputGenerator will write a new distortion model
-    // there, if dewarping mode is AUTO.
+    // there, if the method finds the curves itself (see DewarpingOptions::findsCurvesItself()).
     DistortionModel distortionModel;
     if (params.dewarpingOptions().dewarpingMode() == MANUAL) {
       distortionModel = params.distortionModel();

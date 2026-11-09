@@ -185,9 +185,6 @@ std::vector<MethodResults> makeMethods() {
 }
 }  // namespace
 
-// Holds the results of all window based methods bit by bit, so that a change of the shared window
-// code or of a formula shows up. A checksum stands for all windows and settings of one method and
-// one page.
 // The sum of a window over more than about 16.8 million white pixels doesn't fit 32 bits. Wrapped
 // around, it gave a tiny mean and threshold, and dark print on the page turned white.
 BOOST_AUTO_TEST_CASE(test_a_window_too_large_for_32_bits_keeps_dark_print_black) {
@@ -202,6 +199,9 @@ BOOST_AUTO_TEST_CASE(test_a_window_too_large_for_32_bits_keeps_dark_print_black)
   BOOST_CHECK_EQUAL(binarizeBradley(page, coveringTheWholePage).countBlackPixels(), printSide * printSide);
 }
 
+// Holds the results of all window based methods bit by bit, so that a change of the shared window
+// code or of a formula shows up. A checksum stands for all windows and settings of one method and
+// one page.
 BOOST_AUTO_TEST_CASE(test_results_of_window_methods_stay_the_same) {
   const std::vector<Page> pages = makePages();
   BOOST_REQUIRE_EQUAL(pages.size(), kPageCount);

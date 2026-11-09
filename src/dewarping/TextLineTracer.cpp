@@ -139,7 +139,8 @@ QLineF edgeThroughOutermostEnd(const std::vector<QPointF>& ends,
   for (const QPointF& end : ends) {
     outermost = std::max(outermost, outwards * (end.x() - slope * end.y()));
   }
-  // One pixel outside of the text, as detectVertContentBounds() does.
+  // One pixel beyond the outermost line end. Line ends lie off the ink by the blur of the tracing, so this
+  // is not as tight as detectVertContentBounds().
   const double xAtTop = outwards * outermost + outwards;
   return QLineF(QPointF(xAtTop, 0), QPointF(xAtTop + slope * imageHeight, imageHeight));
 }
@@ -458,6 +459,10 @@ TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input
     dbg->add(visualizePolylines(downscaled, polylines), "traced");
   }
 
+  // REVIEW-NOTE (2026-11): the lines are still traced, cut and filtered with the bounds of all content; a bound
+  // tilted by a page number or pulled out by a figure shortens or drops lines -> the model is extrapolated there,
+  // or the page is refused. Not fixed because tracing again with the bounds from the line ends changes every
+  // automatic model and needs measuring first.
   filterShortCurves(polylines, vertBounds.first, vertBounds.second);
   filterOutOfBoundsCurves(polylines, vertBounds.first, vertBounds.second);
   if (dbg) {
@@ -596,6 +601,10 @@ void TextLineTracer::filterShortCurves(std::list<std::vector<QPointF>>& polyline
     const double backProjLen = proj2.projectionDist(back);
     const double chordLen = QLineF(front, back).length();
 
+    // REVIEW-NOTE (2026-11): a text line that the tracing breaks at wide gaps between words is too short here
+    // -> it is dropped, and "Trapezoid" or "Auto" can refuse a page depending only on where the gaps lie (a drawn
+    // page: 18 lines traced, 3 left). Not fixed because this limit decides for every automatic model and would
+    // have to be measured on real books.
     if (frontProjLen + backProjLen > 0.3 * chordLen) {
       polylines.erase(it++);
     } else {

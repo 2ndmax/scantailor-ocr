@@ -125,8 +125,8 @@ BinaryImage binarizeWolf(const QImage& src,
   double maxDeviation = 0;
 
   {
-    // The integral images (12 bytes per pixel) are freed at the end of this
-    // block, before the binary image is allocated.
+    // The integral images (12 bytes per pixel, 16 for a window too large for 32-bit sums) are
+    // freed at the end of this block, before the binary image is allocated.
     const GrayWindowDeviations windows(grayLine, grayBpl, w, h, LocalWindow::ofSize(windowSize));
 
     size_t pixelIndex = 0;

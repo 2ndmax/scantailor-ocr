@@ -652,6 +652,9 @@ void ExportView::cancelAndWait() {
     return;
   }
   m_job->cancel();
+  // REVIEW-NOTE (2026-11): the GUI thread waits for the export thread to end the page it is preparing -> the window
+  // doesn't respond for up to one page, without a wait cursor. Not fixed because the user has just confirmed the
+  // cancel, and text recognition stops at once on cancel.
   m_thread->wait();
   exportFinished();
 }
@@ -889,8 +892,8 @@ void ExportView::startExport() {
       QApplication::setOverrideCursor(Qt::WaitCursor);
     }
     QString error;
-    // REVIEW-NOTE (2026-11): copying the language files and waiting for the export thread run on the GUI thread
-    // -> the window doesn't respond for a moment. Not fixed because it is short and shown by a wait cursor.
+    // REVIEW-NOTE (2026-11): copying the language files runs on the GUI thread -> the window doesn't respond for a
+    // moment. Not fixed because it is short and shown by a wait cursor.
     const ExportOptions::OcrSetup setup = options.setUpOcr(languages, m_ocrPanel->pageLayout(), &error);
     if (copying) {
       QApplication::restoreOverrideCursor();

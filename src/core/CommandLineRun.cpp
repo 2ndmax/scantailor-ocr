@@ -361,8 +361,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   ExportPaths exportPaths;
   if (exporting) {
     if (!options.formats) {
-      // REVIEW-NOTE (2026-11): a project saved by 1.0.10 to 1.0.12 has no <formats> -> PDF only here, the default
-      // profile's formats in the app. Not fixed because no such projects are in use.
+      // REVIEW-NOTE (2026-11): a project saved by 1.0.9 or 1.0.10 has no <processing-options> and no <default-params>,
+      // one saved by 1.0.11 or 1.0.12 no <formats> -> the built-in defaults fill them in here, the default profile in
+      // the app, so here only PDF is exported. Not fixed because no such projects are in use.
       formats = reader.readProcessingOptions(ProcessingOptions()).formats;
       if (!formats.any()) {
         err << tr(
@@ -383,8 +384,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     out << tr("The export will create: %1").arg(describeOutputs(exportPaths, formats)) << Qt::endl;
   }
 
-  // The fallback only fills in what the project file lacks: the formats of a project saved by 1.0.10 to 1.0.12
-  // (see the note above). Projects of still older versions were refused above.
+  // The fallback fills in what a project of 1.0.9 to 1.0.12 lacks (see the note above). Projects of still older
+  // versions were refused above.
   const ProjectSession session = ProjectSession::load(reader, DefaultParams(), PageSelectionAccessor(nullptr));
   const StageSequence& stages = *session.stages;
   // Loading has already recreated a deleted output folder if the project is where it was. Otherwise

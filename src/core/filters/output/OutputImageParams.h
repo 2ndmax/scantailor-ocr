@@ -134,7 +134,7 @@ class OutputImageParams {
   /** \see imageproc::CylindricalSurfaceDewarper */
   DepthPerception m_depthPerception;
 
-  /** Dewarping mode (Off / Auto / Manual) and options */
+  /** Dewarping method and options */
   DewarpingOptions m_dewarpingOptions;
 
   /** Despeckle level of the output image. */
