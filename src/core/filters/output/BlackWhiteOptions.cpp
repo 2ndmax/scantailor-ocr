@@ -300,12 +300,26 @@ BlackWhiteOptions::ColorSegmenterOptions::ColorSegmenterOptions()
       m_kmeansColors(6),
       m_kmeansBlackFixed(true) {}
 
+namespace {
+// Only a damaged or hand-edited file holds a value outside its field. It must not reach the color
+// segmenter, which would overflow on it or take a root of a negative number.
+int segmenterValue(const QDomElement& el, const char* name, const int min, const int max, const int defaultValue) {
+  bool ok = false;
+  const int value = el.attribute(name).toInt(&ok);
+  return (ok && (value >= min) && (value <= max)) ? value : defaultValue;
+}
+
+int thresholdAdjustment(const QDomElement& el, const char* name) {
+  return segmenterValue(el, name, -99, 99, 0);
+}
+}  // namespace
+
 BlackWhiteOptions::ColorSegmenterOptions::ColorSegmenterOptions(const QDomElement& el)
     : m_isEnabled(el.attribute("enabled") == "1"),
-      m_noiseReduction(el.attribute("noiseReduction", "7").toInt()),
-      m_redThresholdAdjustment(el.attribute("redThresholdAdjustment").toInt()),
-      m_greenThresholdAdjustment(el.attribute("greenThresholdAdjustment").toInt()),
-      m_blueThresholdAdjustment(el.attribute("blueThresholdAdjustment").toInt()),
+      m_noiseReduction(segmenterValue(el, "noiseReduction", 0, 999, 7)),
+      m_redThresholdAdjustment(thresholdAdjustment(el, "redThresholdAdjustment")),
+      m_greenThresholdAdjustment(thresholdAdjustment(el, "greenThresholdAdjustment")),
+      m_blueThresholdAdjustment(thresholdAdjustment(el, "blueThresholdAdjustment")),
       m_posterizeEnabled(el.attribute("posterize") == "1"),
       m_kmeansEnabled(el.attribute("kmeans") == "1"),
       m_kmeansColors(std::clamp(el.attribute("kmeansColors", "6").toInt(), MIN_KMEANS_COLORS, MAX_KMEANS_COLORS)),

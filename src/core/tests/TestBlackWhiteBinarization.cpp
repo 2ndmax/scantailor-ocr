@@ -288,6 +288,38 @@ BOOST_AUTO_TEST_CASE(test_an_unknown_method_name_changes_nothing) {
   BOOST_CHECK(BlackWhiteOptions(el).values(T_OTSU) == BlackWhiteOptions::defaultValues(T_OTSU));
 }
 
+BOOST_AUTO_TEST_CASE(test_color_segmenter_values_outside_their_fields_give_the_default) {
+  using SegmenterOptions = BlackWhiteOptions::ColorSegmenterOptions;
+  QDomDocument doc;
+  for (const QString& noiseReduction : {QStringLiteral("-1"), QStringLiteral("1000"), QStringLiteral("2147483647")}) {
+    QDomElement el = doc.createElement(QStringLiteral("segmenter"));
+    el.setAttribute(QStringLiteral("noiseReduction"), noiseReduction);
+    BOOST_CHECK_EQUAL(SegmenterOptions(el).getNoiseReduction(), SegmenterOptions().getNoiseReduction());
+  }
+  for (const QString& adjustment : {QStringLiteral("-100"), QStringLiteral("100"), QStringLiteral("2147483647")}) {
+    QDomElement el = doc.createElement(QStringLiteral("segmenter"));
+    el.setAttribute(QStringLiteral("redThresholdAdjustment"), adjustment);
+    el.setAttribute(QStringLiteral("greenThresholdAdjustment"), adjustment);
+    el.setAttribute(QStringLiteral("blueThresholdAdjustment"), adjustment);
+    const SegmenterOptions options(el);
+    BOOST_CHECK_EQUAL(options.getRedThresholdAdjustment(), 0);
+    BOOST_CHECK_EQUAL(options.getGreenThresholdAdjustment(), 0);
+    BOOST_CHECK_EQUAL(options.getBlueThresholdAdjustment(), 0);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_color_segmenter_values_at_the_ends_of_their_fields_are_kept) {
+  QDomDocument doc;
+  QDomElement el = doc.createElement(QStringLiteral("segmenter"));
+  el.setAttribute(QStringLiteral("noiseReduction"), 999);
+  el.setAttribute(QStringLiteral("redThresholdAdjustment"), -99);
+  el.setAttribute(QStringLiteral("greenThresholdAdjustment"), 99);
+  const BlackWhiteOptions::ColorSegmenterOptions options(el);
+  BOOST_CHECK_EQUAL(options.getNoiseReduction(), 999);
+  BOOST_CHECK_EQUAL(options.getRedThresholdAdjustment(), -99);
+  BOOST_CHECK_EQUAL(options.getGreenThresholdAdjustment(), 99);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace output
