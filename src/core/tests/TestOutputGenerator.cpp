@@ -762,6 +762,21 @@ void drawWords(QPainter& painter, const int left, const int right, const int y) 
   painter.fillRect(right - letterWidth, y, letterWidth, letterHeight, Qt::black);
 }
 
+/** A line of "H" shaped letters that get narrower towards the right edge, as near the spine of a book. */
+void drawLettersNarrowingToTheRight(QPainter& painter, const int y) {
+  const int narrowingStart = 1400;
+  double x = TEXT_LEFT;
+  while (x < TEXT_RIGHT) {
+    const double scale = (x < narrowingStart) ? 1.0 : 1.0 - 0.25 * (x - narrowingStart) / (TEXT_RIGHT - narrowingStart);
+    const int stem = static_cast<int>(std::lround(8 * scale));
+    const int width = static_cast<int>(std::lround(40 * scale));
+    painter.fillRect(static_cast<int>(x), y, stem, 60, Qt::black);
+    painter.fillRect(static_cast<int>(x) + width - stem, y, stem, 60, Qt::black);
+    painter.fillRect(static_cast<int>(x), y + 27, width, 6, Qt::black);
+    x += 60 * scale;
+  }
+}
+
 double edgeTiltInDegrees(const QPointF& top, const QPointF& bottom) {
   return std::atan2(bottom.x() - top.x(), bottom.y() - top.y()) * 180.0 / constants::PI;
 }
@@ -876,6 +891,53 @@ BOOST_AUTO_TEST_CASE(test_both_edges_of_a_crookedly_scanned_page_keep_their_tilt
 
   BOOST_REQUIRE(!noModelFound);
   BOOST_TEST(std::abs(leftEdgeTilt(model) - rightEdgeTilt(model)) < 1.0);
+}
+
+namespace {
+bool narrowingLettersPageFindsNoModel(const DewarpingMode mode,
+                                      const int lines,
+                                      const int lineStep,
+                                      dewarping::DistortionModel& model) {
+  QImage page = whiteA4Page();
+  {
+    QPainter painter(&page);
+    for (int line = 0; line < lines; ++line) {
+      drawLettersNarrowingToTheRight(painter, 300 + line * lineStep);
+    }
+  }
+  Run run;
+  run.page = page;
+  run.content = QRectF(QPointF(0, 0), A4_PAGE_SIZE);
+  run.dewarpingMode = mode;
+  run.evenOutLetterWidths = true;
+  bool noModelFound = false;
+  run.noModelFound = &noModelFound;
+  run.resultingModel = &model;
+  generate(run);
+  return noModelFound;
+}
+}  // namespace
+
+BOOST_AUTO_TEST_CASE(test_letter_widths_are_left_alone_on_a_page_without_a_model) {
+  // A short block is too little for "Auto", and seven lines are too few for "Trapezoid".
+  const struct {
+    DewarpingMode mode;
+    int lines;
+    int lineStep;
+  } cases[] = {{AUTO, 8, 100}, {TRAPEZOID, 7, 400}};
+
+  for (const auto& pageCase : cases) {
+    dewarping::DistortionModel model;
+    BOOST_REQUIRE(narrowingLettersPageFindsNoModel(pageCase.mode, pageCase.lines, pageCase.lineStep, model));
+    BOOST_TEST(model.widthCorrection().isNull());
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_letter_widths_are_evened_out_on_a_page_with_a_model) {
+  // Shows that the pages of the test above could get a correction at all.
+  dewarping::DistortionModel model;
+  BOOST_REQUIRE(!narrowingLettersPageFindsNoModel(AUTO, 27, 100, model));
+  BOOST_TEST(!model.widthCorrection().isNull());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

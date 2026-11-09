@@ -1667,7 +1667,8 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
     distortionModel.setWidthCorrection(WidthCorrection());
     dewarped = dewarp(QTransform(), normalizedOriginal, m_xform.transform(), distortionModel, depthPerception,
                       m_outsideBackgroundColor);
-    if (m_dewarpingOptions.evenOutLetterWidths()) {
+    // A page reported as not dewarped stays as it is, also in its width.
+    if (m_dewarpingOptions.evenOutLetterWidths() && !m_dewarpingOptions.noModelFound()) {
       evenOutLetterWidths(distortionModel, depthPerception, normalizedOriginal, dewarped);
     }
 
