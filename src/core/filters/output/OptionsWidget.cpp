@@ -3,9 +3,10 @@
 
 #include "OptionsWidget.h"
 
+#include "DewarpingMethodBox.h"
+
 #include <tiff.h>
 
-#include <QButtonGroup>
 #include <QCoreApplication>
 #include <QDoubleSpinBox>
 #include <QFormLayout>
@@ -133,11 +134,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
   Utils::setDpiFieldWidth(dpiSelector);
 
-  m_dewarpingModeGroup = new QButtonGroup(this);
-  m_dewarpingModeGroup->addButton(dewarpingOffBtn, OFF);
-  m_dewarpingModeGroup->addButton(dewarpingAutoBtn, AUTO);
-  m_dewarpingModeGroup->addButton(dewarpingMarginalBtn, MARGINAL);
-  m_dewarpingModeGroup->addButton(dewarpingManualBtn, MANUAL);
+  DewarpingMethodBox::setUp(dewarpingMethodBox, dewarpingMethodLabel);
 
   setupPhotoAdjustmentsPanel();
 
@@ -462,7 +459,8 @@ void OptionsWidget::dpiChanged(const std::set<PageId>& pages, const Dpi& dpi) {
     // Keeps the curves found automatically, so they are not searched again at the new resolution.
     // Without curves found yet, "Manual" would mean no dewarping at all, so the page stays on
     // "Auto".
-    if ((params.dewarpingOptions().dewarpingMode() == AUTO) && params.distortionModel().isValid()) {
+    const DewarpingMode mode = params.dewarpingOptions().dewarpingMode();
+    if (((mode == AUTO) || (mode == TRAPEZOID)) && params.distortionModel().isValid()) {
       DewarpingOptions opt(params.dewarpingOptions());
       opt.setDewarpingMode(MANUAL);
       m_settings->setDewarpingOptions(pageId, opt);
@@ -770,9 +768,17 @@ void OptionsWidget::applyDespeckleConfirmed(const std::set<PageId>& pages) {
   pagesChanged(pages);
 }
 
-void OptionsWidget::dewarpingModeChanged(const int mode) {
+void OptionsWidget::dewarpingToggled(const bool on) {
+  dewarpingModeChanged(on ? DewarpingMethodBox::selectedMethod(dewarpingMethodBox) : OFF);
+}
+
+void OptionsWidget::dewarpingMethodActivated() {
+  dewarpingModeChanged(DewarpingMethodBox::selectedMethod(dewarpingMethodBox));
+}
+
+void OptionsWidget::dewarpingModeChanged(const DewarpingMode mode) {
   DewarpingOptions opt(m_dewarpingOptions);
-  opt.setDewarpingMode(static_cast<DewarpingMode>(mode));
+  opt.setDewarpingMode(mode);
   dewarpingChanged({m_pageId}, opt);
 }
 
@@ -809,7 +815,9 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
     // The angle of the post deskew was found for each page. It is left out when comparing the
     // options, so a page that isn't processed again would keep the angle of another one.
     DewarpingOptions pageOpt(opt);
-    pageOpt.setPostDeskewAngle(m_settings->getParams(pageId).dewarpingOptions().getPostDeskewAngle());
+    const DewarpingOptions oldPageOpt = m_settings->getParams(pageId).dewarpingOptions();
+    pageOpt.setPostDeskewAngle(oldPageOpt.getPostDeskewAngle());
+    pageOpt.setNoModelFound(oldPageOpt.noModelFound());
     m_settings->setDewarpingOptions(pageId, pageOpt);
   }
 
@@ -1116,15 +1124,23 @@ void OptionsWidget::updateColorsDisplay() {
 
 void OptionsWidget::updateDewarpingDisplay() {
   // Shown in every view, grayed out while there is no dewarping.
-  depthPerceptionPanel->setEnabled(m_dewarpingOptions.dewarpingMode() != OFF);
-  evenOutLetterWidthsCB->setEnabled(m_dewarpingOptions.dewarpingMode() != OFF);
+  const DewarpingMode mode = m_dewarpingOptions.dewarpingMode();
+  dewarpingMethodBox->setEnabled(mode != OFF);
+  dewarpingMethodLabel->setEnabled(mode != OFF);
+  // Straight lines have no curvature for the depth perception to work on.
+  depthPerceptionPanel->setEnabled((mode != OFF) && (mode != TRAPEZOID));
+  evenOutLetterWidthsCB->setEnabled(mode != OFF);
+  dewarpingNotFoundLabel->setVisible(m_dewarpingOptions.noModelFound() && ((mode == AUTO) || (mode == TRAPEZOID)));
 
   {
-    const QSignalBlocker modeBlocker(m_dewarpingModeGroup);
+    const QSignalBlocker dewarpingBlocker(dewarpingCB);
     const QSignalBlocker postDeskewBlocker(dewarpingPostDeskewCB);
     const QSignalBlocker evenOutBlocker(evenOutLetterWidthsCB);
-    if (QAbstractButton* button = m_dewarpingModeGroup->button(m_dewarpingOptions.dewarpingMode())) {
-      button->setChecked(true);
+    dewarpingCB->setChecked(mode != OFF);
+    if (mode != OFF) {
+      // While dewarping is off, the list goes on showing the method used last.
+      const QSignalBlocker methodBlocker(dewarpingMethodBox);
+      DewarpingMethodBox::selectMethod(dewarpingMethodBox, mode);
     }
     dewarpingPostDeskewCB->setChecked(m_dewarpingOptions.needPostDeskew());
     evenOutLetterWidthsCB->setChecked(m_dewarpingOptions.evenOutLetterWidths());
@@ -1673,7 +1689,8 @@ void OptionsWidget::setupUiConnections() {
 
   CONNECT(applySplittingButton, &QAbstractButton::clicked, this, &OptionsWidget::applySplittingButtonClicked);
 
-  CONNECT(m_dewarpingModeGroup, &QButtonGroup::idClicked, this, &OptionsWidget::dewarpingModeChanged);
+  CONNECT(dewarpingCB, &QAbstractButton::clicked, this, &OptionsWidget::dewarpingToggled);
+  CONNECT(dewarpingMethodBox, &QComboBox::activated, this, &OptionsWidget::dewarpingMethodActivated);
   CONNECT(dewarpingPostDeskewCB, &QAbstractButton::clicked, this, &OptionsWidget::dewarpingPostDeskewToggled);
   CONNECT(evenOutLetterWidthsCB, &QAbstractButton::clicked, this, &OptionsWidget::evenOutLetterWidthsToggled);
   CONNECT(applyDewarpingButton, &QAbstractButton::clicked, this, &OptionsWidget::applyDewarpingButtonClicked);

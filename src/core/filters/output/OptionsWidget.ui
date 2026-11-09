@@ -47,7 +47,7 @@
         <item>
          <widget class="QComboBox" name="dpiSelector">
           <property name="toolTip">
-           <string>Resolution of the output files of this page, from 72 to 1200 DPI. Choose a value or type one in. With dewarping &quot;Auto&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</string>
+           <string>Resolution of the output files of this page, from 72 to 1200 DPI. Choose a value or type one in. With dewarping &quot;Auto&quot; or &quot;Trapezoid&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</string>
           </property>
           <property name="editable">
            <bool>true</bool>
@@ -2470,72 +2470,48 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
       <item>
-       <layout class="QGridLayout" name="dewarpingModeLayout">
-        <item row="0" column="0">
-         <widget class="QPushButton" name="dewarpingOffBtn">
-          <property name="toolTip">
-           <string>No dewarping.</string>
-          </property>
+       <widget class="QCheckBox" name="dewarpingCB">
+        <property name="toolTip">
+         <string>Straightens the lines of text and corrects the distortion of the page. The list below sets the method.</string>
+        </property>
+        <property name="text">
+         <string>Dewarp</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="dewarpingMethodLayout">
+        <item>
+         <widget class="QLabel" name="dewarpingMethodLabel">
           <property name="text">
-           <string>Off</string>
+           <string>Method:</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
+          <property name="buddy">
+           <cstring>dewarpingMethodBox</cstring>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QPushButton" name="dewarpingAutoBtn">
-          <property name="toolTip">
-           <string>Finds the curvature of the lines of text automatically. Experimental.</string>
-          </property>
-          <property name="text">
-           <string>Auto</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
+        <item>
+         <widget class="QComboBox" name="dewarpingMethodBox"/>
         </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="dewarpingMarginalBtn">
-          <property name="toolTip">
-           <string>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</string>
+        <item>
+         <spacer name="dewarpingMethodSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="text">
-           <string>Marginal</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="dewarpingManualBtn">
-          <property name="toolTip">
-           <string>You place the curves yourself on the Dewarping tab.</string>
-          </property>
-          <property name="text">
-           <string>Manual</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
+         </spacer>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="dewarpingNotFoundLabel">
+        <property name="text">
+         <string>Not dewarped: too few lines of text found.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="dewarpingPostDeskewCB">
@@ -2550,7 +2526,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
       <item>
        <widget class="QWidget" name="depthPerceptionPanel" native="true">
         <property name="toolTip">
-         <string>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</string>
+         <string>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with Trapezoid.</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_8">
          <property name="leftMargin">

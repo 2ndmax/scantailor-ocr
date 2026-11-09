@@ -214,9 +214,8 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
   OrthogonalRotation m_orthogonalRotation;
   std::unordered_map<QToolButton*, page_layout::Alignment> m_alignmentByButton;
   QButtonGroup* m_alignmentButtonGroup;
-  DefaultParamsProfileManager m_profileManager;
-  QButtonGroup* m_dewarpingModeGroup;
-  // The output resolution shown before the current editing, restored after an invalid value.
+  DefaultParamsProfileManager
+      m_profileManager;  // The output resolution shown before the current editing, restored after an invalid value.
   int m_outputDpi = 600;
   // A strength of 0 turns "Subtract background" off; turning it on again restores the last strength.
   double m_subtractBgCoefWhenOn = 1.0;

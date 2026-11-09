@@ -268,6 +268,42 @@ void TestCoreQt::testOutputDpiChangeUpdatesDewarpingMode() {
   QCOMPARE(settings->getParams(page).dewarpingOptions().dewarpingMode(), output::MANUAL);
 }
 
+void TestCoreQt::testOutputDewarpingCheckBoxAndMethodList() {
+  auto settings = std::make_shared<output::Settings>();
+  const PageId page(ImageId("page.png"));
+  output::DewarpingOptions options(output::AUTO);
+  options.setNoModelFound(true);
+  settings->setDewarpingOptions(page, options);
+
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  widget.preUpdateUI(page);
+
+  auto* dewarpingCB = widget.findChild<QCheckBox*>("dewarpingCB");
+  auto* methodBox = widget.findChild<QComboBox*>("dewarpingMethodBox");
+  auto* hint = widget.findChild<QWidget*>("dewarpingNotFoundLabel");
+  auto* depthPanel = widget.findChild<QWidget*>("depthPerceptionPanel");
+  QVERIFY(dewarpingCB && methodBox && hint && depthPanel);
+  QVERIFY(dewarpingCB->isChecked());
+  QVERIFY(!hint->isHidden());
+
+  const auto trapezoidIndex = methodBox->findData(static_cast<int>(output::TRAPEZOID));
+  QVERIFY(trapezoidIndex >= 0);
+  methodBox->setCurrentIndex(trapezoidIndex);
+  emit methodBox->activated(trapezoidIndex);
+  QCOMPARE(settings->getParams(page).dewarpingOptions().dewarpingMode(), output::TRAPEZOID);
+  QVERIFY(!depthPanel->isEnabled());
+
+  dewarpingCB->click();
+  QCOMPARE(settings->getParams(page).dewarpingOptions().dewarpingMode(), output::OFF);
+  QVERIFY(!methodBox->isEnabled());
+  // The hint is about the method that was used, and off there is none.
+  QVERIFY(hint->isHidden());
+  QCOMPARE(methodBox->currentIndex(), trapezoidIndex);
+
+  dewarpingCB->click();
+  QCOMPARE(settings->getParams(page).dewarpingOptions().dewarpingMode(), output::TRAPEZOID);
+}
+
 void TestCoreQt::testOutputPageSwitchDropsDelayedReload() {
   // A delayed reload of the previous page must not reload the next one; the previous page's
   // thumbnail is redone instead.

@@ -594,7 +594,6 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <location filename="../app/DefaultParamsDialog.ui" line="918"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1106"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1291"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4682"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
@@ -628,7 +627,6 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <location filename="../app/DefaultParamsDialog.ui" line="820"/>
         <location filename="../app/DefaultParamsDialog.ui" line="931"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1122"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4708"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1382,17 +1380,12 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4730"/>
-        <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4814"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4782"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4817"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4785"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1481,7 +1474,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="145"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="146"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1508,6 +1501,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="580"/>
         <location filename="../app/DefaultParamsDialog.ui" line="3897"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4673"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1523,7 +1517,22 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4748"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4661"/>
+        <source>Straightens the lines of text and corrects the distortion of the page. The list below sets the method.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="4664"/>
+        <source>Dewarp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="4698"/>
+        <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with Trapezoid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="4716"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1686,7 +1695,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="4400"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1299"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1300"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1761,32 +1770,12 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4663"/>
-        <source>No dewarping.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4679"/>
-        <source>Finds the curvature of the lines of text automatically. Experimental.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4692"/>
-        <source>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4705"/>
-        <source>You place the curves yourself on the Dewarping tab.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4720"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4688"/>
         <source>Straightens the page once more after dewarping. Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4723"/>
+        <location filename="../app/DefaultParamsDialog.ui" line="4691"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1806,79 +1795,73 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="132"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="133"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="133"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="134"/>
         <source>White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="134"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="135"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1087"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1275"/>
-        <location filename="../app/DefaultParamsDialog.ui" line="4666"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="140"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="141"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
         <source>Contour mask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="142"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="143"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="144"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="145"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="146"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="147"/>
         <source>K-means</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="200"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="197"/>
         <location filename="../app/ProjectOpeningContext.cpp" line="64"/>
         <source>Minimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="208"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1490"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="205"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1495"/>
         <location filename="../app/ProjectOpeningContext.cpp" line="67"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="4695"/>
-        <source>Marginal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="137"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="138"/>
         <source>Edges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="138"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="139"/>
         <source>Spine line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="199"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="196"/>
         <location filename="../app/ProjectOpeningContext.cpp" line="61"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
@@ -1904,62 +1887,62 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1299"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1300"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1407"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1413"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1439"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1445"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1456"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1496"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1511"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1549"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1412"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1418"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1444"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1450"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1461"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1516"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1554"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1407"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1412"/>
         <source>The profile file is not compatible with the current application version. Remove?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1413"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1418"/>
         <source>Error loading the profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1446"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1451"/>
         <source>The name conflicts with a default profile name. Please enter a different name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1457"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1462"/>
         <source>Please enter a name that doesn&apos;t contain any of the characters \ / : * ? &quot; &lt; &gt; | and doesn&apos;t start with a dot.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1470"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1540"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1475"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1545"/>
         <source>Save Profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1471"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1476"/>
         <source>A profile named &quot;%1&quot; already exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1541"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1546"/>
         <source>The changes to the profile &quot;%1&quot; haven&apos;t been saved. Without saving, they only apply until the program is closed. Save them in the profile?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1439"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1496"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1549"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1444"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1501"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1554"/>
         <source>Error saving the profile.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1969,8 +1952,51 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.cpp" line="1511"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="1516"/>
         <source>Error deleting the profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DewarpingMethodBox</name>
+    <message>
+        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="18"/>
+        <source>Auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="18"/>
+        <source>Finds the curvature of the lines of text automatically. Experimental.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="19"/>
+        <source>Trapezoid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="20"/>
+        <source>Takes the lines of text as straight and corrects only a trapezoid distortion of the page, as found on scans of flat pages. A page with fewer than 8 lines of text stays as it is. Experimental.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="22"/>
+        <source>Marginal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="23"/>
+        <source>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="24"/>
+        <source>Manual</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="24"/>
+        <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5199,13 +5225,13 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="37"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="238"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="235"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/deskew/OptionsWidget.cpp" line="38"/>
-        <location filename="../app/DefaultParamsDialog.cpp" line="239"/>
+        <location filename="../app/DefaultParamsDialog.cpp" line="236"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5425,7 +5451,7 @@ Without an internet connection, the installed languages can still be used. Langu
     <name>output::OptionsWidget</name>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="426"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="423"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5491,6 +5517,7 @@ Without an internet connection, the installed languages can still be used. Langu
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1410"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2487"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5502,6 +5529,11 @@ Without an internet connection, the installed languages can still be used. Langu
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="1037"/>
         <source>Reduces the noise of the image before the other processing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="50"/>
+        <source>Resolution of the output files of this page, from 72 to 1200 DPI. Choose a value or type one in. With dewarping &quot;Auto&quot; or &quot;Trapezoid&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5799,7 +5831,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="122"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="123"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5913,57 +5945,52 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2553"/>
-        <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2699"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2668"/>
         <source>Adjusts the pictures after processing, like a photo editor. In mixed mode only the picture zones are changed, the text stays black and white. Not used in black and white mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2702"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2671"/>
         <source>Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2723"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2692"/>
         <source>Color Balance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2740"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2709"/>
         <source>Tone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2757"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2726"/>
         <source>Keep white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2788"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2757"/>
         <source>Applies the photo adjustments of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2832"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2801"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2847"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2816"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2850"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2819"/>
         <source>Black and white foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2887"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2856"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5973,63 +6000,33 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2477"/>
-        <source>No dewarping.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2493"/>
-        <source>Finds the curvature of the lines of text automatically. Experimental.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2496"/>
-        <source>Auto</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2509"/>
-        <source>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2512"/>
-        <source>Marginal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2525"/>
-        <source>You place the curves yourself on the Dewarping tab.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2543"/>
         <source>Straightens the page once more after dewarping. Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2546"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1135"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2515"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1150"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2571"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2540"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2637"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2606"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2640"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2609"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2671"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2640"/>
         <source>Applies the dewarping mode, &quot;Post deskew&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6038,20 +6035,15 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <location filename="../core/filters/output/OptionsWidget.ui" line="197"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2249"/>
         <location filename="../core/filters/output/OptionsWidget.ui" line="2438"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2674"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2791"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2943"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2643"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2760"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2912"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/OptionsWidget.ui" line="43"/>
         <source>Resolution:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="50"/>
-        <source>Resolution of the output files of this page, from 72 to 1200 DPI. Choose a value or type one in. With dewarping &quot;Auto&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6132,37 +6124,57 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2754"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2475"/>
+        <source>Straightens the lines of text and corrects the distortion of the page. The list below sets the method.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2478"/>
+        <source>Dewarp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2502"/>
+        <source>Not dewarped: too few lines of text found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2522"/>
+        <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with Trapezoid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2723"/>
         <source>Color / grayscale mode only: pure white stays white, such as a background made white. The margins are never changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2819"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2788"/>
         <source>Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2835"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2804"/>
         <source>Split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2875"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2844"/>
         <source>Save the original background of the foreground layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2878"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2847"/>
         <source>Original background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2890"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2859"/>
         <source>Color foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2940"/>
+        <location filename="../core/filters/output/OptionsWidget.ui" line="2909"/>
         <source>Applies the splitting settings of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6202,180 +6214,174 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="92"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="93"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="93"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="94"/>
         <source>White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="94"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="121"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="122"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="123"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="124"/>
         <source>K-means</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="162"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="159"/>
         <source>Compression of the TIFF files in the output folder. Applies to the whole project. The PDF is compressed separately, so this doesn&apos;t change it. After a change, the output is created again: the current page right away, the other pages during the next batch processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1732"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="1748"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2480"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="125"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="126"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="126"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="127"/>
         <source>Contour mask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="127"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="128"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="159"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="156"/>
         <source>TIFF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="279"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="276"/>
         <source>Detect Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="426"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="423"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="440"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="437"/>
         <source>Apply Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="510"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="508"/>
         <source>Temperature:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="511"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="509"/>
         <source>Positive values make the pictures warmer (more yellow), negative values cooler (more blue).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="510"/>
         <source>Tint:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="510"/>
         <source>Positive values add magenta, negative values green.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="513"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="511"/>
         <source>Exposure:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="513"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="511"/>
         <source>Brightens or darkens the pictures as a whole, in stops (EV).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="514"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
         <source>Contrast:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="514"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
         <source>Positive values spread the tones apart, negative values bring them closer together, around the middle gray.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="516"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="514"/>
         <source>Highlights:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="516"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="514"/>
         <source>Positive values brighten the bright parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
         <source>Shadows:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
         <source>Positive values brighten the dark parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="518"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="516"/>
         <source>Whites:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="518"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="516"/>
         <source>Positive values make the brightest tones whiter, negative values duller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="519"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
         <source>Blacks:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="519"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
         <source>Positive values make the darkest tones lighter, negative values deeper.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="679"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="677"/>
         <source>Apply Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="697"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="695"/>
         <source>Apply Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="760"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="758"/>
         <source>Apply Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="794"/>
+        <location filename="../core/filters/output/OptionsWidget.cpp" line="800"/>
         <source>Apply Dewarping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2528"/>
-        <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6465,7 +6471,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="294"/>
+        <location filename="../core/filters/output/Task.cpp" line="293"/>
         <source>The split output layers could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6473,62 +6479,62 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="498"/>
+        <location filename="../core/filters/output/Task.cpp" line="497"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="539"/>
+        <location filename="../core/filters/output/Task.cpp" line="538"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="550"/>
+        <location filename="../core/filters/output/Task.cpp" line="549"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="551"/>
+        <location filename="../core/filters/output/Task.cpp" line="550"/>
         <source>Shows the processed page as it will be saved. (Ctrl+1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="552"/>
+        <location filename="../core/filters/output/Task.cpp" line="551"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="553"/>
+        <location filename="../core/filters/output/Task.cpp" line="552"/>
         <source>Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="554"/>
+        <location filename="../core/filters/output/Task.cpp" line="553"/>
         <source>Fill Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="555"/>
+        <location filename="../core/filters/output/Task.cpp" line="554"/>
         <source>Fills areas of the output with a color you pick. (Ctrl+3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="556"/>
+        <location filename="../core/filters/output/Task.cpp" line="555"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="557"/>
+        <location filename="../core/filters/output/Task.cpp" line="556"/>
         <source>Shows the curves used to dewarp the page. In Manual mode, you place them yourself. (Ctrl+4)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="558"/>
+        <location filename="../core/filters/output/Task.cpp" line="557"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="559"/>
+        <location filename="../core/filters/output/Task.cpp" line="558"/>
         <source>Previews the removal of specks. (Ctrl+5)</source>
         <translation type="unfinished"></translation>
     </message>

@@ -166,6 +166,19 @@ BOOST_AUTO_TEST_CASE(non_finite_numbers_in_a_project_file_give_finite_values) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_dewarping_options_keep_the_trapezoid_method_and_a_missing_model) {
+  QDomDocument doc;
+  DewarpingOptions options(TRAPEZOID);
+  options.setNoModelFound(true);
+  const DewarpingOptions read(options.toXml(doc, "dewarping"));
+  BOOST_CHECK(read.dewarpingMode() == TRAPEZOID);
+  BOOST_TEST(read.noModelFound());
+  // It is a result of the processing, so a page differing in it is not processed anew for that.
+  BOOST_CHECK(read == DewarpingOptions(TRAPEZOID));
+  // Pages it doesn't concern write nothing new into the project file.
+  BOOST_TEST(!DewarpingOptions(AUTO).toXml(doc, "dewarping").hasAttribute("noModelFound"));
+}
+
 // The fields end at these radii, so a larger one is damaged or hand-edited. A huge one made the
 // filter run practically forever or overflowed its int arithmetic.
 BOOST_AUTO_TEST_CASE(filter_radius_above_its_field_gives_the_default) {

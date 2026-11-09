@@ -8,6 +8,7 @@
 #include <filters/deskew/Params.h>
 #include <filters/output/BinarizationMethods.h>
 #include <filters/output/ColorParams.h>
+#include <filters/output/DewarpingMethodBox.h>
 #include <filters/output/DewarpingOptions.h>
 #include <filters/output/PictureShapeOptions.h>
 #include <filters/page_split/LayoutType.h>
@@ -186,11 +187,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
     Utils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
-  m_dewarpingModeGroup = new QButtonGroup(this);
-  m_dewarpingModeGroup->addButton(dewarpingOffBtn, OFF);
-  m_dewarpingModeGroup->addButton(dewarpingAutoBtn, AUTO);
-  m_dewarpingModeGroup->addButton(dewarpingMarginalBtn, MARGINAL);
-  m_dewarpingModeGroup->addButton(dewarpingManualBtn, MANUAL);
+  DewarpingMethodBox::setUp(dewarpingMethodBox, dewarpingMethodLabel);
 
   m_reservedProfileNames.insert("Default");
   m_reservedProfileNames.insert("Minimal");
@@ -636,8 +633,10 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   despeckleSlider->setToolTip(QLocale().toString(0.1 * despeckleSlider->value(), 'f', 1));
   despeckleValueLabel->setText(despeckleSlider->toolTip());
 
-  if (QAbstractButton* dewarpingModeBtn = m_dewarpingModeGroup->button(params.getDewarpingOptions().dewarpingMode())) {
-    dewarpingModeBtn->setChecked(true);
+  const DewarpingMode dewarpingMode = params.getDewarpingOptions().dewarpingMode();
+  dewarpingCB->setChecked(dewarpingMode != OFF);
+  if (dewarpingMode != OFF) {
+    DewarpingMethodBox::selectMethod(dewarpingMethodBox, dewarpingMode);
   }
   dewarpingPostDeskewCB->setChecked(params.getDewarpingOptions().needPostDeskew());
   evenOutLetterWidthsCB->setChecked(params.getDewarpingOptions().evenOutLetterWidths());
@@ -704,7 +703,8 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(knnCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::knnToggled);
   CONNECT(sharpenCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::sharpenToggled);
   CONNECT(wienerCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::wienerToggled);
-  CONNECT(m_dewarpingModeGroup, &QButtonGroup::idClicked, this, &DefaultParamsDialog::dewarpingModeChanged);
+  CONNECT(dewarpingCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::dewarpingModeChanged);
+  CONNECT(dewarpingMethodBox, &QComboBox::activated, this, &DefaultParamsDialog::dewarpingModeChanged);
   CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this,
           &DefaultParamsDialog::depthPerceptionChangedSlot);
   CONNECT(profileCB, &QComboBox::currentIndexChanged, this, &DefaultParamsDialog::profileChanged);
@@ -1207,7 +1207,8 @@ std::unique_ptr<DefaultParams> DefaultParamsDialog::buildParams() const {
   shapeOptions.setHigherSearchSensitivity(higherSearchSensitivityCB->isChecked());
 
   DewarpingOptions dewarpingOptions;
-  dewarpingOptions.setDewarpingMode(static_cast<DewarpingMode>(m_dewarpingModeGroup->checkedId()));
+  dewarpingOptions.setDewarpingMode(dewarpingCB->isChecked() ? DewarpingMethodBox::selectedMethod(dewarpingMethodBox)
+                                                             : OFF);
   dewarpingOptions.setPostDeskew(dewarpingPostDeskewCB->isChecked());
   dewarpingOptions.setEvenOutLetterWidths(evenOutLetterWidthsCB->isChecked());
 
@@ -1338,10 +1339,14 @@ void DefaultParamsDialog::wienerToggled(const bool checked) {
 }
 
 void DefaultParamsDialog::dewarpingModeChanged() {
-  const int mode = m_dewarpingModeGroup->checkedId();
-  dewarpingPostDeskewCB->setEnabled((mode == MANUAL) || (mode == MARGINAL));
-  depthPerceptionPanel->setEnabled(mode != OFF);
-  evenOutLetterWidthsCB->setEnabled(mode != OFF);
+  const bool dewarping = dewarpingCB->isChecked();
+  const DewarpingMode mode = DewarpingMethodBox::selectedMethod(dewarpingMethodBox);
+  dewarpingMethodBox->setEnabled(dewarping);
+  dewarpingMethodLabel->setEnabled(dewarping);
+  dewarpingPostDeskewCB->setEnabled(dewarping && ((mode == MANUAL) || (mode == MARGINAL)));
+  // Straight lines have no curvature for the depth perception to work on.
+  depthPerceptionPanel->setEnabled(dewarping && (mode != TRAPEZOID));
+  evenOutLetterWidthsCB->setEnabled(dewarping);
 }
 
 void DefaultParamsDialog::depthPerceptionChangedSlot(const int val) {

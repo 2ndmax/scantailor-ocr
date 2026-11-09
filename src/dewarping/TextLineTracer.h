@@ -30,6 +30,7 @@ class SEDM;
 }  // namespace imageproc
 
 namespace dewarping {
+class DistortionModel;
 class DistortionModelBuilder;
 
 class TextLineTracer {
@@ -44,6 +45,15 @@ class TextLineTracer {
                     DistortionModelBuilder& output,
                     const TaskStatus& status,
                     DebugImages* dbg = nullptr);
+
+  /**
+   * Takes the text lines as straight, and returns the trapezoid they form: two straight curves in the coordinates
+   * of \p input. Returns an invalid model if there are too few lines.
+   */
+  static DistortionModel traceTrapezoid(const imageproc::GrayImage& input,
+                                        const Dpi& dpi,
+                                        const QRect& contentRect,
+                                        DebugImages* dbg = nullptr);
 
  private:
   // Lets dewarping_tests call the private helpers.

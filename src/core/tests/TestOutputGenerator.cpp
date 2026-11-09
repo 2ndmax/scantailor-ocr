@@ -110,6 +110,10 @@ struct Run {
   // A manual distortion model that is valid, but less than half a pixel wide, so that
   // its model domain is empty.
   bool thinManualDewarping = false;
+  bool trapezoidDewarping = false;
+  bool blankPage = false;
+  // Gets whether the dewarping found no model, if set.
+  bool* noModelFound = nullptr;
   BinarizationMethod binarization = T_OTSU;
   // Values as read from a project file (attribute values); empty keeps the defaults of the test.
   QString windowSizeAttribute;
@@ -163,9 +167,16 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   if (run.thinManualDewarping) {
     params.setDewarpingOptions(DewarpingOptions(MANUAL));
   }
+  if (run.trapezoidDewarping) {
+    params.setDewarpingOptions(DewarpingOptions(TRAPEZOID));
+  }
   settings->setParams(pageId, params);
 
-  const FilterData data(syntheticPage(run.colored, run.strokeColor));
+  QImage page = syntheticPage(run.colored, run.strokeColor);
+  if (run.blankPage) {
+    page.fill(Qt::white);
+  }
+  const FilterData data(page);
   ImageTransformation xform(data.xform());
   xform.postScaleToDpi(outputDpi);
   if (run.postScaleFactor != 1.0) {
@@ -184,8 +195,13 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
     distortionModel.setBottomCurve(dewarping::Curve(std::vector<QPointF>{QPointF(100, 200), QPointF(100.3, 200)}));
     BOOST_REQUIRE(distortionModel.isValid());
   }
-  return generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(), nullptr,
-                           nullptr, nullptr, pageId, settings, /*takeOverBlackOnWhite=*/true);
+  std::unique_ptr<OutputImage> output
+      = generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(), nullptr,
+                          nullptr, nullptr, pageId, settings, /*takeOverBlackOnWhite=*/true);
+  if (run.noModelFound) {
+    *run.noModelFound = settings->getParams(pageId).dewarpingOptions().noModelFound();
+  }
+  return output;
 }
 
 QImage process(const Run& run) {
@@ -672,5 +688,16 @@ BOOST_AUTO_TEST_CASE(sensitivity_trims_the_sides_by_the_share_of_the_height) {
     }
   }
 }
+BOOST_AUTO_TEST_CASE(test_trapezoid_dewarping_of_a_page_without_lines_reports_no_model) {
+  Run run;
+  run.trapezoidDewarping = true;
+  run.blankPage = true;
+  bool noModelFound = false;
+  run.noModelFound = &noModelFound;
+  const std::unique_ptr<OutputImage> output = generate(run);
+  BOOST_REQUIRE(output && !output->isNull());
+  BOOST_TEST(noModelFound);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

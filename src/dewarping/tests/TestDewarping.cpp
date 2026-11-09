@@ -62,10 +62,13 @@ QImage blankPage() {
 }
 
 /** A line of text: dark letters, grouped into words, from \p left to exactly \p right. */
-void drawTextLine(QImage& page, const int left, const int right, const int y) {
+void drawTextLine(QImage& page, const int left, const int right, const int y, const double degrees = 0) {
   const int letterWidth = 7;
   const int letterHeight = 16;
   QPainter painter(&page);
+  painter.translate(kPageSize.width() / 2.0, y);
+  painter.rotate(degrees);
+  painter.translate(-kPageSize.width() / 2.0, -y);
   int lettersInWord = 0;
   for (int x = left; x + letterWidth < right; x += 11) {
     painter.fillRect(x, y, letterWidth, letterHeight, Qt::black);
@@ -87,6 +90,15 @@ DistortionModelBuilder traceLines(const QImage& page) {
   DistortionModelBuilder builder(Vec2d(0, 1));
   TextLineTracer::trace(imageproc::GrayImage(page), Dpi(200, 200), page.rect(), builder, NoCancelStatus());
   return builder;
+}
+
+DistortionModel traceTrapezoid(const QImage& page) {
+  return TextLineTracer::traceTrapezoid(imageproc::GrayImage(page), Dpi(200, 200), page.rect());
+}
+
+double slopeInDegrees(const Curve& curve) {
+  const QLineF line(curve.polyline().front(), curve.polyline().back());
+  return std::atan2(line.dy(), line.dx()) / constants::DEG2RAD;
 }
 
 double tiltInDegrees(const QLineF& line) {
@@ -222,6 +234,68 @@ BOOST_AUTO_TEST_CASE(test_lines_on_part_of_the_text_give_no_model) {
   }
   drawTextLines(page, 12, 100 + 18 * kLineStep);
   BOOST_TEST(!traceLines(page).tryBuildModel().isValid());
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_of_straight_text_is_a_rectangle_around_it) {
+  QImage page = blankPage();
+  drawTextLines(page, 38, 100);
+  const DistortionModel model = traceTrapezoid(page);
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(model.topCurve().polyline().size() == 2u);
+  BOOST_TEST(model.bottomCurve().polyline().size() == 2u);
+  BOOST_TEST(std::fabs(slopeInDegrees(model.topCurve())) < 0.1);
+  BOOST_TEST(std::fabs(slopeInDegrees(model.bottomCurve())) < 0.1);
+  BOOST_TEST(std::fabs(model.topCurve().polyline().front().x() - kTextLeft) < kLineEndOffset);
+  BOOST_TEST(std::fabs(model.topCurve().polyline().back().x() - kTextRight) < kLineEndOffset);
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_follows_lines_that_fan_out) {
+  QImage page = blankPage();
+  const int numLines = 38;
+  for (int i = 0; i < numLines; ++i) {
+    drawTextLine(page, kTextLeft, kTextRight, 100 + i * kLineStep, -0.5 + 1.0 * i / (numLines - 1));
+  }
+  const DistortionModel model = traceTrapezoid(page);
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(std::fabs(slopeInDegrees(model.topCurve()) - (-0.5)) < 0.15);
+  BOOST_TEST(std::fabs(slopeInDegrees(model.bottomCurve()) - 0.5) < 0.15);
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_follows_edges_that_converge) {
+  QImage page = blankPage();
+  const int numLines = 38;
+  const int leftStep = 2;
+  for (int i = 0; i < numLines; ++i) {
+    drawTextLine(page, kTextLeft + i * leftStep, kTextRight, 100 + i * kLineStep);
+  }
+  const DistortionModel model = traceTrapezoid(page);
+  BOOST_REQUIRE(model.isValid());
+  const double leftShift = model.bottomCurve().polyline().front().x() - model.topCurve().polyline().front().x();
+  BOOST_TEST(std::fabs(leftShift - (numLines - 1) * leftStep) < kLineEndOffset);
+  const double rightShift = model.bottomCurve().polyline().back().x() - model.topCurve().polyline().back().x();
+  BOOST_TEST(std::fabs(rightShift) < kLineEndOffset);
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_of_a_short_block_stays_parallel) {
+  // Lines over a quarter of the page can't tell how the page converges further down.
+  QImage page = blankPage();
+  for (int i = 0; i < 12; ++i) {
+    drawTextLine(page, kTextLeft + i, kTextRight, 100 + i * kLineStep, 0.05 * i);
+  }
+  const DistortionModel model = traceTrapezoid(page);
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(slopeInDegrees(model.topCurve()) == slopeInDegrees(model.bottomCurve()),
+             boost::test_tools::tolerance(1e-3));
+  BOOST_TEST(model.topCurve().polyline().front().x() == model.bottomCurve().polyline().front().x(),
+             boost::test_tools::tolerance(1e-3));
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_needs_eight_lines) {
+  QImage page = blankPage();
+  drawTextLines(page, 7, 100);
+  BOOST_TEST(!traceTrapezoid(page).isValid());
+  drawTextLines(page, 1, 100 + 7 * kLineStep);
+  BOOST_TEST(traceTrapezoid(page).isValid());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -52,6 +52,7 @@ set(sources
     DespeckleLevel.cpp DespeckleLevel.h
     DewarpingView.cpp DewarpingView.h
     DewarpingOptions.cpp DewarpingOptions.h
+    DewarpingMethodBox.cpp DewarpingMethodBox.h
     DepthPerception.cpp DepthPerception.h
     SplittingOptions.cpp SplittingOptions.h
     OptionsWidgetBinarizationOtsu.cpp OptionsWidgetBinarizationOtsu.h

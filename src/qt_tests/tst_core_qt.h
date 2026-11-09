@@ -20,6 +20,7 @@ class TestCoreQt : public QObject {
   void testOutputMethodKeepsItsValuesWhenAnotherIsChosen();
   void testOutputStrengthToolTipNamesTheDefaultOfItsMethod();
   void testOutputDpiChangeUpdatesDewarpingMode();
+  void testOutputDewarpingCheckBoxAndMethodList();
   void testOutputPageSwitchDropsDelayedReload();
   void testOutputPageSwitchRedoesPreviousThumbnail();
   void testFailedTaskReportsBack();

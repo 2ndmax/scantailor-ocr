@@ -9,7 +9,6 @@
 #include <QtCore/QObjectCleanupHandler>
 #include <QtCore/QPointer>
 #include <QtCore/QTimer>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QStackedLayout>
 #include <array>
 #include <list>
@@ -212,7 +211,11 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void applyDespeckleConfirmed(const std::set<PageId>& pages);
 
-  void dewarpingModeChanged(int mode);
+  void dewarpingToggled(bool on);
+
+  void dewarpingMethodActivated();
+
+  void dewarpingModeChanged(DewarpingMode mode);
 
   void dewarpingPostDeskewToggled(bool checked);
 
@@ -324,7 +327,6 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   // A member, so it stops with the widget: no delayed reload fires after the widget is gone.
   QTimer m_delayedReloadRequest;
   bool m_checkingDpi = false;
-  QButtonGroup* m_dewarpingModeGroup = nullptr;
   std::array<PhotoAdjustmentRow, PHOTO_ADJUSTMENT_COUNT> m_photoAdjustmentRows;
 
   ConnectionManager m_connectionManager;

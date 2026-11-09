@@ -8,7 +8,7 @@
 #include <QtXml/QDomElement>
 
 namespace output {
-enum DewarpingMode { OFF, AUTO, MANUAL, MARGINAL };
+enum DewarpingMode { OFF, AUTO, MANUAL, MARGINAL, TRAPEZOID };
 
 class DewarpingOptions {
  public:
@@ -27,7 +27,15 @@ class DewarpingOptions {
   void setDewarpingMode(DewarpingMode mode);
 
   /** Whether the method finds the curves itself, each time the page is processed. */
-  bool findsCurvesItself() const { return (m_mode == AUTO) || (m_mode == MARGINAL); }
+  bool findsCurvesItself() const { return (m_mode == AUTO) || (m_mode == MARGINAL) || (m_mode == TRAPEZOID); }
+
+  /**
+   * Set while processing: the text lines of this page were too few for the method, so it stays undewarped.
+   * It is a result of the processing and, like the post deskew angle, not compared as one of the options.
+   */
+  bool noModelFound() const { return m_noModelFound; }
+
+  void setNoModelFound(bool found) { m_noModelFound = found; }
 
   bool needPostDeskew() const;
 
@@ -51,6 +59,7 @@ class DewarpingOptions {
   bool m_needPostDeskew;
   double m_postDeskewAngle;
   bool m_evenOutLetterWidths;
+  bool m_noModelFound;
 };
 
 

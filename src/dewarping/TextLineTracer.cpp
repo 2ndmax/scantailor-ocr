@@ -221,6 +221,137 @@ bool fitBoundsToTextLines(const std::list<std::vector<QPointF>>& polylines,
   bounds.second = rightEdge;
   return true;
 }
+
+// The trapezoid method: straight lines of text, on a page that may be distorted as a whole.
+const int kMinLinesForTrapezoid = 8;
+// A shorter block can't tell how lines and edges converge across the page; the model then keeps them parallel.
+const double kMinShareOfContentHeightToConverge = 0.4;
+// A line whose slope is this far from the general trend was traced wrongly, and must not decide the trend.
+const double kMaxLineSlopeOffTrendDegrees = 0.25;
+
+struct FittedLine {
+  double slope = 0;  // dy / dx
+  QPointF centroid;
+
+  double yAt(const double x) const { return centroid.y() + slope * (x - centroid.x()); }
+};
+
+FittedLine fitStraightLine(const std::vector<QPointF>& points) {
+  FittedLine line;
+  for (const QPointF& pt : points) {
+    line.centroid += pt;
+  }
+  line.centroid /= static_cast<double>(points.size());
+
+  double sumXX = 0;
+  double sumXY = 0;
+  for (const QPointF& pt : points) {
+    sumXX += (pt.x() - line.centroid.x()) * (pt.x() - line.centroid.x());
+    sumXY += (pt.x() - line.centroid.x()) * (pt.y() - line.centroid.y());
+  }
+  line.slope = (sumXX > 0) ? sumXY / sumXX : 0.0;
+  return line;
+}
+
+/** The slope (dx / dy) of an edge, from the line ends that agree on it, or NaN if too few of them do. */
+double trapezoidEdgeSlope(const std::vector<QPointF>& ends) {
+  const EdgeDirection direction = mostAgreedEdgeDirection(ends);
+  if (static_cast<int>(direction.agreeingEnds.size()) < std::max(4, static_cast<int>(ends.size()) / 4)) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  std::vector<QPointF> swapped;  // x and y exchanged: an edge is a function of y.
+  for (const QPointF& end : direction.agreeingEnds) {
+    swapped.emplace_back(end.y(), end.x());
+  }
+  return fitStraightLine(swapped).slope;
+}
+
+/** The line slope as a function of the height on the page, from all lines. Points are (height, slope). */
+FittedLine fitLineSlopeTrend(const std::vector<QPointF>& heightsAndSlopes) {
+  const FittedLine trend = fitStraightLine(heightsAndSlopes);
+  const double maxOffTrend = std::tan(kMaxLineSlopeOffTrendDegrees * constants::DEG2RAD);
+  std::vector<QPointF> onTrend;
+  for (const QPointF& point : heightsAndSlopes) {
+    if (std::fabs(point.y() - trend.yAt(point.x())) <= maxOffTrend) {
+      onTrend.push_back(point);
+    }
+  }
+  return (static_cast<int>(onTrend.size()) >= kMinLinesForTrapezoid) ? fitStraightLine(onTrend) : trend;
+}
+
+double medianOf(std::vector<double> values) {
+  std::nth_element(values.begin(), values.begin() + values.size() / 2, values.end());
+  return values[values.size() / 2];
+}
+
+/**
+ * Fits the straight top and bottom lines of a trapezoid to the traced text lines. Returns false if they are too
+ * few. \p top and \p bottom get the two ends of each line, left first; \p bounds gets the edges.
+ */
+bool fitTrapezoid(const std::list<std::vector<QPointF>>& polylines,
+                  const QRect& contentRect,
+                  const int imageHeight,
+                  std::pair<QLineF, QLineF>& bounds,
+                  std::vector<QPointF>& top,
+                  std::vector<QPointF>& bottom) {
+  const auto numLines = static_cast<int>(polylines.size());
+  if (numLines < kMinLinesForTrapezoid) {
+    return false;
+  }
+
+  std::vector<FittedLine> lines;
+  double middleX = 0;
+  for (const std::vector<QPointF>& polyline : polylines) {
+    lines.push_back(fitStraightLine(polyline));
+    middleX += lines.back().centroid.x();
+  }
+  middleX /= numLines;
+
+  std::vector<QPointF> heightsAndSlopes;
+  std::vector<double> slopes;
+  double topY = std::numeric_limits<double>::max();
+  double bottomY = -std::numeric_limits<double>::max();
+  for (const FittedLine& line : lines) {
+    const double y = line.yAt(middleX);
+    heightsAndSlopes.emplace_back(y, line.slope);
+    slopes.push_back(line.slope);
+    topY = std::min(topY, y);
+    bottomY = std::max(bottomY, y);
+  }
+
+  double topSlope = medianOf(slopes);
+  double bottomSlope = topSlope;
+  double leftSlope = 0;
+  double rightSlope = 0;
+  const LineEnds ends = lineEndsOf(polylines);
+  if ((bottomY - topY) >= kMinShareOfContentHeightToConverge * contentRect.height()) {
+    const FittedLine trend = fitLineSlopeTrend(heightsAndSlopes);
+    topSlope = trend.yAt(topY);
+    bottomSlope = trend.yAt(bottomY);
+
+    leftSlope = trapezoidEdgeSlope(ends.left);
+    rightSlope = trapezoidEdgeSlope(ends.right);
+    // Ragged line ends may not agree on anything. Then the other edge, or else the deskewed vertical, tells the slope.
+    if (std::isnan(leftSlope)) {
+      leftSlope = std::isnan(rightSlope) ? 0.0 : rightSlope;
+    }
+    if (std::isnan(rightSlope)) {
+      rightSlope = leftSlope;
+    }
+  }
+
+  bounds.first = edgeThroughOutermostEnd(ends.left, leftSlope, -1.0, imageHeight);
+  bounds.second = edgeThroughOutermostEnd(ends.right, rightSlope, 1.0, imageHeight);
+
+  const auto lineEnds = [&](const double y, const double slope) {
+    const double leftX = bounds.first.x1() + leftSlope * y;
+    const double rightX = bounds.second.x1() + rightSlope * y;
+    return std::vector<QPointF>{{leftX, y + slope * (leftX - middleX)}, {rightX, y + slope * (rightX - middleX)}};
+  };
+  top = lineEnds(topY, topSlope);
+  bottom = lineEnds(bottomY, bottomSlope);
+  return true;
+}
 }  // namespace
 
 struct TextLineTracer::TracedPage {
@@ -259,6 +390,33 @@ void TextLineTracer::trace(const GrayImage& input,
     output.addHorizontalCurve(polyline);
   }
 }  // TextLineTracer::trace
+
+DistortionModel TextLineTracer::traceTrapezoid(const GrayImage& input,
+                                               const Dpi& dpi,
+                                               const QRect& contentRect,
+                                               DebugImages* dbg) {
+  TracedPage page = traceTextLines(input, dpi, contentRect, dbg);
+
+  std::vector<QPointF> top;
+  std::vector<QPointF> bottom;
+  if (!fitTrapezoid(page.polylines, page.contentRect, page.binarized.height(), page.vertBounds, top, bottom)) {
+    return DistortionModel();
+  }
+  if (dbg) {
+    dbg->add(visualizeVerticalBounds(page.binarized.toQImage(), page.vertBounds), "vertBounds_from_lines");
+  }
+
+  for (QPointF& pt : top) {
+    pt = page.toOrig.map(pt);
+  }
+  for (QPointF& pt : bottom) {
+    pt = page.toOrig.map(pt);
+  }
+  DistortionModel model;
+  model.setTopCurve(Curve(top));
+  model.setBottomCurve(Curve(bottom));
+  return model;
+}
 
 TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input,
                                                           const Dpi& dpi,

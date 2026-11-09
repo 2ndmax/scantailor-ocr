@@ -251,7 +251,9 @@ class OutputGenerator::Processor {
   // output), only the pictures are changed.
   void applyPhotoAdjustments(QImage& image, const BinaryImage* pictureMask) const;
 
-  DistortionModel buildAutoDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal) const;
+  DistortionModel buildAutoDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal);
+
+  DistortionModel buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal);
 
   DistortionModel buildMarginalDistortionModel() const;
 
@@ -1634,10 +1636,13 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
     m_status.throwIfCancelled();
   }
 
+  m_dewarpingOptions.setNoModelFound(false);
   if (m_dewarpingOptions.dewarpingMode() == AUTO) {
     distortionModel = buildAutoDistortionModel(warpedGrayOutput, workingToOrig);
   } else if (m_dewarpingOptions.dewarpingMode() == MARGINAL) {
     distortionModel = buildMarginalDistortionModel();
+  } else if (m_dewarpingOptions.dewarpingMode() == TRAPEZOID) {
+    distortionModel = buildTrapezoidDistortionModel(warpedGrayOutput, workingToOrig);
   }
   warpedGrayOutput = GrayImage();  // Save memory.
 
@@ -2504,8 +2509,30 @@ QImage OutputGenerator::Processor::transformToWorkingCs(bool normalize) const {
   return dst;
 }
 
+DistortionModel OutputGenerator::Processor::buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput,
+                                                                          const QTransform& toOriginal) {
+  DistortionModel distortionModel
+      = TextLineTracer::traceTrapezoid(warpedGrayOutput, m_dpi, m_contentRectInWorkingCs, m_dbg);
+  if (!distortionModel.isValid()) {
+    m_dewarpingOptions.setNoModelFound(true);
+    setupTrivialDistortionModel(distortionModel);
+    return distortionModel;
+  }
+
+  const auto mappedToOriginal = [&toOriginal](const Curve& curve) {
+    std::vector<QPointF> polyline(curve.polyline());
+    for (QPointF& pt : polyline) {
+      pt = toOriginal.map(pt);
+    }
+    return Curve(polyline);
+  };
+  distortionModel.setTopCurve(mappedToOriginal(distortionModel.topCurve()));
+  distortionModel.setBottomCurve(mappedToOriginal(distortionModel.bottomCurve()));
+  return distortionModel;
+}
+
 DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayImage& warpedGrayOutput,
-                                                                     const QTransform& toOriginal) const {
+                                                                     const QTransform& toOriginal) {
   DistortionModelBuilder modelBuilder(Vec2d(0, 1));
 
   TextLineTracer::trace(warpedGrayOutput, m_dpi, m_contentRectInWorkingCs, modelBuilder, m_status, m_dbg);
@@ -2515,6 +2542,7 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
 
   DistortionModel distortionModel = modelBuilder.tryBuildModel(m_dbg, &m_inputGrayImage.toQImage());
   if (!distortionModel.isValid()) {
+    m_dewarpingOptions.setNoModelFound(true);
     setupTrivialDistortionModel(distortionModel);
   }
 

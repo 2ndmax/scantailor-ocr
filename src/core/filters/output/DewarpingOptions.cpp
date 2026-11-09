@@ -13,14 +13,19 @@ using namespace foundation;
 
 namespace output {
 DewarpingOptions::DewarpingOptions(DewarpingMode mode, bool needPostDeskew)
-    : m_mode(mode), m_needPostDeskew(needPostDeskew), m_postDeskewAngle(0.0), m_evenOutLetterWidths(false) {}
+    : m_mode(mode),
+      m_needPostDeskew(needPostDeskew),
+      m_postDeskewAngle(0.0),
+      m_evenOutLetterWidths(false),
+      m_noModelFound(false) {}
 
 DewarpingOptions::DewarpingOptions(const QDomElement& el)
     : m_mode(parseDewarpingMode(el.attribute("mode"))),
       m_needPostDeskew(el.attribute("postDeskew", "1") == "1"),
       m_postDeskewAngle(XmlUnmarshaller::number(el, "postDeskewAngle")),
       // Absent in projects from other versions, where it is then off.
-      m_evenOutLetterWidths(el.attribute("evenOutLetterWidths") == "1") {}
+      m_evenOutLetterWidths(el.attribute("evenOutLetterWidths") == "1"),
+      m_noModelFound(el.attribute("noModelFound") == "1") {}
 
 QDomElement DewarpingOptions::toXml(QDomDocument& doc, const QString& name) const {
   QDomElement el(doc.createElement(name));
@@ -30,6 +35,10 @@ QDomElement DewarpingOptions::toXml(QDomDocument& doc, const QString& name) cons
   if (m_evenOutLetterWidths) {
     // Only written when on, so projects not using it contain nothing unknown to other versions.
     el.setAttribute("evenOutLetterWidths", "1");
+  }
+  if (m_noModelFound) {
+    // Only written for such pages, for the same reason.
+    el.setAttribute("noModelFound", "1");
   }
   return el;
 }
@@ -50,6 +59,8 @@ DewarpingMode DewarpingOptions::parseDewarpingMode(const QString& str) {
     return MANUAL;
   } else if (str == "marginal") {
     return MARGINAL;
+  } else if (str == "trapezoid") {
+    return TRAPEZOID;
   } else {
     return OFF;
   }
@@ -65,6 +76,8 @@ QString DewarpingOptions::formatDewarpingMode(DewarpingMode mode) {
       return "manual";
     case MARGINAL:
       return "marginal";
+    case TRAPEZOID:
+      return "trapezoid";
   }
 
   assert(!"Unreachable");
