@@ -710,6 +710,20 @@ BinaryImage binarizeNiblack(GrayImage const& src,
   return bw_img;
 }
 
+/**
+ * The most background pixels a window of binarizeGatosBG() can sum up. A window only grows while it holds no
+ * background at all, so these are the pixels of the first window or of the last ring added to it. A ring reaches
+ * at most (ws + 1) / 2 pixels into the image from each of the four sides of the window.
+ */
+int64_t mostBackgroundPixelsInGatosWindow(int const w, int const h, int const ws) {
+  int64_t const firstWindow = int64_t(ws) * ws;
+  int64_t const lastRing = (int64_t(w) + h) * (int64_t(ws) + 1);
+  return std::min(int64_t(w) * h, std::max(firstWindow, lastRing));
+}
+
+template <typename GraySum>
+GrayImage gatosBackgroundOf(GrayImage const& gray, BinaryImage const& niblack, unsigned int const ws);
+
 GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int const radius) {
   GrayImage gray = GrayImage(src);
   if (gray.isNull() || niblack.isNull()) {
@@ -727,8 +741,19 @@ GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int 
     return gray;
   }
 
+  // 64 bits would double the memory taken, so they are used only where the sum of a window may need them.
+  return (mostBackgroundPixelsInGatosWindow(w, h, ws) > MAX_AREA_FOR_32_BITS)
+             ? gatosBackgroundOf<uint64_t>(gray, niblack, ws)
+             : gatosBackgroundOf<uint32_t>(gray, niblack, ws);
+}
+
+template <typename GraySum>
+GrayImage gatosBackgroundOf(GrayImage const& gray, BinaryImage const& niblack, unsigned int const ws) {
+  int const w = gray.width();
+  int const h = gray.height();
+
   IntegralImage<uint32_t> niblack_bg_ii(w, h);
-  IntegralImage<uint32_t> gray_bg_ii(w, h);
+  IntegralImage<GraySum> gray_bg_ii(w, h);
 
   uint32_t const* niblack_line = niblack.data();
   int const niblack_stride = niblack.wordsPerLine();
@@ -780,8 +805,8 @@ GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int 
         // Foreground pixel. Interpolate from background pixels in window.
         uint32_t bg = background_line[x];
         if (niblack_sum_bg > 0) {
-          uint32_t const gray_sum_bg = gray_bg_ii.sum(window);
-          bg = (gray_sum_bg + (niblack_sum_bg >> 1)) / niblack_sum_bg;
+          GraySum const gray_sum_bg = gray_bg_ii.sum(window);
+          bg = static_cast<uint32_t>((gray_sum_bg + (niblack_sum_bg >> 1)) / niblack_sum_bg);
         }
         background_line[x] = bg;
       }

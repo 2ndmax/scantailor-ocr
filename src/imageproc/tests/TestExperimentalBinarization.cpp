@@ -5,7 +5,9 @@
 #include <ExperimentalBinarization.h>
 #include <GrayImage.h>
 
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <utility>
@@ -80,6 +82,22 @@ BOOST_AUTO_TEST_CASE(test_strokes_black_paper_white) {
 // The smallest window (radius 1) shows a window that is one column short on the right: the gray
 // neighbour left of a bright column then has a mean without the column and stays white, while the
 // one on the right turns black.
+BOOST_AUTO_TEST_CASE(test_gatos_window_too_large_for_32_bits_keeps_dark_print_black) {
+  // The background under the print is the mean of a window of more than about 16.8 million white pixels.
+  // Its sum doesn't fit 32 bits; wrapped around, it gave a tiny background and the print turned white.
+  const int side = 4200;
+  const int printSide = 100;
+  GrayImage page{QSize(side, side)};
+  page.fill(255);
+  for (int y = 0; y < printSide; ++y) {
+    std::fill_n(page.data() + y * page.stride(), printSide, uint8_t(50));
+  }
+
+  const BinaryImage result = binarizeGatos(page, 9999, 0.2, 0);
+
+  BOOST_TEST(result.countBlackPixels() > printSide * printSide * 9 / 10);
+}
+
 BOOST_AUTO_TEST_CASE(test_singh_window_is_centred) {
   GrayImage image(QSize(21, 5));
   for (int y = 0; y < image.height(); ++y) {

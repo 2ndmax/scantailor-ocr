@@ -62,6 +62,9 @@ class LocalWindow {
   int m_toBottom;
 };
 
+// The most white pixels whose sum still fits 32 bits.
+constexpr int64_t MAX_AREA_FOR_32_BITS = std::numeric_limits<uint32_t>::max() / 255;
+
 namespace local_window_detail {
 // Calls visit(x, windowRect, windowArea) for every pixel, row by row, and endOfRow() after each row.
 template <typename Visit, typename EndOfRow>
@@ -110,9 +113,6 @@ class GrayLevelSums {
   }
 
  private:
-  // The most white pixels whose sum still fits 32 bits.
-  static constexpr int64_t MAX_AREA_FOR_32_BITS = std::numeric_limits<uint32_t>::max() / 255;
-
   template <typename Sum>
   static void pushRowTo(IntegralImage<Sum>& sums, const uint8_t* grayLine) {
     sums.pushRow([&](const int x) -> uint32_t { return grayLine[x]; });
