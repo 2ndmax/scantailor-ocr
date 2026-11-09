@@ -278,6 +278,9 @@ topic, not by version.
   "Black" is no longer ignored with dewarping. Automatic dewarping is no longer misled by page
   numbers or indented text, and leaves a page undewarped when it finds too few text lines to
   rely on.
+* New dewarping method **Trapezoid** for scans of flat pages, which takes the lines of text as
+  straight. The dewarping panel now has a check box and a list of methods, and tells when a page
+  was left undewarped.
 * **Output cleanup:** removing pages, replacing a scan or switching a page between one and two
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
