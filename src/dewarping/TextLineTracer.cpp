@@ -127,6 +127,11 @@ EdgeDirection dominantEdgeDirection(const std::vector<QPointF>& ends) {
   return best;
 }
 
+/** Whether enough of the \p numEnds line ends agree on the direction of an edge to trust its slope. */
+bool enoughEndsAgree(const EdgeDirection& direction, const size_t numEnds) {
+  return static_cast<int>(direction.agreeingEnds.size()) >= std::max(4, static_cast<int>(numEnds) / 4);
+}
+
 /**
  * A line with the given slope through the outermost line end, as long as the image is high.
  * \p outwards is -1 for the left edge and 1 for the right one.
@@ -201,9 +206,8 @@ bool fitBoundsToTextLines(const std::list<std::vector<QPointF>>& polylines,
   const EdgeDirection left = dominantEdgeDirection(ends.left);
   const EdgeDirection right = dominantEdgeDirection(ends.right);
   // Ragged line ends may not agree on anything. Then the other edge, or else the deskewed vertical, tells the slope.
-  const int minAgreeingEnds = std::max(4, numLines / 4);
-  const bool leftReliable = static_cast<int>(left.agreeingEnds.size()) >= minAgreeingEnds;
-  const bool rightReliable = static_cast<int>(right.agreeingEnds.size()) >= minAgreeingEnds;
+  const bool leftReliable = enoughEndsAgree(left, ends.left.size());
+  const bool rightReliable = enoughEndsAgree(right, ends.right.size());
   const double fallbackSlope = leftReliable ? left.slope : (rightReliable ? right.slope : 0.0);
 
   const QLineF leftEdge
@@ -257,7 +261,7 @@ FittedLine fitStraightLine(const std::vector<QPointF>& points) {
 /** The slope (dx / dy) of an edge, from the line ends that agree on it, or NaN if too few of them do. */
 double trapezoidEdgeSlope(const std::vector<QPointF>& ends) {
   const EdgeDirection direction = mostAgreedEdgeDirection(ends);
-  if (static_cast<int>(direction.agreeingEnds.size()) < std::max(4, static_cast<int>(ends.size()) / 4)) {
+  if (!enoughEndsAgree(direction, ends.size())) {
     return std::numeric_limits<double>::quiet_NaN();
   }
   std::vector<QPointF> swapped;  // x and y exchanged: an edge is a function of y.
