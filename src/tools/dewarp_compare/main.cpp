@@ -5,6 +5,11 @@
 // pages with a known distortion.
 //
 // Usage: dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]
+//        dewarp_compare <output folder> --images=<folder>
+//
+// With --images nothing is measured, since the distortion of a real page is unknown: for every image of the
+// folder and each method, the tool writes the page with the model drawn on it, and for Auto the steps of the
+// tracing that the debug mode of the program shows (traced lines, edges, the model among the lines).
 //
 // A case is a layout (justified, ragged right, ...) with a distortion (none, shear, converging lines, ...). Each case
 // is drawn --seeds times with other random line lengths and positions. The place of every text line is known on
@@ -24,12 +29,16 @@
 // more than half a pixel. For each row the worst page is written as an image with the model drawn on it.
 // "Even out letter widths" is not part of the measurement.
 
+#include <AutoRemovingFile.h>
+#include <BinaryImage.h>
 #include <Constants.h>
 #include <CylindricalSurfaceDewarper.h>
+#include <DebugImages.h>
 #include <DistortionModel.h>
 #include <DistortionModelBuilder.h>
 #include <Dpi.h>
 #include <GrayImage.h>
+#include <ImageLoader.h>
 #include <NullTaskStatus.h>
 #include <TextLineTracer.h>
 #include <TopBottomEdgeTracer.h>
@@ -37,12 +46,14 @@
 
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QPainter>
 #include <QPolygonF>
 #include <algorithm>
 #include <atomic>
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <random>
@@ -51,6 +62,7 @@
 #include <vector>
 
 #include "filters/output/DepthPerception.h"
+#include "tools/ToolImageDpi.h"
 #include "tools/ToolImageSave.h"
 
 using namespace dewarping;
@@ -207,18 +219,39 @@ Page drawPage(const Layout layout, const Distortion& distortion, const unsigned 
 enum class Method { Auto, Trapezoid };
 
 /** The model as OutputGenerator builds it; invalid if the method refuses the page. */
-DistortionModel modelOf(const Method method, const QImage& image) {
+DistortionModel modelOf(const Method method,
+                        const QImage& image,
+                        const Dpi& dpi = Dpi(200, 200),
+                        DebugImages* dbg = nullptr) {
   const imageproc::GrayImage gray(image);
-  const Dpi dpi(200, 200);
   if (method == Method::Trapezoid) {
-    return TextLineTracer::traceTrapezoid(gray, dpi, image.rect());
+    return TextLineTracer::traceTrapezoid(gray, dpi, image.rect(), dbg);
   }
   const NullTaskStatus status;
   DistortionModelBuilder builder(Vec2d(0, 1));
-  TextLineTracer::trace(gray, dpi, image.rect(), builder, status);
+  TextLineTracer::trace(gray, dpi, image.rect(), builder, status, dbg);
   TopBottomEdgeTracer::trace(gray, builder.verticalBounds(), builder, status);
-  return builder.tryBuildModel();
+  const QImage background = gray.toQImage();
+  return builder.tryBuildModel(dbg, &background);
 }
+
+/** Collects the images the tracing shows in the program's debug mode. */
+class KeptDebugImages : public DebugImages {
+ public:
+  void add(const QImage& image, const QString& label, const std::function<QWidget*(const QImage&)>&) override {
+    images.emplace_back(label, image);
+  }
+
+  void add(const imageproc::BinaryImage&, const QString&, const std::function<QWidget*(const QImage&)>&) override {}
+
+  bool empty() const override { return images.empty(); }
+
+  AutoRemovingFile retrieveNext(QString*, std::function<QWidget*(const QImage&)>*) override {
+    return AutoRemovingFile();
+  }
+
+  std::vector<std::pair<QString, QImage>> images;
+};
 
 struct Errors {
   double lines = 0;
@@ -344,7 +377,57 @@ struct Options {
   int seeds = 10;
   int jobs = 1;
   QString only;
+  /** With --images: real pages from this folder instead of drawn ones. */
+  QString imagesDir;
 };
+
+QImage withModel(const QImage& page, const DistortionModel& model);
+
+/**
+ * Real pages have no known distortion, so nothing is measured: for every image of the folder, the model of each
+ * method drawn on the page, and the steps of the tracing that show where a model comes from.
+ */
+int showModelsOfRealPages(const Options& options) {
+  const QStringList keptLabels{QStringLiteral("traced"), QStringLiteral("filtered2"),
+                               QStringLiteral("vertBounds_from_lines"), QStringLiteral("trimmed_polylines"),
+                               QStringLiteral("distortion_model")};
+  const QDir dir(options.imagesDir);
+  const QStringList names = dir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"}, QDir::Files, QDir::Name);
+  if (names.isEmpty()) {
+    std::cerr << "No images in " << options.imagesDir.toStdString() << std::endl;
+    return 1;
+  }
+  for (const QString& name : names) {
+    const QImage loaded = ImageLoader::load(dir.filePath(name));
+    if (loaded.isNull()) {
+      std::cerr << "Cannot read " << name.toStdString() << std::endl;
+      return 1;
+    }
+    const Dpi dpi = tools::dpiOrDefault(loaded);
+    const QImage image = imageproc::GrayImage(loaded).toQImage();
+    for (const Method method : {Method::Auto, Method::Trapezoid}) {
+      const QString prefix = QDir(options.outDir)
+                                 .filePath(QFileInfo(name).completeBaseName()
+                                           + QLatin1String((method == Method::Auto) ? "_auto" : "_trapezoid"));
+      KeptDebugImages dbg;
+      DistortionModel model;
+      try {
+        model = modelOf(method, image, dpi, &dbg);
+      } catch (const std::runtime_error&) {
+        // No model, as below.
+      }
+      std::cout << name.toStdString() << ((method == Method::Auto) ? "  auto: " : "  trapezoid: ")
+                << (model.isValid() ? "model" : "no model") << std::endl;
+      tools::saveImage(withModel(image, model), prefix + QLatin1String("_model.png"));
+      for (const auto& [label, debugImage] : dbg.images) {
+        if (keptLabels.contains(label)) {
+          tools::saveImage(debugImage, prefix + QLatin1Char('_') + label + QLatin1String(".png"));
+        }
+      }
+    }
+  }
+  return tools::exitCodeOfSaves();
+}
 
 bool parseArgs(const QStringList& args, Options& options) {
   options.jobs = std::clamp(static_cast<int>(std::thread::hardware_concurrency()) / 2, 1, 6);
@@ -359,6 +442,8 @@ bool parseArgs(const QStringList& args, Options& options) {
       ok = ok && options.jobs > 0;
     } else if (arg.startsWith(QLatin1String("--only="))) {
       options.only = arg.mid(7);
+    } else if (arg.startsWith(QLatin1String("--images="))) {
+      options.imagesDir = arg.mid(9);
     } else if (!arg.startsWith(QLatin1String("--")) && options.outDir.isEmpty()) {
       options.outDir = arg;
     } else {
@@ -391,6 +476,9 @@ int main(int argc, char** argv) {
   if (!QDir().mkpath(options.outDir)) {
     std::cerr << "Cannot create " << options.outDir.toStdString() << std::endl;
     return 1;
+  }
+  if (!options.imagesDir.isEmpty()) {
+    return showModelsOfRealPages(options);
   }
 
   std::vector<Case> cases;

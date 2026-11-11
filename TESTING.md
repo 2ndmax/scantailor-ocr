@@ -161,6 +161,7 @@ with seven distortions (none, tilt, shear, converging lines, converging edges, b
 
 ```bash
 dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]
+dewarp_compare <output folder> --images=<folder>
 ```
 
 - `--seeds`: pages per case, each with other random line lengths and positions (default 10).
@@ -173,6 +174,12 @@ line is from the level of its line, "columns" how far it is from where an even h
 puts it. The last column counts the pages a model made worse. The worst page of each row is
 written as an image with the model drawn on it. The measures and their limits are described at
 the top of `src/tools/dewarp_compare/main.cpp`.
+
+With `--images=<folder>` nothing is measured, since the distortion of a real page is unknown. For
+every image of the folder (pages as the output step gets them, e.g. output images written without
+dewarping) and each method, the tool writes the page with the model drawn on it, and for Auto the
+steps of the tracing that show where the model comes from: the traced lines, the edges and the
+model among the lines.
 
 ### despeckle_compare
 
