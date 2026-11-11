@@ -1,0 +1,492 @@
+// Copyright (C) 2026  ScanTailor OCR contributors
+// Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
+
+// Developer tool: measures the automatic dewarping methods of the output step (Auto and Trapezoid) on drawn
+// pages with a known distortion.
+//
+// Usage: dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]
+//
+// A case is a layout (justified, ragged right, ...) with a distortion (none, shear, converging lines, ...). Each case
+// is drawn --seeds times with other random line lengths and positions. The place of every text line is known on
+// the flat and on the distorted page, so the tool can tell how flat a model makes the page, without tracing the
+// result again:
+//
+//   lines:   how far a point of a text line is from the level of its line (px, largest on the page).
+//            This shows wavy, bent and tilted lines.
+//   columns: how far a point is from where an even horizontal scale puts it (px, largest on the page).
+//            This shows a wrong trapezoid: text stretched at the top and squeezed at the bottom, tilted letters.
+//
+// The curved distortion only moves points up and down, as no real book does. So for it "columns" says little:
+// the cylinder model takes a bent line for depth and stretches it.
+//
+// The summary (stdout and summary.txt) has one row per case and method: pages without a model, both measures
+// before -> after (median of the pages with a model) and their worst page, and the pages a model made worse by
+// more than half a pixel. For each row the worst page is written as an image with the model drawn on it.
+// "Even out letter widths" is not part of the measurement.
+
+#include <Constants.h>
+#include <CylindricalSurfaceDewarper.h>
+#include <DistortionModel.h>
+#include <DistortionModelBuilder.h>
+#include <Dpi.h>
+#include <GrayImage.h>
+#include <NullTaskStatus.h>
+#include <TextLineTracer.h>
+#include <TopBottomEdgeTracer.h>
+#include <VecNT.h>
+
+#include <QDir>
+#include <QFile>
+#include <QGuiApplication>
+#include <QPainter>
+#include <QPolygonF>
+#include <algorithm>
+#include <atomic>
+#include <cmath>
+#include <iostream>
+#include <limits>
+#include <random>
+#include <stdexcept>
+#include <thread>
+#include <vector>
+
+#include "filters/output/DepthPerception.h"
+#include "tools/ToolImageSave.h"
+
+using namespace dewarping;
+
+namespace {
+// A page at 200 DPI, the resolution the tracing works at.
+const QSize kPageSize(1000, 1500);
+const double kTextLeft = 100;
+const double kTextWidth = 800;
+const double kLineStep = 34;
+const double kLetterWidth = 7;
+const double kLetterHeight = 16;
+const double kWorseBy = 0.5;  // A model that adds more than this many pixels of error made the page worse.
+
+struct TextLine {
+  double left;
+  double right;
+  double top;
+};
+
+enum class Layout { Justified, RaggedRight, Paragraphs, Poem, ShortBlock, ShortRagged };
+
+const std::vector<std::pair<Layout, const char*>> kLayouts{
+    {Layout::Justified, "justified"}, {Layout::RaggedRight, "ragged-right"}, {Layout::Paragraphs, "paragraphs"},
+    {Layout::Poem, "poem"},           {Layout::ShortBlock, "short-block"},   {Layout::ShortRagged, "short-ragged"}};
+
+struct Distortion {
+  const char* name;
+  double tiltDegrees;    // The whole page turned, as left over by the deskew step.
+  double linesConverge;  // Per pixel: the lines meet far to the right of the page.
+  double edgesConverge;  // Per pixel: the edges meet far below the page.
+  double curveHeight;    // Pixels the left end of a line hangs down, as towards the spine of a book.
+  double shearDegrees;   // The edges lean while the lines stay level, as left over by the oblique correction.
+};
+
+const std::vector<Distortion> kDistortions{{"none", 0, 0, 0, 0, 0},       {"tilt", 0.4, 0, 0, 0, 0},
+                                           {"shear", 0, 0, 0, 0, 0.4},    {"lines", 0, 3e-5, 0, 0, 0},
+                                           {"edges", 0, 0, 2.5e-5, 0, 0}, {"lines+edges", 0, 3e-5, 2.5e-5, 0, 0},
+                                           {"curved", 0, 0, 0, 25, 0}};
+
+QPointF warped(const Distortion& distortion, const QPointF& flat) {
+  const QPointF center(kPageSize.width() / 2.0, kPageSize.height() / 2.0);
+  const double angle = distortion.tiltDegrees * constants::DEG2RAD;
+  const QPointF offCenter(flat - center);
+  QPointF turned(offCenter.x() * std::cos(angle) - offCenter.y() * std::sin(angle),
+                 offCenter.x() * std::sin(angle) + offCenter.y() * std::cos(angle));
+  turned.rx() += std::tan(distortion.shearDegrees * constants::DEG2RAD) * turned.y();
+  turned /= 1.0 + distortion.linesConverge * turned.x() + distortion.edgesConverge * turned.y();
+
+  const double fromLeft = std::clamp((flat.x() - kTextLeft) / kTextWidth, 0.0, 1.0);
+  const double sag = distortion.curveHeight * std::pow(1.0 - fromLeft, 3) * (0.6 + 0.8 * flat.y() / kPageSize.height());
+  return center + turned + QPointF(0, sag);
+}
+
+/** The text lines of a layout. Line lengths and the place of the block differ with the seed. */
+std::vector<TextLine> textLinesOf(const Layout layout, const unsigned seed) {
+  std::mt19937 rng(seed);
+  const auto random = [&rng](const double from, const double to) {
+    return from + (to - from) * (rng() / static_cast<double>(std::mt19937::max()));
+  };
+
+  const double left = kTextLeft + random(-20, 20);
+  const double right = left + kTextWidth;
+  const double firstTop = 110 + random(-15, 15);
+  const bool isShort = (layout == Layout::ShortBlock) || (layout == Layout::ShortRagged);
+  const int numLines = isShort ? 13 : 36;
+
+  std::vector<TextLine> lines;
+  int untilParagraphEnd = 4 + static_cast<int>(random(0, 6));
+  for (int i = 0; i < numLines; ++i) {
+    TextLine line{left, right, firstTop + i * kLineStep};
+    switch (layout) {
+      case Layout::Justified:
+      case Layout::ShortBlock:
+        break;
+      case Layout::RaggedRight:
+      case Layout::ShortRagged:
+        line.right = left + kTextWidth * random(0.82, 1.0);
+        break;
+      case Layout::Poem:
+        line.right = left + kTextWidth * random(0.4, 0.85);
+        break;
+      case Layout::Paragraphs:
+        if (untilParagraphEnd == 0) {
+          line.right = left + kTextWidth * random(0.3, 0.9);
+          untilParagraphEnd = 4 + static_cast<int>(random(0, 6));
+          if (i + 1 < numLines) {
+            lines.push_back(line);
+            line = TextLine{left + 30, right, firstTop + ++i * kLineStep};  // The indented line after it.
+          }
+        } else {
+          --untilParagraphEnd;
+        }
+        break;
+    }
+    lines.push_back(line);
+  }
+  if (layout == Layout::Paragraphs) {
+    const double middle = 0.5 * (left + right);
+    lines.push_back(TextLine{middle - 15, middle + 15, firstTop + (numLines + 2) * kLineStep});  // The page number.
+  }
+  return lines;
+}
+
+struct Page {
+  QImage image;
+  // The same points along every text line, on the flat and on the distorted page.
+  std::vector<std::vector<QPointF>> flatLines;
+  std::vector<std::vector<QPointF>> warpedLines;
+};
+
+Page drawPage(const Layout layout, const Distortion& distortion, const unsigned seed) {
+  Page page;
+  page.image = QImage(kPageSize, QImage::Format_Grayscale8);
+  page.image.fill(Qt::white);
+  QPainter painter(&page.image);
+  painter.setRenderHint(QPainter::Antialiasing);
+  painter.setPen(Qt::NoPen);
+  painter.setBrush(Qt::black);
+
+  const auto drawLetter = [&](const double x, const double top) {
+    QPolygonF letter;
+    for (const QPointF& corner : {QPointF(x, top), QPointF(x + kLetterWidth, top),
+                                  QPointF(x + kLetterWidth, top + kLetterHeight), QPointF(x, top + kLetterHeight)}) {
+      letter << warped(distortion, corner);
+    }
+    painter.drawPolygon(letter);
+  };
+
+  for (const TextLine& line : textLinesOf(layout, seed)) {
+    // Letters grouped into words, the last one ending exactly at the right end of the line.
+    int lettersInWord = 0;
+    for (double x = line.left; x + kLetterWidth < line.right - kLetterWidth; x += 11) {
+      drawLetter(x, line.top);
+      if (++lettersInWord == 6) {
+        x += 8;
+        lettersInWord = 0;
+      }
+    }
+    drawLetter(line.right - kLetterWidth, line.top);
+
+    std::vector<QPointF> flat;
+    std::vector<QPointF> warpedLine;
+    for (double x = line.left; x <= line.right; x += 10) {
+      flat.emplace_back(x, line.top + kLetterHeight / 2);
+      warpedLine.push_back(warped(distortion, flat.back()));
+    }
+    page.flatLines.push_back(flat);
+    page.warpedLines.push_back(warpedLine);
+  }
+  return page;
+}
+
+enum class Method { Auto, Trapezoid };
+
+/** The model as OutputGenerator builds it; invalid if the method refuses the page. */
+DistortionModel modelOf(const Method method, const QImage& image) {
+  const imageproc::GrayImage gray(image);
+  const Dpi dpi(200, 200);
+  if (method == Method::Trapezoid) {
+    return TextLineTracer::traceTrapezoid(gray, dpi, image.rect());
+  }
+  const NullTaskStatus status;
+  DistortionModelBuilder builder(Vec2d(0, 1));
+  TextLineTracer::trace(gray, dpi, image.rect(), builder, status);
+  TopBottomEdgeTracer::trace(gray, builder.verticalBounds(), builder, status);
+  return builder.tryBuildModel();
+}
+
+struct Errors {
+  double lines = 0;
+  double columns = 0;
+};
+
+/** Slope of the least squares line through (from, to), i.e. how many units of \p to one pixel of the page is. */
+double scaleOf(const std::vector<double>& from, const std::vector<double>& to, double& offset) {
+  double meanFrom = 0;
+  double meanTo = 0;
+  for (size_t i = 0; i < from.size(); ++i) {
+    meanFrom += from[i];
+    meanTo += to[i];
+  }
+  meanFrom /= static_cast<double>(from.size());
+  meanTo /= static_cast<double>(from.size());
+  double sumXX = 0;
+  double sumXY = 0;
+  for (size_t i = 0; i < from.size(); ++i) {
+    sumXX += (from[i] - meanFrom) * (from[i] - meanFrom);
+    sumXY += (from[i] - meanFrom) * (to[i] - meanTo);
+  }
+  const double scale = sumXY / sumXX;
+  offset = meanTo - scale * meanFrom;
+  return scale;
+}
+
+/** Both measures of the header comment, for the points of the flat page and where a method puts them. */
+Errors errorsOf(const std::vector<std::vector<QPointF>>& flatLines, const std::vector<std::vector<QPointF>>& result) {
+  std::vector<double> flatX;
+  std::vector<double> flatY;
+  std::vector<double> resultX;
+  std::vector<double> resultY;
+  for (size_t line = 0; line < flatLines.size(); ++line) {
+    for (size_t i = 0; i < flatLines[line].size(); ++i) {
+      flatX.push_back(flatLines[line][i].x());
+      flatY.push_back(flatLines[line][i].y());
+      resultX.push_back(result[line][i].x());
+      resultY.push_back(result[line][i].y());
+    }
+  }
+  double xOffset = 0;
+  double yOffset = 0;
+  const double xScale = scaleOf(flatX, resultX, xOffset);
+  const double yScale = scaleOf(flatY, resultY, yOffset);
+
+  Errors errors;
+  for (size_t i = 0; i < flatX.size(); ++i) {
+    errors.columns = std::max(errors.columns, std::fabs((resultX[i] - (xOffset + xScale * flatX[i])) / xScale));
+  }
+  for (const std::vector<QPointF>& line : result) {
+    double level = 0;
+    for (const QPointF& pt : line) {
+      level += pt.y();
+    }
+    level /= static_cast<double>(line.size());
+    for (const QPointF& pt : line) {
+      errors.lines = std::max(errors.lines, std::fabs((pt.y() - level) / yScale));
+    }
+  }
+  return errors;
+}
+
+struct Measured {
+  bool hasModel = false;
+  Errors before;
+  Errors after;
+  DistortionModel model;
+};
+
+Measured measure(const Page& page, const Method method) {
+  Measured measured;
+  measured.before = errorsOf(page.flatLines, page.warpedLines);
+  measured.after = measured.before;
+  try {
+    measured.model = modelOf(method, page.image);
+    if (!measured.model.isValid()) {
+      return measured;
+    }
+    const CylindricalSurfaceDewarper dewarper(measured.model.topCurve().polyline(),
+                                              measured.model.bottomCurve().polyline(),
+                                              output::DepthPerception::defaultValue());
+    std::vector<std::vector<QPointF>> dewarped;
+    for (const std::vector<QPointF>& line : page.warpedLines) {
+      dewarped.emplace_back();
+      for (const QPointF& pt : line) {
+        dewarped.back().push_back(dewarper.mapToDewarpedSpace(pt));
+      }
+    }
+    measured.after = errorsOf(page.flatLines, dewarped);
+    measured.hasModel = true;
+  } catch (const std::runtime_error&) {
+    // The dewarper could not use the model; the page counts as one without a model.
+  }
+  return measured;
+}
+
+QImage withModel(const QImage& page, const DistortionModel& model) {
+  QImage image(page.convertToFormat(QImage::Format_RGB32));
+  if (!model.isValid()) {
+    return image;
+  }
+  QPainter painter(&image);
+  painter.setRenderHint(QPainter::Antialiasing);
+  painter.setPen(QPen(Qt::red, 2));
+  const std::vector<QPointF>& top = model.topCurve().polyline();
+  const std::vector<QPointF>& bottom = model.bottomCurve().polyline();
+  painter.drawPolyline(top.data(), static_cast<int>(top.size()));
+  painter.drawPolyline(bottom.data(), static_cast<int>(bottom.size()));
+  painter.setPen(QPen(Qt::blue, 2));
+  painter.drawLine(top.front(), bottom.front());
+  painter.drawLine(top.back(), bottom.back());
+  return image;
+}
+
+double medianOf(std::vector<double> values) {
+  std::nth_element(values.begin(), values.begin() + values.size() / 2, values.end());
+  return values[values.size() / 2];
+}
+
+struct Options {
+  QString outDir;
+  int seeds = 10;
+  int jobs = 1;
+  QString only;
+};
+
+bool parseArgs(const QStringList& args, Options& options) {
+  options.jobs = std::clamp(static_cast<int>(std::thread::hardware_concurrency()) / 2, 1, 6);
+  for (int i = 1; i < args.size(); ++i) {
+    const QString& arg = args[i];
+    bool ok = true;
+    if (arg.startsWith(QLatin1String("--seeds="))) {
+      options.seeds = arg.mid(8).toInt(&ok);
+      ok = ok && options.seeds > 0;
+    } else if (arg.startsWith(QLatin1String("--jobs="))) {
+      options.jobs = arg.mid(7).toInt(&ok);
+      ok = ok && options.jobs > 0;
+    } else if (arg.startsWith(QLatin1String("--only="))) {
+      options.only = arg.mid(7);
+    } else if (!arg.startsWith(QLatin1String("--")) && options.outDir.isEmpty()) {
+      options.outDir = arg;
+    } else {
+      ok = false;
+    }
+    if (!ok) {
+      return false;
+    }
+  }
+  return !options.outDir.isEmpty();
+}
+
+struct Case {
+  Layout layout;
+  const Distortion* distortion;
+  Method method;
+  QString name;
+};
+}  // namespace
+
+int main(int argc, char** argv) {
+  QGuiApplication app(argc, argv);
+  Options options;
+  if (!parseArgs(app.arguments(), options)) {
+    std::cerr << "Usage: dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]\n"
+                 "Defaults: 10 seeds, half of the processor cores (at most 6)."
+              << std::endl;
+    return 2;
+  }
+  if (!QDir().mkpath(options.outDir)) {
+    std::cerr << "Cannot create " << options.outDir.toStdString() << std::endl;
+    return 1;
+  }
+
+  std::vector<Case> cases;
+  for (const auto& [layout, layoutName] : kLayouts) {
+    for (const Distortion& distortion : kDistortions) {
+      for (const Method method : {Method::Auto, Method::Trapezoid}) {
+        const QString name = QStringLiteral("%1_%2_%3")
+                                 .arg(QLatin1String(layoutName), QLatin1String(distortion.name),
+                                      QLatin1String((method == Method::Auto) ? "auto" : "trapezoid"));
+        if (name.contains(options.only)) {
+          cases.push_back(Case{layout, &distortion, method, name});
+        }
+      }
+    }
+  }
+
+  const auto numSeeds = static_cast<size_t>(options.seeds);
+  std::vector<Measured> results(cases.size() * numSeeds);
+  std::atomic<size_t> next{0};
+  std::vector<std::thread> workers;
+  for (int j = 0; j < options.jobs; ++j) {
+    workers.emplace_back([&]() {
+      for (size_t i = next++; i < results.size(); i = next++) {
+        const Case& oneCase = cases[i / numSeeds];
+        const auto seed = static_cast<unsigned>(i % numSeeds) + 1;
+        results[i] = measure(drawPage(oneCase.layout, *oneCase.distortion, seed), oneCase.method);
+      }
+    });
+  }
+  for (std::thread& worker : workers) {
+    worker.join();
+  }
+
+  QString summary
+      = QStringLiteral("%1 %2 %3 %4 %5 %6\n")
+            .arg(QStringLiteral("case"), -38)
+            .arg(QStringLiteral("no model"), 8)
+            .arg(QStringLiteral("lines before -> after"), 22)
+            .arg(QStringLiteral("worst"), 6)
+            .arg(QStringLiteral("columns before -> after"), 24)
+            .arg(QStringLiteral("worst"), 6)
+        + QStringLiteral("%1 (px; median and worst of the pages with a model)  made worse\n").arg(QString(), 38);
+  for (size_t c = 0; c < cases.size(); ++c) {
+    std::vector<double> linesBefore;
+    std::vector<double> linesAfter;
+    std::vector<double> columnsBefore;
+    std::vector<double> columnsAfter;
+    int madeWorse = 0;
+    size_t worstSeed = 0;
+    double worstError = -1;
+    for (size_t s = 0; s < numSeeds; ++s) {
+      const Measured& measured = results[c * numSeeds + s];
+      if (!measured.hasModel) {
+        continue;
+      }
+      linesBefore.push_back(measured.before.lines);
+      linesAfter.push_back(measured.after.lines);
+      columnsBefore.push_back(measured.before.columns);
+      columnsAfter.push_back(measured.after.columns);
+      const bool worse = (measured.after.lines > measured.before.lines + kWorseBy)
+                         || (measured.after.columns > measured.before.columns + kWorseBy);
+      madeWorse += worse ? 1 : 0;
+      const double error = std::max(measured.after.lines, measured.after.columns);
+      if (error > worstError) {
+        worstError = error;
+        worstSeed = s;
+      }
+    }
+
+    const size_t numWithModel = linesAfter.size();
+    summary += QStringLiteral("%1 %2")
+                   .arg(cases[c].name, -38)
+                   .arg(QStringLiteral("%1/%2").arg(numSeeds - numWithModel).arg(numSeeds), 8);
+    if (numWithModel > 0) {
+      const auto px = [](const double value) { return QString::number(value, 'f', 1); };
+      summary += QStringLiteral(" %1 %2 %3 %4  %5/%6")
+                     .arg(px(medianOf(linesBefore)) + " -> " + px(medianOf(linesAfter)), 22)
+                     .arg(px(*std::max_element(linesAfter.begin(), linesAfter.end())), 6)
+                     .arg(px(medianOf(columnsBefore)) + " -> " + px(medianOf(columnsAfter)), 24)
+                     .arg(px(*std::max_element(columnsAfter.begin(), columnsAfter.end())), 6)
+                     .arg(madeWorse)
+                     .arg(numWithModel);
+
+      const auto seed = static_cast<unsigned>(worstSeed) + 1;
+      const Page page = drawPage(cases[c].layout, *cases[c].distortion, seed);
+      tools::saveImage(withModel(page.image, results[c * numSeeds + worstSeed].model),
+                       QDir(options.outDir).filePath(QStringLiteral("%1_seed%2.png").arg(cases[c].name).arg(seed)));
+    }
+    summary += QLatin1Char('\n');
+  }
+
+  std::cout << summary.toStdString() << std::flush;
+  QFile file(QDir(options.outDir).filePath(QStringLiteral("summary.txt")));
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text) || (file.write(summary.toUtf8()) < 0)) {
+    std::cerr << "Cannot write " << file.fileName().toStdString() << std::endl;
+    return 1;
+  }
+  return tools::exitCodeOfSaves();
+}

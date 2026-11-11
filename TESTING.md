@@ -153,6 +153,27 @@ in `images/`), `results.csv` (one row per page and method) and `summary.txt`. Wi
 gets `real_scans.html`, `real_scans.txt` and `real_scans.csv` instead, with the images also in
 `images/`.
 
+### dewarp_compare
+
+Measures the automatic dewarping methods of the output step (Auto and Trapezoid) on drawn pages
+with a known distortion: six layouts (justified, ragged right, paragraphs, poem, short blocks)
+with seven distortions (none, tilt, shear, converging lines, converging edges, both, curved).
+
+```bash
+dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]
+```
+
+- `--seeds`: pages per case, each with other random line lengths and positions (default 10).
+- `--jobs`: pages measured at the same time (default half of the cores, at most 6).
+- `--only`: only the cases whose name contains this, e.g. `ragged-right` or `_trapezoid`.
+
+The summary (stdout and `summary.txt`) has one row per case and method: the pages without a
+model, and two errors in pixels before and after dewarping. "lines" is how far a point of a text
+line is from the level of its line, "columns" how far it is from where an even horizontal scale
+puts it. The last column counts the pages a model made worse. The worst page of each row is
+written as an image with the model drawn on it. The measures and their limits are described at
+the top of `src/tools/dewarp_compare/main.cpp`.
+
 ### despeckle_compare
 
 Measures the despeckling (`Despeckle.cpp`) and compares it before and after a change. Run a
