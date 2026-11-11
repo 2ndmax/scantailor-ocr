@@ -17,10 +17,12 @@
 #include <QColor>
 #include <QImage>
 #include <QPainter>
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <optional>
 #include <stdexcept>
 #include <vector>
 
@@ -28,6 +30,13 @@ namespace dewarping {
 struct TextLineTracerTestAccess {
   static void findMidLineSeeds(const imageproc::SEDM& sedm, const QLineF& midLine, std::vector<QPoint>& seeds) {
     TextLineTracer::findMidLineSeeds(sedm, midLine, seeds);
+  }
+
+  static void traceAsCurved(const imageproc::GrayImage& input,
+                            const Dpi& dpi,
+                            const QRect& contentRect,
+                            DistortionModelBuilder& output) {
+    TextLineTracer::traceAsCurved(input, dpi, contentRect, output);
   }
 };
 
@@ -86,9 +95,10 @@ void drawTextLines(QImage& page, const int count, const int firstY, const int le
   }
 }
 
+// The rules of curved pages, which the automatic method no longer follows on the flat pages drawn here.
 DistortionModelBuilder traceLines(const QImage& page) {
   DistortionModelBuilder builder(Vec2d(0, 1));
-  TextLineTracer::trace(imageproc::GrayImage(page), Dpi(200, 200), page.rect(), builder, NoCancelStatus());
+  TextLineTracerTestAccess::traceAsCurved(imageproc::GrayImage(page), Dpi(200, 200), page.rect(), builder);
   return builder;
 }
 
@@ -218,7 +228,7 @@ DistortionModelBuilder traceLinesInTightBox(const int lineCount) {
   drawTextLines(page, lineCount, firstY);
   const QRect tightBox(0, firstY - 10, kPageSize.width(), (lineCount - 1) * kLineStep + 36);
   DistortionModelBuilder builder(Vec2d(0, 1));
-  TextLineTracer::trace(imageproc::GrayImage(page), Dpi(200, 200), tightBox, builder, NoCancelStatus());
+  TextLineTracerTestAccess::traceAsCurved(imageproc::GrayImage(page), Dpi(200, 200), tightBox, builder);
   return builder;
 }
 
@@ -390,6 +400,69 @@ BOOST_AUTO_TEST_CASE(test_trapezoid_needs_eight_lines) {
   BOOST_TEST(!traceTrapezoid(page).isValid());
   drawTextLines(page, 1, 100 + 7 * kLineStep);
   BOOST_TEST(traceTrapezoid(page).isValid());
+}
+
+// What the automatic method makes of a page: the model of a flat page, or nothing and the lines in \p builder.
+std::optional<DistortionModel> traceAuto(const QImage& page, DistortionModelBuilder& builder) {
+  return TextLineTracer::trace(imageproc::GrayImage(page), Dpi(200, 200), page.rect(), builder, NoCancelStatus());
+}
+
+// How far a curve leaves the straight line through its ends, in pixels.
+double bendOf(const Curve& curve) {
+  const std::vector<QPointF>& polyline = curve.polyline();
+  const QLineF chord(polyline.front(), polyline.back());
+  double bend = 0;
+  for (const QPointF& pt : polyline) {
+    const double onChord = chord.y1() + chord.dy() * (pt.x() - chord.x1()) / chord.dx();
+    bend = std::max(bend, std::fabs(pt.y() - onChord));
+  }
+  return bend;
+}
+
+BOOST_AUTO_TEST_CASE(test_auto_takes_a_flat_page_as_straight) {
+  // The curves of the automatic model were two of the traced lines as they are. On a scan, a traced line is a
+  // few pixels off here and there, and so the model bent the lines of a flat page. Drawn pages are traced too
+  // exactly to show the bend itself; the test holds on to the model of straight lines.
+  QImage page = blankPage();
+  drawTextLines(page, 36, 100);
+  DistortionModelBuilder builder(Vec2d(0, 1));
+  const std::optional<DistortionModel> model = traceAuto(page, builder);
+  BOOST_REQUIRE(model.has_value());
+  BOOST_REQUIRE(model->isValid());
+  BOOST_TEST(model->topCurve().polyline().size() == 2u);
+  BOOST_TEST(model->bottomCurve().polyline().size() == 2u);
+  BOOST_TEST(std::fabs(slopeInDegrees(model->topCurve())) < 0.1);
+  BOOST_TEST(!builder.tryBuildModel().isValid());
+}
+
+BOOST_AUTO_TEST_CASE(test_auto_leaves_a_flat_page_with_few_lines_alone) {
+  // Straight lines need eight of them, as with Trapezoid.
+  QImage page = blankPage();
+  drawTextLines(page, 7, 100);
+  DistortionModelBuilder builder(Vec2d(0, 1));
+  const std::optional<DistortionModel> model = traceAuto(page, builder);
+  BOOST_REQUIRE(model.has_value());
+  BOOST_TEST(!model->isValid());
+}
+
+BOOST_AUTO_TEST_CASE(test_auto_takes_sagging_lines_as_curved) {
+  // Every line hangs down towards the spine on the left, by 20 px at its end.
+  QImage page = blankPage();
+  {
+    QPainter painter(&page);
+    for (int i = 0; i < 36; ++i) {
+      for (int x = kTextLeft; x + 7 <= kTextRight; x += 11) {
+        const double fromSpine = static_cast<double>(x - kTextLeft) / (kTextRight - kTextLeft);
+        const double sag = 20.0 * std::pow(1.0 - fromSpine, 3);
+        painter.fillRect(QRectF(x, 100 + i * kLineStep + sag, 7, 16), Qt::black);
+      }
+    }
+  }
+  DistortionModelBuilder builder(Vec2d(0, 1));
+  BOOST_TEST(!traceAuto(page, builder).has_value());
+  const DistortionModel model = builder.tryBuildModel();
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(bendOf(model.topCurve()) > 3.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

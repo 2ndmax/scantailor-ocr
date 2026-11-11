@@ -23,6 +23,7 @@
 #include <cmath>
 #include <iterator>
 #include <limits>
+#include <optional>
 
 #include "AvgUnitVector.h"
 #include "DebugImages.h"
@@ -368,6 +369,63 @@ bool fitTrapezoid(const std::list<std::vector<QPointF>>& polylines,
   bottom = lineEnds(bottomY, bottomSlope);
   return true;
 }
+// The automatic method bends a page only if its lines are bent. A single traced line is off a straight line by up
+// to 10 px here and there, also on a flat page; taken as a curve of the model, it bent the page. The middle one of
+// all lines is steady: at most 1.3 px on the 35 flat scans this limit was measured on, at least 5.8 px on drawn
+// curved pages (dewarp_compare).
+const double kMaxBowOfFlatPage = 2.5;
+
+/**
+ * How many pixels the middle of the line lies above the straight line through its ends (negative: below), by
+ * the parabola that fits the line best.
+ */
+double bowOf(const std::vector<QPointF>& polyline) {
+  const double middleX = 0.5 * (polyline.front().x() + polyline.back().x());
+  const double halfLength = 0.5 * std::fabs(polyline.back().x() - polyline.front().x());
+  if ((polyline.size() < 3) || (halfLength <= 0)) {
+    return 0;
+  }
+
+  // y = a + b * t + bow * t^2, with t from -1 to 1 along the line. For the least squares fit, t^2 is made
+  // independent of 1 and t first; what is left of it carries the bow alone.
+  const auto count = static_cast<double>(polyline.size());
+  const auto tOf = [&](const QPointF& pt) { return (pt.x() - middleX) / halfLength; };
+  double meanT = 0;
+  double meanTT = 0;
+  double meanY = 0;
+  for (const QPointF& pt : polyline) {
+    meanT += tOf(pt) / count;
+    meanTT += tOf(pt) * tOf(pt) / count;
+    meanY += pt.y() / count;
+  }
+  double sumOfSquaredT = 0;
+  double sumOfTTByT = 0;
+  for (const QPointF& pt : polyline) {
+    sumOfSquaredT += (tOf(pt) - meanT) * (tOf(pt) - meanT);
+    sumOfTTByT += (tOf(pt) * tOf(pt) - meanTT) * (tOf(pt) - meanT);
+  }
+  const double shareOfT = (sumOfSquaredT > 0) ? sumOfTTByT / sumOfSquaredT : 0.0;
+  double sumOfYByRest = 0;
+  double sumOfSquaredRest = 0;
+  for (const QPointF& pt : polyline) {
+    const double rest = (tOf(pt) * tOf(pt) - meanTT) - shareOfT * (tOf(pt) - meanT);
+    sumOfYByRest += (pt.y() - meanY) * rest;
+    sumOfSquaredRest += rest * rest;
+  }
+  return (sumOfSquaredRest > 0) ? sumOfYByRest / sumOfSquaredRest : 0.0;
+}
+
+/** Whether the traced lines tell of a flat page. No lines tell of no curve. */
+bool linesAreStraight(const std::list<std::vector<QPointF>>& polylines) {
+  if (polylines.empty()) {
+    return true;
+  }
+  std::vector<double> bows;
+  for (const std::vector<QPointF>& polyline : polylines) {
+    bows.push_back(bowOf(polyline));
+  }
+  return std::fabs(medianOf(bows)) <= kMaxBowOfFlatPage;
+}
 }  // namespace
 
 struct TextLineTracer::TracedPage {
@@ -378,14 +436,30 @@ struct TextLineTracer::TracedPage {
   QTransform toOrig;  // From the downscaled page to the input.
 };
 
-void TextLineTracer::trace(const GrayImage& input,
-                           const Dpi& dpi,
-                           const QRect& contentRect,
-                           DistortionModelBuilder& output,
-                           const TaskStatus& /*status*/,
-                           DebugImages* dbg) {
+std::optional<DistortionModel> TextLineTracer::trace(const GrayImage& input,
+                                                     const Dpi& dpi,
+                                                     const QRect& contentRect,
+                                                     DistortionModelBuilder& output,
+                                                     const TaskStatus& /*status*/,
+                                                     DebugImages* dbg) {
   TracedPage page = traceTextLines(input, dpi, contentRect, dbg);
+  if (linesAreStraight(page.polylines)) {
+    return trapezoidOf(page, dbg);
+  }
+  giveCurvesTo(output, page, dbg);
+  return std::nullopt;
+}
 
+void TextLineTracer::traceAsCurved(const GrayImage& input,
+                                   const Dpi& dpi,
+                                   const QRect& contentRect,
+                                   DistortionModelBuilder& output,
+                                   DebugImages* dbg) {
+  TracedPage page = traceTextLines(input, dpi, contentRect, dbg);
+  giveCurvesTo(output, page, dbg);
+}
+
+void TextLineTracer::giveCurvesTo(DistortionModelBuilder& output, TracedPage& page, DebugImages* dbg) {
   if (!fitBoundsToTextLines(page.polylines, page.binarized, page.contentRect, page.vertBounds)) {
     return;  // Without bounds and curves no model gets built, and the page is left as it is.
   }
@@ -405,7 +479,7 @@ void TextLineTracer::trace(const GrayImage& input,
     }
     output.addHorizontalCurve(polyline);
   }
-}  // TextLineTracer::trace
+}  // TextLineTracer::giveCurvesTo
 
 DistortionModel TextLineTracer::traceTrapezoid(const GrayImage& input,
                                                const Dpi& dpi,

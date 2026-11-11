@@ -57,6 +57,7 @@
 #include <cstring>
 #include <iterator>
 #include <new>
+#include <optional>
 
 #include "FuzzSetup.h"
 #include "filters/deskew/Task.h"
@@ -247,9 +248,10 @@ void autoDewarping(const Input& in) {
                         s[4] * gray.height() / 256);
   }
   dewarping::DistortionModelBuilder modelBuilder(Vec2d(0, 1));
-  dewarping::TextLineTracer::trace(gray, in.dpi, contentRect, modelBuilder, status);
+  const std::optional<dewarping::DistortionModel> flatPageModel
+      = dewarping::TextLineTracer::trace(gray, in.dpi, contentRect, modelBuilder, status);
   dewarping::TopBottomEdgeTracer::trace(gray, modelBuilder.verticalBounds(), modelBuilder, status);
-  const dewarping::DistortionModel model = modelBuilder.tryBuildModel();
+  const dewarping::DistortionModel model = flatPageModel ? *flatPageModel : modelBuilder.tryBuildModel();
   if (!model.isValid()) {
     return;
   }

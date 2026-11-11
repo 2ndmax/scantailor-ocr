@@ -56,6 +56,7 @@
 #include <functional>
 #include <iostream>
 #include <limits>
+#include <optional>
 #include <random>
 #include <stdexcept>
 #include <thread>
@@ -229,7 +230,11 @@ DistortionModel modelOf(const Method method,
   }
   const NullTaskStatus status;
   DistortionModelBuilder builder(Vec2d(0, 1));
-  TextLineTracer::trace(gray, dpi, image.rect(), builder, status, dbg);
+  const std::optional<DistortionModel> flatPageModel
+      = TextLineTracer::trace(gray, dpi, image.rect(), builder, status, dbg);
+  if (flatPageModel) {
+    return *flatPageModel;
+  }
   TopBottomEdgeTracer::trace(gray, builder.verticalBounds(), builder, status);
   const QImage background = gray.toQImage();
   return builder.tryBuildModel(dbg, &background);

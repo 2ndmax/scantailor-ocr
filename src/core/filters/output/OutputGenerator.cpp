@@ -57,6 +57,7 @@
 #include <QTransform>
 #include <cmath>
 #include <functional>
+#include <optional>
 #include <stdexcept>
 #include <type_traits>
 
@@ -2560,7 +2561,12 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
                                                                      const QTransform& toOriginal) {
   DistortionModelBuilder modelBuilder(Vec2d(0, 1));
 
-  TextLineTracer::trace(warpedGrayOutput, m_dpi, m_contentBoxInTracingCs, modelBuilder, m_status, m_dbg);
+  // A flat page gets a model of straight lines: single traced lines are too inexact to be its curves.
+  const std::optional<DistortionModel> flatPageModel
+      = TextLineTracer::trace(warpedGrayOutput, m_dpi, m_contentBoxInTracingCs, modelBuilder, m_status, m_dbg);
+  if (flatPageModel) {
+    return straightModelInOriginal(*flatPageModel, toOriginal);
+  }
   modelBuilder.transform(toOriginal);
 
   TopBottomEdgeTracer::trace(m_inputGrayImage, modelBuilder.verticalBounds(), modelBuilder, m_status, m_dbg);

@@ -9,9 +9,11 @@
 #include <QPointF>
 #include <cstdint>
 #include <list>
+#include <optional>
 #include <utility>
 #include <vector>
 
+#include "DistortionModel.h"
 #include "Grid.h"
 #include "VecNT.h"
 
@@ -30,21 +32,26 @@ class SEDM;
 }  // namespace imageproc
 
 namespace dewarping {
-class DistortionModel;
 class DistortionModelBuilder;
 
 class TextLineTracer {
  public:
   /**
-   * Finds the text lines of the page and gives them and the vertical bounds of the text to \p output.
-   * If the lines are too few or cover too little of the page, it gives neither, so no model can be built.
+   * The automatic method. Finds the text lines of the page and tells from them whether the page is curved.
+   *
+   * A curved page: returns nothing, and gives the lines and the vertical bounds of the text to \p output, for a
+   * model of curves. If the lines are too few or cover too little of the page, it gives neither, so no model
+   * can be built.
+   *
+   * A flat page: returns the model traceTrapezoid() makes of it, invalid if there are too few lines, and
+   * leaves \p output alone. Single traced lines are too inexact to be the curves of a model of a flat page.
    */
-  static void trace(const imageproc::GrayImage& input,
-                    const Dpi& dpi,
-                    const QRect& contentRect,
-                    DistortionModelBuilder& output,
-                    const TaskStatus& status,
-                    DebugImages* dbg = nullptr);
+  static std::optional<DistortionModel> trace(const imageproc::GrayImage& input,
+                                              const Dpi& dpi,
+                                              const QRect& contentRect,
+                                              DistortionModelBuilder& output,
+                                              const TaskStatus& status,
+                                              DebugImages* dbg = nullptr);
 
   /**
    * Takes the text lines as straight, and returns the trapezoid they form: two straight curves in the coordinates
@@ -66,6 +73,16 @@ class TextLineTracer {
                                    const Dpi& dpi,
                                    const QRect& contentRect,
                                    DebugImages* dbg);
+
+  /** What trace() does with a curved page, for any page: dewarping_tests draws flat pages for it. */
+  static void traceAsCurved(const imageproc::GrayImage& input,
+                            const Dpi& dpi,
+                            const QRect& contentRect,
+                            DistortionModelBuilder& output,
+                            DebugImages* dbg = nullptr);
+
+  /** Gives the lines and the vertical bounds of the text to \p output, or neither if the lines are too few. */
+  static void giveCurvesTo(DistortionModelBuilder& output, TracedPage& page, DebugImages* dbg);
 
   /** What traceTrapezoid() returns, from the traced lines. Replaces the vertical bounds of \p page by its edges. */
   static DistortionModel trapezoidOf(TracedPage& page, DebugImages* dbg);
