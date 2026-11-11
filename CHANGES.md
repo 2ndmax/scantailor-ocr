@@ -280,7 +280,9 @@ topic, not by version.
   rely on.
 * New dewarping method **Trapezoid** for scans of flat pages, which takes the lines of text as
   straight. The dewarping panel now has a check box and a list of methods, and tells when a page
-  was left undewarped.
+  was left undewarped. Text with ragged line ends (ragged right, verse) no longer pulls an edge
+  askew: *Auto* and *Trapezoid* take an edge of the text only from line ends that at least half
+  of the lines share, and *Trapezoid* keeps both edges vertical when it can tell only one.
 * **Output cleanup:** removing pages, replacing a scan or switching a page between one and two
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
