@@ -318,6 +318,58 @@ BOOST_AUTO_TEST_CASE(test_trapezoid_takes_no_edge_from_a_third_of_ragged_line_en
   BOOST_TEST(std::fabs(rightEdgeShift(model)) < 3.0);
 }
 
+BOOST_AUTO_TEST_CASE(test_trapezoid_does_not_copy_a_leaning_edge_to_ragged_line_ends) {
+  // The left edge leans, the right ends are ragged. The right edge used to get the slope of the left one,
+  // which turns a trapezoid into a parallelogram, worse than the page was. One edge can't tell the shape.
+  QImage page = blankPage();
+  const int numLines = 36;
+  for (int i = 0; i < numLines; ++i) {
+    drawTextLine(page, kTextLeft + i, raggedRight(i), 100 + i * kLineStep);
+  }
+  const DistortionModel model = traceTrapezoid(page);
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(std::fabs(leftEdgeShift(model)) < 3.0);
+  BOOST_TEST(std::fabs(rightEdgeShift(model)) < 3.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_edges_of_ragged_text_do_not_follow_leaning_lines) {
+  // The lines lean by 1.5 degrees, as sagging lines of a curved page do, but the left edge is vertical. So the
+  // page is not turned, and edges at right angles to the lines would shear it.
+  QImage page = blankPage();
+  for (int i = 0; i < 36; ++i) {
+    drawTextLine(page, kTextLeft, raggedRight(i), 100 + i * kLineStep, 1.5);
+  }
+  const DistortionModel model = traceTrapezoid(page);
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(std::fabs(leftEdgeShift(model)) < 3.0);
+  BOOST_TEST(std::fabs(rightEdgeShift(model)) < 3.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_edges_of_a_turned_ragged_page_turn_with_it) {
+  // A page turned by half a degree: the left edge stands at right angles to the lines, and with no right edge
+  // to see, both edges follow it.
+  QImage flat = blankPage();
+  for (int i = 0; i < 36; ++i) {
+    drawTextLine(flat, kTextLeft, raggedRight(i), 100 + i * kLineStep);
+  }
+  QImage page = blankPage();
+  {
+    QPainter painter(&page);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    painter.translate(kPageSize.width() / 2.0, kPageSize.height() / 2.0);
+    painter.rotate(0.5);
+    painter.translate(-kPageSize.width() / 2.0, -kPageSize.height() / 2.0);
+    painter.drawImage(0, 0, flat);
+  }
+  const DistortionModel model = traceTrapezoid(page);
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(std::fabs(slopeInDegrees(model.topCurve()) - 0.5) < 0.15);
+  const std::vector<QPointF>& top = model.topCurve().polyline();
+  const std::vector<QPointF>& bottom = model.bottomCurve().polyline();
+  BOOST_TEST(std::fabs(tiltInDegrees(QLineF(top.front(), bottom.front())) - (-0.5)) < 0.15);
+  BOOST_TEST(std::fabs(tiltInDegrees(QLineF(top.back(), bottom.back())) - (-0.5)) < 0.15);
+}
+
 BOOST_AUTO_TEST_CASE(test_trapezoid_of_a_short_block_stays_parallel) {
   // Lines over a quarter of the page can't tell how the page converges further down.
   QImage page = blankPage();

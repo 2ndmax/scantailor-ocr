@@ -235,6 +235,8 @@ const int kMinLinesForTrapezoid = 8;
 const double kMinShareOfContentHeightToConverge = 0.4;
 // A line whose slope is this far from the general trend was traced wrongly, and must not decide the trend.
 const double kMaxLineSlopeOffTrendDegrees = 0.25;
+// An edge this close to a right angle with the lines belongs to a page that is turned as a whole.
+const double kMaxEdgeOffRightAngleDegrees = 0.25;
 
 struct FittedLine {
   double slope = 0;  // dy / dx
@@ -326,8 +328,9 @@ bool fitTrapezoid(const std::list<std::vector<QPointF>>& polylines,
     bottomY = std::max(bottomY, y);
   }
 
-  double topSlope = medianOf(slopes);
-  double bottomSlope = topSlope;
+  const double medianLineSlope = medianOf(slopes);
+  double topSlope = medianLineSlope;
+  double bottomSlope = medianLineSlope;
   double leftSlope = 0;
   double rightSlope = 0;
   const LineEnds ends = lineEndsOf(polylines);
@@ -338,11 +341,17 @@ bool fitTrapezoid(const std::list<std::vector<QPointF>>& polylines,
 
     leftSlope = trapezoidEdgeSlope(ends.left);
     rightSlope = trapezoidEdgeSlope(ends.right);
-    // Ragged line ends may not agree on anything. Then the other edge, or else the deskewed vertical, tells the slope.
-    if (std::isnan(leftSlope)) {
-      leftSlope = std::isnan(rightSlope) ? 0.0 : rightSlope;
-    }
-    if (std::isnan(rightSlope)) {
+    // Ragged line ends may not agree on anything. One edge alone can't tell a sheared page from a trapezoid, and
+    // its slope given to the other edge makes a trapezoid worse than it was. So unless both edges are known,
+    // both are vertical, as the deskew step left them. The exception is a page turned as a whole: there the
+    // known edge stands at right angles to the lines, and both edges follow it. The slope of the lines alone
+    // must not tell the edges, since the sagging lines of a curved page lean too.
+    if (std::isnan(leftSlope) || std::isnan(rightSlope)) {
+      const double knownSlope = std::isnan(leftSlope) ? rightSlope : leftSlope;
+      const double maxOffRightAngle = std::tan(kMaxEdgeOffRightAngleDegrees * constants::DEG2RAD);
+      const bool pageIsTurned
+          = !std::isnan(knownSlope) && (std::fabs(knownSlope + medianLineSlope) <= maxOffRightAngle);
+      leftSlope = pageIsTurned ? knownSlope : 0.0;
       rightSlope = leftSlope;
     }
   }
