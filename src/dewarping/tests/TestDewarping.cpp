@@ -289,6 +289,35 @@ BOOST_AUTO_TEST_CASE(test_trapezoid_follows_edges_that_converge) {
   BOOST_TEST(std::fabs(rightShift) < kLineEndOffset);
 }
 
+// How far the lower end of an edge of the model lies to the right of its upper end.
+double leftEdgeShift(const DistortionModel& model) {
+  return model.bottomCurve().polyline().front().x() - model.topCurve().polyline().front().x();
+}
+
+double rightEdgeShift(const DistortionModel& model) {
+  return model.bottomCurve().polyline().back().x() - model.topCurve().polyline().back().x();
+}
+
+// A right end for ragged lines: eleven places, 20 px apart, in no order.
+int raggedRight(const int lineIndex) {
+  return kTextRight - ((lineIndex * 37) % 11) * 20;
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_takes_no_edge_from_a_third_of_ragged_line_ends) {
+  // Every third right end lies on a line that leans by 2 degrees, the others are ragged. A quarter of the
+  // ends used to be enough for an edge, which then squeezed the flat page into a trapezoid.
+  QImage page = blankPage();
+  const int numLines = 36;
+  for (int i = 0; i < numLines; ++i) {
+    const int right = (i % 3 == 0) ? static_cast<int>(700 + 0.035 * i * kLineStep) : raggedRight(i);
+    drawTextLine(page, kTextLeft, right, 100 + i * kLineStep);
+  }
+  const DistortionModel model = traceTrapezoid(page);
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(std::fabs(leftEdgeShift(model)) < 3.0);
+  BOOST_TEST(std::fabs(rightEdgeShift(model)) < 3.0);
+}
+
 BOOST_AUTO_TEST_CASE(test_trapezoid_of_a_short_block_stays_parallel) {
   // Lines over a quarter of the page can't tell how the page converges further down.
   QImage page = blankPage();

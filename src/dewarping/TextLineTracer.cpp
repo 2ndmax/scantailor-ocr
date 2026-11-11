@@ -129,7 +129,9 @@ EdgeDirection dominantEdgeDirection(const std::vector<QPointF>& ends) {
 
 /** Whether enough of the \p numEnds line ends agree on the direction of an edge to trust its slope. */
 bool enoughEndsAgree(const EdgeDirection& direction, const size_t numEnds) {
-  return static_cast<int>(direction.agreeingEnds.size()) >= std::max(4, static_cast<int>(numEnds) / 4);
+  // Half of them: among ragged line ends, a quarter agrees on some direction by chance (measured with
+  // dewarp_compare on drawn pages of verse: 4 flat pages of 10 got a leaning edge).
+  return static_cast<int>(direction.agreeingEnds.size()) >= std::max(4, static_cast<int>(numEnds) / 2);
 }
 
 /**
