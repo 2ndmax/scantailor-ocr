@@ -283,6 +283,9 @@ topic, not by version.
   was left undewarped. Text with ragged line ends (ragged right, verse) no longer pulls an edge
   askew: *Auto* and *Trapezoid* take an edge of the text only from line ends that at least half
   of the lines share, and *Trapezoid* keeps both edges vertical when it can tell only one.
+  *Auto* no longer brings a curvature into a flat page: it bends a page only if its text lines
+  are bent, and otherwise dewarps it like *Trapezoid* (a flat page with fewer than eight usable
+  lines is left as it is).
 * **Output cleanup:** removing pages, replacing a scan or switching a page between one and two
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
