@@ -392,7 +392,8 @@ int showModelsOfRealPages(const Options& options) {
                                QStringLiteral("vertBounds_from_lines"), QStringLiteral("trimmed_polylines"),
                                QStringLiteral("distortion_model")};
   const QDir dir(options.imagesDir);
-  const QStringList names = dir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"}, QDir::Files, QDir::Name);
+  const QStringList names
+      = dir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg", "*.jp2", "*.jpf"}, QDir::Files, QDir::Name);
   if (names.isEmpty()) {
     std::cerr << "No images in " << options.imagesDir.toStdString() << std::endl;
     return 1;
