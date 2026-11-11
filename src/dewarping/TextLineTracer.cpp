@@ -412,7 +412,10 @@ DistortionModel TextLineTracer::traceTrapezoid(const GrayImage& input,
                                                const QRect& contentRect,
                                                DebugImages* dbg) {
   TracedPage page = traceTextLines(input, dpi, contentRect, dbg);
+  return trapezoidOf(page, dbg);
+}
 
+DistortionModel TextLineTracer::trapezoidOf(TracedPage& page, DebugImages* dbg) {
   std::vector<QPointF> top;
   std::vector<QPointF> bottom;
   if (!fitTrapezoid(page.polylines, page.contentRect, page.binarized.height(), page.vertBounds, top, bottom)) {

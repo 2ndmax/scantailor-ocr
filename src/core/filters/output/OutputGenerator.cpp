@@ -255,6 +255,12 @@ class OutputGenerator::Processor {
 
   DistortionModel buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal);
 
+  /**
+   * Takes a model of straight lines from the traced page to the original image. An invalid one, of a page with
+   * too few text lines, becomes the trivial model, and the page is reported as not dewarped.
+   */
+  DistortionModel straightModelInOriginal(DistortionModel distortionModel, const QTransform& toOriginal);
+
   DistortionModel buildMarginalDistortionModel() const;
 
   const ImageTransformation& m_xform;
@@ -2526,8 +2532,12 @@ QImage OutputGenerator::Processor::transformToWorkingCs(bool normalize) const {
 
 DistortionModel OutputGenerator::Processor::buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput,
                                                                           const QTransform& toOriginal) {
-  DistortionModel distortionModel
-      = TextLineTracer::traceTrapezoid(warpedGrayOutput, m_dpi, m_contentBoxInTracingCs, m_dbg);
+  return straightModelInOriginal(
+      TextLineTracer::traceTrapezoid(warpedGrayOutput, m_dpi, m_contentBoxInTracingCs, m_dbg), toOriginal);
+}
+
+DistortionModel OutputGenerator::Processor::straightModelInOriginal(DistortionModel distortionModel,
+                                                                    const QTransform& toOriginal) {
   if (!distortionModel.isValid()) {
     m_dewarpingOptions.setNoModelFound(true);
     setupTrivialDistortionModel(distortionModel);
