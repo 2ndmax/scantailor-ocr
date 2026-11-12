@@ -62,6 +62,14 @@ class TextLineTracer {
                                         const QRect& contentRect,
                                         DebugImages* dbg = nullptr);
 
+  /**
+   * The traced text lines both methods start from, in the coordinates of \p input. For tools that measure
+   * how straight the lines of a page are.
+   */
+  static std::vector<std::vector<QPointF>> tracedLines(const imageproc::GrayImage& input,
+                                                       const Dpi& dpi,
+                                                       const QRect& contentRect);
+
  private:
   // Lets dewarping_tests call the private helpers.
   friend struct TextLineTracerTestAccess;

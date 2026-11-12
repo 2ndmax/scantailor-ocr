@@ -7,9 +7,12 @@
 // Usage: dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]
 //        dewarp_compare <output folder> --images=<folder>
 //
-// With --images nothing is measured, since the distortion of a real page is unknown: for every image of the
-// folder and each method, the tool writes the page with the model drawn on it, and for Auto the steps of the
-// tracing that the debug mode of the program shows (traced lines, edges, the model among the lines).
+// With --images the distortion of a page is unknown, so the tool measures the traced text lines instead: how far
+// their ends are off the straight middle part of the line, on the page as it is and where each method puts them
+// (stdout and real-pages.txt, with the time each method takes). The methods are Auto, Trapezoid and "curved", the
+// curved path of Auto taken also with a page Auto holds for flat. For every image of the folder and each method,
+// the tool writes the page with the model drawn on it, the dewarped page, and the steps of the tracing that the
+// debug mode of the program shows (traced lines, edges, the model among the lines).
 //
 // A case is a layout (justified, ragged right, ...) with a distortion (none, shear, converging lines, ...). Each case
 // is drawn --seeds times with other random line lengths and positions. The place of every text line is known on
@@ -40,6 +43,7 @@
 #include <GrayImage.h>
 #include <ImageLoader.h>
 #include <NullTaskStatus.h>
+#include <RasterDewarper.h>
 #include <TextLineTracer.h>
 #include <TopBottomEdgeTracer.h>
 #include <VecNT.h>
@@ -51,7 +55,9 @@
 #include <QPainter>
 #include <QPolygonF>
 #include <algorithm>
+#include <array>
 #include <atomic>
+#include <chrono>
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -65,6 +71,20 @@
 #include "filters/output/DepthPerception.h"
 #include "tools/ToolImageDpi.h"
 #include "tools/ToolImageSave.h"
+
+namespace dewarping {
+// TextLineTracer befriends this name for dewarping_tests. Here it lets the tool take the curved path of Auto
+// with a page Auto holds for flat.
+struct TextLineTracerTestAccess {
+  static void traceAsCurved(const imageproc::GrayImage& input,
+                            const Dpi& dpi,
+                            const QRect& contentRect,
+                            DistortionModelBuilder& output,
+                            DebugImages* dbg) {
+    TextLineTracer::traceAsCurved(input, dpi, contentRect, output, dbg);
+  }
+};
+}  // namespace dewarping
 
 using namespace dewarping;
 
@@ -217,23 +237,35 @@ Page drawPage(const Layout layout, const Distortion& distortion, const unsigned 
   return page;
 }
 
-enum class Method { Auto, Trapezoid };
+/** Curved is the curved path of Auto, taken whether or not the lines of the page are bent. */
+enum class Method { Auto, Trapezoid, Curved };
 
-/** The model as OutputGenerator builds it; invalid if the method refuses the page. */
+/**
+ * The model as OutputGenerator builds it; invalid if the method refuses the page.
+ * \p heldForFlat tells whether Auto took the page for a flat one.
+ */
 DistortionModel modelOf(const Method method,
                         const QImage& image,
                         const Dpi& dpi = Dpi(200, 200),
-                        DebugImages* dbg = nullptr) {
+                        DebugImages* dbg = nullptr,
+                        bool* heldForFlat = nullptr) {
   const imageproc::GrayImage gray(image);
   if (method == Method::Trapezoid) {
     return TextLineTracer::traceTrapezoid(gray, dpi, image.rect(), dbg);
   }
   const NullTaskStatus status;
   DistortionModelBuilder builder(Vec2d(0, 1));
-  const std::optional<DistortionModel> flatPageModel
-      = TextLineTracer::trace(gray, dpi, image.rect(), builder, status, dbg);
-  if (flatPageModel) {
-    return *flatPageModel;
+  if (method == Method::Curved) {
+    TextLineTracerTestAccess::traceAsCurved(gray, dpi, image.rect(), builder, dbg);
+  } else {
+    const std::optional<DistortionModel> flatPageModel
+        = TextLineTracer::trace(gray, dpi, image.rect(), builder, status, dbg);
+    if (heldForFlat) {
+      *heldForFlat = flatPageModel.has_value();
+    }
+    if (flatPageModel) {
+      return *flatPageModel;
+    }
   }
   TopBottomEdgeTracer::trace(gray, builder.verticalBounds(), builder, status);
   const QImage background = gray.toQImage();
@@ -388,6 +420,174 @@ struct Options {
 
 QImage withModel(const QImage& page, const DistortionModel& model);
 
+// The resolution the real pages are dewarped at for the timing, a usual one for black and white output.
+const double kOutputDpi = 600;
+
+class Stopwatch {
+ public:
+  /** Milliseconds since the last call, or since the stopwatch was made. */
+  double restartMs() {
+    const auto now = std::chrono::steady_clock::now();
+    const double ms = std::chrono::duration<double, std::milli>(now - m_start).count();
+    m_start = now;
+    return ms;
+  }
+
+ private:
+  std::chrono::steady_clock::time_point m_start = std::chrono::steady_clock::now();
+};
+
+/** How straight the text lines of a page are; medians of the lines, in pixels. */
+struct LineShape {
+  int numLines = 0;
+  double bow = 0;       // Of the parabola that fits the whole line, as Auto tells a curved page by.
+  double leftEnd = 0;   // The left end of a line against the straight line through its middle part.
+  double rightEnd = 0;  // The same for the right end.
+  double worst = 0;     // The farthest point of a line from that straight line.
+};
+
+/** The coefficients a, b, c of the least squares fit y = a + b * t + c * t^2. */
+std::array<double, 3> fitParabola(const std::vector<QPointF>& points) {
+  double s[5] = {0, 0, 0, 0, 0};
+  double r[3] = {0, 0, 0};
+  for (const QPointF& pt : points) {
+    double power = 1;
+    for (int i = 0; i < 5; ++i) {
+      s[i] += power;
+      if (i < 3) {
+        r[i] += power * pt.y();
+      }
+      power *= pt.x();
+    }
+  }
+  const auto det = [](const double m[3][3]) {
+    return m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+           + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+  };
+  const double normal[3][3] = {{s[0], s[1], s[2]}, {s[1], s[2], s[3]}, {s[2], s[3], s[4]}};
+  const double whole = det(normal);
+  std::array<double, 3> coefficients{0, 0, 0};
+  if (std::fabs(whole) < 1e-12) {
+    return coefficients;
+  }
+  for (int column = 0; column < 3; ++column) {
+    double replaced[3][3];
+    for (int i = 0; i < 3; ++i) {
+      for (int j = 0; j < 3; ++j) {
+        replaced[i][j] = (j == column) ? r[i] : normal[i][j];
+      }
+    }
+    coefficients[column] = det(replaced) / whole;
+  }
+  return coefficients;
+}
+
+/** \p lines in any coordinates with x along the lines; \p toPixels makes pixels of their y. */
+LineShape shapeOfLines(const std::vector<std::vector<QPointF>>& lines, const double toPixels) {
+  std::vector<double> bows;
+  std::vector<double> leftEnds;
+  std::vector<double> rightEnds;
+  std::vector<double> worsts;
+  for (const std::vector<QPointF>& line : lines) {
+    const auto [minIt, maxIt] = std::minmax_element(line.begin(), line.end(),
+                                                    [](const QPointF& a, const QPointF& b) { return a.x() < b.x(); });
+    const double length = maxIt->x() - minIt->x();
+    if ((line.size() < 8) || (length <= 0)) {
+      continue;
+    }
+    // t runs from -1 at the left end to 1 at the right end.
+    std::vector<QPointF> whole;
+    std::vector<double> middleT;
+    std::vector<double> middleY;
+    for (const QPointF& pt : line) {
+      whole.emplace_back(2.0 * (pt.x() - minIt->x()) / length - 1.0, pt.y() * toPixels);
+      if (std::fabs(whole.back().x()) <= 0.6) {
+        middleT.push_back(whole.back().x());
+        middleY.push_back(whole.back().y());
+      }
+    }
+    if (middleT.size() < 3) {
+      continue;
+    }
+    double offset = 0;
+    const double slope = scaleOf(middleT, middleY, offset);
+
+    double left = 0;
+    double right = 0;
+    int numLeft = 0;
+    int numRight = 0;
+    double worst = 0;
+    for (const QPointF& pt : whole) {
+      const double off = pt.y() - (offset + slope * pt.x());
+      worst = std::max(worst, std::fabs(off));
+      if (pt.x() <= -0.9) {
+        left += off;
+        ++numLeft;
+      } else if (pt.x() >= 0.9) {
+        right += off;
+        ++numRight;
+      }
+    }
+    bows.push_back(fitParabola(whole)[2]);
+    leftEnds.push_back(left / std::max(numLeft, 1));
+    rightEnds.push_back(right / std::max(numRight, 1));
+    worsts.push_back(worst);
+  }
+
+  LineShape shape;
+  shape.numLines = static_cast<int>(bows.size());
+  if (shape.numLines > 0) {
+    shape.bow = medianOf(bows);
+    shape.leftEnd = medianOf(leftEnds);
+    shape.rightEnd = medianOf(rightEnds);
+    shape.worst = medianOf(worsts);
+  }
+  return shape;
+}
+
+/** The shape of the lines where \p dewarper puts them, in pixels of the page as it was. */
+LineShape shapeAfter(const std::vector<std::vector<QPointF>>& lines,
+                     const CylindricalSurfaceDewarper& dewarper,
+                     const double to200Dpi) {
+  std::vector<std::vector<QPointF>> dewarped;
+  std::vector<double> yBefore;
+  std::vector<double> yAfter;
+  for (const std::vector<QPointF>& line : lines) {
+    dewarped.emplace_back();
+    for (const QPointF& pt : line) {
+      dewarped.back().push_back(dewarper.mapToDewarpedSpace(pt));
+      yBefore.push_back(pt.y());
+      yAfter.push_back(dewarped.back().back().y());
+    }
+  }
+  if (yBefore.size() < 2) {
+    return LineShape();
+  }
+  double offset = 0;
+  const double unitsPerPixel = scaleOf(yBefore, yAfter, offset);
+  return shapeOfLines(dewarped, to200Dpi / unitsPerPixel);
+}
+
+QString shapeText(const LineShape& shape) {
+  return QStringLiteral("%1 %2 %3")
+      .arg(shape.leftEnd, 5, 'f', 1)
+      .arg(shape.rightEnd, 5, 'f', 1)
+      .arg(shape.worst, 4, 'f', 1);
+}
+
+/** The page as the output step dewarps it, \p scale times as large; null if the model has no place on it. */
+QImage dewarpedPage(const QImage& page,
+                    const DistortionModel& model,
+                    const CylindricalSurfaceDewarper& dewarper,
+                    const double scale) {
+  const QRect outRect(QPoint(0, 0), (QSizeF(page.size()) * scale).toSize());
+  const QRect modelDomain(model.modelDomain(dewarper, QTransform::fromScale(scale, scale), outRect).toRect());
+  if (modelDomain.isEmpty()) {
+    return QImage();
+  }
+  return RasterDewarper::dewarp(page, outRect.size(), dewarper, modelDomain, Qt::white);
+}
+
 /**
  * Real pages have no known distortion, so nothing is measured: for every image of the folder, the model of each
  * method drawn on the page, and the steps of the tracing that show where a model comes from.
@@ -403,6 +603,16 @@ int showModelsOfRealPages(const Options& options) {
     std::cerr << "No images in " << options.imagesDir.toStdString() << std::endl;
     return 1;
   }
+  QString report
+      = QStringLiteral(
+            "Per page: traced lines, their bow, then for the page as it is and after each method: how far the left "
+            "end,\n"
+            "the right end and the worst point of a line are off the straight middle part of the line (px at 200 dpi,\n"
+            "median of the lines; + is down). Second row: milliseconds for tracing alone, and per method for the "
+            "model\n"
+            "(tracing included) and for dewarping the image at %1 dpi.\n\n")
+            .arg(kOutputDpi, 0, 'f', 0);
+  std::cout << report.toStdString();
   for (const QString& name : names) {
     const QImage loaded = ImageLoader::load(dir.filePath(name));
     if (loaded.isNull()) {
@@ -411,19 +621,65 @@ int showModelsOfRealPages(const Options& options) {
     }
     const Dpi dpi = tools::dpiOrDefault(loaded);
     const QImage image = imageproc::GrayImage(loaded).toQImage();
-    for (const Method method : {Method::Auto, Method::Trapezoid}) {
-      const QString prefix = QDir(options.outDir)
-                                 .filePath(QFileInfo(name).completeBaseName()
-                                           + QLatin1String((method == Method::Auto) ? "_auto" : "_trapezoid"));
-      KeptDebugImages dbg;
+    const double to200Dpi = 200.0 / dpi.vertical();
+
+    Stopwatch watch;
+    const std::vector<std::vector<QPointF>> lines
+        = TextLineTracer::tracedLines(imageproc::GrayImage(image), dpi, image.rect());
+    const double traceMs = watch.restartMs();
+    const LineShape before = shapeOfLines(lines, to200Dpi);
+
+    QString row = QStringLiteral("%1 %2 %3  %4")
+                      .arg(name, -24)
+                      .arg(before.numLines, 5)
+                      .arg(before.bow, 6, 'f', 1)
+                      .arg(shapeText(before));
+    QString times = QStringLiteral("  ms: trace %1").arg(traceMs, 0, 'f', 0);
+    for (const auto& [method, methodName] : {std::pair<Method, const char*>{Method::Auto, "auto"},
+                                             std::pair<Method, const char*>{Method::Trapezoid, "trapezoid"},
+                                             std::pair<Method, const char*>{Method::Curved, "curved"}}) {
+      const QString prefix
+          = QDir(options.outDir).filePath(QFileInfo(name).completeBaseName() + QLatin1Char('_') + methodName);
+      // Timed without the debug images, then once more for them.
       DistortionModel model;
+      bool heldForFlat = false;
+      watch.restartMs();
       try {
-        model = modelOf(method, image, dpi, &dbg);
+        model = modelOf(method, image, dpi, nullptr, &heldForFlat);
       } catch (const std::runtime_error&) {
         // No model, as below.
       }
-      std::cout << name.toStdString() << ((method == Method::Auto) ? "  auto: " : "  trapezoid: ")
-                << (model.isValid() ? "model" : "no model") << std::endl;
+      const double modelMs = watch.restartMs();
+
+      QString result = QStringLiteral("no model");
+      double rasterMs = 0;
+      if (model.isValid()) {
+        try {
+          const CylindricalSurfaceDewarper dewarper(model.topCurve().polyline(), model.bottomCurve().polyline(),
+                                                    output::DepthPerception::defaultValue());
+          result = shapeText(shapeAfter(lines, dewarper, to200Dpi));
+          watch.restartMs();
+          const QImage dewarped = dewarpedPage(image, model, dewarper, kOutputDpi / dpi.vertical());
+          rasterMs = watch.restartMs();
+          tools::saveImage(dewarped, prefix + QLatin1String("_dewarped.png"));
+        } catch (const std::runtime_error&) {
+          result = QStringLiteral("unusable model");
+        }
+      }
+      row += QStringLiteral(" | %1%2 %3")
+                 .arg(QLatin1String(methodName),
+                      QLatin1String((method == Method::Auto) ? (heldForFlat ? " (flat)" : " (curved)") : ""), result);
+      times += QStringLiteral(", %1 %2 + raster %3")
+                   .arg(QLatin1String(methodName))
+                   .arg(modelMs, 0, 'f', 0)
+                   .arg(rasterMs, 0, 'f', 0);
+
+      KeptDebugImages dbg;
+      try {
+        model = modelOf(method, image, dpi, &dbg);
+      } catch (const std::runtime_error&) {
+        model = DistortionModel();
+      }
       tools::saveImage(withModel(image, model), prefix + QLatin1String("_model.png"));
       for (const auto& [label, debugImage] : dbg.images) {
         if (keptLabels.contains(label)) {
@@ -431,6 +687,14 @@ int showModelsOfRealPages(const Options& options) {
         }
       }
     }
+    report += row + QLatin1Char('\n') + times + QLatin1Char('\n');
+    std::cout << row.toStdString() << "\n" << times.toStdString() << std::endl;
+  }
+
+  QFile reportFile(QDir(options.outDir).filePath("real-pages.txt"));
+  if (!reportFile.open(QIODevice::WriteOnly | QIODevice::Text) || (reportFile.write(report.toUtf8()) < 0)) {
+    std::cerr << "Cannot write " << reportFile.fileName().toStdString() << std::endl;
+    return 1;
   }
   return tools::exitCodeOfSaves();
 }
