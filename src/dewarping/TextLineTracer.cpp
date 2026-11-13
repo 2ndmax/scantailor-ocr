@@ -426,6 +426,170 @@ bool linesAreStraight(const std::list<std::vector<QPointF>>& polylines) {
   }
   return std::fabs(medianOf(bows)) <= kMaxBowOfFlatPage;
 }
+
+// A flat page whose lines all bend at one place. Scanned from a thick book, the lines run together towards the
+// spine over the last part of their length: those low on the page rise there, those at its top sink, by a few
+// pixels. Over the whole line that is too little for a curved page, and the trapezoid leaves it as it is.
+// One traced line can't tell such a bend from its own inexactness; what all lines share at one place can.
+// The limits were measured with dewarp_compare on 20 scanned pages with such a bend, on 35 scans of flat pages
+// and on drawn pages (2026-11).
+const int kBendPlaces = 40;  // Along the lines, from edge to edge.
+// Only lines from edge to edge count: the end of a shorter line lies amid the page, and a traced line is least
+// exact at its ends.
+const double kMinShareOfWidthToTellABend = 0.85;
+const int kMinLinesToTellABend = 8;
+// This many times its uncertainty is taken off a bend, so that nothing is left of one that may as well be chance.
+const double kUncertaintiesTakenOffABend = 3.0;
+// In pixels at the 200 dpi of the tracing. Less is not worth giving up the straight lines of the trapezoid for.
+const double kMinBendWorthBending = 1.0;
+
+/**
+ * Takes the bends that are not known from the nearest place where one is, and smooths them over three places.
+ * Bends that are all unknown become none.
+ */
+std::vector<double> filledAndSmoothed(const std::vector<double>& bends) {
+  const auto numPlaces = static_cast<int>(bends.size());
+  int firstKnown = -1;
+  int lastKnown = -1;
+  for (int place = 0; place < numPlaces; ++place) {
+    if (!std::isnan(bends[place])) {
+      firstKnown = (firstKnown < 0) ? place : firstKnown;
+      lastKnown = place;
+    }
+  }
+  if (firstKnown < 0) {
+    return std::vector<double>(bends.size(), 0.0);
+  }
+  std::vector<double> filled(bends);
+  for (int place = 0; place < numPlaces; ++place) {
+    if (std::isnan(filled[place])) {
+      filled[place]
+          = (place < firstKnown) ? filled[firstKnown] : ((place > lastKnown) ? filled[lastKnown] : filled[place - 1]);
+    }
+  }
+  std::vector<double> smooth(bends.size());
+  for (int place = 0; place < numPlaces; ++place) {
+    smooth[place] = (filled[std::max(place - 1, 0)] + filled[place] + filled[std::min(place + 1, numPlaces - 1)]) / 3.0;
+  }
+  return smooth;
+}
+
+/**
+ * Gives the straight \p top and \p bottom line of a trapezoid (two points each, left first) the bend that the
+ * text lines share, or leaves them as they are if the lines share none worth it.
+ */
+void bendLikeTheTextLines(const std::list<std::vector<QPointF>>& polylines,
+                          std::vector<QPointF>& top,
+                          std::vector<QPointF>& bottom) {
+  const QLineF topLine(top.front(), top.back());
+  const QLineF bottomLine(bottom.front(), bottom.back());
+  if ((topLine.dx() <= 0) || (bottomLine.dx() <= 0) || (bottomLine.y1() <= topLine.y1())
+      || (bottomLine.y2() <= topLine.y2())) {
+    return;
+  }
+  const auto yOn
+      = [](const QLineF& line, const double x) { return line.y1() + (x - line.x1()) * line.dy() / line.dx(); };
+  // The edges of the trapezoid run through the ends of its top and bottom line.
+  const auto edgeXAt = [](const QPointF& onTop, const QPointF& onBottom, const double y) {
+    return onTop.x() + (y - onTop.y()) * (onBottom.x() - onTop.x()) / (onBottom.y() - onTop.y());
+  };
+
+  // For each place between the edges: how far a line is off its straight line there, and its height
+  // between the top line (0) and the bottom line (1). Each line counts once per place.
+  std::vector<std::vector<QPointF>> heightAndOffAt(kBendPlaces);
+  int numLines = 0;
+  for (const std::vector<QPointF>& polyline : polylines) {
+    if (polyline.size() < 2) {
+      continue;
+    }
+    const auto [leftmost, rightmost] = std::minmax_element(
+        polyline.begin(), polyline.end(), [](const QPointF& a, const QPointF& b) { return a.x() < b.x(); });
+    const double leftEdge = edgeXAt(topLine.p1(), bottomLine.p1(), leftmost->y());
+    const double rightEdge = edgeXAt(topLine.p2(), bottomLine.p2(), leftmost->y());
+    if ((rightEdge <= leftEdge)
+        || (rightmost->x() - leftmost->x() < kMinShareOfWidthToTellABend * (rightEdge - leftEdge))) {
+      continue;
+    }
+    // Off the straight line the trapezoid took this text line for, so that line and bend together are the text
+    // line again.
+    const FittedLine straight = fitStraightLine(polyline);
+    ++numLines;
+
+    std::vector<QPointF> sums(kBendPlaces);
+    std::vector<int> counts(kBendPlaces, 0);
+    for (const QPointF& pt : polyline) {
+      const auto place = static_cast<int>(std::floor(kBendPlaces * (pt.x() - leftEdge) / (rightEdge - leftEdge)));
+      if ((place >= 0) && (place < kBendPlaces)) {
+        const double topY = yOn(topLine, pt.x());
+        sums[place] += QPointF((pt.y() - topY) / (yOn(bottomLine, pt.x()) - topY), pt.y() - straight.yAt(pt.x()));
+        ++counts[place];
+      }
+    }
+    for (int place = 0; place < kBendPlaces; ++place) {
+      if (counts[place] > 0) {
+        heightAndOffAt[place].push_back(sums[place] / counts[place]);
+      }
+    }
+  }
+
+  // A place counts if enough lines reach it, and half of them. There the straight line through (height, off)
+  // tells the bend of the top line, at height 0, and of the bottom line, at height 1. Each bend is only as sure
+  // as the lines scatter around that straight line.
+  const double unknown = std::numeric_limits<double>::quiet_NaN();
+  std::vector<double> topBends(kBendPlaces, unknown);
+  std::vector<double> bottomBends(kBendPlaces, unknown);
+  for (int place = 0; place < kBendPlaces; ++place) {
+    const std::vector<QPointF>& points = heightAndOffAt[place];
+    const auto num = static_cast<int>(points.size());
+    if ((num < kMinLinesToTellABend) || (num * 2 < numLines)) {
+      continue;
+    }
+    const FittedLine offByHeight = fitStraightLine(points);
+    double squaredHeights = 0;
+    double squaredRest = 0;
+    for (const QPointF& point : points) {
+      const double fromMean = point.x() - offByHeight.centroid.x();
+      const double rest = point.y() - offByHeight.yAt(point.x());
+      squaredHeights += fromMean * fromMean;
+      squaredRest += rest * rest;
+    }
+    if (squaredHeights <= 0) {
+      continue;
+    }
+    const double scatter = std::sqrt(squaredRest / (num - 2));
+    const auto surePartOfBendAt = [&](const double height) {
+      const double bend = offByHeight.yAt(height);
+      const double fromMean = height - offByHeight.centroid.x();
+      const double uncertainty = scatter * std::sqrt(1.0 / num + fromMean * fromMean / squaredHeights);
+      const double sure = std::max(0.0, std::fabs(bend) - kUncertaintiesTakenOffABend * uncertainty);
+      return (bend < 0) ? -sure : sure;
+    };
+    topBends[place] = surePartOfBendAt(0.0);
+    bottomBends[place] = surePartOfBendAt(1.0);
+  }
+  topBends = filledAndSmoothed(topBends);
+  bottomBends = filledAndSmoothed(bottomBends);
+
+  double largestBend = 0;
+  for (int place = 0; place < kBendPlaces; ++place) {
+    largestBend = std::max({largestBend, std::fabs(topBends[place]), std::fabs(bottomBends[place])});
+  }
+  if (largestBend < kMinBendWorthBending) {
+    return;
+  }
+
+  const auto bent = [](const QLineF& straight, const std::vector<double>& bends) {
+    std::vector<QPointF> curve;
+    for (int i = 0; i <= kBendPlaces; ++i) {
+      // The bend of a place holds at its middle; between two middles, and at the edges, the mean of the neighbors.
+      const double bendHere = 0.5 * (bends[std::max(i - 1, 0)] + bends[std::min(i, kBendPlaces - 1)]);
+      curve.push_back(straight.pointAt(static_cast<double>(i) / kBendPlaces) + QPointF(0, bendHere));
+    }
+    return curve;
+  };
+  top = bent(topLine, topBends);
+  bottom = bent(bottomLine, bottomBends);
+}
 }  // namespace
 
 struct TextLineTracer::TracedPage {
@@ -444,7 +608,7 @@ std::optional<DistortionModel> TextLineTracer::trace(const GrayImage& input,
                                                      DebugImages* dbg) {
   TracedPage page = traceTextLines(input, dpi, contentRect, dbg);
   if (linesAreStraight(page.polylines)) {
-    return trapezoidOf(page, dbg);
+    return trapezoidOf(page, TrapezoidLines::BentLikeTheText, dbg);
   }
   giveCurvesTo(output, page, dbg);
   return std::nullopt;
@@ -486,7 +650,7 @@ DistortionModel TextLineTracer::traceTrapezoid(const GrayImage& input,
                                                const QRect& contentRect,
                                                DebugImages* dbg) {
   TracedPage page = traceTextLines(input, dpi, contentRect, dbg);
-  return trapezoidOf(page, dbg);
+  return trapezoidOf(page, TrapezoidLines::Straight, dbg);
 }
 
 std::vector<std::vector<QPointF>> TextLineTracer::tracedLines(const GrayImage& input,
@@ -503,11 +667,14 @@ std::vector<std::vector<QPointF>> TextLineTracer::tracedLines(const GrayImage& i
   return lines;
 }
 
-DistortionModel TextLineTracer::trapezoidOf(TracedPage& page, DebugImages* dbg) {
+DistortionModel TextLineTracer::trapezoidOf(TracedPage& page, const TrapezoidLines lines, DebugImages* dbg) {
   std::vector<QPointF> top;
   std::vector<QPointF> bottom;
   if (!fitTrapezoid(page.polylines, page.contentRect, page.binarized.height(), page.vertBounds, top, bottom)) {
     return DistortionModel();
+  }
+  if (lines == TrapezoidLines::BentLikeTheText) {
+    bendLikeTheTextLines(page.polylines, top, bottom);
   }
   if (dbg) {
     dbg->add(visualizeVerticalBounds(page.binarized.toQImage(), page.vertBounds), "vertBounds_from_lines");

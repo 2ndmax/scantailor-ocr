@@ -45,6 +45,8 @@ class TextLineTracer {
    *
    * A flat page: returns the model traceTrapezoid() makes of it, invalid if there are too few lines, and
    * leaves \p output alone. Single traced lines are too inexact to be the curves of a model of a flat page.
+   * If the lines of such a page all bend at one place, as they run together at the spine of a scanned book,
+   * the top and the bottom line of that model bend with them.
    */
   static std::optional<DistortionModel> trace(const imageproc::GrayImage& input,
                                               const Dpi& dpi,
@@ -92,8 +94,11 @@ class TextLineTracer {
   /** Gives the lines and the vertical bounds of the text to \p output, or neither if the lines are too few. */
   static void giveCurvesTo(DistortionModelBuilder& output, TracedPage& page, DebugImages* dbg);
 
+  /** Whether the top and bottom line of a trapezoid stay straight, or take the bend all text lines share. */
+  enum class TrapezoidLines { Straight, BentLikeTheText };
+
   /** What traceTrapezoid() returns, from the traced lines. Replaces the vertical bounds of \p page by its edges. */
-  static DistortionModel trapezoidOf(TracedPage& page, DebugImages* dbg);
+  static DistortionModel trapezoidOf(TracedPage& page, TrapezoidLines lines, DebugImages* dbg);
 
   static imageproc::GrayImage downscale(const imageproc::GrayImage& input, const Dpi& dpi);
 

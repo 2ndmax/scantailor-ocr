@@ -492,6 +492,56 @@ BOOST_AUTO_TEST_CASE(test_auto_takes_sagging_lines_as_curved) {
   BOOST_TEST(bendOf(model.topCurve()) > 3.0);
 }
 
+// A page scanned from a thick book: over their first quarter the lines run together towards the spine on the
+// left. The lowest line rises by 6 px there, the top one sinks by 2.6 px, the others in proportion.
+const int kSpineLines = 36;
+
+double riseAtSpine(const int line, const double x) {
+  const double fromSpine = (x - kTextLeft) / (kTextRight - kTextLeft);
+  const double nearSpine = std::max(0.0, 1.0 - fromSpine / 0.25);
+  const double height = static_cast<double>(line) / (kSpineLines - 1);
+  return 6.0 * (height - 0.3) / 0.7 * nearSpine * nearSpine;
+}
+
+QImage pageWithLinesRunningTogetherAtTheSpine() {
+  QImage page = blankPage();
+  QPainter painter(&page);
+  for (int i = 0; i < kSpineLines; ++i) {
+    for (int x = kTextLeft; x + 7 <= kTextRight; x += 11) {
+      painter.fillRect(QRectF(x, 100 + i * kLineStep - riseAtSpine(i, x), 7, 16), Qt::black);
+    }
+  }
+  return page;
+}
+
+BOOST_AUTO_TEST_CASE(test_auto_straightens_lines_that_run_together_at_the_spine) {
+  // Over the whole line the bend is too slight for a curved page, so the page got the trapezoid of a flat one,
+  // whose straight lines left the bend at the spine as it was.
+  const QImage page = pageWithLinesRunningTogetherAtTheSpine();
+  DistortionModelBuilder builder(Vec2d(0, 1));
+  const std::optional<DistortionModel> model = traceAuto(page, builder);
+  BOOST_REQUIRE(model.has_value());
+  BOOST_REQUIRE(model->isValid());
+
+  const CylindricalSurfaceDewarper dewarper(model->topCurve().polyline(), model->bottomCurve().polyline(), 2.0);
+  const double pixelsPerUnit = (kSpineLines - 1) * kLineStep;  // From the top line of the model to the bottom one.
+  for (const int line : {2, 18, 32}) {
+    const auto onLine = [&](const double x) { return QPointF(x, 100 + line * kLineStep + 8 - riseAtSpine(line, x)); };
+    const double offLevel
+        = (dewarper.mapToDewarpedSpace(onLine(kTextLeft + 10)).y() - dewarper.mapToDewarpedSpace(onLine(500)).y())
+          * pixelsPerUnit;
+    BOOST_TEST(std::fabs(offLevel) < 1.0, "line " << line << " is off by " << offLevel << " px at the spine");
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_trapezoid_keeps_its_lines_straight_at_the_spine) {
+  // Trapezoid takes the lines as straight, whatever they do at their ends.
+  const DistortionModel model = traceTrapezoid(pageWithLinesRunningTogetherAtTheSpine());
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(model.topCurve().polyline().size() == 2u);
+  BOOST_TEST(model.bottomCurve().polyline().size() == 2u);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace dewarping
