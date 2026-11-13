@@ -1874,13 +1874,21 @@ void MainWindow::onSettingsChanged(const bool needsRestart) {
 // REVIEW-NOTE (2026-11): no regression test for the restart dialog and restartProgram(), because qt_tests does
 // not link the app library and so can't create a MainWindow or a SettingsDialog.
 void MainWindow::restartProgram() {
+  // Taken before closing: closeProjectInteractive() ends by clearing the project, through
+  // closeProjectWithoutSaving(), so m_projectFile and m_curFilter no longer name it afterwards.
+  // REVIEW-NOTE (2026-11): a project never saved before (m_projectFile empty here) that the user
+  // saves under a new name while this closes is not reopened -> the restart loses an unsaved new
+  // project the user just gave a name to. Not fixed because it needs closeProjectInteractive() to
+  // report the file it saved, which the "X" close and "New/Open Project" also call and don't need.
+  const QString projectFile = m_projectFile;
+  const int step = m_curFilter;
   if (!closeProjectInteractive()) {
     return;
   }
 
   QStringList args;
-  if (!m_projectFile.isEmpty()) {
-    args << m_projectFile << QStringLiteral("--select-step=%1").arg(m_curFilter);
+  if (!projectFile.isEmpty()) {
+    args << projectFile << QStringLiteral("--select-step=%1").arg(step);
   }
   // Started from an AppImage, the running program is a temporary copy that disappears once it exits; the
   // AppImage itself, which can be started again, is named by this variable.
