@@ -157,7 +157,8 @@ gets `real_scans.html`, `real_scans.txt` and `real_scans.csv` instead, with the 
 
 Measures the automatic dewarping methods of the output step (Auto and Trapezoid) on drawn pages
 with a known distortion: six layouts (justified, ragged right, paragraphs, poem, short blocks)
-with seven distortions (none, tilt, shear, converging lines, converging edges, both, curved).
+with nine distortions (none, tilt, shear, converging lines, converging edges, both, curved, lines
+running together at the spine, and those with converging lines).
 
 ```bash
 dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]
@@ -175,11 +176,16 @@ puts it. The last column counts the pages a model made worse. The worst page of 
 written as an image with the model drawn on it. The measures and their limits are described at
 the top of `src/tools/dewarp_compare/main.cpp`.
 
-With `--images=<folder>` nothing is measured, since the distortion of a real page is unknown. For
-every image of the folder (pages as the output step gets them, e.g. output images written without
-dewarping) and each method, the tool writes the page with the model drawn on it, and for Auto the
-steps of the tracing that show where the model comes from: the traced lines, the edges and the
-model among the lines.
+With `--images=<folder>` the distortion of a page is unknown, so the tool measures the traced text
+lines of every image of the folder (pages as the output step gets them, e.g. output images written
+without dewarping). Per page, stdout and `real-pages.txt` tell how far the left end, the right
+end and the worst point of a line are off the straight middle part of the line (pixels at 200
+dpi, median of the lines): on the page as it is, and after Auto, Trapezoid and "curved", the
+curved path of Auto taken also with a page Auto holds for flat. A second row has the time for
+tracing, for each model and for dewarping the image at 600 dpi. For each method the tool also
+writes the page with the model drawn on it, the dewarped page, and the steps of the tracing that
+show where the model comes from: the traced lines, the edges and the model among the lines. A
+folder of 35 large scans takes about ten minutes.
 
 ### despeckle_compare
 
