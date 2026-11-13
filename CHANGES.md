@@ -286,6 +286,9 @@ topic, not by version.
   *Auto* no longer brings a curvature into a flat page: it bends a page only if its text lines
   are bent, and otherwise dewarps it like *Trapezoid* (a flat page with fewer than eight usable
   lines is left as it is).
+* Dewarping straightens slightly bent pages more exactly: with a bend below 1 % of the page
+  height, the lines in the middle of the page kept most of their bend. This concerns every
+  dewarping with curves (*Auto* on bent pages, *Manual*, *Marginal*).
 * **Output cleanup:** removing pages, replacing a scan or switching a page between one and two
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
