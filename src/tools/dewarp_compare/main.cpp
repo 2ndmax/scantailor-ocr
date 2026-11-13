@@ -117,12 +117,13 @@ struct Distortion {
   double edgesConverge;  // Per pixel: the edges meet far below the page.
   double curveHeight;    // Pixels the left end of a line hangs down, as towards the spine of a book.
   double shearDegrees;   // The edges lean while the lines stay level, as left over by the oblique correction.
+  double spineRise = 0;  // Pixels the left end of the lowest line rises over its last quarter; the rest is straight.
 };
 
-const std::vector<Distortion> kDistortions{{"none", 0, 0, 0, 0, 0},       {"tilt", 0.4, 0, 0, 0, 0},
-                                           {"shear", 0, 0, 0, 0, 0.4},    {"lines", 0, 3e-5, 0, 0, 0},
-                                           {"edges", 0, 0, 2.5e-5, 0, 0}, {"lines+edges", 0, 3e-5, 2.5e-5, 0, 0},
-                                           {"curved", 0, 0, 0, 25, 0}};
+const std::vector<Distortion> kDistortions{
+    {"none", 0, 0, 0, 0, 0},     {"tilt", 0.4, 0, 0, 0, 0},     {"shear", 0, 0, 0, 0, 0.4},
+    {"lines", 0, 3e-5, 0, 0, 0}, {"edges", 0, 0, 2.5e-5, 0, 0}, {"lines+edges", 0, 3e-5, 2.5e-5, 0, 0},
+    {"curved", 0, 0, 0, 25, 0},  {"spine", 0, 0, 0, 0, 0, 5},   {"lines+spine", 0, 3e-5, 0, 0, 0, 5}};
 
 QPointF warped(const Distortion& distortion, const QPointF& flat) {
   const QPointF center(kPageSize.width() / 2.0, kPageSize.height() / 2.0);
@@ -135,7 +136,11 @@ QPointF warped(const Distortion& distortion, const QPointF& flat) {
 
   const double fromLeft = std::clamp((flat.x() - kTextLeft) / kTextWidth, 0.0, 1.0);
   const double sag = distortion.curveHeight * std::pow(1.0 - fromLeft, 3) * (0.6 + 0.8 * flat.y() / kPageSize.height());
-  return center + turned + QPointF(0, sag);
+  // As measured on scans of a thick book: Auto takes the bend from all text lines together.
+  const double nearSpine = std::max(0.0, 1.0 - fromLeft / 0.25);
+  // The lines run together towards the spine: those low on the page rise, those at its top sink.
+  const double rise = distortion.spineRise * nearSpine * nearSpine * (flat.y() / kPageSize.height() - 0.3) / 0.7;
+  return center + turned + QPointF(0, sag - rise);
 }
 
 /** The text lines of a layout. Line lengths and the place of the block differ with the seed. */
@@ -237,8 +242,22 @@ Page drawPage(const Layout layout, const Distortion& distortion, const unsigned 
   return page;
 }
 
-/** Curved is the curved path of Auto, taken whether or not the lines of the page are bent. */
+/**
+ * Curved is the curved path of Auto, taken whether or not the lines of the page are bent.
+ */
 enum class Method { Auto, Trapezoid, Curved };
+
+const char* nameOf(const Method method) {
+  switch (method) {
+    case Method::Auto:
+      return "auto";
+    case Method::Trapezoid:
+      return "trapezoid";
+    case Method::Curved:
+      return "curved";
+  }
+  return "";
+}
 
 /**
  * The model as OutputGenerator builds it; invalid if the method refuses the page.
@@ -441,7 +460,7 @@ class Stopwatch {
 struct LineShape {
   int numLines = 0;
   double bow = 0;       // Of the parabola that fits the whole line, as Auto tells a curved page by.
-  double leftEnd = 0;   // The left end of a line against the straight line through its middle part.
+  double leftEnd = 0;   // How far the left end of a line is off the straight line through its middle part.
   double rightEnd = 0;  // The same for the right end.
   double worst = 0;     // The farthest point of a line from that straight line.
 };
@@ -529,8 +548,8 @@ LineShape shapeOfLines(const std::vector<std::vector<QPointF>>& lines, const dou
       }
     }
     bows.push_back(fitParabola(whole)[2]);
-    leftEnds.push_back(left / std::max(numLeft, 1));
-    rightEnds.push_back(right / std::max(numRight, 1));
+    leftEnds.push_back(std::fabs(left) / std::max(numLeft, 1));
+    rightEnds.push_back(std::fabs(right) / std::max(numRight, 1));
     worsts.push_back(worst);
   }
 
@@ -555,7 +574,9 @@ LineShape shapeAfter(const std::vector<std::vector<QPointF>>& lines,
   for (const std::vector<QPointF>& line : lines) {
     dewarped.emplace_back();
     for (const QPointF& pt : line) {
-      dewarped.back().push_back(dewarper.mapToDewarpedSpace(pt));
+      // The place along the line stays the one on the page as it was: a model that stretches the page near one
+      // edge would else move the points that count as the end of the line.
+      dewarped.back().emplace_back(pt.x(), dewarper.mapToDewarpedSpace(pt).y());
       yBefore.push_back(pt.y());
       yAfter.push_back(dewarped.back().back().y());
     }
@@ -608,7 +629,8 @@ int showModelsOfRealPages(const Options& options) {
             "Per page: traced lines, their bow, then for the page as it is and after each method: how far the left "
             "end,\n"
             "the right end and the worst point of a line are off the straight middle part of the line (px at 200 dpi,\n"
-            "median of the lines; + is down). Second row: milliseconds for tracing alone, and per method for the "
+            "median of the lines, up or down alike). Second row: milliseconds for tracing alone, and per method for "
+            "the "
             "model\n"
             "(tracing included) and for dewarping the image at %1 dpi.\n\n")
             .arg(kOutputDpi, 0, 'f', 0);
@@ -635,9 +657,8 @@ int showModelsOfRealPages(const Options& options) {
                       .arg(before.bow, 6, 'f', 1)
                       .arg(shapeText(before));
     QString times = QStringLiteral("  ms: trace %1").arg(traceMs, 0, 'f', 0);
-    for (const auto& [method, methodName] : {std::pair<Method, const char*>{Method::Auto, "auto"},
-                                             std::pair<Method, const char*>{Method::Trapezoid, "trapezoid"},
-                                             std::pair<Method, const char*>{Method::Curved, "curved"}}) {
+    for (const Method method : {Method::Auto, Method::Trapezoid, Method::Curved}) {
+      const char* const methodName = nameOf(method);
       const QString prefix
           = QDir(options.outDir).filePath(QFileInfo(name).completeBaseName() + QLatin1Char('_') + methodName);
       // Timed without the debug images, then once more for them.
@@ -755,9 +776,9 @@ int main(int argc, char** argv) {
   for (const auto& [layout, layoutName] : kLayouts) {
     for (const Distortion& distortion : kDistortions) {
       for (const Method method : {Method::Auto, Method::Trapezoid}) {
-        const QString name = QStringLiteral("%1_%2_%3")
-                                 .arg(QLatin1String(layoutName), QLatin1String(distortion.name),
-                                      QLatin1String((method == Method::Auto) ? "auto" : "trapezoid"));
+        const QString name
+            = QStringLiteral("%1_%2_%3")
+                  .arg(QLatin1String(layoutName), QLatin1String(distortion.name), QLatin1String(nameOf(method)));
         if (name.contains(options.only)) {
           cases.push_back(Case{layout, &distortion, method, name});
         }
