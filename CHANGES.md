@@ -289,6 +289,10 @@ topic, not by version.
 * Dewarping straightens slightly bent pages more exactly: with a bend below 1 % of the page
   height, the lines in the middle of the page kept most of their bend. This concerns every
   dewarping with curves (*Auto* on bent pages, *Manual*, *Marginal*).
+* *Auto* straightens text lines that run together towards the spine, as on scans of a thick
+  book: the page is otherwise flat, and the lines bend only over the last part of their length.
+  The bend is taken from all lines that reach from edge to edge, and only if they agree on it;
+  *Trapezoid* keeps taking the lines as straight.
 * **Output cleanup:** removing pages, replacing a scan or switching a page between one and two
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
