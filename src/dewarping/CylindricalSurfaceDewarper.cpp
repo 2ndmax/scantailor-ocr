@@ -170,35 +170,30 @@ double CylindricalSurfaceDewarper::calcPlnStraightLineY(const std::vector<QPoint
                                                         const std::vector<QPointF>& imgDirectrix2,
                                                         const HomographicTransform<2, double>& pln2img,
                                                         const HomographicTransform<2, double>& img2pln) {
-  double plnYAccum = 0;
-  double weightAccum = 0;
+  // The level between the curves where a line of the page stays straight. In plane coordinates the straight top
+  // line is y = 0 and the bottom one y = 1. At one place along them, the curves are off these lines by off1 and
+  // off2; in between that changes evenly, so it is zero at y = off1 / (off1 - off2). All places together give
+  // the y that fits them best (least squares): off1 = y * (off1 - off2).
+  // A place used to give its own y, and was skipped if its curves bent by less than 1 % of the page height, to
+  // keep clear of a division by nearly zero. A page bent less than that all over, as the lines running together
+  // at the spine of a scanned book, then got the middle of the page, and its middle lines kept their bend.
+  double offByDifferenceAccum = 0;
+  double squaredDifferenceAccum = 0;
 
   CoupledPolylinesIterator it(imgDirectrix1, imgDirectrix2, pln2img, img2pln);
   QPointF imgCurve1Pt;
   QPointF imgCurve2Pt;
   double plnX;
   while (it.next(imgCurve1Pt, imgCurve2Pt, plnX)) {
-    const QLineF imgGeneratrix(imgCurve1Pt, imgCurve2Pt);
-    const Vec2d imgLine1Pt(pln2img(Vec2d(plnX, 0)));
-    const Vec2d imgLine2Pt(pln2img(Vec2d(plnX, 1)));
-    const ToLineProjector projector(imgGeneratrix);
-    const double p1 = 0;
-    const double p2 = projector.projectionScalar(imgLine1Pt);
-    const double p3 = projector.projectionScalar(imgLine2Pt);
-    const double p4 = 1;
-    const double dp1 = p2 - p1;
-    const double dp2 = p4 - p3;
-    const double weight = std::fabs(dp1 + dp2);
-    if (weight < 0.01) {
-      continue;
-    }
-
-    const double p0 = (p3 * dp1 + p2 * dp2) / (dp1 + dp2);
-    const Vec2d imgPt(imgGeneratrix.pointAt(p0));
-    plnYAccum += img2pln(imgPt)[1] * weight;
-    weightAccum += weight;
+    const double off1 = img2pln(Vec2d(imgCurve1Pt))[1];
+    const double off2 = img2pln(Vec2d(imgCurve2Pt))[1] - 1.0;
+    const double difference = off1 - off2;
+    offByDifferenceAccum += off1 * difference;
+    squaredDifferenceAccum += difference * difference;
   }
-  return weightAccum == 0 ? 0.5 : plnYAccum / weightAccum;
+  // Two straight curves, or two bent alike, tell of no such level; the middle of the page is as good as any.
+  const double tooLittleToTell = 1e-9;
+  return (squaredDifferenceAccum < tooLittleToTell) ? 0.5 : offByDifferenceAccum / squaredDifferenceAccum;
 }  // CylindricalSurfaceDewarper::calcPlnStraightLineY
 
 HomographicTransform<2, double> CylindricalSurfaceDewarper::fourPoint2DHomography(

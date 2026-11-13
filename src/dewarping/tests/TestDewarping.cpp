@@ -188,6 +188,33 @@ BOOST_AUTO_TEST_CASE(test_directrix_with_fewer_than_two_points_is_rejected) {
   BOOST_CHECK_THROW(CylindricalSurfaceDewarper(single, good, 2.0), std::invalid_argument);
 }
 
+// The lines of a page scanned from a thick book run together at the spine: here the top line sinks by 3 px and
+// the bottom line rises by 10 px over their first 250 px, and the lines between them in proportion. Bends under
+// 1 % of the page height were skipped when looking for the level that stays straight, which then was taken to be
+// the middle of the page: the line there kept its bend.
+BOOST_AUTO_TEST_CASE(test_slightly_bent_page_gets_its_middle_line_straight) {
+  const auto nearSpine = [](const double x) {
+    const double share = std::max(0.0, 1.0 - x / 250.0);
+    return share * share;
+  };
+  std::vector<QPointF> top;
+  std::vector<QPointF> bottom;
+  for (double x = 0; x <= 1000; x += 25) {
+    top.emplace_back(x, 3.0 * nearSpine(x));
+    bottom.emplace_back(x, 2000.0 - 10.0 * nearSpine(x));
+  }
+  const CylindricalSurfaceDewarper dewarper(top, bottom, 2.0);
+
+  // Halfway between the curves the line rises by 3.5 px at the spine.
+  const auto onMiddleLine = [&](const double x) { return QPointF(x, 1000.0 - 3.5 * nearSpine(x)); };
+  const double halfAPixel = 0.5 / 2000.0;
+  for (const double x : {0.0, 50.0, 125.0}) {
+    const double offLevel
+        = dewarper.mapToDewarpedSpace(onMiddleLine(x)).y() - dewarper.mapToDewarpedSpace(onMiddleLine(600)).y();
+    BOOST_TEST(std::fabs(offLevel) < halfAPixel, "at x = " << x << " the line is off by " << offLevel * 2000 << " px");
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_full_page_of_text_keeps_a_model) {
   QImage page = blankPage();
   drawTextLines(page, 38, 100);
