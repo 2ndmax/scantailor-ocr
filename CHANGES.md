@@ -61,6 +61,10 @@ topic, not by version.
   focus frame, selected thumbnails and the progress bar (after a restart; not used by the native
   color scheme). "Deskew handle distance"
   sets how close the drag handles for rotation and oblique correction sit to the image center.
+* After OK, if the language, the color scheme or the accent color was changed, the program offers
+  to restart right away, since these only take full effect then. Restarting asks the usual
+  questions about a running export and about saving, and reopens the project at the step it was
+  at.
 
 ## Export (PDF, TXT, hOCR, ALTO)
 
