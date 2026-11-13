@@ -97,12 +97,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="77"/>
+        <location filename="../core/Application.cpp" line="102"/>
         <source>Unexpected Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="78"/>
+        <location filename="../core/Application.cpp" line="103"/>
         <source>An unexpected error occurred:
 %1
 
@@ -3112,7 +3112,7 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2913"/>
+        <location filename="../app/MainWindow.cpp" line="2968"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3172,13 +3172,13 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1998"/>
+        <location filename="../app/MainWindow.cpp" line="2053"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2036"/>
+        <location filename="../app/MainWindow.cpp" line="2091"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3271,105 +3271,132 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2051"/>
+        <location filename="../app/MainWindow.cpp" line="1860"/>
+        <source>Restart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1861"/>
+        <source>Some of the changed settings only take full effect after a restart. Do you want to restart ScanTailor OCR now?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1864"/>
+        <source>Restart</source>
+        <comment>button</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1865"/>
+        <source>Later</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1891"/>
+        <source>ScanTailor OCR could not be restarted. Please start it again by hand.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="2106"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2051"/>
+        <location filename="../app/MainWindow.cpp" line="2106"/>
         <source>An export is running. Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2111"/>
-        <location filename="../app/MainWindow.cpp" line="2137"/>
+        <location filename="../app/MainWindow.cpp" line="1890"/>
+        <location filename="../app/MainWindow.cpp" line="2166"/>
+        <location filename="../app/MainWindow.cpp" line="2192"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1800"/>
+        <location filename="../app/MainWindow.cpp" line="1811"/>
         <source>Default Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1801"/>
+        <location filename="../app/MainWindow.cpp" line="1812"/>
         <source>Also use these default parameters for the open project? Pages added to it later start with them. Otherwise, they only apply to new projects.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1853"/>
+        <location filename="../app/MainWindow.cpp" line="1908"/>
         <source>version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2031"/>
+        <location filename="../app/MainWindow.cpp" line="2086"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2111"/>
-        <location filename="../app/MainWindow.cpp" line="2137"/>
+        <location filename="../app/MainWindow.cpp" line="2166"/>
+        <location filename="../app/MainWindow.cpp" line="2192"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2183"/>
+        <location filename="../app/MainWindow.cpp" line="2238"/>
         <source>Files to Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2186"/>
+        <location filename="../app/MainWindow.cpp" line="2241"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2237"/>
+        <location filename="../app/MainWindow.cpp" line="2292"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2299"/>
+        <location filename="../app/MainWindow.cpp" line="2354"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2484"/>
-        <location filename="../app/MainWindow.cpp" line="2521"/>
+        <location filename="../app/MainWindow.cpp" line="2539"/>
+        <location filename="../app/MainWindow.cpp" line="2576"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2478"/>
+        <location filename="../app/MainWindow.cpp" line="2533"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2498"/>
+        <location filename="../app/MainWindow.cpp" line="2553"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2522"/>
+        <location filename="../app/MainWindow.cpp" line="2577"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2576"/>
+        <location filename="../app/MainWindow.cpp" line="2631"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2639"/>
+        <location filename="../app/MainWindow.cpp" line="2694"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2716"/>
+        <location filename="../app/MainWindow.cpp" line="2771"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2913"/>
+        <location filename="../app/MainWindow.cpp" line="2968"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4522,22 +4549,22 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="31"/>
+        <location filename="../app/SettingsDialog.cpp" line="30"/>
         <source>Your hardware or driver doesn&apos;t provide the necessary features.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="38"/>
+        <location filename="../app/SettingsDialog.cpp" line="37"/>
         <source>Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="39"/>
+        <location filename="../app/SettingsDialog.cpp" line="38"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="40"/>
+        <location filename="../app/SettingsDialog.cpp" line="39"/>
         <source>System</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4567,18 +4594,8 @@ would both become
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="150"/>
+        <location filename="../app/SettingsDialog.cpp" line="149"/>
         <source>Accent Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="186"/>
-        <source>Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="187"/>
-        <source>ScanTailor OCR needs to be restarted to apply the color scheme changes.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

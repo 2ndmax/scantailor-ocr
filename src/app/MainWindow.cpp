@@ -1740,6 +1740,11 @@ void MainWindow::openProject(const QString& projectFile) {
   context->proceed();
 }
 
+void MainWindow::openProject(const QString& projectFile, const int selectStep) {
+  m_pendingSelectStep = selectStep;
+  openProject(projectFile);
+}
+
 void MainWindow::projectOpened(ProjectOpeningContext* context) {
   RecentProjects rp;
   rp.read();
@@ -1751,6 +1756,12 @@ void MainWindow::projectOpened(ProjectOpeningContext* context) {
   const ProjectSession project = ProjectSession::load(
       *context->projectReader(), DefaultParamsProvider::getInstance().getParams(), newPageSelectionAccessor());
   switchToNewProject(project, context->projectFile(), &project.selectedPage);
+
+  const int selectStep = m_pendingSelectStep;
+  m_pendingSelectStep = -1;
+  if ((selectStep >= 0) && (selectStep < static_cast<int>(filterSwitchActions().size()))) {
+    filterList->selectRow(selectStep);
+  }
 }
 
 void MainWindow::closeProject() {
@@ -1806,7 +1817,7 @@ void MainWindow::defaultParamsChanged(const QString& startValuesBefore) {
   }
 }
 
-void MainWindow::onSettingsChanged() {
+void MainWindow::onSettingsChanged(const bool needsRestart) {
   ApplicationSettings& settings = ApplicationSettings::getInstance();
   bool needInvalidate = true;
 
@@ -1844,6 +1855,50 @@ void MainWindow::onSettingsChanged() {
       updateMainArea();
     }
   }
+
+  if (needsRestart) {
+    QMessageBox box(QMessageBox::Question, tr("Restart"),
+                    tr("Some of the changed settings only take full effect after a restart. Do you want to "
+                       "restart ScanTailor OCR now?"),
+                    QMessageBox::NoButton, this);
+    QPushButton* restartButton = box.addButton(tr("Restart", "button"), QMessageBox::AcceptRole);
+    box.addButton(tr("Later"), QMessageBox::RejectRole);
+    box.setDefaultButton(restartButton);
+    box.exec();
+    if (box.clickedButton() == restartButton) {
+      restartProgram();
+    }
+  }
+}  // MainWindow::onSettingsChanged
+
+// REVIEW-NOTE (2026-11): no regression test for the restart dialog and restartProgram(), because qt_tests does
+// not link the app library and so can't create a MainWindow or a SettingsDialog.
+void MainWindow::restartProgram() {
+  if (!closeProjectInteractive()) {
+    return;
+  }
+
+  QStringList args;
+  if (!m_projectFile.isEmpty()) {
+    args << m_projectFile << QStringLiteral("--select-step=%1").arg(m_curFilter);
+  }
+  // Started from an AppImage, the running program is a temporary copy that disappears once it exits; the
+  // AppImage itself, which can be started again, is named by this variable.
+  const QString appImagePath = qEnvironmentVariable("APPIMAGE");
+  const QString program = appImagePath.isEmpty() ? QCoreApplication::applicationFilePath() : appImagePath;
+  if (!QProcess::startDetached(program, args)) {
+    QMessageBox::warning(this, tr("Error"),
+                         tr("ScanTailor OCR could not be restarted. Please start it again by hand."));
+    return;
+  }
+
+  m_closing = true;
+  QSettings settings;
+  settings.setValue("mainWindow/maximized", isMaximized());
+  if (!isMaximized()) {
+    settings.setValue("mainWindow/nonMaximizedGeometry", saveGeometry());
+  }
+  close();
 }
 
 void MainWindow::showAboutDialog() {

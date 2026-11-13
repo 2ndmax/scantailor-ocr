@@ -65,8 +65,23 @@ int main(int argc, char* argv[]) {
     QTimer::singleShot(0, mainWnd, &QMainWindow::showMaximized);
   }
 
-  if (args.size() > 1) {
-    mainWnd->openProject(args.at(1));
+  // The project file and the step restartProgram() reopens it to, as "--select-step=<n>" (0-based).
+  QString projectFile;
+  int selectStep = -1;
+  for (int i = 1; i < args.size(); ++i) {
+    const QString& arg = args.at(i);
+    if (arg.startsWith(QStringLiteral("--select-step="))) {
+      bool ok = false;
+      const int step = arg.mid(14).toInt(&ok);
+      if (ok) {
+        selectStep = step;
+      }
+    } else if (projectFile.isEmpty()) {
+      projectFile = arg;
+    }
+  }
+  if (!projectFile.isEmpty()) {
+    mainWnd->openProject(projectFile, selectStep);
   }
   return Application::exec();
 }  // main

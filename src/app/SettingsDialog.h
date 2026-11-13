@@ -17,7 +17,8 @@ class SettingsDialog : public QDialog {
   ~SettingsDialog() override;
 
  signals:
-  void settingsChanged();
+  /** \p needsRestart tells whether a changed setting only takes full effect after a restart. */
+  void settingsChanged(bool needsRestart);
 
  private slots:
   void commitChanges();
@@ -30,11 +31,11 @@ class SettingsDialog : public QDialog {
 
   void updateAccentColorDisplay();
 
-  void showRestartNotice();
-
   Ui::SettingsDialog ui;
   /** The chosen accent color, or an invalid color for the default of the color scheme. */
   QColor m_accentColor;
+  /** The language shown when the dialog opened, to tell whether it was changed. */
+  QString m_initialLanguage;
 };
 
 

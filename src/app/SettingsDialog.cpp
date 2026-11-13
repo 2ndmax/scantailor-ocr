@@ -12,7 +12,6 @@
 #include <QColorDialog>
 #include <QPainter>
 #include <QtCore/QDir>
-#include <QtWidgets/QMessageBox>
 #include <cmath>
 
 #include "Application.h"
@@ -57,7 +56,8 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
       QString languageName = QLocale(locale).nativeLanguageName();
       ui.languageBox->addItem(languageName, locale);
     }
-    ui.languageBox->setCurrentIndex(ui.languageBox->findData(app->getCurrentLocale()));
+    m_initialLanguage = app->getCurrentLocale();
+    ui.languageBox->setCurrentIndex(ui.languageBox->findData(m_initialLanguage));
     ui.languageBox->setEnabled(ui.languageBox->count() > 1);
   }
 
@@ -110,7 +110,9 @@ void SettingsDialog::commitChanges() {
   settings.setColorScheme(colorScheme);
   settings.setAccentColor(m_accentColor);
 
-  settings.setLanguage(ui.languageBox->currentData().toString());
+  const QString language = ui.languageBox->currentData().toString();
+  const bool languageChanged = (language != m_initialLanguage);
+  settings.setLanguage(language);
 
   const Units units = unitsFromString(ui.unitsBox->currentData().toString());
   settings.setUnits(unitsToString(units));
@@ -139,10 +141,7 @@ void SettingsDialog::commitChanges() {
   settings.setDeskewHandleDistance(ui.deskewHandleDistanceSB->value());
   settings.setProcessingThreads(ui.processingThreadsSB->value());
 
-  if (colorsChanged) {
-    showRestartNotice();
-  }
-  emit settingsChanged();
+  emit settingsChanged(colorsChanged || languageChanged);
 }
 
 void SettingsDialog::chooseAccentColor() {
@@ -180,9 +179,4 @@ void SettingsDialog::updateAccentColorDisplay() {
   ui.accentColorLabel->setEnabled(!native);
   ui.accentColorButton->setEnabled(!native);
   ui.accentColorDefaultButton->setEnabled(!native && m_accentColor.isValid());
-}
-
-void SettingsDialog::showRestartNotice() {
-  QMessageBox::information(this, tr("Information"),
-                           tr("ScanTailor OCR needs to be restarted to apply the color scheme changes."));
 }

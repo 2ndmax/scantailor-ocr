@@ -97,12 +97,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="77"/>
+        <location filename="../core/Application.cpp" line="102"/>
         <source>Unexpected Error</source>
         <translation>Unerwarteter Fehler</translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="78"/>
+        <location filename="../core/Application.cpp" line="103"/>
         <source>An unexpected error occurred:
 %1
 
@@ -3079,7 +3079,7 @@ Möchten Sie sie ersetzen?</translation>
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2913"/>
+        <location filename="../app/MainWindow.cpp" line="2968"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
@@ -3139,14 +3139,14 @@ Möchten Sie sie ersetzen?</translation>
         <translation>Die Erkennung wurde abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1998"/>
+        <location filename="../app/MainWindow.cpp" line="2053"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
 Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt auswählen“ oder „Ränder“ aus.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2036"/>
+        <location filename="../app/MainWindow.cpp" line="2091"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation>%2 – ScanTailor OCR %3 [%1bit]</translation>
     </message>
@@ -3242,105 +3242,132 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2051"/>
+        <location filename="../app/MainWindow.cpp" line="1860"/>
+        <source>Restart</source>
+        <translation>Neustart</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1861"/>
+        <source>Some of the changed settings only take full effect after a restart. Do you want to restart ScanTailor OCR now?</source>
+        <translation>Einige der geänderten Einstellungen wirken erst nach einem Neustart vollständig. Möchten Sie ScanTailor OCR jetzt neu starten?</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1864"/>
+        <source>Restart</source>
+        <comment>button</comment>
+        <translation>Neu starten</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1865"/>
+        <source>Later</source>
+        <translation>Später</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="1891"/>
+        <source>ScanTailor OCR could not be restarted. Please start it again by hand.</source>
+        <translation>ScanTailor OCR konnte nicht neu gestartet werden. Bitte starten Sie es von Hand neu.</translation>
+    </message>
+    <message>
+        <location filename="../app/MainWindow.cpp" line="2106"/>
         <source>Export</source>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2051"/>
+        <location filename="../app/MainWindow.cpp" line="2106"/>
         <source>An export is running. Do you want to cancel it?</source>
         <translation>Ein Export läuft gerade. Möchten Sie ihn abbrechen?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2111"/>
-        <location filename="../app/MainWindow.cpp" line="2137"/>
+        <location filename="../app/MainWindow.cpp" line="1890"/>
+        <location filename="../app/MainWindow.cpp" line="2166"/>
+        <location filename="../app/MainWindow.cpp" line="2192"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1800"/>
+        <location filename="../app/MainWindow.cpp" line="1811"/>
         <source>Default Parameters</source>
         <translation>Standardparameter</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1801"/>
+        <location filename="../app/MainWindow.cpp" line="1812"/>
         <source>Also use these default parameters for the open project? Pages added to it later start with them. Otherwise, they only apply to new projects.</source>
         <translation>Diese Standardparameter auch für das geöffnete Projekt verwenden? Später hinzugefügte Seiten beginnen dann mit ihnen. Andernfalls gelten sie nur für neue Projekte.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1853"/>
+        <location filename="../app/MainWindow.cpp" line="1908"/>
         <source>version </source>
         <translation>Version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2031"/>
+        <location filename="../app/MainWindow.cpp" line="2086"/>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2111"/>
-        <location filename="../app/MainWindow.cpp" line="2137"/>
+        <location filename="../app/MainWindow.cpp" line="2166"/>
+        <location filename="../app/MainWindow.cpp" line="2192"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2183"/>
+        <location filename="../app/MainWindow.cpp" line="2238"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2186"/>
+        <location filename="../app/MainWindow.cpp" line="2241"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2237"/>
+        <location filename="../app/MainWindow.cpp" line="2292"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2299"/>
+        <location filename="../app/MainWindow.cpp" line="2354"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2484"/>
-        <location filename="../app/MainWindow.cpp" line="2521"/>
+        <location filename="../app/MainWindow.cpp" line="2539"/>
+        <location filename="../app/MainWindow.cpp" line="2576"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2478"/>
+        <location filename="../app/MainWindow.cpp" line="2533"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2498"/>
+        <location filename="../app/MainWindow.cpp" line="2553"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2522"/>
+        <location filename="../app/MainWindow.cpp" line="2577"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2576"/>
+        <location filename="../app/MainWindow.cpp" line="2631"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2639"/>
+        <location filename="../app/MainWindow.cpp" line="2694"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen. Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2716"/>
+        <location filename="../app/MainWindow.cpp" line="2771"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2913"/>
+        <location filename="../app/MainWindow.cpp" line="2968"/>
         <source>Enter the page number:</source>
         <translation>Seitennummer:</translation>
     </message>
@@ -4542,22 +4569,22 @@ würden beide zu
         <translation>Sprache:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="31"/>
+        <location filename="../app/SettingsDialog.cpp" line="30"/>
         <source>Your hardware or driver doesn&apos;t provide the necessary features.</source>
         <translation>Ihre Hardware oder Ihr Treiber bietet nicht die erforderlichen Funktionen.</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="38"/>
+        <location filename="../app/SettingsDialog.cpp" line="37"/>
         <source>Dark</source>
         <translation>Dunkel</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="39"/>
+        <location filename="../app/SettingsDialog.cpp" line="38"/>
         <source>Light</source>
         <translation>Hell</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="40"/>
+        <location filename="../app/SettingsDialog.cpp" line="39"/>
         <source>System</source>
         <translation>System</translation>
     </message>
@@ -4587,19 +4614,9 @@ würden beide zu
         <translation>von %1</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="150"/>
+        <location filename="../app/SettingsDialog.cpp" line="149"/>
         <source>Accent Color</source>
         <translation>Akzentfarbe</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="186"/>
-        <source>Information</source>
-        <translation>Information</translation>
-    </message>
-    <message>
-        <location filename="../app/SettingsDialog.cpp" line="187"/>
-        <source>ScanTailor OCR needs to be restarted to apply the color scheme changes.</source>
-        <translation>ScanTailor OCR muss neu gestartet werden, um die Änderungen am Farbschema zu übernehmen.</translation>
     </message>
     <message>
         <location filename="../app/SettingsDialog.ui" line="94"/>

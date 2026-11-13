@@ -99,6 +99,10 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void openProject(const QString& projectFile);
 
+ public:
+  /** Like openProject(const QString&), and once the project is open, also selects \p selectStep (0-based). */
+  void openProject(const QString& projectFile, int selectStep);
+
  private:
   enum MainAreaAction { UPDATE_MAIN_AREA, CLEAR_MAIN_AREA };
 
@@ -196,7 +200,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
    */
   void defaultParamsChanged(const QString& startValuesBefore);
 
-  void onSettingsChanged();
+  void onSettingsChanged(bool needsRestart);
 
   void showAboutDialog();
 
@@ -325,6 +329,12 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   bool closeProjectInteractive();
 
   void closeProjectWithoutSaving();
+
+  /**
+   * Closes the project interactively (as closeProjectInteractive()) and, if that wasn't cancelled, starts a new
+   * instance of the program with the same project and step, then quits this one.
+   */
+  void restartProgram();
 
   bool saveProjectWithFeedback(const QString& projectFile);
 
@@ -490,6 +500,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   int m_ignoreAnchorSelection = 0;
   std::function<bool()> m_checkBeepWhenFinished;
   SelectedPage m_selectedPage;
+  /** The step openProject(const QString&, int) is to select once the project it started opening is open. */
+  int m_pendingSelectStep = -1;
   QObjectCleanupHandler m_optionsWidgetCleanup;
   QObjectCleanupHandler m_imageWidgetCleanup;
   std::unique_ptr<OutOfMemoryDialog> m_outOfMemoryDialog;
