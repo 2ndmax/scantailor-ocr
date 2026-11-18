@@ -165,6 +165,30 @@ way.
 There is no macOS version. The workflow `macos.yml` builds the code on macOS only to check it
 with another compiler and standard library; it is started by hand and builds no package.
 
+## Libraries
+
+The code under `src/core` is built into libraries that keep the processing apart from the user
+interface:
+
+* `core` – everything that works without widgets: loading images, project files, the steps'
+  processing pipeline (`StageSequence`), export, OCR and the command line run. It links Qt Core,
+  Gui, Xml, Network, OpenGL and Svg, but **not Qt Widgets**.
+* One library per step (`fix_orientation`, `page_split`, `deskew`, `select_content`,
+  `page_layout`, `output`) – the step's processing: `Filter`, `Task`, `CacheDrivenTask`,
+  settings and parameters. Like `core`, without widgets.
+* `zones` – the picture and fill zones as data.
+* `core_gui` – the user interface on top of `core`: widgets, image views, thumbnails and
+  `FilterUiSequence`, which shows each step through its `FilterUi`.
+* One `<step>_ui` library per step – its `FilterUi`, options panel, image view, dialogs and
+  thumbnail.
+* `interaction` and `zone_editing` – mouse interaction in the image views and zone editing.
+
+The program links `core_gui`; the command line tool `scantailor-ocr-cli`, `core_tests` and the
+developer tools link only `core`, so they don't need the Qt Widgets libraries. Code that needs a
+widget belongs in `core_gui` or a `<step>_ui` library: a widget header included from `core` or a
+step's processing library doesn't compile there. A step describes what the window shows as data
+(e.g. `TaskResult`, `ThumbnailData`); its `FilterUi` turns that into widgets.
+
 ## Build options
 
 * `-DBUILD_TESTS=OFF` – don't build the unit tests.
