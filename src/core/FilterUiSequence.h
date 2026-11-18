@@ -33,7 +33,7 @@ class FilterUiSequence {
 
  private:
   std::shared_ptr<StageSequence> m_stages;
-  // By the index of the step in m_stages; null for a step whose results still show themselves.
+  // By the index of the step in m_stages.
   std::vector<std::unique_ptr<AbstractFilterUi>> m_filterUis;
 };
 
