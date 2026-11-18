@@ -16,6 +16,7 @@
 #include <filters/deskew/OptionsWidget.h>
 #include <filters/deskew/Settings.h>
 #include <filters/deskew/Thumbnail.h>
+#include <filters/deskew/UiData.h>
 
 #include <QAbstractButton>
 #include <QPolygonF>
@@ -34,8 +35,8 @@ Dependencies measuredDeps() {
   return Dependencies(outline, OrthogonalRotation());
 }
 
-OptionsWidget::UiData uiData(const AutoManualMode mode, const AutoManualMode obliqueMode) {
-  OptionsWidget::UiData data;
+UiData uiData(const AutoManualMode mode, const AutoManualMode obliqueMode) {
+  UiData data;
   data.setEffectiveDeskewAngle(0.5);
   data.setEffectiveObliqueAngle(1.5);
   data.setDependencies(measuredDeps());

@@ -3,6 +3,7 @@
 
 #include "Task.h"
 #include "DownscaledImage.h"
+#include "UiData.h"
 
 #include <UnitsProvider.h>
 
@@ -35,7 +36,7 @@ class Task::UiUpdater : public FilterResult {
             const QImage& image,
             const PageInfo& pageInfo,
             const ImageTransformation& xform,
-            const OptionsWidget::UiData& uiData);
+            const UiData& uiData);
 
   void updateUI(FilterUiInterface* ui) override;
 
@@ -49,7 +50,7 @@ class Task::UiUpdater : public FilterResult {
   QImage m_downscaledImage;
   PageInfo m_pageInfo;
   ImageTransformation m_xform;
-  OptionsWidget::UiData m_uiData;
+  UiData m_uiData;
 };
 
 
@@ -156,7 +157,7 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
     break;
   }
 
-  OptionsWidget::UiData uiData;
+  UiData uiData;
   uiData.setDependencies(deps);
   const PageLayout& layout = record.params()->pageLayout();
   uiData.setLayoutTypeAutoDetected(record.combinedLayoutType() == AUTO_LAYOUT_TYPE);
@@ -201,7 +202,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const QImage& image,
                            const PageInfo& pageInfo,
                            const ImageTransformation& xform,
-                           const OptionsWidget::UiData& uiData)
+                           const UiData& uiData)
     : m_filter(std::move(filter)),
       m_pages(std::move(pages)),
       m_dbg(std::move(dbgImg)),

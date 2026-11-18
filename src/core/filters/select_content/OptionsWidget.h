@@ -19,6 +19,7 @@
 #include "PageSelectionAccessor.h"
 #include "Params.h"
 #include "PhysSizeCalc.h"
+#include "UiData.h"
 #include "ui_OptionsWidget.h"
 
 class DefaultParams;
@@ -29,58 +30,6 @@ class Settings;
 class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private Ui::OptionsWidget {
   Q_OBJECT
  public:
-  class UiData {
-    // Member-wise copying is OK.
-   public:
-    UiData();
-
-    ~UiData();
-
-    void setSizeCalc(const PhysSizeCalc& calc);
-
-    void setContentRect(const QRectF& contentRect);
-
-    void setPageRect(const QRectF& contentRect);
-
-    const QRectF& contentRect() const;
-
-    const QRectF& pageRect() const;
-
-    QSizeF contentSizeMM() const;
-
-    void setDependencies(const Dependencies& deps);
-
-    const Dependencies& dependencies() const;
-
-    void setContentDetectionMode(AutoManualMode mode);
-
-    void setPageDetectionMode(AutoManualMode mode);
-
-    bool isFineTuningCornersEnabled() const;
-
-    void setFineTuneCornersEnabled(bool fineTune);
-
-    AutoManualMode contentDetectionMode() const;
-
-    AutoManualMode pageDetectionMode() const;
-
-    /** Those of the page, see Params::detectionOptions(). */
-    const std::optional<DetectionOptions>& detectionOptions() const { return m_detectionOptions; }
-
-    void setDetectionOptions(const std::optional<DetectionOptions>& options) { m_detectionOptions = options; }
-
-   private:
-    QRectF m_contentRect;  // In virtual image coordinates.
-    QRectF m_pageRect;
-    PhysSizeCalc m_sizeCalc;
-    Dependencies m_deps;
-    AutoManualMode m_contentDetectionMode;
-    AutoManualMode m_pageDetectionMode;
-    bool m_fineTuneCornersEnabled;
-    std::optional<DetectionOptions> m_detectionOptions;
-  };
-
-
   OptionsWidget(std::shared_ptr<Settings> settings,
                 std::shared_ptr<DefaultParams> defaultParams,
                 const PageSelectionAccessor& pageSelectionAccessor);
@@ -150,59 +99,5 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 };
 
 
-inline void OptionsWidget::UiData::setSizeCalc(const PhysSizeCalc& calc) {
-  m_sizeCalc = calc;
-}
-
-inline void OptionsWidget::UiData::setContentRect(const QRectF& contentRect) {
-  m_contentRect = contentRect;
-}
-
-inline const QRectF& OptionsWidget::UiData::contentRect() const {
-  return m_contentRect;
-}
-
-inline void OptionsWidget::UiData::setPageRect(const QRectF& pageRect) {
-  m_pageRect = pageRect;
-}
-
-inline const QRectF& OptionsWidget::UiData::pageRect() const {
-  return m_pageRect;
-}
-
-inline QSizeF OptionsWidget::UiData::contentSizeMM() const {
-  return m_sizeCalc.sizeMM(m_contentRect);
-}
-
-inline void OptionsWidget::UiData::setDependencies(const Dependencies& deps) {
-  m_deps = deps;
-}
-
-inline const Dependencies& OptionsWidget::UiData::dependencies() const {
-  return m_deps;
-}
-
-inline void OptionsWidget::UiData::setContentDetectionMode(AutoManualMode mode) {
-  m_contentDetectionMode = mode;
-}
-
-inline AutoManualMode OptionsWidget::UiData::contentDetectionMode() const {
-  return m_contentDetectionMode;
-}
-
-inline void OptionsWidget::UiData::setPageDetectionMode(AutoManualMode mode) {
-  m_pageDetectionMode = mode;
-}
-
-inline AutoManualMode OptionsWidget::UiData::pageDetectionMode() const {
-  return m_pageDetectionMode;
-}
-inline void OptionsWidget::UiData::setFineTuneCornersEnabled(bool fineTune) {
-  m_fineTuneCornersEnabled = fineTune;
-}
-
-inline bool OptionsWidget::UiData::isFineTuningCornersEnabled() const {
-  return m_fineTuneCornersEnabled;
-}
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_OPTIONSWIDGET_H_

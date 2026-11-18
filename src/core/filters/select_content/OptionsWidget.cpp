@@ -358,12 +358,4 @@ void OptionsWidget::setupUiConnections() {
 }
 
 #undef CONNECT
-
-
-/*========================= OptionsWidget::UiData ======================*/
-
-OptionsWidget::UiData::UiData()
-    : m_contentDetectionMode(MODE_AUTO), m_pageDetectionMode(MODE_DISABLED), m_fineTuneCornersEnabled(false) {}
-
-OptionsWidget::UiData::~UiData() = default;
 }  // namespace select_content

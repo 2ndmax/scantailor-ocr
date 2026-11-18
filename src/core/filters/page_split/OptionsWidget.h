@@ -19,6 +19,7 @@
 #include "PageLayout.h"
 #include "PageSelectionAccessor.h"
 #include "SplitDetectionMethod.h"
+#include "UiData.h"
 #include "ui_OptionsWidget.h"
 
 class ProjectPages;
@@ -29,37 +30,6 @@ class Settings;
 class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   Q_OBJECT
  public:
-  class UiData {
-    // Member-wise copying is OK.
-   public:
-    UiData();
-
-    ~UiData();
-
-    void setPageLayout(const PageLayout& layout);
-
-    const PageLayout& pageLayout() const;
-
-    void setDependencies(const Dependencies& deps);
-
-    const Dependencies& dependencies() const;
-
-    void setSplitLineMode(AutoManualMode mode);
-
-    AutoManualMode splitLineMode() const;
-
-    bool layoutTypeAutoDetected() const;
-
-    void setLayoutTypeAutoDetected(bool val);
-
-   private:
-    PageLayout m_pageLayout;
-    Dependencies m_deps;
-    AutoManualMode m_splitLineMode;
-    bool m_layoutTypeAutoDetected;
-  };
-
-
   OptionsWidget(std::shared_ptr<Settings> settings,
                 std::shared_ptr<ProjectPages> pageSequence,
                 const PageSelectionAccessor& pageSelectionAccessor);
@@ -129,36 +99,5 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 };
 
 
-inline void OptionsWidget::UiData::setPageLayout(const PageLayout& layout) {
-  m_pageLayout = layout;
-}
-
-inline const PageLayout& OptionsWidget::UiData::pageLayout() const {
-  return m_pageLayout;
-}
-
-inline void OptionsWidget::UiData::setDependencies(const Dependencies& deps) {
-  m_deps = deps;
-}
-
-inline const Dependencies& OptionsWidget::UiData::dependencies() const {
-  return m_deps;
-}
-
-inline void OptionsWidget::UiData::setSplitLineMode(const AutoManualMode mode) {
-  m_splitLineMode = mode;
-}
-
-inline AutoManualMode OptionsWidget::UiData::splitLineMode() const {
-  return m_splitLineMode;
-}
-
-inline bool OptionsWidget::UiData::layoutTypeAutoDetected() const {
-  return m_layoutTypeAutoDetected;
-}
-
-inline void OptionsWidget::UiData::setLayoutTypeAutoDetected(const bool val) {
-  m_layoutTypeAutoDetected = val;
-}
 }  // namespace page_split
 #endif  // ifndef SCANTAILOR_PAGE_SPLIT_OPTIONSWIDGET_H_

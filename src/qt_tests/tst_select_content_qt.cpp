@@ -23,6 +23,7 @@
 #include <filters/select_content/Params.h>
 #include <filters/select_content/Settings.h>
 #include <filters/select_content/Thumbnail.h>
+#include <filters/select_content/UiData.h>
 
 #include <QPolygonF>
 #include <QSpinBox>
@@ -43,8 +44,8 @@ QPolygonF outline() {
 }
 
 /** A page whose content box was detected automatically with \p detectedWith. */
-OptionsWidget::UiData detectedPage(const std::optional<DetectionOptions>& detectedWith) {
-  OptionsWidget::UiData data;
+UiData detectedPage(const std::optional<DetectionOptions>& detectedWith) {
+  UiData data;
   data.setContentRect(QRectF(50, 50, 500, 700));
   data.setPageRect(QRectF(0, 0, 600, 800));
   data.setContentDetectionMode(MODE_AUTO);
@@ -72,7 +73,7 @@ struct Panel {
   std::shared_ptr<Settings> settings = std::make_shared<Settings>();
   OptionsWidget widget{settings, std::make_shared<DefaultParams>(), PageSelectionAccessor(nullptr)};
 
-  explicit Panel(const OptionsWidget::UiData& data) {
+  explicit Panel(const UiData& data) {
     widget.preUpdateUI(PageInfo(PAGE, ImageMetadata(QSize(600, 800), Dpi(300, 300)), 1, false, false));
     widget.postUpdateUI(data);
   }
@@ -100,7 +101,7 @@ void TestSelectContentQt::testSizeFieldsSetDecimalsStepAndUnit() {
     int decimals;
     double step;
   } formats[] = {{PIXELS, 0, 1.0}, {MILLIMETRES, 1, 1.0}, {CENTIMETRES, 2, 0.01}, {INCHES, 2, 0.01}};
-  Panel panel{OptionsWidget::UiData()};
+  Panel panel{UiData()};
   for (const auto& format : formats) {
     const ScopedUnits scopedUnits(format.units);
     for (const char* name : {"widthSpinBox", "heightSpinBox"}) {

@@ -17,6 +17,7 @@ set(sources
     VertLineFinder.cpp VertLineFinder.h
     Filter.cpp Filter.h
     OptionsWidget.cpp OptionsWidget.h
+    UiData.cpp UiData.h
     SplitModeDialog.cpp SplitModeDialog.h
     Settings.cpp Settings.h
     Task.cpp Task.h

@@ -305,14 +305,4 @@ void OptionsWidget::setupUiConnections() {
 
 #undef CONNECT
 
-/*========================== OptionsWidget::UiData =========================*/
-
-OptionsWidget::UiData::UiData()
-    : m_effDeskewAngle(0.0),
-      m_effObliqueAngle(0.0),
-      m_mode(MODE_AUTO),
-      m_obliqueMode(MODE_MANUAL),
-      m_detection(DETECT_CONTENT) {}
-
-OptionsWidget::UiData::~UiData() = default;
 }  // namespace deskew

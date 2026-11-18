@@ -8,6 +8,7 @@ set(sources
     ImageView.cpp ImageView.h
     Filter.cpp Filter.h
     OptionsWidget.cpp OptionsWidget.h
+    UiData.cpp UiData.h
     ApplyDialog.cpp ApplyDialog.h
     ContentBoxFinder.cpp ContentBoxFinder.h
     PageFinder.cpp PageFinder.h

@@ -16,6 +16,7 @@
 #include "PageId.h"
 #include "PageSelectionAccessor.h"
 #include "SkewDetection.h"
+#include "UiData.h"
 #include "ui_OptionsWidget.h"
 
 class QButtonGroup;
@@ -27,47 +28,6 @@ class Settings;
 class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   Q_OBJECT
  public:
-  class UiData {
-    // Member-wise copying is OK.
-   public:
-    UiData();
-
-    ~UiData();
-
-    void setEffectiveDeskewAngle(double degrees);
-
-    double effectiveDeskewAngle() const;
-
-    void setEffectiveObliqueAngle(double degrees);
-
-    double effectiveObliqueAngle() const;
-
-    void setDependencies(const Dependencies& deps);
-
-    const Dependencies& dependencies() const;
-
-    void setMode(AutoManualMode mode);
-
-    AutoManualMode mode() const;
-
-    void setObliqueMode(AutoManualMode mode);
-
-    AutoManualMode obliqueMode() const;
-
-    void setDetection(SkewDetection detection);
-
-    SkewDetection detection() const;
-
-   private:
-    double m_effDeskewAngle;
-    double m_effObliqueAngle;
-    Dependencies m_deps;
-    AutoManualMode m_mode;
-    AutoManualMode m_obliqueMode;
-    SkewDetection m_detection;
-  };
-
-
   OptionsWidget(std::shared_ptr<Settings> settings,
                 std::shared_ptr<DefaultParams> defaultParams,
                 const PageSelectionAccessor& pageSelectionAccessor);
@@ -140,53 +100,6 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 };
 
 
-inline void OptionsWidget::UiData::setEffectiveDeskewAngle(const double degrees) {
-  m_effDeskewAngle = degrees;
-}
-
-inline double OptionsWidget::UiData::effectiveDeskewAngle() const {
-  return m_effDeskewAngle;
-}
-
-inline void OptionsWidget::UiData::setEffectiveObliqueAngle(const double degrees) {
-  m_effObliqueAngle = degrees;
-}
-
-inline double OptionsWidget::UiData::effectiveObliqueAngle() const {
-  return m_effObliqueAngle;
-}
-
-inline void OptionsWidget::UiData::setDependencies(const Dependencies& deps) {
-  m_deps = deps;
-}
-
-inline const Dependencies& OptionsWidget::UiData::dependencies() const {
-  return m_deps;
-}
-
-inline void OptionsWidget::UiData::setMode(const AutoManualMode mode) {
-  m_mode = mode;
-}
-
-inline AutoManualMode OptionsWidget::UiData::mode() const {
-  return m_mode;
-}
-
-inline void OptionsWidget::UiData::setObliqueMode(const AutoManualMode mode) {
-  m_obliqueMode = mode;
-}
-
-inline AutoManualMode OptionsWidget::UiData::obliqueMode() const {
-  return m_obliqueMode;
-}
-
-inline void OptionsWidget::UiData::setDetection(const SkewDetection detection) {
-  m_detection = detection;
-}
-
-inline SkewDetection OptionsWidget::UiData::detection() const {
-  return m_detection;
-}
 }  // namespace deskew
 
 #endif  // ifndef SCANTAILOR_DESKEW_OPTIONSWIDGET_H_

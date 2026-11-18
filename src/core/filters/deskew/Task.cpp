@@ -3,6 +3,7 @@
 
 #include "Task.h"
 #include "DownscaledImage.h"
+#include "UiData.h"
 
 #include <BinaryImage.h>
 #include <BlackOnWhiteEstimator.h>
@@ -42,7 +43,7 @@ class Task::UiUpdater : public FilterResult {
             const QImage& image,
             const PageId& pageId,
             const ImageTransformation& xform,
-            const OptionsWidget::UiData& uiData);
+            const UiData& uiData);
 
   void updateUI(FilterUiInterface* ui) override;
 
@@ -55,7 +56,7 @@ class Task::UiUpdater : public FilterResult {
   QImage m_downscaledImage;
   PageId m_pageId;
   ImageTransformation m_xform;
-  OptionsWidget::UiData m_uiData;
+  UiData m_uiData;
 };
 
 
@@ -94,7 +95,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
   std::optional<Params> priorParamsBeforeRecompute;
   updateFilterData(status, data, (!params || !deps.matches(params->dependencies())));
 
-  OptionsWidget::UiData uiData;
+  UiData uiData;
   uiData.setDependencies(deps);
 
   if (params) {
@@ -305,7 +306,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const QImage& image,
                            const PageId& pageId,
                            const ImageTransformation& xform,
-                           const OptionsWidget::UiData& uiData)
+                           const UiData& uiData)
     : m_filter(std::move(filter)),
       m_dbg(std::move(dbgImg)),
       m_image(image),

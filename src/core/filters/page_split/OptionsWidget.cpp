@@ -416,10 +416,4 @@ void OptionsWidget::setupIcons() {
   leftFirstBtn->setIcon(iconProvider.getIcon("page_order_left_first"));
   rightFirstBtn->setIcon(iconProvider.getIcon("page_order_right_first"));
 }
-
-/*============================= Widget::UiData ==========================*/
-
-OptionsWidget::UiData::UiData() : m_splitLineMode(MODE_AUTO), m_layoutTypeAutoDetected(false) {}
-
-OptionsWidget::UiData::~UiData() = default;
 }  // namespace page_split
