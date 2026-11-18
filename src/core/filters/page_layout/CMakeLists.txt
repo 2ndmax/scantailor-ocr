@@ -5,27 +5,33 @@ set(ui_files
     ApplyMarginsDialog.ui
     OptionsWidget.ui)
 
+# What processes the pages, without widgets.
 set(sources
     Utils.cpp Utils.h
     OutputSizeOptions.cpp OutputSizeOptions.h
-    ImageView.cpp ImageView.h
     Filter.cpp Filter.h
-    OptionsWidget.cpp OptionsWidget.h
     Task.cpp Task.h
     TaskResult.cpp TaskResult.h
-    FilterUi.cpp FilterUi.h
     ThumbnailData.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     Params.cpp Params.h
     Settings.cpp Settings.h
-    Thumbnail.cpp Thumbnail.h
-    ApplyDialog.cpp ApplyDialog.h
-    ApplyMarginsDialog.cpp ApplyMarginsDialog.h
     Alignment.cpp Alignment.h
     OrderBySizeProvider.cpp OrderBySizeProvider.h
     Guide.cpp Guide.h)
 
-add_library(page_layout STATIC ${sources} ${ui_files})
+add_library(page_layout STATIC ${sources})
 target_link_libraries(page_layout PUBLIC core)
+# What the main window shows of the step.
+set(ui_sources
+    ImageView.cpp ImageView.h
+    OptionsWidget.cpp OptionsWidget.h
+    FilterUi.cpp FilterUi.h
+    Thumbnail.cpp Thumbnail.h
+    ApplyDialog.cpp ApplyDialog.h
+    ApplyMarginsDialog.cpp ApplyMarginsDialog.h)
 
-translation_sources(scantailor ${sources} ${ui_files})
+add_library(page_layout_ui STATIC ${ui_sources} ${ui_files})
+target_link_libraries(page_layout_ui PUBLIC page_layout core_gui)
+
+translation_sources(scantailor ${sources} ${ui_sources} ${ui_files})

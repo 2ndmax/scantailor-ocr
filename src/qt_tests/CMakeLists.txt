@@ -15,28 +15,28 @@ set(sources
 add_executable(qt_tests ${sources})
 target_link_libraries(
     qt_tests
-    PRIVATE core dewarping foundation Qt::Test Qt::Core Qt::Gui Qt::Widgets TIFF::TIFF ${EXTRA_LIBS})
+    PRIVATE core_gui dewarping foundation Qt::Test Qt::Core Qt::Gui Qt::Widgets TIFF::TIFF ${EXTRA_LIBS})
 target_include_directories(qt_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/src")
 # The tests of the options widgets need the headers that uic generates for them. These have the same
 # names in each filter, so each test file only gets the directory of its filter.
 set_source_files_properties(tst_core_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
-                                                       "$<TARGET_PROPERTY:output,BINARY_DIR>/output_autogen/include")
+                                                       "$<TARGET_PROPERTY:output_ui,BINARY_DIR>/output_ui_autogen/include")
 set_source_files_properties(
   tst_page_layout_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
-                         "$<TARGET_PROPERTY:page_layout,BINARY_DIR>/page_layout_autogen/include")
+                         "$<TARGET_PROPERTY:page_layout_ui,BINARY_DIR>/page_layout_ui_autogen/include")
 set_source_files_properties(tst_deskew_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
-                                                         "$<TARGET_PROPERTY:deskew,BINARY_DIR>/deskew_autogen/include")
+                                                         "$<TARGET_PROPERTY:deskew_ui,BINARY_DIR>/deskew_ui_autogen/include")
 set_source_files_properties(
   tst_fix_orientation_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
-                             "$<TARGET_PROPERTY:fix_orientation,BINARY_DIR>/fix_orientation_autogen/include")
+                             "$<TARGET_PROPERTY:fix_orientation_ui,BINARY_DIR>/fix_orientation_ui_autogen/include")
 set_source_files_properties(
   tst_select_content_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
-                            "$<TARGET_PROPERTY:select_content,BINARY_DIR>/select_content_autogen/include")
+                            "$<TARGET_PROPERTY:select_content_ui,BINARY_DIR>/select_content_ui_autogen/include")
 set_source_files_properties(tst_output_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
-                                                         "$<TARGET_PROPERTY:output,BINARY_DIR>/output_autogen/include")
+                                                         "$<TARGET_PROPERTY:output_ui,BINARY_DIR>/output_ui_autogen/include")
 set_source_files_properties(
   tst_page_split_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
-                        "$<TARGET_PROPERTY:page_split,BINARY_DIR>/page_split_autogen/include")
+                        "$<TARGET_PROPERTY:page_split_ui,BINARY_DIR>/page_split_ui_autogen/include")
 
 add_test(NAME qt_tests COMMAND qt_tests)
 set_unit_test_environment(qt_tests)

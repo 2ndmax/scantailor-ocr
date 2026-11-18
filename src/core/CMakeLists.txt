@@ -1,15 +1,9 @@
-set(common_ui_files
-    ErrorWidget.ui)
-
 set(common_sources
-    Application.cpp Application.h
     Translations.cpp Translations.h
     CommandLineRun.cpp CommandLineRun.h
     BackgroundExecutor.cpp BackgroundExecutor.h
     PixmapRenderer.cpp PixmapRenderer.h
     BubbleAnimation.cpp BubbleAnimation.h
-    ProcessingIndicationWidget.cpp ProcessingIndicationWidget.h
-    NonOwningWidget.cpp NonOwningWidget.h
     SmartFilenameOrdering.cpp SmartFilenameOrdering.h
     AbstractRelinker.h
     RelinkablePath.cpp RelinkablePath.h
@@ -26,18 +20,10 @@ set(common_sources
     ImagePixmapUnion.h
     DownscaledImage.cpp DownscaledImage.h
     ImagePresentation.h
-    ImageViewBase.cpp ImageViewBase.h
-    BasicImageView.cpp BasicImageView.h
-    StageListView.cpp StageListView.h
-    DebugImageView.cpp DebugImageView.h
-    TabbedDebugImages.cpp TabbedDebugImages.h
     ThumbnailLoadResult.h
     ThumbnailPixmapCache.cpp ThumbnailPixmapCache.h
-    ThumbnailBase.cpp ThumbnailBase.h
     OverlayStyle.cpp OverlayStyle.h
-    ThumbnailFactory.cpp ThumbnailFactory.h
     ThumbnailDataBase.h
-    IncompleteThumbnail.cpp IncompleteThumbnail.h
     ContentBoxPropagator.cpp ContentBoxPropagator.h
     PageOrientationPropagator.cpp PageOrientationPropagator.h
     DebugImagesImpl.cpp DebugImagesImpl.h
@@ -63,11 +49,9 @@ set(common_sources
     JpegMetadataLoader.cpp JpegMetadataLoader.h
     ImageLoader.cpp ImageLoader.h
     ImageSizeLimit.cpp ImageSizeLimit.h
-    ErrorWidget.cpp ErrorWidget.h
     OrthogonalRotation.cpp OrthogonalRotation.h
     WorkerThreadPool.cpp WorkerThreadPool.h
     LoadFileTask.cpp LoadFileTask.h
-    FilterOptionsWidget.cpp FilterOptionsWidget.h
     FilterUiInterface.h
     ProjectReader.cpp ProjectReader.h
     ProjectWriter.cpp ProjectWriter.h
@@ -82,25 +66,17 @@ set(common_sources
     OutputFileNameGenerator.cpp OutputFileNameGenerator.h
     Margins.cpp Margins.h
     ColorScheme.h
-    StyleSheetColorScheme.cpp StyleSheetColorScheme.h
-    FocusFrameStyle.cpp FocusFrameStyle.h
-    NativeColorScheme.cpp NativeColorScheme.h
-    ColorSchemeManager.cpp ColorSchemeManager.h
     PageRange.cpp PageRange.h
     SelectedPage.cpp SelectedPage.h
     Utils.cpp Utils.h
-    WidgetUtils.cpp WidgetUtils.h
     PageView.h
     AutoManualMode.cpp AutoManualMode.h
     AbstractCommand.h
     AbstractFilter.h
-    AbstractFilterUi.h
-    FilterUiSequence.cpp FilterUiSequence.h
     BeforeOrAfter.h
     FilterResult.h
     BatchProcessingResult.h
     CompositeCacheDrivenTask.h
-    ChangedStateItemDelegate.h
     PageOrderProvider.h PageOrderProvider.cpp
     PageOrderOption.h
     PayloadEvent.h
@@ -124,11 +100,6 @@ set(common_sources
     NullTaskStatus.h
     OrderByCompletenessProvider.cpp OrderByCompletenessProvider.h
     OrderBySizeProviderBase.cpp OrderBySizeProviderBase.h
-    SkinnedButton.cpp SkinnedButton.h
-    CollapsibleGroupBox.cpp CollapsibleGroupBox.h
-    SectionHeading.cpp SectionHeading.h
-    TiffCompressionPanel.cpp TiffCompressionPanel.h
-    PageScopeGroupBox.cpp PageScopeGroupBox.h
     ColorSchemeFactory.cpp ColorSchemeFactory.h
     ApplicationSettings.cpp ApplicationSettings.h
     IconProvider.cpp IconProvider.h
@@ -136,7 +107,6 @@ set(common_sources
     AbstractIconPack.cpp AbstractIconPack.h
     StyledIconPack.cpp StyledIconPack.h
     ConnectionManager.cpp ConnectionManager.h
-    ZoneEditorBase.cpp ZoneEditorBase.h
     ZoneModeListener.h
     ContentMask.cpp ContentMask.h
     PdfWriter.cpp PdfWriter.h
@@ -156,7 +126,8 @@ set(common_sources
     PictureDetection.cpp PictureDetection.h
     ColorModeDetector.h LeptonicaDetector.h WhiteBalance.h)
 
-add_library(core STATIC ${common_sources} ${common_ui_files})
+# Everything that works without widgets: processing, project files, export, the command line run.
+add_library(core STATIC ${common_sources})
 
 # Third-party code, kept as in jbig2enc: no warnings for it.
 if(MSVC)
@@ -168,13 +139,54 @@ endif()
 target_link_libraries(
   core
   PRIVATE TIFF::TIFF PNG::PNG ZLIB::ZLIB JPEG::JPEG ${OPENJPEG_TARGET}
-  PUBLIC Qt::Core Qt::Gui Qt::Widgets Qt::Xml Qt::Network Qt::OpenGL Qt::Svg Qt::OpenGLWidgets
-  imageproc zones zone_editing
+  PUBLIC Qt::Core Qt::Gui Qt::Xml Qt::Network Qt::OpenGL Qt::Svg
+  imageproc zones
   fix_orientation page_split deskew select_content page_layout output)
 target_include_directories(core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-set_target_properties(core PROPERTIES AUTOUIC ON)
+translation_sources(scantailor ${common_sources})
 
-translation_sources(scantailor ${common_sources} ${common_ui_files})
+# The user interface on top of core: widgets, image views, the steps' panels.
+set(gui_ui_files
+    ErrorWidget.ui)
+
+set(gui_sources
+    Application.cpp Application.h
+    ProcessingIndicationWidget.cpp ProcessingIndicationWidget.h
+    NonOwningWidget.cpp NonOwningWidget.h
+    ImageViewBase.cpp ImageViewBase.h
+    BasicImageView.cpp BasicImageView.h
+    StageListView.cpp StageListView.h
+    DebugImageView.cpp DebugImageView.h
+    TabbedDebugImages.cpp TabbedDebugImages.h
+    ThumbnailBase.cpp ThumbnailBase.h
+    ThumbnailFactory.cpp ThumbnailFactory.h
+    IncompleteThumbnail.cpp IncompleteThumbnail.h
+    ErrorWidget.cpp ErrorWidget.h
+    FilterOptionsWidget.cpp FilterOptionsWidget.h
+    StyleSheetColorScheme.cpp StyleSheetColorScheme.h
+    FocusFrameStyle.cpp FocusFrameStyle.h
+    NativeColorScheme.cpp NativeColorScheme.h
+    ColorSchemeManager.cpp ColorSchemeManager.h
+    WidgetUtils.cpp WidgetUtils.h
+    AbstractFilterUi.h
+    FilterUiSequence.cpp FilterUiSequence.h
+    ChangedStateItemDelegate.h
+    SkinnedButton.cpp SkinnedButton.h
+    CollapsibleGroupBox.cpp CollapsibleGroupBox.h
+    SectionHeading.cpp SectionHeading.h
+    TiffCompressionPanel.cpp TiffCompressionPanel.h
+    PageScopeGroupBox.cpp PageScopeGroupBox.h
+    ZoneEditorBase.cpp ZoneEditorBase.h)
+
+add_library(core_gui STATIC ${gui_sources} ${gui_ui_files})
+target_link_libraries(
+  core_gui
+  PUBLIC core Qt::Widgets Qt::OpenGLWidgets interaction zone_editing
+  fix_orientation_ui page_split_ui deskew_ui select_content_ui page_layout_ui output_ui)
+target_include_directories(core_gui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+set_target_properties(core_gui PROPERTIES AUTOUIC ON)
+
+translation_sources(scantailor ${gui_sources} ${gui_ui_files})
 
 target_sources(core PRIVATE OcrEngine.cpp ColorModeDetector.cpp LeptonicaDetector.cpp WhiteBalance.cpp)
 target_link_libraries(core PRIVATE ${TESSERACT_TARGET})
