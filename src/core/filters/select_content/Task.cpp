@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
+#include "DownscaledImage.h"
 
 #include <UnitsProvider.h>
 
@@ -209,7 +210,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
       m_pageId(pageId),
       m_dbg(std::move(dbg)),
       m_image(image),
-      m_downscaledImage(ImageView::createDownscaledImage(image)),
+      m_downscaledImage(createDownscaledImage(image)),
       m_contentMask(contentMask),
       m_xform(xform),
       m_uiData(uiData) {}

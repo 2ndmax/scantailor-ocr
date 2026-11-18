@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
+#include "DownscaledImage.h"
 
 #include <DewarpingPointMapper.h>
 #include <PolygonUtils.h>
@@ -457,9 +458,9 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
       m_virtContentRect(virtContentRect),
       m_pageId(pageId),
       m_origImage(origImage),
-      m_downscaledOrigImage(ImageView::createDownscaledImage(origImage)),
+      m_downscaledOrigImage(createDownscaledImage(origImage)),
       m_outputImage(outputImage),
-      m_downscaledOutputImage(ImageView::createDownscaledImage(outputImage)),
+      m_downscaledOutputImage(createDownscaledImage(outputImage)),
       m_pictureMask(pictureMask),
       m_despeckleState(despeckleState),
       m_despeckleVisualization(despeckleVisualization),

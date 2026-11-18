@@ -80,20 +80,6 @@ class ImageViewBase : public QAbstractScrollArea {
    */
   const QPixmap& downscaledPixmap() const { return m_pixmap; }
 
-  /**
-   * \brief A stand-alone function to create a downscaled image
-   *        to be passed to the constructor.
-   *
-   * The point of using this function instead of letting
-   * the constructor do the job is that this function may
-   * be called from a background thread, while the constructor
-   * can't.
-   *
-   * \param image The input image, not null, and with DPI set correctly.
-   * \return The image downscaled by an unspecified degree.
-   */
-  static QImage createDownscaledImage(const QImage& image);
-
   InteractionHandler& rootInteractionHandler() { return m_rootInteractionHandler; }
 
   InteractionState& interactionState() { return m_interactionState; }

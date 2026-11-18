@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
+#include "DownscaledImage.h"
 
 #include <BinaryImage.h>
 #include <BlackOnWhiteEstimator.h>
@@ -308,7 +309,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
     : m_filter(std::move(filter)),
       m_dbg(std::move(dbgImg)),
       m_image(image),
-      m_downscaledImage(ImageView::createDownscaledImage(image)),
+      m_downscaledImage(createDownscaledImage(image)),
       m_pageId(pageId),
       m_xform(xform),
       m_uiData(uiData) {}

@@ -24,6 +24,7 @@ set(common_sources
     ContentSpanFinder.cpp ContentSpanFinder.h
     ImageTransformation.cpp ImageTransformation.h
     ImagePixmapUnion.h
+    DownscaledImage.cpp DownscaledImage.h
     ImagePresentation.h
     ImageViewBase.cpp ImageViewBase.h
     BasicImageView.cpp BasicImageView.h

@@ -8,8 +8,8 @@
 
 #include <QPainter>
 
+#include "DownscaledImage.h"
 #include "Dpi.h"
-#include "ImageViewBase.h"
 
 using namespace imageproc;
 
@@ -28,7 +28,7 @@ DespeckleVisualization::DespeckleVisualization(const QImage& output,
     colorizeSpeckles(m_image, speckles, dpi);
   }
 
-  m_downscaledImage = ImageViewBase::createDownscaledImage(m_image);
+  m_downscaledImage = createDownscaledImage(m_image);
 }
 
 void DespeckleVisualization::colorizeSpeckles(QImage& image, const imageproc::BinaryImage& speckles, const Dpi& dpi) {

@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
+#include "DownscaledImage.h"
 
 #include <UnitsProvider.h>
 
@@ -98,7 +99,7 @@ Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
                            const ImageTransformation& xform)
     : m_filter(std::move(filter)),
       m_image(image),
-      m_downscaledImage(ImageView::createDownscaledImage(image)),
+      m_downscaledImage(createDownscaledImage(image)),
       m_imageId(imageId),
       m_xform(xform) {}
 
