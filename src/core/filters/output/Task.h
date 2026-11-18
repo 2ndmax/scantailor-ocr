@@ -52,8 +52,6 @@ class Task {
   FilterResultPtr process(const TaskStatus& status, const FilterData& data, const QPolygonF& contentRectPhys);
 
  private:
-  class UiUpdater;
-
   void deleteMutuallyExclusiveOutputFiles();
 
   std::shared_ptr<Filter> m_filter;

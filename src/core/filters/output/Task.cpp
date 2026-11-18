@@ -2,10 +2,8 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
-#include "DownscaledImage.h"
+#include "TaskResult.h"
 
-#include <DewarpingPointMapper.h>
-#include <PolygonUtils.h>
 #include <UnitsProvider.h>
 #include <core/ImageLoadErrors.h>
 #include <core/TiffWriter.h>
@@ -20,26 +18,17 @@
 #include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
 #include "DespeckleState.h"
-#include "DespeckleView.h"
 #include "DespeckleVisualization.h"
-#include "DewarpingView.h"
 #include "Dpm.h"
-#include "ErrorWidget.h"
-#include "FillZoneEditor.h"
 #include "Filter.h"
 #include "FilterData.h"
-#include "FilterUiInterface.h"
 #include "ImageLoader.h"
-#include "ImageView.h"
-#include "OptionsWidget.h"
 #include "OutputGenerator.h"
 #include "OutputImageBuilder.h"
 #include "OutputImageWithForeground.h"
 #include "OutputImageWithOriginalBackground.h"
-#include "PictureZoneEditor.h"
 #include "RenderParams.h"
 #include "Settings.h"
-#include "TabbedImageView.h"
 #include "TaskStatus.h"
 #include "ThumbnailPixmapCache.h"
 #include "Utils.h"
@@ -48,46 +37,6 @@ using namespace imageproc;
 using namespace dewarping;
 
 namespace output {
-class Task::UiUpdater : public FilterResult {
-  Q_DECLARE_TR_FUNCTIONS(output::Task::UiUpdater)
- public:
-  UiUpdater(std::shared_ptr<Filter> filter,
-            std::shared_ptr<Settings> settings,
-            std::unique_ptr<DebugImages> dbgImg,
-            const Params& params,
-            const ImageTransformation& xform,
-            const QRect& virtContentRect,
-            const PageId& pageId,
-            const QImage& origImage,
-            const QImage& outputImage,
-            const BinaryImage& pictureMask,
-            const DespeckleState& despeckleState,
-            const DespeckleVisualization& despeckleVisualization,
-            bool debug);
-
-  void updateUI(FilterUiInterface* ui) override;
-
-  std::shared_ptr<AbstractFilter> filter() override { return m_filter; }
-
- private:
-  std::shared_ptr<Filter> m_filter;
-  std::shared_ptr<Settings> m_settings;
-  std::unique_ptr<DebugImages> m_dbg;
-  Params m_params;
-  ImageTransformation m_xform;
-  QRect m_virtContentRect;
-  PageId m_pageId;
-  QImage m_origImage;
-  QImage m_downscaledOrigImage;
-  QImage m_outputImage;
-  QImage m_downscaledOutputImage;
-  BinaryImage m_pictureMask;
-  DespeckleState m_despeckleState;
-  DespeckleVisualization m_despeckleVisualization;
-  bool m_debug;
-};
-
-
 Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<Settings> settings,
            std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
@@ -405,9 +354,9 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
     // Otherwise it will get constructed on demand.
     despeckleVisualization = despeckleState.visualize();
   }
-  return std::make_shared<UiUpdater>(m_filter, m_settings, std::move(m_dbg), params, newXform,
-                                     generator.outputContentRect(), m_pageId, data.origImage(), outImg, automaskImg,
-                                     despeckleState, despeckleVisualization, m_debug);
+  return std::make_shared<TaskResult>(m_filter, m_settings, std::move(m_dbg), params, newXform,
+                                      generator.outputContentRect(), m_pageId, data.origImage(), outImg, automaskImg,
+                                      despeckleState, despeckleVisualization, m_debug);
 }  // Task::process
 
 /**
@@ -435,133 +384,4 @@ void Task::deleteMutuallyExclusiveOutputFiles() {
   }
 }
 
-/*============================ Task::UiUpdater ==========================*/
-
-Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
-                           std::shared_ptr<Settings> settings,
-                           std::unique_ptr<DebugImages> dbgImg,
-                           const Params& params,
-                           const ImageTransformation& xform,
-                           const QRect& virtContentRect,
-                           const PageId& pageId,
-                           const QImage& origImage,
-                           const QImage& outputImage,
-                           const BinaryImage& pictureMask,
-                           const DespeckleState& despeckleState,
-                           const DespeckleVisualization& despeckleVisualization,
-                           const bool debug)
-    : m_filter(std::move(filter)),
-      m_settings(std::move(settings)),
-      m_dbg(std::move(dbgImg)),
-      m_params(params),
-      m_xform(xform),
-      m_virtContentRect(virtContentRect),
-      m_pageId(pageId),
-      m_origImage(origImage),
-      m_downscaledOrigImage(createDownscaledImage(origImage)),
-      m_outputImage(outputImage),
-      m_downscaledOutputImage(createDownscaledImage(outputImage)),
-      m_pictureMask(pictureMask),
-      m_despeckleState(despeckleState),
-      m_despeckleVisualization(despeckleVisualization),
-      m_debug(debug) {}
-
-void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
-  // This function is executed from the GUI thread.
-  ui->invalidateThumbnail(m_pageId);
-
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
-  optWidget->postUpdateUI();
-  ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
-
-  auto tabImageRectMap = std::make_unique<std::unordered_map<ImageViewTab, QRectF, std::hash<int>>>();
-
-  auto imageView = std::make_unique<ImageView>(m_outputImage, m_downscaledOutputImage);
-  const QPixmap downscaledOutputPixmap(imageView->downscaledPixmap());
-  tabImageRectMap->insert(std::pair<ImageViewTab, QRectF>(TAB_OUTPUT, m_xform.resultingRect()));
-  auto dewarpingView = std::make_unique<DewarpingView>(
-      m_origImage, m_downscaledOrigImage, m_xform.transform(),
-      PolygonUtils::convexHull(
-          std::vector<QPointF>(m_xform.resultingPreCropArea().begin(), m_xform.resultingPreCropArea().end())),
-      m_virtContentRect, m_pageId, m_params.dewarpingOptions(), m_params.distortionModel(),
-      optWidget->depthPerception());
-  const QPixmap downscaledOrigPixmap(dewarpingView->downscaledPixmap());
-  QObject::connect(optWidget, &OptionsWidget::depthPerceptionChanged, dewarpingView.get(),
-                   &DewarpingView::depthPerceptionChanged);
-  QObject::connect(dewarpingView.get(), &DewarpingView::distortionModelChanged, optWidget,
-                   &OptionsWidget::distortionModelChanged);
-  tabImageRectMap->insert(
-      std::pair<ImageViewTab, QRectF>(TAB_DEWARPING, m_xform.resultingPreCropArea().boundingRect()));
-
-  std::unique_ptr<QWidget> pictureZoneEditor;
-  if (m_pictureMask.isNull()) {
-    pictureZoneEditor = std::make_unique<ErrorWidget>(tr("Picture zones are only available in Mixed mode."));
-  } else {
-    pictureZoneEditor = std::make_unique<output::PictureZoneEditor>(m_origImage, downscaledOrigPixmap, m_pictureMask,
-                                                                    m_xform.transform(), m_xform.resultingPreCropArea(),
-                                                                    m_pageId, m_settings);
-    QObject::connect(static_cast<PictureZoneEditor*>(pictureZoneEditor.get()), &PictureZoneEditor::invalidateThumbnail,
-                     optWidget, qOverload<const PageId&>(&OptionsWidget::invalidateThumbnail));
-    tabImageRectMap->insert(
-        std::pair<ImageViewTab, QRectF>(TAB_PICTURE_ZONES, m_xform.resultingPreCropArea().boundingRect()));
-  }
-
-  // We make sure we never need to update the original <-> output
-  // mapping at run time, that is without reloading.
-  // In OptionsWidget::dewarpingChanged() we make sure to reload
-  // if we are on the "Fill Zones" tab, and if not, it will be reloaded
-  // anyway when another tab is selected.
-  std::function<QPointF(const QPointF&)> origToOutput;
-  std::function<QPointF(const QPointF&)> outputToOrig;
-  if ((m_params.dewarpingOptions().dewarpingMode() != OFF) && m_params.distortionModel().isValid()) {
-    const QTransform rotateXform
-        = Utils::rotate(m_params.dewarpingOptions().getPostDeskewAngle(), m_xform.resultingRect().toRect());
-    // The same model domain as OutputGenerator::dewarp() uses.
-    auto mapper
-        = std::make_shared<DewarpingPointMapper>(m_params.distortionModel(), m_params.depthPerception().value(),
-                                                 m_xform.transform(), m_xform.resultingRect().toRect(), rotateXform);
-    origToOutput = std::bind(&DewarpingPointMapper::mapToDewarpedSpace, mapper, std::placeholders::_1);
-    outputToOrig = std::bind(&DewarpingPointMapper::mapToWarpedSpace, mapper, std::placeholders::_1);
-  } else {
-    using MapPointFunc = QPointF (QTransform::*)(const QPointF&) const;
-    origToOutput = std::bind((MapPointFunc) &QTransform::map, m_xform.transform(), std::placeholders::_1);
-    outputToOrig = std::bind((MapPointFunc) &QTransform::map, m_xform.transformBack(), std::placeholders::_1);
-  }
-
-  auto fillZoneEditor = std::make_unique<FillZoneEditor>(m_outputImage, downscaledOutputPixmap, origToOutput,
-                                                         outputToOrig, m_pageId, m_settings);
-  QObject::connect(fillZoneEditor.get(), &FillZoneEditor::invalidateThumbnail, optWidget,
-                   qOverload<const PageId&>(&OptionsWidget::invalidateThumbnail));
-  tabImageRectMap->insert(std::pair<ImageViewTab, QRectF>(TAB_FILL_ZONES, m_xform.resultingRect()));
-
-  std::unique_ptr<QWidget> despeckleView;
-  if (m_params.colorParams().colorMode() == COLOR_GRAYSCALE) {
-    despeckleView = std::make_unique<ErrorWidget>(tr("Despeckling can't be done in Color / Grayscale mode."));
-  } else {
-    despeckleView = std::make_unique<output::DespeckleView>(m_despeckleState, m_despeckleVisualization, m_debug);
-    QObject::connect(optWidget, &OptionsWidget::despeckleLevelChanged, static_cast<DespeckleView*>(despeckleView.get()),
-                     &DespeckleView::despeckleLevelChanged);
-    tabImageRectMap->insert(std::pair<ImageViewTab, QRectF>(TAB_DESPECKLING, m_xform.resultingRect()));
-  }
-
-  auto tabWidget = std::make_unique<TabbedImageView>();
-  tabWidget->setDocumentMode(true);
-  tabWidget->setTabPosition(QTabWidget::East);
-  tabWidget->addTab(imageView.release(), tr("Output"), TAB_OUTPUT,
-                    tr("Shows the processed page as it will be saved. (Ctrl+1)"));
-  tabWidget->addTab(pictureZoneEditor.release(), tr("Picture Zones"), TAB_PICTURE_ZONES,
-                    tr("Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)"));
-  tabWidget->addTab(fillZoneEditor.release(), tr("Fill Zones"), TAB_FILL_ZONES,
-                    tr("Fills areas of the output with a color you pick. (Ctrl+3)"));
-  tabWidget->addTab(dewarpingView.release(), tr("Dewarping"), TAB_DEWARPING,
-                    tr("Shows the curves used to dewarp the page. In Manual mode, you place them yourself. (Ctrl+4)"));
-  tabWidget->addTab(despeckleView.release(), tr("Despeckling"), TAB_DESPECKLING,
-                    tr("Previews the removal of specks. (Ctrl+5)"));
-  tabWidget->setCurrentTab(optWidget->lastTab());
-  tabWidget->setImageRectMap(std::move(tabImageRectMap));
-
-  QObject::connect(tabWidget.get(), &TabbedImageView::tabChanged, optWidget, &OptionsWidget::tabChanged);
-
-  ui->setImageWidget(tabWidget.release(), ui->TRANSFER_OWNERSHIP, m_dbg.get());
-}  // Task::UiUpdater::updateUI
 }  // namespace output

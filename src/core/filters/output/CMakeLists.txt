@@ -16,6 +16,8 @@ set(sources
     OptionsWidget.cpp OptionsWidget.h
     OrderByColorModeProvider.cpp OrderByColorModeProvider.h
     Task.cpp Task.h
+    TaskResult.cpp TaskResult.h
+    FilterUi.cpp FilterUi.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     GeometryCollector.h
     OutputStatusCollector.h
