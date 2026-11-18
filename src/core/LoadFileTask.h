@@ -4,7 +4,9 @@
 #ifndef SCANTAILOR_CORE_LOADFILETASK_H_
 #define SCANTAILOR_CORE_LOADFILETASK_H_
 
+#include <QString>
 #include <QStringList>
+#include <Qt>
 #include <memory>
 
 #include "BackgroundTask.h"
@@ -51,6 +53,12 @@ class LoadFileTask : public BackgroundTask {
    * gets why, and \p failure what went wrong.
    */
   static bool isFailure(const FilterResultPtr& result, QStringList* reasons, Failure* failure);
+
+  /**
+   * Whether \p result is that of a page that couldn't be loaded or processed. If so, \p message
+   * gets what to show in place of the page, in \p format.
+   */
+  static bool errorMessage(const FilterResult& result, QString* message, Qt::TextFormat* format);
 
  private:
   class ErrorResult;

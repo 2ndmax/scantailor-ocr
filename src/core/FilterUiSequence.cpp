@@ -5,8 +5,13 @@
 
 #include <utility>
 
+#include "AbstractCommand.h"
 #include "AbstractFilterUi.h"
+#include "ErrorWidget.h"
+#include "FilterOptionsWidget.h"
 #include "FilterResult.h"
+#include "FilterUiInterface.h"
+#include "LoadFileTask.h"
 #include "PageSelectionAccessor.h"
 #include "StageSequence.h"
 #include "filters/deskew/FilterUi.h"
@@ -15,6 +20,32 @@
 #include "filters/page_layout/FilterUi.h"
 #include "filters/page_split/FilterUi.h"
 #include "filters/select_content/FilterUi.h"
+
+namespace {
+class ErrWidget : public ErrorWidget {
+ public:
+  ErrWidget(std::shared_ptr<AbstractCommand<void>> relinkingDialogRequester,
+            const QString& text,
+            Qt::TextFormat fmt = Qt::AutoText)
+      : ErrorWidget(text, fmt), m_relinkingDialogRequester(std::move(relinkingDialogRequester)) {}
+
+ private:
+  void linkActivated(const QString& /*link*/) override { (*m_relinkingDialogRequester)(); }
+
+  std::shared_ptr<AbstractCommand<void>> m_relinkingDialogRequester;
+};
+
+// A page that couldn't be loaded or processed: its message in place of the page, and no options.
+void showLoadError(const FilterResult& result, FilterUiInterface* ui) {
+  QString message;
+  Qt::TextFormat format = Qt::AutoText;
+  if (!LoadFileTask::errorMessage(result, &message, &format)) {
+    return;
+  }
+  ui->setImageWidget(new ErrWidget(ui->relinkingDialogRequester(), message, format), ui->TRANSFER_OWNERSHIP);
+  ui->setOptionsWidget(new FilterOptionsWidget, ui->TRANSFER_OWNERSHIP);
+}
+}  // namespace
 
 FilterUiSequence::FilterUiSequence(std::shared_ptr<StageSequence> stages,
                                    const PageSelectionAccessor& pageSelectionAccessor)
@@ -41,8 +72,9 @@ void FilterUiSequence::preUpdateUI(const int filterIdx, FilterUiInterface* ui, c
 
 void FilterUiSequence::showResult(FilterResult& result, FilterUiInterface* ui) const {
   const std::shared_ptr<AbstractFilter> filter = result.filter();
-  // A result of no step is a file that could not be loaded; it shows itself.
+  // A result of no step is a page that could not be loaded or processed.
   if (!filter) {
+    showLoadError(result, ui);
     return;
   }
   const int filterIdx = m_stages->findFilter(filter);

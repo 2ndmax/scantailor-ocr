@@ -15,10 +15,7 @@
 
 #include "AbstractFilter.h"
 #include "Dpm.h"
-#include "ErrorWidget.h"
 #include "FilterData.h"
-#include "FilterOptionsWidget.h"
-#include "FilterUiInterface.h"
 #include "ImageLoadErrors.h"
 #include "ImageLoader.h"
 #include "ImageSizeLimit.h"
@@ -33,7 +30,11 @@ class LoadFileTask::ErrorResult : public FilterResult {
  public:
   ErrorResult(const QString& filePath, const QStringList& reasons, Failure failure = Failure::LOAD);
 
-  void updateUI(FilterUiInterface* ui) override;
+  // Nothing to update without widgets; FilterUiSequence shows message().
+  void updateUI(FilterUiInterface* /*ui*/) override {}
+
+  /** What to show in place of the page, in \p format. */
+  QString message(Qt::TextFormat* format) const;
 
   std::shared_ptr<AbstractFilter> filter() override { return nullptr; }
 
@@ -109,6 +110,15 @@ bool LoadFileTask::isFailure(const FilterResultPtr& result, QStringList* reasons
   return true;
 }
 
+bool LoadFileTask::errorMessage(const FilterResult& result, QString* message, Qt::TextFormat* format) {
+  const auto* error = dynamic_cast<const ErrorResult*>(&result);
+  if (!error) {
+    return false;
+  }
+  *message = error->message(format);
+  return true;
+}
+
 FilterResultPtr LoadFileTask::processingFailed(const QString& reason, const Failure failure) const {
   const QStringList reasons(reason);
   ImageLoadErrorReporter& reporter = ImageLoadErrorReporter::instance();
@@ -163,21 +173,7 @@ LoadFileTask::ErrorResult::ErrorResult(const QString& filePath, const QStringLis
       m_fileExists(QFile::exists(filePath)),
       m_failure(failure) {}
 
-void LoadFileTask::ErrorResult::updateUI(FilterUiInterface* ui) {
-  class ErrWidget : public ErrorWidget {
-   public:
-    ErrWidget(std::shared_ptr<AbstractCommand<void>> relinkingDialogRequester,
-              const QString& text,
-              Qt::TextFormat fmt = Qt::AutoText)
-        : ErrorWidget(text, fmt), m_relinkingDialogRequester(std::move(relinkingDialogRequester)) {}
-
-   private:
-    void linkActivated(const QString& /*link*/) override { (*m_relinkingDialogRequester)(); }
-
-    std::shared_ptr<AbstractCommand<void>> m_relinkingDialogRequester;
-  };
-
-
+QString LoadFileTask::ErrorResult::message(Qt::TextFormat* format) const {
   QString errMsg;
   Qt::TextFormat fmt = Qt::AutoText;
   if (m_failure == Failure::OUTPUT_TOO_LARGE) {
@@ -208,6 +204,6 @@ void LoadFileTask::ErrorResult::updateUI(FilterUiInterface* ui) {
                  .arg(m_filePath.toHtmlEscaped());
     fmt = Qt::RichText;
   }
-  ui->setImageWidget(new ErrWidget(ui->relinkingDialogRequester(), errMsg, fmt), ui->TRANSFER_OWNERSHIP);
-  ui->setOptionsWidget(new FilterOptionsWidget, ui->TRANSFER_OWNERSHIP);
-}  // LoadFileTask::ErrorResult::updateUI
+  *format = fmt;
+  return errMsg;
+}  // LoadFileTask::ErrorResult::message
