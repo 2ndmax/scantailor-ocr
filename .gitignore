@@ -122,7 +122,10 @@ docs/_build/
 Testing/
 test_results/
 scripts/analysis/results/
+scripts/overview/results/
 scripts/setup/logs/
+# The graph of scripts/overview/01-graphify.ps1, where the /graphify skill looks for it.
+graphify-out/
 coverage/
 lcov.info
 
