@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Setup 5: the tools of the overview runs in scripts\overview: graphify and clang-uml.
+  Setup 5: the tools of the overview runs in scripts\overview: graphify, clang-uml and Graphviz.
 
 .DESCRIPTION
   Shows the steps in a menu; each can be run on its own, 0 runs all of them in order, 9 shows
@@ -14,6 +14,9 @@
        SHA-256 checksum. Windows asks for administrator rights.
     4. /graphify for Claude Code (optional): "graphify install" copies graphify's skill to
        %USERPROFILE%\.claude\skills\graphify and names it in %USERPROFILE%\.claude\CLAUDE.md.
+    5. Graphviz (run 03, optional), with winget into C:\Program Files\Graphviz: the version this
+       setup was tested with, or the newest one. Run 03 then also draws its graphs as SVG files;
+       its web page needs no Graphviz.
   The overview runs find the tools also in a window opened before this setup. The output also
   goes to logs\05-setup-overview.log.
 
@@ -23,7 +26,7 @@
   Run these steps without the menu (0 = all), taking the default answer of every question.
 
 .PARAMETER Latest
-  With -Steps: the newest graphify and clang-uml instead of the tested versions.
+  With -Steps: the newest graphify, clang-uml and Graphviz instead of the tested versions.
 
 .PARAMETER Yes
   With -Steps: answer every question with yes.
@@ -48,17 +51,20 @@ $ClangUmlVersion = '0.6.3'
 $ClangUmlSha256 = '9e4f3881ac1b003bf587a56e433e440e7e60a28712129ead2af83e41ec2e2886'
 $ClangUmlRepo = 'bkryza/clang-uml'
 $ClaudeSkill = "$env:USERPROFILE\.claude\skills\graphify\SKILL.md"
+$GraphvizVersion = '16.1.1'
+$GraphvizId = 'Graphviz.Graphviz'
 
 Write-Intro 'ScanTailor OCR - set up the overview tools' @(
-    'This script installs graphify and clang-uml, which the overview runs in scripts\overview'
-    'use to map the code as a graph and to draw class and sequence diagrams. It shows the steps'
-    'in a menu; nothing is installed without asking.'
+    'This script installs graphify, clang-uml and Graphviz, which the overview runs in'
+    'scripts\overview use to map the code as a graph and to draw class and sequence diagrams and'
+    'the targets of the build. It shows the steps in a menu; nothing is installed without asking.'
 )
 
-# The version number a tool prints for --version ("graphify 0.9.112", "clang-uml 0.6.3"), or ''.
-function Get-ToolVersion([string]$Exe) {
+# The version number a tool prints ("graphify 0.9.112", "clang-uml 0.6.3"), or ''. Graphviz's dot
+# prints it for -V, and to stderr ("dot - graphviz version 16.1.1 (...)").
+function Get-ToolVersion([string]$Exe, [string]$Arguments = '--version 2>nul') {
     if (-not $Exe) { return '' }
-    $line = cmd /c "`"$Exe`" --version 2>nul" | Select-Object -First 1
+    $line = cmd /c "`"$Exe`" $Arguments" | Select-Object -First 1
     if ("$line" -match '(\d+\.\d+\.\d+)') { return $Matches[1] }
     return ''
 }
@@ -216,6 +222,41 @@ $stepClaude = {
     return (Test-Path $ClaudeSkill)
 }
 
+# --- Step 5: Graphviz -------------------------------------------------------------------------
+
+$stepGraphviz = {
+    $installed = Get-ToolVersion (Find-Graphviz) '-V 2>&1'
+    Write-Host 'Graphviz lets run 03 draw its graphs as SVG files as well; its web page draws them without.'
+    $newest = Read-VersionChoice 'Graphviz' $GraphvizVersion
+    if ($installed -and -not $newest -and $installed -eq $GraphvizVersion) {
+        Write-Host "Graphviz $installed is there: $(Find-Graphviz)"
+        return $true
+    }
+    if ($installed) { Write-Host "Graphviz $installed is there." }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Host 'winget (App Installer) is not available. Install Graphviz from https://graphviz.org/download/.' -ForegroundColor Yellow
+        return $false
+    }
+    $which = if ($newest) { 'the newest version of Graphviz' } else { "Graphviz $GraphvizVersion" }
+    Write-Host "Installs $which with winget into $env:ProgramFiles\Graphviz. Windows asks for administrator rights."
+    if (-not (Read-YesNo 'Install now?' $false)) { return $true }
+    # winget updates an installed Graphviz to the newest; --force lets it change to the tested version.
+    $arguments = @('install', '--id', $GraphvizId, '--exact', '--source', 'winget')
+    if (-not $newest) { $arguments += @('--version', $GraphvizVersion, '--force') }
+    Add-LogLine $log "# $(Get-Stamp) winget $($arguments -join ' ')"
+    # Run directly in the console, so the questions of winget can be answered.
+    & winget @arguments
+    Add-LogLine $log "# Exit code: $LASTEXITCODE"
+    $found = Find-Graphviz
+    $version = Get-ToolVersion $found '-V 2>&1'
+    if (-not $found -or (-not $newest -and $version -ne $GraphvizVersion)) {
+        Write-Host "Graphviz $which is not in $env:ProgramFiles\Graphviz (found: '$version')." -ForegroundColor Red
+        return $false
+    }
+    Write-Host "Graphviz $version`: $found"
+    return $true
+}
+
 # --- 9: what is there -------------------------------------------------------------------------
 
 $status = {
@@ -223,10 +264,11 @@ $status = {
         @{ Name = 'uv'; Path = (Find-Uv); Tested = '' }
         @{ Name = 'graphify'; Path = (Find-Graphify); Tested = $GraphifyVersion }
         @{ Name = 'clang-uml'; Path = (Find-ClangUml); Tested = $ClangUmlVersion }
+        @{ Name = 'Graphviz'; Path = (Find-Graphviz); Tested = $GraphvizVersion; Arguments = '-V 2>&1' }
     )
     'The tools, their versions (tested with this setup) and where they are:'
     foreach ($t in $tools) {
-        $version = if ($t.Path) { Get-ToolVersion $t.Path } else { '-' }
+        $version = if (-not $t.Path) { '-' } elseif ($t.Arguments) { Get-ToolVersion $t.Path $t.Arguments } else { Get-ToolVersion $t.Path }
         $tested = if ($t.Tested) { "($($t.Tested))" } else { '' }
         '  {0,-10} {1,-9} {2,-10} {3}' -f $t.Name, $version, $tested, $t.Path
     }
@@ -245,6 +287,8 @@ $menu = @(
        Done = { [bool](Find-ClangUml) }; Run = $stepClangUml }
     @{ Title = '/graphify for Claude Code (optional)'
        Done = { Test-Path $ClaudeSkill }; Run = $stepClaude }
+    @{ Title = "Graphviz (run 03, optional: SVG files), tested version $GraphvizVersion or the newest"
+       Done = { [bool](Find-Graphviz) }; Run = $stepGraphviz }
 )
 $extra = @(
     @{ Key = '9'; Title = 'Show which tools are there, in which version'; Run = $status }

@@ -108,6 +108,9 @@ function Find-Graphify { return (Find-Tool 'graphify' @("$(Get-UvToolBin)\graphi
 # clang-uml.exe in the folder its installer uses, or $null.
 function Find-ClangUml { return (Find-Tool 'clang-uml' @("$env:ProgramFiles\clang-uml\bin\clang-uml.exe")) }
 
+# dot.exe of Graphviz in the folder its installer uses, or $null.
+function Find-Graphviz { return (Find-Tool 'dot' @("$env:ProgramFiles\Graphviz\bin\dot.exe")) }
+
 # The Linux of the GCC build in WSL and the packages it needs there.
 $WslDistro = 'Ubuntu-24.04'
 $UbuntuPackages = @(Get-Content "$Root\scripts\setup\support\ubuntu-packages.txt" |
