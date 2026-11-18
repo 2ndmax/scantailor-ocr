@@ -93,6 +93,8 @@ set(common_sources
     AutoManualMode.cpp AutoManualMode.h
     AbstractCommand.h
     AbstractFilter.h
+    AbstractFilterUi.h
+    FilterUiSequence.cpp FilterUiSequence.h
     BeforeOrAfter.h
     FilterResult.h
     BatchProcessingResult.h

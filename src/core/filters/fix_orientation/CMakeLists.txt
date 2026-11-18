@@ -12,6 +12,8 @@ set(sources
     ApplyDialog.cpp ApplyDialog.h
     Settings.cpp Settings.h
     Task.cpp Task.h
+    TaskResult.cpp TaskResult.h
+    FilterUi.cpp FilterUi.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     Utils.cpp Utils.h)
 

@@ -16,6 +16,7 @@
 #include <UnitsProvider.h>
 #include <filters/fix_orientation/CacheDrivenTask.h>
 #include <filters/fix_orientation/Filter.h>
+#include <filters/fix_orientation/FilterUi.h>
 #include <filters/fix_orientation/ImageView.h>
 #include <filters/fix_orientation/OptionsWidget.h>
 #include <filters/fix_orientation/Settings.h>
@@ -193,6 +194,7 @@ void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
   QVERIFY(top != nullptr);
   rotateRight->click();
   result->updateUI(&ui);
+  FilterUi(filter).showResult(*result, &ui);
 
   RotationCollector collector;
   filter->createCacheDrivenTask(nullptr)->process(info, &collector);
@@ -315,7 +317,7 @@ void TestFixOrientationQt::testShowsPanelAndConnectedView() {
   const PageInfo page = one.page(IMAGE_VIEW);
   const int filterIdx = one.project.stages->fixOrientationFilterIdx();
   RecordingUi ui;
-  const FilterResultPtr result = filter_ui_checks::showPage(one.project, page, filterIdx, ui);
+  const FilterResultPtr result = filter_ui_checks::showPage(one, page, filterIdx, ui);
   QVERIFY(result);
   QVERIFY(result->filter() == one.project.stages->filterAt(filterIdx));
 

@@ -10,6 +10,7 @@
 #include <FilterOptionsWidget.h>
 #include <FilterResult.h>
 #include <FilterUiInterface.h>
+#include <FilterUiSequence.h>
 #include <PageInfo.h>
 #include <PageSequence.h>
 #include <StageSequence.h>
@@ -82,7 +83,8 @@ class OnePageProject {
  public:
   explicit OnePageProject(const DefaultParams& startValues = DefaultParams())
       : m_files({test_pages::saveScan(test_pages::skewedPage(), m_dir.filePath("page.png"))}),
-        project(m_files, m_dir.filePath("out"), startValues) {}
+        project(m_files, m_dir.filePath("out"), startValues),
+        filterUis(project.stages) {}
 
   // Whether the page could be saved, which needs the PNG plugin.
   bool isValid() const { return m_dir.isValid() && test_pages::allSaved(m_files); }
@@ -97,22 +99,23 @@ class OnePageProject {
 
  public:
   test_pages::TestProject project;
+  // What the main window shows of the steps of the project.
+  FilterUiSequence filterUis;
 };
 
 /**
  * Shows \p page in the step \p filterIdx as the main window does: the options panel first, then
  * the result of processing the page up to that step. Returns the result, null if there is none.
  */
-inline FilterResultPtr showPage(test_pages::TestProject& project,
-                                const PageInfo& page,
-                                const int filterIdx,
-                                RecordingUi& ui) {
+inline FilterResultPtr showPage(OnePageProject& one, const PageInfo& page, const int filterIdx, RecordingUi& ui) {
+  test_pages::TestProject& project = one.project;
   project.stages->loadDefaultSettings(page);
   project.stages->filterAt(filterIdx)->preUpdateUI(&ui, page);
   const FilterResultPtr result = (*project.stages->createTask(page, filterIdx, project.thumbnailCache,
                                                               project.outFileNameGen, project.pages, false, false))();
   if (result) {
     result->updateUI(&ui);
+    one.filterUis.showResult(*result, &ui);
   }
   return result;
 }

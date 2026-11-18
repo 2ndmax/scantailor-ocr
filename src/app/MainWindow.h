@@ -45,6 +45,7 @@ class ThumbnailPixmapCache;
 class ProjectPages;
 class PageSequence;
 class StageSequence;
+class FilterUiSequence;
 class PageOrderProvider;
 class PageSelectionAccessor;
 class FilterOptionsWidget;
@@ -458,6 +459,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   int m_deskewHandleDistance = 0;  // As last applied to the image views, in percent.
   std::shared_ptr<ProjectPages> m_pages;
   std::shared_ptr<StageSequence> m_stages;
+  // What is shown of the steps in m_stages; set up together with them.
+  std::unique_ptr<FilterUiSequence> m_filterUis;
   QString m_projectFile;
   // The input directory of a project without images, written into the project file.
   QString m_emptyProjectInputDir;

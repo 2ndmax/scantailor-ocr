@@ -26,7 +26,7 @@ void TestPageSplitQt::testShowsPanelAndConnectedView() {
   const PageInfo page = one.page(IMAGE_VIEW);
   const int filterIdx = one.project.stages->pageSplitFilterIdx();
   filter_ui_checks::RecordingUi ui;
-  const FilterResultPtr result = filter_ui_checks::showPage(one.project, page, filterIdx, ui);
+  const FilterResultPtr result = filter_ui_checks::showPage(one, page, filterIdx, ui);
   QVERIFY(result);
   QVERIFY(result->filter() == one.project.stages->filterAt(filterIdx));
 
@@ -57,7 +57,7 @@ void TestPageSplitQt::testThumbnailOfPage() {
   QVERIFY(typeid(*before) == typeid(IncompleteThumbnail));
 
   filter_ui_checks::RecordingUi ui;
-  QVERIFY(filter_ui_checks::showPage(one.project, page, filterIdx, ui));
+  QVERIFY(filter_ui_checks::showPage(one, page, filterIdx, ui));
   const std::unique_ptr<QGraphicsItem> after = filter_ui_checks::thumbnailFor(one.project, page, filterIdx);
   QVERIFY(after != nullptr);
   QVERIFY(typeid(*after) == typeid(Thumbnail));

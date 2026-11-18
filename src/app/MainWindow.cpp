@@ -42,6 +42,7 @@
 #include "DefaultParamsProvider.h"
 #include "ErrorWidget.h"
 #include "FilterOptionsWidget.h"
+#include "FilterUiSequence.h"
 #include "FixDpiDialog.h"
 #include "ImageInfo.h"
 #include "ImageLoadErrorNotifier.h"
@@ -113,6 +114,7 @@ class MainWindow::PageSelectionProviderImpl : public PageSelectionProvider {
 MainWindow::MainWindow()
     : m_pages(std::make_shared<ProjectPages>()),
       m_stages(std::make_shared<StageSequence>(m_pages, newPageSelectionAccessor())),
+      m_filterUis(std::make_unique<FilterUiSequence>(m_stages)),
       m_workerThreadPool(std::make_unique<WorkerThreadPool>()),
       m_interactiveQueue(std::make_unique<ProcessingTaskQueue>()),
       m_outOfMemoryDialog(std::make_unique<OutOfMemoryDialog>()),
@@ -369,6 +371,7 @@ void MainWindow::switchToNewProject(const ProjectSession& project,
   }
   m_outFileNameGen = project.outFileNameGen;
   m_stages = project.stages;
+  m_filterUis = std::make_unique<FilterUiSequence>(m_stages);
   m_thumbnailCache = project.thumbnailCache;
 
   // Connect the filter list model to the view and select
@@ -1379,6 +1382,7 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
     // This needs to be done even if batch processing is taking place,
     // for instance because thumbnail invalidation is done from here.
     result->updateUI(this);
+    m_filterUis->showResult(*result, this);
 
     // Processing results carry changed page parameters, which should get
     // auto-saved even if the user stays on the same page.

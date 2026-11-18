@@ -481,7 +481,7 @@ void TestCoreQt::testMissingImageShowsError() {
   QVERIFY(QFile::remove(page.imageId().filePath()));
   filter_ui_checks::RecordingUi ui;
   const FilterResultPtr result
-      = filter_ui_checks::showPage(one.project, page, one.project.stages->fixOrientationFilterIdx(), ui);
+      = filter_ui_checks::showPage(one, page, one.project.stages->fixOrientationFilterIdx(), ui);
   QVERIFY(result);
   QVERIFY(result->filter() == nullptr);
   QVERIFY(dynamic_cast<ErrorWidget*>(ui.imageWidget.get()) != nullptr);
