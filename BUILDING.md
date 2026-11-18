@@ -222,7 +222,8 @@ Application Verifier, and write their findings to `scripts\analysis\results`.
 installs the missing ones. An overview of all scripts is in [scripts/README.md](scripts/README.md);
 what each run does and needs is described in
 [scripts/analysis/README.md](scripts/analysis/README.md). Overviews of the code, a graph made
-with graphify and diagrams made with clang-uml, are drawn by the scripts in `scripts\overview`
+with graphify, diagrams made with clang-uml and the targets of the build drawn by
+`cmake --graphviz`, are made by the scripts in `scripts\overview`
 (set up by `scripts\setup\05-setup-overview.ps1`); see
 [scripts/overview/README.md](scripts/overview/README.md).
 

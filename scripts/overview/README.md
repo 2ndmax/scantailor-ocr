@@ -1,7 +1,7 @@
 # Overview runs
 
 Scripts that draw overviews of the code: a graph of how files, classes and functions use each
-other, and class and sequence diagrams.  Unlike the [analysis runs](../analysis/README.md) they
+other, class and sequence diagrams, and the targets of the build.  Unlike the [analysis runs](../analysis/README.md) they
 look for no faults.  Every script is one run; they are independent of each other.
 
 The logs and diagrams go to `results\` in this folder, the graph of run 01 to `graphify-out\` in
@@ -14,16 +14,18 @@ their logs are described in [the README of the scripts](../README.md).  Windows 
 |---|---|---|---|---|
 | 01 | `01-graphify.ps1` | graphify: the code as a graph, to browse and to query | – | `graphify-out\` in the repository, `results\01-graphify.log` |
 | 02 | `02-clang-uml.ps1` | clang-uml: the class and sequence diagrams of `clang-uml.yml` | `build-overview` | `results\clang-uml\diagrams.html` (and `.md`, `*.mmd`), `results\02-clang-uml.log` |
+| 03 | `03-cmake-graphviz.ps1` | `cmake --graphviz`: which targets of the build use which others | `build-overview` if configured, else `build-graphviz` (configured only) | `results\cmake-graphviz\graphs.html` (and `*.dot`, `*.svg`), `results\03-cmake-graphviz.log` |
 
 ## Requirements
 
 The tools are set up by `scripts\setup\05-setup-overview.ps1`; its step 9 shows which are there,
-in which version.  Steps 2 and 3 offer the version this setup was tested with or the newest one.
+in which version.  Steps 2, 3 and 5 offer the version this setup was tested with or the newest one.
 
 | Run | Needs | Set up by `05-setup-overview.ps1` |
 |---|---|---|
 | 01 | graphify, a Python program, as a tool of uv (`%USERPROFILE%\.local\bin\graphify.exe`) | step 1 (uv, with winget), step 2 |
 | 02 | clang-uml (`C:\Program Files\clang-uml`); for its first build Visual Studio and vcpkg as for the analysis runs | step 3, with the installer from GitHub (administrator rights) |
+| 03 | Visual Studio (its CMake) and vcpkg; optionally Graphviz (`C:\Program Files\Graphviz`) for SVG files | step 5, Graphviz with winget (administrator rights) |
 
     powershell -ExecutionPolicy Bypass -File scripts\setup\05-setup-overview.ps1
 
@@ -101,3 +103,28 @@ Paths there are relative to the repository.  What we learned with clang-uml 0.6.
   ([bkryza/clang-uml#462](https://github.com/bkryza/clang-uml/issues/462)).
 - clang-uml ends with exit code 0 also when it could not draw a diagram; the run checks that
   every diagram was written and ends with exit code 1 otherwise.
+
+### 03 – cmake --graphviz
+
+CMake writes the targets of the build (programs, libraries, tests) and the libraries they link
+as graphs in the DOT language of [Graphviz](https://graphviz.org/).  `-Graph` chooses which,
+default all three:
+
+| Graph | Shows |
+|---|---|
+| `Program` | `scantailor-ocr` and `scantailor-ocr-cli` with the libraries of the project they use: `core`, `core_gui`, the libraries of the steps and their `_ui` libraries |
+| `Targets` | all targets of the project, with the tests (`*_tests`) and the developer tools |
+| `All` | all targets and the libraries they link from outside (Qt, Boost, Tesseract, Windows) |
+
+    powershell -ExecutionPolicy Bypass -File scripts\overview\03-cmake-graphviz.ps1 -Graph Program
+
+Each graph goes to `results\cmake-graphviz\<graph>.dot`, all of them to `graphs.html` there,
+which draws them like the page of run 02 (it loads viz.js, Graphviz for the browser, version
+3.31.0, from the internet).  With Graphviz installed (setup step 5) each is also drawn to
+`<graph>.svg`, to be seen offline.  The shape of a node says what kind of target it is (see the
+legend in each graph): an egg a program, an octagon a static library.
+
+CMake needs a configured build directory, not a built one: the run uses `build-overview` of
+run 02 if it is configured, else it only configures `build-graphviz`.  Its settings for the
+graphs are written to `CMakeGraphVizOptions.cmake` in the build directory while it runs, and
+removed at the end.
