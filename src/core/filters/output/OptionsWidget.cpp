@@ -53,12 +53,13 @@ void showSliderValue(QSlider* slider, QLabel* valueLabel, const double value) {
 
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
                              std::shared_ptr<ProcessingOptions> processingOptions,
-                             const PageSelectionAccessor& pageSelectionAccessor)
+                             const PageSelectionAccessor& pageSelectionAccessor,
+                             std::shared_ptr<LastImageViewTab> lastTab)
     : m_settings(std::move(settings)),
       m_processingOptions(std::move(processingOptions)),
       m_pageSelectionAccessor(pageSelectionAccessor),
       m_despeckleLevel(1.0),
-      m_lastTab(TAB_OUTPUT),
+      m_lastTab(std::move(lastTab)),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
   // Percent fields are as wide as "100 %", their highest value.
@@ -235,7 +236,7 @@ void OptionsWidget::postUpdateUI() {
 }
 
 void OptionsWidget::tabChanged(const ImageViewTab tab) {
-  m_lastTab = tab;
+  m_lastTab->set(tab);
   updateDpiDisplay();
   updateColorsDisplay();
   updateDewarpingDisplay();
@@ -836,9 +837,9 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
       // PS: the static original <-> dewarped mappings are constructed
       // in Task::UiUpdater::updateUI(). Look for "new DewarpingPointMapper" there.
       // The automatic modes have to find the curves anew, so they reload on the Dewarping tab, too.
-      if (opt.findsCurvesItself() || (m_lastTab != TAB_DEWARPING)) {
+      if (opt.findsCurvesItself() || (m_lastTab->get() != TAB_DEWARPING)) {
         // Switch to the Output tab after reloading.
-        m_lastTab = TAB_OUTPUT;
+        m_lastTab->set(TAB_OUTPUT);
         // These depend on the value of m_lastTab.
         updateDpiDisplay();
         updateColorsDisplay();
@@ -869,7 +870,7 @@ void OptionsWidget::depthPerceptionChangedSlot(int val) {
 
 void OptionsWidget::depthPerceptionSliderReleased() {
   // The Dewarping tab follows the slider by itself; other tabs need the page recalculated.
-  if (m_lastTab != TAB_DEWARPING) {
+  if (m_lastTab->get() != TAB_DEWARPING) {
     m_delayedReloadRequest.start(RELOAD_DELAY_MS);
   }
 }
@@ -1728,7 +1729,7 @@ void OptionsWidget::setupUiConnections() {
 #undef CONNECT
 
 ImageViewTab OptionsWidget::lastTab() const {
-  return m_lastTab;
+  return m_lastTab->get();
 }
 
 const DepthPerception& OptionsWidget::depthPerception() const {

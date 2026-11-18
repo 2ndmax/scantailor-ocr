@@ -15,6 +15,7 @@
 #include "FilterUiInterface.h"
 #include "GeometryCollector.h"
 #include "ImageTransformation.h"
+#include "LastImageViewTab.h"
 #include "OptionsWidget.h"
 #include "OrderByColorModeProvider.h"
 #include "OutputGenerator.h"
@@ -30,7 +31,8 @@ namespace output {
 Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions)
     : m_settings(std::make_shared<Settings>()),
       m_pageSelectionAccessor(pageSelectionAccessor),
-      m_processingOptions(std::move(processingOptions)) {
+      m_processingOptions(std::move(processingOptions)),
+      m_lastTab(std::make_shared<LastImageViewTab>()) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByCompleteness = std::make_shared<OrderByCompletenessProvider>();
   addPageOrderOption({tr("Natural order"), defaultOrder});
@@ -95,15 +97,9 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          const OutputFileNameGenerator& outFileNameGen,
                                          const bool batch,
                                          const bool debug) {
-  // Not optionsWidget(): tasks are also created without a GUI and outside the GUI thread.
-  // Without a panel, the tab is the one a new panel starts with.
-  ImageViewTab lastTab(TAB_OUTPUT);
-  if (m_optionsWidget.get() != nullptr) {
-    lastTab = m_optionsWidget->lastTab();
-  }
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), m_settings,
-                                std::move(thumbnailCache), pageId, outFileNameGen, lastTab, *m_processingOptions, batch,
-                                debug);
+                                std::move(thumbnailCache), pageId, outFileNameGen, m_lastTab->get(),
+                                *m_processingOptions, batch, debug);
 }
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(const OutputFileNameGenerator& outFileNameGen) {
@@ -119,7 +115,7 @@ void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& 
 
 OptionsWidget* Filter::optionsWidget() {
   if (m_optionsWidget.get() == nullptr) {
-    m_optionsWidget.reset(new OptionsWidget(m_settings, m_processingOptions, m_pageSelectionAccessor));
+    m_optionsWidget.reset(new OptionsWidget(m_settings, m_processingOptions, m_pageSelectionAccessor, m_lastTab));
   }
   return m_optionsWidget.get();
 }

@@ -11,6 +11,7 @@ set(sources
     ApplyColorsDialog.cpp ApplyColorsDialog.h
     ImageView.cpp ImageView.h
     ImageViewTab.h
+    LastImageViewTab.h
     TabbedImageView.cpp TabbedImageView.h
     Filter.cpp Filter.h
     OptionsWidget.cpp OptionsWidget.h

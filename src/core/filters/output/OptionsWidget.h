@@ -22,6 +22,7 @@
 #include "Dpi.h"
 #include "FilterOptionsWidget.h"
 #include "ImageViewTab.h"
+#include "LastImageViewTab.h"
 #include "OptionsWidgetBinarization.h"
 #include "OutputProcessingParams.h"
 #include "PageId.h"
@@ -47,7 +48,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   OptionsWidget(std::shared_ptr<Settings> settings,
                 std::shared_ptr<ProcessingOptions> processingOptions,
-                const PageSelectionAccessor& pageSelectionAccessor);
+                const PageSelectionAccessor& pageSelectionAccessor,
+                std::shared_ptr<LastImageViewTab> lastTab);
 
   ~OptionsWidget() override;
 
@@ -323,7 +325,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   double m_sharpenCoefWhenOn = 1.0;
   // A strength of 0 turns the Wiener denoiser off; turning it on again restores the last strength.
   double m_wienerCoefWhenOn = 0.1;
-  ImageViewTab m_lastTab;
+  // Shared with the Filter, whose tasks prepare what the tab shows.
+  std::shared_ptr<LastImageViewTab> m_lastTab;
   // A member, so it stops with the widget: no delayed reload fires after the widget is gone.
   QTimer m_delayedReloadRequest;
   bool m_checkingDpi = false;

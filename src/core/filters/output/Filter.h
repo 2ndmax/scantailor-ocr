@@ -24,6 +24,7 @@ class OutputFileNameGenerator;
 class QString;
 
 namespace output {
+class LastImageViewTab;
 class OptionsWidget;
 class Task;
 class CacheDrivenTask;
@@ -96,6 +97,8 @@ class Filter : public AbstractFilter {
   PageSelectionAccessor m_pageSelectionAccessor;
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
   std::shared_ptr<ProcessingOptions> m_processingOptions;
+  // The tab the options panel shows; tasks prepare what it needs.
+  std::shared_ptr<LastImageViewTab> m_lastTab;
 };
 }  // namespace output
 #endif  // ifndef SCANTAILOR_OUTPUT_FILTER_H_

@@ -14,6 +14,7 @@
 #include <WorkerThreadPool.h>
 #include <dewarping/Curve.h>
 #include <dewarping/DistortionModel.h>
+#include <filters/output/LastImageViewTab.h>
 #include <filters/output/OptionsWidget.h>
 #include <filters/output/Settings.h>
 #include <filters/page_split/Filter.h>
@@ -123,7 +124,8 @@ void TestCoreQt::testOutputDisplayKeepsColorEqualization() {
   colorParams.setColorCommonOptions(colorCommonOptions);
   settings->setColorParams(page, colorParams);
 
-  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                               std::make_shared<output::LastImageViewTab>());
   widget.preUpdateUI(page);
 
   QVERIFY(settings->getParams(page).colorParams().colorCommonOptions().normalizeIllumination());
@@ -153,7 +155,8 @@ void TestCoreQt::testOutputStrengthFieldSetsTheValueItsMethodReads() {
     colorParams.setBlackWhiteOptions(blackWhiteOptions);
     settings->setColorParams(page, colorParams);
 
-    output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+    output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                                 std::make_shared<output::LastImageViewTab>());
     widget.preUpdateUI(page);
 
     auto* methodPanels = widget.findChild<QStackedWidget*>("binarizationOptions");
@@ -187,7 +190,8 @@ void TestCoreQt::testOutputMethodKeepsItsValuesWhenAnotherIsChosen() {
   colorParams.setBlackWhiteOptions(blackWhiteOptions);
   settings->setColorParams(page, colorParams);
 
-  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                               std::make_shared<output::LastImageViewTab>());
   widget.preUpdateUI(page);
 
   auto* methodBox = widget.findChild<QComboBox*>("thresholdMethodBox");
@@ -216,7 +220,8 @@ void TestCoreQt::testOutputMethodKeepsItsValuesWhenAnotherIsChosen() {
 
 void TestCoreQt::testOutputStrengthToolTipNamesTheDefaultOfItsMethod() {
   auto settings = std::make_shared<output::Settings>();
-  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                               std::make_shared<output::LastImageViewTab>());
   auto* methodPanels = widget.findChild<QStackedWidget*>("binarizationOptions");
   QVERIFY(methodPanels != nullptr);
 
@@ -255,7 +260,8 @@ void TestCoreQt::testOutputDpiChangeUpdatesDewarpingMode() {
   settings->setDistortionModel(page, model);
   settings->setDewarpingOptions(page, output::DewarpingOptions(output::AUTO));
 
-  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                               std::make_shared<output::LastImageViewTab>());
   widget.preUpdateUI(page);
 
   auto* dpiSelector = widget.findChild<QComboBox*>("dpiSelector");
@@ -285,7 +291,8 @@ void TestCoreQt::testOutputDpiChangeKeepsTheMethodOfAPageWithoutAModel() {
     options.setNoModelFound(true);
     settings->setDewarpingOptions(page, options);
 
-    output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+    output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                                 std::make_shared<output::LastImageViewTab>());
     widget.preUpdateUI(page);
 
     auto* dpiSelector = widget.findChild<QComboBox*>("dpiSelector");
@@ -304,7 +311,8 @@ void TestCoreQt::testOutputDewarpingCheckBoxAndMethodList() {
   options.setNoModelFound(true);
   settings->setDewarpingOptions(page, options);
 
-  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                               std::make_shared<output::LastImageViewTab>());
   widget.preUpdateUI(page);
 
   auto* dewarpingCB = widget.findChild<QCheckBox*>("dewarpingCB");
@@ -340,7 +348,8 @@ void TestCoreQt::testOutputPageSwitchDropsDelayedReload() {
   const PageId first(ImageId("first.png"));
   const PageId second(ImageId("second.png"));
 
-  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                               std::make_shared<output::LastImageViewTab>());
   widget.preUpdateUI(first);
 
   QSignalSpy reloadSpy(&widget, &FilterOptionsWidget::reloadRequested);
@@ -376,7 +385,8 @@ void TestCoreQt::testOutputPageSwitchRedoesPreviousThumbnail() {
   const PageId first(ImageId("first.png"));
   const PageId second(ImageId("second.png"));
 
-  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr));
+  output::OptionsWidget widget(settings, std::make_shared<ProcessingOptions>(), PageSelectionAccessor(nullptr),
+                               std::make_shared<output::LastImageViewTab>());
   QSignalSpy thumbnailSpy(&widget, qOverload<const PageId&>(&FilterOptionsWidget::invalidateThumbnail));
 
   widget.preUpdateUI(first);
