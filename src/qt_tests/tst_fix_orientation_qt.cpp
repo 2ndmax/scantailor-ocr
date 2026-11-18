@@ -28,10 +28,12 @@
 #include <memory>
 #include <vector>
 
+#include "filter_ui_checks.h"
 #include "length_field_checks.h"
 #include "tst_project_xml.h"
 
 using namespace fix_orientation;
+using filter_ui_checks::RecordingUi;
 
 namespace {
 PageInfo pageInfo(const ImageId& imageId, const QSize& size, const Dpi& dpi = Dpi(300, 300)) {
@@ -49,29 +51,6 @@ OrthogonalRotation quarterTurns(const int count) {
 QDoubleSpinBox* spinBox(const QWidget& widget, const char* name) {
   return widget.findChild<QDoubleSpinBox*>(name);
 }
-
-// Keeps the image widget that a filter result shows.
-class RecordingUi : public FilterUiInterface {
- public:
-  void setOptionsWidget(FilterOptionsWidget* /*widget*/, Ownership /*ownership*/) override {}
-
-  void setImageWidget(QWidget* widget,
-                      const Ownership ownership,
-                      DebugImages* /*debugImages*/,
-                      bool /*overlay*/) override {
-    if (ownership == TRANSFER_OWNERSHIP) {
-      imageWidget.reset(widget);
-    }
-  }
-
-  void invalidateThumbnail(const PageId& /*pageId*/) override {}
-
-  void invalidateAllThumbnails() override {}
-
-  std::shared_ptr<AbstractCommand<void>> relinkingDialogRequester() override { return nullptr; }
-
-  std::unique_ptr<QWidget> imageWidget;
-};
 
 class RotationCollector : public PageOrientationCollector {
  public:

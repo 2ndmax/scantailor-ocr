@@ -43,85 +43,11 @@
 #include <vector>
 
 #include "core/tests/TestTiffFile.h"
+#include "test_project.h"
+
+using namespace test_pages;
 
 namespace {
-constexpr int DPI = 300;
-constexpr double SKEW_DEG = 1.5;
-const QSize PAGE_SIZE(1200, 1700);
-const QRect TEXT_RECT(200, 250, 800, 1200);
-
-// Lines of "words" of different lengths, like printed text.
-void drawText(QPainter& painter, const QRect& rect) {
-  for (int y = rect.top(); y + 6 <= rect.bottom(); y += 18) {
-    int x = rect.left();
-    while (true) {
-      const int width = 20 + ((x * 7 + y * 3) % 40);
-      if (x + width > rect.right()) {
-        break;
-      }
-      painter.fillRect(QRect(x, y, width, 6), Qt::black);
-      x += width + 12;
-    }
-  }
-}
-
-QImage blankImage(const QSize& size) {
-  QImage image(size, QImage::Format_RGB32);
-  image.fill(qRgb(250, 250, 250));
-  const Dpm dpm(Dpi(DPI, DPI));
-  image.setDotsPerMeterX(dpm.horizontal());
-  image.setDotsPerMeterY(dpm.vertical());
-  return image;
-}
-
-// A page with text turned by SKEW_DEG and a dark border all around, as from a scanner lid.
-QImage skewedPage() {
-  QImage image(blankImage(PAGE_SIZE));
-  QPainter painter(&image);
-  painter.fillRect(image.rect(), qRgb(40, 40, 40));
-  painter.fillRect(image.rect().adjusted(60, 60, -60, -60), qRgb(250, 250, 250));
-  const QPointF center(image.rect().center());
-  painter.translate(center);
-  painter.rotate(SKEW_DEG);
-  painter.translate(-center);
-  drawText(painter, TEXT_RECT);
-  return image;
-}
-
-// Two pages side by side with a dark gutter between them.
-QImage twoPageSpread() {
-  QImage image(blankImage(QSize(PAGE_SIZE.width() * 2, PAGE_SIZE.height())));
-  QPainter painter(&image);
-  drawText(painter, TEXT_RECT);
-  drawText(painter, TEXT_RECT.translated(PAGE_SIZE.width(), 0));
-  painter.fillRect(QRect(PAGE_SIZE.width() - 10, 0, 20, PAGE_SIZE.height()), qRgb(60, 60, 60));
-  return image;
-}
-
-// A colored picture above black text. The picture has edges like a photo; a smooth gradient
-// would count as background, not as content.
-QImage colorPage() {
-  QImage image(blankImage(PAGE_SIZE));
-  const QRect pictureRect(TEXT_RECT.left(), TEXT_RECT.top(), TEXT_RECT.width(), 500);
-  QPainter painter(&image);
-  constexpr int tile = 25;
-  for (int y = pictureRect.top(); y < pictureRect.bottom(); y += tile) {
-    for (int x = pictureRect.left(); x < pictureRect.right(); x += tile) {
-      const int v = 40 + ((x * 13 + y * 7) % 170);
-      painter.fillRect(QRect(x, y, tile, tile), QColor(v, 220 - v, 60 + (v * 3) % 150));
-    }
-  }
-  drawText(painter, QRect(TEXT_RECT.left(), pictureRect.bottom() + 100, TEXT_RECT.width(), 600));
-  return image;
-}
-
-ImageFileInfo saveScan(const QImage& image, const QString& filePath) {
-  if (!image.save(filePath)) {
-    return ImageFileInfo(QFileInfo(filePath), {});
-  }
-  return ImageFileInfo(QFileInfo(filePath), {ImageMetadata(image.size(), Dpi(DPI, DPI))});
-}
-
 // Read with libtiff, as the test has no TIFF plugin of Qt.
 struct TiffInfo {
   bool valid = false;
@@ -180,52 +106,6 @@ TiffInfo readTiff(const QString& filePath) {
 QByteArray readFile(const QString& filePath) {
   QFile file(filePath);
   return file.open(QIODevice::ReadOnly) ? file.readAll() : QByteArray();
-}
-
-// The "Project Files" dialog creates the output folder before the project is set up.
-const QString& createdDir(const QString& dir) {
-  QDir().mkpath(dir);
-  return dir;
-}
-
-// A new project set up as the app sets it up, without its window.
-class TestProject : public ProjectSession {
- public:
-  TestProject(const std::vector<ImageFileInfo>& files, const QString& outDir, const DefaultParams& startValues)
-      : ProjectSession(ProjectSession::createNew(ProjectPages::createNew(files, startValues),
-                                                 createdDir(outDir),
-                                                 QString(),
-                                                 startValues,
-                                                 PageSelectionAccessor(nullptr))) {}
-
-  /**
-   * All six steps, as a command line tool would run them. Returns false if a page failed or
-   * nothing was output; the caller checks it, as a QVERIFY here wouldn't end the test.
-   */
-  [[nodiscard]] bool processAll() {
-    const StageSequence::ProcessAllResult result = stages->processAll(thumbnailCache, outFileNameGen);
-    // Which page failed and why, as QVERIFY only shows that one did.
-    for (const StageSequence::PageFailure& failure : result.failures) {
-      qWarning().noquote() << "Page failed:" << failure.page.imageId().filePath() << "sub page"
-                           << failure.page.subPage() << "kind" << failure.kind << failure.reasons.join("; ");
-    }
-    if (!result.output) {
-      qWarning() << "No output.";
-    }
-    return result.failures.empty() && result.output;
-  }
-};
-
-// The three scans of the test project: skewed page, two-page spread, color page.
-std::vector<ImageFileInfo> saveScans(const QDir& dir) {
-  return {saveScan(skewedPage(), dir.absoluteFilePath("1-skewed.png")),
-          saveScan(twoPageSpread(), dir.absoluteFilePath("2-spread.png")),
-          saveScan(colorPage(), dir.absoluteFilePath("3-color.png"))};
-}
-
-// Saving a scan fails e.g. without the PNG plugin; then the project has images without a size.
-bool allSaved(const std::vector<ImageFileInfo>& files) {
-  return std::all_of(files.begin(), files.end(), [](const ImageFileInfo& file) { return !file.imageInfo().empty(); });
 }
 
 // Exports the pages as the app does, in this thread. Returns the PDF, or nothing on failure.
