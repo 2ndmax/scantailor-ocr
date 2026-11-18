@@ -121,7 +121,10 @@ if ($rc -eq 0) {
     $html = @(
         '<!doctype html>'
         '<html lang="en"><head><meta charset="utf-8"><title>clang-uml diagrams</title>'
-        '<style>body { font-family: sans-serif; margin: 1em 2em; } .diagram { overflow: auto; }</style>'
+        # At most as high as the window, so its scroll bars are on screen while the diagram is.
+        '<style>body { font-family: sans-serif; margin: 1em 2em; }'
+        '.diagram { overflow: auto; max-height: calc(100vh - 4em); border: 1px solid #ccc; cursor: grab; }'
+        '.diagram.moving { cursor: grabbing; user-select: none; }</style>'
         '</head><body>'
         '<h1>Diagrams of clang-uml</h1>'
         "<p>Drawn from scripts/overview/clang-uml.yml, $(Get-Stamp).</p>"
@@ -137,6 +140,21 @@ if ($rc -eq 0) {
         '  if (svg.style.maxWidth) { svg.style.width = svg.style.maxWidth; svg.style.maxWidth = "none"; }'
         '  const box = svg.closest(".diagram");'
         '  if (svg.getAttribute("aria-roledescription") === "classDiagram") { box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2; }'
+        '}'
+        # Dragging with the mouse moves a diagram in every direction, like a map.
+        'for (const box of document.querySelectorAll(".diagram")) {'
+        '  let start = null;'
+        '  box.addEventListener("pointerdown", e => {'
+        '    if (e.button !== 0) return;'
+        '    start = { x: e.clientX, y: e.clientY, left: box.scrollLeft, top: box.scrollTop };'
+        '    box.setPointerCapture(e.pointerId); box.classList.add("moving");'
+        '  });'
+        '  box.addEventListener("pointermove", e => {'
+        '    if (!start) return;'
+        '    box.scrollLeft = start.left - (e.clientX - start.x); box.scrollTop = start.top - (e.clientY - start.y);'
+        '  });'
+        '  const stop = () => { start = null; box.classList.remove("moving"); };'
+        '  box.addEventListener("pointerup", stop); box.addEventListener("pointercancel", stop);'
         '}'
         '</script>'
         '</body></html>'

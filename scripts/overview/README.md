@@ -66,8 +66,9 @@ draws the diagrams defined in [clang-uml.yml](clang-uml.yml), in Mermaid: each t
 `results\clang-uml\<diagram>.mmd`, and all of them to two files in the same folder:
 
 - `diagrams.html` shows them in any browser, opened with a double click. It loads Mermaid
-  (version 12.3.0) from the internet when it is opened. The diagrams have their full size and
-  are scrolled sideways: shrunk to the window, the text of a large diagram can't be read.
+  (version 12.3.0) from the internet when it is opened. The diagrams have their full size, as
+  shrunk to the window the text of a large one can't be read. Each sits in a box at most as
+  high as the window, with its scroll bars in view; dragging with the mouse moves it as well.
 - `diagrams.md` holds them as `mermaid` blocks, which GitHub shows as diagrams, and VS Code
   with the extension "Markdown Preview Mermaid Support".
 
