@@ -11,11 +11,13 @@
 #include <FilterResult.h>
 #include <FilterUiInterface.h>
 #include <PageInfo.h>
+#include <PageSequence.h>
 #include <StageSequence.h>
 #include <ThumbnailCollector.h>
 
 #include <QGraphicsItem>
 #include <QSizeF>
+#include <QTemporaryDir>
 #include <QWidget>
 #include <memory>
 #include <vector>
@@ -73,6 +75,28 @@ class RecordingThumbnails : public ThumbnailCollector {
 
  private:
   std::shared_ptr<ThumbnailPixmapCache> m_cache;
+};
+
+// A project of one drawn page, test_pages::skewedPage(), in a temporary folder.
+class OnePageProject {
+ public:
+  explicit OnePageProject(const DefaultParams& startValues = DefaultParams())
+      : m_files({test_pages::saveScan(test_pages::skewedPage(), m_dir.filePath("page.png"))}),
+        project(m_files, m_dir.filePath("out"), startValues) {}
+
+  // Whether the page could be saved, which needs the PNG plugin.
+  bool isValid() const { return m_dir.isValid() && test_pages::allSaved(m_files); }
+
+  // The page as the steps up to the split see it (IMAGE_VIEW) or as the later ones do (PAGE_VIEW).
+  PageInfo page(const PageView view) const { return project.pages->toPageSequence(view).pageAt(0); }
+
+ private:
+  // Before the project, which is set up from them.
+  QTemporaryDir m_dir;
+  std::vector<ImageFileInfo> m_files;
+
+ public:
+  test_pages::TestProject project;
 };
 
 /**

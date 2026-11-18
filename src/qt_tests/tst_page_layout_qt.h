@@ -10,6 +10,8 @@ class TestPageLayoutQt : public QObject {
   Q_OBJECT
  private slots:
   void testLengthFieldsSetDecimalsStepAndUnit();
+  void testShowsPanelAndConnectedView();
+  void testThumbnailOfPage();
 };
 
 #endif  // TST_PAGE_LAYOUT_QT_H

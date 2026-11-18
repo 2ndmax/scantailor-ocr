@@ -12,9 +12,11 @@
 #include <PageOrientationCollector.h>
 #include <PageSelectionAccessor.h>
 #include <ProjectReader.h>
+#include <ThumbnailBase.h>
 #include <UnitsProvider.h>
 #include <filters/fix_orientation/CacheDrivenTask.h>
 #include <filters/fix_orientation/Filter.h>
+#include <filters/fix_orientation/ImageView.h>
 #include <filters/fix_orientation/OptionsWidget.h>
 #include <filters/fix_orientation/Settings.h>
 #include <filters/fix_orientation/Task.h>
@@ -26,6 +28,7 @@
 #include <QSpinBox>
 #include <QtTest/QtTest>
 #include <memory>
+#include <typeinfo>
 #include <vector>
 
 #include "filter_ui_checks.h"
@@ -302,4 +305,38 @@ void TestFixOrientationQt::testTrimFieldsShowPixelsWithoutResolution() {
   QVERIFY(left != nullptr);
   QVERIFY(left->suffix().endsWith("px"));
   QCOMPARE(left->value(), 40.0);
+}
+
+void TestFixOrientationQt::testShowsPanelAndConnectedView() {
+  // Showing a page puts the step's options panel and its image view on screen, connected to each
+  // other, and updates the page's thumbnail.
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const PageInfo page = one.page(IMAGE_VIEW);
+  const int filterIdx = one.project.stages->fixOrientationFilterIdx();
+  RecordingUi ui;
+  const FilterResultPtr result = filter_ui_checks::showPage(one.project, page, filterIdx, ui);
+  QVERIFY(result);
+  QVERIFY(result->filter() == one.project.stages->filterAt(filterIdx));
+
+  auto* const panel = dynamic_cast<OptionsWidget*>(ui.optionsWidget);
+  QVERIFY(panel != nullptr);
+  QCOMPARE(ui.optionsWidgetOwnership, FilterUiInterface::KEEP_OWNERSHIP);
+  auto* const view = dynamic_cast<ImageView*>(ui.imageWidget.get());
+  QVERIFY(view != nullptr);
+  QCOMPARE(ui.invalidatedThumbnails.size(), size_t(1));
+  QCOMPARE(ui.invalidatedThumbnails[0].imageId(), page.imageId());
+
+  // disconnect() only succeeds for a connection that exists.
+  QVERIFY(QObject::disconnect(panel, &OptionsWidget::rotationOrTrimChanged, view, &ImageView::setRotationAndTrim));
+}
+
+void TestFixOrientationQt::testThumbnailOfPage() {
+  // The step has no parameters to wait for: its thumbnail is the plain page.
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const std::unique_ptr<QGraphicsItem> thumbnail = filter_ui_checks::thumbnailFor(
+      one.project, one.page(IMAGE_VIEW), one.project.stages->fixOrientationFilterIdx());
+  QVERIFY(thumbnail != nullptr);
+  QVERIFY(typeid(*thumbnail) == typeid(ThumbnailBase));
 }

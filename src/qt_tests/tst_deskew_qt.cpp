@@ -3,12 +3,19 @@
 
 #include "tst_deskew_qt.h"
 
+#include "filter_ui_checks.h"
+
 #include <DefaultParams.h>
 #include <DefaultParamsProvider.h>
+#include <FilterUiInterface.h>
+#include <IncompleteThumbnail.h>
 #include <PageId.h>
 #include <PageSelectionAccessor.h>
+#include <PageSequence.h>
+#include <filters/deskew/ImageView.h>
 #include <filters/deskew/OptionsWidget.h>
 #include <filters/deskew/Settings.h>
+#include <filters/deskew/Thumbnail.h>
 
 #include <QAbstractButton>
 #include <QPolygonF>
@@ -16,6 +23,7 @@
 #include <memory>
 #include <optional>
 #include <set>
+#include <typeinfo>
 
 using namespace deskew;
 
@@ -121,4 +129,52 @@ void TestDeskewQt::testApplyButtonWaitsForPage() {
   QVERIFY(!applyBtn->isEnabled());
   widget.postUpdateUI(uiData(MODE_AUTO, MODE_AUTO));
   QVERIFY(applyBtn->isEnabled());
+}
+
+void TestDeskewQt::testShowsPanelAndConnectedView() {
+  // Showing a page puts the step's options panel and its image view on screen, connected to each
+  // other, and updates the page's thumbnail.
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const PageInfo page = one.page(PAGE_VIEW);
+  const int filterIdx = one.project.stages->deskewFilterIdx();
+  filter_ui_checks::RecordingUi ui;
+  const FilterResultPtr result = filter_ui_checks::showPage(one.project, page, filterIdx, ui);
+  QVERIFY(result);
+  QVERIFY(result->filter() == one.project.stages->filterAt(filterIdx));
+
+  auto* const panel = dynamic_cast<OptionsWidget*>(ui.optionsWidget);
+  QVERIFY(panel != nullptr);
+  QCOMPARE(ui.optionsWidgetOwnership, FilterUiInterface::KEEP_OWNERSHIP);
+  auto* const view = dynamic_cast<ImageView*>(ui.imageWidget.get());
+  QVERIFY(view != nullptr);
+  QCOMPARE(ui.invalidatedThumbnails.size(), size_t(1));
+  QCOMPARE(ui.invalidatedThumbnails[0], page.id());
+  // disconnect() only succeeds for a connection that exists.
+  QVERIFY(QObject::disconnect(view, &ImageView::manualDeskewAngleSet, panel,
+                              &OptionsWidget::manualDeskewAngleSetExternally));
+  QVERIFY(QObject::disconnect(panel, &OptionsWidget::manualDeskewAngleSet, view,
+                              &ImageView::manualDeskewAngleSetExternally));
+  QVERIFY(QObject::disconnect(view, &ImageView::manualObliqueAngleSet, panel,
+                              &OptionsWidget::manualObliqueAngleSetExternally));
+  QVERIFY(QObject::disconnect(panel, &OptionsWidget::manualObliqueAngleSet, view,
+                              &ImageView::manualObliqueAngleSetExternally));
+}
+
+void TestDeskewQt::testThumbnailOfPage() {
+  // Before the step has processed the page, its thumbnail says the page is incomplete; afterwards
+  // it is the step's own.
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const PageInfo page = one.page(PAGE_VIEW);
+  const int filterIdx = one.project.stages->deskewFilterIdx();
+  const std::unique_ptr<QGraphicsItem> before = filter_ui_checks::thumbnailFor(one.project, page, filterIdx);
+  QVERIFY(before != nullptr);
+  QVERIFY(typeid(*before) == typeid(IncompleteThumbnail));
+
+  filter_ui_checks::RecordingUi ui;
+  QVERIFY(filter_ui_checks::showPage(one.project, page, filterIdx, ui));
+  const std::unique_ptr<QGraphicsItem> after = filter_ui_checks::thumbnailFor(one.project, page, filterIdx);
+  QVERIFY(after != nullptr);
+  QVERIFY(typeid(*after) == typeid(Thumbnail));
 }

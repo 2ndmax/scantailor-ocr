@@ -5,6 +5,7 @@
 
 #include <ApplicationSettings.h>
 #include <Dpi.h>
+#include <ErrorWidget.h>
 #include <ImageTransformation.h>
 #include <PageSelectionAccessor.h>
 #include <ProjectReader.h>
@@ -23,6 +24,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDomDocument>
+#include <QFile>
 #include <QFileInfo>
 #include <QImage>
 #include <QLineEdit>
@@ -36,6 +38,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "filter_ui_checks.h"
 #include "tst_project_xml.h"
 
 void TestCoreQt::testUnitsToString() {
@@ -468,4 +471,18 @@ void TestCoreQt::testPageSplitThumbnailSkipsLineOutsideThePage() {
       QVERIFY2(image.pixel(x, y) == qRgb(255, 255, 255), qPrintable(QString("pixel %1,%2 is drawn").arg(x).arg(y)));
     }
   }
+}
+
+void TestCoreQt::testMissingImageShowsError() {
+  // A page whose image file is gone shows an error instead of a view; the result belongs to no step.
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const PageInfo page = one.page(IMAGE_VIEW);
+  QVERIFY(QFile::remove(page.imageId().filePath()));
+  filter_ui_checks::RecordingUi ui;
+  const FilterResultPtr result
+      = filter_ui_checks::showPage(one.project, page, one.project.stages->fixOrientationFilterIdx(), ui);
+  QVERIFY(result);
+  QVERIFY(result->filter() == nullptr);
+  QVERIFY(dynamic_cast<ErrorWidget*>(ui.imageWidget.get()) != nullptr);
 }

@@ -12,6 +12,8 @@ class TestSelectContentQt : public QObject {
   void testChangedDetectionOptionsDetectAgain();
   void testOldPagesDetectAgainOnlyWithOtherOptions();
   void testSizeFieldsSetDecimalsStepAndUnit();
+  void testShowsPanelAndConnectedView();
+  void testThumbnailOfPage();
 };
 
 #endif

@@ -13,6 +13,8 @@ class TestDeskewQt : public QObject {
   void testObliqueManualLeavesNothingPending();
   void testApplyAutoObliqueMeasuresOtherPages();
   void testApplyButtonWaitsForPage();
+  void testShowsPanelAndConnectedView();
+  void testThumbnailOfPage();
 };
 
 #endif

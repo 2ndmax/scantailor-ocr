@@ -27,6 +27,7 @@ class TestCoreQt : public QObject {
   void testFailedTaskReportsBack();
   void testImplausibleSettingsFallBackToDefaults();
   void testPageSplitThumbnailSkipsLineOutsideThePage();
+  void testMissingImageShowsError();
 };
 
 #endif

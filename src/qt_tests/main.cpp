@@ -5,7 +5,9 @@
 #include "tst_deskew_qt.h"
 #include "tst_end_to_end_qt.h"
 #include "tst_fix_orientation_qt.h"
+#include "tst_output_qt.h"
 #include "tst_page_layout_qt.h"
+#include "tst_page_split_qt.h"
 #include "tst_select_content_qt.h"
 #include "tst_ux_qt.h"
 
@@ -100,7 +102,9 @@ int main(int argc, char* argv[]) {
   TestEndToEndQt tc5;
   TestSelectContentQt tc6;
   TestPageLayoutQt tc7;
-  const std::vector<QObject*> testObjects{&tc1, &tc2, &tc3, &tc4, &tc5, &tc6, &tc7};
+  TestPageSplitQt tc8;
+  TestOutputQt tc9;
+  const std::vector<QObject*> testObjects{&tc1, &tc2, &tc3, &tc4, &tc5, &tc6, &tc7, &tc8, &tc9};
 
   int failed = 0;
   for (QObject* testObject : testObjects) {

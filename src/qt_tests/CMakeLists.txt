@@ -6,7 +6,9 @@ set(sources
     tst_deskew_qt.cpp
     tst_end_to_end_qt.cpp
     tst_fix_orientation_qt.cpp
+    tst_output_qt.cpp
     tst_page_layout_qt.cpp
+    tst_page_split_qt.cpp
     tst_select_content_qt.cpp
     tst_ux_qt.cpp)
 
@@ -30,6 +32,11 @@ set_source_files_properties(
 set_source_files_properties(
   tst_select_content_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
                             "$<TARGET_PROPERTY:select_content,BINARY_DIR>/select_content_autogen/include")
+set_source_files_properties(tst_output_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
+                                                         "$<TARGET_PROPERTY:output,BINARY_DIR>/output_autogen/include")
+set_source_files_properties(
+  tst_page_split_qt.cpp PROPERTIES INCLUDE_DIRECTORIES
+                        "$<TARGET_PROPERTY:page_split,BINARY_DIR>/page_split_autogen/include")
 
 add_test(NAME qt_tests COMMAND qt_tests)
 set_unit_test_environment(qt_tests)
