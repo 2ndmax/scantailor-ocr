@@ -5517,62 +5517,62 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>output::FilterUi</name>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="69"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="71"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation>Bildzonen sind nur im Farbmodus „Gemischt“ verfügbar.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="113"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="115"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation>Die Fleckenentfernung ist im Farbmodus „Farbe / Graustufen“ nicht möglich.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="125"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="127"/>
         <source>Output</source>
         <translation>Ausgabe</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="126"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="128"/>
         <source>Shows the processed page as it will be saved. (Ctrl+1)</source>
         <translation>Zeigt die bearbeitete Seite, wie sie gespeichert wird. (Strg+1)</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="127"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="129"/>
         <source>Picture Zones</source>
         <translation>Bildzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="128"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="130"/>
         <source>Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)</source>
         <translation>Markiert die Bereiche der Seite, die als Bild behandelt werden. Nur im Modus „Gemischt“. (Strg+2)</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="129"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="131"/>
         <source>Fill Zones</source>
         <translation>Füllzonen</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="130"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="132"/>
         <source>Fills areas of the output with a color you pick. (Ctrl+3)</source>
         <translation>Füllt Bereiche der Ausgabe mit einer gewählten Farbe. (Strg+3)</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="131"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="133"/>
         <source>Dewarping</source>
         <translation>Entzerrung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="132"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="134"/>
         <source>Shows the curves used to dewarp the page. In Manual mode, you place them yourself. (Ctrl+4)</source>
         <translation>Zeigt die Kurven, mit denen die Seite entzerrt wird. Im Modus „Manuell“ setzen Sie sie selbst. (Strg+4)</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="133"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="135"/>
         <source>Despeckling</source>
         <translation>Fleckenentfernung</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="134"/>
+        <location filename="../core/filters/output/FilterUi.cpp" line="136"/>
         <source>Previews the removal of specks. (Ctrl+5)</source>
         <translation>Zeigt eine Vorschau der Fleckenentfernung. (Strg+5)</translation>
     </message>
