@@ -63,6 +63,51 @@ function Find-AppVerif {
     return $null
 }
 
+# --- The tools of the overview runs (set up by setup\05-setup-overview.ps1) ----------------------
+
+# Where uv keeps its Pythons and tools: outside AppData. A program installed as an app package
+# (the Claude desktop app, say) has its writes below AppData redirected into the package's own
+# folder, and uv then can't find the Python it has just installed. Set for the user account by
+# 05-setup-overview.ps1; a window opened before that takes them from the account here.
+$UvHome = "$env:USERPROFILE\.local\share\uv"
+foreach ($name in 'UV_PYTHON_INSTALL_DIR', 'UV_TOOL_DIR') {
+    if (-not [Environment]::GetEnvironmentVariable($name, 'Process')) {
+        $value = [Environment]::GetEnvironmentVariable($name, 'User')
+        if ($value) { [Environment]::SetEnvironmentVariable($name, $value, 'Process') }
+    }
+}
+
+# The first of $Candidates that exists, else $Name from PATH, else $null. The folders a setup
+# installs into come first: a window keeps the PATH it was opened with, so a tool installed since
+# then is not on it.
+function Find-Tool([string]$Name, [string[]]$Candidates) {
+    foreach ($candidate in $Candidates) {
+        if ($candidate -and (Test-Path -LiteralPath $candidate)) { return $candidate }
+    }
+    $command = Get-Command $Name -ErrorAction SilentlyContinue
+    if ($command) { return $command.Source }
+    return $null
+}
+
+# uv.exe, as winget installs it (a link in WinGet\Links, the program in WinGet\Packages), or $null.
+function Find-Uv {
+    $package = Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\astral-sh.uv_*\uv.exe" -ErrorAction SilentlyContinue |
+        Select-Object -First 1 -ExpandProperty FullName
+    return (Find-Tool 'uv' @("$env:LOCALAPPDATA\Microsoft\WinGet\Links\uv.exe", $package))
+}
+
+# The folder uv puts the commands of its tools in (default %USERPROFILE%\.local\bin).
+function Get-UvToolBin {
+    if ($env:UV_TOOL_BIN_DIR) { return $env:UV_TOOL_BIN_DIR }
+    return "$env:USERPROFILE\.local\bin"
+}
+
+# graphify.exe of the uv tool graphifyy, or $null.
+function Find-Graphify { return (Find-Tool 'graphify' @("$(Get-UvToolBin)\graphify.exe")) }
+
+# clang-uml.exe in the folder its installer uses, or $null.
+function Find-ClangUml { return (Find-Tool 'clang-uml' @("$env:ProgramFiles\clang-uml\bin\clang-uml.exe")) }
+
 # The Linux of the GCC build in WSL and the packages it needs there.
 $WslDistro = 'Ubuntu-24.04'
 $UbuntuPackages = @(Get-Content "$Root\scripts\setup\support\ubuntu-packages.txt" |
