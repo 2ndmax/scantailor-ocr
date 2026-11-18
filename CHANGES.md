@@ -562,7 +562,8 @@ what changed.
 * Scripts in `scripts\setup` set up a Windows machine, from Visual Studio to the finished build
   and the tools of the analysis. Scripts in `scripts\analysis` check the code with several
   compilers, static analysis (also `-DENABLE_CODE_ANALYSIS=ON`), sanitizers and Application
-  Verifier and merge their findings.
+  Verifier and merge their findings. Scripts in `scripts\overview` draw overviews of the code: a
+  graph with graphify and class and sequence diagrams with clang-uml.
 * **Fuzzing:** `-DBUILD_FUZZERS=ON` builds libFuzzer targets for the image readers, project and
   profile files, the processing of a page, the Output step and the PDF export. The fixes above
   for damaged project files, the posterization level and dewarping came from it.

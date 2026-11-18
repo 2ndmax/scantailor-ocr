@@ -221,7 +221,10 @@ Application Verifier, and write their findings to `scripts\analysis\results`.
 `scripts\setup\02-setup-analysis.ps1` shows for every run whether its tools are there and
 installs the missing ones. An overview of all scripts is in [scripts/README.md](scripts/README.md);
 what each run does and needs is described in
-[scripts/analysis/README.md](scripts/analysis/README.md).
+[scripts/analysis/README.md](scripts/analysis/README.md). Overviews of the code, a graph made
+with graphify and diagrams made with clang-uml, are drawn by the scripts in `scripts\overview`
+(set up by `scripts\setup\05-setup-overview.ps1`); see
+[scripts/overview/README.md](scripts/overview/README.md).
 
 The code formatting is checked on GitHub for every push, with clang-format 22.1.3 and the
 repository's `.clang-format`. To check it beforehand, run the same version on the changed files.
