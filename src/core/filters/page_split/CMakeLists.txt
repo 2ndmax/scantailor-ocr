@@ -21,6 +21,8 @@ set(sources
     SplitModeDialog.cpp SplitModeDialog.h
     Settings.cpp Settings.h
     Task.cpp Task.h
+    TaskResult.cpp TaskResult.h
+    FilterUi.cpp FilterUi.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     LayoutType.cpp LayoutType.h
     UnremoveButton.cpp UnremoveButton.h

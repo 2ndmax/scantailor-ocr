@@ -12,6 +12,8 @@ set(sources
     Filter.cpp Filter.h
     OptionsWidget.cpp OptionsWidget.h
     Task.cpp Task.h
+    TaskResult.cpp TaskResult.h
+    FilterUi.cpp FilterUi.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     Params.cpp Params.h
     Settings.cpp Settings.h

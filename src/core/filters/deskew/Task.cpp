@@ -2,7 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
-#include "DownscaledImage.h"
+#include "TaskResult.h"
 #include "UiData.h"
 
 #include <BinaryImage.h>
@@ -26,39 +26,12 @@
 #include "Dpm.h"
 #include "Filter.h"
 #include "FilterData.h"
-#include "FilterUiInterface.h"
-#include "ImageView.h"
 #include "ObliqueFinder.h"
-#include "OptionsWidget.h"
 #include "TaskStatus.h"
 #include "filters/select_content/Task.h"
 
 namespace deskew {
 using namespace imageproc;
-
-class Task::UiUpdater : public FilterResult {
- public:
-  UiUpdater(std::shared_ptr<Filter> filter,
-            std::unique_ptr<DebugImages> dbgImg,
-            const QImage& image,
-            const PageId& pageId,
-            const ImageTransformation& xform,
-            const UiData& uiData);
-
-  void updateUI(FilterUiInterface* ui) override;
-
-  std::shared_ptr<AbstractFilter> filter() override { return m_filter; }
-
- private:
-  std::shared_ptr<Filter> m_filter;
-  std::unique_ptr<DebugImages> m_dbg;
-  QImage m_image;
-  QImage m_downscaledImage;
-  PageId m_pageId;
-  ImageTransformation m_xform;
-  UiData m_uiData;
-};
-
 
 Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<Settings> settings,
@@ -206,7 +179,7 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
     if (m_batchProcessing) {
       return std::make_shared<BatchProcessingResult>(m_filter, m_pageId);
     }
-    return std::make_shared<UiUpdater>(m_filter, std::move(m_dbg), data.origImage(), m_pageId, newXform, uiData);
+    return std::make_shared<TaskResult>(m_filter, std::move(m_dbg), data.origImage(), m_pageId, newXform, uiData);
   }
 }  // Task::process
 
@@ -297,38 +270,5 @@ void Task::updateFilterData(const TaskStatus& status, FilterData& data, bool nee
     m_imageSettings->setPageParams(m_pageId, newParams);
     data.updateImageParams(newParams);
   }
-}
-
-/*============================ Task::UiUpdater ==========================*/
-
-Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
-                           std::unique_ptr<DebugImages> dbgImg,
-                           const QImage& image,
-                           const PageId& pageId,
-                           const ImageTransformation& xform,
-                           const UiData& uiData)
-    : m_filter(std::move(filter)),
-      m_dbg(std::move(dbgImg)),
-      m_image(image),
-      m_downscaledImage(createDownscaledImage(image)),
-      m_pageId(pageId),
-      m_xform(xform),
-      m_uiData(uiData) {}
-
-void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
-  // This function is executed from the GUI thread.
-  ui->invalidateThumbnail(m_pageId);
-
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
-  optWidget->postUpdateUI(m_uiData);
-  ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
-
-  auto* view = new ImageView(m_image, m_downscaledImage, m_xform);
-  ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
-
-  QObject::connect(view, &ImageView::manualDeskewAngleSet, optWidget, &OptionsWidget::manualDeskewAngleSetExternally);
-  QObject::connect(optWidget, &OptionsWidget::manualDeskewAngleSet, view, &ImageView::manualDeskewAngleSetExternally);
-  QObject::connect(view, &ImageView::manualObliqueAngleSet, optWidget, &OptionsWidget::manualObliqueAngleSetExternally);
-  QObject::connect(optWidget, &OptionsWidget::manualObliqueAngleSet, view, &ImageView::manualObliqueAngleSetExternally);
 }
 }  // namespace deskew

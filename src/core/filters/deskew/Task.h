@@ -77,8 +77,6 @@ class Task {
                                                 double resolutionRatio);
 
  private:
-  class UiUpdater;
-
   static int from150dpi(int size, int targetDpi);
 
   static QSize from150dpi(const QSize& size, const Dpi& targetDpi);

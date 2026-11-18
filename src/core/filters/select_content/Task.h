@@ -44,8 +44,6 @@ class Task {
   FilterResultPtr process(const TaskStatus& status, const FilterData& data);
 
  private:
-  class UiUpdater;
-
   std::shared_ptr<Filter> m_filter;
   std::shared_ptr<page_layout::Task> m_nextTask;
   std::shared_ptr<Settings> m_settings;

@@ -45,8 +45,6 @@ class Task {
                           const QRectF& contentRect);
 
  private:
-  class UiUpdater;
-
   std::shared_ptr<Filter> m_filter;
   std::shared_ptr<output::Task> m_nextTask;
   std::shared_ptr<Settings> m_settings;

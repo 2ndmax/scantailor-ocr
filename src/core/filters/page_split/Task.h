@@ -45,8 +45,6 @@ class Task {
   FilterResultPtr process(const TaskStatus& status, const FilterData& data);
 
  private:
-  class UiUpdater;
-
   /**
    * Stores \p origPreCropArea in the dependencies of \p params, which were read from
    * a project file written before the trim was part of them.

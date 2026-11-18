@@ -13,6 +13,8 @@ set(sources
     ContentBoxFinder.cpp ContentBoxFinder.h
     PageFinder.cpp PageFinder.h
     Task.cpp Task.h
+    TaskResult.cpp TaskResult.h
+    FilterUi.cpp FilterUi.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     Dependencies.cpp Dependencies.h
     DetectionOptions.cpp DetectionOptions.h

@@ -2,7 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
-#include "DownscaledImage.h"
+#include "TaskResult.h"
 
 #include <utility>
 
@@ -11,9 +11,6 @@
 #include "Dpm.h"
 #include "Filter.h"
 #include "FilterData.h"
-#include "FilterUiInterface.h"
-#include "ImageView.h"
-#include "OptionsWidget.h"
 #include "Params.h"
 #include "Settings.h"
 #include "TaskStatus.h"
@@ -23,36 +20,6 @@
 using namespace imageproc;
 
 namespace page_layout {
-class Task::UiUpdater : public FilterResult {
- public:
-  UiUpdater(std::shared_ptr<Filter> filter,
-            std::shared_ptr<Settings> settings,
-            std::unique_ptr<DebugImages> dbg,
-            const PageId& pageId,
-            const QImage& image,
-            const ImageTransformation& xform,
-            const ContentMask& contentMask,
-            const QRectF& adaptedContentRect,
-            bool aggSizeChanged);
-
-  void updateUI(FilterUiInterface* ui) override;
-
-  std::shared_ptr<AbstractFilter> filter() override { return m_filter; }
-
- private:
-  std::shared_ptr<Filter> m_filter;
-  std::shared_ptr<Settings> m_settings;
-  std::unique_ptr<DebugImages> m_dbg;
-  PageId m_pageId;
-  QImage m_image;
-  QImage m_downscaledImage;
-  ContentMask m_contentMask;
-  ImageTransformation m_xform;
-  QRectF m_adaptedContentRect;
-  bool m_aggSizeChanged;
-};
-
-
 Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<output::Task> nextTask,
            std::shared_ptr<Settings> settings,
@@ -114,57 +81,9 @@ FilterResultPtr Task::process(const TaskStatus& status,
       m_dbg->add(contentMask.image(), "content_mask");
     }
 
-    return std::make_shared<UiUpdater>(m_filter, m_settings, std::move(m_dbg), m_pageId, data.origImage(), data.xform(),
-                                       contentMask, adaptedContentRect, aggHardSizeBefore != aggHardSizeAfter);
+    return std::make_shared<TaskResult>(m_filter, m_settings, std::move(m_dbg), m_pageId, data.origImage(),
+                                        data.xform(), contentMask, adaptedContentRect,
+                                        aggHardSizeBefore != aggHardSizeAfter);
   }
 }
-
-/*============================ Task::UiUpdater ==========================*/
-
-Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
-                           std::shared_ptr<Settings> settings,
-                           std::unique_ptr<DebugImages> dbg,
-                           const PageId& pageId,
-                           const QImage& image,
-                           const ImageTransformation& xform,
-                           const ContentMask& contentMask,
-                           const QRectF& adaptedContentRect,
-                           const bool aggSizeChanged)
-    : m_filter(std::move(filter)),
-      m_settings(std::move(settings)),
-      m_dbg(std::move(dbg)),
-      m_pageId(pageId),
-      m_image(image),
-      m_downscaledImage(createDownscaledImage(image)),
-      m_contentMask(contentMask),
-      m_xform(xform),
-      m_adaptedContentRect(adaptedContentRect),
-      m_aggSizeChanged(aggSizeChanged) {}
-
-void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
-  // This function is executed from the GUI thread.
-  if (m_aggSizeChanged) {
-    ui->invalidateAllThumbnails();
-  } else {
-    ui->invalidateThumbnail(m_pageId);
-  }
-
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
-  optWidget->postUpdateUI();
-  ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
-
-  auto* view = new ImageView(m_settings, m_pageId, m_image, m_downscaledImage, m_contentMask, m_xform,
-                             m_adaptedContentRect, *optWidget);
-  ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
-
-  QObject::connect(view, &ImageView::invalidateThumbnail, optWidget,
-                   qOverload<const PageId&>(&OptionsWidget::invalidateThumbnail));
-  QObject::connect(view, &ImageView::invalidateAllThumbnails, optWidget, &OptionsWidget::invalidateAllThumbnails);
-  QObject::connect(view, &ImageView::marginsSetLocally, optWidget, &OptionsWidget::marginsSetExternally);
-  QObject::connect(optWidget, &OptionsWidget::marginsSetLocally, view, &ImageView::marginsSetExternally);
-  QObject::connect(optWidget, &OptionsWidget::topBottomLinkToggled, view, &ImageView::topBottomLinkToggled);
-  QObject::connect(optWidget, &OptionsWidget::leftRightLinkToggled, view, &ImageView::leftRightLinkToggled);
-  QObject::connect(optWidget, &OptionsWidget::alignmentChanged, view, &ImageView::alignmentChanged);
-  QObject::connect(optWidget, &OptionsWidget::aggregateHardSizeChanged, view, &ImageView::aggregateHardSizeChanged);
-}  // Task::UiUpdater::updateUI
 }  // namespace page_layout

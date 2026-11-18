@@ -12,6 +12,8 @@ set(sources
     UiData.cpp UiData.h
     Settings.cpp Settings.h
     Task.cpp Task.h
+    TaskResult.cpp TaskResult.h
+    FilterUi.cpp FilterUi.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     Dependencies.cpp Dependencies.h
     ObliqueFinder.cpp ObliqueFinder.h

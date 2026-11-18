@@ -2,7 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
-#include "DownscaledImage.h"
+#include "TaskResult.h"
 #include "UiData.h"
 
 #include <UnitsProvider.h>
@@ -16,9 +16,6 @@
 #include "Dpm.h"
 #include "Filter.h"
 #include "FilterData.h"
-#include "FilterUiInterface.h"
-#include "ImageView.h"
-#include "OptionsWidget.h"
 #include "PageFinder.h"
 #include "TaskStatus.h"
 #include "filters/page_layout/Task.h"
@@ -26,32 +23,6 @@
 using namespace imageproc;
 
 namespace select_content {
-class Task::UiUpdater : public FilterResult {
- public:
-  UiUpdater(std::shared_ptr<Filter> filter,
-            const PageId& pageId,
-            std::unique_ptr<DebugImages> dbg,
-            const QImage& image,
-            const ImageTransformation& xform,
-            const ContentMask& contentMask,
-            const UiData& uiData);
-
-  void updateUI(FilterUiInterface* ui) override;
-
-  std::shared_ptr<AbstractFilter> filter() override { return m_filter; }
-
- private:
-  std::shared_ptr<Filter> m_filter;
-  PageId m_pageId;
-  std::unique_ptr<DebugImages> m_dbg;
-  QImage m_image;
-  QImage m_downscaledImage;
-  ContentMask m_contentMask;
-  ImageTransformation m_xform;
-  UiData m_uiData;
-};
-
-
 Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<page_layout::Task> nextTask,
            std::shared_ptr<Settings> settings,
@@ -193,45 +164,8 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
   } else if (m_batchProcessing) {
     return std::make_shared<BatchProcessingResult>(m_filter, m_pageId);
   } else {
-    return std::make_shared<UiUpdater>(m_filter, m_pageId, std::move(m_dbg), data.origImage(), data.xform(),
-                                       ContentMask(data.grayImageBlackOnWhite(), data.xform(), status), uiData);
+    return std::make_shared<TaskResult>(m_filter, m_pageId, std::move(m_dbg), data.origImage(), data.xform(),
+                                        ContentMask(data.grayImageBlackOnWhite(), data.xform(), status), uiData);
   }
 }  // Task::process
-
-/*============================ Task::UiUpdater ==========================*/
-
-Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
-                           const PageId& pageId,
-                           std::unique_ptr<DebugImages> dbg,
-                           const QImage& image,
-                           const ImageTransformation& xform,
-                           const ContentMask& contentMask,
-                           const UiData& uiData)
-    : m_filter(std::move(filter)),
-      m_pageId(pageId),
-      m_dbg(std::move(dbg)),
-      m_image(image),
-      m_downscaledImage(createDownscaledImage(image)),
-      m_contentMask(contentMask),
-      m_xform(xform),
-      m_uiData(uiData) {}
-
-void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
-  // This function is executed from the GUI thread.
-  ui->invalidateThumbnail(m_pageId);
-
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
-  optWidget->postUpdateUI(m_uiData);
-  ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
-
-  auto* view = new ImageView(m_image, m_downscaledImage, m_contentMask, m_xform, m_uiData.contentRect(),
-                             m_uiData.pageRect(), m_uiData.pageDetectionMode() != MODE_DISABLED);
-  ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
-
-  QObject::connect(view, &ImageView::manualContentRectSet, optWidget, &OptionsWidget::manualContentRectSet);
-  QObject::connect(view, &ImageView::manualPageRectSet, optWidget, &OptionsWidget::manualPageRectSet);
-  QObject::connect(view, &ImageView::pageRectSizeChanged, optWidget, &OptionsWidget::updatePageRectSize);
-  QObject::connect(optWidget, &OptionsWidget::pageRectChangedLocally, view, &ImageView::pageRectSetExternally);
-  QObject::connect(optWidget, &OptionsWidget::pageRectStateChanged, view, &ImageView::setPageRectEnabled);
-}
 }  // namespace select_content

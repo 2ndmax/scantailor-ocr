@@ -8,12 +8,21 @@
 #include "AbstractFilterUi.h"
 #include "FilterResult.h"
 #include "StageSequence.h"
+#include "filters/deskew/FilterUi.h"
 #include "filters/fix_orientation/FilterUi.h"
+#include "filters/page_layout/FilterUi.h"
+#include "filters/page_split/FilterUi.h"
+#include "filters/select_content/FilterUi.h"
 
 FilterUiSequence::FilterUiSequence(std::shared_ptr<StageSequence> stages)
     : m_stages(std::move(stages)), m_filterUis(m_stages->count()) {
   m_filterUis[m_stages->fixOrientationFilterIdx()]
       = std::make_unique<fix_orientation::FilterUi>(m_stages->fixOrientationFilter());
+  m_filterUis[m_stages->pageSplitFilterIdx()] = std::make_unique<page_split::FilterUi>(m_stages->pageSplitFilter());
+  m_filterUis[m_stages->deskewFilterIdx()] = std::make_unique<deskew::FilterUi>(m_stages->deskewFilter());
+  m_filterUis[m_stages->selectContentFilterIdx()]
+      = std::make_unique<select_content::FilterUi>(m_stages->selectContentFilter());
+  m_filterUis[m_stages->pageLayoutFilterIdx()] = std::make_unique<page_layout::FilterUi>(m_stages->pageLayoutFilter());
 }
 
 FilterUiSequence::~FilterUiSequence() = default;

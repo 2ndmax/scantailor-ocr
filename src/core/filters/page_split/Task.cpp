@@ -2,7 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Task.h"
-#include "DownscaledImage.h"
+#include "TaskResult.h"
 #include "UiData.h"
 
 #include <UnitsProvider.h>
@@ -14,9 +14,6 @@
 #include "Dpm.h"
 #include "Filter.h"
 #include "FilterData.h"
-#include "FilterUiInterface.h"
-#include "ImageView.h"
-#include "OptionsWidget.h"
 #include "PageLayoutAdapter.h"
 #include "PageLayoutEstimator.h"
 #include "ProjectPages.h"
@@ -27,32 +24,6 @@
 
 namespace page_split {
 using imageproc::BinaryThreshold;
-
-class Task::UiUpdater : public FilterResult {
- public:
-  UiUpdater(std::shared_ptr<Filter> filter,
-            std::shared_ptr<ProjectPages> pages,
-            std::unique_ptr<DebugImages> dbgImg,
-            const QImage& image,
-            const PageInfo& pageInfo,
-            const ImageTransformation& xform,
-            const UiData& uiData);
-
-  void updateUI(FilterUiInterface* ui) override;
-
-  std::shared_ptr<AbstractFilter> filter() override { return m_filter; }
-
- private:
-  std::shared_ptr<Filter> m_filter;
-  std::shared_ptr<ProjectPages> m_pages;
-  std::unique_ptr<DebugImages> m_dbg;
-  QImage m_image;
-  QImage m_downscaledImage;
-  PageInfo m_pageInfo;
-  ImageTransformation m_xform;
-  UiData m_uiData;
-};
-
 
 Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<Settings> settings,
@@ -177,8 +148,8 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
   if (m_batchProcessing) {
     return std::make_shared<BatchProcessingResult>(m_filter, m_pageInfo.id());
   }
-  return std::make_shared<UiUpdater>(m_filter, m_pages, std::move(m_dbg), data.origImage(), m_pageInfo, data.xform(),
-                                     uiData);
+  return std::make_shared<TaskResult>(m_filter, m_pages, std::move(m_dbg), data.origImage(), m_pageInfo, data.xform(),
+                                      uiData);
 }  // Task::process
 
 void Task::recordPreCropArea(const Params& params, const QPolygonF& origPreCropArea) {
@@ -193,40 +164,4 @@ void Task::recordPreCropArea(const Params& params, const QPolygonF& origPreCropA
   update.setParams(newParams);
   m_settings->updatePage(m_pageInfo.imageId(), update);
 }
-
-/*============================ Task::UiUpdater =========================*/
-
-Task::UiUpdater::UiUpdater(std::shared_ptr<Filter> filter,
-                           std::shared_ptr<ProjectPages> pages,
-                           std::unique_ptr<DebugImages> dbgImg,
-                           const QImage& image,
-                           const PageInfo& pageInfo,
-                           const ImageTransformation& xform,
-                           const UiData& uiData)
-    : m_filter(std::move(filter)),
-      m_pages(std::move(pages)),
-      m_dbg(std::move(dbgImg)),
-      m_image(image),
-      m_downscaledImage(createDownscaledImage(image)),
-      m_pageInfo(pageInfo),
-      m_xform(xform),
-      m_uiData(uiData) {}
-
-void Task::UiUpdater::updateUI(FilterUiInterface* ui) {
-  // This function is executed from the GUI thread.
-  ui->invalidateThumbnail(m_pageInfo.id());
-
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
-  optWidget->postUpdateUI(m_uiData);
-  ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
-
-  auto view = new ImageView(m_image, m_downscaledImage, m_xform, m_uiData.pageLayout(), m_pages, m_pageInfo.imageId(),
-                            m_pageInfo.leftHalfRemoved(), m_pageInfo.rightHalfRemoved());
-  ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_dbg.get());
-
-  QObject::connect(view, &ImageView::invalidateThumbnail, optWidget,
-                   qOverload<const PageInfo&>(&OptionsWidget::invalidateThumbnail));
-  QObject::connect(view, &ImageView::pageLayoutSetLocally, optWidget, &OptionsWidget::pageLayoutSetExternally);
-  QObject::connect(optWidget, &OptionsWidget::pageLayoutSetLocally, view, &ImageView::pageLayoutSetExternally);
-}  // Task::UiUpdater::updateUI
 }  // namespace page_split
