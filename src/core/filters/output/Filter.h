@@ -88,12 +88,6 @@ class Filter : public AbstractFilter {
                        const TaskStatus& status,
                        ColorMode* detectedMode = nullptr);
 
-  std::vector<PageOrderOption> pageOrderOptions() const override;
-
-  int selectedPageOrder() const override;
-
-  void selectPageOrder(int option) override;
-
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
@@ -101,8 +95,6 @@ class Filter : public AbstractFilter {
   // For the options panel, which is created on first use.
   PageSelectionAccessor m_pageSelectionAccessor;
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
-  std::vector<PageOrderOption> m_pageOrderOptions;
-  int m_selectedPageOrder;
   std::shared_ptr<ProcessingOptions> m_processingOptions;
 };
 }  // namespace output

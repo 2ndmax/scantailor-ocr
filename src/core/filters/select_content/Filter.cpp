@@ -27,16 +27,15 @@ namespace select_content {
 Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<DefaultParams> defaultParams)
     : m_settings(std::make_shared<Settings>()),
       m_pageSelectionAccessor(pageSelectionAccessor),
-      m_selectedPageOrder(0),
       m_defaultParams(std::move(defaultParams)) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);
   const auto orderByHeight = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::HEIGHT);
   const auto orderByDeviation = std::make_shared<OrderByDeviationProvider>(m_settings->deviationProvider());
-  m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
-  m_pageOrderOptions.emplace_back(tr("Order by increasing width"), orderByWidth);
-  m_pageOrderOptions.emplace_back(tr("Order by increasing height"), orderByHeight);
-  m_pageOrderOptions.emplace_back(tr("Order by decreasing deviation"), orderByDeviation);
+  addPageOrderOption({tr("Natural order"), defaultOrder});
+  addPageOrderOption({tr("Order by increasing width"), orderByWidth});
+  addPageOrderOption({tr("Order by increasing height"), orderByHeight});
+  addPageOrderOption({tr("Order by decreasing deviation"), orderByDeviation});
 }
 
 Filter::~Filter() = default;
@@ -47,19 +46,6 @@ QString Filter::getName() const {
 
 PageView Filter::getView() const {
   return PAGE_VIEW;
-}
-
-int Filter::selectedPageOrder() const {
-  return m_selectedPageOrder;
-}
-
-void Filter::selectPageOrder(int option) {
-  assert((unsigned) option < m_pageOrderOptions.size());
-  m_selectedPageOrder = option;
-}
-
-std::vector<PageOrderOption> Filter::pageOrderOptions() const {
-  return m_pageOrderOptions;
 }
 
 void Filter::performRelinking(const AbstractRelinker& relinker) {

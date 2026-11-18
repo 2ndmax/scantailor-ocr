@@ -23,15 +23,13 @@ namespace page_split {
 Filter::Filter(std::shared_ptr<ProjectPages> pageSequence, const PageSelectionAccessor& pageSelectionAccessor)
     : m_pages(std::move(pageSequence)),
       m_settings(std::make_shared<Settings>()),
-      m_pageSelectionAccessor(pageSelectionAccessor),
-      m_selectedPageOrder(0) {
+      m_pageSelectionAccessor(pageSelectionAccessor) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderBySplitType = std::make_shared<OrderBySplitTypeProvider>(m_settings);
-  m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
-  m_pageOrderOptions.emplace_back(
-      tr("Order by page type"), orderBySplitType,
-      tr("One page first, then one page and a strip to cut off, then two pages, each in natural order. "
-         "Pages not processed yet come last."));
+  addPageOrderOption({tr("Natural order"), defaultOrder});
+  addPageOrderOption({tr("Order by page type"), orderBySplitType,
+                      tr("One page first, then one page and a strip to cut off, then two pages, each in natural order. "
+                         "Pages not processed yet come last.")});
 }
 
 Filter::~Filter() = default;
@@ -120,19 +118,6 @@ std::shared_ptr<Task> Filter::createTask(const PageInfo& pageInfo,
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(std::shared_ptr<deskew::CacheDrivenTask> nextTask) {
   return std::make_shared<CacheDrivenTask>(m_settings, m_pages, std::move(nextTask));
-}
-
-std::vector<PageOrderOption> Filter::pageOrderOptions() const {
-  return m_pageOrderOptions;
-}
-
-int Filter::selectedPageOrder() const {
-  return m_selectedPageOrder;
-}
-
-void Filter::selectPageOrder(int option) {
-  assert((unsigned) option < m_pageOrderOptions.size());
-  m_selectedPageOrder = option;
 }
 
 void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {

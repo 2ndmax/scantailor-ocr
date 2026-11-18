@@ -4,6 +4,9 @@
 #ifndef SCANTAILOR_CORE_ABSTRACTFILTER_H_
 #define SCANTAILOR_CORE_ABSTRACTFILTER_H_
 
+#include <cassert>
+#include <memory>
+#include <utility>
 #include <vector>
 
 #include "PageOrderOption.h"
@@ -32,11 +35,21 @@ class AbstractFilter : public std::enable_shared_from_this<AbstractFilter> {
 
   virtual void selected() {}
 
-  virtual int selectedPageOrder() const { return -1; }
+  /**
+   * The index into pageOrderOptions(), or -1 if this filter offers no page orders.
+   */
+  int selectedPageOrder() const { return m_pageOrderOptions.empty() ? -1 : m_selectedPageOrder; }
 
-  virtual void selectPageOrder(int /*option*/) {}
+  void selectPageOrder(int option) {
+    // A filter without page orders has nothing to select.
+    if (m_pageOrderOptions.empty()) {
+      return;
+    }
+    assert((unsigned) option < m_pageOrderOptions.size());
+    m_selectedPageOrder = option;
+  }
 
-  virtual std::vector<PageOrderOption> pageOrderOptions() const { return std::vector<PageOrderOption>(); }
+  const std::vector<PageOrderOption>& pageOrderOptions() const { return m_pageOrderOptions; }
 
   virtual void performRelinking(const AbstractRelinker& relinker) = 0;
 
@@ -47,6 +60,16 @@ class AbstractFilter : public std::enable_shared_from_this<AbstractFilter> {
   virtual void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) = 0;
 
   virtual void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) = 0;
+
+ protected:
+  /**
+   * Offers one more page order. The first one added is selected.
+   */
+  void addPageOrderOption(PageOrderOption option) { m_pageOrderOptions.push_back(std::move(option)); }
+
+ private:
+  std::vector<PageOrderOption> m_pageOrderOptions;
+  int m_selectedPageOrder = 0;
 };
 
 

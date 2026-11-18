@@ -30,17 +30,14 @@ namespace output {
 Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions)
     : m_settings(std::make_shared<Settings>()),
       m_pageSelectionAccessor(pageSelectionAccessor),
-      m_selectedPageOrder(0),
       m_processingOptions(std::move(processingOptions)) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByCompleteness = std::make_shared<OrderByCompletenessProvider>();
-  m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
-  m_pageOrderOptions.emplace_back(
-      tr("Order by completeness"), orderByCompleteness,
-      tr("Processed pages first, then the pages not processed yet, each in natural order."));
-  m_pageOrderOptions.emplace_back(
-      tr("Order by color mode"), std::make_shared<OrderByColorModeProvider>(m_settings),
-      tr("Black and white first, then color / grayscale, then mixed, each in natural order."));
+  addPageOrderOption({tr("Natural order"), defaultOrder});
+  addPageOrderOption({tr("Order by completeness"), orderByCompleteness,
+                      tr("Processed pages first, then the pages not processed yet, each in natural order.")});
+  addPageOrderOption({tr("Order by color mode"), std::make_shared<OrderByColorModeProvider>(m_settings),
+                      tr("Black and white first, then color / grayscale, then mixed, each in natural order.")});
 }
 
 Filter::~Filter() = default;
@@ -179,18 +176,5 @@ bool Filter::detectColorMode(const PageInfo& pageInfo,
     *detectedMode = mode;
   }
   return true;
-}
-
-std::vector<PageOrderOption> Filter::pageOrderOptions() const {
-  return m_pageOrderOptions;
-}
-
-int Filter::selectedPageOrder() const {
-  return m_selectedPageOrder;
-}
-
-void Filter::selectPageOrder(int option) {
-  assert((unsigned) option < m_pageOrderOptions.size());
-  m_selectedPageOrder = option;
 }
 }  // namespace output

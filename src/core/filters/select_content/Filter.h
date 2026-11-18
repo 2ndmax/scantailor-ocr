@@ -44,12 +44,6 @@ class Filter : public AbstractFilter {
 
   PageView getView() const override;
 
-  int selectedPageOrder() const override;
-
-  void selectPageOrder(int option) override;
-
-  std::vector<PageOrderOption> pageOrderOptions() const override;
-
   void performRelinking(const AbstractRelinker& relinker) override;
 
   void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) override;
@@ -86,8 +80,6 @@ class Filter : public AbstractFilter {
   // For the options panel, which is created on first use.
   PageSelectionAccessor m_pageSelectionAccessor;
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
-  std::vector<PageOrderOption> m_pageOrderOptions;
-  int m_selectedPageOrder;
   // The start values of the project.
   std::shared_ptr<DefaultParams> m_defaultParams;
 };

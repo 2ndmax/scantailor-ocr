@@ -74,12 +74,6 @@ class Filter : public AbstractFilter {
    */
   const std::shared_ptr<Settings>& settings() const { return m_settings; }
 
-  std::vector<PageOrderOption> pageOrderOptions() const override;
-
-  int selectedPageOrder() const override;
-
-  void selectPageOrder(int option) override;
-
  private:
   void writeParams(QDomDocument& doc, QDomElement& filterEl, const Params& params, int numericId) const;
 
@@ -93,8 +87,6 @@ class Filter : public AbstractFilter {
   // For the options panel, which is created on first use.
   PageSelectionAccessor m_pageSelectionAccessor;
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
-  std::vector<PageOrderOption> m_pageOrderOptions;
-  int m_selectedPageOrder;
   std::shared_ptr<ProcessingOptions> m_processingOptions;
   // The start values of the project.
   std::shared_ptr<DefaultParams> m_defaultParams;

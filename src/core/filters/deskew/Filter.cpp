@@ -25,13 +25,12 @@ Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor,
     : m_settings(std::make_shared<Settings>()),
       m_imageSettings(std::make_shared<ImageSettings>()),
       m_pageSelectionAccessor(pageSelectionAccessor),
-      m_selectedPageOrder(0),
       m_processingOptions(std::move(processingOptions)),
       m_defaultParams(std::move(defaultParams)) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByDeviation = std::make_shared<OrderByDeviationProvider>(m_settings->deviationProvider());
-  m_pageOrderOptions.emplace_back(tr("Natural order"), defaultOrder);
-  m_pageOrderOptions.emplace_back(tr("Order by decreasing deviation"), orderByDeviation);
+  addPageOrderOption({tr("Natural order"), defaultOrder});
+  addPageOrderOption({tr("Order by decreasing deviation"), orderByDeviation});
 }
 
 Filter::~Filter() = default;
@@ -106,19 +105,6 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(
     std::shared_ptr<select_content::CacheDrivenTask> nextTask) {
   return std::make_shared<CacheDrivenTask>(m_settings, std::move(nextTask));
-}
-
-std::vector<PageOrderOption> Filter::pageOrderOptions() const {
-  return m_pageOrderOptions;
-}
-
-int Filter::selectedPageOrder() const {
-  return m_selectedPageOrder;
-}
-
-void Filter::selectPageOrder(int option) {
-  assert((unsigned) option < m_pageOrderOptions.size());
-  m_selectedPageOrder = option;
 }
 
 void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {

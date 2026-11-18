@@ -77,12 +77,6 @@ class Filter : public AbstractFilter {
 
   void pageOrientationUpdate(const ImageId& imageId, const OrthogonalRotation& orientation);
 
-  std::vector<PageOrderOption> pageOrderOptions() const override;
-
-  int selectedPageOrder() const override;
-
-  void selectPageOrder(int option) override;
-
  private:
   void writeImageSettings(QDomDocument& doc, QDomElement& filterEl, const ImageId& imageId, int numericId) const;
 
@@ -91,8 +85,6 @@ class Filter : public AbstractFilter {
   // For the options panel, which is created on first use.
   PageSelectionAccessor m_pageSelectionAccessor;
   SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
-  std::vector<PageOrderOption> m_pageOrderOptions;
-  int m_selectedPageOrder;
 };
 }  // namespace page_split
 #endif  // ifndef SCANTAILOR_PAGE_SPLIT_FILTER_H_
