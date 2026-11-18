@@ -12,6 +12,7 @@
 #include <FilterUiInterface.h>
 #include <FilterUiSequence.h>
 #include <PageInfo.h>
+#include <PageSelectionAccessor.h>
 #include <PageSequence.h>
 #include <StageSequence.h>
 #include <ThumbnailCollector.h>
@@ -84,7 +85,7 @@ class OnePageProject {
   explicit OnePageProject(const DefaultParams& startValues = DefaultParams())
       : m_files({test_pages::saveScan(test_pages::skewedPage(), m_dir.filePath("page.png"))}),
         project(m_files, m_dir.filePath("out"), startValues),
-        filterUis(project.stages) {}
+        filterUis(project.stages, PageSelectionAccessor(nullptr)) {}
 
   // Whether the page could be saved, which needs the PNG plugin.
   bool isValid() const { return m_dir.isValid() && test_pages::allSaved(m_files); }
@@ -110,7 +111,7 @@ class OnePageProject {
 inline FilterResultPtr showPage(OnePageProject& one, const PageInfo& page, const int filterIdx, RecordingUi& ui) {
   test_pages::TestProject& project = one.project;
   project.stages->loadDefaultSettings(page);
-  project.stages->filterAt(filterIdx)->preUpdateUI(&ui, page);
+  one.filterUis.preUpdateUI(filterIdx, &ui, page);
   const FilterResultPtr result = (*project.stages->createTask(page, filterIdx, project.thumbnailCache,
                                                               project.outFileNameGen, project.pages, false, false))();
   if (result) {

@@ -13,7 +13,6 @@
 #include "PageView.h"
 
 class DefaultParams;
-class FilterUiInterface;
 class PageInfo;
 class ProjectReader;
 class ProjectWriter;
@@ -52,8 +51,6 @@ class AbstractFilter : public std::enable_shared_from_this<AbstractFilter> {
   const std::vector<PageOrderOption>& pageOrderOptions() const { return m_pageOrderOptions; }
 
   virtual void performRelinking(const AbstractRelinker& relinker) = 0;
-
-  virtual void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) = 0;
 
   virtual QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const = 0;
 

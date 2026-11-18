@@ -14,7 +14,6 @@
 #include "PageOrderOption.h"
 #include "PageSelectionAccessor.h"
 #include "PageView.h"
-#include "SafeDeletingQObjectPtr.h"
 
 class ImageId;
 class PageInfo;
@@ -27,7 +26,6 @@ class CacheDrivenTask;
 }  // namespace deskew
 
 namespace page_split {
-class OptionsWidget;
 class Task;
 class CacheDrivenTask;
 class Settings;
@@ -49,8 +47,6 @@ class Filter : public AbstractFilter {
 
   void performRelinking(const AbstractRelinker& relinker) override;
 
-  void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) override;
-
   QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const override;
 
   void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
@@ -65,26 +61,21 @@ class Filter : public AbstractFilter {
   std::shared_ptr<CacheDrivenTask> createCacheDrivenTask(std::shared_ptr<deskew::CacheDrivenTask> nextTask);
 
   /**
-   * The options panel of this step. It is only created here, on first use from the GUI thread,
-   * so that the step also works without a GUI.
-   */
-  OptionsWidget* optionsWidget();
-
-  /**
    * The parameters of the images, e.g. for reading the split line found.
    */
   const std::shared_ptr<Settings>& settings() const { return m_settings; }
 
   void pageOrientationUpdate(const ImageId& imageId, const OrthogonalRotation& orientation);
 
+  // For the options panel, which FilterUi builds from them.
+  const std::shared_ptr<ProjectPages>& pages() const { return m_pages; }
+
  private:
   void writeImageSettings(QDomDocument& doc, QDomElement& filterEl, const ImageId& imageId, int numericId) const;
 
   std::shared_ptr<ProjectPages> m_pages;
   std::shared_ptr<Settings> m_settings;
-  // For the options panel, which is created on first use.
   PageSelectionAccessor m_pageSelectionAccessor;
-  SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
 };
 }  // namespace page_split
 #endif  // ifndef SCANTAILOR_PAGE_SPLIT_FILTER_H_

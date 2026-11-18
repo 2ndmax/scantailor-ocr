@@ -14,7 +14,6 @@
 #include "PageOrderOption.h"
 #include "PageSelectionAccessor.h"
 #include "PageView.h"
-#include "SafeDeletingQObjectPtr.h"
 
 class ProjectPages;
 class ImageTransformation;
@@ -27,7 +26,6 @@ class CacheDrivenTask;
 }  // namespace output
 
 namespace page_layout {
-class OptionsWidget;
 class Task;
 class CacheDrivenTask;
 class Settings;
@@ -48,8 +46,6 @@ class Filter : public AbstractFilter {
   void selected() override;
 
   void performRelinking(const AbstractRelinker& relinker) override;
-
-  void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) override;
 
   QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const override;
 
@@ -75,20 +71,17 @@ class Filter : public AbstractFilter {
 
   std::shared_ptr<CacheDrivenTask> createCacheDrivenTask(std::shared_ptr<output::CacheDrivenTask> nextTask);
 
-  /**
-   * The options panel of this step. It is only created here, on first use from the GUI thread,
-   * so that the step also works without a GUI.
-   */
-  OptionsWidget* optionsWidget();
+  // For the options panel, which FilterUi builds from them.
+  const std::shared_ptr<Settings>& settings() const { return m_settings; }
+
+  const std::shared_ptr<ProjectPages>& pages() const { return m_pages; }
 
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
   std::shared_ptr<ProjectPages> m_pages;
   std::shared_ptr<Settings> m_settings;
-  // For the options panel, which is created on first use.
   PageSelectionAccessor m_pageSelectionAccessor;
-  SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
 };
 }  // namespace page_layout
 #endif  // ifndef SCANTAILOR_PAGE_LAYOUT_FILTER_H_

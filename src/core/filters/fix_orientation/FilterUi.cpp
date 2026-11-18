@@ -9,10 +9,19 @@
 #include "FilterUiInterface.h"
 #include "ImageView.h"
 #include "OptionsWidget.h"
+#include "PageInfo.h"
+#include "Settings.h"
 #include "TaskResult.h"
 
 namespace fix_orientation {
-FilterUi::FilterUi(std::shared_ptr<Filter> filter) : m_filter(std::move(filter)) {}
+FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
+    : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}
+
+void FilterUi::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
+  const OrthogonalRotation rotation(m_filter->settings()->getRotationFor(pageInfo.id().imageId()));
+  optionsWidget()->preUpdateUI(pageInfo, rotation);
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
+}
 
 void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
@@ -21,7 +30,7 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
     return;
   }
 
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
+  OptionsWidget* const optWidget = optionsWidget();
   ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
 
   auto* view = new ImageView(pageResult->image(), pageResult->downscaledImage(), pageResult->xform());
@@ -29,5 +38,12 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   view->setRotationAndTrim(optWidget->rotation(), optWidget->trim());
   ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
   QObject::connect(optWidget, &OptionsWidget::rotationOrTrimChanged, view, &ImageView::setRotationAndTrim);
+}
+
+OptionsWidget* FilterUi::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_filter->settings(), m_pageSelectionAccessor));
+  }
+  return m_optionsWidget.get();
 }
 }  // namespace fix_orientation

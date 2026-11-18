@@ -10,9 +10,7 @@
 #include <utility>
 
 #include "CacheDrivenTask.h"
-#include "FilterUiInterface.h"
 #include "Guide.h"
-#include "OptionsWidget.h"
 #include "OrderBySizeProvider.h"
 #include "Params.h"
 #include "ProjectPages.h"
@@ -53,13 +51,6 @@ void Filter::selected() {
 
 void Filter::performRelinking(const AbstractRelinker& relinker) {
   m_settings->performRelinking(relinker);
-}
-
-void Filter::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
-  const Margins marginsMm(m_settings->getHardMarginsMM(pageInfo.id()));
-  const Alignment alignment(m_settings->getPageAlignment(pageInfo.id()));
-  optionsWidget()->preUpdateUI(pageInfo, marginsMm, alignment);
-  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
 }
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
@@ -139,10 +130,4 @@ void Filter::loadNewProjectSettings(const DefaultParams& defaults) {
   m_settings->setOutputSizeOptions(Utils::buildDefaultOutputSizeOptions(defaults));
 }
 
-OptionsWidget* Filter::optionsWidget() {
-  if (m_optionsWidget.get() == nullptr) {
-    m_optionsWidget.reset(new OptionsWidget(m_settings, m_pages, m_pageSelectionAccessor));
-  }
-  return m_optionsWidget.get();
-}
 }  // namespace page_layout

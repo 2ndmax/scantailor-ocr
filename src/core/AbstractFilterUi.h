@@ -6,6 +6,7 @@
 
 class FilterResult;
 class FilterUiInterface;
+class PageInfo;
 
 /**
  * The user interface of a step (AbstractFilter): what the main window shows of it. The step itself
@@ -14,6 +15,11 @@ class FilterUiInterface;
 class AbstractFilterUi {
  public:
   virtual ~AbstractFilterUi() = default;
+
+  /**
+   * Shows the options panel of this step for \p pageInfo, before the page is processed.
+   */
+  virtual void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) = 0;
 
   /**
    * Shows the result of processing a page in this step: its image view, connected to the options

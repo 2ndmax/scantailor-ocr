@@ -114,7 +114,7 @@ class MainWindow::PageSelectionProviderImpl : public PageSelectionProvider {
 MainWindow::MainWindow()
     : m_pages(std::make_shared<ProjectPages>()),
       m_stages(std::make_shared<StageSequence>(m_pages, newPageSelectionAccessor())),
-      m_filterUis(std::make_unique<FilterUiSequence>(m_stages)),
+      m_filterUis(std::make_unique<FilterUiSequence>(m_stages, newPageSelectionAccessor())),
       m_workerThreadPool(std::make_unique<WorkerThreadPool>()),
       m_interactiveQueue(std::make_unique<ProcessingTaskQueue>()),
       m_outOfMemoryDialog(std::make_unique<OutOfMemoryDialog>()),
@@ -371,7 +371,7 @@ void MainWindow::switchToNewProject(const ProjectSession& project,
   }
   m_outFileNameGen = project.outFileNameGen;
   m_stages = project.stages;
-  m_filterUis = std::make_unique<FilterUiSequence>(m_stages);
+  m_filterUis = std::make_unique<FilterUiSequence>(m_stages, newPageSelectionAccessor());
   m_thumbnailCache = project.thumbnailCache;
 
   // Connect the filter list model to the view and select
@@ -2080,7 +2080,7 @@ void MainWindow::loadPageInteractive(const PageInfo& page) {
   }
   bool currentWidgetIsImage = (WidgetUtils::castOrFindChild<ImageViewBase*>(m_imageFrameLayout->widget(0)) != nullptr);
   setImageWidget(m_processingIndicationWidget.get(), KEEP_OWNERSHIP, nullptr, currentWidgetIsImage);
-  m_stages->filterAt(m_curFilter)->preUpdateUI(this, page);
+  m_filterUis->preUpdateUI(m_curFilter, this, page);
 
   assert(m_thumbnailCache);
 

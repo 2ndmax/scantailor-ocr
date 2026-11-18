@@ -9,12 +9,22 @@
 #include "FilterUiInterface.h"
 #include "ImageView.h"
 #include "OptionsWidget.h"
+#include "PageInfo.h"
+#include "Settings.h"
 #include "TaskResult.h"
 
 using namespace imageproc;
 
 namespace page_layout {
-FilterUi::FilterUi(std::shared_ptr<Filter> filter) : m_filter(std::move(filter)) {}
+FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
+    : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}
+
+void FilterUi::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
+  const Margins marginsMm(m_filter->settings()->getHardMarginsMM(pageInfo.id()));
+  const Alignment alignment(m_filter->settings()->getPageAlignment(pageInfo.id()));
+  optionsWidget()->preUpdateUI(pageInfo, marginsMm, alignment);
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
+}
 
 void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
@@ -23,7 +33,7 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
     return;
   }
 
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
+  OptionsWidget* const optWidget = optionsWidget();
   optWidget->postUpdateUI();
   ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
 
@@ -41,5 +51,12 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   QObject::connect(optWidget, &OptionsWidget::leftRightLinkToggled, view, &ImageView::leftRightLinkToggled);
   QObject::connect(optWidget, &OptionsWidget::alignmentChanged, view, &ImageView::alignmentChanged);
   QObject::connect(optWidget, &OptionsWidget::aggregateHardSizeChanged, view, &ImageView::aggregateHardSizeChanged);
+}
+
+OptionsWidget* FilterUi::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_filter->settings(), m_filter->pages(), m_pageSelectionAccessor));
+  }
+  return m_optionsWidget.get();
 }
 }  // namespace page_layout

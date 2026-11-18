@@ -9,12 +9,20 @@
 #include "FilterUiInterface.h"
 #include "ImageView.h"
 #include "OptionsWidget.h"
+#include "PageInfo.h"
+#include "Settings.h"
 #include "TaskResult.h"
 
 using namespace imageproc;
 
 namespace select_content {
-FilterUi::FilterUi(std::shared_ptr<Filter> filter) : m_filter(std::move(filter)) {}
+FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
+    : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}
+
+void FilterUi::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
+  optionsWidget()->preUpdateUI(pageInfo);
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
+}
 
 void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
@@ -23,7 +31,7 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
     return;
   }
 
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
+  OptionsWidget* const optWidget = optionsWidget();
   optWidget->postUpdateUI(pageResult->uiData());
   ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
 
@@ -37,5 +45,12 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   QObject::connect(view, &ImageView::pageRectSizeChanged, optWidget, &OptionsWidget::updatePageRectSize);
   QObject::connect(optWidget, &OptionsWidget::pageRectChangedLocally, view, &ImageView::pageRectSetExternally);
   QObject::connect(optWidget, &OptionsWidget::pageRectStateChanged, view, &ImageView::setPageRectEnabled);
+}
+
+OptionsWidget* FilterUi::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_filter->settings(), m_filter->defaultParams(), m_pageSelectionAccessor));
+  }
+  return m_optionsWidget.get();
 }
 }  // namespace select_content

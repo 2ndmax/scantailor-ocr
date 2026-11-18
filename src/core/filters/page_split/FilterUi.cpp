@@ -9,10 +9,18 @@
 #include "FilterUiInterface.h"
 #include "ImageView.h"
 #include "OptionsWidget.h"
+#include "PageInfo.h"
+#include "Settings.h"
 #include "TaskResult.h"
 
 namespace page_split {
-FilterUi::FilterUi(std::shared_ptr<Filter> filter) : m_filter(std::move(filter)) {}
+FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
+    : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}
+
+void FilterUi::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
+  optionsWidget()->preUpdateUI(pageInfo.id());
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
+}
 
 void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
@@ -21,7 +29,7 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
     return;
   }
 
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
+  OptionsWidget* const optWidget = optionsWidget();
   optWidget->postUpdateUI(pageResult->uiData());
   ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
 
@@ -34,5 +42,12 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
                    qOverload<const PageInfo&>(&OptionsWidget::invalidateThumbnail));
   QObject::connect(view, &ImageView::pageLayoutSetLocally, optWidget, &OptionsWidget::pageLayoutSetExternally);
   QObject::connect(optWidget, &OptionsWidget::pageLayoutSetLocally, view, &ImageView::pageLayoutSetExternally);
+}
+
+OptionsWidget* FilterUi::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_filter->settings(), m_filter->pages(), m_pageSelectionAccessor));
+  }
+  return m_optionsWidget.get();
 }
 }  // namespace page_split

@@ -15,7 +15,9 @@
 #include "FilterUiInterface.h"
 #include "ImageView.h"
 #include "OptionsWidget.h"
+#include "PageInfo.h"
 #include "PictureZoneEditor.h"
+#include "Settings.h"
 #include "TabbedImageView.h"
 #include "TaskResult.h"
 #include "Utils.h"
@@ -24,7 +26,13 @@ using namespace imageproc;
 using namespace dewarping;
 
 namespace output {
-FilterUi::FilterUi(std::shared_ptr<Filter> filter) : m_filter(std::move(filter)) {}
+FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
+    : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}
+
+void FilterUi::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
+  optionsWidget()->preUpdateUI(pageInfo.id());
+  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
+}
 
 void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   // This function is executed from the GUI thread.
@@ -33,7 +41,7 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
     return;
   }
 
-  OptionsWidget* const optWidget = m_filter->optionsWidget();
+  OptionsWidget* const optWidget = optionsWidget();
   optWidget->postUpdateUI();
   ui->setOptionsWidget(optWidget, ui->KEEP_OWNERSHIP);
 
@@ -130,5 +138,13 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   QObject::connect(tabWidget.get(), &TabbedImageView::tabChanged, optWidget, &OptionsWidget::tabChanged);
 
   ui->setImageWidget(tabWidget.release(), ui->TRANSFER_OWNERSHIP, pageResult->dbg());
+}
+
+OptionsWidget* FilterUi::optionsWidget() {
+  if (m_optionsWidget.get() == nullptr) {
+    m_optionsWidget.reset(new OptionsWidget(m_filter->settings(), m_filter->processingOptions(),
+                                            m_pageSelectionAccessor, m_filter->lastTab()));
+  }
+  return m_optionsWidget.get();
 }
 }  // namespace output

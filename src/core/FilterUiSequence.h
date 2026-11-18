@@ -12,6 +12,8 @@
 class AbstractFilterUi;
 class FilterResult;
 class FilterUiInterface;
+class PageInfo;
+class PageSelectionAccessor;
 class StageSequence;
 
 /**
@@ -21,9 +23,18 @@ class FilterUiSequence {
   DECLARE_NON_COPYABLE(FilterUiSequence)
 
  public:
-  explicit FilterUiSequence(std::shared_ptr<StageSequence> stages);
+  /**
+   * \p pageSelectionAccessor lets the options panels apply settings to the pages selected in the
+   * main window.
+   */
+  FilterUiSequence(std::shared_ptr<StageSequence> stages, const PageSelectionAccessor& pageSelectionAccessor);
 
   ~FilterUiSequence();
+
+  /**
+   * Shows the options panel of the step \p filterIdx for \p pageInfo, before the page is processed.
+   */
+  void preUpdateUI(int filterIdx, FilterUiInterface* ui, const PageInfo& pageInfo) const;
 
   /**
    * Shows \p result through the user interface of the step it belongs to. Call it after

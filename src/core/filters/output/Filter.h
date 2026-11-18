@@ -15,7 +15,6 @@
 #include "PageSelectionAccessor.h"
 #include "PageView.h"
 #include "ProcessingOptions.h"
-#include "SafeDeletingQObjectPtr.h"
 
 class PageInfo;
 class TaskStatus;
@@ -25,7 +24,6 @@ class QString;
 
 namespace output {
 class LastImageViewTab;
-class OptionsWidget;
 class Task;
 class CacheDrivenTask;
 class Settings;
@@ -46,8 +44,6 @@ class Filter : public AbstractFilter {
 
   void performRelinking(const AbstractRelinker& relinker) override;
 
-  void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) override;
-
   QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const override;
 
   void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
@@ -61,12 +57,6 @@ class Filter : public AbstractFilter {
                                    bool debug);
 
   std::shared_ptr<CacheDrivenTask> createCacheDrivenTask(const OutputFileNameGenerator& outFileNameGen);
-
-  /**
-   * The options panel of this step. It is only created here, on first use from the GUI thread,
-   * so that the step also works without a GUI.
-   */
-  OptionsWidget* optionsWidget();
 
   const std::shared_ptr<Settings>& settings() const { return m_settings; }
 
@@ -89,13 +79,16 @@ class Filter : public AbstractFilter {
                        const TaskStatus& status,
                        ColorMode* detectedMode = nullptr);
 
+  // For the options panel, which FilterUi builds from them.
+  const std::shared_ptr<ProcessingOptions>& processingOptions() const { return m_processingOptions; }
+
+  const std::shared_ptr<LastImageViewTab>& lastTab() const { return m_lastTab; }
+
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
   std::shared_ptr<Settings> m_settings;
-  // For the options panel, which is created on first use.
   PageSelectionAccessor m_pageSelectionAccessor;
-  SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
   std::shared_ptr<ProcessingOptions> m_processingOptions;
   // The tab the options panel shows; tasks prepare what it needs.
   std::shared_ptr<LastImageViewTab> m_lastTab;

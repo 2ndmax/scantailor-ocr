@@ -11,8 +11,6 @@
 
 #include "AbstractRelinker.h"
 #include "CacheDrivenTask.h"
-#include "FilterUiInterface.h"
-#include "OptionsWidget.h"
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "Task.h"
@@ -46,11 +44,6 @@ PageView Filter::getView() const {
 void Filter::performRelinking(const AbstractRelinker& relinker) {
   m_settings->performRelinking(relinker);
   m_imageSettings->performRelinking(relinker);
-}
-
-void Filter::preUpdateUI(FilterUiInterface* const ui, const PageInfo& pageInfo) {
-  optionsWidget()->preUpdateUI(pageInfo.id());
-  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
 }
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
@@ -112,13 +105,6 @@ void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& 
     return;
 
   m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams(defaults));
-}
-
-OptionsWidget* Filter::optionsWidget() {
-  if (m_optionsWidget.get() == nullptr) {
-    m_optionsWidget.reset(new OptionsWidget(m_settings, m_defaultParams, m_pageSelectionAccessor));
-  }
-  return m_optionsWidget.get();
 }
 
 void Filter::saveImageSettings(const ProjectWriter& writer, QDomDocument& doc, QDomElement& filterEl) const {

@@ -10,10 +10,8 @@
 #include <utility>
 
 #include "CacheDrivenTask.h"
-#include "FilterUiInterface.h"
 #include "ImageSettings.h"
 #include "ImageTrim.h"
-#include "OptionsWidget.h"
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "Settings.h"
@@ -39,12 +37,6 @@ PageView Filter::getView() const {
 void Filter::performRelinking(const AbstractRelinker& relinker) {
   m_settings->performRelinking(relinker);
   m_imageSettings->performRelinking(relinker);
-}
-
-void Filter::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
-  const OrthogonalRotation rotation(m_settings->getRotationFor(pageInfo.id().imageId()));
-  optionsWidget()->preUpdateUI(pageInfo, rotation);
-  ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
 }
 
 QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
@@ -104,13 +96,6 @@ void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& 
     return;
 
   m_settings->applyRotation(pageInfo.id().imageId(), Utils::getDefaultOrthogonalRotation(defaults));
-}
-
-OptionsWidget* Filter::optionsWidget() {
-  if (m_optionsWidget.get() == nullptr) {
-    m_optionsWidget.reset(new OptionsWidget(m_settings, m_pageSelectionAccessor));
-  }
-  return m_optionsWidget.get();
 }
 
 void Filter::saveImageSettings(const ProjectWriter& writer, QDomDocument& doc, QDomElement& filterEl) const {

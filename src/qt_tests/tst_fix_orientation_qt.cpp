@@ -177,14 +177,15 @@ void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
   const ImageId image("page.png");
   const PageInfo info(pageInfo(image, QSize(400, 300)));
   RecordingUi ui;
-  filter->preUpdateUI(&ui, info);
+  FilterUi filterUi(filter, PageSelectionAccessor(nullptr));
+  filterUi.preUpdateUI(&ui, info);
 
   QImage pixels(400, 300, QImage::Format_RGB32);
   pixels.fill(Qt::white);
   const FilterResultPtr result
       = filter->createTask(info.id(), nullptr, false)->process(NullTaskStatus(), FilterData(pixels));
 
-  OptionsWidget* widget = filter->optionsWidget();
+  OptionsWidget* widget = filterUi.optionsWidget();
   QVERIFY(widget != nullptr);
   auto* const rotateRight = widget->findChild<QAbstractButton*>("rotateRightBtn");
   auto* const trimEnabled = widget->findChild<QCheckBox*>("trimEnabledCheck");
@@ -194,7 +195,7 @@ void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
   QVERIFY(top != nullptr);
   rotateRight->click();
   result->updateUI(&ui);
-  FilterUi(filter).showResult(*result, &ui);
+  filterUi.showResult(*result, &ui);
 
   RotationCollector collector;
   filter->createCacheDrivenTask(nullptr)->process(info, &collector);

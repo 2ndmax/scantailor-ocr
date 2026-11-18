@@ -15,7 +15,6 @@
 #include "PageOrderOption.h"
 #include "PageSelectionAccessor.h"
 #include "PageView.h"
-#include "SafeDeletingQObjectPtr.h"
 #include "Settings.h"
 
 class QString;
@@ -26,7 +25,6 @@ class CacheDrivenTask;
 }  // namespace page_layout
 
 namespace select_content {
-class OptionsWidget;
 class Task;
 class CacheDrivenTask;
 class Settings;
@@ -46,8 +44,6 @@ class Filter : public AbstractFilter {
 
   void performRelinking(const AbstractRelinker& relinker) override;
 
-  void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) override;
-
   QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const override;
 
   void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
@@ -62,24 +58,18 @@ class Filter : public AbstractFilter {
   std::shared_ptr<CacheDrivenTask> createCacheDrivenTask(std::shared_ptr<page_layout::CacheDrivenTask> nextTask);
 
   /**
-   * The options panel of this step. It is only created here, on first use from the GUI thread,
-   * so that the step also works without a GUI.
-   */
-  OptionsWidget* optionsWidget();
-
-  /**
    * The parameters of the pages, e.g. for reading the content box found.
    */
   const std::shared_ptr<Settings>& settings() const { return m_settings; }
 
+  // For the options panel, which FilterUi builds from them.
+  const std::shared_ptr<DefaultParams>& defaultParams() const { return m_defaultParams; }
+
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
-
   std::shared_ptr<Settings> m_settings;
-  // For the options panel, which is created on first use.
   PageSelectionAccessor m_pageSelectionAccessor;
-  SafeDeletingQObjectPtr<OptionsWidget> m_optionsWidget;
   // The start values of the project.
   std::shared_ptr<DefaultParams> m_defaultParams;
 };
