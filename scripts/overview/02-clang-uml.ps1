@@ -112,54 +112,19 @@ if ($rc -eq 0) {
     [IO.File]::WriteAllLines("$diagramDir\diagrams.md", $lines, $Utf8)
 
     # The same as a web page that draws them in any browser. Mermaid is loaded from a CDN, so the
-    # page needs the internet when it is opened. The diagram text goes in HTML-encoded: Mermaid reads
-    # the decoded text, so the entities clang-uml writes itself (&lt; in templates) stay intact.
-    $sections = foreach ($file in Get-ChildItem "$diagramDir\*.mmd" | Sort-Object Name) {
-        $text = [Net.WebUtility]::HtmlEncode([IO.File]::ReadAllText($file.FullName, $Utf8))
-        "<h2>$($file.BaseName)</h2>`n<div class=`"diagram`"><pre class=`"mermaid`">`n$text</pre></div>"
+    # page needs the internet when it is opened.
+    $diagrams = foreach ($file in Get-ChildItem "$diagramDir\*.mmd" | Sort-Object Name) {
+        @{ Name = $file.BaseName; Text = [IO.File]::ReadAllText($file.FullName, $Utf8); Kind = 'mermaid' }
     }
-    $html = @(
-        '<!doctype html>'
-        '<html lang="en"><head><meta charset="utf-8"><title>clang-uml diagrams</title>'
-        # At most as high as the window, so its scroll bars are on screen while the diagram is.
-        '<style>body { font-family: sans-serif; margin: 1em 2em; }'
-        '.diagram { overflow: auto; max-height: calc(100vh - 4em); border: 1px solid #ccc; cursor: grab; }'
-        '.diagram.moving { cursor: grabbing; user-select: none; }</style>'
-        '</head><body>'
-        '<h1>Diagrams of clang-uml</h1>'
-        "<p>Drawn from scripts/overview/clang-uml.yml, $(Get-Stamp).</p>"
-    ) + $sections + @(
+    Write-DiagramPage "$diagramDir\diagrams.html" 'Diagrams of clang-uml' `
+        "Drawn from scripts/overview/clang-uml.yml, $(Get-Stamp)." $diagrams @(
         '<script type="module">'
         "import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@$MermaidVersion/dist/mermaid.esm.min.mjs';"
         'mermaid.initialize({ startOnLoad: false, maxTextSize: 1000000 });'
         'await mermaid.run();'
-        # Mermaid shrinks a diagram to the window, which makes the text of a large one unreadable. Its
-        # full width is the max-width Mermaid sets; the diagram is then scrolled sideways. A class
-        # diagram starts in the middle (its base class is at the top centre), a sequence diagram left.
-        'for (const svg of document.querySelectorAll(".diagram svg")) {'
-        '  if (svg.style.maxWidth) { svg.style.width = svg.style.maxWidth; svg.style.maxWidth = "none"; }'
-        '  const box = svg.closest(".diagram");'
-        '  if (svg.getAttribute("aria-roledescription") === "classDiagram") { box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2; }'
-        '}'
-        # Dragging with the mouse moves a diagram in every direction, like a map.
-        'for (const box of document.querySelectorAll(".diagram")) {'
-        '  let start = null;'
-        '  box.addEventListener("pointerdown", e => {'
-        '    if (e.button !== 0) return;'
-        '    start = { x: e.clientX, y: e.clientY, left: box.scrollLeft, top: box.scrollTop };'
-        '    box.setPointerCapture(e.pointerId); box.classList.add("moving");'
-        '  });'
-        '  box.addEventListener("pointermove", e => {'
-        '    if (!start) return;'
-        '    box.scrollLeft = start.left - (e.clientX - start.x); box.scrollTop = start.top - (e.clientY - start.y);'
-        '  });'
-        '  const stop = () => { start = null; box.classList.remove("moving"); };'
-        '  box.addEventListener("pointerup", stop); box.addEventListener("pointercancel", stop);'
-        '}'
+        'fitDiagrams();'
         '</script>'
-        '</body></html>'
     )
-    [IO.File]::WriteAllLines("$diagramDir\diagrams.html", $html, $Utf8)
 }
 Add-LogLine $log "`r`n# Exit code: $rc"
 Add-LogLine $log "# End: $(Get-Stamp)"
