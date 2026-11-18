@@ -9,7 +9,7 @@
 
 #include <core/DefaultParams.h>
 
-#include "../../Utils.h"
+#include "../../WidgetUtils.h"
 #include "ApplyDialog.h"
 #include "Params.h"
 #include "Settings.h"
@@ -30,7 +30,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   obliqueSpinBox->setSuffix(QChar(0x00B0));
   // Both angles are as wide as "-45.00°", although their ranges differ.
   for (QDoubleSpinBox* spinBox : {angleSpinBox, obliqueSpinBox}) {
-    core::Utils::setNumberFieldWidth(spinBox, -MAX_ANGLE);
+    core::WidgetUtils::setNumberFieldWidth(spinBox, -MAX_ANGLE);
   }
   setSpinBoxUnknownState();
   // The items follow the order of SkewDetection.

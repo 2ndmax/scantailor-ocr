@@ -9,7 +9,7 @@
 #include <functional>
 #include <utility>
 
-#include "../../Utils.h"
+#include "../../WidgetUtils.h"
 #include "ApplyDialog.h"
 #include "DetectionOptions.h"
 #include "Settings.h"
@@ -26,7 +26,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   setupUi(this);
   // Percent fields are as wide as "100 %", their highest value.
   for (QSpinBox* spinBox : {fillFactorSpinBox, borderToleranceSpinBox}) {
-    core::Utils::setNumberFieldWidth(spinBox, 100);
+    core::WidgetUtils::setNumberFieldWidth(spinBox, 100);
   }
 
   setupUiConnections();
@@ -324,7 +324,7 @@ void OptionsWidget::onUnitsChanged(Units units) {
   // As the size fields in the step "Margins": three digits before the decimal point, in pixels four.
   const double widestSize = (units == PIXELS) ? 9999 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox}) {
-    core::Utils::setUpLengthField(spinBox, units, widestSize);
+    core::WidgetUtils::setUpLengthField(spinBox, units, widestSize);
   }
 
   updatePageRectSize(m_uiData.pageRect().size());

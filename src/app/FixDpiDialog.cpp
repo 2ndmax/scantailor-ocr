@@ -12,6 +12,7 @@
 #include "ColorSchemeManager.h"
 #include "StateIcon.h"
 #include "Utils.h"
+#include "WidgetUtils.h"
 
 // Requests the resolution all images of an item have in common, as a QSize, undefined values
 // included; an invalid QSize if they have different ones.
@@ -160,8 +161,8 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
       field->addItem(core::Utils::dpiText(dpi));
     }
     field->setInsertPolicy(QComboBox::NoInsert);
-    field->setValidator(core::Utils::createDpiValidator(field));
-    core::Utils::setDpiFieldWidth(field);
+    field->setValidator(core::WidgetUtils::createDpiValidator(field));
+    core::WidgetUtils::setDpiFieldWidth(field);
   }
 
   m_normalPalette = xDpi->lineEdit()->palette();

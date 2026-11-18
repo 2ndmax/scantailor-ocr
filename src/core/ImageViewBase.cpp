@@ -32,7 +32,7 @@
 #include "PixmapRenderer.h"
 #include "ScopedIncDec.h"
 #include "UnitsProvider.h"
-#include "Utils.h"
+#include "WidgetUtils.h"
 
 using namespace core;
 using namespace imageproc;
@@ -611,7 +611,7 @@ void ImageViewBase::leaveEvent(QEvent* event) {
 void ImageViewBase::showEvent(QShowEvent* event) {
   QWidget::showEvent(event);
   if (auto* mainWindow = dynamic_cast<QMainWindow*>(window())) {
-    if (auto* infoListener = Utils::castOrFindChild<ImageViewInfoListener*>(mainWindow->statusBar())) {
+    if (auto* infoListener = WidgetUtils::castOrFindChild<ImageViewInfoListener*>(mainWindow->statusBar())) {
       infoProvider().addListener(infoListener);
     }
   }

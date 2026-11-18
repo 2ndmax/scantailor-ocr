@@ -13,6 +13,7 @@
 #include <utility>
 
 #include "../../Utils.h"
+#include "../../WidgetUtils.h"
 #include "ApplyDialog.h"
 #include "ApplyMarginsDialog.h"
 #include "Params.h"
@@ -36,7 +37,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   setupUi(this);
   // Both limits are as wide as "1000 %", the highest enlargement; other percent fields as "100 %".
   for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox}) {
-    core::Utils::setNumberFieldWidth(spinBox, 1000);
+    core::WidgetUtils::setNumberFieldWidth(spinBox, 1000);
   }
   setupIcons();
   setupSourceDpiControls();
@@ -177,10 +178,10 @@ void OptionsWidget::onUnitsChanged(Units units) {
   const double widestMargin = (units == PIXELS) ? 999 : (units == MILLIMETRES) ? 99.9 : 9.99;
   const double widestSize = (units == PIXELS) ? 9999 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
-    core::Utils::setUpLengthField(spinBox, units, widestMargin);
+    core::WidgetUtils::setUpLengthField(spinBox, units, widestMargin);
   }
   for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
-    core::Utils::setUpLengthField(spinBox, units, widestSize);
+    core::WidgetUtils::setUpLengthField(spinBox, units, widestSize);
   }
 
   updateMarginsDisplay();
@@ -700,8 +701,8 @@ void OptionsWidget::setupSourceDpiControls() {
       field->addItem(core::Utils::dpiText(dpi));
     }
     field->setInsertPolicy(QComboBox::NoInsert);
-    field->setValidator(core::Utils::createDpiValidator(field));
-    core::Utils::setDpiFieldWidth(field);
+    field->setValidator(core::WidgetUtils::createDpiValidator(field));
+    core::WidgetUtils::setDpiFieldWidth(field);
   }
 
   m_sourceDpiNormalPalette = sourceXDpi->lineEdit()->palette();

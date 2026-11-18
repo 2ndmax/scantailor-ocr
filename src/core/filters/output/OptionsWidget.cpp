@@ -26,6 +26,7 @@
 #include "../../ProcessingOptions.h"
 #include "../../TiffCompressionPanel.h"
 #include "../../Utils.h"
+#include "../../WidgetUtils.h"
 #include "ApplyColorsDialog.h"
 #include "BinarizationMethods.h"
 #include "FillZoneComparator.h"
@@ -62,21 +63,21 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   setupUi(this);
   // Percent fields are as wide as "100 %", their highest value.
   for (QSpinBox* spinBox : {colorDetectionMinColorSB, colorDetectionMinPictureSB, pictureShapeSensitivitySB}) {
-    core::Utils::setNumberFieldWidth(spinBox, 100);
+    core::WidgetUtils::setNumberFieldWidth(spinBox, 100);
   }
   // Pixel fields of the filters are as wide as "999 px", fields without a unit as "-100".
   for (QSpinBox* spinBox : {chromaRadius, subtractBgRadius, knnRadius, wienerWindowSize, sharpenRadius}) {
-    core::Utils::setNumberFieldWidth(spinBox, 999);
+    core::WidgetUtils::setNumberFieldWidth(spinBox, 999);
   }
   for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{
            chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, redAdjustmentSB, greenAdjustmentSB,
            blueAdjustmentSB, reduceNoiseSB, kmeansColorsSB, posterizeLevelSB}) {
-    core::Utils::setNumberFieldWidth(spinBox, -100, 0);
+    core::WidgetUtils::setNumberFieldWidth(spinBox, -100, 0);
   }
   // As wide as the other fields without a unit.
   for (QAbstractSpinBox* spinBox :
        std::initializer_list<QAbstractSpinBox*>{coloredDimmingSB, lowerBoundSB, upperBoundSB}) {
-    core::Utils::setNumberFieldWidth(spinBox, -100, 0);
+    core::WidgetUtils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
   m_delayedReloadRequest.setSingleShot(true);
@@ -104,9 +105,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   }
   QList<QGridLayout*> binarizationGrids = binarizationOptions->findChildren<QGridLayout*>();
   binarizationGrids.append(allMethodsLayout);
-  core::Utils::alignLabelColumns(binarizationGrids);
+  core::WidgetUtils::alignLabelColumns(binarizationGrids);
   // The fields of the enhancement filters start at the same place; column 0 is the indent.
-  core::Utils::alignLabelColumns(
+  core::WidgetUtils::alignLabelColumns(
       {chromaOptionsLayout, subtractBgOptionsLayout, knnOptionsLayout, wienerOptionsLayout, sharpenOptionsLayout}, 1);
   // The settings of the threshold method are indented below the method list, as the settings of
   // the enhancement filters below their check boxes (a 15 px indent column plus the spacing).
@@ -131,8 +132,8 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   for (const int dpi : {300, 400, 600, 1200}) {
     dpiSelector->addItem(Utils::dpiText(dpi));
   }
-  dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
-  Utils::setDpiFieldWidth(dpiSelector);
+  dpiSelector->setValidator(WidgetUtils::createDpiValidator(dpiSelector));
+  WidgetUtils::setDpiFieldWidth(dpiSelector);
 
   DewarpingMethodBox::setUp(dewarpingMethodBox, dewarpingMethodLabel);
 
@@ -556,12 +557,12 @@ void OptionsWidget::setupPhotoAdjustmentsPanel() {
   }
   // Equal fields, as wide as "-2.00 EV".
   QAbstractSpinBox* exposureField = m_photoAdjustmentRows[EXPOSURE].field;
-  core::Utils::setNumberFieldWidth(exposureField, PhotoAdjustments::MIN_EXPOSURE);
+  core::WidgetUtils::setNumberFieldWidth(exposureField, PhotoAdjustments::MIN_EXPOSURE);
   for (PhotoAdjustmentRow& r : m_photoAdjustmentRows) {
     r.field->setFixedWidth(exposureField->minimumWidth());
   }
   // The fields of both parts start at the same place.
-  core::Utils::alignLabelColumns({colorBalanceGrid, toneGrid});
+  core::WidgetUtils::alignLabelColumns({colorBalanceGrid, toneGrid});
   for (QGridLayout* grid : {colorBalanceGrid, toneGrid}) {
     grid->setColumnStretch(1, 1);
   }

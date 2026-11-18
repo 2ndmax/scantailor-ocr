@@ -5,7 +5,7 @@
 
 #include <utility>
 
-#include "../../Utils.h"
+#include "../../WidgetUtils.h"
 #include "BinarizationMethods.h"
 
 
@@ -18,9 +18,9 @@ OptionsWidgetBinarizationLocal::OptionsWidgetBinarizationLocal(std::shared_ptr<S
       m_connectionManager(std::bind(&OptionsWidgetBinarizationLocal::setupUiConnections, this)) {
   setupUi(this);
   coef->setToolTip(binarizationCoefToolTip(m_method));
-  core::Utils::setNumberFieldWidth(windowSize, 999);
+  core::WidgetUtils::setNumberFieldWidth(windowSize, 999);
   for (QDoubleSpinBox* spinBox : {delta, coef}) {
-    core::Utils::setNumberFieldWidth(spinBox, -100, 0);
+    core::WidgetUtils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
   m_delayedStateChanger.setSingleShot(true);

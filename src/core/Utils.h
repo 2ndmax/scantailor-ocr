@@ -4,20 +4,11 @@
 #ifndef SCANTAILOR_CORE_UTILS_H_
 #define SCANTAILOR_CORE_UTILS_H_
 
-#include <QList>
-#include <QObject>
 #include <QString>
-#include <QValidator>
 #include <map>
 #include <unordered_map>
 
 #include "ThumbnailPixmapCache.h"
-#include "Units.h"
-
-class QAbstractSpinBox;
-class QDoubleSpinBox;
-class QGridLayout;
-class QComboBox;
 
 namespace core {
 class Utils {
@@ -30,9 +21,6 @@ class Utils {
   template <typename K, typename V, typename Hash, typename Pred, typename Alloc>
   static typename std::unordered_map<K, V, Hash, Pred, Alloc>::iterator
   mapSetValue(std::unordered_map<K, V, Hash, Pred, Alloc>& map, const K& key, const V& val);
-
-  template <typename T>
-  static T castOrFindChild(QObject* object);
 
   /**
    * \brief If \p outputDir exists, creates a "cache" subdirectory under it.
@@ -59,27 +47,6 @@ class Utils {
 
   /// Reads a resolution typed into such a list, with or without "dpi".
   static int dpiFromText(const QString& text, bool* ok);
-
-  /// Accepts up to four digits, optionally followed by "dpi".
-  static QValidator* createDpiValidator(QObject* parent);
-
-  /// Makes an editable list of resolutions as wide as three digits, e.g. "600 dpi"; four can still be typed in.
-  static void setDpiFieldWidth(QComboBox* field);
-
-  /// Makes a number field as wide as the given value with the field's decimals, prefix and suffix,
-  /// e.g. -999.9 for "-999.9 mm", instead of as wide as its range. Fields of the same kind get the
-  /// same value and so the same width. With decimals given, the value is written with them instead,
-  /// so fields with different decimals can get the same width.
-  static void setNumberFieldWidth(QAbstractSpinBox* field, double widestValue, int decimals = -1);
-
-  /// Sets up a spin box for a length in the given units: decimals, step, the unit in the field and,
-  /// from \p widestValue, the width. A field in pixels shows whole pixels.
-  static void setUpLengthField(QDoubleSpinBox* field, Units units, double widestValue);
-
-
-  /// Gives the label columns of the grids the same width and the grids the same spacing, so that
-  /// the labels and fields of grids shown below each other line up.
-  static void alignLabelColumns(const QList<QGridLayout*>& grids, int column = 0);
 
   Utils() = delete;
 };
@@ -108,24 +75,6 @@ Utils::mapSetValue(std::unordered_map<K, V, Hash, Pred, Alloc>& map, const K& ke
     it->second = val;
     return it;
   }
-}
-
-template <typename T>
-T Utils::castOrFindChild(QObject* object) {
-  if (!object) {
-    return nullptr;
-  }
-
-  if (auto result = dynamic_cast<T>(object)) {
-    return result;
-  } else {
-    for (QObject* child : object->children()) {
-      if ((result = castOrFindChild<T>(child))) {
-        return result;
-      }
-    }
-  }
-  return nullptr;
 }
 }  // namespace core
 

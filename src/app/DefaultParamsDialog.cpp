@@ -48,6 +48,7 @@
 #include "TiffCompressionPanel.h"
 #include "UnitsProvider.h"
 #include "Utils.h"
+#include "WidgetUtils.h"
 
 using namespace core;
 using namespace page_split;
@@ -150,13 +151,13 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   for (const int dpi : {300, 400, 600, 1200}) {
     dpiSelector->addItem(Utils::dpiText(dpi));
   }
-  dpiSelector->setValidator(Utils::createDpiValidator(dpiSelector));
-  Utils::setDpiFieldWidth(dpiSelector);
+  dpiSelector->setValidator(WidgetUtils::createDpiValidator(dpiSelector));
+  WidgetUtils::setDpiFieldWidth(dpiSelector);
   QList<QGridLayout*> binarizationGrids = binarizationOptions->findChildren<QGridLayout*>();
   binarizationGrids.append(allMethodsLayout);
-  Utils::alignLabelColumns(binarizationGrids);
+  WidgetUtils::alignLabelColumns(binarizationGrids);
   // The fields of the enhancement filters start at the same place; column 0 is the indent.
-  Utils::alignLabelColumns(
+  WidgetUtils::alignLabelColumns(
       {chromaOptionsLayout, subtractBgOptionsLayout, knnOptionsLayout, wienerOptionsLayout, sharpenOptionsLayout}, 1);
   // The settings of the threshold method are indented below the method list, as the settings of
   // the enhancement filters below their check boxes (a 15 px indent column plus the spacing).
@@ -169,22 +170,22 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   // Percent fields are as wide as "100 %", the limits of the output size as "1000 %", the highest
   // enlargement.
   for (QSpinBox* spinBox : {maxEnlargeSpinBox, minReduceSpinBox}) {
-    Utils::setNumberFieldWidth(spinBox, 1000);
+    WidgetUtils::setNumberFieldWidth(spinBox, 1000);
   }
   for (QSpinBox* spinBox : {fillFactorSpinBox, borderToleranceSpinBox, pictureShapeSensitivitySB,
                             colorDetectionMinColorSB, colorDetectionMinPictureSB}) {
-    Utils::setNumberFieldWidth(spinBox, 100);
+    WidgetUtils::setNumberFieldWidth(spinBox, 100);
   }
   // Pixel fields of the filters are as wide as "999 px", fields without a unit as "-100".
   for (QSpinBox* spinBox :
        {chromaRadius, subtractBgRadius, knnRadius, wienerWindowSize, sharpenRadius, methodWindowSize}) {
-    Utils::setNumberFieldWidth(spinBox, 999);
+    WidgetUtils::setNumberFieldWidth(spinBox, 999);
   }
   for (QAbstractSpinBox* spinBox : std::initializer_list<QAbstractSpinBox*>{
            chromaGrayLimit, subtractBgCoef, knnCoef, wienerCoef, sharpenCoef, otsuDelta, methodDelta, methodCoef,
            lowerBound, upperBound, coloredDimmingSB, redAdjustmentSB, greenAdjustmentSB, blueAdjustmentSB,
            reduceNoiseSB, kmeansColorsSB, posterizeLevelSB}) {
-    Utils::setNumberFieldWidth(spinBox, -100, 0);
+    WidgetUtils::setNumberFieldWidth(spinBox, -100, 0);
   }
 
   DewarpingMethodBox::setUp(dewarpingMethodBox, dewarpingMethodLabel);
@@ -230,7 +231,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
 
   // The same range as in the Deskew step.
   angleSpinBox->setRange(-45.0, 45.0);
-  Utils::setNumberFieldWidth(angleSpinBox, -45.0);
+  WidgetUtils::setNumberFieldWidth(angleSpinBox, -45.0);
   // The items follow the order of deskew::SkewDetection, as in the Deskew step.
   deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Content"));
   deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Top page edge"));
@@ -1240,10 +1241,10 @@ void DefaultParamsDialog::updateUnits(const Units units) {
   const double widestMargin = (units == PIXELS) ? 999 : (units == MILLIMETRES) ? 99.9 : 9.99;
   const double widestSize = (units == PIXELS) ? 9999 : (units == MILLIMETRES) ? 999.9 : 99.99;
   for (QDoubleSpinBox* spinBox : {topMarginSpinBox, bottomMarginSpinBox, leftMarginSpinBox, rightMarginSpinBox}) {
-    Utils::setUpLengthField(spinBox, units, widestMargin);
+    WidgetUtils::setUpLengthField(spinBox, units, widestMargin);
   }
   for (QDoubleSpinBox* spinBox : {widthSpinBox, heightSpinBox, targetWidthSpinBox, targetHeightSpinBox}) {
-    Utils::setUpLengthField(spinBox, units, widestSize);
+    WidgetUtils::setUpLengthField(spinBox, units, widestSize);
   }
 }
 

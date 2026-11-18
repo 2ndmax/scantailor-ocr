@@ -79,6 +79,7 @@
 #include "TabbedDebugImages.h"
 #include "ThumbnailFactory.h"
 #include "Utils.h"
+#include "WidgetUtils.h"
 #include "WorkerThreadPool.h"
 #include "config.h"
 #include "filters/output/Filter.h"
@@ -714,11 +715,11 @@ ImageViewBase* MainWindow::findPrimaryImageView(QWidget* root) {
   if (auto* tabs = qobject_cast<output::TabbedImageView*>(root)) {
     QWidget* const page = tabs->currentWidget();
     if (page) {
-      return Utils::castOrFindChild<ImageViewBase*>(page);
+      return WidgetUtils::castOrFindChild<ImageViewBase*>(page);
     }
     return nullptr;
   }
-  return Utils::castOrFindChild<ImageViewBase*>(root);
+  return WidgetUtils::castOrFindChild<ImageViewBase*>(root);
 }
 
 void MainWindow::applySavedMainAreaViewState(ImageViewBase* view, const SavedMainAreaViewState& state) {
@@ -2073,7 +2074,7 @@ void MainWindow::loadPageInteractive(const PageInfo& page) {
   if (m_imageFrameLayout->indexOf(m_processingIndicationWidget.get()) != -1) {
     m_processingIndicationWidget->processingRestartedEffect();
   }
-  bool currentWidgetIsImage = (Utils::castOrFindChild<ImageViewBase*>(m_imageFrameLayout->widget(0)) != nullptr);
+  bool currentWidgetIsImage = (WidgetUtils::castOrFindChild<ImageViewBase*>(m_imageFrameLayout->widget(0)) != nullptr);
   setImageWidget(m_processingIndicationWidget.get(), KEEP_OWNERSHIP, nullptr, currentWidgetIsImage);
   m_stages->filterAt(m_curFilter)->preUpdateUI(this, page);
 

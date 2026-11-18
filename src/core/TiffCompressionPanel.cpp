@@ -12,7 +12,7 @@
 #include <algorithm>
 
 #include "SectionHeading.h"
-#include "Utils.h"
+#include "WidgetUtils.h"
 
 namespace {
 // A stored value that isn't offered falls back to the default, as the writer would get it.
@@ -64,7 +64,7 @@ TiffCompressionPanel::TiffCompressionPanel(QWidget* parent) : QWidget(parent) {
 
   m_jpegQuality = new QSpinBox;
   m_jpegQuality->setRange(TiffWriter::Compression::MIN_JPEG_QUALITY, TiffWriter::Compression::MAX_JPEG_QUALITY);
-  core::Utils::setNumberFieldWidth(m_jpegQuality, -100, 0);
+  core::WidgetUtils::setNumberFieldWidth(m_jpegQuality, -100, 0);
   m_jpegQuality->setToolTip(
       tr("Higher values give better pictures and larger files. Only used with JPEG compression."));
   layout->addRow(tr("Quality:"), m_jpegQuality);

@@ -9,7 +9,7 @@
 #include <cmath>
 #include <functional>
 
-#include "../../Utils.h"
+#include "../../WidgetUtils.h"
 #include "DespeckleView.h"
 
 using namespace core;
@@ -64,7 +64,7 @@ void TabbedImageView::tabChangedSlot(const int idx) {
 
   copyViewZoomAndPos(m_prevImageViewTabIndex, idx);
 
-  if (Utils::castOrFindChild<ImageViewBase*>(widget(idx)) != nullptr) {
+  if (WidgetUtils::castOrFindChild<ImageViewBase*>(widget(idx)) != nullptr) {
     m_prevImageViewTabIndex = idx;
   }
 }
@@ -92,8 +92,8 @@ void TabbedImageView::copyViewZoomAndPos(const int oldIdx, const int newIdx) con
   const QRectF& oldViewRect = oldRectIt->second;
   const QRectF& newViewRect = newRectIt->second;
 
-  auto* oldImageView = Utils::castOrFindChild<ImageViewBase*>(widget(oldIdx));
-  auto* newImageView = Utils::castOrFindChild<ImageViewBase*>(widget(newIdx));
+  auto* oldImageView = WidgetUtils::castOrFindChild<ImageViewBase*>(widget(oldIdx));
+  auto* newImageView = WidgetUtils::castOrFindChild<ImageViewBase*>(widget(newIdx));
   if ((oldImageView == nullptr) || (newImageView == nullptr)) {
     return;
   }

@@ -87,6 +87,7 @@ set(common_sources
     PageRange.cpp PageRange.h
     SelectedPage.cpp SelectedPage.h
     Utils.cpp Utils.h
+    WidgetUtils.cpp WidgetUtils.h
     PageView.h
     AutoManualMode.cpp AutoManualMode.h
     AbstractCommand.h

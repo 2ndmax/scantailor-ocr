@@ -5,7 +5,7 @@
 
 #include <utility>
 
-#include "../../Utils.h"
+#include "../../WidgetUtils.h"
 
 namespace output {
 
@@ -14,7 +14,7 @@ OptionsWidgetBinarizationOtsu::OptionsWidgetBinarizationOtsu(std::shared_ptr<Set
       m_connectionManager(std::bind(&OptionsWidgetBinarizationOtsu::setupUiConnections, this)) {
   setupUi(this);
   // As the other fields in the step "Output".
-  core::Utils::setNumberFieldWidth(otsuDelta, -100, 0);
+  core::WidgetUtils::setNumberFieldWidth(otsuDelta, -100, 0);
 
   m_delayedStateChanger.setSingleShot(true);
 

@@ -9,7 +9,7 @@
 #include <QtWidgets/QStatusBar>
 
 #include "ApplicationSettings.h"
-#include "Utils.h"
+#include "WidgetUtils.h"
 #include "ZoneModeListener.h"
 
 class ZoneEditorBase::ZoneModeProvider {
@@ -92,7 +92,7 @@ void ZoneEditorBase::setZoneCreationMode(const ZoneCreationMode mode) {
 void ZoneEditorBase::showEvent(QShowEvent* event) {
   ImageViewBase::showEvent(event);
   if (auto* mainWindow = dynamic_cast<QMainWindow*>(window())) {
-    if (auto* zoneModeListener = core::Utils::castOrFindChild<ZoneModeListener*>(mainWindow->statusBar())) {
+    if (auto* zoneModeListener = core::WidgetUtils::castOrFindChild<ZoneModeListener*>(mainWindow->statusBar())) {
       m_zoneModeProvider->addListener(zoneModeListener);
     }
   }
