@@ -1,0 +1,49 @@
+# The diagrams of overview run 02 (02-clang-uml.ps1). Paths are relative to the repository;
+# the compile database and the output folder are given by the run script (-d, -o).
+compilation_database_dir: ../../build-overview
+output_directory: results/clang-uml
+relative_to: ../..
+diagrams:
+  # Which steps (filters) there are and how StageSequence holds them.
+  filters_classes:
+    type: class
+    filter_mode: advanced
+    glob:
+      - src/core/StageSequence.cpp
+      - src/core/filters/*/Filter.cpp
+    include:
+      anyof:
+        subclasses:
+          - AbstractFilter
+        elements:
+          - AbstractFilter
+          - StageSequence
+    exclude:
+      access:
+        - private
+        - protected
+    generate_method_arguments: none
+    member_order: as_is
+  # What StageSequence::processAll calls: the processing the command line tool runs.
+  processall_sequence:
+    type: sequence
+    glob:
+      - src/core/StageSequence.cpp
+    include:
+      paths:
+        - src
+    exclude:
+      paths:
+        # clang-uml 0.6.3 names the methods of a class after a class template of the same
+        # translation unit (github.com/bkryza/clang-uml/issues/461); with this header in, the
+        # participant StageSequence is called ProxyFunction<...> and 'from' below finds nothing.
+        - src/foundation/VirtualFunction.h
+      namespaces:
+        - std
+      # Getters of the page ids; they hide the calls that matter.
+      elements:
+        - PageId
+        - PageInfo
+        - PageSequence
+    from:
+      - function: "StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache> &,const OutputFileNameGenerator &,const ProgressCallback &) const"
