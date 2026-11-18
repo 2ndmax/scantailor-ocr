@@ -14,7 +14,11 @@ class FilterResult;
 class FilterUiInterface;
 class PageInfo;
 class PageSelectionAccessor;
+class QGraphicsItem;
+class QSizeF;
 class StageSequence;
+class ThumbnailDataBase;
+class ThumbnailPixmapCache;
 
 /**
  * The user interfaces of the steps of a StageSequence, in the same order.
@@ -41,6 +45,13 @@ class FilterUiSequence {
    * result.updateUI(), which does what needs no widgets.
    */
   void showResult(FilterResult& result, FilterUiInterface* ui) const;
+
+  /**
+   * Draws the thumbnail a step described, through that step's user interface.
+   */
+  std::unique_ptr<QGraphicsItem> createThumbnail(const ThumbnailDataBase& data,
+                                                 const std::shared_ptr<ThumbnailPixmapCache>& cache,
+                                                 const QSizeF& maxSize) const;
 
  private:
   std::shared_ptr<StageSequence> m_stages;

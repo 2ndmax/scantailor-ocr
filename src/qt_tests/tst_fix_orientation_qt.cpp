@@ -338,8 +338,8 @@ void TestFixOrientationQt::testThumbnailOfPage() {
   // The step has no parameters to wait for: its thumbnail is the plain page.
   filter_ui_checks::OnePageProject one;
   QVERIFY(one.isValid());
-  const std::unique_ptr<QGraphicsItem> thumbnail = filter_ui_checks::thumbnailFor(
-      one.project, one.page(IMAGE_VIEW), one.project.stages->fixOrientationFilterIdx());
+  const std::unique_ptr<QGraphicsItem> thumbnail
+      = filter_ui_checks::thumbnailFor(one, one.page(IMAGE_VIEW), one.project.stages->fixOrientationFilterIdx());
   QVERIFY(thumbnail != nullptr);
   QVERIFY(typeid(*thumbnail) == typeid(ThumbnailBase));
 }

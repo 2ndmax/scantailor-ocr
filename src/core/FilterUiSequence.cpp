@@ -11,9 +11,11 @@
 #include "FilterOptionsWidget.h"
 #include "FilterResult.h"
 #include "FilterUiInterface.h"
+#include "IncompleteThumbnail.h"
 #include "LoadFileTask.h"
 #include "PageSelectionAccessor.h"
 #include "StageSequence.h"
+#include "ThumbnailDataBase.h"
 #include "filters/deskew/FilterUi.h"
 #include "filters/fix_orientation/FilterUi.h"
 #include "filters/output/FilterUi.h"
@@ -81,4 +83,19 @@ void FilterUiSequence::showResult(FilterResult& result, FilterUiInterface* ui) c
   if (filterIdx >= 0) {
     m_filterUis[filterIdx]->showResult(result, ui);
   }
+}
+
+std::unique_ptr<QGraphicsItem> FilterUiSequence::createThumbnail(const ThumbnailDataBase& data,
+                                                                 const std::shared_ptr<ThumbnailPixmapCache>& cache,
+                                                                 const QSizeF& maxSize) const {
+  // A page a step hasn't processed yet looks the same in every step.
+  if (dynamic_cast<const IncompleteThumbnailData*>(&data)) {
+    return std::make_unique<IncompleteThumbnail>(cache, maxSize, data.imageId(), data.xform());
+  }
+  for (const std::unique_ptr<AbstractFilterUi>& filterUi : m_filterUis) {
+    if (std::unique_ptr<QGraphicsItem> thumbnail = filterUi->createThumbnail(data, cache, maxSize)) {
+      return thumbnail;
+    }
+  }
+  return nullptr;
 }

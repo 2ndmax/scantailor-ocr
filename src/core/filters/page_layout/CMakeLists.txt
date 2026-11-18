@@ -14,6 +14,7 @@ set(sources
     Task.cpp Task.h
     TaskResult.cpp TaskResult.h
     FilterUi.cpp FilterUi.h
+    ThumbnailData.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     Params.cpp Params.h
     Settings.cpp Settings.h

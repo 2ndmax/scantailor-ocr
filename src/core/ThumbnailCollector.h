@@ -8,17 +8,12 @@
 
 #include "AbstractFilterDataCollector.h"
 
-class ThumbnailPixmapCache;
-class QGraphicsItem;
-class QSizeF;
+class ThumbnailDataBase;
 
 class ThumbnailCollector : public AbstractFilterDataCollector {
  public:
-  virtual void processThumbnail(std::unique_ptr<QGraphicsItem>) = 0;
-
-  virtual std::shared_ptr<ThumbnailPixmapCache> thumbnailCache() = 0;
-
-  virtual QSizeF maxLogicalThumbSize() const = 0;
+  /** What the thumbnail of the page shows; the user interface draws it. */
+  virtual void processThumbnail(std::unique_ptr<ThumbnailDataBase> thumbnail) = 0;
 };
 
 

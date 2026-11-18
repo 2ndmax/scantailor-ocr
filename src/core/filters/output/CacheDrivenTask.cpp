@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "GeometryCollector.h"
-#include "IncompleteThumbnail.h"
 #include "OutputGenerator.h"
 #include "OutputParams.h"
 #include "OutputStatusCollector.h"
@@ -15,7 +14,8 @@
 #include "Params.h"
 #include "RenderParams.h"
 #include "Settings.h"
-#include "Thumbnail.h"
+#include "ThumbnailData.h"
+#include "ThumbnailDataBase.h"
 #include "core/AbstractFilterDataCollector.h"
 #include "core/ThumbnailCollector.h"
 
@@ -45,14 +45,12 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
 
   if (auto* thumbCol = dynamic_cast<ThumbnailCollector*>(collector)) {
     if (!isOutputUpToDate(pageInfo, newXform, contentRectPhys)) {
-      thumbCol->processThumbnail(std::unique_ptr<QGraphicsItem>(new IncompleteThumbnail(
-          thumbCol->thumbnailCache(), thumbCol->maxLogicalThumbSize(), pageInfo.imageId(), newXform)));
+      thumbCol->processThumbnail(std::make_unique<IncompleteThumbnailData>(pageInfo.imageId(), newXform));
     } else {
       const ImageTransformation outXform(newXform.resultingRect(), params.outputDpi());
       const QString outFilePath(m_outFileNameGen.filePathFor(pageInfo.id()));
 
-      thumbCol->processThumbnail(std::unique_ptr<QGraphicsItem>(
-          new Thumbnail(thumbCol->thumbnailCache(), thumbCol->maxLogicalThumbSize(), ImageId(outFilePath), outXform)));
+      thumbCol->processThumbnail(std::make_unique<ThumbnailData>(ImageId(outFilePath), outXform));
     }
   }
 }  // CacheDrivenTask::process

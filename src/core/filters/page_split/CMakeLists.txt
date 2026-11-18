@@ -23,6 +23,7 @@ set(sources
     Task.cpp Task.h
     TaskResult.cpp TaskResult.h
     FilterUi.cpp FilterUi.h
+    ThumbnailData.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     LayoutType.cpp LayoutType.h
     UnremoveButton.cpp UnremoveButton.h

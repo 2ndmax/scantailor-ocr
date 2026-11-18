@@ -20,6 +20,8 @@
 #include "Settings.h"
 #include "TabbedImageView.h"
 #include "TaskResult.h"
+#include "Thumbnail.h"
+#include "ThumbnailData.h"
 #include "Utils.h"
 
 using namespace imageproc;
@@ -146,5 +148,15 @@ OptionsWidget* FilterUi::optionsWidget() {
                                             m_pageSelectionAccessor, m_filter->lastTab()));
   }
   return m_optionsWidget.get();
+}
+
+std::unique_ptr<QGraphicsItem> FilterUi::createThumbnail(const ThumbnailDataBase& data,
+                                                         std::shared_ptr<ThumbnailPixmapCache> cache,
+                                                         const QSizeF& maxSize) const {
+  const auto* stepData = dynamic_cast<const ThumbnailData*>(&data);
+  if (!stepData) {
+    return nullptr;
+  }
+  return std::make_unique<Thumbnail>(std::move(cache), maxSize, stepData->imageId(), stepData->xform());
 }
 }  // namespace output

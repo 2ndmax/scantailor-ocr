@@ -7,11 +7,11 @@
 
 #include <utility>
 
-#include "IncompleteThumbnail.h"
 #include "PageInfo.h"
 #include "Params.h"
 #include "Settings.h"
-#include "Thumbnail.h"
+#include "ThumbnailData.h"
+#include "ThumbnailDataBase.h"
 #include "Utils.h"
 #include "core/AbstractFilterDataCollector.h"
 #include "core/ThumbnailCollector.h"
@@ -31,8 +31,7 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
   const std::unique_ptr<Params> params(m_settings->getPageParams(pageInfo.id()));
   if (!params || (params->contentSizeMM().isEmpty() && !contentRect.isEmpty())) {
     if (auto* thumbCol = dynamic_cast<ThumbnailCollector*>(collector)) {
-      thumbCol->processThumbnail(std::unique_ptr<QGraphicsItem>(new IncompleteThumbnail(
-          thumbCol->thumbnailCache(), thumbCol->maxLogicalThumbSize(), pageInfo.imageId(), xform)));
+      thumbCol->processThumbnail(std::make_unique<IncompleteThumbnailData>(pageInfo.imageId(), xform));
     }
     return;
   }
@@ -63,9 +62,9 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
   const double deviationThreshold = settings.getMarginsDeviationThreshold();
 
   if (auto* thumbCol = dynamic_cast<ThumbnailCollector*>(collector)) {
-    thumbCol->processThumbnail(std::unique_ptr<QGraphicsItem>(new Thumbnail(
-        thumbCol->thumbnailCache(), thumbCol->maxLogicalThumbSize(), pageInfo.imageId(), newParams, newXform,
-        contentRectPhys, m_settings->deviationProvider().isDeviant(pageInfo.id(), deviationCoef, deviationThreshold))));
+    thumbCol->processThumbnail(std::make_unique<ThumbnailData>(
+        pageInfo.imageId(), newParams, newXform, contentRectPhys,
+        m_settings->deviationProvider().isDeviant(pageInfo.id(), deviationCoef, deviationThreshold)));
   }
 }
 }  // namespace page_layout

@@ -7,53 +7,38 @@
 #include <utility>
 
 #include "CompositeCacheDrivenTask.h"
+#include "FilterUiSequence.h"
 #include "ThumbnailCollector.h"
+#include "ThumbnailDataBase.h"
 
 class ThumbnailFactory::Collector : public ThumbnailCollector {
  public:
-  Collector(std::shared_ptr<ThumbnailPixmapCache> cache, const QSizeF& maxSize);
+  void processThumbnail(std::unique_ptr<ThumbnailDataBase> thumbnail) override { m_thumbnail = std::move(thumbnail); }
 
-  void processThumbnail(std::unique_ptr<QGraphicsItem> thumbnail) override;
-
-  std::shared_ptr<ThumbnailPixmapCache> thumbnailCache() override;
-
-  QSizeF maxLogicalThumbSize() const override;
-
-  std::unique_ptr<QGraphicsItem> retrieveThumbnail() { return std::move(m_thumbnail); }
+  std::unique_ptr<ThumbnailDataBase> retrieveThumbnail() { return std::move(m_thumbnail); }
 
  private:
-  std::shared_ptr<ThumbnailPixmapCache> m_cache;
-  QSizeF m_maxSize;
-  std::unique_ptr<QGraphicsItem> m_thumbnail;
+  std::unique_ptr<ThumbnailDataBase> m_thumbnail;
 };
 
 
 ThumbnailFactory::ThumbnailFactory(std::shared_ptr<ThumbnailPixmapCache> pixmapCache,
                                    const QSizeF& maxSize,
-                                   std::shared_ptr<CompositeCacheDrivenTask> task)
-    : m_pixmapCache(std::move(pixmapCache)), m_maxSize(maxSize), m_task(std::move(task)) {}
+                                   std::shared_ptr<CompositeCacheDrivenTask> task,
+                                   std::shared_ptr<const FilterUiSequence> filterUis)
+    : m_pixmapCache(std::move(pixmapCache)),
+      m_maxSize(maxSize),
+      m_task(std::move(task)),
+      m_filterUis(std::move(filterUis)) {}
 
 ThumbnailFactory::~ThumbnailFactory() = default;
 
 std::unique_ptr<QGraphicsItem> ThumbnailFactory::get(const PageInfo& pageInfo) {
-  Collector collector(m_pixmapCache, m_maxSize);
+  Collector collector;
   m_task->process(pageInfo, &collector);
-  return collector.retrieveThumbnail();
-}
-
-/*======================= ThumbnailFactory::Collector ======================*/
-
-ThumbnailFactory::Collector::Collector(std::shared_ptr<ThumbnailPixmapCache> cache, const QSizeF& maxSize)
-    : m_cache(std::move(cache)), m_maxSize(maxSize) {}
-
-void ThumbnailFactory::Collector::processThumbnail(std::unique_ptr<QGraphicsItem> thumbnail) {
-  m_thumbnail = std::move(thumbnail);
-}
-
-std::shared_ptr<ThumbnailPixmapCache> ThumbnailFactory::Collector::thumbnailCache() {
-  return m_cache;
-}
-
-QSizeF ThumbnailFactory::Collector::maxLogicalThumbSize() const {
-  return m_maxSize;
+  const std::unique_ptr<ThumbnailDataBase> thumbnail = collector.retrieveThumbnail();
+  if (!thumbnail) {
+    return nullptr;
+  }
+  return m_filterUis->createThumbnail(*thumbnail, m_pixmapCache, m_maxSize);
 }

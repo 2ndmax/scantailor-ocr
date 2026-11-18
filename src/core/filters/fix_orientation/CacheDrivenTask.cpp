@@ -8,7 +8,7 @@
 #include "ImageTransformation.h"
 #include "PageInfo.h"
 #include "Settings.h"
-#include "ThumbnailBase.h"
+#include "ThumbnailData.h"
 #include "Utils.h"
 #include "core/AbstractFilterDataCollector.h"
 #include "core/PageOrientationCollector.h"
@@ -38,8 +38,7 @@ void CacheDrivenTask::process(const PageInfo& pageInfo, AbstractFilterDataCollec
   }
 
   if (auto* thumbCol = dynamic_cast<ThumbnailCollector*>(collector)) {
-    thumbCol->processThumbnail(std::unique_ptr<QGraphicsItem>(
-        new ThumbnailBase(thumbCol->thumbnailCache(), thumbCol->maxLogicalThumbSize(), pageInfo.imageId(), xform)));
+    thumbCol->processThumbnail(std::make_unique<ThumbnailData>(pageInfo.imageId(), xform));
   }
 }
 }  // namespace fix_orientation

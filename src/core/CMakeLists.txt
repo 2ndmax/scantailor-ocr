@@ -36,6 +36,7 @@ set(common_sources
     ThumbnailBase.cpp ThumbnailBase.h
     OverlayStyle.cpp OverlayStyle.h
     ThumbnailFactory.cpp ThumbnailFactory.h
+    ThumbnailDataBase.h
     IncompleteThumbnail.cpp IncompleteThumbnail.h
     ContentBoxPropagator.cpp ContentBoxPropagator.h
     PageOrientationPropagator.cpp PageOrientationPropagator.h

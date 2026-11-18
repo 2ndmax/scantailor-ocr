@@ -159,13 +159,13 @@ void TestSelectContentQt::testThumbnailOfPage() {
   QVERIFY(one.isValid());
   const PageInfo page = one.page(PAGE_VIEW);
   const int filterIdx = one.project.stages->selectContentFilterIdx();
-  const std::unique_ptr<QGraphicsItem> before = filter_ui_checks::thumbnailFor(one.project, page, filterIdx);
+  const std::unique_ptr<QGraphicsItem> before = filter_ui_checks::thumbnailFor(one, page, filterIdx);
   QVERIFY(before != nullptr);
   QVERIFY(typeid(*before) == typeid(IncompleteThumbnail));
 
   filter_ui_checks::RecordingUi ui;
   QVERIFY(filter_ui_checks::showPage(one, page, filterIdx, ui));
-  const std::unique_ptr<QGraphicsItem> after = filter_ui_checks::thumbnailFor(one.project, page, filterIdx);
+  const std::unique_ptr<QGraphicsItem> after = filter_ui_checks::thumbnailFor(one, page, filterIdx);
   QVERIFY(after != nullptr);
   QVERIFY(typeid(*after) == typeid(Thumbnail));
 }

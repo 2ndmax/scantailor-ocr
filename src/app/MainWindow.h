@@ -460,7 +460,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::shared_ptr<ProjectPages> m_pages;
   std::shared_ptr<StageSequence> m_stages;
   // What is shown of the steps in m_stages; set up together with them.
-  std::unique_ptr<FilterUiSequence> m_filterUis;
+  // Shared with the thumbnail factories, which may outlive a change of project.
+  std::shared_ptr<FilterUiSequence> m_filterUis;
   QString m_projectFile;
   // The input directory of a project without images, written into the project file.
   QString m_emptyProjectInputDir;

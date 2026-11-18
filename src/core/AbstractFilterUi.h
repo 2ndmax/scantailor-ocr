@@ -4,9 +4,15 @@
 #ifndef SCANTAILOR_CORE_ABSTRACTFILTERUI_H_
 #define SCANTAILOR_CORE_ABSTRACTFILTERUI_H_
 
+#include <memory>
+
 class FilterResult;
 class FilterUiInterface;
 class PageInfo;
+class QGraphicsItem;
+class QSizeF;
+class ThumbnailDataBase;
+class ThumbnailPixmapCache;
 
 /**
  * The user interface of a step (AbstractFilter): what the main window shows of it. The step itself
@@ -27,6 +33,14 @@ class AbstractFilterUi {
    * FilterResult::updateUI() is all they need.
    */
   virtual void showResult(FilterResult& result, FilterUiInterface* ui) = 0;
+
+  /**
+   * Draws the thumbnail that this step's CacheDrivenTask described, or returns null if \p data
+   * belongs to another step.
+   */
+  virtual std::unique_ptr<QGraphicsItem> createThumbnail(const ThumbnailDataBase& data,
+                                                         std::shared_ptr<ThumbnailPixmapCache> cache,
+                                                         const QSizeF& maxSize) const = 0;
 };
 
 #endif  // SCANTAILOR_CORE_ABSTRACTFILTERUI_H_

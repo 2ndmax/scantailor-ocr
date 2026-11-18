@@ -15,6 +15,7 @@ set(sources
     Task.cpp Task.h
     TaskResult.cpp TaskResult.h
     FilterUi.cpp FilterUi.h
+    ThumbnailData.h
     CacheDrivenTask.cpp CacheDrivenTask.h
     Dependencies.cpp Dependencies.h
     DetectionOptions.cpp DetectionOptions.h

@@ -16,6 +16,7 @@
 #include <PageSequence.h>
 #include <StageSequence.h>
 #include <ThumbnailCollector.h>
+#include <ThumbnailDataBase.h>
 
 #include <QGraphicsItem>
 #include <QSizeF>
@@ -62,21 +63,12 @@ class RecordingUi : public FilterUiInterface {
   int allThumbnailsInvalidated = 0;
 };
 
-// Keeps the thumbnail a step creates for a page.
+// Keeps what a step describes as the thumbnail of a page.
 class RecordingThumbnails : public ThumbnailCollector {
  public:
-  explicit RecordingThumbnails(std::shared_ptr<ThumbnailPixmapCache> cache) : m_cache(std::move(cache)) {}
+  void processThumbnail(std::unique_ptr<ThumbnailDataBase> data) override { thumbnail = std::move(data); }
 
-  void processThumbnail(std::unique_ptr<QGraphicsItem> item) override { thumbnail = std::move(item); }
-
-  std::shared_ptr<ThumbnailPixmapCache> thumbnailCache() override { return m_cache; }
-
-  QSizeF maxLogicalThumbSize() const override { return QSizeF(200, 200); }
-
-  std::unique_ptr<QGraphicsItem> thumbnail;
-
- private:
-  std::shared_ptr<ThumbnailPixmapCache> m_cache;
+  std::unique_ptr<ThumbnailDataBase> thumbnail;
 };
 
 // A project of one drawn page, test_pages::skewedPage(), in a temporary folder.
@@ -122,12 +114,13 @@ inline FilterResultPtr showPage(OnePageProject& one, const PageInfo& page, const
 }
 
 // The thumbnail of \p page in the step \p filterIdx, as the thumbnail list gets it.
-inline std::unique_ptr<QGraphicsItem> thumbnailFor(test_pages::TestProject& project,
-                                                   const PageInfo& page,
-                                                   const int filterIdx) {
-  RecordingThumbnails thumbnails(project.thumbnailCache);
-  project.stages->createCacheDrivenTask(filterIdx, project.outFileNameGen)->process(page, &thumbnails);
-  return std::move(thumbnails.thumbnail);
+inline std::unique_ptr<QGraphicsItem> thumbnailFor(OnePageProject& one, const PageInfo& page, const int filterIdx) {
+  RecordingThumbnails thumbnails;
+  one.project.stages->createCacheDrivenTask(filterIdx, one.project.outFileNameGen)->process(page, &thumbnails);
+  if (!thumbnails.thumbnail) {
+    return nullptr;
+  }
+  return one.filterUis.createThumbnail(*thumbnails.thumbnail, one.project.thumbnailCache, QSizeF(200, 200));
 }
 }  // namespace filter_ui_checks
 

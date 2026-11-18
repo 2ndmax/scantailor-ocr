@@ -8,10 +8,10 @@
 #include <iostream>
 #include <utility>
 
-#include "IncompleteThumbnail.h"
 #include "PageInfo.h"
 #include "Settings.h"
-#include "Thumbnail.h"
+#include "ThumbnailData.h"
+#include "ThumbnailDataBase.h"
 #include "core/AbstractFilterDataCollector.h"
 #include "core/ContentBoxCollector.h"
 #include "core/ThumbnailCollector.h"
@@ -35,8 +35,7 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
 
   if (!params || !deps.compatibleWith(params->dependencies())) {
     if (auto* thumbCol = dynamic_cast<ThumbnailCollector*>(collector)) {
-      thumbCol->processThumbnail(std::unique_ptr<QGraphicsItem>(new IncompleteThumbnail(
-          thumbCol->thumbnailCache(), thumbCol->maxLogicalThumbSize(), pageInfo.imageId(), xform)));
+      thumbCol->processThumbnail(std::make_unique<IncompleteThumbnailData>(pageInfo.imageId(), xform));
     }
     return;
   }
@@ -55,10 +54,10 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
   const double deviationThreshold = settings.getSelectContentDeviationThreshold();
 
   if (auto* thumbCol = dynamic_cast<ThumbnailCollector*>(collector)) {
-    thumbCol->processThumbnail(std::unique_ptr<QGraphicsItem>(new Thumbnail(
-        thumbCol->thumbnailCache(), thumbCol->maxLogicalThumbSize(), pageInfo.imageId(), xform, params->contentRect(),
-        params->pageRect(), params->pageDetectionMode() != MODE_DISABLED,
-        m_settings->deviationProvider().isDeviant(pageInfo.id(), deviationCoef, deviationThreshold, true))));
+    thumbCol->processThumbnail(std::make_unique<ThumbnailData>(
+        pageInfo.imageId(), xform, params->contentRect(), params->pageRect(),
+        params->pageDetectionMode() != MODE_DISABLED,
+        m_settings->deviationProvider().isDeviant(pageInfo.id(), deviationCoef, deviationThreshold, true)));
   }
 }  // CacheDrivenTask::process
 }  // namespace select_content

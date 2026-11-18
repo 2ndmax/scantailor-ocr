@@ -12,15 +12,21 @@
 
 class PageInfo;
 class CompositeCacheDrivenTask;
+class FilterUiSequence;
 class QGraphicsItem;
 
 class ThumbnailFactory {
   DECLARE_NON_COPYABLE(ThumbnailFactory)
 
  public:
+  /**
+   * The steps up to the current one describe a page's thumbnail through \p task; \p filterUis
+   * draws it.
+   */
   ThumbnailFactory(std::shared_ptr<ThumbnailPixmapCache> pixmapCache,
                    const QSizeF& maxSize,
-                   std::shared_ptr<CompositeCacheDrivenTask> task);
+                   std::shared_ptr<CompositeCacheDrivenTask> task,
+                   std::shared_ptr<const FilterUiSequence> filterUis);
 
   virtual ~ThumbnailFactory();
 
@@ -32,6 +38,7 @@ class ThumbnailFactory {
   std::shared_ptr<ThumbnailPixmapCache> m_pixmapCache;
   QSizeF m_maxSize;
   std::shared_ptr<CompositeCacheDrivenTask> m_task;
+  std::shared_ptr<const FilterUiSequence> m_filterUis;
 };
 
 

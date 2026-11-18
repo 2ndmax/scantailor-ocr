@@ -11,6 +11,10 @@
 #include "SafeDeletingQObjectPtr.h"
 
 class PageInfo;
+class QGraphicsItem;
+class QSizeF;
+class ThumbnailDataBase;
+class ThumbnailPixmapCache;
 
 namespace deskew {
 class Filter;
@@ -26,6 +30,10 @@ class FilterUi : public AbstractFilterUi {
   void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) override;
 
   void showResult(FilterResult& result, FilterUiInterface* ui) override;
+
+  std::unique_ptr<QGraphicsItem> createThumbnail(const ThumbnailDataBase& data,
+                                                 std::shared_ptr<ThumbnailPixmapCache> cache,
+                                                 const QSizeF& maxSize) const override;
 
   /**
    * The options panel of this step. It is created on first use, from the GUI thread.

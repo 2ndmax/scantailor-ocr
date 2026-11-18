@@ -12,6 +12,8 @@
 #include "PageInfo.h"
 #include "Settings.h"
 #include "TaskResult.h"
+#include "Thumbnail.h"
+#include "ThumbnailData.h"
 
 using namespace imageproc;
 
@@ -49,5 +51,16 @@ OptionsWidget* FilterUi::optionsWidget() {
     m_optionsWidget.reset(new OptionsWidget(m_filter->settings(), m_filter->defaultParams(), m_pageSelectionAccessor));
   }
   return m_optionsWidget.get();
+}
+
+std::unique_ptr<QGraphicsItem> FilterUi::createThumbnail(const ThumbnailDataBase& data,
+                                                         std::shared_ptr<ThumbnailPixmapCache> cache,
+                                                         const QSizeF& maxSize) const {
+  const auto* stepData = dynamic_cast<const ThumbnailData*>(&data);
+  if (!stepData) {
+    return nullptr;
+  }
+  return std::make_unique<Thumbnail>(std::move(cache), maxSize, stepData->imageId(), stepData->xform(),
+                                     stepData->deviant());
 }
 }  // namespace deskew

@@ -114,7 +114,7 @@ class MainWindow::PageSelectionProviderImpl : public PageSelectionProvider {
 MainWindow::MainWindow()
     : m_pages(std::make_shared<ProjectPages>()),
       m_stages(std::make_shared<StageSequence>(m_pages)),
-      m_filterUis(std::make_unique<FilterUiSequence>(m_stages, newPageSelectionAccessor())),
+      m_filterUis(std::make_shared<FilterUiSequence>(m_stages, newPageSelectionAccessor())),
       m_workerThreadPool(std::make_unique<WorkerThreadPool>()),
       m_interactiveQueue(std::make_unique<ProcessingTaskQueue>()),
       m_outOfMemoryDialog(std::make_unique<OutOfMemoryDialog>()),
@@ -371,7 +371,7 @@ void MainWindow::switchToNewProject(const ProjectSession& project,
   }
   m_outFileNameGen = project.outFileNameGen;
   m_stages = project.stages;
-  m_filterUis = std::make_unique<FilterUiSequence>(m_stages, newPageSelectionAccessor());
+  m_filterUis = std::make_shared<FilterUiSequence>(m_stages, newPageSelectionAccessor());
   m_thumbnailCache = project.thumbnailCache;
 
   // Connect the filter list model to the view and select
@@ -637,7 +637,7 @@ void MainWindow::resetThumbSequence(const std::shared_ptr<const PageOrderProvide
     const std::shared_ptr<CompositeCacheDrivenTask> task(createCompositeCacheDrivenTask(m_curFilter));
 
     m_thumbSequence->setThumbnailFactory(
-        std::make_shared<ThumbnailFactory>(m_thumbnailCache, m_maxLogicalThumbSize, task));
+        std::make_shared<ThumbnailFactory>(m_thumbnailCache, m_maxLogicalThumbSize, task, m_filterUis));
   }
 
   m_thumbSequence->reset(currentPageSequence(), selectionAction, pageOrderProvider);
