@@ -3,8 +3,8 @@
   Helpers for the analysis runs in this folder. Dot-sourced by the run scripts.
 
 .DESCRIPTION
-  Loads the shared helpers of ..\..\support\common.ps1 (Visual Studio, vcpkg, logging) and adds the
-  configure, build and compile database helpers of the runs.
+  Loads the shared helpers of ..\..\support\common.ps1 (Visual Studio, vcpkg, logging, configure
+  and build) and adds the compile database helpers of the runs.
 #>
 
 . "$PSScriptRoot\..\..\support\common.ps1"
@@ -17,53 +17,11 @@ $ResultsDir = "$(Split-Path $PSScriptRoot)\results"
 $Unattended = [bool]$Yes
 $AssumeYes = [bool]$Yes
 
-# Shows what a run does and asks before it starts. $BuildDir: the fresh build directory a run
-# creates; when it is left from an earlier run, the run offers to delete it first. Returns $false
-# when the run is not to start.
-function Confirm-Run([string]$Title, [string[]]$Lines, [string]$Log, [string]$BuildDir = '') {
-    Write-Host ''
-    Write-Host $Title -ForegroundColor Cyan
-    Write-Host ''
-    foreach ($line in $Lines) { Write-Host $line }
-    Write-Host "Log: $Log"
-    Write-Host ''
-    if ($BuildDir -and (Test-Path -LiteralPath $BuildDir)) {
-        Write-Host "$BuildDir is left from an earlier run; this run needs a fresh one." -ForegroundColor Yellow
-        # Only a CMake build directory is deleted here, never a folder given by mistake.
-        if (-not (Test-Path -LiteralPath "$BuildDir\CMakeCache.txt")) {
-            Write-Host 'It holds no CMake build, so it is not deleted here: remove it yourself, or pass -BuildDir.' -ForegroundColor Red
-            return $false
-        }
-        # Without asking (-Yes) only a build directory of the runs is deleted: build-* in the project
-        # folder, the names the runs use by default, also when -BuildDir names one. Never the normal
-        # build, nor any other folder given by -BuildDir.
-        $fullDir = [IO.Path]::GetFullPath($BuildDir).TrimEnd('\')
-        $isRunDir = ((Split-Path $fullDir -Parent) -eq $Root) -and ((Split-Path $fullDir -Leaf) -like 'build-*')
-        if ($Unattended -and -not $isRunDir) {
-            Write-Host "With -Yes only a build-* folder in $Root is deleted: remove it yourself, or run without -Yes." -ForegroundColor Red
-            return $false
-        }
-        if (-not (Read-YesNo 'Delete it and start the run?' $false)) { return $false }
-        Remove-Item -LiteralPath $BuildDir -Recurse -Force
-        Write-Host "Deleted $BuildDir."
-        return $true
-    }
-    return (Read-YesNo 'Start the run?' $true)
-}
-
 # The runs 02 to 04 read the compile database of run 01.
 function Assert-Run01([string]$BuildDir) {
     if (-not (Test-Path "$BuildDir\compile_commands.json")) {
         throw "$BuildDir\compile_commands.json not found: run 01-msvc-analyze.ps1 first."
     }
-}
-
-# The last lines of a run: whether it finished, and where its results are.
-function Write-RunEnd([int]$Rc, [string[]]$Results) {
-    Write-Host ''
-    if ($Rc -eq 0) { Write-Host 'The run is finished.' -ForegroundColor Green }
-    else { Write-Host "The run is finished with exit code $Rc." -ForegroundColor Red }
-    foreach ($result in $Results) { Write-Host "  $result" }
 }
 
 # clang-cl.exe of Visual Studio, for the runs 07 and 09.
@@ -74,30 +32,6 @@ function Get-ClangCl {
               "component 'C++ Clang Compiler for Windows'."
     }
     return $clang
-}
-
-# The configure arguments shared by all builds (generator, toolchain, project options).
-function Get-ConfigureArgs([string]$BuildDir, [string]$VcpkgRoot, [string]$BuildType = 'Release') {
-    $toolchain = "$VcpkgRoot\scripts\buildsystems\vcpkg.cmake" -replace '\\', '/'
-    return "-S `"$Root`" -B `"$BuildDir`" -G Ninja -DCMAKE_BUILD_TYPE=$BuildType " +
-           "-DCMAKE_TOOLCHAIN_FILE=$toolchain -DVCPKG_TARGET_TRIPLET=x64-windows " +
-           '-DBUILD_TESTS=ON -DBUILD_DEV_TOOLS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
-}
-
-# Configures and builds a fresh build directory; returns the exit code of the failing step or 0.
-function Invoke-Build([string]$Log, [string]$BuildDir, [string]$Configure) {
-    if (Test-Path $BuildDir) { throw "$BuildDir already exists; remove it for a full rebuild." }
-    $cfg = "cmake $Configure"
-    $build = "cmake --build `"$BuildDir`" -- -k 0"
-    Add-LogLine $Log "# Configure: $cfg`r`n"
-    $rc = Invoke-VsLogged $cfg $Log 'Configuring with CMake'
-    Add-LogLine $Log "`r`n# Configure exit code: $rc"
-    if ($rc -eq 0) {
-        Add-LogLine $Log "# Build: $build`r`n"
-        $rc = Invoke-VsLogged $build $Log 'Building'
-        Add-LogLine $Log "`r`n# Build exit code: $rc (non-zero if any build step failed)"
-    }
-    return $rc
 }
 
 # The compile database of a build, reduced to the sources under src/ without the tests and
