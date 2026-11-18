@@ -6,7 +6,6 @@
 #include <ImageFileInfo.h>
 #include <ImageId.h>
 #include <PageId.h>
-#include <PageSelectionAccessor.h>
 #include <ProcessingOptions.h>
 #include <ProjectPages.h>
 #include <ProjectReader.h>
@@ -45,8 +44,8 @@ QString createProject(const QTemporaryDir& dir,
   const QString outDir = dir.filePath(outDirName);
   QDir().mkpath(outDir);
   const DefaultParams startValues;
-  const ProjectSession session = ProjectSession::createNew(ProjectPages::createNew(files, startValues), outDir,
-                                                           QString(), startValues, PageSelectionAccessor(nullptr));
+  const ProjectSession session
+      = ProjectSession::createNew(ProjectPages::createNew(files, startValues), outDir, QString(), startValues);
   ProcessingOptions& options = *session.stages->processingOptions();
   options.pdf.textLayer = !ocrLanguages.isEmpty();
   options.ocr.languages = ocrLanguages;
@@ -116,7 +115,7 @@ BOOST_AUTO_TEST_CASE(test_processes_and_saves_the_project) {
   // The project knows the output now, so the app doesn't take it as outdated.
   const ProjectReader::FileResult saved = ProjectReader::readFile(projectFile);
   BOOST_REQUIRE(saved.reader);
-  const ProjectSession loaded = ProjectSession::load(*saved.reader, DefaultParams(), PageSelectionAccessor(nullptr));
+  const ProjectSession loaded = ProjectSession::load(*saved.reader, DefaultParams());
   const PageId page(ImageId(dir.filePath("page.png")), PageId::SINGLE_PAGE);
   BOOST_CHECK(loaded.stages->outputFilter()->settings()->getOutputParams(page) != nullptr);
 }

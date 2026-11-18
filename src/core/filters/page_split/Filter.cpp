@@ -18,10 +18,8 @@
 #include "Utils.h"
 
 namespace page_split {
-Filter::Filter(std::shared_ptr<ProjectPages> pageSequence, const PageSelectionAccessor& pageSelectionAccessor)
-    : m_pages(std::move(pageSequence)),
-      m_settings(std::make_shared<Settings>()),
-      m_pageSelectionAccessor(pageSelectionAccessor) {
+Filter::Filter(std::shared_ptr<ProjectPages> pageSequence)
+    : m_pages(std::move(pageSequence)), m_settings(std::make_shared<Settings>()) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderBySplitType = std::make_shared<OrderBySplitTypeProvider>(m_settings);
   addPageOrderOption({tr("Natural order"), defaultOrder});

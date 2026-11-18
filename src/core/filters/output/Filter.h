@@ -12,7 +12,6 @@
 #include "ColorParams.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
-#include "PageSelectionAccessor.h"
 #include "PageView.h"
 #include "ProcessingOptions.h"
 
@@ -34,7 +33,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(output::Filter)
  public:
-  Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions);
+  Filter(std::shared_ptr<ProcessingOptions> processingOptions);
 
   ~Filter() override;
 
@@ -88,7 +87,6 @@ class Filter : public AbstractFilter {
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
   std::shared_ptr<Settings> m_settings;
-  PageSelectionAccessor m_pageSelectionAccessor;
   std::shared_ptr<ProcessingOptions> m_processingOptions;
   // The tab the options panel shows; tasks prepare what it needs.
   std::shared_ptr<LastImageViewTab> m_lastTab;

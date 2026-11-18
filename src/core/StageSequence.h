@@ -24,7 +24,6 @@
 class PageInfo;
 class ProjectPages;
 class ProjectReader;
-class PageSelectionAccessor;
 class AbstractRelinker;
 class CompositeCacheDrivenTask;
 class OutputFileNameGenerator;
@@ -76,7 +75,7 @@ class StageSequence {
    */
   using ProgressCallback = std::function<bool(int lastFilterIdx, int done, int total)>;
 
-  StageSequence(const std::shared_ptr<ProjectPages>& pages, const PageSelectionAccessor& pageSelectionAccessor);
+  StageSequence(const std::shared_ptr<ProjectPages>& pages);
 
   virtual ~StageSequence() = default;
 

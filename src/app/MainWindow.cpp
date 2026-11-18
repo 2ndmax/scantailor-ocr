@@ -113,7 +113,7 @@ class MainWindow::PageSelectionProviderImpl : public PageSelectionProvider {
 
 MainWindow::MainWindow()
     : m_pages(std::make_shared<ProjectPages>()),
-      m_stages(std::make_shared<StageSequence>(m_pages, newPageSelectionAccessor())),
+      m_stages(std::make_shared<StageSequence>(m_pages)),
       m_filterUis(std::make_unique<FilterUiSequence>(m_stages, newPageSelectionAccessor())),
       m_workerThreadPool(std::make_unique<WorkerThreadPool>()),
       m_interactiveQueue(std::make_unique<ProcessingTaskQueue>()),
@@ -1707,8 +1707,7 @@ void MainWindow::newProjectCreated(ProjectCreationContext* context) {
   // The profile is read once: the new project takes its start values and page order from it.
   const DefaultParams startValues = DefaultParamsProvider::getInstance().getParams();
   switchToNewProject(ProjectSession::createNew(ProjectPages::createNew(context->files(), startValues),
-                                               context->outDir(), context->inputDir(), startValues,
-                                               newPageSelectionAccessor()));
+                                               context->outDir(), context->inputDir(), startValues));
   PartlyAddedFilesMessage::showIfNeeded(this, context->files());
   // A new project is saved right away, so it can be opened again even while it is empty.
   if (saveProjectWithFeedback(context->projectFile())) {
@@ -1758,8 +1757,8 @@ void MainWindow::projectOpened(ProjectOpeningContext* context) {
 
   QSettings().setValue("project/lastDir", QFileInfo(context->projectFile()).absolutePath());
 
-  const ProjectSession project = ProjectSession::load(
-      *context->projectReader(), DefaultParamsProvider::getInstance().getParams(), newPageSelectionAccessor());
+  const ProjectSession project
+      = ProjectSession::load(*context->projectReader(), DefaultParamsProvider::getInstance().getParams());
   switchToNewProject(project, context->projectFile(), &project.selectedPage);
 
   const int selectStep = m_pendingSelectStep;
@@ -2195,8 +2194,7 @@ bool MainWindow::closeProjectInteractive() {
 
 void MainWindow::closeProjectWithoutSaving() {
   switchToNewProject(ProjectSession::createNew(std::make_shared<ProjectPages>(), QString(), QString(),
-                                               DefaultParamsProvider::getInstance().getParams(),
-                                               newPageSelectionAccessor()));
+                                               DefaultParamsProvider::getInstance().getParams()));
 }
 
 bool MainWindow::saveProjectWithFeedback(const QString& projectFile) {

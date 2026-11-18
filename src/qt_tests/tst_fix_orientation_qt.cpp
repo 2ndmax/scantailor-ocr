@@ -75,7 +75,7 @@ void TestFixOrientationQt::testZeroRotationIsSaved() {
     fixOrientationEl.appendChild(imageEl);
     return fixOrientationEl;
   };
-  const auto makeFilter = [](const ProjectReader&) { return std::make_shared<Filter>(PageSelectionAccessor(nullptr)); };
+  const auto makeFilter = [](const ProjectReader&) { return std::make_shared<Filter>(); };
 
   const QDomElement rotationEl = ProjectXml::saveAndReload("fix-orientation", makeFixOrientationEl, makeFilter)
                                      .firstChildElement("image")
@@ -173,7 +173,7 @@ void TestFixOrientationQt::testViewFollowsChangesDuringLoading() {
   const ScopedUnits pixelUnits(PIXELS);
   // Rotating a page while it is processed must not be undone when it is shown, and the view must
   // show the rotation and the trim.
-  auto filter = std::make_shared<Filter>(PageSelectionAccessor(nullptr));
+  auto filter = std::make_shared<Filter>();
   const ImageId image("page.png");
   const PageInfo info(pageInfo(image, QSize(400, 300)));
   RecordingUi ui;

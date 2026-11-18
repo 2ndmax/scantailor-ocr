@@ -22,10 +22,8 @@
 using namespace foundation;
 
 namespace select_content {
-Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<DefaultParams> defaultParams)
-    : m_settings(std::make_shared<Settings>()),
-      m_pageSelectionAccessor(pageSelectionAccessor),
-      m_defaultParams(std::move(defaultParams)) {
+Filter::Filter(std::shared_ptr<DefaultParams> defaultParams)
+    : m_settings(std::make_shared<Settings>()), m_defaultParams(std::move(defaultParams)) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);
   const auto orderByHeight = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::HEIGHT);

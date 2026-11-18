@@ -9,7 +9,6 @@
 #include "AbstractFilter.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
-#include "PageSelectionAccessor.h"
 #include "PageView.h"
 
 class ImageId;
@@ -36,7 +35,7 @@ class Filter : public AbstractFilter {
   DECLARE_NON_COPYABLE(Filter)
 
  public:
-  explicit Filter(const PageSelectionAccessor& pageSelectionAccessor);
+  Filter();
 
   ~Filter() override;
 
@@ -70,7 +69,6 @@ class Filter : public AbstractFilter {
 
   std::shared_ptr<Settings> m_settings;
   std::shared_ptr<ImageSettings> m_imageSettings;
-  PageSelectionAccessor m_pageSelectionAccessor;
 };
 }  // namespace fix_orientation
 #endif  // ifndef SCANTAILOR_FIX_ORIENTATION_FILTER_H_

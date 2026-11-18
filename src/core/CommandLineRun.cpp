@@ -15,7 +15,6 @@
 #include "ExportJob.h"
 #include "ImageFileInfo.h"
 #include "OcrLanguages.h"
-#include "PageSelectionAccessor.h"
 #include "PathNames.h"
 #include "ProcessingOptions.h"
 #include "ProjectFiles.h"
@@ -386,7 +385,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
 
   // The fallback fills in what a project of 1.0.9 to 1.0.12 lacks (see the note above). Projects of still older
   // versions were refused above.
-  const ProjectSession session = ProjectSession::load(reader, DefaultParams(), PageSelectionAccessor(nullptr));
+  const ProjectSession session = ProjectSession::load(reader, DefaultParams());
   const StageSequence& stages = *session.stages;
   // Loading has already recreated a deleted output folder if the project is where it was. Otherwise
   // the output would go to a folder created anew in the old place, and the images may be missing.

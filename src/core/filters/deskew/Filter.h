@@ -11,7 +11,6 @@
 #include "DefaultParams.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
-#include "PageSelectionAccessor.h"
 #include "PageView.h"
 #include "ProcessingOptions.h"
 #include "Settings.h"
@@ -34,9 +33,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(deskew::Filter)
  public:
-  Filter(const PageSelectionAccessor& pageSelectionAccessor,
-         std::shared_ptr<ProcessingOptions> processingOptions,
-         std::shared_ptr<DefaultParams> defaultParams);
+  Filter(std::shared_ptr<ProcessingOptions> processingOptions, std::shared_ptr<DefaultParams> defaultParams);
 
   ~Filter() override;
 
@@ -76,7 +73,6 @@ class Filter : public AbstractFilter {
 
   std::shared_ptr<Settings> m_settings;
   std::shared_ptr<ImageSettings> m_imageSettings;
-  PageSelectionAccessor m_pageSelectionAccessor;
   std::shared_ptr<ProcessingOptions> m_processingOptions;
   // The start values of the project.
   std::shared_ptr<DefaultParams> m_defaultParams;

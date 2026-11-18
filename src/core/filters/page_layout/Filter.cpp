@@ -21,10 +21,8 @@
 #include "Utils.h"
 
 namespace page_layout {
-Filter::Filter(std::shared_ptr<ProjectPages> pages, const PageSelectionAccessor& pageSelectionAccessor)
-    : m_pages(std::move(pages)),
-      m_settings(std::make_shared<Settings>()),
-      m_pageSelectionAccessor(pageSelectionAccessor) {
+Filter::Filter(std::shared_ptr<ProjectPages> pages)
+    : m_pages(std::move(pages)), m_settings(std::make_shared<Settings>()) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);
   const auto orderByHeight = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::HEIGHT);

@@ -99,9 +99,8 @@ void TestCoreQt::testPageSplitKeepsLayoutTypeWithoutParams() {
     pageSplitEl.appendChild(imageEl);
     return pageSplitEl;
   };
-  const auto makeFilter = [](const ProjectReader& reader) {
-    return std::make_shared<page_split::Filter>(reader.pages(), PageSelectionAccessor(nullptr));
-  };
+  const auto makeFilter
+      = [](const ProjectReader& reader) { return std::make_shared<page_split::Filter>(reader.pages()); };
 
   const QDomElement savedEl
       = ProjectXml::saveAndReload("page-split", makePageSplitEl, makeFilter).firstChildElement("image");

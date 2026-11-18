@@ -13,7 +13,6 @@
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
-#include "PageSelectionAccessor.h"
 #include "PageView.h"
 #include "Settings.h"
 
@@ -34,7 +33,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(select_content::Filter)
  public:
-  Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<DefaultParams> defaultParams);
+  Filter(std::shared_ptr<DefaultParams> defaultParams);
 
   ~Filter() override;
 
@@ -69,7 +68,6 @@ class Filter : public AbstractFilter {
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
   std::shared_ptr<Settings> m_settings;
-  PageSelectionAccessor m_pageSelectionAccessor;
   // The start values of the project.
   std::shared_ptr<DefaultParams> m_defaultParams;
 };

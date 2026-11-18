@@ -3,7 +3,6 @@
 
 #include <DefaultParams.h>
 #include <ImageFileInfo.h>
-#include <PageSelectionAccessor.h>
 #include <ProjectPages.h>
 #include <ProjectSession.h>
 #include <StageSequence.h>
@@ -28,8 +27,8 @@ BOOST_AUTO_TEST_CASE(test_process_all_without_gui) {
   const QString outDir = QDir(dir.path()).absoluteFilePath("out");
   BOOST_REQUIRE(QDir().mkpath(outDir));
   const DefaultParams startValues;
-  const ProjectSession session = ProjectSession::createNew(ProjectPages::createNew(files, startValues), outDir,
-                                                           QString(), startValues, PageSelectionAccessor(nullptr));
+  const ProjectSession session
+      = ProjectSession::createNew(ProjectPages::createNew(files, startValues), outDir, QString(), startValues);
 
   // Without thumbnails: they are pixmaps, which also need a GUI.
   const StageSequence::ProcessAllResult result = session.stages->processAll(nullptr, session.outFileNameGen);

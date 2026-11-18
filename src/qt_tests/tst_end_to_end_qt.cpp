@@ -11,7 +11,6 @@
 #include <ImageMetadata.h>
 #include <ImageSizeLimit.h>
 #include <NullTaskStatus.h>
-#include <PageSelectionAccessor.h>
 #include <PageSequence.h>
 #include <ProjectPages.h>
 #include <ProjectReader.h>
@@ -242,7 +241,7 @@ void TestEndToEndQt::testAllSteps() {
   QVERIFY(project.write(firstFile));
   const ProjectReader::FileResult read = ProjectReader::readFile(firstFile);
   QVERIFY(read.reader);
-  const ProjectSession loaded = ProjectSession::load(*read.reader, DefaultParams(), PageSelectionAccessor(nullptr));
+  const ProjectSession loaded = ProjectSession::load(*read.reader, DefaultParams());
   QVERIFY(loaded.write(secondFile));
   QCOMPARE(readFile(secondFile), readFile(firstFile));
 }

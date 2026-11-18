@@ -26,9 +26,8 @@
 #include "Utils.h"
 
 namespace output {
-Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor, std::shared_ptr<ProcessingOptions> processingOptions)
+Filter::Filter(std::shared_ptr<ProcessingOptions> processingOptions)
     : m_settings(std::make_shared<Settings>()),
-      m_pageSelectionAccessor(pageSelectionAccessor),
       m_processingOptions(std::move(processingOptions)),
       m_lastTab(std::make_shared<LastImageViewTab>()) {
   const PageOrderOption::ProviderPtr defaultOrder;

@@ -8,7 +8,6 @@
 #include <Dpm.h>
 #include <ImageFileInfo.h>
 #include <ImageMetadata.h>
-#include <PageSelectionAccessor.h>
 #include <ProjectPages.h>
 #include <ProjectSession.h>
 #include <StageSequence.h>
@@ -115,8 +114,7 @@ class TestProject : public ProjectSession {
       : ProjectSession(ProjectSession::createNew(ProjectPages::createNew(files, startValues),
                                                  createdDir(outDir),
                                                  QString(),
-                                                 startValues,
-                                                 PageSelectionAccessor(nullptr))) {}
+                                                 startValues)) {}
 
   /**
    * All six steps, as a command line tool would run them. Returns false if a page failed or

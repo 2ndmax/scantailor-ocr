@@ -19,10 +19,7 @@
 #include "Utils.h"
 
 namespace fix_orientation {
-Filter::Filter(const PageSelectionAccessor& pageSelectionAccessor)
-    : m_settings(std::make_shared<Settings>()),
-      m_imageSettings(std::make_shared<ImageSettings>()),
-      m_pageSelectionAccessor(pageSelectionAccessor) {}
+Filter::Filter() : m_settings(std::make_shared<Settings>()), m_imageSettings(std::make_shared<ImageSettings>()) {}
 
 Filter::~Filter() = default;
 

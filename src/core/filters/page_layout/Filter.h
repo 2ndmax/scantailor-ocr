@@ -12,7 +12,6 @@
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
-#include "PageSelectionAccessor.h"
 #include "PageView.h"
 
 class ProjectPages;
@@ -35,7 +34,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(page_layout::Filter)
  public:
-  Filter(std::shared_ptr<ProjectPages> pageSequence, const PageSelectionAccessor& pageSelectionAccessor);
+  Filter(std::shared_ptr<ProjectPages> pageSequence);
 
   ~Filter() override;
 
@@ -81,7 +80,6 @@ class Filter : public AbstractFilter {
 
   std::shared_ptr<ProjectPages> m_pages;
   std::shared_ptr<Settings> m_settings;
-  PageSelectionAccessor m_pageSelectionAccessor;
 };
 }  // namespace page_layout
 #endif  // ifndef SCANTAILOR_PAGE_LAYOUT_FILTER_H_

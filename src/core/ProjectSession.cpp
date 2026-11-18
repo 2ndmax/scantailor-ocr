@@ -7,7 +7,6 @@
 
 #include "DefaultParams.h"
 #include "FileNameDisambiguator.h"
-#include "PageSelectionAccessor.h"
 #include "PageSequence.h"
 #include "ProjectFiles.h"
 #include "ProjectPages.h"
@@ -22,8 +21,7 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
                      const QString& outDir,
                      const QString& inputDir,
                      const ProjectReader* reader,
-                     const DefaultParams& defaults,
-                     const PageSelectionAccessor& pageSelectionAccessor) {
+                     const DefaultParams& defaults) {
   ProjectSession session;
   session.pages = pages;
 
@@ -56,7 +54,7 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
     disambiguator->registerFile(page.imageId().filePath());
   }
 
-  session.stages = std::make_shared<StageSequence>(pages, pageSelectionAccessor);
+  session.stages = std::make_shared<StageSequence>(pages);
   // New projects start with the default parameters; older projects take what they lack from them.
   if (reader) {
     session.stages->loadProject(*reader, defaults);
@@ -75,15 +73,12 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
 ProjectSession ProjectSession::createNew(const std::shared_ptr<ProjectPages>& pages,
                                          const QString& outDir,
                                          const QString& inputDir,
-                                         const DefaultParams& startValues,
-                                         const PageSelectionAccessor& pageSelectionAccessor) {
-  return setUp(pages, outDir, inputDir, nullptr, startValues, pageSelectionAccessor);
+                                         const DefaultParams& startValues) {
+  return setUp(pages, outDir, inputDir, nullptr, startValues);
 }
 
-ProjectSession ProjectSession::load(const ProjectReader& reader,
-                                    const DefaultParams& fallback,
-                                    const PageSelectionAccessor& pageSelectionAccessor) {
-  return setUp(reader.pages(), reader.outputDirectory(), QString(), &reader, fallback, pageSelectionAccessor);
+ProjectSession ProjectSession::load(const ProjectReader& reader, const DefaultParams& fallback) {
+  return setUp(reader.pages(), reader.outputDirectory(), QString(), &reader, fallback);
 }
 
 bool ProjectSession::write(const QString& projectFile) const {
