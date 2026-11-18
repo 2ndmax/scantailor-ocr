@@ -234,36 +234,6 @@ $stepGit = {
 
 # --- Step 3: vcpkg ----------------------------------------------------------------------------
 
-# Downloads a file; curl.exe (Windows 10 1803 and later) is much faster than Invoke-WebRequest in Windows PowerShell 5.1.
-function Save-Download([string]$Url, [string]$OutFile) {
-    Write-Host "Downloading $Url"
-    Add-LogLine $log "# $(Get-Stamp) Download $Url"
-    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
-        # --progress-bar: one bar with the percentage instead of curl's table of numbers.
-        & curl.exe --location --fail --retry 3 --progress-bar --output $OutFile $Url
-        $ok = ($LASTEXITCODE -eq 0)
-    } else {
-        # The progress bar slows Invoke-WebRequest down by orders of magnitude.
-        $oldProgress = $ProgressPreference
-        $ProgressPreference = 'SilentlyContinue'
-        try {
-            Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $OutFile
-            $ok = $true
-        } catch {
-            Write-Host $_.Exception.Message -ForegroundColor Red
-            $ok = $false
-        } finally {
-            $ProgressPreference = $oldProgress
-        }
-    }
-    if (-not $ok) {
-        # A partial file would look like a finished download on the next run.
-        if (Test-Path -LiteralPath $OutFile) { Remove-Item -LiteralPath $OutFile }
-        Write-Host "Download failed: $Url" -ForegroundColor Red
-    }
-    return $ok
-}
-
 # REVIEW-NOTE (2026-10): the vcpkg ZIP/clone (master) and the OCR language files (tessdata_best,
 # branch main) are downloaded over HTTPS without a pinned commit or checksum -> a changed upstream
 # file is installed unchecked. Not fixed because this sets up the developer's own machine from the

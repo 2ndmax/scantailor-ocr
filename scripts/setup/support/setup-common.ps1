@@ -90,6 +90,37 @@ function Add-VsComponents([string]$Instance, [string[]]$Components, [string]$Log
     return ($process.ExitCode -in 0, 3010)
 }
 
+# Downloads a file; curl.exe (Windows 10 1803 and later) is much faster than Invoke-WebRequest in Windows PowerShell 5.1.
+# Logs to the $log of the calling setup script.
+function Save-Download([string]$Url, [string]$OutFile) {
+    Write-Host "Downloading $Url"
+    Add-LogLine $log "# $(Get-Stamp) Download $Url"
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+        # --progress-bar: one bar with the percentage instead of curl's table of numbers.
+        & curl.exe --location --fail --retry 3 --progress-bar --output $OutFile $Url
+        $ok = ($LASTEXITCODE -eq 0)
+    } else {
+        # The progress bar slows Invoke-WebRequest down by orders of magnitude.
+        $oldProgress = $ProgressPreference
+        $ProgressPreference = 'SilentlyContinue'
+        try {
+            Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $OutFile
+            $ok = $true
+        } catch {
+            Write-Host $_.Exception.Message -ForegroundColor Red
+            $ok = $false
+        } finally {
+            $ProgressPreference = $oldProgress
+        }
+    }
+    if (-not $ok) {
+        # A partial file would look like a finished download on the next run.
+        if (Test-Path -LiteralPath $OutFile) { Remove-Item -LiteralPath $OutFile }
+        Write-Host "Download failed: $Url" -ForegroundColor Red
+    }
+    return $ok
+}
+
 function Write-Step([string]$Text) {
     Write-Host ''
     Write-Host "== $Text" -ForegroundColor Cyan
