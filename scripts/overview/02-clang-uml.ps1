@@ -8,9 +8,9 @@
   first configures and builds it, like the analysis runs (a full build, the first time only).
 
   The diagrams are defined in clang-uml.yml in this folder. They are written as Mermaid to
-  <OutDir>\clang-uml\<diagram>.mmd, and all of them together to <OutDir>\clang-uml\diagrams.md,
-  which shows them on GitHub and in editors that draw Mermaid (VS Code). The log goes to
-  <OutDir>\02-clang-uml.log.
+  <OutDir>\clang-uml\<diagram>.mmd, and all of them together to <OutDir>\clang-uml\diagrams.html,
+  which shows them in a browser (it loads Mermaid from the internet), and to diagrams.md, which
+  GitHub and editors that draw Mermaid show. The log goes to <OutDir>\02-clang-uml.log.
 
     powershell -ExecutionPolicy Bypass -File scripts\overview\02-clang-uml.ps1
 
@@ -45,6 +45,8 @@ if (-not $clangUml) { throw 'clang-uml not found: scripts\setup\05-setup-overvie
 # "-Diagram a,b" arrives as one string when the script is started with -File.
 $Diagram = @($Diagram | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 $config = "$PSScriptRoot\clang-uml.yml"
+# The version of Mermaid that diagrams.html loads; tested with the output of clang-uml 0.6.3.
+$MermaidVersion = '12.3.0'
 $log = "$OutDir\02-clang-uml.log"
 $diagramDir = "$OutDir\clang-uml"
 
@@ -76,7 +78,9 @@ $rc = 0
 if ($needsBuild) { $rc = Invoke-Build $log $BuildDir (Get-ConfigureArgs $BuildDir $VcpkgRoot) }
 if ($rc -eq 0) {
     # Diagrams of an earlier run that are no longer drawn would otherwise stay.
-    if (Test-Path $diagramDir) { Remove-Item "$diagramDir\*.mmd", "$diagramDir\diagrams.md" -ErrorAction SilentlyContinue }
+    if (Test-Path $diagramDir) {
+        Remove-Item "$diagramDir\*.mmd", "$diagramDir\diagrams.md", "$diagramDir\diagrams.html" -ErrorAction SilentlyContinue
+    }
     $names = ($Diagram | ForEach-Object { " -n $_" }) -join ''
     # From the repository: clang-uml asks git for the commit, and complains outside of it.
     $draw = "cd /d `"$Root`" && `"$clangUml`" -c `"$config`" -d `"$BuildDir`" -o `"$diagramDir`" -g mermaid$names"
@@ -106,8 +110,40 @@ if ($rc -eq 0) {
         $lines += @("## $($file.BaseName)", '', '```mermaid') + @(Get-Content $file.FullName -Encoding UTF8) + @('```', '')
     }
     [IO.File]::WriteAllLines("$diagramDir\diagrams.md", $lines, $Utf8)
+
+    # The same as a web page that draws them in any browser. Mermaid is loaded from a CDN, so the
+    # page needs the internet when it is opened. The diagram text goes in HTML-encoded: Mermaid reads
+    # the decoded text, so the entities clang-uml writes itself (&lt; in templates) stay intact.
+    $sections = foreach ($file in Get-ChildItem "$diagramDir\*.mmd" | Sort-Object Name) {
+        $text = [Net.WebUtility]::HtmlEncode([IO.File]::ReadAllText($file.FullName, $Utf8))
+        "<h2>$($file.BaseName)</h2>`n<div class=`"diagram`"><pre class=`"mermaid`">`n$text</pre></div>"
+    }
+    $html = @(
+        '<!doctype html>'
+        '<html lang="en"><head><meta charset="utf-8"><title>clang-uml diagrams</title>'
+        '<style>body { font-family: sans-serif; margin: 1em 2em; } .diagram { overflow: auto; }</style>'
+        '</head><body>'
+        '<h1>Diagrams of clang-uml</h1>'
+        "<p>Drawn from scripts/overview/clang-uml.yml, $(Get-Stamp).</p>"
+    ) + $sections + @(
+        '<script type="module">'
+        "import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@$MermaidVersion/dist/mermaid.esm.min.mjs';"
+        'mermaid.initialize({ startOnLoad: false, maxTextSize: 1000000 });'
+        'await mermaid.run();'
+        # Mermaid shrinks a diagram to the window, which makes the text of a large one unreadable. Its
+        # full width is the max-width Mermaid sets; the diagram is then scrolled sideways. A class
+        # diagram starts in the middle (its base class is at the top centre), a sequence diagram left.
+        'for (const svg of document.querySelectorAll(".diagram svg")) {'
+        '  if (svg.style.maxWidth) { svg.style.width = svg.style.maxWidth; svg.style.maxWidth = "none"; }'
+        '  const box = svg.closest(".diagram");'
+        '  if (svg.getAttribute("aria-roledescription") === "classDiagram") { box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2; }'
+        '}'
+        '</script>'
+        '</body></html>'
+    )
+    [IO.File]::WriteAllLines("$diagramDir\diagrams.html", $html, $Utf8)
 }
 Add-LogLine $log "`r`n# Exit code: $rc"
 Add-LogLine $log "# End: $(Get-Stamp)"
-Write-RunEnd $rc @("Log: $log", "Diagrams: $diagramDir\diagrams.md")
+Write-RunEnd $rc @("Log: $log", "Diagrams: $diagramDir\diagrams.html (browser), diagrams.md")
 exit $rc

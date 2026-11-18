@@ -13,7 +13,7 @@ their logs are described in [the README of the scripts](../README.md).  Windows 
 | Run | Script | What it does | Build directory | Output |
 |---|---|---|---|---|
 | 01 | `01-graphify.ps1` | graphify: the code as a graph, to browse and to query | – | `graphify-out\` in the repository, `results\01-graphify.log` |
-| 02 | `02-clang-uml.ps1` | clang-uml: the class and sequence diagrams of `clang-uml.yml` | `build-overview` | `results\clang-uml\*.mmd`, `results\clang-uml\diagrams.md`, `results\02-clang-uml.log` |
+| 02 | `02-clang-uml.ps1` | clang-uml: the class and sequence diagrams of `clang-uml.yml` | `build-overview` | `results\clang-uml\diagrams.html` (and `.md`, `*.mmd`), `results\02-clang-uml.log` |
 
 ## Requirements
 
@@ -63,8 +63,13 @@ classes are then missing or incomplete in the graph.
 
 [clang-uml](https://github.com/bkryza/clang-uml) reads the code with the Clang compiler and
 draws the diagrams defined in [clang-uml.yml](clang-uml.yml), in Mermaid: each to
-`results\clang-uml\<diagram>.mmd`, and all of them to `results\clang-uml\diagrams.md`, which
-GitHub and VS Code show as diagrams.
+`results\clang-uml\<diagram>.mmd`, and all of them to two files in the same folder:
+
+- `diagrams.html` shows them in any browser, opened with a double click. It loads Mermaid
+  (version 12.3.0) from the internet when it is opened. The diagrams have their full size and
+  are scrolled sideways: shrunk to the window, the text of a large diagram can't be read.
+- `diagrams.md` holds them as `mermaid` blocks, which GitHub shows as diagrams, and VS Code
+  with the extension "Markdown Preview Mermaid Support".
 
     powershell -ExecutionPolicy Bypass -File scripts\overview\02-clang-uml.ps1
 
