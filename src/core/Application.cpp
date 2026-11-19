@@ -50,16 +50,21 @@ QString Application::wrapToolTip(const QString& tip) {
       .arg(tip.toHtmlEscaped().replace('\n', "<br>"));
 }
 
-QWidget* Application::wheelReceiverInsteadOf(QObject* receiver) {
-  auto* widget = qobject_cast<QWidget*>(receiver);
-  if (!widget) {
-    return nullptr;
-  }
-  // The wheel reaches the line edit inside an editable list or a number field first.
+namespace {
+/** The list, number field or slider that \p widget is or belongs to, or nullptr if there is none. */
+QWidget* wheelControlOf(QWidget* widget) {
+  // The line edit inside an editable list or a number field gets the wheel and the focus first.
   QWidget* control = qobject_cast<QLineEdit*>(widget) ? widget->parentWidget() : widget;
   const bool changesByWheel = qobject_cast<QComboBox*>(control) || qobject_cast<QAbstractSpinBox*>(control)
                               || qobject_cast<QSlider*>(control);
-  if (!changesByWheel || control->hasFocus()) {
+  return changesByWheel ? control : nullptr;
+}
+}  // namespace
+
+QWidget* Application::wheelReceiverInsteadOf(QObject* receiver) {
+  auto* widget = qobject_cast<QWidget*>(receiver);
+  QWidget* control = widget ? wheelControlOf(widget) : nullptr;
+  if (!control || control->hasFocus()) {
     return nullptr;
   }
   return control->parentWidget();
