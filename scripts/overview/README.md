@@ -19,17 +19,17 @@ their logs are described in [the README of the scripts](../README.md).  Windows 
 ## Requirements
 
 The tools are set up by `scripts\setup\05-setup-overview.ps1`; its step 9 shows which are there,
-in which version.  Steps 2, 3 and 5 offer the version this setup was tested with or the newest one.
+in which version.  Steps 3, 4 and 6 offer the version this setup was tested with or the newest one.
 
 | Run | Needs | Set up by `05-setup-overview.ps1` |
 |---|---|---|
-| 01 | graphify, a Python program, as a tool of uv (`%USERPROFILE%\.local\bin\graphify.exe`) | step 1 (uv, with winget), step 2 |
-| 02 | clang-uml (`C:\Program Files\clang-uml`); for its first build Visual Studio and vcpkg as for the analysis runs | step 3, with the installer from GitHub (administrator rights) |
-| 03 | Visual Studio (its CMake) and vcpkg; optionally Graphviz (`C:\Program Files\Graphviz`) for SVG files | step 5, Graphviz with winget (administrator rights) |
+| 01 | graphify, a Python program, as a tool of uv (`%USERPROFILE%\.local\bin\graphify.exe`) | step 1 (uv, with winget), step 2 (its folders), step 3 |
+| 02 | clang-uml (`C:\Program Files\clang-uml`); for its first build Visual Studio and vcpkg as for the analysis runs | step 4, with the installer from GitHub (administrator rights) |
+| 03 | Visual Studio (its CMake) and vcpkg; optionally Graphviz (`C:\Program Files\Graphviz`) for SVG files | step 6, Graphviz with winget (administrator rights) |
 
     powershell -ExecutionPolicy Bypass -File scripts\setup\05-setup-overview.ps1
 
-uv keeps its Pythons and tools in `%USERPROFILE%\.local\share\uv` (step 1 sets
+uv keeps its Pythons and tools in `%USERPROFILE%\.local\share\uv` (step 2 sets
 `UV_PYTHON_INSTALL_DIR` and `UV_TOOL_DIR`), not in `AppData`: a program installed as an app
 package, such as the Claude desktop app, has its writes there redirected into a folder of its
 own, and uv then can't find the Python it has just installed.
@@ -53,7 +53,7 @@ and the communities keep numbers instead of names.  Folders ignored by git are l
   `graphify path "<A>" "<B>"`, `graphify query "<question>"` (by key words) and
   `graphify god-nodes`.  A name used in several files is answered with the list of node ids
   to choose from.
-- **Claude Code:** with `/graphify` set up (setup step 4), `/graphify query`, `/graphify explain`
+- **Claude Code:** with `/graphify` set up (setup step 5), `/graphify query`, `/graphify explain`
   and `/graphify path` answer from this graph.  A plain `/graphify .` would build the graph
   itself, and also have the model read the documents and images, which costs many tokens.
 
@@ -120,7 +120,7 @@ default all three:
 
 Each graph goes to `results\cmake-graphviz\<graph>.dot`, all of them to `graphs.html` there,
 which draws them like the page of run 02 (it loads viz.js, Graphviz for the browser, version
-3.31.0, from the internet).  With Graphviz installed (setup step 5) each is also drawn to
+3.31.0, from the internet).  With Graphviz installed (setup step 6) each is also drawn to
 `<graph>.svg`, to be seen offline.  The shape of a node says what kind of target it is (see the
 legend in each graph): an egg a program, an octagon a static library.
 

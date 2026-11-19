@@ -289,7 +289,9 @@ topic, not by version.
   of the lines share, and *Trapezoid* keeps both edges vertical when it can tell only one.
   *Auto* no longer brings a curvature into a flat page: it bends a page only if its text lines
   are bent, and otherwise dewarps it like *Trapezoid* (a flat page with fewer than eight usable
-  lines is left as it is).
+  lines is left as it is). Lines of justified text, which reach both edges of the text, are no
+  longer lost when they are traced, so *Trapezoid* and *Auto* no longer leave clean pages
+  undewarped for too few lines.
 * Dewarping straightens slightly bent pages more exactly: with a bend below 1 % of the page
   height, the lines in the middle of the page kept most of their bend. This concerns every
   dewarping with curves (*Auto* on bent pages, *Manual*, *Marginal*).
