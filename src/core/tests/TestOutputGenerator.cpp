@@ -919,12 +919,13 @@ bool narrowingLettersPageFindsNoModel(const DewarpingMode mode,
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(test_letter_widths_are_left_alone_on_a_page_without_a_model) {
-  // A short block is too little for "Auto", and seven lines are too few for "Trapezoid".
+  // Seven lines are too few for straight lines, with "Auto" and with "Trapezoid", and a short block of them is
+  // too little for curved ones.
   const struct {
     DewarpingMode mode;
     int lines;
     int lineStep;
-  } cases[] = {{AUTO, 8, 100}, {TRAPEZOID, 7, 400}};
+  } cases[] = {{AUTO, 7, 100}, {TRAPEZOID, 7, 400}};
 
   for (const auto& pageCase : cases) {
     dewarping::DistortionModel model;

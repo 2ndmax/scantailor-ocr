@@ -49,6 +49,16 @@ const double kMaxEdgeSlopeDegrees = 4.0;  // The page is already deskewed, so a 
 // to one step beyond the bound.
 const float kTracingStep = 10.0f;
 
+/** \p bound moved by \p distance at right angles to itself, to the left for a negative \p xSign. */
+QLineF movedSideways(const QLineF& bound, const double xSign, const double distance) {
+  const QLineF normal = bound.normalVector().unitVector();
+  QPointF shift = (normal.p2() - normal.p1()) * distance;
+  if (shift.x() * xSign < 0) {
+    shift = -shift;
+  }
+  return bound.translated(shift);
+}
+
 // The model is extrapolated beyond the traced lines, and errors grow with the distance. So it needs at least:
 const int kMinTextLines = 3;
 const double kMinShareOfContentHeight = 0.25;  // Of the height of the page content, which includes page numbers.
@@ -877,10 +887,6 @@ void TextLineTracer::filterShortCurves(std::list<std::vector<QPointF>>& polyline
     const double backProjLen = proj2.projectionDist(back);
     const double chordLen = QLineF(front, back).length();
 
-    // REVIEW-NOTE (2026-11): a text line that the tracing breaks at wide gaps between words is too short here
-    // -> it is dropped, and "Trapezoid" or "Auto" can refuse a page depending only on where the gaps lie (a drawn
-    // page: 18 lines traced, 3 left). Not fixed because this limit decides for every automatic model and would
-    // have to be measured on real books.
     if (frontProjLen + backProjLen > 0.3 * chordLen) {
       polylines.erase(it++);
     } else {
@@ -892,10 +898,15 @@ void TextLineTracer::filterShortCurves(std::list<std::vector<QPointF>>& polyline
 void TextLineTracer::filterOutOfBoundsCurves(std::list<std::vector<QPointF>>& polylines,
                                              const QLineF& leftBound,
                                              const QLineF& rightBound) {
+  // A line traced to both bounds ends one tracing step beyond them more often than not; that is no reason
+  // to drop it.
+  const QLineF outerLeftBound = movedSideways(leftBound, -1.0, kTracingStep);
+  const QLineF outerRightBound = movedSideways(rightBound, 1.0, kTracingStep);
   auto it(polylines.begin());
   const auto end(polylines.end());
   while (it != end) {
-    if (!isInsideBounds(it->front(), leftBound, rightBound) && !isInsideBounds(it->back(), leftBound, rightBound)) {
+    if (!isInsideBounds(it->front(), outerLeftBound, outerRightBound)
+        && !isInsideBounds(it->back(), outerLeftBound, outerRightBound)) {
       polylines.erase(it++);
     } else {
       ++it;

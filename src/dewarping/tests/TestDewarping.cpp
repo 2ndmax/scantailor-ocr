@@ -542,6 +542,47 @@ BOOST_AUTO_TEST_CASE(test_trapezoid_keeps_its_lines_straight_at_the_spine) {
   BOOST_TEST(model.bottomCurve().polyline().size() == 2u);
 }
 
+// An A4 page at 300 DPI with 18 justified lines of words of 1 to 9 letters, drawn from \p seed the same way on
+// every machine. \p contentBox gets the box around the text.
+QImage justifiedPageAt300Dpi(const uint32_t seed, QRect& contentBox) {
+  const int left = 300;
+  const int right = 2180;
+  const int top = 400;
+  const int lineStep = 140;
+  const int letterWidth = 14;
+  const int letterHeight = 32;
+  QImage page(QSize(2480, 3508), QImage::Format_Grayscale8);
+  page.fill(Qt::white);
+  QPainter painter(&page);
+  uint32_t random = seed * 2654435761u + 12345u;
+  for (int i = 0; i < 18; ++i) {
+    const int y = top + i * lineStep;
+    int x = left;
+    while (x + letterWidth < right - 40) {
+      random = random * 1664525u + 1013904223u;
+      const int letters = 1 + static_cast<int>((random >> 16) % 9);
+      for (int k = 0; k < letters && x + letterWidth < right - 40; ++k, x += 22) {
+        painter.fillRect(x, y, letterWidth, letterHeight, Qt::black);
+      }
+      x += 20;
+    }
+    painter.fillRect(right - letterWidth, y, letterWidth, letterHeight, Qt::black);
+  }
+  contentBox = QRect(QPoint(left, top), QPoint(right - 1, top + 17 * lineStep + letterHeight - 1));
+  return page;
+}
+
+BOOST_AUTO_TEST_CASE(test_lines_traced_to_both_edges_are_kept) {
+  // A line is traced towards each edge of the text in steps, and both its ends often land one step beyond
+  // the edges. Such lines were dropped: on these pages up to 14 of 18, and Trapezoid and Auto refused them.
+  for (uint32_t seed = 0; seed < 8; ++seed) {
+    QRect contentBox;
+    const imageproc::GrayImage page(justifiedPageAt300Dpi(seed, contentBox));
+    BOOST_TEST(TextLineTracer::tracedLines(page, Dpi(300, 300), contentBox).size() == 18u, "seed " << seed);
+    BOOST_TEST(TextLineTracer::traceTrapezoid(page, Dpi(300, 300), contentBox).isValid(), "seed " << seed);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace dewarping
