@@ -2,8 +2,6 @@ set(common_sources
     Translations.cpp Translations.h
     CommandLineRun.cpp CommandLineRun.h
     BackgroundExecutor.cpp BackgroundExecutor.h
-    PixmapRenderer.cpp PixmapRenderer.h
-    BubbleAnimation.cpp BubbleAnimation.h
     SmartFilenameOrdering.cpp SmartFilenameOrdering.h
     AbstractRelinker.h
     RelinkablePath.cpp RelinkablePath.h
@@ -13,16 +11,12 @@ set(common_sources
     ImageMetadata.cpp ImageMetadata.h
     RecentProjects.cpp RecentProjects.h
     OutOfMemoryHandler.cpp OutOfMemoryHandler.h
-    PageSelectionAccessor.cpp PageSelectionAccessor.h
-    PageSelectionProvider.h
     ContentSpanFinder.cpp ContentSpanFinder.h
     ImageTransformation.cpp ImageTransformation.h
-    ImagePixmapUnion.h
     DownscaledImage.cpp DownscaledImage.h
     ImagePresentation.h
     ThumbnailLoadResult.h
     ThumbnailPixmapCache.cpp ThumbnailPixmapCache.h
-    OverlayStyle.cpp OverlayStyle.h
     ThumbnailDataBase.h
     ContentBoxPropagator.cpp ContentBoxPropagator.h
     PageOrientationPropagator.cpp PageOrientationPropagator.h
@@ -62,10 +56,8 @@ set(common_sources
     EstimateBackground.cpp EstimateBackground.h
     Despeckle.cpp Despeckle.h
     FileNameDisambiguator.cpp FileNameDisambiguator.h
-    OpenGLSupport.cpp OpenGLSupport.h
     OutputFileNameGenerator.cpp OutputFileNameGenerator.h
     Margins.cpp Margins.h
-    ColorScheme.h
     PageRange.cpp PageRange.h
     SelectedPage.cpp SelectedPage.h
     Utils.cpp Utils.h
@@ -84,8 +76,6 @@ set(common_sources
     ThumbnailCollector.h
     ContentBoxCollector.h
     PageOrientationCollector.h
-    ImageViewInfoProvider.cpp ImageViewInfoProvider.h
-    ImageViewInfoListener.h
     UnitsProvider.cpp UnitsProvider.h
     UnitsListener.h UnitsListener.cpp
     UnitsConverter.cpp UnitsConverter.h
@@ -100,14 +90,8 @@ set(common_sources
     NullTaskStatus.h
     OrderByCompletenessProvider.cpp OrderByCompletenessProvider.h
     OrderBySizeProviderBase.cpp OrderBySizeProviderBase.h
-    ColorSchemeFactory.cpp ColorSchemeFactory.h
     ApplicationSettings.cpp ApplicationSettings.h
-    IconProvider.cpp IconProvider.h
-    IconPack.h
-    AbstractIconPack.cpp AbstractIconPack.h
-    StyledIconPack.cpp StyledIconPack.h
     ConnectionManager.cpp ConnectionManager.h
-    ZoneModeListener.h
     ContentMask.cpp ContentMask.h
     PdfWriter.cpp PdfWriter.h
     PdfCompression.h
@@ -176,7 +160,23 @@ set(gui_sources
     SectionHeading.cpp SectionHeading.h
     TiffCompressionPanel.cpp TiffCompressionPanel.h
     PageScopeGroupBox.cpp PageScopeGroupBox.h
-    ZoneEditorBase.cpp ZoneEditorBase.h)
+    ZoneEditorBase.cpp ZoneEditorBase.h
+    PixmapRenderer.cpp PixmapRenderer.h
+    BubbleAnimation.cpp BubbleAnimation.h
+    ImagePixmapUnion.h
+    OverlayStyle.cpp OverlayStyle.h
+    OpenGLSupport.cpp OpenGLSupport.h
+    ColorScheme.h
+    ColorSchemeFactory.cpp ColorSchemeFactory.h
+    ImageViewInfoProvider.cpp ImageViewInfoProvider.h
+    ImageViewInfoListener.h
+    IconProvider.cpp IconProvider.h
+    IconPack.h
+    AbstractIconPack.cpp AbstractIconPack.h
+    StyledIconPack.cpp StyledIconPack.h
+    ZoneModeListener.h
+    PageSelectionAccessor.cpp PageSelectionAccessor.h
+    PageSelectionProvider.h)
 
 add_library(core_gui STATIC ${gui_sources} ${gui_ui_files})
 target_link_libraries(
