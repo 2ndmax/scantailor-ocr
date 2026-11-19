@@ -6,9 +6,9 @@
 #include <FilterUiInterface.h>
 #include <IncompleteThumbnail.h>
 #include <PageSequence.h>
-#include <filters/page_split/ImageView.h>
-#include <filters/page_split/OptionsWidget.h>
-#include <filters/page_split/Thumbnail.h>
+#include <filters/page_split/ui/ImageView.h>
+#include <filters/page_split/ui/OptionsWidget.h>
+#include <filters/page_split/ui/Thumbnail.h>
 
 #include <QtTest/QtTest>
 #include <memory>

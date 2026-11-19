@@ -78,6 +78,9 @@ set(ui_sources
     OptionsWidgetBinarizationLocal.cpp OptionsWidgetBinarizationLocal.h
     OptionsWidgetBinarization.h)
 
+list(TRANSFORM ui_sources PREPEND "ui/")
+list(TRANSFORM ui_files PREPEND "ui/")
+
 add_library(output_ui STATIC ${ui_sources} ${ui_files})
 target_link_libraries(output_ui PUBLIC output core_gui PRIVATE dewarping)
 target_include_directories(output PRIVATE "$<TARGET_PROPERTY:TIFF::TIFF,INTERFACE_INCLUDE_DIRECTORIES>")

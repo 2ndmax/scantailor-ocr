@@ -18,12 +18,12 @@
 #include <PageSequence.h>
 #include <filters/select_content/Dependencies.h>
 #include <filters/select_content/DetectionOptions.h>
-#include <filters/select_content/ImageView.h>
-#include <filters/select_content/OptionsWidget.h>
 #include <filters/select_content/Params.h>
 #include <filters/select_content/Settings.h>
-#include <filters/select_content/Thumbnail.h>
 #include <filters/select_content/UiData.h>
+#include <filters/select_content/ui/ImageView.h>
+#include <filters/select_content/ui/OptionsWidget.h>
+#include <filters/select_content/ui/Thumbnail.h>
 
 #include <QPolygonF>
 #include <QSpinBox>

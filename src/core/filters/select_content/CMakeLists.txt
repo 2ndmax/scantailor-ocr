@@ -32,6 +32,9 @@ set(ui_sources
     FilterUi.cpp FilterUi.h
     Thumbnail.cpp Thumbnail.h)
 
+list(TRANSFORM ui_sources PREPEND "ui/")
+list(TRANSFORM ui_files PREPEND "ui/")
+
 add_library(select_content_ui STATIC ${ui_sources} ${ui_files})
 target_link_libraries(select_content_ui PUBLIC select_content core_gui)
 

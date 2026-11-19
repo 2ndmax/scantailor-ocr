@@ -16,12 +16,12 @@
 #include "PageSelectionAccessor.h"
 #include "StageSequence.h"
 #include "ThumbnailDataBase.h"
-#include "filters/deskew/FilterUi.h"
-#include "filters/fix_orientation/FilterUi.h"
-#include "filters/output/FilterUi.h"
-#include "filters/page_layout/FilterUi.h"
-#include "filters/page_split/FilterUi.h"
-#include "filters/select_content/FilterUi.h"
+#include "filters/deskew/ui/FilterUi.h"
+#include "filters/fix_orientation/ui/FilterUi.h"
+#include "filters/output/ui/FilterUi.h"
+#include "filters/page_layout/ui/FilterUi.h"
+#include "filters/page_split/ui/FilterUi.h"
+#include "filters/select_content/ui/FilterUi.h"
 
 namespace {
 class ErrWidget : public ErrorWidget {

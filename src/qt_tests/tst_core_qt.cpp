@@ -15,11 +15,11 @@
 #include <dewarping/Curve.h>
 #include <dewarping/DistortionModel.h>
 #include <filters/output/LastImageViewTab.h>
-#include <filters/output/OptionsWidget.h>
 #include <filters/output/Settings.h>
+#include <filters/output/ui/OptionsWidget.h>
 #include <filters/page_split/Filter.h>
 #include <filters/page_split/PageLayout.h>
-#include <filters/page_split/Thumbnail.h>
+#include <filters/page_split/ui/Thumbnail.h>
 #include <foundation/Utils.h>
 
 #include <QCheckBox>

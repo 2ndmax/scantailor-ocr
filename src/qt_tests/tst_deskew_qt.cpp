@@ -12,11 +12,11 @@
 #include <PageId.h>
 #include <PageSelectionAccessor.h>
 #include <PageSequence.h>
-#include <filters/deskew/ImageView.h>
-#include <filters/deskew/OptionsWidget.h>
 #include <filters/deskew/Settings.h>
-#include <filters/deskew/Thumbnail.h>
 #include <filters/deskew/UiData.h>
+#include <filters/deskew/ui/ImageView.h>
+#include <filters/deskew/ui/OptionsWidget.h>
+#include <filters/deskew/ui/Thumbnail.h>
 
 #include <QAbstractButton>
 #include <QPolygonF>

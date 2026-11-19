@@ -31,6 +31,9 @@ set(ui_sources
     ApplyDialog.cpp ApplyDialog.h
     ApplyMarginsDialog.cpp ApplyMarginsDialog.h)
 
+list(TRANSFORM ui_sources PREPEND "ui/")
+list(TRANSFORM ui_files PREPEND "ui/")
+
 add_library(page_layout_ui STATIC ${ui_sources} ${ui_files})
 target_link_libraries(page_layout_ui PUBLIC page_layout core_gui)
 

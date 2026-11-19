@@ -9,14 +9,14 @@
 #include <IncompleteThumbnail.h>
 #include <PageSequence.h>
 #include <filters/output/ColorParams.h>
-#include <filters/output/DespeckleView.h>
-#include <filters/output/DewarpingView.h>
-#include <filters/output/FillZoneEditor.h>
-#include <filters/output/ImageView.h>
-#include <filters/output/OptionsWidget.h>
-#include <filters/output/PictureZoneEditor.h>
-#include <filters/output/TabbedImageView.h>
-#include <filters/output/Thumbnail.h>
+#include <filters/output/ui/DespeckleView.h>
+#include <filters/output/ui/DewarpingView.h>
+#include <filters/output/ui/FillZoneEditor.h>
+#include <filters/output/ui/ImageView.h>
+#include <filters/output/ui/OptionsWidget.h>
+#include <filters/output/ui/PictureZoneEditor.h>
+#include <filters/output/ui/TabbedImageView.h>
+#include <filters/output/ui/Thumbnail.h>
 
 #include <QtTest/QtTest>
 #include <memory>

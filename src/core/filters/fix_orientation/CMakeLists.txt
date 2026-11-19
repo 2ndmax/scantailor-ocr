@@ -24,6 +24,9 @@ set(ui_sources
     ApplyDialog.cpp ApplyDialog.h
     FilterUi.cpp FilterUi.h)
 
+list(TRANSFORM ui_sources PREPEND "ui/")
+list(TRANSFORM ui_files PREPEND "ui/")
+
 add_library(fix_orientation_ui STATIC ${ui_sources} ${ui_files})
 target_link_libraries(fix_orientation_ui PUBLIC fix_orientation core_gui)
 

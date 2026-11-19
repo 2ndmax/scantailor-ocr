@@ -97,12 +97,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../core/Application.cpp" line="102"/>
+        <location filename="../core/gui/Application.cpp" line="134"/>
         <source>Unexpected Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/Application.cpp" line="103"/>
+        <location filename="../core/gui/Application.cpp" line="135"/>
         <source>An unexpected error occurred:
 %1
 
@@ -208,82 +208,82 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
 <context>
     <name>BinarizationMethods</name>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="21"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="21"/>
         <source>One threshold for the whole page. Fast; suited to clean pages with even lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="25"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="25"/>
         <source>Local threshold from the mean and the contrast around each pixel. A good general choice for printed text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="29"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="29"/>
         <source>A variant of Sauvola for low contrast, with a lower and an upper bound.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="31"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="31"/>
         <source>Wolf combined with the contrast measure of Singh.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="33"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="33"/>
         <source>Local threshold with windows that adapt to the content.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="35"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="35"/>
         <source>Compares each pixel with the mean of its surroundings. Simple and fast.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="38"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="38"/>
         <source>Threshold from the gradients of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="40"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="40"/>
         <source>Strengthens the edges of the letters against their surroundings before the threshold.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="44"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="44"/>
         <source>Divides by a blurred copy of the page before the threshold, which evens out the paper.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="47"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="47"/>
         <source>EdgePlus and BlurDiv combined.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="49"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="49"/>
         <source>Estimates the paper first, then thresholds by the distance to it. For yellowed, stained or unevenly lit pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="53"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="53"/>
         <source>A variant of Niblack with little noise on empty paper. For faint print on old documents.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="57"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="57"/>
         <source>Local threshold from the mean and the local contrast, computed quickly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="60"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="60"/>
         <source>Finds dark letters against a brighter surround, hardly affected by shadows, for example near the spine.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="64"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="64"/>
         <source>Combines thresholds over several window sizes. For pages with text of very different sizes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/BinarizationMethods.cpp" line="79"/>
+        <location filename="../core/filters/output/ui/BinarizationMethods.cpp" line="79"/>
         <source>Strength of the method. Default value is %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -291,12 +291,12 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
 <context>
     <name>CollapsibleGroupBox</name>
     <message>
-        <location filename="../core/CollapsibleGroupBox.cpp" line="185"/>
+        <location filename="../core/gui/CollapsibleGroupBox.cpp" line="185"/>
         <source>Expand</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CollapsibleGroupBox.cpp" line="185"/>
+        <location filename="../core/gui/CollapsibleGroupBox.cpp" line="185"/>
         <source>Collapse</source>
         <translation type="unfinished"></translation>
     </message>
@@ -304,7 +304,7 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
 <context>
     <name>ColorPickupInteraction</name>
     <message>
-        <location filename="../core/filters/output/ColorPickupInteraction.cpp" line="19"/>
+        <location filename="../core/filters/output/ui/ColorPickupInteraction.cpp" line="19"/>
         <source>Click on an area to pick up its color, or ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1960,42 +1960,42 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>DewarpingMethodBox</name>
     <message>
-        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="18"/>
+        <location filename="../core/filters/output/ui/DewarpingMethodBox.cpp" line="18"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="18"/>
+        <location filename="../core/filters/output/ui/DewarpingMethodBox.cpp" line="18"/>
         <source>Finds the curvature of the lines of text automatically. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="19"/>
+        <location filename="../core/filters/output/ui/DewarpingMethodBox.cpp" line="19"/>
         <source>Trapezoid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="20"/>
+        <location filename="../core/filters/output/ui/DewarpingMethodBox.cpp" line="20"/>
         <source>Takes the lines of text as straight and corrects only a trapezoid distortion of the page, as found on scans of flat pages. A page with fewer than 8 lines of text stays as it is. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="22"/>
+        <location filename="../core/filters/output/ui/DewarpingMethodBox.cpp" line="22"/>
         <source>Marginal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="23"/>
+        <location filename="../core/filters/output/ui/DewarpingMethodBox.cpp" line="23"/>
         <source>Finds the curvature from the top and bottom edges of the page against a dark background. Experimental.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="24"/>
+        <location filename="../core/filters/output/ui/DewarpingMethodBox.cpp" line="24"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/DewarpingMethodBox.cpp" line="24"/>
+        <location filename="../core/filters/output/ui/DewarpingMethodBox.cpp" line="24"/>
         <source>You place the curves yourself on the Dewarping tab.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2003,7 +2003,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>DragHandler</name>
     <message>
-        <location filename="../core/interaction/DragHandler.cpp" line="22"/>
+        <location filename="../core/gui/interaction/DragHandler.cpp" line="22"/>
         <source>Unrestricted dragging is possible by holding down the Shift key.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2803,7 +2803,7 @@ Do you want to replace them?</source>
 <context>
     <name>ImageViewBase</name>
     <message>
-        <location filename="../core/ImageViewBase.cpp" line="208"/>
+        <location filename="../core/gui/ImageViewBase.cpp" line="208"/>
         <source>Use the mouse wheel or +/- to zoom. When zoomed, dragging is possible. Double-click to see the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2811,17 +2811,17 @@ Do you want to replace them?</source>
 <context>
     <name>InteractiveXSpline</name>
     <message>
-        <location filename="../core/interaction/InteractiveXSpline.cpp" line="40"/>
+        <location filename="../core/gui/interaction/InteractiveXSpline.cpp" line="40"/>
         <source>Click to create a new control point.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/interaction/InteractiveXSpline.cpp" line="60"/>
+        <location filename="../core/gui/interaction/InteractiveXSpline.cpp" line="60"/>
         <source>This point can be dragged. Hold Ctrl or Shift to drag along axes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/interaction/InteractiveXSpline.cpp" line="62"/>
+        <location filename="../core/gui/interaction/InteractiveXSpline.cpp" line="62"/>
         <source>Drag this point or delete it by pressing the D key.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3112,7 +3112,7 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2979"/>
+        <location filename="../app/MainWindow.cpp" line="2982"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3172,13 +3172,13 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2065"/>
+        <location filename="../app/MainWindow.cpp" line="2068"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2103"/>
+        <location filename="../app/MainWindow.cpp" line="2106"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3271,132 +3271,132 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1864"/>
+        <location filename="../app/MainWindow.cpp" line="1865"/>
         <source>Restart</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1865"/>
+        <location filename="../app/MainWindow.cpp" line="1866"/>
         <source>Some of the changed settings only take full effect after a restart. Do you want to restart ScanTailor OCR now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1868"/>
+        <location filename="../app/MainWindow.cpp" line="1869"/>
         <source>Restart</source>
         <comment>button</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1869"/>
+        <location filename="../app/MainWindow.cpp" line="1870"/>
         <source>Later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1903"/>
+        <location filename="../app/MainWindow.cpp" line="1906"/>
         <source>ScanTailor OCR could not be restarted. Please start it again by hand.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2118"/>
+        <location filename="../app/MainWindow.cpp" line="2121"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2118"/>
+        <location filename="../app/MainWindow.cpp" line="2121"/>
         <source>An export is running. Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1902"/>
-        <location filename="../app/MainWindow.cpp" line="2178"/>
-        <location filename="../app/MainWindow.cpp" line="2203"/>
+        <location filename="../app/MainWindow.cpp" line="1905"/>
+        <location filename="../app/MainWindow.cpp" line="2181"/>
+        <location filename="../app/MainWindow.cpp" line="2206"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1815"/>
+        <location filename="../app/MainWindow.cpp" line="1816"/>
         <source>Default Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1816"/>
+        <location filename="../app/MainWindow.cpp" line="1817"/>
         <source>Also use these default parameters for the open project? Pages added to it later start with them. Otherwise, they only apply to new projects.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1920"/>
+        <location filename="../app/MainWindow.cpp" line="1923"/>
         <source>version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2098"/>
+        <location filename="../app/MainWindow.cpp" line="2101"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2178"/>
-        <location filename="../app/MainWindow.cpp" line="2203"/>
+        <location filename="../app/MainWindow.cpp" line="2181"/>
+        <location filename="../app/MainWindow.cpp" line="2206"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2249"/>
+        <location filename="../app/MainWindow.cpp" line="2252"/>
         <source>Files to Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2252"/>
+        <location filename="../app/MainWindow.cpp" line="2255"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2303"/>
+        <location filename="../app/MainWindow.cpp" line="2306"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2365"/>
+        <location filename="../app/MainWindow.cpp" line="2368"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2550"/>
-        <location filename="../app/MainWindow.cpp" line="2587"/>
+        <location filename="../app/MainWindow.cpp" line="2553"/>
+        <location filename="../app/MainWindow.cpp" line="2590"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2544"/>
+        <location filename="../app/MainWindow.cpp" line="2547"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2564"/>
+        <location filename="../app/MainWindow.cpp" line="2567"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2588"/>
+        <location filename="../app/MainWindow.cpp" line="2591"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2642"/>
+        <location filename="../app/MainWindow.cpp" line="2645"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2705"/>
+        <location filename="../app/MainWindow.cpp" line="2708"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2782"/>
+        <location filename="../app/MainWindow.cpp" line="2785"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2979"/>
+        <location filename="../app/MainWindow.cpp" line="2982"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3679,63 +3679,63 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
 <context>
     <name>PageScopeGroupBox</name>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="36"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="36"/>
         <source>Apply to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="37"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="37"/>
         <source>This page only (already applied)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="38"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="38"/>
         <source>All pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="39"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="39"/>
         <source>This page and the following ones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="42"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="42"/>
         <source>This page and every other following page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="44"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="44"/>
         <source>Every other page (odd pages)</source>
         <extracomment>All odd pages; the text for even pages is used when the current page is even.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="45"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="45"/>
         <source>Selected pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="46"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="46"/>
         <source>Every other selected page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="47"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="47"/>
         <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="48"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="48"/>
         <source>The current page will be included.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/PageScopeGroupBox.cpp" line="84"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="84"/>
         <source>Every other page (even pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/PageScopeGroupBox.cpp" line="89"/>
+        <location filename="../core/gui/PageScopeGroupBox.cpp" line="89"/>
         <source>%n page(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -4602,12 +4602,12 @@ would both become
 <context>
     <name>StageListView</name>
     <message>
-        <location filename="../core/StageListView.cpp" line="107"/>
+        <location filename="../core/gui/StageListView.cpp" line="107"/>
         <source>Process all pages in this step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/StageListView.cpp" line="380"/>
+        <location filename="../core/gui/StageListView.cpp" line="380"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4854,12 +4854,12 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ThumbnailBase</name>
     <message>
-        <location filename="../core/ThumbnailBase.cpp" line="186"/>
+        <location filename="../core/gui/ThumbnailBase.cpp" line="186"/>
         <source>This page is not processed in this step yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/ThumbnailBase.cpp" line="188"/>
+        <location filename="../core/gui/ThumbnailBase.cpp" line="188"/>
         <source>This page deviates strongly from the others. Check it.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4875,81 +4875,81 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>TiffCompressionPanel</name>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="42"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="42"/>
         <source>LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program and its PDF export can.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="47"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="47"/>
         <source>Color / Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="48"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="48"/>
         <source>Color and grayscale pages, also posterized grayscale pages, and the pictures of pages with split output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="52"/>
-        <location filename="../core/TiffCompressionPanel.cpp" line="79"/>
-        <location filename="../core/TiffCompressionPanel.cpp" line="89"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="52"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="79"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="89"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="58"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="58"/>
         <source>All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="60"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="60"/>
         <source>JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and on mixed pages without split output the text gets blurred.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="63"/>
-        <location filename="../core/TiffCompressionPanel.cpp" line="84"/>
-        <location filename="../core/TiffCompressionPanel.cpp" line="96"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="63"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="84"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="96"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="69"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="69"/>
         <source>Higher values give better pictures and larger files. Only used with JPEG compression.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="70"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="70"/>
         <source>Quality:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="73"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="73"/>
         <source>Posterized Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="74"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="74"/>
         <source>Color pages that were posterized, and posterized pictures of pages with split output. Posterized grayscale pages can&apos;t be told apart from other grayscale pages; they follow &quot;Color / Grayscale&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="83"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="83"/>
         <source>All methods are lossless.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="87"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="87"/>
         <source>Black and White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="87"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="87"/>
         <source>Black and white pages and the text of pages with split output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/TiffCompressionPanel.cpp" line="94"/>
+        <location filename="../core/gui/TiffCompressionPanel.cpp" line="94"/>
         <source>All methods are lossless; CCITT G4 usually gives the smallest files.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5014,12 +5014,12 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ZoneContextMenuInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="197"/>
+        <location filename="../core/gui/zone_editing/ZoneContextMenuInteraction.cpp" line="197"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneContextMenuInteraction.cpp" line="201"/>
+        <location filename="../core/gui/zone_editing/ZoneContextMenuInteraction.cpp" line="201"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5027,32 +5027,32 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ZoneCreationInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="260"/>
+        <location filename="../core/gui/zone_editing/ZoneCreationInteraction.cpp" line="260"/>
         <source>Rectangle selection: move to the opposite corner and click to finish. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="264"/>
+        <location filename="../core/gui/zone_editing/ZoneCreationInteraction.cpp" line="264"/>
         <source>Lasso selection: click here to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="266"/>
+        <location filename="../core/gui/zone_editing/ZoneCreationInteraction.cpp" line="266"/>
         <source>Lasso selection: hold the left mouse button and draw around the area. The zone closes when you reach the starting point. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="273"/>
+        <location filename="../core/gui/zone_editing/ZoneCreationInteraction.cpp" line="273"/>
         <source>Polygon selection: click here to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="275"/>
+        <location filename="../core/gui/zone_editing/ZoneCreationInteraction.cpp" line="275"/>
         <source>Polygon selection: click to add a corner, click the first corner to close the zone. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneCreationInteraction.cpp" line="279"/>
+        <location filename="../core/gui/zone_editing/ZoneCreationInteraction.cpp" line="279"/>
         <source>Polygon selection: click to add corners. Clicking the last corner again removes it. X switches to lasso. ESC to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5060,32 +5060,32 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ZoneDefaultInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="21"/>
+        <location filename="../core/gui/zone_editing/ZoneDefaultInteraction.cpp" line="21"/>
         <source>Drag the corner. Hold Ctrl to make the angle at the corner a right angle. Press D to delete the corner.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="22"/>
+        <location filename="../core/gui/zone_editing/ZoneDefaultInteraction.cpp" line="22"/>
         <source>Click to create a new corner here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="24"/>
+        <location filename="../core/gui/zone_editing/ZoneDefaultInteraction.cpp" line="24"/>
         <source>Right click to edit zone properties. Hold Shift to drag the zone or Shift+Ctrl to copy. Press Del to delete this zone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="26"/>
+        <location filename="../core/gui/zone_editing/ZoneDefaultInteraction.cpp" line="26"/>
         <source>Hold left mouse button to drag the zone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="28"/>
+        <location filename="../core/gui/zone_editing/ZoneDefaultInteraction.cpp" line="28"/>
         <source>Hold left mouse button to copy and drag the zone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneDefaultInteraction.cpp" line="31"/>
+        <location filename="../core/gui/zone_editing/ZoneDefaultInteraction.cpp" line="31"/>
         <source>Click to start a new zone (lasso selection: hold the left mouse button and draw). Ctrl+Alt+Click copies the latest created zone. Z, X, C or the button at the bottom right switch the selection mode.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5093,7 +5093,7 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ZoneDragInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneDragInteraction.cpp" line="25"/>
+        <location filename="../core/gui/zone_editing/ZoneDragInteraction.cpp" line="25"/>
         <source>Release left mouse button to finish dragging.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5101,12 +5101,12 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ZoneVertexDragInteraction</name>
     <message>
-        <location filename="../core/zones/ZoneVertexDragInteraction.cpp" line="128"/>
+        <location filename="../core/gui/zone_editing/ZoneVertexDragInteraction.cpp" line="128"/>
         <source>Release to merge the two corners.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/zones/ZoneVertexDragInteraction.cpp" line="130"/>
+        <location filename="../core/gui/zone_editing/ZoneVertexDragInteraction.cpp" line="130"/>
         <source>Move the corner to one of its neighbors to merge them.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5114,27 +5114,27 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>deskew::ApplyDialog</name>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="23"/>
+        <location filename="../core/filters/deskew/ui/ApplyDialog.ui" line="23"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="29"/>
+        <location filename="../core/filters/deskew/ui/ApplyDialog.ui" line="29"/>
         <source>The rotation angle, or automatic detection with its detection method if it is set to Auto. Each page is then measured on its own.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="32"/>
+        <location filename="../core/filters/deskew/ui/ApplyDialog.ui" line="32"/>
         <source>Deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="42"/>
+        <location filename="../core/filters/deskew/ui/ApplyDialog.ui" line="42"/>
         <source>The oblique correction, or automatic detection if it is set to Auto.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ApplyDialog.ui" line="45"/>
+        <location filename="../core/filters/deskew/ui/ApplyDialog.ui" line="45"/>
         <source>Oblique</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5160,17 +5160,17 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>deskew::ImageView</name>
     <message>
-        <location filename="../core/filters/deskew/ImageView.cpp" line="35"/>
+        <location filename="../core/filters/deskew/ui/ImageView.cpp" line="35"/>
         <source>Use Ctrl+Wheel to rotate or Ctrl+Shift+Wheel for finer rotation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ImageView.cpp" line="37"/>
+        <location filename="../core/filters/deskew/ui/ImageView.cpp" line="37"/>
         <source>Drag this handle to rotate the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/ImageView.cpp" line="38"/>
+        <location filename="../core/filters/deskew/ui/ImageView.cpp" line="38"/>
         <source>Drag this handle to adjust oblique (shear).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5178,92 +5178,92 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>deskew::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="20"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="20"/>
         <source>Deskew and Oblique</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="29"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="29"/>
         <source>Deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="41"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="41"/>
         <source>Detect the rotation angle automatically, with the method chosen under &quot;Detection&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="44"/>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="155"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="44"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="155"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="57"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="57"/>
         <source>Keep the angle set below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="60"/>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="171"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="60"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="171"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="77"/>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="191"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="77"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="191"/>
         <source>Angle:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="117"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="117"/>
         <source>Detection:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="124"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="124"/>
         <source>How Auto finds the angle of this page: from the lines of the content, or from the top edge of the page (recommended for book scans with a dark background).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="158"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="158"/>
         <source>Detect the oblique angle automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="174"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="174"/>
         <source>Keep the oblique angle set below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="256"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="256"/>
         <source>Applies the rotation angle (with Auto: the detection method) and the oblique correction of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="37"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.cpp" line="37"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="236"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="38"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.cpp" line="38"/>
         <location filename="../app/DefaultParamsDialog.cpp" line="237"/>
         <source>Top page edge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="146"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="146"/>
         <source>Oblique</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.ui" line="259"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.ui" line="259"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/deskew/OptionsWidget.cpp" line="63"/>
+        <location filename="../core/filters/deskew/ui/OptionsWidget.cpp" line="63"/>
         <source>Apply Deskew and Oblique</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5271,32 +5271,32 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>fix_orientation::ApplyDialog</name>
     <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="17"/>
+        <location filename="../core/filters/fix_orientation/ui/ApplyDialog.ui" line="17"/>
         <source>Apply Rotation and Trim</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="26"/>
+        <location filename="../core/filters/fix_orientation/ui/ApplyDialog.ui" line="26"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="32"/>
+        <location filename="../core/filters/fix_orientation/ui/ApplyDialog.ui" line="32"/>
         <source>The rotation of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="35"/>
+        <location filename="../core/filters/fix_orientation/ui/ApplyDialog.ui" line="35"/>
         <source>Rotate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="45"/>
+        <location filename="../core/filters/fix_orientation/ui/ApplyDialog.ui" line="45"/>
         <source>The trim of the page, or no trim if &quot;Enable manual trim&quot; is turned off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ApplyDialog.ui" line="48"/>
+        <location filename="../core/filters/fix_orientation/ui/ApplyDialog.ui" line="48"/>
         <source>Trim</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5312,77 +5312,77 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>fix_orientation::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="20"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="20"/>
         <source>Rotate and Trim</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="29"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="29"/>
         <source>Rotate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="54"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="54"/>
         <source>Rotate the page a quarter turn counterclockwise.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="74"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="74"/>
         <source>Rotate the page a quarter turn clockwise.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="77"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="77"/>
         <source>Rotate right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="124"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="124"/>
         <source>Shows where the top edge of the original image points after the rotation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="152"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="152"/>
         <source>Trim</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="184"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="184"/>
         <source>Top:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="201"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="201"/>
         <source>Bottom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="218"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="218"/>
         <source>Left:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="235"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="235"/>
         <source>Right:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="289"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="289"/>
         <source>Applies the rotation and the trim of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="159"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="159"/>
         <source>Enable manual trim</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="57"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="57"/>
         <source>Rotate left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/OptionsWidget.ui" line="292"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="292"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5390,27 +5390,27 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>output::ApplyColorsDialog</name>
     <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="17"/>
+        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="17"/>
         <source>Apply Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="26"/>
+        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="26"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="32"/>
+        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="32"/>
         <source>Color mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="42"/>
+        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="42"/>
         <source>All other settings of the Mode panel, such as the threshold, the filters and the shape of the picture zones.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/ApplyColorsDialog.ui" line="45"/>
+        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="45"/>
         <source>Other settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5418,7 +5418,7 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>output::FillZoneEditor</name>
     <message>
-        <location filename="../core/filters/output/FillZoneEditor.cpp" line="162"/>
+        <location filename="../core/filters/output/ui/FillZoneEditor.cpp" line="162"/>
         <source>Pick Color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5459,62 +5459,62 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>output::FilterUi</name>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="71"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="73"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="115"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="117"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="127"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="129"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="128"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="130"/>
         <source>Shows the processed page as it will be saved. (Ctrl+1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="129"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="131"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="130"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="132"/>
         <source>Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="131"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="133"/>
         <source>Fill Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="132"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="134"/>
         <source>Fills areas of the output with a color you pick. (Ctrl+3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="133"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="135"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="134"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="136"/>
         <source>Shows the curves used to dewarp the page. In Manual mode, you place them yourself. (Ctrl+4)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="135"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="137"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/FilterUi.cpp" line="136"/>
+        <location filename="../core/filters/output/ui/FilterUi.cpp" line="138"/>
         <source>Previews the removal of specks. (Ctrl+5)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5522,7 +5522,7 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>output::ImageView</name>
     <message>
-        <location filename="../core/filters/output/ImageView.cpp" line="50"/>
+        <location filename="../core/filters/output/ui/ImageView.cpp" line="50"/>
         <source>Show Guides</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5530,937 +5530,937 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="26"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="425"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="26"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="425"/>
         <source>Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="403"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="403"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="569"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="569"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1311"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1311"/>
         <source>Fill offcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1318"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1318"/>
         <source>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1321"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1321"/>
         <source>Fill outside page box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1331"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1331"/>
         <source>Fill margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="637"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="637"/>
         <source>Grayscale output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1572"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1572"/>
         <source>Savitzky-Golay smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1582"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1582"/>
         <source>Morphological smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1290"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1290"/>
         <source>Filling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1348"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1348"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1395"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1395"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1410"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2487"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1410"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2487"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1609"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1609"/>
         <source>Color Operations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1037"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1037"/>
         <source>Reduces the noise of the image before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="50"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="50"/>
         <source>Resolution of the output files of this page, from 72 to 1200 DPI. Choose a value or type one in. With dewarping &quot;Auto&quot; or &quot;Trapezoid&quot;, a page whose curves were already found switches to &quot;Manual&quot;, so it keeps these curves.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="130"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="130"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="143"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="143"/>
         <source>On for dark content on a light background, off for light content on a dark background, such as white text on black; then the page is inverted for the processing. Set automatically if &quot;Auto detect light content on dark background&quot; and &quot;Use auto detection in the Output step&quot; are turned on in the Default Parameters. A change made here by hand takes precedence over the detection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="146"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="146"/>
         <source>Dark content on a light background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="194"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="194"/>
         <source>Applies &quot;Dark content on a light background&quot; of this page to other pages. There it counts as set by hand, so the automatic detection no longer changes it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="222"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="222"/>
         <source>Detects the color mode of pages. The settings apply to the whole project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="289"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="289"/>
         <source>Also look for grayscale pictures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="304"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="314"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="304"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="314"/>
         <source>A black and white page becomes Mixed if its largest picture zone covers at least this share of the page. Lower it for small pictures, raise it if stamps or stains are taken for pictures.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="307"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="307"/>
         <source>Pictures from:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="449"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="449"/>
         <source>Black and white: text and line art.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="481"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="481"/>
         <source>Color / grayscale: the whole page as an image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="513"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="513"/>
         <source>Mixed: pictures in color or grayscale, text in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="607"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="607"/>
         <source>Evens out uneven lighting, such as a shadow near the spine. In black and white and in mixed mode it is done before the conversion to black and white, in color mode on the whole page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="610"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="610"/>
         <source>Equalize illumination</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="622"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="622"/>
         <source>Mixed mode only: also evens out the lighting in the picture zones. Needs &quot;Equalize illumination&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="625"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="625"/>
         <source>Also in picture zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="634"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="634"/>
         <source>Output color scans in grayscale: the whole page in color / grayscale mode, pictures and colored text in mixed mode. Grayscale files are much smaller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="705"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="705"/>
         <source>Removes color noise, such as single red, green and blue pixels on gray paper, before the other filters. The brightness is not changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="708"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="708"/>
         <source>Remove color noise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="757"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="757"/>
         <source>How far the colors are smoothed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="773"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="773"/>
         <source>Gray limit:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="780"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="780"/>
         <source>Colors weaker than this become neutral gray; strong colors of pictures and colored text stay. 0 only smooths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="902"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="902"/>
         <source>Also takes the paper to white and removes a color cast such as yellowing. Each color channel is evened out on its own, so the colors of pictures shift as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="905"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="905"/>
         <source>Make paper white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="928"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="928"/>
         <source>Reduces the noise of the image while keeping the edges of letters sharp, before the other processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="931"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="931"/>
         <source>KNN denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1008"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1008"/>
         <source>The size of the neighborhood that is averaged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1040"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1040"/>
         <source>Wiener denoiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1117"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1117"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1146"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1146"/>
         <source>Sharpens blurred edges, after the other filters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1149"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1149"/>
         <source>Sharpen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1197"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1197"/>
         <source>How strongly the edges are sharpened, from 0.1 to 3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1226"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1226"/>
         <source>The size of the details that are sharpened; larger values also sharpen coarser details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1308"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1308"/>
         <source>Fills what was cut off in Import or by the split line in Split Pages, such as part of the facing page, with the filling color. Otherwise it stays visible where the page reaches into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1328"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1328"/>
         <source>Fills the margins, everything outside the content box, with the filling color, so dirt and edges there disappear.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1345"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1355"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1345"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1355"/>
         <source>The color of the filled areas: the background color found on the page, white or black. In mixed mode, &quot;Background&quot; gives white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1407"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1417"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1407"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1417"/>
         <source>How the page is converted to black and white. Otsu uses one threshold for the whole page; the other methods adapt it to each area of the page, which helps with uneven lighting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1453"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1463"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1453"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1463"/>
         <source>Colored pixels before the conversion to black and white: positive values darken them, so colored text becomes black; negative values lighten them, so colored stamps or highlighter marks disappear. The more saturated a color, the stronger the effect. 0 changes nothing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1456"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1456"/>
         <source>Colored:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1488"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1488"/>
         <source>Pixels darker than the lower bound always become black, pixels lighter than the upper bound always white, whatever the method computes. 1 and 254 leave the method alone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1491"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1491"/>
         <source>Bounds:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1498"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1498"/>
         <source>Pixels darker than this always become black.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1517"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1517"/>
         <source>to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1524"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1524"/>
         <source>Pixels lighter than this always become white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1569"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1569"/>
         <source>Smooths the grayscale image before the conversion to black and white, for smoother letter edges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1579"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1579"/>
         <source>Smooths the edges of the black and white result: single pixels sticking out or missing at the edges of the letters are removed or filled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1653"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1653"/>
         <source>Color segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1726"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1726"/>
         <source>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1745"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1745"/>
         <source>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1764"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1764"/>
         <source>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1819"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1829"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1819"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1829"/>
         <source>Removes small color segments as noise. Higher values remove larger ones. Only with color segmentation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1822"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1822"/>
         <source>Reduce noise:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1884"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1896"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1884"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1896"/>
         <source>Reduces the colors to a few.
 Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
 None: each letter keeps its own average color. Posterize: fixed color levels. K-means: the colors that fit the page best.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1889"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1889"/>
         <source>Reduce colors:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1957"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1967"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1957"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1967"/>
         <source>The number of colors of the letters, found with K-means, a fixed black included.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1960"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1960"/>
         <source>Colors:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1986"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1986"/>
         <source>One of the colors is pure black, so black text stays black instead of getting a tint.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1989"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1989"/>
         <source>Fixed black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="125"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="125"/>
         <source>Posterize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2002"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2002"/>
         <source>Level:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2028"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2028"/>
         <source>Normalize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2035"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2035"/>
         <source>Make dark and light gray gradients black and white respectively.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2098"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2098"/>
         <source>Picture Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2107"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2107"/>
         <source>Mixed mode only: how pictures are found, not at all, as a mask along the picture outlines or as rectangles. Pictures stay in color or grayscale, the rest becomes black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2150"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2150"/>
         <source>Sensitivity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2194"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2194"/>
         <source>Also finds pictures with weak contrast; text may then be taken for a picture, too.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2197"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2197"/>
         <source>Higher search sensitivity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="225"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="225"/>
         <source>Color Mode Detection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="239"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="249"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="239"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="249"/>
         <source>A page counts as a color page only if at least this share of it is colored outside pictures. Colored headings, boxes and thumb index tabs below it are ignored; colored pictures make the page Mixed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="242"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="242"/>
         <source>Color from:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="255"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="320"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="255"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="320"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="286"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="286"/>
         <source>Also look for picture zones on pages detected as black and white. Finds light or small photos, but takes longer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="375"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="375"/>
         <source>Detects the color mode of the chosen pages and sets it. Pages whose earlier steps have not been done yet are skipped.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="378"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="378"/>
         <source>Detect ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1647"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1647"/>
         <source>Splits the image into color segments and colors the black and white mask.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1999"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2009"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1999"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2009"/>
         <source>Posterizing: how finely each color channel is divided. 4 gives at most 4 × 4 × 4 colors, usually far fewer; lower values give fewer colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2025"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2025"/>
         <source>Spreads the colors between black and the paper before posterizing, for pale scans.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2038"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2038"/>
         <source>Force black and white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2147"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2157"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2147"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2157"/>
         <source>Trims the edges of the picture rectangles inward to the first row or column that the picture fills to at least this share. At 100 %, nothing is trimmed. Only for pictures found as rectangles.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2246"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2246"/>
         <source>Applies the color mode and the other settings of this panel to other pages; either part can be chosen.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2529"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2529"/>
         <source>How strongly the page is taken to curve away from the viewer when it is dewarped; this mostly changes how far the text near the spine is stretched. Only used with dewarping, not with &quot;Trapezoid&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2647"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2647"/>
         <source>Applies dewarping on or off, the method, &quot;Post deskew&quot;, &quot;Even out letter widths&quot; and the depth perception of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2675"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2675"/>
         <source>Adjusts the pictures after processing, like a photo editor. In mixed mode only the picture zones are changed, the text stays black and white. Not used in black and white mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2678"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2678"/>
         <source>Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2699"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2699"/>
         <source>Color Balance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2716"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2716"/>
         <source>Tone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2733"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2733"/>
         <source>Keep white</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2764"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2764"/>
         <source>Applies the photo adjustments of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2808"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2808"/>
         <source>Mixed mode only: also saves the page as two files, the text in the folder &quot;foreground&quot; and the pictures in the folder &quot;background&quot; next to the output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2823"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2823"/>
         <source>The text is saved in black and white.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2826"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2826"/>
         <source>Black and white foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2863"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2863"/>
         <source>The text keeps its colors.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2316"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2316"/>
         <source>Removes small specks, such as dust and dirt, from the black and white result. The slider sets how strongly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2519"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2519"/>
         <source>Straightens the page once more after dewarping. Only used with Manual and Marginal.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2522"/>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1153"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2522"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="1153"/>
         <source>Post deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2547"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2547"/>
         <source>Depth perception:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2613"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2613"/>
         <source>Measures the width of the letters across the dewarped page and stretches or compresses the page where they came out too narrow or too wide, for example near the spine. Slows down the processing. Only used with dewarping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2616"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2616"/>
         <source>Even out letter widths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="105"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="197"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2249"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2438"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2650"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2767"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2919"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="105"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="197"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2249"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2438"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2650"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2767"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2919"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="43"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="43"/>
         <source>Resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="102"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="102"/>
         <source>Applies the output resolution of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="418"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="418"/>
         <source>Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="679"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="679"/>
         <source>Enhancement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="809"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="809"/>
         <source>Evens out the paper background (stains, yellowing, shadows) before the other processing. Pictures are flattened as well.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="812"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="812"/>
         <source>Even out background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="853"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="972"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1081"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1190"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="853"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="972"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1081"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1190"/>
         <source>Strength:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="860"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="860"/>
         <source>How far the background is evened out, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="749"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="879"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="998"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1216"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="749"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="879"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="998"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1216"/>
         <source>Radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="889"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="889"/>
         <source>The size of the area used to estimate the background. It should be clearly larger than the letters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="979"/>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1088"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="979"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1088"/>
         <source>The strength of the noise reduction, from 0.01 to 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1107"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1107"/>
         <source>Window size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1696"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1696"/>
         <source>Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1706"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1706"/>
         <source>Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="1716"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="1716"/>
         <source>Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2475"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2475"/>
         <source>Straightens the lines of text and corrects the distortion of the page. The list below sets the method.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2478"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2478"/>
         <source>Dewarp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2509"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2509"/>
         <source>Not dewarped: too few lines of text found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2730"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2730"/>
         <source>Color / grayscale mode only: pure white stays white, such as a background made white. The margins are never changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2795"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2795"/>
         <source>Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2811"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2811"/>
         <source>Split output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2851"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2851"/>
         <source>Save the original background of the foreground layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2854"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2854"/>
         <source>Original background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2866"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2866"/>
         <source>Color foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2916"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2916"/>
         <source>Applies the splitting settings of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2274"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2274"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2319"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2319"/>
         <source>Despeckle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2435"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2435"/>
         <source>Applies the despeckling of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="2463"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="2463"/>
         <source>Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="452"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="452"/>
         <source>Black and White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="484"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="484"/>
         <source>Color / Grayscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.ui" line="516"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.ui" line="516"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="95"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="95"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="96"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="96"/>
         <source>White</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="97"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="97"/>
         <source>Black</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="124"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="124"/>
         <source>None</source>
         <comment>color reduction</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="126"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="126"/>
         <source>K-means</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="161"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="161"/>
         <source>Compression of the TIFF files in the output folder. Applies to the whole project. The PDF is compressed separately, so this doesn&apos;t change it. After a change, the output is created again: the current page right away, the other pages during the next batch processing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="1751"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="1751"/>
         <source>Apply Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="128"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="128"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="129"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="129"/>
         <source>Contour mask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="130"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="130"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="158"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="158"/>
         <source>TIFF Compression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="278"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="278"/>
         <source>Detect Color Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="425"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="425"/>
         <source>The resolution must be between 72 and 1200 DPI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="439"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="439"/>
         <source>Apply Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="511"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="511"/>
         <source>Temperature:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="512"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="512"/>
         <source>Positive values make the pictures warmer (more yellow), negative values cooler (more blue).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="513"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="513"/>
         <source>Tint:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="513"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="513"/>
         <source>Positive values add magenta, negative values green.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="514"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="514"/>
         <source>Exposure:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="514"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="514"/>
         <source>Brightens or darkens the pictures as a whole, in stops (EV).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="515"/>
         <source>Contrast:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="515"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="515"/>
         <source>Positive values spread the tones apart, negative values bring them closer together, around the middle gray.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="517"/>
         <source>Highlights:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="517"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="517"/>
         <source>Positive values brighten the bright parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="518"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="518"/>
         <source>Shadows:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="518"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="518"/>
         <source>Positive values brighten the dark parts, negative values darken them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="519"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="519"/>
         <source>Whites:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="519"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="519"/>
         <source>Positive values make the brightest tones whiter, negative values duller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="520"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="520"/>
         <source>Blacks:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="520"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="520"/>
         <source>Positive values make the darkest tones lighter, negative values deeper.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="680"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="680"/>
         <source>Apply Photo Adjustments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="698"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="698"/>
         <source>Apply Splitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="761"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="761"/>
         <source>Apply Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidget.cpp" line="803"/>
+        <location filename="../core/filters/output/ui/OptionsWidget.cpp" line="803"/>
         <source>Apply Dewarping</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6468,27 +6468,27 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::OptionsWidgetBinarizationLocal</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="46"/>
+        <location filename="../core/filters/output/ui/OptionsWidgetBinarizationLocal.ui" line="46"/>
         <source>Delta:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="53"/>
+        <location filename="../core/filters/output/ui/OptionsWidgetBinarizationLocal.ui" line="53"/>
         <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="75"/>
+        <location filename="../core/filters/output/ui/OptionsWidgetBinarizationLocal.ui" line="75"/>
         <source>Window size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="85"/>
+        <location filename="../core/filters/output/ui/OptionsWidgetBinarizationLocal.ui" line="85"/>
         <source>The dimensions of a pixel neighborhood to consider.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationLocal.ui" line="101"/>
+        <location filename="../core/filters/output/ui/OptionsWidgetBinarizationLocal.ui" line="101"/>
         <source>Coef:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6496,13 +6496,13 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::OptionsWidgetBinarizationOtsu</name>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="46"/>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="56"/>
+        <location filename="../core/filters/output/ui/OptionsWidgetBinarizationOtsu.ui" line="46"/>
+        <location filename="../core/filters/output/ui/OptionsWidgetBinarizationOtsu.ui" line="56"/>
         <source>Shifts the threshold: positive values make the letters thicker and darker, negative values thinner and lighter. 0 keeps the threshold the method computes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/OptionsWidgetBinarizationOtsu.ui" line="49"/>
+        <location filename="../core/filters/output/ui/OptionsWidgetBinarizationOtsu.ui" line="49"/>
         <source>Delta:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6510,32 +6510,32 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::PictureZonePropDialog</name>
     <message>
-        <location filename="../core/filters/output/PictureZonePropDialog.ui" line="14"/>
+        <location filename="../core/filters/output/ui/PictureZonePropDialog.ui" line="14"/>
         <source>Zone Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/PictureZonePropDialog.ui" line="20"/>
+        <location filename="../core/filters/output/ui/PictureZonePropDialog.ui" line="20"/>
         <source>Subtract from all layers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/PictureZonePropDialog.ui" line="27"/>
+        <location filename="../core/filters/output/ui/PictureZonePropDialog.ui" line="27"/>
         <source>Add to auto layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/PictureZonePropDialog.ui" line="34"/>
+        <location filename="../core/filters/output/ui/PictureZonePropDialog.ui" line="34"/>
         <source>Subtract from auto layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/PictureZonePropDialog.ui" line="41"/>
+        <location filename="../core/filters/output/ui/PictureZonePropDialog.ui" line="41"/>
         <source>Add to foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/output/PictureZonePropDialog.ui" line="48"/>
+        <location filename="../core/filters/output/ui/PictureZonePropDialog.ui" line="48"/>
         <source>Add to background</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6543,7 +6543,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>output::TabbedImageView</name>
     <message>
-        <location filename="../core/filters/output/TabbedImageView.cpp" line="20"/>
+        <location filename="../core/filters/output/ui/TabbedImageView.cpp" line="20"/>
         <source>Use Ctrl+1 to Ctrl+5 to switch the tabs.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6559,27 +6559,27 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>page_layout::ApplyMarginsDialog</name>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="23"/>
+        <location filename="../core/filters/page_layout/ui/ApplyMarginsDialog.ui" line="23"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="29"/>
+        <location filename="../core/filters/page_layout/ui/ApplyMarginsDialog.ui" line="29"/>
         <source>Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="39"/>
+        <location filename="../core/filters/page_layout/ui/ApplyMarginsDialog.ui" line="39"/>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="49"/>
+        <location filename="../core/filters/page_layout/ui/ApplyMarginsDialog.ui" line="49"/>
         <source>Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ApplyMarginsDialog.ui" line="59"/>
+        <location filename="../core/filters/page_layout/ui/ApplyMarginsDialog.ui" line="59"/>
         <source>Bottom</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6615,47 +6615,47 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>page_layout::ImageView</name>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="62"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="62"/>
         <source>Resize margins by dragging any of the solid lines.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="139"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="139"/>
         <source>Hold left mouse button to drag the page content.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="140"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="140"/>
         <source>Release left mouse button to finish dragging.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="661"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="661"/>
         <source>Add a Horizontal Guide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="662"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="662"/>
         <source>Add a Vertical Guide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="663"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="663"/>
         <source>Remove All the Guides</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="664"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="664"/>
         <source>Remove This Guide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="666"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="666"/>
         <source>Show Hard Margins Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ImageView.cpp" line="813"/>
+        <location filename="../core/filters/page_layout/ui/ImageView.cpp" line="813"/>
         <source>Drag the guide.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6663,334 +6663,334 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="144"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="144"/>
         <source>Margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="155"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="155"/>
         <source>Auto margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="219"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="219"/>
         <source>Top:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="229"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="229"/>
         <source>Right:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="239"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="239"/>
         <source>Left:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="332"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="332"/>
         <source>Bottom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="466"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="466"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="471"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="471"/>
         <source>Fill with margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="476"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="476"/>
         <source>Scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="501"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="511"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="501"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="511"/>
         <source>How much the content of this page is enlarged or reduced in the output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="504"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="504"/>
         <source>Factor:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="424"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="424"/>
         <source>Output Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="34"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="34"/>
         <source>Resolution of the scanned image (horizontal × vertical). It applies right away to the whole image, so to both pages of a split scan. Sizes and margins in millimeters or inches depend on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="548"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="558"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="548"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="558"/>
         <source>The largest width and the largest height of all pages whose size is matched, margins included. Without an own target size, it is the output size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="551"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="551"/>
         <source>Common size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="583"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="583"/>
         <source>Sets the output size by hand instead of using the common size. Turned on, the fields start with the common size. Pages larger than this size are reduced.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="586"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="586"/>
         <source>Own target size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="601"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="611"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="631"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="601"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="611"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="631"/>
         <source>Width × height of the output pages, margins included.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="667"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="667"/>
         <source>Enlarge to at most:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="702"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="702"/>
         <source>Reduce to at most:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="37"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="37"/>
         <source>Resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="399"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="773"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1199"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="399"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="773"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1199"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="119"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="119"/>
         <source>Fix DPI of all images ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="20"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="20"/>
         <source>Source Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="116"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="116"/>
         <source>Opens a window with the DPI of all images of the project, where you can check and correct them. The same as Tools &gt; Fix DPI of All Images ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="184"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="184"/>
         <source>Link or unlink the top and bottom margins. While they are linked, changing one changes the other.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="187"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="187"/>
         <source>Link top and bottom margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="246"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="246"/>
         <source>Link or unlink the left and right margins. While they are linked, changing one changes the other.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="249"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="249"/>
         <source>Link left and right margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="396"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="396"/>
         <source>Applies the margins of this page to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="433"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="433"/>
         <source>This Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="448"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="460"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="448"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="460"/>
         <source>Off: the page keeps its own size and is not part of the common size.
 Fill with margins: the page is brought to the output size with margins, aligned as set under &quot;Alignment&quot;. The content keeps its size; only pages larger than an own target size are reduced.
 Scale: the content is enlarged or reduced to fit the output size, within the limits below. The margins keep their size; the rest is filled with margins.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="453"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="453"/>
         <source>Match size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="536"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="536"/>
         <source>These settings apply to the whole project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="539"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="539"/>
         <source>All Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="664"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="674"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="664"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="674"/>
         <source>Pages set to &quot;Scale&quot; are enlarged to at most this percentage.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="699"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="709"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="699"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="709"/>
         <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="770"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="770"/>
         <source>Applies &quot;Match size&quot; of this page to other pages. The settings under &quot;All Pages&quot; apply to all pages anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="798"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="798"/>
         <source>Alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="820"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="820"/>
         <source>Horizontal mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="830"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="830"/>
         <source>Vertical mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="841"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="863"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="841"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="863"/>
         <source>Auto</source>
         <comment>auto</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="846"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="868"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="846"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="868"/>
         <source>Manual</source>
         <comment>manual</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="851"/>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="873"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="851"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="873"/>
         <source>Original</source>
         <comment>original</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="918"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="918"/>
         <source>Align the content box to the top left of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="921"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="921"/>
         <source>Top left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="944"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="944"/>
         <source>Align the content box to the top center of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="947"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="947"/>
         <source>Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="970"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="970"/>
         <source>Align the content box to the top right of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="973"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="973"/>
         <source>Top right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="996"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="996"/>
         <source>Align the content box to the left center of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="999"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="999"/>
         <source>Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1022"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1022"/>
         <source>Center the content box on the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1025"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1025"/>
         <source>Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1051"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1051"/>
         <source>Align the content box to the right center of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1054"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1054"/>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1077"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1077"/>
         <source>Align the content box to the bottom left of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1080"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1080"/>
         <source>Bottom left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1103"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1103"/>
         <source>Align the content box to the bottom center of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1106"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1106"/>
         <source>Bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1129"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1129"/>
         <source>Align the content box to the bottom right of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1132"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1132"/>
         <source>Bottom right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1224"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1224"/>
         <source>‣ Right-click to open the context menu for creating and removing guides.
 ‣ Right-click on a guide to open the context menu for deleting it.
 ‣ Ctrl+Alt+left mouse button – drag the guide under the cursor.
@@ -7000,52 +7000,52 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1232"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1232"/>
         <source>Guides and mouse ⓘ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="604"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="604"/>
         <source>Size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.ui" line="1196"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="1196"/>
         <source>Applies the alignment of this page to other pages: the modes and the position. Whether the size is matched is applied under &quot;Output Size&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="403"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.cpp" line="403"/>
         <source>Apply Margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="411"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.cpp" line="411"/>
         <source>Apply Alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="476"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.cpp" line="476"/>
         <source>Apply Match Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="507"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.cpp" line="507"/>
         <source>no matched pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="770"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.cpp" line="770"/>
         <source>DPI is too large and most likely wrong.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="774"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.cpp" line="774"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/OptionsWidget.cpp" line="779"/>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.cpp" line="779"/>
         <source>An extremely low DPI value. That might correspond to a very large paper size for the pixel size in question.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7076,7 +7076,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>page_split::ImageView</name>
     <message>
-        <location filename="../core/filters/page_split/ImageView.cpp" line="60"/>
+        <location filename="../core/filters/page_split/ui/ImageView.cpp" line="60"/>
         <source>Drag the line or the handles.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7084,110 +7084,110 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>page_split::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="26"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="26"/>
         <source>Page Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="231"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="231"/>
         <source>Split Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="50"/>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="243"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="50"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="243"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="35"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="35"/>
         <source>Page Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="47"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="47"/>
         <source>Detect the page type automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="63"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="63"/>
         <source>Keep the page type chosen below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="66"/>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="262"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="66"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="262"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="108"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="108"/>
         <source>One page, not split.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="143"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="143"/>
         <source>One page and a strip to cut off, such as the edge of the opposite page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="178"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="178"/>
         <source>Two pages, split into two.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="240"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="240"/>
         <source>Detect the split line automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="259"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="259"/>
         <source>Keep the split line set by hand in the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="282"/>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="292"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="282"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="292"/>
         <source>How the split line is detected automatically. &quot;Edges&quot; takes the vertical line closest to the center, which can be the edge of a photo. &quot;Spine line&quot; looks for the spine as a thin line that is darker than both sides of it over the whole height of the page; if it finds none, &quot;Edges&quot; is used.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="285"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="285"/>
         <source>Method:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="341"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="341"/>
         <source>Applies the page type of this page to other pages, and on request its split line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="344"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="344"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="369"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="369"/>
         <source>Page Order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="400"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="400"/>
         <source>The left half of a split page comes first, as in most books. Applies to the whole project. Switching renames the existing output files, whose names contain the order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.ui" line="435"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.ui" line="435"/>
         <source>The right half of a split page comes first, as in Hebrew, Arabic or Japanese books. Applies to the whole project. Switching renames the existing output files, whose names contain the order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.cpp" line="43"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.cpp" line="43"/>
         <source>Edges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/OptionsWidget.cpp" line="44"/>
+        <location filename="../core/filters/page_split/ui/OptionsWidget.cpp" line="44"/>
         <source>Spine line</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7195,42 +7195,42 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>page_split::SplitModeDialog</name>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="17"/>
+        <location filename="../core/filters/page_split/ui/SplitModeDialog.ui" line="17"/>
         <source>Apply Page Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="26"/>
+        <location filename="../core/filters/page_split/ui/SplitModeDialog.ui" line="26"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="32"/>
+        <location filename="../core/filters/page_split/ui/SplitModeDialog.ui" line="32"/>
         <source>The page type, or automatic detection if it is set to Auto.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="35"/>
+        <location filename="../core/filters/page_split/ui/SplitModeDialog.ui" line="35"/>
         <source>Page type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="45"/>
+        <location filename="../core/filters/page_split/ui/SplitModeDialog.ui" line="45"/>
         <source>The position of the split line, adapted to the size of each page. Without it, each page keeps its own split line or detects one. Only for a page type set by hand that has a split line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="48"/>
+        <location filename="../core/filters/page_split/ui/SplitModeDialog.ui" line="48"/>
         <source>Split line position</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="58"/>
+        <location filename="../core/filters/page_split/ui/SplitModeDialog.ui" line="58"/>
         <source>How the split line is detected automatically (&quot;Edges&quot; or &quot;Spine line&quot;). A split line set by hand stays.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_split/SplitModeDialog.ui" line="61"/>
+        <location filename="../core/filters/page_split/ui/SplitModeDialog.ui" line="61"/>
         <source>Detection method</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7238,7 +7238,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>page_split::UnremoveButton</name>
     <message>
-        <location filename="../core/filters/page_split/UnremoveButton.cpp" line="19"/>
+        <location filename="../core/filters/page_split/ui/UnremoveButton.cpp" line="19"/>
         <source>Restore removed page.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7246,22 +7246,22 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>select_content::ApplyDialog</name>
     <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="17"/>
+        <location filename="../core/filters/select_content/ui/ApplyDialog.ui" line="17"/>
         <source>Apply Page and Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="26"/>
+        <location filename="../core/filters/select_content/ui/ApplyDialog.ui" line="26"/>
         <source>Apply Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="32"/>
+        <location filename="../core/filters/select_content/ui/ApplyDialog.ui" line="32"/>
         <source>Page box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ApplyDialog.ui" line="42"/>
+        <location filename="../core/filters/select_content/ui/ApplyDialog.ui" line="42"/>
         <source>Content box</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7297,43 +7297,43 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>select_content::ImageView</name>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="49"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="49"/>
         <source>Drag lines or corners to resize the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="50"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="50"/>
         <source>Drag lines or corners to resize the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="122"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="122"/>
         <source>Hold the left mouse button and drag to move the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="128"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="128"/>
         <source>Hold the left mouse button and drag to move the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="123"/>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="129"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="123"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="129"/>
         <source>Release left mouse button to finish dragging.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="46"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="46"/>
         <source>Use the context menu to enable / disable the content box. Hold Shift to drag a box. Double-click on content to automatically adjust the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="153"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="153"/>
         <source>Create Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/ImageView.cpp" line="154"/>
+        <location filename="../core/filters/select_content/ui/ImageView.cpp" line="154"/>
         <source>Remove Content Box</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7341,138 +7341,138 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
 <context>
     <name>select_content::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="47"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="47"/>
         <source>Page Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="79"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="273"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="79"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="273"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="95"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="292"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="95"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="292"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="20"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="20"/>
         <source>If content is cropped incorrectly, check the Split Pages step: with columns, a split line set by hand and applied to other pages often works better.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="23"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="23"/>
         <source>Page and Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="57"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="57"/>
         <source>Use the whole image as the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="60"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="257"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="60"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="257"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="76"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="76"/>
         <source>Detect the page box automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="92"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="92"/>
         <source>Keep the page box set by hand, in the image or with the size below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="129"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="129"/>
         <source>Shrinks the detected page box from each corner as long as the corner lies on a dark area, such as the scanner background showing in the corners of a page placed askew.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="132"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="132"/>
         <source>Fine-tune page corners</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="159"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="159"/>
         <source>Width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="169"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="169"/>
         <source>Height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="247"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="247"/>
         <source>Content Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="254"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="254"/>
         <source>Use the whole page box as the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="270"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="270"/>
         <source>Detect the content box automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="289"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="289"/>
         <source>Keep the content box set by hand in the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="325"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="335"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="325"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="335"/>
         <source>The highest share of black pixels a line may have to count as text. Raise it for art books and photo pages: above 85 %, shadows are kept and pictures count as content; from 95 % on, the whole page box is the content box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="328"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="328"/>
         <source>Fill factor:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="341"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="379"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="341"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="379"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="363"/>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="373"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="363"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="373"/>
         <source>How much of the content touching the image border is kept. At 0 %, it is removed as before (scanner edges, shadows); raise it for pictures that reach the edge of the page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="366"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="366"/>
         <source>Border tolerance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="395"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="395"/>
         <source>Search for content in the whole image, not only inside the page box. Helps when text close to the edge of the page box is not detected. The content box still stays inside the page box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="398"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="398"/>
         <source>Ignore page box during detection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="450"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="450"/>
         <source>Applies the page box and the content box of this page, with the settings of the content detection, to other pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/select_content/OptionsWidget.ui" line="453"/>
+        <location filename="../core/filters/select_content/ui/OptionsWidget.ui" line="453"/>
         <source>Apply to ...</source>
         <translation type="unfinished"></translation>
     </message>

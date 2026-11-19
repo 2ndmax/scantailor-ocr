@@ -1,0 +1,308 @@
+// Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
+// Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
+
+#include "OptionsWidget.h"
+
+#include <QtWidgets/QButtonGroup>
+#include <algorithm>
+#include <utility>
+
+#include <core/DefaultParams.h>
+
+#include "../Params.h"
+#include "../Settings.h"
+#include "ApplyDialog.h"
+#include "WidgetUtils.h"
+
+namespace deskew {
+const double OptionsWidget::MAX_ANGLE = MAX_DESKEW_ANGLE_DEG;
+
+OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
+                             std::shared_ptr<DefaultParams> defaultParams,
+                             const PageSelectionAccessor& pageSelectionAccessor)
+    : m_settings(std::move(settings)),
+      m_defaultParams(std::move(defaultParams)),
+      m_pageSelectionAccessor(pageSelectionAccessor),
+      m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
+  setupUi(this);
+  angleSpinBox->setSuffix(QChar(0x00B0));  // the degree symbol
+  angleSpinBox->setRange(-MAX_ANGLE, MAX_ANGLE);
+  obliqueSpinBox->setSuffix(QChar(0x00B0));
+  // Both angles are as wide as "-45.00°", although their ranges differ.
+  for (QDoubleSpinBox* spinBox : {angleSpinBox, obliqueSpinBox}) {
+    core::WidgetUtils::setNumberFieldWidth(spinBox, -MAX_ANGLE);
+  }
+  setSpinBoxUnknownState();
+  // The items follow the order of SkewDetection.
+  detectionComboBox->addItem(tr("Content"));
+  detectionComboBox->addItem(tr("Top page edge"));
+
+  // Each pair of Auto / Manual buttons needs its own exclusive group. Relying on autoExclusive
+  // would put all four buttons into a single group, as they share the same parent widget.
+  m_deskewModeGroup = new QButtonGroup(this);
+  m_deskewModeGroup->addButton(autoBtn);
+  m_deskewModeGroup->addButton(manualBtn);
+  m_obliqueModeGroup = new QButtonGroup(this);
+  m_obliqueModeGroup->addButton(obliqueAutoBtn);
+  m_obliqueModeGroup->addButton(obliqueManualBtn);
+
+  if (m_defaultParams->getDeskewParams().isAutoOblique()) {
+    obliqueAutoBtn->setChecked(true);
+  } else {
+    obliqueManualBtn->setChecked(true);
+  }
+
+  setupUiConnections();
+}
+
+OptionsWidget::~OptionsWidget() = default;
+
+void OptionsWidget::showDeskewDialog() {
+  auto* dialog = new ApplyDialog(this, m_pageId, m_pageSelectionAccessor);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setWindowTitle(tr("Apply Deskew and Oblique"));
+  connect(dialog, &ApplyDialog::appliedTo, this, &OptionsWidget::appliedTo);
+  dialog->show();
+}
+
+void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDeskew, const bool applyOblique) {
+  if (pages.empty() || (!applyDeskew && !applyOblique)) {
+    return;
+  }
+
+  const Params current(m_uiData.effectiveDeskewAngle(), m_uiData.effectiveObliqueAngle(), m_uiData.dependencies(),
+                       m_uiData.mode(), m_uiData.obliqueMode(), m_uiData.detection());
+  for (const PageId& pageId : pages) {
+    std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
+    const Params merged(Params::mergedForApply(existing.get(), current, applyDeskew, applyOblique, pageId == m_pageId,
+                                               m_defaultParams->getDeskewParams().getDetection()));
+    m_settings->setPageParams(pageId, merged);
+    if (applyOblique) {
+      // The applied oblique mode wins over one the page still had pending.
+      m_settings->takePendingAutoOblique(pageId);
+    }
+  }
+
+  if (pages.size() > 1) {
+    emit invalidateAllThumbnails();
+  } else {
+    for (const PageId& pageId : pages) {
+      emit invalidateThumbnail(pageId);
+    }
+  }
+}
+
+void OptionsWidget::manualDeskewAngleSetExternally(const double degrees) {
+  m_uiData.setEffectiveDeskewAngle(degrees);
+  m_uiData.setMode(MODE_MANUAL);
+  updateModeIndication(MODE_MANUAL);
+  setSpinBoxKnownState(degreesToSpinBox(degrees));
+  commitCurrentParams();
+
+  emit invalidateThumbnail(m_pageId);
+}
+
+void OptionsWidget::manualObliqueAngleSetExternally(const double degrees) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  m_uiData.setEffectiveObliqueAngle(degrees);
+  m_uiData.setObliqueMode(MODE_MANUAL);
+  updateObliqueModeIndication(MODE_MANUAL);
+  obliqueSpinBox->setValue(degrees);
+  commitCurrentParams();
+
+  emit invalidateThumbnail(m_pageId);
+}
+
+void OptionsWidget::preUpdateUI(const PageId& pageId) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  m_pageId = pageId;
+  setSpinBoxUnknownState();
+  autoBtn->setChecked(true);
+  autoBtn->setEnabled(false);
+  manualBtn->setEnabled(false);
+  obliqueAutoBtn->setEnabled(false);
+  obliqueManualBtn->setEnabled(false);
+  // Until postUpdateUI(), the angles are still those of the previous page.
+  applyDeskewBtn->setEnabled(false);
+  updateDetectionIndication();
+}
+
+void OptionsWidget::postUpdateUI(const UiData& uiData) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  m_uiData = uiData;
+  autoBtn->setEnabled(true);
+  manualBtn->setEnabled(true);
+  obliqueAutoBtn->setEnabled(true);
+  obliqueManualBtn->setEnabled(true);
+  applyDeskewBtn->setEnabled(true);
+  updateModeIndication(uiData.mode());
+  updateObliqueModeIndication(uiData.obliqueMode());
+  setSpinBoxKnownState(degreesToSpinBox(uiData.effectiveDeskewAngle()));
+  obliqueSpinBox->setValue(m_uiData.effectiveObliqueAngle());
+  updateDetectionIndication();
+}
+
+void OptionsWidget::spinBoxValueChanged(const double value) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  const double degrees = spinBoxToDegrees(value);
+  m_uiData.setEffectiveDeskewAngle(degrees);
+  m_uiData.setMode(MODE_MANUAL);
+  updateModeIndication(MODE_MANUAL);
+  commitCurrentParams();
+
+  emit manualDeskewAngleSet(degrees);
+  emit invalidateThumbnail(m_pageId);
+}
+
+void OptionsWidget::modeChanged(const bool autoMode) {
+  if (autoMode) {
+    m_uiData.setMode(MODE_AUTO);
+    if (m_uiData.obliqueMode() == MODE_AUTO) {
+      m_uiData.setEffectiveObliqueAngle(0.0);
+    }
+    m_settings->setPendingAutoOblique(m_pageId, obliqueAutoBtn->isChecked());
+    // Empty dependencies make the task measure the page again. Unlike clearing the parameters,
+    // this keeps the page's detection method.
+    m_uiData.setDependencies(Dependencies());
+    commitCurrentParams();
+    updateDetectionIndication();
+    emit reloadRequested();
+  } else {
+    m_uiData.setMode(MODE_MANUAL);
+    commitCurrentParams();
+    updateDetectionIndication();
+  }
+}
+
+void OptionsWidget::detectionChanged(const int index) {
+  m_uiData.setDetection(static_cast<SkewDetection>(index));
+  // The method is only selectable in automatic mode: measure the page again with it.
+  m_uiData.setDependencies(Dependencies());
+  commitCurrentParams();
+  emit reloadRequested();
+}
+
+void OptionsWidget::obliqueModeChanged(const bool autoMode) {
+  // The choice only applies to this page. The start value of the project is changed in the
+  // start values or spread with "Apply To..." - before, it was changed here as well, and other
+  // pages silently lost their automatic oblique angle when measured again.
+
+  // The spin box must not report the reset back to us as a manual edit.
+  auto block = m_connectionManager.getScopedBlock();
+
+  // Either way the angle starts from zero: Auto measures it again, and Manual must drop an
+  // automatically found angle - otherwise the shear would silently stay in place.
+  m_uiData.setObliqueMode(autoMode ? MODE_AUTO : MODE_MANUAL);
+  m_uiData.setEffectiveObliqueAngle(0.0);
+  obliqueSpinBox->setValue(0.0);
+  if (autoMode) {
+    // Empty dependencies make the task measure the page again, like in modeChanged().
+    m_uiData.setDependencies(Dependencies());
+    // Only taken by that measurement, so it is set only where one follows.
+    m_settings->setPendingAutoOblique(m_pageId, true);
+  }
+  commitCurrentParams();
+
+  if (autoMode) {
+    emit reloadRequested();
+  } else {
+    emit manualObliqueAngleSet(0.0);
+    emit invalidateThumbnail(m_pageId);
+  }
+}
+
+void OptionsWidget::updateModeIndication(const AutoManualMode mode) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  if (mode == MODE_AUTO) {
+    autoBtn->setChecked(true);
+  } else {
+    manualBtn->setChecked(true);
+  }
+  updateDetectionIndication();
+}
+
+void OptionsWidget::updateObliqueModeIndication(const AutoManualMode mode) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  if (mode == MODE_AUTO) {
+    obliqueAutoBtn->setChecked(true);
+  } else {
+    obliqueManualBtn->setChecked(true);
+  }
+}
+
+void OptionsWidget::updateDetectionIndication() {
+  auto block = m_connectionManager.getScopedBlock();
+
+  detectionComboBox->setCurrentIndex(m_uiData.detection());
+  // The detection method only matters in automatic mode; otherwise it just shows the stored one.
+  const bool enabled = autoBtn->isEnabled() && autoBtn->isChecked();
+  detectionLabel->setEnabled(enabled);
+  detectionComboBox->setEnabled(enabled);
+}
+
+void OptionsWidget::setSpinBoxUnknownState() {
+  auto block = m_connectionManager.getScopedBlock();
+
+  angleSpinBox->setSpecialValueText("?");
+  angleSpinBox->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+  angleSpinBox->setValue(angleSpinBox->minimum());
+  angleSpinBox->setEnabled(false);
+  obliqueSpinBox->setValue(0.0);
+  obliqueSpinBox->setEnabled(false);
+  obliqueAutoBtn->setEnabled(false);
+  obliqueManualBtn->setEnabled(false);
+}
+
+void OptionsWidget::setSpinBoxKnownState(const double angle) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  angleSpinBox->setSpecialValueText("");
+  angleSpinBox->setValue(angle);
+
+  // Right alignment doesn't work correctly, so we use the left one.
+  angleSpinBox->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  angleSpinBox->setEnabled(true);
+  obliqueSpinBox->setEnabled(true);
+  obliqueAutoBtn->setEnabled(true);
+  obliqueManualBtn->setEnabled(true);
+}
+
+void OptionsWidget::commitCurrentParams() {
+  Params params(m_uiData.effectiveDeskewAngle(), m_uiData.effectiveObliqueAngle(), m_uiData.dependencies(),
+                m_uiData.mode(), m_uiData.obliqueMode(), m_uiData.detection());
+  m_settings->setPageParams(m_pageId, params);
+}
+
+#define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
+
+void OptionsWidget::obliqueSpinBoxValueChanged(double value) {
+  auto block = m_connectionManager.getScopedBlock();
+
+  m_uiData.setEffectiveObliqueAngle(value);
+  // Editing the value is a manual action even when the user dials it back to zero - otherwise
+  // the mode would stay automatic and the next run would just compute the angle again.
+  m_uiData.setObliqueMode(MODE_MANUAL);
+  updateObliqueModeIndication(MODE_MANUAL);
+  commitCurrentParams();
+  emit manualObliqueAngleSet(value);
+  emit invalidateThumbnail(m_pageId);
+}
+
+void OptionsWidget::setupUiConnections() {
+  CONNECT(angleSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::spinBoxValueChanged);
+  CONNECT(obliqueSpinBox, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::obliqueSpinBoxValueChanged);
+  CONNECT(autoBtn, &QAbstractButton::toggled, this, &OptionsWidget::modeChanged);
+  CONNECT(obliqueAutoBtn, &QAbstractButton::toggled, this, &OptionsWidget::obliqueModeChanged);
+  CONNECT(detectionComboBox, &QComboBox::currentIndexChanged, this, &OptionsWidget::detectionChanged);
+  CONNECT(applyDeskewBtn, &QAbstractButton::clicked, this, &OptionsWidget::showDeskewDialog);
+}
+
+#undef CONNECT
+
+}  // namespace deskew

@@ -6,11 +6,11 @@
 #include <core/ApplicationSettings.h>
 #include <core/gui/IconProvider.h>
 #include <filters/deskew/Params.h>
-#include <filters/output/BinarizationMethods.h>
 #include <filters/output/ColorParams.h>
-#include <filters/output/DewarpingMethodBox.h>
 #include <filters/output/DewarpingOptions.h>
 #include <filters/output/PictureShapeOptions.h>
+#include <filters/output/ui/BinarizationMethods.h>
+#include <filters/output/ui/DewarpingMethodBox.h>
 #include <filters/page_split/LayoutType.h>
 
 #include <QCoreApplication>

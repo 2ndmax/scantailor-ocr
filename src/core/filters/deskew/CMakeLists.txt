@@ -29,6 +29,9 @@ set(ui_sources
     FilterUi.cpp FilterUi.h
     ApplyDialog.cpp ApplyDialog.h)
 
+list(TRANSFORM ui_sources PREPEND "ui/")
+list(TRANSFORM ui_files PREPEND "ui/")
+
 add_library(deskew_ui STATIC ${ui_sources} ${ui_files})
 target_link_libraries(deskew_ui PUBLIC deskew core_gui)
 

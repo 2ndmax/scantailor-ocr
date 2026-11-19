@@ -11,10 +11,10 @@
 #include <PageSelectionAccessor.h>
 #include <PageSequence.h>
 #include <ProjectPages.h>
-#include <filters/page_layout/ImageView.h>
-#include <filters/page_layout/OptionsWidget.h>
 #include <filters/page_layout/Settings.h>
-#include <filters/page_layout/Thumbnail.h>
+#include <filters/page_layout/ui/ImageView.h>
+#include <filters/page_layout/ui/OptionsWidget.h>
+#include <filters/page_layout/ui/Thumbnail.h>
 
 #include <QtTest/QtTest>
 #include <memory>

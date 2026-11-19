@@ -16,11 +16,11 @@
 #include <UnitsProvider.h>
 #include <filters/fix_orientation/CacheDrivenTask.h>
 #include <filters/fix_orientation/Filter.h>
-#include <filters/fix_orientation/FilterUi.h>
-#include <filters/fix_orientation/ImageView.h>
-#include <filters/fix_orientation/OptionsWidget.h>
 #include <filters/fix_orientation/Settings.h>
 #include <filters/fix_orientation/Task.h>
+#include <filters/fix_orientation/ui/FilterUi.h>
+#include <filters/fix_orientation/ui/ImageView.h>
+#include <filters/fix_orientation/ui/OptionsWidget.h>
 
 #include <QAbstractButton>
 #include <QCheckBox>
