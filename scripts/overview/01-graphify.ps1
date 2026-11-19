@@ -9,7 +9,7 @@
   Folders ignored by git (the build directories among them) are left out.
 
   The graph goes to graphify-out in the repository (ignored by git), where the /graphify skill of
-  Claude Code finds it (setup\05-setup-overview.ps1, step 5):
+  Claude Code finds it (setup\05-setup-overview.ps1, step 4):
     graph.json       the graph; graphify query/explain/path read it
     graph.html       the graph in the browser
     GRAPH_REPORT.md  the most connected nodes and the communities

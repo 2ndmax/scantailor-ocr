@@ -12,11 +12,11 @@
        afterwards.
     3. graphify (run 01), as a uv tool with its own Python: the version this setup was tested
        with, or the newest one. Its command goes to %USERPROFILE%\.local\bin, which uv adds to PATH.
-    4. clang-uml (run 02), with its installer from GitHub into C:\Program Files\clang-uml: the
+    4. /graphify for Claude Code (optional): "graphify install" copies graphify's skill to
+       %USERPROFILE%\.claude\skills\graphify and names it in %USERPROFILE%\.claude\CLAUDE.md.
+    5. clang-uml (run 02), with its installer from GitHub into C:\Program Files\clang-uml: the
        version this setup was tested with, or the newest one. The download is checked against its
        SHA-256 checksum. Windows asks for administrator rights.
-    5. /graphify for Claude Code (optional): "graphify install" copies graphify's skill to
-       %USERPROFILE%\.claude\skills\graphify and names it in %USERPROFILE%\.claude\CLAUDE.md.
     6. Graphviz (run 03, optional), with winget into C:\Program Files\Graphviz: the version this
        setup was tested with, or the newest one. Run 03 then also draws its graphs as SVG files;
        its web page needs no Graphviz.
@@ -181,7 +181,20 @@ $stepGraphify = {
     return $true
 }
 
-# --- Step 4: clang-uml ------------------------------------------------------------------------
+# --- Step 4: /graphify for Claude Code --------------------------------------------------------
+
+$stepClaude = {
+    $graphify = Find-Graphify
+    if (-not $graphify) { Write-Host 'graphify is missing; run step 3 first.' -ForegroundColor Red; return $false }
+    Write-Host 'Lets Claude Code build and ask the graph with /graphify: copies the skill of graphify to'
+    Write-Host "$(Split-Path $ClaudeSkill) and adds a short section naming it to"
+    Write-Host "$env:USERPROFILE\.claude\CLAUDE.md. Nothing in the repository changes."
+    if (-not (Read-YesNo 'Set it up?' $false)) { return $true }
+    if ((Invoke-Shown "`"$graphify`" install" $log) -ne 0) { return $false }
+    return (Test-Path $ClaudeSkill)
+}
+
+# --- Step 5: clang-uml ------------------------------------------------------------------------
 
 # Version, URL and SHA-256 checksum of the Windows installer of the newest release, or $null.
 function Get-NewestClangUml {
@@ -244,19 +257,6 @@ $stepClangUml = {
     return $true
 }
 
-# --- Step 5: /graphify for Claude Code --------------------------------------------------------
-
-$stepClaude = {
-    $graphify = Find-Graphify
-    if (-not $graphify) { Write-Host 'graphify is missing; run step 3 first.' -ForegroundColor Red; return $false }
-    Write-Host 'Lets Claude Code build and ask the graph with /graphify: copies the skill of graphify to'
-    Write-Host "$(Split-Path $ClaudeSkill) and adds a short section naming it to"
-    Write-Host "$env:USERPROFILE\.claude\CLAUDE.md. Nothing in the repository changes."
-    if (-not (Read-YesNo 'Set it up?' $false)) { return $true }
-    if ((Invoke-Shown "`"$graphify`" install" $log) -ne 0) { return $false }
-    return (Test-Path $ClaudeSkill)
-}
-
 # --- Step 6: Graphviz -------------------------------------------------------------------------
 
 $stepGraphviz = {
@@ -309,7 +309,7 @@ $status = {
     }
     "  UV_PYTHON_INSTALL_DIR = $([Environment]::GetEnvironmentVariable('UV_PYTHON_INSTALL_DIR', 'User'))"
     "  UV_TOOL_DIR           = $([Environment]::GetEnvironmentVariable('UV_TOOL_DIR', 'User'))"
-    $skill = if (Test-Path $ClaudeSkill) { $ClaudeSkill } else { 'not set up (step 5)' }
+    $skill = if (Test-Path $ClaudeSkill) { $ClaudeSkill } else { 'not set up (step 4)' }
     "  /graphify for Claude Code: $skill"
 }
 
@@ -321,10 +321,10 @@ $menu = @(
        Done = { Test-UvDirs }; Run = $stepUvDirs }
     @{ Title = "graphify (run 01), tested version $GraphifyVersion or the newest"
        Done = { [bool](Find-Graphify) }; Run = $stepGraphify }
-    @{ Title = "clang-uml (run 02), tested version $ClangUmlVersion or the newest"
-       Done = { [bool](Find-ClangUml) }; Run = $stepClangUml }
     @{ Title = '/graphify for Claude Code (optional)'
        Done = { Test-Path $ClaudeSkill }; Run = $stepClaude }
+    @{ Title = "clang-uml (run 02), tested version $ClangUmlVersion or the newest"
+       Done = { [bool](Find-ClangUml) }; Run = $stepClangUml }
     @{ Title = "Graphviz (run 03, optional: SVG files), tested version $GraphvizVersion or the newest"
        Done = { [bool](Find-Graphviz) }; Run = $stepGraphviz }
 )

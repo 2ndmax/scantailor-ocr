@@ -19,12 +19,12 @@ their logs are described in [the README of the scripts](../README.md).  Windows 
 ## Requirements
 
 The tools are set up by `scripts\setup\05-setup-overview.ps1`; its step 9 shows which are there,
-in which version.  Steps 3, 4 and 6 offer the version this setup was tested with or the newest one.
+in which version.  Steps 3, 5 and 6 offer the version this setup was tested with or the newest one.
 
 | Run | Needs | Set up by `05-setup-overview.ps1` |
 |---|---|---|
 | 01 | graphify, a Python program, as a tool of uv (`%USERPROFILE%\.local\bin\graphify.exe`) | step 1 (uv, with winget), step 2 (its folders), step 3 |
-| 02 | clang-uml (`C:\Program Files\clang-uml`); for its first build Visual Studio and vcpkg as for the analysis runs | step 4, with the installer from GitHub (administrator rights) |
+| 02 | clang-uml (`C:\Program Files\clang-uml`); for its first build Visual Studio and vcpkg as for the analysis runs | step 5, with the installer from GitHub (administrator rights) |
 | 03 | Visual Studio (its CMake) and vcpkg; optionally Graphviz (`C:\Program Files\Graphviz`) for SVG files | step 6, Graphviz with winget (administrator rights) |
 
     powershell -ExecutionPolicy Bypass -File scripts\setup\05-setup-overview.ps1
@@ -53,7 +53,7 @@ and the communities keep numbers instead of names.  Folders ignored by git are l
   `graphify path "<A>" "<B>"`, `graphify query "<question>"` (by key words) and
   `graphify god-nodes`.  A name used in several files is answered with the list of node ids
   to choose from.
-- **Claude Code:** with `/graphify` set up (setup step 5), `/graphify query`, `/graphify explain`
+- **Claude Code:** with `/graphify` set up (setup step 4), `/graphify query`, `/graphify explain`
   and `/graphify path` answer from this graph.  A plain `/graphify .` would build the graph
   itself, and also have the model read the documents and images, which costs many tokens.
 
