@@ -9,10 +9,10 @@
 
 #include <core/DefaultParams.h>
 
-#include "../../WidgetUtils.h"
 #include "ApplyDialog.h"
 #include "Params.h"
 #include "Settings.h"
+#include "WidgetUtils.h"
 
 namespace deskew {
 const double OptionsWidget::MAX_ANGLE = MAX_DESKEW_ANGLE_DEG;

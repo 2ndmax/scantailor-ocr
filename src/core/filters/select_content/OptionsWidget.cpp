@@ -9,11 +9,11 @@
 #include <functional>
 #include <utility>
 
-#include "../../WidgetUtils.h"
 #include "ApplyDialog.h"
 #include "DetectionOptions.h"
 #include "Settings.h"
 #include "Utils.h"
+#include "WidgetUtils.h"
 
 namespace select_content {
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,

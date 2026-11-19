@@ -1,15 +1,15 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include <core/Application.h>
 #include <core/ApplicationSettings.h>
-#include <core/ColorSchemeFactory.h>
-#include <core/ColorSchemeManager.h>
-#include <core/IconProvider.h>
 #include <core/ImageSizeLimit.h>
 #include <core/OcrEngine.h>
 #include <core/SettingsSetup.h>
-#include <core/StyledIconPack.h>
+#include <core/gui/Application.h>
+#include <core/gui/ColorSchemeFactory.h>
+#include <core/gui/ColorSchemeManager.h>
+#include <core/gui/IconProvider.h>
+#include <core/gui/StyledIconPack.h>
 
 #include <QGuiApplication>
 #include <QPalette>

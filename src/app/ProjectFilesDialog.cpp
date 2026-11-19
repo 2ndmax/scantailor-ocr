@@ -3,8 +3,8 @@
 
 #include "ProjectFilesDialog.h"
 
-#include <core/ColorSchemeManager.h>
-#include <core/IconProvider.h>
+#include <core/gui/ColorSchemeManager.h>
+#include <core/gui/IconProvider.h>
 
 #include <QCoreApplication>
 #include <QDir>

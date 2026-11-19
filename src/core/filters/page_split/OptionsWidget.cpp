@@ -3,7 +3,7 @@
 
 #include "OptionsWidget.h"
 
-#include <core/IconProvider.h>
+#include <core/gui/IconProvider.h>
 
 #include <QButtonGroup>
 #include <QSignalBlocker>

@@ -3,7 +3,7 @@
 
 #include "ImageView.h"
 
-#include <core/OverlayStyle.h>
+#include <core/gui/OverlayStyle.h>
 
 #include <QDebug>
 #include <QPainter>

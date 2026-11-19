@@ -4,7 +4,7 @@
 #include "ThumbnailSequence.h"
 
 #include <core/ApplicationSettings.h>
-#include <core/IconProvider.h>
+#include <core/gui/IconProvider.h>
 
 #include <QApplication>
 #include <QFileInfo>

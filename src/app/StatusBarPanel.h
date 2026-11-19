@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_APP_STATUSBARPANEL_H_
 #define SCANTAILOR_APP_STATUSBARPANEL_H_
 
-#include <core/ZoneModeListener.h>
+#include <core/gui/ZoneModeListener.h>
 
 #include <QtCore/QMutex>
 #include <QtWidgets/QWidget>

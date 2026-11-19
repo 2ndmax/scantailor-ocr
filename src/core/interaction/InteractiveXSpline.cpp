@@ -4,7 +4,7 @@
 #include "InteractiveXSpline.h"
 
 #include <Constants.h>
-#include <core/ImageViewBase.h>
+#include <core/gui/ImageViewBase.h>
 
 #include <QDebug>
 #include <QMouseEvent>

@@ -24,15 +24,15 @@
 #include <utility>
 
 #include "../../ProcessingOptions.h"
-#include "../../TiffCompressionPanel.h"
 #include "../../Utils.h"
-#include "../../WidgetUtils.h"
 #include "ApplyColorsDialog.h"
 #include "BinarizationMethods.h"
 #include "FillZoneComparator.h"
 #include "OptionsWidgetBinarizationLocal.h"
 #include "OptionsWidgetBinarizationOtsu.h"
 #include "PictureZoneComparator.h"
+#include "TiffCompressionPanel.h"
+#include "WidgetUtils.h"
 
 using namespace core;
 

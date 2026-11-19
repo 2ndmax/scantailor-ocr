@@ -5,8 +5,8 @@
 
 #include <utility>
 
-#include "../../WidgetUtils.h"
 #include "BinarizationMethods.h"
+#include "WidgetUtils.h"
 
 
 namespace output {

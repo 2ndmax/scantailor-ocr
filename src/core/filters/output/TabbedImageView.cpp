@@ -9,8 +9,8 @@
 #include <cmath>
 #include <functional>
 
-#include "../../WidgetUtils.h"
 #include "DespeckleView.h"
+#include "WidgetUtils.h"
 
 using namespace core;
 

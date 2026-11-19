@@ -3,7 +3,7 @@
 
 #include "StatusBarPanel.h"
 
-#include <core/IconProvider.h>
+#include <core/gui/IconProvider.h>
 
 #include <QActionGroup>  // In QtGui with Qt 6, in QtWidgets with Qt 5.
 #include <QMenu>

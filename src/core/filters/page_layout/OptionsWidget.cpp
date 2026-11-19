@@ -5,7 +5,7 @@
 
 #include <ColorSchemeManager.h>
 #include <UnitsProvider.h>
-#include <core/IconProvider.h>
+#include <core/gui/IconProvider.h>
 
 #include <QButtonGroup>
 #include <QLineEdit>
@@ -13,13 +13,13 @@
 #include <utility>
 
 #include "../../Utils.h"
-#include "../../WidgetUtils.h"
 #include "ApplyDialog.h"
 #include "ApplyMarginsDialog.h"
 #include "Params.h"
 #include "ProjectPages.h"
 #include "Settings.h"
 #include "Utils.h"
+#include "WidgetUtils.h"
 
 using namespace core;
 

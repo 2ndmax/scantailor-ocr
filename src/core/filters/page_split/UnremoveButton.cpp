@@ -3,7 +3,7 @@
 
 #include "UnremoveButton.h"
 
-#include <core/IconProvider.h>
+#include <core/gui/IconProvider.h>
 
 #include <QMouseEvent>
 #include <QPainter>

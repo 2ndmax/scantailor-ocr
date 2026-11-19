@@ -5,7 +5,7 @@
 
 #include <utility>
 
-#include "../../WidgetUtils.h"
+#include "WidgetUtils.h"
 
 namespace output {
 

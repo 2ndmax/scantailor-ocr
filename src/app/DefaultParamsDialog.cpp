@@ -4,7 +4,7 @@
 #include "DefaultParamsDialog.h"
 
 #include <core/ApplicationSettings.h>
-#include <core/IconProvider.h>
+#include <core/gui/IconProvider.h>
 #include <filters/deskew/Params.h>
 #include <filters/output/BinarizationMethods.h>
 #include <filters/output/ColorParams.h>

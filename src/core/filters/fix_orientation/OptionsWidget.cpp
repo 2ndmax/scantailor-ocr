@@ -3,7 +3,7 @@
 
 #include "OptionsWidget.h"
 
-#include <core/IconProvider.h>
+#include <core/gui/IconProvider.h>
 
 #include <QSize>
 
@@ -13,13 +13,13 @@
 #include <map>
 #include <utility>
 
-#include "../../WidgetUtils.h"
 #include "ApplyDialog.h"
 #include "Filter.h"
 #include "ProjectPages.h"
 #include "Settings.h"
 #include "UnitsConverter.h"
 #include "UnitsProvider.h"
+#include "WidgetUtils.h"
 
 namespace fix_orientation {
 

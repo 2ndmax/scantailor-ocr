@@ -3,8 +3,8 @@
 
 #include "Thumbnail.h"
 
-#include <core/IconProvider.h>
-#include <core/OverlayStyle.h>
+#include <core/gui/IconProvider.h>
+#include <core/gui/OverlayStyle.h>
 
 #include <QPainter>
 #include <utility>

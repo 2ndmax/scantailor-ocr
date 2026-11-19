@@ -5,7 +5,7 @@
 
 #include <Constants.h>
 #include <core/ApplicationSettings.h>
-#include <core/OverlayStyle.h>
+#include <core/gui/OverlayStyle.h>
 
 #include <QAction>
 #include <QPainter>
