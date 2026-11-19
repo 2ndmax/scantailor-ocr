@@ -45,9 +45,12 @@ namespace {
 const double kLineEndTolerance = 3.0;      // How far a line end may be from a straight edge and still agree with it.
 const double kMinHeightForEdgeSlope = 30;  // Two line ends closer than this say nothing about the slope of an edge.
 const double kMaxEdgeSlopeDegrees = 4.0;  // The page is already deskewed, so a steeper edge is not an edge of the text.
-// A text line is traced from its middle towards each bound in steps of this length, and its end can land up
-// to one step beyond the bound.
+// A text line is traced from its middle towards each bound in steps of this length.
 const float kTracingStep = 10.0f;
+// How far beyond a bound a traced line can end. The tracer passes a bound that one of its points lies on
+// exactly and stops only where the traced area of the line ends, this far past the ink on drawn pages. It
+// does not depend on kTracingStep: with steps of 5, 10 or 20 the ends lay 0 or 10 beyond the bounds.
+const double kLineEndBeyondBound = 10.0;
 
 /** \p bound moved by \p distance at right angles to itself, to the left for a negative \p xSign. */
 QLineF movedSideways(const QLineF& bound, const double xSign, const double distance) {
@@ -898,10 +901,10 @@ void TextLineTracer::filterShortCurves(std::list<std::vector<QPointF>>& polyline
 void TextLineTracer::filterOutOfBoundsCurves(std::list<std::vector<QPointF>>& polylines,
                                              const QLineF& leftBound,
                                              const QLineF& rightBound) {
-  // A line traced to both bounds ends one tracing step beyond them more often than not; that is no reason
+  // A line traced to both bounds often ends just beyond them (see kLineEndBeyondBound); that is no reason
   // to drop it.
-  const QLineF outerLeftBound = movedSideways(leftBound, -1.0, kTracingStep);
-  const QLineF outerRightBound = movedSideways(rightBound, 1.0, kTracingStep);
+  const QLineF outerLeftBound = movedSideways(leftBound, -1.0, kLineEndBeyondBound);
+  const QLineF outerRightBound = movedSideways(rightBound, 1.0, kLineEndBeyondBound);
   auto it(polylines.begin());
   const auto end(polylines.end());
   while (it != end) {
