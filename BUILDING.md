@@ -185,9 +185,11 @@ interface:
 
 The program links `core_gui`; the command line tool `scantailor-ocr-cli`, `core_tests` and the
 developer tools link only `core`, so they don't need the Qt Widgets libraries. Code that needs a
-widget belongs in `core_gui` or a `<step>_ui` library: a widget header included from `core` or a
-step's processing library doesn't compile there. A step describes what the window shows as data
-(e.g. `TaskResult`, `ThumbnailData`); its `FilterUi` turns that into widgets.
+widget belongs in `core_gui` or a `<step>_ui` library. The build catches only part of a mistake:
+in `core` or a step's processing library, `#include <QWidget>` doesn't compile, but
+`#include <QtWidgets/QWidget>` does and fails only once the command line tool links that code.
+A step describes what the window shows as data (e.g. `TaskResult`, `ThumbnailData`); its
+`FilterUi` turns that into widgets.
 
 ## Build options
 

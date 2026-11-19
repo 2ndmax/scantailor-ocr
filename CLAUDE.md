@@ -13,9 +13,10 @@ These rules apply to every change in this repository. Building is described in
 2. **No new GUI dependencies in core code.** The core must stay usable without
    a GUI: the command line tool runs it through `StageSequence::processAll`
    (`CommandLineRun`), and `core_tests` tests it under `QCoreApplication`.
-   The libraries enforce it: `core` and the steps' processing libraries don't
-   link Qt Widgets; widget code goes in `core_gui` or a `<step>_ui` library
-   (see [BUILDING.md](BUILDING.md#libraries)).
+   `core` and the steps' processing libraries don't link Qt Widgets; widget
+   code goes in `core_gui` or a `<step>_ui` library. The build catches this
+   only in part (see [BUILDING.md](BUILDING.md#libraries)), so check includes
+   of `<QtWidgets/...>` in core code by hand.
 3. **Fix once, not per copy.** If a bug sits in duplicated code, merge the
    duplicates into one shared function first, then fix it there.
 4. **Readability over brevity.** Guards get a descriptive name or a short

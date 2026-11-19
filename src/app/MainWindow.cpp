@@ -1887,6 +1887,7 @@ void MainWindow::restartProgram() {
   // report the file it saved, which the "X" close and "New/Open Project" also call and don't need.
   const QString projectFile = m_projectFile;
   // The Export step is no filter: while it is shown, m_curFilter still names the step before it.
+  // Fixed without a test: a restart from Export reopened the step before it; no test drives the MainWindow.
   const int step = m_pdfStage ? filterList->pdfRow() : m_curFilter;
   if (!closeProjectInteractive()) {
     return;

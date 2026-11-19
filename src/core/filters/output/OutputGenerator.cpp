@@ -1653,6 +1653,10 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
     m_status.throwIfCancelled();
   }
 
+  // REVIEW-NOTE (2026-11): with "Normalize illumination" on, the background is estimated over the working area,
+  // which is the whole page when the margins are not filled -> on a page with uneven light and a dark scan edge the
+  // gray values cut out for the tracing differ, and an edge of the model can move by about a millimetre. Not fixed
+  // because normalizing the traced area once more costs time and the pages measured kept their decision.
   const auto pageToTrace = [&] { return GrayImage(warpedGrayOutput.toQImage().copy(m_tracingRectInWorkingCs)); };
   const QTransform tracingToOrig
       = QTransform::fromTranslate(m_tracingRectInWorkingCs.left(), m_tracingRectInWorkingCs.top()) * workingToOrig;
