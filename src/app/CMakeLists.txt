@@ -79,7 +79,7 @@ add_executable(
     ${resource_files} ${win32_resource_file})
 target_link_libraries(
     ${target_name}
-    PRIVATE core_gui ${EXTRA_LIBS})
+    PRIVATE stages_ui ${EXTRA_LIBS})
 target_include_directories(
     ${target_name}
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"

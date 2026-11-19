@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_CORE_ZONEMODELISTENER_H_
 #define SCANTAILOR_CORE_ZONEMODELISTENER_H_
 
-#include <core/zones/ZoneCreationMode.h>
+#include <core/gui/zone_editing/ZoneCreationMode.h>
 
 #include <functional>
 

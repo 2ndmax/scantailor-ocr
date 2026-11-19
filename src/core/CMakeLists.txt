@@ -134,7 +134,6 @@ target_link_libraries(core PRIVATE ${TESSERACT_TARGET})
 translation_sources(scantailor OcrEngine.cpp)
 
 add_subdirectory(gui)
-add_subdirectory(interaction)
 add_subdirectory(zones)
 if (BUILD_TESTS)
   add_subdirectory(tests)

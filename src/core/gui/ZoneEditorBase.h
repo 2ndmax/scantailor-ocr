@@ -4,8 +4,8 @@
 #ifndef SCANTAILOR_CORE_ZONEEDITORBASE_H_
 #define SCANTAILOR_CORE_ZONEEDITORBASE_H_
 
+#include <core/gui/zone_editing/ZoneInteractionContext.h>
 #include <core/zones/EditableZoneSet.h>
-#include <core/zones/ZoneInteractionContext.h>
 
 #include "ImageViewBase.h"
 

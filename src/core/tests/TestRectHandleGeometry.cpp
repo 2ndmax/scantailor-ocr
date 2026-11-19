@@ -1,7 +1,8 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include <interaction/RectHandleGeometry.h>
+// Belongs to core_gui, but is geometry in a header alone and needs no widgets, so core_tests can test it.
+#include <gui/interaction/RectHandleGeometry.h>
 
 #include <boost/test/unit_test.hpp>
 
