@@ -72,3 +72,14 @@ find_program(VERAPDF_EXECUTABLE NAMES verapdf verapdf.bat)
 if (VERAPDF_EXECUTABLE)
   set_property(TEST core_tests APPEND PROPERTY ENVIRONMENT "VERAPDF=${VERAPDF_EXECUTABLE}")
 endif()
+# Links every object file of core, zones and the steps' processing libraries, not only those a program
+# happens to use, and without Qt Widgets. A link error here means code that must work without widgets
+# needs core_gui, a <step>_ui library or Qt Widgets (see BUILDING.md, Libraries). Linking a library as a
+# whole needs CMake 3.24; older versions skip the check.
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
+  add_executable(core_link_check CoreLinkCheck.cpp)
+  target_link_libraries(
+      core_link_check
+      PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,core,zones,fix_orientation,page_split,deskew,select_content,page_layout,output>"
+              ${EXTRA_LIBS})
+endif()
