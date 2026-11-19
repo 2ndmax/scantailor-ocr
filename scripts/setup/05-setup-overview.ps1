@@ -9,7 +9,7 @@
     2. Sets UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR (the folders of uv) for your user account to
        %USERPROFILE%\.local\share\uv, unless they are set already. Asks first; if uv has Pythons
        or tools in the folders it uses now, the default answer is no, as uv no longer sees them
-       afterwards.
+       afterwards. Step 3 needs them: without them, graphify is not installed.
     3. graphify (run 01), as a uv tool with its own Python: the version this setup was tested
        with, or the newest one. Its command goes to %USERPROFILE%\.local\bin, which uv adds to PATH.
     4. /graphify for Claude Code (optional): "graphify install" copies graphify's skill to
@@ -142,7 +142,10 @@ $stepUvDirs = {
     foreach ($dir in $inUse) {
         Write-Host "uv has Pythons or tools in $dir; after this, uv no longer sees them." -ForegroundColor Yellow
     }
-    if (-not (Read-YesNo 'Set them now?' ($inUse.Count -eq 0))) { return $false }
+    if (-not (Read-YesNo 'Set them now?' ($inUse.Count -eq 0))) {
+        Write-Host 'Not set. graphify (step 3) is installed only with these folders; to install it, run step 2 again and answer yes.' -ForegroundColor Yellow
+        return $false
+    }
     foreach ($item in $missing) {
         [Environment]::SetEnvironmentVariable($item.Name, $item.Value, 'User')
         [Environment]::SetEnvironmentVariable($item.Name, $item.Value, 'Process')
@@ -157,7 +160,7 @@ $stepUvDirs = {
 $stepGraphify = {
     $uv = Find-Uv
     if (-not $uv) { Write-Host 'uv is missing; run step 1 first.' -ForegroundColor Red; return $false }
-    if (-not (Test-UvDirs)) { Write-Host 'UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR are not set; run step 2 first.' -ForegroundColor Red; return $false }
+    if (-not (Test-UvDirs)) { Write-Host 'UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR are not set, and graphify is installed only with them; run step 2 first and answer yes.' -ForegroundColor Red; return $false }
     $installed = Get-ToolVersion (Find-Graphify)
     $newest = Read-VersionChoice 'graphify' $GraphifyVersion
     if ($installed -and -not $newest -and $installed -eq $GraphifyVersion) {
