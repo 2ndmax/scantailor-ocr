@@ -14,9 +14,11 @@ These rules apply to every change in this repository. Building is described in
    a GUI: the command line tool runs it through `StageSequence::processAll`
    (`CommandLineRun`), and `core_tests` tests it under `QCoreApplication`.
    `core` and the steps' processing libraries don't link Qt Widgets; widget
-   code goes in `core_gui` or a `<step>_ui` library. The build catches this
-   only in part (see [BUILDING.md](BUILDING.md#libraries)), so check includes
-   of `<QtWidgets/...>` in core code by hand.
+   code goes in `core_gui` (`src/core/gui`) or a `<step>_ui` library
+   (`filters/<step>/ui`). The build checks this with `core_link_check` (see
+   [BUILDING.md](BUILDING.md#libraries)); it cannot see widget code that is
+   only used inline in a header, so still check includes of
+   `<QtWidgets/...>` in core code.
 3. **Fix once, not per copy.** If a bug sits in duplicated code, merge the
    duplicates into one shared function first, then fix it there.
 4. **Readability over brevity.** Guards get a descriptive name or a short

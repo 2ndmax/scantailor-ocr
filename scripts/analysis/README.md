@@ -206,7 +206,7 @@ Two kinds of reports are known to be harmless; the code is not changed for them:
   `Qt6Widgets.dll` allocated the memory before ASan hooked the allocator.
 - UBSan `insufficient-object-size` ("member call on address ... with insufficient space for an
   object of type `QNonConstOverload<...>`") at `qOverload<...>(&Class::signal)` calls, e.g. in
-  `filters/output/OptionsWidget.cpp`, `filters/page_layout/OptionsWidget.cpp`,
+  `filters/output/ui/OptionsWidget.cpp`, `filters/page_layout/ui/OptionsWidget.cpp`,
   `TiffCompressionPanel.cpp` and `qt_tests/tst_core_qt.cpp`.  `QOverload` (`qoverload.h`)
   derives from the two empty bases `QConstOverload` and `QNonConstOverload`; in the MSVC ABI
   the second empty base sits at offset 1 of the 1-byte object, so UBSan's size check for that

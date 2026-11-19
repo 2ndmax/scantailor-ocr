@@ -177,19 +177,23 @@ interface:
   `page_layout`, `output`) – the step's processing: `Filter`, `Task`, `CacheDrivenTask`,
   settings and parameters. Like `core`, without widgets.
 * `zones` – the picture and fill zones as data.
-* `core_gui` – the user interface on top of `core`: widgets, image views, thumbnails and
-  `FilterUiSequence`, which shows each step through its `FilterUi`.
-* One `<step>_ui` library per step – its `FilterUi`, options panel, image view, dialogs and
-  thumbnail.
-* `interaction` and `zone_editing` – mouse interaction in the image views and zone editing.
+* `core_gui` (`src/core/gui`) – the user interface on top of `core`: widgets, image views,
+  icons, color schemes, mouse interaction (`gui/interaction`) and zone editing
+  (`gui/zone_editing`).
+* One `<step>_ui` library per step (`filters/<step>/ui`) – its `FilterUi`, options panel, image
+  view, dialogs and thumbnail.
+* `stages_ui` (`src/core/gui/stages`) – `FilterUiSequence`, which shows each step through its
+  `FilterUi`, and the thumbnails of all steps.
 
-The program links `core_gui`; the command line tool `scantailor-ocr-cli`, `core_tests` and the
-developer tools link only `core`, so they don't need the Qt Widgets libraries. Code that needs a
-widget belongs in `core_gui` or a `<step>_ui` library. The build catches only part of a mistake:
-in `core` or a step's processing library, `#include <QWidget>` doesn't compile, but
-`#include <QtWidgets/QWidget>` does and fails only once the command line tool links that code.
-A step describes what the window shows as data (e.g. `TaskResult`, `ThumbnailData`); its
-`FilterUi` turns that into widgets.
+Each library depends only on those listed above it (the steps' processing libraries and `core`
+need each other). The program links `stages_ui`; the command line tool `scantailor-ocr-cli`,
+`core_tests` and the developer tools link only `core`, so they don't need the Qt Widgets
+libraries. Code that needs a widget belongs in `core_gui` or a `<step>_ui` library. The build
+checks this: `core` doesn't see the headers in `src/core/gui` or `filters/<step>/ui`, so including
+one by its name doesn't compile, and with `BUILD_TESTS` the program `core_link_check` links every
+object file of `core`, `zones` and the steps' processing libraries without Qt Widgets, so code
+there that calls widget code doesn't link. A step describes what the window shows as data (e.g.
+`TaskResult`, `ThumbnailData`); its `FilterUi` turns that into widgets.
 
 ## Build options
 
