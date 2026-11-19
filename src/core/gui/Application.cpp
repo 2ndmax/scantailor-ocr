@@ -78,8 +78,13 @@ bool WheelFocusTracker::eventFilter(QObject* watched, QEvent* event) {
   if (clickOrFocusOut && watched->isWidgetType()) {
     if (QWidget* control = wheelControlOf(static_cast<QWidget*>(watched))) {
       // A click on a control that has the focus already brings no FocusIn, so the click itself is noted.
+      // QApplication gives the focus for a click before the application's event filters see it. A control
+      // that takes no focus by a click (lists and sliders on macOS) gets no note: it would never lose the
+      // focus to clear it, and would count as clicked once the Tab key brings the focus.
       if (event->type() == QEvent::MouseButtonPress) {
-        control->setProperty(kClickedSinceFocused, true);
+        if (control->hasFocus()) {
+          control->setProperty(kClickedSinceFocused, true);
+        }
       } else if (!isLeftForAWhile(static_cast<QFocusEvent*>(event)->reason())) {
         control->setProperty(kClickedSinceFocused, QVariant());
       }

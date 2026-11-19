@@ -410,9 +410,29 @@ void TestUxQt::testWheelGoesPastAControlThatGotTheFocusOfAHiddenOne() {
   QCOMPARE(next, static_cast<QWidget*>(controls.decimalField));
   QCOMPARE(Application::wheelReceiverInsteadOf(next), &controls.panel);
 
-  // A click counts only until the control loses the focus.
-  clickControl(controls.list);
+  // A click counts only until the control loses the focus. A slider, because on macOS a list takes no focus
+  // by a click (see the next test).
+  clickControl(controls.slider);
+  QVERIFY(controls.slider->hasFocus());
+  controls.list->setFocus();
   controls.slider->setFocus();
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.slider), &controls.panel);
+}
+
+void TestUxQt::testWheelGoesPastAControlClickedWithoutTakingTheFocus() {
+  const InstalledWheelFocusTracker tracker;
+  PanelWithControls controls;
+  // On macOS a list takes no focus by a click, as the CI run there shows; sliders and number fields do.
+  // Qt::TabFocus does the same on every system.
+  controls.list->setFocusPolicy(Qt::TabFocus);
+  controls.panel.show();
+  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+  controls.numberField->setFocus();
+
+  clickControl(controls.list);
+  QVERIFY(!controls.list->hasFocus());
+
+  // Later the list gets the focus without a click, e.g. by the Tab key.
   controls.list->setFocus();
   QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), &controls.panel);
 }

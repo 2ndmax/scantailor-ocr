@@ -24,6 +24,7 @@ class TestUxQt : public QObject {
   void testWheelStaysWithAClickedControlAfterAnotherWindow();
   void testWheelGoesPastAControlFocusedByOpeningAWindow();
   void testWheelGoesPastAControlThatGotTheFocusOfAHiddenOne();
+  void testWheelGoesPastAControlClickedWithoutTakingTheFocus();
 };
 
 #endif
