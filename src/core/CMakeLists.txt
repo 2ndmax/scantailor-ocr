@@ -183,6 +183,12 @@ target_link_libraries(
   core_gui
   PUBLIC core Qt::Widgets Qt::OpenGLWidgets interaction zone_editing
   fix_orientation_ui page_split_ui deskew_ui select_content_ui page_layout_ui output_ui)
+# core_gui, interaction, zone_editing and the steps' _ui libraries need each other, and GNU ld searches each
+# static library only once, in link order. CMake repeats such a ring of libraries twice by default; then an
+# object file that the second round pulls in can need one from a library already passed (zone_editing needs
+# DragWatcher from interaction). A third round resolves that. The MSVC linker searches the libraries again
+# until nothing is left, so only the Linux build in CI shows a mistake here.
+set_property(TARGET core_gui PROPERTY LINK_INTERFACE_MULTIPLICITY 3)
 target_include_directories(core_gui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 set_target_properties(core_gui PROPERTIES AUTOUIC ON)
 
