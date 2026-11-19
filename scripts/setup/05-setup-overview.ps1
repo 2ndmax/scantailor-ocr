@@ -5,16 +5,19 @@
 .DESCRIPTION
   Shows the steps in a menu; each can be run on its own, 0 runs all of them in order, 9 shows
   which tools are there, in which version:
-    1. uv: installs it with winget (it installs Python and graphify in step 2), and sets
-       UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR for your user account, to %USERPROFILE%\.local\share\uv.
-    2. graphify (run 01), as a uv tool with its own Python: the version this setup was tested
+    1. uv: installs it with winget (it installs Python and graphify in step 3).
+    2. The folders of uv: sets UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR for your user account, to
+       %USERPROFILE%\.local\share\uv, unless they are set already. Asks first; if uv has Pythons
+       or tools in the folders it uses now, the default answer is no, as uv no longer sees them
+       afterwards.
+    3. graphify (run 01), as a uv tool with its own Python: the version this setup was tested
        with, or the newest one. Its command goes to %USERPROFILE%\.local\bin, which uv adds to PATH.
-    3. clang-uml (run 02), with its installer from GitHub into C:\Program Files\clang-uml: the
+    4. clang-uml (run 02), with its installer from GitHub into C:\Program Files\clang-uml: the
        version this setup was tested with, or the newest one. The download is checked against its
        SHA-256 checksum. Windows asks for administrator rights.
-    4. /graphify for Claude Code (optional): "graphify install" copies graphify's skill to
+    5. /graphify for Claude Code (optional): "graphify install" copies graphify's skill to
        %USERPROFILE%\.claude\skills\graphify and names it in %USERPROFILE%\.claude\CLAUDE.md.
-    5. Graphviz (run 03, optional), with winget into C:\Program Files\Graphviz: the version this
+    6. Graphviz (run 03, optional), with winget into C:\Program Files\Graphviz: the version this
        setup was tested with, or the newest one. Run 03 then also draws its graphs as SVG files;
        its web page needs no Graphviz.
   The overview runs find the tools also in a window opened before this setup. The output also
@@ -87,7 +90,7 @@ function Test-UvDirs {
 $stepUv = {
     $uv = Find-Uv
     if (-not $uv) {
-        Write-Host 'Installs uv with winget. uv then installs graphify with a Python of its own (step 2).'
+        Write-Host 'Installs uv with winget. uv then installs graphify with a Python of its own (step 3).'
         if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
             Write-Host 'winget (App Installer) is not available. Install uv from https://docs.astral.sh/uv/.' -ForegroundColor Yellow
             return $false
@@ -102,27 +105,59 @@ $stepUv = {
         if (-not $uv) { Write-Host 'uv is installed, but not found. Open a new window.' -ForegroundColor Red; return $false }
     }
     Write-Host "uv: $uv ($(Get-ToolVersion $uv))"
-    # Folders set by the user before are kept.
-    foreach ($item in @(@{ Name = 'UV_PYTHON_INSTALL_DIR'; Value = "$UvHome\python" },
-                        @{ Name = 'UV_TOOL_DIR'; Value = "$UvHome\tools" })) {
-        $value = [Environment]::GetEnvironmentVariable($item.Name, 'User')
-        if (-not $value) {
-            $value = $item.Value
-            [Environment]::SetEnvironmentVariable($item.Name, $value, 'User')
-            Add-LogLine $log "# $(Get-Stamp) $($item.Name)=$value (user environment)"
-        }
-        [Environment]::SetEnvironmentVariable($item.Name, $value, 'Process')
-        Write-Host "$($item.Name) = $value"
-    }
     return $true
 }
 
-# --- Step 2: graphify -------------------------------------------------------------------------
+# --- Step 2: the folders of uv ----------------------------------------------------------------
+
+# The folder uv keeps its Pythons ($Kind 'python') or tools ('tool') in now, or ''.
+function Get-UvDirInUse([string]$Uv, [string]$Kind) {
+    return "$(cmd /c "`"$Uv`" $Kind dir 2>nul" | Select-Object -First 1)".Trim()
+}
+
+$stepUvDirs = {
+    $uv = Find-Uv
+    if (-not $uv) { Write-Host 'uv is missing; run step 1 first.' -ForegroundColor Red; return $false }
+    $dirs = @(@{ Name = 'UV_PYTHON_INSTALL_DIR'; Kind = 'python'; Value = "$UvHome\python" },
+              @{ Name = 'UV_TOOL_DIR'; Kind = 'tool'; Value = "$UvHome\tools" })
+    # Folders set before, by this setup or by the user, are kept.
+    $missing = @($dirs | Where-Object { -not [Environment]::GetEnvironmentVariable($_.Name, 'User') })
+    foreach ($item in $dirs) {
+        if ($missing -notcontains $item) {
+            Write-Host "$($item.Name) = $([Environment]::GetEnvironmentVariable($item.Name, 'User')) (set before, kept)"
+        }
+    }
+    if (-not $missing.Count) { return $true }
+
+    Write-Host 'uv is to keep its Pythons and tools outside AppData: a program installed as an app package,'
+    Write-Host 'such as the Claude desktop app, has its writes there redirected, and uv then cannot find the'
+    Write-Host 'Python it has just installed. Sets for your user account:'
+    foreach ($item in $missing) { Write-Host "  $($item.Name) = $($item.Value)" }
+    # What uv has in the folders it uses now, it no longer sees once they are moved.
+    $inUse = @(foreach ($item in $missing) {
+            $dir = Get-UvDirInUse $uv $item.Kind
+            if ($dir -and (Test-Path -LiteralPath $dir) -and
+                (Get-ChildItem -LiteralPath $dir -Force -ErrorAction SilentlyContinue | Select-Object -First 1)) { $dir }
+        })
+    foreach ($dir in $inUse) {
+        Write-Host "uv has Pythons or tools in $dir; after this, uv no longer sees them." -ForegroundColor Yellow
+    }
+    if (-not (Read-YesNo 'Set them now?' ($inUse.Count -eq 0))) { return $false }
+    foreach ($item in $missing) {
+        [Environment]::SetEnvironmentVariable($item.Name, $item.Value, 'User')
+        [Environment]::SetEnvironmentVariable($item.Name, $item.Value, 'Process')
+        Add-LogLine $log "# $(Get-Stamp) $($item.Name)=$($item.Value) (user environment)"
+    }
+    Write-Host 'Set for your user account; windows opened from now on see them.'
+    return $true
+}
+
+# --- Step 3: graphify -------------------------------------------------------------------------
 
 $stepGraphify = {
     $uv = Find-Uv
     if (-not $uv) { Write-Host 'uv is missing; run step 1 first.' -ForegroundColor Red; return $false }
-    if (-not (Test-UvDirs)) { Write-Host 'The folders of uv are not set; run step 1 first.' -ForegroundColor Red; return $false }
+    if (-not (Test-UvDirs)) { Write-Host 'The folders of uv are not set; run step 2 first.' -ForegroundColor Red; return $false }
     $installed = Get-ToolVersion (Find-Graphify)
     $newest = Read-VersionChoice 'graphify' $GraphifyVersion
     if ($installed -and -not $newest -and $installed -eq $GraphifyVersion) {
@@ -146,7 +181,7 @@ $stepGraphify = {
     return $true
 }
 
-# --- Step 3: clang-uml ------------------------------------------------------------------------
+# --- Step 4: clang-uml ------------------------------------------------------------------------
 
 # Version, URL and SHA-256 checksum of the Windows installer of the newest release, or $null.
 function Get-NewestClangUml {
@@ -209,11 +244,11 @@ $stepClangUml = {
     return $true
 }
 
-# --- Step 4: /graphify for Claude Code --------------------------------------------------------
+# --- Step 5: /graphify for Claude Code --------------------------------------------------------
 
 $stepClaude = {
     $graphify = Find-Graphify
-    if (-not $graphify) { Write-Host 'graphify is missing; run step 2 first.' -ForegroundColor Red; return $false }
+    if (-not $graphify) { Write-Host 'graphify is missing; run step 3 first.' -ForegroundColor Red; return $false }
     Write-Host 'Lets Claude Code build and ask the graph with /graphify: copies the skill of graphify to'
     Write-Host "$(Split-Path $ClaudeSkill) and adds a short section naming it to"
     Write-Host "$env:USERPROFILE\.claude\CLAUDE.md. Nothing in the repository changes."
@@ -222,7 +257,7 @@ $stepClaude = {
     return (Test-Path $ClaudeSkill)
 }
 
-# --- Step 5: Graphviz -------------------------------------------------------------------------
+# --- Step 6: Graphviz -------------------------------------------------------------------------
 
 $stepGraphviz = {
     $installed = Get-ToolVersion (Find-Graphviz) '-V 2>&1'
@@ -274,13 +309,16 @@ $status = {
     }
     "  UV_PYTHON_INSTALL_DIR = $([Environment]::GetEnvironmentVariable('UV_PYTHON_INSTALL_DIR', 'User'))"
     "  UV_TOOL_DIR           = $([Environment]::GetEnvironmentVariable('UV_TOOL_DIR', 'User'))"
-    $skill = if (Test-Path $ClaudeSkill) { $ClaudeSkill } else { 'not set up (step 4)' }
+    $skill = if (Test-Path $ClaudeSkill) { $ClaudeSkill } else { 'not set up (step 5)' }
     "  /graphify for Claude Code: $skill"
 }
 
 $menu = @(
-    @{ Title = 'uv, which installs graphify, and its folders'
-       Done = { [bool](Find-Uv) -and (Test-UvDirs) }; Run = $stepUv }
+    # Done when the tool or the setting is there, also when it was not this setup that put it there.
+    @{ Title = 'uv, which installs graphify'
+       Done = { [bool](Find-Uv) }; Run = $stepUv }
+    @{ Title = 'The folders of uv: UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR'
+       Done = { Test-UvDirs }; Run = $stepUvDirs }
     @{ Title = "graphify (run 01), tested version $GraphifyVersion or the newest"
        Done = { [bool](Find-Graphify) }; Run = $stepGraphify }
     @{ Title = "clang-uml (run 02), tested version $ClangUmlVersion or the newest"

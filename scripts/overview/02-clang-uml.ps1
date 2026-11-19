@@ -41,7 +41,7 @@ param(
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-overview" }
 $clangUml = Find-ClangUml
-if (-not $clangUml) { throw 'clang-uml not found: scripts\setup\05-setup-overview.ps1 installs it (step 3).' }
+if (-not $clangUml) { throw 'clang-uml not found: scripts\setup\05-setup-overview.ps1 installs it (step 4).' }
 # "-Diagram a,b" arrives as one string when the script is started with -File.
 $Diagram = @($Diagram | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 $config = "$PSScriptRoot\clang-uml.yml"

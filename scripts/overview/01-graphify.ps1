@@ -9,7 +9,7 @@
   Folders ignored by git (the build directories among them) are left out.
 
   The graph goes to graphify-out in the repository (ignored by git), where the /graphify skill of
-  Claude Code finds it (setup\05-setup-overview.ps1, step 4):
+  Claude Code finds it (setup\05-setup-overview.ps1, step 5):
     graph.json       the graph; graphify query/explain/path read it
     graph.html       the graph in the browser
     GRAPH_REPORT.md  the most connected nodes and the communities
@@ -36,7 +36,7 @@ param(
 . "$PSScriptRoot\support\common.ps1"
 if (-not $OutDir) { $OutDir = $ResultsDir }
 $graphify = Find-Graphify
-if (-not $graphify) { throw 'graphify not found: scripts\setup\05-setup-overview.ps1 installs it (step 2).' }
+if (-not $graphify) { throw 'graphify not found: scripts\setup\05-setup-overview.ps1 installs it (step 3).' }
 $log = "$OutDir\01-graphify.log"
 $graphDir = "$Root\graphify-out"
 

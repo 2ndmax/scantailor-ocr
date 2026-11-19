@@ -11,7 +11,7 @@
 
   They go to <OutDir>\cmake-graphviz\<graph>.dot and, all of them, to graphs.html there, which
   draws them in any browser (it loads Graphviz as viz.js from the internet). With Graphviz
-  installed (setup\05-setup-overview.ps1, step 5) each is also drawn to <graph>.svg. The log goes
+  installed (setup\05-setup-overview.ps1, step 6) each is also drawn to <graph>.svg. The log goes
   to <OutDir>\03-cmake-graphviz.log.
 
   CMake only needs a configured build directory, not a built one: the run uses build-overview of
