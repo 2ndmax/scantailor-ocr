@@ -6,7 +6,7 @@
   Shows the steps in a menu; each can be run on its own, 0 runs all of them in order, 9 shows
   which tools are there, in which version:
     1. uv: installs it with winget (it installs Python and graphify in step 3).
-    2. The folders of uv: sets UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR for your user account, to
+    2. Sets UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR (the folders of uv) for your user account to
        %USERPROFILE%\.local\share\uv, unless they are set already. Asks first; if uv has Pythons
        or tools in the folders it uses now, the default answer is no, as uv no longer sees them
        afterwards.
@@ -157,7 +157,7 @@ $stepUvDirs = {
 $stepGraphify = {
     $uv = Find-Uv
     if (-not $uv) { Write-Host 'uv is missing; run step 1 first.' -ForegroundColor Red; return $false }
-    if (-not (Test-UvDirs)) { Write-Host 'The folders of uv are not set; run step 2 first.' -ForegroundColor Red; return $false }
+    if (-not (Test-UvDirs)) { Write-Host 'UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR are not set; run step 2 first.' -ForegroundColor Red; return $false }
     $installed = Get-ToolVersion (Find-Graphify)
     $newest = Read-VersionChoice 'graphify' $GraphifyVersion
     if ($installed -and -not $newest -and $installed -eq $GraphifyVersion) {
@@ -315,9 +315,9 @@ $status = {
 
 $menu = @(
     # Done when the tool or the setting is there, also when it was not this setup that put it there.
-    @{ Title = 'uv, which installs graphify'
+    @{ Title = 'uv (graphify is installed with it in step 3): check or install'
        Done = { [bool](Find-Uv) }; Run = $stepUv }
-    @{ Title = 'The folders of uv: UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR'
+    @{ Title = 'Set UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR for your user account'
        Done = { Test-UvDirs }; Run = $stepUvDirs }
     @{ Title = "graphify (run 01), tested version $GraphifyVersion or the newest"
        Done = { [bool](Find-Graphify) }; Run = $stepGraphify }
