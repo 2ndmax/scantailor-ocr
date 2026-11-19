@@ -21,6 +21,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDialog>
 #include <QDoubleSpinBox>
 #include <QElapsedTimer>
 #include <QFile>
@@ -311,6 +312,16 @@ struct PanelWithControls {
   QScrollBar* scrollBar = new QScrollBar(Qt::Vertical, &panel);
   QPushButton* button = new QPushButton(&panel);
 };
+
+/** What the program's Application installs; qt_tests runs under a plain QApplication. */
+class InstalledWheelFocusTracker {
+ public:
+  InstalledWheelFocusTracker() { qApp->installEventFilter(&m_tracker); }
+  ~InstalledWheelFocusTracker() { qApp->removeEventFilter(&m_tracker); }
+
+ private:
+  WheelFocusTracker m_tracker;
+};
 }  // namespace
 
 void TestUxQt::testWheelGoesPastControlsThatWereNotClicked() {
@@ -331,14 +342,77 @@ void TestUxQt::testWheelGoesPastControlsThatWereNotClicked() {
   QCOMPARE(Application::wheelReceiverInsteadOf(&controls.panel), static_cast<QWidget*>(nullptr));
 }
 
+namespace {
+/** Clicks \p control like the user does; a list's popup that opens on the click is closed again. */
+void clickControl(QWidget* control) {
+  QTest::mouseClick(control, Qt::LeftButton);
+  if (auto* list = qobject_cast<QComboBox*>(control)) {
+    list->hidePopup();
+  }
+}
+}  // namespace
+
 void TestUxQt::testWheelStaysWithAClickedControl() {
+  const InstalledWheelFocusTracker tracker;
   PanelWithControls controls;
   controls.panel.show();
   QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
 
   for (QWidget* control : std::vector<QWidget*>{controls.list, controls.numberField, controls.slider}) {
-    control->setFocus();
+    clickControl(control);
     QVERIFY(control->hasFocus());
     QCOMPARE(Application::wheelReceiverInsteadOf(control), static_cast<QWidget*>(nullptr));
   }
+}
+
+void TestUxQt::testWheelStaysWithAClickedControlAfterAnotherWindow() {
+  const InstalledWheelFocusTracker tracker;
+  PanelWithControls controls;
+  controls.panel.show();
+  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+  // The list has the focus from the opening of the window already, so the click brings no new focus.
+  QVERIFY(controls.list->hasFocus());
+  clickControl(controls.list);
+
+  QWidget otherWindow;
+  otherWindow.show();
+  otherWindow.activateWindow();
+  QVERIFY(QTest::qWaitForWindowActive(&otherWindow));
+  controls.panel.activateWindow();
+  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+
+  QVERIFY(controls.list->hasFocus());
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), static_cast<QWidget*>(nullptr));
+}
+
+void TestUxQt::testWheelGoesPastAControlFocusedByOpeningAWindow() {
+  const InstalledWheelFocusTracker tracker;
+  // Like "Default Parameters": the dialog opens with the focus on its list of profiles.
+  QDialog dialog;
+  auto* list = new QComboBox(&dialog);
+  new QSpinBox(&dialog);
+  dialog.show();
+  QVERIFY(QTest::qWaitForWindowActive(&dialog));
+  QVERIFY(list->hasFocus());
+  QCOMPARE(Application::wheelReceiverInsteadOf(list), static_cast<QWidget*>(&dialog));
+}
+
+void TestUxQt::testWheelGoesPastAControlThatGotTheFocusOfAHiddenOne() {
+  const InstalledWheelFocusTracker tracker;
+  PanelWithControls controls;
+  controls.panel.show();
+  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+  clickControl(controls.numberField);
+
+  // Qt moves the focus on as if by the Tab key.
+  controls.numberField->hide();
+  QWidget* const next = QApplication::focusWidget();
+  QCOMPARE(next, static_cast<QWidget*>(controls.decimalField));
+  QCOMPARE(Application::wheelReceiverInsteadOf(next), &controls.panel);
+
+  // A click counts only until the control loses the focus.
+  clickControl(controls.list);
+  controls.slider->setFocus();
+  controls.list->setFocus();
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), &controls.panel);
 }

@@ -21,6 +21,9 @@ class TestUxQt : public QObject {
   void testFocusFrameOnlyForKeyboardFocus();
   void testWheelGoesPastControlsThatWereNotClicked();
   void testWheelStaysWithAClickedControl();
+  void testWheelStaysWithAClickedControlAfterAnotherWindow();
+  void testWheelGoesPastAControlFocusedByOpeningAWindow();
+  void testWheelGoesPastAControlThatGotTheFocusOfAHiddenOne();
 };
 
 #endif

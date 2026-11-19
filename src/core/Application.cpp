@@ -6,6 +6,7 @@
 #include <QAbstractSpinBox>
 #include <QComboBox>
 #include <QDebug>
+#include <QFocusEvent>
 #include <QFontMetrics>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -21,6 +22,7 @@
 
 Application::Application(int& argc, char** argv) : QApplication(argc, argv) {
   installEventFilter(this);
+  installEventFilter(&m_wheelFocusTracker);
 }
 
 bool Application::eventFilter(QObject* watched, QEvent* event) {
@@ -59,12 +61,37 @@ QWidget* wheelControlOf(QWidget* widget) {
                               || qobject_cast<QSlider*>(control);
   return changesByWheel ? control : nullptr;
 }
+
+// Set on a list, number field or slider that was clicked since it got the focus. Having the focus is not
+// enough: a control also gets it when its window opens, or when the control that had it is hidden.
+const char* const kClickedSinceFocused = "clickedSinceFocused";
+
+/** The focus leaves only for a while and comes back by itself: another window is active, or a popup or menu. */
+bool isLeftForAWhile(const Qt::FocusReason reason) {
+  return (reason == Qt::ActiveWindowFocusReason) || (reason == Qt::PopupFocusReason)
+         || (reason == Qt::MenuBarFocusReason);
+}
 }  // namespace
+
+bool WheelFocusTracker::eventFilter(QObject* watched, QEvent* event) {
+  const bool clickOrFocusOut = (event->type() == QEvent::MouseButtonPress) || (event->type() == QEvent::FocusOut);
+  if (clickOrFocusOut && watched->isWidgetType()) {
+    if (QWidget* control = wheelControlOf(static_cast<QWidget*>(watched))) {
+      // A click on a control that has the focus already brings no FocusIn, so the click itself is noted.
+      if (event->type() == QEvent::MouseButtonPress) {
+        control->setProperty(kClickedSinceFocused, true);
+      } else if (!isLeftForAWhile(static_cast<QFocusEvent*>(event)->reason())) {
+        control->setProperty(kClickedSinceFocused, QVariant());
+      }
+    }
+  }
+  return QObject::eventFilter(watched, event);
+}
 
 QWidget* Application::wheelReceiverInsteadOf(QObject* receiver) {
   auto* widget = qobject_cast<QWidget*>(receiver);
   QWidget* control = widget ? wheelControlOf(widget) : nullptr;
-  if (!control || control->hasFocus()) {
+  if (!control || (control->hasFocus() && control->property(kClickedSinceFocused).toBool())) {
     return nullptr;
   }
   return control->parentWidget();

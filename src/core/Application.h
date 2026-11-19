@@ -9,6 +9,16 @@
 
 #include "Translations.h"
 
+/**
+ * Notes on each list, number field and slider whether it was clicked since it got the focus. The note stays
+ * while another window is active or a popup is open. Installed as an event filter on the application;
+ * Application::wheelReceiverInsteadOf() asks it.
+ */
+class WheelFocusTracker : public QObject {
+ public:
+  bool eventFilter(QObject* watched, QEvent* event) override;
+};
+
 class Application : public QApplication {
   Q_OBJECT
  public:
@@ -27,8 +37,9 @@ class Application : public QApplication {
 
   /**
    * The widget that gets a wheel event instead of \p receiver, or nullptr if \p receiver keeps it.
-   * A list, number field or slider changes by the wheel only after it was clicked; otherwise the
-   * wheel scrolls what holds it, so that scrolling a panel doesn't change settings on the way.
+   * A list, number field or slider changes by the wheel only after it was clicked, and while it keeps
+   * the focus (see WheelFocusTracker); otherwise the wheel scrolls what holds it, so that scrolling
+   * a panel doesn't change settings on the way.
    */
   static QWidget* wheelReceiverInsteadOf(QObject* receiver);
 
@@ -43,6 +54,7 @@ class Application : public QApplication {
   void showUnexpectedError(const QString& reason);
 
   Translations m_translations;
+  WheelFocusTracker m_wheelFocusTracker;
 };
 
 
