@@ -45,6 +45,9 @@ namespace {
 const double kLineEndTolerance = 3.0;      // How far a line end may be from a straight edge and still agree with it.
 const double kMinHeightForEdgeSlope = 30;  // Two line ends closer than this say nothing about the slope of an edge.
 const double kMaxEdgeSlopeDegrees = 4.0;  // The page is already deskewed, so a steeper edge is not an edge of the text.
+// A text line is traced from its middle towards each bound in steps of this length, and its end can land up
+// to one step beyond the bound.
+const float kTracingStep = 10.0f;
 
 // The model is extrapolated beyond the traced lines, and errors grow with the distance. So it needs at least:
 const int kMinTextLines = 3;
@@ -1031,7 +1034,7 @@ void TextLineTracer::extractTextLines(std::list<std::vector<QPointF>>& out,
 
     {
       TowardsLineTracer tracer(&sedm, &mainGrid, bounds.first, seed);
-      while (const QPoint* pt = tracer.trace(10.0f)) {
+      while (const QPoint* pt = tracer.trace(kTracingStep)) {
         polyline.emplace_back(*pt);
       }
       std::reverse(polyline.begin(), polyline.end());
@@ -1041,7 +1044,7 @@ void TextLineTracer::extractTextLines(std::list<std::vector<QPointF>>& out,
 
     {
       TowardsLineTracer tracer(&sedm, &mainGrid, bounds.second, seed);
-      while (const QPoint* pt = tracer.trace(10.0f)) {
+      while (const QPoint* pt = tracer.trace(kTracingStep)) {
         polyline.emplace_back(*pt);
       }
     }
