@@ -1763,7 +1763,8 @@ void MainWindow::projectOpened(ProjectOpeningContext* context) {
 
   const int selectStep = m_pendingSelectStep;
   m_pendingSelectStep = -1;
-  if ((selectStep >= 0) && (selectStep < static_cast<int>(filterSwitchActions().size()))) {
+  // The rows of the step list: one per filter, and the Export step last.
+  if ((selectStep >= 0) && (selectStep <= filterList->pdfRow())) {
     filterList->selectRow(selectStep);
   }
 }
@@ -1885,7 +1886,8 @@ void MainWindow::restartProgram() {
   // project the user just gave a name to. Not fixed because it needs closeProjectInteractive() to
   // report the file it saved, which the "X" close and "New/Open Project" also call and don't need.
   const QString projectFile = m_projectFile;
-  const int step = m_curFilter;
+  // The Export step is no filter: while it is shown, m_curFilter still names the step before it.
+  const int step = m_pdfStage ? filterList->pdfRow() : m_curFilter;
   if (!closeProjectInteractive()) {
     return;
   }
