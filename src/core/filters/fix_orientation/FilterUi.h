@@ -26,6 +26,8 @@ class OptionsWidget;
 class FilterUi : public AbstractFilterUi {
  public:
   FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor);
+  // Defined in the .cpp file, where OptionsWidget is a complete type.
+  ~FilterUi() override;
 
   void preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) override;
 

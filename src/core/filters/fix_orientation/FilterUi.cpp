@@ -19,6 +19,8 @@ namespace fix_orientation {
 FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
     : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}
 
+FilterUi::~FilterUi() = default;
+
 void FilterUi::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
   const OrthogonalRotation rotation(m_filter->settings()->getRotationFor(pageInfo.id().imageId()));
   optionsWidget()->preUpdateUI(pageInfo, rotation);

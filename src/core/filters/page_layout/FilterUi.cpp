@@ -21,6 +21,8 @@ namespace page_layout {
 FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
     : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}
 
+FilterUi::~FilterUi() = default;
+
 void FilterUi::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
   const Margins marginsMm(m_filter->settings()->getHardMarginsMM(pageInfo.id()));
   const Alignment alignment(m_filter->settings()->getPageAlignment(pageInfo.id()));

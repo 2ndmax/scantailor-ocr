@@ -21,6 +21,8 @@ namespace select_content {
 FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
     : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}
 
+FilterUi::~FilterUi() = default;
+
 void FilterUi::preUpdateUI(FilterUiInterface* ui, const PageInfo& pageInfo) {
   optionsWidget()->preUpdateUI(pageInfo);
   ui->setOptionsWidget(optionsWidget(), ui->KEEP_OWNERSHIP);
