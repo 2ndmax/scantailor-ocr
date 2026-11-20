@@ -150,11 +150,12 @@ int main(int argc, char** argv) {
   int insetOverride = -1;  // Share of each edge left out, in percent.
   ColorModeDetector::Options options;
   options.usePictureZones = args.contains("--zones");
-  for (const QString& arg : args) {
-    if (arg.startsWith("--only=")) {
+  for (const QString& arg : args.mid(3)) {
+    if ((arg == "--nosplit") || (arg == "--zones")) {
+      // Read above.
+    } else if (arg.startsWith("--only=")) {
       only = arg.mid(7);
-    }
-    if (arg.startsWith("--inset=")) {
+    } else if (arg.startsWith("--inset=")) {
       // From 50 % on, the edges left out meet and no content is left.
       bool ok = false;
       insetOverride = arg.mid(8).toInt(&ok);
@@ -162,13 +163,19 @@ int main(int argc, char** argv) {
         std::cerr << "--inset must be a whole number from 0 to 49\n";
         return 1;
       }
-    }
-    if (arg.startsWith("--minpicture=") && !readPercent(arg.mid(13), options.minPictureShare)) {
-      std::cerr << "--minpicture must be a number from 0 to 100\n";
-      return 1;
-    }
-    if (arg.startsWith("--mincolor=") && !readPercent(arg.mid(11), options.minColorShare)) {
-      std::cerr << "--mincolor must be a number from 0 to 100\n";
+    } else if (arg.startsWith("--minpicture=")) {
+      if (!readPercent(arg.mid(13), options.minPictureShare)) {
+        std::cerr << "--minpicture must be a number from 0 to 100\n";
+        return 1;
+      }
+    } else if (arg.startsWith("--mincolor=")) {
+      if (!readPercent(arg.mid(11), options.minColorShare)) {
+        std::cerr << "--mincolor must be a number from 0 to 100\n";
+        return 1;
+      }
+    } else {
+      // A mistyped option would otherwise run with the default silently.
+      std::cerr << "Unknown option: " << arg.toStdString() << "\n";
       return 1;
     }
   }
