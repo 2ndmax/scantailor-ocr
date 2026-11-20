@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <utility>
 
-#include "../../../base/ProcessingOptions.h"
 #include "../FillZoneComparator.h"
 #include "../PictureZoneComparator.h"
 #include "ApplyColorsDialog.h"
@@ -31,6 +30,7 @@
 #include "CoreUtils.h"
 #include "OptionsWidgetBinarizationLocal.h"
 #include "OptionsWidgetBinarizationOtsu.h"
+#include "ProcessingOptions.h"
 #include "TiffCompressionPanel.h"
 #include "WidgetUtils.h"
 
