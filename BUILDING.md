@@ -170,13 +170,22 @@ with another compiler and standard library; it is started by hand and builds no 
 The code under `src/core` is built into libraries that keep the processing apart from the user
 interface:
 
-* `core` – everything that works without widgets: loading images, project files, the steps'
-  processing pipeline (`StageSequence`), export, OCR and the command line run. It links Qt Core,
-  Gui, Xml, Network, OpenGL and Svg, but **not Qt Widgets**.
+* `zones` – the picture and fill zones as data. It links only `foundation`.
+* `core_base` (`src/core/base`) – what the steps need from the core: types such as `PageId`,
+  `PageInfo` and `ImageSettings`, the interfaces `AbstractFilter` and the collectors, reading and
+  writing images, `ProjectPages`, and `ProjectIdReader`/`ProjectIdWriter`, through which a step
+  reads and writes the page and image IDs of the project file. It links Qt Core, Gui, Xml,
+  Network, OpenGL and Svg, but **not Qt Widgets**.
 * One library per step (`fix_orientation`, `page_split`, `deskew`, `select_content`,
   `page_layout`, `output`) – the step's processing: `Filter`, `Task`, `CacheDrivenTask`,
-  settings and parameters. Like `core`, without widgets.
-* `zones` – the picture and fill zones as data.
+  settings, parameters and its default parameters. Each step links `core_base` and the next step
+  of the chain `fix_orientation` → `page_split` → `deskew` → `select_content` → `page_layout` →
+  `output`, because a step's `Task` hands its result to the `Task` of the next step. Like
+  `core_base`, without widgets.
+* `core` – puts the steps together: the processing pipeline (`StageSequence`), the default
+  parameters of all steps and their profiles (`DefaultParams`), project files (`ProjectReader`,
+  `ProjectWriter`), export, OCR and the command line run. It links `core_base` and all steps,
+  without widgets.
 * `core_gui` (`src/core/gui`) – the user interface on top of `core`: widgets, image views,
   icons, color schemes, mouse interaction (`gui/interaction`) and zone editing
   (`gui/zone_editing`).
@@ -185,15 +194,30 @@ interface:
 * `stages_ui` (`src/core/gui/stages`) – `FilterUiSequence`, which shows each step through its
   `FilterUi`, and the thumbnails of all steps.
 
-Each library depends only on those listed above it (the steps' processing libraries and `core`
-need each other). The program links `stages_ui`; the command line tool `scantailor-ocr-cli`,
-`core_tests` and the developer tools link only `core`, so they don't need the Qt Widgets
-libraries. Code that needs a widget belongs in `core_gui` or a `<step>_ui` library. The build
-checks this: `core` doesn't see the headers in `src/core/gui` or `filters/<step>/ui`, so including
-one by its name doesn't compile, and with `BUILD_TESTS` the program `core_link_check` links every
-object file of `core`, `zones` and the steps' processing libraries without Qt Widgets, so code
-there that calls widget code doesn't link. A step describes what the window shows as data (e.g.
-`TaskResult`, `ThumbnailData`); its `FilterUi` turns that into widgets.
+Each library depends only on those listed above it, and a step only on the steps after it. The
+program links `stages_ui`; the command line tool `scantailor-ocr-cli`, `core_tests` and the
+developer tools link only `core`, so they don't need the Qt Widgets libraries. Code that needs a
+widget belongs in `core_gui` or a `<step>_ui` library; code a step needs belongs in `core_base`,
+code that needs several steps in `core`.
+
+All steps share the include root `src/core/filters`, so a step includes a header of another step
+as e.g. `"deskew/Task.h"`; headers of `core_base` are included by their name alone.
+
+The build checks the layers:
+
+* `core` doesn't see the headers in `src/core/gui` or `filters/<step>/ui`, and `core_base` and
+  the steps don't see the headers directly in `src/core`, so including one by its name doesn't compile. (The
+  path from `src`, e.g. `"core/StageSequence.h"`, still compiles; the link checks below catch
+  code that uses it.)
+* With `BUILD_TESTS`, the program `core_link_check` links every object file of `core`,
+  `core_base`, `zones` and the steps' processing libraries without Qt Widgets, so code there that
+  calls widget code doesn't link. The test `core_base_link_check` does the same without `core`,
+  so a step that calls code of `core` doesn't link.
+* The test `step_include_check` fails if a step includes headers of a step it doesn't link
+  (see [TESTING.md](TESTING.md#running-the-tests)).
+
+A step describes what the window shows as data (e.g. `TaskResult`, `ThumbnailData`); its
+`FilterUi` turns that into widgets.
 
 ## Build options
 
