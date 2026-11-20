@@ -7,7 +7,6 @@
 
 #include <utility>
 
-#include "../output/CacheDrivenTask.h"
 #include "AbstractFilterDataCollector.h"
 #include "PageInfo.h"
 #include "Params.h"
@@ -16,6 +15,7 @@
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
 #include "Utils.h"
+#include "output/CacheDrivenTask.h"
 
 namespace page_layout {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<output::CacheDrivenTask> nextTask, std::shared_ptr<Settings> settings)

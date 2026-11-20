@@ -5,8 +5,8 @@
 #include "PageInfo.h"
 
 #include <OrderByDeviationProvider.h>
-#include "../select_content/CacheDrivenTask.h"
-#include "../select_content/Task.h"
+#include "select_content/CacheDrivenTask.h"
+#include "select_content/Task.h"
 
 #include <utility>
 

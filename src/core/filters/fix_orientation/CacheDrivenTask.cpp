@@ -5,7 +5,6 @@
 
 #include <utility>
 
-#include "../page_split/CacheDrivenTask.h"
 #include "AbstractFilterDataCollector.h"
 #include "ImageTransformation.h"
 #include "PageInfo.h"
@@ -14,6 +13,7 @@
 #include "ThumbnailCollector.h"
 #include "ThumbnailData.h"
 #include "Utils.h"
+#include "page_split/CacheDrivenTask.h"
 
 namespace fix_orientation {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,

@@ -4,8 +4,8 @@
 #include "Filter.h"
 #include "PageInfo.h"
 
-#include "../page_split/CacheDrivenTask.h"
-#include "../page_split/Task.h"
+#include "page_split/CacheDrivenTask.h"
+#include "page_split/Task.h"
 
 #include <QCoreApplication>
 #include <utility>

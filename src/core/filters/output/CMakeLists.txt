@@ -60,6 +60,7 @@ set(sources
 
 add_library(output STATIC ${sources})
 target_link_libraries(output PUBLIC core_base PRIVATE dewarping)
+target_include_directories(output PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 # What the main window shows of the step.
 set(ui_sources
     ApplyColorsDialog.cpp ApplyColorsDialog.h

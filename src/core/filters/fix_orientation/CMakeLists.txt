@@ -18,6 +18,7 @@ set(sources
 
 add_library(fix_orientation STATIC ${sources})
 target_link_libraries(fix_orientation PUBLIC core_base page_split)
+target_include_directories(fix_orientation PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 # What the main window shows of the step.
 set(ui_sources
     ImageView.cpp ImageView.h

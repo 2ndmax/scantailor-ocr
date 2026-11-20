@@ -8,7 +8,6 @@
 #include <iostream>
 #include <utility>
 
-#include "../page_layout/CacheDrivenTask.h"
 #include "AbstractFilterDataCollector.h"
 #include "ContentBoxCollector.h"
 #include "PageInfo.h"
@@ -16,6 +15,7 @@
 #include "ThumbnailCollector.h"
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
+#include "page_layout/CacheDrivenTask.h"
 
 namespace select_content {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,

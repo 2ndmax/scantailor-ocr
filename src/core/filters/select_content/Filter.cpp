@@ -10,8 +10,8 @@
 #include <XmlMarshaller.h>
 #include <XmlUnmarshaller.h>
 #include <foundation/Utils.h>
-#include "../page_layout/CacheDrivenTask.h"
-#include "../page_layout/Task.h"
+#include "page_layout/CacheDrivenTask.h"
+#include "page_layout/Task.h"
 
 #include <utility>
 

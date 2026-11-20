@@ -23,6 +23,7 @@ set(sources
 
 add_library(page_layout STATIC ${sources})
 target_link_libraries(page_layout PUBLIC core_base output)
+target_include_directories(page_layout PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 # What the main window shows of the step.
 set(ui_sources
     ImageView.cpp ImageView.h

@@ -29,6 +29,7 @@ set(sources
 
 add_library(page_split STATIC ${sources})
 target_link_libraries(page_split PUBLIC core_base deskew)
+target_include_directories(page_split PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 # What the main window shows of the step.
 set(ui_sources
     UnremoveButton.cpp UnremoveButton.h

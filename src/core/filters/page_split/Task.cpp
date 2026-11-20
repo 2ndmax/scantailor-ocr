@@ -9,7 +9,6 @@
 
 #include <utility>
 
-#include "../deskew/Task.h"
 #include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
 #include "Dpm.h"
@@ -21,6 +20,7 @@
 #include "Settings.h"
 #include "TaskStatus.h"
 #include "Utils.h"
+#include "deskew/Task.h"
 
 namespace page_split {
 using imageproc::BinaryThreshold;

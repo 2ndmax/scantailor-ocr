@@ -5,8 +5,8 @@
 #include "PageInfo.h"
 #include "PageSplitParams.h"
 
-#include "../deskew/CacheDrivenTask.h"
-#include "../deskew/Task.h"
+#include "deskew/CacheDrivenTask.h"
+#include "deskew/Task.h"
 
 #include <utility>
 

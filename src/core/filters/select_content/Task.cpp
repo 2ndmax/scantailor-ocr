@@ -10,7 +10,6 @@
 #include <iostream>
 #include <utility>
 
-#include "../page_layout/Task.h"
 #include "BatchProcessingResult.h"
 #include "ContentBoxFinder.h"
 #include "DebugImagesImpl.h"
@@ -19,6 +18,7 @@
 #include "FilterData.h"
 #include "PageFinder.h"
 #include "TaskStatus.h"
+#include "page_layout/Task.h"
 
 using namespace imageproc;
 

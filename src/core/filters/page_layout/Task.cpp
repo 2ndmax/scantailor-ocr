@@ -6,7 +6,6 @@
 
 #include <utility>
 
-#include "../output/Task.h"
 #include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
 #include "Dpm.h"
@@ -16,6 +15,7 @@
 #include "Settings.h"
 #include "TaskStatus.h"
 #include "Utils.h"
+#include "output/Task.h"
 
 using namespace imageproc;
 

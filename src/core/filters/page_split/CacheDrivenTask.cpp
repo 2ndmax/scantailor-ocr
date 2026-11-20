@@ -5,7 +5,6 @@
 
 #include <utility>
 
-#include "../deskew/CacheDrivenTask.h"
 #include "AbstractFilterDataCollector.h"
 #include "PageInfo.h"
 #include "PageLayoutAdapter.h"
@@ -15,6 +14,7 @@
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
 #include "Utils.h"
+#include "deskew/CacheDrivenTask.h"
 
 namespace page_split {
 
