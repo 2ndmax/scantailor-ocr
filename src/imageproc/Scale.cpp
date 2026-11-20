@@ -110,6 +110,7 @@ static double calc32xRatio1(const int dst, const int src) {
   assert(dst > 0);
   assert(src > 0);
 
+  // An int is enough: it would only overflow from 2^26 pixels, and ImageSizeLimit allows 32767 a side.
   int src32 = src << 5;
   double ratio = (double) src32 / dst;
   while ((int(ratio * (dst - 1)) >> 5) + 1 >= src) {
@@ -185,6 +186,7 @@ static double calc32xRatio2(const int dst, const int src) {
   assert(dst > 0);
   assert(src > 0);
 
+  // An int is enough: it would only overflow from 2^26 pixels, and ImageSizeLimit allows 32767 a side.
   int src32 = src << 5;
   double ratio = (double) src32 / dst;
   while ((int(ratio * dst) - 1) >> 5 >= src) {

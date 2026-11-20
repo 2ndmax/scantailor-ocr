@@ -247,6 +247,9 @@ ConnectivityMap::ConnectivityMap(const QSize size, const T* src, const int srcSt
   const int width = size.width();
   const int height = size.height();
 
+  // REVIEW-NOTE (2026-11): an image with about 2^31 padded pixels -> this size and the int strides and
+  // offsets below overflow. Not fixed because ImageSizeLimit keeps images below 600 million pixels, and
+  // widening only this size would leave the strides in int.
   m_data.resize((width + 2) * (height + 2), BACKGROUND);
   m_stride = width + 2;
   m_plainData = &m_data[0] + 1 + m_stride;

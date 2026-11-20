@@ -893,6 +893,8 @@ void MainWindow::performRelinking(const std::shared_ptr<AbstractRelinker>& relin
 
   Utils::maybeCreateCacheDir(m_outFileNameGen.outDir());
 
+  // A loaded project always has a thumbnail cache: ProjectSession makes one exactly when the output
+  // folder isn't empty, which isProjectLoaded() checked above.
   m_thumbnailCache->setThumbDir(Utils::outputDirToThumbDir(m_outFileNameGen.outDir()));
   resetThumbSequence(currentPageOrderProvider());
   m_selectedPage.set(m_thumbSequence->selectionLeader().id(), getCurrentView());
@@ -1022,6 +1024,9 @@ void MainWindow::autoSaveProject() {
     return;
   }
 
+  // REVIEW-NOTE (2026-11): a large project -> the auto-save every minute holds up the window while
+  // writing. Not fixed because a background save would need a snapshot of all pages and parameters,
+  // which the GUI thread changes, and would report its errors later.
   saveProjectWithFeedback(m_projectFile);
 }
 
@@ -1404,6 +1409,8 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
 #else
         QString extPlayCmd;
 #endif
+        // The command runs with the user's own rights, and only the user sets it, in the registry or the
+        // settings file (there is no field for it); whoever can change that can start programs anyway.
         QSettings settings;
         QString cmd = settings.value("main_window/external_alarm_cmd", extPlayCmd).toString();
         if (cmd.isEmpty()) {
@@ -1471,6 +1478,9 @@ void MainWindow::colorModeDetectionRequested(const std::set<PageId>& pages) {
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(0);
 
+  // REVIEW-NOTE (2026-11): many or large pages -> the detection runs on the GUI thread. Not fixed because
+  // the window only waits for one page at a time: the progress dialog handles events and the cancel button
+  // between pages; a worker thread would change how cancelling and progress work.
   const NullTaskStatus status;
   int bw = 0, color = 0, mixed = 0, skipped = 0, failed = 0;
   bool cancelled = false;

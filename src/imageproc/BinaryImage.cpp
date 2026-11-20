@@ -407,6 +407,7 @@ int BinaryImage::countWhitePixels(const QRect& rect) const {
   if (r.isEmpty()) {
     return 0;
   }
+  // An int is enough: ImageSizeLimit keeps an image below 600 million pixels.
   return r.width() * r.height() - countBlackPixels(r);
 }
 
@@ -700,7 +701,8 @@ BinaryImage BinaryImage::fromMono(const QImage& image, const QRect& rect) {
         dstLine[j] = dstWord ^ modifier;
       }
       // The last word needs special attention, because srcLine[j + 1]
-      // might be outside of the image buffer.
+      // might be outside of the image buffer. It is read only when the destination word needs bits
+      // from it, and then it exists, as the rect lies inside the image.
       uint32_t lastWord = nextWord << word1UnusedBits;
       if (dstLastWordUnusedBits < word1UnusedBits) {
         lastWord |= qFromBigEndian(srcLine[j + 1]) >> word2UnusedBits;

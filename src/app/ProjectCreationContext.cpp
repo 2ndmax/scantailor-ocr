@@ -13,7 +13,8 @@ ProjectCreationContext::ProjectCreationContext(QWidget* parent) : m_parent(paren
 }
 
 ProjectCreationContext::~ProjectCreationContext() {
-  // Deleting a null pointer is OK.
+  // The dialogs delete themselves on closing (WA_DeleteOnClose); the QPointers are null then, and deleting a
+  // null pointer is OK.
   delete m_projectFilesDialog;
   delete m_fixDpiDialog;
 }

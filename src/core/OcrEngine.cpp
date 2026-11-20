@@ -65,6 +65,9 @@ bool OcrEngine::readDataFile(const char* utf8FileName, std::vector<char>* data) 
     return false;
   }
   // Read straight into the buffer: the "best" models are large.
+  // REVIEW-NOTE (2026-11): a language file about as large as the memory -> bad_alloc out of Tesseract's
+  // callback. Not fixed because no limit fits all models and the file is in the tessdata folder the
+  // user chose.
   data->resize(static_cast<size_t>(file.size()));
   return file.read(data->data(), file.size()) == file.size();
 }

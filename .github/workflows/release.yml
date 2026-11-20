@@ -209,6 +209,10 @@ jobs:
           # and -f keeps an error page from being saved as the file.
           # A hanging connection must end as well; without a limit it would take the 6 hours of the job.
           retry="-fsSL --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 15 --retry-all-errors"
+          # REVIEW-NOTE (2026-11): "continuous" changes without a version and is not checked against a
+          # checksum -> a release may bundle another linuxdeploy than the last one did. Not fixed because the
+          # fixed releases are 1 to 1.5 years older (plugin-qt has none since 2025-02 and no checksum in the
+          # GitHub API), and pinning the continuous checksum would fail every release after an upstream update.
           curl $retry -o linuxdeploy-x86_64.AppImage \
             https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage

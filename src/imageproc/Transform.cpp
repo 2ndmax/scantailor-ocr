@@ -82,6 +82,9 @@ static void transformGeneric(const StorageUnit* const srcData,
       const double fDxCenter = dx + 0.5;
       const double fSx32Center = fSx32Base + fDxCenter * invXform.m11();
       const double fSy32Center = fSy32Base + fDxCenter * invXform.m12();
+      // REVIEW-NOTE (2026-11): a source position beyond the int range (32 times the coordinate) -> an
+      // undefined cast. Not fixed because the callers map onto images within ImageSizeLimit (32767 pixels
+      // a side), so the positions stay near 32 * 32767; see also the note on the singular xform above.
       int src32Left = (int) fSx32Center - (src32UnitW >> 1);
       int src32Top = (int) fSy32Center - (src32UnitH >> 1);
       int src32Right = src32Left + src32UnitW;

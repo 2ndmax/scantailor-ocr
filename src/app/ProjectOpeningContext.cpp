@@ -21,7 +21,8 @@ ProjectOpeningContext::ProjectOpeningContext(QWidget* parent, const QString& pro
     : m_projectFile(projectFile), m_parent(parent) {}
 
 ProjectOpeningContext::~ProjectOpeningContext() {
-  // Deleting a null pointer is OK.
+  // The dialog deletes itself on closing (WA_DeleteOnClose); the QPointer is null then, and deleting a
+  // null pointer is OK.
   delete m_fixDpiDialog;
 }
 

@@ -80,6 +80,9 @@ typename HomographicTransformBase<N, T>::Vec HomographicTransformBase<N, T>::ope
 template <typename T>
 T HomographicTransform<1, T>::operator()(T from) const {
   // Optimized version for 1D case.
+  // REVIEW-NOTE (2026-11): a point on the horizon of the homography -> the denominator is 0 and the
+  // result inf/NaN (floating point, no crash). Not fixed because, as for the N-D case above, the users
+  // (CylindricalSurfaceDewarper, RasterDewarper) build it from a model DistortionModel::isValid() accepted.
   const T* m = this->mat().data();
   return (from * m[0] + m[2]) / (from * m[1] + m[3]);
 }

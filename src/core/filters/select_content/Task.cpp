@@ -97,6 +97,8 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
       pageRect = pageRect.intersected(data.xform().resultingRect());
 
       // When offcut/page outline changes, keep manual content aligned with page motion (issue #90).
+      // It moves with the center of the page, by intent: content usually sits in the middle, and the
+      // box keeps its size; what no longer fits the page is cut off.
       if (newParams.contentDetectionMode() == MODE_MANUAL && contentRect.isValid() && oldPageRect.isValid()
           && pageRect.isValid()) {
         contentRect.translate(pageRect.center() - oldPageRect.center());

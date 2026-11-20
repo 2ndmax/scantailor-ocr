@@ -65,6 +65,8 @@ void InfluenceMap::init(const ConnectivityMap& cmap, const BinaryImage* mask) {
 
   m_size = cmap.size();
   m_stride = width;
+  // REVIEW-NOTE (2026-11): as in ConnectivityMap, about 2^31 padded pixels -> int overflow here and in the
+  // loop below. Not fixed because ImageSizeLimit keeps images below 600 million pixels.
   m_data.resize(width * height);
   m_plainData = &m_data[0] + width + 1;
   m_maxLabel = cmap.maxLabel();

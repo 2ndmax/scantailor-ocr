@@ -66,6 +66,8 @@ int main(int argc, char* argv[]) {
   }
 
   // The project file and the step restartProgram() reopens it to, as "--select-step=<n>" (0-based).
+  // Other arguments are ignored without a message, by intent: only the file association (one path) and
+  // restartProgram() pass any, and without a console a message would need a window of its own.
   QString projectFile;
   int selectStep = -1;
   for (int i = 1; i < args.size(); ++i) {

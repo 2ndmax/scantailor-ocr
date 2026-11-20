@@ -73,6 +73,9 @@ void HoughLineDetector::process(int x, int y, unsigned weight) {
     const double biasedDistance = distance + m_distanceBias;
 
     const auto bin = (int) (biasedDistance * m_recipDistanceResolution + 0.5);
+    // REVIEW-NOTE (2026-11): a point outside the documented range (see the header) -> a bin outside the
+    // histogram, checked only by this assert. Not fixed because the only caller, VertLineFinder, passes
+    // points inside the image the detector was made for.
     assert(bin >= 0 && bin < m_histWidth);
     histLine[bin] += weight;
 

@@ -365,6 +365,8 @@ VecNT<N, T> operator/(VecNT<N, T> const& vec, T scalar) {
   return res;
 }
 
+// REVIEW-NOTE (2026-11): a component of 0 -> for whole numbers a division by zero (undefined), for
+// floating point inf. Not fixed because only the tests call it, with non-zero components.
 template <size_t N, typename T>
 VecNT<N, T> operator/(T scalar, VecNT<N, T> const& vec) {
   VecNT<N, T> res;

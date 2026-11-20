@@ -985,6 +985,7 @@ void hitMissReplaceInPlace(BinaryImage& img,
   // It's better to have the origin at one of the replacement positions.
   // Otherwise we may miss a partially outside-of-image match because
   // the origin point was outside of the image as well.
+  // The patterns are small literals (3x3 to 3x9 in OutputGenerator), so the product can't overflow.
   const int patternLen = patternWidth * patternHeight;
   const auto* const minusPos = (const char*) memchr(pattern, '-', patternLen);
   const auto* const plusPos = (const char*) memchr(pattern, '+', patternLen);

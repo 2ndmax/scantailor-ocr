@@ -325,6 +325,8 @@ Mat<T> operator*(const Mat<T>& m, T scalar) {
 
 template <typename T>
 Mat<T> operator/(const Mat<T>& m, T scalar) {
+  // 1.0f / scalar has the type T for double as well (the wider type wins); for whole numbers it is a
+  // float, and the call doesn't compile instead of dividing to 0.
   return m * (1.0f / scalar);
 }
 }  // namespace mcalc

@@ -43,6 +43,7 @@ void drawOver(QImage& dst, const QRect& dstRect, const QImage& src, const QRect&
     return;
   }
 
+  // An int is enough: it would only overflow from a width of 2^26 pixels, and ImageSizeLimit allows 32767.
   const int stripeBytes = srcRect.width() * depth / 8;
   // In qsizetype: on 32 bit images over 2^29 pixels the byte offset exceeds int.
   // REVIEW-NOTE (2026-10): no regression test for these 64-bit offsets -> a return to int offsets

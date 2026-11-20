@@ -78,6 +78,9 @@ ProjectReader::FileResult ProjectReader::readFile(const QString& projectFilePath
     return result;
   }
   QDomDocument doc;
+  // REVIEW-NOTE (2026-11): a huge project file -> it is read whole into memory. Not fixed because the user
+  // chooses the file; Qt 6 resolves no external entities and limits the expansion of internal ones, and
+  // FuzzProjectReader fuzzes this parsing.
   if (!doc.setContent(&file)) {
     result.error = FileError::DAMAGED;
     return result;

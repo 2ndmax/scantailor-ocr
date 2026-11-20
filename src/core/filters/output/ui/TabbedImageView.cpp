@@ -111,6 +111,9 @@ void TabbedImageView::copyViewZoomAndPos(const int oldIdx, const int newIdx) con
   }
 }
 
+// REVIEW-NOTE (2026-11): an empty rect or a scroll bar of length 0 -> getFocus() and setFocus() divide by
+// 0. Not fixed because both are only used by copyViewZoomAndPos() for a zoomed view, whose scroll bars
+// have a page step, with the non-empty rect of a processed page.
 QPointF TabbedImageView::getFocus(const QRectF& rect, const QScrollBar& horBar, const QScrollBar& verBar) const {
   const int horBarLength = horBar.maximum() - horBar.minimum() + horBar.pageStep();
   const int verBarLength = verBar.maximum() - verBar.minimum() + verBar.pageStep();
