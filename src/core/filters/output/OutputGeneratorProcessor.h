@@ -23,6 +23,7 @@
 #include "ImageTransformation.h"
 #include "OutputImage.h"
 #include "OutputProcessingParams.h"
+#include "PageId.h"
 #include "PictureShapeOptions.h"
 #include "RenderParams.h"
 #include "SplittingOptions.h"
@@ -49,6 +50,42 @@ using dewarping::DistortionModel;
 using imageproc::BinaryImage;
 using imageproc::BinaryThreshold;
 using imageproc::GrayImage;
+
+struct ProcessorInputs {
+  const ImageTransformation& xform;
+  const QRect& outRect;
+  const QRect& contentRect;
+  const PageId pageId;
+  const std::shared_ptr<Settings> settings;
+  const bool takeOverBlackOnWhite;
+  const TaskStatus& status;
+  DebugImages* const dbg;
+};
+
+struct AreaGeometry {
+  QPolygonF preCropArea;
+  QPolygonF croppedContentArea;
+  QRect croppedContentRect;
+  QPolygonF outCropArea;
+  QSize targetSize;
+  QRect workingBoundingRect;
+  QRect contentRectInWorkingCs;
+  QRect tracingRectInWorkingCs;
+  QRect contentBoxInTracingCs;
+  QPolygonF contentAreaInWorkingCs;
+  QPolygonF outCropAreaInWorkingCs;
+  QPolygonF preCropAreaInOriginalCs;
+  QPolygonF contentAreaInOriginalCs;
+  QPolygonF outCropAreaInOriginalCs;
+};
+
+struct InputImages {
+  bool blank = false;
+  bool blackOnWhite = true;
+  QImage inputOrigImage;
+  GrayImage inputGrayImage;
+  bool colorOriginal = false;
+};
 
 class Processor {
  public:
@@ -192,13 +229,7 @@ class Processor {
 
   DistortionModel buildMarginalDistortionModel() const;
 
-  const ImageTransformation& m_xform;
-  const QRect& m_outRect;
-  const QRect& m_contentRect;
-
-  const PageId m_pageId;
-  const std::shared_ptr<Settings> m_settings;
-  const bool m_takeOverBlackOnWhite;
+  ProcessorInputs m_inputs;
 
   Dpi m_dpi;
   ColorParams m_colorParams;
@@ -210,29 +241,9 @@ class Processor {
 
   RenderParams m_renderParams;
 
-  QPolygonF m_preCropArea;
-  QPolygonF m_croppedContentArea;
-  QRect m_croppedContentRect;
-  QPolygonF m_outCropArea;
-  QSize m_targetSize;
-  QRect m_workingBoundingRect;
-  QRect m_contentRectInWorkingCs;
-  QRect m_tracingRectInWorkingCs;
-  QRect m_contentBoxInTracingCs;
-  QPolygonF m_contentAreaInWorkingCs;
-  QPolygonF m_outCropAreaInWorkingCs;
-  QPolygonF m_preCropAreaInOriginalCs;
-  QPolygonF m_contentAreaInOriginalCs;
-  QPolygonF m_outCropAreaInOriginalCs;
-  bool m_blank;
+  AreaGeometry m_geometry;
 
-  bool m_blackOnWhite;
-  QImage m_inputOrigImage;
-  GrayImage m_inputGrayImage;
-  bool m_colorOriginal;
-
-  const TaskStatus& m_status;
-  DebugImages* const m_dbg;
+  InputImages m_images;
 
   QColor m_outsideBackgroundColor;
 };
