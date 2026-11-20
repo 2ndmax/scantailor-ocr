@@ -89,3 +89,17 @@ target_link_libraries(
     PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,core_base,zones,fix_orientation,page_split,deskew,select_content,page_layout,output>"
             ${EXTRA_LIBS})
 add_test(NAME core_base_link_check COMMAND core_base_link_check)
+
+# Checks that a step includes only headers of steps it links (see cmake/CheckStepIncludes.cmake).
+# The links are read when the build is generated, so the steps' targets may be defined after this file.
+set(steps fix_orientation page_split deskew select_content page_layout output)
+set(step_link_args "")
+foreach (step IN LISTS steps)
+  list(APPEND step_link_args "-DLINKS_${step}=$<JOIN:$<TARGET_PROPERTY:${step},LINK_LIBRARIES>,|>")
+endforeach()
+list(JOIN steps "|" steps_arg)
+add_test(
+    NAME step_include_check
+    COMMAND "${CMAKE_COMMAND}" "-DFILTERS_DIR=${PROJECT_SOURCE_DIR}/src/core/filters" "-DSTEPS=${steps_arg}"
+            ${step_link_args} -P "${PROJECT_SOURCE_DIR}/cmake/CheckStepIncludes.cmake")
+set_unit_test_environment(step_include_check)
