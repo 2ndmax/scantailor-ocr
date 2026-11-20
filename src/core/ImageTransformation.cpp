@@ -162,7 +162,8 @@ QTransform ImageTransformation::calcPostRotateXform(const double rotationDegrees
 }
 
 QTransform ImageTransformation::calcPostScaleXform(const Dpi& targetDpi) {
-  if (targetDpi.isNull()) {
+  // Without the original DPI there is nothing to scale from, as in preScaleToDpi().
+  if (targetDpi.isNull() || m_origDpi.isNull()) {
     QTransform xform;
     if (m_postScaleFactor != 1.0) {
       xform.scale(m_postScaleFactor, m_postScaleFactor);

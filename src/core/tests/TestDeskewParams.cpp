@@ -355,5 +355,15 @@ BOOST_AUTO_TEST_CASE(post_rotation_sin_cos_ignore_oblique) {
   BOOST_CHECK_CLOSE(xform.postRotationSin(), std::sin(qDegreesToRadians(5.0)), 1e-6);
 }
 
+// The program lets no page with an unknown DPI reach the output; scaling one divided by 0.
+BOOST_AUTO_TEST_CASE(post_scaling_an_image_with_unknown_dpi_stays_finite) {
+  const QRectF rect(0, 0, 100, 100);
+  ImageTransformation xform(rect, Dpi(0, 0));
+  xform.postScaleToDpi(Dpi(300, 300));
+  const QTransform transform = xform.transform();
+  BOOST_CHECK(std::isfinite(transform.m11()));
+  BOOST_CHECK(std::isfinite(transform.m22()));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests
