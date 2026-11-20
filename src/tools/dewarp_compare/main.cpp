@@ -424,8 +424,14 @@ QImage withModel(const QImage& page, const DistortionModel& model) {
 }
 
 double medianOf(std::vector<double> values) {
-  std::nth_element(values.begin(), values.begin() + values.size() / 2, values.end());
-  return values[values.size() / 2];
+  const size_t mid = values.size() / 2;
+  std::nth_element(values.begin(), values.begin() + mid, values.end());
+  if ((values.size() % 2) == 1) {
+    return values[mid];
+  }
+  // With an even count, the mean of the two middle values; the lower one is the largest below mid.
+  const double lower = *std::max_element(values.begin(), values.begin() + mid);
+  return (lower + values[mid]) / 2.0;
 }
 
 struct Options {
