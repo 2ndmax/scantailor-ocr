@@ -10,11 +10,15 @@
 
 #include "AbstractFilter.h"
 
-class DefaultParams;
+namespace page_layout { class PageLayoutParams; }
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
 #include "PageView.h"
+#include "PageLayoutParams.h"
+#include "Units.h"
+
+class Dpi;
 
 class ProjectPages;
 class ImageTransformation;
@@ -52,12 +56,12 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults);
+  void loadDefaultSettings(const PageInfo& pageInfo, const PageLayoutParams& defaults, Units units);
 
   /**
    * \brief Sets what a new project takes from its start values for all pages: the output size.
    */
-  void loadNewProjectSettings(const DefaultParams& defaults);
+  void loadNewProjectSettings(const PageLayoutParams& defaults, const Dpi& outputDpi, Units units);
 
   void setContentBox(const PageId& pageId, const ImageTransformation& xform, const QRectF& contentRect);
 

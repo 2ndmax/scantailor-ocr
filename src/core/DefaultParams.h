@@ -12,6 +12,7 @@
 #include <filters/output/DespeckleLevel.h>
 #include <filters/output/DewarpingOptions.h>
 #include <filters/output/PictureShapeOptions.h>
+#include "filters/page_layout/PageLayoutParams.h"
 #include <filters/page_layout/Alignment.h>
 #include <filters/page_layout/OutputSizeOptions.h>
 #include "filters/page_split/PageSplitParams.h"
@@ -40,42 +41,7 @@ class DefaultParams {
 
   using SelectContentParams = select_content::SelectContentParams;
 
-  class PageLayoutParams {
-   public:
-    PageLayoutParams();
-
-    PageLayoutParams(const Margins& hardMargins, const page_layout::Alignment& alignment, bool autoMargins);
-
-    explicit PageLayoutParams(const QDomElement& el);
-
-    QDomElement toXml(QDomDocument& doc, const QString& name) const;
-
-    const Margins& getHardMargins() const;
-
-    void setHardMargins(const Margins& hardMargins);
-
-    const page_layout::Alignment& getAlignment() const;
-
-    void setAlignment(const page_layout::Alignment& alignment);
-
-    bool isAutoMargins() const;
-
-    void setAutoMargins(bool autoMargins);
-
-    /**
-     * The output size for new projects. Unlike in a project, the target size is in the
-     * units of the profile, like the margins.
-     */
-    const page_layout::OutputSizeOptions& getOutputSizeOptions() const { return m_outputSizeOptions; }
-
-    void setOutputSizeOptions(const page_layout::OutputSizeOptions& options) { m_outputSizeOptions = options; }
-
-   private:
-    Margins m_hardMargins;
-    page_layout::Alignment m_alignment;
-    bool m_autoMargins;
-    page_layout::OutputSizeOptions m_outputSizeOptions;
-  };
+  using PageLayoutParams = page_layout::PageLayoutParams;
 
   class OutputParams {
    public:
@@ -261,29 +227,6 @@ inline void DefaultParams::setOutputParams(const DefaultParams::OutputParams& ou
 
 
 
-inline const Margins& DefaultParams::PageLayoutParams::getHardMargins() const {
-  return m_hardMargins;
-}
-
-inline void DefaultParams::PageLayoutParams::setHardMargins(const Margins& hardMargins) {
-  PageLayoutParams::m_hardMargins = hardMargins;
-}
-
-inline const page_layout::Alignment& DefaultParams::PageLayoutParams::getAlignment() const {
-  return m_alignment;
-}
-
-inline void DefaultParams::PageLayoutParams::setAlignment(const page_layout::Alignment& alignment) {
-  PageLayoutParams::m_alignment = alignment;
-}
-
-inline bool DefaultParams::PageLayoutParams::isAutoMargins() const {
-  return m_autoMargins;
-}
-
-inline void DefaultParams::PageLayoutParams::setAutoMargins(bool autoMargins) {
-  PageLayoutParams::m_autoMargins = autoMargins;
-}
 
 inline const Dpi& DefaultParams::OutputParams::getDpi() const {
   return m_dpi;

@@ -80,7 +80,7 @@ int StageSequence::findFilter(const FilterPtr& filter) const {
 void StageSequence::startNewProject(const DefaultParams& startValues) {
   *m_processingOptions = startValues.getProcessingOptions();
   *m_defaultParams = startValues;
-  m_pageLayoutFilter->loadNewProjectSettings(*m_defaultParams);
+  m_pageLayoutFilter->loadNewProjectSettings(m_defaultParams->getPageLayoutParams(), m_defaultParams->getOutputParams().getDpi(), m_defaultParams->getUnits());
 }
 
 void StageSequence::loadProject(const ProjectReader& reader, const DefaultParams& fallback) {
@@ -95,7 +95,7 @@ void StageSequence::loadDefaultSettings(const PageInfo& page) const {
   m_pageSplitFilter->loadDefaultSettings(page, m_defaultParams->getPageSplitParams());
   m_deskewFilter->loadDefaultSettings(page, m_defaultParams->getDeskewParams());
   m_selectContentFilter->loadDefaultSettings(page, m_defaultParams->getSelectContentParams(), m_defaultParams->getUnits());
-  m_pageLayoutFilter->loadDefaultSettings(page, *m_defaultParams);
+  m_pageLayoutFilter->loadDefaultSettings(page, m_defaultParams->getPageLayoutParams(), m_defaultParams->getUnits());
   m_outputFilter->loadDefaultSettings(page, *m_defaultParams);
 }
 

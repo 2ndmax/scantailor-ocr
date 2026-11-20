@@ -4,7 +4,8 @@
 #include "Utils.h"
 
 #include <UnitsConverter.h>
-#include <core/DefaultParams.h>
+#include "PageLayoutParams.h"
+#include "Units.h"
 
 #include <algorithm>
 #include <cassert>
@@ -274,9 +275,7 @@ QPolygonF Utils::shiftToRoundedOrigin(const QPolygonF& poly) {
   return poly.translated(shiftValueX, shiftValueY);
 }
 
-Params Utils::buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams) {
-  const DefaultParams::PageLayoutParams& pageLayoutParams = defaultParams.getPageLayoutParams();
-
+Params Utils::buildDefaultParams(const Dpi& dpi, const PageLayoutParams& pageLayoutParams, Units units) {
   const UnitsConverter unitsConverter(dpi);
 
   const Margins& margins = pageLayoutParams.getHardMargins();
@@ -284,20 +283,20 @@ Params Utils::buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultPar
   double topMargin = margins.top();
   double rightMargin = margins.right();
   double bottomMargin = margins.bottom();
-  unitsConverter.convert(leftMargin, topMargin, defaultParams.getUnits(), MILLIMETRES);
-  unitsConverter.convert(rightMargin, bottomMargin, defaultParams.getUnits(), MILLIMETRES);
+  unitsConverter.convert(leftMargin, topMargin, units, MILLIMETRES);
+  unitsConverter.convert(rightMargin, bottomMargin, units, MILLIMETRES);
 
   return Params(Margins(leftMargin, topMargin, rightMargin, bottomMargin), QRectF(), QRectF(), QSizeF(),
                 pageLayoutParams.getAlignment(), pageLayoutParams.isAutoMargins());
 }
 
-OutputSizeOptions Utils::buildDefaultOutputSizeOptions(const DefaultParams& defaultParams) {
-  OutputSizeOptions options(defaultParams.getPageLayoutParams().getOutputSizeOptions());
+OutputSizeOptions Utils::buildDefaultOutputSizeOptions(const PageLayoutParams& pageLayoutParams, const Dpi& outputDpi, Units units) {
+  OutputSizeOptions options(pageLayoutParams.getOutputSizeOptions());
 
   double width = options.targetSizeMM().width();
   double height = options.targetSizeMM().height();
-  UnitsConverter(defaultParams.getOutputParams().getDpi())
-      .convert(width, height, defaultParams.getUnits(), MILLIMETRES);
+  UnitsConverter(outputDpi)
+      .convert(width, height, units, MILLIMETRES);
   options.setTargetSizeMM(QSizeF(width, height));
   return options;
 }

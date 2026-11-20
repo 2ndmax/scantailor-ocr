@@ -5,8 +5,9 @@
 #define SCANTAILOR_PAGE_LAYOUT_UTILS_H_
 
 #include "OutputSizeOptions.h"
+#include "Units.h"
 
-class DefaultParams;
+namespace page_layout { class PageLayoutParams; }
 class QPolygonF;
 class QPointF;
 class QSizeF;
@@ -109,7 +110,7 @@ class Utils {
 
   static QPolygonF shiftToRoundedOrigin(const QPolygonF& poly);
 
-  static Params buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams);
+  static Params buildDefaultParams(const Dpi& dpi, const PageLayoutParams& defaultParams, Units units);
 
   /**
    * \brief The output size for a new project, from its start values.
@@ -117,7 +118,7 @@ class Utils {
    * The target size is converted from the units of the start values to millimeters;
    * pixels refer to their output resolution.
    */
-  static OutputSizeOptions buildDefaultOutputSizeOptions(const DefaultParams& defaultParams);
+  static OutputSizeOptions buildDefaultOutputSizeOptions(const PageLayoutParams& defaultParams, const Dpi& outputDpi, Units units);
 
  private:
   static QPointF getRightUnitVector(const QPolygonF& polyRect);

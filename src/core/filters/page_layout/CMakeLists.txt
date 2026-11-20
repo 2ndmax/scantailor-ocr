@@ -10,6 +10,7 @@ set(sources
     Utils.cpp Utils.h
     OutputSizeOptions.cpp OutputSizeOptions.h
     Filter.cpp Filter.h
+    PageLayoutParams.cpp PageLayoutParams.h
     Task.cpp Task.h
     TaskResult.cpp TaskResult.h
     ThumbnailData.h

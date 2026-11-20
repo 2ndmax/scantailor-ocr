@@ -4,6 +4,8 @@
 #include "Filter.h"
 #include "PageSequence.h"
 #include "PageInfo.h"
+#include "PageLayoutParams.h"
+#include "Units.h"
 
 #include <OrderByDeviationProvider.h>
 #include <filters/output/CacheDrivenTask.h>
@@ -119,15 +121,15 @@ std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(std::shared_ptr<o
   return std::make_shared<CacheDrivenTask>(std::move(nextTask), m_settings);
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const PageLayoutParams& defaults, Units units) {
   if (!m_settings->isParamsNull(pageInfo.id()))
     return;
 
-  m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams(pageInfo.metadata().dpi(), defaults));
+  m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams(pageInfo.metadata().dpi(), defaults, units));
 }
 
-void Filter::loadNewProjectSettings(const DefaultParams& defaults) {
-  m_settings->setOutputSizeOptions(Utils::buildDefaultOutputSizeOptions(defaults));
+void Filter::loadNewProjectSettings(const PageLayoutParams& defaults, const Dpi& outputDpi, Units units) {
+  m_settings->setOutputSizeOptions(Utils::buildDefaultOutputSizeOptions(defaults, outputDpi, units));
 }
 
 }  // namespace page_layout
