@@ -12,7 +12,6 @@
 #include <unordered_map>
 
 #include "AbstractRelinker.h"
-#include "DefaultParams.h"
 #include "ImageFileInfo.h"
 #include "ImageInfo.h"
 #include "OrthogonalRotation.h"
@@ -54,8 +53,8 @@ ProjectPages::ProjectPages(const std::vector<ImageFileInfo>& files,
 }
 
 std::shared_ptr<ProjectPages> ProjectPages::createNew(const std::vector<ImageFileInfo>& files,
-                                                      const DefaultParams& startValues) {
-  return std::make_shared<ProjectPages>(files, AUTO_PAGES, startValues.getPageSplitParams().getPageOrder());
+                                                      Qt::LayoutDirection pageOrder) {
+  return std::make_shared<ProjectPages>(files, AUTO_PAGES, pageOrder);
 }
 
 ProjectPages::~ProjectPages() = default;

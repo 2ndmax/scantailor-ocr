@@ -111,7 +111,7 @@ inline const QString& createdDir(const QString& dir) {
 class TestProject : public ProjectSession {
  public:
   TestProject(const std::vector<ImageFileInfo>& files, const QString& outDir, const DefaultParams& startValues)
-      : ProjectSession(ProjectSession::createNew(ProjectPages::createNew(files, startValues),
+      : ProjectSession(ProjectSession::createNew(ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()),
                                                  createdDir(outDir),
                                                  QString(),
                                                  startValues)) {}

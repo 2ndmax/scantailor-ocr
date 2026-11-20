@@ -1720,7 +1720,7 @@ void MainWindow::newProject() {
 void MainWindow::newProjectCreated(ProjectCreationContext* context) {
   // The profile is read once: the new project takes its start values and page order from it.
   const DefaultParams startValues = DefaultParamsProvider::getInstance().getParams();
-  switchToNewProject(ProjectSession::createNew(ProjectPages::createNew(context->files(), startValues),
+  switchToNewProject(ProjectSession::createNew(ProjectPages::createNew(context->files(), startValues.getPageSplitParams().getPageOrder()),
                                                context->outDir(), context->inputDir(), startValues));
   PartlyAddedFilesMessage::showIfNeeded(this, context->files());
   // A new project is saved right away, so it can be opened again even while it is empty.

@@ -51,7 +51,7 @@ class ProjectPages : public QObject {
    * the start values of the project.
    */
   static std::shared_ptr<ProjectPages> createNew(const std::vector<ImageFileInfo>& files,
-                                                 const DefaultParams& startValues);
+                                                 Qt::LayoutDirection pageOrder);
 
   ~ProjectPages() override;
 
