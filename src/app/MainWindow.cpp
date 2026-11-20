@@ -1412,9 +1412,10 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
           // Note: started detached rather than through std::system(), which
           // would block the GUI thread until the sound has finished playing
           // and would pass the command through a shell.
+          // A command that doesn't start, e.g. "play" without SoX installed, would leave it silent.
           const QStringList cmdParts = QProcess::splitCommand(cmd);
-          if (!cmdParts.isEmpty()) {
-            QProcess::startDetached(cmdParts.first(), cmdParts.mid(1));
+          if (cmdParts.isEmpty() || !QProcess::startDetached(cmdParts.first(), cmdParts.mid(1))) {
+            QApplication::beep();
           }
         }
       }
