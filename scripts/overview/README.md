@@ -41,13 +41,16 @@ own, and uv then can't find the Python it has just installed.
 [graphify](https://github.com/Graphify-Labs/graphify) parses the code (C++, CMake, PowerShell
 and more) with tree-sitter and builds a graph of files, classes and functions and of how they
 call, include and inherit from each other, then groups it into communities.  Only the code is
-read and no language model is used (`--code-only`, `--no-label`): nothing leaves the machine,
-and the communities keep numbers instead of names.  Folders ignored by git are left out.
+read and no language model is used (`--code-only`, `--no-label`): nothing leaves the machine.
+Folders ignored by git are left out.  Each community is named after the folder most of its code
+is in and its most connected node, e.g. `core/filters/deskew/ui · OptionsWidget`
+(`support\graphify-labels.py`); a community spread over several folders names its two biggest.
 
     powershell -ExecutionPolicy Bypass -File scripts\overview\01-graphify.ps1
 
 - `graphify-out\graph.html` shows the graph in the browser, `GRAPH_REPORT.md` lists the most
-  connected nodes and the communities.
+  connected nodes and the communities, `COMMUNITIES_BY_FOLDER.md` for each folder the
+  communities its code is in, to find those of the part of the code a review looks at.
 - The command line reads `graph.json`, run in the repository:
   `graphify explain "<class or function>"` (its connections with file and line),
   `graphify path "<A>" "<B>"`, `graphify query "<question>"` (by key words) and
