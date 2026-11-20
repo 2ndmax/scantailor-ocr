@@ -75,6 +75,25 @@ bool writeG4Tiff(const QString& path, const QByteArray& g4, const int width, con
   return ok;
 }
 
+/** A TIFF header with the given width and a few bytes of image data, far too little for it. */
+bool writeTiffWithWidth(const QString& path, const uint32_t width) {
+  TIFF* tif = Tests::openTiffFile(path, "w");
+  if (!tif) {
+    return false;
+  }
+  TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, width);
+  TIFFSetField(tif, TIFFTAG_IMAGELENGTH, static_cast<uint32_t>(1));
+  TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, static_cast<uint16_t>(1));
+  TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16_t>(1));
+  TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISWHITE);
+  TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+  TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, static_cast<uint32_t>(1));
+  char data[16] = {};
+  const bool ok = TIFFWriteRawStrip(tif, 0, data, sizeof(data)) == sizeof(data);
+  TIFFClose(tif);
+  return ok;
+}
+
 /** Checks that every object the cross-reference table points to starts there. */
 void checkStructure(const QByteArray& pdf, const int expectedPages) {
   BOOST_REQUIRE(pdf.startsWith("%PDF-1.4\n"));
@@ -1086,6 +1105,19 @@ BOOST_AUTO_TEST_CASE(test_lossy_compressions) {
   BOOST_CHECK(!isLossyPdfCompression(PdfCompression::DEFLATE, 50));
   BOOST_CHECK(!isLossyPdfCompression(PdfCompression::JBIG2, 50));
   BOOST_CHECK(!isLossyPdfCompression(PdfCompression::CCITT_G4, 50));
+}
+
+// The export reads only its own output files back; a replaced one with a width beyond int gave a
+// negative size.
+BOOST_AUTO_TEST_CASE(a_tiff_wider_than_int_is_not_read_as_a_negative_size) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("wide.tif");
+  BOOST_REQUIRE(writeTiffWithWidth(path, 0x80000001u));
+  QSize size;
+  int bitsPerPixel = 0;
+  const bool read = PdfImageEncoder::readTiffInfo(path, &size, &bitsPerPixel);
+  BOOST_CHECK_MESSAGE(!read || (size.width() > 0), "size " << size.width() << " x " << size.height());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -18,6 +18,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <new>
 #include <vector>
@@ -863,6 +864,11 @@ bool PdfImageEncoder::readTiffInfo(const QString& filePath,
   uint16_t bitsPerSample = 1;
   uint16_t samplesPerPixel = 1;
   if (!TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &width) || !TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &height)) {
+    return false;
+  }
+  // Only a replaced output file can be that large; as an int its size would be negative.
+  constexpr auto maxInt = static_cast<uint32_t>(std::numeric_limits<int>::max());
+  if ((width > maxInt) || (height > maxInt)) {
     return false;
   }
   TIFFGetFieldDefaulted(tif, TIFFTAG_BITSPERSAMPLE, &bitsPerSample);
