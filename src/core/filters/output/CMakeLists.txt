@@ -22,6 +22,10 @@ set(sources
     GeometryCollector.h
     OutputStatusCollector.h
     OutputGenerator.cpp OutputGenerator.h
+    OutputImageOps.cpp OutputImageOps.h
+    OutputMorphologyOps.cpp OutputMorphologyOps.h
+    OutputRectFinder.cpp OutputRectFinder.h
+    OutputZoneOps.cpp OutputZoneOps.h
     OutputMargins.h
     Settings.cpp Settings.h
     Utils.cpp Utils.h
