@@ -17,7 +17,7 @@
 namespace select_content {
 using namespace imageproc;
 
-QRectF PageFinder::findPageBox(const TaskStatus& /*status*/,
+QRectF PageFinder::findPageBox(const TaskStatus& status,
                                const FilterData& data,
                                bool fineTune,
                                const QSizeF& box,
@@ -59,6 +59,8 @@ QRectF PageFinder::findPageBox(const TaskStatus& /*status*/,
   std::vector<BinaryImage> bwimages;
 
 
+  // The five binarizations below take the most time; a cancelled task stops before them.
+  status.throwIfCancelled();
   bwimages.push_back(peakThreshold(gray150));
   bwimages.push_back(binarizeOtsu(gray150));
   bwimages.push_back(binarizeMokji(gray150));
