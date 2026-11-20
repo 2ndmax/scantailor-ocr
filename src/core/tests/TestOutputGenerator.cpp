@@ -18,15 +18,18 @@
 #include <PageId.h>
 #include <PropertySet.h>
 #include <filters/output/BlackWhiteOptions.h>
+#include <filters/output/ColorCommonOptions.h>
 #include <filters/output/ColorParams.h>
 #include <filters/output/DepthPerception.h>
 #include <filters/output/DewarpingOptions.h>
 #include <filters/output/OutputGenerator.h>
 #include <filters/output/OutputImage.h>
+#include <filters/output/OutputImageWithForeground.h>
 #include <filters/output/Params.h>
 #include <filters/output/PictureLayerProperty.h>
 #include <filters/output/PictureShapeOptions.h>
 #include <filters/output/Settings.h>
+#include <filters/output/SplittingOptions.h>
 #include <zones/SerializableSpline.h>
 #include <zones/Zone.h>
 #include <zones/ZoneSet.h>
@@ -132,6 +135,19 @@ struct Run {
   QString outputDpiAttribute;
   // Gets the size the generator announces for the output, if set.
   QSize* announcedSize = nullptr;
+  // Split output, despeckling and rectangular picture detection, as in a project file.
+  bool splitOutput = false;
+  double despeckleLevel = 0.0;
+  PictureShape pictureShape = OFF_SHAPE;
+  // Only set when a test asks, so BlackWhiteOptions and ColorCommonOptions keep their own defaults.
+  std::optional<bool> normalizeIlluminationBW;
+  std::optional<bool> normalizeIlluminationColor;
+  bool blackOnWhite = true;
+  bool takeOverBlackOnWhite = true;
+  // Receives the images the generator writes as a side effect, if set.
+  imageproc::BinaryImage* autoPictureMask = nullptr;
+  imageproc::BinaryImage* specklesImage = nullptr;
+  std::shared_ptr<Settings>* settingsOut = nullptr;
 };
 
 std::unique_ptr<OutputImage> generate(const Run& run) {
@@ -155,6 +171,9 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   blackWhiteOptions.setBinarizationMethod(run.binarization);
   blackWhiteOptions.setLowerBound(run.lowerBound);
   blackWhiteOptions.setUpperBound(run.upperBound);
+  if (run.normalizeIlluminationBW) {
+    blackWhiteOptions.setNormalizeIllumination(*run.normalizeIlluminationBW);
+  }
   if (run.kmeansColors > 0) {
     BlackWhiteOptions::ColorSegmenterOptions segmenterOptions = blackWhiteOptions.getColorSegmenterOptions();
     segmenterOptions.setEnabled(true);
@@ -171,11 +190,16 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   }
   colorParams.setBlackWhiteOptions(blackWhiteOptions);
   params.setColorParams(colorParams);
-  // Only the manual zone counts as a picture, so the results don't depend on picture detection.
+  // By default only a manual zone counts as a picture, so the results don't depend on picture
+  // detection. Individual tests opt into the automatic shapes.
   PictureShapeOptions shapeOptions;
-  shapeOptions.setPictureShape(OFF_SHAPE);
+  shapeOptions.setPictureShape(run.pictureShape);
   params.setPictureShapeOptions(shapeOptions);
-  params.setDespeckleLevel(0.0);
+  SplittingOptions splittingOptions;
+  splittingOptions.setSplitOutput(run.splitOutput);
+  params.setSplittingOptions(splittingOptions);
+  params.setDespeckleLevel(run.despeckleLevel);
+  params.setBlackOnWhite(run.blackOnWhite);
   if (run.thinManualDewarping) {
     params.setDewarpingOptions(DewarpingOptions(MANUAL));
   }
@@ -189,6 +213,9 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   }
   ColorCommonOptions colorCommonOptions = params.colorParams().colorCommonOptions();
   colorCommonOptions.setFillMargins(run.fillMargins);
+  if (run.normalizeIlluminationColor) {
+    colorCommonOptions.setNormalizeIllumination(*run.normalizeIlluminationColor);
+  }
   ColorParams colorParamsWithMargins = params.colorParams();
   colorParamsWithMargins.setColorCommonOptions(colorCommonOptions);
   params.setColorParams(colorParamsWithMargins);
@@ -219,13 +246,16 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
     BOOST_REQUIRE(distortionModel.isValid());
   }
   std::unique_ptr<OutputImage> output
-      = generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(), nullptr,
-                          nullptr, nullptr, pageId, settings, /*takeOverBlackOnWhite=*/true);
+      = generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(),
+                          run.autoPictureMask, run.specklesImage, nullptr, pageId, settings, run.takeOverBlackOnWhite);
   if (run.noModelFound) {
     *run.noModelFound = settings->getParams(pageId).dewarpingOptions().noModelFound();
   }
   if (run.resultingModel) {
     *run.resultingModel = distortionModel;
+  }
+  if (run.settingsOut) {
+    *run.settingsOut = settings;
   }
   return output;
 }
@@ -939,6 +969,225 @@ BOOST_AUTO_TEST_CASE(test_letter_widths_are_evened_out_on_a_page_with_a_model) {
   dewarping::DistortionModel model;
   BOOST_REQUIRE(!narrowingLettersPageFindsNoModel(AUTO, 27, 100, model));
   BOOST_TEST(!model.widthCorrection().isNull());
+}
+
+namespace {
+// A large mark that despeckling keeps, and a tiny isolated one that it removes. Both are far
+// enough apart that the removed one cannot be kept as a neighbour of the large one.
+const QRect MARK_RECT(40, 40, 60, 60);
+const QRect SPECKLE_RECT(350, 320, 3, 3);
+
+QImage pageWithMarkAndSpeckle() {
+  QImage page(WIDTH, HEIGHT, QImage::Format_RGB32);
+  page.fill(qRgb(255, 255, 255));
+  const Dpm dpm(DPI);
+  page.setDotsPerMeterX(dpm.horizontal());
+  page.setDotsPerMeterY(dpm.vertical());
+  QPainter painter(&page);
+  painter.fillRect(MARK_RECT, Qt::black);
+  painter.fillRect(SPECKLE_RECT, Qt::black);
+  return page;
+}
+
+QImage pageWithMarkSpeckleAndPicture() {
+  QImage page = pageWithMarkAndSpeckle();
+  for (int y = PICTURE_RECT.top(); y <= PICTURE_RECT.bottom(); ++y) {
+    for (int x = PICTURE_RECT.left(); x <= PICTURE_RECT.right(); ++x) {
+      const int v = 60 + (x - PICTURE_RECT.left()) * 140 / PICTURE_RECT.width();
+      page.setPixel(x, y, qRgb(v, v, v));
+    }
+  }
+  return page;
+}
+
+void checkBinaryPixels(const imageproc::BinaryImage& image, const QImage& expected) {
+  BOOST_REQUIRE(image.size() == expected.size());
+  for (int y = 0; y < expected.height(); ++y) {
+    for (int x = 0; x < expected.width(); ++x) {
+      const bool expectedBlack = qGray(expected.pixel(x, y)) < 128;
+      BOOST_TEST_CONTEXT("x=" << x << " y=" << y) {
+        BOOST_CHECK_EQUAL(image.getPixel(x, y) == imageproc::BLACK, expectedBlack);
+      }
+    }
+  }
+}
+
+void checkImagePixels(const QImage& image, const QImage& expected) {
+  BOOST_REQUIRE(image.size() == expected.size());
+  for (int y = 0; y < expected.height(); ++y) {
+    for (int x = 0; x < expected.width(); ++x) {
+      BOOST_TEST_CONTEXT("x=" << x << " y=" << y) {
+        BOOST_CHECK(image.pixel(x, y) == expected.pixel(x, y));
+      }
+    }
+  }
+}
+}  // namespace
+
+BOOST_AUTO_TEST_CASE(split_output_and_speckles_image_keep_their_pixels) {
+  Run run;
+  run.page = pageWithMarkAndSpeckle();
+  // Split output is only enabled for mixed pages; its foreground is the black-and-white layer.
+  run.mode = MIXED;
+  run.splitOutput = true;
+  run.despeckleLevel = 2.0;
+  imageproc::BinaryImage speckles(QSize(1, 1), imageproc::WHITE);
+  run.specklesImage = &speckles;
+  const std::unique_ptr<OutputImage> output = generate(run);
+  BOOST_REQUIRE(output && !output->isNull());
+
+  const auto* splitOutput = dynamic_cast<const OutputImageWithForeground*>(output.get());
+  BOOST_REQUIRE(splitOutput != nullptr);
+  BOOST_CHECK(splitOutput->getForegroundImage().size() == QSize(WIDTH, HEIGHT));
+  BOOST_CHECK(splitOutput->getBackgroundImage().size() == QSize(WIDTH, HEIGHT));
+
+  QImage expectedForeground(WIDTH, HEIGHT, QImage::Format_RGB32);
+  expectedForeground.fill(qRgb(255, 255, 255));
+  {
+    QPainter painter(&expectedForeground);
+    painter.fillRect(MARK_RECT, Qt::black);
+  }
+  QImage expectedBackground(WIDTH, HEIGHT, QImage::Format_RGB32);
+  expectedBackground.fill(qRgb(255, 255, 255));
+  checkImagePixels(splitOutput->getForegroundImage(), expectedForeground);
+  checkImagePixels(splitOutput->getBackgroundImage(), expectedBackground);
+
+  QImage expectedSpeckles(WIDTH, HEIGHT, QImage::Format_RGB32);
+  expectedSpeckles.fill(qRgb(255, 255, 255));
+  {
+    QPainter painter(&expectedSpeckles);
+    painter.fillRect(SPECKLE_RECT, Qt::black);
+  }
+  checkBinaryPixels(speckles, expectedSpeckles);
+
+  Run withoutDespeckling = run;
+  withoutDespeckling.despeckleLevel = 0.0;
+  withoutDespeckling.specklesImage = nullptr;
+  const QImage withSpeckle = process(withoutDespeckling);
+  const QImage withoutSpeckle = output->toImage().convertToFormat(QImage::Format_RGB32);
+  for (int y = 0; y < HEIGHT; ++y) {
+    for (int x = 0; x < WIDTH; ++x) {
+      BOOST_TEST_CONTEXT("x=" << x << " y=" << y) {
+        if (SPECKLE_RECT.contains(x, y)) {
+          BOOST_CHECK_EQUAL(qGray(withoutSpeckle.pixel(x, y)), 255);
+        } else {
+          BOOST_CHECK_EQUAL(withoutSpeckle.pixel(x, y), withSpeckle.pixel(x, y));
+        }
+      }
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(automatic_picture_mask_and_speckles_keep_their_pixels) {
+  Run run;
+  run.page = pageWithMarkSpeckleAndPicture();
+  run.mode = MIXED;
+  run.pictureShape = FREE_SHAPE;
+  run.despeckleLevel = 2.0;
+  imageproc::BinaryImage mask(QSize(1, 1), imageproc::WHITE);
+  imageproc::BinaryImage speckles(QSize(1, 1), imageproc::WHITE);
+  run.autoPictureMask = &mask;
+  run.specklesImage = &speckles;
+  generate(run);
+
+  QImage expectedSpeckles(WIDTH, HEIGHT, QImage::Format_RGB32);
+  expectedSpeckles.fill(qRgb(255, 255, 255));
+  {
+    QPainter painter(&expectedSpeckles);
+    painter.fillRect(SPECKLE_RECT, Qt::black);
+  }
+  checkBinaryPixels(speckles, expectedSpeckles);
+
+  // Automatic detection sees the gradient as the only picture. In the current mask the detected
+  // area is white and everything else, including the black mark, is black. The detector's output
+  // is scaled back with one pixel of overflow on each side.
+  QImage expectedMask(WIDTH, HEIGHT, QImage::Format_RGB32);
+  expectedMask.fill(qRgb(0, 0, 0));
+  {
+    QPainter painter(&expectedMask);
+    painter.fillRect(PICTURE_RECT.adjusted(-1, -1, 1, 1), Qt::white);
+  }
+  checkBinaryPixels(mask, expectedMask);
+}
+
+BOOST_AUTO_TEST_CASE(taking_over_black_on_white_only_changes_that_field) {
+  const PageId pageId(ImageId(QStringLiteral("page.png")), PageId::SINGLE_PAGE);
+  Run run;
+  run.blackOnWhite = false;
+
+  // The run without take-over gives us the parameters exactly as the generator received them.
+  Run withoutTakeOver = run;
+  withoutTakeOver.takeOverBlackOnWhite = false;
+  std::shared_ptr<Settings> beforeSettings;
+  withoutTakeOver.settingsOut = &beforeSettings;
+  generate(withoutTakeOver);
+  BOOST_REQUIRE(beforeSettings);
+  const Params before = beforeSettings->getParams(pageId);
+  BOOST_REQUIRE(!before.isBlackOnWhite());
+
+  std::shared_ptr<Settings> afterSettings;
+  run.settingsOut = &afterSettings;
+  generate(run);
+  BOOST_REQUIRE(afterSettings);
+  const Params after = afterSettings->getParams(pageId);
+  BOOST_CHECK(after.isBlackOnWhite());
+  QDomDocument beforeDoc;
+  QDomDocument afterDoc;
+  QDomElement beforeEl = before.toXml(beforeDoc, QStringLiteral("params"));
+  beforeDoc.appendChild(beforeEl);
+  beforeEl.setAttribute(QStringLiteral("blackOnWhite"), QStringLiteral("1"));
+  afterDoc.appendChild(after.toXml(afterDoc, QStringLiteral("params")));
+  BOOST_CHECK(beforeDoc.toString() == afterDoc.toString());
+}
+
+BOOST_AUTO_TEST_CASE(rectangular_picture_detection_runs_through_process) {
+  Run off;
+  off.mode = MIXED;
+  const QImage withoutDetection = process(off);
+  BOOST_CHECK_LT(grayLevels(withoutDetection, inner(PICTURE_RECT)).size(), 3u);
+
+  Run rectangular = off;
+  rectangular.pictureShape = RECTANGULAR_SHAPE;
+  const QImage withDetection = process(rectangular);
+  BOOST_CHECK_GT(grayLevels(withDetection, inner(PICTURE_RECT)).size(), 50u);
+}
+
+// With very little text and unfilled margins, the current marginal tracing keeps the trivial
+// model even when the illumination is normalized. This pins the behavior described by the
+// REVIEW-NOTE in OutputGenerator.cpp; it deliberately does not assert a corrected edge.
+BOOST_AUTO_TEST_CASE(few_text_lines_with_normalized_light_keep_the_trivial_marginal_model) {
+  QImage page = whiteA4Page();
+  {
+    QPainter painter(&page);
+    for (int y = 0; y < page.height(); ++y) {
+      const int shade = 250 - y * 60 / page.height();
+      painter.fillRect(0, y, page.width(), 1, qRgb(shade, shade, shade));
+    }
+    painter.fillRect(0, page.height() - 20, page.width(), 20, Qt::black);
+    for (int line = 0; line < 3; ++line) {
+      drawWords(painter, TEXT_LEFT, TEXT_RIGHT, 800 + line * 100);
+    }
+  }
+  Run run;
+  run.page = page;
+  run.content = QRectF(QPointF(0, 0), A4_PAGE_SIZE);
+  run.dewarpingMode = MARGINAL;
+  run.normalizeIlluminationBW = true;
+  run.normalizeIlluminationColor = true;
+  run.fillMargins = false;
+  bool noModelFound = true;
+  dewarping::DistortionModel model;
+  run.noModelFound = &noModelFound;
+  run.resultingModel = &model;
+  generate(run);
+  BOOST_REQUIRE(!noModelFound);
+  const auto& top = model.topCurve().polyline();
+  const auto& bottom = model.bottomCurve().polyline();
+  BOOST_CHECK(model.isValid());
+  BOOST_TEST(closeTo(top.front(), QPointF(0, 0)));
+  BOOST_TEST(closeTo(top.back(), QPointF(A4_PAGE_SIZE.width(), 0)));
+  BOOST_TEST(closeTo(bottom.front(), QPointF(0, A4_PAGE_SIZE.height())));
+  BOOST_TEST(closeTo(bottom.back(), QPointF(A4_PAGE_SIZE.width(), A4_PAGE_SIZE.height())));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
