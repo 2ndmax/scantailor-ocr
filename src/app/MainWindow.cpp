@@ -1370,12 +1370,15 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
         // Error loading file. No special action is necessary.
       } else if (result->filter() != m_stages->filterAt(m_curFilter)) {
         // Error from one of the previous filters.
+        // Tasks of a closed project are cancelled before their result arrives, so the filter is one
+        // of the current stages; a stale one (-1) must not become the current filter.
         const int idx = m_stages->findFilter(result->filter());
-        assert(idx >= 0);
-        m_curFilter = idx;
+        if (idx >= 0) {
+          m_curFilter = idx;
 
-        ScopedIncDec<int> selectionGuard(m_ignoreSelectionChanges);
-        filterList->selectRow(idx);
+          ScopedIncDec<int> selectionGuard(m_ignoreSelectionChanges);
+          filterList->selectRow(idx);
+        }
       }
     }
 
