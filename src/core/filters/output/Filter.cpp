@@ -17,6 +17,7 @@
 #include "LastImageViewTab.h"
 #include "OrderByColorModeProvider.h"
 #include "OutputGenerator.h"
+#include "DefaultOutputParams.h"
 #include "PageInfo.h"
 #include "ProjectIdReader.h"
 #include "ProjectIdWriter.h"
@@ -98,7 +99,7 @@ std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(const OutputFileN
   return std::make_shared<CacheDrivenTask>(m_settings, outFileNameGen);
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultOutputParams& defaults) {
   if (!m_settings->isParamsNull(pageInfo.id()))
     return;
 

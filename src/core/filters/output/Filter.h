@@ -10,11 +10,12 @@
 
 #include "AbstractFilter.h"
 
-class DefaultParams;
+namespace output { class DefaultOutputParams; }
 #include "ColorParams.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageView.h"
+#include "DefaultOutputParams.h"
 #include "ProcessingOptions.h"
 
 class PageInfo;
@@ -49,7 +50,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults);
+  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultOutputParams& defaults);
 
   std::shared_ptr<Task> createTask(const PageId& pageId,
                                    std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,

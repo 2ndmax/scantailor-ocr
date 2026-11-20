@@ -12,6 +12,8 @@ set(sources
     ImageViewTab.h
     LastImageViewTab.h
     Filter.cpp Filter.h
+    DefaultOutputParams.cpp DefaultOutputParams.h
+    OutputParams.cpp OutputParams.h
     OrderByColorModeProvider.cpp OrderByColorModeProvider.h
     Task.cpp Task.h
     TaskResult.cpp TaskResult.h

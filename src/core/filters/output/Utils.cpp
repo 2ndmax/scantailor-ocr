@@ -3,7 +3,7 @@
 
 #include "Utils.h"
 
-#include <core/DefaultParams.h>
+#include "DefaultOutputParams.h"
 
 #include <QDir>
 #include <QString>
@@ -61,9 +61,7 @@ QTransform Utils::rotate(double degrees, const QRect& imageRect) {
   return rotateXform;
 }
 
-Params Utils::buildDefaultParams(const DefaultParams& defaultParams) {
-  const DefaultParams::OutputParams& outputParams = defaultParams.getOutputParams();
-
+Params Utils::buildDefaultParams(const DefaultOutputParams& outputParams) {
   return Params(outputParams.getDpi(), outputParams.getColorParams(), outputParams.getSplittingOptions(),
                 outputParams.getPictureShapeOptions(), dewarping::DistortionModel(), outputParams.getDepthPerception(),
                 outputParams.getDewarpingOptions(), outputParams.getDespeckleLevel());

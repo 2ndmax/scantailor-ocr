@@ -7,6 +7,7 @@
 
 #include "filters/deskew/DeskewParams.h"
 #include <filters/deskew/SkewDetection.h>
+#include "filters/output/DefaultOutputParams.h"
 #include <filters/output/ColorParams.h>
 #include <filters/output/DepthPerception.h>
 #include <filters/output/DespeckleLevel.h>
@@ -43,59 +44,7 @@ class DefaultParams {
 
   using PageLayoutParams = page_layout::PageLayoutParams;
 
-  class OutputParams {
-   public:
-    OutputParams();
-
-    OutputParams(const Dpi& dpi,
-                 const output::ColorParams& colorParams,
-                 const output::SplittingOptions& splittingOptions,
-                 const output::PictureShapeOptions& pictureShapeOptions,
-                 const output::DepthPerception& depthPerception,
-                 const output::DewarpingOptions& dewarpingOptions,
-                 double despeckleLevel);
-
-    explicit OutputParams(const QDomElement& el);
-
-    QDomElement toXml(QDomDocument& doc, const QString& name) const;
-
-    const Dpi& getDpi() const;
-
-    void setDpi(const Dpi& dpi);
-
-    const output::ColorParams& getColorParams() const;
-
-    void setColorParams(const output::ColorParams& colorParams);
-
-    const output::SplittingOptions& getSplittingOptions() const;
-
-    void setSplittingOptions(const output::SplittingOptions& splittingOptions);
-
-    const output::PictureShapeOptions& getPictureShapeOptions() const;
-
-    void setPictureShapeOptions(const output::PictureShapeOptions& pictureShapeOptions);
-
-    const output::DepthPerception& getDepthPerception() const;
-
-    void setDepthPerception(const output::DepthPerception& depthPerception);
-
-    const output::DewarpingOptions& getDewarpingOptions() const;
-
-    void setDewarpingOptions(const output::DewarpingOptions& dewarpingOptions);
-
-    double getDespeckleLevel() const;
-
-    void setDespeckleLevel(double despeckleLevel);
-
-   private:
-    Dpi m_dpi;
-    output::ColorParams m_colorParams;
-    output::SplittingOptions m_splittingOptions;
-    output::PictureShapeOptions m_pictureShapeOptions;
-    output::DepthPerception m_depthPerception;
-    output::DewarpingOptions m_dewarpingOptions;
-    double m_despeckleLevel;
-  };
+  using OutputParams = output::DefaultOutputParams;
 
  public:
   DefaultParams();
@@ -226,64 +175,6 @@ inline void DefaultParams::setOutputParams(const DefaultParams::OutputParams& ou
 
 
 
-
-
-inline const Dpi& DefaultParams::OutputParams::getDpi() const {
-  return m_dpi;
-}
-
-inline void DefaultParams::OutputParams::setDpi(const Dpi& dpi) {
-  OutputParams::m_dpi = dpi;
-}
-
-inline const output::ColorParams& DefaultParams::OutputParams::getColorParams() const {
-  return m_colorParams;
-}
-
-inline void DefaultParams::OutputParams::setColorParams(const output::ColorParams& colorParams) {
-  OutputParams::m_colorParams = colorParams;
-}
-
-inline const output::SplittingOptions& DefaultParams::OutputParams::getSplittingOptions() const {
-  return m_splittingOptions;
-}
-
-inline void DefaultParams::OutputParams::setSplittingOptions(const output::SplittingOptions& splittingOptions) {
-  OutputParams::m_splittingOptions = splittingOptions;
-}
-
-inline const output::PictureShapeOptions& DefaultParams::OutputParams::getPictureShapeOptions() const {
-  return m_pictureShapeOptions;
-}
-
-inline void DefaultParams::OutputParams::setPictureShapeOptions(
-    const output::PictureShapeOptions& pictureShapeOptions) {
-  OutputParams::m_pictureShapeOptions = pictureShapeOptions;
-}
-
-inline const output::DepthPerception& DefaultParams::OutputParams::getDepthPerception() const {
-  return m_depthPerception;
-}
-
-inline void DefaultParams::OutputParams::setDepthPerception(const output::DepthPerception& depthPerception) {
-  OutputParams::m_depthPerception = depthPerception;
-}
-
-inline const output::DewarpingOptions& DefaultParams::OutputParams::getDewarpingOptions() const {
-  return m_dewarpingOptions;
-}
-
-inline void DefaultParams::OutputParams::setDewarpingOptions(const output::DewarpingOptions& dewarpingOptions) {
-  OutputParams::m_dewarpingOptions = dewarpingOptions;
-}
-
-inline double DefaultParams::OutputParams::getDespeckleLevel() const {
-  return m_despeckleLevel;
-}
-
-inline void DefaultParams::OutputParams::setDespeckleLevel(double despeckleLevel) {
-  OutputParams::m_despeckleLevel = despeckleLevel;
-}
 
 
 #endif  // SCANTAILOR_CORE_DEFAULTPARAMS_H_

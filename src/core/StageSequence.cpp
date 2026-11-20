@@ -96,7 +96,7 @@ void StageSequence::loadDefaultSettings(const PageInfo& page) const {
   m_deskewFilter->loadDefaultSettings(page, m_defaultParams->getDeskewParams());
   m_selectContentFilter->loadDefaultSettings(page, m_defaultParams->getSelectContentParams(), m_defaultParams->getUnits());
   m_pageLayoutFilter->loadDefaultSettings(page, m_defaultParams->getPageLayoutParams(), m_defaultParams->getUnits());
-  m_outputFilter->loadDefaultSettings(page, *m_defaultParams);
+  m_outputFilter->loadDefaultSettings(page, m_defaultParams->getOutputParams());
 }
 
 BackgroundTaskPtr StageSequence::createTask(const PageInfo& page,

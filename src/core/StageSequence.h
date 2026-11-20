@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "AbstractFilter.h"
+class DefaultParams;
 #include "BackgroundTask.h"
 #include "ExportPage.h"
 #include "NonCopyable.h"
