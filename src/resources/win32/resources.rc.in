@@ -12,7 +12,9 @@ VS_VERSION_INFO VERSIONINFO
 	FILEFLAGS 0x0L
 #endif
 	FILEOS VOS__WINDOWS32
-	FILETYPE VFT_DLL
+	// Fixed without a test: this resource belongs to scantailor-ocr.exe but said VFT_DLL; no test reads
+	// the version resource of the built program.
+	FILETYPE VFT_APP
 	FILESUBTYPE 0x0L
 	BEGIN
 		BLOCK "StringFileInfo"
