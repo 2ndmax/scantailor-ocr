@@ -3,7 +3,7 @@
 
 #include "ImageSettings.h"
 
-#include "ProjectReader.h"
+#include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 #include "Utils.h"
 
@@ -33,7 +33,7 @@ void ImageSettings::clear() {
   m_perPageParams.clear();
 }
 
-void ImageSettings::load(const ProjectReader& reader, const QDomElement& imageSettingsEl) {
+void ImageSettings::load(const ProjectIdReader& reader, const QDomElement& imageSettingsEl) {
   clear();
 
   const QString pageTagName("page");

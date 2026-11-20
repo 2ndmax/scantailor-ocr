@@ -18,8 +18,8 @@
 #include "OrderByColorModeProvider.h"
 #include "OutputGenerator.h"
 #include "PageInfo.h"
-#include "ProjectReader.h"
-#include "ProjectWriter.h"
+#include "ProjectIdReader.h"
+#include "ProjectIdWriter.h"
 #include "Settings.h"
 #include "Task.h"
 #include "ThumbnailPixmapCache.h"
@@ -53,7 +53,7 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
   m_settings->performRelinking(relinker);
 }
 
-QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
+QDomElement Filter::saveSettings(const ProjectIdWriter& writer, QDomDocument& doc) const {
   QDomElement filterEl(doc.createElement("output"));
 
   writer.enumPages(
@@ -80,7 +80,7 @@ void Filter::writePageSettings(QDomDocument& doc, QDomElement& filterEl, const P
   filterEl.appendChild(pageEl);
 }
 
-void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
+void Filter::loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) {
   m_settings->load(reader, filtersEl.namedItem("output").toElement());
 }
 

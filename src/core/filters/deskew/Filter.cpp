@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Filter.h"
+#include "PageInfo.h"
 
 #include <OrderByDeviationProvider.h>
 #include <filters/select_content/CacheDrivenTask.h>
@@ -11,8 +12,8 @@
 
 #include "AbstractRelinker.h"
 #include "CacheDrivenTask.h"
-#include "ProjectReader.h"
-#include "ProjectWriter.h"
+#include "ProjectIdReader.h"
+#include "ProjectIdWriter.h"
 #include "Task.h"
 #include "Utils.h"
 
@@ -43,7 +44,7 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
   m_imageSettings->performRelinking(relinker);
 }
 
-QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
+QDomElement Filter::saveSettings(const ProjectIdWriter& writer, QDomDocument& doc) const {
   QDomElement filterEl(doc.createElement("deskew"));
 
   int contentPages = 0;
@@ -68,7 +69,7 @@ QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc)
   return filterEl;
 }
 
-void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
+void Filter::loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) {
   const QDomElement filterEl(filtersEl.namedItem("deskew").toElement());
   m_settings->load(reader, filterEl);
   m_imageSettings->load(reader, filterEl.namedItem("image-settings").toElement());
@@ -104,7 +105,7 @@ void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& 
   m_settings->setPageParams(pageInfo.id(), Utils::buildDefaultParams(defaults));
 }
 
-void Filter::saveImageSettings(const ProjectWriter& writer, QDomDocument& doc, QDomElement& filterEl) const {
+void Filter::saveImageSettings(const ProjectIdWriter& writer, QDomDocument& doc, QDomElement& filterEl) const {
   QDomElement imageSettingsEl(doc.createElement("image-settings"));
   writer.enumPages([&](const PageId& pageId, const int numericId) {
     this->writeImageParams(doc, imageSettingsEl, pageId, numericId);

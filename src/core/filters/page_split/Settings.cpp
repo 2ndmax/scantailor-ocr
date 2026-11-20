@@ -6,7 +6,7 @@
 #include <QDomElement>
 #include <cassert>
 
-#include "ProjectReader.h"
+#include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
 namespace page_split {
@@ -302,7 +302,7 @@ void Settings::UpdateAction::clearParams() {
   m_paramsAction = CLEAR;
 }
 
-void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
   clear();
 
   const QString defaultLayoutType(filterEl.attribute("defaultLayoutType"));

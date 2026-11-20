@@ -46,9 +46,9 @@ class Filter : public AbstractFilter {
 
   void performRelinking(const AbstractRelinker& relinker) override;
 
-  QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const override;
+  QDomElement saveSettings(const ProjectIdWriter& writer, QDomDocument& doc) const override;
 
-  void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
+  void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
   void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
 

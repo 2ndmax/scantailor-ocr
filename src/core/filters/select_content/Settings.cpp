@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "../../Utils.h"
-#include "ProjectReader.h"
+#include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
 using namespace core;
@@ -101,7 +101,7 @@ const DeviationProvider<PageId>& Settings::deviationProvider() const {
 }
 
 
-void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
   clear();
 
   setPageDetectionBox(XmlUnmarshaller::sizeF(filterEl.namedItem("page-detection-box").toElement()));

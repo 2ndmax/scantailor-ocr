@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Filter.h"
+#include "PageInfo.h"
 
 #include <filters/deskew/CacheDrivenTask.h>
 #include <filters/deskew/Task.h>
@@ -11,8 +12,8 @@
 #include "CacheDrivenTask.h"
 #include "OrderBySplitTypeProvider.h"
 #include "ProjectPages.h"
-#include "ProjectReader.h"
-#include "ProjectWriter.h"
+#include "ProjectIdReader.h"
+#include "ProjectIdWriter.h"
 #include "Settings.h"
 #include "Task.h"
 #include "Utils.h"
@@ -42,7 +43,7 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
   m_settings->performRelinking(relinker);
 }
 
-QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
+QDomElement Filter::saveSettings(const ProjectIdWriter& writer, QDomDocument& doc) const {
   QDomElement filterEl(doc.createElement("page-split"));
   filterEl.setAttribute("defaultLayoutType", layoutTypeToString(m_settings->defaultLayoutType()));
 
@@ -52,7 +53,7 @@ QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc)
   return filterEl;
 }
 
-void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
+void Filter::loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) {
   const QDomElement filterEl(filtersEl.namedItem("page-split").toElement());
   m_settings->load(reader, filterEl);
 }

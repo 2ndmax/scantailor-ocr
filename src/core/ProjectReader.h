@@ -14,6 +14,7 @@
 
 #include "ImageId.h"
 #include "ImageInfo.h"
+#include "ProjectIdReader.h"
 #include "ImageMetadata.h"
 #include "PageId.h"
 #include "ProcessingOptions.h"
@@ -25,7 +26,7 @@ class FileNameDisambiguator;
 class AbstractFilter;
 class DefaultParams;
 
-class ProjectReader {
+class ProjectReader : public ProjectIdReader {
   Q_DECLARE_TR_FUNCTIONS(ProjectReader)
 
  public:
@@ -94,9 +95,9 @@ class ProjectReader {
    */
   std::vector<QString> directories() const;
 
-  ImageId imageId(int numericId) const;
+  ImageId imageId(int numericId) const override;
 
-  PageId pageId(int numericId) const;
+  PageId pageId(int numericId) const override;
 
  private:
   struct FileRecord {

@@ -10,7 +10,7 @@
 #include "FillZonePropFactory.h"
 #include "PictureLayerProperty.h"
 #include "PictureZonePropFactory.h"
-#include "ProjectReader.h"
+#include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
 using namespace core;
@@ -33,7 +33,7 @@ void Settings::clear() {
   m_perPageOutputProcessingParams.clear();
 }
 
-void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
   clear();
 
   const QString pageTagName("page");

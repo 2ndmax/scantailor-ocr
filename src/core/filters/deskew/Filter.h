@@ -43,9 +43,9 @@ class Filter : public AbstractFilter {
 
   void performRelinking(const AbstractRelinker& relinker) override;
 
-  QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const override;
+  QDomElement saveSettings(const ProjectIdWriter& writer, QDomDocument& doc) const override;
 
-  void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) override;
+  void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
   void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
 
@@ -67,7 +67,7 @@ class Filter : public AbstractFilter {
  private:
   void writeParams(QDomDocument& doc, QDomElement& filterEl, const Params& params, int numericId) const;
 
-  void saveImageSettings(const ProjectWriter& writer, QDomDocument& doc, QDomElement& filterEl) const;
+  void saveImageSettings(const ProjectIdWriter& writer, QDomDocument& doc, QDomElement& filterEl) const;
 
   void writeImageParams(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 

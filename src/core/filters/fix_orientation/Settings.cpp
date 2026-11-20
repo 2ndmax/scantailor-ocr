@@ -6,7 +6,7 @@
 #include <QDomElement>
 
 #include "../../Utils.h"
-#include "ProjectReader.h"
+#include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
 using namespace core;
@@ -75,7 +75,7 @@ ImageTrim Settings::getTrim(const ImageId& imageId) const {
   return ImageTrim();
 }
 
-void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
   clear();
 
   const QString imageTagName("image");

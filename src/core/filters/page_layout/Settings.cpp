@@ -21,7 +21,7 @@
 #include "PageId.h"
 #include "PageSequence.h"
 #include "Params.h"
-#include "ProjectReader.h"
+#include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
 
@@ -638,7 +638,7 @@ std::vector<Guide>& Settings::Impl::guides() {
   return m_guides;
 }
 
-void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
   clear();
 
   setOutputSizeOptions(OutputSizeOptions(filterEl.namedItem("output-size").toElement()));

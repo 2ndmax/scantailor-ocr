@@ -6,7 +6,7 @@
 #include <QDomElement>
 
 #include "../../Utils.h"
-#include "ProjectReader.h"
+#include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
 using namespace core;
@@ -95,7 +95,7 @@ std::optional<bool> Settings::takePendingAutoOblique(const PageId& pageId) {
   return value;
 }
 
-void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
+void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
   clear();
 
   // Projects without a per-page detection method had one for the whole project.

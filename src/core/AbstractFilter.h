@@ -14,8 +14,8 @@
 
 class DefaultParams;
 class PageInfo;
-class ProjectReader;
-class ProjectWriter;
+class ProjectIdReader;
+class ProjectIdWriter;
 class AbstractRelinker;
 class QString;
 class QDomDocument;
@@ -52,9 +52,9 @@ class AbstractFilter : public std::enable_shared_from_this<AbstractFilter> {
 
   virtual void performRelinking(const AbstractRelinker& relinker) = 0;
 
-  virtual QDomElement saveSettings(const ProjectWriter& writer, QDomDocument& doc) const = 0;
+  virtual QDomElement saveSettings(const ProjectIdWriter& writer, QDomDocument& doc) const = 0;
 
-  virtual void loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) = 0;
+  virtual void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) = 0;
 
   virtual void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) = 0;
 

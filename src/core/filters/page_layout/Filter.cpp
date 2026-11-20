@@ -2,6 +2,8 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Filter.h"
+#include "PageSequence.h"
+#include "PageInfo.h"
 
 #include <OrderByDeviationProvider.h>
 #include <filters/output/CacheDrivenTask.h>
@@ -14,8 +16,8 @@
 #include "OrderBySizeProvider.h"
 #include "Params.h"
 #include "ProjectPages.h"
-#include "ProjectReader.h"
-#include "ProjectWriter.h"
+#include "ProjectIdReader.h"
+#include "ProjectIdWriter.h"
 #include "Settings.h"
 #include "Task.h"
 #include "Utils.h"
@@ -51,7 +53,7 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
   m_settings->performRelinking(relinker);
 }
 
-QDomElement Filter::saveSettings(const ProjectWriter& writer, QDomDocument& doc) const {
+QDomElement Filter::saveSettings(const ProjectIdWriter& writer, QDomDocument& doc) const {
   QDomElement filterEl(doc.createElement("page-layout"));
 
   if (!m_settings->guides().empty()) {
@@ -86,7 +88,7 @@ void Filter::writePageSettings(QDomDocument& doc, QDomElement& filterEl, const P
   filterEl.appendChild(pageEl);
 }
 
-void Filter::loadSettings(const ProjectReader& reader, const QDomElement& filtersEl) {
+void Filter::loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) {
   const QDomElement filterEl(filtersEl.namedItem("page-layout").toElement());
   m_settings->load(reader, filterEl);
 }

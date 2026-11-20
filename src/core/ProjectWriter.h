@@ -18,6 +18,7 @@
 
 #include "ImageId.h"
 #include "ImageInfo.h"
+#include "ProjectIdWriter.h"
 #include "OutputFileNameGenerator.h"
 #include "PageId.h"
 #include "PageSequence.h"
@@ -33,7 +34,7 @@ class StageSequence;
 class QDomDocument;
 class QDomElement;
 
-class ProjectWriter {
+class ProjectWriter : public ProjectIdWriter {
   DECLARE_NON_COPYABLE(ProjectWriter)
 
  public:
@@ -58,17 +59,7 @@ class ProjectWriter {
   /** Writes the settings of the steps in \p stages with the project. */
   bool write(const QString& filePath, const StageSequence& stages) const;
 
-  /**
-   * \p out will be called like this: out(ImageId, numeric_image_id)
-   */
-  template <typename OutFunc>
-  void enumImages(OutFunc out) const;
-
-  /**
-   * \p out will be called like this: out(LogicalPageId, numeric_page_id)
-   */
-  template <typename OutFunc>
-  void enumPages(OutFunc out) const;
+  // enumImages/enumPages are inherited from ProjectIdWriter.
 
  private:
   struct Directory {
@@ -148,9 +139,9 @@ class ProjectWriter {
 
   int pageId(const PageId& pageId) const;
 
-  void enumImagesImpl(const VirtualFunction<void, const ImageId&, int>& out) const;
+  void enumImagesImpl(const VirtualFunction<void, const ImageId&, int>& out) const override;
 
-  void enumPagesImpl(const VirtualFunction<void, const PageId&, int>& out) const;
+  void enumPagesImpl(const VirtualFunction<void, const PageId&, int>& out) const override;
 
   PageSequence m_pageSequence;
   OutputFileNameGenerator m_outFileNameGen;
@@ -163,15 +154,5 @@ class ProjectWriter {
   Qt::LayoutDirection m_layoutDirection;
 };
 
-
-template <typename Callable>
-void ProjectWriter::enumImages(Callable out) const {
-  enumImagesImpl(ProxyFunction<Callable, void, const ImageId&, int>(out));
-}
-
-template <typename Callable>
-void ProjectWriter::enumPages(Callable out) const {
-  enumPagesImpl(ProxyFunction<Callable, void, const PageId&, int>(out));
-}
 
 #endif  // ifndef SCANTAILOR_CORE_PROJECTWRITER_H_
