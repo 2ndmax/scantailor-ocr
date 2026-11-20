@@ -24,13 +24,15 @@ DewarpingPointMapper::DewarpingPointMapper(const DistortionModel& distortionMode
 
   // The full width and height, as in RasterDewarper, which gets the model domain as a QRectF
   // (QRect::right() - QRect::left() would be one less), so points and pixels are mapped alike.
+  // A valid model smaller than half a pixel in the output gives an empty domain, and dewarp() a white
+  // page; a scale of 0 instead of an infinite one maps every point to the model's edge, not to NaN.
   m_modelDomainLeft = modelDomain.left();
   m_modelXScaleFromNormalized = modelDomain.width();
-  m_modelXScaleToNormalized = 1.0 / m_modelXScaleFromNormalized;
+  m_modelXScaleToNormalized = (modelDomain.width() > 0) ? 1.0 / m_modelXScaleFromNormalized : 0.0;
 
   m_modelDomainTop = modelDomain.top();
   m_modelYScaleFromNormalized = modelDomain.height();
-  m_modelYScaleToNormalized = 1.0 / m_modelYScaleFromNormalized;
+  m_modelYScaleToNormalized = (modelDomain.height() > 0) ? 1.0 / m_modelYScaleFromNormalized : 0.0;
 }
 
 QPointF DewarpingPointMapper::mapToDewarpedSpace(const QPointF& warpedPt) const {

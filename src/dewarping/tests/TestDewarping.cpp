@@ -5,6 +5,7 @@
 #include <Constants.h>
 #include <Curve.h>
 #include <CylindricalSurfaceDewarper.h>
+#include <DewarpingPointMapper.h>
 #include <DistortionModel.h>
 #include <DistortionModelBuilder.h>
 #include <Dpi.h>
@@ -580,6 +581,21 @@ BOOST_AUTO_TEST_CASE(test_lines_traced_to_both_edges_are_kept) {
     const imageproc::GrayImage page(justifiedPageAt300Dpi(seed, contentBox));
     BOOST_TEST(TextLineTracer::tracedLines(page, Dpi(300, 300), contentBox).size() == 18u, "seed " << seed);
     BOOST_TEST(TextLineTracer::traceTrapezoid(page, Dpi(300, 300), contentBox).isValid(), "seed " << seed);
+  }
+}
+
+// A valid model smaller than half a pixel in the output has an empty model domain; dewarp() gives a
+// white page then, and the mapper of the zones divided by its width of 0.
+BOOST_AUTO_TEST_CASE(test_point_mapper_stays_finite_for_an_empty_model_domain) {
+  DistortionModel model;
+  model.setTopCurve(Curve(std::vector<QPointF>{{100, 100}, {500, 80}, {900, 100}}));
+  model.setBottomCurve(Curve(std::vector<QPointF>{{100, 1300}, {500, 1320}, {900, 1300}}));
+  BOOST_REQUIRE(model.isValid());
+
+  const DewarpingPointMapper mapper(model, 2.0, QTransform::fromScale(1e-4, 1e-4), QRect(0, 0, 1, 1), QTransform());
+  for (const QPointF pt : {QPointF(0, 0), QPointF(0.5, 0.5)}) {
+    const QPointF warped = mapper.mapToWarpedSpace(pt);
+    BOOST_TEST((std::isfinite(warped.x()) && std::isfinite(warped.y())), pt.x() << ", " << pt.y());
   }
 }
 
