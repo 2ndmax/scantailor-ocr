@@ -132,7 +132,7 @@ cmake --fresh -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAI
 ## Linux (Debian / Ubuntu)
 
 Ready-made packages, a `.deb` and an AppImage, are on the releases page. To build it yourself,
-Qt 6.4 or later is required (Ubuntu 24.04 or later). The packages for the build are listed in
+Qt 6.4 or later and CMake 3.24 or later are required (Ubuntu 24.04 or later). The packages for the build are listed in
 [scripts/setup/support/ubuntu-packages.txt](scripts/setup/support/ubuntu-packages.txt); from the
 repository folder:
 
