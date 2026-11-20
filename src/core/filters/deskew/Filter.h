@@ -14,7 +14,6 @@
 #include "NonCopyable.h"
 #include "PageView.h"
 #include "ProcessingOptions.h"
-#include "DeskewParams.h"
 #include "Settings.h"
 
 class QString;

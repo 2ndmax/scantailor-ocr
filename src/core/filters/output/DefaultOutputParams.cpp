@@ -27,16 +27,15 @@ double despeckleLevelFromXml(const QDomElement& el) {
 }  // namespace
 
 namespace output {
-DefaultOutputParams::DefaultOutputParams()
-    : m_dpi(600, 600), m_despeckleLevel(1.0) {}
+DefaultOutputParams::DefaultOutputParams() : m_dpi(600, 600), m_despeckleLevel(1.0) {}
 
 DefaultOutputParams::DefaultOutputParams(const Dpi& dpi,
-                                        const ColorParams& colorParams,
-                                        const SplittingOptions& splittingOptions,
-                                        const PictureShapeOptions& pictureShapeOptions,
-                                        const DepthPerception& depthPerception,
-                                        const DewarpingOptions& dewarpingOptions,
-                                        double despeckleLevel)
+                                         const ColorParams& colorParams,
+                                         const SplittingOptions& splittingOptions,
+                                         const PictureShapeOptions& pictureShapeOptions,
+                                         const DepthPerception& depthPerception,
+                                         const DewarpingOptions& dewarpingOptions,
+                                         double despeckleLevel)
     : m_dpi(dpi),
       m_colorParams(colorParams),
       m_splittingOptions(splittingOptions),

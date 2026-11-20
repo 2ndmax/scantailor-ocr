@@ -2,9 +2,9 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include "Filter.h"
-#include "PageSequence.h"
 #include "PageInfo.h"
 #include "PageLayoutParams.h"
+#include "PageSequence.h"
 #include "Units.h"
 
 #include <OrderByDeviationProvider.h>
@@ -17,9 +17,9 @@
 #include "Guide.h"
 #include "OrderBySizeProvider.h"
 #include "Params.h"
-#include "ProjectPages.h"
 #include "ProjectIdReader.h"
 #include "ProjectIdWriter.h"
+#include "ProjectPages.h"
 #include "Settings.h"
 #include "Task.h"
 #include "Utils.h"

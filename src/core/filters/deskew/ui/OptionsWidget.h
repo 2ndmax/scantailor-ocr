@@ -20,7 +20,9 @@
 #include "ui_OptionsWidget.h"
 
 class QButtonGroup;
-namespace deskew { class DeskewParams; }
+namespace deskew {
+class DeskewParams;
+}
 
 namespace deskew {
 class Settings;

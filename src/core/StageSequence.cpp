@@ -42,13 +42,10 @@ StageSequence::StageSequence(const std::shared_ptr<ProjectPages>& pages)
       // propagates to them. Depends on DefaultParams only assigning in place.
       m_deskewFilter(std::make_shared<deskew::Filter>(
           m_processingOptions,
-          std::shared_ptr<const deskew::DeskewParams>(
-              m_defaultParams,
-              &m_defaultParams->getDeskewParams()))),
-      m_selectContentFilter(
-          std::make_shared<select_content::Filter>(std::shared_ptr<const select_content::SelectContentParams>(
-              m_defaultParams,
-              &m_defaultParams->getSelectContentParams()))),
+          std::shared_ptr<const deskew::DeskewParams>(m_defaultParams, &m_defaultParams->getDeskewParams()))),
+      m_selectContentFilter(std::make_shared<select_content::Filter>(
+          std::shared_ptr<const select_content::SelectContentParams>(m_defaultParams,
+                                                                     &m_defaultParams->getSelectContentParams()))),
       m_pageLayoutFilter(std::make_shared<page_layout::Filter>(pages)),
       m_outputFilter(std::make_shared<output::Filter>(m_processingOptions)) {
   m_fixOrientationFilterIdx = static_cast<int>(m_filters.size());
@@ -90,7 +87,8 @@ int StageSequence::findFilter(const FilterPtr& filter) const {
 void StageSequence::startNewProject(const DefaultParams& startValues) {
   *m_processingOptions = startValues.getProcessingOptions();
   *m_defaultParams = startValues;
-  m_pageLayoutFilter->loadNewProjectSettings(m_defaultParams->getPageLayoutParams(), m_defaultParams->getOutputParams().getDpi(), m_defaultParams->getUnits());
+  m_pageLayoutFilter->loadNewProjectSettings(m_defaultParams->getPageLayoutParams(),
+                                             m_defaultParams->getOutputParams().getDpi(), m_defaultParams->getUnits());
 }
 
 void StageSequence::loadProject(const ProjectReader& reader, const DefaultParams& fallback) {
@@ -104,7 +102,8 @@ void StageSequence::loadDefaultSettings(const PageInfo& page) const {
   m_fixOrientationFilter->loadDefaultSettings(page, m_defaultParams->getFixOrientationParams());
   m_pageSplitFilter->loadDefaultSettings(page, m_defaultParams->getPageSplitParams());
   m_deskewFilter->loadDefaultSettings(page, m_defaultParams->getDeskewParams());
-  m_selectContentFilter->loadDefaultSettings(page, m_defaultParams->getSelectContentParams(), m_defaultParams->getUnits());
+  m_selectContentFilter->loadDefaultSettings(page, m_defaultParams->getSelectContentParams(),
+                                             m_defaultParams->getUnits());
   m_pageLayoutFilter->loadDefaultSettings(page, m_defaultParams->getPageLayoutParams(), m_defaultParams->getUnits());
   m_outputFilter->loadDefaultSettings(page, m_defaultParams->getOutputParams());
 }

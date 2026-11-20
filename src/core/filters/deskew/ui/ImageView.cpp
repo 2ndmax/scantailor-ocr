@@ -3,8 +3,8 @@
 
 #include "ImageView.h"
 
-#include <Constants.h>
 #include <ApplicationSettings.h>
+#include <Constants.h>
 #include <core/gui/OverlayStyle.h>
 
 #include <QAction>

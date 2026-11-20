@@ -5,32 +5,32 @@
 #define SCANTAILOR_CORE_DEFAULTPARAMS_H_
 
 
-#include "filters/deskew/DeskewParams.h"
 #include <filters/deskew/SkewDetection.h>
-#include "filters/output/DefaultOutputParams.h"
 #include <filters/output/ColorParams.h>
 #include <filters/output/DepthPerception.h>
 #include <filters/output/DespeckleLevel.h>
 #include <filters/output/DewarpingOptions.h>
 #include <filters/output/PictureShapeOptions.h>
-#include "filters/page_layout/PageLayoutParams.h"
 #include <filters/page_layout/Alignment.h>
 #include <filters/page_layout/OutputSizeOptions.h>
-#include "filters/page_split/PageSplitParams.h"
 #include <filters/page_split/LayoutType.h>
 #include <filters/page_split/SplitDetectionMethod.h>
-#include "filters/select_content/SelectContentParams.h"
 #include <filters/select_content/DetectionOptions.h>
+#include "filters/deskew/DeskewParams.h"
+#include "filters/output/DefaultOutputParams.h"
+#include "filters/page_layout/PageLayoutParams.h"
+#include "filters/page_split/PageSplitParams.h"
+#include "filters/select_content/SelectContentParams.h"
 
 #include <QtCore/QRectF>
 
 #include "AutoManualMode.h"
-#include "filters/fix_orientation/FixOrientationParams.h"
 #include "Dpi.h"
 #include "Margins.h"
 #include "OrthogonalRotation.h"
 #include "ProcessingOptions.h"
 #include "Units.h"
+#include "filters/fix_orientation/FixOrientationParams.h"
 
 class DefaultParams {
  public:
@@ -171,10 +171,6 @@ inline const DefaultParams::OutputParams& DefaultParams::getOutputParams() const
 inline void DefaultParams::setOutputParams(const DefaultParams::OutputParams& outputParams) {
   DefaultParams::m_outputParams = outputParams;
 }
-
-
-
-
 
 
 #endif  // SCANTAILOR_CORE_DEFAULTPARAMS_H_

@@ -9,7 +9,9 @@
 #include "ProjectPages.h"
 #include "Settings.h"
 
-namespace page_split { class PageSplitParams; }
+namespace page_split {
+class PageSplitParams;
+}
 class ImageTransformation;
 
 namespace page_split {

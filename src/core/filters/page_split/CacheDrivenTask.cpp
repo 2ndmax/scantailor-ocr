@@ -5,16 +5,16 @@
 
 #include <utility>
 
+#include "../deskew/CacheDrivenTask.h"
+#include "AbstractFilterDataCollector.h"
 #include "PageInfo.h"
 #include "PageLayoutAdapter.h"
 #include "ProjectPages.h"
 #include "Settings.h"
+#include "ThumbnailCollector.h"
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
 #include "Utils.h"
-#include "AbstractFilterDataCollector.h"
-#include "ThumbnailCollector.h"
-#include "../deskew/CacheDrivenTask.h"
 
 namespace page_split {
 

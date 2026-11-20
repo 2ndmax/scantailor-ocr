@@ -6,7 +6,9 @@
 
 #include <QStringList>
 
-namespace output { class DefaultOutputParams; }
+namespace output {
+class DefaultOutputParams;
+}
 class Dpi;
 class QString;
 class QTransform;

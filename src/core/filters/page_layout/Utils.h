@@ -7,7 +7,9 @@
 #include "OutputSizeOptions.h"
 #include "Units.h"
 
-namespace page_layout { class PageLayoutParams; }
+namespace page_layout {
+class PageLayoutParams;
+}
 class QPolygonF;
 class QPointF;
 class QSizeF;
@@ -118,7 +120,9 @@ class Utils {
    * The target size is converted from the units of the start values to millimeters;
    * pixels refer to their output resolution.
    */
-  static OutputSizeOptions buildDefaultOutputSizeOptions(const PageLayoutParams& defaultParams, const Dpi& outputDpi, Units units);
+  static OutputSizeOptions buildDefaultOutputSizeOptions(const PageLayoutParams& defaultParams,
+                                                         const Dpi& outputDpi,
+                                                         Units units);
 
  private:
   static QPointF getRightUnitVector(const QPolygonF& polyRect);

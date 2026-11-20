@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "../page_split/Task.h"
 #include "BatchProcessingResult.h"
 #include "Dpm.h"
 #include "Filter.h"
@@ -14,7 +15,6 @@
 #include "TaskResult.h"
 #include "TaskStatus.h"
 #include "Utils.h"
-#include "../page_split/Task.h"
 
 namespace fix_orientation {
 using imageproc::BinaryThreshold;

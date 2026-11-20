@@ -12,12 +12,12 @@
 #include <utility>
 
 #include "CacheDrivenTask.h"
+#include "DefaultOutputParams.h"
 #include "GeometryCollector.h"
 #include "ImageTransformation.h"
 #include "LastImageViewTab.h"
 #include "OrderByColorModeProvider.h"
 #include "OutputGenerator.h"
-#include "DefaultOutputParams.h"
 #include "PageInfo.h"
 #include "ProjectIdReader.h"
 #include "ProjectIdWriter.h"

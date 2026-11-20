@@ -21,6 +21,7 @@
 
 #include <utility>
 
+#include "../select_content/Task.h"
 #include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
 #include "Dpm.h"
@@ -28,7 +29,6 @@
 #include "FilterData.h"
 #include "ObliqueFinder.h"
 #include "TaskStatus.h"
-#include "../select_content/Task.h"
 
 namespace deskew {
 using namespace imageproc;

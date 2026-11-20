@@ -6,13 +6,13 @@
 #include "filter_ui_checks.h"
 
 #include <DefaultParams.h>
-#include <filters/deskew/DeskewParams.h>
 #include <DefaultParamsProvider.h>
 #include <FilterUiInterface.h>
 #include <IncompleteThumbnail.h>
 #include <PageId.h>
 #include <PageSelectionAccessor.h>
 #include <PageSequence.h>
+#include <filters/deskew/DeskewParams.h>
 #include <filters/deskew/Settings.h>
 #include <filters/deskew/UiData.h>
 #include <filters/deskew/ui/ImageView.h>

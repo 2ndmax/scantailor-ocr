@@ -17,9 +17,7 @@
 using namespace foundation;
 
 namespace deskew {
-DeskewParams::DeskewParams(const double deskewAngleDeg,
-                           const AutoManualMode mode,
-                           const bool autoOblique)
+DeskewParams::DeskewParams(const double deskewAngleDeg, const AutoManualMode mode, const bool autoOblique)
     : m_deskewAngleDeg(deskewAngleDeg), m_mode(mode), m_autoOblique(autoOblique), m_detection(DETECT_CONTENT) {}
 
 DeskewParams::DeskewParams()

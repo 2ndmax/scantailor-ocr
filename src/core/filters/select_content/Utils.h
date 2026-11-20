@@ -4,7 +4,9 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_UTILS_H_
 #define SCANTAILOR_SELECT_CONTENT_UTILS_H_
 
-namespace select_content { class SelectContentParams; }
+namespace select_content {
+class SelectContentParams;
+}
 class Dpi;
 #include "Units.h"
 

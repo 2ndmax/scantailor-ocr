@@ -8,9 +8,9 @@
 
 #include "AbstractFilter.h"
 #include "FilterResult.h"
+#include "FixOrientationParams.h"
 #include "NonCopyable.h"
 #include "PageView.h"
-#include "FixOrientationParams.h"
 
 class ImageId;
 class QString;

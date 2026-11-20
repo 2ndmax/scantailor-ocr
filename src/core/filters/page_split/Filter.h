@@ -10,7 +10,9 @@
 
 #include "AbstractFilter.h"
 
-namespace page_split { class PageSplitParams; }
+namespace page_split {
+class PageSplitParams;
+}
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"

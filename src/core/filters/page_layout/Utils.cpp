@@ -290,13 +290,14 @@ Params Utils::buildDefaultParams(const Dpi& dpi, const PageLayoutParams& pageLay
                 pageLayoutParams.getAlignment(), pageLayoutParams.isAutoMargins());
 }
 
-OutputSizeOptions Utils::buildDefaultOutputSizeOptions(const PageLayoutParams& pageLayoutParams, const Dpi& outputDpi, Units units) {
+OutputSizeOptions Utils::buildDefaultOutputSizeOptions(const PageLayoutParams& pageLayoutParams,
+                                                       const Dpi& outputDpi,
+                                                       Units units) {
   OutputSizeOptions options(pageLayoutParams.getOutputSizeOptions());
 
   double width = options.targetSizeMM().width();
   double height = options.targetSizeMM().height();
-  UnitsConverter(outputDpi)
-      .convert(width, height, units, MILLIMETRES);
+  UnitsConverter(outputDpi).convert(width, height, units, MILLIMETRES);
   options.setTargetSizeMM(QSizeF(width, height));
   return options;
 }

@@ -90,8 +90,8 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          const bool debug) {
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), m_settings, m_imageSettings,
                                 std::move(nextTask), pageId, m_processingOptions->blackOnWhiteDetection,
-                                m_defaultParams->isAutoOblique(),
-                                m_defaultParams->getDetection(), batchProcessing, debug);
+                                m_defaultParams->isAutoOblique(), m_defaultParams->getDetection(), batchProcessing,
+                                debug);
 }
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(

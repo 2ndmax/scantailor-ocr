@@ -10,13 +10,13 @@
 
 #include "AbstractFilter.h"
 
-#include "SelectContentParams.h"
-#include "Units.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
 #include "PageView.h"
+#include "SelectContentParams.h"
 #include "Settings.h"
+#include "Units.h"
 
 class QString;
 

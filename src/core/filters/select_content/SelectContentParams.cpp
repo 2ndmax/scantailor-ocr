@@ -21,9 +21,9 @@ SelectContentParams::SelectContentParams()
       m_fineTuneCorners(false) {}
 
 SelectContentParams::SelectContentParams(const QSizeF& pageRectSize,
-                                        bool contentDetectEnabled,
-                                        AutoManualMode pageDetectMode,
-                                        bool fineTuneCorners)
+                                         bool contentDetectEnabled,
+                                         AutoManualMode pageDetectMode,
+                                         bool fineTuneCorners)
     : m_pageRectSize(pageRectSize),
       m_contentDetectEnabled(contentDetectEnabled),
       m_pageDetectMode(pageDetectMode),

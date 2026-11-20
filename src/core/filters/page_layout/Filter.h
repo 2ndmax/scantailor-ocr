@@ -10,12 +10,14 @@
 
 #include "AbstractFilter.h"
 
-namespace page_layout { class PageLayoutParams; }
+namespace page_layout {
+class PageLayoutParams;
+}
 #include "FilterResult.h"
 #include "NonCopyable.h"
+#include "PageLayoutParams.h"
 #include "PageOrderOption.h"
 #include "PageView.h"
-#include "PageLayoutParams.h"
 #include "Units.h"
 
 class Dpi;

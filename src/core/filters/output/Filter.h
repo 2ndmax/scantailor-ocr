@@ -10,12 +10,14 @@
 
 #include "AbstractFilter.h"
 
-namespace output { class DefaultOutputParams; }
+namespace output {
+class DefaultOutputParams;
+}
 #include "ColorParams.h"
+#include "DefaultOutputParams.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageView.h"
-#include "DefaultOutputParams.h"
 #include "ProcessingOptions.h"
 
 class PageInfo;

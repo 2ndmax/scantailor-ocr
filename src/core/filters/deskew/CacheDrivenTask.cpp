@@ -7,13 +7,13 @@
 
 #include <utility>
 
+#include "../select_content/CacheDrivenTask.h"
 #include "AbstractFilterDataCollector.h"
 #include "PageInfo.h"
 #include "Settings.h"
 #include "ThumbnailCollector.h"
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
-#include "../select_content/CacheDrivenTask.h"
 
 namespace deskew {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,

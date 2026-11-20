@@ -44,8 +44,8 @@ QString createProject(const QTemporaryDir& dir,
   const QString outDir = dir.filePath(outDirName);
   QDir().mkpath(outDir);
   const DefaultParams startValues;
-  const ProjectSession session
-      = ProjectSession::createNew(ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, QString(), startValues);
+  const ProjectSession session = ProjectSession::createNew(
+      ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, QString(), startValues);
   ProcessingOptions& options = *session.stages->processingOptions();
   options.pdf.textLayer = !ocrLanguages.isEmpty();
   options.ocr.languages = ocrLanguages;

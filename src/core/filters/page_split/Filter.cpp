@@ -4,7 +4,6 @@
 #include "Filter.h"
 #include "PageInfo.h"
 #include "PageSplitParams.h"
-#include "PageSplitParams.h"
 
 #include "../deskew/CacheDrivenTask.h"
 #include "../deskew/Task.h"
@@ -13,9 +12,9 @@
 
 #include "CacheDrivenTask.h"
 #include "OrderBySplitTypeProvider.h"
-#include "ProjectPages.h"
 #include "ProjectIdReader.h"
 #include "ProjectIdWriter.h"
+#include "ProjectPages.h"
 #include "Settings.h"
 #include "Task.h"
 #include "Utils.h"

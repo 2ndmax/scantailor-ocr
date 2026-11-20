@@ -14,10 +14,10 @@
 
 #include "ImageId.h"
 #include "ImageInfo.h"
-#include "ProjectIdReader.h"
 #include "ImageMetadata.h"
 #include "PageId.h"
 #include "ProcessingOptions.h"
+#include "ProjectIdReader.h"
 #include "SelectedPage.h"
 
 class QDomElement;

@@ -5,15 +5,15 @@
 
 #include <utility>
 
+#include "../page_split/CacheDrivenTask.h"
+#include "AbstractFilterDataCollector.h"
 #include "ImageTransformation.h"
 #include "PageInfo.h"
+#include "PageOrientationCollector.h"
 #include "Settings.h"
+#include "ThumbnailCollector.h"
 #include "ThumbnailData.h"
 #include "Utils.h"
-#include "AbstractFilterDataCollector.h"
-#include "PageOrientationCollector.h"
-#include "ThumbnailCollector.h"
-#include "../page_split/CacheDrivenTask.h"
 
 namespace fix_orientation {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,

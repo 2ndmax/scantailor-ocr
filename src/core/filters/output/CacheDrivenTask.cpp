@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <utility>
 
+#include "AbstractFilterDataCollector.h"
 #include "GeometryCollector.h"
 #include "OutputGenerator.h"
 #include "OutputParams.h"
@@ -14,10 +15,9 @@
 #include "Params.h"
 #include "RenderParams.h"
 #include "Settings.h"
+#include "ThumbnailCollector.h"
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
-#include "AbstractFilterDataCollector.h"
-#include "ThumbnailCollector.h"
 
 namespace output {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings, const OutputFileNameGenerator& outFileNameGen)

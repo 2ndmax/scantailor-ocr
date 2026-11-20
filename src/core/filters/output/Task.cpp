@@ -4,9 +4,9 @@
 #include "Task.h"
 #include "TaskResult.h"
 
-#include <UnitsProvider.h>
 #include <ImageLoadErrors.h>
 #include <TiffWriter.h>
+#include <UnitsProvider.h>
 
 #include <QCoreApplication>
 #include <QDir>

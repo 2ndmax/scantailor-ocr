@@ -5,8 +5,8 @@
 #define SCANTAILOR_SELECT_CONTENT_OPTIONSWIDGET_H_
 
 #include <AutoManualMode.h>
-#include <UnitsListener.h>
 #include <ConnectionManager.h>
+#include <UnitsListener.h>
 
 #include <QRectF>
 #include <QSizeF>
@@ -22,7 +22,9 @@
 #include "PageSelectionAccessor.h"
 #include "ui_OptionsWidget.h"
 
-namespace select_content { class SelectContentParams; }
+namespace select_content {
+class SelectContentParams;
+}
 
 namespace select_content {
 class Settings;
