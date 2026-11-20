@@ -38,6 +38,10 @@ namespace output {
 class Settings;
 class DepthPerception;
 
+namespace detail {
+class Processor;
+}
+
 class OutputGenerator {
  public:
   OutputGenerator(const ImageTransformation& xform, const QPolygonF& contentRectPhys);
@@ -89,7 +93,7 @@ class OutputGenerator {
   QRect outputContentRect() const { return m_contentRect; }
 
  private:
-  class Processor;
+  friend class detail::Processor;
 
   /**
    * Transformation from the input to the output image coordinates.

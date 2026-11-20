@@ -69,6 +69,7 @@
 #include "FilterData.h"
 #include "ForegroundType.h"
 #include "ImageSizeLimit.h"
+#include "OutputGeneratorProcessor.h"
 #include "OutputImageBuilder.h"
 #include "OutputImageOps.h"
 #include "OutputMorphologyOps.h"
@@ -123,193 +124,6 @@ QSize OutputGenerator::outputImageSize() const {
   return outputSizeOf(m_outRect);
 }
 
-class OutputGenerator::Processor {
- public:
-  Processor(const OutputGenerator& generator,
-            const PageId& pageId,
-            const std::shared_ptr<Settings>& settings,
-            bool takeOverBlackOnWhite,
-            const FilterData& input,
-            const TaskStatus& status,
-            DebugImages* dbg);
-
-  std::unique_ptr<OutputImage> process(ZoneSet& pictureZones,
-                                       const ZoneSet& fillZones,
-                                       DistortionModel& distortionModel,
-                                       const DepthPerception& depthPerception,
-                                       BinaryImage* autoPictureMask,
-                                       BinaryImage* specklesImage);
-
- private:
-  void initParams();
-
-  void calcAreas();
-
-  void updateBlackOnWhite(const FilterData& input);
-
-  void initFilterData(const FilterData& input);
-
-  std::unique_ptr<OutputImage> processImpl(ZoneSet& pictureZones,
-                                           const ZoneSet& fillZones,
-                                           DistortionModel& distortionModel,
-                                           const DepthPerception& depthPerception,
-                                           BinaryImage* autoPictureMask,
-                                           BinaryImage* specklesImage);
-
-  std::unique_ptr<OutputImage> processWithoutDewarping(ZoneSet& pictureZones,
-                                                       const ZoneSet& fillZones,
-                                                       BinaryImage* autoPictureMask,
-                                                       BinaryImage* specklesImage);
-
-  std::unique_ptr<OutputImage> processWithDewarping(ZoneSet& pictureZones,
-                                                    const ZoneSet& fillZones,
-                                                    DistortionModel& distortionModel,
-                                                    const DepthPerception& depthPerception,
-                                                    BinaryImage* autoPictureMask,
-                                                    BinaryImage* specklesImage);
-
-  std::unique_ptr<OutputImage> buildEmptyImage() const;
-
-  double findSkew(const QImage& image) const;
-
-  void setupTrivialDistortionModel(DistortionModel& distortionModel) const;
-
-  static CylindricalSurfaceDewarper createDewarper(const DistortionModel& distortionModel,
-                                                   const QTransform& distortionModelToTarget,
-                                                   double depthPerception);
-
-  QImage dewarp(const QTransform& origToSrc,
-                const QImage& src,
-                const QTransform& srcToOutput,
-                const DistortionModel& distortionModel,
-                const DepthPerception& depthPerception,
-                const QColor& bgColor) const;
-
-  /**
-   * Measures the letter widths on the dewarped page. If they differ enough,
-   * stores a width correction in the distortion model and dewarps src again.
-   */
-  void evenOutLetterWidths(DistortionModel& distortionModel,
-                           const DepthPerception& depthPerception,
-                           const QImage& src,
-                           QImage& dewarped) const;
-
-  GrayImage normalizeIlluminationGray(const QImage& input,
-                                      const QPolygonF& areaToConsider,
-                                      const QTransform& xform,
-                                      const QRect& targetRect,
-                                      GrayImage* background = nullptr) const;
-
-  GrayImage detectPictures(const GrayImage& input300dpi) const;
-
-  BinaryImage estimateBinarizationMask(const GrayImage& graySource, const QRect& sourceRect) const;
-
-  void modifyBinarizationMask(BinaryImage& bwMask,
-                              BinaryImage& bwContent,
-                              const QRect& maskRect,
-                              const ZoneSet& zones) const;
-
-  BinaryThreshold adjustThreshold(BinaryThreshold threshold) const;
-
-  BinaryThreshold calcBinarizationThreshold(const QImage& image, const BinaryImage& mask) const;
-
-  BinaryThreshold calcBinarizationThreshold(const QImage& image,
-                                            const QPolygonF& cropArea,
-                                            const BinaryImage* mask = nullptr) const;
-
-  void morphologicalSmoothInPlace(BinaryImage& binImg) const;
-
-  BinaryImage binarize(const QImage& image) const;
-
-  BinaryImage binarize(const QImage& image, const BinaryImage& mask) const;
-
-  BinaryImage binarize(const QImage& image, const QPolygonF& cropArea, const BinaryImage* mask = nullptr) const;
-
-  void maybeDespeckleInPlace(BinaryImage& image,
-                             const QRect& imageRect,
-                             const QRect& maskRect,
-                             double level,
-                             BinaryImage* specklesImg,
-                             const Dpi& dpi) const;
-
-  QImage segmentImage(const BinaryImage& image, const QImage& colorImage) const;
-
-  QImage posterizeImage(const QImage& image, const QColor& backgroundColor = Qt::white) const;
-
-  /// The text in color, as set: K-means on the colors of the text and the segments of its letters,
-  /// or color segmentation, posterized if set.
-  QImage colorText(const BinaryImage& text, const QImage& colorImage) const;
-
-  ForegroundType getForegroundType() const;
-
-  void processPictureZones(BinaryImage& mask, ZoneSet& pictureZones, const GrayImage& image);
-
-  QImage transformToWorkingCs(bool normalize) const;
-
-  // The filters under "Enhancement", applied to the image in output resolution.
-  void applyEnhancementFilters(QImage& image) const;
-
-  // The photo adjustments, applied before the margins are filled. With a picture mask (mixed
-  // output), only the pictures are changed.
-  void applyPhotoAdjustments(QImage& image, const BinaryImage* pictureMask) const;
-
-  DistortionModel buildAutoDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal);
-
-  DistortionModel buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal);
-
-  /**
-   * Takes a model of straight lines from the traced page to the original image. An invalid one, of a page with
-   * too few text lines, becomes the trivial model, and the page is reported as not dewarped.
-   */
-  DistortionModel straightModelInOriginal(DistortionModel distortionModel, const QTransform& toOriginal);
-
-  DistortionModel buildMarginalDistortionModel() const;
-
-  const ImageTransformation& m_xform;
-  const QRect& m_outRect;
-  const QRect& m_contentRect;
-
-  const PageId m_pageId;
-  const std::shared_ptr<Settings> m_settings;
-  const bool m_takeOverBlackOnWhite;
-
-  Dpi m_dpi;
-  ColorParams m_colorParams;
-  SplittingOptions m_splittingOptions;
-  PictureShapeOptions m_pictureShapeOptions;
-  DewarpingOptions m_dewarpingOptions;
-  double m_despeckleLevel;
-  OutputProcessingParams m_outputProcessingParams;
-
-  RenderParams m_renderParams;
-
-  QPolygonF m_preCropArea;
-  QPolygonF m_croppedContentArea;
-  QRect m_croppedContentRect;
-  QPolygonF m_outCropArea;
-  QSize m_targetSize;
-  QRect m_workingBoundingRect;
-  QRect m_contentRectInWorkingCs;
-  QRect m_tracingRectInWorkingCs;
-  QRect m_contentBoxInTracingCs;
-  QPolygonF m_contentAreaInWorkingCs;
-  QPolygonF m_outCropAreaInWorkingCs;
-  QPolygonF m_preCropAreaInOriginalCs;
-  QPolygonF m_contentAreaInOriginalCs;
-  QPolygonF m_outCropAreaInOriginalCs;
-  bool m_blank;
-
-  bool m_blackOnWhite;
-  QImage m_inputOrigImage;
-  GrayImage m_inputGrayImage;
-  bool m_colorOriginal;
-
-  const TaskStatus& m_status;
-  DebugImages* const m_dbg;
-
-  QColor m_outsideBackgroundColor;
-};
-
 std::unique_ptr<OutputImage> OutputGenerator::process(const TaskStatus& status,
                                                       const FilterData& input,
                                                       ZoneSet& pictureZones,
@@ -322,17 +136,17 @@ std::unique_ptr<OutputImage> OutputGenerator::process(const TaskStatus& status,
                                                       const PageId& pageId,
                                                       const std::shared_ptr<Settings>& settings,
                                                       const bool takeOverBlackOnWhite) const {
-  return Processor(*this, pageId, settings, takeOverBlackOnWhite, input, status, dbg)
+  return detail::Processor(*this, pageId, settings, takeOverBlackOnWhite, input, status, dbg)
       .process(pictureZones, fillZones, distortionModel, depthPerception, autoPictureMask, specklesImage);
 }
 
-OutputGenerator::Processor::Processor(const OutputGenerator& generator,
-                                      const PageId& pageId,
-                                      const std::shared_ptr<Settings>& settings,
-                                      const bool takeOverBlackOnWhite,
-                                      const FilterData& input,
-                                      const TaskStatus& status,
-                                      DebugImages* dbg)
+detail::Processor::Processor(const OutputGenerator& generator,
+                             const PageId& pageId,
+                             const std::shared_ptr<Settings>& settings,
+                             const bool takeOverBlackOnWhite,
+                             const FilterData& input,
+                             const TaskStatus& status,
+                             DebugImages* dbg)
     : m_xform(generator.m_xform),
       m_outRect(generator.m_outRect),
       m_contentRect(generator.m_contentRect),
@@ -352,19 +166,19 @@ OutputGenerator::Processor::Processor(const OutputGenerator& generator,
   }
 }
 
-std::unique_ptr<OutputImage> OutputGenerator::Processor::process(ZoneSet& pictureZones,
-                                                                 const ZoneSet& fillZones,
-                                                                 DistortionModel& distortionModel,
-                                                                 const DepthPerception& depthPerception,
-                                                                 BinaryImage* autoPictureMask,
-                                                                 BinaryImage* specklesImage) {
+std::unique_ptr<OutputImage> detail::Processor::process(ZoneSet& pictureZones,
+                                                        const ZoneSet& fillZones,
+                                                        DistortionModel& distortionModel,
+                                                        const DepthPerception& depthPerception,
+                                                        BinaryImage* autoPictureMask,
+                                                        BinaryImage* specklesImage) {
   std::unique_ptr<OutputImage> image
       = processImpl(pictureZones, fillZones, distortionModel, depthPerception, autoPictureMask, specklesImage);
   image->setDpm(m_dpi);
   return image;
 }
 
-void OutputGenerator::Processor::initParams() {
+void detail::Processor::initParams() {
   const Params params = m_settings->getParams(m_pageId);
   m_dpi = params.outputDpi();
   m_colorParams = params.colorParams();
@@ -378,7 +192,7 @@ void OutputGenerator::Processor::initParams() {
   m_renderParams = RenderParams(m_colorParams, m_splittingOptions);
 }
 
-void OutputGenerator::Processor::calcAreas() {
+void detail::Processor::calcAreas() {
   m_targetSize = outputSizeOf(m_outRect);
   // The limit for images also holds for the output, as it is processed the same way. Without it,
   // a high output resolution or a too low DPI of the image could make the output arbitrarily large.
@@ -452,7 +266,7 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, int sensitivity) {
 }
 
 
-std::unique_ptr<OutputImage> OutputGenerator::Processor::buildEmptyImage() const {
+std::unique_ptr<OutputImage> detail::Processor::buildEmptyImage() const {
   OutputImageBuilder imageBuilder;
 
   BinaryImage emptyImage(m_targetSize, WHITE);
@@ -474,7 +288,7 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::buildEmptyImage() const
   return imageBuilder.build();
 }
 
-void OutputGenerator::Processor::updateBlackOnWhite(const FilterData& input) {
+void detail::Processor::updateBlackOnWhite(const FilterData& input) {
   bool blackOnWhite = m_settings->getParams(m_pageId).isBlackOnWhite();
   if (m_takeOverBlackOnWhite && !m_settings->getOutputProcessingParams(m_pageId).isBlackOnWhiteSetManually()) {
     if (blackOnWhite != input.isBlackOnWhite()) {
@@ -487,7 +301,7 @@ void OutputGenerator::Processor::updateBlackOnWhite(const FilterData& input) {
   m_blackOnWhite = blackOnWhite;
 }
 
-void OutputGenerator::Processor::initFilterData(const FilterData& input) {
+void detail::Processor::initFilterData(const FilterData& input) {
   updateBlackOnWhite(input);
 
   m_inputGrayImage = m_blackOnWhite ? input.grayImage() : input.grayImage().inverted();
@@ -502,12 +316,12 @@ void OutputGenerator::Processor::initFilterData(const FilterData& input) {
   m_colorOriginal = !grayscaleOutput && !m_inputOrigImage.allGray();
 }
 
-std::unique_ptr<OutputImage> OutputGenerator::Processor::processImpl(ZoneSet& pictureZones,
-                                                                     const ZoneSet& fillZones,
-                                                                     DistortionModel& distortionModel,
-                                                                     const DepthPerception& depthPerception,
-                                                                     BinaryImage* autoPictureMask,
-                                                                     BinaryImage* specklesImage) {
+std::unique_ptr<OutputImage> detail::Processor::processImpl(ZoneSet& pictureZones,
+                                                            const ZoneSet& fillZones,
+                                                            DistortionModel& distortionModel,
+                                                            const DepthPerception& depthPerception,
+                                                            BinaryImage* autoPictureMask,
+                                                            BinaryImage* specklesImage) {
   if (m_blank) {
     if (autoPictureMask) {
       // A blank page has no picture areas. The mask is still needed for the picture zones tab.
@@ -528,10 +342,10 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processImpl(ZoneSet& pi
   }
 }
 
-std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping(ZoneSet& pictureZones,
-                                                                                 const ZoneSet& fillZones,
-                                                                                 BinaryImage* autoPictureMask,
-                                                                                 BinaryImage* specklesImage) {
+std::unique_ptr<OutputImage> detail::Processor::processWithoutDewarping(ZoneSet& pictureZones,
+                                                                        const ZoneSet& fillZones,
+                                                                        BinaryImage* autoPictureMask,
+                                                                        BinaryImage* specklesImage) {
   QImage maybeNormalized, maybeSmoothed;
   BinaryImage bwContent, bwContentMaskOutput, bwContentOutput;
   OutputImageBuilder imageBuilder;
@@ -797,12 +611,12 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithoutDewarping
   return imageBuilder.setImage(dst).build();
 }
 
-std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(ZoneSet& pictureZones,
-                                                                              const ZoneSet& fillZones,
-                                                                              DistortionModel& distortionModel,
-                                                                              const DepthPerception& depthPerception,
-                                                                              BinaryImage* autoPictureMask,
-                                                                              BinaryImage* specklesImage) {
+std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pictureZones,
+                                                                     const ZoneSet& fillZones,
+                                                                     DistortionModel& distortionModel,
+                                                                     const DepthPerception& depthPerception,
+                                                                     BinaryImage* autoPictureMask,
+                                                                     BinaryImage* specklesImage) {
   OutputImageBuilder imageBuilder;
 
   // The output we would get if dewarping was turned off, except always grayscale.
@@ -1193,11 +1007,11 @@ std::unique_ptr<OutputImage> OutputGenerator::Processor::processWithDewarping(Zo
   return imageBuilder.setImage(dewarped).build();
 }
 
-GrayImage OutputGenerator::Processor::normalizeIlluminationGray(const QImage& input,
-                                                                const QPolygonF& areaToConsider,
-                                                                const QTransform& xform,
-                                                                const QRect& targetRect,
-                                                                GrayImage* background) const {
+GrayImage detail::Processor::normalizeIlluminationGray(const QImage& input,
+                                                       const QPolygonF& areaToConsider,
+                                                       const QTransform& xform,
+                                                       const QRect& targetRect,
+                                                       GrayImage* background) const {
   GrayImage toBeNormalized = transformToGray(input, xform, targetRect, OutsidePixels::assumeWeakNearest());
   if (m_dbg) {
     m_dbg->add(toBeNormalized, "toBeNormalized");
@@ -1228,8 +1042,7 @@ GrayImage OutputGenerator::Processor::normalizeIlluminationGray(const QImage& in
   return bgImg;
 }
 
-BinaryImage OutputGenerator::Processor::estimateBinarizationMask(const GrayImage& graySource,
-                                                                 const QRect& sourceRect) const {
+BinaryImage detail::Processor::estimateBinarizationMask(const GrayImage& graySource, const QRect& sourceRect) const {
   const QSize downscaledSize(detail::to300dpi(graySource.size(), m_dpi));
 
   // A 300dpi version of graySource.
@@ -1247,10 +1060,10 @@ BinaryImage OutputGenerator::Processor::estimateBinarizationMask(const GrayImage
   return BinaryImage(pictureAreas, threshold);
 }
 
-void OutputGenerator::Processor::modifyBinarizationMask(BinaryImage& bwMask,
-                                                        BinaryImage& bwContent,
-                                                        const QRect& maskRect,
-                                                        const ZoneSet& zones) const {
+void detail::Processor::modifyBinarizationMask(BinaryImage& bwMask,
+                                               BinaryImage& bwContent,
+                                               const QRect& maskRect,
+                                               const ZoneSet& zones) const {
   QTransform xform = m_xform.transform();
   xform *= QTransform().translate(-maskRect.x(), -maskRect.y());
   BinaryImage bwContentBG(bwContent);
@@ -1310,7 +1123,7 @@ void OutputGenerator::Processor::modifyBinarizationMask(BinaryImage& bwMask,
  * Set up a distortion model corresponding to the content rect,
  * which will result in no distortion correction.
  */
-void OutputGenerator::Processor::setupTrivialDistortionModel(DistortionModel& distortionModel) const {
+void detail::Processor::setupTrivialDistortionModel(DistortionModel& distortionModel) const {
   QPolygonF poly;
   if (!m_contentRect.isEmpty()) {
     poly = QRectF(m_contentRect);
@@ -1331,9 +1144,9 @@ void OutputGenerator::Processor::setupTrivialDistortionModel(DistortionModel& di
   distortionModel.setBottomCurve(Curve(bottomPolyline));
 }
 
-CylindricalSurfaceDewarper OutputGenerator::Processor::createDewarper(const DistortionModel& distortionModel,
-                                                                      const QTransform& distortionModelToTarget,
-                                                                      double depthPerception) {
+CylindricalSurfaceDewarper detail::Processor::createDewarper(const DistortionModel& distortionModel,
+                                                             const QTransform& distortionModelToTarget,
+                                                             double depthPerception) {
   if (distortionModelToTarget.isIdentity()) {
     return CylindricalSurfaceDewarper(distortionModel.topCurve().polyline(), distortionModel.bottomCurve().polyline(),
                                       depthPerception, distortionModel.widthCorrection());
@@ -1359,12 +1172,12 @@ CylindricalSurfaceDewarper OutputGenerator::Processor::createDewarper(const Dist
  * \param depthPerception Depth perception.
  * \param bgColor The color to use for areas outside of \p src.
  */
-QImage OutputGenerator::Processor::dewarp(const QTransform& origToSrc,
-                                          const QImage& src,
-                                          const QTransform& srcToOutput,
-                                          const DistortionModel& distortionModel,
-                                          const DepthPerception& depthPerception,
-                                          const QColor& bgColor) const {
+QImage detail::Processor::dewarp(const QTransform& origToSrc,
+                                 const QImage& src,
+                                 const QTransform& srcToOutput,
+                                 const DistortionModel& distortionModel,
+                                 const DepthPerception& depthPerception,
+                                 const QColor& bgColor) const {
   const CylindricalSurfaceDewarper dewarper(createDewarper(distortionModel, origToSrc, depthPerception.value()));
 
   // Model domain is a rectangle in output image coordinates that
@@ -1379,10 +1192,10 @@ QImage OutputGenerator::Processor::dewarp(const QTransform& origToSrc,
   return RasterDewarper::dewarp(src, m_outRect.size(), dewarper, modelDomain, bgColor);
 }
 
-void OutputGenerator::Processor::evenOutLetterWidths(DistortionModel& distortionModel,
-                                                     const DepthPerception& depthPerception,
-                                                     const QImage& src,
-                                                     QImage& dewarped) const {
+void detail::Processor::evenOutLetterWidths(DistortionModel& distortionModel,
+                                            const DepthPerception& depthPerception,
+                                            const QImage& src,
+                                            QImage& dewarped) const {
   const std::vector<WidthProfile::Sample> samples
       = WidthProfile::measure(GrayImage(dewarped), m_croppedContentRect, m_dpi.horizontal());
   // The same model domain as in dewarp(), where output x maps to (x - left) / width, as in RasterDewarper.
@@ -1398,23 +1211,22 @@ void OutputGenerator::Processor::evenOutLetterWidths(DistortionModel& distortion
   dewarped = dewarp(QTransform(), src, m_xform.transform(), distortionModel, depthPerception, m_outsideBackgroundColor);
 }
 
-GrayImage OutputGenerator::Processor::detectPictures(const GrayImage& input300dpi) const {
+GrayImage detail::Processor::detectPictures(const GrayImage& input300dpi) const {
   return ::detectPictures(input300dpi, m_pictureShapeOptions.isHigherSearchSensitivity(), m_status, m_dbg);
 }
 
-BinaryThreshold OutputGenerator::Processor::adjustThreshold(BinaryThreshold threshold) const {
+BinaryThreshold detail::Processor::adjustThreshold(BinaryThreshold threshold) const {
   return adjustedThreshold(threshold, m_colorParams.blackWhiteOptions());
 }
 
-BinaryThreshold OutputGenerator::Processor::calcBinarizationThreshold(const QImage& image,
-                                                                      const BinaryImage& mask) const {
+BinaryThreshold detail::Processor::calcBinarizationThreshold(const QImage& image, const BinaryImage& mask) const {
   GrayscaleHistogram hist(image, mask);
   return adjustThreshold(BinaryThreshold::otsuThreshold(hist));
 }
 
-BinaryThreshold OutputGenerator::Processor::calcBinarizationThreshold(const QImage& image,
-                                                                      const QPolygonF& cropArea,
-                                                                      const BinaryImage* mask) const {
+BinaryThreshold detail::Processor::calcBinarizationThreshold(const QImage& image,
+                                                             const QPolygonF& cropArea,
+                                                             const BinaryImage* mask) const {
   QPainterPath path;
   path.addPolygon(cropArea);
 
@@ -1432,7 +1244,7 @@ BinaryThreshold OutputGenerator::Processor::calcBinarizationThreshold(const QIma
   }
 }
 
-void OutputGenerator::Processor::morphologicalSmoothInPlace(BinaryImage& binImg) const {
+void detail::Processor::morphologicalSmoothInPlace(BinaryImage& binImg) const {
   // When removing black noise, remove small ones first.
 
   {
@@ -1516,20 +1328,18 @@ void OutputGenerator::Processor::morphologicalSmoothInPlace(BinaryImage& binImg)
   }
 }
 
-BinaryImage OutputGenerator::Processor::binarize(const QImage& image) const {
+BinaryImage detail::Processor::binarize(const QImage& image) const {
   return binarizeBlackWhite(image, m_colorParams.blackWhiteOptions());
 }
 
-BinaryImage OutputGenerator::Processor::binarize(const QImage& image, const BinaryImage& mask) const {
+BinaryImage detail::Processor::binarize(const QImage& image, const BinaryImage& mask) const {
   BinaryImage binarized = binarize(image);
 
   rasterOp<RopAnd<RopSrc, RopDst>>(binarized, mask);
   return binarized;
 }
 
-BinaryImage OutputGenerator::Processor::binarize(const QImage& image,
-                                                 const QPolygonF& cropArea,
-                                                 const BinaryImage* mask) const {
+BinaryImage detail::Processor::binarize(const QImage& image, const QPolygonF& cropArea, const BinaryImage* mask) const {
   QPainterPath path;
   path.addPolygon(cropArea);
 
@@ -1572,12 +1382,12 @@ BinaryImage OutputGenerator::Processor::binarize(const QImage& image,
  * \note This function only works effectively when the DPI is symmetric,
  * that is, its horizontal and vertical components are equal.
  */
-void OutputGenerator::Processor::maybeDespeckleInPlace(BinaryImage& image,
-                                                       const QRect& imageRect,
-                                                       const QRect& maskRect,
-                                                       double level,
-                                                       BinaryImage* specklesImg,
-                                                       const Dpi& dpi) const {
+void detail::Processor::maybeDespeckleInPlace(BinaryImage& image,
+                                              const QRect& imageRect,
+                                              const QRect& maskRect,
+                                              double level,
+                                              BinaryImage* specklesImg,
+                                              const Dpi& dpi) const {
   const QRect srcRect(maskRect.translated(-imageRect.topLeft()));
   const QRect dstRect(maskRect);
 
@@ -1605,7 +1415,7 @@ void OutputGenerator::Processor::maybeDespeckleInPlace(BinaryImage& image,
   m_status.throwIfCancelled();
 }
 
-double OutputGenerator::Processor::findSkew(const QImage& image) const {
+double detail::Processor::findSkew(const QImage& image) const {
   if (m_dewarpingOptions.needPostDeskew()
       && ((m_dewarpingOptions.dewarpingMode() == MARGINAL) || (m_dewarpingOptions.dewarpingMode() == MANUAL))) {
     const BinaryImage bwImage(image, BinaryThreshold::otsuThreshold(GrayscaleHistogram(image)));
@@ -1617,7 +1427,7 @@ double OutputGenerator::Processor::findSkew(const QImage& image) const {
   return .0;
 }
 
-QImage OutputGenerator::Processor::segmentImage(const BinaryImage& image, const QImage& colorImage) const {
+QImage detail::Processor::segmentImage(const BinaryImage& image, const QImage& colorImage) const {
   const BlackWhiteOptions::ColorSegmenterOptions& segmenterOptions
       = m_colorParams.blackWhiteOptions().getColorSegmenterOptions();
   ColorSegmenter segmenter(m_dpi, segmenterOptions.getNoiseReduction(), segmenterOptions.getRedThresholdAdjustment(),
@@ -1640,7 +1450,7 @@ QImage OutputGenerator::Processor::segmentImage(const BinaryImage& image, const 
   return segmented;
 }
 
-QImage OutputGenerator::Processor::posterizeImage(const QImage& image, const QColor& backgroundColor) const {
+QImage detail::Processor::posterizeImage(const QImage& image, const QColor& backgroundColor) const {
   const ColorCommonOptions::PosterizationOptions& posterizationOptions
       = m_colorParams.colorCommonOptions().getPosterizationOptions();
   Posterizer posterizer(posterizationOptions.getLevel(), posterizationOptions.isNormalizationEnabled(),
@@ -1655,7 +1465,7 @@ QImage OutputGenerator::Processor::posterizeImage(const QImage& image, const QCo
   return posterized;
 }
 
-QImage OutputGenerator::Processor::colorText(const BinaryImage& text, const QImage& colorImage) const {
+QImage detail::Processor::colorText(const BinaryImage& text, const QImage& colorImage) const {
   const BlackWhiteOptions::ColorSegmenterOptions& options
       = m_colorParams.blackWhiteOptions().getColorSegmenterOptions();
   if (options.isKMeansEnabled()) {
@@ -1685,7 +1495,7 @@ QImage OutputGenerator::Processor::colorText(const BinaryImage& text, const QIma
   return segmented;
 }
 
-void OutputGenerator::Processor::processPictureZones(BinaryImage& mask, ZoneSet& pictureZones, const GrayImage& image) {
+void detail::Processor::processPictureZones(BinaryImage& mask, ZoneSet& pictureZones, const GrayImage& image) {
   if ((m_pictureShapeOptions.getPictureShape() != RECTANGULAR_SHAPE) || !m_outputProcessingParams.isAutoZonesFound()) {
     if (m_pictureShapeOptions.getPictureShape() != OFF_SHAPE) {
       mask = estimateBinarizationMask(image, m_workingBoundingRect);
@@ -1716,7 +1526,7 @@ void OutputGenerator::Processor::processPictureZones(BinaryImage& mask, ZoneSet&
   }
 }
 
-ForegroundType OutputGenerator::Processor::getForegroundType() const {
+ForegroundType detail::Processor::getForegroundType() const {
   if (m_renderParams.needBinarization()) {
     if (m_renderParams.needColorSegmentation()) {
       return ForegroundType::INDEXED;
@@ -1728,7 +1538,7 @@ ForegroundType OutputGenerator::Processor::getForegroundType() const {
   }
 }
 
-void OutputGenerator::Processor::applyEnhancementFilters(QImage& image) const {
+void detail::Processor::applyEnhancementFilters(QImage& image) const {
   const ColorCommonOptions& colorCommonOptions = m_colorParams.colorCommonOptions();
   if (colorCommonOptions.chromaDenoise()) {
     chromaDenoiseInPlace(image, colorCommonOptions.chromaRadius(), colorCommonOptions.chromaGrayLimit());
@@ -1742,7 +1552,7 @@ void OutputGenerator::Processor::applyEnhancementFilters(QImage& image) const {
   sharpenColorInPlace(image, colorCommonOptions.sharpenRadius(), colorCommonOptions.sharpenCoef());
 }
 
-void OutputGenerator::Processor::applyPhotoAdjustments(QImage& image, const BinaryImage* pictureMask) const {
+void detail::Processor::applyPhotoAdjustments(QImage& image, const BinaryImage* pictureMask) const {
   const PhotoAdjustments& adjustments = m_colorParams.photoAdjustments();
   if (adjustments.isNeutral()) {
     return;
@@ -1756,7 +1566,7 @@ void OutputGenerator::Processor::applyPhotoAdjustments(QImage& image, const Bina
   m_status.throwIfCancelled();
 }
 
-QImage OutputGenerator::Processor::transformToWorkingCs(bool normalize) const {
+QImage detail::Processor::transformToWorkingCs(bool normalize) const {
   QImage dst;
   if (normalize) {
     dst = normalizeIlluminationGray(m_inputGrayImage, m_preCropAreaInOriginalCs, m_xform.transform(),
@@ -1781,14 +1591,14 @@ QImage OutputGenerator::Processor::transformToWorkingCs(bool normalize) const {
   return dst;
 }
 
-DistortionModel OutputGenerator::Processor::buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput,
-                                                                          const QTransform& toOriginal) {
+DistortionModel detail::Processor::buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput,
+                                                                 const QTransform& toOriginal) {
   return straightModelInOriginal(
       TextLineTracer::traceTrapezoid(warpedGrayOutput, m_dpi, m_contentBoxInTracingCs, m_dbg), toOriginal);
 }
 
-DistortionModel OutputGenerator::Processor::straightModelInOriginal(DistortionModel distortionModel,
-                                                                    const QTransform& toOriginal) {
+DistortionModel detail::Processor::straightModelInOriginal(DistortionModel distortionModel,
+                                                           const QTransform& toOriginal) {
   if (!distortionModel.isValid()) {
     m_dewarpingOptions.setNoModelFound(true);
     setupTrivialDistortionModel(distortionModel);
@@ -1807,8 +1617,8 @@ DistortionModel OutputGenerator::Processor::straightModelInOriginal(DistortionMo
   return distortionModel;
 }
 
-DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayImage& warpedGrayOutput,
-                                                                     const QTransform& toOriginal) {
+DistortionModel detail::Processor::buildAutoDistortionModel(const GrayImage& warpedGrayOutput,
+                                                            const QTransform& toOriginal) {
   DistortionModelBuilder modelBuilder(Vec2d(0, 1));
 
   // A flat page gets a model of straight lines: single traced lines are too inexact to be its curves.
@@ -1829,7 +1639,7 @@ DistortionModel OutputGenerator::Processor::buildAutoDistortionModel(const GrayI
   return distortionModel;
 }
 
-DistortionModel OutputGenerator::Processor::buildMarginalDistortionModel() const {
+DistortionModel detail::Processor::buildMarginalDistortionModel() const {
   BinaryImage bwImage(m_inputGrayImage, BinaryThreshold(64));
 
   QTransform transform = m_xform.preRotation().transform(bwImage.size());
