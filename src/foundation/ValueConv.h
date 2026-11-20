@@ -30,7 +30,9 @@ class RoundAndClipValueConv {
     // we do the comparison with FromType. It should be fine, as
     // "Round" in the name of the class assumes it's a floating point type,
     // and therefore should be "wider" than ToType.
-    if (val < FromType(m_min)) {
+    // Written as "not at least the minimum", so that NaN, which fails every comparison, gets the
+    // minimum instead of an undefined cast.
+    if (!(val >= FromType(m_min))) {
       return m_min;
     } else if (val > FromType(m_max)) {
       return m_max;

@@ -2,10 +2,13 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <Utils.h>
+#include <ValueConv.h>
 
 #include <QLocale>
 #include <QString>
 #include <boost/test/unit_test.hpp>
+#include <cmath>
+#include <cstdint>
 #include <vector>
 
 using namespace foundation;
@@ -49,6 +52,11 @@ BOOST_AUTO_TEST_CASE(test_double_to_string_round_trip) {
     bool ok = false;
     BOOST_CHECK_MESSAGE((s.toDouble(&ok) == value) && ok, s.toStdString());
   }
+}
+
+// NaN failed both range checks and went into the cast to an integer, which is undefined.
+BOOST_AUTO_TEST_CASE(test_round_and_clip_maps_nan_to_the_minimum) {
+  BOOST_CHECK_EQUAL(int(RoundAndClipValueConv<uint8_t>(10, 200)(std::nanf(""))), 10);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
