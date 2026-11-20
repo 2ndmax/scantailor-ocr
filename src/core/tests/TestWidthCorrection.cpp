@@ -109,5 +109,12 @@ BOOST_AUTO_TEST_CASE(test_dewarper_applies_the_correction) {
   }
 }
 
+// NaN passed the range check and was cast to an index, which is undefined.
+BOOST_AUTO_TEST_CASE(test_nan_comes_back_as_nan) {
+  const WidthCorrection correction = makeCorrection();
+  BOOST_CHECK(std::isnan(correction.map(std::nan(""))));
+  BOOST_CHECK(std::isnan(correction.unmap(std::nan(""))));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

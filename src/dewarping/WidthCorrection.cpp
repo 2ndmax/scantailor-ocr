@@ -43,8 +43,10 @@ QDomElement WidthCorrection::toXml(QDomDocument& doc, const QString& name) const
   return el;
 }
 
+// Written as "not inside 0..1", so that NaN, which fails every comparison, comes back as it is
+// instead of reaching the cast to an index, which would be undefined.
 double WidthCorrection::map(const double x) const {
-  if (isNull() || (x <= 0.0) || (x >= 1.0)) {
+  if (isNull() || !((x > 0.0) && (x < 1.0))) {
     return x;
   }
   const double pos = x * static_cast<double>(m_samples.size() - 1);
@@ -54,7 +56,8 @@ double WidthCorrection::map(const double x) const {
 }
 
 double WidthCorrection::unmap(const double x) const {
-  if (isNull() || (x <= 0.0) || (x >= 1.0)) {
+  // As in map(): NaN would read past the last sample.
+  if (isNull() || !((x > 0.0) && (x < 1.0))) {
     return x;
   }
   // The first sample above x; the samples rise strictly from 0 to 1.
