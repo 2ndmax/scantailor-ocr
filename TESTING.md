@@ -24,6 +24,13 @@ Or run each test program on its own:
 check only its exit code for `--version`, `--help` and wrong command lines. What the tool does is
 tested in `core_tests` (`TestCommandLineRun`).
 
+`ctest` also runs `step_include_check`. It checks without building that a step includes only
+headers of steps it links, directly or through other steps, and fails with the file and the
+include otherwise. All steps share the include root `src/core/filters`, so neither the compiler
+nor the linker would notice a step that includes a step before it in the chain (see
+[BUILDING.md](BUILDING.md#libraries)). The allowed steps come from the steps'
+`target_link_libraries`; the script is `cmake/CheckStepIncludes.cmake`.
+
 On Windows, `qt_tests` writes nothing to the console; its results go to files with
 `qt_tests -o results.txt,txt`. Each test class writes a file of its own, with its name appended,
 e.g. `results_TestCoreQt.txt`. Test functions named on the command line run only in the class
