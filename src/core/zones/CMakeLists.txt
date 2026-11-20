@@ -9,7 +9,7 @@ set(data_sources
     EditableZoneSet.cpp EditableZoneSet.h)
 
 add_library(zones STATIC ${data_sources})
-target_link_libraries(zones PUBLIC core)
+target_link_libraries(zones PUBLIC foundation)
 target_include_directories(zones PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 translation_sources(scantailor ${data_sources})
