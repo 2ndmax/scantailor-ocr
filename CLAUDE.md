@@ -13,7 +13,7 @@ These rules apply to every change in this repository. Building is described in
 2. **No new GUI dependencies in core code.** The core must stay usable without
    a GUI: the command line tool runs it through `StageSequence::processAll`
    (`CommandLineRun`), and `core_tests` tests it under `QCoreApplication`.
-   `core` and the steps' processing libraries don't link Qt Widgets; widget
+   `core`, `core_base` and the steps' processing libraries don't link Qt Widgets; widget
    code goes in `core_gui` (`src/core/gui`) or a `<step>_ui` library
    (`filters/<step>/ui`). The build checks this with `core_link_check` (see
    [BUILDING.md](BUILDING.md#libraries)); it cannot see widget code that is
