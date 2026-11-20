@@ -166,6 +166,20 @@ BOOST_AUTO_TEST_CASE(non_finite_numbers_in_a_project_file_give_finite_values) {
   }
 }
 
+// The tolerance has no field; only a damaged or hand-edited file holds one outside 0..1. With 1e300 the
+// page finder cast a huge product to int, which is undefined.
+BOOST_AUTO_TEST_CASE(a_page_detection_tolerance_outside_0_to_1_is_limited_to_it) {
+  for (const char* value : {"1e300", "-1e300", "2", "-1"}) {
+    QDomDocument doc;
+    QDomElement el = doc.createElement("filter");
+    el.setAttribute("pageDetectionTolerance", value);
+    select_content::Settings settings;
+    settings.load(ProjectReader(QDomDocument()), el);
+    const double tolerance = settings.pageDetectionTolerance();
+    BOOST_CHECK_MESSAGE((tolerance >= 0.0) && (tolerance <= 1.0), value << " gave " << tolerance);
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_dewarping_options_keep_the_trapezoid_method_and_a_missing_model) {
   QDomDocument doc;
   DewarpingOptions options(TRAPEZOID);

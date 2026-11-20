@@ -105,7 +105,9 @@ void Settings::load(const ProjectReader& reader, const QDomElement& filterEl) {
   clear();
 
   setPageDetectionBox(XmlUnmarshaller::sizeF(filterEl.namedItem("page-detection-box").toElement()));
-  setPageDetectionTolerance(XmlUnmarshaller::number(filterEl, "pageDetectionTolerance", 0.1));
+  // Only a damaged or hand-edited file holds a tolerance outside 0..1; a huge one made the page finder
+  // cast an out-of-range product to int.
+  setPageDetectionTolerance(XmlUnmarshaller::numberInRange(filterEl, "pageDetectionTolerance", 0.0, 1.0, 0.1));
 
   const QString pageTagName("page");
   QDomNode node(filterEl.firstChild());
