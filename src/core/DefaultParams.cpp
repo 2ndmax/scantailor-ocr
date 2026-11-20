@@ -97,42 +97,6 @@ DefaultParams DefaultParams::inUnits(const Units units) const {
 }
 
 
-DefaultParams::SelectContentParams::SelectContentParams(const QSizeF& pageRectSize,
-                                                        bool contentDetectEnabled,
-                                                        AutoManualMode pageDetectMode,
-                                                        bool fineTuneCorners)
-    : m_pageRectSize(pageRectSize),
-      m_contentDetectEnabled(contentDetectEnabled),
-      m_pageDetectMode(pageDetectMode),
-      m_fineTuneCorners(fineTuneCorners) {}
-
-DefaultParams::SelectContentParams::SelectContentParams()
-    : m_pageRectSize(QSizeF(210, 297)),
-      m_contentDetectEnabled(true),
-      m_pageDetectMode(MODE_DISABLED),
-      m_fineTuneCorners(false) {}
-
-DefaultParams::SelectContentParams::SelectContentParams(const QDomElement& el)
-    : m_pageRectSize(XmlUnmarshaller::sizeF(el.namedItem("pageRectSize").toElement())),
-      // A missing attribute must not turn content detection off - it defaults to enabled.
-      m_contentDetectEnabled(el.attribute("contentDetectEnabled", "1") != "0"),
-      m_pageDetectMode(stringToAutoManualMode(el.attribute("pageDetectMode"))),
-      m_fineTuneCorners(el.attribute("fineTuneCorners") == "1"),
-      // Profiles from before have none: the defaults.
-      m_detectionOptions(el.namedItem("detection").toElement()) {}
-
-QDomElement DefaultParams::SelectContentParams::toXml(QDomDocument& doc, const QString& name) const {
-  QDomElement el(doc.createElement(name));
-  el.appendChild(XmlMarshaller(doc).sizeF(m_pageRectSize, "pageRectSize"));
-  el.setAttribute("contentDetectEnabled", m_contentDetectEnabled ? "1" : "0");
-  el.setAttribute("pageDetectMode", autoManualModeToString(m_pageDetectMode));
-  el.setAttribute("fineTuneCorners", m_fineTuneCorners ? "1" : "0");
-  QDomElement detectionEl(doc.createElement("detection"));
-  m_detectionOptions.toXml(detectionEl);
-  el.appendChild(detectionEl);
-  return el;
-}
-
 DefaultParams::PageLayoutParams::PageLayoutParams(const Margins& hardMargins,
                                                   const page_layout::Alignment& alignment,
                                                   bool autoMargins)

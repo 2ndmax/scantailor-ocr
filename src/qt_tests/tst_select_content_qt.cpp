@@ -8,6 +8,7 @@
 #include "length_field_checks.h"
 
 #include <DefaultParams.h>
+#include <filters/select_content/SelectContentParams.h>
 #include <Dpi.h>
 #include <FilterUiInterface.h>
 #include <ImageMetadata.h>
@@ -71,7 +72,7 @@ bool contentBoxDetectedAgain(const Settings& settings) {
 
 struct Panel {
   std::shared_ptr<Settings> settings = std::make_shared<Settings>();
-  OptionsWidget widget{settings, std::make_shared<DefaultParams>(), PageSelectionAccessor(nullptr)};
+  OptionsWidget widget{settings, std::make_shared<select_content::SelectContentParams>(), PageSelectionAccessor(nullptr)};
 
   explicit Panel(const UiData& data) {
     widget.preUpdateUI(PageInfo(PAGE, ImageMetadata(QSize(600, 800), Dpi(300, 300)), 1, false, false));

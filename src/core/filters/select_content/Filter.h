@@ -10,8 +10,8 @@
 
 #include "AbstractFilter.h"
 
-class DefaultParams;
-#include "DefaultParams.h"
+#include "SelectContentParams.h"
+#include "Units.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
@@ -35,7 +35,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(select_content::Filter)
  public:
-  Filter(std::shared_ptr<DefaultParams> defaultParams);
+  Filter(std::shared_ptr<SelectContentParams> defaultParams);
 
   ~Filter() override;
 
@@ -49,7 +49,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults);
+  void loadDefaultSettings(const PageInfo& pageInfo, const SelectContentParams& defaults, Units units);
 
   std::shared_ptr<Task> createTask(const PageId& pageId,
                                    std::shared_ptr<page_layout::Task> nextTask,
@@ -64,14 +64,14 @@ class Filter : public AbstractFilter {
   const std::shared_ptr<Settings>& settings() const { return m_settings; }
 
   // For the options panel, which FilterUi builds from them.
-  const std::shared_ptr<DefaultParams>& defaultParams() const { return m_defaultParams; }
+  const std::shared_ptr<SelectContentParams>& defaultParams() const { return m_defaultParams; }
 
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
   std::shared_ptr<Settings> m_settings;
   // The start values of the project.
-  std::shared_ptr<DefaultParams> m_defaultParams;
+  std::shared_ptr<SelectContentParams> m_defaultParams;
 };
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_FILTER_H_

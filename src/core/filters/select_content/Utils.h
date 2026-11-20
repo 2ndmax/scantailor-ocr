@@ -4,8 +4,9 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_UTILS_H_
 #define SCANTAILOR_SELECT_CONTENT_UTILS_H_
 
-class DefaultParams;
+namespace select_content { class SelectContentParams; }
 class Dpi;
+#include "Units.h"
 
 namespace select_content {
 class Params;
@@ -14,7 +15,7 @@ class Utils {
  public:
   Utils() = delete;
 
-  static Params buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams);
+  static Params buildDefaultParams(const Dpi& dpi, const SelectContentParams& defaultParams, Units units);
 
   /**
    * The resolution of the virtual pixels the page box is measured in: an image with unequal

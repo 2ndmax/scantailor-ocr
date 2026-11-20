@@ -7,6 +7,7 @@ set(ui_files
 # What processes the pages, without widgets.
 set(sources
     Filter.cpp Filter.h
+    SelectContentParams.cpp SelectContentParams.h
     UiData.cpp UiData.h
     ContentBoxFinder.cpp ContentBoxFinder.h
     PageFinder.cpp PageFinder.h

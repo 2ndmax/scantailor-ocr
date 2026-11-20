@@ -4,8 +4,9 @@
 #include "Utils.h"
 
 #include <Dpi.h>
-#include <core/DefaultParams.h>
 #include <core/UnitsConverter.h>
+#include "SelectContentParams.h"
+#include "Units.h"
 
 #include <algorithm>
 
@@ -13,15 +14,13 @@
 
 using namespace select_content;
 
-Params Utils::buildDefaultParams(const Dpi& dpi, const DefaultParams& defaultParams) {
-  const DefaultParams::SelectContentParams& selectContentParams = defaultParams.getSelectContentParams();
-
+Params Utils::buildDefaultParams(const Dpi& dpi, const SelectContentParams& selectContentParams, Units units) {
   const UnitsConverter unitsConverter(virtualDpi(dpi));
 
   const QSizeF& pageRectSize = selectContentParams.getPageRectSize();
   double pageRectWidth = pageRectSize.width();
   double pageRectHeight = pageRectSize.height();
-  unitsConverter.convert(pageRectWidth, pageRectHeight, defaultParams.getUnits(), PIXELS);
+  unitsConverter.convert(pageRectWidth, pageRectHeight, units, PIXELS);
 
   return Params(QRectF(), QSizeF(), QRectF(QPointF(0, 0), QSizeF(pageRectWidth, pageRectHeight)), Dependencies(),
                 selectContentParams.isContentDetectEnabled() ? MODE_AUTO : MODE_DISABLED,

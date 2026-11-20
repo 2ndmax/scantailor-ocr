@@ -3,6 +3,8 @@
 
 #include "Filter.h"
 #include "PageInfo.h"
+#include "SelectContentParams.h"
+#include "Units.h"
 
 #include <OrderByDeviationProvider.h>
 #include <XmlMarshaller.h>
@@ -23,7 +25,7 @@
 using namespace foundation;
 
 namespace select_content {
-Filter::Filter(std::shared_ptr<DefaultParams> defaultParams)
+Filter::Filter(std::shared_ptr<SelectContentParams> defaultParams)
     : m_settings(std::make_shared<Settings>()), m_defaultParams(std::move(defaultParams)) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);
@@ -84,19 +86,19 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          bool batch,
                                          bool debug) {
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), std::move(nextTask), m_settings,
-                                pageId, m_defaultParams->getSelectContentParams().getDetectionOptions(), batch, debug);
+                                pageId, m_defaultParams->getDetectionOptions(), batch, debug);
 }
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(std::shared_ptr<page_layout::CacheDrivenTask> nextTask) {
   return std::make_shared<CacheDrivenTask>(m_settings, std::move(nextTask));
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const SelectContentParams& defaults, Units units) {
   if (!m_settings->isParamsNull(pageInfo.id()))
     return;
 
   m_settings->setPageParams(pageInfo.id(),
-                            select_content::Utils::buildDefaultParams(pageInfo.metadata().dpi(), defaults));
+                            select_content::Utils::buildDefaultParams(pageInfo.metadata().dpi(), defaults, units));
 }
 
 }  // namespace select_content

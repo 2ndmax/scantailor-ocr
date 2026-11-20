@@ -3,7 +3,7 @@
 
 #include "OptionsWidget.h"
 
-#include <DefaultParams.h>
+#include "../SelectContentParams.h"
 #include <UnitsProvider.h>
 
 #include <functional>
@@ -17,7 +17,7 @@
 
 namespace select_content {
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
-                             std::shared_ptr<DefaultParams> defaultParams,
+                             std::shared_ptr<select_content::SelectContentParams> defaultParams,
                              const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
       m_defaultParams(std::move(defaultParams)),
@@ -193,7 +193,7 @@ void OptionsWidget::updateContentDetectOptionsDisplay() {
   auto block = m_connectionManager.getScopedBlock();
 
   const DetectionOptions options
-      = m_uiData.detectionOptions().value_or(m_defaultParams->getSelectContentParams().getDetectionOptions());
+      = m_uiData.detectionOptions().value_or(m_defaultParams->getDetectionOptions());
   fillFactorSpinBox->setValue(options.fillFactor());
   borderToleranceSpinBox->setValue(options.borderTolerance());
   ignorePageBoxCB->setChecked(options.ignorePageBox());
@@ -255,7 +255,7 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
                 m_uiData.contentDetectionMode(), m_uiData.pageDetectionMode(), m_uiData.isFineTuningCornersEnabled());
   // The detection settings go with the content box, as shown, also if the page has none of its own yet.
   params.setDetectionOptions(
-      m_uiData.detectionOptions().value_or(m_defaultParams->getSelectContentParams().getDetectionOptions()));
+      m_uiData.detectionOptions().value_or(m_defaultParams->getDetectionOptions()));
 
   for (const PageId& pageId : pages) {
     if (m_pageId == pageId) {

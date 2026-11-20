@@ -17,6 +17,7 @@
 #include "filters/page_split/PageSplitParams.h"
 #include <filters/page_split/LayoutType.h>
 #include <filters/page_split/SplitDetectionMethod.h>
+#include "filters/select_content/SelectContentParams.h"
 #include <filters/select_content/DetectionOptions.h>
 
 #include <QtCore/QRectF>
@@ -37,47 +38,7 @@ class DefaultParams {
 
   using PageSplitParams = page_split::PageSplitParams;
 
-  class SelectContentParams {
-   public:
-    SelectContentParams();
-
-    SelectContentParams(const QSizeF& pageRectSize,
-                        bool contentDetectEnabled,
-                        AutoManualMode pageDetectMode,
-                        bool fineTuneCorners);
-
-    explicit SelectContentParams(const QDomElement& el);
-
-    QDomElement toXml(QDomDocument& doc, const QString& name) const;
-
-    const QSizeF& getPageRectSize() const;
-
-    void setPageRectSize(const QSizeF& pageRectSize);
-
-    bool isContentDetectEnabled() const;
-
-    void setContentDetectEnabled(bool contentDetectEnabled);
-
-    bool isFineTuneCorners() const;
-
-    void setFineTuneCorners(bool fineTuneCorners);
-
-    AutoManualMode getPageDetectMode() const;
-
-    void setPageDetectMode(AutoManualMode pageDetectMode);
-
-    /** The settings of the automatic content box detection that pages start with. */
-    const select_content::DetectionOptions& getDetectionOptions() const { return m_detectionOptions; }
-
-    void setDetectionOptions(const select_content::DetectionOptions& options) { m_detectionOptions = options; }
-
-   private:
-    QSizeF m_pageRectSize;
-    bool m_contentDetectEnabled;
-    AutoManualMode m_pageDetectMode;
-    bool m_fineTuneCorners;
-    select_content::DetectionOptions m_detectionOptions;
-  };
+  using SelectContentParams = select_content::SelectContentParams;
 
   class PageLayoutParams {
    public:
@@ -299,37 +260,6 @@ inline void DefaultParams::setOutputParams(const DefaultParams::OutputParams& ou
 
 
 
-inline const QSizeF& DefaultParams::SelectContentParams::getPageRectSize() const {
-  return m_pageRectSize;
-}
-
-inline void DefaultParams::SelectContentParams::setPageRectSize(const QSizeF& pageRectSize) {
-  SelectContentParams::m_pageRectSize = pageRectSize;
-}
-
-inline bool DefaultParams::SelectContentParams::isContentDetectEnabled() const {
-  return m_contentDetectEnabled;
-}
-
-inline void DefaultParams::SelectContentParams::setContentDetectEnabled(bool contentDetectEnabled) {
-  SelectContentParams::m_contentDetectEnabled = contentDetectEnabled;
-}
-
-inline bool DefaultParams::SelectContentParams::isFineTuneCorners() const {
-  return m_fineTuneCorners;
-}
-
-inline void DefaultParams::SelectContentParams::setFineTuneCorners(bool fineTuneCorners) {
-  SelectContentParams::m_fineTuneCorners = fineTuneCorners;
-}
-
-inline AutoManualMode DefaultParams::SelectContentParams::getPageDetectMode() const {
-  return m_pageDetectMode;
-}
-
-inline void DefaultParams::SelectContentParams::setPageDetectMode(AutoManualMode pageDetectMode) {
-  SelectContentParams::m_pageDetectMode = pageDetectMode;
-}
 
 inline const Margins& DefaultParams::PageLayoutParams::getHardMargins() const {
   return m_hardMargins;
