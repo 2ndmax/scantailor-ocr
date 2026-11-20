@@ -1,8 +1,8 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#ifndef SCANTAILOR_CORE_UTILS_H_
-#define SCANTAILOR_CORE_UTILS_H_
+#ifndef SCANTAILOR_CORE_COREUTILS_H_
+#define SCANTAILOR_CORE_COREUTILS_H_
 
 #include <QString>
 #include <map>
@@ -11,7 +11,7 @@
 #include "ThumbnailPixmapCache.h"
 
 namespace core {
-class Utils {
+class CoreUtils {
  public:
   template <typename K, typename V, typename Comp, typename Alloc>
   static typename std::map<K, V, Comp, Alloc>::iterator mapSetValue(std::map<K, V, Comp, Alloc>& map,
@@ -48,14 +48,14 @@ class Utils {
   /// Reads a resolution typed into such a list, with or without "dpi".
   static int dpiFromText(const QString& text, bool* ok);
 
-  Utils() = delete;
+  CoreUtils() = delete;
 };
 
 
 template <typename K, typename V, typename Comp, typename Alloc>
-typename std::map<K, V, Comp, Alloc>::iterator Utils::mapSetValue(std::map<K, V, Comp, Alloc>& map,
-                                                                  const K& key,
-                                                                  const V& val) {
+typename std::map<K, V, Comp, Alloc>::iterator CoreUtils::mapSetValue(std::map<K, V, Comp, Alloc>& map,
+                                                                      const K& key,
+                                                                      const V& val) {
   const auto it(map.lower_bound(key));
   if ((it == map.end()) || map.key_comp()(key, it->first)) {
     return map.insert(it, typename std::map<K, V, Comp, Alloc>::value_type(key, val));
@@ -67,7 +67,7 @@ typename std::map<K, V, Comp, Alloc>::iterator Utils::mapSetValue(std::map<K, V,
 
 template <typename K, typename V, typename Hash, typename Pred, typename Alloc>
 typename std::unordered_map<K, V, Hash, Pred, Alloc>::iterator
-Utils::mapSetValue(std::unordered_map<K, V, Hash, Pred, Alloc>& map, const K& key, const V& val) {
+CoreUtils::mapSetValue(std::unordered_map<K, V, Hash, Pred, Alloc>& map, const K& key, const V& val) {
   const auto it(map.find(key));
   if (it == map.end()) {
     return map.insert(it, typename std::unordered_map<K, V, Hash, Pred, Alloc>::value_type(key, val));
@@ -78,4 +78,4 @@ Utils::mapSetValue(std::unordered_map<K, V, Hash, Pred, Alloc>& map, const K& ke
 }
 }  // namespace core
 
-#endif  // ifndef SCANTAILOR_CORE_UTILS_H_
+#endif  // ifndef SCANTAILOR_CORE_COREUTILS_H_

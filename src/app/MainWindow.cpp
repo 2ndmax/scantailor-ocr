@@ -36,6 +36,7 @@
 #include "BasicImageView.h"
 #include "CompositeCacheDrivenTask.h"
 #include "ContentBoxPropagator.h"
+#include "CoreUtils.h"
 #include "DebugImageView.h"
 #include "DebugImages.h"
 #include "DefaultParamsDialog.h"
@@ -79,7 +80,6 @@
 #include "StageSequence.h"
 #include "TabbedDebugImages.h"
 #include "ThumbnailFactory.h"
-#include "Utils.h"
 #include "WidgetUtils.h"
 #include "WorkerThreadPool.h"
 #include "config.h"
@@ -891,11 +891,11 @@ void MainWindow::performRelinking(const std::shared_ptr<AbstractRelinker>& relin
   m_stages->performRelinking(*relinker);
   m_outFileNameGen.performRelinking(*relinker);
 
-  Utils::maybeCreateCacheDir(m_outFileNameGen.outDir());
+  CoreUtils::maybeCreateCacheDir(m_outFileNameGen.outDir());
 
   // A loaded project always has a thumbnail cache: ProjectSession makes one exactly when the output
   // folder isn't empty, which isProjectLoaded() checked above.
-  m_thumbnailCache->setThumbDir(Utils::outputDirToThumbDir(m_outFileNameGen.outDir()));
+  m_thumbnailCache->setThumbDir(CoreUtils::outputDirToThumbDir(m_outFileNameGen.outDir()));
   resetThumbSequence(currentPageOrderProvider());
   m_selectedPage.set(m_thumbSequence->selectionLeader().id(), getCurrentView());
 
@@ -2191,7 +2191,7 @@ bool MainWindow::closeProjectInteractive() {
 
   switch (promptProjectSave()) {
     case SAVE:
-      if (!Utils::overwritingRename(backupFilePath, m_projectFile)) {
+      if (!CoreUtils::overwritingRename(backupFilePath, m_projectFile)) {
         QFile::remove(backupFilePath);  // Otherwise it stays next to the project, and is written again at the next try.
         QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
         return false;

@@ -5,6 +5,7 @@
 
 #include <QDir>
 
+#include "CoreUtils.h"
 #include "DefaultParams.h"
 #include "FileNameDisambiguator.h"
 #include "PageSequence.h"
@@ -13,7 +14,6 @@
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "StageSequence.h"
-#include "Utils.h"
 
 namespace {
 /** What a new and a loaded project have in common. \p reader is null for a new project. */
@@ -40,7 +40,7 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
     QDir().mkdir(outDir);
   }
   if (!outDir.isEmpty()) {
-    core::Utils::maybeCreateCacheDir(outDir);
+    core::CoreUtils::maybeCreateCacheDir(outDir);
   }
 
   if (reader) {
@@ -64,7 +64,7 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
 
   // Thumbnails are stored relative to the output directory.
   if (!outDir.isEmpty()) {
-    session.thumbnailCache = core::Utils::createThumbnailCache(outDir);
+    session.thumbnailCache = core::CoreUtils::createThumbnailCache(outDir);
   }
   return session;
 }

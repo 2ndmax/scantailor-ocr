@@ -12,12 +12,12 @@
 #include <cmath>
 #include <utility>
 
-#include "../../../base/Utils.h"
 #include "../Params.h"
 #include "../Settings.h"
 #include "../Utils.h"
 #include "ApplyDialog.h"
 #include "ApplyMarginsDialog.h"
+#include "CoreUtils.h"
 #include "ProjectPages.h"
 #include "WidgetUtils.h"
 
@@ -46,15 +46,16 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   updateLinkDisplay(leftRightLink, m_leftRightLinked);
   updateAlignmentButtonsEnabled();
 
-  core::Utils::mapSetValue(m_alignmentByButton, alignTopLeftBtn, Alignment(Alignment::TOP, Alignment::LEFT));
-  core::Utils::mapSetValue(m_alignmentByButton, alignTopBtn, Alignment(Alignment::TOP, Alignment::HCENTER));
-  core::Utils::mapSetValue(m_alignmentByButton, alignTopRightBtn, Alignment(Alignment::TOP, Alignment::RIGHT));
-  core::Utils::mapSetValue(m_alignmentByButton, alignLeftBtn, Alignment(Alignment::VCENTER, Alignment::LEFT));
-  core::Utils::mapSetValue(m_alignmentByButton, alignCenterBtn, Alignment(Alignment::VCENTER, Alignment::HCENTER));
-  core::Utils::mapSetValue(m_alignmentByButton, alignRightBtn, Alignment(Alignment::VCENTER, Alignment::RIGHT));
-  core::Utils::mapSetValue(m_alignmentByButton, alignBottomLeftBtn, Alignment(Alignment::BOTTOM, Alignment::LEFT));
-  core::Utils::mapSetValue(m_alignmentByButton, alignBottomBtn, Alignment(Alignment::BOTTOM, Alignment::HCENTER));
-  core::Utils::mapSetValue(m_alignmentByButton, alignBottomRightBtn, Alignment(Alignment::BOTTOM, Alignment::RIGHT));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignTopLeftBtn, Alignment(Alignment::TOP, Alignment::LEFT));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignTopBtn, Alignment(Alignment::TOP, Alignment::HCENTER));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignTopRightBtn, Alignment(Alignment::TOP, Alignment::RIGHT));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignLeftBtn, Alignment(Alignment::VCENTER, Alignment::LEFT));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignCenterBtn, Alignment(Alignment::VCENTER, Alignment::HCENTER));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignRightBtn, Alignment(Alignment::VCENTER, Alignment::RIGHT));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignBottomLeftBtn, Alignment(Alignment::BOTTOM, Alignment::LEFT));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignBottomBtn, Alignment(Alignment::BOTTOM, Alignment::HCENTER));
+  core::CoreUtils::mapSetValue(m_alignmentByButton, alignBottomRightBtn,
+                               Alignment(Alignment::BOTTOM, Alignment::RIGHT));
 
   m_alignmentButtonGroup = new QButtonGroup(this);
   for (const auto& buttonAndAlignment : m_alignmentByButton) {
@@ -698,7 +699,7 @@ void OptionsWidget::setupSourceDpiControls() {
   // Lists of the usual values that also take any other value typed in.
   for (QComboBox* field : {sourceXDpi, sourceYDpi}) {
     for (const int dpi : {300, 400, 600, 1200}) {
-      field->addItem(core::Utils::dpiText(dpi));
+      field->addItem(core::CoreUtils::dpiText(dpi));
     }
     field->setInsertPolicy(QComboBox::NoInsert);
     field->setValidator(core::WidgetUtils::createDpiValidator(field));
@@ -718,8 +719,8 @@ void OptionsWidget::updateSourceDpiDisplay() {
     sourceXDpi->setEditText(QString());
     sourceYDpi->setEditText(QString());
   } else {
-    sourceXDpi->setEditText(core::Utils::dpiText(m_dpi.horizontal()));
-    sourceYDpi->setEditText(core::Utils::dpiText(m_dpi.vertical()));
+    sourceXDpi->setEditText(core::CoreUtils::dpiText(m_dpi.horizontal()));
+    sourceYDpi->setEditText(core::CoreUtils::dpiText(m_dpi.vertical()));
   }
 
   const ImageMetadata metadata(m_sourceImagePixelSize, m_dpi);
@@ -734,8 +735,8 @@ void OptionsWidget::commitSourceDpiIfValid() {
 
   bool xOk = false;
   bool yOk = false;
-  const int horizontalDpi = core::Utils::dpiFromText(sourceXDpi->currentText(), &xOk);
-  const int verticalDpi = core::Utils::dpiFromText(sourceYDpi->currentText(), &yOk);
+  const int horizontalDpi = core::CoreUtils::dpiFromText(sourceXDpi->currentText(), &xOk);
+  const int verticalDpi = core::CoreUtils::dpiFromText(sourceYDpi->currentText(), &yOk);
   if (!xOk || !yOk) {
     return;
   }
@@ -808,12 +809,12 @@ void OptionsWidget::sourceDpiActivated() {
 void OptionsWidget::sourceDpiEditingFinished() {
   bool xOk = false;
   bool yOk = false;
-  const int horizontalDpi = core::Utils::dpiFromText(sourceXDpi->currentText(), &xOk);
-  const int verticalDpi = core::Utils::dpiFromText(sourceYDpi->currentText(), &yOk);
+  const int horizontalDpi = core::CoreUtils::dpiFromText(sourceXDpi->currentText(), &xOk);
+  const int verticalDpi = core::CoreUtils::dpiFromText(sourceYDpi->currentText(), &yOk);
   if (xOk && yOk) {
     // Typed without the unit, the value is shown like the others.
-    sourceXDpi->setEditText(core::Utils::dpiText(horizontalDpi));
-    sourceYDpi->setEditText(core::Utils::dpiText(verticalDpi));
+    sourceXDpi->setEditText(core::CoreUtils::dpiText(horizontalDpi));
+    sourceYDpi->setEditText(core::CoreUtils::dpiText(verticalDpi));
     const ImageMetadata metadata(m_sourceImagePixelSize, Dpi(horizontalDpi, verticalDpi));
     decorateSourceDpiField(sourceXDpi, metadata.horizontalDpiStatus());
     decorateSourceDpiField(sourceYDpi, metadata.verticalDpiStatus());

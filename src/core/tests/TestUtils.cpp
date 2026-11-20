@@ -1,7 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include <Utils.h>
+#include <CoreUtils.h>
 
 #include <SafeDeletingQObjectPtr.h>
 
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(test_overwriting_rename) {
   BOOST_REQUIRE(Tests::writeFile(source, "new"));
   BOOST_REQUIRE(Tests::writeFile(target, "old"));
 
-  BOOST_REQUIRE(core::Utils::overwritingRename(source, target));
+  BOOST_REQUIRE(core::CoreUtils::overwritingRename(source, target));
   BOOST_CHECK(!QFile::exists(source));
   BOOST_CHECK(Tests::readFile(target) == "new");
 }
@@ -43,14 +43,14 @@ BOOST_AUTO_TEST_CASE(test_overwriting_rename_long_path) {
   BOOST_REQUIRE(Tests::writeFile(source, "new"));
   BOOST_REQUIRE(Tests::writeFile(target, "old"));
 
-  BOOST_REQUIRE(core::Utils::overwritingRename(source, target));
+  BOOST_REQUIRE(core::CoreUtils::overwritingRename(source, target));
   BOOST_CHECK(!QFile::exists(source));
   BOOST_CHECK(Tests::readFile(target) == "new");
 
   // Also when the target doesn't exist yet.
   BOOST_REQUIRE(Tests::writeFile(source, "newer"));
   const QString other = longDir + '/' + QString(80, QChar('o')) + QStringLiteral(".txt");
-  BOOST_REQUIRE(core::Utils::overwritingRename(source, other));
+  BOOST_REQUIRE(core::CoreUtils::overwritingRename(source, other));
   BOOST_CHECK(Tests::readFile(other) == "newer");
 }
 

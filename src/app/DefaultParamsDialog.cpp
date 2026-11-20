@@ -41,13 +41,13 @@
 #include <vector>
 
 #include "CollapsibleGroupBox.h"
+#include "CoreUtils.h"
 #include "DefaultParamsProvider.h"
 #include "ExportFormatsPanel.h"
 #include "OcrPanel.h"
 #include "PdfCompressionPanel.h"
 #include "TiffCompressionPanel.h"
 #include "UnitsProvider.h"
-#include "Utils.h"
 #include "WidgetUtils.h"
 
 using namespace core;
@@ -149,7 +149,7 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
 
   // Common resolutions; others can be typed in, as in the Output step.
   for (const int dpi : {300, 400, 600, 1200}) {
-    dpiSelector->addItem(Utils::dpiText(dpi));
+    dpiSelector->addItem(CoreUtils::dpiText(dpi));
   }
   dpiSelector->setValidator(WidgetUtils::createDpiValidator(dpiSelector));
   WidgetUtils::setDpiFieldWidth(dpiSelector);
@@ -214,15 +214,15 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
   setLinkButtonLinked(topBottomLink, m_topBottomLinkEnabled);
   setLinkButtonLinked(leftRightLink, m_leftRightLinkEnabled);
 
-  Utils::mapSetValue(m_alignmentByButton, alignTopLeftBtn, Alignment(Alignment::TOP, Alignment::LEFT));
-  Utils::mapSetValue(m_alignmentByButton, alignTopBtn, Alignment(Alignment::TOP, Alignment::HCENTER));
-  Utils::mapSetValue(m_alignmentByButton, alignTopRightBtn, Alignment(Alignment::TOP, Alignment::RIGHT));
-  Utils::mapSetValue(m_alignmentByButton, alignLeftBtn, Alignment(Alignment::VCENTER, Alignment::LEFT));
-  Utils::mapSetValue(m_alignmentByButton, alignCenterBtn, Alignment(Alignment::VCENTER, Alignment::HCENTER));
-  Utils::mapSetValue(m_alignmentByButton, alignRightBtn, Alignment(Alignment::VCENTER, Alignment::RIGHT));
-  Utils::mapSetValue(m_alignmentByButton, alignBottomLeftBtn, Alignment(Alignment::BOTTOM, Alignment::LEFT));
-  Utils::mapSetValue(m_alignmentByButton, alignBottomBtn, Alignment(Alignment::BOTTOM, Alignment::HCENTER));
-  Utils::mapSetValue(m_alignmentByButton, alignBottomRightBtn, Alignment(Alignment::BOTTOM, Alignment::RIGHT));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignTopLeftBtn, Alignment(Alignment::TOP, Alignment::LEFT));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignTopBtn, Alignment(Alignment::TOP, Alignment::HCENTER));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignTopRightBtn, Alignment(Alignment::TOP, Alignment::RIGHT));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignLeftBtn, Alignment(Alignment::VCENTER, Alignment::LEFT));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignCenterBtn, Alignment(Alignment::VCENTER, Alignment::HCENTER));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignRightBtn, Alignment(Alignment::VCENTER, Alignment::RIGHT));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignBottomLeftBtn, Alignment(Alignment::BOTTOM, Alignment::LEFT));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignBottomBtn, Alignment(Alignment::BOTTOM, Alignment::HCENTER));
+  CoreUtils::mapSetValue(m_alignmentByButton, alignBottomRightBtn, Alignment(Alignment::BOTTOM, Alignment::RIGHT));
 
   m_alignmentButtonGroup = new QButtonGroup(this);
   for (const auto& buttonAndAlignment : m_alignmentByButton) {
@@ -610,7 +610,7 @@ void DefaultParamsDialog::updateOutputDisplay(const DefaultParams::OutputParams&
   higherSearchSensitivityCB->setChecked(shapeOptions.isHigherSearchSensitivity());
 
   m_outputDpi = params.getDpi().vertical();
-  dpiSelector->setEditText(Utils::dpiText(m_outputDpi));
+  dpiSelector->setEditText(CoreUtils::dpiText(m_outputDpi));
 
   const SplittingOptions& splitOptions = params.getSplittingOptions();
   splittingCB->setChecked(splitOptions.isSplitOutput());
@@ -1295,11 +1295,11 @@ void DefaultParamsDialog::dpiSelectionChanged() {
     return;
   }
   bool ok = false;
-  const int dpi = Utils::dpiFromText(dpiSelector->currentText(), &ok);
+  const int dpi = CoreUtils::dpiFromText(dpiSelector->currentText(), &ok);
   if (!ok || (dpi < 72) || (dpi > 1200)) {
     m_checkingDpi = true;
     QMessageBox::warning(this, tr("Output Resolution"), tr("The resolution must be between 72 and 1200 DPI."));
-    dpiSelector->setEditText(Utils::dpiText(m_outputDpi));
+    dpiSelector->setEditText(CoreUtils::dpiText(m_outputDpi));
     m_checkingDpi = false;
     return;
   }

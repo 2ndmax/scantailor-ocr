@@ -10,8 +10,8 @@
 #include <algorithm>
 
 #include "ColorSchemeManager.h"
+#include "CoreUtils.h"
 #include "StateIcon.h"
-#include "Utils.h"
 #include "WidgetUtils.h"
 
 // Requests the resolution all images of an item have in common, as a QSize, undefined values
@@ -158,7 +158,7 @@ FixDpiDialog::FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* par
   // Lists of the usual values that also take any other value typed in, as in the Margins step.
   for (QComboBox* field : {xDpi, yDpi}) {
     for (const int dpi : {300, 400, 600, 1200}) {
-      field->addItem(core::Utils::dpiText(dpi));
+      field->addItem(core::CoreUtils::dpiText(dpi));
     }
     field->setInsertPolicy(QComboBox::NoInsert);
     field->setValidator(core::WidgetUtils::createDpiValidator(field));
@@ -229,8 +229,8 @@ void FixDpiDialog::dpiChosenFromList() {
 Dpi FixDpiDialog::enteredDpi() const {
   bool xOk = false;
   bool yOk = false;
-  const int horizontal = core::Utils::dpiFromText(xDpi->currentText(), &xOk);
-  const int vertical = core::Utils::dpiFromText(yDpi->currentText(), &yOk);
+  const int horizontal = core::CoreUtils::dpiFromText(xDpi->currentText(), &xOk);
+  const int vertical = core::CoreUtils::dpiFromText(yDpi->currentText(), &yOk);
   return Dpi(xOk ? horizontal : 0, yOk ? vertical : 0);
 }
 
@@ -332,8 +332,8 @@ void FixDpiDialog::resetDpiForm() {
 void FixDpiDialog::setDpiForm(const Dpi& dpi) {
   // An undefined value (1 or less) leaves its field empty, the other one still shows its value.
   m_initialDpi = dpi.isNull() ? QSize(0, 0) : dpi.toSize();
-  xDpi->setEditText((dpi.horizontal() > 1) ? core::Utils::dpiText(dpi.horizontal()) : QString());
-  yDpi->setEditText((dpi.vertical() > 1) ? core::Utils::dpiText(dpi.vertical()) : QString());
+  xDpi->setEditText((dpi.horizontal() > 1) ? core::CoreUtils::dpiText(dpi.horizontal()) : QString());
+  yDpi->setEditText((dpi.vertical() > 1) ? core::CoreUtils::dpiText(dpi.vertical()) : QString());
   dpiValueChanged();
 }
 

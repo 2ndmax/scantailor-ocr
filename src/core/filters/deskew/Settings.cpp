@@ -5,7 +5,7 @@
 
 #include <QDomElement>
 
-#include "../../base/Utils.h"
+#include "CoreUtils.h"
 #include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
@@ -55,7 +55,7 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
 
 void Settings::setPageParams(const PageId& pageId, const Params& params) {
   QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_perPageParams, pageId, params);
+  CoreUtils::mapSetValue(m_perPageParams, pageId, params);
   m_deviationProvider.addOrUpdate(pageId);
 }
 
@@ -81,7 +81,7 @@ const DeviationProvider<PageId>& Settings::deviationProvider() const {
 
 void Settings::setPendingAutoOblique(const PageId& pageId, const bool enabled) {
   QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_pendingAutoOblique, pageId, enabled);
+  CoreUtils::mapSetValue(m_pendingAutoOblique, pageId, enabled);
 }
 
 std::optional<bool> Settings::takePendingAutoOblique(const PageId& pageId) {

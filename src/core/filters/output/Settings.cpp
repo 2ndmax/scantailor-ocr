@@ -5,7 +5,7 @@
 
 #include <QDomElement>
 
-#include "../../base/Utils.h"
+#include "CoreUtils.h"
 #include "FillColorProperty.h"
 #include "FillZonePropFactory.h"
 #include "PictureLayerProperty.h"
@@ -121,7 +121,7 @@ Params Settings::getParams(const PageId& pageId) const {
 
 void Settings::setParams(const PageId& pageId, const Params& params) {
   const QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_perPageParams, pageId, params);
+  CoreUtils::mapSetValue(m_perPageParams, pageId, params);
 }
 
 void Settings::setColorParams(const PageId& pageId, const ColorParams& prms) {
@@ -251,7 +251,7 @@ void Settings::removeAllOutputParams() {
 
 void Settings::setOutputParams(const PageId& pageId, const OutputParams& params) {
   const QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_perPageOutputParams, pageId, params);
+  CoreUtils::mapSetValue(m_perPageOutputParams, pageId, params);
 }
 
 ZoneSet Settings::pictureZonesForPage(const PageId& pageId) const {
@@ -278,12 +278,12 @@ ZoneSet Settings::fillZonesForPage(const PageId& pageId) const {
 
 void Settings::setPictureZones(const PageId& pageId, const ZoneSet& zones) {
   const QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_perPagePictureZones, pageId, zones);
+  CoreUtils::mapSetValue(m_perPagePictureZones, pageId, zones);
 }
 
 void Settings::setFillZones(const PageId& pageId, const ZoneSet& zones) {
   const QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_perPageFillZones, pageId, zones);
+  CoreUtils::mapSetValue(m_perPageFillZones, pageId, zones);
 }
 
 PropertySet Settings::defaultPictureZoneProperties() const {
@@ -331,7 +331,7 @@ OutputProcessingParams Settings::getOutputProcessingParams(const PageId& pageId)
 
 void Settings::setOutputProcessingParams(const PageId& pageId, const OutputProcessingParams& outputProcessingParams) {
   const QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_perPageOutputProcessingParams, pageId, outputProcessingParams);
+  CoreUtils::mapSetValue(m_perPageOutputProcessingParams, pageId, outputProcessingParams);
 }
 
 bool Settings::isParamsNull(const PageId& pageId) const {

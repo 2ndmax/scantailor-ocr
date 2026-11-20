@@ -3,9 +3,9 @@
 
 #include "ImageSettings.h"
 
+#include "CoreUtils.h"
 #include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
-#include "Utils.h"
 
 using namespace core;
 using namespace imageproc;
@@ -75,7 +75,7 @@ void ImageSettings::performRelinking(const AbstractRelinker& relinker) {
 
 void ImageSettings::setPageParams(const PageId& pageId, const PageParams& params) {
   QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_perPageParams, pageId, params);
+  CoreUtils::mapSetValue(m_perPageParams, pageId, params);
 }
 
 std::unique_ptr<ImageSettings::PageParams> ImageSettings::getPageParams(const PageId& pageId) const {

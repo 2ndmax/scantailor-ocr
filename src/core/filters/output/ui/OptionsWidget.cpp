@@ -24,11 +24,11 @@
 #include <utility>
 
 #include "../../../base/ProcessingOptions.h"
-#include "../../../base/Utils.h"
 #include "../FillZoneComparator.h"
 #include "../PictureZoneComparator.h"
 #include "ApplyColorsDialog.h"
 #include "BinarizationMethods.h"
+#include "CoreUtils.h"
 #include "OptionsWidgetBinarizationLocal.h"
 #include "OptionsWidgetBinarizationOtsu.h"
 #include "TiffCompressionPanel.h"
@@ -131,7 +131,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
 
   // Common resolutions; others can be typed in.
   for (const int dpi : {300, 400, 600, 1200}) {
-    dpiSelector->addItem(Utils::dpiText(dpi));
+    dpiSelector->addItem(CoreUtils::dpiText(dpi));
   }
   dpiSelector->setValidator(WidgetUtils::createDpiValidator(dpiSelector));
   WidgetUtils::setDpiFieldWidth(dpiSelector);
@@ -419,7 +419,7 @@ void OptionsWidget::dpiSelectionChanged() {
     return;
   }
   bool ok = false;
-  const int dpi = Utils::dpiFromText(dpiSelector->currentText(), &ok);
+  const int dpi = CoreUtils::dpiFromText(dpiSelector->currentText(), &ok);
   if (!ok || (dpi < 72) || (dpi > 1200)) {
     m_checkingDpi = true;
     QMessageBox::warning(this, tr("Output Resolution"), tr("The resolution must be between 72 and 1200 DPI."));
@@ -944,7 +944,7 @@ void OptionsWidget::reloadIfNecessary() {
 void OptionsWidget::updateDpiDisplay() {
   // Changing the resolution sets the same value for both directions.
   const QSignalBlocker blocker(dpiSelector);
-  dpiSelector->setEditText(Utils::dpiText(std::max(m_outputDpi.horizontal(), m_outputDpi.vertical())));
+  dpiSelector->setEditText(CoreUtils::dpiText(std::max(m_outputDpi.horizontal(), m_outputDpi.vertical())));
 }
 
 void OptionsWidget::updateColorsDisplay() {

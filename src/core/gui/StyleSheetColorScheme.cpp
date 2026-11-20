@@ -10,8 +10,8 @@
 #include <cmath>
 
 #include "ApplicationSettings.h"
+#include "CoreUtils.h"
 #include "FocusFrameStyle.h"
-#include "Utils.h"
 
 using namespace core;
 
@@ -104,9 +104,9 @@ void StyleSheetColorScheme::loadStyleSheet(const QString& path, const bool light
                        lightMarks ? QStringLiteral("/icons/marks_light/") : QStringLiteral("/icons/marks_dark/"));
 
 #ifdef _WIN32
-  m_styleSheet = Utils::qssConvertPxToEm(m_styleSheet, 13, 4);
+  m_styleSheet = CoreUtils::qssConvertPxToEm(m_styleSheet, 13, 4);
 #else
-  m_styleSheet = Utils::qssConvertPxToEm(m_styleSheet, 16, 4);
+  m_styleSheet = CoreUtils::qssConvertPxToEm(m_styleSheet, 16, 4);
 #endif
 }
 

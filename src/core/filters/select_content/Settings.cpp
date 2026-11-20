@@ -8,7 +8,7 @@
 #include <QDomElement>
 #include <iostream>
 
-#include "../../base/Utils.h"
+#include "CoreUtils.h"
 #include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
@@ -48,7 +48,7 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
 
 void Settings::setPageParams(const PageId& pageId, const Params& params) {
   QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_pageParams, pageId, params);
+  CoreUtils::mapSetValue(m_pageParams, pageId, params);
   m_deviationProvider.addOrUpdate(pageId);
 }
 

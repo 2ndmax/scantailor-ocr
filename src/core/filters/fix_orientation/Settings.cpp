@@ -5,7 +5,7 @@
 
 #include <QDomElement>
 
-#include "../../base/Utils.h"
+#include "CoreUtils.h"
 #include "ProjectIdReader.h"
 #include "RelinkedKeys.h"
 
@@ -30,14 +30,14 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
 
 void Settings::applyRotation(const ImageId& imageId, const OrthogonalRotation rotation) {
   QMutexLocker locker(&m_mutex);
-  Utils::mapSetValue(m_perImageRotation, imageId, rotation);
+  CoreUtils::mapSetValue(m_perImageRotation, imageId, rotation);
 }
 
 void Settings::applyRotation(const std::set<PageId>& pages, const OrthogonalRotation rotation) {
   QMutexLocker locker(&m_mutex);
 
   for (const PageId& page : pages) {
-    Utils::mapSetValue(m_perImageRotation, page.imageId(), rotation);
+    CoreUtils::mapSetValue(m_perImageRotation, page.imageId(), rotation);
   }
 }
 
@@ -63,7 +63,7 @@ void Settings::setTrim(const ImageId& imageId, const ImageTrim& trim) {
     m_perImageTrim.erase(imageId);
     return;
   }
-  Utils::mapSetValue(m_perImageTrim, imageId, trim);
+  CoreUtils::mapSetValue(m_perImageTrim, imageId, trim);
 }
 
 ImageTrim Settings::getTrim(const ImageId& imageId) const {

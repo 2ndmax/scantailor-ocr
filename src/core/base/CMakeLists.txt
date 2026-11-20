@@ -21,6 +21,8 @@ set(sources
     ContentMask.h
     ContentSpanFinder.cpp
     ContentSpanFinder.h
+    CoreUtils.cpp
+    CoreUtils.h
     DebugImagesImpl.cpp
     DebugImagesImpl.h
     Despeckle.cpp
@@ -126,8 +128,6 @@ set(sources
     UnitsListener.h
     UnitsProvider.cpp
     UnitsProvider.h
-    Utils.cpp
-    Utils.h
     WhiteBalance.cpp
     WhiteBalance.h
 )

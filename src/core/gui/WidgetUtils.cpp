@@ -18,7 +18,7 @@
 #include <QWidget>
 #include <algorithm>
 
-#include "Utils.h"
+#include "CoreUtils.h"
 
 namespace core {
 namespace {
@@ -55,7 +55,7 @@ void WidgetUtils::setDpiFieldWidth(QComboBox* field) {
   const QRect editField
       = field->style()->subControlRect(QStyle::CC_ComboBox, &option, QStyle::SC_ComboBoxEditField, field);
   const int overhead = option.rect.width() - editField.width();
-  field->setFixedWidth(textFieldWidth(field, field->lineEdit(), Utils::dpiText(999)) + overhead);
+  field->setFixedWidth(textFieldWidth(field, field->lineEdit(), CoreUtils::dpiText(999)) + overhead);
 }
 
 void WidgetUtils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValue, const int decimals) {
