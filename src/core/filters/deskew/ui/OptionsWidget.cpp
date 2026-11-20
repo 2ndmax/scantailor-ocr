@@ -18,7 +18,7 @@ namespace deskew {
 const double OptionsWidget::MAX_ANGLE = MAX_DESKEW_ANGLE_DEG;
 
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
-                             std::shared_ptr<deskew::DeskewParams> defaultParams,
+                             std::shared_ptr<const deskew::DeskewParams> defaultParams,
                              const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
       m_defaultParams(std::move(defaultParams)),

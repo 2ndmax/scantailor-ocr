@@ -17,7 +17,7 @@
 
 namespace select_content {
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
-                             std::shared_ptr<select_content::SelectContentParams> defaultParams,
+                             std::shared_ptr<const select_content::SelectContentParams> defaultParams,
                              const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
       m_defaultParams(std::move(defaultParams)),

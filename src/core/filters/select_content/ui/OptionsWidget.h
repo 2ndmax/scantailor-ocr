@@ -31,7 +31,7 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   Q_OBJECT
  public:
   OptionsWidget(std::shared_ptr<Settings> settings,
-                std::shared_ptr<select_content::SelectContentParams> defaultParams,
+                std::shared_ptr<const select_content::SelectContentParams> defaultParams,
                 const PageSelectionAccessor& pageSelectionAccessor);
 
   ~OptionsWidget() override;
@@ -89,7 +89,7 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   std::shared_ptr<Settings> m_settings;
   // The start values of the project, for pages without detection settings of their own.
-  std::shared_ptr<select_content::SelectContentParams> m_defaultParams;
+  std::shared_ptr<const select_content::SelectContentParams> m_defaultParams;
   UiData m_uiData;
   PageSelectionAccessor m_pageSelectionAccessor;
   PageId m_pageId;

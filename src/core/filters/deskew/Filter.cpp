@@ -19,7 +19,7 @@
 #include "Utils.h"
 
 namespace deskew {
-Filter::Filter(std::shared_ptr<ProcessingOptions> processingOptions, std::shared_ptr<DeskewParams> defaultParams)
+Filter::Filter(std::shared_ptr<ProcessingOptions> processingOptions, std::shared_ptr<const DeskewParams> defaultParams)
     : m_settings(std::make_shared<Settings>()),
       m_imageSettings(std::make_shared<ImageSettings>()),
       m_processingOptions(std::move(processingOptions)),

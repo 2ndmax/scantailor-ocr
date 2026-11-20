@@ -25,7 +25,7 @@
 using namespace foundation;
 
 namespace select_content {
-Filter::Filter(std::shared_ptr<SelectContentParams> defaultParams)
+Filter::Filter(std::shared_ptr<const SelectContentParams> defaultParams)
     : m_settings(std::make_shared<Settings>()), m_defaultParams(std::move(defaultParams)) {
   const PageOrderOption::ProviderPtr defaultOrder;
   const auto orderByWidth = std::make_shared<OrderBySizeProvider>(m_settings, OrderBySizeProvider::WIDTH);

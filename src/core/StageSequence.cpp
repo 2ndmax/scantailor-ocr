@@ -37,8 +37,18 @@ StageSequence::StageSequence(const std::shared_ptr<ProjectPages>& pages)
       m_defaultParams(std::make_shared<DefaultParams>()),
       m_fixOrientationFilter(std::make_shared<fix_orientation::Filter>()),
       m_pageSplitFilter(std::make_shared<page_split::Filter>(pages)),
-      m_deskewFilter(std::make_shared<deskew::Filter>(m_processingOptions, std::make_shared<deskew::DeskewParams>(m_defaultParams->getDeskewParams()))),
-      m_selectContentFilter(std::make_shared<select_content::Filter>(std::make_shared<select_content::SelectContentParams>(m_defaultParams->getSelectContentParams()))),
+      // Aliased shared_ptrs: the filters see the same DeskewParams instance that
+      // DefaultParams holds, so in-place assignment (*m_defaultParams = ...)
+      // propagates to them. Depends on DefaultParams only assigning in place.
+      m_deskewFilter(std::make_shared<deskew::Filter>(
+          m_processingOptions,
+          std::shared_ptr<const deskew::DeskewParams>(
+              m_defaultParams,
+              &m_defaultParams->getDeskewParams()))),
+      m_selectContentFilter(
+          std::make_shared<select_content::Filter>(std::shared_ptr<const select_content::SelectContentParams>(
+              m_defaultParams,
+              &m_defaultParams->getSelectContentParams()))),
       m_pageLayoutFilter(std::make_shared<page_layout::Filter>(pages)),
       m_outputFilter(std::make_shared<output::Filter>(m_processingOptions)) {
   m_fixOrientationFilterIdx = static_cast<int>(m_filters.size());

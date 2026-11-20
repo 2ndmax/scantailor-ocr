@@ -35,7 +35,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(select_content::Filter)
  public:
-  Filter(std::shared_ptr<SelectContentParams> defaultParams);
+  Filter(std::shared_ptr<const SelectContentParams> defaultParams);
 
   ~Filter() override;
 
@@ -64,14 +64,14 @@ class Filter : public AbstractFilter {
   const std::shared_ptr<Settings>& settings() const { return m_settings; }
 
   // For the options panel, which FilterUi builds from them.
-  const std::shared_ptr<SelectContentParams>& defaultParams() const { return m_defaultParams; }
+  const std::shared_ptr<const SelectContentParams>& defaultParams() const { return m_defaultParams; }
 
  private:
   void writePageSettings(QDomDocument& doc, QDomElement& filterEl, const PageId& pageId, int numericId) const;
 
   std::shared_ptr<Settings> m_settings;
   // The start values of the project.
-  std::shared_ptr<SelectContentParams> m_defaultParams;
+  std::shared_ptr<const SelectContentParams> m_defaultParams;
 };
 }  // namespace select_content
 #endif  // ifndef SCANTAILOR_SELECT_CONTENT_FILTER_H_
