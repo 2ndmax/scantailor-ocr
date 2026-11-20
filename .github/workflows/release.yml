@@ -218,8 +218,16 @@ jobs:
 
       - name: Build AppImage
         env:
-          VERSION: ${{ github.ref_name }}
+          IS_TAG: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
+          # The version as for the ZIP: from version.h.in, which the step above sets from the tag, and
+          # for a run started by hand marked as a test build. github.ref_name would add the "v" of the
+          # tag, or give a branch name (maybe with a "/"). linuxdeploy reads it from the environment, too.
+          VERSION=$(sed -n 's/^#define VERSION "\([^"]*\)".*/\1/p' version.h.in)
+          if [ -z "$VERSION" ]; then echo "Could not read VERSION from version.h.in" >&2; exit 1; fi
+          if [ "$IS_TAG" != "true" ]; then VERSION="${VERSION}-test.${RUN_NUMBER}"; fi
+          export VERSION
           cd build-appimage
           export QMAKE=/usr/bin/qmake6
           # The bundled libraries come from Ubuntu; linuxdeploy copies their copyright files to
