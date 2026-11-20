@@ -8,6 +8,7 @@ set(ui_files
 set(sources
     ImageTrim.cpp ImageTrim.h
     Filter.cpp Filter.h
+    FixOrientationParams.cpp FixOrientationParams.h
     Settings.cpp Settings.h
     Task.cpp Task.h
     TaskResult.cpp TaskResult.h

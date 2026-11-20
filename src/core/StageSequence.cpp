@@ -36,7 +36,7 @@ StageSequence::StageSequence(const std::shared_ptr<ProjectPages>& pages)
       m_defaultParams(std::make_shared<DefaultParams>()),
       m_fixOrientationFilter(std::make_shared<fix_orientation::Filter>()),
       m_pageSplitFilter(std::make_shared<page_split::Filter>(pages)),
-      m_deskewFilter(std::make_shared<deskew::Filter>(m_processingOptions, m_defaultParams)),
+      m_deskewFilter(std::make_shared<deskew::Filter>(m_processingOptions, std::make_shared<deskew::DeskewParams>(m_defaultParams->getDeskewParams()))),
       m_selectContentFilter(std::make_shared<select_content::Filter>(m_defaultParams)),
       m_pageLayoutFilter(std::make_shared<page_layout::Filter>(pages)),
       m_outputFilter(std::make_shared<output::Filter>(m_processingOptions)) {
@@ -90,9 +90,12 @@ void StageSequence::loadProject(const ProjectReader& reader, const DefaultParams
 }
 
 void StageSequence::loadDefaultSettings(const PageInfo& page) const {
-  for (const FilterPtr& filter : m_filters) {
-    filter->loadDefaultSettings(page, *m_defaultParams);
-  }
+  m_fixOrientationFilter->loadDefaultSettings(page, m_defaultParams->getFixOrientationParams());
+  m_pageSplitFilter->loadDefaultSettings(page, *m_defaultParams);
+  m_deskewFilter->loadDefaultSettings(page, m_defaultParams->getDeskewParams());
+  m_selectContentFilter->loadDefaultSettings(page, *m_defaultParams);
+  m_pageLayoutFilter->loadDefaultSettings(page, *m_defaultParams);
+  m_outputFilter->loadDefaultSettings(page, *m_defaultParams);
 }
 
 BackgroundTaskPtr StageSequence::createTask(const PageInfo& page,

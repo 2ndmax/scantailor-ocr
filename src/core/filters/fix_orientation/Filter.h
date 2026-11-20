@@ -10,6 +10,7 @@
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageView.h"
+#include "FixOrientationParams.h"
 
 class ImageId;
 class QString;
@@ -49,7 +50,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
+  void loadDefaultSettings(const PageInfo& pageInfo, const FixOrientationParams& defaults);
 
   std::shared_ptr<Task> createTask(const PageId& pageId,
                                    std::shared_ptr<page_split::Task> nextTask,

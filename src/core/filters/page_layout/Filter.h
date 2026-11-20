@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "AbstractFilter.h"
+
+class DefaultParams;
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
@@ -50,7 +52,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
+  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults);
 
   /**
    * \brief Sets what a new project takes from its start values for all pages: the output size.

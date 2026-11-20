@@ -12,13 +12,14 @@
 
 #include "AbstractRelinker.h"
 #include "CacheDrivenTask.h"
+#include "DeskewParams.h"
 #include "ProjectIdReader.h"
 #include "ProjectIdWriter.h"
 #include "Task.h"
 #include "Utils.h"
 
 namespace deskew {
-Filter::Filter(std::shared_ptr<ProcessingOptions> processingOptions, std::shared_ptr<DefaultParams> defaultParams)
+Filter::Filter(std::shared_ptr<ProcessingOptions> processingOptions, std::shared_ptr<DeskewParams> defaultParams)
     : m_settings(std::make_shared<Settings>()),
       m_imageSettings(std::make_shared<ImageSettings>()),
       m_processingOptions(std::move(processingOptions)),
@@ -89,8 +90,8 @@ std::shared_ptr<Task> Filter::createTask(const PageId& pageId,
                                          const bool debug) {
   return std::make_shared<Task>(std::static_pointer_cast<Filter>(shared_from_this()), m_settings, m_imageSettings,
                                 std::move(nextTask), pageId, m_processingOptions->blackOnWhiteDetection,
-                                m_defaultParams->getDeskewParams().isAutoOblique(),
-                                m_defaultParams->getDeskewParams().getDetection(), batchProcessing, debug);
+                                m_defaultParams->isAutoOblique(),
+                                m_defaultParams->getDetection(), batchProcessing, debug);
 }
 
 std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(
@@ -98,7 +99,7 @@ std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(
   return std::make_shared<CacheDrivenTask>(m_settings, std::move(nextTask));
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DeskewParams& defaults) {
   if (!m_settings->isParamsNull(pageInfo.id()))
     return;
 

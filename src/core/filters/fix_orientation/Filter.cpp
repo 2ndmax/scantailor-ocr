@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "CacheDrivenTask.h"
+#include "FixOrientationParams.h"
 #include "ImageSettings.h"
 #include "ImageTrim.h"
 #include "ProjectIdReader.h"
@@ -89,7 +90,7 @@ void Filter::writeParams(QDomDocument& doc, QDomElement& filterEl, const ImageId
   filterEl.appendChild(imageEl);
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const FixOrientationParams& defaults) {
   if (!m_settings->isRotationNull(pageInfo.id().imageId()))
     return;
 

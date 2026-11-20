@@ -4,7 +4,9 @@
 #ifndef SCANTAILOR_FIX_ORIENTATION_UTILS_H_
 #define SCANTAILOR_FIX_ORIENTATION_UTILS_H_
 
-class DefaultParams;
+namespace fix_orientation {
+class FixOrientationParams;
+}  // namespace fix_orientation
 class ImageTransformation;
 class OrthogonalRotation;
 
@@ -15,7 +17,7 @@ class Utils {
  public:
   Utils() = delete;
 
-  static OrthogonalRotation getDefaultOrthogonalRotation(const DefaultParams& defaultParams);
+  static OrthogonalRotation getDefaultOrthogonalRotation(const fix_orientation::FixOrientationParams& defaultParams);
 
   /** Sets the rotation and the trim (in source image pixels) on a \p xform without a rotation. */
   static void applyRotationAndTrim(ImageTransformation& xform,

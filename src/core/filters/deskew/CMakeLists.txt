@@ -7,6 +7,7 @@ set(ui_files
 # What processes the pages, without widgets.
 set(sources
     Filter.cpp Filter.h
+    DeskewParams.cpp DeskewParams.h
     UiData.cpp UiData.h
     Settings.cpp Settings.h
     Task.cpp Task.h

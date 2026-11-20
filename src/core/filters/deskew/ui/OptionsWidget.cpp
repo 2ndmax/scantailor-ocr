@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <utility>
 
-#include <core/DefaultParams.h>
+#include "../DeskewParams.h"
 
 #include "../Params.h"
 #include "../Settings.h"
@@ -18,7 +18,7 @@ namespace deskew {
 const double OptionsWidget::MAX_ANGLE = MAX_DESKEW_ANGLE_DEG;
 
 OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
-                             std::shared_ptr<DefaultParams> defaultParams,
+                             std::shared_ptr<deskew::DeskewParams> defaultParams,
                              const PageSelectionAccessor& pageSelectionAccessor)
     : m_settings(std::move(settings)),
       m_defaultParams(std::move(defaultParams)),
@@ -46,7 +46,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   m_obliqueModeGroup->addButton(obliqueAutoBtn);
   m_obliqueModeGroup->addButton(obliqueManualBtn);
 
-  if (m_defaultParams->getDeskewParams().isAutoOblique()) {
+  if (m_defaultParams->isAutoOblique()) {
     obliqueAutoBtn->setChecked(true);
   } else {
     obliqueManualBtn->setChecked(true);
@@ -75,7 +75,7 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDes
   for (const PageId& pageId : pages) {
     std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
     const Params merged(Params::mergedForApply(existing.get(), current, applyDeskew, applyOblique, pageId == m_pageId,
-                                               m_defaultParams->getDeskewParams().getDetection()));
+                                               m_defaultParams->getDetection()));
     m_settings->setPageParams(pageId, merged);
     if (applyOblique) {
       // The applied oblique mode wins over one the page still had pending.

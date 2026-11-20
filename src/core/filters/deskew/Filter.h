@@ -8,11 +8,13 @@
 #include <memory>
 
 #include "AbstractFilter.h"
-#include "DefaultParams.h"
+
+#include "DeskewParams.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageView.h"
 #include "ProcessingOptions.h"
+#include "DeskewParams.h"
 #include "Settings.h"
 
 class QString;
@@ -33,7 +35,7 @@ class Filter : public AbstractFilter {
 
   Q_DECLARE_TR_FUNCTIONS(deskew::Filter)
  public:
-  Filter(std::shared_ptr<ProcessingOptions> processingOptions, std::shared_ptr<DefaultParams> defaultParams);
+  Filter(std::shared_ptr<ProcessingOptions> processingOptions, std::shared_ptr<DeskewParams> defaultParams);
 
   ~Filter() override;
 
@@ -47,7 +49,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
+  void loadDefaultSettings(const PageInfo& pageInfo, const DeskewParams& defaults);
 
   std::shared_ptr<Task> createTask(const PageId& pageId,
                                    std::shared_ptr<select_content::Task> nextTask,
@@ -62,7 +64,7 @@ class Filter : public AbstractFilter {
   const std::shared_ptr<Settings>& settings() const { return m_settings; }
 
   // For the options panel, which FilterUi builds from them.
-  const std::shared_ptr<DefaultParams>& defaultParams() const { return m_defaultParams; }
+  const std::shared_ptr<DeskewParams>& defaultParams() const { return m_defaultParams; }
 
  private:
   void writeParams(QDomDocument& doc, QDomElement& filterEl, const Params& params, int numericId) const;
@@ -75,7 +77,7 @@ class Filter : public AbstractFilter {
   std::shared_ptr<ImageSettings> m_imageSettings;
   std::shared_ptr<ProcessingOptions> m_processingOptions;
   // The start values of the project.
-  std::shared_ptr<DefaultParams> m_defaultParams;
+  std::shared_ptr<DeskewParams> m_defaultParams;
 };
 }  // namespace deskew
 #endif  // ifndef SCANTAILOR_DESKEW_FILTER_H_

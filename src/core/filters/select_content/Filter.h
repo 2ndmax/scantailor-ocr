@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "AbstractFilter.h"
+
+class DefaultParams;
 #include "DefaultParams.h"
 #include "FilterResult.h"
 #include "NonCopyable.h"
@@ -47,7 +49,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) override;
+  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults);
 
   std::shared_ptr<Task> createTask(const PageId& pageId,
                                    std::shared_ptr<page_layout::Task> nextTask,

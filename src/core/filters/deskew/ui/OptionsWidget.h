@@ -20,7 +20,7 @@
 #include "ui_OptionsWidget.h"
 
 class QButtonGroup;
-class DefaultParams;
+namespace deskew { class DeskewParams; }
 
 namespace deskew {
 class Settings;
@@ -29,7 +29,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   Q_OBJECT
  public:
   OptionsWidget(std::shared_ptr<Settings> settings,
-                std::shared_ptr<DefaultParams> defaultParams,
+                std::shared_ptr<deskew::DeskewParams> defaultParams,
                 const PageSelectionAccessor& pageSelectionAccessor);
 
   ~OptionsWidget() override;
@@ -86,7 +86,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   std::shared_ptr<Settings> m_settings;
   // The start values of the project; the oblique mode buttons set its automatic oblique.
-  std::shared_ptr<DefaultParams> m_defaultParams;
+  std::shared_ptr<deskew::DeskewParams> m_defaultParams;
   PageId m_pageId;
   UiData m_uiData;
 

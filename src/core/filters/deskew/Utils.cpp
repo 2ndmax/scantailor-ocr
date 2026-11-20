@@ -3,15 +3,13 @@
 
 #include "Utils.h"
 
-#include <core/DefaultParams.h>
+#include "DeskewParams.h"
 
 #include "Params.h"
 
 using namespace deskew;
 
-Params Utils::buildDefaultParams(const DefaultParams& defaultParams) {
-  const DefaultParams::DeskewParams& deskewParams = defaultParams.getDeskewParams();
-
+Params Utils::buildDefaultParams(const DeskewParams& deskewParams) {
   return Params(deskewParams.getDeskewAngleDeg(), 0.0, Dependencies(), deskewParams.getMode(),
                 deskewParams.isAutoOblique() ? MODE_AUTO : MODE_MANUAL, deskewParams.getDetection());
 }

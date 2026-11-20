@@ -96,41 +96,6 @@ DefaultParams DefaultParams::inUnits(const Units units) const {
   return converted;
 }
 
-DefaultParams::FixOrientationParams::FixOrientationParams(const OrthogonalRotation& imageRotation)
-    : m_imageRotation(imageRotation) {}
-
-DefaultParams::FixOrientationParams::FixOrientationParams(const QDomElement& el)
-    : m_imageRotation(el.namedItem("imageRotation").toElement()) {}
-
-QDomElement DefaultParams::FixOrientationParams::toXml(QDomDocument& doc, const QString& name) const {
-  QDomElement el(doc.createElement(name));
-  el.appendChild(m_imageRotation.toXml(doc, "imageRotation"));
-  return el;
-}
-
-DefaultParams::DeskewParams::DeskewParams(const double deskewAngleDeg,
-                                          const AutoManualMode mode,
-                                          const bool autoOblique)
-    : m_deskewAngleDeg(deskewAngleDeg), m_mode(mode), m_autoOblique(autoOblique), m_detection(deskew::DETECT_CONTENT) {}
-
-DefaultParams::DeskewParams::DeskewParams()
-    : m_deskewAngleDeg(0.0), m_mode(MODE_AUTO), m_autoOblique(false), m_detection(deskew::DETECT_CONTENT) {}
-
-DefaultParams::DeskewParams::DeskewParams(const QDomElement& el)
-    // Goes to every new page, so it is limited like the angle of a page.
-    : m_deskewAngleDeg(deskew::angleFromXml(el, "deskewAngleDeg", deskew::MAX_DESKEW_ANGLE_DEG)),
-      m_mode(stringToAutoManualMode(el.attribute("mode"))),
-      m_autoOblique(el.attribute("autoOblique", "0") != "0"),
-      m_detection(deskew::skewDetectionFromString(el.attribute("detection"), deskew::DETECT_CONTENT)) {}
-
-QDomElement DefaultParams::DeskewParams::toXml(QDomDocument& doc, const QString& name) const {
-  QDomElement el(doc.createElement(name));
-  el.setAttribute("deskewAngleDeg", Utils::doubleToString(m_deskewAngleDeg));
-  el.setAttribute("mode", autoManualModeToString(m_mode));
-  el.setAttribute("autoOblique", m_autoOblique ? "1" : "0");
-  el.setAttribute("detection", deskew::skewDetectionToString(m_detection));
-  return el;
-}
 
 DefaultParams::PageSplitParams::PageSplitParams(page_split::LayoutType layoutType)
     : m_layoutType(layoutType), m_pageOrder(Qt::LeftToRight), m_detectionMethod(SPINE_LINE_DETECTION) {}

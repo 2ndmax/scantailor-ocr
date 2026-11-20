@@ -5,6 +5,7 @@
 #define SCANTAILOR_CORE_DEFAULTPARAMS_H_
 
 
+#include "filters/deskew/DeskewParams.h"
 #include <filters/deskew/SkewDetection.h>
 #include <filters/output/ColorParams.h>
 #include <filters/output/DepthPerception.h>
@@ -20,6 +21,7 @@
 #include <QtCore/QRectF>
 
 #include "AutoManualMode.h"
+#include "filters/fix_orientation/FixOrientationParams.h"
 #include "Dpi.h"
 #include "Margins.h"
 #include "OrthogonalRotation.h"
@@ -28,56 +30,9 @@
 
 class DefaultParams {
  public:
-  class FixOrientationParams {
-   public:
-    FixOrientationParams() = default;
+  using FixOrientationParams = fix_orientation::FixOrientationParams;
 
-    explicit FixOrientationParams(const OrthogonalRotation& imageRotation);
-
-    explicit FixOrientationParams(const QDomElement& el);
-
-    QDomElement toXml(QDomDocument& doc, const QString& name) const;
-
-    const OrthogonalRotation& getImageRotation() const;
-
-    void setImageRotation(const OrthogonalRotation& imageRotation);
-
-   private:
-    OrthogonalRotation m_imageRotation;
-  };
-
-  class DeskewParams {
-   public:
-    DeskewParams();
-
-    explicit DeskewParams(double deskewAngleDeg, AutoManualMode mode, bool autoOblique = false);
-
-    explicit DeskewParams(const QDomElement& el);
-
-    QDomElement toXml(QDomDocument& doc, const QString& name) const;
-
-    double getDeskewAngleDeg() const;
-
-    void setDeskewAngleDeg(double deskewAngleDeg);
-
-    AutoManualMode getMode() const;
-
-    void setMode(AutoManualMode mode);
-
-    bool isAutoOblique() const;
-
-    void setAutoOblique(bool autoOblique);
-
-    deskew::SkewDetection getDetection() const;
-
-    void setDetection(deskew::SkewDetection detection);
-
-   private:
-    double m_deskewAngleDeg;
-    AutoManualMode m_mode;
-    bool m_autoOblique;
-    deskew::SkewDetection m_detection;
-  };
+  using DeskewParams = deskew::DeskewParams;
 
   class PageSplitParams {
    public:
@@ -368,45 +323,7 @@ inline void DefaultParams::setOutputParams(const DefaultParams::OutputParams& ou
   DefaultParams::m_outputParams = outputParams;
 }
 
-inline const OrthogonalRotation& DefaultParams::FixOrientationParams::getImageRotation() const {
-  return m_imageRotation;
-}
 
-inline void DefaultParams::FixOrientationParams::setImageRotation(const OrthogonalRotation& imageRotation) {
-  FixOrientationParams::m_imageRotation = imageRotation;
-}
-
-inline double DefaultParams::DeskewParams::getDeskewAngleDeg() const {
-  return m_deskewAngleDeg;
-}
-
-inline void DefaultParams::DeskewParams::setDeskewAngleDeg(double deskewAngleDeg) {
-  DeskewParams::m_deskewAngleDeg = deskewAngleDeg;
-}
-
-inline AutoManualMode DefaultParams::DeskewParams::getMode() const {
-  return m_mode;
-}
-
-inline void DefaultParams::DeskewParams::setMode(AutoManualMode mode) {
-  DeskewParams::m_mode = mode;
-}
-
-inline bool DefaultParams::DeskewParams::isAutoOblique() const {
-  return m_autoOblique;
-}
-
-inline void DefaultParams::DeskewParams::setAutoOblique(const bool autoOblique) {
-  DeskewParams::m_autoOblique = autoOblique;
-}
-
-inline deskew::SkewDetection DefaultParams::DeskewParams::getDetection() const {
-  return m_detection;
-}
-
-inline void DefaultParams::DeskewParams::setDetection(const deskew::SkewDetection detection) {
-  DeskewParams::m_detection = detection;
-}
 
 inline page_split::LayoutType DefaultParams::PageSplitParams::getLayoutType() const {
   return m_layoutType;

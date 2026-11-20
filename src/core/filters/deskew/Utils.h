@@ -4,16 +4,15 @@
 #ifndef SCANTAILOR_DESKEW_UTILS_H_
 #define SCANTAILOR_DESKEW_UTILS_H_
 
-class DefaultParams;
-
 namespace deskew {
+class DeskewParams;
 class Params;
 
 class Utils {
  public:
   Utils() = delete;
 
-  static Params buildDefaultParams(const DefaultParams& defaultParams);
+  static Params buildDefaultParams(const DeskewParams& defaultParams);
 };
 }  // namespace deskew
 
