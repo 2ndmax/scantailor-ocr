@@ -25,8 +25,10 @@ fi
 echo "Building ScanTailor OCR ${VERSION}"
 
 # Configure and build
+# Fixed without a test: with "..", a build_dir not directly in the project root configured the wrong
+# folder; the release workflow calls the script without one, and no test runs it.
+cmake -S "$SCRIPT_DIR" -B "$BUILD_DIR" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
 cd "$BUILD_DIR"
-cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release ..
 make -j"$(nproc)"
 
 # Run the unit tests; a failing test stops the script (and the release workflow).
