@@ -20,7 +20,13 @@ class SafeDeletingQObjectPtr {
     }
   }
 
-  void reset(T* other) { SafeDeletingQObjectPtr(other).swap(*this); }
+  void reset(T* other) {
+    // The temporary would hand the object it shares with this pointer to deleteLater().
+    if (other == m_obj) {
+      return;
+    }
+    SafeDeletingQObjectPtr(other).swap(*this);
+  }
 
   T& operator*() const { return *m_obj; }
 

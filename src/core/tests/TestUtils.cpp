@@ -3,8 +3,13 @@
 
 #include <core/Utils.h>
 
+#include <SafeDeletingQObjectPtr.h>
+
+#include <QCoreApplication>
 #include <QDir>
+#include <QEvent>
 #include <QFile>
+#include <QPointer>
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 
@@ -47,6 +52,21 @@ BOOST_AUTO_TEST_CASE(test_overwriting_rename_long_path) {
   const QString other = longDir + '/' + QString(80, QChar('o')) + QStringLiteral(".txt");
   BOOST_REQUIRE(core::Utils::overwritingRename(source, other));
   BOOST_CHECK(Tests::readFile(other) == "newer");
+}
+
+// The swap in reset() handed the object to deleteLater() while the pointer still held it.
+BOOST_AUTO_TEST_CASE(a_safe_deleting_pointer_reset_to_its_own_object_keeps_it) {
+  auto* obj = new QObject;
+  const QPointer<QObject> watch(obj);
+  {
+    SafeDeletingQObjectPtr<QObject> ptr(obj);
+    ptr.reset(ptr.get());
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    BOOST_CHECK(!watch.isNull());
+    BOOST_CHECK(ptr.get() == obj);
+  }
+  QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+  BOOST_CHECK(watch.isNull());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
