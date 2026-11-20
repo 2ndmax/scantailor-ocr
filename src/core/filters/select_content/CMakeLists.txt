@@ -24,7 +24,7 @@ set(sources
     Utils.cpp Utils.h)
 
 add_library(select_content STATIC ${sources})
-target_link_libraries(select_content PUBLIC core page_layout)
+target_link_libraries(select_content PUBLIC core_base page_layout)
 # What the main window shows of the step.
 set(ui_sources
     ImageView.cpp ImageView.h

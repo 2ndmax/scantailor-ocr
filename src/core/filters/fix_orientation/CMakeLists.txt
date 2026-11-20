@@ -17,7 +17,7 @@ set(sources
     Utils.cpp Utils.h)
 
 add_library(fix_orientation STATIC ${sources})
-target_link_libraries(fix_orientation PUBLIC core page_split)
+target_link_libraries(fix_orientation PUBLIC core_base page_split)
 # What the main window shows of the step.
 set(ui_sources
     ImageView.cpp ImageView.h

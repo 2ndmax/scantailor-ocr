@@ -15,7 +15,7 @@
 #include "AbstractFilterDataCollector.h"
 #include "ContentBoxCollector.h"
 #include "ThumbnailCollector.h"
-#include "filters/page_layout/CacheDrivenTask.h"
+#include "../page_layout/CacheDrivenTask.h"
 
 namespace select_content {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,

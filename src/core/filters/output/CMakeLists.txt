@@ -59,7 +59,7 @@ set(sources
     OutputImageBuilder.cpp OutputImageBuilder.h ForegroundType.h)
 
 add_library(output STATIC ${sources})
-target_link_libraries(output PUBLIC core PRIVATE dewarping)
+target_link_libraries(output PUBLIC core_base PRIVATE dewarping)
 # What the main window shows of the step.
 set(ui_sources
     ApplyColorsDialog.cpp ApplyColorsDialog.h

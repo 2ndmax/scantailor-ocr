@@ -21,7 +21,7 @@ set(sources
     Utils.cpp Utils.h)
 
 add_library(deskew STATIC ${sources})
-target_link_libraries(deskew PUBLIC core select_content)
+target_link_libraries(deskew PUBLIC core_base select_content)
 # What the main window shows of the step.
 set(ui_sources
     ImageView.cpp ImageView.h

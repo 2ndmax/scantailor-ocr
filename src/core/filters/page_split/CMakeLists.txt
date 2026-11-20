@@ -28,7 +28,7 @@ set(sources
     Utils.cpp Utils.h)
 
 add_library(page_split STATIC ${sources})
-target_link_libraries(page_split PUBLIC core deskew)
+target_link_libraries(page_split PUBLIC core_base deskew)
 # What the main window shows of the step.
 set(ui_sources
     UnremoveButton.cpp UnremoveButton.h

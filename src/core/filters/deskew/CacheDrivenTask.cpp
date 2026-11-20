@@ -13,7 +13,7 @@
 #include "ThumbnailCollector.h"
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
-#include "filters/select_content/CacheDrivenTask.h"
+#include "../select_content/CacheDrivenTask.h"
 
 namespace deskew {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,

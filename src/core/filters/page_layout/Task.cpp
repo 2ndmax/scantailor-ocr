@@ -15,7 +15,7 @@
 #include "Settings.h"
 #include "TaskStatus.h"
 #include "Utils.h"
-#include "filters/output/Task.h"
+#include "../output/Task.h"
 
 using namespace imageproc;
 

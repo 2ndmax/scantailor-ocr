@@ -2,7 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <ImageViewBase.h>
-#include <filters/output/ui/TabbedImageView.h>
+#include "TabbedImageView.h"
 
 #include <QShortcut>
 #include <algorithm>

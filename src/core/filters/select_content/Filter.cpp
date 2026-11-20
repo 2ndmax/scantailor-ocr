@@ -9,8 +9,8 @@
 #include <OrderByDeviationProvider.h>
 #include <XmlMarshaller.h>
 #include <XmlUnmarshaller.h>
-#include <filters/page_layout/CacheDrivenTask.h>
-#include <filters/page_layout/Task.h>
+#include "../page_layout/CacheDrivenTask.h"
+#include "../page_layout/Task.h"
 #include <foundation/Utils.h>
 
 #include <utility>

@@ -22,7 +22,7 @@ set(sources
     Guide.cpp Guide.h)
 
 add_library(page_layout STATIC ${sources})
-target_link_libraries(page_layout PUBLIC core output)
+target_link_libraries(page_layout PUBLIC core_base output)
 # What the main window shows of the step.
 set(ui_sources
     ImageView.cpp ImageView.h

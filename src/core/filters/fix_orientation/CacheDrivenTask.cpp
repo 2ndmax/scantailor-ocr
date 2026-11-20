@@ -13,7 +13,7 @@
 #include "AbstractFilterDataCollector.h"
 #include "PageOrientationCollector.h"
 #include "ThumbnailCollector.h"
-#include "filters/page_split/CacheDrivenTask.h"
+#include "../page_split/CacheDrivenTask.h"
 
 namespace fix_orientation {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings,

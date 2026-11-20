@@ -28,7 +28,7 @@
 #include "FilterData.h"
 #include "ObliqueFinder.h"
 #include "TaskStatus.h"
-#include "filters/select_content/Task.h"
+#include "../select_content/Task.h"
 
 namespace deskew {
 using namespace imageproc;

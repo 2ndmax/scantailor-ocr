@@ -14,7 +14,7 @@
 #include "TaskResult.h"
 #include "TaskStatus.h"
 #include "Utils.h"
-#include "filters/page_split/Task.h"
+#include "../page_split/Task.h"
 
 namespace fix_orientation {
 using imageproc::BinaryThreshold;

@@ -20,7 +20,7 @@
 #include "Settings.h"
 #include "TaskStatus.h"
 #include "Utils.h"
-#include "filters/deskew/Task.h"
+#include "../deskew/Task.h"
 
 namespace page_split {
 using imageproc::BinaryThreshold;

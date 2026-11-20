@@ -14,7 +14,7 @@
 #include "Utils.h"
 #include "AbstractFilterDataCollector.h"
 #include "ThumbnailCollector.h"
-#include "filters/deskew/CacheDrivenTask.h"
+#include "../deskew/CacheDrivenTask.h"
 
 namespace page_split {
 
