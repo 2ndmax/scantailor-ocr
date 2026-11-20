@@ -45,6 +45,7 @@ set(sources
     TestSelectContentApply.cpp
     TestStageSequence.cpp
     TestCommandLineRun.cpp
+    TestSharedDefaultParams.cpp
     TestSelectContentTask.cpp
     TestPageSplitTask.cpp
     TestSmartFilenameOrdering.cpp
