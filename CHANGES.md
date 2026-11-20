@@ -457,6 +457,8 @@ topic, not by version.
   0 done, 1 wrong command line, 2 project unusable or not saved, 3 pages failed, 4 export failed,
   5 canceled. The messages use the language of the app.
   The option `--pdf <file>` of versions 1.0.11 and 1.0.12 is replaced by these export options.
+* At the end of batch processing, the system beep sounds when the alarm command doesn't start,
+  e.g. on Linux without SoX, whose `play` is the default there; before, it stayed silent.
 * Batch processing no longer prepares the view of each page it passes (downscaled images, the
   content mask, the despeckle view of *Output*); it only updates the thumbnails, which saves time
   and memory per page.
@@ -554,8 +556,9 @@ what changed.
   The `update_translations` target works with Qt 6 again. Tesseract is required; there is no
   build without text recognition.
 * Packages: a portable Windows ZIP (made by `scripts\release\package-windows.ps1`), a .deb and
-  an AppImage, all with OCR. The Flatpak, the MXE cross-build script, RPM packaging and
-  upstream's second workflow were removed.
+  an AppImage, all with OCR. The AppImage is named after the version like the other two, without
+  the "v" of the tag (`scantailor-ocr-1.2.0-x86_64.AppImage`). The Flatpak, the MXE cross-build
+  script, RPM packaging and upstream's second workflow were removed.
 * All packages include the license texts of the parts under the Apache License 2.0 and of the
   bundled libraries, and say where the source code of Qt is; the About window names these parts.
 * Workflows: the release workflow builds the packages and attaches them to the release, the
