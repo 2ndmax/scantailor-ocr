@@ -9,7 +9,7 @@
 #include "ProjectPages.h"
 #include "Settings.h"
 
-class DefaultParams;
+namespace page_split { class PageSplitParams; }
 class ImageTransformation;
 
 namespace page_split {
@@ -17,9 +17,9 @@ class Utils {
  public:
   Utils() = delete;
 
-  static Settings::UpdateAction buildDefaultUpdateAction(const DefaultParams& defaultParams);
+  static Settings::UpdateAction buildDefaultUpdateAction(const PageSplitParams& defaultParams);
 
-  static SplitDetectionMethod defaultDetectionMethod(const DefaultParams& defaultParams);
+  static SplitDetectionMethod defaultDetectionMethod(const PageSplitParams& defaultParams);
 
   /**
    * The part of the page outline that lies inside the incoming pre-crop area.

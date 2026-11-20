@@ -10,7 +10,7 @@
 
 #include "AbstractFilter.h"
 
-class DefaultParams;
+namespace page_split { class PageSplitParams; }
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageOrderOption.h"
@@ -52,7 +52,7 @@ class Filter : public AbstractFilter {
 
   void loadSettings(const ProjectIdReader& reader, const QDomElement& filtersEl) override;
 
-  void loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults);
+  void loadDefaultSettings(const PageInfo& pageInfo, const page_split::PageSplitParams& defaults);
 
   std::shared_ptr<Task> createTask(const PageInfo& pageInfo,
                                    std::shared_ptr<deskew::Task> nextTask,

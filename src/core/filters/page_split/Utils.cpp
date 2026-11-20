@@ -4,7 +4,7 @@
 #include "Utils.h"
 
 #include <ImageTransformation.h>
-#include <core/DefaultParams.h>
+#include "PageSplitParams.h"
 
 #include <QPainterPath>
 #include <cassert>
@@ -13,17 +13,15 @@
 
 using namespace page_split;
 
-Settings::UpdateAction Utils::buildDefaultUpdateAction(const DefaultParams& defaultParams) {
-  const DefaultParams::PageSplitParams& pageSplitParams = defaultParams.getPageSplitParams();
-
+Settings::UpdateAction Utils::buildDefaultUpdateAction(const PageSplitParams& pageSplitParams) {
   Settings::UpdateAction update;
   update.setLayoutType(pageSplitParams.getLayoutType());
 
   return update;
 }
 
-SplitDetectionMethod Utils::defaultDetectionMethod(const DefaultParams& defaultParams) {
-  return defaultParams.getPageSplitParams().getDetectionMethod();
+SplitDetectionMethod Utils::defaultDetectionMethod(const PageSplitParams& pageSplitParams) {
+  return pageSplitParams.getDetectionMethod();
 }
 
 QPolygonF Utils::intersectPreCropWithPageOutline(const QPolygonF& pageOutlinePoly, const QPolygonF& incomingPreCrop) {

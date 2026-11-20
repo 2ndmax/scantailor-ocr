@@ -14,6 +14,7 @@
 #include <filters/output/PictureShapeOptions.h>
 #include <filters/page_layout/Alignment.h>
 #include <filters/page_layout/OutputSizeOptions.h>
+#include "filters/page_split/PageSplitParams.h"
 #include <filters/page_split/LayoutType.h>
 #include <filters/page_split/SplitDetectionMethod.h>
 #include <filters/select_content/DetectionOptions.h>
@@ -34,35 +35,7 @@ class DefaultParams {
 
   using DeskewParams = deskew::DeskewParams;
 
-  class PageSplitParams {
-   public:
-    PageSplitParams();
-
-    explicit PageSplitParams(page_split::LayoutType layoutType);
-
-    explicit PageSplitParams(const QDomElement& el);
-
-    QDomElement toXml(QDomDocument& doc, const QString& name) const;
-
-    page_split::LayoutType getLayoutType() const;
-
-    void setLayoutType(page_split::LayoutType layoutType);
-
-    // The page order of new projects: which half of a split page comes first.
-    Qt::LayoutDirection getPageOrder() const;
-
-    void setPageOrder(Qt::LayoutDirection pageOrder);
-
-    // How the split line is detected on pages not processed yet.
-    page_split::SplitDetectionMethod getDetectionMethod() const;
-
-    void setDetectionMethod(page_split::SplitDetectionMethod method);
-
-   private:
-    page_split::LayoutType m_layoutType;
-    Qt::LayoutDirection m_pageOrder;
-    page_split::SplitDetectionMethod m_detectionMethod;
-  };
+  using PageSplitParams = page_split::PageSplitParams;
 
   class SelectContentParams {
    public:
@@ -325,29 +298,6 @@ inline void DefaultParams::setOutputParams(const DefaultParams::OutputParams& ou
 
 
 
-inline page_split::LayoutType DefaultParams::PageSplitParams::getLayoutType() const {
-  return m_layoutType;
-}
-
-inline void DefaultParams::PageSplitParams::setLayoutType(page_split::LayoutType layoutType) {
-  PageSplitParams::m_layoutType = layoutType;
-}
-
-inline Qt::LayoutDirection DefaultParams::PageSplitParams::getPageOrder() const {
-  return m_pageOrder;
-}
-
-inline void DefaultParams::PageSplitParams::setPageOrder(const Qt::LayoutDirection pageOrder) {
-  m_pageOrder = pageOrder;
-}
-
-inline page_split::SplitDetectionMethod DefaultParams::PageSplitParams::getDetectionMethod() const {
-  return m_detectionMethod;
-}
-
-inline void DefaultParams::PageSplitParams::setDetectionMethod(const page_split::SplitDetectionMethod method) {
-  m_detectionMethod = method;
-}
 
 inline const QSizeF& DefaultParams::SelectContentParams::getPageRectSize() const {
   return m_pageRectSize;

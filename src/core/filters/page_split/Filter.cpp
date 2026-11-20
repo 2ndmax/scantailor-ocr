@@ -3,6 +3,8 @@
 
 #include "Filter.h"
 #include "PageInfo.h"
+#include "PageSplitParams.h"
+#include "PageSplitParams.h"
 
 #include <filters/deskew/CacheDrivenTask.h>
 #include <filters/deskew/Task.h>
@@ -112,7 +114,7 @@ std::shared_ptr<CacheDrivenTask> Filter::createCacheDrivenTask(std::shared_ptr<d
   return std::make_shared<CacheDrivenTask>(m_settings, m_pages, std::move(nextTask));
 }
 
-void Filter::loadDefaultSettings(const PageInfo& pageInfo, const DefaultParams& defaults) {
+void Filter::loadDefaultSettings(const PageInfo& pageInfo, const page_split::PageSplitParams& defaults) {
   const ImageId& imageId = pageInfo.id().imageId();
   const Settings::Record record(m_settings->getPageRecord(imageId));
   // Also for a page that got its page type by "Apply to ..." before it was processed. A method

@@ -91,7 +91,7 @@ void StageSequence::loadProject(const ProjectReader& reader, const DefaultParams
 
 void StageSequence::loadDefaultSettings(const PageInfo& page) const {
   m_fixOrientationFilter->loadDefaultSettings(page, m_defaultParams->getFixOrientationParams());
-  m_pageSplitFilter->loadDefaultSettings(page, *m_defaultParams);
+  m_pageSplitFilter->loadDefaultSettings(page, m_defaultParams->getPageSplitParams());
   m_deskewFilter->loadDefaultSettings(page, m_defaultParams->getDeskewParams());
   m_selectContentFilter->loadDefaultSettings(page, *m_defaultParams);
   m_pageLayoutFilter->loadDefaultSettings(page, *m_defaultParams);

@@ -15,6 +15,7 @@ set(sources
     PageLayoutEstimator.cpp PageLayoutEstimator.h
     VertLineFinder.cpp VertLineFinder.h
     Filter.cpp Filter.h
+    PageSplitParams.cpp PageSplitParams.h
     UiData.cpp UiData.h
     Settings.cpp Settings.h
     Task.cpp Task.h
