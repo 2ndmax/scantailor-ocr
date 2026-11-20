@@ -16,8 +16,8 @@
 #include "Settings.h"
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
-#include "core/AbstractFilterDataCollector.h"
-#include "core/ThumbnailCollector.h"
+#include "AbstractFilterDataCollector.h"
+#include "ThumbnailCollector.h"
 
 namespace output {
 CacheDrivenTask::CacheDrivenTask(std::shared_ptr<Settings> settings, const OutputFileNameGenerator& outFileNameGen)

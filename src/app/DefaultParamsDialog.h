@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_APP_DEFAULTPARAMSDIALOG_H_
 #define SCANTAILOR_APP_DEFAULTPARAMSDIALOG_H_
 
-#include <core/ConnectionManager.h>
+#include <ConnectionManager.h>
 
 #include <QButtonGroup>
 #include <QPointer>

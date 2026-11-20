@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_FIX_ORIENTATION_OPTIONSWIDGET_H_
 #define SCANTAILOR_FIX_ORIENTATION_OPTIONSWIDGET_H_
 
-#include <core/ConnectionManager.h>
+#include <ConnectionManager.h>
 
 #include <memory>
 

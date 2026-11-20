@@ -10,9 +10,9 @@
 #include "Settings.h"
 #include "ThumbnailData.h"
 #include "Utils.h"
-#include "core/AbstractFilterDataCollector.h"
-#include "core/PageOrientationCollector.h"
-#include "core/ThumbnailCollector.h"
+#include "AbstractFilterDataCollector.h"
+#include "PageOrientationCollector.h"
+#include "ThumbnailCollector.h"
 #include "filters/page_split/CacheDrivenTask.h"
 
 namespace fix_orientation {

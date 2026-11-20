@@ -3,7 +3,7 @@
 
 #include "CacheDrivenTask.h"
 
-#include <core/ApplicationSettings.h>
+#include <ApplicationSettings.h>
 
 #include <iostream>
 #include <utility>
@@ -12,9 +12,9 @@
 #include "Settings.h"
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
-#include "core/AbstractFilterDataCollector.h"
-#include "core/ContentBoxCollector.h"
-#include "core/ThumbnailCollector.h"
+#include "AbstractFilterDataCollector.h"
+#include "ContentBoxCollector.h"
+#include "ThumbnailCollector.h"
 #include "filters/page_layout/CacheDrivenTask.h"
 
 namespace select_content {

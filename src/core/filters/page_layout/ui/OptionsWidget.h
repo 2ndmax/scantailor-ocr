@@ -5,7 +5,7 @@
 #define SCANTAILOR_PAGE_LAYOUT_OPTIONSWIDGET_H_
 
 #include <UnitsListener.h>
-#include <core/ConnectionManager.h>
+#include <ConnectionManager.h>
 
 #include <QIcon>
 #include <QPalette>

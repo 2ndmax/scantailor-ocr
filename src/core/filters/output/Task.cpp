@@ -5,8 +5,8 @@
 #include "TaskResult.h"
 
 #include <UnitsProvider.h>
-#include <core/ImageLoadErrors.h>
-#include <core/TiffWriter.h>
+#include <ImageLoadErrors.h>
+#include <TiffWriter.h>
 
 #include <QCoreApplication>
 #include <QDir>

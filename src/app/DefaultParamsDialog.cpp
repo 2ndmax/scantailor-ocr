@@ -3,7 +3,7 @@
 
 #include "DefaultParamsDialog.h"
 
-#include <core/ApplicationSettings.h>
+#include <ApplicationSettings.h>
 #include <core/gui/IconProvider.h>
 #include <filters/deskew/Params.h>
 #include <filters/output/ColorParams.h>

@@ -12,8 +12,8 @@
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
 #include "Utils.h"
-#include "core/AbstractFilterDataCollector.h"
-#include "core/ThumbnailCollector.h"
+#include "AbstractFilterDataCollector.h"
+#include "ThumbnailCollector.h"
 #include "filters/deskew/CacheDrivenTask.h"
 
 namespace page_split {

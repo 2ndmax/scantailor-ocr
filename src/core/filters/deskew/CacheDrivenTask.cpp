@@ -3,7 +3,7 @@
 
 #include "CacheDrivenTask.h"
 
-#include <core/ApplicationSettings.h>
+#include <ApplicationSettings.h>
 
 #include <utility>
 

@@ -6,7 +6,7 @@
 
 #include <AutoManualMode.h>
 #include <UnitsListener.h>
-#include <core/ConnectionManager.h>
+#include <ConnectionManager.h>
 
 #include <QRectF>
 #include <QSizeF>

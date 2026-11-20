@@ -5,9 +5,9 @@
 
 #include <color_schemes/dark_scheme_colors.h>
 #include <color_schemes/light_scheme_colors.h>
-#include <core/ApplicationSettings.h>
-#include <core/Units.h>
-#include <core/UnitsProvider.h>
+#include <ApplicationSettings.h>
+#include <Units.h>
+#include <UnitsProvider.h>
 
 #include <QColorDialog>
 #include <QPainter>

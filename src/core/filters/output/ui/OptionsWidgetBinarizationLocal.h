@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_OUTPUT_LOCALBINARIZATIONOPTIONSWIDGET_H_
 #define SCANTAILOR_OUTPUT_LOCALBINARIZATIONOPTIONSWIDGET_H_
 
-#include <core/ConnectionManager.h>
+#include <ConnectionManager.h>
 
 #include <QtCore>
 #include <list>

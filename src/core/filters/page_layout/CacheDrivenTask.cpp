@@ -3,7 +3,7 @@
 
 #include "CacheDrivenTask.h"
 
-#include <core/ApplicationSettings.h>
+#include <ApplicationSettings.h>
 
 #include <utility>
 
@@ -13,8 +13,8 @@
 #include "ThumbnailData.h"
 #include "ThumbnailDataBase.h"
 #include "Utils.h"
-#include "core/AbstractFilterDataCollector.h"
-#include "core/ThumbnailCollector.h"
+#include "AbstractFilterDataCollector.h"
+#include "ThumbnailCollector.h"
 #include "filters/output/CacheDrivenTask.h"
 
 namespace page_layout {

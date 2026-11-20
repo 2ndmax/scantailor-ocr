@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_PAGE_SPLIT_OPTIONSWIDGET_H_
 #define SCANTAILOR_PAGE_SPLIT_OPTIONSWIDGET_H_
 
-#include <core/ConnectionManager.h>
+#include <ConnectionManager.h>
 
 #include <list>
 #include <memory>

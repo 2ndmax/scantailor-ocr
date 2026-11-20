@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_IMAGEVIEW_H_
 #define SCANTAILOR_SELECT_CONTENT_IMAGEVIEW_H_
 
-#include <core/ContentMask.h>
+#include <ContentMask.h>
 #include <interaction/DraggablePolygon.h>
 #include <interaction/RectHandleGeometry.h>
 

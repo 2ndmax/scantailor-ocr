@@ -3,7 +3,7 @@
 
 #include "ThumbnailSequence.h"
 
-#include <core/ApplicationSettings.h>
+#include <ApplicationSettings.h>
 #include <core/gui/IconProvider.h>
 
 #include <QApplication>

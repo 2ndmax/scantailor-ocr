@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_OUTPUT_OPTIONSWIDGET_H_
 #define SCANTAILOR_OUTPUT_OPTIONSWIDGET_H_
 
-#include <core/ConnectionManager.h>
+#include <ConnectionManager.h>
 
 #include <QtCore/QObjectCleanupHandler>
 #include <QtCore/QPointer>
