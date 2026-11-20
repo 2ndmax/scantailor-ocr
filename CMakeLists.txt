@@ -477,41 +477,6 @@ endif()
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "${CMAKE_INSTALL_BINDIR}")
 include(InstallRequiredSystemLibraries)
 
-# Packaging
-set(CPACK_PACKAGE_NAME "${APPLICATION_NAME}")
-set(CPACK_PACKAGE_VERSION_MAJOR "${APPLICATION_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${APPLICATION_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${APPLICATION_VERSION_PATCH}")
-set(CPACK_PACKAGE_VENDOR "ScanTailor OCR <https://github.com/2ndmax/scantailor-ocr>")
-set(CPACK_PACKAGE_CONTACT "${CPACK_PACKAGE_VENDOR}")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Post-processing of scanned pages with export to searchable PDF (OCR).")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-set(CPACK_PACKAGE_EXECUTABLES "${target_name};${CMAKE_PROJECT_NAME}")
-set(CPACK_CREATE_DESKTOP_LINKS "${target_name}")
-if (WIN32)
-  set(CPACK_NSIS_INSTALLED_ICON_NAME "${target_name}.exe")
-  set(CPACK_NSIS_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
-  set(CPACK_NSIS_DISPLAY_NAME "${CMAKE_PROJECT_NAME} ${VERSION}")
-  set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-  set(CPACK_NSIS_EXECUTABLES_DIRECTORY "${CMAKE_BINARY_DIR}")
-  set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}")
-  set(CPACK_NSIS_CREATE_ICONS_EXTRA
-      "CreateShortCut \\\"$DESKTOP\\\\${CMAKE_PROJECT_NAME}.lnk\\\" \\\"$INSTDIR\\\\${target_name}.exe\\\"")
-  set(CPACK_NSIS_DELETE_ICONS_EXTRA
-      "Delete \\\"$DESKTOP\\\\${CMAKE_PROJECT_NAME}.lnk\\\"")
-endif()
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${APPLICATION_NAME}-${VERSION}")
-set(CPACK_SOURCE_IGNORE_FILES
-    "/\\\\.svn/"
-    "/\\\\.git/"
-    "~$"
-    "\\\\.pcs$"
-    "TODO.txt"
-    "CMakeLists.txt.user"
-    "/doxygen/"
-    "${CMAKE_BINARY_DIR}")
-include(CPack)
-
 # uninstall target
 if (NOT TARGET uninstall)
   configure_file(
