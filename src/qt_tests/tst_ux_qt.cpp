@@ -23,7 +23,6 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDoubleSpinBox>
-#include <QElapsedTimer>
 #include <QFile>
 #include <QGuiApplication>
 #include <QIcon>
@@ -41,7 +40,6 @@
 #include <QStyleFactory>
 #include <QStyleOptionFocusRect>
 #include <QTemporaryDir>
-#include <QThread>
 #include <QtTest/QtTest>
 #include <algorithm>
 #include <cmath>
@@ -151,14 +149,10 @@ bool addLoadedThumbnail(ThumbnailPixmapCache& cache, const ImageId& id, const QI
     return false;
   }
   cache.ensureThumbnailExists(id, image);
-  QElapsedTimer wait;
-  wait.start();
   QPixmap loaded;
-  while (cache.loadRequest(id, loaded, {}) != ThumbnailPixmapCache::LOADED && wait.elapsed() < 10000) {
-    QCoreApplication::processEvents();
-    QThread::msleep(10);
-  }
-  return !loaded.isNull();
+  const bool loadedInTime
+      = QTest::qWaitFor([&] { return cache.loadRequest(id, loaded, {}) == ThumbnailPixmapCache::LOADED; }, 10000);
+  return loadedInTime && !loaded.isNull();
 }
 
 QImage paintThumbnail(ThumbnailBase& thumb) {
