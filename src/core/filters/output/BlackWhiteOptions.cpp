@@ -28,6 +28,12 @@ int windowSizeFromXml(const QDomElement& el, const QString& name, const int fall
   return (size >= BlackWhiteOptions::MIN_WINDOW_SIZE) ? size : fallback;
 }
 
+// The fields go from 0 to 255; only a damaged or hand-edited file holds other bounds. Converted to a
+// byte they wrapped around to another threshold, and the upper bound + 1 overflowed at INT_MAX.
+int boundFromXml(const QDomElement& el, const QString& name, const QString& advancedName, const int fallback) {
+  return std::clamp(intFromXml(el, name, intFromXml(el, advancedName, fallback)), 0, 255);
+}
+
 // Far beyond what the fields allow (delta up to 100, strength up to 9.99), so that no file made by a
 // program loses its value. A larger one overflows the threshold or doesn't fit a float.
 constexpr double LARGEST_PLAUSIBLE_DELTA_OR_STRENGTH = 1000.0;
@@ -115,8 +121,8 @@ BlackWhiteOptions::BlackWhiteOptions(const QDomElement& el)
       m_morphologicalSmoothingEnabled(el.attribute("morphologicalSmoothing") == "1"),
       m_normalizeIllumination(el.attribute("normalizeIlluminationBW") == "1"),
       // Files of ScanTailor Advanced name them after the method that used them first.
-      m_lowerBound(intFromXml(el, "lowerBound", intFromXml(el, "wolfLowerBound", 1))),
-      m_upperBound(intFromXml(el, "upperBound", intFromXml(el, "wolfUpperBound", 254))),
+      m_lowerBound(boundFromXml(el, "lowerBound", "wolfLowerBound", 1)),
+      m_upperBound(boundFromXml(el, "upperBound", "wolfUpperBound", 254)),
       m_coloredDimming(XmlUnmarshaller::numberInRange(el, "coloredDimming", MIN_COLORED_DIMMING, MAX_COLORED_DIMMING)),
       m_binarizationMethod(parseBinarizationMethod(el.attribute("binarizationMethod"))),
       m_colorSegmenterOptions(el.namedItem("color-segmenter-options").toElement()) {

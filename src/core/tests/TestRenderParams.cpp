@@ -180,6 +180,30 @@ BOOST_AUTO_TEST_CASE(a_page_detection_tolerance_outside_0_to_1_is_limited_to_it)
   }
 }
 
+// The fields go from 0 to 255; only a damaged or hand-edited file holds other bounds. Converted to a
+// byte they wrapped around to another threshold, and INT_MAX + 1 overflowed.
+BOOST_AUTO_TEST_CASE(black_and_white_bounds_outside_0_to_255_are_limited_to_it) {
+  for (const char* value : {"256", "1000", "-5", "2147483647", "-2147483648"}) {
+    QDomDocument doc;
+    QDomElement el = doc.createElement("options");
+    el.setAttribute("lowerBound", value);
+    el.setAttribute("upperBound", value);
+    const BlackWhiteOptions options(el);
+    BOOST_CHECK_MESSAGE((options.getLowerBound() >= 0) && (options.getLowerBound() <= 255),
+                        value << " gave lower bound " << options.getLowerBound());
+    BOOST_CHECK_MESSAGE((options.getUpperBound() >= 0) && (options.getUpperBound() <= 255),
+                        value << " gave upper bound " << options.getUpperBound());
+  }
+  // The names of ScanTailor Advanced are read the same way.
+  QDomDocument doc;
+  QDomElement el = doc.createElement("options");
+  el.setAttribute("wolfLowerBound", "-5");
+  el.setAttribute("wolfUpperBound", "1000");
+  const BlackWhiteOptions advanced(el);
+  BOOST_CHECK_EQUAL(advanced.getLowerBound(), 0);
+  BOOST_CHECK_EQUAL(advanced.getUpperBound(), 255);
+}
+
 BOOST_AUTO_TEST_CASE(test_dewarping_options_keep_the_trapezoid_method_and_a_missing_model) {
   QDomDocument doc;
   DewarpingOptions options(TRAPEZOID);
