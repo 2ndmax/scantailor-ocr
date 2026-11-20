@@ -80,3 +80,11 @@ target_link_libraries(
     core_link_check
     PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,core,core_base,zones,fix_orientation,page_split,deskew,select_content,page_layout,output>"
             ${EXTRA_LIBS})
+
+# Checks that the base and the steps build without the composition layer (core).
+add_executable(core_base_link_check CoreLinkCheck.cpp)
+target_link_libraries(
+    core_base_link_check
+    PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,core_base,zones,fix_orientation,page_split,deskew,select_content,page_layout,output>"
+            ${EXTRA_LIBS})
+add_test(NAME core_base_link_check COMMAND core_base_link_check)
