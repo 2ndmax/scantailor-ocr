@@ -11,6 +11,7 @@ class TestUxQt : public QObject {
  private slots:
   void testCollapsibleGroupBoxStateAndSignal();
   void testCollapsedStateIsLoadedForGroupDisabledAtStart();
+  void testRemovedChildIsForgottenByCollapsedGroup();
   void testErrorWidgetShowsItsText();
   void testStyledIconFollowsPaletteColor();
   void testThumbnailDoesNotKeepThePreviousOne();

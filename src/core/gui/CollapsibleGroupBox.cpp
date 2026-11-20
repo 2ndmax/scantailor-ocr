@@ -187,9 +187,15 @@ void CollapsibleGroupBox::updateCollapseButtonTexts() {
 }
 
 void CollapsibleGroupBox::childEvent(QChildEvent* event) {
+  if (event->type() == QEvent::ChildRemoved) {
+    // A removed child is forgotten, or expanding would show it again when it (or an object at its
+    // address) comes back. It may be half destroyed already, so it is only compared, not cast.
+    for (auto it = m_collapsedWidgets.begin(); it != m_collapsedWidgets.end();) {
+      it = (static_cast<QObject*>(*it) == event->child()) ? m_collapsedWidgets.erase(it) : std::next(it);
+    }
+  }
+
   auto* childWidget = dynamic_cast<QWidget*>(event->child());
-  // REVIEW-NOTE (2026-10): only ChildAdded is handled -> m_collapsedWidgets keeps pointers to removed
-  // children. Not fixed because no panel removes children today.
   if (childWidget && (event->type() == QEvent::ChildAdded)) {
     if (m_collapsed) {
       if (childWidget->isVisible()) {

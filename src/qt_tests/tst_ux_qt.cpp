@@ -80,6 +80,26 @@ void TestUxQt::testCollapsedStateIsLoadedForGroupDisabledAtStart() {
   QSettings().remove(key);
 }
 
+void TestUxQt::testRemovedChildIsForgottenByCollapsedGroup() {
+  // A child the group hid when collapsing and that is removed then must not be shown by a later
+  // expanding: here it comes back hidden on purpose, as an object at the same address would.
+  CollapsibleGroupBox group("Options");
+  group.setObjectName("removedChild");
+  auto* label = new QLabel("text", &group);
+  group.show();
+  group.setCollapsed(true);
+  QVERIFY(label->isHidden());
+
+  label->setParent(nullptr);
+  group.setCollapsed(false);
+  label->setParent(&group);
+  label->hide();
+  group.setCollapsed(true);
+  group.setCollapsed(false);
+  QVERIFY(label->isHidden());
+  QSettings().remove("CollapsibleGroupBox/removedChild");
+}
+
 void TestUxQt::testErrorWidgetShowsItsText() {
   // The text and its format reach the label of the widget.
   const QString text("<b>Test error</b>");
