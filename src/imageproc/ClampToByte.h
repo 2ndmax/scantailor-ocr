@@ -8,9 +8,13 @@
 #include <cstdint>
 
 namespace imageproc {
-/** Limits \p val to 0..255 and rounds it to the nearest byte value. */
+/** Limits \p val to 0..255 and rounds it to the nearest byte value; NaN gives 0. */
 inline uint8_t clampToByte(const float val) {
-  return static_cast<uint8_t>(std::clamp(val, 0.0f, 255.0f) + 0.5f);
+  // std::clamp() returns NaN unchanged, and its cast to a byte is undefined.
+  if (!(val >= 0.0f)) {
+    return 0;
+  }
+  return static_cast<uint8_t>(std::min(val, 255.0f) + 0.5f);
 }
 }  // namespace imageproc
 

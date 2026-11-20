@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <ChromaDenoiser.h>
+#include <ClampToByte.h>
 #include <GrayImage.h>
 #include <KnnDenoiser.h>
 #include <Sharpen.h>
@@ -161,6 +162,13 @@ BOOST_AUTO_TEST_CASE(test_wiener_keeps_alpha) {
       BOOST_REQUIRE_EQUAL(qAlpha(image.pixel(x, y)), 255);
     }
   }
+}
+
+// std::clamp() lets NaN through, and the cast of NaN to a byte is undefined.
+BOOST_AUTO_TEST_CASE(test_clamp_to_byte_maps_nan_to_0) {
+  BOOST_CHECK_EQUAL(int(clampToByte(std::nanf(""))), 0);
+  BOOST_CHECK_EQUAL(int(clampToByte(-3.0f)), 0);
+  BOOST_CHECK_EQUAL(int(clampToByte(254.6f)), 255);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
