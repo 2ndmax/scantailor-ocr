@@ -62,7 +62,7 @@ set(sources
 add_executable(core_tests ${sources})
 target_link_libraries(
     core_tests
-    PRIVATE core dewarping TIFF::TIFF JPEG::JPEG ${OPENJPEG_TARGET} Boost::unit_test_framework ${EXTRA_LIBS})
+    PRIVATE core core_base dewarping TIFF::TIFF JPEG::JPEG ${OPENJPEG_TARGET} Boost::unit_test_framework ${EXTRA_LIBS})
 
 add_test(NAME core_tests COMMAND core_tests --log_level=message)
 set_unit_test_environment(core_tests)
@@ -78,5 +78,5 @@ endif()
 add_executable(core_link_check CoreLinkCheck.cpp)
 target_link_libraries(
     core_link_check
-    PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,core,zones,fix_orientation,page_split,deskew,select_content,page_layout,output>"
+    PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,core,core_base,zones,fix_orientation,page_split,deskew,select_content,page_layout,output>"
             ${EXTRA_LIBS})

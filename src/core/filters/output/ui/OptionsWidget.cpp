@@ -23,8 +23,8 @@
 #include <algorithm>
 #include <utility>
 
-#include "../../../ProcessingOptions.h"
-#include "../../../Utils.h"
+#include "../../../base/ProcessingOptions.h"
+#include "../../../base/Utils.h"
 #include "../FillZoneComparator.h"
 #include "../PictureZoneComparator.h"
 #include "ApplyColorsDialog.h"

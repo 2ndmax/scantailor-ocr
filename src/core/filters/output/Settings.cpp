@@ -5,7 +5,7 @@
 
 #include <QDomElement>
 
-#include "../../Utils.h"
+#include "../../base/Utils.h"
 #include "FillColorProperty.h"
 #include "FillZonePropFactory.h"
 #include "PictureLayerProperty.h"

@@ -1,116 +1,47 @@
 set(common_sources
-    Translations.cpp Translations.h
-    CommandLineRun.cpp CommandLineRun.h
     BackgroundExecutor.cpp BackgroundExecutor.h
-    SmartFilenameOrdering.cpp SmartFilenameOrdering.h
-    AbstractRelinker.h
-    RelinkablePath.cpp RelinkablePath.h
-    RelinkedKeys.h
-    ImageInfo.cpp ImageInfo.h
-    ImageFileInfo.cpp ImageFileInfo.h
-    ImageMetadata.cpp ImageMetadata.h
-    RecentProjects.cpp RecentProjects.h
-    OutOfMemoryHandler.cpp OutOfMemoryHandler.h
-    ContentSpanFinder.cpp ContentSpanFinder.h
-    ImageTransformation.cpp ImageTransformation.h
-    DownscaledImage.cpp DownscaledImage.h
-    ImagePresentation.h
-    ThumbnailLoadResult.h
-    ThumbnailPixmapCache.cpp ThumbnailPixmapCache.h
-    ThumbnailDataBase.h
-    ContentBoxPropagator.cpp ContentBoxPropagator.h
-    PageOrientationPropagator.cpp PageOrientationPropagator.h
-    DebugImagesImpl.cpp DebugImagesImpl.h
-    ImageId.cpp ImageId.h
-    PageId.cpp PageId.h
-    PageInfo.cpp PageInfo.h
     BackgroundTask.cpp BackgroundTask.h
-    ProcessingTaskQueue.cpp ProcessingTaskQueue.h
-    PageSequence.cpp PageSequence.h
-    StageSequence.cpp StageSequence.h
-    ProjectPages.cpp ProjectPages.h
-    FilterData.cpp FilterData.h
-    ImageMetadataLoader.cpp ImageMetadataLoader.h
-    ImageLoadErrors.cpp ImageLoadErrors.h
-    TiffDevice.cpp TiffDevice.h
-    TiffReader.cpp TiffReader.h
-    Jp2Reader.cpp Jp2Reader.h
-    Jp2MetadataLoader.cpp Jp2MetadataLoader.h
-    TiffWriter.cpp TiffWriter.h
-    ProcessingOptions.cpp ProcessingOptions.h
-    PngMetadataLoader.cpp PngMetadataLoader.h
-    TiffMetadataLoader.cpp TiffMetadataLoader.h
-    JpegMetadataLoader.cpp JpegMetadataLoader.h
-    ImageLoader.cpp ImageLoader.h
-    ImageSizeLimit.cpp ImageSizeLimit.h
-    OrthogonalRotation.cpp OrthogonalRotation.h
-    WorkerThreadPool.cpp WorkerThreadPool.h
-    LoadFileTask.cpp LoadFileTask.h
-    FilterUiInterface.h
-    ProjectReader.cpp ProjectReader.h
-    ProjectWriter.cpp ProjectWriter.h
-    ProjectFiles.cpp ProjectFiles.h
-    PathNames.cpp PathNames.h
-    ProjectSession.cpp ProjectSession.h
-    SettingsSetup.cpp SettingsSetup.h
-    EstimateBackground.cpp EstimateBackground.h
-    Despeckle.cpp Despeckle.h
-    FileNameDisambiguator.cpp FileNameDisambiguator.h
-    OutputFileNameGenerator.cpp OutputFileNameGenerator.h
-    Margins.cpp Margins.h
-    PageRange.cpp PageRange.h
-    SelectedPage.cpp SelectedPage.h
-    Utils.cpp Utils.h
-    PageView.h
-    AutoManualMode.cpp AutoManualMode.h
-    AbstractCommand.h
-    AbstractFilter.h
-    BeforeOrAfter.h
-    FilterResult.h
-    BatchProcessingResult.h
-    CompositeCacheDrivenTask.h
-    PageOrderProvider.h PageOrderProvider.cpp
-    PageOrderOption.h
-    PayloadEvent.h
-    AbstractFilterDataCollector.h
-    ThumbnailCollector.h
-    ContentBoxCollector.h
-    PageOrientationCollector.h
-    UnitsProvider.cpp UnitsProvider.h
-    UnitsListener.h UnitsListener.cpp
-    UnitsConverter.cpp UnitsConverter.h
-    Units.cpp Units.h
+    CommandLineRun.cpp CommandLineRun.h
+    ConnectionManager.cpp ConnectionManager.h
+    ContentBoxPropagator.cpp ContentBoxPropagator.h
     DefaultParams.cpp DefaultParams.h
     DefaultParamsProfileManager.cpp DefaultParamsProfileManager.h
     DefaultParamsProvider.cpp DefaultParamsProvider.h
-    DeviationProvider.h
-    OrderByDeviationProvider.cpp OrderByDeviationProvider.h
-    BlackOnWhiteEstimator.cpp BlackOnWhiteEstimator.h
-    ImageSettings.cpp ImageSettings.h
-    NullTaskStatus.h
-    OrderByCompletenessProvider.cpp OrderByCompletenessProvider.h
-    OrderBySizeProviderBase.cpp OrderBySizeProviderBase.h
-    ApplicationSettings.cpp ApplicationSettings.h
-    ConnectionManager.cpp ConnectionManager.h
-    ContentMask.cpp ContentMask.h
-    PdfWriter.cpp PdfWriter.h
-    PdfCompression.h
-    PdfImageEncoder.cpp PdfImageEncoder.h
-    jbig2enc/jbig2arith.cpp jbig2enc/jbig2arith.h
-    ExportPage.cpp ExportPage.h
     ExportJob.cpp ExportJob.h
-    OcrTextOutputs.cpp OcrTextOutputs.h
-    PdfPageOrder.cpp PdfPageOrder.h
-    NewScanTracker.cpp NewScanTracker.h
-    ScanInsertion.cpp ScanInsertion.h
+    ExportPage.cpp ExportPage.h
     GlyphLessFont.cpp GlyphLessFont.h
+    LoadFileTask.cpp LoadFileTask.h
+    NewScanTracker.cpp NewScanTracker.h
+    OcrEngine.cpp OcrEngine.h
     OcrLanguages.cpp OcrLanguages.h
+    OcrTextOutputs.cpp OcrTextOutputs.h
+    PageOrientationPropagator.cpp PageOrientationPropagator.h
+    PathNames.cpp PathNames.h
+    PdfImageEncoder.cpp PdfImageEncoder.h
+    PdfPageOrder.cpp PdfPageOrder.h
+    PdfWriter.cpp PdfWriter.h
+    ProcessingTaskQueue.cpp ProcessingTaskQueue.h
+    ProjectFiles.cpp ProjectFiles.h
+    ProjectReader.cpp ProjectReader.h
+    ProjectSession.cpp ProjectSession.h
+    ProjectWriter.cpp ProjectWriter.h
+    RecentProjects.cpp RecentProjects.h
+    ScanInsertion.cpp ScanInsertion.h
+    SelectedPage.cpp SelectedPage.h
+    SettingsSetup.cpp SettingsSetup.h
+    SmartFilenameOrdering.cpp SmartFilenameOrdering.h
+    StageSequence.cpp StageSequence.h
     TessdataDownloader.cpp TessdataDownloader.h
-    OcrEngine.h
-    PictureDetection.cpp PictureDetection.h
-    ColorModeDetector.h LeptonicaDetector.h WhiteBalance.h)
+    Translations.cpp Translations.h
+    WorkerThreadPool.cpp WorkerThreadPool.h
+    ImagePresentation.h
+    NullTaskStatus.h
+    PayloadEvent.h
+    jbig2enc/jbig2arith.cpp jbig2enc/jbig2arith.h)
 
 # Everything that works without widgets: processing, project files, export, the command line run.
+add_subdirectory(zones)
+add_subdirectory(base)
 add_library(core STATIC ${common_sources})
 
 # Third-party code, kept as in jbig2enc: no warnings for it.
@@ -124,17 +55,17 @@ target_link_libraries(
   core
   PRIVATE TIFF::TIFF PNG::PNG ZLIB::ZLIB JPEG::JPEG ${OPENJPEG_TARGET}
   PUBLIC Qt::Core Qt::Gui Qt::Xml Qt::Network Qt::OpenGL Qt::Svg
+  core_base
   imageproc zones
   fix_orientation page_split deskew select_content page_layout output)
 target_include_directories(core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 translation_sources(scantailor ${common_sources})
 
-target_sources(core PRIVATE OcrEngine.cpp ColorModeDetector.cpp LeptonicaDetector.cpp WhiteBalance.cpp)
+target_sources(core PRIVATE OcrEngine.cpp)
 target_link_libraries(core PRIVATE ${TESSERACT_TARGET})
 translation_sources(scantailor OcrEngine.cpp)
 
 add_subdirectory(gui)
-add_subdirectory(zones)
 if (BUILD_TESTS)
   add_subdirectory(tests)
 endif()
