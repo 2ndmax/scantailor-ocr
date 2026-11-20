@@ -166,6 +166,10 @@ int main(int argc, char** argv) {
       only = args[i].mid(7);
     } else if (args[i].startsWith("--project=")) {
       projectPath = args[i].mid(10);
+    } else {
+      // A mistyped option would otherwise run with the default silently.
+      std::cerr << "Unknown option: " << args[i].toStdString() << "\n";
+      return 1;
     }
   }
 
