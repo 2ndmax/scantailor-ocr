@@ -1281,9 +1281,60 @@ BOOST_AUTO_TEST_CASE(rectangular_picture_detection_runs_through_process) {
   BOOST_CHECK_GT(grayLevels(withDetection, inner(PICTURE_RECT)).size(), 50u);
 }
 
-// With very little text and unfilled margins, the current marginal tracing keeps the trivial
-// model even when the illumination is normalized. This pins the behavior described by the
-// REVIEW-NOTE in OutputGenerator.cpp; it deliberately does not assert a corrected edge.
+// Normalization with unfilled margins estimates the background over the whole working area, so
+// the uneven light and the dark scan edge below the text are part of the estimate before Auto
+// dewarping traces the lines. The resulting model is non-trivial and follows the slanted text
+// block. Its edges are checked with a tolerance; see the REVIEW-NOTE in OutputGeneratorDewarping.
+BOOST_AUTO_TEST_CASE(unfilled_margins_and_normalized_light_keep_the_traced_model) {
+  QImage page = whiteA4Page();
+  {
+    QPainter painter(&page);
+    for (int y = 0; y < page.height(); ++y) {
+      const int shade = 250 - y * 170 / page.height();
+      painter.fillRect(0, y, page.width(), 1, qRgb(shade, shade, shade));
+    }
+    painter.fillRect(0, page.height() - 20, page.width(), 20, Qt::black);
+    for (int line = 0; line < 24; ++line) {
+      const double t = line / 23.0;
+      const int left = TEXT_LEFT + static_cast<int>(100 * t);
+      const int right = TEXT_RIGHT + static_cast<int>(120 * t);
+      drawWords(painter, left, right, 500 + line * 100);
+    }
+  }
+
+  Run run;
+  run.page = page;
+  run.content = QRectF(260, 384, 1960, 2860);
+  run.dewarpingMode = AUTO;
+  run.normalizeIlluminationBW = true;
+  run.normalizeIlluminationColor = true;
+  run.fillMargins = false;
+  bool noModelFound = true;
+  dewarping::DistortionModel model;
+  run.noModelFound = &noModelFound;
+  run.resultingModel = &model;
+  generate(run);
+
+  BOOST_REQUIRE(!noModelFound);
+  BOOST_REQUIRE(model.isValid());
+  const auto& top = model.topCurve().polyline();
+  const auto& bottom = model.bottomCurve().polyline();
+  BOOST_REQUIRE_EQUAL(top.size(), 2u);
+  BOOST_REQUIRE_EQUAL(bottom.size(), 2u);
+  // About a millimetre at 300 dpi is 12 pixels. The model follows the text, not the page edges.
+  const auto near = [](const QPointF& point, const QPointF& expected) {
+    return (std::abs(point.x() - expected.x()) < 12.0) && (std::abs(point.y() - expected.y()) < 12.0);
+  };
+  BOOST_TEST(near(top.front(), QPointF(296, 515)));
+  BOOST_TEST(near(top.back(), QPointF(2206, 515)));
+  BOOST_TEST(near(bottom.front(), QPointF(387, 2815)));
+  BOOST_TEST(near(bottom.back(), QPointF(2255, 2815)));
+}
+
+// With very little text there is nothing for marginal dewarping to trace, so it keeps the trivial
+// model even with normalized illumination and unfilled margins. The REVIEW-NOTE in
+// OutputGeneratorDewarping.cpp is about the traced Auto/Trapezoid model, which this test does not
+// exercise; the test above covers that path with a non-trivial model.
 BOOST_AUTO_TEST_CASE(few_text_lines_with_normalized_light_keep_the_trivial_marginal_model) {
   QImage page = whiteA4Page();
   {
