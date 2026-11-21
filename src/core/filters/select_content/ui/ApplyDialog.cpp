@@ -3,6 +3,7 @@
 
 #include "ApplyDialog.h"
 
+#include "ApplyDialogUtils.h"
 #include "PageSelectionAccessor.h"
 
 namespace select_content {
@@ -10,6 +11,7 @@ ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelec
     : QDialog(parent) {
   setupUi(this);
   scopeGroupBox->setPages(curPage, pageSelectionAccessor);
+  core::bindOkButtonToApplyOptions(buttonBox, applyContentBoxOption, applyPageBoxOption);
 
   connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyDialog::onSubmit);
 }
