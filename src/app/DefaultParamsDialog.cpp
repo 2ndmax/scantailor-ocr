@@ -229,9 +229,8 @@ DefaultParamsDialog::DefaultParamsDialog(QWidget* parent)
     m_alignmentButtonGroup->addButton(buttonAndAlignment.first);
   }
 
-  // The same range as in the Deskew step.
-  angleSpinBox->setRange(-45.0, 45.0);
-  WidgetUtils::setNumberFieldWidth(angleSpinBox, -45.0);
+  angleSpinBox->setRange(-deskew::MAX_DESKEW_ANGLE_DEG, deskew::MAX_DESKEW_ANGLE_DEG);
+  WidgetUtils::setNumberFieldWidth(angleSpinBox, -deskew::MAX_DESKEW_ANGLE_DEG);
   // The items follow the order of deskew::SkewDetection, as in the Deskew step.
   deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Content"));
   deskewDetectionCB->addItem(QCoreApplication::translate("deskew::OptionsWidget", "Top page edge"));
