@@ -773,6 +773,27 @@ void detail::Processor::applyPhotoAdjustments(QImage& image, const BinaryImage* 
   m_inputs.status.throwIfCancelled();
 }
 
+void detail::Processor::decideOutsideBackgroundColor() {
+  // Both paths fill their margins before the image is inverted back for white-on-black pages.
+  if (m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
+    // The image is inverted back below for light content on dark background.
+    switch (m_colorParams.colorCommonOptions().getFillingColor()) {
+      case FILL_WHITE:
+        m_outsideBackgroundColor = m_images.blackOnWhite ? Qt::white : Qt::black;
+        break;
+      case FILL_BLACK:
+        m_outsideBackgroundColor = m_images.blackOnWhite ? Qt::black : Qt::white;
+        break;
+      default:
+        m_outsideBackgroundColor = Qt::white;
+    }
+  } else if (m_colorParams.colorCommonOptions().getFillingColor() == FILL_WHITE) {
+    m_outsideBackgroundColor = m_images.blackOnWhite ? Qt::white : Qt::black;
+  } else if (m_colorParams.colorCommonOptions().getFillingColor() == FILL_BLACK) {
+    m_outsideBackgroundColor = m_images.blackOnWhite ? Qt::black : Qt::white;
+  }
+}
+
 QImage detail::Processor::transformToWorkingCs(bool normalize) const {
   QImage dst;
   if (normalize) {

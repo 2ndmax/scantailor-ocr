@@ -217,6 +217,8 @@ class Processor {
   // output), only the pictures are changed.
   void applyPhotoAdjustments(QImage& image, const BinaryImage* pictureMask) const;
 
+  void decideOutsideBackgroundColor();
+
   DistortionModel buildAutoDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal);
 
   DistortionModel buildTrapezoidDistortionModel(const GrayImage& warpedGrayOutput, const QTransform& toOriginal);

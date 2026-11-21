@@ -235,23 +235,7 @@ std::unique_ptr<OutputImage> detail::Processor::processWithoutDewarping(ZoneSet&
     throw std::bad_alloc();
   }
 
-  if (m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
-    // The image is inverted back below for light content on dark background.
-    switch (m_colorParams.colorCommonOptions().getFillingColor()) {
-      case FILL_WHITE:
-        m_outsideBackgroundColor = m_images.blackOnWhite ? Qt::white : Qt::black;
-        break;
-      case FILL_BLACK:
-        m_outsideBackgroundColor = m_images.blackOnWhite ? Qt::black : Qt::white;
-        break;
-      default:
-        m_outsideBackgroundColor = Qt::white;
-    }
-  } else if (m_colorParams.colorCommonOptions().getFillingColor() == FILL_WHITE) {
-    m_outsideBackgroundColor = m_images.blackOnWhite ? Qt::white : Qt::black;
-  } else if (m_colorParams.colorCommonOptions().getFillingColor() == FILL_BLACK) {
-    m_outsideBackgroundColor = m_images.blackOnWhite ? Qt::black : Qt::white;
-  }
+  decideOutsideBackgroundColor();
 
   detail::fillMarginsInPlace(maybeNormalized, m_geometry.contentAreaInWorkingCs, m_outsideBackgroundColor);
   dst.fill(m_outsideBackgroundColor);
