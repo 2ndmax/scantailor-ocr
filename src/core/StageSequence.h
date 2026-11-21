@@ -15,6 +15,7 @@ class DefaultParams;
 #include "ExportPage.h"
 #include "NonCopyable.h"
 #include "PageId.h"
+#include "PageView.h"
 #include "filters/deskew/Filter.h"
 #include "filters/fix_orientation/Filter.h"
 #include "filters/output/Filter.h"
@@ -188,6 +189,14 @@ class StageSequence {
   int outputFilterIdx() const { return m_outputFilterIdx; }
 
  private:
+  bool processPass(PageView view,
+                   int lastFilterIdx,
+                   const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+                   const OutputFileNameGenerator& outFileNameGen,
+                   std::set<ImageId>& failedImages,
+                   ProcessAllResult& result,
+                   const ProgressCallback& progress) const;
+
   std::shared_ptr<ProjectPages> m_pages;
   // Before the filters, which get it when they are created.
   std::shared_ptr<ProcessingOptions> m_processingOptions;

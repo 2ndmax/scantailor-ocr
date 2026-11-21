@@ -167,54 +167,61 @@ StageSequence::PageFailure::Kind toPageFailureKind(const LoadFileTask::Failure f
 }
 }  // namespace
 
+bool StageSequence::processPass(PageView view,
+                                int lastFilterIdx,
+                                const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+                                const OutputFileNameGenerator& outFileNameGen,
+                                std::set<ImageId>& failedImages,
+                                ProcessAllResult& result,
+                                const ProgressCallback& progress) const {
+  const PageSequence sequence = m_pages->toPageSequence(view);
+  const int total = static_cast<int>(sequence.numPages());
+  int done = 0;
+  for (const PageInfo& page : sequence) {
+    if (failedImages.count(page.imageId()) == 0) {
+      // The pages that only exist after the split get their start values in the second pass;
+      // in the output pass all pages have their parameters.
+      if (lastFilterIdx != m_outputFilterIdx) {
+        loadDefaultSettings(page);
+      }
+      FilterResultPtr taskResult;
+      try {
+        taskResult = (*createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, m_pages, true, false))();
+      } catch (const std::bad_alloc&) {
+        // LoadFileTask leaves it to the out-of-memory handler of the thread pool, which isn't
+        // there in this thread. Further pages would most likely fail the same way.
+        result.failures.push_back({page.id(),
+                                   PageFailure::PROCESSING_FAILED,
+                                   {QCoreApplication::translate("StageSequence", "Out of memory.")}});
+        return false;
+      }
+      QStringList reasons;
+      LoadFileTask::Failure failure = LoadFileTask::Failure::LOAD;
+      if (LoadFileTask::isFailure(taskResult, &reasons, &failure)) {
+        failedImages.insert(page.imageId());
+        result.failures.push_back({page.id(), toPageFailureKind(failure), reasons});
+      } else if ((lastFilterIdx == m_outputFilterIdx) && !m_outputFilter->hasOutputParams(page.id())) {
+        result.failures.push_back({page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}});
+      }
+    }
+    ++done;
+    // A cancel after the last page changes nothing: all pages are done, so the result counts as complete.
+    const bool lastPage = (lastFilterIdx == m_outputFilterIdx) && (done == total);
+    if (progress && !progress(lastFilterIdx, done, total) && !lastPage) {
+      result.cancelled = true;
+      return false;
+    }
+  }
+  return true;
+}
+
 StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
                                                           const OutputFileNameGenerator& outFileNameGen,
                                                           const ProgressCallback& progress) const {
   ProcessAllResult result;
   std::set<ImageId> failedImages;
-  // Returns false if cancelled.
-  const auto process = [&](const PageView view, const int lastFilterIdx) {
-    const PageSequence sequence = m_pages->toPageSequence(view);
-    const int total = static_cast<int>(sequence.numPages());
-    int done = 0;
-    for (const PageInfo& page : sequence) {
-      if (failedImages.count(page.imageId()) == 0) {
-        // The pages that only exist after the split get their start values in the second pass;
-        // in the output pass all pages have their parameters.
-        if (lastFilterIdx != m_outputFilterIdx) {
-          loadDefaultSettings(page);
-        }
-        FilterResultPtr taskResult;
-        try {
-          taskResult = (*createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, m_pages, true, false))();
-        } catch (const std::bad_alloc&) {
-          // LoadFileTask leaves it to the out-of-memory handler of the thread pool, which isn't
-          // there in this thread. Further pages would most likely fail the same way.
-          result.failures.push_back({page.id(),
-                                     PageFailure::PROCESSING_FAILED,
-                                     {QCoreApplication::translate("StageSequence", "Out of memory.")}});
-          return false;
-        }
-        QStringList reasons;
-        LoadFileTask::Failure failure = LoadFileTask::Failure::LOAD;
-        if (LoadFileTask::isFailure(taskResult, &reasons, &failure)) {
-          failedImages.insert(page.imageId());
-          result.failures.push_back({page.id(), toPageFailureKind(failure), reasons});
-        } else if ((lastFilterIdx == m_outputFilterIdx) && !m_outputFilter->hasOutputParams(page.id())) {
-          result.failures.push_back({page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}});
-        }
-      }
-      ++done;
-      // A cancel after the last page changes nothing: all pages are done, so the result counts as complete.
-      const bool lastPage = (lastFilterIdx == m_outputFilterIdx) && (done == total);
-      if (progress && !progress(lastFilterIdx, done, total) && !lastPage) {
-        result.cancelled = true;
-        return false;
-      }
-    }
-    return true;
-  };
-  if (!process(IMAGE_VIEW, m_pageSplitFilterIdx) || !process(PAGE_VIEW, m_pageLayoutFilterIdx)
+  if (!processPass(IMAGE_VIEW, m_pageSplitFilterIdx, thumbnailCache, outFileNameGen, failedImages, result, progress)
+      || !processPass(PAGE_VIEW, m_pageLayoutFilterIdx, thumbnailCache, outFileNameGen, failedImages, result, progress)
       || !m_pageLayoutFilter->checkReadyForOutput(*m_pages)) {
     return result;
   }
@@ -223,7 +230,8 @@ StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<
   if (!result.failures.empty()) {
     return result;
   }
-  result.output = process(PAGE_VIEW, m_outputFilterIdx);
+  result.output
+      = processPass(PAGE_VIEW, m_outputFilterIdx, thumbnailCache, outFileNameGen, failedImages, result, progress);
   return result;
 }
 
