@@ -19,7 +19,8 @@ if (BUILD_TESTS)
     add_test(
         NAME ${name}
         COMMAND "${CMAKE_COMMAND}" "-DPROGRAM=$<TARGET_FILE:scantailor-ocr-cli>" "-DARGS=${ARGN}"
-                "-DEXPECTED=${expected}" -P "${PROJECT_SOURCE_DIR}/cmake/CheckExitCode.cmake")
+                "-DEXPECTED=${expected}" "-DSCANTAILOR_CMAKE_MINIMUM_VERSION=${SCANTAILOR_CMAKE_MINIMUM_VERSION}" -P
+                "${PROJECT_SOURCE_DIR}/cmake/CheckExitCode.cmake")
     set_unit_test_environment(${name})
   endfunction()
 

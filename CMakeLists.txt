@@ -1,6 +1,10 @@
 # 3.24 for linking a library as a whole (core_link_check); Ubuntu 24.04, the oldest system with the
 # required Qt 6.4, has 3.28.
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
+# For the scripts run with cmake -P, which don't inherit the project's policies. Kept apart because
+# a package's config file may call cmake_minimum_required() itself and change
+# CMAKE_MINIMUM_REQUIRED_VERSION.
+set(SCANTAILOR_CMAKE_MINIMUM_VERSION ${CMAKE_MINIMUM_REQUIRED_VERSION})
 
 set(target_name scantailor-ocr)
 

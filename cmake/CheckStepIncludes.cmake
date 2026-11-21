@@ -10,10 +10,14 @@
 #   -DFILTERS_DIR=<src/core/filters>
 #   -DSTEPS=<step>|<step>|...                   all step libraries
 #   -DLINKS_<step>=<library>|<library>|...      the step's LINK_LIBRARIES
+#   -DSCANTAILOR_CMAKE_MINIMUM_VERSION=<the project's minimum version>
 
 # A script run with -P doesn't inherit the project's policies; without this, CMake 3.x treats
 # IN_LIST as an unknown argument (policy CMP0057).
-cmake_minimum_required(VERSION 3.24)
+if (NOT DEFINED SCANTAILOR_CMAKE_MINIMUM_VERSION)
+  message(FATAL_ERROR "CheckStepIncludes.cmake needs -DSCANTAILOR_CMAKE_MINIMUM_VERSION=...")
+endif()
+cmake_minimum_required(VERSION ${SCANTAILOR_CMAKE_MINIMUM_VERSION})
 
 foreach (var FILTERS_DIR STEPS)
   if (NOT DEFINED ${var})

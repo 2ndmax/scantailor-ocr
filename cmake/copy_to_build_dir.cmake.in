@@ -1,3 +1,6 @@
+# A script run with -P does not inherit the project's policies.
+cmake_minimum_required(VERSION @SCANTAILOR_CMAKE_MINIMUM_VERSION@)
+
 set("COPY_TO_BUILD_DIR_Debug" "@COPY_TO_BUILD_DIR_Debug@")
 set("COPY_TO_BUILD_DIR_Release" "@COPY_TO_BUILD_DIR_Release@")
 set("COPY_TO_BUILD_DIR_MinSizeRel" "@COPY_TO_BUILD_DIR_MinSizeRel@")

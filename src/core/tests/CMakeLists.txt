@@ -101,5 +101,6 @@ list(JOIN steps "|" steps_arg)
 add_test(
     NAME step_include_check
     COMMAND "${CMAKE_COMMAND}" "-DFILTERS_DIR=${PROJECT_SOURCE_DIR}/src/core/filters" "-DSTEPS=${steps_arg}"
-            ${step_link_args} -P "${PROJECT_SOURCE_DIR}/cmake/CheckStepIncludes.cmake")
+            ${step_link_args} "-DSCANTAILOR_CMAKE_MINIMUM_VERSION=${SCANTAILOR_CMAKE_MINIMUM_VERSION}" -P
+            "${PROJECT_SOURCE_DIR}/cmake/CheckStepIncludes.cmake")
 set_unit_test_environment(step_include_check)
