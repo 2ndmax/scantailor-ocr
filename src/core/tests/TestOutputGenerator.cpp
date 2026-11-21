@@ -142,6 +142,7 @@ struct Run {
   // Only set when a test asks, so BlackWhiteOptions and ColorCommonOptions keep their own defaults.
   std::optional<bool> normalizeIlluminationBW;
   std::optional<bool> normalizeIlluminationColor;
+  std::optional<FillingColor> fillingColor;
   bool blackOnWhite = true;
   bool takeOverBlackOnWhite = true;
   // Receives the images the generator writes as a side effect, if set.
@@ -215,6 +216,9 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   colorCommonOptions.setFillMargins(run.fillMargins);
   if (run.normalizeIlluminationColor) {
     colorCommonOptions.setNormalizeIllumination(*run.normalizeIlluminationColor);
+  }
+  if (run.fillingColor) {
+    colorCommonOptions.setFillingColor(*run.fillingColor);
   }
   ColorParams colorParamsWithMargins = params.colorParams();
   colorParamsWithMargins.setColorCommonOptions(colorCommonOptions);
@@ -534,6 +538,53 @@ BOOST_AUTO_TEST_CASE(color_margins_are_filled_with_the_page_background) {
   BOOST_REQUIRE_EQUAL(marginLevels.size(), 1u);
   BOOST_CHECK_GE(*marginLevels.begin(), 245);
   BOOST_CHECK_GT(grayLevels(output, inner(TEXT_RECT)).count(0), 0u);
+}
+
+// Margin colors for every filling color, polarity and output path. The picture half lies outside
+// the content box, so it shows only the margin color. The scan itself is black on white; with
+// blackOnWhite == false the polarity comes from the parameters, not from the scan. Characterized
+// as they are today: in black-and-white output the filling color makes no visible difference.
+BOOST_AUTO_TEST_CASE(filling_color_decides_the_margins_in_both_paths) {
+  struct FillingCase {
+    const char* name;
+    std::optional<FillingColor> fillingColor;  // Empty keeps the default of ColorCommonOptions.
+  };
+  const FillingCase cases[] = {{"default", std::nullopt}, {"white", FILL_WHITE}, {"black", FILL_BLACK}};
+
+  for (const ColorMode mode : {BLACK_AND_WHITE, COLOR_GRAYSCALE}) {
+    for (const bool dewarping : {false, true}) {
+      for (const bool blackOnWhite : {true, false}) {
+        for (const FillingCase& fillingCase : cases) {
+          BOOST_TEST_CONTEXT("mode " << mode << ", dewarping " << dewarping << ", blackOnWhite " << blackOnWhite
+                                     << ", filling color " << fillingCase.name) {
+            Run run;
+            run.mode = mode;
+            run.content = QRectF(TEXT_RECT);
+            run.takeOverBlackOnWhite = false;
+            run.blackOnWhite = blackOnWhite;
+            run.thinManualDewarping = dewarping;
+            run.fillingColor = fillingCase.fillingColor;
+            const std::set<int> levels = grayLevels(process(run), inner(PICTURE_RECT));
+            BOOST_REQUIRE_EQUAL(levels.size(), 1u);
+            const int level = *levels.begin();
+            if (mode == BLACK_AND_WHITE) {
+              // Binarized margins end up white on black on white and black on white on black,
+              // whatever the filling color says.
+              BOOST_CHECK_EQUAL(level, blackOnWhite ? 255 : 0);
+            } else if (fillingCase.fillingColor && *fillingCase.fillingColor == FILL_WHITE) {
+              BOOST_CHECK_EQUAL(level, 255);
+            } else if (fillingCase.fillingColor && *fillingCase.fillingColor == FILL_BLACK) {
+              BOOST_CHECK_EQUAL(level, 0);
+            } else if (blackOnWhite) {
+              BOOST_CHECK_GE(level, 245);  // The paper's own background.
+            } else {
+              BOOST_CHECK_LE(level, 10);  // That same background, inverted with the page.
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 // Light red strokes (gray about 190) come out white, dark red ones (gray about 60) black.
