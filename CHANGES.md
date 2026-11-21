@@ -244,6 +244,9 @@ topic, not by version.
   setting, like "Fill factor" and "Border tolerance" (see below).
 * "Page Box" and "Content Box" are one panel, **Page and Content Box**. The mode "Off" replaces
   "Disable". The mode buttons act when checked, not when pressed.
+* **Apply to ...** keeps OK disabled while neither "Page box" nor "Content box" is ticked, as
+  *Rotate and Trim* and *Deskew and Oblique* already did. Before, such an OK applied nothing
+  but still made the chosen pages be processed again.
 * Fixed several content detection and box editing bugs. Settings for the detection and the
   BlurDiv-based detection are described under the adopted features below.
 
