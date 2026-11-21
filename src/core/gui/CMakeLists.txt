@@ -27,6 +27,7 @@ set(gui_sources
     SectionHeading.cpp SectionHeading.h
     TiffCompressionPanel.cpp TiffCompressionPanel.h
     PageScopeGroupBox.cpp PageScopeGroupBox.h
+    ApplyDialogUtils.cpp ApplyDialogUtils.h
     ZoneEditorBase.cpp ZoneEditorBase.h
     PixmapRenderer.cpp PixmapRenderer.h
     BubbleAnimation.cpp BubbleAnimation.h

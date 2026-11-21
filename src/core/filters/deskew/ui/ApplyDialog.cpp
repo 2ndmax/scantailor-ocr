@@ -3,8 +3,7 @@
 
 #include "ApplyDialog.h"
 
-#include <QPushButton>
-
+#include "ApplyDialogUtils.h"
 #include "PageSelectionAccessor.h"
 
 namespace deskew {
@@ -13,15 +12,7 @@ ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelec
   setupUi(this);
   scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
-  // Applying neither the deskew nor the oblique angle would silently do nothing.
-  const auto updateOkButton = [this]() {
-    if (QPushButton* okButton = buttonBox->button(QDialogButtonBox::Ok)) {
-      okButton->setEnabled(applyDeskewCheckBox->isChecked() || applyObliqueCheckBox->isChecked());
-    }
-  };
-  connect(applyDeskewCheckBox, &QCheckBox::toggled, this, updateOkButton);
-  connect(applyObliqueCheckBox, &QCheckBox::toggled, this, updateOkButton);
-  updateOkButton();
+  core::bindOkButtonToApplyOptions(buttonBox, applyDeskewCheckBox, applyObliqueCheckBox);
 
   connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyDialog::onSubmit);
 }

@@ -3,8 +3,7 @@
 
 #include "ApplyDialog.h"
 
-#include <QPushButton>
-
+#include "ApplyDialogUtils.h"
 #include "PageSelectionAccessor.h"
 
 namespace fix_orientation {
@@ -13,15 +12,7 @@ ApplyDialog::ApplyDialog(QWidget* parent, const PageId& curPage, const PageSelec
   setupUi(this);
   scopeGroupBox->setPages(curPage, pageSelectionAccessor);
 
-  // Applying neither the rotation nor the trim would silently do nothing.
-  const auto updateOkButton = [this]() {
-    if (QPushButton* okButton = buttonBox->button(QDialogButtonBox::Ok)) {
-      okButton->setEnabled(applyRotationCheckBox->isChecked() || applyTrimCheckBox->isChecked());
-    }
-  };
-  connect(applyRotationCheckBox, &QCheckBox::toggled, this, updateOkButton);
-  connect(applyTrimCheckBox, &QCheckBox::toggled, this, updateOkButton);
-  updateOkButton();
+  core::bindOkButtonToApplyOptions(buttonBox, applyRotationCheckBox, applyTrimCheckBox);
 
   connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyDialog::onSubmit);
 }
