@@ -9,8 +9,8 @@ class QDialogButtonBox;
 
 namespace core {
 /**
- * Keeps OK disabled while both apply options are unchecked. Applying neither option would
- * silently do nothing.
+ * Keeps OK disabled while both apply options are unchecked. Such an OK would apply nothing; in
+ * Select Content, it would still make the chosen pages be processed again.
  */
 void bindOkButtonToApplyOptions(QDialogButtonBox* buttonBox, QCheckBox* firstOption, QCheckBox* secondOption);
 }  // namespace core
