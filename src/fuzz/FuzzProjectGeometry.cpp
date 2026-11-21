@@ -122,22 +122,24 @@ struct Steps {
 // on the image.
 void loadDefaultSettings(Steps& steps, const PageInfo& page) {
   if (steps.fixOrientation.isRotationNull(page.imageId())) {
-    steps.fixOrientation.applyRotation(page.imageId(),
-                                       fix_orientation::Utils::getDefaultOrthogonalRotation(steps.defaults));
+    steps.fixOrientation.applyRotation(
+        page.imageId(), fix_orientation::Utils::getDefaultOrthogonalRotation(steps.defaults.getFixOrientationParams()));
   }
   if (steps.deskew.isParamsNull(page.id())) {
-    steps.deskew.setPageParams(page.id(), deskew::Utils::buildDefaultParams(steps.defaults));
+    steps.deskew.setPageParams(page.id(), deskew::Utils::buildDefaultParams(steps.defaults.getDeskewParams()));
   }
   if (steps.selectContent.isParamsNull(page.id())) {
-    steps.selectContent.setPageParams(page.id(),
-                                      select_content::Utils::buildDefaultParams(page.metadata().dpi(), steps.defaults));
+    steps.selectContent.setPageParams(
+        page.id(), select_content::Utils::buildDefaultParams(
+                       page.metadata().dpi(), steps.defaults.getSelectContentParams(), steps.defaults.getUnits()));
   }
   if (steps.pageLayout.isParamsNull(page.id())) {
-    steps.pageLayout.setPageParams(page.id(),
-                                   page_layout::Utils::buildDefaultParams(page.metadata().dpi(), steps.defaults));
+    steps.pageLayout.setPageParams(
+        page.id(), page_layout::Utils::buildDefaultParams(page.metadata().dpi(), steps.defaults.getPageLayoutParams(),
+                                                          steps.defaults.getUnits()));
   }
   if (steps.output.isParamsNull(page.id())) {
-    steps.output.setParams(page.id(), output::Utils::buildDefaultParams(steps.defaults));
+    steps.output.setParams(page.id(), output::Utils::buildDefaultParams(steps.defaults.getOutputParams()));
   }
 }
 
@@ -275,7 +277,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
     steps.defaults = *startValues;
   }
   if (filtersEl.namedItem("page-layout").isNull()) {
-    steps.pageLayout.setOutputSizeOptions(page_layout::Utils::buildDefaultOutputSizeOptions(steps.defaults));
+    steps.pageLayout.setOutputSizeOptions(page_layout::Utils::buildDefaultOutputSizeOptions(
+        steps.defaults.getPageLayoutParams(), steps.defaults.getOutputParams().getDpi(), steps.defaults.getUnits()));
   }
 
   const PageSequence pages = reader.pages()->toPageSequence(PAGE_VIEW);
