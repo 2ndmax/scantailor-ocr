@@ -22,6 +22,7 @@
 #include <filters/output/ColorParams.h>
 #include <filters/output/DepthPerception.h>
 #include <filters/output/DewarpingOptions.h>
+#include <filters/output/FillColorProperty.h>
 #include <filters/output/OutputGenerator.h>
 #include <filters/output/OutputImage.h>
 #include <filters/output/OutputImageWithForeground.h>
@@ -101,6 +102,22 @@ ZoneSet pictureZone() {
   return zones;
 }
 
+ZoneSet fillZone(const QRect& rect, const QRgb color) {
+  PropertySet props;
+  props.locateOrCreate<FillColorProperty>()->setColor(color);
+  ZoneSet zones;
+  zones.add(Zone(SerializableSpline(QPolygonF(QRectF(rect))), props));
+  return zones;
+}
+
+dewarping::DistortionModel undistortedModel(const QRectF& content) {
+  dewarping::DistortionModel model;
+  model.setTopCurve(dewarping::Curve(std::vector<QPointF>{content.topLeft(), content.topRight()}));
+  model.setBottomCurve(dewarping::Curve(std::vector<QPointF>{content.bottomLeft(), content.bottomRight()}));
+  BOOST_REQUIRE(model.isValid());
+  return model;
+}
+
 struct Run {
   ColorMode mode = BLACK_AND_WHITE;
   PhotoAdjustments adjustments;
@@ -117,6 +134,8 @@ struct Run {
   // A manual distortion model that is valid, but less than half a pixel wide, so that
   // its model domain is empty.
   bool thinManualDewarping = false;
+  // A valid model to use instead: no deformation, but the dewarping path is taken.
+  std::optional<dewarping::DistortionModel> manualModel;
   bool trapezoidDewarping = false;
   bool blankPage = false;
   // Replaces the synthetic page, if set.
@@ -135,6 +154,8 @@ struct Run {
   QString outputDpiAttribute;
   // Gets the size the generator announces for the output, if set.
   QSize* announcedSize = nullptr;
+  // Fill zones in original image coordinates. Empty by default, like a project without zones.
+  ZoneSet fillZones;
   // Split output, despeckling and rectangular picture detection, as in a project file.
   bool splitOutput = false;
   double despeckleLevel = 0.0;
@@ -201,7 +222,7 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   params.setSplittingOptions(splittingOptions);
   params.setDespeckleLevel(run.despeckleLevel);
   params.setBlackOnWhite(run.blackOnWhite);
-  if (run.thinManualDewarping) {
+  if (run.thinManualDewarping || run.manualModel) {
     params.setDewarpingOptions(DewarpingOptions(MANUAL));
   }
   if (run.trapezoidDewarping) {
@@ -242,15 +263,16 @@ std::unique_ptr<OutputImage> generate(const Run& run) {
   }
 
   ZoneSet pictureZones = run.withPictureZone ? pictureZone() : ZoneSet();
-  const ZoneSet fillZones;
   dewarping::DistortionModel distortionModel;
-  if (run.thinManualDewarping) {
+  if (run.manualModel) {
+    distortionModel = *run.manualModel;
+  } else if (run.thinManualDewarping) {
     distortionModel.setTopCurve(dewarping::Curve(std::vector<QPointF>{QPointF(100, 100), QPointF(100.3, 100)}));
     distortionModel.setBottomCurve(dewarping::Curve(std::vector<QPointF>{QPointF(100, 200), QPointF(100.3, 200)}));
     BOOST_REQUIRE(distortionModel.isValid());
   }
   std::unique_ptr<OutputImage> output
-      = generator.process(NullTaskStatus(), data, pictureZones, fillZones, distortionModel, DepthPerception(),
+      = generator.process(NullTaskStatus(), data, pictureZones, run.fillZones, distortionModel, DepthPerception(),
                           run.autoPictureMask, run.specklesImage, nullptr, pageId, settings, run.takeOverBlackOnWhite);
   if (run.noModelFound) {
     *run.noModelFound = settings->getParams(pageId).dewarpingOptions().noModelFound();
@@ -592,6 +614,51 @@ BOOST_AUTO_TEST_CASE(filling_color_decides_the_margins_in_both_paths) {
               BOOST_CHECK_LE(level, 10);  // That same background, inverted with the page.
             }
           }
+        }
+      }
+    }
+  }
+}
+
+// Fill zones are painted after binarization and dewarping, over text as well as over pictures.
+// Their interior has one color; pixels outside the zones keep the pixels of a run without zones.
+BOOST_AUTO_TEST_CASE(fill_zones_cover_text_paper_and_pictures_in_every_mode) {
+  const QRect whiteZoneRect(40, 40, 60, 60);     // Over the strokes in the text half.
+  const QRect blackZoneRect(250, 290, 60, 40);   // Over the light paper below the picture.
+  const QRect pictureZoneRect(240, 60, 60, 60);  // Inside the picture zone of a mixed page.
+  const QRect untouchedText(40, 140, 60, 60);
+  const QRect untouchedPaper(320, 290, 60, 40);
+
+  for (const ColorMode mode : {BLACK_AND_WHITE, COLOR_GRAYSCALE, MIXED}) {
+    for (const bool dewarping : {false, true}) {
+      BOOST_TEST_CONTEXT("mode " << mode << ", dewarping " << dewarping) {
+        Run run;
+        run.mode = mode;
+        if (dewarping) {
+          run.manualModel = undistortedModel(QRectF(0, 0, WIDTH, HEIGHT));
+        }
+        run.withPictureZone = (mode == MIXED);
+        const QImage withoutZones = process(run);
+
+        run.fillZones = fillZone(whiteZoneRect, qRgb(255, 255, 255));
+        const ZoneSet blackZone = fillZone(blackZoneRect, qRgb(0, 0, 0));
+        for (const Zone& zone : blackZone) {
+          run.fillZones.add(zone);
+        }
+        if (mode == MIXED) {
+          const ZoneSet overPicture = fillZone(pictureZoneRect, qRgb(255, 255, 255));
+          for (const Zone& zone : overPicture) {
+            run.fillZones.add(zone);
+          }
+        }
+        const QImage withZones = process(run);
+
+        BOOST_CHECK(grayLevels(withZones, inner(whiteZoneRect)) == (std::set<int>{255}));
+        BOOST_CHECK(grayLevels(withZones, inner(blackZoneRect)) == (std::set<int>{0}));
+        BOOST_CHECK(samePixels(withZones, withoutZones, untouchedText));
+        BOOST_CHECK(samePixels(withZones, withoutZones, untouchedPaper));
+        if (mode == MIXED) {
+          BOOST_CHECK(grayLevels(withZones, inner(pictureZoneRect)) == (std::set<int>{255}));
         }
       }
     }
