@@ -6,22 +6,14 @@
 #include <PolygonUtils.h>
 
 #include "FillColorProperty.h"
+#include "OutputZoneOps.h"
 #include "ZoneSet.h"
 
 using namespace imageproc;
 
 namespace output {
 bool FillZoneComparator::equal(const ZoneSet& lhs, const ZoneSet& rhs) {
-  ZoneSet::const_iterator lhsIt(lhs.begin());
-  ZoneSet::const_iterator rhsIt(rhs.begin());
-  const ZoneSet::const_iterator lhsEnd(lhs.end());
-  const ZoneSet::const_iterator rhsEnd(rhs.end());
-  for (; lhsIt != lhsEnd && rhsIt != rhsEnd; ++lhsIt, ++rhsIt) {
-    if (!equal(*lhsIt, *rhsIt)) {
-      return false;
-    }
-  }
-  return lhsIt == lhsEnd && rhsIt == rhsEnd;
+  return detail::equalZoneSets(lhs, rhs, [](const Zone& a, const Zone& b) { return FillZoneComparator::equal(a, b); });
 }
 
 bool FillZoneComparator::equal(const Zone& lhs, const Zone& rhs) {

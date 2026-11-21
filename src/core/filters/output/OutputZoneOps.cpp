@@ -23,6 +23,21 @@ namespace {
 using MapPointFunc = QPointF (QTransform::*)(const QPointF&) const;
 }  // namespace
 
+bool equalZoneSets(const ZoneSet& lhs,
+                   const ZoneSet& rhs,
+                   const std::function<bool(const Zone&, const Zone&)>& equalZone) {
+  ZoneSet::const_iterator lhsIt(lhs.begin());
+  ZoneSet::const_iterator rhsIt(rhs.begin());
+  const ZoneSet::const_iterator lhsEnd(lhs.end());
+  const ZoneSet::const_iterator rhsEnd(rhs.end());
+  for (; lhsIt != lhsEnd && rhsIt != rhsEnd; ++lhsIt, ++rhsIt) {
+    if (!equalZone(*lhsIt, *rhsIt)) {
+      return false;
+    }
+  }
+  return lhsIt == lhsEnd && rhsIt == rhsEnd;
+}
+
 void removeAutoPictureZones(ZoneSet& pictureZones) {
   for (auto it = pictureZones.begin(); it != pictureZones.end();) {
     const Zone& zone = *it;

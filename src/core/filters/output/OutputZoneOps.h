@@ -14,6 +14,11 @@
 #include "ZoneSet.h"
 
 namespace output::detail {
+// Both zone comparators use the same set-wise rule; only the zone comparison differs.
+bool equalZoneSets(const ZoneSet& lhs,
+                   const ZoneSet& rhs,
+                   const std::function<bool(const Zone&, const Zone&)>& equalZone);
+
 void removeAutoPictureZones(ZoneSet& pictureZones);
 
 Zone createPictureZoneFromPoly(const QPolygonF& polygon);
