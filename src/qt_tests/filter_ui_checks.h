@@ -12,7 +12,9 @@
 #include <FilterUiInterface.h>
 #include <FilterUiSequence.h>
 #include <PageInfo.h>
+#include <PageRange.h>
 #include <PageSelectionAccessor.h>
+#include <PageSelectionProvider.h>
 #include <PageSequence.h>
 #include <StageSequence.h>
 #include <ThumbnailCollector.h>
@@ -23,6 +25,7 @@
 #include <QTemporaryDir>
 #include <QWidget>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "test_project.h"
@@ -33,6 +36,15 @@
  * connected, and its thumbnails.
  */
 namespace filter_ui_checks {
+// A stand-in for the main window's page selection. Unlike a null accessor, it can be asked for pages
+// by an apply dialog's PageScopeGroupBox.
+class EmptyPageSelectionProvider : public PageSelectionProvider {
+ public:
+  PageSequence allPages() const override { return {}; }
+  std::set<PageId> selectedPages() const override { return {}; }
+  std::vector<PageRange> selectedRanges() const override { return {}; }
+};
+
 // Records what a step shows, in place of the main window.
 class RecordingUi : public FilterUiInterface {
  public:

@@ -15,12 +15,16 @@
 #include <filters/deskew/DeskewParams.h>
 #include <filters/deskew/Settings.h>
 #include <filters/deskew/UiData.h>
+#include <filters/deskew/ui/ApplyDialog.h>
 #include <filters/deskew/ui/ImageView.h>
 #include <filters/deskew/ui/OptionsWidget.h>
 #include <filters/deskew/ui/Thumbnail.h>
 
 #include <QAbstractButton>
+#include <QCheckBox>
+#include <QDialogButtonBox>
 #include <QPolygonF>
+#include <QPushButton>
 #include <QtTest/QtTest>
 #include <memory>
 #include <optional>
@@ -129,6 +133,26 @@ void TestDeskewQt::testApplyButtonWaitsForPage() {
   QVERIFY(!applyBtn->isEnabled());
   widget.postUpdateUI(uiData(MODE_AUTO, MODE_AUTO));
   QVERIFY(applyBtn->isEnabled());
+}
+
+void TestDeskewQt::testApplyDialogNeedsAnOption() {
+  // Applying neither the deskew nor the oblique angle would silently do nothing.
+  const PageSelectionAccessor accessor(std::make_shared<filter_ui_checks::EmptyPageSelectionProvider>());
+  ApplyDialog dialog(nullptr, PageId(ImageId("page.png")), accessor);
+  auto* const deskewBox = dialog.findChild<QCheckBox*>("applyDeskewCheckBox");
+  auto* const obliqueBox = dialog.findChild<QCheckBox*>("applyObliqueCheckBox");
+  auto* const buttonBox = dialog.findChild<QDialogButtonBox*>("buttonBox");
+  QVERIFY(deskewBox != nullptr);
+  QVERIFY(obliqueBox != nullptr);
+  QVERIFY(buttonBox != nullptr);
+  QPushButton* const okButton = buttonBox->button(QDialogButtonBox::Ok);
+  QVERIFY(okButton != nullptr);
+
+  deskewBox->setChecked(false);
+  obliqueBox->setChecked(false);
+  QVERIFY(!okButton->isEnabled());
+  obliqueBox->setChecked(true);
+  QVERIFY(okButton->isEnabled());
 }
 
 void TestDeskewQt::testShowsPanelAndConnectedView() {
