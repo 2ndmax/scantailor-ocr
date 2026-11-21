@@ -11,6 +11,10 @@
 #   -DSTEPS=<step>|<step>|...                   all step libraries
 #   -DLINKS_<step>=<library>|<library>|...      the step's LINK_LIBRARIES
 
+# A script run with -P doesn't inherit the project's policies; without this, CMake 3.x treats
+# IN_LIST as an unknown argument (policy CMP0057).
+cmake_minimum_required(VERSION 3.24)
+
 foreach (var FILTERS_DIR STEPS)
   if (NOT DEFINED ${var})
     message(FATAL_ERROR "CheckStepIncludes.cmake needs -D${var}=...")
