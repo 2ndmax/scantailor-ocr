@@ -540,7 +540,7 @@ BOOST_AUTO_TEST_CASE(color_margins_are_filled_with_the_page_background) {
   BOOST_CHECK_GT(grayLevels(output, inner(TEXT_RECT)).count(0), 0u);
 }
 
-// Margin colors for every filling color, polarity and output path. The picture half lies outside
+// Margin colors for every filling color, polarity and output mode. The picture half lies outside
 // the content box, so it shows only the margin color. The scan itself is black on white; with
 // blackOnWhite == false the polarity comes from the parameters, not from the scan. Characterized
 // as they are today: in black-and-white output the filling color makes no visible difference.
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_CASE(filling_color_decides_the_margins_in_both_paths) {
   };
   const FillingCase cases[] = {{"default", std::nullopt}, {"white", FILL_WHITE}, {"black", FILL_BLACK}};
 
-  for (const ColorMode mode : {BLACK_AND_WHITE, COLOR_GRAYSCALE}) {
+  for (const ColorMode mode : {BLACK_AND_WHITE, COLOR_GRAYSCALE, MIXED}) {
     for (const bool dewarping : {false, true}) {
       for (const bool blackOnWhite : {true, false}) {
         for (const FillingCase& fillingCase : cases) {
@@ -564,6 +564,7 @@ BOOST_AUTO_TEST_CASE(filling_color_decides_the_margins_in_both_paths) {
             run.blackOnWhite = blackOnWhite;
             run.thinManualDewarping = dewarping;
             run.fillingColor = fillingCase.fillingColor;
+            run.withPictureZone = (mode == MIXED);
             const std::set<int> levels = grayLevels(process(run), inner(PICTURE_RECT));
             BOOST_REQUIRE_EQUAL(levels.size(), 1u);
             const int level = *levels.begin();
@@ -571,6 +572,16 @@ BOOST_AUTO_TEST_CASE(filling_color_decides_the_margins_in_both_paths) {
               // Binarized margins end up white on black on white and black on white on black,
               // whatever the filling color says.
               BOOST_CHECK_EQUAL(level, blackOnWhite ? 255 : 0);
+            } else if (mode == MIXED) {
+              // Mixed output also binarizes. The switch maps White and Black to the final polarity;
+              // the default starts white and is inverted back with a white-on-black page.
+              if (fillingCase.fillingColor && *fillingCase.fillingColor == FILL_WHITE) {
+                BOOST_CHECK_EQUAL(level, 255);
+              } else if (fillingCase.fillingColor && *fillingCase.fillingColor == FILL_BLACK) {
+                BOOST_CHECK_EQUAL(level, 0);
+              } else {
+                BOOST_CHECK_EQUAL(level, blackOnWhite ? 255 : 0);
+              }
             } else if (fillingCase.fillingColor && *fillingCase.fillingColor == FILL_WHITE) {
               BOOST_CHECK_EQUAL(level, 255);
             } else if (fillingCase.fillingColor && *fillingCase.fillingColor == FILL_BLACK) {
