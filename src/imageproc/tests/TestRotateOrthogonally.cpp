@@ -2,7 +2,7 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <BinaryImage.h>
-#include <OrthogonalRotation.h>
+#include <RotateOrthogonally.h>
 
 #include <QImage>
 #include <QRect>
@@ -14,7 +14,7 @@ namespace imageproc {
 namespace tests {
 using namespace utils;
 
-BOOST_AUTO_TEST_SUITE(OrthogonalRotationTestSuite)
+BOOST_AUTO_TEST_SUITE(RotateOrthogonallyTestSuite)
 
 BOOST_AUTO_TEST_CASE(test_null_image) {
   const BinaryImage nullImg;

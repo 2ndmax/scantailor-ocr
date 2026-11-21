@@ -16,8 +16,8 @@
 #include <UnitsProvider.h>
 #include <UpscaleIntegerTimes.h>
 #include <imageproc/Grayscale.h>
-#include <imageproc/OrthogonalRotation.h>
 #include <imageproc/PolygonRasterizer.h>
+#include <imageproc/RotateOrthogonally.h>
 
 #include <utility>
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 
-#ifndef SCANTAILOR_IMAGEPROC_ORTHOGONALROTATION_H_
-#define SCANTAILOR_IMAGEPROC_ORTHOGONALROTATION_H_
+#ifndef SCANTAILOR_IMAGEPROC_ROTATEORTHOGONALLY_H_
+#define SCANTAILOR_IMAGEPROC_ROTATEORTHOGONALLY_H_
 
 class QRect;
 

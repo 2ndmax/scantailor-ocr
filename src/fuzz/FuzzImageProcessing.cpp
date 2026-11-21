@@ -49,7 +49,7 @@
 #include <TextLineTracer.h>
 #include <TopBottomEdgeTracer.h>
 #include <WienerFilter.h>
-#include <imageproc/OrthogonalRotation.h>
+#include <imageproc/RotateOrthogonally.h>
 
 #include <QDomDocument>
 #include <QImage>

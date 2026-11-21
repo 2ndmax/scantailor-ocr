@@ -21,7 +21,7 @@
 #include <XSpline.h>
 #include <imageproc/BackgroundColorCalculator.h>
 #include <imageproc/ImageCombination.h>
-#include <imageproc/OrthogonalRotation.h>
+#include <imageproc/RotateOrthogonally.h>
 #include <imageproc/SkewFinder.h>
 
 #include <QLineF>

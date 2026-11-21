@@ -7,7 +7,7 @@ set(sources
     TestParallelFor.cpp
     TestGrayscale.cpp
     TestRasterOp.cpp TestShear.cpp
-    TestOrthogonalRotation.cpp
+    TestRotateOrthogonally.cpp
     TestSkewFinder.cpp
     TestScale.cpp
     TestTransform.cpp

@@ -15,7 +15,7 @@ set(sources
     ReduceThreshold.cpp ReduceThreshold.h
     Shear.cpp Shear.h
     SkewFinder.cpp SkewFinder.h
-    OrthogonalRotation.cpp OrthogonalRotation.h
+    OrthogonalRotation.cpp RotateOrthogonally.h
     Scale.cpp Scale.h
     Transform.cpp Transform.h
     Morphology.cpp Morphology.h
