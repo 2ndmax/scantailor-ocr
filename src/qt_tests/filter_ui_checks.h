@@ -20,10 +20,14 @@
 #include <ThumbnailCollector.h>
 #include <ThumbnailDataBase.h>
 
+#include <QCheckBox>
+#include <QDialogButtonBox>
 #include <QGraphicsItem>
+#include <QPushButton>
 #include <QSizeF>
 #include <QTemporaryDir>
 #include <QWidget>
+#include <QtTest/QtTest>
 #include <memory>
 #include <set>
 #include <vector>
@@ -133,6 +137,30 @@ inline std::unique_ptr<QGraphicsItem> thumbnailFor(OnePageProject& one, const Pa
     return nullptr;
   }
   return one.filterUis.createThumbnail(*thumbnails.thumbnail, one.project.thumbnailCache, QSizeF(200, 200));
+}
+/**
+ * Checks that the apply dialog \p Dialog keeps OK disabled while neither of its two options,
+ * the check boxes \p firstOption and \p secondOption, is ticked. Such an OK would apply nothing;
+ * in Select Content, it still made the chosen pages be processed again.
+ */
+template <typename Dialog>
+void checkApplyDialogNeedsAnOption(const char* firstOption, const char* secondOption) {
+  const PageSelectionAccessor accessor(std::make_shared<EmptyPageSelectionProvider>());
+  Dialog dialog(nullptr, PageId(ImageId("page.png")), accessor);
+  auto* const first = dialog.template findChild<QCheckBox*>(firstOption);
+  auto* const second = dialog.template findChild<QCheckBox*>(secondOption);
+  auto* const buttonBox = dialog.template findChild<QDialogButtonBox*>("buttonBox");
+  QVERIFY(first != nullptr);
+  QVERIFY(second != nullptr);
+  QVERIFY(buttonBox != nullptr);
+  QPushButton* const okButton = buttonBox->button(QDialogButtonBox::Ok);
+  QVERIFY(okButton != nullptr);
+
+  first->setChecked(false);
+  second->setChecked(false);
+  QVERIFY(!okButton->isEnabled());
+  second->setChecked(true);
+  QVERIFY(okButton->isEnabled());
 }
 }  // namespace filter_ui_checks
 

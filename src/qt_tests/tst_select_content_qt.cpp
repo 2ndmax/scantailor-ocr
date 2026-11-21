@@ -27,10 +27,7 @@
 #include <filters/select_content/ui/OptionsWidget.h>
 #include <filters/select_content/ui/Thumbnail.h>
 
-#include <QCheckBox>
-#include <QDialogButtonBox>
 #include <QPolygonF>
-#include <QPushButton>
 #include <QSpinBox>
 #include <QtTest/QtTest>
 #include <memory>
@@ -132,23 +129,7 @@ void TestSelectContentQt::testOldPagesDetectAgainOnlyWithOtherOptions() {
 }
 
 void TestSelectContentQt::testApplyDialogNeedsAnOption() {
-  // Applying neither the content box nor the page box would silently do nothing.
-  const PageSelectionAccessor accessor(std::make_shared<filter_ui_checks::EmptyPageSelectionProvider>());
-  ApplyDialog dialog(nullptr, PAGE, accessor);
-  auto* const contentBox = dialog.findChild<QCheckBox*>("applyContentBoxOption");
-  auto* const pageBox = dialog.findChild<QCheckBox*>("applyPageBoxOption");
-  auto* const buttonBox = dialog.findChild<QDialogButtonBox*>("buttonBox");
-  QVERIFY(contentBox != nullptr);
-  QVERIFY(pageBox != nullptr);
-  QVERIFY(buttonBox != nullptr);
-  QPushButton* const okButton = buttonBox->button(QDialogButtonBox::Ok);
-  QVERIFY(okButton != nullptr);
-
-  contentBox->setChecked(false);
-  pageBox->setChecked(false);
-  QVERIFY(!okButton->isEnabled());
-  pageBox->setChecked(true);
-  QVERIFY(okButton->isEnabled());
+  filter_ui_checks::checkApplyDialogNeedsAnOption<ApplyDialog>("applyContentBoxOption", "applyPageBoxOption");
 }
 
 void TestSelectContentQt::testShowsPanelAndConnectedView() {

@@ -25,10 +25,8 @@
 
 #include <QAbstractButton>
 #include <QCheckBox>
-#include <QDialogButtonBox>
 #include <QDomDocument>
 #include <QImage>
-#include <QPushButton>
 #include <QSpinBox>
 #include <QtTest/QtTest>
 #include <memory>
@@ -314,23 +312,7 @@ void TestFixOrientationQt::testTrimFieldsShowPixelsWithoutResolution() {
 }
 
 void TestFixOrientationQt::testApplyDialogNeedsAnOption() {
-  // Applying neither the rotation nor the trim would silently do nothing.
-  const PageSelectionAccessor accessor(std::make_shared<filter_ui_checks::EmptyPageSelectionProvider>());
-  ApplyDialog dialog(nullptr, PageId(ImageId("page.png")), accessor);
-  auto* const rotationBox = dialog.findChild<QCheckBox*>("applyRotationCheckBox");
-  auto* const trimBox = dialog.findChild<QCheckBox*>("applyTrimCheckBox");
-  auto* const buttonBox = dialog.findChild<QDialogButtonBox*>("buttonBox");
-  QVERIFY(rotationBox != nullptr);
-  QVERIFY(trimBox != nullptr);
-  QVERIFY(buttonBox != nullptr);
-  QPushButton* const okButton = buttonBox->button(QDialogButtonBox::Ok);
-  QVERIFY(okButton != nullptr);
-
-  rotationBox->setChecked(false);
-  trimBox->setChecked(false);
-  QVERIFY(!okButton->isEnabled());
-  trimBox->setChecked(true);
-  QVERIFY(okButton->isEnabled());
+  filter_ui_checks::checkApplyDialogNeedsAnOption<ApplyDialog>("applyRotationCheckBox", "applyTrimCheckBox");
 }
 
 void TestFixOrientationQt::testShowsPanelAndConnectedView() {
