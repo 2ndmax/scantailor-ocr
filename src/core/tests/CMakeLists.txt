@@ -56,6 +56,7 @@ set(sources
     TestWidthCorrection.cpp
     TestWidthProfile.cpp
     TestZone.cpp
+    TestZoneComparators.cpp
     TestUtils.cpp
     TestColorModeDetector.cpp
     TestOcrEngine.cpp)
