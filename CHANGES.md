@@ -489,7 +489,8 @@ topic, not by version.
   nothing). It also refuses wrong export options, an invalid name and an export that would
   replace the project file, one of its images or a folder holding them. Ctrl+C starts no further
   page and lets those already running finish; the pages done keep their output, and the project
-  is saved with them. A second Ctrl+C no longer ends the command line tool at once. Exit codes:
+  is saved with them. A second Ctrl+C no longer ends the command line tool at once. On Windows,
+  Ctrl+Break cancels the same way, so another program can stop the tool cleanly. Exit codes:
   0 done, 1 wrong command line, 2 input unusable (project, folder, profile, resolution, OCR
   languages) or project not saved, 3 pages failed at the last step, 4 export failed, 5 canceled.
 * The command line tool processes several pages at once, as many as set under "Processor
