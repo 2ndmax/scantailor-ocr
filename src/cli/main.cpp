@@ -120,23 +120,6 @@ int main(int argc, char* argv[]) {
                          "margins, output or export. The export runs after output. Default: output."),
       CommandLineRun::tr("step"));
   parser.addOption(lastStepOption);
-  const QCommandLineOption folderOption(
-      QStringLiteral("export-folder"),
-      CommandLineRun::tr("The folder for the exported files instead of the folder of the project file; it is "
-                         "created when it doesn't exist."),
-      CommandLineRun::tr("folder"));
-  parser.addOption(folderOption);
-  const QCommandLineOption nameOption(
-      QStringLiteral("export-name"),
-      CommandLineRun::tr("The name of the exported files, without extension, instead of the name of the project file."),
-      CommandLineRun::tr("name"));
-  parser.addOption(nameOption);
-  const QCommandLineOption formatsOption(
-      QStringLiteral("export-formats"),
-      CommandLineRun::tr("The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, "
-                         "separated by commas or plus signs."),
-      CommandLineRun::tr("list"));
-  parser.addOption(formatsOption);
   const QCommandLineOption projectFileOption(
       QStringLiteral("project-file"),
       CommandLineRun::tr("The file of the new project instead of the default of the input folder; its folder "
@@ -167,16 +150,33 @@ int main(int argc, char* argv[]) {
                          "number, or horizontal and vertical values like 600x300."),
       CommandLineRun::tr("n or HxV"));
   parser.addOption(dpiFixOption);
-  const QCommandLineOption colorModeDetectOption(
-      QStringLiteral("color-mode-detect"),
-      CommandLineRun::tr("Detect the color mode of the pages after the Margins step, as the app's Detect "
-                         "Color Mode does, and report it per page."));
-  parser.addOption(colorModeDetectOption);
+  const QCommandLineOption folderOption(
+      QStringLiteral("export-folder"),
+      CommandLineRun::tr("The folder for the exported files instead of the folder of the project file; it is "
+                         "created when it doesn't exist."),
+      CommandLineRun::tr("folder"));
+  parser.addOption(folderOption);
+  const QCommandLineOption nameOption(
+      QStringLiteral("export-name"),
+      CommandLineRun::tr("The name of the exported files, without extension, instead of the name of the project file."),
+      CommandLineRun::tr("name"));
+  parser.addOption(nameOption);
+  const QCommandLineOption formatsOption(
+      QStringLiteral("export-formats"),
+      CommandLineRun::tr("The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, "
+                         "separated by commas or plus signs."),
+      CommandLineRun::tr("list"));
+  parser.addOption(formatsOption);
   const QCommandLineOption threadsOption(
       QStringLiteral("threads"),
       CommandLineRun::tr("The number of threads of the run, instead of the setting of the program; at least 1."),
       CommandLineRun::tr("n"));
   parser.addOption(threadsOption);
+  const QCommandLineOption colorModeDetectOption(
+      QStringLiteral("color-mode-detect"),
+      CommandLineRun::tr("Detect the color mode of the pages after the Margins step, as the app's Detect "
+                         "Color Mode does, and report it per page."));
+  parser.addOption(colorModeDetectOption);
   const QCommandLineOption reportFileOption(
       QStringLiteral("report-file"),
       CommandLineRun::tr("The JSON report of the run, written at the end: the mode, the project file, the "
