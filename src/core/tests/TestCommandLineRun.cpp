@@ -788,6 +788,8 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_files_in_smart_order) {
   QString out;
   QString err;
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::SUCCESS);
+  BOOST_CHECK(out.contains(QStringLiteral("1 other file(s) passed over")));
+  BOOST_CHECK(!out.contains(QStringLiteral("other.txt")));
   const ProjectReader::FileResult read = ProjectReader::readFile(project_files::defaultProjectFile(inputDir));
   BOOST_REQUIRE(read.reader);
   const PageSequence pages = read.reader->pages()->toPageSequence(IMAGE_VIEW);
@@ -796,6 +798,20 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_files_in_smart_order) {
     BOOST_CHECK(pages.pageAt(0).imageId().filePath().endsWith(QStringLiteral("9.png")));
     BOOST_CHECK(pages.pageAt(1).imageId().filePath().endsWith(QStringLiteral("010.png")));
   }
+}
+
+// No line at all when every file of the folder became a page.
+BOOST_AUTO_TEST_CASE(test_folder_mode_reports_no_passed_over_files) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::SUCCESS);
+  BOOST_CHECK(!out.contains(QStringLiteral("passed over")));
 }
 
 BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_an_empty_folder) {

@@ -934,6 +934,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   if (!session) {
     return PROJECT_UNUSABLE;
   }
+  if (folderMode && !passedOver.isEmpty()) {
+    out << tr("%n other file(s) passed over.", nullptr, passedOver.size()) << Qt::endl;
+  }
   ProcessingOptions::Formats formats = namedFormats;
   ExportPaths exportPaths;
   if (exporting) {
