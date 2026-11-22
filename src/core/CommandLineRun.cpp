@@ -987,6 +987,20 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   if (!session) {
     return PROJECT_UNUSABLE;
   }
+  // The output folder takes the output and the cache of the pages; one that takes no files would
+  // fail every page. A missing one of a project is left to the relinking check below, which tells
+  // what to do; a missing one of a new project is created during processing.
+  // REVIEW-NOTE (2026-11): an existing output folder that takes no new files -> refused here. Not
+  // tested because a test can't make a folder unwritable on Windows without changing its access
+  // rights; path_names::isWritableDir, which decides it, is tested on its own.
+  {
+    const QString outDir = session->outFileNameGen.outDir();
+    if (QFileInfo(outDir).isDir() ? !path_names::isWritableDir(outDir)
+                                  : (folderMode && !path_names::canCreateOrWriteDir(outDir))) {
+      err << tr("The output folder can't be written to: %1").arg(nativePath(outDir)) << Qt::endl;
+      return PROJECT_UNUSABLE;
+    }
+  }
   if (folderMode && !passedOver.isEmpty()) {
     out << tr("%n other file(s) passed over.", nullptr, passedOver.size()) << Qt::endl;
   }

@@ -654,6 +654,29 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_names_a_missing_input_folder) {
   BOOST_CHECK(err.contains(QStringLiteral("The input folder doesn't exist")));
 }
 
+// An output folder that can't be created is refused before the pages are processed.
+BOOST_AUTO_TEST_CASE(test_output_folder_under_a_file_is_refused_before_processing) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+  const QString blocker = dir.filePath("not-a-folder");
+  BOOST_REQUIRE(Tests::writeFile(blocker, "file"));
+
+  CommandLineRun::Options options;
+  options.inputFolder = inputDir;
+  options.profile = QStringLiteral("Default");
+  options.outputFolder = blocker + QStringLiteral("/out");
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(!QFileInfo::exists(project_files::defaultProjectFile(inputDir)));
+}
+
 // An export folder that can't be created is refused before the pages are processed.
 BOOST_AUTO_TEST_CASE(test_export_folder_under_a_file_is_refused_before_processing) {
   QTemporaryDir dir;
