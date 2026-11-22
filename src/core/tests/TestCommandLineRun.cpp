@@ -624,6 +624,24 @@ BOOST_AUTO_TEST_CASE(test_export_folder_is_created) {
   BOOST_CHECK(QFileInfo::exists(exportDir + QStringLiteral("/project.pdf")));
 }
 
+// An export folder that can't be created is refused before the pages are processed.
+BOOST_AUTO_TEST_CASE(test_export_folder_under_a_file_is_refused_before_processing) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile
+      = createProject(dir, 300, QStringList(), QStringLiteral("out"), formatsOf(true, false, false, false));
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString blocker = dir.filePath("not-a-folder");
+  BOOST_REQUIRE(Tests::writeFile(blocker, "file"));
+  const QString exportDir = blocker + QStringLiteral("/exports");
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, exportDir, QStringLiteral("pdf")), CommandLineRun::USAGE_ERROR);
+  BOOST_CHECK(err.contains(QDir::toNativeSeparators(exportDir)));
+  BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
+}
+
 // A report that can't be written at the end is refused before the pages are processed.
 BOOST_AUTO_TEST_CASE(test_report_file_that_cant_be_written_is_refused_before_processing) {
   QTemporaryDir dir;

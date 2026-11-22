@@ -476,11 +476,15 @@ bool checkExportOptions(const CommandLineRun::Options& options,
     return false;
   }
   // Without --export-folder it is the folder of the project file. If that is missing, reading the
-  // project fails, which is told with the right exit code. An existing file can never become a
-  // folder; that is a command-line error even before the project is read. A missing folder named on
-  // the command line is created once the project and the pages are known to be usable.
-  if (options.exportDir && QFileInfo(folder).exists() && !QFileInfo(folder).isDir()) {
-    err << CommandLineRun::tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
+  // project fails, which is told with the right exit code. A folder named on the command line must
+  // take the files or be possible to create, which is checked now, before a long run; it is only
+  // created once the project and the pages are known to be usable.
+  if (options.exportDir && !path_names::canCreateOrWriteDir(folder)) {
+    if (QFileInfo(folder).isDir()) {
+      err << CommandLineRun::tr("The export folder can't be written to: %1").arg(nativePath(folder)) << Qt::endl;
+    } else {
+      err << CommandLineRun::tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
+    }
     return false;
   }
   *exportBase = QDir(folder).filePath(name);
@@ -1119,16 +1123,19 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       out << tr("Done.") << Qt::endl;
     }
     if (exporting) {
-      if (options.exportDir) {
-        const QString folder = QFileInfo(exportBase).absolutePath();
-        if (!QFileInfo(folder).isDir() && !QDir().mkpath(folder)) {
-          err << tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
-          return USAGE_ERROR;
+      // The folder was checked at the start; this only fails if it changed during the run. The
+      // pages are processed by then, so it is a failed export, told in the report too.
+      // Fixed without a test: a failure here returned exit code 1 and wrote no report; no test can
+      // make a folder that passed the check at the start fail to be created at the end.
+      const QString folder = QFileInfo(exportBase).absolutePath();
+      if (options.exportDir && !QFileInfo(folder).isDir() && !QDir().mkpath(folder)) {
+        err << tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
+        exitCode = EXPORT_FAILED;
+      } else {
+        exitCode = exportFiles(exportPaths, formats, *session, out, err, cancel);
+        if (exitCode == SUCCESS) {
+          exportedFiles = selectedOutputs(exportPaths, formats);
         }
-      }
-      exitCode = exportFiles(exportPaths, formats, *session, out, err, cancel);
-      if (exitCode == SUCCESS) {
-        exportedFiles = selectedOutputs(exportPaths, formats);
       }
     } else {
       exitCode = SUCCESS;
