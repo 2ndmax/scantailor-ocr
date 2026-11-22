@@ -20,9 +20,14 @@ Or run each test program on its own:
 ./qt_tests
 ```
 
-`ctest` also runs the `cli_*` tests: they start the command line tool `scantailor-ocr-cli` and
-check only its exit code for `--version`, `--help` and wrong command lines. What the tool does is
-tested in `core_tests` (`TestCommandLineRun`).
+`ctest` also runs the `cli_*` tests: they start the command line tool `scantailor-ocr-cli`. Most
+check only its exit code, for `--version`, `--help` and wrong command lines, including the
+options for creating a project given with an existing project.
+`cli_folder_export_formats_without_last_step` (`src/cli/cli_folder_export_test.cpp`) runs the
+tool on a folder with a drawn page and reads its report: an export option without `--last-step`
+has to lead the run to the export, a rule that lives in `main.cpp`. What the tool does is tested
+in `core_tests` (`TestCommandLineRun`), among it that a project created from a folder matches the
+one the app creates from it.
 
 `ctest` also runs `step_include_check`. It checks without building that a step includes only
 headers of steps it links, directly or through other steps, and fails with the file and the

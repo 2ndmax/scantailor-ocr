@@ -444,22 +444,54 @@ topic, not by version.
 
 ## Command line tool and batch processing
 
-* **New command line tool `scantailor-ocr-cli`**, in the Windows ZIP and the Linux packages:
-  `scantailor-ocr-cli <project>` processes all pages of a project through all six steps as the
-  batch processing does and saves the project. Then it exports them with the settings of the
-  project if `--export` or one of `--export-folder <folder>`, `--export-name <name>` and
-  `--export-formats <list>` is given (e.g. `--export-formats pdf,txt,alto`); what isn't given
-  comes from the project: next to the project file, named like it, in the ticked formats. It
-  names the files before processing. The project is set up in the app first: the tool refuses
-  what the app would ask about, i.e. projects of older versions, images without DPI, projects
-  whose output folder or images are missing (relinking) and OCR languages that aren't installed
-  (it downloads nothing). It also refuses wrong export options, a missing folder, an invalid
-  name and an export that would replace the project file, one of its images or a folder holding
-  them. Ctrl+C starts no further page and lets those already running finish; the pages done keep
-  their output, and the project is saved with them. A second Ctrl+C no longer ends the command
-  line tool at once. Exit codes: 0 done, 1 wrong command line, 2 project unusable or not saved,
-  3 pages failed, 4 export failed, 5 canceled. The messages use the language of the app.
-  The option `--pdf <file>` of versions 1.0.11 and 1.0.12 is replaced by these export options.
+* **New command line tool `scantailor-ocr-cli`**, in the Windows ZIP and the Linux packages.
+  `scantailor-ocr-cli <project>` processes the pages of a project as the batch processing does
+  and saves the project; `scantailor-ocr-cli <folder>` first creates the project of an image
+  folder, as the app's Project Files dialog does, and then processes it. The help lists the
+  options in the order of a run: creating the project, steps, export, the whole run. The
+  messages use the language of the app. The switch `--export` of earlier versions is gone (use
+  `--last-step export`), as is the option `--pdf <file>` of versions 1.0.11 and 1.0.12.
+* **Creating a project from a folder:** the tool takes the images of the folder itself (not of
+  subfolders, not hidden files), sorted as in the app (`9.png` before `010.png`); other files are
+  passed over and counted. Files that can't be read or are only partly readable, and a folder
+  without images, are refused, with all such files listed. `--profile <name|file.stp>` gives the
+  start values and the page order (`Default`, `Minimal`, `Custom` or a saved profile; `Source` is
+  taken as the old name of `Minimal`); without it, the profile set in the app is used. The tool
+  names the profile it used and refuses one it can't read. `--dpi <n|HxV>` sets the resolution
+  of all images, `--dpi-fix <n|HxV>` only that of the images the app's Fix DPI dialog marks;
+  without either, images without a usable resolution are refused and doubtful ones listed as a
+  warning. The project file is `<folder>/<folder name>.ScanTailor` or `--project-file <file>`,
+  the output `<folder>/out` or `--output-folder <folder>`. An existing project file is refused,
+  with the call that processes it.
+* **Steps, export and the whole run:** `--last-step <step>` ends the run at `fix-orientation`,
+  `split-pages`, `deskew`, `select-content`, `margins`, `output` (the default) or `export`.
+  `--color-mode-detect` (folder only, at least up to `margins`) detects the color mode of all
+  pages after *Margins*, as Detect Color Mode in the app does, so the output already uses it.
+  `--export-folder <folder>`, `--export-name <name>` and `--export-formats <list>` (e.g.
+  `pdf,txt,alto`) lead the run to the export, which `--last-step export` does with the settings
+  of the project alone; what isn't given comes from the project: next to the project file, named
+  like it, in the ticked formats. The export folder is created when needed, and the files are
+  named before processing. `--threads <n>` limits this run without changing the setting of the
+  app. `--report-file <file.json>` writes a report of the run (mode, project file, profile, last
+  step, exit code; for each page its file, resolution and where it came from, color mode and
+  whether it was detected, output file, status and why it failed; the exported files and the
+  files passed over). The schema is versioned (`schemaVersion`) and its keys aren't translated.
+  The report is written for every run that gets to processing, also when pages failed or the
+  run was canceled.
+* **Checks, canceling and exit codes:** an option for a step the run doesn't reach, an option
+  for creating a project together with an existing project, and `--color-mode-detect` with an
+  existing project are command line errors. Everything that can be checked is checked before
+  processing, so a long run isn't lost at its end: the project file and the report must be
+  writable, the export and output folders writable or possible to create, and the OCR languages
+  the export needs installed. A refused run creates no folder. The tool refuses what the app
+  would ask about: projects of older versions, images without DPI, projects whose output folder
+  or images are missing (relinking) and OCR languages that aren't installed (it downloads
+  nothing). It also refuses wrong export options, an invalid name and an export that would
+  replace the project file, one of its images or a folder holding them. Ctrl+C starts no further
+  page and lets those already running finish; the pages done keep their output, and the project
+  is saved with them. A second Ctrl+C no longer ends the command line tool at once. Exit codes:
+  0 done, 1 wrong command line, 2 input unusable (project, folder, profile, resolution, OCR
+  languages) or project not saved, 3 pages failed at the last step, 4 export failed, 5 canceled.
 * The command line tool processes several pages at once, as many as set under "Processor
   threads" in the settings; with 8 threads about five times as fast as one page after the other,
   with the same output. Memory use grows with the number of pages at once.
