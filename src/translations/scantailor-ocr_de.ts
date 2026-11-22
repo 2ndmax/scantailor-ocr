@@ -789,7 +789,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     <message>
         <location filename="../cli/main.cpp" line="182"/>
         <source>The JSON report of the run, written at the end: the mode, the project file, the profile and the last step, the exit code and cancelled, the pages with their DPI, color mode, output file and status, and the exports and the files passed over.</source>
-        <translation>Der JSON-Bericht des Laufs, am Ende geschrieben: Modus, Projektdatei, Profil und letzter Schritt, Exit-Code und Abbruch, die Seiten mit DPI, Farbmodus, Ausgabedatei und Status, sowie die Exporte und die übergebenen Dateien.</translation>
+        <translation>Der JSON-Bericht des Laufs, am Ende geschrieben: Modus, Projektdatei, Profil und letzter Schritt, Exit-Code und Abbruch, die Seiten mit DPI, Farbmodus, Ausgabedatei und Status, sowie die Exporte und die übergangenen Dateien.</translation>
     </message>
     <message>
         <location filename="../cli/main.cpp" line="223"/>
