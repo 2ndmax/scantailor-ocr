@@ -18,6 +18,7 @@
 #include <QStyleHints>
 #include <QTimer>
 
+#include "AppResources.h"
 #include "MainWindow.h"
 
 int main(int argc, char* argv[]) {
@@ -25,6 +26,7 @@ int main(int argc, char* argv[]) {
   Application app(argc, argv);
 
   ImageSizeLimit::applyQtAllocationLimit();
+  initAppResources();
 
 #ifdef _WIN32
   // Get rid of all references to Qt's installation directory.

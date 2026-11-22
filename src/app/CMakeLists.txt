@@ -7,7 +7,8 @@ set(resource_files resources.qrc)
 list_items_prepend(resource_files "${SCANTAILOR_RESOURCES_DIR}/")
 list(APPEND resource_files ${color_scheme_qrc_files})
 
-set(gui_only_sources
+set(app_lib_sources
+    AppResources.cpp AppResources.h
     RelinkingModel.cpp RelinkingModel.h
     RelinkingSortingModel.cpp RelinkingSortingModel.h
     RelinkingDialog.cpp RelinkingDialog.h
@@ -27,7 +28,6 @@ set(gui_only_sources
     ScanFolderWatcher.cpp ScanFolderWatcher.h
     NewOpenProjectPanel.cpp NewOpenProjectPanel.h
     MainWindow.cpp MainWindow.h
-    main.cpp
     StatusBarPanel.cpp StatusBarPanel.h
     DefaultParamsDialog.cpp DefaultParamsDialog.h
     ExportView.cpp ExportView.h
@@ -74,16 +74,21 @@ if (WIN32)
   endif()
 endif()
 
+add_library(app_lib STATIC ${app_lib_sources} ${gui_only_ui_files} ${resource_files})
+target_link_libraries(
+    app_lib
+    PUBLIC stages_ui ${EXTRA_LIBS})
+target_include_directories(
+    app_lib
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
+           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/app_lib_autogen/include>"
+    PRIVATE "$<TARGET_PROPERTY:TIFF::TIFF,INTERFACE_INCLUDE_DIRECTORIES>")
+
 add_executable(
-    ${target_name} WIN32 ${gui_only_sources} ${gui_only_ui_files}
-    ${resource_files} ${win32_resource_file})
+    ${target_name} WIN32 main.cpp ${win32_resource_file})
 target_link_libraries(
     ${target_name}
-    PRIVATE stages_ui ${EXTRA_LIBS})
-target_include_directories(
-    ${target_name}
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
-    "$<TARGET_PROPERTY:TIFF::TIFF,INTERFACE_INCLUDE_DIRECTORIES>")
+    PRIVATE app_lib)
 install(TARGETS ${target_name} RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
 if (WIN32)
@@ -147,4 +152,4 @@ if (WIN32)
 endif()
 
 # Same set as the other sources ("scantailor"), which is the one update_translations works on.
-translation_sources(scantailor ${gui_only_sources} ${gui_only_ui_files})
+translation_sources(scantailor ${app_lib_sources} main.cpp ${gui_only_ui_files})

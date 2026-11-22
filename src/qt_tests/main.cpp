@@ -11,6 +11,8 @@
 #include "tst_select_content_qt.h"
 #include "tst_ux_qt.h"
 
+#include <AppResources.h>
+
 #include <QApplication>
 #include <QFileInfo>
 #include <QMetaObject>
@@ -93,6 +95,7 @@ int main(int argc, char* argv[]) {
   }
   QSettings::setDefaultFormat(QSettings::IniFormat);
   QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDir.path());
+  initAppResources();
 
   const QStringList arguments = app.arguments();
   TestCoreQt tc1;
