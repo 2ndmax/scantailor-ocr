@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QSet>
 #include <QTextStream>
 #include <algorithm>
 #include <map>
@@ -122,15 +123,25 @@ bool loadFolderFiles(const QString& inputDir,
                      QTextStream& err,
                      std::vector<ImageFileInfo>* files,
                      QStringList* passedOver) {
-  QFileInfoList all(QDir(inputDir).entryInfoList(QDir::Files));
-  std::sort(all.begin(), all.end(), SmartFilenameOrdering());
-  bool failed = false;
-  for (const QFileInfo& file : all) {
-    // The output of the default output folder lies in the input folder; a hidden file is no scan.
-    if (!project_files::isImportableImage(file) || file.isHidden()) {
-      passedOver->append(file.filePath());
-      continue;
+  QFileInfoList images = project_files::importableImagesIn(inputDir);
+  // The app's Project Files dialog also lists hidden files, so the shared helper keeps them. They
+  // are no scans here, and neither is the output of the default output folder in the input folder.
+  QSet<QString> usablePaths;
+  for (auto it = images.begin(); it != images.end();) {
+    if (it->isHidden()) {
+      ++it;
+    } else {
+      usablePaths.insert(it->filePath());
+      ++it;
     }
+  }
+  images.erase(std::remove_if(images.begin(), images.end(),
+                              [&usablePaths](const QFileInfo& file) { return !usablePaths.contains(file.filePath()); }),
+               images.end());
+  std::sort(images.begin(), images.end(), SmartFilenameOrdering());
+
+  bool failed = false;
+  for (const QFileInfo& file : images) {
     QStringList loadErrors;
     QStringList partialReads;
     std::optional<ImageFileInfo> loaded = ImageFileInfo::load(file, &loadErrors, &partialReads);
@@ -151,6 +162,13 @@ bool loadFolderFiles(const QString& inputDir,
       continue;
     }
     files->push_back(std::move(*loaded));
+  }
+  QFileInfoList all(QDir(inputDir).entryInfoList(QDir::Files));
+  std::sort(all.begin(), all.end(), SmartFilenameOrdering());
+  for (const QFileInfo& file : all) {
+    if (!usablePaths.contains(file.filePath())) {
+      passedOver->append(file.filePath());
+    }
   }
   if (failed) {
     return false;
