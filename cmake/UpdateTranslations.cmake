@@ -10,12 +10,24 @@
 #
 macro (translation_sources _target) #, _sources
   file(GLOB _sources ${ARGN})
+  # The lists live in cache variables, so that calls from different directories add to the
+  # same list. No normal variable of the same name may stay behind: it would hide the cache in
+  # this directory and the ones added below it, and each of those would write its own sources
+  # onto that old copy, losing those of the directories before it (src/core sets the list
+  # before adding gui and the filters).
+  # REVIEW-NOTE (2026-11): a change here can lose sources again -> update_translations marks
+  # their texts as vanished. Not tested because CMake code has no tests here and only a fresh
+  # configure shows the loss; checked by hand with update_translations.
+  unset(${_target}_TRANSLATION_SOURCES)
+  unset(${_target}_TRANSLATION_INCLUDE_DIRS)
   list(APPEND ${_target}_TRANSLATION_SOURCES ${_sources})
   list(APPEND ${_target}_TRANSLATION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
   list(REMOVE_DUPLICATES ${_target}_TRANSLATION_SOURCES)
   list(REMOVE_DUPLICATES ${_target}_TRANSLATION_INCLUDE_DIRS)
   set(${_target}_TRANSLATION_SOURCES ${${_target}_TRANSLATION_SOURCES} CACHE INTERNAL "" FORCE)
   set(${_target}_TRANSLATION_INCLUDE_DIRS ${${_target}_TRANSLATION_INCLUDE_DIRS} CACHE INTERNAL "" FORCE)
+  unset(${_target}_TRANSLATION_SOURCES)
+  unset(${_target}_TRANSLATION_INCLUDE_DIRS)
 endmacro()
 
 
