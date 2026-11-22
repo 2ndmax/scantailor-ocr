@@ -910,4 +910,27 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_color_mode_detect) {
   BOOST_CHECK(session.stages->outputFilter()->settings()->getParams(pageId).colorParams().colorMode() == output::MIXED);
 }
 
+// --threads: the run gets its budget; a too small value is a usage error.
+BOOST_AUTO_TEST_CASE(test_threads_option) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  CommandLineRun::Options options;
+  options.projectFile = projectFile;
+  options.threads = 0;
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::USAGE_ERROR);
+  BOOST_CHECK(!err.isEmpty());
+
+  options.threads = 2;
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::SUCCESS);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

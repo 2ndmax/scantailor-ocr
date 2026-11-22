@@ -35,6 +35,7 @@
 #include "ProjectReader.h"
 #include "ProjectSession.h"
 #include "StageSequence.h"
+#include "ThreadBudget.h"
 #include "filters/output/ColorModeDetection.h"
 
 namespace {
@@ -709,6 +710,14 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       err << tr("The option --color-mode-detect needs --last-step margins or later.") << Qt::endl;
       return USAGE_ERROR;
     }
+  }
+  // --threads: the budget of this run; the setting of the program stays as it is.
+  if (options.threads && (*options.threads < 1)) {
+    err << tr("The number of threads after --threads is too small; it must be at least 1.") << Qt::endl;
+    return USAGE_ERROR;
+  }
+  if (options.threads) {
+    ThreadBudget::setMaxThreads(*options.threads);
   }
   // The export options lead the run to the export; an explicit earlier last step contradicts them.
   if ((options.exportDir || options.exportName || options.formats) && (options.lastStep != Options::EXPORT)) {

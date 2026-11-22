@@ -74,6 +74,8 @@ class CommandLineRun {
     std::optional<Dpi> dpiFix;
     /** --color-mode-detect: after the Margins step, as the app's Detect Color Mode does. */
     bool colorModeDetect = false;
+    /** --threads: the number of threads of this run; unset without it. */
+    std::optional<int> threads;
 
     /**
      * The existing folder for the exported files. Not set for the folder of the project file; a set

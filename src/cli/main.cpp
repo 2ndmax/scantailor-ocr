@@ -172,6 +172,11 @@ int main(int argc, char* argv[]) {
       CommandLineRun::tr("Detect the color mode of the pages after the Margins step, as the app's Detect "
                          "Color Mode does, and report it per page."));
   parser.addOption(colorModeDetectOption);
+  const QCommandLineOption threadsOption(
+      QStringLiteral("threads"),
+      CommandLineRun::tr("The number of threads of the run, instead of the setting of the program; at least 1."),
+      CommandLineRun::tr("n"));
+  parser.addOption(threadsOption);
   parser.addPositionalArgument(CommandLineRun::tr("project"), CommandLineRun::tr("The project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
   // message box, while a script expects them in its output.
@@ -246,6 +251,17 @@ int main(int argc, char* argv[]) {
     }
   }
   options.colorModeDetect = parser.isSet(colorModeDetectOption);
+  if (parser.isSet(threadsOption)) {
+    bool ok = false;
+    const int threads = parser.value(threadsOption).toInt(&ok);
+    if (!ok || (threads < 1)) {
+      err << CommandLineRun::tr("Unknown thread number after --threads: %1; it must be at least 1.")
+                 .arg(parser.value(threadsOption))
+          << Qt::endl;
+      return CommandLineRun::USAGE_ERROR;
+    }
+    options.threads = threads;
+  }
   const bool lastStepSet = parser.isSet(lastStepOption);
   if (lastStepSet && !CommandLineRun::Options::parseLastStep(parser.value(lastStepOption), &options.lastStep)) {
     err << CommandLineRun::tr(
