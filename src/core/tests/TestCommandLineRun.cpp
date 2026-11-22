@@ -20,6 +20,7 @@
 #include <filters/output/Settings.h>
 
 #include <QDir>
+#include <QDomDocument>
 #include <QFileInfo>
 #include <QImage>
 #include <QJsonArray>
@@ -42,6 +43,7 @@ extern "C" {
 }
 
 #include "ScopedMaxThreads.h"
+#include "SmartFilenameOrdering.h"
 #include "TestHelpers.h"
 #include "TestTiffFile.h"
 
@@ -984,6 +986,7 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_dpi_option) {
   QString out;
   QString err;
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("page.png")));
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, dir.filePath("p1.ScanTailor"), Dpi(300, 300)),
                     CommandLineRun::SUCCESS);
   BOOST_CHECK(out.contains(QStringLiteral("DPI: 300 dpi")));
@@ -1424,6 +1427,87 @@ BOOST_AUTO_TEST_CASE(test_report_of_a_cancelled_run) {
   const QJsonObject run = readReport(reportFile)["run"].toObject();
   BOOST_CHECK_EQUAL(run["exitCode"].toInt(), CommandLineRun::CANCELLED);
   BOOST_CHECK(run["cancelled"].toBool());
+}
+
+// The project made in folder mode has the same pages, order and start values as the one the app
+// makes from the same folder. The filters are left out: the CLI writes its project after processing.
+BOOST_AUTO_TEST_CASE(test_folder_mode_creates_the_project_the_app_would_create) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("book");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  for (const QString& name : {QStringLiteral("9.png"), QStringLiteral("2.png"), QStringLiteral("010.png")}) {
+    BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QLatin1Char('/') + name, 300).imageInfo().empty());
+  }
+
+  // What the app does after the Project Files dialog: load the files in SmartFilenameOrdering,
+  // take the profile of the program and create and save the project.
+  QFileInfoList fileInfos = QDir(inputDir).entryInfoList(QStringList(QStringLiteral("*.png")), QDir::Files);
+  std::sort(fileInfos.begin(), fileInfos.end(), SmartFilenameOrdering());
+  std::vector<ImageFileInfo> files;
+  for (const QFileInfo& info : fileInfos) {
+    QStringList loadErrors;
+    QStringList partialReads;
+    const std::optional<ImageFileInfo> loaded = ImageFileInfo::load(info, &loadErrors, &partialReads);
+    BOOST_REQUIRE(loaded);
+    BOOST_REQUIRE(partialReads.isEmpty());
+    files.push_back(*loaded);
+  }
+  BOOST_REQUIRE_EQUAL(files.size(), 3);
+  const DefaultParams startValues = DefaultParamsProvider::getInstance().getParams();
+  const QString outDir = QDir(inputDir).absoluteFilePath(QStringLiteral("out"));
+  const ProjectSession appSession = ProjectSession::createNew(
+      ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, inputDir, startValues);
+  const QString appProject = dir.filePath("app.ScanTailor");
+  BOOST_REQUIRE(appSession.write(appProject));
+
+  const QString cliProject = dir.filePath("cli.ScanTailor");
+  QString out;
+  QString err;
+  const Tests::ScopedMaxThreads scopedThreads(1);
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, cliProject), CommandLineRun::SUCCESS);
+  BOOST_CHECK_MESSAGE(err.isEmpty(), err.toStdString());
+  BOOST_CHECK(out.contains(QStringLiteral("Profile: Default")));
+
+  const ProjectReader::FileResult appRead = ProjectReader::readFile(appProject);
+  const ProjectReader::FileResult cliRead = ProjectReader::readFile(cliProject);
+  BOOST_REQUIRE(appRead.reader);
+  BOOST_REQUIRE(cliRead.reader);
+  const PageSequence appPages = appRead.reader->pages()->toPageSequence(IMAGE_VIEW);
+  const PageSequence cliPages = cliRead.reader->pages()->toPageSequence(IMAGE_VIEW);
+  BOOST_REQUIRE_EQUAL(appPages.numPages(), 3);
+  BOOST_REQUIRE_EQUAL(cliPages.numPages(), 3);
+  const QStringList expectedNames{QStringLiteral("2.png"), QStringLiteral("9.png"), QStringLiteral("010.png")};
+  for (int i = 0; i < expectedNames.size(); ++i) {
+    const PageInfo& appPage = appPages.pageAt(i);
+    const PageInfo& cliPage = cliPages.pageAt(i);
+    BOOST_CHECK(QFileInfo(appPage.imageId().filePath()).fileName() == expectedNames.at(i));
+    BOOST_CHECK(QFileInfo(cliPage.imageId().filePath()).fileName() == expectedNames.at(i));
+    BOOST_CHECK(appPage.metadata().size() == cliPage.metadata().size());
+    BOOST_CHECK(appPage.metadata().dpi() == cliPage.metadata().dpi());
+  }
+  BOOST_CHECK(appRead.reader->pages()->layoutDirection() == cliRead.reader->pages()->layoutDirection());
+  BOOST_CHECK(appRead.reader->outputDirectory() == cliRead.reader->outputDirectory());
+
+  const std::unique_ptr<DefaultParams> appDefaults = appRead.reader->readDefaultParams();
+  const std::unique_ptr<DefaultParams> cliDefaults = cliRead.reader->readDefaultParams();
+  BOOST_REQUIRE(appDefaults);
+  BOOST_REQUIRE(cliDefaults);
+  auto defaultParamsXml = [](const DefaultParams& params) {
+    QDomDocument doc;
+    doc.appendChild(params.toXml(doc, QStringLiteral("default-params")));
+    return doc.toString();
+  };
+  BOOST_CHECK(defaultParamsXml(*appDefaults) == defaultParamsXml(*cliDefaults));
+  BOOST_CHECK(defaultParamsXml(*cliDefaults) == defaultParamsXml(startValues));
+
+  auto processingOptionsXml = [](const ProcessingOptions& options) {
+    QDomDocument doc;
+    doc.appendChild(options.toXml(doc, QStringLiteral("processing-options")));
+    return doc.toString();
+  };
+  BOOST_CHECK(processingOptionsXml(appRead.reader->readProcessingOptions(ProcessingOptions()))
+              == processingOptionsXml(cliRead.reader->readProcessingOptions(ProcessingOptions())));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

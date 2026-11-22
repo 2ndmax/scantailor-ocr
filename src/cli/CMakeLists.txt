@@ -47,4 +47,11 @@ if (BUILD_TESTS)
   add_cli_test(cli_dpi_fix_with_project 1 --dpi-fix=300 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   # CommandLineRun::PROJECT_UNUSABLE
   add_cli_test(cli_missing_project 2 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+
+  # An export option without --last-step has to lead the run to the export.
+  add_executable(cli_folder_export_test cli_folder_export_test.cpp)
+  target_link_libraries(cli_folder_export_test PRIVATE Qt::Core Qt::Gui)
+  add_test(NAME cli_folder_export_formats_without_last_step COMMAND cli_folder_export_test
+                                                             "$<TARGET_FILE:scantailor-ocr-cli>")
+  set_unit_test_environment(cli_folder_export_formats_without_last_step)
 endif()
