@@ -542,16 +542,19 @@ bool exportReplacesProjectFile(const ExportPaths& paths,
          || (formats.alto && (replaces(paths.altoDir, false) || replaces(paths.altoDir, true)));
 }
 
+QString noOcrLanguageMessage() {
+  return CommandLineRun::tr(
+      "The export needs text recognition, but the project has no language ticked. Tick one in "
+      "ScanTailor OCR, in the Export step.");
+}
+
 /**
- * Sets up the text recognition as the formats need it. The app asks about languages that aren't
- * installed and offers to download them; here, they end the export.
- * Returns false after telling \p err why it can't be done.
+ * Whether text recognition can run with the languages of the project: they are installed, and
+ * there is one. The app asks about languages that aren't installed and offers to download them;
+ * here, they end the run. Sets nothing up. Returns false after telling \p err why not.
  */
-bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStream& err) {
-  if (!options->formats.needsTextRecognition(options->pdf.textLayer)) {
-    return true;
-  }
-  const QStringList missing = OcrLanguages::missing(project.ocr.languages);
+bool checkOcrLanguages(const QStringList& languages, QTextStream& err) {
+  const QStringList missing = OcrLanguages::missing(languages);
   if (!missing.isEmpty()) {
     QStringList names;
     for (const QString& code : missing) {
@@ -564,15 +567,30 @@ bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStr
         << Qt::endl;
     return false;
   }
+  if (languages.isEmpty()) {
+    err << noOcrLanguageMessage() << Qt::endl;
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Sets up the text recognition as the formats need it. Returns false after telling \p err why it
+ * can't be done.
+ */
+bool setUpOcr(const ProcessingOptions& project, ExportOptions* options, QTextStream& err) {
+  if (!options->formats.needsTextRecognition(options->pdf.textLayer)) {
+    return true;
+  }
+  if (!checkOcrLanguages(project.ocr.languages, err)) {
+    return false;
+  }
   QString error;
   switch (options->setUpOcr(project.ocr.languages, project.ocr.pageLayout, &error)) {
     case ExportOptions::OcrSetup::DONE:
       return true;
     case ExportOptions::OcrSetup::NO_LANGUAGE:
-      err << CommandLineRun::tr(
-          "The export needs text recognition, but the project has no language ticked. Tick one in "
-          "ScanTailor OCR, in the Export step.")
-          << Qt::endl;
+      err << noOcrLanguageMessage() << Qt::endl;
       return false;
     case ExportOptions::OcrSetup::NOT_GATHERED:
       err << CommandLineRun::tr(
