@@ -455,11 +455,14 @@ topic, not by version.
   whose output folder or images are missing (relinking) and OCR languages that aren't installed
   (it downloads nothing). It also refuses wrong export options, a missing folder, an invalid
   name and an export that would replace the project file, one of its images or a folder holding
-  them. Ctrl+C stops before the next page; the pages done keep their output, and the project is
-  saved with them. A second Ctrl+C no longer ends the command line tool at once. Exit codes:
-  0 done, 1 wrong command line, 2 project unusable or not saved, 3 pages failed, 4 export failed,
-  5 canceled. The messages use the language of the app.
+  them. Ctrl+C starts no further page and lets those already running finish; the pages done keep
+  their output, and the project is saved with them. A second Ctrl+C no longer ends the command
+  line tool at once. Exit codes: 0 done, 1 wrong command line, 2 project unusable or not saved,
+  3 pages failed, 4 export failed, 5 canceled. The messages use the language of the app.
   The option `--pdf <file>` of versions 1.0.11 and 1.0.12 is replaced by these export options.
+* The command line tool processes several pages at once, as many as set under "Processor
+  threads" in the settings; with 8 threads about five times as fast as one page after the other,
+  with the same output. Memory use grows with the number of pages at once.
 * At the end of batch processing, the system beep sounds when the alarm command doesn't start,
   e.g. on Linux without SoX, whose `play` is the default there; before, it stayed silent.
 * Batch processing no longer prepares the view of each page it passes (downscaled images, the
