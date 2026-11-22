@@ -167,8 +167,8 @@ with another compiler and standard library; it is started by hand and builds no 
 
 ## Libraries
 
-The code under `src/core` is built into libraries that keep the processing apart from the user
-interface:
+The code under `src/core` and `src/app` is built into libraries that keep the processing apart
+from the user interface:
 
 * `zones` – the picture and fill zones as data. It links only `foundation`.
 * `core_base` (`src/core/base`) – what the steps need from the core: types such as `PageId`,
@@ -193,9 +193,13 @@ interface:
   view, dialogs and thumbnail.
 * `stages_ui` (`src/core/gui/stages`) – `FilterUiSequence`, which shows each step through its
   `FilterUi`, and the thumbnails of all steps.
+* `app_lib` (`src/app`) – the window of the program (`MainWindow`), its dialogs and panels, and
+  the icons and color schemes as Qt resources: everything in `src/app` except `main.cpp`. The
+  linker leaves out resources of a static library that nothing refers to, so the program and
+  `qt_tests` call `initAppResources()` (`src/app/AppResources.h`) once at the start.
 
 Each library depends only on those listed above it, and a step only on the steps after it. The
-program links `stages_ui`; the command line tool `scantailor-ocr-cli`, `core_tests` and the
+program is only `main.cpp` and links `app_lib`, as does `qt_tests`; the command line tool `scantailor-ocr-cli`, `core_tests` and the
 developer tools link only `core`, so they don't need the Qt Widgets libraries. Code that needs a
 widget belongs in `core_gui` or a `<step>_ui` library; code a step needs belongs in `core_base`,
 code that needs several steps in `core`.

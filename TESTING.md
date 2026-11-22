@@ -49,7 +49,7 @@ Every module has its own `Test<Module>.cpp` in the `tests` folder of its library
 | `math_tests` | `src/math/tests` | automatic differentiation, functions, matrices, splines |
 | `imageproc_tests` | `src/imageproc/tests` | binary images, binarization, morphology, scaling, transforms |
 | `dewarping_tests` | `src/dewarping/tests` | the dewarping with invalid curves and grids, the tracing of text lines on drawn pages |
-| `qt_tests` | `src/qt_tests` | widgets and steps of the user interface without opening windows, and the end-to-end test (Qt Test) |
+| `qt_tests` | `src/qt_tests` | widgets and steps of the user interface without opening windows, the end-to-end test, and the app against the command line tool (Qt Test) |
 
 ### End-to-end test (TestEndToEndQt)
 
@@ -83,6 +83,24 @@ files.
 
 Known limit: *Select Content* takes a smooth area without edges (such as a plain color
 gradient) for background, so the picture on the test page is made of tiles.
+
+### App against command line tool (TestMainWindowBatchCliQt)
+
+Processes the same project once in the window of the app and once as the command line tool, and
+compares the output. The two process pages in different ways: the app runs batch processing at
+*Margins* and then at *Output*, one task per page up to that step; the tool runs
+`StageSequence::processAll` in three passes over all pages, without thumbnails.
+
+- **Pages**: the three drawn scans of the end-to-end test, in two folders, each with its own
+  output folder and project file. One project for both wouldn't do: the second run would skip
+  the pages already up to date.
+- **Flow**: `MainWindow` opens the first project file and runs batch processing at *Margins*,
+  then at *Output*; `CommandLineRun::run` processes the second one, without export.
+- **Check**: the same 4 output files, byte for byte. The app runs with one processing thread,
+  the tool with four, so this also checks that pages processed side by side give the same
+  output.
+- It waits for what the window shows (the list of steps enabled again), not for fixed times,
+  and fails with a message if a dialog opens. It takes a few seconds.
 
 ## Writing tests
 
