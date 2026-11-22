@@ -6,6 +6,8 @@ set(sources
     tst_deskew_qt.cpp
     tst_end_to_end_qt.cpp
     tst_fix_orientation_qt.cpp
+    tst_main_window_batch_cli_qt.cpp
+    tst_main_window_batch_cli_qt.h
     tst_output_qt.cpp
     tst_page_layout_qt.cpp
     tst_page_split_qt.cpp
