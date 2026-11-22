@@ -777,10 +777,12 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_unreadable_files) {
   const QString inputDir = dir.filePath("in");
   BOOST_REQUIRE(QDir().mkpath(inputDir));
   BOOST_REQUIRE(Tests::writeFile(inputDir + QStringLiteral("/broken.png"), "not a png"));
+  BOOST_REQUIRE(Tests::writeFile(inputDir + QStringLiteral("/broken2.png"), "also not a png"));
   QString out;
   QString err;
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(err.contains(QStringLiteral("broken.png")));
+  BOOST_CHECK(err.contains(QStringLiteral("broken2.png")));
 }
 
 // A file with a damaged page after readable ones is no more acceptable than an unreadable one.
@@ -790,10 +792,11 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_partly_readable_files) {
   const QString inputDir = dir.filePath("in");
   BOOST_REQUIRE(QDir().mkpath(inputDir));
   BOOST_REQUIRE(writePartlyReadableTiff(inputDir + QStringLiteral("/partly.tif")));
+  BOOST_REQUIRE(writePartlyReadableTiff(inputDir + QStringLiteral("/partly2.tif")));
   QString out;
   QString err;
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
-  BOOST_CHECK(err.contains(QStringLiteral("only partly readable")));
+  BOOST_CHECK_EQUAL(err.count(QStringLiteral("only partly readable")), 2);
   BOOST_CHECK(err.contains(QStringLiteral("Page 3 of this file is damaged.")));
 }
 

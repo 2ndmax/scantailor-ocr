@@ -124,6 +124,7 @@ bool loadFolderFiles(const QString& inputDir,
                      QStringList* passedOver) {
   QFileInfoList all(QDir(inputDir).entryInfoList(QDir::Files));
   std::sort(all.begin(), all.end(), SmartFilenameOrdering());
+  bool failed = false;
   for (const QFileInfo& file : all) {
     // The output of the default output folder lies in the input folder; a hidden file is no scan.
     if (!project_files::isImportableImage(file) || file.isHidden()) {
@@ -137,16 +138,22 @@ bool loadFolderFiles(const QString& inputDir,
       for (const QString& reason : loadErrors) {
         err << file.filePath() << ": " << reason << Qt::endl;
       }
-      return false;
+      // All bad files are named, not only the first one the folder happens to list.
+      failed = true;
+      continue;
     }
     if (!loaded->partialReads().isEmpty()) {
       err << file.filePath() << ": " << CommandLineRun::tr("The file is only partly readable.") << Qt::endl;
       for (const QString& reason : loaded->partialReads()) {
         err << "  " << reason << Qt::endl;
       }
-      return false;
+      failed = true;
+      continue;
     }
     files->push_back(std::move(*loaded));
+  }
+  if (failed) {
+    return false;
   }
   if (files->empty()) {
     err << CommandLineRun::tr("The input folder has no images: %1").arg(nativePath(inputDir)) << Qt::endl;
