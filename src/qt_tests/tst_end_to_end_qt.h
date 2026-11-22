@@ -18,6 +18,7 @@ class TestEndToEndQt : public QObject {
   void testMissingImage();
   void testMissingImageAfterEarlierRun();
   void testOutputTooLarge();
+  void testSplitTooLarge();
   void testCancelWithoutThumbnails();
   void testPdfExport();
 };

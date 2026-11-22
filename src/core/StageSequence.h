@@ -189,6 +189,11 @@ class StageSequence {
   int outputFilterIdx() const { return m_outputFilterIdx; }
 
  private:
+  /**
+   * Processes the pages of \p view up to \p lastFilterIdx, several at once, and adds their failures to
+   * \p result in the order of the pages. Returns false if it stopped early: cancelled or out of memory.
+   * An exception of a page task is thrown again here, after the other running pages are done.
+   */
   bool processPass(PageView view,
                    int lastFilterIdx,
                    const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,

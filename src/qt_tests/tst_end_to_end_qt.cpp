@@ -41,6 +41,7 @@
 #include <memory>
 #include <vector>
 
+#include "core/tests/ScopedMaxThreads.h"
 #include "core/tests/TestTiffFile.h"
 #include "test_project.h"
 
@@ -348,8 +349,42 @@ void TestEndToEndQt::testOutputTooLarge() {
   }
 }
 
+void TestEndToEndQt::testSplitTooLarge() {
+  QTemporaryDir tempDir;
+  QVERIFY(tempDir.isValid());
+  const QDir dir(tempDir.path());
+  const std::vector<ImageFileInfo> files{saveScan(twoPageSpread(), dir.absoluteFilePath("spread.png"))};
+  QVERIFY(allSaved(files));
+
+  DefaultParams startValues;
+  DefaultParams::OutputParams outputParams = startValues.getOutputParams();
+  outputParams.setDpi(Dpi(100000, 100000));
+  startValues.setOutputParams(outputParams);
+
+  PageId pageWithMax1, pageWithMax4;
+  {
+    const Tests::ScopedMaxThreads threads(1);
+    TestProject project(files, dir.absoluteFilePath("out1"), startValues);
+    const StageSequence::ProcessAllResult result
+        = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+    QCOMPARE(result.failures.size(), qsizetype(1));
+    pageWithMax1 = result.failures.front().page;
+  }
+  {
+    const Tests::ScopedMaxThreads threads(4);
+    TestProject project(files, dir.absoluteFilePath("out4"), startValues);
+    const StageSequence::ProcessAllResult result
+        = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+    QCOMPARE(result.failures.size(), qsizetype(1));
+    pageWithMax4 = result.failures.front().page;
+  }
+  QCOMPARE(pageWithMax1, pageWithMax4);
+}
+
 void TestEndToEndQt::testCancelWithoutThumbnails() {
   // Without thumbnails, processing can be cancelled between two pages and run again.
+  // This test checks the serial ordering of pages, so it runs with one thread.
+  const Tests::ScopedMaxThreads threads(1);
   QTemporaryDir tempDir;
   QVERIFY(tempDir.isValid());
   const QDir dir(tempDir.path());
