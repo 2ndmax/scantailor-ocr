@@ -31,9 +31,10 @@ class ImageFileInfo {
 
   /**
    * The metadata of the images of the file, as for a new project: one entry per page the loader
-   * reports. Returns false if the file could not be loaded; then \p loadErrors (if not null) holds
-   * why, with the generic text the app shows when the loader gives none, and \p partialReads (if
-   * not null) why only some of the pages were read.
+   * reports. Returns an empty optional if the file could not be loaded; then \p loadErrors (if not
+   * null) holds why, with the generic text the app shows when the loader gives none. \p partialReads
+   * (if not null) holds why only some of the pages were read; the returned info carries the same
+   * reasons and can be checked with partialReads().
    */
   static std::optional<ImageFileInfo> load(const QFileInfo& fileInfo,
                                            QStringList* loadErrors,

@@ -26,9 +26,16 @@
 #include <QTextStream>
 #include <atomic>
 #include <boost/test/unit_test.hpp>
+#include <cstdint>
 #include <optional>
+#include <vector>
+
+extern "C" {
+#include <tiffio.h>
+}
 
 #include "TestHelpers.h"
+#include "TestTiffFile.h"
 
 namespace {
 /**
@@ -131,6 +138,59 @@ ProcessingOptions::Formats formatsOf(const bool pdf, const bool txt, const bool 
   formats.hocr = hocr;
   formats.alto = alto;
   return formats;
+}
+
+/** Writes a small three-page TIFF whose second directory points past the end of the file. */
+bool writePartlyReadableTiff(const QString& path) {
+  TIFF* tif = Tests::openTiffFile(path, "wl");
+  if (tif == nullptr) {
+    return false;
+  }
+  bool ok = true;
+  for (int page = 0; (page < 3) && ok; ++page) {
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, static_cast<uint32_t>(64));
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, static_cast<uint32_t>(64));
+    TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, static_cast<uint16_t>(8));
+    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16_t>(1));
+    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, static_cast<uint16_t>(SAMPLEFORMAT_UINT));
+    TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, static_cast<uint16_t>(PHOTOMETRIC_MINISBLACK));
+    TIFFSetField(tif, TIFFTAG_COMPRESSION, static_cast<uint16_t>(COMPRESSION_NONE));
+    TIFFSetField(tif, TIFFTAG_PLANARCONFIG, static_cast<uint16_t>(PLANARCONFIG_CONTIG));
+    TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, static_cast<uint32_t>(64));
+    TIFFSetField(tif, TIFFTAG_XRESOLUTION, 300.0f);
+    TIFFSetField(tif, TIFFTAG_YRESOLUTION, 300.0f);
+    TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, static_cast<uint16_t>(RESUNIT_INCH));
+    std::vector<uint8_t> row(64, 255);
+    for (int y = 0; (y < 64) && ok; ++y) {
+      ok = TIFFWriteScanline(tif, row.data(), static_cast<uint32_t>(y), 0) >= 0;
+    }
+    ok = ok && TIFFWriteDirectory(tif);
+  }
+  TIFFClose(tif);
+  if (!ok) {
+    return false;
+  }
+
+  QByteArray data = Tests::readFile(path);
+  const auto readLe = [&data](const uint32_t offset, const int bytes) {
+    uint32_t value = 0;
+    for (int i = bytes - 1; i >= 0; --i) {
+      value = (value << 8) | static_cast<uint8_t>(data[offset + i]);
+    }
+    return value;
+  };
+  const auto writeLe = [&data](const uint32_t offset, const int bytes, uint32_t value) {
+    for (int i = 0; i < bytes; ++i, value >>= 8) {
+      data[offset + i] = static_cast<char>(value & 0xff);
+    }
+  };
+  const uint32_t firstIfd = readLe(4, 4);
+  const uint32_t firstEntries = readLe(firstIfd, 2);
+  const uint32_t secondIfd = readLe(firstIfd + 2 + 12 * firstEntries, 4);
+  const uint32_t secondEntries = readLe(secondIfd, 2);
+  // The four bytes after the entries of a directory hold the offset of the next one.
+  writeLe(secondIfd + 2 + 12 * secondEntries, 4, static_cast<uint32_t>(data.size()) + 4096);
+  return Tests::writeFile(path, data);
 }
 }  // namespace
 
@@ -706,6 +766,20 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_unreadable_files) {
   QString err;
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(err.contains(QStringLiteral("broken.png")));
+}
+
+// A file with a damaged page after readable ones is no more acceptable than an unreadable one.
+BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_partly_readable_files) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(writePartlyReadableTiff(inputDir + QStringLiteral("/partly.tif")));
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("only partly readable")));
+  BOOST_CHECK(err.contains(QStringLiteral("Page 3 of this file is damaged.")));
 }
 
 BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_an_existing_project_file) {

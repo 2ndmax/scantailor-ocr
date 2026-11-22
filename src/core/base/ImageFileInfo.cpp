@@ -37,5 +37,7 @@ std::optional<ImageFileInfo> ImageFileInfo::load(const QFileInfo& fileInfo,
     }
     return std::nullopt;
   }
-  return ImageFileInfo(fileInfo, metadata);
+  ImageFileInfo loaded(fileInfo, metadata);
+  loaded.setPartialReads(capture.partialReads());
+  return loaded;
 }
