@@ -127,6 +127,35 @@ BOOST_AUTO_TEST_CASE(test_parallel_progress) {
   }
 }
 
+// The hook after Margins runs before any output file is written, also when the run ends at
+// Margins. It gives a caller one place to use the geometry of all pages.
+BOOST_AUTO_TEST_CASE(test_process_all_calls_after_margins_before_output) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const ProjectSession session = createProject(dir, 1);
+
+  int calls = 0;
+  bool noOutputYet = false;
+  const StageSequence::ProcessAllResult result = session.stages->processAll(
+      nullptr, session.outFileNameGen, session.stages->outputFilterIdx(), {}, [&] {
+        ++calls;
+        noOutputYet = QDir(session.outFileNameGen.outDir()).entryList({QStringLiteral("*.tif")}, QDir::Files).isEmpty();
+      });
+  BOOST_CHECK(result.failures.empty());
+  BOOST_CHECK(result.output);
+  BOOST_CHECK_EQUAL(calls, 1);
+  BOOST_CHECK(noOutputYet);
+
+  QTemporaryDir marginsDir;
+  BOOST_REQUIRE(marginsDir.isValid());
+  const ProjectSession marginsOnly = createProject(marginsDir, 1);
+  calls = 0;
+  const StageSequence::ProcessAllResult marginsResult = marginsOnly.stages->processAll(
+      nullptr, marginsOnly.outFileNameGen, marginsOnly.stages->pageLayoutFilterIdx(), {}, [&] { ++calls; });
+  BOOST_CHECK(!marginsResult.output);
+  BOOST_CHECK_EQUAL(calls, 1);
+}
+
 // Cancelled while pages run side by side: those running are finished, no other starts, and a
 // second run completes the output.
 BOOST_AUTO_TEST_CASE(test_parallel_cancel) {

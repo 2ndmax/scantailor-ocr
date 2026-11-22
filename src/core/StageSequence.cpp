@@ -401,7 +401,8 @@ bool StageSequence::processPass(const PageView view,
 StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
                                                           const OutputFileNameGenerator& outFileNameGen,
                                                           const int lastFilterIdx,
-                                                          const ProgressCallback& progress) const {
+                                                          const ProgressCallback& progress,
+                                                          const AfterMarginsCallback& afterMargins) const {
   ProcessAllResult result;
   std::set<ImageId> failedImages;
   // The passes of a full run: up to Split, up to Margins, then Output. The bound cuts the last of
@@ -414,6 +415,9 @@ StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<
     const int marginsLast = std::min(m_pageLayoutFilterIdx, lastFilterIdx);
     if (!processPass(PAGE_VIEW, marginsLast, thumbnailCache, outFileNameGen, failedImages, result, progress)) {
       return result;
+    }
+    if (afterMargins && (lastFilterIdx >= m_pageLayoutFilterIdx)) {
+      afterMargins();
     }
     if ((lastFilterIdx >= m_outputFilterIdx) && !m_pageLayoutFilter->checkReadyForOutput(*m_pages)) {
       return result;

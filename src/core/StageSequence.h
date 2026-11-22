@@ -77,6 +77,13 @@ class StageSequence {
    */
   using ProgressCallback = std::function<bool(int lastFilterIdx, int done, int total)>;
 
+  /**
+   * Called by processAll() after the Margins pass, before the Output pass, when the run reaches
+   * the Margins step. It can use the geometry of all pages without a second run; a caller may
+   * change the settings of the pages here, so that the Output pass sees them.
+   */
+  using AfterMarginsCallback = std::function<void()>;
+
   StageSequence(const std::shared_ptr<ProjectPages>& pages);
 
   virtual ~StageSequence() = default;
@@ -130,11 +137,14 @@ class StageSequence {
    * \param outFileNameGen Where the output goes.
    * \param lastFilterIdx The step of the chain the run ends with, see above.
    * \param progress Optional; see ProgressCallback.
+   * \param afterMargins Optional; see AfterMarginsCallback. It is called even without an Output
+   * pass, as long as the run reaches the Margins step.
    */
   ProcessAllResult processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
                               const OutputFileNameGenerator& outFileNameGen,
                               int lastFilterIdx,
-                              const ProgressCallback& progress = {}) const;
+                              const ProgressCallback& progress = {},
+                              const AfterMarginsCallback& afterMargins = {}) const;
 
   /**
    * The task that updates the thumbnails up to the step \p lastFilterIdx from the stored results.
