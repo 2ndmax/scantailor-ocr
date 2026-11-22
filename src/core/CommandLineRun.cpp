@@ -1029,6 +1029,12 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     if (exportReplacesProjectFile(exportPaths, formats, projectFile, *session->pages, err)) {
       return USAGE_ERROR;
     }
+    // The languages text recognition needs are known from the project; setting it up, which may
+    // copy language files, waits for the export.
+    const ProcessingOptions& project = *session->stages->processingOptions();
+    if (formats.needsTextRecognition(project.pdf.textLayer) && !checkOcrLanguages(project.ocr.languages, err)) {
+      return PROJECT_UNUSABLE;
+    }
     // Before the processing, which may take long: a wrong name is noticed right away.
     out << tr("The export will create: %1").arg(describeOutputs(exportPaths, formats)) << Qt::endl;
   }

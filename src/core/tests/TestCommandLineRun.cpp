@@ -830,13 +830,14 @@ BOOST_AUTO_TEST_CASE(test_project_without_a_format_needs_the_option) {
 BOOST_AUTO_TEST_CASE(test_without_the_option_the_formats_of_the_project_count) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
-  // No PDF, and text formats without a language, so the export fails because of the text formats.
+  // No PDF, and a text format without a language: refused before processing, as text recognition needs one.
   const QString projectFile = createProject(dir, 300, QStringList(), "out", formatsOf(false, true, false, false));
   BOOST_REQUIRE(!projectFile.isEmpty());
 
   QString out;
   QString err;
-  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book")), CommandLineRun::EXPORT_FAILED);
+  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book")), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
   BOOST_CHECK(!err.isEmpty());
   BOOST_CHECK(!QFile::exists(dir.filePath("book.txt")));
   BOOST_CHECK(!QFile::exists(dir.filePath("book.pdf")));
@@ -878,9 +879,10 @@ BOOST_AUTO_TEST_CASE(test_existing_file_is_replaced_only_after_success) {
 
   QString out;
   QString err;
-  // Fails, as the project has no language for the text format.
+  // Refused before processing, as the project has no language for the text format. That an export
+  // replaces the files only once it succeeded is tested with ExportJob, in TestExportFormats.
   BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book"), QStringLiteral("pdf,txt")),
-                    CommandLineRun::EXPORT_FAILED);
+                    CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(Tests::readFile(pdfFile) == "old");
 
   err.clear();
@@ -943,14 +945,16 @@ BOOST_AUTO_TEST_CASE(test_no_pdf_if_ocr_languages_are_missing) {
   QString out;
   QString err;
   const QString pdfFile = dir.filePath("book.pdf");
-  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book")), CommandLineRun::EXPORT_FAILED);
+  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book")), CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(err.contains("zzy"));
   BOOST_CHECK(!QFile::exists(pdfFile));
+  // Refused before processing: the languages are known from the project.
+  BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
 
   // The same for a text format without a PDF.
   err.clear();
   BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book"), QStringLiteral("txt")),
-                    CommandLineRun::EXPORT_FAILED);
+                    CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(err.contains("zzy"));
   BOOST_CHECK(!QFile::exists(dir.filePath("book.txt")));
 }
@@ -1456,8 +1460,9 @@ BOOST_AUTO_TEST_CASE(test_report_has_no_exports_after_a_failed_export) {
 
   QString out;
   QString err;
-  // Text recognition needs a language, which this project doesn't have.
-  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book"), QStringLiteral("pdf,txt"), reportFile),
+  // The PDF can't be written where a folder of its name is, so the export fails after processing.
+  BOOST_REQUIRE(QDir().mkpath(dir.filePath("book.pdf")));
+  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book"), QStringLiteral("pdf"), reportFile),
                     CommandLineRun::EXPORT_FAILED);
   BOOST_CHECK(readReport(reportFile)["exports"].toArray().isEmpty());
 }
