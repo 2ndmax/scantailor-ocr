@@ -445,7 +445,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     <message>
         <location filename="../core/CommandLineRun.cpp" line="229"/>
         <source>The project file exists: %1. Call the tool with it to process the project.</source>
-        <translation>Die Projektdatei existiert: %1. Übergeben Sie das Tool damit, um das Projekt zu verarbeiten.</translation>
+        <translation>Die Projektdatei existiert bereits: %1. Rufen Sie das Programm mit ihr auf, um das Projekt zu verarbeiten.</translation>
     </message>
     <message>
         <location filename="../core/CommandLineRun.cpp" line="116"/>
@@ -502,8 +502,8 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <location filename="../core/CommandLineRun.cpp" line="392"/>
         <source>Fixed the DPI of %n file(s) to %1:</source>
         <translation>
-            <numerusform>Das DPI der Datei wurde auf %1 korrigiert:</numerusform>
-            <numerusform>Die DPIs der %n Dateien wurden auf %1 korrigiert:</numerusform>
+            <numerusform>Der DPI-Wert von %n Datei wurde auf %1 korrigiert:</numerusform>
+            <numerusform>Die DPI-Werte von %n Dateien wurden auf %1 korrigiert:</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -628,8 +628,8 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <location filename="../core/CommandLineRun.cpp" line="1098"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation>
-            <numerusform>Farbmodus ür %n Seite erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
-            <numerusform>Farbmodus ür %n Seiten erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
+            <numerusform>Farbmodus für %n Seite erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
+            <numerusform>Farbmodus für %n Seiten erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
