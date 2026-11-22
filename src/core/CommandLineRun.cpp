@@ -108,6 +108,17 @@ bool isSameFolder(const QString& lhs, const QString& rhs) {
   return QDir::cleanPath(QFileInfo(lhs).absoluteFilePath()) == QDir::cleanPath(QFileInfo(rhs).absoluteFilePath());
 }
 
+/**
+ * The project is saved at the end of a run, which may take hours; this tells at the start that it
+ * couldn't be.
+ */
+QString projectNotSavableMessage(const QString& projectFile) {
+  return CommandLineRun::tr(
+             "The project file can't be saved: %1. Its folder must take new files, and the file must "
+             "not be read-only.")
+      .arg(nativePath(projectFile));
+}
+
 /** Whether the DPI \p dpi is red for an image of the pixel size \p size, as ImageMetadata says. */
 bool dpiIsRedFor(const QSize& size, const Dpi& dpi) {
   return !ImageMetadata(size, dpi).isDpiOK();
@@ -224,6 +235,10 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
     err << CommandLineRun::tr("The folder of the project file doesn't exist: %1")
                .arg(nativePath(QFileInfo(projectFile).absoluteDir().absolutePath()))
         << Qt::endl;
+    return std::nullopt;
+  }
+  if (!path_names::canWriteFile(projectFile)) {
+    err << projectNotSavableMessage(projectFile) << Qt::endl;
     return std::nullopt;
   }
 
@@ -960,6 +975,10 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     read = ProjectReader::readFile(projectFile);
     if (read.error != ProjectReader::FileError::NONE) {
       err << nativePath(projectFile) << ": " << ProjectReader::errorMessage(read.error) << Qt::endl;
+      return PROJECT_UNUSABLE;
+    }
+    if (!path_names::canWriteFile(projectFile)) {
+      err << projectNotSavableMessage(projectFile) << Qt::endl;
       return PROJECT_UNUSABLE;
     }
     reader = read.reader.get();

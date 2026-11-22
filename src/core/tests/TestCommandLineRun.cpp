@@ -624,6 +624,36 @@ BOOST_AUTO_TEST_CASE(test_export_folder_is_created) {
   BOOST_CHECK(QFileInfo::exists(exportDir + QStringLiteral("/project.pdf")));
 }
 
+// A project file that can't be saved at the end is refused before the pages are processed.
+BOOST_AUTO_TEST_CASE(test_read_only_project_file_is_refused_before_processing) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  BOOST_REQUIRE(QFile::setPermissions(projectFile, QFileDevice::ReadOwner));
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QDir::toNativeSeparators(projectFile)));
+  BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
+  QFile::setPermissions(projectFile, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+}
+
+// The input folder is checked before the project file in it, so the message names the folder.
+BOOST_AUTO_TEST_CASE(test_folder_mode_names_a_missing_input_folder) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("missing");
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(
+      runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QStringLiteral("Default")),
+      CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("The input folder doesn't exist")));
+}
+
 // An export folder that can't be created is refused before the pages are processed.
 BOOST_AUTO_TEST_CASE(test_export_folder_under_a_file_is_refused_before_processing) {
   QTemporaryDir dir;
