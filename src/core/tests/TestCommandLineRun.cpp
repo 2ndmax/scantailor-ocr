@@ -535,6 +535,28 @@ BOOST_AUTO_TEST_CASE(test_export_folder_is_created) {
   BOOST_CHECK(QFileInfo::exists(exportDir + QStringLiteral("/project.pdf")));
 }
 
+// A refused project must not leave the output folder it asked for behind.
+BOOST_AUTO_TEST_CASE(test_output_folder_is_not_created_for_a_refused_project) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(Tests::writeFile(inputDir + QStringLiteral("/broken.png"), "not a png"));
+  const QString outputDir = dir.filePath("new/out");
+  BOOST_REQUIRE(!QFileInfo::exists(outputDir));
+
+  CommandLineRun::Options options;
+  options.inputFolder = inputDir;
+  options.outputFolder = outputDir;
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(!QFileInfo::exists(outputDir));
+}
+
 BOOST_AUTO_TEST_CASE(test_export_must_not_replace_the_project_or_an_image) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
@@ -583,6 +605,22 @@ BOOST_AUTO_TEST_CASE(test_alto_folder_must_not_hold_a_file_of_the_project) {
                     CommandLineRun::USAGE_ERROR);
   BOOST_CHECK(err.contains(QStringLiteral("book_alto")));
   BOOST_CHECK(QFile::exists(inFolder));
+}
+
+// The export folder is created only once the project is usable; a failed one leaves no empty folder.
+BOOST_AUTO_TEST_CASE(test_export_folder_is_not_created_for_a_refused_project) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  BOOST_REQUIRE(QFile::remove(dir.filePath("page.png")));
+  const QString exportDir = dir.filePath("new/exports");
+  BOOST_REQUIRE(!QFileInfo::exists(exportDir));
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, exportDir, QStringLiteral("pdf")), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(!QFileInfo::exists(exportDir));
 }
 
 BOOST_AUTO_TEST_CASE(test_project_without_a_format_needs_the_option) {

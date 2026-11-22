@@ -192,10 +192,6 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
       err << CommandLineRun::tr("The input and the output folders can't be the same.") << Qt::endl;
       return std::nullopt;
     }
-    if (!QDir(folder).mkpath(folder)) {
-      err << CommandLineRun::tr("Unable to create the output folder: %1").arg(nativePath(folder)) << Qt::endl;
-      return std::nullopt;
-    }
     outDir = folder;
   }
   // The project file: --project-file or the default of the folder; the default the app creates
@@ -371,6 +367,13 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
     }
   }
 
+  // Create the folder only now that the project is known to be usable; a refused one leaves no
+  // empty folder behind.
+  if (options.outputFolder && !QDir(outDir).mkpath(outDir)) {
+    err << CommandLineRun::tr("Unable to create the output folder: %1").arg(nativePath(outDir)) << Qt::endl;
+    return std::nullopt;
+  }
+
   // The project: its pages take the files, whose DPI is set; its start values and page order
   // the profile.
   if (fixedFilesOut != nullptr) {
@@ -458,9 +461,10 @@ bool checkExportOptions(const CommandLineRun::Options& options,
     return false;
   }
   // Without --export-folder it is the folder of the project file. If that is missing, reading the
-  // project fails, which is told with the right exit code. A folder named on the command line is
-  // one the tool writes to, so it is created here, after all other checks have passed.
-  if (options.exportDir && !QFileInfo(folder).isDir() && !QDir().mkpath(folder)) {
+  // project fails, which is told with the right exit code. An existing file can never become a
+  // folder; that is a command-line error even before the project is read. A missing folder named on
+  // the command line is created once the project and the pages are known to be usable.
+  if (options.exportDir && QFileInfo(folder).exists() && !QFileInfo(folder).isDir()) {
     err << CommandLineRun::tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
     return false;
   }
@@ -1063,6 +1067,13 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       out << tr("Done.") << Qt::endl;
     }
     if (exporting) {
+      if (options.exportDir) {
+        const QString folder = QFileInfo(exportBase).absolutePath();
+        if (!QFileInfo(folder).isDir() && !QDir().mkpath(folder)) {
+          err << tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
+          return USAGE_ERROR;
+        }
+      }
       exitCode = exportFiles(exportPaths, formats, *session, out, err, cancel);
     } else {
       exitCode = SUCCESS;
