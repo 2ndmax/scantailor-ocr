@@ -84,19 +84,21 @@ int main(int argc, char* argv[]) {
 
   QCommandLineParser parser;
   parser.setApplicationDescription(
-      CommandLineRun::tr("Processes all pages of a ScanTailor OCR project through all six steps and saves the "
-                         "project. Set up the project in ScanTailor OCR first."));
+      CommandLineRun::tr("Processes the pages of a ScanTailor OCR project up to the last step --last-step "
+                         "names, at most Output, and saves the project. Set up the project in ScanTailor OCR "
+                         "first."));
   const QCommandLineOption helpOption = parser.addHelpOption();
   const QCommandLineOption versionOption = parser.addVersionOption();
-  const QCommandLineOption exportOption(
-      QStringLiteral("export"),
-      CommandLineRun::tr("Then exports all pages with the settings of the project, next to the project file and "
-                         "named like it, e.g. Book.pdf, Book.txt, Book.hocr and the folder Book_alto. Each "
-                         "--export-... option turns on the export as well and changes what it names."));
-  parser.addOption(exportOption);
+  const QCommandLineOption lastStepOption(
+      QStringLiteral("last-step"),
+      CommandLineRun::tr("The last step of the run: fix-orientation, split-pages, deskew, select-content, "
+                         "margins, output or export. The export runs after output. Default: output."),
+      CommandLineRun::tr("step"));
+  parser.addOption(lastStepOption);
   const QCommandLineOption folderOption(
       QStringLiteral("export-folder"),
-      CommandLineRun::tr("The existing folder for the exported files instead of the folder of the project file."),
+      CommandLineRun::tr("The folder for the exported files instead of the folder of the project file; it is "
+                         "created when it doesn't exist."),
       CommandLineRun::tr("folder"));
   parser.addOption(folderOption);
   const QCommandLineOption nameOption(
@@ -136,7 +138,20 @@ int main(int argc, char* argv[]) {
 
   CommandLineRun::Options options;
   options.projectFile = parser.positionalArguments().at(0);
-  options.exportRequested = parser.isSet(exportOption);
+  const bool lastStepSet = parser.isSet(lastStepOption);
+  if (lastStepSet && !CommandLineRun::Options::parseLastStep(parser.value(lastStepOption), &options.lastStep)) {
+    err << CommandLineRun::tr(
+               "Unknown step after --last-step: %1. The steps are: fix-orientation, split-pages, "
+               "deskew, select-content, margins, output and export.")
+               .arg(parser.value(lastStepOption))
+        << Qt::endl;
+    return CommandLineRun::USAGE_ERROR;
+  }
+  // The export options lead the run to the export; they need --last-step export, or no --last-step.
+  const bool exportOptions = parser.isSet(folderOption) || parser.isSet(nameOption) || parser.isSet(formatsOption);
+  if (exportOptions && !lastStepSet) {
+    options.lastStep = CommandLineRun::Options::EXPORT;
+  }
   if (parser.isSet(folderOption)) {
     options.exportDir = parser.value(folderOption);
   }

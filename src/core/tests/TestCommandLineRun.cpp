@@ -54,18 +54,23 @@ QString createProject(const QTemporaryDir& dir,
   return session.write(projectFile) ? projectFile : QString();
 }
 
-/** Runs the tool on \p projectFile; what it writes goes to \p out and \p err. */
+/**
+ * Runs the tool on \p projectFile; what it writes goes to \p out and \p err. The export options
+ * turn on the export as --last-step export does; \p lastStep is what to pass otherwise.
+ */
 CommandLineRun::ExitCode run(const QString& projectFile,
                              QString* out,
                              QString* err,
                              const std::optional<QString>& exportDir = std::nullopt,
                              const std::optional<QString>& formats = std::nullopt,
                              const std::optional<QString>& exportName = std::nullopt,
-                             const std::atomic<bool>& cancel = std::atomic<bool>(false)) {
+                             const std::atomic<bool>& cancel = std::atomic<bool>(false),
+                             CommandLineRun::Options::LastStep lastStep = CommandLineRun::Options::OUTPUT) {
   QTextStream outStream(out);
   QTextStream errStream(err);
   CommandLineRun::Options options;
   options.projectFile = projectFile;
+  options.lastStep = (exportDir || formats || exportName) ? CommandLineRun::Options::EXPORT : lastStep;
   options.exportDir = exportDir;
   options.exportName = exportName;
   options.formats = formats;
@@ -274,7 +279,7 @@ BOOST_AUTO_TEST_CASE(test_every_export_option_turns_on_the_export_next_to_the_pr
   // The switch alone: the formats of the project, next to the project file and named like it.
   CommandLineRun::Options options;
   options.projectFile = projectFile;
-  options.exportRequested = true;
+  options.lastStep = CommandLineRun::Options::EXPORT;
   QTextStream outStream(&out);
   QTextStream errStream(&err);
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
@@ -289,6 +294,63 @@ BOOST_AUTO_TEST_CASE(test_every_export_option_turns_on_the_export_next_to_the_pr
   BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, QStringLiteral("band1")),
                     CommandLineRun::SUCCESS);
   BOOST_CHECK(QFile::exists(dir.filePath("band1.pdf")));
+}
+
+// --last-step margins: the run stops after the Margins step, without output and without an error.
+BOOST_AUTO_TEST_CASE(test_last_step_margins_succeeds_without_output) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                        CommandLineRun::Options::MARGINS),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(err.isEmpty());
+  BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
+}
+
+// --last-step export: the export runs with the formats the project has ticked.
+BOOST_AUTO_TEST_CASE(test_last_step_export_exports_with_the_project_formats) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile
+      = createProject(dir, 300, QStringList(), QStringLiteral("out"), formatsOf(true, false, false, false));
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                        CommandLineRun::Options::EXPORT),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(QFile::exists(dir.filePath("project.pdf")));
+}
+
+// The export options lead the run to the export; an explicit earlier last step is a usage error.
+BOOST_AUTO_TEST_CASE(test_export_options_need_the_export_step) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  for (const CommandLineRun::Options::LastStep lastStep :
+       {CommandLineRun::Options::FIX_ORIENTATION, CommandLineRun::Options::SPLIT_PAGES, CommandLineRun::Options::DESKEW,
+        CommandLineRun::Options::SELECT_CONTENT, CommandLineRun::Options::MARGINS, CommandLineRun::Options::OUTPUT}) {
+    CommandLineRun::Options options;
+    options.projectFile = projectFile;
+    options.lastStep = lastStep;
+    options.exportDir = dir.filePath("out");
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                      CommandLineRun::USAGE_ERROR);
+    BOOST_CHECK(!err.isEmpty());
+  }
+  BOOST_CHECK(!QFile::exists(dir.filePath("project.pdf")));
 }
 
 // With --export too, a moved project is left to the app, and not refused for a wrong command line.

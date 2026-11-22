@@ -306,16 +306,62 @@ bool CommandLineRun::parseFormats(const QString& list, ProcessingOptions::Format
   return true;
 }
 
+QString CommandLineRun::Options::stepName(const LastStep step) {
+  switch (step) {
+    case FIX_ORIENTATION:
+      return QStringLiteral("fix-orientation");
+    case SPLIT_PAGES:
+      return QStringLiteral("split-pages");
+    case DESKEW:
+      return QStringLiteral("deskew");
+    case SELECT_CONTENT:
+      return QStringLiteral("select-content");
+    case MARGINS:
+      return QStringLiteral("margins");
+    case OUTPUT:
+      return QStringLiteral("output");
+    case EXPORT:
+      return QStringLiteral("export");
+  }
+  return QString();
+}
+
+bool CommandLineRun::Options::parseLastStep(const QString& name, LastStep* step) {
+  if (name == QLatin1String("fix-orientation")) {
+    *step = FIX_ORIENTATION;
+  } else if (name == QLatin1String("split-pages")) {
+    *step = SPLIT_PAGES;
+  } else if (name == QLatin1String("deskew")) {
+    *step = DESKEW;
+  } else if (name == QLatin1String("select-content")) {
+    *step = SELECT_CONTENT;
+  } else if (name == QLatin1String("margins")) {
+    *step = MARGINS;
+  } else if (name == QLatin1String("output")) {
+    *step = OUTPUT;
+  } else if (name == QLatin1String("export")) {
+    *step = EXPORT;
+  } else {
+    return false;
+  }
+  return true;
+}
+
 CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
                                              QTextStream& out,
                                              QTextStream& err,
                                              const std::atomic<bool>& cancel) {
+  // The export options lead the run to the export; an explicit earlier last step contradicts them.
+  if ((options.exportDir || options.exportName || options.formats) && (options.lastStep != Options::EXPORT)) {
+    err << tr("The options --export-folder, --export-name and --export-formats need --last-step export.") << Qt::endl;
+    return USAGE_ERROR;
+  }
   QString exportBase;
   ProcessingOptions::Formats namedFormats;
   if (!checkExportOptions(options, &exportBase, &namedFormats, err)) {
     return USAGE_ERROR;
   }
-  const bool exporting = !exportBase.isEmpty();
+  const bool exporting = options.exports();
 
   const ProjectReader::FileResult read = ProjectReader::readFile(options.projectFile);
   if (read.error != ProjectReader::FileError::NONE) {
@@ -401,9 +447,32 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     out << tr("%1: %2 of %3").arg(stages.filterAt(lastFilterIdx)->getName()).arg(done).arg(total) << Qt::endl;
     return !cancel;
   };
+  // The filter of the run's last step; the export runs after the Output step.
+  int runLastFilterIdx = stages.outputFilterIdx();
+  switch (options.lastStep) {
+    case Options::FIX_ORIENTATION:
+      runLastFilterIdx = stages.fixOrientationFilterIdx();
+      break;
+    case Options::SPLIT_PAGES:
+      runLastFilterIdx = stages.pageSplitFilterIdx();
+      break;
+    case Options::DESKEW:
+      runLastFilterIdx = stages.deskewFilterIdx();
+      break;
+    case Options::SELECT_CONTENT:
+      runLastFilterIdx = stages.selectContentFilterIdx();
+      break;
+    case Options::MARGINS:
+      runLastFilterIdx = stages.pageLayoutFilterIdx();
+      break;
+    case Options::OUTPUT:
+    case Options::EXPORT:
+      runLastFilterIdx = stages.outputFilterIdx();
+      break;
+  }
   // Without thumbnails: they are pixmaps, which need a GUI.
   const StageSequence::ProcessAllResult processed
-      = stages.processAll(nullptr, session.outFileNameGen, stages.outputFilterIdx(), progress);
+      = stages.processAll(nullptr, session.outFileNameGen, runLastFilterIdx, progress);
   for (const StageSequence::PageFailure& failure : processed.failures) {
     err << failureMessage(failure) << Qt::endl;
   }
@@ -418,18 +487,28 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     err << tr("Canceled. The pages output so far keep their output files.") << Qt::endl;
     return CANCELLED;
   }
-  if (!processed.failures.empty() || !processed.output) {
-    if (processed.failures.empty()) {
-      err << tr("No page was output.") << Qt::endl;
-    } else {
-      err << tr("Pages that failed: %1").arg(processed.failures.size()) << Qt::endl;
-    }
+  if (!processed.failures.empty()) {
+    err << tr("Pages that failed: %1").arg(processed.failures.size()) << Qt::endl;
     if (exporting) {
       err << tr("Nothing was exported, as not all pages were output.") << Qt::endl;
     }
     return PAGES_FAILED;
   }
-  out << tr("Done. The output is in %1").arg(nativePath(session.outFileNameGen.outDir())) << Qt::endl;
+  // A run that stops before the Output step ends there by design; without failures it is a
+  // success. At the Output step or later, success also means the pages got output.
+  const bool needsOutput = (options.lastStep == Options::OUTPUT) || (options.lastStep == Options::EXPORT);
+  if (needsOutput && !processed.output) {
+    err << tr("No page was output.") << Qt::endl;
+    if (exporting) {
+      err << tr("Nothing was exported, as not all pages were output.") << Qt::endl;
+    }
+    return PAGES_FAILED;
+  }
+  if (needsOutput) {
+    out << tr("Done. The output is in %1").arg(nativePath(session.outFileNameGen.outDir())) << Qt::endl;
+  } else {
+    out << tr("Done.") << Qt::endl;
+  }
 
   if (!exporting) {
     return SUCCESS;

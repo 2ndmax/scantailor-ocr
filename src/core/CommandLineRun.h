@@ -14,10 +14,10 @@
 class QTextStream;
 
 /**
- * What the command line tool does: it opens a project, processes all its pages through all
- * six steps and saves the project. With one of the export options it then exports the pages
- * in the chosen formats, as the Export step of the app does. It runs in the calling thread and
- * needs only a QCoreApplication, so it can be tested without the tool itself.
+ * What the command line tool does: it opens a project, processes its pages up to the last step
+ * --last-step names, at most Output, and saves the project. With --last-step export it then
+ * exports the pages in the chosen formats, as the Export step of the app does. It runs in the
+ * calling thread and needs only a QCoreApplication, so it can be tested without the tool itself.
  */
 class CommandLineRun {
   Q_DECLARE_TR_FUNCTIONS(CommandLineRun)
@@ -39,12 +39,25 @@ class CommandLineRun {
   };
 
   struct Options {
+    /** The last step of a run, as the names of --last-step. */
+    enum LastStep {
+      FIX_ORIENTATION,
+      SPLIT_PAGES,
+      DESKEW,
+      SELECT_CONTENT,
+      MARGINS,
+      OUTPUT,
+      /** The export runs after the Output step, with the settings of the project. */
+      EXPORT
+    };
+
     QString projectFile;
+
     /**
-     * Export with the settings of the project (--export). Each of the other export options
-     * (--export-folder, --export-name, --export-formats) turns it on as well.
+     * The last step of the run; the export runs after the Output step when it is EXPORT.
      */
-    bool exportRequested = false;
+    LastStep lastStep = OUTPUT;
+
     /**
      * The existing folder for the exported files. Not set for the folder of the project file; a set
      * but empty value is an error, e.g. from an empty variable in a script.
@@ -55,14 +68,21 @@ class CommandLineRun {
     /** The formats as for parseFormats(). Not set for the formats of the project. */
     std::optional<QString> formats;
 
-    /** Whether the pages are exported after processing. */
-    bool exports() const { return exportRequested || exportDir || exportName || formats; }
+    /** Whether the pages are exported after processing, as for lastStep == EXPORT. */
+    bool exports() const { return lastStep == EXPORT; }
+
+    /** The name of the step as --last-step takes it, e.g. for the help text. */
+    static QString stepName(LastStep step);
+
+    /** Parses the value of --last-step; false for an unknown name. */
+    static bool parseLastStep(const QString& name, LastStep* step);
   };
 
   /**
    * Runs the tool. The progress goes to \p out, errors go to \p err. Setting \p cancel stops
    * processing before the next page; the pages done so far keep their results, and the project
-   * is saved with them. The export only runs if all pages were output.
+   * is saved with them. A run that stops before Output doesn't export, and is a success when no
+   * page failed and the run reached its last step.
    */
   static ExitCode run(const Options& options, QTextStream& out, QTextStream& err, const std::atomic<bool>& cancel);
 

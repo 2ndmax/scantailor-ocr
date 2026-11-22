@@ -29,13 +29,14 @@ if (BUILD_TESTS)
   # CommandLineRun::USAGE_ERROR
   add_cli_test(cli_without_project 1)
   add_cli_test(cli_unknown_option 1 --unknown-option)
+  add_cli_test(cli_unknown_last_step 1 --last-step=bogus "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   # "--export-folder=" is how an empty value gets through the argument list. Without the checks, the
   # missing project would give exit code 2.
   add_cli_test(cli_empty_export_folder 1 --export-folder= "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   add_cli_test(cli_unknown_format 1 --export-formats=doc "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
-  # --export is a switch; the folder goes with --export-folder.
+  # The switch --export is gone; the export runs with --last-step export.
   add_cli_test(cli_export_with_value 1 --export=. "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
-  # The option was replaced by --export.
+  # The option is gone; the export runs with --last-step export.
   add_cli_test(cli_old_pdf_option 1 --pdf=book.pdf "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   # CommandLineRun::PROJECT_UNUSABLE
   add_cli_test(cli_missing_project 2 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
