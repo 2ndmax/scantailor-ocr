@@ -111,11 +111,15 @@ class StageSequence {
                                bool debug) const;
 
   /**
-   * Processes all pages through all six steps in this thread, as batch processing in the app does
-   * step by step. Which images have two pages is only known after the step that splits them, so
-   * the images are processed up to that step first. The pages get the same size, which is only
-   * known once the content of all pages is, so all pages go through the Margins step before any
-   * is output. The pages are those the steps were created with.
+   * Processes all pages through the steps of the chain up to \p lastFilterIdx in this thread, as
+   * batch processing in the app does step by step. Which images have two pages is only known after
+   * the step that splits them, so the images are processed up to that step first. The pages get
+   * the same size, which is only known once the content of all pages is, so all pages go through
+   * the Margins step before any is output. The pages are those the steps were created with.
+   *
+   * \p lastFilterIdx is one of the filters of the chain (fix orientation, split pages, deskew,
+   * select content, Margins, Output): the Output step runs for the output filter, none of it for
+   * an earlier bound.
    *
    * An image that fails to load or to process is left out of the later passes, and no page is
    * output, even if the sizes of all pages are known from an earlier run. The steps before the
@@ -123,10 +127,13 @@ class StageSequence {
    * Running out of memory ends processing with a PROCESSING_FAILED entry for that page.
    *
    * \param thumbnailCache Where the thumbnails are updated; may be null if none are needed.
+   * \param outFileNameGen Where the output goes.
+   * \param lastFilterIdx The step of the chain the run ends with, see above.
    * \param progress Optional; see ProgressCallback.
    */
   ProcessAllResult processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
                               const OutputFileNameGenerator& outFileNameGen,
+                              int lastFilterIdx,
                               const ProgressCallback& progress = {}) const;
 
   /**

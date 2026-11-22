@@ -402,7 +402,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     return !cancel;
   };
   // Without thumbnails: they are pixmaps, which need a GUI.
-  const StageSequence::ProcessAllResult processed = stages.processAll(nullptr, session.outFileNameGen, progress);
+  const StageSequence::ProcessAllResult processed
+      = stages.processAll(nullptr, session.outFileNameGen, stages.outputFilterIdx(), progress);
   for (const StageSequence::PageFailure& failure : processed.failures) {
     err << failureMessage(failure) << Qt::endl;
   }

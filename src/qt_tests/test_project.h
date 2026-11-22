@@ -122,7 +122,8 @@ class TestProject : public ProjectSession {
    * nothing was output; the caller checks it, as a QVERIFY here wouldn't end the test.
    */
   [[nodiscard]] bool processAll() {
-    const StageSequence::ProcessAllResult result = stages->processAll(thumbnailCache, outFileNameGen);
+    const StageSequence::ProcessAllResult result
+        = stages->processAll(thumbnailCache, outFileNameGen, stages->outputFilterIdx());
     // Which page failed and why, as QVERIFY only shows that one did.
     for (const StageSequence::PageFailure& failure : result.failures) {
       qWarning().noquote() << "Page failed:" << failure.page.imageId().filePath() << "sub page"

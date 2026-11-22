@@ -4,6 +4,7 @@
 #include "StageSequence.h"
 #include "DefaultParams.h"
 
+#include <algorithm>
 #include <atomic>
 #include <cassert>
 #include <exception>
@@ -399,21 +400,34 @@ bool StageSequence::processPass(const PageView view,
 
 StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
                                                           const OutputFileNameGenerator& outFileNameGen,
+                                                          const int lastFilterIdx,
                                                           const ProgressCallback& progress) const {
   ProcessAllResult result;
   std::set<ImageId> failedImages;
-  if (!processPass(IMAGE_VIEW, m_pageSplitFilterIdx, thumbnailCache, outFileNameGen, failedImages, result, progress)
-      || !processPass(PAGE_VIEW, m_pageLayoutFilterIdx, thumbnailCache, outFileNameGen, failedImages, result, progress)
-      || !m_pageLayoutFilter->checkReadyForOutput(*m_pages)) {
+  // The passes of a full run: up to Split, up to Margins, then Output. The bound cuts the last of
+  // them: a pass runs for its own step, and only the Output pass for the output filter or above.
+  if (!processPass(IMAGE_VIEW, std::min(m_pageSplitFilterIdx, lastFilterIdx), thumbnailCache, outFileNameGen,
+                   failedImages, result, progress)) {
     return result;
+  }
+  if (lastFilterIdx > m_pageSplitFilterIdx) {
+    const int marginsLast = std::min(m_pageLayoutFilterIdx, lastFilterIdx);
+    if (!processPass(PAGE_VIEW, marginsLast, thumbnailCache, outFileNameGen, failedImages, result, progress)) {
+      return result;
+    }
+    if ((lastFilterIdx >= m_outputFilterIdx) && !m_pageLayoutFilter->checkReadyForOutput(*m_pages)) {
+      return result;
+    }
   }
   // The sizes may be known from an earlier run, but the pages of a failed image would keep their
   // old output files, which then pass for current ones.
   if (!result.failures.empty()) {
     return result;
   }
-  result.output
-      = processPass(PAGE_VIEW, m_outputFilterIdx, thumbnailCache, outFileNameGen, failedImages, result, progress);
+  if (lastFilterIdx >= m_outputFilterIdx) {
+    result.output
+        = processPass(PAGE_VIEW, m_outputFilterIdx, thumbnailCache, outFileNameGen, failedImages, result, progress);
+  }
   return result;
 }
 

@@ -296,7 +296,7 @@ void TestEndToEndQt::testMissingImage() {
   const QString outDir = dir.absoluteFilePath("out");
   TestProject project(files, outDir, DefaultParams());
   const StageSequence::ProcessAllResult result
-      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen, project.stages->outputFilterIdx());
   QVERIFY(!result.output);
   QVERIFY(!result.cancelled);
   QCOMPARE(result.failures.size(), size_t(1));
@@ -318,7 +318,7 @@ void TestEndToEndQt::testMissingImageAfterEarlierRun() {
 
   QVERIFY(QFile::remove(files[2].fileInfo().absoluteFilePath()));
   const StageSequence::ProcessAllResult result
-      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen, project.stages->outputFilterIdx());
   QVERIFY(!result.output);
   QCOMPARE(result.failures.size(), size_t(1));
   QCOMPARE(result.failures[0].kind, StageSequence::PageFailure::LOAD_FAILED);
@@ -340,7 +340,7 @@ void TestEndToEndQt::testOutputTooLarge() {
 
   TestProject project(files, dir.absoluteFilePath("out"), startValues);
   const StageSequence::ProcessAllResult result
-      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+      = project.stages->processAll(project.thumbnailCache, project.outFileNameGen, project.stages->outputFilterIdx());
   QVERIFY(!result.failures.empty());
   for (const StageSequence::PageFailure& failure : result.failures) {
     QCOMPARE(failure.kind, StageSequence::PageFailure::OUTPUT_TOO_LARGE);
@@ -366,7 +366,7 @@ void TestEndToEndQt::testSplitTooLarge() {
     const Tests::ScopedMaxThreads threads(1);
     TestProject project(files, dir.absoluteFilePath("out1"), startValues);
     const StageSequence::ProcessAllResult result
-        = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+        = project.stages->processAll(project.thumbnailCache, project.outFileNameGen, project.stages->outputFilterIdx());
     QCOMPARE(result.failures.size(), qsizetype(1));
     pageWithMax1 = result.failures.front().page;
   }
@@ -374,7 +374,7 @@ void TestEndToEndQt::testSplitTooLarge() {
     const Tests::ScopedMaxThreads threads(4);
     TestProject project(files, dir.absoluteFilePath("out4"), startValues);
     const StageSequence::ProcessAllResult result
-        = project.stages->processAll(project.thumbnailCache, project.outFileNameGen);
+        = project.stages->processAll(project.thumbnailCache, project.outFileNameGen, project.stages->outputFilterIdx());
     QCOMPARE(result.failures.size(), qsizetype(1));
     pageWithMax4 = result.failures.front().page;
   }
@@ -398,14 +398,15 @@ void TestEndToEndQt::testCancelWithoutThumbnails() {
   // The cancel request comes from the progress of the output, after its first page. How often the
   // steps before report their progress is not checked here.
   bool cancelRequested = false;
-  const StageSequence::ProcessAllResult cancelled = project.stages->processAll(
-      nullptr, project.outFileNameGen, [&](const int lastFilterIdx, const int done, const int total) {
-        if (lastFilterIdx == outputIdx && done >= 1 && done < total) {
-          cancelRequested = true;
-          return false;
-        }
-        return true;
-      });
+  const StageSequence::ProcessAllResult cancelled
+      = project.stages->processAll(nullptr, project.outFileNameGen, project.stages->outputFilterIdx(),
+                                   [&](const int lastFilterIdx, const int done, const int total) {
+                                     if (lastFilterIdx == outputIdx && done >= 1 && done < total) {
+                                       cancelRequested = true;
+                                       return false;
+                                     }
+                                     return true;
+                                   });
   QVERIFY(cancelRequested);
   QVERIFY(cancelled.cancelled);
   QVERIFY(!cancelled.output);

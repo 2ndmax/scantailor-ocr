@@ -65,7 +65,8 @@ BOOST_AUTO_TEST_CASE(test_process_all_without_gui) {
       ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, QString(), startValues);
 
   // Without thumbnails: they are pixmaps, which also need a GUI.
-  const StageSequence::ProcessAllResult result = session.stages->processAll(nullptr, session.outFileNameGen);
+  const StageSequence::ProcessAllResult result
+      = session.stages->processAll(nullptr, session.outFileNameGen, session.stages->outputFilterIdx());
   BOOST_CHECK(result.failures.empty());
   BOOST_CHECK(result.output);
   BOOST_CHECK_EQUAL(QDir(outDir).entryList({"*.tif"}, QDir::Files).size(), 1);
@@ -82,13 +83,15 @@ BOOST_AUTO_TEST_CASE(test_parallel_same_output) {
   const ProjectSession parallel = createProject(parallelDir, 4);
   {
     const Tests::ScopedMaxThreads threads(1);
-    const StageSequence::ProcessAllResult result = serial.stages->processAll(nullptr, serial.outFileNameGen);
+    const StageSequence::ProcessAllResult result
+        = serial.stages->processAll(nullptr, serial.outFileNameGen, serial.stages->outputFilterIdx());
     BOOST_CHECK(result.failures.empty());
     BOOST_CHECK(result.output);
   }
   {
     const Tests::ScopedMaxThreads threads(4);
-    const StageSequence::ProcessAllResult result = parallel.stages->processAll(nullptr, parallel.outFileNameGen);
+    const StageSequence::ProcessAllResult result
+        = parallel.stages->processAll(nullptr, parallel.outFileNameGen, parallel.stages->outputFilterIdx());
     BOOST_CHECK(result.failures.empty());
     BOOST_CHECK(result.output);
   }
@@ -107,12 +110,13 @@ BOOST_AUTO_TEST_CASE(test_parallel_progress) {
   const QThread* const caller = QThread::currentThread();
   bool inCaller = true;
   std::map<int, std::vector<int>> doneByPass;
-  const StageSequence::ProcessAllResult result = session.stages->processAll(
-      nullptr, session.outFileNameGen, [&](const int lastFilterIdx, const int done, int /*total*/) {
-        inCaller = inCaller && (QThread::currentThread() == caller);
-        doneByPass[lastFilterIdx].push_back(done);
-        return true;
-      });
+  const StageSequence::ProcessAllResult result
+      = session.stages->processAll(nullptr, session.outFileNameGen, session.stages->outputFilterIdx(),
+                                   [&](const int lastFilterIdx, const int done, int /*total*/) {
+                                     inCaller = inCaller && (QThread::currentThread() == caller);
+                                     doneByPass[lastFilterIdx].push_back(done);
+                                     return true;
+                                   });
   BOOST_CHECK(result.failures.empty());
   BOOST_CHECK(result.output);
   BOOST_CHECK(inCaller);
@@ -133,14 +137,15 @@ BOOST_AUTO_TEST_CASE(test_parallel_cancel) {
   const Tests::ScopedMaxThreads threads(4);
   const int outputIdx = session.stages->outputFilterIdx();
   const StageSequence::ProcessAllResult cancelled = session.stages->processAll(
-      nullptr, session.outFileNameGen,
+      nullptr, session.outFileNameGen, outputIdx,
       [&](const int lastFilterIdx, int /*done*/, int /*total*/) { return lastFilterIdx != outputIdx; });
   BOOST_CHECK(cancelled.cancelled);
   BOOST_CHECK(!cancelled.output);
   BOOST_CHECK(cancelled.failures.empty());
   BOOST_CHECK_LT(outputFiles(session).size(), 8u);
 
-  const StageSequence::ProcessAllResult secondRun = session.stages->processAll(nullptr, session.outFileNameGen);
+  const StageSequence::ProcessAllResult secondRun
+      = session.stages->processAll(nullptr, session.outFileNameGen, session.stages->outputFilterIdx());
   BOOST_CHECK(secondRun.failures.empty());
   BOOST_CHECK(secondRun.output);
   BOOST_CHECK_EQUAL(outputFiles(session).size(), 8u);
@@ -155,7 +160,8 @@ BOOST_AUTO_TEST_CASE(test_parallel_error_order) {
   BOOST_REQUIRE(Tests::writeFile(dir.filePath(QStringLiteral("page3.png")), "not an image"));
 
   const Tests::ScopedMaxThreads threads(4);
-  const StageSequence::ProcessAllResult result = session.stages->processAll(nullptr, session.outFileNameGen);
+  const StageSequence::ProcessAllResult result
+      = session.stages->processAll(nullptr, session.outFileNameGen, session.stages->outputFilterIdx());
   BOOST_REQUIRE_EQUAL(result.failures.size(), 2u);
   BOOST_CHECK(!result.output);
   BOOST_CHECK(result.failures[0].page.imageId().filePath().endsWith(QStringLiteral("page1.png")));
