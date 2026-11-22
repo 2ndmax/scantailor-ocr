@@ -970,45 +970,51 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       runLastFilterIdx = stages.outputFilterIdx();
       break;
   }
+  // --color-mode-detect: as the app's Detect Color Mode, between the Margins and the Output passes.
+  // The hook also runs when the last step is Margins, where there is no Output pass.
+  std::vector<std::pair<PageId, output::ColorMode>> detectedPages;
+  bool detectionCancelled = false;
+  StageSequence::AfterMarginsCallback afterMargins;
+  if (options.colorModeDetect) {
+    afterMargins = [&] {
+      std::vector<PageInfo> pages;
+      for (const PageInfo& page : session->pages->toPageSequence(PAGE_VIEW)) {
+        pages.push_back(page);
+      }
+      const std::shared_ptr<CompositeCacheDrivenTask> geometryTask(
+          stages.createCacheDrivenTask(stages.outputFilterIdx(), session->outFileNameGen));
+      const NullTaskStatus status;
+      const output::ColorModeDetection::Result result = output::ColorModeDetection::run(
+          stages.outputFilter(), pages, geometryTask, status, [&cancel](const int) { return !cancel; });
+      detectedPages = result.detected;
+      detectionCancelled = result.cancelled;
+      QString summary = tr("Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.",
+                           nullptr, result.blackAndWhite + result.colorGrayscale + result.mixed)
+                            .arg(result.blackAndWhite)
+                            .arg(result.colorGrayscale)
+                            .arg(result.mixed);
+      if (result.skipped > 0) {
+        summary += "\n\n"
+                   + tr("%n page(s) skipped because the steps before the detection have no result yet.", nullptr,
+                        result.skipped);
+      }
+      if (result.failed > 0) {
+        summary += "\n\n" + tr("%n page(s) could not be loaded.", nullptr, result.failed);
+      }
+      if (result.cancelled) {
+        summary += "\n\n" + tr("The detection was canceled.");
+      }
+      out << summary << Qt::endl;
+    };
+  }
+
   // Without thumbnails: they are pixmaps, which need a GUI.
   const StageSequence::ProcessAllResult processed
-      = stages.processAll(nullptr, session->outFileNameGen, runLastFilterIdx, progress);
+      = stages.processAll(nullptr, session->outFileNameGen, runLastFilterIdx, progress, afterMargins);
   for (const StageSequence::PageFailure& failure : processed.failures) {
     err << failureMessage(failure) << Qt::endl;
   }
-
-  // --color-mode-detect: as the app's Detect Color Mode, between the Margins and the Output passes;
-  // here after the run, before it is saved.
-  std::vector<std::pair<PageId, output::ColorMode>> detectedPages;
-  if (options.colorModeDetect) {
-    std::vector<PageInfo> pages;
-    for (const PageInfo& page : session->pages->toPageSequence(PAGE_VIEW)) {
-      pages.push_back(page);
-    }
-    const std::shared_ptr<CompositeCacheDrivenTask> geometryTask(
-        session->stages->createCacheDrivenTask(session->stages->outputFilterIdx(), session->outFileNameGen));
-    const NullTaskStatus status;
-    const output::ColorModeDetection::Result result = output::ColorModeDetection::run(
-        session->stages->outputFilter(), pages, geometryTask, status, [&cancel](const int) { return !cancel; });
-    detectedPages = result.detected;
-    QString summary = tr("Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.",
-                         nullptr, result.blackAndWhite + result.colorGrayscale + result.mixed)
-                          .arg(result.blackAndWhite)
-                          .arg(result.colorGrayscale)
-                          .arg(result.mixed);
-    if (result.skipped > 0) {
-      summary += "\n\n"
-                 + tr("%n page(s) skipped because the steps before the detection have no result yet.", nullptr,
-                      result.skipped);
-    }
-    if (result.failed > 0) {
-      summary += "\n\n" + tr("%n page(s) could not be loaded.", nullptr, result.failed);
-    }
-    if (result.cancelled) {
-      summary += "\n\n" + tr("The detection was canceled.");
-    }
-    out << summary << Qt::endl;
-  }
+  const bool cancelled = processed.cancelled || detectionCancelled;
 
   // Also after a failure or cancelling: the steps stored their results for the pages done.
   if (!session->write(projectFile)) {
@@ -1019,7 +1025,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   // The exit code of the run; the report file is written with it, also when pages failed or the
   // run was cancelled.
   std::optional<ExitCode> exitCode;
-  if (processed.cancelled) {
+  if (cancelled) {
     err << tr("Canceled. The pages output so far keep their output files.") << Qt::endl;
     exitCode = CANCELLED;
   }
@@ -1055,7 +1061,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     }
   }
   if (options.reportFile) {
-    writeReportFile(*options.reportFile, projectFile, options, *exitCode, processed.cancelled, *session, passedOver,
+    writeReportFile(*options.reportFile, projectFile, options, *exitCode, cancelled, *session, passedOver,
                     detectedPages, exportPaths, processed.failures, fixedFiles, err);
   }
   return *exitCode;

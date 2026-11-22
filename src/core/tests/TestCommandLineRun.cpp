@@ -913,6 +913,43 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_color_mode_detect) {
   BOOST_CHECK(session.stages->outputFilter()->settings()->getParams(pageId).colorParams().colorMode() == output::MIXED);
 }
 
+// Detection before the Output pass: the output files must be made with the mode it found, so an
+// export directly after them still sees them as current. A profile without OCR keeps the test
+// independent of the languages installed on the machine.
+BOOST_AUTO_TEST_CASE(test_folder_mode_color_detect_is_used_by_the_output) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!saveColorPageScan(inputDir + QStringLiteral("/page.png")).isEmpty());
+
+  DefaultParams params;
+  ProcessingOptions processing = params.getProcessingOptions();
+  processing.pdf.textLayer = false;
+  processing.ocr.languages.clear();
+  params.setProcessingOptions(processing);
+  const QString profilesDir = dir.filePath("profiles");
+  BOOST_REQUIRE(QDir().mkpath(profilesDir));
+  BOOST_REQUIRE(DefaultParamsProfileManager(profilesDir).writeProfile(params, QStringLiteral("NoOcr")));
+  const QString projectFile = dir.filePath("p.ScanTailor");
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  CommandLineRun::Options options;
+  options.inputFolder = inputDir;
+  options.projectFile = projectFile;
+  options.profile = profilesDir + QStringLiteral("/NoOcr.stp");
+  options.colorModeDetect = true;
+  options.lastStep = CommandLineRun::Options::EXPORT;
+  options.formats = QStringLiteral("pdf");
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(err.isEmpty());
+  BOOST_CHECK(QFileInfo::exists(dir.filePath("p.pdf")));
+}
+
 // --threads: the run gets its budget; a too small value is a usage error.
 BOOST_AUTO_TEST_CASE(test_threads_option) {
   QTemporaryDir dir;
