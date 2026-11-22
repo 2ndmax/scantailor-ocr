@@ -19,6 +19,19 @@ QString invalidNameReason(const QString& name);
  * don't exist yet are judged, so a path may lead through any existing folder.
  */
 QString invalidNewPathReason(const QString& path);
+
+/**
+ * Whether files can be created in the existing folder \p dirPath. QFileInfo::isWritable() is not
+ * reliable on Windows, so a temporary file is created and removed instead.
+ */
+bool isWritableDir(const QString& dirPath);
+
+/**
+ * Whether \p dirPath is a folder files can be created in, or a folder that can be created in such
+ * a place. For a folder that doesn't exist yet, the nearest existing ancestor is probed; nothing
+ * is created. Returns false if the path or an existing ancestor is a file.
+ */
+bool canCreateOrWriteDir(const QString& dirPath);
 }  // namespace path_names
 
 #endif  // SCANTAILOR_CORE_PATHNAMES_H_

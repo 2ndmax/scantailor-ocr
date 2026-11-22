@@ -5,12 +5,15 @@
 
 #include <QChar>
 #include <QDir>
+#include <QFile>
 #include <QStringList>
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 
+using path_names::canCreateOrWriteDir;
 using path_names::invalidNameReason;
 using path_names::invalidNewPathReason;
+using path_names::isWritableDir;
 
 BOOST_AUTO_TEST_SUITE(PathNamesTestSuite)
 
@@ -92,6 +95,31 @@ BOOST_AUTO_TEST_CASE(test_dots_that_lead_through_folders_are_not_names) {
 
 BOOST_AUTO_TEST_CASE(test_empty_path_is_rejected) {
   BOOST_CHECK(!invalidNewPathReason(QString()).isEmpty());
+}
+
+BOOST_AUTO_TEST_CASE(test_isWritableDir_reports_writable_and_missing_dirs) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  BOOST_CHECK(isWritableDir(dir.path()));
+  BOOST_CHECK(!isWritableDir(dir.filePath("missing")));
+}
+
+BOOST_AUTO_TEST_CASE(test_canCreateOrWriteDir_accepts_existing_and_creatable_dirs) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  BOOST_CHECK(canCreateOrWriteDir(dir.path()));
+  BOOST_CHECK(canCreateOrWriteDir(dir.filePath("missing/sub")));
+}
+
+BOOST_AUTO_TEST_CASE(test_canCreateOrWriteDir_rejects_a_file_in_the_path) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString file = dir.filePath("file");
+  QFile f(file);
+  BOOST_REQUIRE(f.open(QIODevice::WriteOnly));
+  f.close();
+  BOOST_CHECK(!canCreateOrWriteDir(file));
+  BOOST_CHECK(!canCreateOrWriteDir(file + "/sub"));
 }
 
 // Windows calls "plain." existing if "plain" exists, but the name is still not in the folder.

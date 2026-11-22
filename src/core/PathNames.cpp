@@ -8,6 +8,7 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QStringList>
+#include <QTemporaryFile>
 
 namespace path_names {
 namespace {
@@ -85,6 +86,28 @@ QString invalidNewPathReason(const QString& path) {
     const QString reason = invalidNameReason(name);
     if (!reason.isEmpty() && !isEntryOfFolder(name, parent)) {
       return reason;
+    }
+    current = parent;
+  }
+}
+
+bool isWritableDir(const QString& dirPath) {
+  // QFileInfo::isWritable() isn't reliable on Windows, so actually try it.
+  // QTemporaryFile removes the file on destruction; close() leaves it open on Windows.
+  QTemporaryFile test(QDir(dirPath).filePath("write-test-XXXXXX"));
+  return test.open();
+}
+
+bool canCreateOrWriteDir(const QString& dirPath) {
+  QString current = QDir::cleanPath(QFileInfo(dirPath).absoluteFilePath());
+  while (true) {
+    const QFileInfo info(current);
+    if (info.exists()) {
+      return info.isDir() && isWritableDir(current);
+    }
+    const QString parent = QDir::cleanPath(info.absolutePath());
+    if (parent == current) {
+      return false;
     }
     current = parent;
   }

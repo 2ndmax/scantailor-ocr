@@ -9,7 +9,8 @@
 #include <QFileInfo>
 #include <QLocale>
 #include <QStandardPaths>
-#include <QTemporaryFile>
+
+#include "PathNames.h"
 
 namespace {
 const QString kSuffix = QStringLiteral(".traineddata");
@@ -40,9 +41,7 @@ bool isWritableDir(const QString& dirPath) {
   if (!QDir().mkpath(dirPath)) {
     return false;
   }
-  // QFileInfo::isWritable() isn't reliable on Windows, so actually try it.
-  QTemporaryFile test(QDir(dirPath).filePath("write-test-XXXXXX"));
-  return test.open();
+  return path_names::isWritableDir(dirPath);
 }
 }  // namespace
 
