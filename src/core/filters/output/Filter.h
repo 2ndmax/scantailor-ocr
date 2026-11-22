@@ -67,6 +67,9 @@ class Filter : public AbstractFilter {
   /** Whether the page is set to the "Mixed" colour mode. Used by the PDF export. */
   bool isMixedMode(const PageId& pageId) const;
 
+  /** The color mode the page has in the project, whether set by the user or detected. */
+  ColorMode colorMode(const PageId& pageId) const;
+
   /**
    * Whether the output files of the page were written. The Output step removes the parameters
    * they were written with if it can't write them.

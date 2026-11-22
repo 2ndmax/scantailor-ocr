@@ -110,6 +110,10 @@ bool Filter::isMixedMode(const PageId& pageId) const {
   return m_settings->getParams(pageId).colorParams().colorMode() == MIXED;
 }
 
+ColorMode Filter::colorMode(const PageId& pageId) const {
+  return m_settings->getParams(pageId).colorParams().colorMode();
+}
+
 bool Filter::hasOutputParams(const PageId& pageId) const {
   return m_settings->getOutputParams(pageId) != nullptr;
 }

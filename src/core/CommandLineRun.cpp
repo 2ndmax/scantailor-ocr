@@ -190,6 +190,7 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
                                                   const QString& projectFile,
                                                   QTextStream& out,
                                                   QTextStream& err,
+                                                  QString* profileOut,
                                                   QStringList* passedOver,
                                                   QStringList* fixedFilesOut) {
   const QString inputDir = QFileInfo(options.inputFolder).absoluteFilePath();
@@ -282,6 +283,8 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
     profileName = DefaultParamsProvider::getInstance().getProfileName();
   }
   out << CommandLineRun::tr("Profile: %1").arg(profileName) << Qt::endl;
+  // The report names the profile that was used, not the spelling of --profile.
+  *profileOut = profileName;
 
   std::vector<ImageFileInfo> files;
   if (!loadFolderFiles(inputDir, err, &files, passedOver)) {
@@ -490,8 +493,8 @@ bool checkExportOptions(const CommandLineRun::Options& options,
   return true;
 }
 
-/** What the export of \p formats creates, for telling the user. */
-QString describeOutputs(const ExportPaths& paths, const ProcessingOptions::Formats& formats) {
+/** The files the chosen formats create, for telling the user and for the report. */
+QStringList selectedOutputs(const ExportPaths& paths, const ProcessingOptions::Formats& formats) {
   QStringList outputs;
   for (const auto& [chosen, path] : {std::pair(formats.pdf, paths.pdf), std::pair(formats.txt, paths.txt),
                                      std::pair(formats.hocr, paths.hocr), std::pair(formats.alto, paths.altoDir)}) {
@@ -499,7 +502,12 @@ QString describeOutputs(const ExportPaths& paths, const ProcessingOptions::Forma
       outputs.push_back(nativePath(path));
     }
   }
-  return outputs.join(QStringLiteral(", "));
+  return outputs;
+}
+
+/** What the export of \p formats creates, for telling the user. */
+QString describeOutputs(const ExportPaths& paths, const ProcessingOptions::Formats& formats) {
+  return selectedOutputs(paths, formats).join(QStringLiteral(", "));
 }
 
 /**
@@ -674,9 +682,10 @@ QString errorKindName(const StageSequence::PageFailure::Kind kind) {
   return QString();
 }
 
-/** The key of a page in the report: the file and the page of the file. */
+/** The key of a page in the report: the file, the page of the file and the half of a split page. */
 QString pageKey(const PageId& page) {
-  return page.imageId().filePath() + QLatin1Char('#') + QString::number(static_cast<int>(page.subPage()));
+  return page.imageId().filePath() + QLatin1Char('#') + QString::number(page.imageId().page()) + QLatin1Char('#')
+         + QString::number(static_cast<int>(page.subPage()));
 }
 
 /** The object with the two axes of a DPI. */
@@ -693,13 +702,14 @@ QJsonObject dpiObject(const Dpi& dpi) {
  */
 bool writeReportFile(const QString& reportFile,
                      const QString& projectFile,
+                     const QString& usedProfile,
                      const CommandLineRun::Options& options,
                      const CommandLineRun::ExitCode exitCode,
                      const bool cancelled,
                      const ProjectSession& session,
                      const QStringList& passedOver,
                      const std::vector<std::pair<PageId, output::ColorMode>>& detectedPages,
-                     const ExportPaths& exportPaths,
+                     const QStringList& exportedFiles,
                      const std::vector<StageSequence::PageFailure>& pageFailures,
                      const QStringList& fixedFiles,
                      QTextStream& err) {
@@ -728,11 +738,13 @@ bool writeReportFile(const QString& reportFile,
     pageObject["dpiSource"] = (options.dpi || fixedFiles.contains(file.absoluteFilePath()))
                                   ? QStringLiteral("command-line")
                                   : QStringLiteral("file");
-    // The color mode is the detected one; the mode the project has when the page wasn't detected
-    // isn't readable here, so the flag says whether there is one.
+    // Without detection, the page keeps the mode it has in the project. The flag says which of the
+    // two the report shows.
     const auto detectedPage = detected.find(pageKey(page.id()));
     pageObject["colorModeDetected"] = detectedPage != detected.end();
-    pageObject["colorMode"] = detectedPage != detected.end() ? colorModeName(detectedPage->second) : QString();
+    const output::ColorMode mode
+        = detectedPage != detected.end() ? detectedPage->second : session.stages->outputFilter()->colorMode(page.id());
+    pageObject["colorMode"] = colorModeName(mode);
     pageObject["outputFile"] = session.outFileNameGen.filePathFor(page.id());
     const auto failure = failuresByPage.find(pageKey(page.id()));
     if (failure != failuresByPage.end()) {
@@ -745,17 +757,12 @@ bool writeReportFile(const QString& reportFile,
     pages.append(pageObject);
   }
 
-  QJsonArray exports;
-  for (const QString& file : {exportPaths.pdf, exportPaths.txt, exportPaths.hocr, exportPaths.altoDir}) {
-    if (!file.isEmpty()) {
-      exports.append(file);
-    }
-  }
+  QJsonArray exports = QJsonArray::fromStringList(exportedFiles);
 
   QJsonObject run;
   run["mode"] = options.inputFolder.isEmpty() ? QStringLiteral("project") : QStringLiteral("folder");
   run["projectFile"] = nativePath(projectFile);
-  run["profile"] = options.profile.isEmpty() ? DefaultParamsProvider::getInstance().getProfileName() : options.profile;
+  run["profile"] = usedProfile;
   run["lastStep"] = CommandLineRun::Options::stepName(options.lastStep);
   run["exitCode"] = static_cast<int>(exitCode);
   run["cancelled"] = cancelled;
@@ -920,9 +927,10 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   const ProjectReader* reader = nullptr;
   QStringList passedOver;
   QStringList fixedFiles;
+  QString usedProfile = DefaultParamsProvider::getInstance().getProfileName();
   std::optional<ProjectSession> session;
   if (folderMode) {
-    session = createFolderProject(options, projectFile, out, err, &passedOver, &fixedFiles);
+    session = createFolderProject(options, projectFile, out, err, &usedProfile, &passedOver, &fixedFiles);
   } else {
     read = ProjectReader::readFile(projectFile);
     if (read.error != ProjectReader::FileError::NONE) {
@@ -940,6 +948,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   }
   ProcessingOptions::Formats formats = namedFormats;
   ExportPaths exportPaths;
+  QStringList exportedFiles;
   if (exporting) {
     if (!options.formats) {
       // REVIEW-NOTE (2026-11): a project saved by 1.0.9 or 1.0.10 has no <processing-options> and no <default-params>,
@@ -1097,13 +1106,16 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
         }
       }
       exitCode = exportFiles(exportPaths, formats, *session, out, err, cancel);
+      if (exitCode == SUCCESS) {
+        exportedFiles = selectedOutputs(exportPaths, formats);
+      }
     } else {
       exitCode = SUCCESS;
     }
   }
   if (options.reportFile) {
-    writeReportFile(*options.reportFile, projectFile, options, *exitCode, cancelled, *session, passedOver,
-                    detectedPages, exportPaths, processed.failures, fixedFiles, err);
+    writeReportFile(*options.reportFile, projectFile, usedProfile, options, *exitCode, cancelled, *session, passedOver,
+                    detectedPages, exportedFiles, processed.failures, fixedFiles, err);
   }
   return *exitCode;
 }

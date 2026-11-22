@@ -21,9 +21,11 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPainter>
 #include <QRegularExpression>
 #include <QTemporaryDir>
 #include <QTextStream>
@@ -84,7 +86,8 @@ CommandLineRun::ExitCode run(const QString& projectFile,
                              const std::optional<QString>& formats = std::nullopt,
                              const std::optional<QString>& exportName = std::nullopt,
                              const std::atomic<bool>& cancel = std::atomic<bool>(false),
-                             CommandLineRun::Options::LastStep lastStep = CommandLineRun::Options::OUTPUT) {
+                             CommandLineRun::Options::LastStep lastStep = CommandLineRun::Options::OUTPUT,
+                             const std::optional<QString>& reportFile = std::nullopt) {
   QTextStream outStream(out);
   QTextStream errStream(err);
   CommandLineRun::Options options;
@@ -93,6 +96,7 @@ CommandLineRun::ExitCode run(const QString& projectFile,
   options.exportDir = exportDir;
   options.exportName = exportName;
   options.formats = formats;
+  options.reportFile = reportFile;
   return CommandLineRun::run(options, outStream, errStream, cancel);
 }
 
@@ -101,9 +105,11 @@ CommandLineRun::ExitCode runExport(const QString& projectFile,
                                    QString* out,
                                    QString* err,
                                    const QString& file,
-                                   const std::optional<QString>& formats = std::nullopt) {
+                                   const std::optional<QString>& formats = std::nullopt,
+                                   const std::optional<QString>& reportFile = std::nullopt) {
   const QFileInfo info(file);
-  return run(projectFile, out, err, info.path(), formats, info.fileName());
+  return run(projectFile, out, err, info.path(), formats, info.fileName(), std::atomic<bool>(false),
+             CommandLineRun::Options::EXPORT, reportFile);
 }
 
 /**
@@ -118,7 +124,8 @@ CommandLineRun::ExitCode runFolder(const QString& inputFolder,
                                    const std::optional<Dpi>& dpi = std::nullopt,
                                    const std::optional<Dpi>& dpiFix = std::nullopt,
                                    const QString& profile = QString(),
-                                   const bool colorModeDetect = false) {
+                                   const bool colorModeDetect = false,
+                                   const std::optional<QString>& reportFile = std::nullopt) {
   QTextStream outStream(out);
   QTextStream errStream(err);
   CommandLineRun::Options options;
@@ -128,7 +135,16 @@ CommandLineRun::ExitCode runFolder(const QString& inputFolder,
   options.dpiFix = dpiFix;
   options.profile = profile;
   options.colorModeDetect = colorModeDetect;
+  options.reportFile = reportFile;
   return CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false));
+}
+
+/** Reads the JSON \p file of --report-file; the caller checks its contents. */
+QJsonObject readReport(const QString& file) {
+  QJsonParseError parseError;
+  const QJsonDocument doc = QJsonDocument::fromJson(Tests::readFile(file), &parseError);
+  BOOST_CHECK(parseError.error == QJsonParseError::NoError);
+  return doc.object();
 }
 
 ProcessingOptions::Formats parsed(const QString& list) {
@@ -198,6 +214,42 @@ bool writePartlyReadableTiff(const QString& path) {
   writeLe(secondIfd + 2 + 12 * secondEntries, 4, static_cast<uint32_t>(data.size()) + 4096);
   return Tests::writeFile(path, data);
 }
+
+/** Writes one RGB page of a test TIFF, with the resolution the scans of these tests have. */
+bool writeTiffPage(TIFF* tif, const QImage& source) {
+  const QImage image = source.convertToFormat(QImage::Format_RGB888);
+  if (image.isNull()) {
+    return false;
+  }
+  bool ok = TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, static_cast<uint32_t>(image.width()))
+            && TIFFSetField(tif, TIFFTAG_IMAGELENGTH, static_cast<uint32_t>(image.height()))
+            && TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, static_cast<uint16_t>(8))
+            && TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16_t>(3))
+            && TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, static_cast<uint16_t>(PHOTOMETRIC_RGB))
+            && TIFFSetField(tif, TIFFTAG_COMPRESSION, static_cast<uint16_t>(COMPRESSION_NONE))
+            && TIFFSetField(tif, TIFFTAG_PLANARCONFIG, static_cast<uint16_t>(PLANARCONFIG_CONTIG))
+            && TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, static_cast<uint32_t>(image.height()))
+            && TIFFSetField(tif, TIFFTAG_XRESOLUTION, 300.0f) && TIFFSetField(tif, TIFFTAG_YRESOLUTION, 300.0f)
+            && TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, static_cast<uint16_t>(RESUNIT_INCH));
+  for (int y = 0; ok && (y < image.height()); ++y) {
+    ok = TIFFWriteEncodedStrip(tif, static_cast<uint32_t>(y), const_cast<uchar*>(image.constScanLine(y)),
+                               static_cast<tmsize_t>(image.bytesPerLine()))
+         >= 0;
+  }
+  return ok && (TIFFWriteDirectory(tif) == 1);
+}
+
+/** A two-page TIFF: the first page is colored, the second one black and white. */
+bool writeTwoPageTiff(const QString& path, const QImage& colorPage, const QImage& bwPage) {
+  TIFF* tif = Tests::openTiffFile(path, "w");
+  if (tif == nullptr) {
+    return false;
+  }
+  const bool ok = writeTiffPage(tif, colorPage) && writeTiffPage(tif, bwPage);
+  TIFFClose(tif);
+  return ok;
+}
+
 /**
  * The profile of the program is global state. Keep every test on the built-in Default profile, also
  * when the machine running the tests has another one in its settings, and put the old state back.
@@ -1235,6 +1287,143 @@ BOOST_AUTO_TEST_CASE(test_report_file_is_valid_json_with_the_schema) {
   BOOST_CHECK(page.contains("file") && page.contains("dpi") && page.contains("dpiSource") && page.contains("colorMode")
               && page.contains("colorModeDetected") && page.contains("outputFile") && page.contains("status"));
   BOOST_CHECK(page["status"].toString() == QStringLiteral("ok"));
+}
+
+// The two pages of one TIFF have different numbers and, after detection, different modes. Without
+// the number in the key of a page, the report gives both pages the first one's mode.
+BOOST_AUTO_TEST_CASE(test_report_distinguishes_pages_of_a_multi_page_file) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  const QString colorPath = dir.filePath("color.png");
+  const QString bwPath = dir.filePath("bw.png");
+  BOOST_REQUIRE(!saveColorPageScan(colorPath).isEmpty());
+  BOOST_REQUIRE(!Tests::saveTextPageScan(bwPath, 300).imageInfo().empty());
+  const QImage colorPage(colorPath);
+  const QImage bwPage(bwPath);
+  BOOST_REQUIRE(!colorPage.isNull());
+  BOOST_REQUIRE(!bwPage.isNull());
+  BOOST_REQUIRE(writeTwoPageTiff(inputDir + QStringLiteral("/book.tif"), colorPage, bwPage));
+
+  const QString reportFile = dir.filePath("report.json");
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  CommandLineRun::Options options;
+  options.inputFolder = inputDir;
+  options.colorModeDetect = true;
+  options.reportFile = reportFile;
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK_MESSAGE(err.isEmpty(), err.toStdString());
+
+  const QJsonArray pages = readReport(reportFile)["pages"].toArray();
+  BOOST_REQUIRE_EQUAL(pages.size(), 2);
+  const QJsonObject first = pages[0].toObject();
+  const QJsonObject second = pages[1].toObject();
+  BOOST_CHECK_EQUAL(first["page"].toInt(), 1);
+  BOOST_CHECK_EQUAL(second["page"].toInt(), 2);
+  BOOST_CHECK(first["colorModeDetected"].toBool());
+  BOOST_CHECK(second["colorModeDetected"].toBool());
+  BOOST_CHECK(first["colorMode"].toString() != QStringLiteral("black-and-white"));
+  BOOST_CHECK(second["colorMode"].toString() == QStringLiteral("black-and-white"));
+}
+
+// Only the files of the chosen formats go into the report, and only if the export succeeded.
+BOOST_AUTO_TEST_CASE(test_report_lists_only_the_exported_files) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString reportFile = dir.filePath("report.json");
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book"), QStringLiteral("pdf"), reportFile),
+                    CommandLineRun::SUCCESS);
+  const QJsonArray exports = readReport(reportFile)["exports"].toArray();
+  BOOST_REQUIRE_EQUAL(exports.size(), 1);
+  BOOST_CHECK(exports[0].toString() == QDir::toNativeSeparators(dir.filePath("book.pdf")));
+}
+
+BOOST_AUTO_TEST_CASE(test_report_has_no_exports_after_a_failed_export) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString reportFile = dir.filePath("report.json");
+
+  QString out;
+  QString err;
+  // Text recognition needs a language, which this project doesn't have.
+  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book"), QStringLiteral("pdf,txt"), reportFile),
+                    CommandLineRun::EXPORT_FAILED);
+  BOOST_CHECK(readReport(reportFile)["exports"].toArray().isEmpty());
+}
+
+// Without detection, the report still tells the mode the page has in the project.
+BOOST_AUTO_TEST_CASE(test_report_has_the_color_mode_of_the_project) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const ProjectReader::FileResult read = ProjectReader::readFile(projectFile);
+  BOOST_REQUIRE(read.reader);
+  ProjectSession session = ProjectSession::load(*read.reader, DefaultParams());
+  const PageId page(ImageId(dir.filePath("page.png")), PageId::SINGLE_PAGE);
+  output::ColorParams colorParams = session.stages->outputFilter()->settings()->getParams(page).colorParams();
+  colorParams.setColorMode(output::MIXED);
+  session.stages->outputFilter()->settings()->setColorParams(page, colorParams);
+  BOOST_REQUIRE(session.write(projectFile));
+
+  const QString reportFile = dir.filePath("report.json");
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                        CommandLineRun::Options::MARGINS, reportFile),
+                    CommandLineRun::SUCCESS);
+  const QJsonArray pages = readReport(reportFile)["pages"].toArray();
+  BOOST_REQUIRE_EQUAL(pages.size(), 1);
+  BOOST_CHECK(pages[0].toObject()["colorMode"].toString() == QStringLiteral("mixed"));
+  BOOST_CHECK(!pages[0].toObject()["colorModeDetected"].toBool());
+}
+
+// --profile Source is the old name of Minimal; the report names the profile that was used.
+BOOST_AUTO_TEST_CASE(test_report_has_the_profile_that_was_used) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+  const QString reportFile = dir.filePath("report.json");
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QStringLiteral("Source"),
+                              false, reportFile),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(out.contains(QStringLiteral("Profile: Minimal")));
+  BOOST_CHECK(readReport(reportFile)["run"].toObject()["profile"].toString() == QStringLiteral("Minimal"));
+}
+
+BOOST_AUTO_TEST_CASE(test_report_of_a_cancelled_run) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString reportFile = dir.filePath("report.json");
+
+  QString out;
+  QString err;
+  const std::atomic<bool> cancel(true);
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, cancel,
+                        CommandLineRun::Options::OUTPUT, reportFile),
+                    CommandLineRun::CANCELLED);
+  const QJsonObject run = readReport(reportFile)["run"].toObject();
+  BOOST_CHECK_EQUAL(run["exitCode"].toInt(), CommandLineRun::CANCELLED);
+  BOOST_CHECK(run["cancelled"].toBool());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
