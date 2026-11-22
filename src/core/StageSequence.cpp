@@ -228,6 +228,9 @@ class PageRunnable : public QRunnable {
       } catch (const std::bad_alloc&) {
         // LoadFileTask leaves it to the out-of-memory handler of the app's thread pool, which
         // isn't used here.
+        // REVIEW-NOTE (2026-11): a page task runs out of memory -> the pass stops and the page fails with
+        // "Out of memory.". No test reaches this path, because a test can't make a page task throw bad_alloc
+        // without running the machine out of memory.
         outcome.outOfMemory = true;
       } catch (...) {
         // An exception leaving a thread of the pool would end the program; the pass throws it again.
@@ -311,6 +314,10 @@ bool StageSequence::processPass(const PageView view,
   OutcomeQueue outcomes;
   // After what its tasks use, so that leaving early waits for them first.
   QThreadPool pool;
+  // REVIEW-NOTE (2026-11): large scans processed several at once -> memory grows with the number of
+  // pages at once (about 5 times at 8 threads in the measurement), up to "Out of memory.". Not fixed
+  // because that is the price of the speedup, and the number follows the processing threads of the
+  // settings, which the user can lower.
   pool.setMaxThreadCount(ThreadBudget::maxThreads());
 
   int nextPage = 0;
