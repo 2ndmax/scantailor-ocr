@@ -23,9 +23,6 @@ class TaskStatus;
  */
 class ColorModeDetector {
  public:
-  /** Stored with the results, so that pages are judged again when the detection changes. */
-  static constexpr int VERSION = 1;
-
   enum class Mode { BlackWhite, Grayscale, Mixed, Color };
 
   struct Options {
