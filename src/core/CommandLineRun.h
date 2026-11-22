@@ -88,10 +88,35 @@ class CommandLineRun {
     std::optional<QString> formats;
 
     /**
-     * --report-file: the JSON of the run, written at the end, also when pages failed or the run
-     * was cancelled; unset without it. The schema: a "run" object (mode, projectFile, profile,
-     * lastStep, exitCode, cancelled), "pages" (file, page, subPage, dpi, dpiSource, colorMode,
-     * colorModeDetected, outputFile, status, errorKind, reasons) and "exports" and "passedOver".
+     * --report-file: the JSON of the run, written once a project could be opened or created, also
+     * when pages failed, the export failed or the run was cancelled; unset without it. The keys
+     * are English and are never translated. Version 1 of the schema:
+     *
+     * schemaVersion: integer, always 1.
+     * run: object with
+     *   mode: string, "project" or "folder".
+     *   projectFile: string, the native path of the project.
+     *   profile: string, the name or the file of the profile actually used.
+     *   lastStep: string, one of "fix-orientation", "split-pages", "deskew", "select-content",
+     *       "margins", "output" or "export".
+     *   exitCode: integer, one of the ExitCode values above; reports exist for 0, 3, 4 and 5.
+     *   cancelled: bool, true when a cancel was requested.
+     * pages: array, one object per page in the order of the page view:
+     *   file: string, the path of the image file.
+     *   page: integer, the 1-based page of a multi-page file; absent for a single-page file.
+     *   subPage: string, "left" or "right"; absent unless the page is split.
+     *   dpi: object with the integers horizontal and vertical.
+     *   dpiSource: string, "command-line" or "file".
+     *   colorMode: string, "black-and-white", "color-grayscale" or "mixed".
+     *   colorModeDetected: bool, true when --color-mode-detect supplied colorMode.
+     *   outputFile: string, the native path of the output file.
+     *   status: string, "ok" or "failed".
+     *   errorKind: string, only for status "failed": "LOAD_FAILED", "PROCESSING_FAILED",
+     *       "OUTPUT_TOO_LARGE" or "OUTPUT_NOT_WRITTEN".
+     *   reasons: array of strings, only for status "failed": why that page failed.
+     * exports: array of strings, the native paths created by a successful export; empty otherwise.
+     * passedOver: array of strings, the paths of the other files of a folder-mode input folder;
+     *       empty in project mode.
      */
     std::optional<QString> reportFile;
 

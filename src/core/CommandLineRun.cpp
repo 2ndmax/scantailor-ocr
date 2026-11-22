@@ -853,6 +853,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
                                              QTextStream& out,
                                              QTextStream& err,
                                              const std::atomic<bool>& cancel) {
+  // REVIEW-NOTE (2026-11): a usage error or an unusable project returns before the report is written
+  // -> exit codes 1 and 2 have no report. Not fixed because the spec leaves this open; a report with
+  // only "run" would give scripts one artifact for every exit.
   // The folder of the report file must exist; the tool writes the report into it at the end.
   if (options.reportFile && !QDir(QFileInfo(*options.reportFile).absolutePath()).exists()) {
     err << tr("The folder of the report file doesn't exist: %1")
