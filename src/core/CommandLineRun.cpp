@@ -868,12 +868,18 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   // REVIEW-NOTE (2026-11): a usage error or an unusable project returns before the report is written
   // -> exit codes 1 and 2 have no report. Not fixed because the spec leaves this open; a report with
   // only "run" would give scripts one artifact for every exit.
-  // The folder of the report file must exist; the tool writes the report into it at the end.
-  if (options.reportFile && !QDir(QFileInfo(*options.reportFile).absolutePath()).exists()) {
-    err << tr("The folder of the report file doesn't exist: %1")
-               .arg(nativePath(QFileInfo(*options.reportFile).absolutePath()))
-        << Qt::endl;
-    return USAGE_ERROR;
+  // The folder of the report file must exist; the tool writes the report into it at the end, so
+  // that it must be possible is checked now, before a long run.
+  if (options.reportFile) {
+    const QFileInfo report(*options.reportFile);
+    if (!report.absoluteDir().exists()) {
+      err << tr("The folder of the report file doesn't exist: %1").arg(nativePath(report.absolutePath())) << Qt::endl;
+      return USAGE_ERROR;
+    }
+    if (!path_names::canWriteFile(*options.reportFile)) {
+      err << tr("The report file could not be written: %1").arg(nativePath(*options.reportFile)) << Qt::endl;
+      return USAGE_ERROR;
+    }
   }
   // ---- The usage checks of the command line ----
   const bool folderMode = !options.inputFolder.isEmpty();

@@ -624,6 +624,31 @@ BOOST_AUTO_TEST_CASE(test_export_folder_is_created) {
   BOOST_CHECK(QFileInfo::exists(exportDir + QStringLiteral("/project.pdf")));
 }
 
+// A report that can't be written at the end is refused before the pages are processed.
+BOOST_AUTO_TEST_CASE(test_report_file_that_cant_be_written_is_refused_before_processing) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  // A file where the folder of the report would be, and a read-only report file.
+  const QString blocker = dir.filePath("not-a-folder");
+  BOOST_REQUIRE(Tests::writeFile(blocker, "file"));
+  const QString readOnlyReport = dir.filePath("report.json");
+  BOOST_REQUIRE(Tests::writeFile(readOnlyReport, "{}"));
+  BOOST_REQUIRE(QFile::setPermissions(readOnlyReport, QFileDevice::ReadOwner));
+
+  for (const QString& reportFile : {blocker + QStringLiteral("/report.json"), readOnlyReport}) {
+    QString out;
+    QString err;
+    BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                          CommandLineRun::Options::OUTPUT, reportFile),
+                      CommandLineRun::USAGE_ERROR);
+    BOOST_CHECK(!err.isEmpty());
+    BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
+  }
+  QFile::setPermissions(readOnlyReport, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+}
+
 // A refused project must not leave the output folder it asked for behind.
 BOOST_AUTO_TEST_CASE(test_output_folder_is_not_created_for_a_refused_project) {
   QTemporaryDir dir;
