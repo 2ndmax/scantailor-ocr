@@ -9,6 +9,7 @@
 #include <atomic>
 #include <optional>
 
+#include "Dpi.h"
 #include "ProcessingOptions.h"
 
 class QTextStream;
@@ -57,6 +58,22 @@ class CommandLineRun {
      * The last step of the run; the export runs after the Output step when it is EXPORT.
      */
     LastStep lastStep = OUTPUT;
+
+    /**
+     * The folder of the new project: the argument of the call in folder mode, empty in project
+     * mode. --project-file gives the project file then.
+     */
+    QString inputFolder;
+    /** The folder the output of the new project goes to; set by --output-folder; empty for the default. */
+    std::optional<QString> outputFolder;
+    /** --profile: the name or the file of a profile; empty for the profile of the program. */
+    QString profile;
+    /** --dpi: the DPI of all images of the new project; unset without it. */
+    std::optional<Dpi> dpi;
+    /** --dpi-fix: the DPI of the images that need fixing; unset without it. */
+    std::optional<Dpi> dpiFix;
+    /** --color-mode-detect: after the Margins step, as the app's Detect Color Mode does. */
+    bool colorModeDetect = false;
 
     /**
      * The existing folder for the exported files. Not set for the folder of the project file; a set

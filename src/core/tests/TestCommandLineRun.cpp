@@ -3,10 +3,13 @@
 
 #include <CommandLineRun.h>
 #include <DefaultParams.h>
+#include <DefaultParamsProfileManager.h>
 #include <ImageFileInfo.h>
 #include <ImageId.h>
 #include <PageId.h>
+#include <PageSequence.h>
 #include <ProcessingOptions.h>
+#include <ProjectFiles.h>
 #include <ProjectPages.h>
 #include <ProjectReader.h>
 #include <ProjectSession.h>
@@ -85,6 +88,29 @@ CommandLineRun::ExitCode runExport(const QString& projectFile,
                                    const std::optional<QString>& formats = std::nullopt) {
   const QFileInfo info(file);
   return run(projectFile, out, err, info.path(), formats, info.fileName());
+}
+
+/**
+ * Runs the tool on the folder \p inputFolder as the new project of it. The options are the folder
+ * mode's: \p projectFile is --project-file; \p dpi, \p dpiFix and \p profile are --dpi,
+ * --dpi-fix and --profile.
+ */
+CommandLineRun::ExitCode runFolder(const QString& inputFolder,
+                                   QString* out,
+                                   QString* err,
+                                   const std::optional<QString>& projectFile = std::nullopt,
+                                   const std::optional<Dpi>& dpi = std::nullopt,
+                                   const std::optional<Dpi>& dpiFix = std::nullopt,
+                                   const QString& profile = QString()) {
+  QTextStream outStream(out);
+  QTextStream errStream(err);
+  CommandLineRun::Options options;
+  options.inputFolder = inputFolder;
+  options.projectFile = projectFile ? *projectFile : QString();
+  options.dpi = dpi;
+  options.dpiFix = dpiFix;
+  options.profile = profile;
+  return CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false));
 }
 
 ProcessingOptions::Formats parsed(const QString& list) {
@@ -624,6 +650,210 @@ BOOST_AUTO_TEST_CASE(test_no_pdf_if_ocr_languages_are_missing) {
                     CommandLineRun::EXPORT_FAILED);
   BOOST_CHECK(err.contains("zzy"));
   BOOST_CHECK(!QFile::exists(dir.filePath("book.txt")));
+}
+
+// ---- The folder mode ----
+
+// The files are taken in SmartFilenameOrdering ("9.png" before "010.png", where the plain text
+// order takes "010.png" first), the subfolder out/ of the default output folder is not read, and
+// other files are only counted.
+BOOST_AUTO_TEST_CASE(test_folder_mode_files_in_smart_order) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir + QStringLiteral("/out")));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/010.png"), 300).imageInfo().empty());
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/9.png"), 300).imageInfo().empty());
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/out/sneaky.png"), 300).imageInfo().empty());
+  BOOST_REQUIRE(Tests::writeFile(inputDir + QStringLiteral("/other.txt"), "text"));
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::SUCCESS);
+  const ProjectReader::FileResult read = ProjectReader::readFile(project_files::defaultProjectFile(inputDir));
+  BOOST_REQUIRE(read.reader);
+  const PageSequence pages = read.reader->pages()->toPageSequence(IMAGE_VIEW);
+  BOOST_CHECK_EQUAL(pages.numPages(), 2);
+  if (pages.numPages() == 2) {
+    BOOST_CHECK(pages.pageAt(0).imageId().filePath().endsWith(QStringLiteral("9.png")));
+    BOOST_CHECK(pages.pageAt(1).imageId().filePath().endsWith(QStringLiteral("010.png")));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_an_empty_folder) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("no images")));
+}
+
+BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_unreadable_files) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(Tests::writeFile(inputDir + QStringLiteral("/broken.png"), "not a png"));
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("broken.png")));
+}
+
+BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_an_existing_project_file) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::SUCCESS);
+  err.clear();
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QDir::toNativeSeparators(project_files::defaultProjectFile(inputDir))));
+}
+
+// Without an option a doubtful resolution is accepted, with a warning that lists the file.
+BOOST_AUTO_TEST_CASE(test_folder_mode_yellow_dpi_warns) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 0).imageInfo().empty());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::SUCCESS);
+  BOOST_CHECK(err.contains(QStringLiteral("page.png")));
+  const ProjectReader::FileResult read = ProjectReader::readFile(project_files::defaultProjectFile(inputDir));
+  BOOST_REQUIRE(read.reader);
+  BOOST_CHECK(read.reader->pages()->toPageSequence(IMAGE_VIEW).pageAt(0).metadata().isDpiOK());
+}
+
+// --dpi sets the DPI of all images; the red pages are refused without it, and a --dpi value that
+// is red for an image is refused as well.
+BOOST_AUTO_TEST_CASE(test_folder_mode_dpi_option) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 1).imageInfo().empty());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, dir.filePath("p1.ScanTailor"), Dpi(300, 300)),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(out.contains(QStringLiteral("DPI: 300 dpi")));
+  const ProjectReader::FileResult read = ProjectReader::readFile(dir.filePath("p1.ScanTailor"));
+  BOOST_REQUIRE(read.reader);
+  BOOST_CHECK(read.reader->pages()->toPageSequence(IMAGE_VIEW).pageAt(0).metadata().dpi() == Dpi(300, 300));
+
+  // A value that is red for an image is refused.
+  QTemporaryDir dir2;
+  BOOST_REQUIRE(dir2.isValid());
+  const QString inputDir2 = dir2.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir2));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir2 + QStringLiteral("/page.png"), 1).imageInfo().empty());
+  err.clear();
+  BOOST_CHECK_EQUAL(runFolder(inputDir2, &out, &err, dir2.filePath("p2.ScanTailor"), Dpi(0, 0)),
+                    CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("red")));
+}
+
+// The doubtful pages are accepted without an option, with a warning; --dpi-fix sets the DPI of
+// the pages that need fixing.
+BOOST_AUTO_TEST_CASE(test_folder_mode_dpi_fix_option) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 72).imageInfo().empty());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::SUCCESS);
+  BOOST_CHECK(err.contains(QStringLiteral("doubtful")));
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, dir.filePath("p1.ScanTailor"), std::nullopt, Dpi(300, 300)),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(out.contains(QStringLiteral("Fixed the DPI of 1 file(s) to 300 dpi")));
+  const ProjectReader::FileResult read = ProjectReader::readFile(dir.filePath("p1.ScanTailor"));
+  BOOST_REQUIRE(read.reader);
+  BOOST_CHECK(read.reader->pages()->toPageSequence(IMAGE_VIEW).pageAt(0).metadata().dpi() == Dpi(300, 300));
+
+  // A value that is red for the page is refused.
+  QTemporaryDir dir2;
+  BOOST_REQUIRE(dir2.isValid());
+  const QString inputDir2 = dir2.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir2));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir2 + QStringLiteral("/page.png"), 0).imageInfo().empty());
+  err.clear();
+  BOOST_CHECK_EQUAL(runFolder(inputDir2, &out, &err, std::nullopt, std::nullopt, Dpi(0, 0)),
+                    CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("red")));
+}
+
+// The built-in profiles are used by name, "Source" is the old name of "Minimal"; a profile that
+// isn't there is refused with its name.
+BOOST_AUTO_TEST_CASE(test_folder_mode_profile_by_name) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+
+  const QPair<QString, QString> cases[] = {
+      {QStringLiteral("Default"), QStringLiteral("Default")},
+      {QStringLiteral("Minimal"), QStringLiteral("Minimal")},
+      {QStringLiteral("Source"), QStringLiteral("Minimal")},
+  };
+  for (const QPair<QString, QString>& c : cases) {
+    QString out;
+    QString err;
+    BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, dir.filePath("p_" + c.first + ".ScanTailor"), std::nullopt,
+                                std::nullopt, c.first),
+                      CommandLineRun::SUCCESS);
+    BOOST_CHECK(out.contains(QStringLiteral("Profile: ") + c.second));
+  }
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, dir.filePath("p_nope.ScanTailor"), std::nullopt, std::nullopt,
+                              QStringLiteral("NoSuchProfile")),
+                    CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("NoSuchProfile")));
+}
+
+// A profile the tool reads from a .stp file; one that can't be read is refused.
+BOOST_AUTO_TEST_CASE(test_folder_mode_profile_by_file) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+
+  const QString profilesDir = dir.filePath("profiles");
+  BOOST_REQUIRE(QDir().mkpath(profilesDir));
+  BOOST_REQUIRE(DefaultParamsProfileManager(profilesDir).writeProfile(DefaultParams(), QStringLiteral("TestProfile")));
+  const QString profileFile = profilesDir + QStringLiteral("/TestProfile.stp");
+  BOOST_REQUIRE(QFile::exists(profileFile));
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(
+      runFolder(inputDir, &out, &err, dir.filePath("p.ScanTailor"), std::nullopt, std::nullopt, profileFile),
+      CommandLineRun::SUCCESS);
+  BOOST_CHECK(out.contains(QStringLiteral("Profile: ") + profileFile));
+
+  err.clear();
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, dir.filePath("p2.ScanTailor"), std::nullopt, std::nullopt,
+                              dir.filePath("NoSuchProfile.stp")),
+                    CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("NoSuchProfile")));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

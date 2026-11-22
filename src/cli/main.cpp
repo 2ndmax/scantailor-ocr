@@ -7,6 +7,7 @@
 
 #include <ApplicationSettings.h>
 #include <CommandLineRun.h>
+#include <CoreUtils.h>
 #include <ImageSizeLimit.h>
 #include <OcrEngine.h>
 #include <SettingsSetup.h>
@@ -59,6 +60,30 @@ class Utf8Console {
   const UINT m_previousCodePage;
 };
 #endif
+
+/**
+ * The DPI of a --dpi/--dpi-fix value: a number, or horizontal and vertical values like 600x300.
+ */
+bool parseDpiValue(const QString& text, Dpi* dpi) {
+  const QStringList parts = text.trimmed().toLower().split(QLatin1Char('x'), Qt::SkipEmptyParts);
+  if (parts.isEmpty() || (parts.size() > 2)) {
+    return false;
+  }
+  bool ok = false;
+  const int horizontal = core::CoreUtils::dpiFromText(parts.at(0), &ok);
+  if (!ok || (horizontal <= 0)) {
+    return false;
+  }
+  int vertical = horizontal;
+  if (parts.size() == 2) {
+    vertical = core::CoreUtils::dpiFromText(parts.at(1), &ok);
+    if (!ok || (vertical <= 0)) {
+      return false;
+    }
+  }
+  *dpi = Dpi(horizontal, vertical);
+  return true;
+}
 }  // namespace
 
 int main(int argc, char* argv[]) {
@@ -112,6 +137,36 @@ int main(int argc, char* argv[]) {
                          "separated by commas or plus signs."),
       CommandLineRun::tr("list"));
   parser.addOption(formatsOption);
+  const QCommandLineOption projectFileOption(
+      QStringLiteral("project-file"),
+      CommandLineRun::tr("The file of the new project instead of the default of the input folder; its folder "
+                         "must exist."),
+      CommandLineRun::tr("file"));
+  parser.addOption(projectFileOption);
+  const QCommandLineOption outputFolderOption(
+      QStringLiteral("output-folder"),
+      CommandLineRun::tr("The folder the output of the new project goes to instead of <input>/out; it is "
+                         "created when it doesn't exist."),
+      CommandLineRun::tr("folder"));
+  parser.addOption(outputFolderOption);
+  const QCommandLineOption profileOption(
+      QStringLiteral("profile"),
+      CommandLineRun::tr("The profile of the new project: its name, or the file of one (a .stp file); without "
+                         "it, the profile of the program is used."),
+      CommandLineRun::tr("name or file"));
+  parser.addOption(profileOption);
+  const QCommandLineOption dpiOption(
+      QStringLiteral("dpi"),
+      CommandLineRun::tr("The DPI of all images of the new project: a number, or horizontal and vertical "
+                         "values like 600x300."),
+      CommandLineRun::tr("n or HxV"));
+  parser.addOption(dpiOption);
+  const QCommandLineOption dpiFixOption(
+      QStringLiteral("dpi-fix"),
+      CommandLineRun::tr("The DPI of the images that need fixing (red and yellow) in the new project: a "
+                         "number, or horizontal and vertical values like 600x300."),
+      CommandLineRun::tr("n or HxV"));
+  parser.addOption(dpiFixOption);
   parser.addPositionalArgument(CommandLineRun::tr("project"), CommandLineRun::tr("The project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
   // message box, while a script expects them in its output.
@@ -137,7 +192,54 @@ int main(int argc, char* argv[]) {
   std::signal(SIGTERM, requestCancel);
 
   CommandLineRun::Options options;
-  options.projectFile = parser.positionalArguments().at(0);
+  const QString argument = parser.positionalArguments().at(0);
+  if (argument.endsWith(QStringLiteral(".ScanTailor"), Qt::CaseInsensitive)) {
+    // The project file: its values are its own; the options of the creation are for the folder mode.
+    if (parser.isSet(projectFileOption)) {
+      err << CommandLineRun::tr(
+          "The project file is the argument of the call; --project-file is for the "
+          "folder mode.")
+          << Qt::endl;
+      return CommandLineRun::USAGE_ERROR;
+    }
+    options.projectFile = argument;
+  } else {
+    // The folder of the new project.
+    options.inputFolder = argument;
+    if (parser.isSet(projectFileOption)) {
+      options.projectFile = parser.value(projectFileOption);
+    }
+    if (parser.isSet(outputFolderOption)) {
+      options.outputFolder = parser.value(outputFolderOption);
+    }
+    if (parser.isSet(profileOption)) {
+      options.profile = parser.value(profileOption);
+    }
+    if (parser.isSet(dpiOption)) {
+      Dpi dpi;
+      if (!parseDpiValue(parser.value(dpiOption), &dpi)) {
+        err << CommandLineRun::tr(
+                   "Unknown DPI after --dpi: %1; pass a number or horizontal and vertical "
+                   "values like 600x300.")
+                   .arg(parser.value(dpiOption))
+            << Qt::endl;
+        return CommandLineRun::USAGE_ERROR;
+      }
+      options.dpi = dpi;
+    }
+    if (parser.isSet(dpiFixOption)) {
+      Dpi dpi;
+      if (!parseDpiValue(parser.value(dpiFixOption), &dpi)) {
+        err << CommandLineRun::tr(
+                   "Unknown DPI after --dpi-fix: %1; pass a number or horizontal and vertical "
+                   "values like 600x300.")
+                   .arg(parser.value(dpiFixOption))
+            << Qt::endl;
+        return CommandLineRun::USAGE_ERROR;
+      }
+      options.dpiFix = dpi;
+    }
+  }
   const bool lastStepSet = parser.isSet(lastStepOption);
   if (lastStepSet && !CommandLineRun::Options::parseLastStep(parser.value(lastStepOption), &options.lastStep)) {
     err << CommandLineRun::tr(

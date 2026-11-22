@@ -11,6 +11,15 @@
 #include <utility>
 #include <vector>
 
+#include <ApplicationSettings.h>
+#include <CoreUtils.h>
+#include <DefaultParamsProfileManager.h>
+#include <DefaultParamsProvider.h>
+#include <Dpi.h>
+#include <SmartFilenameOrdering.h>
+
+#include <QFile>
+
 #include "DefaultParams.h"
 #include "ExportJob.h"
 #include "ImageFileInfo.h"
@@ -82,11 +91,321 @@ QStringList filesWithoutDpi(const ProjectPages& pages) {
   return files;
 }
 
+/** Whether the two folders are the same, by their absolute cleaned paths. */
+bool isSameFolder(const QString& lhs, const QString& rhs) {
+  return QDir::cleanPath(QFileInfo(lhs).absoluteFilePath()) == QDir::cleanPath(QFileInfo(rhs).absoluteFilePath());
+}
+
+/** Whether the DPI \p dpi is red for an image of the pixel size \p size, as ImageMetadata says. */
+bool dpiIsRedFor(const QSize& size, const Dpi& dpi) {
+  return !ImageMetadata(size, dpi).isDpiOK();
+}
+
+/**
+ * The importable images of the folder of a new project, sorted as the app sorts them, loaded
+ * with their metadata. Refuses, after telling \p err, a file that can't be read or is only
+ * partly readable, and when there is none. \p passedOver is filled with the other files of the
+ * folder, which are only counted.
+ */
+bool loadFolderFiles(const QString& inputDir,
+                     QTextStream& err,
+                     std::vector<ImageFileInfo>* files,
+                     QStringList* passedOver) {
+  QFileInfoList all(QDir(inputDir).entryInfoList(QDir::Files));
+  std::sort(all.begin(), all.end(), SmartFilenameOrdering());
+  for (const QFileInfo& file : all) {
+    // The output of the default output folder lies in the input folder; a hidden file is no scan.
+    if (!project_files::isImportableImage(file) || file.isHidden()) {
+      passedOver->append(file.filePath());
+      continue;
+    }
+    QStringList loadErrors;
+    QStringList partialReads;
+    std::optional<ImageFileInfo> loaded = ImageFileInfo::load(file, &loadErrors, &partialReads);
+    if (!loaded.has_value()) {
+      for (const QString& reason : loadErrors) {
+        err << file.filePath() << ": " << reason << Qt::endl;
+      }
+      return false;
+    }
+    if (!loaded->partialReads().isEmpty()) {
+      err << file.filePath() << ": " << CommandLineRun::tr("The file is only partly readable.") << Qt::endl;
+      for (const QString& reason : loaded->partialReads()) {
+        err << "  " << reason << Qt::endl;
+      }
+      return false;
+    }
+    files->push_back(std::move(*loaded));
+  }
+  if (files->empty()) {
+    err << CommandLineRun::tr("The input folder has no images: %1").arg(nativePath(inputDir)) << Qt::endl;
+    return false;
+  }
+  return true;
+}
+
+/**
+ * The new project of the folder: the files of the input folder, the profile and the output
+ * folder, as the Project Files dialog of the app has them, without its questions. Returns false
+ * after telling \p err why it can't be done; \p passedOver is filled with the other files of
+ * the input folder, which are only counted.
+ */
+std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options& options,
+                                                  const QString& projectFile,
+                                                  QTextStream& out,
+                                                  QTextStream& err,
+                                                  QStringList* passedOver) {
+  const QString inputDir = QFileInfo(options.inputFolder).absoluteFilePath();
+  if (!QDir(inputDir).exists()) {
+    err << CommandLineRun::tr("The input folder doesn't exist: %1").arg(nativePath(inputDir)) << Qt::endl;
+    return std::nullopt;
+  }
+  // The output folder: --output-folder, created, or the default <input>/out.
+  QString outDir = project_files::defaultOutputDir(inputDir);
+  if (options.outputFolder) {
+    const QString folder = QFileInfo(*options.outputFolder).absoluteFilePath();
+    const QString reason = path_names::invalidNewPathReason(folder);
+    if (!reason.isEmpty()) {
+      err << reason << Qt::endl;
+      return std::nullopt;
+    }
+    if (isSameFolder(folder, inputDir)) {
+      err << CommandLineRun::tr("The input and the output folders can't be the same.") << Qt::endl;
+      return std::nullopt;
+    }
+    if (!QDir(folder).mkpath(folder)) {
+      err << CommandLineRun::tr("Unable to create the output folder: %1").arg(nativePath(folder)) << Qt::endl;
+      return std::nullopt;
+    }
+    outDir = folder;
+  }
+  // The project file: --project-file or the default of the folder; the default the app creates
+  // on the fly, here it must not exist yet.
+  const QString reason = path_names::invalidNewPathReason(projectFile);
+  if (!reason.isEmpty()) {
+    err << reason << Qt::endl;
+    return std::nullopt;
+  }
+  if (QFileInfo(projectFile).exists()) {
+    err << CommandLineRun::tr("The project file exists: %1. Call the tool with it to process the project.")
+               .arg(nativePath(projectFile))
+        << Qt::endl;
+    return std::nullopt;
+  }
+  if (!QFileInfo(projectFile).absoluteDir().exists()) {
+    err << CommandLineRun::tr("The folder of the project file doesn't exist: %1")
+               .arg(nativePath(QFileInfo(projectFile).absoluteDir().absolutePath()))
+        << Qt::endl;
+    return std::nullopt;
+  }
+
+  // The profile: --profile or the one of the program.
+  DefaultParams startValues;
+  QString profileName;
+  if (!options.profile.isEmpty()) {
+    DefaultParamsProfileManager manager;
+    std::unique_ptr<DefaultParams> profile;
+    if (options.profile.endsWith(QStringLiteral(".stp"), Qt::CaseInsensitive)) {
+      QFile file(options.profile);
+      if (file.open(QIODevice::ReadOnly)) {
+        profile = DefaultParamsProfileManager::readProfile(file);
+      }
+      if (!profile) {
+        err << CommandLineRun::tr("The profile file doesn't exist or can't be read: %1")
+                   .arg(nativePath(options.profile))
+            << Qt::endl;
+        return std::nullopt;
+      }
+      profileName = options.profile;
+    } else {
+      // The built-in profiles, and their old name: "Source" is the old name of "Minimal".
+      const QString name = (options.profile == QLatin1String("Source")) ? QStringLiteral("Minimal") : options.profile;
+      if (name == QLatin1String("Default")) {
+        profile = manager.createDefaultProfile();
+      } else if (name == QLatin1String("Minimal")) {
+        profile = manager.createMinimalProfile();
+      } else {
+        profile = manager.readProfile(name);
+      }
+      if (!profile) {
+        err << CommandLineRun::tr("The profile %1 isn't available.").arg(options.profile) << Qt::endl;
+        return std::nullopt;
+      }
+      profileName = name;
+    }
+    startValues = std::move(*profile);
+  } else {
+    // The profile of the program: refuse it when it is unreadable, as startProfile() reports it
+    // (the name in use differs from the one stored).
+    if (ApplicationSettings::getInstance().getCurrentProfile()
+        != DefaultParamsProvider::getInstance().getProfileName()) {
+      err << CommandLineRun::tr(
+          "The profile of the program isn't readable; pass --profile with the name or the "
+          "file of one.")
+          << Qt::endl;
+      return std::nullopt;
+    }
+    startValues = DefaultParamsProvider::getInstance().getParams();
+    profileName = DefaultParamsProvider::getInstance().getProfileName();
+  }
+  out << CommandLineRun::tr("Profile: %1").arg(profileName) << Qt::endl;
+
+  std::vector<ImageFileInfo> files;
+  if (!loadFolderFiles(inputDir, err, &files, passedOver)) {
+    return std::nullopt;
+  }
+
+  // The red and the yellow of the files: red is no DPI at all or too small to process, yellow a
+  // doubtful one.
+  QStringList yellowFiles;
+  bool redFound = false;
+  for (const ImageFileInfo& file : files) {
+    bool yellow = false;
+    for (const ImageMetadata& metadata : file.imageInfo()) {
+      if (!metadata.isDpiOK()) {
+        redFound = true;
+      } else if (metadata.worseDpiStatus() != ImageMetadata::DPI_OK) {
+        yellow = true;
+      }
+    }
+    if (yellow) {
+      yellowFiles.append(nativePath(file.fileInfo().absoluteFilePath()));
+    }
+  }
+
+  // --dpi: the value must not be red for any image; it is the DPI of all of them.
+  if (options.dpi) {
+    for (const ImageFileInfo& file : files) {
+      for (const ImageMetadata& metadata : file.imageInfo()) {
+        if (dpiIsRedFor(metadata.size(), *options.dpi)) {
+          err << CommandLineRun::tr(
+                     "The DPI value %1 is red for the image %2: it is missing or too small to "
+                     "process.")
+                     .arg(core::CoreUtils::dpiText(options.dpi->horizontal()))
+                     .arg(nativePath(file.fileInfo().absoluteFilePath()))
+              << Qt::endl;
+          return std::nullopt;
+        }
+      }
+    }
+  }
+  // --dpi-fix: the value for the images that need fixing; one that is red for them is refused.
+  if (options.dpiFix) {
+    for (const ImageFileInfo& file : files) {
+      for (const ImageMetadata& metadata : file.imageInfo()) {
+        if (metadata.needsFixing() && dpiIsRedFor(metadata.size(), *options.dpiFix)) {
+          err << CommandLineRun::tr(
+                     "The DPI value %1 is red for the image %2: it is missing or too small to "
+                     "process.")
+                     .arg(core::CoreUtils::dpiText(options.dpiFix->horizontal()))
+                     .arg(nativePath(file.fileInfo().absoluteFilePath()))
+              << Qt::endl;
+          return std::nullopt;
+        }
+      }
+    }
+  }
+  if (!options.dpi && !options.dpiFix && redFound) {
+    err << CommandLineRun::tr(
+        "The resolution (DPI) of these images is missing or too small to process; set it "
+        "once in ScanTailor OCR, or pass --dpi:")
+        << Qt::endl;
+    for (const ImageFileInfo& file : files) {
+      for (const ImageMetadata& metadata : file.imageInfo()) {
+        if (!metadata.isDpiOK()) {
+          err << "  " << nativePath(file.fileInfo().absoluteFilePath()) << Qt::endl;
+          break;
+        }
+      }
+    }
+    return std::nullopt;
+  }
+  // The DPI of the files: --dpi for all of them, --dpi-fix for the ones that need fixing.
+  QStringList fixedFiles;
+  for (ImageFileInfo& file : files) {
+    for (ImageMetadata& metadata : file.imageInfo()) {
+      if (options.dpi) {
+        metadata.setDpi(*options.dpi);
+      } else if (options.dpiFix && metadata.needsFixing()) {
+        metadata.setDpi(*options.dpiFix);
+        if (!fixedFiles.contains(file.fileInfo().absoluteFilePath())) {
+          fixedFiles.append(file.fileInfo().absoluteFilePath());
+        }
+      }
+    }
+  }
+  if (!options.dpi && !options.dpiFix && !yellowFiles.isEmpty()) {
+    err << CommandLineRun::tr("Warning: the resolution of these files is doubtful:") << Qt::endl;
+    for (const QString& file : yellowFiles) {
+      err << "  " << file << Qt::endl;
+    }
+  }
+  if (options.dpi) {
+    out << CommandLineRun::tr("DPI: %1").arg(core::CoreUtils::dpiText(options.dpi->horizontal())) << Qt::endl;
+  }
+  if (options.dpiFix && !fixedFiles.isEmpty()) {
+    out << CommandLineRun::tr("Fixed the DPI of %n file(s) to %1:", nullptr, fixedFiles.size())
+               .arg(core::CoreUtils::dpiText(options.dpiFix->horizontal()))
+        << Qt::endl;
+    for (const QString& file : fixedFiles) {
+      out << "  " << nativePath(file) << Qt::endl;
+    }
+  }
+
+  // The project: its pages take the files, whose DPI is set; its start values and page order
+  // the profile.
+  const std::shared_ptr<ProjectPages> pages
+      = ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder());
+  return ProjectSession::createNew(pages, outDir, inputDir, startValues);
+}
+
+/**
+ * The session of a project file: refuses, after telling \p err, what it can't be processed with
+ * (an older or damaged project, one without images or without a usable DPI).
+ */
+std::optional<ProjectSession> loadExistingProject(const ProjectReader& reader, QTextStream& err) {
+  // The app asks what to do with these; here they are left to the app.
+  if (reader.isFromOlderVersion()) {
+    err << CommandLineRun::tr(
+        "The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once "
+        "in ScanTailor OCR and save it there, then it can be processed here.")
+        << Qt::endl;
+    return std::nullopt;
+  }
+  // Saved here, the project would lose these images from the file without a word.
+  if (reader.numDamagedImages() > 0) {
+    err << CommandLineRun::tr(
+        "The project file is damaged: %n image(s) can't be read. Open the project in ScanTailor OCR, which "
+        "offers a backup copy, and save it there, then it can be processed here.",
+        nullptr, reader.numDamagedImages())
+        << Qt::endl;
+    return std::nullopt;
+  }
+  if (reader.pages()->numImages() == 0) {
+    err << CommandLineRun::tr("The project has no images.") << Qt::endl;
+    return std::nullopt;
+  }
+  const QStringList noDpi = filesWithoutDpi(*reader.pages());
+  if (!noDpi.isEmpty()) {
+    err << CommandLineRun::tr(
+        "The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, "
+        "then the project can be processed here:")
+        << Qt::endl;
+    for (const QString& file : noDpi) {
+      err << "  " << file << Qt::endl;
+    }
+    return std::nullopt;
+  }
+  // The fallback fills in what a project of 1.0.9 to 1.0.12 lacks.
+  return ProjectSession::load(reader, DefaultParams());
+}
+
 /**
  * The checks of the command line that need no project content. Returns the absolute path and
  * name of the exported files through \p exportBase, or false after telling \p err what is wrong.
  */
 bool checkExportOptions(const CommandLineRun::Options& options,
+                        const QString& projectFile,
                         QString* exportBase,
                         ProcessingOptions::Formats* formats,
                         QTextStream& err) {
@@ -105,8 +424,7 @@ bool checkExportOptions(const CommandLineRun::Options& options,
   }
 
   // As in the app: next to the project file and named like it.
-  const QFileInfo defaultBase(
-      project_files::defaultExportBase(QFileInfo(options.projectFile).absoluteFilePath(), QString()));
+  const QFileInfo defaultBase(project_files::defaultExportBase(QFileInfo(projectFile).absoluteFilePath(), QString()));
   const QString name = ExportPaths::nameFromInput(options.exportName ? *options.exportName : defaultBase.fileName());
   const QString folder = options.exportDir ? QFileInfo(*options.exportDir).absoluteFilePath() : defaultBase.path();
   QString reason = path_names::invalidNameReason(name);
@@ -351,55 +669,76 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
                                              QTextStream& out,
                                              QTextStream& err,
                                              const std::atomic<bool>& cancel) {
+  // ---- The usage checks of the command line ----
+  const bool folderMode = !options.inputFolder.isEmpty();
+  if (!folderMode) {
+    // The project of a file: its values are its own; the options of the creation don't apply.
+    if (options.outputFolder) {
+      err << tr("The option --output-folder is only for the folder mode, which creates the project.") << Qt::endl;
+      return USAGE_ERROR;
+    }
+    if (!options.profile.isEmpty()) {
+      err << tr("The option --profile is only for the folder mode; the project knows its start values.") << Qt::endl;
+      return USAGE_ERROR;
+    }
+    if (options.dpi) {
+      err << tr("The option --dpi is only for the folder mode; the project knows the DPI of its images.") << Qt::endl;
+      return USAGE_ERROR;
+    }
+    if (options.dpiFix) {
+      err << tr("The option --dpi-fix is only for the folder mode; the project knows the DPI of its images.")
+          << Qt::endl;
+      return USAGE_ERROR;
+    }
+  } else if (options.dpi && options.dpiFix) {
+    err << tr("The options --dpi and --dpi-fix exclude each other.") << Qt::endl;
+    return USAGE_ERROR;
+  }
+  // --color-mode-detect runs from the Margins step on, the geometry only exists there.
+  if (options.colorModeDetect) {
+    if (!folderMode) {
+      err << tr("The option --color-mode-detect is only for the folder mode.") << Qt::endl;
+      return USAGE_ERROR;
+    }
+    if (options.lastStep < Options::MARGINS) {
+      err << tr("The option --color-mode-detect needs --last-step margins or later.") << Qt::endl;
+      return USAGE_ERROR;
+    }
+  }
   // The export options lead the run to the export; an explicit earlier last step contradicts them.
   if ((options.exportDir || options.exportName || options.formats) && (options.lastStep != Options::EXPORT)) {
     err << tr("The options --export-folder, --export-name and --export-formats need --last-step export.") << Qt::endl;
     return USAGE_ERROR;
   }
-  QString exportBase;
-  ProcessingOptions::Formats namedFormats;
-  if (!checkExportOptions(options, &exportBase, &namedFormats, err)) {
-    return USAGE_ERROR;
-  }
   const bool exporting = options.exports();
 
-  const ProjectReader::FileResult read = ProjectReader::readFile(options.projectFile);
-  if (read.error != ProjectReader::FileError::NONE) {
-    err << nativePath(options.projectFile) << ": " << ProjectReader::errorMessage(read.error) << Qt::endl;
-    return PROJECT_UNUSABLE;
+  // The project file: the one of the project, or the default of the new project of the folder.
+  const QString projectFile
+      = options.projectFile.isEmpty() ? project_files::defaultProjectFile(options.inputFolder) : options.projectFile;
+  QString exportBase;
+  ProcessingOptions::Formats namedFormats;
+  if (!checkExportOptions(options, projectFile, &exportBase, &namedFormats, err)) {
+    return USAGE_ERROR;
   }
-  const ProjectReader& reader = *read.reader;
 
-  // The app asks what to do with these; here they are left to the app.
-  if (reader.isFromOlderVersion()) {
-    err << tr(
-        "The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once "
-        "in ScanTailor OCR and save it there, then it can be processed here.")
-        << Qt::endl;
-    return PROJECT_UNUSABLE;
-  }
-  // Saved here, the project would lose these images from the file without a word.
-  if (reader.numDamagedImages() > 0) {
-    err << tr(
-        "The project file is damaged: %n image(s) can't be read. Open the project in ScanTailor OCR, which "
-        "offers a backup copy, and save it there, then it can be processed here.",
-        nullptr, reader.numDamagedImages())
-        << Qt::endl;
-    return PROJECT_UNUSABLE;
-  }
-  if (reader.pages()->numImages() == 0) {
-    err << tr("The project has no images.") << Qt::endl;
-    return PROJECT_UNUSABLE;
-  }
-  const QStringList noDpi = filesWithoutDpi(*reader.pages());
-  if (!noDpi.isEmpty()) {
-    err << tr(
-        "The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, "
-        "then the project can be processed here:")
-        << Qt::endl;
-    for (const QString& file : noDpi) {
-      err << "  " << file << Qt::endl;
+  // The project session: of the file, or new of the folder. The read result is kept alive: the
+  // reader of a project is used through the run.
+  ProjectReader::FileResult read;
+  const ProjectReader* reader = nullptr;
+  QStringList passedOver;
+  std::optional<ProjectSession> session;
+  if (folderMode) {
+    session = createFolderProject(options, projectFile, out, err, &passedOver);
+  } else {
+    read = ProjectReader::readFile(projectFile);
+    if (read.error != ProjectReader::FileError::NONE) {
+      err << nativePath(projectFile) << ": " << ProjectReader::errorMessage(read.error) << Qt::endl;
+      return PROJECT_UNUSABLE;
     }
+    reader = read.reader.get();
+    session = loadExistingProject(*reader, err);
+  }
+  if (!session) {
     return PROJECT_UNUSABLE;
   }
   ProcessingOptions::Formats formats = namedFormats;
@@ -409,7 +748,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       // REVIEW-NOTE (2026-11): a project saved by 1.0.9 or 1.0.10 has no <processing-options> and no <default-params>,
       // one saved by 1.0.11 or 1.0.12 no <formats> -> the built-in defaults fill them in here, the default profile in
       // the app, so here only PDF is exported. Not fixed because no such projects are in use.
-      formats = reader.readProcessingOptions(ProcessingOptions()).formats;
+      formats = reader ? reader->readProcessingOptions(ProcessingOptions()).formats
+                       : session->stages->processingOptions()->formats;
       if (!formats.any()) {
         err << tr(
             "The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them "
@@ -422,20 +762,17 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       }
     }
     exportPaths = ExportPaths::fromBase(exportBase);
-    if (exportReplacesProjectFile(exportPaths, formats, options.projectFile, *reader.pages(), err)) {
+    if (exportReplacesProjectFile(exportPaths, formats, projectFile, *session->pages, err)) {
       return USAGE_ERROR;
     }
     // Before the processing, which may take long: a wrong name is noticed right away.
     out << tr("The export will create: %1").arg(describeOutputs(exportPaths, formats)) << Qt::endl;
   }
 
-  // The fallback fills in what a project of 1.0.9 to 1.0.12 lacks (see the note above). Projects of still older
-  // versions were refused above.
-  const ProjectSession session = ProjectSession::load(reader, DefaultParams());
-  const StageSequence& stages = *session.stages;
+  const StageSequence& stages = *session->stages;
   // Loading has already recreated a deleted output folder if the project is where it was. Otherwise
   // the output would go to a folder created anew in the old place, and the images may be missing.
-  if (project_files::needsRelinking(*session.pages, session.outFileNameGen.outDir())) {
+  if (project_files::needsRelinking(*session->pages, session->outFileNameGen.outDir())) {
     err << tr(
         "The output folder or some images of the project are missing, for example because the project was "
         "moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.")
@@ -472,14 +809,14 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   }
   // Without thumbnails: they are pixmaps, which need a GUI.
   const StageSequence::ProcessAllResult processed
-      = stages.processAll(nullptr, session.outFileNameGen, runLastFilterIdx, progress);
+      = stages.processAll(nullptr, session->outFileNameGen, runLastFilterIdx, progress);
   for (const StageSequence::PageFailure& failure : processed.failures) {
     err << failureMessage(failure) << Qt::endl;
   }
 
   // Also after a failure or cancelling: the steps stored their results for the pages done.
-  if (!session.write(options.projectFile)) {
-    err << tr("The project file could not be saved: %1").arg(nativePath(options.projectFile)) << Qt::endl;
+  if (!session->write(projectFile)) {
+    err << tr("The project file could not be saved: %1").arg(nativePath(projectFile)) << Qt::endl;
     return PROJECT_UNUSABLE;
   }
 
@@ -505,7 +842,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     return PAGES_FAILED;
   }
   if (needsOutput) {
-    out << tr("Done. The output is in %1").arg(nativePath(session.outFileNameGen.outDir())) << Qt::endl;
+    out << tr("Done. The output is in %1").arg(nativePath(session->outFileNameGen.outDir())) << Qt::endl;
   } else {
     out << tr("Done.") << Qt::endl;
   }
@@ -513,5 +850,5 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   if (!exporting) {
     return SUCCESS;
   }
-  return exportFiles(exportPaths, formats, session, out, err, cancel);
+  return exportFiles(exportPaths, formats, *session, out, err, cancel);
 }
