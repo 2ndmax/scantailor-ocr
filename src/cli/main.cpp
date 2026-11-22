@@ -177,6 +177,13 @@ int main(int argc, char* argv[]) {
       CommandLineRun::tr("The number of threads of the run, instead of the setting of the program; at least 1."),
       CommandLineRun::tr("n"));
   parser.addOption(threadsOption);
+  const QCommandLineOption reportFileOption(
+      QStringLiteral("report-file"),
+      CommandLineRun::tr("The JSON report of the run, written at the end: the mode, the project file, the "
+                         "profile and the last step, the exit code and cancelled, the pages with their DPI, "
+                         "color mode, output file and status, and the exports and the files passed over."),
+      CommandLineRun::tr("file"));
+  parser.addOption(reportFileOption);
   parser.addPositionalArgument(CommandLineRun::tr("project"), CommandLineRun::tr("The project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
   // message box, while a script expects them in its output.
@@ -261,6 +268,9 @@ int main(int argc, char* argv[]) {
       return CommandLineRun::USAGE_ERROR;
     }
     options.threads = threads;
+  }
+  if (parser.isSet(reportFileOption)) {
+    options.reportFile = parser.value(reportFileOption);
   }
   const bool lastStepSet = parser.isSet(lastStepOption);
   if (lastStepSet && !CommandLineRun::Options::parseLastStep(parser.value(lastStepOption), &options.lastStep)) {

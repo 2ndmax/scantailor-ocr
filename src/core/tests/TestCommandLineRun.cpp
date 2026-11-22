@@ -18,6 +18,9 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QRegularExpression>
 #include <QTemporaryDir>
 #include <QTextStream>
@@ -931,6 +934,42 @@ BOOST_AUTO_TEST_CASE(test_threads_option) {
   options.threads = 2;
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
                     CommandLineRun::SUCCESS);
+}
+
+// The report of a run: valid JSON with the fields of the schema of --report-file.
+BOOST_AUTO_TEST_CASE(test_report_file_is_valid_json_with_the_schema) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString reportFile = dir.filePath("report.json");
+
+  CommandLineRun::Options options;
+  options.projectFile = projectFile;
+  options.lastStep = CommandLineRun::Options::MARGINS;
+  options.reportFile = reportFile;
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::SUCCESS);
+  QJsonParseError parseError;
+  const QJsonDocument doc = QJsonDocument::fromJson(Tests::readFile(reportFile), &parseError);
+  BOOST_CHECK(parseError.error == QJsonParseError::NoError);
+  const QJsonObject root = doc.object();
+  BOOST_CHECK_EQUAL(root["schemaVersion"].toInt(), 1);
+  const QJsonObject run = root["run"].toObject();
+  BOOST_CHECK(run.contains("mode") && run.contains("projectFile") && run.contains("profile") && run.contains("lastStep")
+              && run.contains("exitCode") && run.contains("cancelled"));
+  BOOST_CHECK(run["mode"].toString() == QStringLiteral("project"));
+  BOOST_CHECK(run["lastStep"].toString() == QStringLiteral("margins"));
+  BOOST_CHECK_EQUAL(run["exitCode"].toInt(), CommandLineRun::SUCCESS);
+  BOOST_REQUIRE_EQUAL(root["pages"].toArray().size(), 1);
+  const QJsonObject page = root["pages"].toArray()[0].toObject();
+  BOOST_CHECK(page.contains("file") && page.contains("dpi") && page.contains("dpiSource") && page.contains("colorMode")
+              && page.contains("colorModeDetected") && page.contains("outputFile") && page.contains("status"));
+  BOOST_CHECK(page["status"].toString() == QStringLiteral("ok"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

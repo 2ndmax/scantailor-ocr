@@ -87,6 +87,14 @@ class CommandLineRun {
     /** The formats as for parseFormats(). Not set for the formats of the project. */
     std::optional<QString> formats;
 
+    /**
+     * --report-file: the JSON of the run, written at the end, also when pages failed or the run
+     * was cancelled; unset without it. The schema: a "run" object (mode, projectFile, profile,
+     * lastStep, exitCode, cancelled), "pages" (file, page, subPage, dpi, dpiSource, colorMode,
+     * colorModeDetected, outputFile, status, errorKind, reasons) and "exports" and "passedOver".
+     */
+    std::optional<QString> reportFile;
+
     /** Whether the pages are exported after processing, as for lastStep == EXPORT. */
     bool exports() const { return lastStep == EXPORT; }
 

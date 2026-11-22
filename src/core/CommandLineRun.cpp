@@ -4,10 +4,15 @@
 #include "CommandLineRun.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QRegularExpression>
 #include <QTextStream>
 #include <algorithm>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -160,7 +165,8 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
                                                   const QString& projectFile,
                                                   QTextStream& out,
                                                   QTextStream& err,
-                                                  QStringList* passedOver) {
+                                                  QStringList* passedOver,
+                                                  QStringList* fixedFilesOut) {
   const QString inputDir = QFileInfo(options.inputFolder).absoluteFilePath();
   if (!QDir(inputDir).exists()) {
     err << CommandLineRun::tr("The input folder doesn't exist: %1").arg(nativePath(inputDir)) << Qt::endl;
@@ -360,6 +366,9 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
 
   // The project: its pages take the files, whose DPI is set; its start values and page order
   // the profile.
+  if (fixedFilesOut != nullptr) {
+    *fixedFilesOut = fixedFiles;
+  }
   const std::shared_ptr<ProjectPages> pages
       = ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder());
   return ProjectSession::createNew(pages, outDir, inputDir, startValues);
@@ -606,6 +615,138 @@ CommandLineRun::ExitCode exportFiles(const ExportPaths& paths,
   }
   return CommandLineRun::EXPORT_FAILED;
 }
+
+/** The name of a color mode, as the report of --report-file writes it. */
+QString colorModeName(const output::ColorMode mode) {
+  switch (mode) {
+    case output::BLACK_AND_WHITE:
+      return QStringLiteral("black-and-white");
+    case output::COLOR_GRAYSCALE:
+      return QStringLiteral("color-grayscale");
+    case output::MIXED:
+      return QStringLiteral("mixed");
+  }
+  return QString();
+}
+
+/** The name of the kind of a failed page, as the report of --report-file writes it. */
+QString errorKindName(const StageSequence::PageFailure::Kind kind) {
+  switch (kind) {
+    case StageSequence::PageFailure::LOAD_FAILED:
+      return QStringLiteral("LOAD_FAILED");
+    case StageSequence::PageFailure::PROCESSING_FAILED:
+      return QStringLiteral("PROCESSING_FAILED");
+    case StageSequence::PageFailure::OUTPUT_TOO_LARGE:
+      return QStringLiteral("OUTPUT_TOO_LARGE");
+    case StageSequence::PageFailure::OUTPUT_NOT_WRITTEN:
+      return QStringLiteral("OUTPUT_NOT_WRITTEN");
+  }
+  return QString();
+}
+
+/** The key of a page in the report: the file and the page of the file. */
+QString pageKey(const PageId& page) {
+  return page.imageId().filePath() + QLatin1Char('#') + QString::number(static_cast<int>(page.subPage()));
+}
+
+/** The object with the two axes of a DPI. */
+QJsonObject dpiObject(const Dpi& dpi) {
+  QJsonObject object;
+  object["horizontal"] = dpi.horizontal();
+  object["vertical"] = dpi.vertical();
+  return object;
+}
+
+/**
+ * Writes the report of the run to \p reportFile: the schema is the one in the doc of
+ * Options::reportFile. Returns false after telling \p err why it couldn't be written.
+ */
+bool writeReportFile(const QString& reportFile,
+                     const QString& projectFile,
+                     const CommandLineRun::Options& options,
+                     const CommandLineRun::ExitCode exitCode,
+                     const bool cancelled,
+                     const ProjectSession& session,
+                     const QStringList& passedOver,
+                     const std::vector<std::pair<PageId, output::ColorMode>>& detectedPages,
+                     const ExportPaths& exportPaths,
+                     const std::vector<StageSequence::PageFailure>& pageFailures,
+                     const QStringList& fixedFiles,
+                     QTextStream& err) {
+  std::map<QString, const StageSequence::PageFailure*> failuresByPage;
+  for (const StageSequence::PageFailure& failure : pageFailures) {
+    failuresByPage.emplace(pageKey(failure.page), &failure);
+  }
+  std::map<QString, output::ColorMode> detected;
+  for (const std::pair<PageId, output::ColorMode>& entry : detectedPages) {
+    detected.emplace(pageKey(entry.first), entry.second);
+  }
+
+  QJsonArray pages;
+  for (const PageInfo& page : session.pages->toPageSequence(PAGE_VIEW)) {
+    const QFileInfo file(page.imageId().filePath());
+    QJsonObject pageObject;
+    pageObject["file"] = file.filePath();
+    if (page.imageId().isMultiPageFile()) {
+      pageObject["page"] = page.imageId().page();
+    }
+    if (page.id().subPage() != PageId::SINGLE_PAGE) {
+      pageObject["subPage"]
+          = page.id().subPage() == PageId::LEFT_PAGE ? QStringLiteral("left") : QStringLiteral("right");
+    }
+    pageObject["dpi"] = dpiObject(page.metadata().dpi());
+    pageObject["dpiSource"] = (options.dpi || fixedFiles.contains(file.absoluteFilePath()))
+                                  ? QStringLiteral("command-line")
+                                  : QStringLiteral("file");
+    // The color mode is the detected one; the mode the project has when the page wasn't detected
+    // isn't readable here, so the flag says whether there is one.
+    const auto detectedPage = detected.find(pageKey(page.id()));
+    pageObject["colorModeDetected"] = detectedPage != detected.end();
+    pageObject["colorMode"] = detectedPage != detected.end() ? colorModeName(detectedPage->second) : QString();
+    pageObject["outputFile"] = session.outFileNameGen.filePathFor(page.id());
+    const auto failure = failuresByPage.find(pageKey(page.id()));
+    if (failure != failuresByPage.end()) {
+      pageObject["status"] = QStringLiteral("failed");
+      pageObject["errorKind"] = errorKindName(failure->second->kind);
+      pageObject["reasons"] = QJsonArray::fromStringList(failure->second->reasons);
+    } else {
+      pageObject["status"] = QStringLiteral("ok");
+    }
+    pages.append(pageObject);
+  }
+
+  QJsonArray exports;
+  for (const QString& file : {exportPaths.pdf, exportPaths.txt, exportPaths.hocr, exportPaths.altoDir}) {
+    if (!file.isEmpty()) {
+      exports.append(file);
+    }
+  }
+
+  QJsonObject run;
+  run["mode"] = options.inputFolder.isEmpty() ? QStringLiteral("project") : QStringLiteral("folder");
+  run["projectFile"] = nativePath(projectFile);
+  run["profile"] = options.profile.isEmpty() ? DefaultParamsProvider::getInstance().getProfileName() : options.profile;
+  run["lastStep"] = CommandLineRun::Options::stepName(options.lastStep);
+  run["exitCode"] = static_cast<int>(exitCode);
+  run["cancelled"] = cancelled;
+
+  QJsonObject report;
+  report["schemaVersion"] = 1;
+  report["run"] = run;
+  report["pages"] = pages;
+  report["exports"] = exports;
+  report["passedOver"] = QJsonArray::fromStringList(passedOver);
+
+  QFile file(reportFile);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+    err << CommandLineRun::tr("The report file could not be written: %1").arg(nativePath(reportFile)) << Qt::endl;
+    return false;
+  }
+  QTextStream stream(&file);
+  stream << QJsonDocument(report).toJson(QJsonDocument::Indented);
+  file.close();
+  return true;
+}
 }  // namespace
 
 bool CommandLineRun::parseFormats(const QString& list, ProcessingOptions::Formats* formats) {
@@ -675,6 +816,13 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
                                              QTextStream& out,
                                              QTextStream& err,
                                              const std::atomic<bool>& cancel) {
+  // The folder of the report file must exist; the tool writes the report into it at the end.
+  if (options.reportFile && !QDir(QFileInfo(*options.reportFile).absolutePath()).exists()) {
+    err << tr("The folder of the report file doesn't exist: %1")
+               .arg(nativePath(QFileInfo(*options.reportFile).absolutePath()))
+        << Qt::endl;
+    return USAGE_ERROR;
+  }
   // ---- The usage checks of the command line ----
   const bool folderMode = !options.inputFolder.isEmpty();
   if (!folderMode) {
@@ -740,9 +888,10 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   ProjectReader::FileResult read;
   const ProjectReader* reader = nullptr;
   QStringList passedOver;
+  QStringList fixedFiles;
   std::optional<ProjectSession> session;
   if (folderMode) {
-    session = createFolderProject(options, projectFile, out, err, &passedOver);
+    session = createFolderProject(options, projectFile, out, err, &passedOver, &fixedFiles);
   } else {
     read = ProjectReader::readFile(projectFile);
     if (read.error != ProjectReader::FileError::NONE) {
@@ -867,35 +1016,47 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     return PROJECT_UNUSABLE;
   }
 
+  // The exit code of the run; the report file is written with it, also when pages failed or the
+  // run was cancelled.
+  std::optional<ExitCode> exitCode;
   if (processed.cancelled) {
     err << tr("Canceled. The pages output so far keep their output files.") << Qt::endl;
-    return CANCELLED;
+    exitCode = CANCELLED;
   }
   if (!processed.failures.empty()) {
     err << tr("Pages that failed: %1").arg(processed.failures.size()) << Qt::endl;
     if (exporting) {
       err << tr("Nothing was exported, as not all pages were output.") << Qt::endl;
     }
-    return PAGES_FAILED;
+    if (!exitCode) {
+      exitCode = PAGES_FAILED;
+    }
   }
   // A run that stops before the Output step ends there by design; without failures it is a
   // success. At the Output step or later, success also means the pages got output.
   const bool needsOutput = (options.lastStep == Options::OUTPUT) || (options.lastStep == Options::EXPORT);
-  if (needsOutput && !processed.output) {
+  if (needsOutput && !processed.output && !exitCode) {
     err << tr("No page was output.") << Qt::endl;
     if (exporting) {
       err << tr("Nothing was exported, as not all pages were output.") << Qt::endl;
     }
-    return PAGES_FAILED;
+    exitCode = PAGES_FAILED;
   }
-  if (needsOutput) {
-    out << tr("Done. The output is in %1").arg(nativePath(session->outFileNameGen.outDir())) << Qt::endl;
-  } else {
-    out << tr("Done.") << Qt::endl;
+  if (!exitCode) {
+    if (needsOutput) {
+      out << tr("Done. The output is in %1").arg(nativePath(session->outFileNameGen.outDir())) << Qt::endl;
+    } else {
+      out << tr("Done.") << Qt::endl;
+    }
+    if (exporting) {
+      exitCode = exportFiles(exportPaths, formats, *session, out, err, cancel);
+    } else {
+      exitCode = SUCCESS;
+    }
   }
-
-  if (!exporting) {
-    return SUCCESS;
+  if (options.reportFile) {
+    writeReportFile(*options.reportFile, projectFile, options, *exitCode, processed.cancelled, *session, passedOver,
+                    detectedPages, exportPaths, processed.failures, fixedFiles, err);
   }
-  return exportFiles(exportPaths, formats, *session, out, err, cancel);
+  return *exitCode;
 }
