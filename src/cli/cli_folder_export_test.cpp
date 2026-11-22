@@ -54,7 +54,9 @@ int main(int argc, char* argv[]) {
 
   QProcess tool;
   tool.start(app.arguments().at(1),
-             {QStringLiteral("--export-formats=pdf"), QStringLiteral("--report-file=") + reportFile, inputDir});
+             // The built-in profile, so the run doesn't depend on the profile of the machine's settings.
+             {QStringLiteral("--profile=Default"), QStringLiteral("--export-formats=pdf"),
+              QStringLiteral("--report-file=") + reportFile, inputDir});
   if (!tool.waitForStarted(30000) || !tool.waitForFinished(120000)) {
     return fail(QStringLiteral("The command line tool didn't finish."));
   }
