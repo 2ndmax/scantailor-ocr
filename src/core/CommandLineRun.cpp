@@ -126,19 +126,13 @@ bool loadFolderFiles(const QString& inputDir,
   QFileInfoList images = project_files::importableImagesIn(inputDir);
   // The app's Project Files dialog also lists hidden files, so the shared helper keeps them. They
   // are no scans here, and neither is the output of the default output folder in the input folder.
-  QSet<QString> usablePaths;
-  for (auto it = images.begin(); it != images.end();) {
-    if (it->isHidden()) {
-      ++it;
-    } else {
-      usablePaths.insert(it->filePath());
-      ++it;
-    }
-  }
-  images.erase(std::remove_if(images.begin(), images.end(),
-                              [&usablePaths](const QFileInfo& file) { return !usablePaths.contains(file.filePath()); }),
+  images.erase(std::remove_if(images.begin(), images.end(), [](const QFileInfo& file) { return file.isHidden(); }),
                images.end());
   std::sort(images.begin(), images.end(), SmartFilenameOrdering());
+  QSet<QString> usablePaths;
+  for (const QFileInfo& file : images) {
+    usablePaths.insert(file.filePath());
+  }
 
   bool failed = false;
   for (const QFileInfo& file : images) {
