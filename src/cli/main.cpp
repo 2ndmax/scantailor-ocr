@@ -211,51 +211,51 @@ int main(int argc, char* argv[]) {
   CommandLineRun::Options options;
   const QString argument = parser.positionalArguments().at(0);
   if (argument.endsWith(QStringLiteral(".ScanTailor"), Qt::CaseInsensitive)) {
-    // The project file: its values are its own; the options of the creation are for the folder mode.
-    if (parser.isSet(projectFileOption)) {
+    options.projectFile = argument;
+  } else {
+    options.inputFolder = argument;
+  }
+  // The values are read in both modes; run() decides which of them are allowed where. That keeps
+  // the checks of the command line in one place and reports an unusable combination as a usage error.
+  if (parser.isSet(projectFileOption)) {
+    if (options.inputFolder.isEmpty()) {
       err << CommandLineRun::tr(
           "The project file is the argument of the call; --project-file is for the "
           "folder mode.")
           << Qt::endl;
       return CommandLineRun::USAGE_ERROR;
     }
-    options.projectFile = argument;
-  } else {
-    // The folder of the new project.
-    options.inputFolder = argument;
-    if (parser.isSet(projectFileOption)) {
-      options.projectFile = parser.value(projectFileOption);
+    options.projectFile = parser.value(projectFileOption);
+  }
+  if (parser.isSet(outputFolderOption)) {
+    options.outputFolder = parser.value(outputFolderOption);
+  }
+  if (parser.isSet(profileOption)) {
+    options.profile = parser.value(profileOption);
+  }
+  if (parser.isSet(dpiOption)) {
+    Dpi dpi;
+    if (!parseDpiValue(parser.value(dpiOption), &dpi)) {
+      err << CommandLineRun::tr(
+                 "Unknown DPI after --dpi: %1; pass a number or horizontal and vertical "
+                 "values like 600x300.")
+                 .arg(parser.value(dpiOption))
+          << Qt::endl;
+      return CommandLineRun::USAGE_ERROR;
     }
-    if (parser.isSet(outputFolderOption)) {
-      options.outputFolder = parser.value(outputFolderOption);
+    options.dpi = dpi;
+  }
+  if (parser.isSet(dpiFixOption)) {
+    Dpi dpi;
+    if (!parseDpiValue(parser.value(dpiFixOption), &dpi)) {
+      err << CommandLineRun::tr(
+                 "Unknown DPI after --dpi-fix: %1; pass a number or horizontal and vertical "
+                 "values like 600x300.")
+                 .arg(parser.value(dpiFixOption))
+          << Qt::endl;
+      return CommandLineRun::USAGE_ERROR;
     }
-    if (parser.isSet(profileOption)) {
-      options.profile = parser.value(profileOption);
-    }
-    if (parser.isSet(dpiOption)) {
-      Dpi dpi;
-      if (!parseDpiValue(parser.value(dpiOption), &dpi)) {
-        err << CommandLineRun::tr(
-                   "Unknown DPI after --dpi: %1; pass a number or horizontal and vertical "
-                   "values like 600x300.")
-                   .arg(parser.value(dpiOption))
-            << Qt::endl;
-        return CommandLineRun::USAGE_ERROR;
-      }
-      options.dpi = dpi;
-    }
-    if (parser.isSet(dpiFixOption)) {
-      Dpi dpi;
-      if (!parseDpiValue(parser.value(dpiFixOption), &dpi)) {
-        err << CommandLineRun::tr(
-                   "Unknown DPI after --dpi-fix: %1; pass a number or horizontal and vertical "
-                   "values like 600x300.")
-                   .arg(parser.value(dpiFixOption))
-            << Qt::endl;
-        return CommandLineRun::USAGE_ERROR;
-      }
-      options.dpiFix = dpi;
-    }
+    options.dpiFix = dpi;
   }
   options.colorModeDetect = parser.isSet(colorModeDetectOption);
   if (parser.isSet(threadsOption)) {

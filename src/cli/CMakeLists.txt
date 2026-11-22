@@ -38,6 +38,13 @@ if (BUILD_TESTS)
   add_cli_test(cli_export_with_value 1 --export=. "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   # The option is gone; the export runs with --last-step export.
   add_cli_test(cli_old_pdf_option 1 --pdf=book.pdf "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  # The options for creating a project are read in both modes; run() turns them into usage errors
+  # with an existing project. Without that, the missing project below gives exit code 2.
+  add_cli_test(cli_output_folder_with_project 1 --output-folder="${CMAKE_CURRENT_BINARY_DIR}/new-output"
+               "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  add_cli_test(cli_profile_with_project 1 --profile=Default "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  add_cli_test(cli_dpi_with_project 1 --dpi=300 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  add_cli_test(cli_dpi_fix_with_project 1 --dpi-fix=300 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   # CommandLineRun::PROJECT_UNUSABLE
   add_cli_test(cli_missing_project 2 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
 endif()
