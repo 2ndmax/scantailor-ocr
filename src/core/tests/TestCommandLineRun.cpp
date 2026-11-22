@@ -1,9 +1,11 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <ApplicationSettings.h>
 #include <CommandLineRun.h>
 #include <DefaultParams.h>
 #include <DefaultParamsProfileManager.h>
+#include <DefaultParamsProvider.h>
 #include <ImageFileInfo.h>
 #include <ImageId.h>
 #include <PageId.h>
@@ -14,6 +16,7 @@
 #include <ProjectReader.h>
 #include <ProjectSession.h>
 #include <StageSequence.h>
+#include <ThreadBudget.h>
 #include <filters/output/Settings.h>
 
 #include <QDir>
@@ -24,9 +27,11 @@
 #include <QRegularExpression>
 #include <QTemporaryDir>
 #include <QTextStream>
+#include <algorithm>
 #include <atomic>
 #include <boost/test/unit_test.hpp>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -34,6 +39,7 @@ extern "C" {
 #include <tiffio.h>
 }
 
+#include "ScopedMaxThreads.h"
 #include "TestHelpers.h"
 #include "TestTiffFile.h"
 
@@ -192,9 +198,38 @@ bool writePartlyReadableTiff(const QString& path) {
   writeLe(secondIfd + 2 + 12 * secondEntries, 4, static_cast<uint32_t>(data.size()) + 4096);
   return Tests::writeFile(path, data);
 }
+/**
+ * The profile of the program is global state. Keep every test on the built-in Default profile, also
+ * when the machine running the tests has another one in its settings, and put the old state back.
+ */
+class ScopedDefaultProfile {
+ public:
+  ScopedDefaultProfile()
+      : m_settings(ApplicationSettings::getInstance()),
+        m_savedProfile(m_settings.getCurrentProfile()),
+        m_savedParams(DefaultParamsProvider::getInstance().getParams()),
+        m_savedName(DefaultParamsProvider::getInstance().getProfileName()) {
+    DefaultParamsProvider::getInstance().setParams(std::make_unique<DefaultParams>(), QStringLiteral("Default"));
+    m_settings.setCurrentProfile(QStringLiteral("Default"));
+  }
+
+  ~ScopedDefaultProfile() {
+    m_settings.setCurrentProfile(m_savedProfile);
+    DefaultParamsProvider::getInstance().setParams(std::make_unique<DefaultParams>(m_savedParams), m_savedName);
+  }
+
+  ScopedDefaultProfile(const ScopedDefaultProfile&) = delete;
+  ScopedDefaultProfile& operator=(const ScopedDefaultProfile&) = delete;
+
+ private:
+  ApplicationSettings& m_settings;
+  QString m_savedProfile;
+  DefaultParams m_savedParams;
+  QString m_savedName;
+};
 }  // namespace
 
-BOOST_AUTO_TEST_SUITE(CommandLineRunTestSuite)
+BOOST_FIXTURE_TEST_SUITE(CommandLineRunTestSuite, ScopedDefaultProfile)
 
 BOOST_AUTO_TEST_CASE(test_processes_and_saves_the_project) {
   QTemporaryDir dir;
@@ -971,12 +1006,14 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_profile_by_name) {
     BOOST_CHECK(out.contains(QStringLiteral("Profile: ") + c.second));
   }
 
+  // A name that can't exist in the profile folder of this machine, whatever is stored there.
+  const QString missingName = QStringLiteral("NoSuchProfile_") + QFileInfo(dir.path()).baseName();
   QString out;
   QString err;
-  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, dir.filePath("p_nope.ScanTailor"), std::nullopt, std::nullopt,
-                              QStringLiteral("NoSuchProfile")),
-                    CommandLineRun::PROJECT_UNUSABLE);
-  BOOST_CHECK(err.contains(QStringLiteral("NoSuchProfile")));
+  BOOST_CHECK_EQUAL(
+      runFolder(inputDir, &out, &err, dir.filePath("p_nope.ScanTailor"), std::nullopt, std::nullopt, missingName),
+      CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(missingName));
 }
 
 // A profile the tool reads from a .stp file; one that can't be read is refused.
@@ -1005,6 +1042,24 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_profile_by_file) {
                               dir.filePath("NoSuchProfile.stp")),
                     CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(err.contains(QStringLiteral("NoSuchProfile")));
+}
+
+BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_an_unreadable_settings_profile) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+
+  // The stored name differs from the one DefaultParamsProvider was started with, as startProfile()
+  // reports an unreadable profile. The suite fixture puts the old setting back.
+  const QString missingName = QStringLiteral("MissingSettingsProfile_") + QFileInfo(dir.path()).baseName();
+  ApplicationSettings::getInstance().setCurrentProfile(missingName);
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("profile")));
 }
 
 /** Saves a page with a colored picture above black bars, as the color page of the end-to-end test. */
@@ -1096,13 +1151,16 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_color_detect_is_used_by_the_output) {
   BOOST_CHECK(QFileInfo::exists(dir.filePath("p.pdf")));
 }
 
-// --threads: the run gets its budget; a too small value is a usage error.
+// --threads: the run gets its budget, which is restored for the other tests; a too small value is
+// a usage error and leaves the budget alone.
 BOOST_AUTO_TEST_CASE(test_threads_option) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
   const QString projectFile = createProject(dir, 300);
   BOOST_REQUIRE(!projectFile.isEmpty());
 
+  const Tests::ScopedMaxThreads restoreThreads(ThreadBudget::maxThreads());
+  const int saved = ThreadBudget::maxThreads();
   CommandLineRun::Options options;
   options.projectFile = projectFile;
   options.threads = 0;
@@ -1113,10 +1171,34 @@ BOOST_AUTO_TEST_CASE(test_threads_option) {
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
                     CommandLineRun::USAGE_ERROR);
   BOOST_CHECK(!err.isEmpty());
+  BOOST_CHECK_EQUAL(ThreadBudget::maxThreads(), saved);
 
   options.threads = 2;
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
                     CommandLineRun::SUCCESS);
+  BOOST_CHECK_EQUAL(ThreadBudget::maxThreads(), std::min(2, ThreadBudget::availableThreads()));
+}
+
+BOOST_AUTO_TEST_CASE(test_threads_does_not_change_the_budget_on_a_usage_error) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  const Tests::ScopedMaxThreads restoreThreads(ThreadBudget::maxThreads());
+  const int saved = ThreadBudget::maxThreads();
+  CommandLineRun::Options options;
+  options.projectFile = projectFile;
+  options.threads = 2;
+  // Export options without --last-step export are a usage error.
+  options.exportDir = dir.path();
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                    CommandLineRun::USAGE_ERROR);
+  BOOST_CHECK_EQUAL(ThreadBudget::maxThreads(), saved);
 }
 
 // The report of a run: valid JSON with the fields of the schema of --report-file.

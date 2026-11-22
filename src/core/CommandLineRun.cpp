@@ -894,9 +894,6 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     err << tr("The number of threads after --threads is too small; it must be at least 1.") << Qt::endl;
     return USAGE_ERROR;
   }
-  if (options.threads) {
-    ThreadBudget::setMaxThreads(*options.threads);
-  }
   // The export options lead the run to the export; an explicit earlier last step contradicts them.
   if ((options.exportDir || options.exportName || options.formats) && (options.lastStep != Options::EXPORT)) {
     err << tr("The options --export-folder, --export-name and --export-formats need --last-step export.") << Qt::endl;
@@ -911,6 +908,10 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   ProcessingOptions::Formats namedFormats;
   if (!checkExportOptions(options, projectFile, &exportBase, &namedFormats, err)) {
     return USAGE_ERROR;
+  }
+  // Only now that all usage checks passed does the budget of this run replace the program's one.
+  if (options.threads) {
+    ThreadBudget::setMaxThreads(*options.threads);
   }
 
   // The project session: of the file, or new of the folder. The read result is kept alive: the
