@@ -346,9 +346,7 @@ BOOST_AUTO_TEST_CASE(test_wrong_export_options_are_refused_before_anything_else)
   BOOST_CHECK(refused(folder, std::nullopt, QStringLiteral("nul")));
   BOOST_CHECK(refused(folder, std::nullopt, QStringLiteral("book.")));
   BOOST_CHECK(refused(folder, std::nullopt, QStringLiteral("sub/book")));
-  // No folder to put the files into. A file is no folder, and nothing creates a missing one.
-  BOOST_CHECK(refused(dir.filePath("missing"), std::nullopt, std::nullopt));
-  BOOST_CHECK(!QFile::exists(dir.filePath("missing")));
+  // A file is no folder. A missing one is created, see test_export_folder_is_created.
   BOOST_CHECK(refused(dir.filePath("page.png"), std::nullopt, std::nullopt));
   BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
   BOOST_CHECK(!QFile::exists(dir.filePath("project.pdf")));
@@ -520,6 +518,23 @@ BOOST_AUTO_TEST_CASE(test_default_name_follows_the_rule_of_the_app) {
 }
 
 // A typing error in --export must not destroy a file of the project.
+// Folders the tool writes to are created; only folders it reads from have to exist.
+BOOST_AUTO_TEST_CASE(test_export_folder_is_created) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile
+      = createProject(dir, 300, QStringList(), QStringLiteral("out"), formatsOf(true, false, false, false));
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString exportDir = dir.filePath("new/exports");
+  BOOST_REQUIRE(!QFileInfo::exists(exportDir));
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, exportDir, QStringLiteral("pdf")), CommandLineRun::SUCCESS);
+  BOOST_CHECK(QFileInfo(exportDir).isDir());
+  BOOST_CHECK(QFileInfo::exists(exportDir + QStringLiteral("/project.pdf")));
+}
+
 BOOST_AUTO_TEST_CASE(test_export_must_not_replace_the_project_or_an_image) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());

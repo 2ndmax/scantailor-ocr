@@ -450,10 +450,11 @@ bool checkExportOptions(const CommandLineRun::Options& options,
     err << reason << Qt::endl;
     return false;
   }
-  // Without --export-folder it is the folder of the project file. If that is missing, reading the project
-  // fails, which is told with the right exit code.
-  if (options.exportDir && !QFileInfo(folder).isDir()) {
-    err << CommandLineRun::tr("The folder %1 doesn't exist.").arg(nativePath(folder)) << Qt::endl;
+  // Without --export-folder it is the folder of the project file. If that is missing, reading the
+  // project fails, which is told with the right exit code. A folder named on the command line is
+  // one the tool writes to, so it is created here, after all other checks have passed.
+  if (options.exportDir && !QFileInfo(folder).isDir() && !QDir().mkpath(folder)) {
+    err << CommandLineRun::tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
     return false;
   }
   *exportBase = QDir(folder).filePath(name);
