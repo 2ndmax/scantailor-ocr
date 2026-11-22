@@ -54,4 +54,12 @@ if (BUILD_TESTS)
   add_test(NAME cli_folder_export_formats_without_last_step COMMAND cli_folder_export_test
                                                              "$<TARGET_FILE:scantailor-ocr-cli>")
   set_unit_test_environment(cli_folder_export_formats_without_last_step)
+
+  # Ctrl+Break is how another program stops the tool on Windows; elsewhere it sends SIGINT or SIGTERM.
+  if (WIN32)
+    add_executable(cli_ctrl_break_test cli_ctrl_break_test.cpp)
+    target_link_libraries(cli_ctrl_break_test PRIVATE Qt::Core Qt::Gui)
+    add_test(NAME cli_ctrl_break_cancels COMMAND cli_ctrl_break_test "$<TARGET_FILE:scantailor-ocr-cli>")
+    set_unit_test_environment(cli_ctrl_break_cancels)
+  endif()
 endif()

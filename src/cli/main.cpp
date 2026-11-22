@@ -208,6 +208,12 @@ int main(int argc, char* argv[]) {
   // Ctrl+C stops before the next page, so no output file is left half-written.
   std::signal(SIGINT, requestCancel);
   std::signal(SIGTERM, requestCancel);
+#ifdef SIGBREAK
+  // Ctrl+Break, which is how another program stops the tool on Windows: Ctrl+C can't be sent to a tool
+  // started in a process group of its own. Without this, the system ends the tool at once, before the project
+  // is saved.
+  std::signal(SIGBREAK, requestCancel);
+#endif
 
   CommandLineRun::Options options;
   const QString argument = parser.positionalArguments().at(0);
